@@ -161,7 +161,7 @@ public class SpareParts extends PreferenceActivity
                 .getBoolean("compass", false));
             mPinHomePref.setChecked(Settings.System.getInt(
                     getContentResolver(),
-                    "pin_home_in_memory", 0) != 0);
+                    "pin_home_in_memory", 1) != 0);
         } catch (NameNotFoundException e) {
             Log.w(TAG, "Failed reading maps compass");
             e.printStackTrace();
