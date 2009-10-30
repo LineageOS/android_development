@@ -71,7 +71,13 @@
             android:title="@string/title_fancy_ime_animations" 
             android:summaryOn="@string/summary_on_fancy_ime_animations"
             android:summaryOff="@string/summary_off_fancy_ime_animations"/>
-        
+
+        <CheckBoxPreference
+            android:key="launcher_orientation"
+            android:title="@string/title_launcher_orientation"
+            android:summaryOn="@string/summary_on_launcher_orientation"
+            android:summaryOff="@string/summary_off_launcher_orientation" />
+
         <ListPreference
                 android:key="font_size"
                 android:title="@string/title_font_size"

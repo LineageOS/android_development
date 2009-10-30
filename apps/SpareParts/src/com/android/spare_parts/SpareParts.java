@@ -60,6 +60,7 @@ public class SpareParts extends PreferenceActivity
     private static final String MAPS_COMPASS_PREF = "maps_compass";
     private static final String KEY_COMPATIBILITY_MODE = "compatibility_mode";
     private static final String PIN_HOME_PREF = "pin_home";
+    private static final String LAUNCHER_ORIENTATION_PREF = "launcher_orientation";
 
     private final Configuration mCurConfig = new Configuration();
     
@@ -72,6 +73,7 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mShowMapsCompassPref;
     private CheckBoxPreference mCompatibilityMode;
     private CheckBoxPreference mPinHomePref;
+    private CheckBoxPreference mLauncherOrientationPref;
 
     private IWindowManager mWindowManager;
 
@@ -129,6 +131,7 @@ public class SpareParts extends PreferenceActivity
         mEndButtonPref.setOnPreferenceChangeListener(this);
         mShowMapsCompassPref = (CheckBoxPreference) prefSet.findPreference(MAPS_COMPASS_PREF);
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
+        mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
 
         mCompatibilityMode = (CheckBoxPreference) findPreference(KEY_COMPATIBILITY_MODE);
         mCompatibilityMode.setPersistent(false);
@@ -162,6 +165,9 @@ public class SpareParts extends PreferenceActivity
             mPinHomePref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     "pin_home_in_memory", 1) != 0);
+            mLauncherOrientationPref.setChecked(Settings.System.getInt(
+                    getContentResolver(),
+                    "launcher_orientation", 1) != 0);
         } catch (NameNotFoundException e) {
             Log.w(TAG, "Failed reading maps compass");
             e.printStackTrace();
@@ -282,6 +288,9 @@ public class SpareParts extends PreferenceActivity
         } else if (PIN_HOME_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(), "pin_home_in_memory",
                     mPinHomePref.isChecked() ? 1 : 0);
+        } else if (LAUNCHER_ORIENTATION_PREF.equals(key)) {
+            Settings.System.putInt(getContentResolver(), "launcher_orientation",
+                    mLauncherOrientationPref.isChecked() ? 1 : 0);
         }
     }
     
