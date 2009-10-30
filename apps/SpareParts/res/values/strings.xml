@@ -69,6 +69,10 @@
     <string name="summary_on_pin_home">Home app will attempt to to stay in memory</string>
     <string name="summary_off_pin_home">Home app will not be locked in memory</string>
 
+    <string name="title_launcher_orientation">Launcher rotatation</string>
+    <string name="summary_on_launcher_orientation">Launcher will auto-orientate using accelerometer</string>
+    <string name="summary_off_launcher_orientation">Launcher will not auto-orientate</string>
+
     <!-- Sound & display settings screen, compatibility mode check box label -->
     <string name="compatibility_mode_title">Compatibility Mode</string>
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
