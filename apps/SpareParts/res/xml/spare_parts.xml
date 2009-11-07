@@ -106,6 +106,13 @@
                 android:title="@string/compatibility_mode_title"
                 android:summaryOn="@string/compatibility_mode_summary_on"
                 android:summaryOff="@string/compatibility_mode_summary_off" />
+                
+        <CheckBoxPreference
+            android:key="compcache_enabled"
+            android:title="@string/title_compcache_enabled"
+            android:summaryOn="@string/summary_on_compcache_enabled"
+            android:summaryOff="@string/summary_off_compcache_enabled" />
+
     </PreferenceCategory>
             
     <PreferenceCategory
