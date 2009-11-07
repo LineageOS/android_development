@@ -61,7 +61,8 @@ public class SpareParts extends PreferenceActivity
     private static final String KEY_COMPATIBILITY_MODE = "compatibility_mode";
     private static final String PIN_HOME_PREF = "pin_home";
     private static final String LAUNCHER_ORIENTATION_PREF = "launcher_orientation";
-
+    private static final String COMPCACHE_PREF = "compcache_enabled";
+    
     private final Configuration mCurConfig = new Configuration();
     
     private ListPreference mWindowAnimationsPref;
@@ -74,7 +75,8 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mCompatibilityMode;
     private CheckBoxPreference mPinHomePref;
     private CheckBoxPreference mLauncherOrientationPref;
-
+    private CheckBoxPreference mCompcachePref;
+    
     private IWindowManager mWindowManager;
 
     public static boolean updatePreferenceToSpecificActivityOrRemove(Context context,
@@ -132,7 +134,8 @@ public class SpareParts extends PreferenceActivity
         mShowMapsCompassPref = (CheckBoxPreference) prefSet.findPreference(MAPS_COMPASS_PREF);
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
-
+        mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
+        
         mCompatibilityMode = (CheckBoxPreference) findPreference(KEY_COMPATIBILITY_MODE);
         mCompatibilityMode.setPersistent(false);
         mCompatibilityMode.setChecked(Settings.System.getInt(getContentResolver(),
@@ -168,6 +171,9 @@ public class SpareParts extends PreferenceActivity
             mLauncherOrientationPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     "launcher_orientation", 1) != 0);
+            mCompcachePref.setChecked(Settings.Secure.getInt(
+            		getContentResolver(),
+            		Settings.Secure.COMPCACHE_ENABLED, 0) != 0);
         } catch (NameNotFoundException e) {
             Log.w(TAG, "Failed reading maps compass");
             e.printStackTrace();
@@ -291,6 +297,9 @@ public class SpareParts extends PreferenceActivity
         } else if (LAUNCHER_ORIENTATION_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(), "launcher_orientation",
                     mLauncherOrientationPref.isChecked() ? 1 : 0);
+        } else if (COMPCACHE_PREF.equals(key)) {
+        	Settings.Secure.putInt(getContentResolver(), Settings.Secure.COMPCACHE_ENABLED,
+        			mCompcachePref.isChecked() ? 1 : 0);
         }
     }
     
