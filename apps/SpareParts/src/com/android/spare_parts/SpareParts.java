@@ -164,7 +164,7 @@ public class SpareParts extends PreferenceActivity
                 .getBoolean("compass", false));
             mPinHomePref.setChecked(Settings.System.getInt(
                     getContentResolver(),
-                    "pin_home_in_memory", 1) != 0);
+                    "pin_home_in_memory", 0) != 0);
             mLauncherOrientationPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     "launcher_orientation", 1) != 0);
