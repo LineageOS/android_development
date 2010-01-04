@@ -79,14 +79,6 @@
             android:summaryOff="@string/summary_off_launcher_orientation" />
 
         <ListPreference
-                android:key="font_size"
-                android:title="@string/title_font_size"
-                android:summary="@string/summary_font_size"
-                android:entries="@array/entries_font_size"
-                android:entryValues="@array/entryvalues_font_size"
-                android:dialogTitle="@string/dialog_title_font_size" />
-        
-        <ListPreference
                 android:key="end_button"
                 android:title="@string/title_end_button"
                 android:summary="@string/summary_end_button"
@@ -117,12 +109,6 @@
             
     <PreferenceCategory
         android:title="@string/applications_title">
-                
-        <CheckBoxPreference 
-            android:key="maps_compass" 
-            android:title="@string/title_maps_compass" 
-            android:summaryOn="@string/summary_on_maps_compass"
-            android:summaryOff="@string/summary_off_maps_compass"/>
         
         <CheckBoxPreference
             android:key="pin_home"

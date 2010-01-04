@@ -55,9 +55,7 @@ public class SpareParts extends PreferenceActivity
     private static final String TRANSITION_ANIMATIONS_PREF = "transition_animations";
     private static final String FANCY_IME_ANIMATIONS_PREF = "fancy_ime_animations";
     private static final String HAPTIC_FEEDBACK_PREF = "haptic_feedback";
-    private static final String FONT_SIZE_PREF = "font_size";
     private static final String END_BUTTON_PREF = "end_button";
-    private static final String MAPS_COMPASS_PREF = "maps_compass";
     private static final String KEY_COMPATIBILITY_MODE = "compatibility_mode";
     private static final String PIN_HOME_PREF = "pin_home";
     private static final String LAUNCHER_ORIENTATION_PREF = "launcher_orientation";
@@ -69,9 +67,7 @@ public class SpareParts extends PreferenceActivity
     private ListPreference mTransitionAnimationsPref;
     private CheckBoxPreference mFancyImeAnimationsPref;
     private CheckBoxPreference mHapticFeedbackPref;
-    private ListPreference mFontSizePref;
     private ListPreference mEndButtonPref;
-    private CheckBoxPreference mShowMapsCompassPref;
     private CheckBoxPreference mCompatibilityMode;
     private CheckBoxPreference mPinHomePref;
     private CheckBoxPreference mLauncherOrientationPref;
@@ -127,11 +123,8 @@ public class SpareParts extends PreferenceActivity
         mTransitionAnimationsPref.setOnPreferenceChangeListener(this);
         mFancyImeAnimationsPref = (CheckBoxPreference) prefSet.findPreference(FANCY_IME_ANIMATIONS_PREF);
         mHapticFeedbackPref = (CheckBoxPreference) prefSet.findPreference(HAPTIC_FEEDBACK_PREF);
-        mFontSizePref = (ListPreference) prefSet.findPreference(FONT_SIZE_PREF);
-        mFontSizePref.setOnPreferenceChangeListener(this);
         mEndButtonPref = (ListPreference) prefSet.findPreference(END_BUTTON_PREF);
         mEndButtonPref.setOnPreferenceChangeListener(this);
-        mShowMapsCompassPref = (CheckBoxPreference) prefSet.findPreference(MAPS_COMPASS_PREF);
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
         mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
@@ -155,16 +148,12 @@ public class SpareParts extends PreferenceActivity
     }
 
     private void updateToggles() {
-        try {
             mFancyImeAnimationsPref.setChecked(Settings.System.getInt(
                     getContentResolver(), 
                     Settings.System.FANCY_IME_ANIMATIONS, 0) != 0);
             mHapticFeedbackPref.setChecked(Settings.System.getInt(
                     getContentResolver(), 
                     Settings.System.HAPTIC_FEEDBACK_ENABLED, 0) != 0);
-            Context c = createPackageContext("com.google.android.apps.maps", 0);
-            mShowMapsCompassPref.setChecked(c.getSharedPreferences("extra-features", MODE_WORLD_READABLE)
-                .getBoolean("compass", false));
             mPinHomePref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     "pin_home_in_memory", 0) != 0);
@@ -174,10 +163,6 @@ public class SpareParts extends PreferenceActivity
             mCompcachePref.setChecked(Settings.Secure.getInt(
             		getContentResolver(),
             		Settings.Secure.COMPCACHE_ENABLED, 0) != 0);
-        } catch (NameNotFoundException e) {
-            Log.w(TAG, "Failed reading maps compass");
-            e.printStackTrace();
-        }
     }
     
     public boolean onPreferenceChange(Preference preference, Object objValue) {
@@ -185,8 +170,6 @@ public class SpareParts extends PreferenceActivity
             writeAnimationPreference(0, objValue);
         } else if (preference == mTransitionAnimationsPref) {
             writeAnimationPreference(1, objValue);
-        } else if (preference == mFontSizePref) {
-            writeFontSizePreference(objValue);
         } else if (preference == mEndButtonPref) {
             writeEndButtonPreference(objValue);
         }
@@ -210,14 +193,6 @@ public class SpareParts extends PreferenceActivity
             float val = Float.parseFloat(objValue.toString());
             mWindowManager.setAnimationScale(which, val);
         } catch (NumberFormatException e) {
-        } catch (RemoteException e) {
-        }
-    }
-    
-    public void writeFontSizePreference(Object objValue) {
-        try {
-            mCurConfig.fontScale = Float.parseFloat(objValue.toString());
-            ActivityManagerNative.getDefault().updateConfiguration(mCurConfig);
         } catch (RemoteException e) {
         }
     }
@@ -253,16 +228,6 @@ public class SpareParts extends PreferenceActivity
         }
     }
     
-    public void readFontSizePreference(ListPreference pref) {
-        try {
-            mCurConfig.updateFrom(
-                ActivityManagerNative.getDefault().getConfiguration());
-        } catch (RemoteException e) {
-        }
-        pref.setValueIndex(floatToIndex(mCurConfig.fontScale,
-                R.array.entryvalues_font_size));
-    }
-    
     public void readEndButtonPreference(ListPreference pref) {
         try {
             pref.setValueIndex(Settings.System.getInt(getContentResolver(),
@@ -280,17 +245,6 @@ public class SpareParts extends PreferenceActivity
             Settings.System.putInt(getContentResolver(),
                     Settings.System.HAPTIC_FEEDBACK_ENABLED,
                     mHapticFeedbackPref.isChecked() ? 1 : 0);
-        } else if (MAPS_COMPASS_PREF.equals(key)) {
-            try {
-                Context c = createPackageContext("com.google.android.apps.maps", 0);
-                c.getSharedPreferences("extra-features", MODE_WORLD_WRITEABLE)
-                    .edit()
-                    .putBoolean("compass", mShowMapsCompassPref.isChecked())
-                    .commit();
-            } catch (NameNotFoundException e) {
-                Log.w(TAG, "Failed setting maps compass");
-                e.printStackTrace();
-            }
         } else if (PIN_HOME_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(), "pin_home_in_memory",
                     mPinHomePref.isChecked() ? 1 : 0);
@@ -308,7 +262,6 @@ public class SpareParts extends PreferenceActivity
         super.onResume();
         readAnimationPreference(0, mWindowAnimationsPref);
         readAnimationPreference(1, mTransitionAnimationsPref);
-        readFontSizePreference(mFontSizePref);
         readEndButtonPreference(mEndButtonPref);
         updateToggles();
     }
