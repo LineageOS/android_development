@@ -17,15 +17,14 @@
 
 package com.android.spare_parts;
 
-import android.app.ActivityManagerNative;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.preference.CheckBoxPreference;
@@ -36,10 +35,9 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.IWindowManager;
 
+import java.io.File;
 import java.util.List;
 
 public class SpareParts extends PreferenceActivity
@@ -74,6 +72,15 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mCompcachePref;
     
     private IWindowManager mWindowManager;
+
+    private int swapEnabled = -1;
+    
+    private boolean isSwapEnabled() {
+        if (swapEnabled > -1) {
+            swapEnabled = new File("/proc/swaps").exists() ? 1 : 0;
+        }
+        return swapEnabled > 1;
+    }
 
     public static boolean updatePreferenceToSpecificActivityOrRemove(Context context,
             PreferenceGroup parentPreferenceGroup, String preferenceKey, int flags) {
@@ -128,6 +135,11 @@ public class SpareParts extends PreferenceActivity
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
         mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
+        
+        if (!isSwapEnabled()) {
+            mCompcachePref.setChecked(false);
+            mCompcachePref.setEnabled(false);
+        }
         
         mCompatibilityMode = (CheckBoxPreference) findPreference(KEY_COMPATIBILITY_MODE);
         mCompatibilityMode.setPersistent(false);
