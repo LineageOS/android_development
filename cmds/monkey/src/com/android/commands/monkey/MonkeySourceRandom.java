@@ -285,7 +285,7 @@ public class MonkeySourceRandom implements MonkeyEventSource {
     /**
      * set the factors
      *
-     * @param factors: percentages for each type of event
+     * @param factors percentages for each type of event
      */
     public void setFactors(float factors[]) {
         int c = FACTORZ_COUNT;
@@ -475,7 +475,7 @@ public class MonkeySourceRandom implements MonkeyEventSource {
      */
     public MonkeyEvent getNextEvent() {
         if (mQ.isEmpty()) {
-                generateEvents();
+            generateEvents();
         }
         mEventCount++;
         MonkeyEvent e = mQ.getFirst();

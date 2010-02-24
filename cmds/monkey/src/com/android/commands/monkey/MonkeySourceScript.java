@@ -23,461 +23,504 @@ import android.view.KeyEvent;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.StringTokenizer;
+import java.util.NoSuchElementException;
 
-import android.view.KeyEvent;
 /**
- * monkey event queue. It takes a script to produce events
- * 
- * sample script format:
- *      type= raw events
- *      count= 10
- *      speed= 1.0
- *      start data >>
- *      captureDispatchPointer(5109520,5109520,0,230.75429,458.1814,0.20784314,
- *          0.06666667,0,0.0,0.0,65539,0)
- *      captureDispatchKey(5113146,5113146,0,20,0,0,0,0)
- *      captureDispatchFlip(true)
- *      ...
+ * monkey event queue. It takes a script to produce events sample script format:
+ *
+ * <pre>
+ * type= raw events
+ * count= 10
+ * speed= 1.0
+ * start data &gt;&gt;
+ * captureDispatchPointer(5109520,5109520,0,230.75429,458.1814,0.20784314,0.06666667,0,0.0,0.0,65539,0)
+ * captureDispatchKey(5113146,5113146,0,20,0,0,0,0)
+ * captureDispatchFlip(true)
+ * ...
+ * </pre>
  */
-public class MonkeySourceScript implements MonkeyEventSource {    
-    private int mEventCountInScript = 0;  //total number of events in the file
+public class MonkeySourceScript implements MonkeyEventSource {
+    private int mEventCountInScript = 0; // total number of events in the file
+
     private int mVerbose = 0;
+
     private double mSpeed = 1.0;
-    private String mScriptFileName; 
+
+    private String mScriptFileName;
+
     private MonkeyEventQueue mQ;
-    
-    private static final String HEADER_TYPE = "type=";
+
     private static final String HEADER_COUNT = "count=";
+
     private static final String HEADER_SPEED = "speed=";
-    // New script type
-    private static final String USER_EVENT_TYPE = "user";
-    
-    private long mLastRecordedDownTimeKey = 0;    
+
+    private long mLastRecordedDownTimeKey = 0;
+
     private long mLastRecordedDownTimeMotion = 0;
+
     private long mLastExportDownTimeKey = 0;
+
     private long mLastExportDownTimeMotion = 0;
+
     private long mLastExportEventTime = -1;
+
     private long mLastRecordedEventTime = -1;
-    private String mScriptType = USER_EVENT_TYPE;
-    
+
     private static final boolean THIS_DEBUG = false;
-    // a parameter that compensates the difference of real elapsed time and 
+
+    // a parameter that compensates the difference of real elapsed time and
     // time in theory
-    private static final long SLEEP_COMPENSATE_DIFF = 16;    
-    
+    private static final long SLEEP_COMPENSATE_DIFF = 16;
+
     // maximum number of events that we read at one time
     private static final int MAX_ONE_TIME_READS = 100;
-    
-    // number of additional events added to the script 
-    // add HOME_KEY down and up events to make start UI consistent in each round 
-    private static final int POLICY_ADDITIONAL_EVENT_COUNT = 2;
 
-    // event key word in the capture log    
+    // event key word in the capture log
     private static final String EVENT_KEYWORD_POINTER = "DispatchPointer";
+
     private static final String EVENT_KEYWORD_TRACKBALL = "DispatchTrackball";
+
     private static final String EVENT_KEYWORD_KEY = "DispatchKey";
+
     private static final String EVENT_KEYWORD_FLIP = "DispatchFlip";
+
     private static final String EVENT_KEYWORD_KEYPRESS = "DispatchPress";
+
     private static final String EVENT_KEYWORD_ACTIVITY = "LaunchActivity";
+
     private static final String EVENT_KEYWORD_WAIT = "UserWait";
+
     private static final String EVENT_KEYWORD_LONGPRESS = "LongPress";
 
     // a line at the end of the header
-    private static final String STARTING_DATA_LINE = "start data >>";    
-    private boolean mFileOpened = false;    
-    private static int LONGPRESS_WAIT_TIME = 2000; // wait time for the long press
-    
+    private static final String STARTING_DATA_LINE = "start data >>";
+
+    private boolean mFileOpened = false;
+
+    private static int LONGPRESS_WAIT_TIME = 2000; // wait time for the long
+
+    // press
+
     FileInputStream mFStream;
+
     DataInputStream mInputStream;
-    BufferedReader mBufferReader;
-    
+
+    BufferedReader mBufferedReader;
+
+    /**
+     * Creates a MonkeySourceScript instance.
+     *
+     * @param filename The filename of the script (on the device).
+     * @param throttle The amount of time in ms to sleep between events.
+     */
     public MonkeySourceScript(String filename, long throttle) {
         mScriptFileName = filename;
         mQ = new MonkeyEventQueue(throttle);
     }
-    
+
     /**
-     * 
-     * @return the number of total events that will be generated in a round 
+     * Resets the globals used to timeshift events.
      */
-    public int getOneRoundEventCount() {
-        //plus one home key down and up event
-        return mEventCountInScript + POLICY_ADDITIONAL_EVENT_COUNT; 
-    }
-    
     private void resetValue() {
-        mLastRecordedDownTimeKey = 0;    
+        mLastRecordedDownTimeKey = 0;
         mLastRecordedDownTimeMotion = 0;
+        mLastRecordedEventTime = -1;
         mLastExportDownTimeKey = 0;
-        mLastExportDownTimeMotion = 0;    
-        mLastRecordedEventTime = -1;        
+        mLastExportDownTimeMotion = 0;
         mLastExportEventTime = -1;
     }
-    
-    private boolean readScriptHeader() {
-        mEventCountInScript = -1;
-        mFileOpened = false;        
-        try {
-            if (THIS_DEBUG) {
-                System.out.println("reading script header");
-            }
-            
-            mFStream  =  new FileInputStream(mScriptFileName);
-            mInputStream  = new DataInputStream(mFStream);
-            mBufferReader = new BufferedReader(
-                    new InputStreamReader(mInputStream));
-            String sLine;
-            while ((sLine = mBufferReader.readLine()) != null) {
-                sLine = sLine.trim();
-                if (sLine.indexOf(HEADER_TYPE) >= 0) {
-                    mScriptType = sLine.substring(HEADER_TYPE.length() + 1).trim();
-                } else if (sLine.indexOf(HEADER_COUNT) >= 0) {
-                    try {
-                        mEventCountInScript = Integer.parseInt(sLine.substring(
-                                HEADER_COUNT.length() + 1).trim());
-                    } catch (NumberFormatException e) {
-                        System.err.println(e);
-                    }
-                } else if (sLine.indexOf(HEADER_SPEED) >= 0) {
-                    try {
-                        mSpeed = Double.parseDouble(sLine.substring(
-                                HEADER_SPEED.length() + 1).trim());
-                        
-                    } catch (NumberFormatException e) {
-                        System.err.println(e);
-                    }
-                } else if (sLine.indexOf(STARTING_DATA_LINE) >= 0) {
-                    // header ends until we read the start data mark
-                    mFileOpened = true;
-                    if (THIS_DEBUG) {
-                        System.out.println("read script header success");
-                    }    
-                    return true;
-                }
-            }            
-        } catch (FileNotFoundException e) {
-            System.err.println(e);
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-        
-        if (THIS_DEBUG) {
-            System.out.println("Error in reading script header");
-        }        
-        return false;        
-    }    
 
-    private void handleRawEvent(String s, StringTokenizer st) {
-        if (s.indexOf(EVENT_KEYWORD_KEY) >= 0) {
-            // key events
+    /**
+     * Reads the header of the script file.
+     *
+     * @return True if the file header could be parsed, and false otherwise.
+     * @throws IOException If there was an error reading the file.
+     */
+    private boolean readHeader() throws IOException {
+        mFileOpened = true;
+
+        mFStream = new FileInputStream(mScriptFileName);
+        mInputStream = new DataInputStream(mFStream);
+        mBufferedReader = new BufferedReader(new InputStreamReader(mInputStream));
+
+        String line;
+
+        while ((line = mBufferedReader.readLine()) != null) {
+            line = line.trim();
+
+            if (line.indexOf(HEADER_COUNT) >= 0) {
+                try {
+                    String value = line.substring(HEADER_COUNT.length() + 1).trim();
+                    mEventCountInScript = Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    System.err.println(e);
+                    return false;
+                }
+            } else if (line.indexOf(HEADER_SPEED) >= 0) {
+                try {
+                    String value = line.substring(HEADER_COUNT.length() + 1).trim();
+                    mSpeed = Double.parseDouble(value);
+                } catch (NumberFormatException e) {
+                    System.err.println(e);
+                    return false;
+                }
+            } else if (line.indexOf(STARTING_DATA_LINE) >= 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Reads a number of lines and passes the lines to be processed.
+     *
+     * @return The number of lines read.
+     * @throws IOException If there was an error reading the file.
+     */
+    private int readLines() throws IOException {
+        String line;
+        for (int i = 0; i < MAX_ONE_TIME_READS; i++) {
+            line = mBufferedReader.readLine();
+            if (line == null) {
+                return i;
+            }
+            line.trim();
+            processLine(line);
+        }
+        return MAX_ONE_TIME_READS;
+    }
+
+    /**
+     * Creates an event and adds it to the event queue. If the parameters are
+     * not understood, they are ignored and no events are added.
+     *
+     * @param s The entire string from the script file.
+     * @param args An array of arguments extracted from the script file line.
+     */
+    private void handleEvent(String s, String[] args) {
+        // Handle key event
+        if (s.indexOf(EVENT_KEYWORD_KEY) >= 0 && args.length == 8) {
             try {
                 System.out.println(" old key\n");
-                long downTime = Long.parseLong(st.nextToken());
-                long eventTime = Long.parseLong(st.nextToken());
-                int action = Integer.parseInt(st.nextToken());
-                int code = Integer.parseInt(st.nextToken());
-                int repeat = Integer.parseInt(st.nextToken());
-                int metaState = Integer.parseInt(st.nextToken());
-                int device = Integer.parseInt(st.nextToken());
-                int scancode = Integer.parseInt(st.nextToken());
+                long downTime = Long.parseLong(args[0]);
+                long eventTime = Long.parseLong(args[1]);
+                int action = Integer.parseInt(args[2]);
+                int code = Integer.parseInt(args[3]);
+                int repeat = Integer.parseInt(args[4]);
+                int metaState = Integer.parseInt(args[5]);
+                int device = Integer.parseInt(args[6]);
+                int scancode = Integer.parseInt(args[7]);
 
-                MonkeyKeyEvent e =
-                        new MonkeyKeyEvent(downTime, eventTime, action, code, repeat, metaState,
-                                device, scancode);
+                MonkeyKeyEvent e = new MonkeyKeyEvent(downTime, eventTime, action, code, repeat,
+                        metaState, device, scancode);
                 System.out.println(" Key code " + code + "\n");
 
                 mQ.addLast(e);
                 System.out.println("Added key up \n");
-
             } catch (NumberFormatException e) {
-                // something wrong with this line in the script
             }
-        } else if (s.indexOf(EVENT_KEYWORD_POINTER) >= 0 || 
-                s.indexOf(EVENT_KEYWORD_TRACKBALL) >= 0) {
-            // trackball/pointer event
+            return;
+        }
+
+        // Handle trackball or pointer events
+        if ((s.indexOf(EVENT_KEYWORD_POINTER) >= 0 || s.indexOf(EVENT_KEYWORD_TRACKBALL) >= 0)
+                && args.length == 12) {
             try {
-                long downTime = Long.parseLong(st.nextToken());
-                long eventTime = Long.parseLong(st.nextToken());
-                int action = Integer.parseInt(st.nextToken());
-                float x = Float.parseFloat(st.nextToken());
-                float y = Float.parseFloat(st.nextToken());
-                float pressure = Float.parseFloat(st.nextToken());
-                float size = Float.parseFloat(st.nextToken());
-                int metaState = Integer.parseInt(st.nextToken());
-                float xPrecision = Float.parseFloat(st.nextToken());
-                float yPrecision = Float.parseFloat(st.nextToken());
-                int device = Integer.parseInt(st.nextToken());
-                int edgeFlags = Integer.parseInt(st.nextToken());
+                long downTime = Long.parseLong(args[0]);
+                long eventTime = Long.parseLong(args[1]);
+                int action = Integer.parseInt(args[2]);
+                float x = Float.parseFloat(args[3]);
+                float y = Float.parseFloat(args[4]);
+                float pressure = Float.parseFloat(args[5]);
+                float size = Float.parseFloat(args[6]);
+                int metaState = Integer.parseInt(args[7]);
+                float xPrecision = Float.parseFloat(args[8]);
+                float yPrecision = Float.parseFloat(args[9]);
+                int device = Integer.parseInt(args[10]);
+                int edgeFlags = Integer.parseInt(args[11]);
 
                 int type = MonkeyEvent.EVENT_TYPE_TRACKBALL;
                 if (s.indexOf("Pointer") > 0) {
                     type = MonkeyEvent.EVENT_TYPE_POINTER;
                 }
-                MonkeyMotionEvent e =
-                        new MonkeyMotionEvent(type, downTime, eventTime, action, x, y, pressure,
-                                size, metaState, xPrecision, yPrecision, device, edgeFlags);
+                MonkeyMotionEvent e = new MonkeyMotionEvent(type, downTime, eventTime, action, x,
+                        y, pressure, size, metaState, xPrecision, yPrecision, device, edgeFlags);
                 mQ.addLast(e);
             } catch (NumberFormatException e) {
-                // we ignore this event
             }
-        } else if (s.indexOf(EVENT_KEYWORD_FLIP) >= 0) {
-            boolean keyboardOpen = Boolean.parseBoolean(st.nextToken());
+            return;
+        }
+
+        // Handle flip events
+        if (s.indexOf(EVENT_KEYWORD_FLIP) >= 0 && args.length == 1) {
+            boolean keyboardOpen = Boolean.parseBoolean(args[0]);
             MonkeyFlipEvent e = new MonkeyFlipEvent(keyboardOpen);
             mQ.addLast(e);
         }
 
-    }
-
-    private void handleUserEvent(String s, StringTokenizer st) {
-        if (s.indexOf(EVENT_KEYWORD_ACTIVITY) >= 0) {
-            String pkg_name = st.nextToken();
-            String cl_name = st.nextToken();
+        // Handle launch events
+        if (s.indexOf(EVENT_KEYWORD_ACTIVITY) >= 0 && args.length == 2) {
+            String pkg_name = args[0];
+            String cl_name = args[1];
             ComponentName mApp = new ComponentName(pkg_name, cl_name);
             MonkeyActivityEvent e = new MonkeyActivityEvent(mApp);
             mQ.addLast(e);
+            return;
+        }
 
-        } else if (s.indexOf(EVENT_KEYWORD_WAIT) >= 0) {
-            long sleeptime = Integer.parseInt(st.nextToken());
-            MonkeyWaitEvent e = new MonkeyWaitEvent(sleeptime);
-            mQ.addLast(e);
+        // Handle wait events
+        if (s.indexOf(EVENT_KEYWORD_WAIT) >= 0 && args.length == 1) {
+            try {
+                long sleeptime = Integer.parseInt(args[0]);
+                MonkeyWaitEvent e = new MonkeyWaitEvent(sleeptime);
+                mQ.addLast(e);
+            } catch (NumberFormatException e) {
+            }
+            return;
+        }
 
-        } else if (s.indexOf(EVENT_KEYWORD_KEYPRESS) >= 0) {
-            String key_name = st.nextToken();
+        // Handle keypress events
+        if (s.indexOf(EVENT_KEYWORD_KEYPRESS) >= 0 && args.length == 1) {
+            String key_name = args[0];
             int keyCode = MonkeySourceRandom.getKeyCode(key_name);
             MonkeyKeyEvent e = new MonkeyKeyEvent(KeyEvent.ACTION_DOWN, keyCode);
             mQ.addLast(e);
             e = new MonkeyKeyEvent(KeyEvent.ACTION_UP, keyCode);
             mQ.addLast(e);
-        } else if (s.indexOf(EVENT_KEYWORD_LONGPRESS) >= 0) {
-            // handle the long press
-            MonkeyKeyEvent e = new MonkeyKeyEvent(KeyEvent.ACTION_DOWN,
-                    KeyEvent.KEYCODE_DPAD_CENTER);
+            return;
+        }
+
+        // Handle longpress events
+        if (s.indexOf(EVENT_KEYWORD_LONGPRESS) >= 0) {
+            MonkeyKeyEvent e;
+            e = new MonkeyKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER);
             mQ.addLast(e);
             MonkeyWaitEvent we = new MonkeyWaitEvent(LONGPRESS_WAIT_TIME);
             mQ.addLast(we);
-            e = new MonkeyKeyEvent(KeyEvent.ACTION_UP,
-                    KeyEvent.KEYCODE_DPAD_CENTER);
+            e = new MonkeyKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER);
             mQ.addLast(e);
         }
     }
 
-    private void processLine(String s) {
-        int index1 = s.indexOf('(');
-        int index2 = s.indexOf(')');
+    /**
+     * Extracts an event and a list of arguments from a line. If the line does
+     * not match the format required, it is ignored.
+     *
+     * @param line A string in the form {@code cmd(arg1,arg2,arg3)}.
+     */
+    private void processLine(String line) {
+        int index1 = line.indexOf('(');
+        int index2 = line.indexOf(')');
 
         if (index1 < 0 || index2 < 0) {
             return;
         }
 
-        StringTokenizer st = new StringTokenizer(
-                s.substring(index1 + 1, index2), ",");
-        if (mScriptType.compareTo(USER_EVENT_TYPE) == 0) {
-            // User event type
-            handleUserEvent(s, st);
-        } else {
-            // Raw type
-            handleRawEvent(s,st);
+        String[] args = line.substring(index1 + 1, index2).split(",");
+
+        for (int i = 0; i < args.length; i++) {
+            args[i] = args[i].trim();
         }
+
+        handleEvent(line, args);
     }
 
-    private void closeFile() {
-        mFileOpened = false;        
-        if (THIS_DEBUG) {
-            System.out.println("closing script file");
-        }
-        
+    /**
+     * Closes the script file.
+     *
+     * @throws IOException If there was an error closing the file.
+     */
+    private void closeFile() throws IOException {
+        mFileOpened = false;
+
         try {
             mFStream.close();
             mInputStream.close();
-        } catch (IOException e) {
-            System.out.println(e);
+        } catch (NullPointerException e) {
+            // File was never opened so it can't be closed.
         }
     }
-    
+
     /**
-     * add home key press/release event to the queue
+     * Read next batch of events from the script file into the event queue.
+     * Checks if the script is open and then reads the next MAX_ONE_TIME_READS
+     * events or reads until the end of the file. If no events are read, then
+     * the script is closed.
+     *
+     * @throws IOException If there was an error reading the file.
      */
-    private void addHomeKeyEvent() {        
-        MonkeyKeyEvent e = new MonkeyKeyEvent(KeyEvent.ACTION_DOWN, 
-                KeyEvent.KEYCODE_HOME);
-        mQ.addLast(e);        
-        e = new MonkeyKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HOME);
-        mQ.addLast(e);
-    }
-    
-    /**
-      * read next batch of events from the provided script file
-     * @return true if success
-     */
-    private boolean readNextBatch() {
-        /*
-         * The script should restore the original state when it run multiple
-         * times.
-         */
-        String sLine = null;
-        int readCount = 0;
+    private void readNextBatch() throws IOException {
+        int linesRead = 0;
 
         if (THIS_DEBUG) {
             System.out.println("readNextBatch(): reading next batch of events");
         }
 
         if (!mFileOpened) {
-            if (!readScriptHeader()) {
-                closeFile();
-                return false;
-            }
             resetValue();
+            readHeader();
         }
-        
-        try {            
-            while (readCount++ < MAX_ONE_TIME_READS &&                    
-                   (sLine = mBufferReader.readLine()) != null) {
-                sLine = sLine.trim();                        
-                processLine(sLine);
-            }
-        } catch (IOException e) {
-            System.err.println(e);
-            return false;
-        }
-        
-        if (sLine == null) {
-            // to the end of the file
-            if (THIS_DEBUG) {
-                System.out.println("readNextBatch(): to the end of file");
-            }
+
+        linesRead = readLines();
+
+        if (linesRead == 0) {
             closeFile();
-        }        
-        return true;
+        }
     }
-    
+
     /**
-     * sleep for a period of given time, introducing latency among events
-     * @param time to sleep in millisecond
+     * Sleep for a period of given time. Used to introduce latency between
+     * events.
+     *
+     * @param time The amount of time to sleep in ms
      */
-    private void needSleep(long time) {        
+    private void needSleep(long time) {
         if (time < 1) {
-            return;    
-        }        
+            return;
+        }
         try {
             Thread.sleep(time);
-        } catch (InterruptedException e) {            
-        }        
-    }    
-    
+        } catch (InterruptedException e) {
+        }
+    }
+
     /**
-     * check whether we can successfully read the header of the script file
+     * Checks if the file can be opened and if the header is valid.
+     *
+     * @return True if the file exists and the header is valid, false otherwise.
      */
     public boolean validate() {
-        boolean b = readNextBatch(); 
-        if (mVerbose > 0) {
-            System.out.println("Replaying " + mEventCountInScript + 
-                    " events with speed " + mSpeed);
+        boolean validHeader;
+        try {
+            validHeader = readHeader();
+            closeFile();
+        } catch (IOException e) {
+            return false;
         }
-        return b;        
+
+        if (mVerbose > 0) {
+            System.out.println("Replaying " + mEventCountInScript + " events with speed " + mSpeed);
+        }
+        return validHeader;
     }
-    
+
     public void setVerbose(int verbose) {
         mVerbose = verbose;
     }
-    
+
     /**
-     * adjust key downtime and eventtime according to both  
-     * recorded values and current system time 
-     * @param e KeyEvent
+     * Adjust key downtime and eventtime according to both recorded values and
+     * current system time.
+     *
+     * @param e A KeyEvent
      */
     private void adjustKeyEventTime(MonkeyKeyEvent e) {
         if (e.getEventTime() < 0) {
             return;
-        }      
+        }
         long thisDownTime = 0;
         long thisEventTime = 0;
         long expectedDelay = 0;
-        
+
         if (mLastRecordedEventTime <= 0) {
-            // first time event            
+            // first time event
             thisDownTime = SystemClock.uptimeMillis();
             thisEventTime = thisDownTime;
-        } else {            
+        } else {
             if (e.getDownTime() != mLastRecordedDownTimeKey) {
                 thisDownTime = e.getDownTime();
             } else {
                 thisDownTime = mLastExportDownTimeKey;
-            }            
-            expectedDelay = (long) ((e.getEventTime() - 
-                    mLastRecordedEventTime) * mSpeed);            
+            }
+            expectedDelay = (long) ((e.getEventTime() - mLastRecordedEventTime) * mSpeed);
             thisEventTime = mLastExportEventTime + expectedDelay;
             // add sleep to simulate everything in recording
             needSleep(expectedDelay - SLEEP_COMPENSATE_DIFF);
-        }        
+        }
         mLastRecordedDownTimeKey = e.getDownTime();
-        mLastRecordedEventTime = e.getEventTime();         
+        mLastRecordedEventTime = e.getEventTime();
         e.setDownTime(thisDownTime);
-        e.setEventTime(thisEventTime);        
+        e.setEventTime(thisEventTime);
         mLastExportDownTimeKey = thisDownTime;
-        mLastExportEventTime =  thisEventTime;
+        mLastExportEventTime = thisEventTime;
     }
-    
+
     /**
-     * adjust motion downtime and eventtime according to both  
-     * recorded values and current system time 
-     * @param e KeyEvent
+     * Adjust motion downtime and eventtime according to both recorded values
+     * and current system time.
+     *
+     * @param e A KeyEvent
      */
     private void adjustMotionEventTime(MonkeyMotionEvent e) {
         if (e.getEventTime() < 0) {
             return;
-        }      
+        }
         long thisDownTime = 0;
         long thisEventTime = 0;
         long expectedDelay = 0;
-        
+
         if (mLastRecordedEventTime <= 0) {
-            // first time event            
+            // first time event
             thisDownTime = SystemClock.uptimeMillis();
             thisEventTime = thisDownTime;
-        } else {            
+        } else {
             if (e.getDownTime() != mLastRecordedDownTimeMotion) {
                 thisDownTime = e.getDownTime();
             } else {
                 thisDownTime = mLastExportDownTimeMotion;
-            }            
-            expectedDelay = (long) ((e.getEventTime() - 
-                    mLastRecordedEventTime) * mSpeed);            
+            }
+            expectedDelay = (long) ((e.getEventTime() - mLastRecordedEventTime) * mSpeed);
             thisEventTime = mLastExportEventTime + expectedDelay;
             // add sleep to simulate everything in recording
             needSleep(expectedDelay - SLEEP_COMPENSATE_DIFF);
         }
-        
+
         mLastRecordedDownTimeMotion = e.getDownTime();
-        mLastRecordedEventTime = e.getEventTime();         
+        mLastRecordedEventTime = e.getEventTime();
         e.setDownTime(thisDownTime);
-        e.setEventTime(thisEventTime);        
+        e.setEventTime(thisEventTime);
         mLastExportDownTimeMotion = thisDownTime;
-        mLastExportEventTime =  thisEventTime;
-    }    
-    
+        mLastExportEventTime = thisEventTime;
+    }
+
     /**
-     * if the queue is empty, we generate events first
-     * @return the first event in the queue, if null, indicating the system crashes 
+     * Gets the next event to be injected from the script. If the event queue is
+     * empty, reads the next n events from the script into the queue, where n is
+     * the lesser of the number of remaining events and the value specified by
+     * MAX_ONE_TIME_READS. If the end of the file is reached, no events are
+     * added to the queue and null is returned.
+     *
+     * @return The first event in the event queue or null if the end of the file
+     *         is reached or if an error is encountered reading the file.
      */
     public MonkeyEvent getNextEvent() {
         long recordedEventTime = -1;
-        
+        MonkeyEvent ev;
+
         if (mQ.isEmpty()) {
-            readNextBatch();
+            try {
+                readNextBatch();
+            } catch (IOException e) {
+                return null;
+            }
         }
-        MonkeyEvent e = mQ.getFirst();
-        mQ.removeFirst();
-        if (e.getEventType() == MonkeyEvent.EVENT_TYPE_KEY) {
-            adjustKeyEventTime((MonkeyKeyEvent) e);        
-        } else if (e.getEventType() == MonkeyEvent.EVENT_TYPE_POINTER || 
-                e.getEventType() == MonkeyEvent.EVENT_TYPE_TRACKBALL) {
-            adjustMotionEventTime((MonkeyMotionEvent) e);
+
+        try {
+            ev = mQ.getFirst();
+            mQ.removeFirst();
+        } catch (NoSuchElementException e) {
+            return null;
         }
-        return e;
+
+        if (ev.getEventType() == MonkeyEvent.EVENT_TYPE_KEY) {
+            adjustKeyEventTime((MonkeyKeyEvent) ev);
+        } else if (ev.getEventType() == MonkeyEvent.EVENT_TYPE_POINTER
+                || ev.getEventType() == MonkeyEvent.EVENT_TYPE_TRACKBALL) {
+            adjustMotionEventTime((MonkeyMotionEvent) ev);
+        }
+        return ev;
     }
 }
