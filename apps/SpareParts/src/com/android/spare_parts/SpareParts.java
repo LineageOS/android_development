@@ -57,6 +57,7 @@ public class SpareParts extends PreferenceActivity
     private static final String KEY_COMPATIBILITY_MODE = "compatibility_mode";
     private static final String PIN_HOME_PREF = "pin_home";
     private static final String LAUNCHER_ORIENTATION_PREF = "launcher_orientation";
+    private static final String BATTERY_STATUS_PREF = "battery_status";
     private static final String COMPCACHE_PREF = "compcache_enabled";
     
     private final Configuration mCurConfig = new Configuration();
@@ -69,8 +70,9 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mCompatibilityMode;
     private CheckBoxPreference mPinHomePref;
     private CheckBoxPreference mLauncherOrientationPref;
+    private CheckBoxPreference mBatteryStatusPref;
     private CheckBoxPreference mCompcachePref;
-    
+
     private IWindowManager mWindowManager;
 
     private int swapEnabled = -1;
@@ -134,6 +136,7 @@ public class SpareParts extends PreferenceActivity
         mEndButtonPref.setOnPreferenceChangeListener(this);
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
+        mBatteryStatusPref = (CheckBoxPreference) prefSet.findPreference(BATTERY_STATUS_PREF);
         mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
         
         if (!isSwapEnabled()) {
@@ -172,6 +175,9 @@ public class SpareParts extends PreferenceActivity
             mLauncherOrientationPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     "launcher_orientation", 1) != 0);
+            mBatteryStatusPref.setChecked(Settings.System.getInt(
+                    getContentResolver(),
+                    Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 1) != 0);
             mCompcachePref.setChecked(Settings.Secure.getInt(
             		getContentResolver(),
             		Settings.Secure.COMPCACHE_ENABLED, 0) != 0);
@@ -263,6 +269,10 @@ public class SpareParts extends PreferenceActivity
         } else if (LAUNCHER_ORIENTATION_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(), "launcher_orientation",
                     mLauncherOrientationPref.isChecked() ? 1 : 0);
+        } else if (BATTERY_STATUS_PREF.equals(key)) {
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,
+                    mBatteryStatusPref.isChecked() ? 1 : 0);
         } else if (COMPCACHE_PREF.equals(key)) {
         	Settings.Secure.putInt(getContentResolver(), Settings.Secure.COMPCACHE_ENABLED,
         			mCompcachePref.isChecked() ? 1 : 0);

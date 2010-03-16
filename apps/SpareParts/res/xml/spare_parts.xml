@@ -100,6 +100,12 @@
                 android:summaryOff="@string/compatibility_mode_summary_off" />
                 
         <CheckBoxPreference
+                android:key="battery_status"
+                android:title="@string/battery_status_title"
+                android:summaryOn="@string/battery_status_summary_on"
+                android:summaryOff="@string/battery_status_summary_off" />
+
+        <CheckBoxPreference
             android:key="compcache_enabled"
             android:title="@string/title_compcache_enabled"
             android:summaryOn="@string/summary_on_compcache_enabled"
