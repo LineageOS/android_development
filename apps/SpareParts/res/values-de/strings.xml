@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="device_info_title">Infos zum Gerät</string>
+
+  <string name="title_battery_history">Batterie Nutzung</string>
+  <string name="summary_battery_history">Zusammenfassung der Batterienutzung</string>
+
+  <string name="title_battery_information">Infos zur Batterie</string>
+  <string name="summary_battery_information">Batterie Statusinformationen</string>
+
+  <string name="title_usage_statistics">Nutzungsstatistiken</string>
+  <string name="summary_usage_statistics">Zusammenfassung zur Nutzung von Anwendungen</string>
+
+  <string name="general_title">Allgemein</string>
+
+  <string name="title_window_animations">Fensteranimationen</string>
+  <string name="summary_window_animations">Animationsgeschwindigkeit von Fenstern</string>
+  <string name="dialog_title_window_animations">Geschwindigkeit wählen</string>
+
+  <string name="title_transition_animations">Übergangsanimationen</string>
+  <string name="summary_transition_animations">Animationsgeschwindigkeit beim Anzeigenwechsel.</string>
+  <string name="dialog_title_transition_animations">Geschwindigkeit wählen</string>
+
+  <string name="title_fancy_ime_animations">Schicke Eingabeanimationen</string>
+  <string name="summary_on_fancy_ime_animations">Nutze schönere Animationen für Eingabefenster.</string>
+  <string name="summary_off_fancy_ime_animations">Nutze normale Animationen für Eingabefenster.</string>
+
+  <string name="title_haptic_feedback">Haptisches Feedback</string>
+  <string name="summary_on_haptic_feedback">Nutze haptisches Feedback mit Nutzerinteraktion.</string>
+  <string name="summary_off_haptic_feedback">Keine Nutzung von haptischem Feedback.</string>
+
+  <string name="title_end_button">Verhalten von Endetaste</string>
+  <string name="summary_end_button">Wähle Aktion für Endetaste (rot)</string>
+  <string name="dialog_title_end_button">Wähle Endetaste</string>
+
+  <string name="applications_title">Anwendungen</string>
+
+  <string name="title_pin_home">Home App in Speicher</string>
+  <string name="summary_on_pin_home">Home App wird versuchen im Speicher zu bleiben.</string>
+  <string name="summary_off_pin_home">Home App wird nicht gezwungen im Speicher zu beliben.</string>
+
+  <string name="title_launcher_orientation">Launcher Drehung</string>
+  <string name="summary_on_launcher_orientation">Launcher richtet sich neu aus bei Drehung. (Beschleunigungsmesser nutzen)</string>
+  <string name="summary_off_launcher_orientation">Launcher reagiert nicht auf Drehung des Gerätes</string>
+
+  <string name="battery_status_title">Batterie Statusanzeige</string>
+  <string name="battery_status_summary_on">Batterieladung in Prozent wird in der Statusleiste angezeigt.</string>
+  <string name="battery_status_summary_off">Batterieladung in Prozent wird nicht in der Statusleiste angezeigt.</string>
+
+	<string name="title_compcache_enabled">Compcache einschalten</string>
+	<string name="summary_on_compcache_enabled">Komprimiertes Caching ist eingeschaltet.</string>
+	<string name="summary_off_compcache_enabled">Komprimiertes Caching ist ausgeschaltet.</string>
+	
+  <!-- Sound & display settings screen, compatibility mode check box label -->
+  <string name="compatibility_mode_title">Kompatibilitätsmodus</string>
+  <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+  <string name="compatibility_mode_summary_on">Führe ältere Anwedungen im Kompatibilitätsmodus aus. Neustart erforderlich.</string>
+  <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+  <string name="compatibility_mode_summary_off">Führe ältere Anwedungen im Kompatibilitätsmodus aus. Neustart erforderlich.</string>
+</resources>
