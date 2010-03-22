@@ -14,13 +14,13 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">Custom Locale</string>
+    <string name="app_name">自定义区域</string>
     <string name="locale_default">ex_EX</string>
-    <string name="add_new_locale_button">Add New Locale</string>
-    <string name="new_locale_label">New locale code:</string>
-    <string name="add_button">Add</string>
-    <string name="no_data_label">No data</string>
-    <string name="header_current_locale">Current Locale</string>
-    <string name="header_locale_list">Locale List</string>
-    <string name="add_select_button">Add and Select</string>
+    <string name="add_new_locale_button">添加新区域</string>
+    <string name="new_locale_label">新区域编码:</string>
+    <string name="add_button">添加</string>
+    <string name="no_data_label">没有数据</string>
+    <string name="header_current_locale">当前区域</string>
+    <string name="header_locale_list">区域列表</string>
+    <string name="add_select_button">添加并选择</string>
 </resources>
