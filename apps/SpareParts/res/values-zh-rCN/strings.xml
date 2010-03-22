@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="app_label">Spare Parts</string>
+
+    <string name="device_info_title">设备信息</string>
+    
+    <string name="title_battery_history">电池历史记录</string>
+    <string name="summary_battery_history">电池的使用记录总结</string>
+    
+    <string name="title_battery_information">电池信息</string>
+    <string name="summary_battery_information">当前的电池状态信息</string>
+    
+    <string name="title_usage_statistics">使用情况统计</string>
+    <string name="summary_usage_statistics">应用程序的使用情况</string>
+    
+    <string name="general_title">设置</string>
+    
+    <string name="title_window_animations">窗口动画</string>
+    <string name="summary_window_animations">单个窗口的动画速度</string>
+    <string name="dialog_title_window_animations">选择窗口速度</string>
+    
+    <string name="title_transition_animations">切换动画</string>
+    <string name="summary_transition_animations">屏幕间切换动画的速度</string>
+    <string name="dialog_title_transition_animations">选择切换速度</string>
+    
+    <string name="title_fancy_ime_animations">Fancy input animations</string>
+    <string name="summary_on_fancy_ime_animations">Use fancier animations for input method windows</string>
+    <string name="summary_off_fancy_ime_animations">Use normal animations for input method windows</string>
+    
+    <string name="title_haptic_feedback">触感反馈</string>
+    <string name="summary_on_haptic_feedback">交互操作时使用触感反馈</string>
+    <string name="summary_off_haptic_feedback">交互操作时使用触感反馈</string>
+    
+     <string name="title_end_button">结束通话按钮</string>
+    <string name="summary_end_button">选择结束通话按钮的动作</string>
+    <string name="dialog_title_end_button">选择动作</string>
+    
+    <string name="applications_title">应用程序</string>
+    
+    <string name="title_pin_home">内存中的应用程序</string>
+    <string name="summary_on_pin_home">尝试保留桌面应用程序到内存</string>
+    <string name="summary_off_pin_home">不把桌面应用程序锁定在内存</string>
+
+    <string name="title_launcher_orientation">屏幕旋转</string>
+    <string name="summary_on_launcher_orientation">使用加速及自动旋转屏幕</string>
+    <string name="summary_off_launcher_orientation">不旋转屏幕</string>
+
+    <string name="battery_status_title">电池状态显示</string>
+    <string name="battery_status_summary_on">在状态栏显示电量百分比</string>
+    <string name="battery_status_summary_off">不显示电量百分比</string>
+
+	<string name="title_compcache_enabled">压缩缓存</string>
+	<string name="summary_on_compcache_enabled">启用压缩缓存</string>
+	<string name="summary_off_compcache_enabled">禁用压缩缓存</string>
+	
+    <!-- Sound & display settings screen, compatibility mode check box label -->
+    <string name="compatibility_mode_title">兼容模式</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+    <string name="compatibility_mode_summary_on">在兼容模式下运行较旧的程序,重启后生效</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+    <string name="compatibility_mode_summary_off">在兼容模式下运行较旧的程序,重启后生效</string>
+</resources>
