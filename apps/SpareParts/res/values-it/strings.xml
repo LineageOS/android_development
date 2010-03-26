@@ -37,9 +37,9 @@
     <string name="summary_window_animations">Velocità delle animazioni per le singole finestre</string>
     <string name="dialog_title_window_animations">Seleziona velocità finestre</string>
     
-    <string name="title_transition_animations">Animazioni transizioni</string>
-    <string name="summary_transition_animations">Velocità delle animazioni durante il movimento tra le varie home</string>
-    <string name="dialog_title_transition_animations">Seleziona velocità transizioni</string>
+    <string name="title_transition_animations">Animazioni di transizione</string>
+    <string name="summary_transition_animations">Velocità delle animazioni di transizione tra le varie schermate</string>
+    <string name="dialog_title_transition_animations">Seleziona velocità transizione</string>
     
     <string name="title_fancy_ime_animations">Animazioni tastiera alternative</string>
     <string name="summary_on_fancy_ime_animations">Usa animazioni alternative per la tastiera</string>
