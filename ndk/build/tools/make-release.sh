@@ -170,8 +170,8 @@ else
     # i.e. generated files...
     rm -rf $NDK_ROOT_DIR/out
     rm -rf $NDK_ROOT_DIR/apps/*/project/libs/armeabi
-    rm -rf $NDK_ROOT_DIR/apps/*/project/libs/x86
     rm -rf $NDK_ROOT_DIR/apps/*/project/libs/armeabi-v7a
+    rm -rf $NDK_ROOT_DIR/apps/*/project/libs/x86
     # Get all files under the NDK root
     GIT_FILES=`cd $NDK_ROOT_DIR && find .`
     GIT_FILES=`echo $GIT_FILES | sed -e "s!\./!!g"`
