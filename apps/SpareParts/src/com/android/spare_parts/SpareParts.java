@@ -174,7 +174,7 @@ public class SpareParts extends PreferenceActivity
                     "pin_home_in_memory", 0) != 0);
             mLauncherOrientationPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
-                    "launcher_orientation", 1) != 0);
+                    "launcher_orientation", 0) != 0);
             mBatteryStatusPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 1) != 0);
