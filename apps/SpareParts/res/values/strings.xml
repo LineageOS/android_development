@@ -63,6 +63,10 @@
     <string name="summary_on_launcher_orientation">Launcher will auto-orientate using accelerometer</string>
     <string name="summary_off_launcher_orientation">Launcher will not auto-orientate</string>
 
+    <string name="title_launcher_columns">Launcher Columns</string>
+    <string name="summary_on_launcher_columns">There will be 5 columns per row</string>
+    <string name="summary_off_launcher_columns">There will be 4 columns per row</string>
+
     <string name="battery_status_title">Battery status display</string>
     <string name="battery_status_summary_on">Battery percentage will be displayed in status bar</string>
     <string name="battery_status_summary_off">Battery percentage will not be displayed in status bar</string>

@@ -78,6 +78,12 @@
             android:summaryOn="@string/summary_on_launcher_orientation"
             android:summaryOff="@string/summary_off_launcher_orientation" />
 
+        <CheckBoxPreference
+            android:key="launcher_columns"
+            android:title="@string/title_launcher_columns"
+            android:summaryOn="@string/summary_on_launcher_columns"
+            android:summaryOff="@string/summary_off_launcher_columns" />
+
         <ListPreference
                 android:key="end_button"
                 android:title="@string/title_end_button"
