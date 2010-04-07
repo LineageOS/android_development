@@ -65,11 +65,11 @@
 	<string name="title_compcache_enabled">Compcache einschalten</string>
 	<string name="summary_on_compcache_enabled">Komprimiertes Caching ist eingeschaltet.</string>
 	<string name="summary_off_compcache_enabled">Komprimiertes Caching ist ausgeschaltet.</string>
-	
-  <!-- Sound & display settings screen, compatibility mode check box label -->
-  <string name="compatibility_mode_title">Kompatibilitätsmodus</string>
-  <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
-  <string name="compatibility_mode_summary_on">Führe ältere Anwedungen im Kompatibilitätsmodus aus. Neustart erforderlich.</string>
-  <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
-  <string name="compatibility_mode_summary_off">Führe ältere Anwedungen im Kompatibilitätsmodus aus. Neustart erforderlich.</string>
+
+	<!-- Sound & display settings screen, compatibility mode check box label -->
+	<string name="compatibility_mode_title">Kompatibilitätsmodus</string>
+	<!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+	<string name="compatibility_mode_summary_on">Führe ältere Anwedungen im Kompatibilitätsmodus aus. Neustart erforderlich.</string>
+	<!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+	<string name="compatibility_mode_summary_off">Führe ältere Anwedungen im Kompatibilitätsmodus aus. Neustart erforderlich.</string>
 </resources>
