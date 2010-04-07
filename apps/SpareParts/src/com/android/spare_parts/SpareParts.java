@@ -180,7 +180,7 @@ public class SpareParts extends PreferenceActivity
                     "launcher_orientation", 0) != 0);
             mLauncherColumnPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
-                    Settings.System.LAUNCHER_COLUMN_NUMBER, 1) != 0);
+                    Settings.System.LAUNCHER_COLUMN_NUMBER, 5) != 4);
             mBatteryStatusPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 1) != 0);
@@ -278,7 +278,7 @@ public class SpareParts extends PreferenceActivity
         } else if (LAUNCHER_COLUMN_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(),
                     Settings.System.LAUNCHER_COLUMN_NUMBER,
-                    mLauncherColumnPref.isChecked() ? 1 : 0);
+                    mLauncherColumnPref.isChecked() ? 5 : 4);
         } else if (BATTERY_STATUS_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(),
                     Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,
