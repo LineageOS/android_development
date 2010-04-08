@@ -143,8 +143,7 @@ public class SpareParts extends PreferenceActivity
         mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
         
         if (!isSwapEnabled()) {
-            mCompcachePref.setChecked(false);
-            mCompcachePref.setEnabled(false);
+            prefSet.removePreference(mCompcachePref);
         }
         
         mCompatibilityMode = (CheckBoxPreference) findPreference(KEY_COMPATIBILITY_MODE);
