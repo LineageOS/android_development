@@ -72,12 +72,6 @@
             android:summaryOn="@string/summary_on_fancy_ime_animations"
             android:summaryOff="@string/summary_off_fancy_ime_animations"/>
 
-        <CheckBoxPreference
-            android:key="launcher_orientation"
-            android:title="@string/title_launcher_orientation"
-            android:summaryOn="@string/summary_on_launcher_orientation"
-            android:summaryOff="@string/summary_off_launcher_orientation" />
-
         <ListPreference
                 android:key="end_button"
                 android:title="@string/title_end_button"
@@ -115,6 +109,19 @@
             
     <PreferenceCategory
         android:title="@string/applications_title">
+
+        <CheckBoxPreference
+            android:key="launcher_orientation"
+            android:title="@string/title_launcher_orientation"
+            android:summaryOn="@string/summary_on_launcher_orientation"
+            android:summaryOff="@string/summary_off_launcher_orientation" />
+
+        <CheckBoxPreference
+            android:key="launcher_columns"
+            android:title="@string/title_launcher_columns"
+            android:summaryOn="@string/summary_on_launcher_columns"
+            android:summaryOff="@string/summary_off_launcher_columns" />
+
         
         <CheckBoxPreference
             android:key="pin_home"

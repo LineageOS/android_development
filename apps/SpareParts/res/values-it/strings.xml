@@ -63,6 +63,10 @@
     <string name="summary_on_launcher_orientation">Il launcher ruoterà usando l\'accelerometro</string>
     <string name="summary_off_launcher_orientation">Il launcher non ruoterà</string>
 
+    <string name="title_launcher_columns">Launcher compatto</string>
+    <string name="summary_on_launcher_columns">5 colonne di icone per riga (richiede riavvio)</string>
+    <string name="summary_off_launcher_columns">4 colonne di icone per riga (richiede riavvio)</string>
+
     <string name="battery_status_title">Mostra stato batteria</string>
     <string name="battery_status_summary_on">La percentuale di carica verrà mostrata nella barra notifiche. (richiede riavvio)</string>
     <string name="battery_status_summary_off">La percentuale di carica NON verrà mostrata nella barra notifiche. (richiede riavvio)</string>
