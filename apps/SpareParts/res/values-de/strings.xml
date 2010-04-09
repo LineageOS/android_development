@@ -36,7 +36,7 @@
   <string name="summary_transition_animations">Animationsgeschwindigkeit beim Anzeigenwechsel.</string>
   <string name="dialog_title_transition_animations">Geschwindigkeit wählen</string>
 
-  <string name="title_fancy_ime_animations">Schicke Eingabeanimationen</string>
+  <string name="title_fancy_ime_animations">Schöne Eingabeanimationen</string>
   <string name="summary_on_fancy_ime_animations">Nutze schönere Animationen für Eingabefenster.</string>
   <string name="summary_off_fancy_ime_animations">Nutze normale Animationen für Eingabefenster.</string>
 
@@ -50,9 +50,9 @@
 
   <string name="applications_title">Anwendungen</string>
 
-  <string name="title_pin_home">Launcher in Speicher</string>
-  <string name="summary_on_pin_home">Launcher wird versuchen im Speicher zu bleiben.</string>
-  <string name="summary_off_pin_home">Launcher wird nicht gezwungen im Speicher zu beliben.</string>
+  <string name="title_pin_home">Launcher im Speicher</string>
+  <string name="summary_on_pin_home">Versuchen Launcher im Speicher zu halten.</string>
+  <string name="summary_off_pin_home">Launcher wird nicht gezwungen im Speicher zu bleiben.</string>
 
   <string name="title_launcher_orientation">Launcher Drehung</string>
   <string name="summary_on_launcher_orientation">Launcher richtet sich neu aus bei Drehung. (Beschleunigungsmesser nutzen)</string>
