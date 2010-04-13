@@ -36,7 +36,7 @@
   <string name="summary_transition_animations">Animationsgeschwindigkeit beim Anzeigenwechsel.</string>
   <string name="dialog_title_transition_animations">Geschwindigkeit wählen</string>
 
-  <string name="title_fancy_ime_animations">Schicke Eingabeanimationen</string>
+  <string name="title_fancy_ime_animations">Schöne Eingabeanimationen</string>
   <string name="summary_on_fancy_ime_animations">Nutze schönere Animationen für Eingabefenster.</string>
   <string name="summary_off_fancy_ime_animations">Nutze normale Animationen für Eingabefenster.</string>
 
@@ -50,22 +50,26 @@
 
   <string name="applications_title">Anwendungen</string>
 
-  <string name="title_pin_home">Home App in Speicher</string>
-  <string name="summary_on_pin_home">Home App wird versuchen im Speicher zu bleiben.</string>
-  <string name="summary_off_pin_home">Home App wird nicht gezwungen im Speicher zu beliben.</string>
+  <string name="title_pin_home">Launcher im Speicher</string>
+  <string name="summary_on_pin_home">Versuchen Launcher im Speicher zu halten.</string>
+  <string name="summary_off_pin_home">Launcher wird nicht gezwungen im Speicher zu bleiben.</string>
 
   <string name="title_launcher_orientation">Launcher Drehung</string>
   <string name="summary_on_launcher_orientation">Launcher richtet sich neu aus bei Drehung. (Beschleunigungsmesser nutzen)</string>
   <string name="summary_off_launcher_orientation">Launcher reagiert nicht auf Drehung des Gerätes</string>
 
+  <string name="title_launcher_columns">Spalten im Launcher</string>
+  <string name="summary_on_launcher_columns">5 Spalten pro Reihe (Neustart erforderlich)</string>
+  <string name="summary_off_launcher_columns">4 Spalten pro Reihe (Neustart erforderlich)</string>
+
   <string name="battery_status_title">Batterie Statusanzeige</string>
   <string name="battery_status_summary_on">Batterieladung in Prozent wird in der Statusleiste angezeigt.</string>
   <string name="battery_status_summary_off">Batterieladung in Prozent wird nicht in der Statusleiste angezeigt.</string>
 
-	<string name="title_compcache_enabled">Compcache einschalten</string>
-	<string name="summary_on_compcache_enabled">Komprimiertes Caching ist eingeschaltet.</string>
-	<string name="summary_off_compcache_enabled">Komprimiertes Caching ist ausgeschaltet.</string>
-	
+  <string name="title_compcache_enabled">Compcache einschalten</string>
+  <string name="summary_on_compcache_enabled">Komprimiertes Caching ist eingeschaltet.</string>
+  <string name="summary_off_compcache_enabled">Komprimiertes Caching ist ausgeschaltet.</string>
+
   <!-- Sound & display settings screen, compatibility mode check box label -->
   <string name="compatibility_mode_title">Kompatibilitätsmodus</string>
   <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
