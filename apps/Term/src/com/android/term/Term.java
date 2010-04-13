@@ -2657,60 +2657,9 @@ class EmulatorView extends View implements GestureDetector.OnGestureListener {
         return new BaseInputConnection(this, false) {
 
             @Override
-            public boolean beginBatchEdit() {
-                return true;
-            }
-
-            @Override
-            public boolean clearMetaKeyStates(int states) {
-                return true;
-            }
-
-            @Override
-            public boolean commitCompletion(CompletionInfo text) {
-                return true;
-            }
-
-            @Override
             public boolean commitText(CharSequence text, int newCursorPosition) {
                 sendText(text);
                 return true;
-            }
-
-            @Override
-            public boolean deleteSurroundingText(int leftLength, int rightLength) {
-                return true;
-            }
-
-            @Override
-            public boolean endBatchEdit() {
-                return true;
-            }
-
-            @Override
-            public boolean finishComposingText() {
-                return true;
-            }
-
-            @Override
-            public int getCursorCapsMode(int reqModes) {
-                return 0;
-            }
-
-            @Override
-            public ExtractedText getExtractedText(ExtractedTextRequest request,
-                    int flags) {
-                return null;
-            }
-
-            @Override
-            public CharSequence getTextAfterCursor(int n, int flags) {
-                return null;
-            }
-
-            @Override
-            public CharSequence getTextBeforeCursor(int n, int flags) {
-                return null;
             }
 
             @Override
@@ -2736,14 +2685,32 @@ class EmulatorView extends View implements GestureDetector.OnGestureListener {
             @Override
             public boolean sendKeyEvent(KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch(event.getKeyCode()) {
-                    case KeyEvent.KEYCODE_DEL:
-                        sendChar(127);
-                        break;
+                    // Some keys are sent here rather than to commitText.
+                    // In particular, del and the digit keys are sent here.
+                    // As a bit of defensive programming, handle every
+                    // key with an ASCII meaning.
+                    int keyCode = event.getKeyCode();
+                    if (keyCode >= 0 && keyCode < KEYCODE_CHARS.length()) {
+                        char c = KEYCODE_CHARS.charAt(keyCode);
+                        if (c > 0) {
+                            sendChar(c);
+                        }
                     }
                 }
                 return true;
             }
+
+            private final String KEYCODE_CHARS =
+                "\000\000\000\000\000\000\000" + "0123456789*#"
+                + "\000\000\000\000\000\000\000\000\000\000"
+                + "abcdefghijklmnopqrstuvwxyz,."
+                + "\000\000\000\000"
+                + "\011 "   // tab, space
+                + "\000\000\000" // sym .. envelope
+                + "\015\177" // enter, del
+                + "`-=[]\\;'/@"
+                + "\000\000\000"
+                + "+";
 
             @Override
             public boolean setComposingText(CharSequence text, int newCursorPosition) {
