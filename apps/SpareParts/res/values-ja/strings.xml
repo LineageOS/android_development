@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="app_label">スペアパーツ</string>
+
+    <string name="device_info_title">端末情報</string>
+    
+    <string name="title_battery_history">電池履歴</string>
+    <string name="summary_battery_history">どのように充電池が使われたかの統計</string>
+    
+    <string name="title_battery_information">電池情報</string>
+    <string name="summary_battery_information">現在の充電池情報</string>
+    
+    <string name="title_usage_statistics">使用統計情報</string>
+    <string name="summary_usage_statistics">アプリケーションの使用統計情報</string>
+    
+    <string name="general_title">一般</string>
+    
+    <string name="title_window_animations">ウィンドウアニメーション</string>
+    <string name="summary_window_animations">個別のウィンドウアニメーションの速度</string>
+    <string name="dialog_title_window_animations">ウィンドウ速度の選択</string>
+    
+    <string name="title_transition_animations">移動アニメーション</string>
+    <string name="summary_transition_animations">スクリーン間移動アニメーションの速度</string>
+    <string name="dialog_title_transition_animations">移動速度の選択</string>
+    
+    <string name="title_fancy_ime_animations">ファンシー入力</string>
+    <string name="summary_on_fancy_ime_animations">装飾的なインプットメソッドウィンドウのアニメーション</string>
+    <string name="summary_off_fancy_ime_animations">通常のインプットメソッドウィンドウのアニメーション</string>
+    
+    <string name="title_haptic_feedback">タッチ振動</string>
+    <string name="summary_on_haptic_feedback">ユーザのタッチ操作で振動する</string>
+    <string name="summary_off_haptic_feedback">ユーザのタッチ操作で振動する</string>
+    
+     <string name="title_end_button">終了ボタンの挙動</string>
+    <string name="summary_end_button">終了ボタン(赤)の挙動選択</string>
+    <string name="dialog_title_end_button">終了ボタンの選択</string>
+    
+    <string name="applications_title">アプリケーション</string>
+    
+    <string name="title_pin_home">ランチャーの常駐</string>
+    <string name="summary_on_pin_home">ランチャーはメモリに常駐する</string>
+    <string name="summary_off_pin_home">ランチャーはメモリに常駐しない</string>
+
+    <string name="title_launcher_orientation">ランチャーの回転</string>
+    <string name="summary_on_launcher_orientation">ランチャーは加速度センサにより自動回転する</string>
+    <string name="summary_off_launcher_orientation">ランチャーは自動回転しない</string>
+
+    <string name="title_launcher_columns">コンパクトランチャー</string>
+    <string name="summary_on_launcher_columns">1行に5カラムのアイコン列(要再起動)</string>
+    <string name="summary_off_launcher_columns">1行に5カラムのアイコン列(要再起動)</string>
+
+    <string name="battery_status_title">バッテリ状態表示</string>
+    <string name="battery_status_summary_on">バッテリの残りパーセントをステータスバーに表示する</string>
+    <string name="battery_status_summary_off">バッテリの残りパーセントをステータスバーに表示しない</string>
+
+	<string name="title_compcache_enabled">圧縮キャッシュ</string>
+	<string name="summary_on_compcache_enabled">圧縮キャッシュは有効になっている</string>
+	<string name="summary_off_compcache_enabled">圧縮キャッシュは無効になっている</string>
+	
+    <!-- Sound & display settings screen, compatibility mode check box label -->
+    <string name="compatibility_mode_title">互換モード</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+    <string name="compatibility_mode_summary_on">古いアプリケーションを互換モードで動かす. 再起動が必要. </string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+    <string name="compatibility_mode_summary_off">古いアプリケーションを互換モードで動かす. 再起動が必要. </string>
+</resources>
