@@ -182,7 +182,7 @@ public class SpareParts extends PreferenceActivity
                     Settings.System.LAUNCHER_COLUMN_NUMBER, 5) != 4);
             mBatteryStatusPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
-                    Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 1) != 0);
+                    Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
             mCompcachePref.setChecked(Settings.Secure.getInt(
             		getContentResolver(),
             		Settings.Secure.COMPCACHE_ENABLED, 0) != 0);
