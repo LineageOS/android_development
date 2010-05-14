@@ -51,6 +51,13 @@
         android:title="@string/general_title">
         
         <ListPreference
+                android:key="recent_apps_num"
+                android:title="@string/title_recent_apps_num"
+                android:entries="@array/entries_recent_apps_num"
+                android:entryValues="@array/entries_recent_apps_num"
+                android:dialogTitle="@string/dialog_title_recent_apps_num" />
+        
+        <ListPreference
                 android:key="window_animations"
                 android:title="@string/title_window_animations"
                 android:summary="@string/summary_window_animations"
