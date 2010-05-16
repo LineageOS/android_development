@@ -28,6 +28,10 @@
 
   <string name="general_title">Allgemein</string>
 
+  <string name="title_recent_apps_num">Anzahl letzter Apps</string>
+  <string name="summary_recent_apps_num">Anzahl letzter Apps, angezeigt nach gedrückt halten von HOME Taste.</string>
+  <string name="dialog_title_recent_apps_num">Anzahl letzter Apps angeben</string>
+
   <string name="title_window_animations">Fensteranimationen</string>
   <string name="summary_window_animations">Animationsgeschwindigkeit von Fenstern</string>
   <string name="dialog_title_window_animations">Geschwindigkeit wählen</string>
