@@ -33,6 +33,10 @@
     
     <string name="general_title">General</string>
     
+    <string name="title_recent_apps_num">Number of recent apps</string>
+    <string name="summary_recent_apps_num">Number of recent apps to display on long press home</string>
+    <string name="dialog_title_recent_apps_num">Specify number of recent apps</string>
+    
     <string name="title_window_animations">Window animations</string>
     <string name="summary_window_animations">Speed of animations in individual windows</string>
     <string name="dialog_title_window_animations">Select window speed</string>

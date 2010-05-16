@@ -33,6 +33,8 @@
     
     <string name="general_title">Generale</string>
     
+    <string name="title_recent_apps_num">Numero di app recenti</string>
+    <string name="summary_recent_apps_num">Numero di app recenti da visualizzare tenendo premuto il tasto home</string>
     <string name="title_window_animations">Animazioni finestre</string>
     <string name="summary_window_animations">Velocità delle animazioni per le singole finestre</string>
     <string name="dialog_title_window_animations">Seleziona velocità finestre</string>

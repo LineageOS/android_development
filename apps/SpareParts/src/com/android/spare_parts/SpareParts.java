@@ -61,7 +61,13 @@ public class SpareParts extends PreferenceActivity
     private static final String BATTERY_STATUS_PREF = "battery_status";
     private static final String COMPCACHE_PREF = "compcache_enabled";
     
+    //Wysie_Soh
+    private static final String RECENT_APPS_NUM_PREF = "recent_apps_num";
+    
     private final Configuration mCurConfig = new Configuration();
+    
+    //Wysie_Soh
+    private ListPreference mRecentAppsNumPref;
     
     private ListPreference mWindowAnimationsPref;
     private ListPreference mTransitionAnimationsPref;
@@ -128,6 +134,8 @@ public class SpareParts extends PreferenceActivity
 
         PreferenceScreen prefSet = getPreferenceScreen();
         
+        mRecentAppsNumPref = (ListPreference) prefSet.findPreference(RECENT_APPS_NUM_PREF);
+        mRecentAppsNumPref.setOnPreferenceChangeListener(this);
         mWindowAnimationsPref = (ListPreference) prefSet.findPreference(WINDOW_ANIMATIONS_PREF);
         mWindowAnimationsPref.setOnPreferenceChangeListener(this);
         mTransitionAnimationsPref = (ListPreference) prefSet.findPreference(TRANSITION_ANIMATIONS_PREF);
@@ -182,7 +190,7 @@ public class SpareParts extends PreferenceActivity
                     Settings.System.LAUNCHER_COLUMN_NUMBER, 5) != 4);
             mBatteryStatusPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
-                    Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 1) != 0);
+                    Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
             mCompcachePref.setChecked(Settings.Secure.getInt(
             		getContentResolver(),
             		Settings.Secure.COMPCACHE_ENABLED, 0) != 0);
@@ -195,6 +203,8 @@ public class SpareParts extends PreferenceActivity
             writeAnimationPreference(1, objValue);
         } else if (preference == mEndButtonPref) {
             writeEndButtonPreference(objValue);
+        } else if (preference == mRecentAppsNumPref) {
+            writeRecentAppsNumPreference(objValue);
         }
         // always let the preference setting proceed.
         return true;
@@ -229,6 +239,16 @@ public class SpareParts extends PreferenceActivity
         }
     }
     
+    //Wysie_Soh
+    public void writeRecentAppsNumPreference(Object objValue) {
+        try {
+            int val = Integer.parseInt(objValue.toString());
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.RECENT_APPS_NUMBER, val);
+        } catch (NumberFormatException e) {
+        }
+    }
+    
     int floatToIndex(float val, int resid) {
         String[] indices = getResources().getStringArray(resid);
         float lastVal = Float.parseFloat(indices[0]);
@@ -256,6 +276,30 @@ public class SpareParts extends PreferenceActivity
             pref.setValueIndex(Settings.System.getInt(getContentResolver(),
                     Settings.System.END_BUTTON_BEHAVIOR));
         } catch (SettingNotFoundException e) {
+        }
+    }
+    
+    //Wysie_Soh
+    public void readRecentAppsNumPreference(ListPreference pref) {
+        try {
+            int value = Settings.System.getInt(getContentResolver(), Settings.System.RECENT_APPS_NUMBER);
+            pref.setValueIndex(recentAppsToIndex(value));
+        } catch (SettingNotFoundException e) {
+        }
+    }
+    
+    private int recentAppsToIndex(int value) {
+        switch (value) {
+            case 6:
+                return 0;
+            case 9:
+                return 1;
+            case 12:
+                return 2;
+            case 15:
+                return 3;
+             default:
+                return 0;            
         }
     }
     
@@ -294,6 +338,7 @@ public class SpareParts extends PreferenceActivity
         readAnimationPreference(0, mWindowAnimationsPref);
         readAnimationPreference(1, mTransitionAnimationsPref);
         readEndButtonPreference(mEndButtonPref);
+        readRecentAppsNumPreference(mRecentAppsNumPref);
         updateToggles();
     }
 }
