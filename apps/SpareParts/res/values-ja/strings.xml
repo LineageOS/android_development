@@ -32,6 +32,10 @@
 
     <string name="general_title">一般</string>
 
+    <string name="title_recent_apps_num">最近使ったアプリの数</string>
+    <string name="summary_recent_apps_num">ホームボタンを長押しで表示するアプリ履歴の数</string>
+    <string name="dialog_title_recent_apps_num">アプリ履歴の数を選択</string>
+
     <string name="title_window_animations">ウィンドウアニメーション</string>
     <string name="summary_window_animations">個別のウィンドウアニメーションの速度</string>
     <string name="dialog_title_window_animations">ウィンドウ速度の選択</string>
