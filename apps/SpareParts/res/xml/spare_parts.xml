@@ -105,7 +105,18 @@
                 android:key="battery_status"
                 android:title="@string/battery_status_title"
                 android:summaryOn="@string/battery_status_summary_on"
-                android:summaryOff="@string/battery_status_summary_off" />
+                android:summaryOff="@string/battery_status_summary_off"
+                android:disableDependentsState="false" />
+        
+        <!--        
+        <ListPreference
+            android:key="battery_status_color_title"
+            android:title="@string/battery_status_color_title"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values"
+            android:dependency="battery_status" />
+        -->
 
         <CheckBoxPreference
             android:key="compcache_enabled"
@@ -137,6 +148,74 @@
             android:summaryOn="@string/summary_on_pin_home"
             android:summaryOff="@string/summary_off_pin_home" />
 
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/title_ui_tweaks">
+        
+        <ListPreference
+            android:key="clock_color"
+            android:title="@string/title_clock_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+
+        <ListPreference
+            android:key="date_color"
+            android:title="@string/title_date_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
+        <ListPreference
+            android:key="new_notifications_ticker_color"
+            android:title="@string/title_notifications_ticker_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
+        <ListPreference
+            android:key="no_notifications_color"
+            android:title="@string/title_no_notifications_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />            
+            
+        <ListPreference
+            android:key="ongoing_notifications_color"
+            android:title="@string/title_ongoing_notifications_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
+        <ListPreference
+            android:key="latest_notifications_color"
+            android:title="@string/title_latest_notifications_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
+        <ListPreference
+            android:key="spn_label_color"
+            android:title="@string/title_spn_label_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
+        <ListPreference
+            android:key="plmn_label_color"
+            android:title="@string/title_plmn_label_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
+        <ListPreference
+            android:key="clear_button_label_color"
+            android:title="@string/title_clear_button_label_color"
+            android:dialogTitle="@string/dialog_title_color"
+            android:entries="@array/colors"
+            android:entryValues="@array/colors_values" />
+            
     </PreferenceCategory>
         
 </PreferenceScreen>
