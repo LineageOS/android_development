@@ -153,68 +153,105 @@
     <PreferenceCategory
         android:title="@string/title_ui_tweaks">
         
-        <ListPreference
-            android:key="clock_color"
-            android:title="@string/title_clock_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
+        <PreferenceScreen
+                android:title="@string/title_general_color_tweaks" 
+                android:summary="@string/summary_general_color_tweaks"> 
+                
+            <ListPreference
+                android:key="clock_color"
+                android:title="@string/title_clock_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
 
-        <ListPreference
-            android:key="date_color"
-            android:title="@string/title_date_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
+            <ListPreference
+                android:key="date_color"
+                android:title="@string/title_date_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+            <ListPreference
+                android:key="spn_label_color"
+                android:title="@string/title_spn_label_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
             
-        <ListPreference
-            android:key="new_notifications_ticker_color"
-            android:title="@string/title_notifications_ticker_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
+            <ListPreference
+                android:key="plmn_label_color"
+                android:title="@string/title_plmn_label_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+        </PreferenceScreen>
+        
+        <PreferenceScreen
+                android:title="@string/title_notifications_color_tweaks" 
+                android:summary="@string/summary_notifications_color_tweaks"> 
             
-        <ListPreference
-            android:key="no_notifications_color"
-            android:title="@string/title_no_notifications_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />            
-            
-        <ListPreference
-            android:key="ongoing_notifications_color"
-            android:title="@string/title_ongoing_notifications_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
-            
-        <ListPreference
-            android:key="latest_notifications_color"
-            android:title="@string/title_latest_notifications_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
-            
-        <ListPreference
-            android:key="spn_label_color"
-            android:title="@string/title_spn_label_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
-            
-        <ListPreference
-            android:key="plmn_label_color"
-            android:title="@string/title_plmn_label_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
-            
-        <ListPreference
-            android:key="clear_button_label_color"
-            android:title="@string/title_clear_button_label_color"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values" />
+            <ListPreference
+                android:key="new_notifications_ticker_color"
+                android:title="@string/title_notifications_ticker_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+            <ListPreference
+                android:key="no_notifications_color"
+                android:title="@string/title_no_notifications_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+            <ListPreference
+                android:key="clear_button_label_color"
+                android:title="@string/title_clear_button_label_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+            <ListPreference
+                android:key="ongoing_notifications_color"
+                android:title="@string/title_ongoing_notifications_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+            <ListPreference
+                android:key="latest_notifications_color"
+                android:title="@string/title_latest_notifications_color"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values" />
+                
+            <PreferenceCategory
+                android:title="@string/title_notifications_items">           
+
+                <ListPreference
+                    android:key="notifications_title_color"
+                    android:title="@string/title_notifications_items_title"
+                    android:dialogTitle="@string/dialog_title_color"
+                    android:entries="@array/colors"
+                    android:entryValues="@array/colors_values" />
+                    
+                <ListPreference
+                    android:key="notifications_text_color"
+                    android:title="@string/title_notifications_items_text"
+                    android:dialogTitle="@string/dialog_title_color"
+                    android:entries="@array/colors"
+                    android:entryValues="@array/colors_values" />
+                    
+                <ListPreference
+                    android:key="notifications_time_color"
+                    android:title="@string/title_notifications_items_time"
+                    android:dialogTitle="@string/dialog_title_color"
+                    android:entries="@array/colors"
+                    android:entryValues="@array/colors_values" />
+                    
+            </PreferenceCategory>
+        </PreferenceScreen>
             
     </PreferenceCategory>
         
