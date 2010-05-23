@@ -87,16 +87,26 @@
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
     <string name="compatibility_mode_summary_off">Run older apps in Compatibility mode. This require rebooting. </string>
     
-    <string name="title_ui_tweaks">User interface tweaks</string>
-    <string name="title_clock_color">Clock color</string>
-    <string name="title_date_color">Date color</string>
-    <string name="title_notifications_ticker_color">New notifications ticker color</string>
-    <string name="title_no_notifications_color">No notification color</string>
-    <string name="title_ongoing_notifications_color">Ongoing notifications title color</string>
-    <string name="title_latest_notifications_color">Latest notifications title color</string>
-    <string name="title_spn_label_color">SPN label color</string>
-    <string name="title_plmn_label_color">PLMN label color</string>
-    <string name="title_clear_button_label_color">Clear label color</string>    
+    <string name="title_ui_tweaks">User interface color tweaks</string>
+    
+    <string name="title_general_color_tweaks">General</string>
+    <string name="summary_general_color_tweaks">Clock, date, carrier, etc.</string>
+    <string name="title_clock_color">Clock</string>
+    <string name="title_date_color">Date</string>
+    <string name="title_spn_label_color">Carrier SPN label</string>
+    <string name="title_plmn_label_color">Carrier PLMN label</string>
+    
+    <string name="title_notifications_color_tweaks">Notifications</string>
+    <string name="summary_notifications_color_tweaks">Notifications ticker, ongoing notifications, latest notifications, clear notifications, etc.</string>    
+    <string name="title_notifications_ticker_color">Notifications ticker</string>
+    <string name="title_no_notifications_color">No notification title</string>
+    <string name="title_clear_button_label_color">Clear notifications label</string>    
+    <string name="title_ongoing_notifications_color">Ongoing notifications title</string>    
+    <string name="title_latest_notifications_color">Latest notifications title</string>
+    <string name="title_notifications_items">Notification items</string>
+    <string name="title_notifications_items_title">Items title</string>
+    <string name="title_notifications_items_text">Items text</string>
+    <string name="title_notifications_items_time">Items time</string>
     
     <string name="dialog_title_color">Select a color</string>
     
