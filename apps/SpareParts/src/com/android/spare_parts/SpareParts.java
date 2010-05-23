@@ -73,6 +73,9 @@ public class SpareParts extends PreferenceActivity
     private static final String UI_CLEAR_LABEL_COLOR = "clear_button_label_color";
     //private static final String UI_BATTERY_PERCENT_COLOR = "battery_status_color_title";
     private static final String UI_NOTIF_TICKER_COLOR = "new_notifications_ticker_color";
+    private static final String UI_NOTIF_ITEM_TITLE_COLOR = "notifications_title_color";
+    private static final String UI_NOTIF_ITEM_TEXT_COLOR = "notifications_text_color";
+    private static final String UI_NOTIF_ITEM_TIME_COLOR = "notifications_time_color";
     
     private final Configuration mCurConfig = new Configuration();
     
@@ -88,6 +91,9 @@ public class SpareParts extends PreferenceActivity
     private ListPreference mClearLabelColorPref;
     private ListPreference mNotifTickerColor;
     //private ListPreference mBatteryPercentColorPreference;
+    private ListPreference mNotifItemTitlePref;
+    private ListPreference mNotifItemTextPref;
+    private ListPreference mNotifItemTimePref;
     
     private ListPreference mWindowAnimationsPref;
     private ListPreference mTransitionAnimationsPref;
@@ -188,7 +194,13 @@ public class SpareParts extends PreferenceActivity
         //mBatteryPercentColorPreference = (ListPreference) prefSet.findPreference(UI_BATTERY_PERCENT_COLOR);
         //mBatteryPercentColorPreference.setOnPreferenceChangeListener(this);
         mNotifTickerColor = (ListPreference) prefSet.findPreference(UI_NOTIF_TICKER_COLOR);
-        mNotifTickerColor.setOnPreferenceChangeListener(this);
+        mNotifTickerColor.setOnPreferenceChangeListener(this);        
+        mNotifItemTitlePref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TITLE_COLOR);
+        mNotifItemTitlePref.setOnPreferenceChangeListener(this);
+        mNotifItemTextPref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TEXT_COLOR);
+        mNotifItemTextPref.setOnPreferenceChangeListener(this);
+        mNotifItemTimePref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TIME_COLOR);
+        mNotifItemTimePref.setOnPreferenceChangeListener(this);
         
         if (!isSwapEnabled()) {
             prefSet.removePreference(mCompcachePref);
@@ -265,6 +277,12 @@ public class SpareParts extends PreferenceActivity
         //    writeBatteryPercentColorPreference(objValue);
         } else if (preference == mNotifTickerColor) {
             writeTickerNotifColorPreference(objValue);
+        } else if (preference == mNotifItemTitlePref) {
+            writeNotifItemTitleColorPreference(objValue);
+        } else if (preference == mNotifItemTextPref) {
+            writeNotifItemTextColorPreference(objValue);
+        } else if (preference == mNotifItemTimePref) {
+            writeNotifItemTimeColorPreference(objValue);
         }
         
         // always let the preference setting proceed.
@@ -388,6 +406,30 @@ public class SpareParts extends PreferenceActivity
         try {
             int val = Integer.parseInt(objValue.toString());
             Settings.System.putInt(getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR, val);
+        } catch (NumberFormatException e) {
+        }
+    }
+    
+    public void writeNotifItemTitleColorPreference(Object objValue) {
+        try {
+            int val = Integer.parseInt(objValue.toString());
+            Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TITLE_COLOR, val);
+        } catch (NumberFormatException e) {
+        }
+    }
+    
+    public void writeNotifItemTextColorPreference(Object objValue) {
+        try {
+            int val = Integer.parseInt(objValue.toString());
+            Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TEXT_COLOR, val);
+        } catch (NumberFormatException e) {
+        }
+    }
+    
+    public void writeNotifItemTimeColorPreference(Object objValue) {
+        try {
+            int val = Integer.parseInt(objValue.toString());
+            Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, val);
         } catch (NumberFormatException e) {
         }
     }
