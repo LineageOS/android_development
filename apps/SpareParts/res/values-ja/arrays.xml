@@ -30,5 +30,21 @@
         <item>スリープ</item>
         <item>ホームにいるときスリープ</item>
     </string-array>
-    
+
+    <string-array name="colors">
+        <item>黒</item>
+        <item>青</item>
+        <item>ダークブルー</item>
+        <item>シアン</item>
+        <item>ダークグレー</item>
+        <item>グレー</item>
+        <item>緑</item>
+        <item>ライトグリーン</item>
+        <item>マゼンタ</item>
+        <item>赤</item>
+        <item>白</item>
+        <item>黄</item>
+        <item>透明</item>
+   </string-array>
+
 </resources>
