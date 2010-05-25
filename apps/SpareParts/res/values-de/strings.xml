@@ -69,6 +69,7 @@
   <string name="battery_status_title">Batterie Statusanzeige</string>
   <string name="battery_status_summary_on">Batterieladung in Prozent wird in der Statusleiste angezeigt.</string>
   <string name="battery_status_summary_off">Batterieladung in Prozent wird nicht in der Statusleiste angezeigt.</string>
+  <string name="battery_status_color_title">Batterieladung Farbe</string>
 
   <string name="title_compcache_enabled">Compcache einschalten</string>
   <string name="summary_on_compcache_enabled">Komprimiertes Caching ist eingeschaltet.</string>
@@ -80,4 +81,27 @@
   <string name="compatibility_mode_summary_on">Führe ältere Anwendungen im Kompatibilitätsmodus aus. (Neustart erforderlich)</string>
   <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
   <string name="compatibility_mode_summary_off">Führe ältere Anwendungen im Kompatibilitätsmodus aus. (Neustart erforderlich)</string>
+
+  <string name="title_ui_tweaks">Farbwahl für Benachrichtigungsanzeige</string>
+
+  <string name="title_general_color_tweaks">Allgemein</string>
+  <string name="summary_general_color_tweaks">Uhr, Datum, Betreiber, etc.</string>
+  <string name="title_clock_color">Uhr</string>
+  <string name="title_date_color">Datum</string>
+  <string name="title_spn_label_color">Betreiber SPN</string>
+  <string name="title_plmn_label_color">Betreiber PLMN</string>
+
+  <string name="title_notifications_color_tweaks">Benachrichtigungen</string>
+  <string name="summary_notifications_color_tweaks">Ticker, dauerhafte und letzte Benachrichtigung, Löschen, etc.</string>
+  <string name="title_notifications_ticker_color">Benachrichtigungsticker</string>
+  <string name="title_no_notifications_color">Keine Benachrichtigungen</string>
+  <string name="title_clear_button_label_color">Löschen-Schaltfläche</string>
+  <string name="title_ongoing_notifications_color">Dauerhafte Benachrichtigungen</string>
+  <string name="title_latest_notifications_color">Letzte Benachrichtigung</string>
+  <string name="title_notifications_items">Benachrichtigungselemente</string>
+  <string name="title_notifications_items_title">Titelelement</string>
+  <string name="title_notifications_items_text">Textelement</string>
+  <string name="title_notifications_items_time">Zeitelement</string>
+
+  <string name="dialog_title_color">Farbe wählen</string>
 </resources>
