@@ -82,16 +82,17 @@
   <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
   <string name="compatibility_mode_summary_off">Führe ältere Anwendungen im Kompatibilitätsmodus aus. (Neustart erforderlich)</string>
 
-  <string name="title_ui_tweaks">Farbwahl für Benachrichtigungsanzeige</string>
+  <string name="title_ui_tweaks">Tweaks für Benutzeröberfläche</string>
 
   <string name="title_general_color_tweaks">Allgemein</string>
-  <string name="summary_general_color_tweaks">Uhr, Datum, Betreiber, etc.</string>
-  <string name="title_clock_color">Uhr</string>
-  <string name="title_date_color">Datum</string>
-  <string name="title_spn_label_color">Betreiber SPN</string>
-  <string name="title_plmn_label_color">Betreiber PLMN</string>
+  <string name="summary_general_color_tweaks">Uhr, Datum, Batterie, Betreiber, etc.</string>
+  <string name="title_show_clock">Zeige Uhr</string>
+  <string name="title_clock_color">Farbe Uhr</string>
+  <string name="title_date_color">Farbe Datum</string>
+  <string name="title_spn_label_color">Farbe Betreiber SPN</string>
+  <string name="title_plmn_label_color">Farbe Betreiber PLMN</string>
 
-  <string name="title_notifications_color_tweaks">Benachrichtigungen</string>
+  <string name="title_notifications_color_tweaks">Farbeinstellungen für Benachrichtigungen</string>
   <string name="summary_notifications_color_tweaks">Ticker, dauerhafte und letzte Benachrichtigung, Löschen, etc.</string>
   <string name="title_notifications_ticker_color">Benachrichtigungsticker</string>
   <string name="title_no_notifications_color">Keine Benachrichtigungen</string>
