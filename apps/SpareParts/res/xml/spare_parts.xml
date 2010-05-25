@@ -159,7 +159,8 @@
                 
             <Preference android:key="clock_color"
                 android:title="@string/title_clock_color"
-                android:defaultValue="-16777216" />
+                android:defaultValue="-16777216"
+                android:dependency="show_status_clock" />
             
             <Preference android:key="date_color"
                 android:title="@string/title_date_color"
