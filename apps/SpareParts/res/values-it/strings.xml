@@ -84,12 +84,13 @@
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
     <string name="compatibility_mode_summary_off">Non avviare le vecchie apps in modalità compatibilità</string>
 
-<string name="title_ui_tweaks">Modifiche ai colori della UI</string>
+<string name="title_ui_tweaks">Modifiche alla UI</string>
     
     <string name="title_general_color_tweaks">Generale</string>
-    <string name="summary_general_color_tweaks">Orologio, data, operatore, etc.</string>
-    <string name="title_clock_color">Orologio</string>
-    <string name="title_date_color">Data</string>
+    <string name="summary_general_color_tweaks">Orologio, data, batteria, operatore, etc.</string>
+    <string name="title_show_clock">Mostra orologio</string>
+    <string name="title_clock_color">Colore orologio</string>
+    <string name="title_date_color">Colore data</string>
     <string name="title_spn_label_color">Etichetta SPN operatore</string>
     <string name="title_plmn_label_color">Etichetta PLMN operatore</string>
     
