@@ -63,6 +63,7 @@ public class SpareParts extends PreferenceActivity
     
     //Wysie_Soh
     private static final String RECENT_APPS_NUM_PREF = "recent_apps_num";
+    private static final String UI_SHOW_STATUS_CLOCK = "show_status_clock";
     private static final String UI_CLOCK_COLOR = "clock_color";
     private static final String UI_DATE_COLOR = "date_color";
     private static final String UI_NO_NOTIF_COLOR = "no_notifications_color";
@@ -71,7 +72,7 @@ public class SpareParts extends PreferenceActivity
     private static final String UI_SPN_LABEL_COLOR = "spn_label_color";
     private static final String UI_PLMN_LABEL_COLOR = "plmn_label_color";
     private static final String UI_CLEAR_LABEL_COLOR = "clear_button_label_color";
-    //private static final String UI_BATTERY_PERCENT_COLOR = "battery_status_color_title";
+    private static final String UI_BATTERY_PERCENT_COLOR = "battery_status_color_title";
     private static final String UI_NOTIF_TICKER_COLOR = "new_notifications_ticker_color";
     private static final String UI_NOTIF_ITEM_TITLE_COLOR = "notifications_title_color";
     private static final String UI_NOTIF_ITEM_TEXT_COLOR = "notifications_text_color";
@@ -90,7 +91,7 @@ public class SpareParts extends PreferenceActivity
     private ListPreference mPlmnLabelColorPref;
     private ListPreference mClearLabelColorPref;
     private ListPreference mNotifTickerColor;
-    //private ListPreference mBatteryPercentColorPreference;
+    private ListPreference mBatteryPercentColorPreference;
     private ListPreference mNotifItemTitlePref;
     private ListPreference mNotifItemTextPref;
     private ListPreference mNotifItemTimePref;
@@ -106,6 +107,7 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mLauncherColumnPref;
     private CheckBoxPreference mBatteryStatusPref;
     private CheckBoxPreference mCompcachePref;
+    private CheckBoxPreference mShowClockPref;
 
     private IWindowManager mWindowManager;
 
@@ -174,7 +176,8 @@ public class SpareParts extends PreferenceActivity
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
         mLauncherColumnPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_COLUMN_PREF);
         mBatteryStatusPref = (CheckBoxPreference) prefSet.findPreference(BATTERY_STATUS_PREF);
-        mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
+        mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);        
+        mShowClockPref = (CheckBoxPreference) prefSet.findPreference(UI_SHOW_STATUS_CLOCK);        
         mClockColorPref = (ListPreference) prefSet.findPreference(UI_CLOCK_COLOR);
         mClockColorPref.setOnPreferenceChangeListener(this);
         mDateColorPref = (ListPreference) prefSet.findPreference(UI_DATE_COLOR);
@@ -191,8 +194,8 @@ public class SpareParts extends PreferenceActivity
         mPlmnLabelColorPref.setOnPreferenceChangeListener(this);
         mClearLabelColorPref = (ListPreference) prefSet.findPreference(UI_CLEAR_LABEL_COLOR);
         mClearLabelColorPref.setOnPreferenceChangeListener(this);
-        //mBatteryPercentColorPreference = (ListPreference) prefSet.findPreference(UI_BATTERY_PERCENT_COLOR);
-        //mBatteryPercentColorPreference.setOnPreferenceChangeListener(this);
+        mBatteryPercentColorPreference = (ListPreference) prefSet.findPreference(UI_BATTERY_PERCENT_COLOR);
+        mBatteryPercentColorPreference.setOnPreferenceChangeListener(this);
         mNotifTickerColor = (ListPreference) prefSet.findPreference(UI_NOTIF_TICKER_COLOR);
         mNotifTickerColor.setOnPreferenceChangeListener(this);        
         mNotifItemTitlePref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TITLE_COLOR);
@@ -246,6 +249,9 @@ public class SpareParts extends PreferenceActivity
             mCompcachePref.setChecked(Settings.Secure.getInt(
             		getContentResolver(),
             		Settings.Secure.COMPCACHE_ENABLED, 0) != 0);
+            mShowClockPref.setChecked(Settings.System.getInt(
+            		getContentResolver(),
+            		Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
     }
     
     public boolean onPreferenceChange(Preference preference, Object objValue) {
@@ -273,8 +279,8 @@ public class SpareParts extends PreferenceActivity
             writePlmnLabelColorPreference(objValue);
         } else if (preference == mClearLabelColorPref) {
             writeClearLabelColorPreference(objValue);
-        //} else if (preference == mBatteryPercentColorPreference) {
-        //    writeBatteryPercentColorPreference(objValue);
+        } else if (preference == mBatteryPercentColorPreference) {
+            writeBatteryPercentColorPreference(objValue);
         } else if (preference == mNotifTickerColor) {
             writeTickerNotifColorPreference(objValue);
         } else if (preference == mNotifItemTitlePref) {
@@ -327,7 +333,6 @@ public class SpareParts extends PreferenceActivity
         }
     }
     
-    /*
     public void writeBatteryPercentColorPreference(Object objValue) {
         try {
             int val = Integer.parseInt(objValue.toString());
@@ -336,7 +341,6 @@ public class SpareParts extends PreferenceActivity
         } catch (NumberFormatException e) {
         }
     }
-    */
     
     public void writeClockColorPreference(Object objValue) {
         try {
@@ -514,6 +518,9 @@ public class SpareParts extends PreferenceActivity
         } else if (COMPCACHE_PREF.equals(key)) {
         	Settings.Secure.putInt(getContentResolver(), Settings.Secure.COMPCACHE_ENABLED,
         			mCompcachePref.isChecked() ? 1 : 0);
+        } else if (UI_SHOW_STATUS_CLOCK.equals(key)) {
+        	Settings.System.putInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK,
+        			mShowClockPref.isChecked() ? 1 : 0);
         }
     }
     

@@ -100,23 +100,6 @@
                 android:title="@string/compatibility_mode_title"
                 android:summaryOn="@string/compatibility_mode_summary_on"
                 android:summaryOff="@string/compatibility_mode_summary_off" />
-                
-        <CheckBoxPreference
-                android:key="battery_status"
-                android:title="@string/battery_status_title"
-                android:summaryOn="@string/battery_status_summary_on"
-                android:summaryOff="@string/battery_status_summary_off"
-                android:disableDependentsState="false" />
-        
-        <!--        
-        <ListPreference
-            android:key="battery_status_color_title"
-            android:title="@string/battery_status_color_title"
-            android:dialogTitle="@string/dialog_title_color"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors_values"
-            android:dependency="battery_status" />
-        -->
 
         <CheckBoxPreference
             android:key="compcache_enabled"
@@ -155,14 +138,35 @@
         
         <PreferenceScreen
                 android:title="@string/title_general_color_tweaks" 
-                android:summary="@string/summary_general_color_tweaks"> 
+                android:summary="@string/summary_general_color_tweaks">
+                
+            <CheckBoxPreference
+                android:key="battery_status"
+                android:title="@string/battery_status_title"
+                android:summaryOn="@string/battery_status_summary_on"
+                android:summaryOff="@string/battery_status_summary_off"
+                android:disableDependentsState="false" />
+        
+            <ListPreference
+                android:key="battery_status_color_title"
+                android:title="@string/battery_status_color_title"
+                android:dialogTitle="@string/dialog_title_color"
+                android:entries="@array/colors"
+                android:entryValues="@array/colors_values"
+                android:dependency="battery_status" />
+                
+            <CheckBoxPreference
+                android:key="show_status_clock"
+                android:title="@string/title_show_clock"
+                android:disableDependentsState="false" />
                 
             <ListPreference
                 android:key="clock_color"
                 android:title="@string/title_clock_color"
                 android:dialogTitle="@string/dialog_title_color"
                 android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:entryValues="@array/colors_values"
+                android:dependency="show_status_clock" />
 
             <ListPreference
                 android:key="date_color"
