@@ -85,26 +85,27 @@
     <string name="compatibility_mode_summary_on">古いアプリケーションを互換モードで動作させる(要再起動)</string>
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
     <string name="compatibility_mode_summary_off">古いアプリケーションを互換モードで動作させる(要再起動)</string>
-    <string name="title_ui_tweaks">ユーザインタフェースカラー</string>
+    <string name="title_ui_tweaks">ユーザインタフェースの調整</string>
     
     <string name="title_general_color_tweaks">一般</string>
     <string name="summary_general_color_tweaks">時計, 日付, キャリア, 他.</string>
-    <string name="title_clock_color">時計</string>
-    <string name="title_date_color">日付</string>
-    <string name="title_spn_label_color">キャリアSPNラベル</string>
-    <string name="title_plmn_label_color">キャリアPLMNラベル</string>
+    <string name="title_show_clock">時計を表示</string>
+    <string name="title_clock_color">時計カラー</string>
+    <string name="title_date_color">日付カラー</string>
+    <string name="title_spn_label_color">キャリアSPNラベルカラー</string>
+    <string name="title_plmn_label_color">キャリアPLMNラベルカラー</string>
     
     <string name="title_notifications_color_tweaks">通知</string>
     <string name="summary_notifications_color_tweaks">通知ティッカー, 実行中, 最新, 消去, 他.</string>    
-    <string name="title_notifications_ticker_color">通知ティッカー</string>
-    <string name="title_no_notifications_color">通知タイトルなし</string>
-    <string name="title_clear_button_label_color">消去ボタンのラベル</string>    
-    <string name="title_ongoing_notifications_color">実行中のラベル</string>    
-    <string name="title_latest_notifications_color">最新の通知のタイトル</string>
-    <string name="title_notifications_items">通知アイテム</string>
-    <string name="title_notifications_items_title">アイテムタイトル</string>
-    <string name="title_notifications_items_text">アイテムテキスト</string>
-    <string name="title_notifications_items_time">アイテム時刻</string>
+    <string name="title_notifications_ticker_color">通知ティッカーカラー</string>
+    <string name="title_no_notifications_color">通知なしタイトルカラー</string>
+    <string name="title_clear_button_label_color">消去ボタンのラベルカラー</string>    
+    <string name="title_ongoing_notifications_color">実行中のタイトルカラー</string>    
+    <string name="title_latest_notifications_color">最新通知のタイトルカラー</string>
+    <string name="title_notifications_items">通知アイテムカラー</string>
+    <string name="title_notifications_items_title">アイテムタイトルカラー</string>
+    <string name="title_notifications_items_text">アイテムテキストカラー</string>
+    <string name="title_notifications_items_time">アイテム時刻カラー</string>
     
     <string name="dialog_title_color">色を選択</string>
 </resources>
