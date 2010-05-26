@@ -82,10 +82,11 @@
   <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
   <string name="compatibility_mode_summary_off">Führe ältere Anwendungen im Kompatibilitätsmodus aus. (Neustart erforderlich)</string>
 
-  <string name="title_ui_tweaks">Tweaks für Benutzeröberfläche</string>
+  <string name="title_ui_tweaks">Tweaks für Oberfläche (nach Neustart)</string>
 
   <string name="title_general_color_tweaks">Allgemein</string>
   <string name="summary_general_color_tweaks">Uhr, Datum, Batterie, Betreiber, etc.</string>
+
   <string name="title_show_clock">Zeige Uhr</string>
   <string name="title_clock_color">Farbe Uhr</string>
   <string name="title_date_color">Farbe Datum</string>
@@ -105,4 +106,5 @@
   <string name="title_notifications_items_time">Zeitelement</string>
 
   <string name="dialog_title_color">Farbe wählen</string>
+  <string name="title_reset_ui_tweaks_to_defaults">Änderungen zurücksetzen</string>
 </resources>
