@@ -108,4 +108,5 @@
     <string name="title_notifications_items_time">アイテム時刻カラー</string>
     
     <string name="dialog_title_color">色を選択</string>
+    <string name="title_reset_ui_tweaks_to_defaults">初期設定に戻す</string>
 </resources>
