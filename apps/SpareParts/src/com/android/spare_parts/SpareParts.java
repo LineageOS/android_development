@@ -39,6 +39,8 @@ import android.view.IWindowManager;
 
 import java.io.File;
 import java.util.List;
+import android.content.DialogInterface;
+import android.app.AlertDialog;
 
 public class SpareParts extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener,
@@ -77,24 +79,26 @@ public class SpareParts extends PreferenceActivity
     private static final String UI_NOTIF_ITEM_TITLE_COLOR = "notifications_title_color";
     private static final String UI_NOTIF_ITEM_TEXT_COLOR = "notifications_text_color";
     private static final String UI_NOTIF_ITEM_TIME_COLOR = "notifications_time_color";
+    private static final String UI_RESET_TO_DEFAULTS = "reset_ui_tweaks_to_defaults";
     
     private final Configuration mCurConfig = new Configuration();
     
     //Wysie_Soh
     private ListPreference mRecentAppsNumPref;
-    private ListPreference mClockColorPref;
-    private ListPreference mDateColorPref;
-    private ListPreference mNoNotifColorPref;
-    private ListPreference mLatestNotifColorPref;
-    private ListPreference mOngoingNotifColorPref;
-    private ListPreference mSpnLabelColorPref;
-    private ListPreference mPlmnLabelColorPref;
-    private ListPreference mClearLabelColorPref;
-    private ListPreference mNotifTickerColor;
-    private ListPreference mBatteryPercentColorPreference;
-    private ListPreference mNotifItemTitlePref;
-    private ListPreference mNotifItemTextPref;
-    private ListPreference mNotifItemTimePref;
+    
+    private Preference mBatteryPercentColorPreference;
+    private Preference mClockColorPref;
+    private Preference mDateColorPref;
+    private Preference mSpnLabelColorPref;
+    private Preference mPlmnLabelColorPref;
+    private Preference mNotifTickerColor;
+    private Preference mNoNotifColorPref;
+    private Preference mClearLabelColorPref;
+    private Preference mOngoingNotifColorPref;
+    private Preference mLatestNotifColorPref;
+    private Preference mNotifItemTitlePref;
+    private Preference mNotifItemTextPref;
+    private Preference mNotifItemTimePref;
     
     private ListPreference mWindowAnimationsPref;
     private ListPreference mTransitionAnimationsPref;
@@ -108,6 +112,8 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mBatteryStatusPref;
     private CheckBoxPreference mCompcachePref;
     private CheckBoxPreference mShowClockPref;
+    
+    private Preference mResetToDefaults;
 
     private IWindowManager mWindowManager;
 
@@ -175,35 +181,25 @@ public class SpareParts extends PreferenceActivity
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
         mLauncherColumnPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_COLUMN_PREF);
+        mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
+        
         mBatteryStatusPref = (CheckBoxPreference) prefSet.findPreference(BATTERY_STATUS_PREF);
-        mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);        
+        mBatteryPercentColorPreference = prefSet.findPreference(UI_BATTERY_PERCENT_COLOR);
         mShowClockPref = (CheckBoxPreference) prefSet.findPreference(UI_SHOW_STATUS_CLOCK);        
-        mClockColorPref = (ListPreference) prefSet.findPreference(UI_CLOCK_COLOR);
-        mClockColorPref.setOnPreferenceChangeListener(this);
-        mDateColorPref = (ListPreference) prefSet.findPreference(UI_DATE_COLOR);
-        mDateColorPref.setOnPreferenceChangeListener(this);
-        mNoNotifColorPref = (ListPreference) prefSet.findPreference(UI_NO_NOTIF_COLOR);
-        mNoNotifColorPref.setOnPreferenceChangeListener(this);
-        mLatestNotifColorPref = (ListPreference) prefSet.findPreference(UI_LATEST_NOTIF_COLOR);
-        mLatestNotifColorPref.setOnPreferenceChangeListener(this);
-        mOngoingNotifColorPref = (ListPreference) prefSet.findPreference(UI_ONGOING_NOTIF_COLOR);
-        mOngoingNotifColorPref.setOnPreferenceChangeListener(this);
-        mSpnLabelColorPref = (ListPreference) prefSet.findPreference(UI_SPN_LABEL_COLOR);
-        mSpnLabelColorPref.setOnPreferenceChangeListener(this);
-        mPlmnLabelColorPref = (ListPreference) prefSet.findPreference(UI_PLMN_LABEL_COLOR);
-        mPlmnLabelColorPref.setOnPreferenceChangeListener(this);
-        mClearLabelColorPref = (ListPreference) prefSet.findPreference(UI_CLEAR_LABEL_COLOR);
-        mClearLabelColorPref.setOnPreferenceChangeListener(this);
-        mBatteryPercentColorPreference = (ListPreference) prefSet.findPreference(UI_BATTERY_PERCENT_COLOR);
-        mBatteryPercentColorPreference.setOnPreferenceChangeListener(this);
-        mNotifTickerColor = (ListPreference) prefSet.findPreference(UI_NOTIF_TICKER_COLOR);
-        mNotifTickerColor.setOnPreferenceChangeListener(this);        
-        mNotifItemTitlePref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TITLE_COLOR);
-        mNotifItemTitlePref.setOnPreferenceChangeListener(this);
-        mNotifItemTextPref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TEXT_COLOR);
-        mNotifItemTextPref.setOnPreferenceChangeListener(this);
-        mNotifItemTimePref = (ListPreference) prefSet.findPreference(UI_NOTIF_ITEM_TIME_COLOR);
-        mNotifItemTimePref.setOnPreferenceChangeListener(this);
+        mClockColorPref = prefSet.findPreference(UI_CLOCK_COLOR);
+        mDateColorPref = prefSet.findPreference(UI_DATE_COLOR);
+        mSpnLabelColorPref = prefSet.findPreference(UI_SPN_LABEL_COLOR);
+        mPlmnLabelColorPref = prefSet.findPreference(UI_PLMN_LABEL_COLOR);
+        
+        mNotifTickerColor = prefSet.findPreference(UI_NOTIF_TICKER_COLOR);
+        mNoNotifColorPref = prefSet.findPreference(UI_NO_NOTIF_COLOR);
+        mClearLabelColorPref = prefSet.findPreference(UI_CLEAR_LABEL_COLOR);
+        mOngoingNotifColorPref = prefSet.findPreference(UI_ONGOING_NOTIF_COLOR);        
+        mLatestNotifColorPref = prefSet.findPreference(UI_LATEST_NOTIF_COLOR);        
+        mNotifItemTitlePref = prefSet.findPreference(UI_NOTIF_ITEM_TITLE_COLOR);
+        mNotifItemTextPref = prefSet.findPreference(UI_NOTIF_ITEM_TEXT_COLOR);
+        mNotifItemTimePref = prefSet.findPreference(UI_NOTIF_ITEM_TIME_COLOR);
+        mResetToDefaults = prefSet.findPreference(UI_RESET_TO_DEFAULTS);
         
         if (!isSwapEnabled()) {
             prefSet.removePreference(mCompcachePref);
@@ -263,32 +259,6 @@ public class SpareParts extends PreferenceActivity
             writeEndButtonPreference(objValue);
         } else if (preference == mRecentAppsNumPref) {
             writeRecentAppsNumPreference(objValue);
-        } else if (preference == mClockColorPref) {
-            writeClockColorPreference(objValue);
-        } else if (preference == mDateColorPref) {
-            writeDateColorPreference(objValue);
-        } else if (preference == mNoNotifColorPref) {
-            writeNoNotifColorPreference(objValue);
-        } else if (preference == mLatestNotifColorPref) {
-            writeLatestNotifColorPreference(objValue);
-        } else if (preference == mOngoingNotifColorPref) {
-            writeOngoingNotifColorPreference(objValue);
-        } else if (preference == mSpnLabelColorPref) {
-            writeSpnLabelColorPreference(objValue);
-        } else if (preference == mPlmnLabelColorPref) {
-            writePlmnLabelColorPreference(objValue);
-        } else if (preference == mClearLabelColorPref) {
-            writeClearLabelColorPreference(objValue);
-        } else if (preference == mBatteryPercentColorPreference) {
-            writeBatteryPercentColorPreference(objValue);
-        } else if (preference == mNotifTickerColor) {
-            writeTickerNotifColorPreference(objValue);
-        } else if (preference == mNotifItemTitlePref) {
-            writeNotifItemTitleColorPreference(objValue);
-        } else if (preference == mNotifItemTextPref) {
-            writeNotifItemTextColorPreference(objValue);
-        } else if (preference == mNotifItemTimePref) {
-            writeNotifItemTimeColorPreference(objValue);
         }
         
         // always let the preference setting proceed.
@@ -303,7 +273,137 @@ public class SpareParts extends PreferenceActivity
                     mCompatibilityMode.isChecked() ? 1 : 0);
             return true;
         }
+        else if (preference == mClockColorPref) {
+			ColorPickerDialog cp = new ColorPickerDialog(this,
+				mClockFontColorListener,
+				readClockFontColor());
+			cp.show();
+			return true;           
+        }
+        else if (preference == mDateColorPref) {
+			ColorPickerDialog cp = new ColorPickerDialog(this,
+				mDateFontColorListener,
+				readDateFontColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mSpnLabelColorPref) {
+			ColorPickerDialog cp = new ColorPickerDialog(this,
+				mSpnLabelColorListener,
+				readSpnLabelColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mPlmnLabelColorPref) {
+			ColorPickerDialog cp = new ColorPickerDialog(this,
+				mPlmnLabelColorListener,
+				readPlmnLabelColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mBatteryPercentColorPreference) {
+			ColorPickerDialog cp = new ColorPickerDialog(this,
+				mBatteryColorListener,
+				readBatteryColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mNotifTickerColor) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mNotifTickerColorListener,
+				readNotifTickerColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mNoNotifColorPref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mNoNotifColorListener,
+				readNoNotifColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mClearLabelColorPref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mClearLabelColorListener,
+				readClearLabelColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mOngoingNotifColorPref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mOngoingNotifColorListener,
+				readOngoingNotifColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mLatestNotifColorPref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mLatestNotifColorListener,
+				readLatestNotifColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mNotifItemTitlePref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mNotifItemTitleColorListener,
+				readNotifItemTitleColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mNotifItemTextPref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mNotifItemTextColorListener,
+				readNotifItemTextColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mNotifItemTimePref) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mNotifItemTimeColorListener,
+				readNotifItemTimeColor());
+			cp.show();
+			return true;
+        }
+        else if (preference == mResetToDefaults) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle("UI interface tweaks");
+            alertDialog.setMessage("Reset all UI interface tweaks to default? Reboot to see changes.");
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    resetUITweaks();
+                }
+            });
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    
+                }
+            });
+            alertDialog.show();
+            
+            return true;
+        }
+        
         return false;
+    }
+    
+    private void resetUITweaks() {
+        Settings.System.putInt(getContentResolver(), Settings.System.CLOCK_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.DATE_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.SPN_LABEL_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.PLMN_LABEL_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_COLOR, -1);
+        Settings.System.putInt(getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.NO_NOTIF_COLOR, -1);
+        Settings.System.putInt(getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR, -1);
+        Settings.System.putInt(getContentResolver(), Settings.System.LATEST_NOTIF_COLOR, -1);
+        Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TITLE_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TEXT_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,1);
+        Settings.System.putInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 1);
+        mBatteryStatusPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
+        mShowClockPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
     }
 
     public void writeAnimationPreference(int which, Object objValue) {
@@ -329,111 +429,6 @@ public class SpareParts extends PreferenceActivity
             int val = Integer.parseInt(objValue.toString());
             Settings.System.putInt(getContentResolver(),
                     Settings.System.RECENT_APPS_NUMBER, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeBatteryPercentColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.BATTERY_PERCENTAGE_STATUS_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeClockColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.CLOCK_COLOR, val);            
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeDateColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.DATE_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeTickerNotifColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeNoNotifColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.NO_NOTIF_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeLatestNotifColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.LATEST_NOTIF_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeOngoingNotifColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeSpnLabelColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.SPN_LABEL_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writePlmnLabelColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.PLMN_LABEL_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeClearLabelColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeNotifItemTitleColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TITLE_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeNotifItemTextColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TEXT_COLOR, val);
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public void writeNotifItemTimeColorPreference(Object objValue) {
-        try {
-            int val = Integer.parseInt(objValue.toString());
-            Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, val);
         } catch (NumberFormatException e) {
         }
     }
@@ -492,6 +487,214 @@ public class SpareParts extends PreferenceActivity
         }
     }
     
+	private int readClockFontColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.CLOCK_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mClockFontColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.CLOCK_COLOR, color);
+			}
+	};
+	
+	private int readDateFontColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.DATE_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mDateFontColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.DATE_COLOR, color);
+			}
+	};
+	
+	private int readSpnLabelColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.SPN_LABEL_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mSpnLabelColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.SPN_LABEL_COLOR, color);
+			}
+	};
+	
+	private int readPlmnLabelColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.PLMN_LABEL_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mPlmnLabelColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.PLMN_LABEL_COLOR, color);
+			}
+	};
+	
+	private int readBatteryColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -1;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mBatteryColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_COLOR, color);
+			}
+	};
+	
+	private int readNotifTickerColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mNotifTickerColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, color);
+			}
+	};
+	
+	private int readNoNotifColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.NO_NOTIF_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -1;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mNoNotifColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.NO_NOTIF_COLOR, color);
+			}
+	};
+	
+	private int readClearLabelColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mClearLabelColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR, color);
+			}
+	};
+	
+	private int readOngoingNotifColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -1;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mOngoingNotifColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR, color);
+			}
+	};
+	
+	private int readLatestNotifColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.LATEST_NOTIF_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -1;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mLatestNotifColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.LATEST_NOTIF_COLOR, color);
+			}
+	};
+	
+	private int readNotifItemTitleColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.NOTIF_ITEM_TITLE_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mNotifItemTitleColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TITLE_COLOR, color);
+			}
+	};
+	
+	private int readNotifItemTextColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.NOTIF_ITEM_TEXT_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mNotifItemTextColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TEXT_COLOR, color);
+			}
+	};
+	
+	private int readNotifItemTimeColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -16777216;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mNotifItemTimeColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, color);
+			}
+	};
+	
     public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
         if (FANCY_IME_ANIMATIONS_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(),
