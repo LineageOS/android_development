@@ -85,7 +85,7 @@
     <string name="compatibility_mode_summary_on">古いアプリケーションを互換モードで動作させる(要再起動)</string>
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
     <string name="compatibility_mode_summary_off">古いアプリケーションを互換モードで動作させる(要再起動)</string>
-    <string name="title_ui_tweaks">ユーザインタフェースの調整</string>
+    <string name="title_ui_tweaks">ユーザインタフェースの調整 - 再起動が必要</string>
     
     <string name="title_general_color_tweaks">一般</string>
     <string name="summary_general_color_tweaks">時計, 日付, キャリア, 他.</string>
