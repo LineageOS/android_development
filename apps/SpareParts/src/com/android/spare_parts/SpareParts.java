@@ -62,14 +62,11 @@ public class SpareParts extends PreferenceActivity
     private static final String LAUNCHER_COLUMN_PREF = "launcher_columns";
     private static final String BATTERY_STATUS_PREF = "battery_status";
     private static final String COMPCACHE_PREF = "compcache_enabled";
-// Double Carrier - bcrook
 	private static final String SHOW_PLMN_LS_PREF = "show_plmn_ls";
 	private static final String SHOW_SPN_LS_PREF = "show_spn_ls";
 	private static final String SHOW_PLMN_SB_PREF = "show_plmn_sb";
-	private static final String SHOW_SPN_SB_PREF = "show_spn_sb";
-	
+	private static final String SHOW_SPN_SB_PREF = "show_spn_sb";	
     
-    //Wysie_Soh
     private static final String RECENT_APPS_NUM_PREF = "recent_apps_num";
     private static final String UI_SHOW_STATUS_CLOCK = "show_status_clock";
     private static final String UI_CLOCK_COLOR = "clock_color";
@@ -89,9 +86,7 @@ public class SpareParts extends PreferenceActivity
     
     private final Configuration mCurConfig = new Configuration();
     
-    //Wysie_Soh
-    private ListPreference mRecentAppsNumPref;
-    
+    private ListPreference mRecentAppsNumPref;    
     private Preference mBatteryPercentColorPreference;
     private Preference mClockColorPref;
     private Preference mDateColorPref;
@@ -118,7 +113,6 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mBatteryStatusPref;
     private CheckBoxPreference mCompcachePref;
     private CheckBoxPreference mShowClockPref;
-	//Double Carrier - bcrook
 	private CheckBoxPreference mShowPlmnLsPref;
 	private CheckBoxPreference mShowSpnLsPref;
 	private CheckBoxPreference mShowPlmnSbPref;
@@ -264,7 +258,6 @@ public class SpareParts extends PreferenceActivity
             mShowClockPref.setChecked(Settings.System.getInt(
             		getContentResolver(),
             		Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
-// Double Carrier - bcrook
             mShowPlmnLsPref.setChecked(Settings.System.getInt(
             		getContentResolver(),
             		Settings.System.SHOW_PLMN_LS, 0) != 0);
@@ -431,13 +424,18 @@ public class SpareParts extends PreferenceActivity
         Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, -16777216);
         Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 1);
-// Double carrier
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_LS, 1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_LS, 1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_SB, 1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_SB, 1);
-        mBatteryStatusPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
-        mShowClockPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
+        
+        //Update Spare Parts UI to defaults
+        mBatteryStatusPref.setChecked(true);
+        mShowClockPref.setChecked(true);
+        mShowPlmnLsPref.setChecked(true);
+        mShowSpnLsPref.setChecked(true);
+        mShowPlmnSbPref.setChecked(true);
+        mShowSpnSbPref.setChecked(true);
     }
 
     public void writeAnimationPreference(int which, Object objValue) {
@@ -497,7 +495,6 @@ public class SpareParts extends PreferenceActivity
         }
     }
     
-    //Wysie_Soh
     public void readRecentAppsNumPreference(ListPreference pref) {
         try {
             int value = Settings.System.getInt(getContentResolver(), Settings.System.RECENT_APPS_NUMBER);
