@@ -90,8 +90,8 @@
   <string name="title_show_clock">Zeige Uhr</string>
   <string name="title_clock_color">Farbe Uhr</string>
   <string name="title_date_color">Farbe Datum</string>
-  <string name="title_spn_label_color">Farbe Betreiber SPN</string>
-  <string name="title_plmn_label_color">Farbe Betreiber PLMN</string>
+  <string name="title_spn_label_color">Farbe Provider</string>
+  <string name="title_plmn_label_color">Farbe Netzbetreiber</string>
 
   <string name="title_notifications_color_tweaks">Farbeinstellungen für Benachrichtigungen</string>
   <string name="summary_notifications_color_tweaks">Ticker, dauerhafte und letzte Benachrichtigung, Löschen, etc.</string>
