@@ -54,9 +54,9 @@
 
   <string name="applications_title">Anwendungen</string>
 
-  <string name="title_pin_home">Launcher im Speicher</string>
-  <string name="summary_on_pin_home">Versuchen den Launcher im Speicher zu halten.</string>
-  <string name="summary_off_pin_home">Launcher nicht zwingen im Speicher zu bleiben.</string>
+  <string name="title_pin_home">Home-App im Speicher</string>
+  <string name="summary_on_pin_home">Versuchen die Home-App im Speicher zu halten.</string>
+  <string name="summary_off_pin_home">Home-App nicht zwingen im Speicher zu bleiben.</string>
 
   <string name="title_launcher_orientation">Launcher Drehung</string>
   <string name="summary_on_launcher_orientation">Launcher richtet sich bei Drehung neu aus.</string>
