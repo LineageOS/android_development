@@ -79,6 +79,7 @@ public class SpareParts extends PreferenceActivity
     private static final String UI_CLEAR_LABEL_COLOR = "clear_button_label_color";
     private static final String UI_BATTERY_PERCENT_COLOR = "battery_status_color_title";
     private static final String UI_NOTIF_TICKER_COLOR = "new_notifications_ticker_color";
+    private static final String UI_NOTIF_COUNT_COLOR = "notifications_count_color";
     private static final String UI_NOTIF_ITEM_TITLE_COLOR = "notifications_title_color";
     private static final String UI_NOTIF_ITEM_TEXT_COLOR = "notifications_text_color";
     private static final String UI_NOTIF_ITEM_TIME_COLOR = "notifications_time_color";
@@ -93,6 +94,7 @@ public class SpareParts extends PreferenceActivity
     private Preference mSpnLabelColorPref;
     private Preference mPlmnLabelColorPref;
     private Preference mNotifTickerColor;
+    private Preference mNotifCountColor;
     private Preference mNoNotifColorPref;
     private Preference mClearLabelColorPref;
     private Preference mOngoingNotifColorPref;
@@ -202,6 +204,7 @@ public class SpareParts extends PreferenceActivity
         mPlmnLabelColorPref = prefSet.findPreference(UI_PLMN_LABEL_COLOR);
         
         mNotifTickerColor = prefSet.findPreference(UI_NOTIF_TICKER_COLOR);
+        mNotifCountColor = prefSet.findPreference(UI_NOTIF_COUNT_COLOR);
         mNoNotifColorPref = prefSet.findPreference(UI_NO_NOTIF_COLOR);
         mClearLabelColorPref = prefSet.findPreference(UI_CLEAR_LABEL_COLOR);
         mOngoingNotifColorPref = prefSet.findPreference(UI_ONGOING_NOTIF_COLOR);        
@@ -337,6 +340,13 @@ public class SpareParts extends PreferenceActivity
 			cp.show();
 			return true;
         }
+        else if (preference == mNotifCountColor) {
+            ColorPickerDialog cp = new ColorPickerDialog(this,
+				mNotifCountColorListener,
+				readNotifCountColor());
+			cp.show();
+			return true;
+        }
         else if (preference == mNoNotifColorPref) {
             ColorPickerDialog cp = new ColorPickerDialog(this,
 				mNoNotifColorListener,
@@ -415,6 +425,7 @@ public class SpareParts extends PreferenceActivity
         Settings.System.putInt(getContentResolver(), Settings.System.PLMN_LABEL_COLOR, -16777216);
         Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_COLOR, -1);
         Settings.System.putInt(getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, -16777216);
+        Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_COUNT_COLOR, -1);
         Settings.System.putInt(getContentResolver(), Settings.System.NO_NOTIF_COLOR, -1);
         Settings.System.putInt(getContentResolver(), Settings.System.CLEAR_BUTTON_LABEL_COLOR, -16777216);
         Settings.System.putInt(getContentResolver(), Settings.System.ONGOING_NOTIF_COLOR, -1);
@@ -611,6 +622,22 @@ public class SpareParts extends PreferenceActivity
 		new ColorPickerDialog.OnColorChangedListener() {
 			public void colorChanged(int color) {
 				Settings.System.putInt(getContentResolver(), Settings.System.NEW_NOTIF_TICKER_COLOR, color);
+			}
+	};
+	
+	private int readNotifCountColor() {
+        try {
+    		return Settings.System.getInt(getContentResolver(), Settings.System.NOTIF_COUNT_COLOR);
+        }
+        catch (SettingNotFoundException e) {
+            return -1;
+        }
+	}
+	
+	ColorPickerDialog.OnColorChangedListener mNotifCountColorListener = 
+		new ColorPickerDialog.OnColorChangedListener() {
+			public void colorChanged(int color) {
+				Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_COUNT_COLOR, color);
 			}
 	};
 	

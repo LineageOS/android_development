@@ -332,7 +332,7 @@ public class ColorPickerDialog extends Dialog {
         layout.addView(mEditText, layoutParams);
 
         setContentView(layout);
-        setTitle("Pick a color.");
+        setTitle(com.android.spare_parts.R.string.title_color_picker);
     }
     
     private OnColorChangedListener onColorChangedListener = new OnColorChangedListener() {

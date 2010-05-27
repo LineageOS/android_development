@@ -125,6 +125,7 @@
     <string name="title_notifications_color_tweaks">Notifications</string>
     <string name="summary_notifications_color_tweaks">Notifications ticker, ongoing notifications, latest notifications, clear notifications, etc.</string>    
     <string name="title_notifications_ticker_color">Notifications ticker color</string>
+    <string name="title_notifications_count_color">Notifications count color</string>
     <string name="title_no_notifications_color">No notification title color</string>
     <string name="title_clear_button_label_color">Clear notifications label color</string>    
     <string name="title_ongoing_notifications_color">Ongoing notifications title color</string>    
@@ -133,8 +134,7 @@
     <string name="title_notifications_items_title">Items title color</string>
     <string name="title_notifications_items_text">Items text color</string>
     <string name="title_notifications_items_time">Items time color</string>
-    
-    <string name="dialog_title_color">Select a color</string>
     <string name="title_reset_ui_tweaks_to_defaults">Reset UI tweaks to default</string>
+    <string name="title_color_picker">Pick a color</string>
     
 </resources>
