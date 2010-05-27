@@ -75,6 +75,27 @@
   <string name="summary_on_compcache_enabled">Komprimiertes Caching ist eingeschaltet.</string>
   <string name="summary_off_compcache_enabled">Komprimiertes Caching ist ausgeschaltet.</string>
 
+  <!-- Double Carrier -->
+
+  <string name="title_plmn">Einstellungen für Anzeige des Netzbetreibers</string>
+
+  <string name="title_show_plmn_ls">Netzbetreiber (Lockscreen)</string>
+  <string name="summary_on_show_plmn_ls">Netzbetreiber wird angezeigt auf dem Lockscreen</string>
+  <string name="summary_off_show_plmn_ls">Netzbetreiber wird nicht angezeigt auf dem Lockscreen</string>
+
+  <string name="title_show_plmn_sb">Netzbetreiber (Statuszeile)</string>
+  <string name="summary_on_show_plmn_sb">Netzbetreiber wird angezeigt in der Statuszeile</string>
+  <string name="summary_off_show_plmn_sb">Netzbetreiber wird nicht angezeigt in der Statuszeile</string>
+
+  <string name="title_spn">Einstellungen für Anzeige des Providers</string>
+  <string name="title_show_spn_ls">Provider (Lockscreen)</string>
+  <string name="summary_on_show_spn_ls">Provider wird angezeigt auf dem Lockscreen</string>
+  <string name="summary_off_show_spn_ls">Provider wird nicht angezeigt auf dem Lockscreen</string>
+
+  <string name="title_show_spn_sb">Provider (Statuszeile)</string>
+  <string name="summary_on_show_spn_sb">Provider wird angezeigt in der Statuszeile</string>
+  <string name="summary_off_show_spn_sb">Provider wird nicht angezeigt in der Statuszeile</string>
+
   <!-- Sound & display settings screen, compatibility mode check box label -->
   <string name="compatibility_mode_title">Kompatibilitätsmodus</string>
   <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
