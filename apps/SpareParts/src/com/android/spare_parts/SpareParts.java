@@ -62,6 +62,12 @@ public class SpareParts extends PreferenceActivity
     private static final String LAUNCHER_COLUMN_PREF = "launcher_columns";
     private static final String BATTERY_STATUS_PREF = "battery_status";
     private static final String COMPCACHE_PREF = "compcache_enabled";
+// Double Carrier - bcrook
+	private static final String SHOW_PLMN_LS_PREF = "show_plmn_ls";
+	private static final String SHOW_SPN_LS_PREF = "show_spn_ls";
+	private static final String SHOW_PLMN_SB_PREF = "show_plmn_sb";
+	private static final String SHOW_SPN_SB_PREF = "show_spn_sb";
+	
     
     //Wysie_Soh
     private static final String RECENT_APPS_NUM_PREF = "recent_apps_num";
@@ -112,6 +118,11 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mBatteryStatusPref;
     private CheckBoxPreference mCompcachePref;
     private CheckBoxPreference mShowClockPref;
+	//Double Carrier - bcrook
+	private CheckBoxPreference mShowPlmnLsPref;
+	private CheckBoxPreference mShowSpnLsPref;
+	private CheckBoxPreference mShowPlmnSbPref;
+	private CheckBoxPreference mShowSpnSbPref;
     
     private Preference mResetToDefaults;
 
@@ -182,6 +193,11 @@ public class SpareParts extends PreferenceActivity
         mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
         mLauncherColumnPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_COLUMN_PREF);
         mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
+		// Double carrier
+		mShowPlmnLsPref = (CheckBoxPreference) prefSet.findPreference(SHOW_PLMN_LS_PREF);
+		mShowSpnLsPref = (CheckBoxPreference) prefSet.findPreference(SHOW_SPN_LS_PREF);
+		mShowPlmnSbPref = (CheckBoxPreference) prefSet.findPreference(SHOW_PLMN_SB_PREF);
+		mShowSpnSbPref = (CheckBoxPreference) prefSet.findPreference(SHOW_SPN_SB_PREF);
         
         mBatteryStatusPref = (CheckBoxPreference) prefSet.findPreference(BATTERY_STATUS_PREF);
         mBatteryPercentColorPreference = prefSet.findPreference(UI_BATTERY_PERCENT_COLOR);
@@ -248,6 +264,19 @@ public class SpareParts extends PreferenceActivity
             mShowClockPref.setChecked(Settings.System.getInt(
             		getContentResolver(),
             		Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
+// Double Carrier - bcrook
+            mShowPlmnLsPref.setChecked(Settings.System.getInt(
+            		getContentResolver(),
+            		Settings.System.SHOW_PLMN_LS, 0) != 0);
+            mShowSpnLsPref.setChecked(Settings.System.getInt(
+            		getContentResolver(),
+            		Settings.System.SHOW_SPN_LS, 0) != 0);
+            mShowPlmnSbPref.setChecked(Settings.System.getInt(
+            		getContentResolver(),
+            		Settings.System.SHOW_PLMN_SB, 0) != 0);
+            mShowSpnSbPref.setChecked(Settings.System.getInt(
+            		getContentResolver(),
+            		Settings.System.SHOW_SPN_SB, 0) != 0);
     }
     
     public boolean onPreferenceChange(Preference preference, Object objValue) {
@@ -402,6 +431,11 @@ public class SpareParts extends PreferenceActivity
         Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, -16777216);
         Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 1);
+// Double carrier
+        Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_LS, 1);
+        Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_LS, 1);
+        Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_SB, 1);
+        Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_SB, 1);
         mBatteryStatusPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
         mShowClockPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
     }
@@ -721,6 +755,19 @@ public class SpareParts extends PreferenceActivity
         } else if (COMPCACHE_PREF.equals(key)) {
         	Settings.Secure.putInt(getContentResolver(), Settings.Secure.COMPCACHE_ENABLED,
         			mCompcachePref.isChecked() ? 1 : 0);
+// Double Carrier
+        } else if (SHOW_PLMN_LS_PREF.equals(key)) {
+        	Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_LS,
+        			mShowPlmnLsPref.isChecked() ? 1 : 0);
+        } else if (SHOW_SPN_LS_PREF.equals(key)) {
+        	Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_LS,
+        			mShowSpnLsPref.isChecked() ? 1 : 0);
+        } else if (SHOW_PLMN_SB_PREF.equals(key)) {
+        	Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_SB,
+        			mShowPlmnSbPref.isChecked() ? 1 : 0);
+        } else if (SHOW_SPN_SB_PREF.equals(key)) {
+        	Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_SB,
+        			mShowSpnSbPref.isChecked() ? 1 : 0);
         } else if (UI_SHOW_STATUS_CLOCK.equals(key)) {
         	Settings.System.putInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK,
         			mShowClockPref.isChecked() ? 1 : 0);
