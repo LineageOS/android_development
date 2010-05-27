@@ -79,6 +79,30 @@
 	<string name="title_compcache_enabled">Compcache enabled</string>
 	<string name="summary_on_compcache_enabled">Compressed caching is enabled</string>
 	<string name="summary_off_compcache_enabled">Compressed caching is disabled</string>
+
+	<!-- Double Carrier -->
+    
+    <string name="title_plmn">Settings for PLMN carrier string</string>
+
+	<string name="title_show_plmn_ls">Display PLMN (lockscreen)</string>
+	<string name="summary_on_show_plmn_ls">PLMN field is displayed on lockscreen</string>
+	<string name="summary_off_show_plmn_ls">PLMN field is not displayed on lockscreen</string>
+
+	<string name="title_show_plmn_sb">Display PLMN (status bar)</string>
+	<string name="summary_on_show_plmn_sb">PLMN field is displayed in status bar</string>
+	<string name="summary_off_show_plmn_sb">PLMN field is not displayed in status bar</string>
+
+
+    <string name="title_spn">Settings for SPN carrier string</string>
+
+	<string name="title_show_spn_ls">Display SPN (lockscreen)</string>
+	<string name="summary_on_show_spn_ls">SPN field is displayed on lockscreen</string>
+	<string name="summary_off_show_spn_ls">SPN field is not displayed on lockscreen</string>
+
+	<string name="title_show_spn_sb">Display SPN (status bar)</string>
+	<string name="summary_on_show_spn_sb">SPN field is displayed in status bar</string>
+	<string name="summary_off_show_spn_sb">SPN field is not displayed in status bar</string>
+
 	
     <!-- Sound & display settings screen, compatibility mode check box label -->
     <string name="compatibility_mode_title">Compatibility mode</string>
