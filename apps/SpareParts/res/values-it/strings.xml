@@ -83,5 +83,28 @@
     <string name="compatibility_mode_summary_on">Avvia le vecchie apps in modalità compatibilità</string>
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
     <string name="compatibility_mode_summary_off">Non avviare le vecchie apps in modalità compatibilità</string>
+
+<string name="title_ui_tweaks">Modifiche ai colori della UI</string>
+    
+    <string name="title_general_color_tweaks">Generale</string>
+    <string name="summary_general_color_tweaks">Orologio, data, operatore, etc.</string>
+    <string name="title_clock_color">Orologio</string>
+    <string name="title_date_color">Data</string>
+    <string name="title_spn_label_color">Etichetta SPN operatore</string>
+    <string name="title_plmn_label_color">Etichetta PLMN operatore</string>
+    
+    <string name="title_notifications_color_tweaks">Notifiche</string>
+    <string name="summary_notifications_color_tweaks">Ticker notifiche, notifiche in corso, ultime notifiche, cancella notifiche, etc.</string>    
+    <string name="title_notifications_ticker_color">Ticker notifiche</string>
+    <string name="title_no_notifications_color">Titolo Nessuna notifica</string>
+    <string name="title_clear_button_label_color">Etichetta Cancella</string>    
+    <string name="title_ongoing_notifications_color">Titolo notifiche in corso</string>    
+    <string name="title_latest_notifications_color">Titolo ultime notifiche</string>
+    <string name="title_notifications_items">Oggetto della notifica</string>
+    <string name="title_notifications_items_title">Titolo</string>
+    <string name="title_notifications_items_text">Testo</string>
+    <string name="title_notifications_items_time">Ora</string>
+    
+    <string name="dialog_title_color">Seleziona un colore</string>
 </resources>
 
