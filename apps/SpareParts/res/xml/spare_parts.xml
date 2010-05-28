@@ -229,6 +229,11 @@
                 android:defaultValue="-16777216" />
                 
             <Preference
+                android:key="notifications_count_color"
+                android:title="@string/title_notifications_count_color"
+                android:defaultValue="-1" />
+                
+            <Preference
                 android:key="no_notifications_color"
                 android:title="@string/title_no_notifications_color"
                 android:defaultValue="-1" />
