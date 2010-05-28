@@ -262,10 +262,6 @@ public class SpareParts extends PreferenceActivity
             mShowClockPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
-<<<<<<< HEAD
-// Double Carrier - bcrook
-=======
->>>>>>> d8b855458f3bcec9b18223ab2a343e8e48f1bba6
             mShowPlmnLsPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     Settings.System.SHOW_PLMN_LS, 0) != 0);
@@ -440,18 +436,10 @@ public class SpareParts extends PreferenceActivity
         Settings.System.putInt(getContentResolver(), Settings.System.NOTIF_ITEM_TIME_COLOR, -16777216);
         Settings.System.putInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 1);
-<<<<<<< HEAD
-// Double carrier
-=======
->>>>>>> d8b855458f3bcec9b18223ab2a343e8e48f1bba6
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_LS, 1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_LS, 1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_PLMN_SB, 1);
         Settings.System.putInt(getContentResolver(), Settings.System.SHOW_SPN_SB, 1);
-<<<<<<< HEAD
-        mBatteryStatusPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
-        mShowClockPref.setChecked(Settings.System.getInt(getContentResolver(), Settings.System.SHOW_STATUS_CLOCK, 0) != 0);
-=======
         
         //Update Spare Parts UI to defaults
         mBatteryStatusPref.setChecked(true);
@@ -460,7 +448,6 @@ public class SpareParts extends PreferenceActivity
         mShowSpnLsPref.setChecked(true);
         mShowPlmnSbPref.setChecked(true);
         mShowSpnSbPref.setChecked(true);
->>>>>>> d8b855458f3bcec9b18223ab2a343e8e48f1bba6
     }
 
     public void writeAnimationPreference(int which, Object objValue) {
