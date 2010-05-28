@@ -30,7 +30,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 import android.database.Cursor;
-import android.provider.Contacts;
+import android.provider.ContactsContract;
 
 import com.example.android.apis.R;
 
@@ -135,13 +135,15 @@ public class AlertDialogSamples extends Activity {
             mProgressDialog.setTitle(R.string.select_dialog);
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setMax(MAX_PROGRESS);
-            mProgressDialog.setButton(getText(R.string.alert_dialog_hide), new DialogInterface.OnClickListener() {
+            mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                    getText(R.string.alert_dialog_hide), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
                     /* User clicked Yes so do some stuff */
                 }
             });
-            mProgressDialog.setButton2(getText(R.string.alert_dialog_cancel), new DialogInterface.OnClickListener() {
+            mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+                    getText(R.string.alert_dialog_cancel), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
                     /* User clicked No so do some stuff */
@@ -184,13 +186,15 @@ public class AlertDialogSamples extends Activity {
                                 /* User clicked on a check box do some stuff */
                             }
                         })
-                .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.alert_dialog_ok,
+                        new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         /* User clicked Yes so do some stuff */
                     }
                 })
-                .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.alert_dialog_cancel,
+                        new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         /* User clicked No so do some stuff */
@@ -199,17 +203,18 @@ public class AlertDialogSamples extends Activity {
                .create();
             case DIALOG_MULTIPLE_CHOICE_CURSOR:
                 String[] projection = new String[] {
-                        Contacts.People._ID,
-                        Contacts.People.NAME,
-                        Contacts.People.SEND_TO_VOICEMAIL
+                        ContactsContract.Contacts._ID,
+                        ContactsContract.Contacts.DISPLAY_NAME,
+                        ContactsContract.Contacts.SEND_TO_VOICEMAIL
                 };
-                Cursor cursor = managedQuery(Contacts.People.CONTENT_URI, projection, null, null, null);
+                Cursor cursor = managedQuery(ContactsContract.Contacts.CONTENT_URI,
+                        projection, null, null, null);
                 return new AlertDialog.Builder(AlertDialogSamples.this)
                     .setIcon(R.drawable.ic_popup_reminder)
                     .setTitle(R.string.alert_dialog_multi_choice_cursor)
                     .setMultiChoiceItems(cursor,
-                            Contacts.People.SEND_TO_VOICEMAIL,
-                            Contacts.People.NAME,
+                            ContactsContract.Contacts.SEND_TO_VOICEMAIL,
+                            ContactsContract.Contacts.DISPLAY_NAME,
                             new DialogInterface.OnMultiChoiceClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton,
                                         boolean isChecked) {

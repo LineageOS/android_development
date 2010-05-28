@@ -145,14 +145,11 @@
                 android:title="@string/battery_status_title"
                 android:summaryOn="@string/battery_status_summary_on"
                 android:summaryOff="@string/battery_status_summary_off"
-                android:disableDependentsState="false" />
-        
-            <ListPreference
-                android:key="battery_status_color_title"
+                android:disableDependentsState="false" />        
+                
+            <Preference android:key="battery_status_color_title"
                 android:title="@string/battery_status_color_title"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values"
+                android:defaultValue="-1"
                 android:dependency="battery_status" />
                 
             <CheckBoxPreference
@@ -160,102 +157,126 @@
                 android:title="@string/title_show_clock"
                 android:disableDependentsState="false" />
                 
-            <ListPreference
-                android:key="clock_color"
+            <Preference android:key="clock_color"
                 android:title="@string/title_clock_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values"
+                android:defaultValue="-16777216"
                 android:dependency="show_status_clock" />
-
-            <ListPreference
-                android:key="date_color"
-                android:title="@string/title_date_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
-                
-            <ListPreference
-                android:key="spn_label_color"
-                android:title="@string/title_spn_label_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
             
-            <ListPreference
-                android:key="plmn_label_color"
+            <Preference android:key="date_color"
+                android:title="@string/title_date_color"
+                android:defaultValue="-16777216" />
+		
+				<!-- Double Carrier - bcrook shenanigans -->
+    	<PreferenceCategory
+        	android:title="@string/title_plmn">
+
+		    <CheckBoxPreference 
+		        android:key="show_plmn_ls" 
+		        android:title="@string/title_show_plmn_ls" 
+		        android:summaryOn="@string/summary_on_show_plmn_ls"
+		        android:summaryOff="@string/summary_off_show_plmn_ls"
+				android:defaultValue="true" />
+
+		    <CheckBoxPreference 
+		        android:key="show_plmn_sb" 
+		        android:title="@string/title_show_plmn_sb" 
+		        android:summaryOn="@string/summary_on_show_plmn_sb"
+		        android:summaryOff="@string/summary_off_show_plmn_sb"
+				android:defaultValue="true" 
+                android:disableDependentsState="false" />
+
+            <Preference android:key="plmn_label_color"
                 android:title="@string/title_plmn_label_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:defaultValue="-16777216"
+                android:dependency="show_plmn_sb" />
+
+       	</PreferenceCategory>
+
+    	<PreferenceCategory
+        	android:title="@string/title_spn">
+
+		    <CheckBoxPreference 
+		        android:key="show_spn_ls" 
+		        android:title="@string/title_show_spn_ls" 
+		        android:summaryOn="@string/summary_on_show_spn_ls"
+		        android:summaryOff="@string/summary_off_show_spn_ls"
+				android:defaultValue="true" />
+
+		    <CheckBoxPreference 
+		        android:key="show_spn_sb" 
+		        android:title="@string/title_show_spn_sb" 
+		        android:summaryOn="@string/summary_on_show_spn_sb"
+		        android:summaryOff="@string/summary_off_show_spn_sb"
+				android:defaultValue="true" 
+                android:disableDependentsState="false" />
                 
+            <Preference android:key="spn_label_color"
+                android:title="@string/title_spn_label_color"
+                android:defaultValue="-16777216"
+                android:dependency="show_spn_sb" />
+
+      	</PreferenceCategory>
+              
         </PreferenceScreen>
         
         <PreferenceScreen
                 android:title="@string/title_notifications_color_tweaks" 
-                android:summary="@string/summary_notifications_color_tweaks"> 
+                android:summary="@string/summary_notifications_color_tweaks">
             
-            <ListPreference
+            <Preference
                 android:key="new_notifications_ticker_color"
                 android:title="@string/title_notifications_ticker_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:defaultValue="-16777216" />
                 
-            <ListPreference
+            <Preference
+                android:key="notifications_count_color"
+                android:title="@string/title_notifications_count_color"
+                android:defaultValue="-1" />
+                
+            <Preference
                 android:key="no_notifications_color"
                 android:title="@string/title_no_notifications_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:defaultValue="-1" />
                 
-            <ListPreference
+            <Preference
                 android:key="clear_button_label_color"
                 android:title="@string/title_clear_button_label_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:defaultValue="-16777216" />
                 
-            <ListPreference
+            <Preference
                 android:key="ongoing_notifications_color"
                 android:title="@string/title_ongoing_notifications_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:defaultValue="-1" />
                 
-            <ListPreference
+            <Preference
                 android:key="latest_notifications_color"
                 android:title="@string/title_latest_notifications_color"
-                android:dialogTitle="@string/dialog_title_color"
-                android:entries="@array/colors"
-                android:entryValues="@array/colors_values" />
+                android:defaultValue="-1" />
                 
             <PreferenceCategory
                 android:title="@string/title_notifications_items">           
 
-                <ListPreference
+                <Preference
                     android:key="notifications_title_color"
                     android:title="@string/title_notifications_items_title"
-                    android:dialogTitle="@string/dialog_title_color"
-                    android:entries="@array/colors"
-                    android:entryValues="@array/colors_values" />
+                    android:defaultValue="-16777216" />
                     
-                <ListPreference
+                <Preference
                     android:key="notifications_text_color"
                     android:title="@string/title_notifications_items_text"
-                    android:dialogTitle="@string/dialog_title_color"
-                    android:entries="@array/colors"
-                    android:entryValues="@array/colors_values" />
+                    android:defaultValue="-16777216" />
                     
-                <ListPreference
+                <Preference
                     android:key="notifications_time_color"
                     android:title="@string/title_notifications_items_time"
-                    android:dialogTitle="@string/dialog_title_color"
-                    android:entries="@array/colors"
-                    android:entryValues="@array/colors_values" />
+                    android:defaultValue="-16777216" />
                     
             </PreferenceCategory>
         </PreferenceScreen>
+        
+        <Preference
+            android:key="reset_ui_tweaks_to_defaults"
+            android:title="@string/title_reset_ui_tweaks_to_defaults" />
             
     </PreferenceCategory>
         
