@@ -75,32 +75,32 @@
     <string name="battery_status_summary_off">バッテリの残りパーセントをステータスバーに表示しない</string>
     <string name="battery_status_color_title">バッテリパーセントの文字色</string>
 
-	<string name="title_compcache_enabled">圧縮キャッシュ</string>
-	<string name="summary_on_compcache_enabled">圧縮キャッシュは有効</string>
-	<string name="summary_off_compcache_enabled">圧縮キャッシュは無効</string>
+    <string name="title_compcache_enabled">圧縮キャッシュ</string>
+    <string name="summary_on_compcache_enabled">圧縮キャッシュは有効</string>
+    <string name="summary_off_compcache_enabled">圧縮キャッシュは無効</string>
 
-	<!-- Double Carrier -->
+    <!-- Double Carrier -->
     
     <string name="title_plmn">PLMNキャリア文字列の設定</string>
 
-	<string name="title_show_plmn_ls">PLMNを表示(ロックスクリーン)</string>
-	<string name="summary_on_show_plmn_ls">PLMNフィールドはロックスクリーンに表示される</string>
-	<string name="summary_off_show_plmn_ls">PLMNフィールドはロックスクリーンに表示されない</string>
+    <string name="title_show_plmn_ls">PLMNを表示(ロックスクリーン)</string>
+    <string name="summary_on_show_plmn_ls">PLMNフィールドはロックスクリーンに表示される</string>
+    <string name="summary_off_show_plmn_ls">PLMNフィールドはロックスクリーンに表示されない</string>
 
-	<string name="title_show_plmn_sb">PLMNを表示(ステータスバー)</string>
-	<string name="summary_on_show_plmn_sb">PLMNフィールドはステータスバーに表示される</string>
-	<string name="summary_off_show_plmn_sb">PLMNフィールドはステータスバーに表示されない</string>
+    <string name="title_show_plmn_sb">PLMNを表示(ステータスバー)</string>
+    <string name="summary_on_show_plmn_sb">PLMNフィールドはステータスバーに表示される</string>
+    <string name="summary_off_show_plmn_sb">PLMNフィールドはステータスバーに表示されない</string>
 
 
     <string name="title_spn">SPNキャリア文字列の設定</string>
 
-	<string name="title_show_spn_ls">SPNを表示(ロックスクリーン)</string>
-	<string name="summary_on_show_spn_ls">SPNフィールドはロックスクリーンに表示される</string>
-	<string name="summary_off_show_spn_ls">SPNフィールドはロックスクリーンに表示されない</string>
+    <string name="title_show_spn_ls">SPNを表示(ロックスクリーン)</string>
+    <string name="summary_on_show_spn_ls">SPNフィールドはロックスクリーンに表示される</string>
+    <string name="summary_off_show_spn_ls">SPNフィールドはロックスクリーンに表示されない</string>
 
-	<string name="title_show_spn_sb">SPNを表示(ステータスバー)</string>
-	<string name="summary_on_show_spn_sb">SPNフィールドはステータスバーに表示される</string>
-	<string name="summary_off_show_spn_sb">SPNフィールドはステータスバーに表示されない</string>
+    <string name="title_show_spn_sb">SPNを表示(ステータスバー)</string>
+    <string name="summary_on_show_spn_sb">SPNフィールドはステータスバーに表示される</string>
+    <string name="summary_off_show_spn_sb">SPNフィールドはステータスバーに表示されない</string>
 
     <!-- Sound & display settings screen, compatibility mode check box label -->
     <string name="compatibility_mode_title">互換モード</string>
