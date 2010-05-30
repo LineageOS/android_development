@@ -30,20 +30,4 @@
     <item>Schlafmodus</item>
     <item>Home, dann Schlaf</item>
   </string-array>
-
-  <string-array name="colors">
-    <item>Schwarz</item>
-    <item>Blau</item>
-    <item>Dunkelblau</item>
-    <item>Cyan</item>
-    <item>Dunkel Grau</item>
-    <item>Grau</item>
-    <item>Grün</item>
-    <item>Hellgrau</item>
-    <item>Magenta</item>
-    <item>Rot</item>
-    <item>Weiss</item>
-    <item>Gelb</item>
-    <item>Transparent</item>
-  </string-array>
 </resources>
