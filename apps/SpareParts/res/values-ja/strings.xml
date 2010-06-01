@@ -75,9 +75,32 @@
     <string name="battery_status_summary_off">バッテリの残りパーセントをステータスバーに表示しない</string>
     <string name="battery_status_color_title">バッテリパーセントの文字色</string>
 
-	<string name="title_compcache_enabled">圧縮キャッシュ</string>
-	<string name="summary_on_compcache_enabled">圧縮キャッシュは有効</string>
-	<string name="summary_off_compcache_enabled">圧縮キャッシュは無効</string>
+    <string name="title_compcache_enabled">圧縮キャッシュ</string>
+    <string name="summary_on_compcache_enabled">圧縮キャッシュは有効</string>
+    <string name="summary_off_compcache_enabled">圧縮キャッシュは無効</string>
+
+    <!-- Double Carrier -->
+    
+    <string name="title_plmn">PLMNキャリア文字列の設定</string>
+
+    <string name="title_show_plmn_ls">PLMNを表示(ロックスクリーン)</string>
+    <string name="summary_on_show_plmn_ls">PLMNフィールドはロックスクリーンに表示される</string>
+    <string name="summary_off_show_plmn_ls">PLMNフィールドはロックスクリーンに表示されない</string>
+
+    <string name="title_show_plmn_sb">PLMNを表示(ステータスバー)</string>
+    <string name="summary_on_show_plmn_sb">PLMNフィールドはステータスバーに表示される</string>
+    <string name="summary_off_show_plmn_sb">PLMNフィールドはステータスバーに表示されない</string>
+
+
+    <string name="title_spn">SPNキャリア文字列の設定</string>
+
+    <string name="title_show_spn_ls">SPNを表示(ロックスクリーン)</string>
+    <string name="summary_on_show_spn_ls">SPNフィールドはロックスクリーンに表示される</string>
+    <string name="summary_off_show_spn_ls">SPNフィールドはロックスクリーンに表示されない</string>
+
+    <string name="title_show_spn_sb">SPNを表示(ステータスバー)</string>
+    <string name="summary_on_show_spn_sb">SPNフィールドはステータスバーに表示される</string>
+    <string name="summary_off_show_spn_sb">SPNフィールドはステータスバーに表示されない</string>
 
     <!-- Sound & display settings screen, compatibility mode check box label -->
     <string name="compatibility_mode_title">互換モード</string>
@@ -92,12 +115,14 @@
     <string name="title_show_clock">時計を表示</string>
     <string name="title_clock_color">時計カラー</string>
     <string name="title_date_color">日付カラー</string>
-    <string name="title_spn_label_color">キャリアSPNラベルカラー</string>
-    <string name="title_plmn_label_color">キャリアPLMNラベルカラー</string>
+    <string name="title_spn_label_color">SPNキャリアラベルカラー</string>
+    <string name="title_plmn_label_color">PLMNキャリアラベルカラー</string>
     
     <string name="title_notifications_color_tweaks">通知</string>
     <string name="summary_notifications_color_tweaks">通知ティッカー, 実行中, 最新, 消去, 他.</string>    
     <string name="title_notifications_ticker_color">通知ティッカーカラー</string>
+    <string name="title_notifications_count_color">通知カウンタカラー</string>
+
     <string name="title_no_notifications_color">通知なしタイトルカラー</string>
     <string name="title_clear_button_label_color">消去ボタンのラベルカラー</string>    
     <string name="title_ongoing_notifications_color">実行中のタイトルカラー</string>    
@@ -107,6 +132,6 @@
     <string name="title_notifications_items_text">アイテムテキストカラー</string>
     <string name="title_notifications_items_time">アイテム時刻カラー</string>
     
-    <string name="dialog_title_color">色を選択</string>
+    <string name="title_color_picker">色を選択</string>
     <string name="title_reset_ui_tweaks_to_defaults">初期設定に戻す</string>
 </resources>
