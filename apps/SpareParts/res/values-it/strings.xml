@@ -91,8 +91,8 @@
     <string name="title_show_clock">Mostra orologio</string>
     <string name="title_clock_color">Colore orologio</string>
     <string name="title_date_color">Colore data</string>
-    <string name="title_spn_label_color">Etichetta SPN operatore</string>
-    <string name="title_plmn_label_color">Etichetta PLMN operatore</string>
+    <string name="title_spn_label_color">Etichetta Provider</string>
+    <string name="title_plmn_label_color">Etichetta Operatore</string>
     
     <string name="title_notifications_color_tweaks">Notifiche</string>
     <string name="summary_notifications_color_tweaks">Ticker notifiche, notifiche in corso, ultime notifiche, cancella notifiche, etc.</string>    
@@ -107,5 +107,28 @@
     <string name="title_notifications_items_time">Ora</string>
     <string name="title_reset_ui_tweaks_to_defaults">Ripristina UI a valori di default</string>
     <string name="title_color_picker">Seleziona un colore</string>
+    
+<!-- Double Carrier -->
+    
+    <string name="title_plmn">Imppostazioni di visualizzazione per l'Operatore</string>
+
+	<string name="title_show_plmn_ls">Operatore (lockscreen)</string>
+	<string name="summary_on_show_plmn_ls">L'operatore è visualizzato nel lockscreen</string>
+	<string name="summary_off_show_plmn_ls">L'operatore non è visualizzato nel lockscreen</string>
+
+	<string name="title_show_plmn_sb">Operatore (status bar)</string>
+	<string name="summary_on_show_plmn_sb">L'operatore viene visualizzato nella status bar</string>
+	<string name="summary_off_show_plmn_sb">L'operatore non viene visualizzato nella status bar</string>
+
+
+    <string name="title_spn">Imppostazioni di visualizzazione per il Provider</string>
+
+	<string name="title_show_spn_ls">Provider (lockscreen)</string>
+	<string name="summary_on_show_spn_ls">Il Provider è visualizzato nel lockscreen</string>
+	<string name="summary_off_show_spn_ls">Il Provider non è visualizzato nel lockscreen</string>
+
+	<string name="title_show_spn_sb">Provider (status bar)</string>
+	<string name="summary_on_show_spn_sb">Il Provider è visualizzato nella staus bar</string>
+	<string name="summary_off_show_spn_sb">Il Provider non è visualizzato nella staus bar</string>
 </resources>
 
