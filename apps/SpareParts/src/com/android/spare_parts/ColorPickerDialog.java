@@ -313,7 +313,7 @@ public class ColorPickerDialog extends Dialog {
         layoutParams.setMargins(10, 0, 10, 5);
         
         TextView tv = new TextView(mContext);
-        tv.setText("Tap on center color to confirm.\nPress back to cancel.");
+        tv.setText(com.android.spare_parts.R.string.msg_color_picker);
         layout.addView(tv, layoutParams);
         
         mColorPickerView = new ColorPickerView(getContext(), onColorChangedListener, mInitialColor);        
