@@ -42,6 +42,17 @@ import java.util.List;
 import android.content.DialogInterface;
 import android.app.AlertDialog;
 
+import android.os.Environment;
+import java.io.FileReader;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import org.xmlpull.v1.XmlPullParserException;
+import android.graphics.Color;
+import android.widget.Toast;
+
 public class SpareParts extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -85,6 +96,9 @@ public class SpareParts extends PreferenceActivity
     private static final String UI_NOTIF_ITEM_TEXT_COLOR = "notifications_text_color";
     private static final String UI_NOTIF_ITEM_TIME_COLOR = "notifications_time_color";
     private static final String UI_RESET_TO_DEFAULTS = "reset_ui_tweaks_to_defaults";
+    private static final String UI_IMPORT_FROM_XML = "import_from_xml";
+    
+    private static final String IMPORT_FILENAME = "spare_parts_ui.xml";
     
     private final Configuration mCurConfig = new Configuration();
     
@@ -122,6 +136,7 @@ public class SpareParts extends PreferenceActivity
     private CheckBoxPreference mShowSpnSbPref;
     
     private Preference mResetToDefaults;
+    private Preference mImportFromXML;
 
     private IWindowManager mWindowManager;
 
@@ -214,6 +229,7 @@ public class SpareParts extends PreferenceActivity
         mNotifItemTextPref = prefSet.findPreference(UI_NOTIF_ITEM_TEXT_COLOR);
         mNotifItemTimePref = prefSet.findPreference(UI_NOTIF_ITEM_TIME_COLOR);
         mResetToDefaults = prefSet.findPreference(UI_RESET_TO_DEFAULTS);
+        mImportFromXML = prefSet.findPreference(UI_IMPORT_FROM_XML);
         
         if (!isSwapEnabled()) {
             prefSet.removePreference(mCompcachePref);
@@ -399,14 +415,32 @@ public class SpareParts extends PreferenceActivity
         }
         else if (preference == mResetToDefaults) {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-            alertDialog.setTitle("UI interface tweaks");
-            alertDialog.setMessage("Reset all UI interface tweaks to default? Reboot to see changes.");
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            alertDialog.setTitle(getResources().getString(R.string.title_dialog_ui_interface));
+            alertDialog.setMessage(getResources().getString(R.string.message_dialog_reset));
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     resetUITweaks();
                 }
             });
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getResources().getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    
+                }
+            });
+            alertDialog.show();
+            
+            return true;
+        }
+        else if (preference == mImportFromXML) {            
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle(getResources().getString(R.string.title_dialog_ui_interface));
+            alertDialog.setMessage(getResources().getString(R.string.message_dialog_import));
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    readUIValuesFromXML();
+                }
+            });
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getResources().getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     
                 }
@@ -448,6 +482,63 @@ public class SpareParts extends PreferenceActivity
         mShowSpnLsPref.setChecked(true);
         mShowPlmnSbPref.setChecked(true);
         mShowSpnSbPref.setChecked(true);
+    }
+    
+    private void readUIValuesFromXML() {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return;
+        }    
+        
+        FileReader reader = null;
+        boolean success = false;
+                
+        try {
+            reader = new FileReader(new File(Environment.getExternalStorageDirectory() + "/" + IMPORT_FILENAME));
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(reader);
+            int eventType = parser.getEventType();
+            String uiType = null;
+            
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                switch (eventType) {
+                    case XmlPullParser.START_TAG:
+						uiType = parser.getName().trim();
+						if (!uiType.equalsIgnoreCase("spareparts")) {
+						    Settings.System.putInt(getContentResolver(), uiType, Color.parseColor(parser.nextText()));
+						}						    
+						break;
+                }
+                eventType = parser.next();
+            }
+            success = true;
+        }
+        catch (FileNotFoundException e) {
+            Toast.makeText(getApplicationContext(), R.string.xml_file_not_found, Toast.LENGTH_SHORT).show();
+        }
+        catch (IOException e) {
+            Toast.makeText(getApplicationContext(), R.string.xml_io_exception, Toast.LENGTH_SHORT).show();
+        }
+        catch (XmlPullParserException e) {
+            Toast.makeText(getApplicationContext(), R.string.xml_parse_error, Toast.LENGTH_SHORT).show();
+        }
+        catch (IllegalArgumentException e) {
+            Toast.makeText(getApplicationContext(), R.string.xml_invalid_color, Toast.LENGTH_SHORT).show();
+        }
+        finally {
+            if (reader != null) {
+        		try {
+	        	    reader.close();
+	        	} catch (IOException e) {
+	        	}
+	        }
+        }
+        
+        if (success) {
+            Toast.makeText(getApplicationContext(), R.string.xml_import_success, Toast.LENGTH_SHORT).show();
+        }
+            
+           
     }
 
     public void writeAnimationPreference(int which, Object objValue) {
