@@ -126,7 +126,19 @@
   <string name="title_notifications_items_title">Titelelement</string>
   <string name="title_notifications_items_text">Textelement</string>
   <string name="title_notifications_items_time">Zeitelement</string>
-
   <string name="title_reset_ui_tweaks_to_defaults">Änderungen zurücksetzen</string>
+  <string name="title_import_from_xml">Farben aus XML importieren</string>
+
+  <string name="title_dialog_ui_interface">Tweaks für Benutzeroberfläche</string>
+  <string name="message_dialog_reset">Alle Tweaks zurücksetzen? Neustart erforderlich.</string>
+  <string name="message_dialog_import">Importiere Farben aus XML? Neustart erforderlich.</string>
   <string name="title_color_picker">Wähle eine Farbe</string>
+  <string name="msg_color_picker">Zum Bestätigen auf Mitte der Farbe tippen.\nZum abbrechen Zurück drücken.</string>
+
+  <!-- XML Import/Export strings -->
+  <string name="xml_file_not_found">XML Datei nicht gefunden!</string>
+  <string name="xml_io_exception">Fehler beim Lesen der XML-Datei!</string>
+  <string name="xml_parse_error">Fehler beim Verarbeiten der XML-Datei!</string>
+  <string name="xml_invalid_color">Ungültiger Farbcode im XML!</string>
+  <string name="xml_import_success">XML Import erfolgreich! Neustart erforderlich um Änderungen sichtbar zu machen.</string>
 </resources>
