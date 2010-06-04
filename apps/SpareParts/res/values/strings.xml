@@ -136,18 +136,26 @@
     <string name="title_notifications_items_time">Items time color</string>
     <string name="title_reset_ui_tweaks_to_defaults">Reset UI tweaks to default</string>
     <string name="title_import_from_xml">Import colors from XML</string>
+    <string name="summary_import_from_xml">Import colors from /sdcard/spare_parts_ui.xml</string>
+    <string name="title_export_to_xml">Export colors to XML</string>
+    <string name="summary_export_to_xml">Export colors to /sdcard/spare_parts_ui.xml</string>
     
     <string name="title_dialog_ui_interface">UI interface tweaks</string>
     <string name="message_dialog_reset">Reset all UI interface tweaks to default? Reboot to see changes.</string>
     <string name="message_dialog_import">Import UI colors from XML? Reboot to see changes.</string>
+    <string name="message_dialog_export">Export UI colors to XML? This will overwrite the existing file.</string>
     <string name="title_color_picker">Pick a color</string>
     <string name="msg_color_picker">Tap on center color to confirm.\nPress back to cancel.</string>
+    <string name="reset_ui_success">UI interface tweaks reset! Reboot to see changes.</string>
     
     <!-- XML Import/Export strings -->
     <string name="xml_file_not_found">XML file not found!</string>
     <string name="xml_io_exception">Error reading file!</string>
     <string name="xml_parse_error">Error parsing XML!</string>
     <string name="xml_invalid_color">Invalid color code in XML!</string>
-    <string name="xml_import_success">XML import successful! Reboot to see changes.</string>
+    <string name="xml_import_success">XML import successful! Reboot to see changes.</string>    
+    <string name="xml_write_error">Error writing XML!</string>
+    <string name="xml_export_success">XML export successful!</string>    
+    <string name="xml_sdcard_unmounted">SD card not mounted!</string>
     
 </resources>

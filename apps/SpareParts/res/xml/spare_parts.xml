@@ -280,7 +280,13 @@
 
         <Preference
             android:key="import_from_xml"
-            android:title="@string/title_import_from_xml" />            
+            android:title="@string/title_import_from_xml"
+            android:summary="@string/summary_import_from_xml" />
+            
+        <Preference
+            android:key="export_to_xml"
+            android:title="@string/title_export_to_xml"
+            android:summary="@string/summary_export_to_xml" /> 
             
     </PreferenceCategory>
         
