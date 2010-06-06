@@ -117,18 +117,26 @@
   <string name="title_notifications_items_text">Textelement</string>
   <string name="title_notifications_items_time">Zeitelement</string>
   <string name="title_reset_ui_tweaks_to_defaults">Änderungen zurücksetzen</string>
-  <string name="title_import_from_xml">Farben aus XML importieren</string>
+  <string name="title_import_from_xml">Farbimport aus XML</string>
+  <string name="summary_import_from_xml">Farben aus /sdcard/spare_parts_ui.xml importieren.</string>
+  <string name="title_export_to_xml">Farbexport nach XML</string>
+  <string name="summary_export_to_xml">Farben nach /sdcard/spare_parts_ui.xml exportieren.</string>
 
   <string name="title_dialog_ui_interface">Tweaks für Benutzeroberfläche</string>
   <string name="message_dialog_reset">Alle Tweaks zurücksetzen? Neustart erforderlich.</string>
-  <string name="message_dialog_import">Importiere Farben aus XML? Neustart erforderlich.</string>
-  <string name="title_color_picker">Wähle eine Farbe</string>
-  <string name="msg_color_picker">Zum Bestätigen auf Mitte der Farbe tippen.\nZum abbrechen Zurück drücken.</string>
+  <string name="message_dialog_import">Importiere Farben aus XML-Datei? Neustart erforderlich.</string>
+  <string name="message_dialog_export">Exportiere Farben zu XML-Datei? Vorhandene Datei wird überschrieben.</string>
+  <string name="title_color_picker">Farbe wählen</string>
+  <string name="msg_color_picker">Zum Bestätigen auf Mitte der Farbe tippen.\nZum Abbrechen Zurück-Taste drücken.</string>
+  <string name="reset_ui_success">Tweaks zurückgesetzt! Neustart erforderlich um Änderungen anzuwenden.</string>
 
   <!-- XML Import/Export strings -->
   <string name="xml_file_not_found">XML Datei nicht gefunden!</string>
   <string name="xml_io_exception">Fehler beim Lesen der XML-Datei!</string>
   <string name="xml_parse_error">Fehler beim Verarbeiten der XML-Datei!</string>
   <string name="xml_invalid_color">Ungültiger Farbcode im XML!</string>
-  <string name="xml_import_success">XML Import erfolgreich! Neustart erforderlich um Änderungen sichtbar zu machen.</string>
+  <string name="xml_import_success">XML Import erfolgreich! Neustart erforderlich um Änderungen anzuwenden.</string>
+  <string name="xml_write_error">Fehler beim Schreiben der XML-Datei!</string>
+  <string name="xml_export_success">XML Export war erfolgreich!</string>
+  <string name="xml_sdcard_unmounted">SD-Karte ist nicht eingebunden!</string>
 </resources>
