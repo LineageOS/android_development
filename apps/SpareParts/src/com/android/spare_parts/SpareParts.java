@@ -69,8 +69,6 @@ public class SpareParts extends PreferenceActivity
     private static final String END_BUTTON_PREF = "end_button";
     private static final String KEY_COMPATIBILITY_MODE = "compatibility_mode";
     private static final String PIN_HOME_PREF = "pin_home";
-    private static final String LAUNCHER_ORIENTATION_PREF = "launcher_orientation";
-    private static final String LAUNCHER_COLUMN_PREF = "launcher_columns";
     private static final String BATTERY_STATUS_PREF = "battery_status";
     private static final String COMPCACHE_PREF = "compcache_enabled";
     
@@ -125,8 +123,6 @@ public class SpareParts extends PreferenceActivity
     private ListPreference mEndButtonPref;
     private CheckBoxPreference mCompatibilityMode;
     private CheckBoxPreference mPinHomePref;
-    private CheckBoxPreference mLauncherOrientationPref;
-    private CheckBoxPreference mLauncherColumnPref;
     private CheckBoxPreference mBatteryStatusPref;
     private CheckBoxPreference mCompcachePref;
     private CheckBoxPreference mShowClockPref;
@@ -202,8 +198,6 @@ public class SpareParts extends PreferenceActivity
         mEndButtonPref = (ListPreference) prefSet.findPreference(END_BUTTON_PREF);
         mEndButtonPref.setOnPreferenceChangeListener(this);
         mPinHomePref = (CheckBoxPreference) prefSet.findPreference(PIN_HOME_PREF);
-        mLauncherOrientationPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_ORIENTATION_PREF);
-        mLauncherColumnPref = (CheckBoxPreference) prefSet.findPreference(LAUNCHER_COLUMN_PREF);
         mCompcachePref = (CheckBoxPreference) prefSet.findPreference(COMPCACHE_PREF);
         // Double carrier
         mShowPlmnLsPref = (CheckBoxPreference) prefSet.findPreference(SHOW_PLMN_LS_PREF);
@@ -263,12 +257,6 @@ public class SpareParts extends PreferenceActivity
             mPinHomePref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     "pin_home_in_memory", 0) != 0);
-            mLauncherOrientationPref.setChecked(Settings.System.getInt(
-                    getContentResolver(),
-                    "launcher_orientation", 0) != 0);
-            mLauncherColumnPref.setChecked(Settings.System.getInt(
-                    getContentResolver(),
-                    Settings.System.LAUNCHER_COLUMN_NUMBER, 5) != 4);
             mBatteryStatusPref.setChecked(Settings.System.getInt(
                     getContentResolver(),
                     Settings.System.BATTERY_PERCENTAGE_STATUS_ICON, 0) != 0);
@@ -857,13 +845,6 @@ public class SpareParts extends PreferenceActivity
         } else if (PIN_HOME_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(), "pin_home_in_memory",
                     mPinHomePref.isChecked() ? 1 : 0);
-        } else if (LAUNCHER_ORIENTATION_PREF.equals(key)) {
-            Settings.System.putInt(getContentResolver(), "launcher_orientation",
-                    mLauncherOrientationPref.isChecked() ? 1 : 0);
-        } else if (LAUNCHER_COLUMN_PREF.equals(key)) {
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.LAUNCHER_COLUMN_NUMBER,
-                    mLauncherColumnPref.isChecked() ? 5 : 4);
         } else if (BATTERY_STATUS_PREF.equals(key)) {
             Settings.System.putInt(getContentResolver(),
                     Settings.System.BATTERY_PERCENTAGE_STATUS_ICON,

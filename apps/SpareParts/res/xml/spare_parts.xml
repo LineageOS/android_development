@@ -107,24 +107,6 @@
             android:summaryOn="@string/summary_on_compcache_enabled"
             android:summaryOff="@string/summary_off_compcache_enabled" />
 
-    </PreferenceCategory>
-            
-    <PreferenceCategory
-        android:title="@string/applications_title">
-
-        <CheckBoxPreference
-            android:key="launcher_orientation"
-            android:title="@string/title_launcher_orientation"
-            android:summaryOn="@string/summary_on_launcher_orientation"
-            android:summaryOff="@string/summary_off_launcher_orientation" />
-
-        <CheckBoxPreference
-            android:key="launcher_columns"
-            android:title="@string/title_launcher_columns"
-            android:summaryOn="@string/summary_on_launcher_columns"
-            android:summaryOff="@string/summary_off_launcher_columns" />
-
-        
         <CheckBoxPreference
             android:key="pin_home"
             android:title="@string/title_pin_home"

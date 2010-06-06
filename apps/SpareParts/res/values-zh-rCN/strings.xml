@@ -53,24 +53,14 @@
     <string name="summary_end_button">选择结束通话按钮的动作</string>
     <string name="dialog_title_end_button">选择动作</string>
     
-    <string name="applications_title">应用程序</string>
-    
     <string name="title_pin_home">内存中的应用程序</string>
     <string name="summary_on_pin_home">尝试保留桌面应用程序到内存</string>
     <string name="summary_off_pin_home">不把桌面应用程序锁定在内存</string>
 
-    <string name="title_launcher_orientation">屏幕旋转</string>
-    <string name="summary_on_launcher_orientation">使用加速及自动旋转屏幕</string>
-    <string name="summary_off_launcher_orientation">不旋转屏幕</string>
-
-    <string name="battery_status_title">电池状态显示</string>
-    <string name="battery_status_summary_on">在状态栏显示电量百分比</string>
-    <string name="battery_status_summary_off">不显示电量百分比</string>
-
-	<string name="title_compcache_enabled">压缩缓存</string>
-	<string name="summary_on_compcache_enabled">启用压缩缓存</string>
-	<string name="summary_off_compcache_enabled">禁用压缩缓存</string>
-	
+    <string name="title_compcache_enabled">压缩缓存</string>
+    <string name="summary_on_compcache_enabled">启用压缩缓存</string>
+    <string name="summary_off_compcache_enabled">禁用压缩缓存</string>
+    
     <!-- Sound & display settings screen, compatibility mode check box label -->
     <string name="compatibility_mode_title">兼容模式</string>
     <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->

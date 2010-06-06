@@ -56,19 +56,9 @@
     <string name="summary_end_button">終了ボタン(赤)の挙動選択</string>
     <string name="dialog_title_end_button">終了ボタンの選択</string>
 
-    <string name="applications_title">アプリケーション</string>
-
     <string name="title_pin_home">ランチャーの常駐</string>
     <string name="summary_on_pin_home">ランチャーはメモリに常駐する</string>
     <string name="summary_off_pin_home">ランチャーはメモリに常駐しない</string>
-
-    <string name="title_launcher_orientation">ランチャーの回転</string>
-    <string name="summary_on_launcher_orientation">ランチャーは加速度センサにより自動回転する</string>
-    <string name="summary_off_launcher_orientation">ランチャーは自動回転しない</string>
-
-    <string name="title_launcher_columns">コンパクトランチャー</string>
-    <string name="summary_on_launcher_columns">1行に5カラムのアイコン列(要再起動)</string>
-    <string name="summary_off_launcher_columns">1行に5カラムのアイコン列(要再起動)</string>
 
     <string name="battery_status_title">バッテリ状態表示</string>
     <string name="battery_status_summary_on">バッテリの残りパーセントをステータスバーに表示する</string>

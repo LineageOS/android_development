@@ -52,19 +52,9 @@
   <string name="summary_end_button">Wähle Aktion für Endetaste (rot)</string>
   <string name="dialog_title_end_button">Wähle Endetaste</string>
 
-  <string name="applications_title">Anwendungen</string>
-
   <string name="title_pin_home">Home-App im Speicher</string>
   <string name="summary_on_pin_home">Versuchen die Home-App im Speicher zu halten.</string>
   <string name="summary_off_pin_home">Home-App nicht zwingen im Speicher zu bleiben.</string>
-
-  <string name="title_launcher_orientation">Launcher Drehung</string>
-  <string name="summary_on_launcher_orientation">Launcher richtet sich bei Drehung neu aus.</string>
-  <string name="summary_off_launcher_orientation">Launcher reagiert nicht auf Drehung des Gerätes</string>
-
-  <string name="title_launcher_columns">Spalten im Launcher</string>
-  <string name="summary_on_launcher_columns">5 Spalten pro Reihe (Neustart erforderlich)</string>
-  <string name="summary_off_launcher_columns">4 Spalten pro Reihe (Neustart erforderlich)</string>
 
   <string name="battery_status_title">Batterie Statusanzeige</string>
   <string name="battery_status_summary_on">Batterieladung in Prozent wird in der Statusleiste angezeigt.</string>
