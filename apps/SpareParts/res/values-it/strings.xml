@@ -121,11 +121,15 @@
     <string name="summary_on_show_spn_sb">Il Provider è visualizzato nella staus bar</string>
     <string name="summary_off_show_spn_sb">Il Provider non è visualizzato nella staus bar</string>
     <string name="title_import_from_xml">Importa colori da XML</string>
-    
+    <string name="summary_import_from_xml">Importa colori da /sdcard/spare_parts_ui.xml</string>
+    <string name="title_export_to_xml">Esporta colori in XML</string>
+    <string name="summary_export_to_xml">Exporta colori in /sdcard/spare_parts_ui.xml</string>
     <string name="title_dialog_ui_interface">Modifiche interfaccia UI</string>
     <string name="message_dialog_reset">Ripristina tutte le modifiche alla UI a valori di default? Riavvio richiesto</string>
     <string name="message_dialog_import">Importa colori UI da XML? Riavvio richiesto.</string>
+    <string name="message_dialog_export">Esporta colori UI in XML? Il file esistente verrà sovrascritto.</string>
     <string name="msg_color_picker">Tocca il colore al centro per confermare.\nPremi indietro per annullare.</string>
+    <string name="reset_ui_success">Ripristinata la UI a valori di default! Riavvia.</string>
     
     <!-- XML Import/Export strings -->
     <string name="xml_file_not_found">File XML non trovato!</string>
@@ -133,6 +137,9 @@
     <string name="xml_parse_error">Errore nel parsing del file!</string>
     <string name="xml_invalid_color">Codice colore non valido!</string>
     <string name="xml_import_success">File XML importato con successo! Riavvia affinchè le modifiche abbiano effetto.</string>
+    <string name="xml_write_error">Errore nello scrivere file XML!</string>
+    <string name="xml_export_success">XML esportato con successo!</string>    
+    <string name="xml_sdcard_unmounted">Scheda SD non montata!</string>
 
 </resources>
 
