@@ -100,15 +100,15 @@
     
     <!-- Double Carrier -->
     
-    <string name="title_plmn">Imppostazioni di visualizzazione per l'Operatore</string>
+    <string name="title_plmn">Imppostazioni di visualizzazione per l\'Operatore</string>
 
     <string name="title_show_plmn_ls">Operatore (lockscreen)</string>
-    <string name="summary_on_show_plmn_ls">L'operatore è visualizzato nel lockscreen</string>
-    <string name="summary_off_show_plmn_ls">L'operatore non è visualizzato nel lockscreen</string>
+    <string name="summary_on_show_plmn_ls">L\'operatore è visualizzato nel lockscreen</string>
+    <string name="summary_off_show_plmn_ls">L\'operatore non è visualizzato nel lockscreen</string>
 
     <string name="title_show_plmn_sb">Operatore (status bar)</string>
-    <string name="summary_on_show_plmn_sb">L'operatore viene visualizzato nella status bar</string>
-    <string name="summary_off_show_plmn_sb">L'operatore non viene visualizzato nella status bar</string>
+    <string name="summary_on_show_plmn_sb">L\'operatore viene visualizzato nella status bar</string>
+    <string name="summary_off_show_plmn_sb">L\'operatore non viene visualizzato nella status bar</string>
 
 
     <string name="title_spn">Imppostazioni di visualizzazione per il Provider</string>
