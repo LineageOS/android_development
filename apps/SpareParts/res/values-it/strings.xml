@@ -62,6 +62,7 @@
     <string name="battery_status_title">Mostra stato batteria</string>
     <string name="battery_status_summary_on">La percentuale di carica verrà mostrata nella barra notifiche. (richiede riavvio)</string>
     <string name="battery_status_summary_off">La percentuale di carica NON verrà mostrata nella barra notifiche. (richiede riavvio)</string>
+    <string name="battery_status_color_title">Colore percentuale di batteria</string>
 
     <string name="title_compcache_enabled">Compcache</string>
     <string name="summary_on_compcache_enabled">Compcache è attiva</string>
@@ -100,26 +101,26 @@
     
     <!-- Double Carrier -->
     
-    <string name="title_plmn">Imppostazioni di visualizzazione per l\'Operatore</string>
+    <string name="title_plmn">Impostazioni Operatore</string>
 
     <string name="title_show_plmn_ls">Operatore (lockscreen)</string>
-    <string name="summary_on_show_plmn_ls">L\'operatore è visualizzato nel lockscreen</string>
-    <string name="summary_off_show_plmn_ls">L\'operatore non è visualizzato nel lockscreen</string>
+    <string name="summary_on_show_plmn_ls">L\'operatore viene visualizzato nel lockscreen</string>
+    <string name="summary_off_show_plmn_ls">L\'operatore non viene visualizzato nel lockscreen</string>
 
     <string name="title_show_plmn_sb">Operatore (status bar)</string>
     <string name="summary_on_show_plmn_sb">L\'operatore viene visualizzato nella status bar</string>
     <string name="summary_off_show_plmn_sb">L\'operatore non viene visualizzato nella status bar</string>
 
 
-    <string name="title_spn">Imppostazioni di visualizzazione per il Provider</string>
+    <string name="title_spn">Impostazioni Provider</string>
 
     <string name="title_show_spn_ls">Provider (lockscreen)</string>
-    <string name="summary_on_show_spn_ls">Il Provider è visualizzato nel lockscreen</string>
-    <string name="summary_off_show_spn_ls">Il Provider non è visualizzato nel lockscreen</string>
+    <string name="summary_on_show_spn_ls">Il Provider viene visualizzato nel lockscreen</string>
+    <string name="summary_off_show_spn_ls">Il Provider non viene visualizzato nel lockscreen</string>
 
     <string name="title_show_spn_sb">Provider (status bar)</string>
-    <string name="summary_on_show_spn_sb">Il Provider è visualizzato nella staus bar</string>
-    <string name="summary_off_show_spn_sb">Il Provider non è visualizzato nella staus bar</string>
+    <string name="summary_on_show_spn_sb">Il Provider viene visualizzato nella staus bar</string>
+    <string name="summary_off_show_spn_sb">Il Provider non viene visualizzato nella staus bar</string>
     <string name="title_import_from_xml">Importa colori da XML</string>
     <string name="summary_import_from_xml">Importa colori da /sdcard/spare_parts_ui.xml</string>
     <string name="title_export_to_xml">Esporta colori in XML</string>
