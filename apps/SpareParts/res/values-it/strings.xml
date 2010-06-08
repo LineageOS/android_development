@@ -62,7 +62,7 @@
     <string name="battery_status_title">Mostra stato batteria</string>
     <string name="battery_status_summary_on">La percentuale di carica verrà mostrata nella barra notifiche. (richiede riavvio)</string>
     <string name="battery_status_summary_off">La percentuale di carica NON verrà mostrata nella barra notifiche. (richiede riavvio)</string>
-    <string name="battery_status_color_title">Colore percentuale di batteria</string>
+    <string name="battery_status_color_title">Colore percentuale di carica</string>
 
     <string name="title_compcache_enabled">Compcache</string>
     <string name="summary_on_compcache_enabled">Compcache è attiva</string>
