@@ -123,7 +123,7 @@
     <string name="title_import_from_xml">Importa colori da XML</string>
     <string name="summary_import_from_xml">Importa colori da /sdcard/spare_parts_ui.xml</string>
     <string name="title_export_to_xml">Esporta colori in XML</string>
-    <string name="summary_export_to_xml">Exporta colori in /sdcard/spare_parts_ui.xml</string>
+    <string name="summary_export_to_xml">Esporta colori in /sdcard/spare_parts_ui.xml</string>
     <string name="title_dialog_ui_interface">Modifiche interfaccia UI</string>
     <string name="message_dialog_reset">Ripristina tutte le modifiche alla UI a valori di default? Riavvio richiesto</string>
     <string name="message_dialog_import">Importa colori UI da XML? Riavvio richiesto.</string>
