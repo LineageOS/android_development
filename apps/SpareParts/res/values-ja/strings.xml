@@ -124,4 +124,27 @@
     
     <string name="title_color_picker">色を選択</string>
     <string name="title_reset_ui_tweaks_to_defaults">初期設定に戻す</string>
+
+    <string name="title_import_from_xml">XMLから色を読み込む</string>
+    <string name="summary_import_from_xml">/sdcard/spare_parts_ui.xml から色を読み込む</string>
+    <string name="title_export_to_xml">XMLに色を出力する</string>
+    <string name="summary_export_to_xml">/sdcard/spare_parts_ui.xml に色を出力する</string>
+
+    <string name="title_dialog_ui_interface">ユーザインタフェース設定</string>
+    <string name="message_dialog_reset">すべてのユーザインタフェース設定をデフォルトにしますか? 変更を適用するには再起動します.</string>
+    <string name="message_dialog_import">XMLからUIの色設定を読み込みますか? 変更を適用するには再起動します.</string>
+    <string name="message_dialog_export">XMLにUIの色設定を出力しますか? これはすでに存在するファイルを上書きします.</string>
+    <string name="msg_color_picker">中央をタップして確定.\n戻るボタンでキャンセル.</string>
+    <string name="reset_ui_success">UI設定をリセットしました! 変更を適用するには再起動します.</string>
+
+    <!-- XML Import/Export strings -->
+    <string name="xml_file_not_found">XMLファルが見つかりません!</string>
+    <string name="xml_io_exception">ファイル読み込みエラー!</string>
+    <string name="xml_parse_error">XML解析エラー!</string>
+    <string name="xml_invalid_color">XML中に不正な色コードがあります</string>
+    <string name="xml_import_success">XML読み込みに成功. 変更を適用するには再起動します.</string>
+    <string name="xml_write_error">XML出力に失敗!</string>
+    <string name="xml_export_success">XML出力に成功!</string>
+    <string name="xml_sdcard_unmounted">SDカードがマウントされてません!</string>
+
 </resources>
