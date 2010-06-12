@@ -88,6 +88,7 @@
     <string name="title_notifications_color_tweaks">Notifiche</string>
     <string name="summary_notifications_color_tweaks">Ticker notifiche, notifiche in corso, ultime notifiche, cancella notifiche, etc.</string>    
     <string name="title_notifications_ticker_color">Ticker notifiche</string>
+    <string name="title_notifications_count_color">Colore conteggio notifiche</string>
     <string name="title_no_notifications_color">Titolo Nessuna notifica</string>
     <string name="title_clear_button_label_color">Etichetta Cancella</string>    
     <string name="title_ongoing_notifications_color">Titolo notifiche in corso</string>    
