@@ -62,6 +62,7 @@
     <string name="battery_status_title">Mostra stato batteria</string>
     <string name="battery_status_summary_on">La percentuale di carica verrà mostrata nella barra notifiche. (richiede riavvio)</string>
     <string name="battery_status_summary_off">La percentuale di carica NON verrà mostrata nella barra notifiche. (richiede riavvio)</string>
+    <string name="battery_status_color_title">Colore percentuale di carica</string>
 
     <string name="title_compcache_enabled">Compcache</string>
     <string name="summary_on_compcache_enabled">Compcache è attiva</string>
@@ -87,6 +88,7 @@
     <string name="title_notifications_color_tweaks">Notifiche</string>
     <string name="summary_notifications_color_tweaks">Ticker notifiche, notifiche in corso, ultime notifiche, cancella notifiche, etc.</string>    
     <string name="title_notifications_ticker_color">Ticker notifiche</string>
+    <string name="title_notifications_count_color">Colore conteggio notifiche</string>
     <string name="title_no_notifications_color">Titolo Nessuna notifica</string>
     <string name="title_clear_button_label_color">Etichetta Cancella</string>    
     <string name="title_ongoing_notifications_color">Titolo notifiche in corso</string>    
@@ -100,32 +102,36 @@
     
     <!-- Double Carrier -->
     
-    <string name="title_plmn">Imppostazioni di visualizzazione per l\'Operatore</string>
+    <string name="title_plmn">Impostazioni Operatore</string>
 
     <string name="title_show_plmn_ls">Operatore (lockscreen)</string>
-    <string name="summary_on_show_plmn_ls">L\'operatore è visualizzato nel lockscreen</string>
-    <string name="summary_off_show_plmn_ls">L\'operatore non è visualizzato nel lockscreen</string>
+    <string name="summary_on_show_plmn_ls">L\'operatore viene visualizzato nel lockscreen</string>
+    <string name="summary_off_show_plmn_ls">L\'operatore non viene visualizzato nel lockscreen</string>
 
     <string name="title_show_plmn_sb">Operatore (status bar)</string>
     <string name="summary_on_show_plmn_sb">L\'operatore viene visualizzato nella status bar</string>
     <string name="summary_off_show_plmn_sb">L\'operatore non viene visualizzato nella status bar</string>
 
 
-    <string name="title_spn">Imppostazioni di visualizzazione per il Provider</string>
+    <string name="title_spn">Impostazioni Provider</string>
 
     <string name="title_show_spn_ls">Provider (lockscreen)</string>
-    <string name="summary_on_show_spn_ls">Il Provider è visualizzato nel lockscreen</string>
-    <string name="summary_off_show_spn_ls">Il Provider non è visualizzato nel lockscreen</string>
+    <string name="summary_on_show_spn_ls">Il Provider viene visualizzato nel lockscreen</string>
+    <string name="summary_off_show_spn_ls">Il Provider non viene visualizzato nel lockscreen</string>
 
     <string name="title_show_spn_sb">Provider (status bar)</string>
-    <string name="summary_on_show_spn_sb">Il Provider è visualizzato nella staus bar</string>
-    <string name="summary_off_show_spn_sb">Il Provider non è visualizzato nella staus bar</string>
+    <string name="summary_on_show_spn_sb">Il Provider viene visualizzato nella staus bar</string>
+    <string name="summary_off_show_spn_sb">Il Provider non viene visualizzato nella staus bar</string>
     <string name="title_import_from_xml">Importa colori da XML</string>
-    
+    <string name="summary_import_from_xml">Importa colori da /sdcard/spare_parts_ui.xml</string>
+    <string name="title_export_to_xml">Esporta colori in XML</string>
+    <string name="summary_export_to_xml">Esporta colori in /sdcard/spare_parts_ui.xml</string>
     <string name="title_dialog_ui_interface">Modifiche interfaccia UI</string>
     <string name="message_dialog_reset">Ripristina tutte le modifiche alla UI a valori di default? Riavvio richiesto</string>
     <string name="message_dialog_import">Importa colori UI da XML? Riavvio richiesto.</string>
+    <string name="message_dialog_export">Esporta colori UI in XML? Il file esistente verrà sovrascritto.</string>
     <string name="msg_color_picker">Tocca il colore al centro per confermare.\nPremi indietro per annullare.</string>
+    <string name="reset_ui_success">Ripristinata la UI a valori di default! Riavvia.</string>
     
     <!-- XML Import/Export strings -->
     <string name="xml_file_not_found">File XML non trovato!</string>
@@ -133,6 +139,9 @@
     <string name="xml_parse_error">Errore nel parsing del file!</string>
     <string name="xml_invalid_color">Codice colore non valido!</string>
     <string name="xml_import_success">File XML importato con successo! Riavvia affinchè le modifiche abbiano effetto.</string>
+    <string name="xml_write_error">Errore nello scrivere file XML!</string>
+    <string name="xml_export_success">XML esportato con successo!</string>    
+    <string name="xml_sdcard_unmounted">Scheda SD non montata!</string>
 
 </resources>
 
