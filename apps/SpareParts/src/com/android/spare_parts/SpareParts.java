@@ -145,10 +145,10 @@ public class SpareParts extends PreferenceActivity
     private int swapEnabled = -1;
     
     private boolean isSwapEnabled() {
-        if (swapEnabled > -1) {
+        if (swapEnabled < 0) {
             swapEnabled = new File("/proc/swaps").exists() ? 1 : 0;
         }
-        return swapEnabled > 1;
+        return swapEnabled > 0;
     }
 
     public static boolean updatePreferenceToSpecificActivityOrRemove(Context context,
