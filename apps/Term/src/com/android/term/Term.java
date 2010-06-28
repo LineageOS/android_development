@@ -129,6 +129,7 @@ public class Term extends Activity {
     public static final int WHITE = 0xffffffff;
     public static final int BLACK = 0xff000000;
     public static final int BLUE = 0xff344ebd;
+    public static final int GREEN = 0xff00ff00;
 
     private static final int[][] COLOR_SCHEMES = {
         {BLACK, WHITE}, {WHITE, BLACK}, {WHITE, BLUE}, {GREEN, BLACK}};
