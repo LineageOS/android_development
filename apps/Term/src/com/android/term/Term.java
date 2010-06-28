@@ -116,8 +116,8 @@ public class Term extends Activity {
      */
     private static final int EMULATOR_VIEW = R.id.emulatorView;
 
-    private int mFontSize = 9;
-    private int mColorId = 2;
+    private int mFontSize = 12;
+    private int mColorId = 1;
     private int mControlKeyId = 0;
 
     private static final String FONTSIZE_KEY = "fontsize";
@@ -131,7 +131,7 @@ public class Term extends Activity {
     public static final int BLUE = 0xff344ebd;
 
     private static final int[][] COLOR_SCHEMES = {
-        {BLACK, WHITE}, {WHITE, BLACK}, {WHITE, BLUE}};
+        {BLACK, WHITE}, {WHITE, BLACK}, {WHITE, BLUE}, {GREEN, BLACK}};
 
     private static final int[] CONTROL_KEY_SCHEMES = {
         KeyEvent.KEYCODE_DPAD_CENTER,
@@ -148,8 +148,7 @@ public class Term extends Activity {
     private final static String DEFAULT_SHELL = "/system/bin/sh -";
     private String mShell;
 
-    private final static String DEFAULT_INITIAL_COMMAND =
-        "export PATH=/data/local/bin:$PATH";
+    private final static String DEFAULT_INITIAL_COMMAND = "";
     private String mInitialCommand;
 
     private SharedPreferences mPrefs;
@@ -205,6 +204,7 @@ public class Term extends Activity {
                int result = Exec.waitFor(procId);
                 Log.i(Term.LOG_TAG, "Subprocess exited: " + result);
                 handler.sendEmptyMessage(result);
+                finish();
              }
 
         };
@@ -229,8 +229,8 @@ public class Term extends Activity {
     }
 
     private void restart() {
-        startActivity(getIntent());
         finish();
+        startActivity(getIntent());
     }
 
     private void write(String data) {
@@ -364,10 +364,15 @@ public class Term extends Activity {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
-        super.onResume();
         readPrefs();
         updatePrefs();
+        super.onResume();
     }
 
     @Override
@@ -376,6 +381,7 @@ public class Term extends Activity {
 
         mEmulatorView.updateSize();
     }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
