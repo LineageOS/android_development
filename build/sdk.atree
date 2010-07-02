@@ -60,22 +60,22 @@ sdk/templates/java_tests_file.template platforms/${PLATFORM_NAME}/templates/java
 sdk/templates/layout.template platforms/${PLATFORM_NAME}/templates/layout.template
 sdk/templates/strings.template platforms/${PLATFORM_NAME}/templates/strings.template
 sdk/templates/build.template tools/lib/build.template
+sdk/templates/build.export.template tools/lib/build.export.template
 sdk/templates/icon_ldpi.png platforms/${PLATFORM_NAME}/templates/icon_ldpi.png
 sdk/templates/icon_mdpi.png platforms/${PLATFORM_NAME}/templates/icon_mdpi.png
 sdk/templates/icon_hdpi.png platforms/${PLATFORM_NAME}/templates/icon_hdpi.png
 
 # sdk.git files
 # SDK properties
-sdk/files/sdk.properties         platforms/${PLATFORM_NAME}/sdk.properties
-# legacy Ant build rules, copied under the old name
-sdk/files/ant_rules_r1.xml       platforms/${PLATFORM_NAME}/templates/android_rules.xml
-sdk/files/ant_test_rules_r1.xml  platforms/${PLATFORM_NAME}/templates/android_test_rules.xml
-# newer Ant rules.
-sdk/files/ant_rules_r2.xml       platforms/${PLATFORM_NAME}/ant/ant_rules_r2.xml
-sdk/files/ant_test_rules_r2.xml  platforms/${PLATFORM_NAME}/ant/ant_test_rules_r2.xml
-sdk/files/ant_lib_rules_r2.xml   platforms/${PLATFORM_NAME}/ant/ant_lib_rules_r2.xml
-# layout device definitiion
-sdk/files/devices.xml            tools/lib/devices.xml
+sdk/files/sdk.properties            platforms/${PLATFORM_NAME}/sdk.properties
+# copy the Ant rules to the platforms and to the tools.
+sdk/files/ant                       platforms/${PLATFORM_NAME}/ant
+sdk/files/ant                       tools/ant
+# also copy the rev1 under the old name/location for legacy reason
+sdk/files/ant/ant_rules_r1.xml      platforms/${PLATFORM_NAME}/templates/android_rules.xml
+sdk/files/ant/ant_test_rules_r1.xml platforms/${PLATFORM_NAME}/templates/android_test_rules.xml
+# layout device definition
+sdk/files/devices.xml               tools/lib/devices.xml
 
 # emacs support from sdk.git
 sdk/files/android.el tools/lib/android.el
@@ -117,12 +117,8 @@ framework/dx.jar platforms/${PLATFORM_NAME}/tools/lib/dx.jar
 #androidprefs
 framework/androidprefs.jar tools/lib/androidprefs.jar
 
-#jarutils
-framework/jarutils.jar tools/lib/jarutils.jar
-
 #apkbuilder
-bin/apkbuilder tools/apkbuilder
-framework/apkbuilder.jar tools/lib/apkbuilder.jar
+sdk/apkbuilder/etc/apkbuilder tools/apkbuilder
 
 # sdkstats service
 framework/sdkstats.jar tools/lib/sdkstats.jar

@@ -16,25 +16,25 @@
 
 package com.example.android.apis.graphics;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.*;
-import android.hardware.SensorListener;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
 import android.util.Config;
 import android.util.Log;
 import android.view.View;
 
 public class SensorTest extends GraphicsActivity {
+    private final String TAG = "SensorTest";
 
-	private SensorManager mSensorManager;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
     private SampleView mView;
     private float[] mValues;
-    
+
     private static class RunAve {
         private final float[] mWeights;
         private final float mWeightScale;
@@ -44,7 +44,7 @@ public class SensorTest extends GraphicsActivity {
 
         public RunAve(float[] weights) {
             mWeights = weights;
-            
+
             float sum = 0;
             for (int i = 0; i < weights.length; i++) {
                 sum += weights[i];
@@ -55,12 +55,12 @@ public class SensorTest extends GraphicsActivity {
             mSamples = new float[mDepth];
             mCurr = 0;
         }
-        
+
         public void addSample(float value) {
             mSamples[mCurr] = value;
             mCurr = (mCurr + 1) % mDepth;
         }
-        
+
         public float computeAve() {
             final int depth = mDepth;
             int index = mCurr;
@@ -76,35 +76,37 @@ public class SensorTest extends GraphicsActivity {
         }
     };
 
-    private final SensorListener mListener = new SensorListener() {
+    private final SensorEventListener mListener = new SensorEventListener() {
 
         private final float[] mScale = new float[] { 2, 2.5f, 0.5f };   // accel
-
         private float[] mPrev = new float[3];
-            
-        public void onSensorChanged(int sensor, float[] values) {
+        private long mLastGestureTime;
+
+        public void onSensorChanged(SensorEvent event) {
             boolean show = false;
             float[] diff = new float[3];
 
             for (int i = 0; i < 3; i++) {
-                diff[i] = Math.round(mScale[i] * (values[i] - mPrev[i]) * 0.45f);
+                diff[i] = Math.round(mScale[i] * (event.values[i] - mPrev[i]) * 0.45f);
                 if (Math.abs(diff[i]) > 0) {
                     show = true;
                 }
-                mPrev[i] = values[i];
+                mPrev[i] = event.values[i];
             }
-            
+
             if (show) {
                 // only shows if we think the delta is big enough, in an attempt
                 // to detect "serious" moves left/right or up/down
-                android.util.Log.e("test", "sensorChanged " + sensor + " (" + values[0] + ", " + values[1] + ", " + values[2] + ")"
-                                   + " diff(" + diff[0] + " " + diff[1] + " " + diff[2] + ")");
+                Log.e(TAG, "sensorChanged " + event.sensor.getName() +
+                        " (" + event.values[0] + ", " + event.values[1] + ", " +
+                        event.values[2] + ")" + " diff(" + diff[0] +
+                        " " + diff[1] + " " + diff[2] + ")");
             }
-            
+
             long now = android.os.SystemClock.uptimeMillis();
             if (now - mLastGestureTime > 1000) {
                 mLastGestureTime = 0;
-                
+
                 float x = diff[0];
                 float y = diff[1];
                 boolean gestX = Math.abs(x) > 3;
@@ -113,27 +115,23 @@ public class SensorTest extends GraphicsActivity {
                 if ((gestX || gestY) && !(gestX && gestY)) {
                     if (gestX) {
                         if (x < 0) {
-                            android.util.Log.e("test", "<<<<<<<< LEFT <<<<<<<<<<<<");
+                            Log.e("test", "<<<<<<<< LEFT <<<<<<<<<<<<");
                         } else {
-                            android.util.Log.e("test", ">>>>>>>>> RITE >>>>>>>>>>>");
+                            Log.e("test", ">>>>>>>>> RITE >>>>>>>>>>>");
                         }
                     } else {
                         if (y < -2) {
-                            android.util.Log.e("test", "<<<<<<<< UP <<<<<<<<<<<<");
+                            Log.e("test", "<<<<<<<< UP <<<<<<<<<<<<");
                         } else {
-                            android.util.Log.e("test", ">>>>>>>>> DOWN >>>>>>>>>>>");
+                            Log.e("test", ">>>>>>>>> DOWN >>>>>>>>>>>");
                         }
                     }
                     mLastGestureTime = now;
                 }
             }
         }
-        
-        private long mLastGestureTime;
 
-        public void onAccuracyChanged(int sensor, int accuracy) {
-            // TODO Auto-generated method stub
-            
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     };
 
@@ -141,35 +139,30 @@ public class SensorTest extends GraphicsActivity {
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mView = new SampleView(this);
         setContentView(mView);
-//        android.util.Log.d("skia", "create " + mSensorManager);
+        if (Config.DEBUG) Log.d(TAG, "create " + mSensorManager);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        
-        int mask = 0;
-//        mask |= SensorManager.SENSOR_ORIENTATION;
-        mask |= SensorManager.SENSOR_ACCELEROMETER;
-        
-        mSensorManager.registerListener(mListener, mask, SensorManager.SENSOR_DELAY_FASTEST);
-//        android.util.Log.d("skia", "resume " + mSensorManager);
+        mSensorManager.registerListener(mListener, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        if (Config.DEBUG) Log.d(TAG, "resume " + mSensorManager);
     }
-    
+
     @Override
     protected void onStop() {
         mSensorManager.unregisterListener(mListener);
         super.onStop();
-//        android.util.Log.d("skia", "stop " + mSensorManager);
+        if (Config.DEBUG) Log.d(TAG, "stop " + mSensorManager);
     }
 
     private class SampleView extends View {
         private Paint   mPaint = new Paint();
         private Path    mPath = new Path();
         private boolean mAnimate;
-        private long    mNextTime;
 
         public SampleView(Context context) {
             super(context);
@@ -181,12 +174,13 @@ public class SensorTest extends GraphicsActivity {
             mPath.lineTo(20, 60);
             mPath.close();
         }
-    
-        @Override protected void onDraw(Canvas canvas) {
+
+        @Override
+        protected void onDraw(Canvas canvas) {
             Paint paint = mPaint;
 
             canvas.drawColor(Color.WHITE);
-            
+
             paint.setAntiAlias(true);
             paint.setColor(Color.BLACK);
             paint.setStyle(Paint.Style.FILL);
@@ -197,23 +191,24 @@ public class SensorTest extends GraphicsActivity {
             int cy = h / 2;
 
             canvas.translate(cx, cy);
-            if (mValues != null) {            
+            if (mValues != null) {
                 canvas.rotate(-mValues[0]);
             }
             canvas.drawPath(mPath, mPaint);
         }
-    
+
         @Override
         protected void onAttachedToWindow() {
             mAnimate = true;
+            if (Config.DEBUG) Log.d(TAG, "onAttachedToWindow. mAnimate="+mAnimate);
             super.onAttachedToWindow();
         }
-        
+
         @Override
         protected void onDetachedFromWindow() {
             mAnimate = false;
+            if (Config.DEBUG) Log.d(TAG, "onAttachedToWindow. mAnimate="+mAnimate);
             super.onDetachedFromWindow();
         }
     }
 }
-
