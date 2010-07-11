@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+  <string name="device_info_title">Geräteinformationen</string>
+
+  <string name="title_battery_history">Batterienutzung</string>
+  <string name="summary_battery_history">Zusammenfassung der Batterienutzung</string>
+
+  <string name="title_battery_information">Batterieinformationen</string>
+  <string name="summary_battery_information">Statusinformationen der Batterie</string>
+
+  <string name="title_usage_statistics">Nutzungsstatistiken</string>
+  <string name="summary_usage_statistics">Zusammenfassung zur Nutzung von Anwendungen</string>
+
+  <string name="general_title">Allgemeines</string>
+
+  <string name="title_window_animations">Fensteranimationen</string>
+  <string name="summary_window_animations">Animationsgeschwindigkeit von Fenstern</string>
+  <string name="dialog_title_window_animations">Geschwindigkeit wählen</string>
+
+  <string name="title_transition_animations">Übergangsanimationen</string>
+  <string name="summary_transition_animations">Animationsgeschwindigkeit beim Anzeigenwechsel.</string>
+  <string name="dialog_title_transition_animations">Geschwindigkeit wählen</string>
+
+  <string name="title_fancy_ime_animations">Schöne Eingabeanimationen</string>
+  <string name="summary_on_fancy_ime_animations">Nutze schönere Animationen für Eingabefenster.</string>
+  <string name="summary_off_fancy_ime_animations">Nutze normale Animationen für Eingabefenster.</string>
+
+  <string name="title_haptic_feedback">Haptisches Feedback</string>
+  <string name="summary_on_haptic_feedback">Nutze haptisches Feedback mit Nutzerinteraktion.</string>
+  <string name="summary_off_haptic_feedback">Keine Nutzung von haptischem Feedback.</string>
+
+  <string name="title_font_size">Schriftgröße</string>
+  <string name="summary_font_size">Allgemeine Schriftgröße</string>
+  <string name="dialog_title_font_size">Wähle eine Schriftgröße</string>
+
+  <string name="title_end_button">Verhalten von Endetaste</string>
+  <string name="summary_end_button">Wähle Aktion für Drücken der Endetaste(rot)</string>
+  <string name="dialog_title_end_button">Aktion für Endetaste</string>
+
+  <string name="applications_title">Anwendungen</string>
+
+  <!-- Sound & display settings screen, compatibility mode check box label -->
+  <string name="compatibility_mode_title">Kompatibilitätsmodus</string>
+  <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+  <string name="compatibility_mode_summary_on">Führe ältere Anwendungen im Kompatibilitätsmodus aus. (Neustart erforderlich)</string>
+  <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+  <string name="compatibility_mode_summary_off">Führe ältere Anwendungen im Kompatibilitätsmodus aus. (Neustart erforderlich)</string>
+</resources>
