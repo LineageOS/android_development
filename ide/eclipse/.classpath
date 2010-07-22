@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="packages/apps/AccountsAndSyncSettings/src"/>
+	<classpathentry kind="src" path="packages/apps/CMParts/src"/>
+	<classpathentry kind="src" path="packages/apps/ADWLauncher/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/CalendarProvider_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/ContactsProvider_intermediates/src/src"/>
-	<classpathentry kind="src" path="packages/apps/AlarmClock/src"/>
 	<classpathentry kind="src" path="packages/apps/Bluetooth/src"/>
 	<classpathentry kind="src" path="packages/apps/Browser/src"/>
 	<classpathentry kind="src" path="packages/apps/Calendar/src"/>
@@ -15,7 +16,6 @@
 	<classpathentry kind="src" path="packages/apps/Email/src"/>
 	<classpathentry kind="src" path="packages/apps/Gallery3D/src"/>
 	<classpathentry kind="src" path="packages/apps/HTMLViewer/src"/>
-	<classpathentry kind="src" path="packages/apps/Launcher2/src"/>
 	<classpathentry kind="src" path="packages/apps/Mms/src"/>
 	<classpathentry kind="src" path="packages/apps/PackageInstaller/src"/>
 	<classpathentry kind="src" path="packages/apps/Phone/src"/>
@@ -36,7 +36,6 @@
 	<classpathentry kind="src" path="frameworks/base/cmds/input/src"/>
 	<classpathentry kind="src" path="frameworks/base/cmds/pm/src"/>
 	<classpathentry kind="src" path="frameworks/base/cmds/svc/src"/>
-	<classpathentry kind="src" path="frameworks/base/common/java"/>
 	<classpathentry kind="src" path="frameworks/base/core/java"/>
 	<classpathentry kind="src" path="frameworks/base/core/config/sdk"/>
 	<classpathentry kind="src" path="frameworks/base/graphics/java"/>
