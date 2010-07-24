@@ -49,6 +49,10 @@
     <string name="summary_on_haptic_feedback">Usa feedback aptico con interazione dell\'untente</string>
     <string name="summary_off_haptic_feedback">Non usare feedback aptico con interazione dell\'utente</string>
     
+     <string name="title_font_size">Dimensione caratteri</string>
+    <string name="summary_font_size">Dimensione dei caratteri (globale)</string>
+    <string name="dialog_title_font_size">Seleziona dimensione</string>
+
      <string name="title_end_button">Tasto Power</string>
     <string name="summary_end_button">Seleziona il comportamento del tasto Power</string>
     <string name="dialog_title_end_button">Seleziona comportamento</string>

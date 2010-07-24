@@ -24,6 +24,16 @@
         <item>Molto Lente</item>
     </string-array>
 
+    <string-array name="entries_font_size">
+        <item>Estremamente Piccola</item>
+        <item>Extra Piccola</item>
+        <item>Piccola</item>
+        <item>Normale</item>
+        <item>Grande</item>
+        <item>Extra Grande</item>
+        <item>Estremamente Grande</item>
+    </string-array>
+
     <string-array name="entries_end_button">
         <item>Niente</item>
         <item>Torna alla home</item>
