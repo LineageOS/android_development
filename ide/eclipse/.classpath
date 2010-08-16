@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="packages/apps/AccountsAndSyncSettings/src"/>
+	<classpathentry kind="src" path="out/target/common/obj/APPS/ADWLauncher_intermediates/src"/>
+	<classpathentry kind="src" path="packages/apps/Torch/src"/>
+	<classpathentry kind="src" path="packages/wallpapers/Basic/src"/>
 	<classpathentry kind="src" path="packages/apps/CMParts/src"/>
 	<classpathentry kind="src" path="packages/apps/ADWLauncher/src"/>
 	<classpathentry kind="src" path="packages/apps/Bluetooth/src"/>
