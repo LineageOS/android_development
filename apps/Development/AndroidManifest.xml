@@ -184,5 +184,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="Permissions" android:label="@string/permissions_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
