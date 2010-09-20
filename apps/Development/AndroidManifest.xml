@@ -123,14 +123,14 @@
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
-
+        <!--
         <activity android:name="GLSTester" android:label="Google Login Service">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
-
+         -->
         <activity android:name="RunningProcesses" android:label="Running processes">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

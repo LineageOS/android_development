@@ -54,12 +54,12 @@ public class DevelopmentSettings extends Activity {
     private CheckBox mAlwaysFinishCB;
     private Spinner mPointerLocationSpinner;
     private CheckBox mShowLoadCB;
-    private CheckBox mShowCpuCB;
+    //private CheckBox mShowCpuCB;
     private CheckBox mEnableGLCB;
     private CheckBox mShowUpdatesCB;
     private Spinner mRenderEffectSpinner;
     private CheckBox mShowBackgroundCB;
-    private CheckBox mShowSleepCB;
+    //private CheckBox mShowSleepCB;
     private CheckBox mShowXmppCB;
     private CheckBox mCompatibilityModeCB;
     private Spinner mMaxProcsSpinner;
@@ -110,8 +110,8 @@ public class DevelopmentSettings extends Activity {
         mPointerLocationSpinner.setAdapter(adapter);
         mShowLoadCB = (CheckBox)findViewById(R.id.show_load);
         mShowLoadCB.setOnClickListener(mShowLoadClicked);
-        mShowCpuCB = (CheckBox)findViewById(R.id.show_cpu);
-        mShowCpuCB.setOnCheckedChangeListener(new SurfaceFlingerClicker(1000));
+        //mShowCpuCB = (CheckBox)findViewById(R.id.show_cpu);
+        //mShowCpuCB.setOnCheckedChangeListener(new SurfaceFlingerClicker(1000));
         mEnableGLCB = (CheckBox)findViewById(R.id.enable_gl);
         mEnableGLCB.getLayoutParams().height = 0; // doesn't do anything
         mEnableGLCB.setOnCheckedChangeListener(new SurfaceFlingerClicker(1004));
@@ -123,8 +123,8 @@ public class DevelopmentSettings extends Activity {
 
         mShowBackgroundCB = (CheckBox)findViewById(R.id.show_background);
         mShowBackgroundCB.setOnCheckedChangeListener(new SurfaceFlingerClicker(1003));
-        mShowSleepCB = (CheckBox)findViewById(R.id.show_sleep);
-        mShowSleepCB.setOnClickListener(mShowSleepClicked);
+        //mShowSleepCB = (CheckBox)findViewById(R.id.show_sleep);
+        //mShowSleepCB.setOnClickListener(mShowSleepClicked);
         mShowXmppCB = (CheckBox)findViewById(R.id.show_xmpp);
         mShowXmppCB.setOnClickListener(mShowXmppClicked);
         mCompatibilityModeCB = (CheckBox)findViewById(R.id.compatibility_mode);
@@ -191,7 +191,7 @@ public class DevelopmentSettings extends Activity {
         updateProcessLimitOptions();
         updateSharedOptions();
         updateFlingerOptions();
-        updateSleepOptions();
+        //updateSleepOptions();
         updateXmppOptions();
         updateCompatibilityOptions();
 
@@ -307,7 +307,7 @@ public class DevelopmentSettings extends Activity {
                 flinger.transact(1010, data, reply, 0);
                 int v;
                 v = reply.readInt();
-                mShowCpuCB.setChecked(v != 0);
+               /* mShowCpuCB.setChecked(v != 0);*/
                 v = reply.readInt();
                 mEnableGLCB.setChecked(v != 0);
                 v = reply.readInt();
@@ -325,7 +325,7 @@ public class DevelopmentSettings extends Activity {
         }
     }
 
-    private void writeSleepOptions() {
+/*    private void writeSleepOptions() {
         try {
             FileOutputStream os = new FileOutputStream(
                 "/sys/devices/platform/gpio_sleep_debug/enable", true);
@@ -351,7 +351,7 @@ public class DevelopmentSettings extends Activity {
             mShowSleep = false;
         }
         mShowSleepCB.setChecked(mShowSleep);
-    }
+    }*/
 
     private void writeXmppOptions() {
         Settings.System.setShowGTalkServiceStatus(getContentResolver(), mShowXmpp);
@@ -449,14 +449,14 @@ public class DevelopmentSettings extends Activity {
         final int mCode;
     }
 
-    private View.OnClickListener mShowSleepClicked =
+/*    private View.OnClickListener mShowSleepClicked =
             new View.OnClickListener() {
         public void onClick(View v) {
             mShowSleep = ((CheckBox)v).isChecked();
             writeSleepOptions();
             updateSleepOptions();
         }
-    };
+    };*/
 
     private View.OnClickListener mShowXmppClicked = new View.OnClickListener() {
         public void onClick(View v) {
