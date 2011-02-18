@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAACX//+gs\u003d",
+        "filename": "apps/SpareParts/res/values-ru/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 70
+      },
+      "writtenOn": "2011-02-18T19:54:20Z",
+      "side": 1,
+      "message": "remove the single white space after \".\"",
+      "revId": "72b8e0cf9dc614656b03671142dbf6964c3b7353",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAACX//+go\u003d",
+        "filename": "apps/SpareParts/res/values-ru/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 70
+      },
+      "writtenOn": "2011-02-18T19:54:20Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "72b8e0cf9dc614656b03671142dbf6964c3b7353",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
