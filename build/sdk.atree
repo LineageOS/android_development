@@ -72,12 +72,12 @@ userdata.img                            platforms/${PLATFORM_NAME}/images/userda
 prebuilt/android-arm/kernel/kernel-qemu platforms/${PLATFORM_NAME}/images/kernel-qemu
 
 # emulator skins from sdk.git
-sdk/emulator/skins/QVGA      platforms/${PLATFORM_NAME}/skins/QVGA
-sdk/emulator/skins/WQVGA432  platforms/${PLATFORM_NAME}/skins/WQVGA432
-sdk/emulator/skins/WQVGA400  platforms/${PLATFORM_NAME}/skins/WQVGA400
-sdk/emulator/skins/HVGA      platforms/${PLATFORM_NAME}/skins/HVGA
-sdk/emulator/skins/WVGA800   platforms/${PLATFORM_NAME}/skins/WVGA800
-sdk/emulator/skins/WVGA854   platforms/${PLATFORM_NAME}/skins/WVGA854
+development/tools/emulator/skins/QVGA      platforms/${PLATFORM_NAME}/skins/QVGA
+development/tools/emulator/skins/WQVGA432  platforms/${PLATFORM_NAME}/skins/WQVGA432
+development/tools/emulator/skins/WQVGA400  platforms/${PLATFORM_NAME}/skins/WQVGA400
+development/tools/emulator/skins/HVGA      platforms/${PLATFORM_NAME}/skins/HVGA
+development/tools/emulator/skins/WVGA800   platforms/${PLATFORM_NAME}/skins/WVGA800
+development/tools/emulator/skins/WVGA854   platforms/${PLATFORM_NAME}/skins/WVGA854
 
 # Platform SDK properties
 sdk/files/sdk.properties     platforms/${PLATFORM_NAME}/sdk.properties
@@ -146,13 +146,14 @@ development/samples/source.properties        samples/${PLATFORM_NAME}/source.pro
 # PLEASE KEEP THE SAMPLES IN ALPHABETICAL ORDER.
 #
 development/samples/AccessibilityService     samples/${PLATFORM_NAME}/AccessibilityService
+development/samples/AccelerometerPlay        samples/${PLATFORM_NAME}/AccelerometerPlay
 development/samples/ApiDemos                 samples/${PLATFORM_NAME}/ApiDemos
 development/samples/BackupRestore            samples/${PLATFORM_NAME}/BackupRestore
+development/samples/BasicGLSurfaceView       samples/${PLATFORM_NAME}/BasicGLSurfaceView
 development/samples/BluetoothChat            samples/${PLATFORM_NAME}/BluetoothChat
 development/samples/ContactManager           samples/${PLATFORM_NAME}/ContactManager
 development/samples/CrossCompatibility       samples/${PLATFORM_NAME}/CrossCompatibility
 development/samples/CubeLiveWallpaper        samples/${PLATFORM_NAME}/CubeLiveWallpaper
-development/samples/HeavyWeight              samples/${PLATFORM_NAME}/HeavyWeight
 development/samples/Home                     samples/${PLATFORM_NAME}/Home
 development/samples/JetBoy                   samples/${PLATFORM_NAME}/JetBoy
 development/samples/LunarLander              samples/${PLATFORM_NAME}/LunarLander
