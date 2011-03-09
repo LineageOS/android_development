@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="app_label">備用部件</string>
+
+    <string name="device_info_title">裝置資訊</string>
+
+    <string name="title_battery_history">電池使用狀況</string>
+    <string name="summary_battery_history">總結電池的消耗方式</string>
+
+    <string name="title_battery_information">電池資訊</string>
+    <string name="summary_battery_information">目前的電池狀態資訊</string>
+
+    <string name="title_usage_statistics">使用統計資料</string>
+    <string name="summary_usage_statistics">總結應用程式的使用狀況</string>
+
+    <string name="general_title">一般</string>
+
+    <string name="title_window_animations">視窗動畫</string>
+    <string name="summary_window_animations">個別視窗的動畫速度</string>
+    <string name="dialog_title_window_animations">選擇視窗速度</string>
+
+    <string name="title_transition_animations">過場動畫</string>
+    <string name="summary_transition_animations">畫面轉換時的動畫速度</string>
+    <string name="dialog_title_transition_animations">選擇過場速度</string>
+
+    <string name="title_fancy_ime_animations">花式輸入動畫</string>
+    <string name="summary_on_fancy_ime_animations">使用較花俏的輸入法視窗動畫</string>
+    <string name="summary_off_fancy_ime_animations">使用正常的輸入法視窗動畫</string>
+
+    <string name="title_haptic_feedback">觸動回饋</string>
+    <string name="summary_on_haptic_feedback">跟使用者互動時會作出震動回饋</string>
+    <string name="summary_off_haptic_feedback">跟使用者互動時不會作出震動回饋</string>
+
+    <string name="title_font_size">字型大小</string>
+    <string name="summary_font_size">系統整體上的字型大小</string>
+    <string name="dialog_title_font_size">選擇字型大小</string>
+
+    <string name="title_end_button">結束通話鍵行為</string>
+    <string name="summary_end_button">選擇結束通話（紅色）鍵的動作</string>
+    <string name="dialog_title_end_button">選擇結束通話鍵動作</string>
+
+    <string name="applications_title">應用程式</string>
+
+    <!-- Sound & display settings screen, compatibility mode check box label -->
+    <string name="compatibility_mode_title">相容模式</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+    <string name="compatibility_mode_summary_on">以相容模式執行較舊版本的應用程式。\n（需要重新啟動系統）</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+    <string name="compatibility_mode_summary_off">直接執行較舊版本的應用程式。\n（需要重新啟動系統）</string>
+</resources>
