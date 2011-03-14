@@ -205,6 +205,8 @@ development/samples/RenderScript/FountainFbo   samples/${PLATFORM_NAME}/RenderSc
 development/samples/RenderScript/HelloCompute  samples/${PLATFORM_NAME}/RenderScript/HelloCompute
 development/samples/RenderScript/HelloWorld    samples/${PLATFORM_NAME}/RenderScript/HelloWorld
 development/samples/RenderScript/MiscSamples   samples/${PLATFORM_NAME}/RenderScript/MiscSamples
+development/samples/FmRadioReceiver          samples/${PLATFORM_NAME}/FmRadioReceiver
+development/samples/FmRadioTransmitter       samples/${PLATFORM_NAME}/FmRadioTransmitter
 
 # NOTICE files are copied by build/core/Makefile from sdk.git
 sdk/files/sdk_files_NOTICE.txt samples/${PLATFORM_NAME}/NOTICE.txt
