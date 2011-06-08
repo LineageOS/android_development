@@ -176,7 +176,7 @@ public class MonkeyRunner {
       String command = "monkey --port " + monkeyPort;
       monkeyDevice.executeShellCommand(command, new NullOutputReceiver());
 
-    } catch(IOException e) {
+    } catch(Exception e) {
       e.printStackTrace();
     }
   }
@@ -248,8 +248,13 @@ public class MonkeyRunner {
   public static void launch_activity(String name) throws IOException {
     System.out.println("Launching: " + name);
     recordCommand("Launching: " + name);
-    monkeyDevice.executeShellCommand("am start -a android.intent.action.MAIN -n " 
+    try {
+      monkeyDevice.executeShellCommand("am start -a android.intent.action.MAIN -n "
         + name, new NullOutputReceiver());
+    } catch(Exception e) {
+      //TimeoutException or AdbCommandRejectedException
+      e.printStackTrace();
+    }
     // void return, so no response given, just close the command element in the xml file.
     monkeyRecorder.endCommand();
    }
@@ -561,7 +566,7 @@ public class MonkeyRunner {
     try {
       rawImage = device.getScreenshot();
     }
-    catch (IOException ioe) {
+    catch (Exception ioe) {
       recordResponse("No frame buffer", "");
       printAndExit("Unable to get frame buffer: " + ioe.getMessage(), true /* terminate */);
       return;
