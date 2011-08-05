@@ -52,6 +52,9 @@
 	<classpathentry kind="src" path="frameworks/base/vpn/java"/>
 	<classpathentry kind="src" path="frameworks/base/wifi/java"/>
 	<classpathentry kind="src" path="frameworks/base/wimax/java"/>
+	<classpathentry kind="src" path="vendor/tmobile/apps/ThemeChooser/src"/>
+	<classpathentry kind="src" path="vendor/tmobile/libs/com.tmobile.themes/src"/>
+	<classpathentry kind="src" path="vendor/tmobile/providers/ThemeManager/src"/>
 	<classpathentry kind="src" path="development/samples/ApiDemos/src"/>
 	<classpathentry kind="src" path="development/samples/ApiDemos/tests/src"/>
 	<classpathentry kind="src" path="development/samples/Compass/src"/>
