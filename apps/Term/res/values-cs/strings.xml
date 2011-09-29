@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<resources>
+    <string name="application_terminal">Emulátor terminálu</string>
+    <string name="preferences">Nastavení</string>
+    <string name="reset">Resetovat terminál</string>
+    <string name="send_email">Poslat e-email</string>
+    <string name="special_keys">Zvláštní klávesy</string>
+
+    <skip />
+
+    <string name="title_fontsize_preference">Velikost písma</string>
+    <string name="summary_fontsize_preference">Zvolte velikost písma v bodech.</string>
+    <string name="dialog_title_fontsize_preference">Velikost písma</string>
+
+    <string name="title_color_preference">Barvy</string>
+    <string name="summary_color_preference">Zvolte barvu.</string>
+    <string name="dialog_title_color_preference">Barva textu</string>
+
+    <string name="keyboard_preferences">Klávesnice</string>
+    <string name="title_controlkey_preference">Klávesa Control</string>
+    <string name="summary_controlkey_preference">Zvolte klávesu Control.</string>
+    <string name="dialog_title_controlkey_preference">Klávesa Control</string>
+
+    <string name="shell_preferences">Příkazy</string>
+    <string name="title_shell_preference">Příkazová řádka</string>
+    <string name="summary_shell_preference">Zvolte příkazy pro příkazovou řádku.</string>
+    <string name="dialog_title_shell_preference">Příkazy</string>
+
+    <string name="title_initialcommand_preference">Počáteční příkaz</string>
+    <string name="summary_initialcommand_preference">Poslat tento příkaz při startu.</string>
+    <string name="dialog_title_initialcommand_preference">Počáteční příkaz</string>
+
+</resources>

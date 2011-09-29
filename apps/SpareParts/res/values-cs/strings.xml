@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="app_label">Náhradní díly</string>
+
+    <string name="device_info_title">Informace o zařízení</string>
+
+    <string name="title_battery_history">Historie baterie</string>
+    <string name="summary_battery_history">Souhrn využití baterie</string>
+
+    <string name="title_battery_information">Informace o baterii</string>
+    <string name="summary_battery_information">Aktuální stav baterie</string>
+
+    <string name="title_usage_statistics">Statistika využití</string>
+    <string name="summary_usage_statistics">Souhrn využítí aplikací</string>
+
+    <string name="general_title">Obecné</string>
+
+    <string name="title_window_animations">Animace oken</string>
+    <string name="summary_window_animations">Rychlost animací v jednotlivých oknech</string>
+    <string name="dialog_title_window_animations">Zvolte rychlost oken</string>
+
+    <string name="title_transition_animations">Animace přechodu</string>
+    <string name="summary_transition_animations">Rychlost animací při přechodu mezi obrazovkami</string>
+    <string name="dialog_title_transition_animations">Zvolte rychlost přechodu</string>
+
+    <string name="title_fancy_ime_animations">Ozdobné animace</string>
+    <string name="summary_on_fancy_ime_animations">Použít ozdobné animace pro okna při vkládání znaků</string>
+    <string name="summary_off_fancy_ime_animations">Použít normální animace pro okna při vkládání znaků</string>
+
+    <string name="title_haptic_feedback">Odezva vibrací</string>
+    <string name="summary_on_haptic_feedback">Použít odezvu vibrací při interakci uživatele</string>
+    <string name="summary_off_haptic_feedback">Nepoužít odezvu vibrací při interakci uživatele</string>
+
+    <string name="title_font_size">Velikost fontu</string>
+    <string name="summary_font_size">Celková velikost fontů</string>
+    <string name="dialog_title_font_size">Zvolte velikost fontu</string>
+
+    <string name="title_end_button">Chování tlačítka \'End\'</string>
+    <string name="summary_end_button">Zvolte akci pro tlačítko \'End\' (červené)</string>
+    <string name="dialog_title_end_button">Zvolte talčítko \'End\'</string>
+
+    <string name="applications_title">Aplikace</string>
+
+    <string name="compatibility_mode_title">Režim kompatibility</string>
+    <string name="compatibility_mode_summary_on">Spouštět starší aplikace v režimu kompatibility. Je vyžadován restart. </string>
+    <string name="compatibility_mode_summary_off">Nespouštět starší aplikace v režimu kompatibility. Je vyžadován restart. </string>
+</resources>
