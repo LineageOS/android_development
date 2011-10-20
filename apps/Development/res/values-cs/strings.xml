@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="menu_upload_exceptions">Poslat vyjímky</string>
+    <string name="menu_clear_exceptions">Vyčistit vyjímky</string>
+
+    <string name="enable_wifi">Povolit Wifi</string>
+    <string name="disable_wifi">Zakázat Wifi</string>
+    <string name="wifi_on_duration">Wifi zapnuto (ms): </string>
+    <string name="wifi_off_duration">Wifi vypnuto (ms): </string>
+    <string name="wifi_cycles_done">Provedeno cyklů: </string>
+    <string name="start_toggling">Spustit přepínání Wifi</string>
+    <string name="stop_toggling">Zastavit přepínání Wifi</string>
+    <string name="start_screen_toggling">Spustit přepínání obrazovky</string>
+    <string name="stop_screen_toggling">Zastavit přepínání obrazovky</string>
+
+    <string name="start_mms">Spustit MMS</string>
+    <string name="stop_mms">Zastavit MMS</string>
+    <string name="start_hipri">Spusit HiPri</string>
+    <string name="stop_hipri">Zastavit HiPri</string>
+    <string name="crash">PÁD</string>
+
+
+    <string name="device_info_default">neznámé</string>
+    <string name="device_info_uptime">Celkový čas běhu</string>
+    <string name="device_info_awaketime">Čas probuzení</string>
+    <string name="device_info_asleeptime">Čas uspání</string>
+
+    <string name="build_id_label">ID sestavení</string>
+    <string name="build_date_label">Datum sestavení</string>
+    <string name="build_type_label">Typ sestavení</string>
+    <string name="build_product_label">Výsledek sestavení</string>
+    <string name="build_user_label">Popis sestavení</string>
+    <string name="build_host_label">Hostitel sestavení</string>
+    <string name="gsm_version_baseband_label">Verze basebandu</string>
+    <string name="gsm_version_ril_impl_label">Verze impl. RIL</string>
+
+    <string name="turn_on_radio">Zapnout rádio</string>
+    <string name="turn_off_radio">Vypnout rádio</string>
+
+    <string name="refresh_networks">Obnovit seznam sítí</string>
+
+    <string name="radioInfo_menu_viewADN">Zobrazit kontakty SIM</string>
+    <string name="radioInfo_menu_viewFDN">Zobrazit čísla pevného volání</string>
+    <string name="radioInfo_menu_viewSDN">Zobrazit čísla služeb</string>
+
+    <!-- Package summary in Package Browser -->
+    <string name="disabled">
+        <i>zakázán</i>
+    </string>
+    <string name="system">
+        <i>systémový</i>
+    </string>
+    <string name="debuggable">
+        <i>možnost ladění</i>
+    </string>
+    <string name="nocode">
+        <i>bez kódu</i>
+    </string>
+    <string name="persistent">
+        <i>persistentní</i>
+    </string>
+    <string name="restart">Restartovat</string>
+    <string name="package_summary_uid_label">ID uživatele</string>
+    <string name="package_summary_task_label">Afinita úlohy</string>
+    <string name="package_summary_version_label">Verze</string>
+    <string name="package_summary_source_label">Zdroj</string>
+    <string name="package_summary_receivers_label">Přijemci</string>
+    <string name="package_summary_data_label">Data</string>
+    <string name="package_summary_instrumentation_label">Vybavení</string>
+    <string name="package_summary_process_label">Proces</string>
+    <string name="package_summary_services_label">Služba</string>
+    <string name="package_summary_providers_label">Poskytovatelé</string>
+    <string name="package_summary_activities_label">Aktivity</string>
+
+    <string name="none">"(žádný)"</string>
+    <string name="yes">Ano</string>
+    <string name="no">Ne</string>
+    <string name="launch_multiple">Paralelní (normální)</string>
+    <string name="launch_singleTop">Jediná špička</string>
+    <string name="launch_singleTask">Jediná úloha</string>
+    <string name="launch_singleInstance">Jedna instance</string>
+    <string name="launch_unknown">"(neznámý)"</string>
+
+    <string name="development_settings_show_cpu_text">Zobrazit využití CPU</string>
+    <string name="development_settings_always_finish_text">Ihned ukončit aktivity</string>
+    <string name="development_settings_show_load_text">Zobrazit běžící procesy</string>
+    <string name="development_settings_show_updates_text">Zobrazit aktualizace obrazvek</string>
+    <string name="development_settings_compatibility_mode_text">Zakázat režim kompatibility</string>
+    <string name="development_settings_compatibility_mode_toast">Pro aktivaci změn je potřeba provést restart.</string>
+    <string name="development_settings_enable_gl_text">Povolit OpenGL ES (vyžadován restart)</string>
+    <string name="development_settings_allow_mock_location_text">Povolit emulaci pozice pro testování</string>
+    <string name="development_settings_wait_for_debugger_text">Čekat na debugger</string>
+    <string name="development_settings_show_background_text">Zobrazit pozadí</string>
+    <string name="development_settings_show_xmpp_text">Zobrazit stav připojení služby GTalk</string>
+    <string name="development_settings_debug_app_label_text">Ladit aplikaci:</string>
+    <string name="development_settings_show_sleep_text">Zobrazit stav uspání na LED</string>
+    <string name="development_settings_keep_screen_on_text">Ponechat zapnutou obrazovku při připojení</string>
+
+    <skip />
+    <string name="monkey_screen_number_of_events_label">Počet událostí: </string>
+    <string name="monkey_screen_start_text">Spustit</string>
+    <string name="monkey_screen_initial_activity_label">Výchozí aktivita: </string>
+
+    <string name="show_activity_clear_on_background_label">Vyčisiti na pozadí</string>
+    <string name="show_activity_task_affinity_label">Afinita úlohy</string>
+    <string name="show_activity_process_label">Proces</string>
+    <string name="show_activity_state_not_needed_label">Nepotřebný stav</string>
+    <string name="show_activity_required_permission_label">Vyžadování oprávnění</string>
+    <string name="show_activity_multiprocess_label">Multiprocesy</string>
+
+    <string name="red_button_behavior_label">Chování tlačítka \"Konec\"</string>
+
+    <string name="gls_tester_label">Testování GLS</string>
+    <string name="gls_tester_prefer_hosted">Hostování</string>
+    <string name="gls_tester_require_google">Google</string>
+    <string name="gls_tester_get_accounts">Seznam</string>
+    <string name="gls_tester_clear">Vyčistit</string>
+    <string name="gls_tester_go">Spustit</string>
+    <string name="gls_tester_do_notification">Oznámit při selhání</string>
+    <string name="gls_tester_run_intent">Spustit intent</string>
+    <string name="gls_tester_wipe_passwords">Odstranit heslo</string>
+    <string name="process_name_header">Jméno procesu:</string>
+    <string name="package_list_header">Balíčky v procesech:</string>
+    <string name="package_label">Jméno balíčku:</string>
+
+    <string name="touchscreen_label">dotyková obrazovka:</string>
+    <string name="input_method_label">zadávací metoda:</string>
+    <string name="hard_keyboard_label">hw klávesnice:</string>
+    <string name="navigation_label">navigace:</string>
+    <string name="five_way_nav_label">pěticestá navigace:</string>
+    <string name="gles_version_label">verze GLES:</string>
+
+    <string name="perm_name_text">Jméno :  </string>
+    <string name="dialog_title_error">Chyba</string>
+    <string name="invalid_perm_name">Neplatané jméno oprávnění</string>
+    <skip />
+    <string name="perm_desc_text">Pozn. :  </string>
+    <string name="perm_group_text">Skupina :  </string>
+    <string name="perm_protection_text">Úroveň ochrany :  </string>
+    <string name="perm_source_text">Zdrojový balíček :  </string>
+    <string name="perm_list_header_text">Aplikace využívající oprávnění  </string>
+    <string name="source_uid_text">Zdrojový UID :  </string>
+    <string name="shared_pkgs_text">Balíčky přistupující pomocí sdíleného UID :  </string>
+    
+    <string name="accounts_tester_app_name">Testování účtů</string>
+    <string name="accounts_tester_get_accounts_by_type">Získat podle typu</string>
+    <string name="accounts_tester_get_all_accounts">Získat věechny</string>
+    <string name="accounts_tester_add_account">Přidat</string>
+    <string name="accounts_tester_select_account_type">Zvolit typ účtu</string>
+    <string name="accounts_tester_process_name_header">Jméno procesu:</string>
+    <string name="accounts_tester_remove_account">Odstranit účet</string>
+    <string name="accounts_tester_get_auth_token">Získat aut. token</string>
+    <string name="accounts_tester_test_has_features">Má vlastnosti</string>
+    <string name="accounts_tester_invalidate_auth_token">Neplatný token</string>
+    <string name="accounts_tester_account_context_menu_title">operace účtu</string>
+    <skip />
+    <string name="accounts_tester_enter_auth_token_type">Zadejte typ aut. tokenu:</string>
+    <string name="accounts_tester_update_credentials">Změnit aut. údaje</string>
+    <string name="accounts_tester_confirm_credentials">Potvrdit aut. údaje</string>
+    <string name="accounts_tester_clear_password">Vyčistit heslo</string>
+    <string name="accounts_tester_edit_properties">Vlastnosti</string>
+    <string name="accounts_tester_desired_authtokentype_label">typ aut. tokenu:</string>
+    <string name="accounts_tester_desired_features_label">vlastnosti:</string>
+
+    <string name="bind_button">svázat</string>
+    <string name="unbind_button">odvázat</string>
+    <string name="start_sync_button">spustit synch.</string>
+    <string name="cancel_sync_button">zrušit synch.</string>
+    <string name="sync_adapters_spinner_label">Registrované synch. adaptéry:</string>
+    <string name="status_starting_sync_format">Spouští se synch. účtu %s\u2026</string>
+    <string name="status_remote_exception_while_starting_sync">Vyvolána vyjímka při spouštění synch.</string>
+    <string name="status_canceled_sync">Synch. zrušena</string>
+    <string name="status_remote_exception_while_canceling_sync">Vyvolána vyjímka při přerušování synch.</string>
+    <string name="status_received_heartbeat">Obdržen inf. pulz</string>
+    <string name="status_sync_failed_format">Synch. selhala: %s</string>
+    <string name="status_sync_succeeded_format">Synch. dokončena: %s</string>
+    <string name="status_already_bound">Již svázáno se synch. adaptérem</string>
+    <string name="status_sync_adapter_not_selected">Není zvolen synch. adaptér</string>
+    <string name="binding_connected_format">Připojeno k synch. adaptéru\n\tautorita: %1$s\n\ttyp účtu: %2$s</string>
+    <string name="binding_not_connected">Není připojeno k synch. adaptéru</string>
+    <string name="binding_bind_failed">Svázání selhalo</string>
+    <string name="binding_waiting_for_connection">Čeká se připojení zařízení\u2026</string>
+    <string name="select_account_to_sync">Zvolte účet pro synch.</string>
+
+    <string name="bad_behavior_crash_main_label">Zhavarovat vlákno hlavní aplikace</string>
+    <string name="bad_behavior_crash_thread_label">Zhavarovat vlákno pomocné aplikace</string>
+    <string name="bad_behavior_crash_native_label">Zhavarovat nativní proces</string>
+    <string name="bad_behavior_crash_system_label">Zhavarovat systémový server</string>
+    <string name="bad_behavior_wtf_label">Protokol podmínky WTF</string>
+    <string name="bad_behavior_anr_label">ANR (přestane reagovat na 20 sekund)</string>
+    <string name="bad_behavior_anr_activity_label">ANR spouštějící aktivitu</string>
+    <string name="bad_behavior_anr_broadcast_label">ANR přijímá broadcasty intentu</string>
+    <string name="bad_behavior_anr_service_label">ANR spouštějící službu</string>
+    <string name="bad_behavior_anr_system_label">Systém ANR (v ActivityManageru)</string>
+    <string name="bad_behavior_wedge_system_label">Systém Wedge (5 minutový systém ANR)</string>
+
+    <string name="permissions_title">Zobrazit oprávnění</string>
+    <string name="permissions_loading">Načítání\u2026</string>
+    <string name="permissions_refresh">Obnovit seznam</string>
+</resources>

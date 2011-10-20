@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/tests/ComplexLayout/res/values/strings.xml
+**
+** Copyright 2007, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<!-- This file contains resource definitions for displayed strings, allowing
+     them to be changed based on the locale and options. -->
+
+<resources>
+    <string name="test_word">test</string>
+    <string name="test_sentence">Toto je testovací věta.</string>
+    <skip />
+    <skip />
+    <string name="header_absolute">Absolutní zobrazení</string>
+
+    <string name="header_relative">Relativní rozvržení</string>
+    <string name="header_linear">Lienární rozvržení</string>
+
+    <string name="relative_button1">Tlačíko1</string>
+    <string name="relative_button2">Tlačíko2</string>
+    <string name="relative_button3">Tlačíko3</string>
+    <string name="relative_button4">Tlačíko4</string>
+    <string name="relative_button5">Tlačíko5</string>
+    <string name="relative_button6">Tlačíko6</string>
+    <string name="relative_button7">Tlačíko7</string>
+    <string name="relative_button8">Tlačíko8</string>
+    <string name="response">Typ odpovědi:</string>
+    <skip />
+    <string name="cancel">Zrušit</string>
+    <skip />
+</resources>
