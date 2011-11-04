@@ -12,7 +12,6 @@
 	<classpathentry kind="src" path="packages/apps/DeskClock/src"/>
 	<classpathentry kind="src" path="packages/apps/Email/src"/>
 	<classpathentry kind="src" path="packages/apps/HTMLViewer/src"/>
-	<classpathentry kind="src" path="packages/apps/Launcher2/src"/>
 	<classpathentry kind="src" path="packages/apps/Mms/src"/>
 	<classpathentry kind="src" path="packages/apps/PackageInstaller/src"/>
 	<classpathentry kind="src" path="packages/apps/Phone/src"/>
@@ -41,6 +40,7 @@
 	<classpathentry kind="src" path="frameworks/base/location/java"/>
 	<classpathentry kind="src" path="frameworks/base/media/java"/>
 	<classpathentry kind="src" path="frameworks/base/obex"/>
+	<classpathentry kind="src" path="frameworks/base/omapmmlib/java"/>
 	<classpathentry kind="src" path="frameworks/base/opengl/java"/>
 	<classpathentry kind="src" path="frameworks/base/packages/SettingsProvider/src"/>
 	<classpathentry kind="src" path="frameworks/base/policy/src"/>
