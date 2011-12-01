@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<resources>
+    <string-array name="entries_animations">
+        <item>Sin animación</item>
+        <item>Rápida</item>
+        <item>Normal</item>
+        <item>Lenta</item>
+        <item>Muy lenta</item>
+    </string-array>
+
+    <string-array name="entries_font_size">
+        <item>Muy pequeña</item>
+        <item>Pequeña</item>
+        <item>Mediana</item>
+        <item>Normal</item>
+        <item>Grande</item>
+        <item>Muy grande</item>
+        <item>Enorme</item>
+    </string-array>
+
+    <string-array name="entries_end_button">
+        <item>No hacer nada</item>
+        <item>Ir al escritorio por defecto</item>
+        <item>Apagar pantalla</item>
+        <item>Ir al escritorio por defecto/apagar pantalla</item>
+    </string-array>
+
+</resources>
