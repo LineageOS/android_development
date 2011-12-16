@@ -146,8 +146,10 @@ EGLContext_t::EGLContext_t(EGLDisplay dpy, EGLConfig config, EGLContext_t* share
     flags = 0;
     version = 1;
     clientState = new GLClientState();
-    if (shareCtx) sharedGroup = shareCtx->getSharedGroup();
-    else sharedGroup = GLSharedGroupPtr(new GLSharedGroup());
+    if (shareCtx)
+        sharedGroup = shareCtx->getSharedGroup();
+    else
+        sharedGroup = GLSharedGroupPtr(new GLSharedGroup());
 };
 
 EGLContext_t::~EGLContext_t()
@@ -308,8 +310,6 @@ EGLBoolean egl_window_surface_t::connect()
         setErrorReturn(EGL_BAD_ALLOC, EGL_FALSE);
     }
 
-    buffer->common.incRef(&buffer->common);
-
     // lock the buffer
     nativeWindow->lockBuffer(nativeWindow, buffer);
 
@@ -323,7 +323,6 @@ void egl_window_surface_t::disconnect()
 {
     if (buffer) {
         nativeWindow->queueBuffer(nativeWindow, buffer);
-        buffer->common.decRef(&buffer->common);
         buffer = 0;
     }
 }
@@ -338,15 +337,8 @@ EGLBoolean egl_window_surface_t::swapBuffers()
 
     rcEnc->rcFlushWindowColorBuffer(rcEnc, rcSurface);
 
-    android_native_buffer_t* prevBuf = buffer;
     //post the back buffer
     nativeWindow->queueBuffer(nativeWindow, buffer);
-
-    buffer->common.incRef(&buffer->common);
-
-    if (prevBuf) {
-        prevBuf->common.decRef(&prevBuf->common);
-    }
 
     // dequeue a new buffer
     if (nativeWindow->dequeueBuffer(nativeWindow, &buffer)) {
@@ -1251,12 +1243,6 @@ EGLBoolean eglSignalSyncKHR(EGLDisplay dpy, EGLSyncKHR sync, EGLenum mode)
 }
 
 EGLBoolean eglGetSyncAttribKHR(EGLDisplay dpy, EGLSyncKHR sync, EGLint attribute, EGLint *value)
-{
-    //TODO later
-    return 0;
-}
-
-EGLBoolean eglSetSwapRectangleANDROID(EGLDisplay dpy, EGLSurface draw, EGLint left, EGLint top, EGLint width, EGLint height)
 {
     //TODO later
     return 0;

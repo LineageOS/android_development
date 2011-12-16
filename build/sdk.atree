@@ -43,13 +43,13 @@ development/sdk/plat_tools_source.properties  platform-tools/source.properties
 bin/adb                                 strip platform-tools/adb
 bin/aapt                                strip platform-tools/aapt
 bin/aidl                                strip platform-tools/aidl
+bin/fastboot                            strip platform-tools/fastboot
 bin/llvm-rs-cc                          strip platform-tools/llvm-rs-cc
 
 # dx
 bin/dx                                        platform-tools/dx
 bin/dexdump                                   platform-tools/dexdump
 framework/dx.jar                              platform-tools/lib/dx.jar
-
 
 # Framework include for Renderscript
 frameworks/base/libs/rs/scriptc               platform-tools/renderscript/include
@@ -159,6 +159,7 @@ development/samples/ApiDemos                   samples/${PLATFORM_NAME}/ApiDemos
 development/samples/BackupRestore              samples/${PLATFORM_NAME}/BackupRestore
 development/samples/BasicGLSurfaceView         samples/${PLATFORM_NAME}/BasicGLSurfaceView
 development/samples/BluetoothChat              samples/${PLATFORM_NAME}/BluetoothChat
+development/samples/BluetoothHDP               samples/${PLATFORM_NAME}/BluetoothHDP
 development/samples/ContactManager             samples/${PLATFORM_NAME}/ContactManager
 development/samples/CrossCompatibility         samples/${PLATFORM_NAME}/CrossCompatibility
 development/samples/CubeLiveWallpaper          samples/${PLATFORM_NAME}/CubeLiveWallpaper
@@ -183,6 +184,7 @@ development/samples/SpinnerTest                samples/${PLATFORM_NAME}/SpinnerT
 development/samples/TicTacToeLib               samples/${PLATFORM_NAME}/TicTacToeLib
 development/samples/TicTacToeMain              samples/${PLATFORM_NAME}/TicTacToeMain
 development/samples/TtsEngine                  samples/${PLATFORM_NAME}/TtsEngine
+development/samples/ToyVpn                     samples/${PLATFORM_NAME}/ToyVpn
 development/samples/USB/MissileLauncher        samples/${PLATFORM_NAME}/USB/MissileLauncher
 development/samples/USB/AdbTest                samples/${PLATFORM_NAME}/USB/AdbTest
 development/samples/VoiceRecognitionService    samples/${PLATFORM_NAME}/VoiceRecognitionService

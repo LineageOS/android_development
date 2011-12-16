@@ -32,7 +32,7 @@
  * "white/red/green/blue" frame. Frame content rotation helps finding bugs in
  * format conversions.
  */
-#define EFCD_ROTATE_FRAME   1
+#define EFCD_ROTATE_FRAME   0
 
 namespace android {
 
@@ -110,6 +110,10 @@ private:
      */
     void drawSquare(int x, int y, int size, const YUVPixel* color);
 
+    inline uint8_t changeExposure(uint8_t inputY) {
+        return static_cast<uint8_t>(static_cast<float>(inputY) *
+                                    mExposureCompensation);
+    }
 #if EFCD_ROTATE_FRAME
     void drawSolid(YUVPixel* color);
     void drawStripes();
