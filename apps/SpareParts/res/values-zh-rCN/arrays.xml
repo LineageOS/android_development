@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries_animations">
+        <item>禁用</item>
+        <item>快速</item>
+        <item>正常</item>
+        <item>慢速</item>
+        <item>极慢</item>
+    </string-array>
+
+    <!-- skipping untranslatable /resources:0/string-array:name=entryvalues_animations -->
+
+    <string-array name="entries_font_size">
+        <item>最小</item>
+        <item>特小</item>
+        <item>小</item>
+        <item>正常</item>
+        <item>大</item>
+        <item>特大</item>
+        <item>最大</item>
+    </string-array>
+
+    <!-- skipping untranslatable /resources:0/string-array:name=entryvalues_font_size -->
+
+    <string-array name="entries_end_button">
+        <item>无其他动作</item>
+        <item>返回主界面</item>
+        <item>睡眠</item>
+        <item>返回主界面，然后睡眠</item>
+    </string-array>
+
+    <!-- skipping untranslatable /resources:0/string-array:name=entryvalues_end_button -->
+</resources>
