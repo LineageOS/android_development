@@ -23,7 +23,7 @@
     <application android:label="@string/app_label"
             android:icon="@drawable/app_icon">
 
-        <activity android:name="SpareParts">
+        <activity android:name="SpareParts" android:label="@string/app_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -18,7 +18,7 @@
 */
 -->
 <resources>
-    <string name="app_label">Spare Parts</string>
+    <string name="app_label">Herramientas</string>
 
     <string name="device_info_title">Información del dispositivo</string>
 
