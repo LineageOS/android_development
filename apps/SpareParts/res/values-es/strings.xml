@@ -18,7 +18,7 @@
 */
 -->
 <resources>
-    <string name="app_label">Spare Parts</string>
+    <string name="app_label">Herramientas</string>
 
     <string name="device_info_title">Información del dispositivo</string>
 
@@ -59,10 +59,7 @@
 
     <string name="applications_title">Aplicaciones</string>
 
-    <!-- Sound & display settings screen, compatibility mode check box label -->
     <string name="compatibility_mode_title">Modo de compatibilidad</string>
-    <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
     <string name="compatibility_mode_summary_on">Ejecutar aplicaciones antiguas en modo de compatibilidad (requiere reiniciar)</string>
-    <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
     <string name="compatibility_mode_summary_off">No ejecutar aplicaciones antiguas en modo de compatibilidad (requiere reiniciar)</string>
 </resources>
