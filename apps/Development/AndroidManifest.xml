@@ -42,32 +42,32 @@
     <uses-permission android:name="com.google.android.googleapps.permission.GOOGLE_AUTH.ALL_SERVICES" />
     <uses-permission android:name="com.google.android.googleapps.permission.GOOGLE_AUTH.YouTubeUser" />
 
-    <application android:label="Dev Tools"
+    <application android:label="@string/app_name"
             android:icon="@drawable/ic_launcher_devtools">
 
         <uses-library android:name="android.test.runner" />
 
-        <activity android:name="Development" android:label="Dev Tools"
+        <activity android:name="Development" android:label="@string/app_name"
             android:icon="@drawable/ic_launcher_devtools">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="PackageBrowser" android:label="Package Browser">
+        <activity android:name="PackageBrowser" android:label="@string/package_browser_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
-        <activity android:name="PackageSummary" android:label="Package Summary">
+        <activity android:name="PackageSummary" android:label="@string/package_summary_app_name">
         </activity>
         <activity android:name="ShowActivity" android:label="Activity">
         </activity>
         <activity android:name="AppPicker"
                 android:theme="@android:style/Theme.Dialog">
         </activity>
-        <activity android:name="PointerLocation" android:label="Pointer Location"
+        <activity android:name="PointerLocation" android:label="@string/pointer_location_app_name"
                 android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
                 android:configChanges="keyboard|keyboardHidden|navigation|orientation">
             <intent-filter>
@@ -76,7 +76,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="AccountsTester" android:label="AccountsTester"
+        <activity android:name="AccountsTester" android:label="@string/accounts_tester_app_name"
                   android:theme="@android:style/Theme.Light"
                   android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -85,7 +85,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="SyncAdapterDriver" android:label="Sync Tester"
+        <activity android:name="SyncAdapterDriver" android:label="@string/sync_tester_app_name"
                   android:theme="@android:style/Theme.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -97,47 +97,47 @@
         </activity>
         <activity android:name="Details">
         </activity>
-        <activity android:name="Connectivity" android:label="Connectivity" >
+        <activity android:name="Connectivity" android:label="@string/conectivity_app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
-        <activity android:name="DevelopmentSettings" android:label="Development Settings" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.TEST" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="InstrumentationList" android:label="Instrumentation">
+        <activity android:name="DevelopmentSettings" android:label="@string/development_settings_app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
 
-        <activity android:name="MediaScannerActivity" android:label="Media Scanner">
+        <activity android:name="InstrumentationList" android:label="@string/instrumentation_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
 
-        <activity android:name="GLSTester" android:label="Google Login Service">
+        <activity android:name="MediaScannerActivity" android:label="@string/media_scanner_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
 
-        <activity android:name="RunningProcesses" android:label="Running processes">
+        <activity android:name="GLSTester" android:label="@string/gls_tester_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
             </intent-filter>
         </activity>
-        <activity android:name="ProcessInfo" android:label="Process Information">
+
+        <activity android:name="RunningProcesses" android:label="@string/running_processes_app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
+        <activity android:name="ProcessInfo" android:label="@string/process_information_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -151,20 +151,20 @@
             </intent-filter>
         </activity>
     -->
-        <activity android:name="AppHwPref" android:label="Applications Hardware Preferences">
+        <activity android:name="AppHwPref" android:label="@string/app_hw_pref_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="PermissionDetails" android:label="Permission Info">
+        <activity android:name="PermissionDetails" android:label="@string/permissions_detail_app_name">
             <intent-filter>
                 <action android:name="com.android.development.VIEW_PERMISSION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name="BadBehaviorActivity" android:label="Bad Behavior">
+        <activity android:name="BadBehaviorActivity" android:label="@string/bad_behavior_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />
@@ -177,7 +177,7 @@
         </receiver>
         <service android:name="BadBehaviorActivity$BadService" />
 
-        <activity android:name="ConfigurationViewer" android:label="Configuration">
+        <activity android:name="ConfigurationViewer" android:label="@string/configuration_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.TEST" />

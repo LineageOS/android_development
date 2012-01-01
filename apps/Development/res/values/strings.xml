@@ -18,9 +18,12 @@
 */
 -->
 <resources>
+    <string name="app_name">Dev Tools</string>
     <string name="menu_upload_exceptions">Upload Exceptions</string>
     <string name="menu_clear_exceptions">Clear Exceptions</string>
 
+    <!-- Conectivity -->
+    <string name="conectivity_app_name">Conectivity</string>
     <string name="enable_wifi">Enable Wifi</string>
     <string name="disable_wifi">Disable Wifi</string>
     <string name="wifi_on_duration">Wifi on (ms): </string>
@@ -38,10 +41,10 @@
     <string name="crash">CRASH</string>
 
 
-        <string name="device_info_default">unknown</string>
-        <string name="device_info_uptime">Uptime</string>
-        <string name="device_info_awaketime">Awake Time</string>
-        <string name="device_info_asleeptime">Asleep Time</string>
+    <string name="device_info_default">unknown</string>
+    <string name="device_info_uptime">Uptime</string>
+    <string name="device_info_awaketime">Awake Time</string>
+    <string name="device_info_asleeptime">Asleep Time</string>
 
     <string name="build_id_label">Build ID</string>
     <string name="build_date_label">Build Date</string>
@@ -62,12 +65,14 @@
     <string name="radioInfo_menu_viewSDN">View Service Dialing Numbers</string>
 
     <!-- Package summary in Package Browser -->
+    <string name="package_browser_app_name">Package Browser</string>
     <string name="disabled"><i>disabled</i></string>
     <string name="system"><i>system</i></string>
     <string name="debuggable"><i>debuggable</i></string>
     <string name="nocode"><i>no code</i></string>
     <string name="persistent"><i>persistent</i></string>
     <string name="restart">Restart</string>
+    <string name="package_summary_app_name">Package Summary</string>
     <string name="package_summary_uid_label">User ID</string>
     <string name="package_summary_task_label">Task Affinity</string>
     <string name="package_summary_version_label">Version</string>
@@ -90,6 +95,8 @@
     <string name="launch_singleInstance">Single Instance</string>
     <string name="launch_unknown">"(Unknown)"</string>
 
+    <!-- Development Settings -->
+    <string name="development_settings_app_name">Development Settings</string>
     <string name="development_settings_show_cpu_text">Show CPU usage</string>
     <string name="development_settings_always_finish_text">Immediately destroy activities</string>
     <string name="development_settings_show_load_text">Show running processes</string>
@@ -120,6 +127,8 @@
 
     <string name="red_button_behavior_label">End Button Behavior</string>
 
+    <!-- Google Login Service -->
+    <string name="gls_tester_app_name">Google Login Service</string>
     <string name="gls_tester_label">GLS Tester</string>
     <string name="gls_tester_prefer_hosted">Hosted</string>
     <string name="gls_tester_require_google">Google</string>
@@ -197,6 +206,7 @@
     <string name="select_account_to_sync">Select account to sync</string>
 
     <!-- BadBehaviorActivity -->
+    <string name="bad_behavior_app_name">Bad Behavior</string>
     <string name="bad_behavior_crash_main_label">Crash the main app thread</string>
     <string name="bad_behavior_crash_thread_label">Crash an auxiliary app thread</string>
     <string name="bad_behavior_crash_native_label">Crash the native process</string>
@@ -216,4 +226,30 @@
     <string name="permissions_loading">Loading</string>
     <!-- Text displayed on Refresh Menu option -->
     <string name="permissions_refresh">Refresh List</string>
+    <!-- Permissions Info -->
+    <string name="permissions_detail_app_name">Permissions Info</string>
+
+    <!-- Configuration Viewer -->
+    <string name="configuration_app_name">Configuration</string>
+
+    <!-- Instrumentation List -->
+    <string name="instrumentation_app_name">Instrumentation List</string>
+
+    <!-- Media Scanner -->
+    <string name="media_scanner_app_name">Media Scanner</string>
+
+    <!-- Pointer Location -->
+    <string name="pointer_location_app_name">Pointer Location</string>
+
+    <!-- Running Processes -->
+    <string name="running_processes_app_name">Running Processes</string>
+
+    <!-- Process Information -->
+    <string name="process_information_app_name">Process Information</string>
+
+    <!-- Sync Adapter Driver -->
+    <string name="sync_tester_app_name">Sync Tester</string>
+
+    <!-- Applications Hardware Preferences -->
+    <string name="app_hw_pref_app_name">Applications Hardware Preferences</string>
 </resources>

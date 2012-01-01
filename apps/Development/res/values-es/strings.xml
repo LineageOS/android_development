@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="app_name">Desarrollo</string>
+    <string name="menu_upload_exceptions">Cargar excepciones</string>
+    <string name="menu_clear_exceptions">Limpiar excepciones</string>
+
+    <!-- Conectivity -->
+    <string name="conectivity_app_name">Conectividad</string>
+    <string name="enable_wifi">Activar WiFi</string>
+    <string name="disable_wifi">Desactivar WiFi</string>
+    <string name="wifi_on_duration">Encendido WiFi (ms): </string>
+    <string name="wifi_off_duration">Apagado WiFi (ms): </string>
+    <string name="wifi_cycles_done">Ciclos realizados: </string>
+    <string name="start_toggling">Conmutar inicio WiFi</string>
+    <string name="stop_toggling">Conmutar parada WiFi</string>
+    <string name="start_screen_toggling">Conmutar inicio pantalla</string>
+    <string name="stop_screen_toggling">Conmuntar parada pantalla</string>
+
+    <string name="start_mms">Iniciar MMS</string>
+    <string name="stop_mms">Parar MMS</string>
+    <string name="start_hipri">Iniciar HiPri</string>
+    <string name="stop_hipri">Parar HiPri</string>
+    <string name="crash">CRASH</string>
+
+
+    <string name="device_info_default">Desconocido</string>
+    <string name="device_info_uptime">Tiempo actividad</string>
+    <string name="device_info_awaketime">Tiempo activo</string>
+    <string name="device_info_asleeptime">Tiempo suspendido</string>
+
+    <string name="build_id_label">ID compilación</string>
+    <string name="build_date_label">Fecha compilación</string>
+    <string name="build_type_label">Tipo compilación</string>
+    <string name="build_product_label">Producto compilación</string>
+    <string name="build_user_label">Etiqueta compilación</string>
+    <string name="build_host_label">Host compilación</string>
+    <string name="gsm_version_baseband_label">Versión banda base</string>
+    <string name="gsm_version_ril_impl_label">Versión RIL</string>
+
+    <string name="turn_on_radio">Encender radio</string>
+    <string name="turn_off_radio">Apagar radio</string>
+
+    <string name="refresh_networks">Refrescar lista redes</string>
+
+    <string name="radioInfo_menu_viewADN">Mostrar contactos SIM</string>
+    <string name="radioInfo_menu_viewFDN">Mostrar nº marcación fija</string>
+    <string name="radioInfo_menu_viewSDN">Mostrar nº marcación servicio</string>
+
+    <!-- Package summary in Package Browser -->
+    <string name="package_browser_app_name">Paquetes Instalados</string>
+    <string name="disabled"><i>deshabilitado</i></string>
+    <string name="system"><i>sistema</i></string>
+    <string name="debuggable"><i>depurable</i></string>
+    <string name="nocode"><i>sin código</i></string>
+    <string name="persistent"><i>persistente</i></string>
+    <string name="restart">Reiniciar</string>
+    <string name="package_summary_app_name">Gestor de Paquetes</string>
+    <string name="package_summary_uid_label">ID Usuario</string>
+    <string name="package_summary_task_label">Tarea afín</string>
+    <string name="package_summary_version_label">Versión</string>
+    <string name="package_summary_source_label">Fuente</string>
+    <string name="package_summary_receivers_label">Receptores</string>
+    <string name="package_summary_data_label">Datos</string>
+    <string name="package_summary_instrumentation_label">Instrumentación</string>
+    <string name="package_summary_process_label">Procesos</string>
+    <string name="package_summary_services_label">Servicios</string>
+    <string name="package_summary_providers_label">Proveedores</string>
+    <string name="package_summary_activities_label">Actividades</string>
+
+    <!-- Activity details in Package Browser -->
+    <string name="none">"(ninguna)"</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="launch_multiple">Varias (normal)</string>
+    <string name="launch_singleTop">Única</string>
+    <string name="launch_singleTask">Tarea única</string>
+    <string name="launch_singleInstance">Instancia única</string>
+    <string name="launch_unknown">"(desconocida)"</string>
+
+    <!-- Development Settings -->
+    <string name="development_settings_app_name">Ajustes Desarrollo</string>
+    <string name="development_settings_show_cpu_text">Mostrar uso CPU</string>
+    <string name="development_settings_always_finish_text">Destruir actividades inmediatamente</string>
+    <string name="development_settings_show_load_text">Mostrar procesos en ejecución</string>
+    <string name="development_settings_show_updates_text">Mostrar actualizaciones pantalla</string>
+    <string name="development_settings_compatibility_mode_text">Desctivar modo compatibilidad</string>
+    <string name="development_settings_compatibility_mode_toast">Reinicio necesario para completar el cambio.</string>
+    <string name="development_settings_enable_gl_text">Habilitar OpenGL ES (reinicio necesario)</string>
+    <string name="development_settings_allow_mock_location_text">Permitir ubicaciones para test</string>
+    <string name="development_settings_wait_for_debugger_text">Esperar al compilador</string>
+    <string name="development_settings_show_background_text">Mostrar en segundo plano</string>
+    <string name="development_settings_show_xmpp_text">Mostrar estado conexión de servicio GTalk</string>
+    <string name="development_settings_debug_app_label_text">Depurar aplicación:</string>
+    <string name="development_settings_show_sleep_text">Mostrar estado suspendido en LED</string>
+    <string name="development_settings_keep_screen_on_text">Dejar la pantalla encendida</string>
+
+    <string name="monkey_screen_initialActivity_text"></string>
+    <string name="monkey_screen_number_of_events_label">Número de eventos: </string>
+    <string name="monkey_screen_start_text">Iniciar</string>
+    <string name="monkey_screen_initial_activity_label">Actividad inicial: </string>
+
+    <string name="show_activity_clear_on_background_label">Limpiar en segundo plano</string>
+    <string name="show_activity_task_affinity_label">Tarea afín</string>
+    <string name="show_activity_process_label">Proceso</string>
+    <string name="show_activity_state_not_needed_label">Estado no necesario</string>
+    <string name="show_activity_required_permission_label">Permiso requerido</string>
+    <string name="show_activity_multiprocess_label">Multiproceso</string>
+
+    <string name="red_button_behavior_label">Comportamiento botón Atrás</string>
+
+    <!-- Google Login Service -->
+    <string name="gls_tester_app_name">Servicio Acceso Google</string>
+    <string name="gls_tester_label">Test GLS</string>
+    <string name="gls_tester_prefer_hosted">Servidor</string>
+    <string name="gls_tester_require_google">Google</string>
+    <string name="gls_tester_get_accounts">Lista</string>
+    <string name="gls_tester_clear">Limpiar</string>
+    <string name="gls_tester_go">Ir</string>
+    <string name="gls_tester_do_notification">Notificar con error</string>
+    <string name="gls_tester_run_intent">Ejecutar intento</string>
+    <string name="gls_tester_wipe_passwords">Borrar contraseñas</string>
+    <string name="process_name_header">Nombre proceso:</string>
+    <string name="package_list_header">Paquetes en proceso:</string>
+    <string name="package_label">Nombre paquete:</string>
+
+    <!-- Application configuration requirements related attributes -->
+    <string name="touchscreen_label">pantalla táctil:</string>
+    <string name="input_method_label">método entrada:</string>
+    <string name="hard_keyboard_label">teclado:</string>
+    <string name="navigation_label">navigación:</string>
+    <string name="five_way_nav_label">navegación a cinco:</string>
+    <string name="gles_version_label">Versión GLES:</string>
+
+    <!-- Permission details related string attribtues -->
+    <string name="perm_name_text">Nombre :  </string>
+    <string name="dialog_title_error">Error</string>
+    <string name="invalid_perm_name">Nombre de permiso inválido</string>
+    <string name="ok">Aceptar</string>
+    <string name="perm_desc_text">Desc :  </string>
+    <string name="perm_group_text">Grupo :  </string>
+    <string name="perm_protection_text">Nivel protección :  </string>
+    <string name="perm_source_text">Paquete fuente :  </string>
+    <string name="perm_list_header_text">Apps usando el servicio  </string>
+    <string name="source_uid_text">Fuente uid :  </string>
+    <string name="shared_pkgs_text">Paquetes accediendo vía uid compartido :  </string>
+
+    <!-- AccountsTester -->
+    <string name="accounts_tester_app_name">Test de Cuentas</string>
+    <string name="accounts_tester_get_accounts_by_type">Ver por tipo</string>
+    <string name="accounts_tester_get_all_accounts">Ver todo</string>
+    <string name="accounts_tester_add_account">Añadir</string>
+    <string name="accounts_tester_select_account_type">Seleccionar tipo cuenta</string>
+    <string name="accounts_tester_process_name_header">Nombre proceso:</string>
+    <string name="accounts_tester_remove_account">Eliminar cuenta</string>
+    <string name="accounts_tester_get_auth_token">Ver Token autorización</string>
+    <string name="accounts_tester_test_has_features">Tiene características</string>
+    <string name="accounts_tester_invalidate_auth_token">Invalidar token</string>
+    <string name="accounts_tester_account_context_menu_title">Operaciones de cuenta</string>
+    <string name="accounts_tester_do_get_auth_token">Aceptar</string>
+    <string name="accounts_tester_enter_auth_token_type">Introducir tipo authtoken:</string>
+    <string name="accounts_tester_update_credentials">Actualizar credenciales</string>
+    <string name="accounts_tester_confirm_credentials">Confirmar credenciales</string>
+    <string name="accounts_tester_clear_password">Borrar contraseña</string>
+    <string name="accounts_tester_edit_properties">Propiedades</string>
+    <string name="accounts_tester_desired_authtokentype_label">Tipo authtoken:</string>
+    <string name="accounts_tester_desired_features_label">Características:</string>
+
+    <!-- SyncAdapterDriver -->
+    <string name="bind_button">Unir</string>
+    <string name="unbind_button">Separar</string>
+    <string name="start_sync_button">Iniciar sincronización</string>
+    <string name="cancel_sync_button">Cancelar sincronización.</string>
+    <string name="sync_adapters_spinner_label">Registro adaptadores sincronizados:</string>
+    <string name="status_starting_sync_format">Comenzando sinc. de cuenta %s...</string>
+    <string name="status_remote_exception_while_starting_sync">Recogida una excepción remota mientras se iniciaba la sincronización</string>
+    <string name="status_canceled_sync">Cancelar sincronización</string>
+    <string name="status_remote_exception_while_canceling_sync">Recogida una excepción remota mientras se cancelaba la sincronización</string>
+    <string name="status_received_heartbeat">Recibido heartbeat</string>
+    <string name="status_sync_failed_format">Error sincronización: %s</string>
+    <string name="status_sync_succeeded_format">Sincronización realizada: %s</string>
+    <string name="status_already_bound">Adaptador ya vinculado para sincronización</string>
+    <string name="status_sync_adapter_not_selected">No hay seleccionado ningún adaptador</string>
+    <string name="binding_connected_format">Conectado a adaptador sincronizado\n\Tautoridad: %1$s\n\Tcuenta tipo: %2$s</string>
+    <string name="binding_not_connected">No conectado a adaptador sincronizado</string>
+    <string name="binding_bind_failed">Unión fallida</string>
+    <string name="binding_waiting_for_connection">Esperando al servicio a ser conectado\u2026</string>
+    <string name="select_account_to_sync">Seleccionar cuenta para sincronizar</string>
+
+    <!-- BadBehaviorActivity -->
+    <string name="bad_behavior_app_name">Forzar Errores</string>
+    <string name="bad_behavior_crash_main_label">Fallo de hilo principal</string>
+    <string name="bad_behavior_crash_thread_label">Fallo en un hilo auxiliar</string>
+    <string name="bad_behavior_crash_native_label">Fallo en proceso nativo</string>
+    <string name="bad_behavior_crash_system_label">Fallo en servidor de sistema</string>
+    <string name="bad_behavior_wtf_label">Reportar una condición WTF</string>
+    <string name="bad_behavior_anr_label">ANR (sin respuesta durante 20 segundos)</string>
+    <string name="bad_behavior_anr_activity_label">ANR iniciando una actividad</string>
+    <string name="bad_behavior_anr_broadcast_label">ANR recibiendo un intento difundido</string>
+    <string name="bad_behavior_anr_service_label">ANR iniciando un servicio</string>
+    <string name="bad_behavior_anr_system_label">Sistema ANR (en Gestor de Actividades)</string>
+    <string name="bad_behavior_wedge_system_label">Cuña del sistema (5 minutos de sistema ANR)</string>
+
+    <!-- Permission dialog -->
+    <!-- Title of permission Screen -->
+    <string name="permissions_title">Mostrar Permisos</string>
+    <!-- Loading text displayed while loading permissions -->
+    <string name="permissions_loading">Cargando</string>
+    <!-- Text displayed on Refresh Menu option -->
+    <string name="permissions_refresh">Actualizar lista</string>
+    <!-- Permissions Info -->
+    <string name="permissions_detail_app_name">Información Permisos</string>
+
+    <!-- Configuration Viewer -->
+    <string name="configuration_app_name">Configuración</string>
+
+    <!-- Instrumentation List -->
+    <string name="instrumentation_app_name">Instrumentación</string>
+
+    <!-- Media Scanner -->
+    <string name="media_scanner_app_name">Escáner de Medios</string>
+
+    <!-- Pointer Location -->
+    <string name="pointer_location_app_name">Panel Táctil</string>
+
+    <!-- Running Processes -->
+    <string name="running_processes_app_name">Procesos en Ejecución</string>
+
+    <!-- Process Information -->
+    <string name="process_information_app_name">Información de Proceso</string>
+
+    <!-- Sync Adapter Driver -->
+    <string name="sync_tester_app_name">Test Sincronización</string>
+
+    <!-- Applications Hardware Preferences -->
+    <string name="app_hw_pref_app_name">Preferencias de Aplicaciones</string>
+</resources>
