@@ -47,7 +47,7 @@
     
     <string name="title_haptic_feedback">Haptic feedback</string>
     <string name="summary_on_haptic_feedback">Use haptic feedback with user interaction</string>
-    <string name="summary_off_haptic_feedback">Use haptic feedback with user interaction</string>
+    <string name="summary_off_haptic_feedback">Don\'t use haptic feedback with user interaction</string>
     
     <string name="title_font_size">Font size</string>
     <string name="summary_font_size">Overall size of fonts</string>
