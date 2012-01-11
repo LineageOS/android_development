@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <string name="app_label">Spare Parts</string>
+
+    <string name="device_info_title">Informação do dispositivo</string>
+    
+    <string name="title_battery_history">Histórico da bateria</string>
+    <string name="summary_battery_history">Sumário de como a bateria tem sido utilizada</string>
+    
+    <string name="title_battery_information">Informação da bateria</string>
+    <string name="summary_battery_information">Informação do estado atual da bateria</string>
+    
+    <string name="title_usage_statistics">Estatísticas de uso</string>
+    <string name="summary_usage_statistics">Sumário de uso de aplicações</string>
+    
+    <string name="general_title">Geral</string>
+    
+    <string name="title_window_animations">Animações de janela</string>
+    <string name="summary_window_animations">Velocidade de animações de janelas individuais</string>
+    <string name="dialog_title_window_animations">Selecionar velocidade de janela</string>
+    
+    <string name="title_transition_animations">Animações de transição</string>
+    <string name="summary_transition_animations">Velocidade de animações a mover entre ecrãs</string>
+    <string name="dialog_title_transition_animations">Selecionar velocidade da transição</string>
+    
+    <string name="title_fancy_ime_animations">Animações de introdução catitas</string>
+    <string name="summary_on_fancy_ime_animations">Usar animações para métodos de introdução de janelas mais catitas</string>
+    <string name="summary_off_fancy_ime_animations">Usar animações normais para métodos de introdução de janelas</string>
+    
+    <string name="title_haptic_feedback">Resposta tátil</string>
+    <string name="summary_on_haptic_feedback">Usar resposta tátil para interação com utilizador</string>
+    <string name="summary_off_haptic_feedback">Não usar resposta tátil para interação com utilizador</string>
+    
+    <string name="title_font_size">Tamanho do tipo de letra</string>
+    <string name="summary_font_size">Tamanho geral do tipo de letra</string>
+    <string name="dialog_title_font_size">Selecionar tipo de letra</string>
+    
+    <string name="title_end_button">Comportamento do botão Terminar</string>
+    <string name="summary_end_button">Selecione a ação do botão Terminar (vermelho)</string>
+    <string name="dialog_title_end_button">Selecione botão Terminar</string>
+    
+    <string name="applications_title">Aplicações</string>
+    
+    <!-- Sound & display settings screen, compatibility mode check box label -->
+    <string name="compatibility_mode_title">Modo de compatibilidade</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is selected -->
+    <string name="compatibility_mode_summary_on">Executar aplicações antigas em modo Compatibilidade. Requer reinicio do dispositivo.</string>
+    <!-- Sound & display settings screen, compatibility mode option summary text when check box is clear -->
+    <string name="compatibility_mode_summary_off">Não executar aplicações antigas em modo Compatibilidade. Requer reinicio do dispositivo.</string>
+</resources>
