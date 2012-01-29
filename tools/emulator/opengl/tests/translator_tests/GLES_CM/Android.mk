@@ -14,6 +14,15 @@ LOCAL_SRC_FILES:= \
 LOCAL_CFLAGS += $(LOCAL_SDL_CFLAGS) -g -O0
 LOCAL_LDLIBS += $(LOCAL_SDL_LDLIBS)
 
+ifeq ($(HOST_OS),darwin)
+  DARWIN_VERSION := $(strip $(shell sw_vers -productVersion))
+  ifneq ($(filter 10.7 10.7.%,$(DARWIN_VERSION)),)
+    # Lion needs to be forced to link dylib to avoid problems
+    # with the dynamic function lookups in SDL 1.2
+    LOCAL_SDL_LDLIBS += /usr/lib/dylib1.o
+  endif
+endif
+
 LOCAL_STATIC_LIBRARIES += libSDL libSDLmain
 
 ifeq ($(HOST_OS),darwin)
