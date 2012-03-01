@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aangepaste taal</string>
+    <string name="locale_default">ex_EX</string>
+    <string name="add_new_locale_button">Voeg nieuwe taal toe</string>
+    <string name="new_locale_label">Nieuwe taalcode:</string>
+    <string name="add_button">Toevoegen</string>
+    <string name="no_data_label">Geen gegevens</string>
+    <string name="header_current_locale">Huidige taal</string>
+    <string name="header_locale_list">Talenlijst</string>
+    <string name="add_select_button">Voeg toe en selecteer</string>
+</resources>

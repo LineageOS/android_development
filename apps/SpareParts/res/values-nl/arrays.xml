@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries_animations">
+        <item>Uit</item>
+        <item>Snel</item>
+        <item>Normaal</item>
+        <item>Langzaam</item>
+        <item>Zeer langzaam</item>
+    </string-array>
+    <string-array name="entries_font_size">
+        <item>Extreem klein</item>
+        <item>Extra klein</item>
+        <item>Klein</item>
+        <item>Normaal</item>
+        <item>Groot</item>
+        <item>Extra groot</item>
+        <item>Extreem groot</item>
+    </string-array>
+    <string-array name="entries_end_button">
+        <item>Niets</item>
+        <item>Ga naar huis</item>
+        <item>Ga slapen</item>
+        <item>Eerst naar huis, dan slapen</item>
+    </string-array>
+</resources>
