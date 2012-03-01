@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAQX//8+Y\u003d",
+        "filename": "apps/Development/res/values-nl/strings.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 2049
+      },
+      "writtenOn": "2012-03-01T01:59:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAQX//8+k\u003d",
+      "revId": "99a0fd4dbe02aba64e93b77f38f5770d7a86b19f",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAQX//8/g\u003d",
         "filename": "apps/SpareParts/res/values-nl/arrays.xml",
         "patchSetId": 6
@@ -83,6 +101,24 @@
       "side": 1,
       "message": "English also uses twice the same string, but in Spanish the second has a no added...",
       "parentUuid": "AAAAQX//8/k\u003d",
+      "revId": "99a0fd4dbe02aba64e93b77f38f5770d7a86b19f",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAQX//8+U\u003d",
+        "filename": "apps/SpareParts/res/values-nl/strings.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 2049
+      },
+      "writtenOn": "2012-03-01T01:59:14Z",
+      "side": 1,
+      "message": "There is some inconsistency in these switches across the settings. But it\u0027s weird having info for on and for off when you use the same string",
+      "parentUuid": "AAAAQX//8+g\u003d",
       "revId": "99a0fd4dbe02aba64e93b77f38f5770d7a86b19f",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
