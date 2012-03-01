@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- //device/apps/common/assets/res/any/strings.xml -->
+<!-- Copyright (C) 2012 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="device_info_title">Apparaatinfo</string>
+    <string name="title_battery_history">Batterijgeschiedenis</string>
+    <string name="summary_battery_history">Overzicht van hoe de batterij is gebruikt</string>
+    <string name="title_battery_information">Batterij-informatie</string>
+    <string name="summary_battery_information">Informatie over huidige baterijstatus</string>
+    <string name="title_usage_statistics">Gebruiksstatistieken</string>
+    <string name="summary_usage_statistics">Overzicht van applicatiegebruik</string>
+    <string name="general_title">Algemeen</string>
+    <string name="title_window_animations">Vensteranimaties</string>
+    <string name="summary_window_animations">Animatiesnelheid in elk venster</string>
+    <string name="dialog_title_window_animations">Selecteer venstersnelheid</string>
+    <string name="title_transition_animations">Overgangsanimatie</string>
+    <string name="summary_transition_animations">Animatiesnelheid bij het wisselen van schermen</string>
+    <string name="dialog_title_transition_animations">Selecteer overgangssnelheid</string>
+    <string name="title_fancy_ime_animations">Mooiere invoeranimaties</string>
+    <string name="summary_on_fancy_ime_animations">Gebruik mooiere animaties voor invoermethodevensters</string>
+    <string name="summary_off_fancy_ime_animations">Gebruik normale animaties voor invoermethodevensters</string>
+    <string name="title_haptic_feedback">Haptische feedback</string>
+    <string name="summary_on_haptic_feedback">Gebruik haptische feedback met gebruikersinteractie</string>
+    <string name="summary_off_haptic_feedback">Gebruik geen haptische feedback met gebruikersinteractie</string>
+    <string name="title_font_size">Lettertypegrootte</string>
+    <string name="summary_font_size">Globale grootte van lettertypen</string>
+    <string name="dialog_title_font_size">Selecteer lettertypegrootte</string>
+    <string name="title_end_button">Gedrag eindeknop</string>
+    <string name="summary_end_button">Selecteer actie voor (rode) eindeknop</string>
+    <string name="dialog_title_end_button">Selecteer eindeknop</string>
+    <string name="applications_title">Applicaties</string>
+    <string name="compatibility_mode_title">Compatibiliteitsmodus</string>
+    <string name="compatibility_mode_summary_on">Voer oudere applicaties uit in compatibiliteitsmodus. Vereist een herstart.</string>
+    <string name="compatibility_mode_summary_off">Voer oudere applicaties niet uit in compatibiliteitsmodus. Vereist een herstart.</string>
+</resources>
