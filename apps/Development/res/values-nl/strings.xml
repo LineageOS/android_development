@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The CyanogenMod Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+    <string name="menu_upload_exceptions">Uitzonderingen uploaden</string>
+    <string name="menu_clear_exceptions">Uitzonderingen wissen</string>
+    <string name="enable_wifi">Schakel Wi-Fi in</string>
+    <string name="disable_wifi">Schakel Wi-Fi uit</string>
+    <string name="wifi_on_duration">Wi-Fi aan (ms): </string>
+    <string name="wifi_off_duration">Wi-Fi uit (ms): </string>
+    <string name="wifi_cycles_done">Cycli gedaan: </string>
+    <string name="start_toggling">Start Wi-Fi-schakeling</string>
+    <string name="stop_toggling">Stop Wi-Fi-schakeling</string>
+    <string name="start_screen_toggling">Start Schermschakeling</string>
+    <string name="stop_screen_toggling">Stop Schermschakeling</string>
+    <string name="start_mms">Start MMS</string>
+    <string name="stop_mms">Stop MMS</string>
+    <string name="start_hipri">Start HiPri</string>
+    <string name="stop_hipri">Stop HiPri</string>
+    <string name="crash">CRASH</string>
+    <string name="device_info_default">onbekend</string>
+    <string name="device_info_uptime">Bedrijfstijd</string>
+    <string name="device_info_awaketime">Ontwaaktijd</string>
+    <string name="device_info_asleeptime">Slaaptijd</string>
+    <string name="build_id_label">Build-ID</string>
+    <string name="build_date_label">Builddatum</string>
+    <string name="build_type_label">Buildtype</string>
+    <string name="build_product_label">Buildproduct</string>
+    <string name="build_user_label">Buildlabel</string>
+    <string name="build_host_label">Buildhost</string>
+    <string name="gsm_version_baseband_label">Basebandversie</string>
+    <string name="gsm_version_ril_impl_label">RIL Impl-versie</string>
+    <string name="turn_on_radio">Schakel radio in</string>
+    <string name="turn_off_radio">Schakel radio uit</string>
+    <string name="refresh_networks">Vernieuw netwerklijst</string>
+    <string name="radioInfo_menu_viewADN">Toon SIM-adresboek</string>
+    <string name="radioInfo_menu_viewFDN">Toon ingestelde belnummers</string>
+    <string name="radioInfo_menu_viewSDN">Toon servicebelnummers</string>
+    <string name="disabled"><i>uitgeschakeld</i></string>
+    <string name="system"><i>systeem</i></string>
+    <string name="debuggable"><i>foutopsporingsbaar</i></string>
+    <string name="nocode"><i>geen code</i></string>
+    <string name="persistent"><i>blijvend</i></string>
+    <string name="restart">Herstarten</string>
+    <string name="package_summary_uid_label">Gebruikers-ID</string>
+    <string name="package_summary_task_label">Takenverwantschap</string>
+    <string name="package_summary_version_label">Versie</string>
+    <string name="package_summary_source_label">Bron</string>
+    <string name="package_summary_receivers_label">Ontvangers</string>
+    <string name="package_summary_data_label">Data</string>
+    <string name="package_summary_instrumentation_label">Instrumentatie</string>
+    <string name="package_summary_process_label">Proces</string>
+    <string name="package_summary_services_label">Services</string>
+    <string name="package_summary_providers_label">Providers</string>
+    <string name="package_summary_activities_label">Activiteiten</string>
+    <string name="none">"(geen)"</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nee</string>
+    <string name="launch_multiple">Meerdere (normaal)</string>
+    <string name="launch_singleTop">Enkele top</string>
+    <string name="launch_singleTask">Enkele taak</string>
+    <string name="launch_singleInstance">Enkele instantie</string>
+    <string name="launch_unknown">"(onbekend)"</string>
+    <string name="development_settings_show_cpu_text">Toon CPU-gebruik</string>
+    <string name="development_settings_always_finish_text">Meteen activiteiten beëindigen</string>
+    <string name="development_settings_show_load_text">Toon draaiende processen</string>
+    <string name="development_settings_show_updates_text">Toon schermbijwerkingen</string>
+    <string name="development_settings_compatibility_mode_text">Schakel compatibiliteitsmodus uit</string>
+    <string name="development_settings_compatibility_mode_toast">Vereist een herstart om toe te passen.</string>
+    <string name="development_settings_enable_gl_text">Schakel OpenGL ES in (herstart vereist)</string>
+    <string name="development_settings_allow_mock_location_text">Sta neplocaties toe voor testen</string>
+    <string name="development_settings_wait_for_debugger_text">Wacht op foutenopspoorder</string>
+    <string name="development_settings_show_background_text">Toon achtergrond</string>
+    <string name="development_settings_show_xmpp_text">Toon verbindingsstatus GTalk-service</string>
+    <string name="development_settings_debug_app_label_text">Foutenopsporingsapplicatie:</string>
+    <string name="development_settings_show_sleep_text">Toon slaapstatus op LED</string>
+    <string name="development_settings_keep_screen_on_text">Houd scherm aan indien ingeplugd</string>
+    <string name="monkey_screen_number_of_events_label">Aantal events: </string>
+    <string name="monkey_screen_start_text">Starten</string>
+    <string name="monkey_screen_initial_activity_label">Beginactiviteit: </string>
+    <string name="show_activity_clear_on_background_label">Wis op achtergrond</string>
+    <string name="show_activity_task_affinity_label">Taakverwantschap</string>
+    <string name="show_activity_process_label">Proces</string>
+    <string name="show_activity_state_not_needed_label">Status niet vereist</string>
+    <string name="show_activity_required_permission_label">Vereiste machtiging</string>
+    <string name="show_activity_multiprocess_label">Multiproces</string>
+    <string name="red_button_behavior_label">Gedrag eindeknop</string>
+    <string name="gls_tester_label">GLS-tester</string>
+    <string name="gls_tester_prefer_hosted">Gehost</string>
+    <string name="gls_tester_require_google">Google</string>
+    <string name="gls_tester_get_accounts">Lijst</string>
+    <string name="gls_tester_clear">Wissen</string>
+    <string name="gls_tester_go">Gaan</string>
+    <string name="gls_tester_do_notification">Meld fouten</string>
+    <string name="gls_tester_run_intent">Intent uitvoeren</string>
+    <string name="gls_tester_wipe_passwords">Wis wachtwoorden</string>
+    <string name="process_name_header">Procesnaam:</string>
+    <string name="package_list_header">Pakketten in proces:</string>
+    <string name="package_label">Pakketnaam:</string>
+    <string name="touchscreen_label">aanraakscherm:</string>
+    <string name="input_method_label">invoermethode:</string>
+    <string name="hard_keyboard_label">hardware-toetsenbord:</string>
+    <string name="navigation_label">navigatie:</string>
+    <string name="five_way_nav_label">5 manieren-navigatie:</string>
+    <string name="gles_version_label">GLES-versie:</string>
+    <string name="perm_name_text">Naam:  </string>
+    <string name="dialog_title_error">Fout</string>
+    <string name="invalid_perm_name">Ongeldige machtigingsnaam</string>
+    <string name="ok">OK</string>
+    <string name="perm_desc_text">Beschrijving:  </string>
+    <string name="perm_group_text">Groep:  </string>
+    <string name="perm_protection_text">Beschermingsniveau:  </string>
+    <string name="perm_source_text">Bronpakket:  </string>
+    <string name="perm_list_header_text">Applicaties gebruikmakend van machtiging  </string>
+    <string name="source_uid_text">Bron-UID :  </string>
+    <string name="shared_pkgs_text">Toegang verkrijgen tot pakketten via gedeelde UID:  </string>
+    <string name="accounts_tester_app_name">Accounttester</string>
+    <string name="accounts_tester_get_accounts_by_type">Verkrijg op type</string>
+    <string name="accounts_tester_get_all_accounts">Verkrijg alles</string>
+    <string name="accounts_tester_add_account">Toevoegen</string>
+    <string name="accounts_tester_select_account_type">Selecteer accounttype</string>
+    <string name="accounts_tester_process_name_header">Procesnaam:</string>
+    <string name="accounts_tester_remove_account">Verwijder account</string>
+    <string name="accounts_tester_get_auth_token">Verkrijg authenticatietoken</string>
+    <string name="accounts_tester_test_has_features">Heeft eigenschappen</string>
+    <string name="accounts_tester_invalidate_auth_token">Maak token ongeldig</string>
+    <string name="accounts_tester_account_context_menu_title">accountoperaties</string>
+    <string name="accounts_tester_do_get_auth_token">OK</string>
+    <string name="accounts_tester_enter_auth_token_type">Voer type authenticatietoken in:</string>
+    <string name="accounts_tester_update_credentials">Credenties bijwerken</string>
+    <string name="accounts_tester_confirm_credentials">Credenties bevestigen</string>
+    <string name="accounts_tester_clear_password">Wachtwoord wissen</string>
+    <string name="accounts_tester_edit_properties">Eigenschappen</string>
+    <string name="accounts_tester_desired_authtokentype_label">type authenticatietoken:</string>
+    <string name="accounts_tester_desired_features_label">functies:</string>
+
+    <!-- SyncAdapterDriver -->
+    <string name="bind_button">binden</string>
+    <string name="unbind_button">ontbinden</string>
+    <string name="start_sync_button">begin synchronisatie</string>
+    <string name="cancel_sync_button">annuleer synchronisatie</string>
+    <string name="sync_adapters_spinner_label">Geregistreerde synchronisatieadapters:</string>
+    <string name="status_starting_sync_format">Synchronisatie van account %s starten\u2026</string>
+    <string name="status_remote_exception_while_starting_sync">\'RemoteException\' verkregen bij synchronisatiestart</string>
+    <string name="status_canceled_sync">Synchronisatie geannulleerd</string>
+    <string name="status_remote_exception_while_canceling_sync">\'RemoteException\' verkregen bij synchronisatieannulering</string>
+    <string name="status_received_heartbeat">Ontvangen hartslag</string>
+    <string name="status_sync_failed_format">Synchronisatie mislukt: %s</string>
+    <string name="status_sync_succeeded_format">Synchronisatie gelukt: %s</string>
+    <string name="status_already_bound">Al verbonden met synchronisatieadapter</string>
+    <string name="status_sync_adapter_not_selected">Geen geselecteerde synchronisatieadapter</string>
+    <string name="binding_connected_format">Verbonden met synchronisatieadapter\n\tautoriteit: %1$s\n\taccounttype: %2$s</string>
+    <string name="binding_not_connected">Niet verbonden met synchronisatieadapter</string>
+    <string name="binding_bind_failed">Binding mislukt</string>
+    <string name="binding_waiting_for_connection">Wachten op de service om te verbinden\u2026</string>
+    <string name="select_account_to_sync">Selecteer account om te synchroniseren</string>
+
+    <!-- BadBehaviorActivity -->
+    <string name="bad_behavior_crash_main_label">Crash de hoofd-applicatiethread</string>
+    <string name="bad_behavior_crash_thread_label">Crash een hulp-applicatiethread</string>
+    <string name="bad_behavior_crash_native_label">Crash de beginproces</string>
+    <string name="bad_behavior_crash_system_label">Crash de systeemserver</string>
+    <string name="bad_behavior_wtf_label">Meld een WTF-voorwaarde</string>
+    <string name="bad_behavior_anr_label">ANR (stop 20 seconden te reageren)</string>
+    <string name="bad_behavior_anr_activity_label">ANR start een activiteit</string>
+    <string name="bad_behavior_anr_broadcast_label">ANR ontvangt een broadcast-intent</string>
+    <string name="bad_behavior_anr_service_label">ANR start een service</string>
+    <string name="bad_behavior_anr_system_label">Systeem-ANR (in ActivityManager)</string>
+    <string name="bad_behavior_wedge_system_label">Wigsysteem (5-minuten systeem-ANR)</string>
+    <string name="permissions_title">Toon machtigingen</string>
+    <string name="permissions_loading">Laden</string>
+    <string name="permissions_refresh">Lijst vernieuwen</string>
+</resources>
