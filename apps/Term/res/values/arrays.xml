@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
  * Copyright (C) 2007 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,7 @@
         <item>20 pt</item>
     </string-array>
 
-	<!-- Do not localize entryvalues -->
-    <string-array name="entryvalues_fontsize_preference">
+    <string-array name="entryvalues_fontsize_preference" translatable="false">
         <item>0</item>
         <item>6</item>
         <item>7</item>
@@ -46,11 +45,10 @@
     <string-array name="entries_color_preference">
         <item>Black text on white</item>
         <item>White text on black</item>
-        <item>White text on blue</item>  
+        <item>White text on blue</item>
     </string-array>
 
-	<!-- Do not localize entryvalues -->
-    <string-array name="entryvalues_color_preference">
+    <string-array name="entryvalues_color_preference" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>  
@@ -63,8 +61,7 @@
         <item>Right Alt key</item>
     </string-array>
 
-	<!-- Do not localize entryvalues -->
-    <string-array name="entryvalues_controlkey_preference">
+    <string-array name="entryvalues_controlkey_preference" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
