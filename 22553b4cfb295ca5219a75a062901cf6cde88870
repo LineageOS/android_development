@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAQX//8jo\u003d",
+        "filename": "apps/Development/res/values-nl/strings.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-03-02T20:07:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAQX//8q8\u003d",
+      "revId": "22553b4cfb295ca5219a75a062901cf6cde88870",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAQX//8q4\u003d",
         "filename": "apps/SpareParts/res/values-nl/strings.xml",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAQX//8jk\u003d",
+        "filename": "apps/SpareParts/res/values-nl/strings.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-03-02T20:07:32Z",
+      "side": 1,
+      "message": "Stond al eerder in res/values/strings.xml, maar ik weet niet wat het nut daarvan is. Verwijderen?",
+      "parentUuid": "AAAAQX//8q4\u003d",
+      "revId": "22553b4cfb295ca5219a75a062901cf6cde88870",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAQX//8rA\u003d",
         "filename": "apps/Term/res/values/arrays.xml",
         "patchSetId": 7
@@ -47,6 +83,24 @@
       "writtenOn": "2012-03-02T02:28:30Z",
       "side": 1,
       "message": "Aantal problemen met tabs",
+      "revId": "22553b4cfb295ca5219a75a062901cf6cde88870",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAQX//8jg\u003d",
+        "filename": "apps/Term/res/values/arrays.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-03-02T20:07:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAQX//8rA\u003d",
       "revId": "22553b4cfb295ca5219a75a062901cf6cde88870",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
