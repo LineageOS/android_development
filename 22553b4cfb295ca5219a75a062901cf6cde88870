@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAQX//8jA\u003d",
+        "filename": "apps/SpareParts/res/values-nl/strings.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2248
+      },
+      "writtenOn": "2012-03-02T20:20:08Z",
+      "side": 1,
+      "message": "Ik ken het nut ook niet het wordt in elk geval genegeerd bij het builden...\nEn het is ook gewoon aanwezig in de andere vertalingen.\nLekker laten staan dan maar :)",
+      "parentUuid": "AAAAQX//8jk\u003d",
+      "revId": "22553b4cfb295ca5219a75a062901cf6cde88870",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAQX//8rA\u003d",
         "filename": "apps/Term/res/values/arrays.xml",
         "patchSetId": 7
