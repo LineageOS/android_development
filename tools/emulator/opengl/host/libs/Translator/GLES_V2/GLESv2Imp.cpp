@@ -1,7 +1,7 @@
 /*
-* Copyright(C) 2011 The Android Open Source Project
+* Copyright (C) 2011 The Android Open Source Project
 *
-* Licensed under the Apache License, Version 2.0(the "License"){    GET_CTX();}
+* Licensed under the Apache License, Version 2.0 (the "License")
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
@@ -1316,15 +1316,14 @@ GL_APICALL void  GL_APIENTRY glGetShaderSource(GLuint shader, GLsizei bufsize, G
 
 GL_APICALL const GLubyte* GL_APIENTRY glGetString(GLenum name){
     GET_CTX_RET(NULL)
-    static GLubyte VENDOR[]     = "Google";
-    static GLubyte RENDERER[]   = "OpenGL ES 2.0";
-    static GLubyte VERSION[]    = "OpenGL ES 2.0";
-    static GLubyte SHADING[]    = "OpenGL ES GLSL ES 1.0.17";
+    static const GLubyte VENDOR[]  = "Google";
+    static const GLubyte VERSION[] = "OpenGL ES 2.0";
+    static const GLubyte SHADING[] = "OpenGL ES GLSL ES 1.0.17";
     switch(name) {
         case GL_VENDOR:
             return VENDOR;
         case GL_RENDERER:
-            return RENDERER;
+            return (const GLubyte*)ctx->getRendererString();
         case GL_VERSION:
             return VERSION;
         case GL_SHADING_LANGUAGE_VERSION:
@@ -2017,15 +2016,22 @@ GL_APICALL void GL_APIENTRY glEGLImageTargetTexture2DOES(GLenum target, GLeglIma
         if (ctx->shareGroup().Ptr()) {
             ObjectLocalName tex = TextureLocalName(target,ctx->getBindedTexture(target));
             unsigned int oldGlobal = ctx->shareGroup()->getGlobalName(TEXTURE, tex);
-            // Delete old texture object
+            // Delete old texture object but only if it is not a target of a EGLImage
             if (oldGlobal) {
-                ctx->dispatcher().glDeleteTextures(1, &oldGlobal);
+                TextureData* oldTexData = getTextureData(tex);
+                if (!oldTexData || oldTexData->sourceEGLImage == 0) {
+                    ctx->dispatcher().glDeleteTextures(1, &oldGlobal);
+                }
             }
             // replace mapping and bind the new global object
             ctx->shareGroup()->replaceGlobalName(TEXTURE, tex,img->globalTexName);
             ctx->dispatcher().glBindTexture(GL_TEXTURE_2D, img->globalTexName);
             TextureData *texData = getTextureTargetData(target);
             SET_ERROR_IF(texData==NULL,GL_INVALID_OPERATION);
+            texData->width = img->width;
+            texData->height = img->height;
+            texData->border = img->border;
+            texData->internalFormat = img->internalFormat;
             texData->sourceEGLImage = (unsigned int)image;
             texData->eglImageDetach = s_eglIface->eglDetachEGLImage;
             texData->oldGlobal = oldGlobal;

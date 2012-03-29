@@ -32,9 +32,7 @@ public:
     GLuint getWidth() const { return m_width; }
     GLuint getHeight() const { return m_height; }
 
-    void update(GLenum p_format, GLenum p_type, void *pixels);
     void subUpdate(int x, int y, int width, int height, GLenum p_format, GLenum p_type, void *pixels);
-    bool blitFromPbuffer(EGLSurface p_pbufSurface);
     bool post();
     bool bindToTexture();
     bool bindToRenderbuffer();
@@ -42,7 +40,7 @@ public:
 
 private:
     ColorBuffer();
-    void drawTexQuad();
+    void drawTexQuad(bool flipy);
     bool bind_fbo();  // binds a fbo which have this texture as render target
 
 private:
@@ -54,6 +52,7 @@ private:
     GLuint m_height;
     GLuint m_fbo;
     GLenum m_internalFormat;
+    bool m_warYInvertBug;
 };
 
 typedef SmartPtr<ColorBuffer> ColorBufferPtr;

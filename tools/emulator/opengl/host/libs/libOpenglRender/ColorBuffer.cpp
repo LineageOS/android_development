@@ -113,8 +113,21 @@ ColorBuffer::ColorBuffer() :
     m_tex(0),
     m_eglImage(NULL),
     m_fbo(0),
-    m_internalFormat(0)
+    m_internalFormat(0),
+    m_warYInvertBug(false)
 {
+#if __APPLE__
+    // On Macs running OS X 10.6 and 10.7 with Intel HD Graphics 3000, some
+    // screens or parts of the screen are displayed upside down. The exact
+    // conditions/sequence that triggers this aren't known yet; I haven't
+    // been able to reproduce it in a standalone test. This way of enabling the
+    // workaround will break if it is a driver bug (rather than a bug in this
+    // code which works by accident elsewhere) and Apple/Intel release a fix for
+    // it. Running a standalone test to detect the problem at runtime would be
+    // more robust.
+    if (strstr((const char*)s_gl.glGetString(GL_RENDERER), "Intel HD Graphics 3000"))
+        m_warYInvertBug = true;
+#endif
 }
 
 ColorBuffer::~ColorBuffer()
@@ -131,17 +144,6 @@ ColorBuffer::~ColorBuffer()
     fb->unbind_locked();
 }
 
-void ColorBuffer::update(GLenum p_format, GLenum p_type, void *pixels)
-{
-    FrameBuffer *fb = FrameBuffer::getFB();
-    if (!fb->bind_locked()) return;
-    s_gl.glBindTexture(GL_TEXTURE_2D, m_tex);
-    s_gl.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    s_gl.glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                         m_width, m_height, p_format, p_type, pixels);
-    fb->unbind_locked();
-}
-
 void ColorBuffer::subUpdate(int x, int y, int width, int height, GLenum p_format, GLenum p_type, void *pixels)
 {
     FrameBuffer *fb = FrameBuffer::getFB();
@@ -151,52 +153,6 @@ void ColorBuffer::subUpdate(int x, int y, int width, int height, GLenum p_format
     s_gl.glTexSubImage2D(GL_TEXTURE_2D, 0, x, y,
                          width, height, p_format, p_type, pixels);
     fb->unbind_locked();
-}
-
-bool ColorBuffer::blitFromPbuffer(EGLSurface p_pbufSurface)
-{
-    FrameBuffer *fb = FrameBuffer::getFB();
-    if (!fb->bind_locked()) return false;
-
-    //
-    // bind FBO object which has this colorbuffer as render target
-    //
-    if (!bind_fbo()) {
-        fb->unbind_locked();
-        return false;
-    }
-
-    //
-    // bind the pbuffer to a temporary texture object
-    //
-    GLuint tempTex;
-    s_gl.glGenTextures(1, &tempTex);
-    s_gl.glBindTexture(GL_TEXTURE_2D, tempTex);
-    if (!s_egl.eglBindTexImage(fb->getDisplay(), p_pbufSurface, EGL_BACK_BUFFER)) {
-        printf("eglBindTexImage failed 0x%x\n", s_egl.eglGetError());
-        s_gl.glDeleteTextures(1, &tempTex);
-        fb->unbind_locked();
-        return false;
-    }
-
-    s_gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    s_gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    s_gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    s_gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    s_gl.glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    s_gl.glEnable(GL_TEXTURE_2D);
-
-    drawTexQuad();
-
-    //
-    // unbind FBO, release the pbuffer and delete the temp texture object
-    //
-    s_gl.glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
-    s_egl.eglReleaseTexImage(fb->getDisplay(), p_pbufSurface, EGL_BACK_BUFFER);
-    s_gl.glDeleteTextures(1, &tempTex);
-
-    fb->unbind_locked();
-    return true;
 }
 
 bool ColorBuffer::blitFromCurrentReadBuffer()
@@ -256,7 +212,7 @@ bool ColorBuffer::blitFromCurrentReadBuffer()
             s_gl.glBindTexture(GL_TEXTURE_2D, m_blitTex);
             s_gl.glEnable(GL_TEXTURE_2D);
             s_gl.glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            drawTexQuad();  // this will render the texture flipped
+            drawTexQuad(!m_warYInvertBug);
 
             // unbind the fbo
             s_gl.glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
@@ -356,12 +312,12 @@ bool ColorBuffer::post()
     s_gl.glBindTexture(GL_TEXTURE_2D, m_tex);
     s_gl.glEnable(GL_TEXTURE_2D);
     s_gl.glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    drawTexQuad();
+    drawTexQuad(true);
 
     return true;
 }
 
-void ColorBuffer::drawTexQuad()
+void ColorBuffer::drawTexQuad(bool flipy)
 {
     GLfloat verts[] = { -1.0f, -1.0f, 0.0f,
                          -1.0f, +1.0f, 0.0f,
@@ -372,6 +328,13 @@ void ColorBuffer::drawTexQuad()
                            0.0f, 0.0f,
                            1.0f, 1.0f,
                            1.0f, 0.0f };
+
+    if (!flipy) {
+        for (int i = 0; i < 4; i++) {
+            // swap 0.0/1.0 in second element of each tcoord vector
+            tcoords[2*i + 1] = tcoords[2*i + 1] == 0.0f ? 1.0f : 0.0f;
+        }
+    }
 
     s_gl.glClientActiveTexture(GL_TEXTURE0);
     s_gl.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
