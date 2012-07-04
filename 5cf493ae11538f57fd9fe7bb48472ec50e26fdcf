@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAUH//6ec\u003d",
+        "filename": "apps/Development/res/values-nl/strings.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAUH//6fI\u003d",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAUH//6fQ\u003d",
         "filename": "apps/Development/res/values-nl/strings.xml",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2012-07-04T01:39:44Z",
       "side": 1,
       "message": "het is toch \"het proces\"?\n\nde/het/een mag ook helemaal weggelaten worden in bovenstaande 3 strings.",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAUH//6eY\u003d",
+        "filename": "apps/Development/res/values-nl/strings.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAUH//6fQ\u003d",
       "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAUH//6eU\u003d",
+        "filename": "apps/Development/res/values-nl/strings.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAUH//6fM\u003d",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAUH//6fE\u003d",
         "filename": "apps/SpareParts/res/values-nl/arrays.xml",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2012-07-04T01:39:44Z",
       "side": 1,
       "message": "home....zou ik vertalen als \"begin\"",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAUH//6eg\u003d",
+        "filename": "apps/SpareParts/res/values-nl/arrays.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAUH//6fE\u003d",
       "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAUH//6ek\u003d",
+        "filename": "apps/Term/res/values/arrays.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Is ook vertaald?",
+      "parentUuid": "AAAAUH//6fA\u003d",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAUH//6e8\u003d",
         "filename": "apps/launchperf/res/values-nl/strings.xml",
         "patchSetId": 10
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "AAAAUH//6ew\u003d",
+        "filename": "apps/launchperf/res/values-nl/strings.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAUH//6e8\u003d",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AAAAUH//6e4\u003d",
         "filename": "apps/launchperf/res/values-nl/strings.xml",
         "patchSetId": 10
@@ -115,6 +223,24 @@
       "writtenOn": "2012-07-04T01:39:44Z",
       "side": 1,
       "message": "weergave",
+      "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAUH//6es\u003d",
+        "filename": "apps/launchperf/res/values-nl/strings.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 2597
+      },
+      "writtenOn": "2012-07-04T01:44:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AAAAUH//6e4\u003d",
       "revId": "5cf493ae11538f57fd9fe7bb48472ec50e26fdcf",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
