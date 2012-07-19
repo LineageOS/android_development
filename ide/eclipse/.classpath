@@ -66,36 +66,20 @@
 	<classpathentry kind="src" path="frameworks/support/v13/java"/>
 	<classpathentry kind="src" path="frameworks/support/v13/ics"/>
 	<classpathentry kind="src" path="frameworks/support/v13/ics-mr1"/>
-	<classpathentry kind="src" path="development/samples/ApiDemos/src"/>
-	<classpathentry kind="src" path="development/samples/ApiDemos/tests/src"/>
 	<classpathentry kind="src" path="development/samples/Compass/src"/>
-	<classpathentry kind="src" path="development/samples/HelloActivity/src"/>
-	<classpathentry kind="src" path="development/samples/HelloActivity/tests/src"/>
-	<classpathentry kind="src" path="development/samples/Home/src"/>
-	<classpathentry kind="src" path="development/samples/LunarLander/src"/>
-	<classpathentry kind="src" path="development/samples/LunarLander/tests/src"/>
-	<classpathentry kind="src" path="development/samples/NotePad/src"/>
-	<classpathentry kind="src" path="development/samples/NotePad/tests/src"/>
-	<classpathentry kind="src" path="development/samples/RSSReader/src"/>
-	<classpathentry kind="src" path="development/samples/SkeletonApp/src"/>
-	<classpathentry kind="src" path="development/samples/SkeletonApp/tests/src"/>
-	<classpathentry kind="src" path="development/samples/Snake/src"/>
-	<classpathentry kind="src" path="development/samples/Snake/tests/src"/>
 	<classpathentry kind="src" path="libcore/dalvik/src/main/java"/>
 	<classpathentry kind="src" path="libcore/json/src/main/java"/>
 	<classpathentry kind="src" path="libcore/luni/src/main/java"/>
 	<classpathentry kind="src" path="libcore/xml/src/main/java"/>
-	<classpathentry kind="src" path="out/target/common/obj/APPS/ApiDemos_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/Browser_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/CalendarProvider_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/ContactsProvider_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/MediaProvider_intermediates/src/src"/>
-	<classpathentry kind="src" path="out/target/common/obj/APPS/Music_intermediates/src/src"/>
+	<classpathentry kind="src" path="out/target/common/obj/APPS/Apollo_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/Phone_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/QuickSearchBox_intermediates/src/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/JAVA_LIBRARIES/android-common-carousel_intermediates/src/renderscript/src"/>
 	<classpathentry kind="src" path="out/target/common/obj/JAVA_LIBRARIES/com.android.emailcommon_intermediates/src/src"/>
-	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/filterfw_intermediates/classes-jarjar.jar"/>
 	<classpathentry kind="src" path="out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/src/core/java"/>
 	<classpathentry kind="src" path="out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/src/keystore/java"/>
 	<classpathentry kind="src" path="out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/src/location/java"/>
