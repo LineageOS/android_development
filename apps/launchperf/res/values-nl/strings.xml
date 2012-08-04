@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+     Copyright (C) 2012 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="test_word">test</string>
+    <string name="test_sentence">Dit is een testzin.</string>
+    <string name="test_short_paragraph">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras consectetuer dolor. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent nec sapien nec orci feugiat sodales.</string>
+    <string name="test_long_paragraph">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras consectetuer dolor. Vivamus bibendum semper lorem. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent nec sapien nec orci feugiat sodales. Praesent ut tortor. Suspendisse sed magna quis ante pellentesque faucibus. Nunc feugiat. Quisque porta. Nunc velit magna, varius in, fringilla quis, ornare eget, magna. Suspendisse potenti. Nam eu felis. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Quisque vulputate suscipit magna. Nunc vestibulum lorem ac odio.</string>
+    <string name="header_absolute">Absolute weergave</string>
+    <string name="header_relative">Relatieve weergave</string>
+    <string name="header_linear">Lineaire opmaak</string>
+    <string name="relative_button1">Knop1</string>
+    <string name="relative_button2">Knop2</string>
+    <string name="relative_button3">Knop3</string>
+    <string name="relative_button4">Knop4</string>
+    <string name="relative_button5">Knop5</string>
+    <string name="relative_button6">Knop6</string>
+    <string name="relative_button7">Knop7</string>
+    <string name="relative_button8">Knop8</string>
+    <string name="response">Antwoordtype:</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuleren</string>
+    <string name="text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. In congue varius tortor. Etiam dolor nisl, lacinia et, venenatis vitae, nonummy ut, mi. Praesent a risus. Ut nisi. Nullam nonummy, lorem vel bibendum pellentesque, dolor massa egestas risus, luctus vehicula metus metus non nibh. Suspendisse potenti. In malesuada dolor. Fusce sodales fermentum metus. Mauris bibendum. Morbi faucibus eros sed enim. Pellentesque bibendum diam a justo. Suspendisse condimentum. Nam luctus, turpis molestie aliquet congue, nulla ante vulputate ipsum, nec nonummy neque tellus eu mi. Phasellus semper. Aenean adipiscing erat nec turpis. Curabitur euismod sapien quis nisl. Pellentesque tempor tristique lectus. Praesent fermentum.</string>
+</resources>
