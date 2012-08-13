@@ -15,7 +15,6 @@
 	<classpathentry kind="src" path="packages/apps/Gallery2/src_pd"/>
 	<classpathentry kind="src" path="packages/apps/Gallery2/gallerycommon/src"/>
 	<classpathentry kind="src" path="packages/apps/HTMLViewer/src"/>
-	<classpathentry kind="src" path="packages/apps/Launcher2/src"/>
 	<classpathentry kind="src" path="packages/apps/Mms/src"/>
 	<classpathentry kind="src" path="packages/apps/PackageInstaller/src"/>
 	<classpathentry kind="src" path="packages/apps/Phone/src"/>
