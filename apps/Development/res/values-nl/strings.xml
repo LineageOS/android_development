@@ -138,7 +138,6 @@
     <string name="accounts_tester_test_has_features">Heeft eigenschappen</string>
     <string name="accounts_tester_invalidate_auth_token">Token ongeldig maken</string>
     <string name="accounts_tester_account_context_menu_title">accountoperaties</string>
-    <string name="accounts_tester_do_get_auth_token">OK</string>
     <string name="accounts_tester_enter_auth_token_type">Enter the authtoken type:</string>
     <string name="accounts_tester_update_credentials">Update Credentials</string>
     <string name="accounts_tester_confirm_credentials">Confirm Credentials</string>
@@ -180,7 +179,4 @@
     <string name="bad_behavior_anr_service_label">ANR start een service</string>
     <string name="bad_behavior_anr_system_label">Systeem-ANR (in ActivityManager)</string>
     <string name="bad_behavior_wedge_system_label">Wigsysteem (5-minuten systeem-ANR)</string>
-    <string name="permissions_title">Machtigingen tonen</string>
-    <string name="permissions_loading">Laden\u2026</string>
-    <string name="permissions_refresh">Lijst vernieuwen</string>
 </resources>
