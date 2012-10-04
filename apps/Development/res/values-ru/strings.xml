@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <!-- Mock SMS -->
+    <string name="sms_mock_title">Фиктивные SMS</string>
+    <string name="sms_smsc_address_title">Адрес центра обработки сообщений:</string>
+    <string name="sms_sender_address_title">Адрес отправителя:</string>
+    <string name="sms_message_title">Сообщение:</string>
+    <string name="sms_send_msg">Отправить фиктивное SMS</string>
+    <string name="sms_send_pdu">Отправить фиктивное SMS (формат PDU)</string>
+    <string name="sms_default_msg">Это фиктивное SMS-сообщение</string>
+</resources>
