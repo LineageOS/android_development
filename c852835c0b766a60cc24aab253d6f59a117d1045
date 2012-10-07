@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAY3///3I\u003d",
+        "filename": "ide/eclipse/.classpath",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1576
+      },
+      "writtenOn": "2012-10-07T00:54:46Z",
+      "side": 1,
+      "message": "This causes an error in eclipse when trying to build the workspace:\n\nErrors occurred during the build.\nErrors running builder \u0027Java Builder\u0027 on project \u0027CM10\u0027.\norg.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding",
+      "revId": "c852835c0b766a60cc24aab253d6f59a117d1045",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
