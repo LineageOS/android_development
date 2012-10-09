@@ -369,12 +369,16 @@ redirects:
   dst: /training/graphics/opengl/index.html
   type: permanent
   
-- src: /training/tutorials/views/hello-mapview.html
+- src: /resources/tutorials/views/hello-mapview.html
   dst: https://developers.google.com/maps/documentation/android/hello-mapview
   type: permanent
   
-- src: /training/tutorials/views/.*
+- src: /resources/tutorials/views/.*
   dst: /guide/topics/ui/declaring-layout.html#CommonLayouts
+  type: permanent
+  
+- src: /resources/tutorials/localization/.*
+  dst: /training/basics/supporting-devices/languages.html
   type: permanent
   
 - src: /resources/samples/.*
@@ -396,12 +400,32 @@ redirects:
   dst: /guide/components/index.html
   type: permanent
   comment: Redirect to new location
-  
+
+
+
+# ------------------- TRAINING -------------------
+
+- src: /training/cloudsync/aesync.html
+  dst: /guide/google/gcm/index.html
+  type: permanent
+  comment: Syncing with App Engine was removed because it's obsolete.
+
+
+
+
+
+# -------------------- MISC ----------------------
+
 - src: /shareables/
   dst: http://commondatastorage.googleapis.com/androiddevelopers/shareables/
   type: permanent
   comment: Redirect to new location
   
+- src: /downloads/
+  dst: http://commondatastorage.googleapis.com/androiddevelopers/
+  type: permanent
+  comment: Redirect to new location
+
 - src: /search.html
   dst: /index.html
   type: permanent
