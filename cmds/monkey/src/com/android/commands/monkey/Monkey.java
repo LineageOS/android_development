@@ -32,7 +32,7 @@ import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import android.os.UserId;
+import android.os.UserHandle;
 import android.view.IWindowManager;
 import android.view.Surface;
 
@@ -411,7 +411,7 @@ public class Monkey {
             if (mRequestBugreport) {
                 logOutput =
                         new BufferedWriter(new FileWriter(new File(Environment
-                                .getExternalStorageDirectory(), reportName), true));
+                                .getLegacyExternalStorageDirectory(), reportName), true));
             }
             // pipe everything from process stdout -> System.err
             InputStream inStream = p.getInputStream();
@@ -444,7 +444,7 @@ public class Monkey {
         // TO DO: Add the script file name to the log.
         try {
             Writer output = new BufferedWriter(new FileWriter(new File(
-                    Environment.getExternalStorageDirectory(), "scriptlog.txt"), true));
+                    Environment.getLegacyExternalStorageDirectory(), "scriptlog.txt"), true));
             output.write("iteration: " + count + " time: "
                     + MonkeyUtils.toCalendarTime(System.currentTimeMillis()) + "\n");
             output.close();
@@ -516,6 +516,10 @@ public class Monkey {
             mMainCategories.add(Intent.CATEGORY_MONKEY);
         }
 
+        if (mSeed == 0) {
+            mSeed = System.currentTimeMillis() + System.identityHashCode(this);
+        }
+
         if (mVerbose > 0) {
             System.out.println(":Monkey: seed=" + mSeed + " count=" + mCount);
             if (mValidPackages.size() > 0) {
@@ -550,8 +554,7 @@ public class Monkey {
             return -4;
         }
 
-        mRandom = new SecureRandom();
-        mRandom.setSeed((mSeed == 0) ? -1 : mSeed);
+        mRandom = new Random(mSeed);
 
         if (mScriptFileNames != null && mScriptFileNames.size() == 1) {
             // script mode, ignore other options
@@ -953,7 +956,7 @@ public class Monkey {
                     intent.addCategory(category);
                 }
                 List<ResolveInfo> mainApps = mPm.queryIntentActivities(intent, null, 0,
-                        UserId.myUserId());
+                        UserHandle.myUserId());
                 if (mainApps == null || mainApps.size() == 0) {
                     System.err.println("// Warning: no activities found for category " + category);
                     continue;

@@ -68,7 +68,7 @@ See test_defs.xsd for more information.
     continuous="true" />
 
 <test name="frameworks-telephony"
-    build_path="frameworks/base/telephony/tests/telephonytests"
+    build_path="frameworks/opt/telephony/tests/telephonytests"
     package="com.android.frameworks.telephonytests"
     coverage_target="framework"
     continuous="true" />
@@ -94,7 +94,6 @@ See test_defs.xsd for more information.
 <test name="keystore-unit"
     build_path="frameworks/base/keystore/tests"
     package="android.security.tests"
-    runner=".KeyStoreTestRunner"
     coverage_target="framework"
     continuous="true" />
 
@@ -296,7 +295,7 @@ See test_defs.xsd for more information.
 <test name="cts-hardware"
     build_path="cts/tests/tests/hardware"
     package="com.android.cts.hardware"
-    runner="android.test.InstrumentationTestRunner"
+    runner="android.test.InstrumentationCtsTestRunner"
     coverage_target="framework"
     continuous="true"
     suite="cts" />

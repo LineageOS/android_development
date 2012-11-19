@@ -33,11 +33,13 @@ LOCAL_SHARED_LIBRARIES += \
 	libjpeg \
 	libskia \
 	libandroid_runtime \
+	libcamera_metadata
 
 LOCAL_C_INCLUDES += external/jpeg \
 	external/skia/include/core/ \
 	frameworks/native/include/media/hardware \
 	frameworks/base/core/jni/android/graphics \
+	$(LOCAL_PATH)/../../opengl/system/OpenglSystemCommon \
 	$(call include-path-for, camera)
 
 LOCAL_SRC_FILES := \
@@ -57,7 +59,11 @@ LOCAL_SRC_FILES := \
 	JpegCompressor.cpp \
     EmulatedCamera2.cpp \
 	EmulatedFakeCamera2.cpp \
-	EmulatedQemuCamera2.cpp
+	EmulatedQemuCamera2.cpp \
+	fake-pipeline2/Scene.cpp \
+	fake-pipeline2/Sensor.cpp \
+	fake-pipeline2/JpegCompressor.cpp
+
 
 ifeq ($(TARGET_PRODUCT),vbox_x86)
 LOCAL_MODULE := camera.vbox_x86

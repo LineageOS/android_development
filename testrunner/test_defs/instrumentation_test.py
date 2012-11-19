@@ -22,7 +22,7 @@ import re
 
 # local imports
 import android_manifest
-import coverage
+from coverage import coverage
 import errors
 import logger
 import test_suite
@@ -32,9 +32,6 @@ class InstrumentationTestSuite(test_suite.AbstractTestSuite):
   """Represents a java instrumentation test suite definition run on device."""
 
   DEFAULT_RUNNER = "android.test.InstrumentationTestRunner"
-
-  # dependency on libcore (used for Emma)
-  _LIBCORE_BUILD_PATH = "libcore"
 
   def __init__(self):
     test_suite.AbstractTestSuite.__init__(self)
@@ -87,8 +84,8 @@ class InstrumentationTestSuite(test_suite.AbstractTestSuite):
     return self
 
   def GetBuildDependencies(self, options):
-    if options.coverage:
-      return [self._LIBCORE_BUILD_PATH]
+    if options.coverage_target_path:
+      return [options.coverage_target_path]
     return []
 
   def Run(self, options, adb):
@@ -145,8 +142,11 @@ class InstrumentationTestSuite(test_suite.AbstractTestSuite):
       logger.Log(adb_cmd)
     elif options.coverage:
       coverage_gen = coverage.CoverageGenerator(adb)
-      adb.WaitForInstrumentation(self.GetPackageName(),
-                                 self.GetRunnerName())
+      if options.coverage_target_path:
+        coverage_target = coverage_gen.GetCoverageTargetForPath(options.coverage_target_path)
+      elif self.GetTargetName():
+        coverage_target = coverage_gen.GetCoverageTarget(self.GetTargetName())
+      self._CheckInstrumentationInstalled(adb)
       # need to parse test output to determine path to coverage file
       logger.Log("Running in coverage mode, suppressing test output")
       try:
@@ -164,17 +164,26 @@ class InstrumentationTestSuite(test_suite.AbstractTestSuite):
         return
 
       coverage_file = coverage_gen.ExtractReport(
-          self, device_coverage_path, test_qualifier=options.test_size)
+          self.GetName(), coverage_target, device_coverage_path,
+          test_qualifier=options.test_size)
       if coverage_file is not None:
         logger.Log("Coverage report generated at %s" % coverage_file)
+
     else:
-      adb.WaitForInstrumentation(self.GetPackageName(),
-                                 self.GetRunnerName())
-      adb.StartInstrumentationNoResults(
-          package_name=self.GetPackageName(),
-          runner_name=self.GetRunnerName(),
-          raw_mode=options.raw_mode,
-          instrumentation_args=instrumentation_args)
+      self._CheckInstrumentationInstalled(adb)
+      adb.StartInstrumentationNoResults(package_name=self.GetPackageName(),
+                                        runner_name=self.GetRunnerName(),
+                                        raw_mode=options.raw_mode,
+                                        instrumentation_args=
+                                        instrumentation_args)
+
+  def _CheckInstrumentationInstalled(self, adb):
+    if not adb.IsInstrumentationInstalled(self.GetPackageName(),
+                                          self.GetRunnerName()):
+      msg=("Could not find instrumentation %s/%s on device. Try forcing a "
+           "rebuild by updating a source file, and re-executing runtest." %
+           (self.GetPackageName(), self.GetRunnerName()))
+      raise errors.AbortError(msg=msg)
 
   def _PrintTestResults(self, test_results):
     """Prints a summary of test result data to stdout.
@@ -197,7 +206,6 @@ class InstrumentationTestSuite(test_suite.AbstractTestSuite):
       total_count+=1
     logger.Log("Tests run: %d, Failures: %d, Errors: %d" %
                (total_count, fail_count, error_count))
-
 
 def HasInstrumentationTest(path):
   """Determine if given path defines an instrumentation test.
