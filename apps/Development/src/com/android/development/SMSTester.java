@@ -55,18 +55,18 @@ public class SMSTester extends Activity {
                 String sc = mSc.getText().toString();
                 String sender = mSender.getText().toString();
                 String msg = mMsg.getText().toString();
-
-                Intent in = new Intent(Intents.MOCK_SMS_RECEIVED_ACTION);
+                // fix me: missing apis
+                //Intent in = new Intent(Intents.MOCK_SMS_RECEIVED_ACTION);
                 if (!TextUtils.isEmpty(sc)) {
-                    in.putExtra("scAddr", sc);
+                  //  in.putExtra("scAddr", sc);
                 }
                 if (!TextUtils.isEmpty(sender)) {
-                    in.putExtra("senderAddr", sender);
+                    //in.putExtra("senderAddr", sender);
                 }
                 if (!TextUtils.isEmpty(msg)) {
-                    in.putExtra("msg", msg);
+                    //in.putExtra("msg", msg);
                 }
-                sendBroadcast(in);
+               // sendBroadcast(in);
             }
         });
         Button btnMockSmsPdu = (Button)findViewById(R.id.sms_tester_mock_sms_send_pdu);
@@ -75,9 +75,9 @@ public class SMSTester extends Activity {
             public void onClick(View v) {
                 byte[][] pdus = new byte[1][];
                 pdus[0] = HexDump.hexStringToByteArray(MOCK_PDU);
-                Intent in = new Intent(Intents.MOCK_SMS_RECEIVED_ACTION);
-                in.putExtra("pdus", pdus);
-                sendBroadcast(in);
+                //Intent in = new Intent(Intents.MOCK_SMS_RECEIVED_ACTION);
+                //in.putExtra("pdus", pdus);
+                //sendBroadcast(in);
             }
         });
     }
