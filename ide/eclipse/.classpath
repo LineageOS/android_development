@@ -8,6 +8,7 @@
 	<classpathentry kind="src" path="packages/apps/Calendar/extensions_src"/>
 	<classpathentry kind="src" path="packages/apps/Calculator/src"/>
 	<classpathentry kind="src" path="packages/apps/CertInstaller/src"/>
+	<classpathentry kind="src" path="packages/apps/Chronus/src"/>
 	<classpathentry kind="src" path="packages/apps/CMFileManager/src"/>
 	<classpathentry kind="src" path="packages/apps/CMUpdater/src"/>
 	<classpathentry kind="src" path="packages/apps/CMWallpapers/src"/>
@@ -21,7 +22,6 @@
 	<classpathentry kind="src" path="packages/apps/Gallery2/gallerycommon/src"/>
 	<classpathentry kind="src" path="packages/apps/HTMLViewer/src"/>
 	<classpathentry kind="src" path="packages/apps/KeyChain/src"/>
-	<classpathentry kind="src" path="packages/apps/LockClock/src"/>
 	<classpathentry kind="src" path="packages/apps/Mms/src"/>
 	<classpathentry kind="src" path="packages/apps/PackageInstaller/src"/>
 	<classpathentry kind="src" path="packages/apps/Phone/src"/>
