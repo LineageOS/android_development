@@ -17,10 +17,10 @@
 package com.example.android.bitmapfun.util;
 
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
@@ -45,10 +45,10 @@ import java.security.NoSuchAlgorithmException;
 public class ImageCache {
     private static final String TAG = "ImageCache";
 
-    // Default memory cache size
-    private static final int DEFAULT_MEM_CACHE_SIZE = 1024 * 1024 * 5; // 5MB
+    // Default memory cache size in kilobytes
+    private static final int DEFAULT_MEM_CACHE_SIZE = 1024 * 5; // 5MB
 
-    // Default disk cache size
+    // Default disk cache size in bytes
     private static final int DEFAULT_DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
 
     // Compression settings when writing images to disk cache
@@ -63,7 +63,7 @@ public class ImageCache {
     private static final boolean DEFAULT_INIT_DISK_CACHE_ON_CREATE = false;
 
     private DiskLruCache mDiskLruCache;
-    private LruCache<String, Bitmap> mMemoryCache;
+    private LruCache<String, BitmapDrawable> mMemoryCache;
     private ImageCacheParams mCacheParams;
     private final Object mDiskCacheLock = new Object();
     private boolean mDiskCacheStarting = true;
@@ -126,14 +126,29 @@ public class ImageCache {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Memory cache created (size = " + mCacheParams.memCacheSize + ")");
             }
-            mMemoryCache = new LruCache<String, Bitmap>(mCacheParams.memCacheSize) {
+            mMemoryCache = new LruCache<String, BitmapDrawable>(mCacheParams.memCacheSize) {
+
                 /**
-                 * Measure item size in bytes rather than units which is more practical
+                 * Notify the removed entry that is no longer being cached
+                 */
+                @Override
+                protected void entryRemoved(boolean evicted, String key,
+                        BitmapDrawable oldValue, BitmapDrawable newValue) {
+                    if (RecyclingBitmapDrawable.class.isInstance(oldValue)) {
+                        // The removed entry is a recycling drawable, so notify it 
+                        // that it has been removed from the memory cache
+                        ((RecyclingBitmapDrawable) oldValue).setIsCached(false);
+                    }
+                }
+
+                /**
+                 * Measure item size in kilobytes rather than units which is more practical
                  * for a bitmap cache
                  */
                 @Override
-                protected int sizeOf(String key, Bitmap bitmap) {
-                    return getBitmapSize(bitmap);
+                protected int sizeOf(String key, BitmapDrawable value) {
+                    final int bitmapSize = getBitmapSize(value) / 1024;
+                    return bitmapSize == 0 ? 1 : bitmapSize;
                 }
             };
         }
@@ -183,16 +198,21 @@ public class ImageCache {
     /**
      * Adds a bitmap to both memory and disk cache.
      * @param data Unique identifier for the bitmap to store
-     * @param bitmap The bitmap to store
+     * @param value The bitmap drawable to store
      */
-    public void addBitmapToCache(String data, Bitmap bitmap) {
-        if (data == null || bitmap == null) {
+    public void addBitmapToCache(String data, BitmapDrawable value) {
+        if (data == null || value == null) {
             return;
         }
 
         // Add to memory cache
-        if (mMemoryCache != null && mMemoryCache.get(data) == null) {
-            mMemoryCache.put(data, bitmap);
+        if (mMemoryCache != null) {
+            if (RecyclingBitmapDrawable.class.isInstance(value)) {
+                // The removed entry is a recycling drawable, so notify it 
+                // that it has been added into the memory cache
+                ((RecyclingBitmapDrawable) value).setIsCached(true);
+            }
+            mMemoryCache.put(data, value);
         }
 
         synchronized (mDiskCacheLock) {
@@ -206,7 +226,7 @@ public class ImageCache {
                         final DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                         if (editor != null) {
                             out = editor.newOutputStream(DISK_CACHE_INDEX);
-                            bitmap.compress(
+                            value.getBitmap().compress(
                                     mCacheParams.compressFormat, mCacheParams.compressQuality, out);
                             editor.commit();
                             out.close();
@@ -233,19 +253,20 @@ public class ImageCache {
      * Get from memory cache.
      *
      * @param data Unique identifier for which item to get
-     * @return The bitmap if found in cache, null otherwise
+     * @return The bitmap drawable if found in cache, null otherwise
      */
-    public Bitmap getBitmapFromMemCache(String data) {
+    public BitmapDrawable getBitmapFromMemCache(String data) {
+        BitmapDrawable memValue = null;
+
         if (mMemoryCache != null) {
-            final Bitmap memBitmap = mMemoryCache.get(data);
-            if (memBitmap != null) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Memory cache hit");
-                }
-                return memBitmap;
-            }
+            memValue = mMemoryCache.get(data);
         }
-        return null;
+
+        if (BuildConfig.DEBUG && memValue != null) {
+            Log.d(TAG, "Memory cache hit");
+        }
+
+        return memValue;
     }
 
     /**
@@ -383,28 +404,24 @@ public class ImageCache {
         }
 
         /**
-         * Sets the memory cache size based on a percentage of the device memory class.
-         * Eg. setting percent to 0.2 would set the memory cache to one fifth of the device memory
-         * class. Throws {@link IllegalArgumentException} if percent is < 0.05 or > .8.
+         * Sets the memory cache size based on a percentage of the max available VM memory.
+         * Eg. setting percent to 0.2 would set the memory cache to one fifth of the available
+         * memory. Throws {@link IllegalArgumentException} if percent is < 0.05 or > .8.
+         * memCacheSize is stored in kilobytes instead of bytes as this will eventually be passed
+         * to construct a LruCache which takes an int in its constructor.
          *
          * This value should be chosen carefully based on a number of factors
          * Refer to the corresponding Android Training class for more discussion:
          * http://developer.android.com/training/displaying-bitmaps/
          *
-         * @param context Context to use to fetch memory class
-         * @param percent Percent of memory class to use to size memory cache
+         * @param percent Percent of available app memory to use to size memory cache
          */
-        public void setMemCacheSizePercent(Context context, float percent) {
+        public void setMemCacheSizePercent(float percent) {
             if (percent < 0.05f || percent > 0.8f) {
                 throw new IllegalArgumentException("setMemCacheSizePercent - percent must be "
                         + "between 0.05 and 0.8 (inclusive)");
             }
-            memCacheSize = Math.round(percent * getMemoryClass(context) * 1024 * 1024);
-        }
-
-        private static int getMemoryClass(Context context) {
-            return ((ActivityManager) context.getSystemService(
-                    Context.ACTIVITY_SERVICE)).getMemoryClass();
+            memCacheSize = Math.round(percent * Runtime.getRuntime().maxMemory() / 1024);
         }
     }
 
@@ -456,12 +473,14 @@ public class ImageCache {
     }
 
     /**
-     * Get the size in bytes of a bitmap.
-     * @param bitmap
+     * Get the size in bytes of a bitmap in a BitmapDrawable.
+     * @param value
      * @return size in bytes
      */
     @TargetApi(12)
-    public static int getBitmapSize(Bitmap bitmap) {
+    public static int getBitmapSize(BitmapDrawable value) {
+        Bitmap bitmap = value.getBitmap();
+
         if (Utils.hasHoneycombMR1()) {
             return bitmap.getByteCount();
         }

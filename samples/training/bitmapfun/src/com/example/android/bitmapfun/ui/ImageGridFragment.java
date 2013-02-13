@@ -79,8 +79,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
 
         ImageCacheParams cacheParams = new ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
 
-        // Set memory cache to 25% of mem class
-        cacheParams.setMemCacheSizePercent(getActivity(), 0.25f);
+        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
 
         // The ImageFetcher takes care of loading images into our ImageView children asynchronously
         mImageFetcher = new ImageFetcher(getActivity(), mImageThumbSize);
@@ -150,6 +149,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onPause() {
         super.onPause();
+        mImageFetcher.setPauseWork(false);
         mImageFetcher.setExitTasksEarly(true);
         mImageFetcher.flushCache();
     }
@@ -270,7 +270,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
             // Now handle the main ImageView thumbnails
             ImageView imageView;
             if (convertView == null) { // if it's not recycled, instantiate and initialize
-                imageView = new ImageView(mContext);
+                imageView = new RecyclingImageView(mContext);
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 imageView.setLayoutParams(mImageViewLayoutParams);
             } else { // Otherwise re-use the converted view

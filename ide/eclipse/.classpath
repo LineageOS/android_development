@@ -111,6 +111,7 @@
 	<classpathentry kind="src" path="external/mp4parser/isoparser/src/main/java"/>
 	<classpathentry kind="src" path="external/nist-sip/java"/>
 	<classpathentry kind="src" path="external/tagsoup/src"/>
+	<classpathentry kind="src" path="external/xmp_toolkit/XMPCore/src"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes-jarjar.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-support-v4_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-support-v13_intermediates/javalib.jar"/>
