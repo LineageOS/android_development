@@ -226,6 +226,9 @@ public class Monkey {
     /** Device idle time. This is for the scripted monkey. **/
     long mDeviceSleepTime = 30000;
 
+    /** The delay after App switch event. **/
+    long mAppSwitchDelay = 0;
+
     boolean mRandomizeScript = false;
 
     boolean mScriptLog = false;
@@ -851,6 +854,8 @@ public class Monkey {
                 } else if (opt.equals("--periodic-bugreport")){
                     mGetPeriodicBugreport = true;
                     mBugreportFrequency = nextOptionLong("Number of iterations");
+                } else if (opt.equals("--delay-appswitch")) {
+                    mAppSwitchDelay = nextOptionLong("Delay(in ms) after app switch event");
                 } else if (opt.equals("-h")) {
                     showUsage();
                     return false;
@@ -1165,6 +1170,19 @@ public class Monkey {
             MonkeyEvent ev = mEventSource.getNextEvent();
             if (ev != null) {
                 int injectCode = ev.injectEvent(mWm, mAm, mVerbose);
+
+                if  ((mAppSwitchDelay > 0) && (ev instanceof MonkeyActivityEvent)) {
+                    if (mVerbose > 0) {
+                        System.out.println("After App switch about to sleep "
+                                + mAppSwitchDelay + " ms");
+                    }
+                    try {
+                        Thread.sleep(mAppSwitchDelay);
+                    } catch (InterruptedException e1) {
+                        System.out.println("** Monkey interrupted in sleep after App switch.");
+                    }
+                }
+
                 if (injectCode == MonkeyEvent.INJECT_FAIL) {
                     System.out.println("    // Injection Failed");
                     if (ev instanceof MonkeyKeyEvent) {
@@ -1382,6 +1400,7 @@ public class Monkey {
         usage.append("              [--script-log]\n");
         usage.append("              [--bugreport]\n");
         usage.append("              [--periodic-bugreport]\n");
+        usage.append("              [--delay-appswitch MILLISEC]\n");
         usage.append("              COUNT\n");
         System.err.println(usage.toString());
     }
