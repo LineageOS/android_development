@@ -121,7 +121,6 @@
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/achartengine.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/arity-2.1.6.jar"/>
-	<classpathentry kind="lib" path="packages/apps/Calculator/libs/commons-math3-3.0.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/slider.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-common_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/javalib.jar"/>
