@@ -48,7 +48,7 @@ $(call emugl-end-module)
 # Other builds are device-specific and will provide their own
 # version of this file to point to the appropriate HW EGL libraries.
 #
-ifneq (,$(filter full full_x86 full_mips sdk sdk_x86 sdk_mips,$(TARGET_PRODUCT)))
+ifneq (,$(filter full full_x86 full_mips sdk sdk_x86 sdk_mips cm_goldfish,$(TARGET_PRODUCT)))
 ifeq (,$(BUILD_EMULATOR_OPENGL_DRIVER))
 include $(CLEAR_VARS)
 
