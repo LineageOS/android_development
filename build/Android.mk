@@ -58,7 +58,7 @@ $(full_target): PRIVATE_INTERMEDIATES_DIR := $(intermediates)
 $(full_target): PRIVATE_CLASS_INTERMEDIATES_DIR := $(classes_dir)
 $(full_target): PRIVATE_FRAMEWORK_RES_PACKAGE := $(framework_res_package)
 
-$(full_target): $(OUT_DOCS)/api-stubs-timestamp $(framework_res_package)
+$(full_target): $(framework_res_package)
 	@echo Compiling SDK Stubs: $@
 	$(hide) rm -rf $(PRIVATE_CLASS_INTERMEDIATES_DIR)
 	$(hide) mkdir -p $(PRIVATE_CLASS_INTERMEDIATES_DIR)
