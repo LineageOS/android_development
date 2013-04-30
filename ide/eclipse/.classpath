@@ -8,6 +8,8 @@
 	<classpathentry kind="src" path="packages/apps/Calendar/extensions_src"/>
 	<classpathentry kind="src" path="packages/apps/Calculator/src"/>
 	<classpathentry kind="src" path="packages/apps/CertInstaller/src"/>
+	<classpathentry kind="src" path="packages/apps/CMFileManager/libs/android-syntax-highlight/src"/>
+	<classpathentry kind="src" path="packages/apps/CMFileManager/libs/color-picker-view/src"/>
 	<classpathentry kind="src" path="packages/apps/CMFileManager/src"/>
 	<classpathentry kind="src" path="packages/apps/CMUpdater/src"/>
 	<classpathentry kind="src" path="packages/apps/CMWallpapers/src"/>
@@ -119,7 +121,6 @@
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes-jarjar.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-support-v4_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-support-v13_intermediates/javalib.jar"/>
-	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-query_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/core-junit_intermediates/classes.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/achartengine.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/arity-2.1.6.jar"/>
@@ -129,5 +130,6 @@
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/junit-runner_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/xmp_toolkit_intermediates/javalib.jar"/>
+	<classpathentry kind="lib" path="vendor/cm/prebuilt/libGoogleAnalyticsV2/libGoogleAnalyticsV2.jar"/>
 	<classpathentry kind="output" path="out/target/common/obj/JAVA_LIBRARIES/android_stubs_current_intermediates/classes"/>
 </classpath>
