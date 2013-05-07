@@ -12,9 +12,6 @@
 # made complicated by the fact the build system does not support cross-compilation.
 
 # We can only use this under Linux with the mingw32 package installed.
-ifneq ($(shell uname),Linux)
-$(error Linux is required to create a Windows SDK)
-endif
 ifeq ($(strip $(shell which i586-mingw32msvc-gcc 2>/dev/null)),)
 $(error MinGW is required to build a Windows SDK. Please 'apt-get install mingw32')
 endif
@@ -58,7 +55,7 @@ WIN_SDK_ZIP  := $(WIN_SDK_DIR)/$(WIN_SDK_NAME).zip
 
 $(call dist-for-goals, win_sdk, $(WIN_SDK_ZIP))
 
-.PHONY: win_sdk winsdk-tools
+.PHONY: win_sdk winsdk-tools winsdk-coretools
 
 define winsdk-banner
 $(info )
@@ -75,6 +72,10 @@ endef
 
 win_sdk: $(WIN_SDK_ZIP)
 	$(call winsdk-banner,Done)
+
+winsdk-coretools: acp
+	$(call winsdk-banner,Build Windows Core Tools)
+	$(hide) USE_MINGW=1 USE_CCACHE="" $(MAKE) PRODUCT-$(TARGET_PRODUCT)-$(strip adb fastboot) $(if $(hide),,showcommands)
 
 winsdk-tools: $(WIN_BUILD_PREREQ)
 	$(call winsdk-banner,Build Windows Tools)
