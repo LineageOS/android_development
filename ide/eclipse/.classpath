@@ -126,6 +126,7 @@
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/arity-2.1.6.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/ejml-0.21.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/slider.jar"/>
+	<classpathentry kind="lib" path="packages/apps/CMUpdater/libs/dashclock-api-r1.1.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-common_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/junit-runner_intermediates/javalib.jar"/>
