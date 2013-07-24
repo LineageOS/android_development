@@ -192,7 +192,6 @@ static void init_tables(void)
 
 static void fill_plasma(ANativeWindow_Buffer* buffer, double  t)
 {
-    Fixed ft  = FIXED_FROM_FLOAT(t/1000.);
     Fixed yt1 = FIXED_FROM_FLOAT(t/1230.);
     Fixed yt2 = yt1;
     Fixed xt10 = FIXED_FROM_FLOAT(t/3000.);
@@ -407,7 +406,7 @@ static void engine_draw_frame(struct engine* engine) {
     stats_endFrame(&engine->stats);
 }
 
-static int engine_term_display(struct engine* engine) {
+static void engine_term_display(struct engine* engine) {
     engine->animating = 0;
 }
 

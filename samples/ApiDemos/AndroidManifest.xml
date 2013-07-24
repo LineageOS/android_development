@@ -36,7 +36,7 @@
     <!-- For android.media.audiofx.Visualizer -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="16" />
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="17" />
 
     <!-- We will request access to the camera, saying we require a camera
          of some sort but not one with autofocus capability. -->
@@ -87,6 +87,16 @@
         <activity android:name=".app.CustomDialogActivity"
                 android:label="@string/activity_custom_dialog"
                 android:theme="@style/Theme.CustomDialog">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.OverscanActivity"
+                android:label="@string/activity_overscan"
+                android:theme="@android:style/Theme.Holo.NoActionBar.Overscan"
+                android:enabled="@bool/atLeastJellyBeanMR2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
@@ -228,6 +238,14 @@
 
         <activity android:name=".app.ReorderOnLaunch"
                 android:label="@string/activity_reorder">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.RotationAnimation"
+                android:label="@string/activity_rotation_animation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
@@ -1150,6 +1168,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".content.ChangedContacts" android:label="@string/activity_changed_contact">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".content.InstallApk" android:label="@string/activity_install_apk"
                 android:enabled="@bool/atLeastHoneycombMR2">
             <intent-filter>
@@ -1174,6 +1199,13 @@
         </activity>
 
         <activity android:name=".os.Sensors" android:label="OS/Sensors">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".os.TriggerSensors" android:label="OS/TriggerSensors">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
@@ -1372,76 +1404,93 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout1" android:label="Views/Layouts/LinearLayout/1. Vertical">
+        <activity android:name=".view.LinearLayout1"
+                  android:label="Views/Layouts/LinearLayout/01. Vertical">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout2" android:label="Views/Layouts/LinearLayout/2. Vertical (Fill Screen)">
+        <activity android:name=".view.LinearLayout2"
+                  android:label="Views/Layouts/LinearLayout/02. Vertical (Fill Screen)">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout3" android:label="Views/Layouts/LinearLayout/3. Vertical (Padded)">
+        <activity android:name=".view.LinearLayout3"
+                  android:label="Views/Layouts/LinearLayout/03. Vertical (Padded)">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout4" android:label="Views/Layouts/LinearLayout/4. Horizontal">
+        <activity android:name=".view.LinearLayout4"
+                  android:label="Views/Layouts/LinearLayout/04. Horizontal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout5" android:label="Views/Layouts/LinearLayout/5. Simple Form">
+        <activity android:name=".view.LinearLayout5"
+                  android:label="Views/Layouts/LinearLayout/05. Simple Form">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout6" android:label="Views/Layouts/LinearLayout/6. Uniform Size">
+        <activity android:name=".view.LinearLayout6"
+                  android:label="Views/Layouts/LinearLayout/06. Uniform Size">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout7" android:label="Views/Layouts/LinearLayout/7. Fill Parent">
+        <activity android:name=".view.LinearLayout7"
+                  android:label="Views/Layouts/LinearLayout/07. Fill Parent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout8" android:label="Views/Layouts/LinearLayout/8. Gravity">
+        <activity android:name=".view.LinearLayout8"
+                  android:label="Views/Layouts/LinearLayout/08. Gravity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout9" android:label="Views/Layouts/LinearLayout/9. Layout Weight">
+        <activity android:name=".view.LinearLayout9"
+                  android:label="Views/Layouts/LinearLayout/09. Layout Weight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LinearLayout10" android:label="Views/Layouts/LinearLayout/10. Background Image">
+        <activity android:name=".view.LinearLayout10"
+                  android:label="Views/Layouts/LinearLayout/10. Background Image">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
+        <activity android:name=".view.CustomLayoutActivity"
+                  android:label="Views/Layouts/CustomLayout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".view.RadioGroup1" android:label="Views/Radio Group">
             <intent-filter>
@@ -2194,6 +2243,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".view.WindowFocusObserver"
+                  android:label="Views/Focus/6. Window Focus Observer">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".view.DateWidgets1" android:label="Views/Date Widgets/1. Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -2288,9 +2345,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.OverscanActivity"
+        <activity android:name=".view.SystemUIModes"
                 android:label="Views/System UI Visibility/System UI Modes"
-                android:uiOptions="splitActionBarWhenNarrow">
+                android:uiOptions="splitActionBarWhenNarrow"
+                android:enabled="@bool/atLeastJellyBeanMR2">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".view.SystemUIModesOverlay"
+                android:label="Views/System UI Visibility/System UI Modes Overlay"
+                android:uiOptions="splitActionBarWhenNarrow"
+                android:enabled="@bool/atLeastJellyBean">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
@@ -2300,7 +2368,8 @@
         <activity android:name=".view.ContentBrowserActivity"
                 android:label="Views/System UI Visibility/Content Browser"
                 android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
-                android:uiOptions="splitActionBarWhenNarrow">
+                android:uiOptions="splitActionBarWhenNarrow"
+                android:enabled="@bool/atLeastJellyBean">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
@@ -2310,7 +2379,8 @@
         <activity android:name=".view.VideoPlayerActivity"
                 android:label="Views/System UI Visibility/Video Player"
                 android:theme="@android:style/Theme.Holo"
-                android:uiOptions="splitActionBarWhenNarrow">
+                android:uiOptions="splitActionBarWhenNarrow"
+                android:enabled="@bool/atLeastJellyBean">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
@@ -2837,6 +2907,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".security.KeyStoreUsage" android:label="Security/KeyStore"
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 
     <instrumentation android:name=".app.LocalSampleInstrumentation"

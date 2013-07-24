@@ -85,6 +85,11 @@ See test_defs.xsd for more information.
     coverage_target="framework"
     continuous="true" />
 
+<test name="frameworks-support"
+    build_path="frameworks/support/tests"
+    package="android.support.tests"
+    continuous="true" />
+
 <test name="core"
     build_path="frameworks/base/tests/CoreTests"
     package="android.core"
@@ -182,6 +187,13 @@ See test_defs.xsd for more information.
     runner=".MediaFrameworkUnitTestRunner"
     coverage_target="framework" />
 
+<test-native name="camera-client-native"
+    build_path="frameworks/av/camera/tests/"
+    description="Camera client native tests." />
+
+<test-native name="camera-hal2-native"
+    build_path="hardware/libhardware/tests/camera2"
+    description="Camera hal2 native tests." />
 <!--  end of media framework tests -->
 
 <!--  targeted framework tests -->
@@ -274,6 +286,13 @@ See test_defs.xsd for more information.
 <test name="cts-database"
     build_path="cts/tests/tests/database"
     package="com.android.cts.database"
+    runner="android.test.InstrumentationCtsTestRunner"
+    coverage_target="framework"
+    suite="cts" />
+
+<test name="cts-dreams"
+    build_path="cts/tests/tests/dreams"
+    package="com.android.cts.dreams"
     runner="android.test.InstrumentationCtsTestRunner"
     coverage_target="framework"
     suite="cts" />
@@ -442,6 +461,14 @@ See test_defs.xsd for more information.
     runner="com.android.contacts.ContactsLaunchPerformance"
     description="Launch performance for Contacts." />
 
+<test name="dialer"
+    build_path="packages/apps/Dialer"
+    package="com.android.dialer.tests"
+    runner="android.test.InstrumentationTestRunner"
+    coverage_target="Dialer"
+    description="Tests for the Dialer app."
+    continuous="true" />
+
 <test name="downloadprovider"
     build_path="packages/providers/DownloadProvider/tests"
     package="com.android.providers.downloads.tests"
@@ -513,12 +540,6 @@ See test_defs.xsd for more information.
 <test-native name="libskia"
     build_path="external/skia/tests"
     description="Skia tests." />
-
-<!--  Android STL tests -->
-<test-native name="astl"
-    build_path="external/astl/tests"
-    description="Android STL."
-    extra_build_args="ASTL_TESTS=1" />
 
 <!-- Google Test -->
 <test-native name="gtest"

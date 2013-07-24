@@ -52,7 +52,22 @@ enum {
     AT_SECURE = 23
 };
 
+#include <stdint.h>
 #include <sys/exec_elf.h>
+
+typedef struct {
+  uint32_t a_type;
+  union {
+    uint32_t a_val;
+  } a_un;
+} Elf32_auxv_t;
+
+typedef struct {
+  uint64_t a_type;
+  union {
+    uint64_t a_val;
+  } a_un;
+} Elf64_auxv_t;
 
 #endif /* _ELF_H */
 

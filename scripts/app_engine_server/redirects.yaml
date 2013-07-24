@@ -58,6 +58,14 @@ redirects:
   type: permanent
   comment: Redirect sdk reference to new location
 
+- src: /about/versions/index.html
+  dst: /about/index.html
+  type: permanent
+
+- src: /about/versions/api-levels.html
+  dst: /guide/topics/manifest/uses-sdk-element.html#ApiLevels
+  type: permanent
+
 # new one works
 - src: /sdk/oem-usb.html
   dst: /tools/extras/oem-usb.html
@@ -93,11 +101,26 @@ redirects:
   type: permanent
   comment: Redirect sdk reference to new location
 
-#new one works
+- src: /sdk/ndk/overview.html
+  dst: /tools/sdk/ndk/index.html
+  type: permanent
+
 - src: /sdk/ndk/
   dst: /tools/sdk/ndk/
   type: permanent
   comment: Redirect sdk reference to new location
+
+- src: /tools/sdk/win-usb.html
+  dst: /sdk/win-usb.html
+  type: permanent
+
+- src: /tools/sdk/index.html
+  dst: /sdk/index.html
+  type: permanent
+
+- src: /tools/sdk/installing.html
+  dst: /sdk/installing/bundle.html
+  type: permanent
 
 #new one works
 - src: /sdk/requirements.html
@@ -226,6 +249,26 @@ redirects:
   dst: /tools/adk/index.html
   type: permanent
 
+- src: /tools/workflow/publishing/versioning.html
+  dst: /tools/publishing/versioning.html
+  type: permanent
+
+- src: /tools/workflow/publishing/publishing.html
+  dst: /tools/publishing/publishing_overview.html
+  type: permanent
+
+- src: /tools/workflow/publishing_overview.html
+  dst: /tools/publishing/publishing_overview.html
+  type: permanent
+
+- src: /tools/workflow/publishing/publishing_overview.html
+  dst: /tools/publishing/publishing_overview.html
+  type: permanent
+
+- src: /tools/workflow/app-signing.html
+  dst: /tools/publishing/app-signing.html
+  type: permanent
+
 - src: /tools/adk/aoa.html
   dst: http://source.android.com/tech/accessories/aoap/aoa.html
   type: permanent
@@ -253,12 +296,17 @@ redirects:
   comment: Redirect to new location
 
 # new one
-- src: /guide/basics/what-is-android.html
+- src: /guide/basics/.*
   dst: /about/index.html
   type: permanent
   comment: Redirect to new location
 
 - src: /guide/topics/security/security.html
+  dst: /training/articles/security-tips.html
+  type: permanent
+  comment: Redirect to new location
+
+- src: /guide/topics/security/index.html
   dst: /training/articles/security-tips.html
   type: permanent
   comment: Redirect to new location
@@ -376,6 +424,23 @@ redirects:
   dst: /training/articles/perf-jni.html
   type: permanent
 
+# move ui docs to design
+
+- src: /guide/practices/ui_guidelines/index.html
+  dst: /design/index.html
+  type: permanent
+
+- src: /guide/practices/ui_guidelines/icon_design.*
+  dst: /design/style/iconography.html
+  type: permanent
+
+- src: /guide/practices/ui_guidelines/activity_task_design.html
+  dst: /design/patterns/app-structure.html
+  type: permanent
+
+- src: /guide/practices/ui_guidelines/menu_design.html
+  dst: /design/patterns/actionbar.html
+  type: permanent
 
 
 # new one
@@ -496,6 +561,9 @@ redirects:
   type: permanent
   comment: Syncing with App Engine was removed because it's obsolete.
 
+- src: /training/basics/location/
+  dst: /training/location/
+  type: permanent
 
 # -------------------- MISC ----------------------
 
@@ -524,9 +592,13 @@ redirects:
   type: permanent
   comment: Redirect to new location
 
+- src: /intl/zh-CN/...
+  dst: /intl/zh-cn/...
+  type: permanent
 
-
-
+- src: /intl/zh-TW/...
+  dst: /intl/zh-tw/...
+  type: permanent
 
 # -------------------- EASTER EGG REDIRECTS ----------------------
 
@@ -583,10 +655,22 @@ redirects:
   dst: http://www.youtube.com/user/androiddevelopers
   type: permanent
 
-- src: /playbadge
+- src: /playbadge/?$
   dst: http://developer.android.com/distribute/googleplay/promote/badges.html
   type: permanent
 
-- src: /deviceart
+- src: /deviceart/?$
   dst: http://developer.android.com/distribute/promote/device-art.html
+  type: permanent
+
+- src: /edu/signup/?$
+  dst: https://services.google.com/fb/forms/playedu
+  type: permanent
+
+- src: /edu/?$
+  dst: /distribute/googleplay/edu/index.html
+  type: permanent
+
+- src: /edu/signup
+  dst: https://services.google.com/fb/forms/playedu
   type: permanent

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#include <statfs_portable.h>
+#include <portability.h>
 #include <string.h>
+#include <errno.h>
+#include <errno_portable.h>
+#include <statfs_portable.h>
 
 static inline void statfs_ntop(struct statfs *n_statfs, struct statfs_portable *p_statfs)
 {
@@ -32,18 +35,30 @@ static inline void statfs_ntop(struct statfs *n_statfs, struct statfs_portable *
     p_statfs->f_frsize = n_statfs->f_frsize;
 }
 
-int statfs_portable(const char*  path, struct statfs_portable*  stat)
+int WRAP(statfs)(const char*  path, struct statfs_portable*  stat)
 {
     struct statfs mips_stat;
-    int ret = statfs(path, &mips_stat);
+    int ret;
+
+    if (invalid_pointer(stat)) {
+        *REAL(__errno)() = EFAULT;
+        return -1;
+    }
+    ret = REAL(statfs)(path, &mips_stat);
     statfs_ntop(&mips_stat, stat);
     return ret;
 }
 
-int fstatfs_portable(int fd, struct statfs_portable*  stat)
+int WRAP(fstatfs)(int fd, struct statfs_portable*  stat)
 {
     struct statfs mips_stat;
-    int ret = fstatfs(fd, &mips_stat);
+    int ret;
+
+    if (invalid_pointer(stat)) {
+        *REAL(__errno)() = EFAULT;
+        return -1;
+    }
+    ret = REAL(fstatfs)(fd, &mips_stat);
     statfs_ntop(&mips_stat, stat);
     return ret;
 }

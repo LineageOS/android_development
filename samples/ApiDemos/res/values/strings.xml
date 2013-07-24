@@ -21,8 +21,12 @@
     <!--  app/activity examples strings  -->
     <!-- =============================== -->
 
-    <string name="styled_12_hour_clock">MM/<font fgcolor="#ffff0000"><b>dd</b></font>/yy h<font fgcolor="#ffff0000"><sup><small>mm</small></sup></font><b>aa</b></string>
-    <string name="styled_24_hour_clock">MM/<font fgcolor="#ffff0000"><b>dd</b></font>/yy k<font fgcolor="#ffff0000"><sup><small>mm</small></sup></font></string>
+    <!-- The "color" attribute is an alias for "fgcolor" and was introduced in API level 18.  -->
+    <string name="styled_12_hour_clock">MM/<font color="red"><b>dd</b></font>/yy h<font color="#ffff0000"><sup><small>mm</small></sup></font><b>aa</b></string>
+    <string name="styled_24_hour_clock">MM/<font color="red"><b>dd</b></font>/yy k<font color="#ffff0000"><sup><small>mm</small></sup></font></string>
+
+    <string name="styled_12_hour_clock2">\'Custom font:\' <font color="@android:color/primary_text_holo_dark" face="sans-serif-thin">MM/dd/yy h:mm aa</font></string>
+    <string name="styled_24_hour_clock2">\'Custom font:\' <font color="@android:color/primary_text_holo_dark" face="sans-serif-thin">MM/dd/yy k:mm</font></string>
 
     <string name="tabs_1_tab_1">tab1</string>
     <string name="tabs_1_tab_2">tab2</string>
@@ -42,6 +46,8 @@
     <string name="custom_dialog_activity_text">Example of how you can use a
             custom Theme.Dialog theme to make an activity that looks like a
             customized dialog, here with an ugly frame.</string>
+
+    <string name="activity_overscan">App/Activity/Overscan</string>
 
     <string name="quick_contacts_demo">App/Activity/QuickContactsDemo</string>
 
@@ -381,6 +387,8 @@
     <string name="reorder_four_text">This is the last in a sequence of four Activities.</string>
     <string name="reorder_second_to_front">Bring the second in front</string>
 
+    <string name ="activity_rotation_animation">App/Activity/Rotation Animation</string>
+
     <string name="menu_from_xml_title">App/Menu/Inflate from XML</string>
     <string name="menu_from_xml_instructions_press_menu">Select a menu resource and press the menu key.</string>
     <string name="menu_from_xml_instructions_go_back">If you want to choose another menu resource, go back and re-run this activity.</string>
@@ -441,6 +449,8 @@
     <string name="pick_person">Pick a Person</string>
     <string name="pick_phone">Pick a Phone</string>
     <string name="pick_address">Pick an Address</string>
+
+    <string name="activity_changed_contact">Content/Provider/Changed Contacts</string>
 
     <string name="activity_install_apk">Content/Packages/Install Apk</string>
 
@@ -839,6 +849,8 @@
     <string name="toggle_show_custom">DISPLAY_SHOW_CUSTOM</string>
     <string name="toggle_navigation">Navigation</string>
     <string name="cycle_custom_gravity">Cycle Custom View Gravity</string>
+    <string name="toggle_visibility">Toggle Visibility</string>
+    <string name="toggle_system_ui">Toggle System UI</string>
 
     <string name="display_options_custom_button">Custom View!</string>
     <string name="display_options_menu_item">Menu Item</string>
@@ -866,6 +878,14 @@
     <string name="stream_video">Play Streaming Video</string>
     <string name="local_audio">Play Audio from Local File</string>
     <string name="res_audio">Play Audio from Resources</string>
+
+    <!-- =========================== -->
+    <!-- os examples strings    -->
+    <!-- =========================== -->
+    <string name="no_sig_motion">Significant Motion Sensor Not Detected</string>
+    <string name="sig_motion">Significant Motion Sensor Detected</string>
+    <string name="sig_motion_enabled">Significant Motion Sensor Enabled</string>
+    <string name="sig_motion_auto_disabled">Significant Motion Sensor Auto Disabled</string>
 
     <!-- ============================ -->
     <!--  views examples strings  -->
@@ -1150,6 +1170,16 @@
     <string name="relative_layout_2_instructions">Type here:</string>
     <string name="relative_layout_2_ok">Ok</string>
     <string name="relative_layout_2_cancel">Cancel</string>
+    <string name="rotation_animation_description">
+            Change the default rotation animation from rotating to fade or jumpcut.
+            Only works if FLAG_FULLSCREEN is set and there are no dialogs up.
+            Try rotating with and without the Power Off dialog visible.
+    </string>
+    <string name="rotation_animation_fullscreen">FULLSCREEN</string>
+    <string name="rotation_animation_choices">Rotation Animation:</string>
+    <string name="rotation_animation_rotate">ROTATE</string>
+    <string name="rotation_animation_crossfade">XFADE</string>
+    <string name="rotation_animation_jumpcut">JUMPCUT</string>
     <string name="scroll_view_1_text_1">Text View 1</string>
     <string name="scroll_view_1_button_1">Button 1</string>
     <string name="scroll_view_1_text_2">Text View 2</string>
@@ -1434,4 +1464,21 @@
     <string name="task_complete">is complete</string>
     <string name="task_not_complete">is not complete</string>
 
+    <!-- =========================== -->
+    <!--  Security API demo strings  -->
+    <!-- =========================== --> <skip />
+
+    <string name="keystore_entries_list">List of entries:</string>
+
+    <string name="keystore_key_ops_header">Key operations</string>
+    <string name="keystore_plaintext">Plaintext:</string>
+    <string name="keystore_ciphertext">Ciphertext:</string>
+    <string name="keystore_sign">Sign</string>
+    <string name="keystore_verify">Verify</string>
+    <string name="keystore_delete">Delete</string>
+
+    <string name="keystore_generating_header">Generating</string>
+    <string name="keystore_entry_alias">Entry alias:</string>
+    <string name="keystore_generate">Generate</string>
+    <string name="keystore_no_alias_error">Must supply an alias</string>
   </resources>

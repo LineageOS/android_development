@@ -45,10 +45,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <!-- Use styles -->
+        <TextClock
+            android:format12Hour="@string/styled_12_hour_clock2"
+            android:format24Hour="@string/styled_24_hour_clock2"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <!-- Shows seconds -->
         <TextClock
-            android:format12Hour="hh:mm:ss aa"
-            android:format24Hour="kk:mm:ss"
+            android:format12Hour="hh:mm:ss a"
+            android:format24Hour="HH:mm:ss"
 
             android:textSize="20sp"
             android:shadowColor="#7fffffff"
@@ -59,8 +67,8 @@
 
         <!-- Use a fixed time zone -->
         <TextClock
-            android:format12Hour="'Time in Paris:' MMM dd, yyyy h:mmaa"
-            android:format24Hour="'Time in Paris:' MMM dd, yyyy k:mm"
+            android:format12Hour="'Time in Paris:' MMM dd, yyyy h:mma"
+            android:format24Hour="'Time in Paris:' MMM dd, yyyy HH:mm"
             android:timeZone="Europe/Paris"
 
             android:layout_width="wrap_content"

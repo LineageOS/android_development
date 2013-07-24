@@ -26,47 +26,68 @@ LOCAL_MODULE := libportable
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 
-LOCAL_CFLAGS := -I $(LOCAL_PATH)/common/include
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/common/include
+
+# Uncomment the next line to easily enable Lib-Portable logging during development.
+# LOCAL_CFLAGS += -DLOG_NDEBUG=0
 
 ifeq ($(TARGET_ARCH),mips)
 libportable_arch_src_files += \
+			arch-mips/clone.c \
+			arch-mips/epoll.c \
+			arch-mips/errno.c \
+			arch-mips/eventfd.c \
+			arch-mips/fcntl.c \
+			arch-mips/filefd.c \
+			arch-mips/flags.c \
+			arch-mips/inotify.c \
 			arch-mips/ioctl.c \
 			arch-mips/mmap.c \
-			arch-mips/resource.c \
-			arch-mips/stat.c \
-			arch-mips/statfs.c \
 			arch-mips/open.c \
 			arch-mips/poll.c \
+			arch-mips/pipe.c \
+			arch-mips/pthread.c \
+			arch-mips/resource.c \
+			arch-mips/signal.c \
 			arch-mips/socket.c \
 			arch-mips/sockopt.c \
-			arch-mips/fcntl.c \
-			arch-mips/epoll.c \
-			arch-mips/errno.c
+			arch-mips/stat.c \
+			arch-mips/statfs.c \
+			arch-mips/syscall.c \
+			arch-mips/timer.c \
+			arch-mips/timerfd.c \
+			arch-mips/waitpid.c \
+			arch-mips/fenv.c
+
+libportable_arch_src_files += \
+			arch-mips/_setjmp.S \
+			arch-mips/setjmp.S \
+			arch-mips/sigsetjmp.S
+
 endif
 
 ifeq ($(TARGET_ARCH),arm)
 libportable_arch_src_files += \
-			arch-arm/stat.c \
-			arch-arm/socket.c \
-			arch-arm/sockopt.c \
-			arch-arm/epoll.c \
-			arch-arm/errno.c
+			arch-arm/unwind.c \
+			arch-arm/fenv.c
 endif
 
 ifeq ($(TARGET_ARCH),x86)
 libportable_arch_src_files += \
-			arch-x86/ioctl.c \
-			arch-x86/stat.c \
-			arch-x86/open.c \
-			arch-x86/socket.c \
-			arch-x86/sockopt.c \
-			arch-x86/fcntl.c \
 			arch-x86/epoll.c \
-			arch-x86/errno.c
+			arch-x86/fcntl.c \
+			arch-x86/ioctl.c \
+			arch-x86/open.c \
+			arch-x86/stat.c \
+			arch-x86/fenv.c
 endif
 
 LOCAL_SRC_FILES := \
         $(libportable_common_src_files) \
         $(libportable_arch_src_files)
+
+LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
+
+LOCAL_SHARED_LIBRARIES += liblog
 
 include $(BUILD_SHARED_LIBRARY)

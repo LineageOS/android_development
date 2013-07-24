@@ -42,9 +42,13 @@ typedef struct
     int volatile value;
 } pthread_mutex_t;
 
-#define  PTHREAD_MUTEX_INITIALIZER             {0}
-#define  PTHREAD_RECURSIVE_MUTEX_INITIALIZER   {0x4000}
-#define  PTHREAD_ERRORCHECK_MUTEX_INITIALIZER  {0x8000}
+#define  __PTHREAD_MUTEX_INIT_VALUE            0
+#define  __PTHREAD_RECURSIVE_MUTEX_INIT_VALUE  0x4000
+#define  __PTHREAD_ERRORCHECK_MUTEX_INIT_VALUE 0x8000
+
+#define  PTHREAD_MUTEX_INITIALIZER             {__PTHREAD_MUTEX_INIT_VALUE}
+#define  PTHREAD_RECURSIVE_MUTEX_INITIALIZER   {__PTHREAD_RECURSIVE_MUTEX_INIT_VALUE}
+#define  PTHREAD_ERRORCHECK_MUTEX_INITIALIZER  {__PTHREAD_ERRORCHECK_MUTEX_INIT_VALUE}
 
 enum {
     PTHREAD_MUTEX_NORMAL = 0,
@@ -305,10 +309,5 @@ extern void  __pthread_cleanup_pop(__pthread_cleanup_t*  c,
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
-
-/************ TO FIX ************/
-
-#define LONG_LONG_MAX __LONG_LONG_MAX__
-#define LONG_LONG_MIN (-__LONG_LONG_MAX__ - 1)
 
 #endif /* _PTHREAD_H_ */

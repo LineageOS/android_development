@@ -5,7 +5,8 @@
 
 </language>
 <language name="Assembly">
-<includepath>${ProjDirPath}/system/core/include/arch/linux-arm</includepath>
+<includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.7/lib/gcc/arm-eabi/4.7/include</includepath>
+<includepath>${ProjDirPath}/build/core/combo/include/arch/linux-arm</includepath>
 <includepath>${ProjDirPath}/system/core/include</includepath>
 <includepath>${ProjDirPath}/bionic/libc/arch-arm/include</includepath>
 <includepath>${ProjDirPath}/bionic/libc/include</includepath>
@@ -19,16 +20,22 @@
 <includepath>${ProjDirPath}/hardware/libhardware/include</includepath>
 <includepath>${ProjDirPath}/hardware/libhardware_legacy/include</includepath>
 <includepath>${ProjDirPath}/hardware/ril/include</includepath>
+<includepath>${ProjDirPath}/frameworks/av/include</includepath>
 <includepath>${ProjDirPath}/frameworks/base/include</includepath>
 <includepath>${ProjDirPath}/frameworks/native/include</includepath>
+<includepath>${ProjDirPath}/frameworks/native/include/media/openmax</includepath>
 <includepath>${ProjDirPath}/frameworks/native/opengl/include</includepath>
 <includepath>${ProjDirPath}/external/skia/include</includepath>
 <includepath>${ProjDirPath}/external/skia/include/core</includepath>
-<includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-linux-androideabi-4.6/lib/gcc/arm-linux-androideabi/4.6.x-google/include</includepath>
+<includepath>${ProjDirPath}/libnativehelper/include/nativehelper</includepath>
+<includepath>${ProjDirPath}/system/core/include/arch/linux-arm</includepath>
+<includepath>${ProjDirPath}/dalvik/libnativehelper/include</includepath>
+<includepath>${ProjDirPath}/dalvik/libnativehelper/include/nativehelper</includepath>
 
 </language>
 <language name="GNU C++">
-<includepath>${ProjDirPath}/system/core/include/arch/linux-arm</includepath>
+<includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.7/lib/gcc/arm-eabi/4.7/include</includepath>
+<includepath>${ProjDirPath}/build/core/combo/include/arch/linux-arm</includepath>
 <includepath>${ProjDirPath}/system/core/include</includepath>
 <includepath>${ProjDirPath}/bionic/libc/arch-arm/include</includepath>
 <includepath>${ProjDirPath}/bionic/libc/include</includepath>
@@ -42,16 +49,22 @@
 <includepath>${ProjDirPath}/hardware/libhardware/include</includepath>
 <includepath>${ProjDirPath}/hardware/libhardware_legacy/include</includepath>
 <includepath>${ProjDirPath}/hardware/ril/include</includepath>
+<includepath>${ProjDirPath}/frameworks/av/include</includepath>
 <includepath>${ProjDirPath}/frameworks/base/include</includepath>
 <includepath>${ProjDirPath}/frameworks/native/include</includepath>
+<includepath>${ProjDirPath}/frameworks/native/include/media/openmax</includepath>
 <includepath>${ProjDirPath}/frameworks/native/opengl/include</includepath>
 <includepath>${ProjDirPath}/external/skia/include</includepath>
 <includepath>${ProjDirPath}/external/skia/include/core</includepath>
-<includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-linux-androideabi-4.6/lib/gcc/arm-linux-androideabi/4.6.x-google/include</includepath>
+<includepath>${ProjDirPath}/libnativehelper/include/nativehelper</includepath>
+<includepath>${ProjDirPath}/system/core/include/arch/linux-arm</includepath>
+<includepath>${ProjDirPath}/dalvik/libnativehelper/include</includepath>
+<includepath>${ProjDirPath}/dalvik/libnativehelper/include/nativehelper</includepath>
 
 </language>
 <language name="GNU C">
-<includepath>${ProjDirPath}/system/core/include/arch/linux-arm</includepath>
+<includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.7/lib/gcc/arm-eabi/4.7/include</includepath>
+<includepath>${ProjDirPath}/build/core/combo/include/arch/linux-arm</includepath>
 <includepath>${ProjDirPath}/system/core/include</includepath>
 <includepath>${ProjDirPath}/bionic/libc/arch-arm/include</includepath>
 <includepath>${ProjDirPath}/bionic/libc/include</includepath>
@@ -65,12 +78,17 @@
 <includepath>${ProjDirPath}/hardware/libhardware/include</includepath>
 <includepath>${ProjDirPath}/hardware/libhardware_legacy/include</includepath>
 <includepath>${ProjDirPath}/hardware/ril/include</includepath>
+<includepath>${ProjDirPath}/frameworks/av/include</includepath>
 <includepath>${ProjDirPath}/frameworks/base/include</includepath>
 <includepath>${ProjDirPath}/frameworks/native/include</includepath>
+<includepath>${ProjDirPath}/frameworks/native/include/media/openmax</includepath>
 <includepath>${ProjDirPath}/frameworks/native/opengl/include</includepath>
 <includepath>${ProjDirPath}/external/skia/include</includepath>
 <includepath>${ProjDirPath}/external/skia/include/core</includepath>
-<includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-linux-androideabi-4.6/lib/gcc/arm-linux-androideabi/4.6.x-google/include</includepath>
+<includepath>${ProjDirPath}/libnativehelper/include/nativehelper</includepath>
+<includepath>${ProjDirPath}/system/core/include/arch/linux-arm</includepath>
+<includepath>${ProjDirPath}/dalvik/libnativehelper/include</includepath>
+<includepath>${ProjDirPath}/dalvik/libnativehelper/include/nativehelper</includepath>
 
 </language>
 </section>

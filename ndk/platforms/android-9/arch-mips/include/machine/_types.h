@@ -105,8 +105,6 @@ typedef double			__double_t;
 typedef float			__float_t;
 typedef long long		__off_t;
 typedef long			__ptrdiff_t;
-/*typedef	unsigned long		__size_t;*/
-typedef	long			__ssize_t;
 typedef	int			__time_t;
 typedef int			__timer_t;
 #if defined(__GNUC__) && __GNUC__ >= 3
@@ -123,12 +121,6 @@ typedef int			__wint_t;
 typedef	int			__rune_t;
 typedef	void *			__wctrans_t;
 typedef	void *			__wctype_t;
-
-#ifdef __MIPSEB__
-#define _BYTE_ORDER _BIG_ENDIAN
-#else
-#define _BYTE_ORDER _LITTLE_ENDIAN
-#endif
 
 #if defined(_KERNEL)
 typedef struct label_t {
