@@ -38,10 +38,12 @@ WIN_TARGETS := \
 	etc1tool \
 	dexdump dmtracedump \
 	fastboot \
+	heimdall \
 	hprof-conv \
 	llvm-rs-cc \
 	prebuilt \
 	sqlite3 \
+	heimdall \
 	zipalign \
 	$(WIN_SDK_TARGETS)
 
@@ -81,7 +83,7 @@ win_sdk: $(WIN_SDK_ZIP)
 
 winsdk-coretools: acp
 	$(call winsdk-banner,Build Windows Core Tools)
-	$(hide) USE_MINGW=1 USE_CCACHE="" $(MAKE) PRODUCT-$(TARGET_PRODUCT)-$(strip adb fastboot) $(if $(hide),,showcommands)
+	$(hide) USE_MINGW=1 USE_CCACHE="" $(MAKE) PRODUCT-$(TARGET_PRODUCT)-$(strip adb fastboot heimdall) $(if $(hide),,showcommands)
 
 winsdk-tools: $(WIN_BUILD_PREREQ)
 	$(call winsdk-banner,Build Windows Tools)
