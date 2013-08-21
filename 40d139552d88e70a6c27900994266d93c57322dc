@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baee8101_ad453a18",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "Double quotes don\u0027t need here.",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_cdc99eae",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"enlazar\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_adce5ab2",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"desenlazar\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_0dd0c652",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"Adaptadores de sincronizacio\u0027n registrados:\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_2de4aa39",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\\u2026",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_8dc4b692",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"Se obtuvo \\u00ABRemoteExceptio\\u00BB ...\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_6d48722e",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_4de7ee40",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\\u2026",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_6ddab27a",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"Informar de un error\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_6dc19280",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\\u00ABActivity\\u00BB",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_ed3b429b",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\\u00ABBroadcast Intent\\u00BB",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_cd407e0a",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\\u00ABService\\u00BB",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_0d37a6b1",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"Provocar el llenado ra\u0027pido de la cache interna\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baee8101_2dbb8a10",
+        "filename": "apps/Development/res/values-es/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 2134
+      },
+      "writtenOn": "2013-08-21T19:35:14Z",
+      "side": 1,
+      "message": "\"Provocar el llenado lento de la cache interna\" an below with \"externa\"",
+      "revId": "40d139552d88e70a6c27900994266d93c57322dc",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
