@@ -15,7 +15,7 @@
 -->
 
 <resources>
-  <string-array name="glstester_services">
+  <string-array name="glstester_services" translatable="false">
     <item>mail</item>
     <item>SID</item>
     <item>LSID</item>
