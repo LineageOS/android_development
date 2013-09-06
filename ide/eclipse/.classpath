@@ -37,6 +37,7 @@
 	<classpathentry kind="src" path="packages/apps/Torch/src"/>
 	<classpathentry kind="src" path="packages/apps/Trebuchet/src"/>
 	<classpathentry kind="src" path="packages/apps/VoiceDialer/src"/>
+	<classpathentry kind="src" path="packages/apps/VoicePlus/src"/>
 	<classpathentry kind="src" path="packages/providers/CalendarProvider/src"/>
 	<classpathentry kind="src" path="packages/providers/ContactsProvider/src"/>
 	<classpathentry kind="src" path="packages/providers/DownloadProvider/src"/>
@@ -116,6 +117,8 @@
 	<classpathentry kind="src" path="out/target/common/R"/>
 	<classpathentry kind="src" path="external/apache-http/src"/>
 	<classpathentry kind="src" path="external/bouncycastle/bcprov/src/main/java"/>
+	<classpathentry kind="src" path="external/koush/AndroidAsync/AndroidAsync/src"/>
+	<classpathentry kind="src" path="external/koush/ion/ion/src"/>
 	<classpathentry kind="src" path="external/koush/Superuser/Superuser/src"/>
 	<classpathentry kind="src" path="external/koush/Widgets/Widgets/src"/>
 	<classpathentry kind="src" path="external/guava/guava/src"/>
