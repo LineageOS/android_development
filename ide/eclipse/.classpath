@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="packages/apps/Apollo/src"/>
+	<classpathentry kind="src" path="external/gson/src/main/java"/>
+	<classpathentry kind="src" path="frameworks/volley/src"/>
+	<classpathentry kind="src" path="external/spongycastle/sc-light-jdk15on/src/main/java"/>
+	<classpathentry kind="src" path="frameworks/opt/telephony-msim/frameworks/src"/>
 	<classpathentry kind="src" path="packages/apps/Bluetooth/src"/>
 	<classpathentry kind="src" path="packages/apps/Browser/src"/>
 	<classpathentry kind="src" path="packages/apps/Calendar/src"/>
@@ -30,7 +34,6 @@
 	<classpathentry kind="src" path="packages/apps/PackageInstaller/src"/>
 	<classpathentry kind="src" path="packages/apps/Phone/src"/>
 	<classpathentry kind="src" path="packages/apps/PhoneCommon/src"/>
-	<classpathentry kind="src" path="packages/apps/QuickSearchBox/src"/>
 	<classpathentry kind="src" path="packages/apps/Provision/src"/>
 	<classpathentry kind="src" path="packages/apps/Settings/src"/>
 	<classpathentry kind="src" path="packages/apps/SoundRecorder/src"/>
@@ -142,5 +145,7 @@
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/junit-runner_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/xmp_toolkit_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="external/google/analytics_sdk_v2/libGoogleAnalyticsV2.jar"/>
+	<classpathentry kind="lib" path="external/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"/>
+	<classpathentry kind="lib" path="external/google/gcm/gcm-client/dist/gcm.jar"/>
 	<classpathentry kind="output" path="out/target/common/obj/JAVA_LIBRARIES/android_stubs_current_intermediates/classes"/>
 </classpath>
