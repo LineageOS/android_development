@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdtprojectproperties>
 <section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.IncludePaths">
-<language name="holder for library settings">
-
-</language>
-<language name="Assembly">
+<language name="Assembly Source File">
 <includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.7/lib/gcc/arm-eabi/4.7/include</includepath>
 <includepath>${ProjDirPath}/build/core/combo/include/arch/linux-arm</includepath>
 <includepath>${ProjDirPath}/system/core/include</includepath>
@@ -34,7 +31,7 @@
 <includepath>${ProjDirPath}/system/media/camera/include</includepath>
 
 </language>
-<language name="GNU C++">
+<language name="C++ Source File">
 <includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.7/lib/gcc/arm-eabi/4.7/include</includepath>
 <includepath>${ProjDirPath}/build/core/combo/include/arch/linux-arm</includepath>
 <includepath>${ProjDirPath}/system/core/include</includepath>
@@ -64,7 +61,7 @@
 <includepath>${ProjDirPath}/system/media/camera/include</includepath>
 
 </language>
-<language name="GNU C">
+<language name="C Source File">
 <includepath>${ProjDirPath}/prebuilts/gcc/darwin-x86/arm/arm-eabi-4.7/lib/gcc/arm-eabi/4.7/include</includepath>
 <includepath>${ProjDirPath}/build/core/combo/include/arch/linux-arm</includepath>
 <includepath>${ProjDirPath}/system/core/include</includepath>

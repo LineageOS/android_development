@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdtprojectproperties>
 <section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.Macros">
-<language name="holder for library settings">
-
-</language>
-<language name="Assembly">
+<language name="Assembly Source File">
 <macro>
 <name>NDEBUG</name><value>1</value>
 </macro>
@@ -43,7 +40,7 @@
 </macro>
 
 </language>
-<language name="GNU C++">
+<language name="C++ Source File">
 <macro>
 <name>NDEBUG</name><value>1</value>
 </macro>
@@ -82,7 +79,7 @@
 </macro>
 
 </language>
-<language name="GNU C">
+<language name="C Source File">
 <macro>
 <name>NDEBUG</name><value>1</value>
 </macro>
