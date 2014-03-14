@@ -49,6 +49,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -234,6 +235,9 @@ public class Monkey {
 
     /** a filename to the setup script (if any) */
     private String mSetupFileName = null;
+
+    /** Sort the app list */
+    private boolean mSortAppList = false;
 
     /** filenames of the script (if any) */
     private ArrayList<String> mScriptFileNames = new ArrayList<String>();
@@ -828,6 +832,8 @@ public class Monkey {
                     mServerPort = (int) nextOptionLong("Server port to listen on for commands");
                 } else if (opt.equals("--setup")) {
                     mSetupFileName = nextOptionData();
+                } else if (opt.equals("--sort-app-list")) {
+                    mSortAppList = true;
                 } else if (opt.equals("-f")) {
                     mScriptFileNames.add(nextOptionData());
                 } else if (opt.equals("--profile-wait")) {
@@ -1036,6 +1042,16 @@ public class Monkey {
         if (mMainApps.size() == 0) {
             System.out.println("** No activities found to run, monkey aborted.");
             return false;
+        }
+
+        if (mSortAppList) {
+            Collections.sort(mMainApps);
+            if (mVerbose >= 2) { // very verbose
+                System.out.println("// Sorted main activity list");
+                for (ComponentName cn : mMainApps) {
+                    System.out.println("//   + Using main activity " + cn);
+                }
+            }
         }
 
         return true;
@@ -1358,6 +1374,7 @@ public class Monkey {
         usage.append("              [--setup scriptfile] [-f scriptfile [-f scriptfile] ...]\n");
         usage.append("              [--port port]\n");
         usage.append("              [-s SEED] [-v [-v] ...]\n");
+        usage.append("              [--sort-app-list]\n");
         usage.append("              [--throttle MILLISEC] [--randomize-throttle]\n");
         usage.append("              [--profile-wait MILLISEC]\n");
         usage.append("              [--device-sleep-time MILLISEC]\n");
