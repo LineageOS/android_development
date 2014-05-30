@@ -113,7 +113,6 @@
 	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/APPS/ContactsProvider_intermediates/src/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/APPS/Gallery2_intermediates/src/renderscript/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/APPS/MediaProvider_intermediates/src/src"/>
-	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/APPS/QuickSearchBox_intermediates/src/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/APPS/SystemUI_intermediates/src/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/JAVA_LIBRARIES/com.android.emailcommon_intermediates/src/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="out/target/common/obj/JAVA_LIBRARIES/com.android.services.telephony.common_intermediates/src/src"/>
