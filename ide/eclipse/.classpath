@@ -147,9 +147,10 @@
 	<classpathentry excluding="Android.mk" kind="src" path="external/objenesis/main/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="external/tagsoup/src"/>
 	<classpathentry excluding="Android.mk" kind="src" path="external/xmp_toolkit/XMPCore/src"/>
-	<classpathentry kind="lib" path="packages/apps/Calculator/libs/achartengine.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/arity-2.1.6.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/ejml-0.21.jar"/>
+        <classpathentry kind="lib" path="packages/apps/Calculator/libs/gdk.jar"/>
+        <classpathentry kind="lib" path="packages/apps/Calculator/libs/gson-2.2.4.jar"/>
 	<classpathentry kind="lib" path="packages/apps/Calculator/libs/slider.jar"/>
 	<classpathentry kind="lib" path="packages/apps/CMUpdater/libs/dashclock-api-r1.1.jar"/>
 	<classpathentry kind="lib" path="external/google/analytics_sdk_v2/libGoogleAnalyticsV2.jar"/>
