@@ -18,7 +18,7 @@ LOCAL_PACKAGE_NAME := ApiDemos
 
 LOCAL_SDK_VERSION := current
 
-include $(BUILD_PACKAGE)
+#include $(BUILD_PACKAGE)
 
 # Use the folloing include to make our test apk.
 include $(call all-makefiles-under,$(LOCAL_PATH))

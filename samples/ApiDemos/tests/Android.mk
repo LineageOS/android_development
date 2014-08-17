@@ -19,5 +19,5 @@ LOCAL_INSTRUMENTATION_FOR := ApiDemos
 
 LOCAL_SDK_VERSION := current
 
-include $(BUILD_PACKAGE)
+#include $(BUILD_PACKAGE)
 
