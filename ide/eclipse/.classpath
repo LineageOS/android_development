@@ -148,8 +148,8 @@
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/android-common_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/guava_intermediates/javalib.jar"/>
 	<classpathentry kind="lib" path="packages/apps/ContactsCommon/libs/geocoder-2.9.jar"/>
-	<classpathentry kind="lib" path="packages/apps/ContactsCommon/libs/libphonenumber-5.8.jar"/>
-	<classpathentry kind="lib" path="packages/apps/Calculator/arity-2.1.2.jar"/>
+	<classpathentry kind="lib" path="packages/apps/ContactsCommon/libs/libphonenumber-6.2.jar"/>
+	<classpathentry kind="lib" path="packages/apps/Calculator/libs/arity-2.1.6.jar"/>
 	<classpathentry kind="lib" path="out/target/common/obj/JAVA_LIBRARIES/junit-runner_intermediates/javalib.jar"/>
 	<classpathentry kind="output" path="out/target/common/obj/JAVA_LIBRARIES/android_stubs_current_intermediates/classes"/>
 </classpath>
