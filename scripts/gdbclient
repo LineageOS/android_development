@@ -47,20 +47,24 @@ function gdbclient() {
   fi
   local DEVICE=$(adb_get_product_device)
 
-  if [ -z "$DEVICE" ]; then
-    echo "Error: Unable to get device name. Please check if device is connected and ANDROID_SERIAL is set."
-    return -2
-  fi
-
-  if [ -n "$2" ]; then
-    PORT=$2
-  fi
-
   local ROOT=$(gettop)
   if [ -z "$ROOT" ]; then
     # This is for the situation with downloaded symbols (from the build server)
     # we check if they are available.
     ROOT=`realpath .`
+  fi
+
+
+  if [[ -z "$DEVICE" || ! -d "$ROOT/out/target/product/$DEVICE" ]]; then
+    if [ -z "$CM_BUILD" ]; then
+      echo "Error: Unable to get device name. Please check if device is connected and ANDROID_SERIAL is set."
+      return -2
+    fi
+    DEVICE=$CM_BUILD
+  fi
+
+  if [ -n "$2" ]; then
+    PORT=$2
   fi
 
   local OUT_ROOT="$ROOT/out/target/product/$DEVICE"
