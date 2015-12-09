@@ -5,7 +5,7 @@ if [ ! -d development ]; then
     exit 1
 fi
 
-idegenjar=`find out -name idegen.jar -follow | grep -v intermediates`
+idegenjar=`find $ANDROID_HOST_OUT -name idegen.jar -follow | grep -v intermediates`
 if [ "" = "$idegenjar" ]; then
     echo "Couldn't find idegen.jar. Please run make first."
 else 
