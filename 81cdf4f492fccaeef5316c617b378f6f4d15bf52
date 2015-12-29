@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fce034c_72679027",
+        "filename": "scripts/gdbclient",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 14090
+      },
+      "writtenOn": "2015-12-29T12:10:17Z",
+      "side": 1,
+      "message": "Why not always $OUT? i.e. local OUT_ROOT\u003d$OUT\n\nI made this same fix in cm-12.1 where $DEVICE / adb_get_product_device was returning a value different from the device name used in the build tree.\n\nhttp://review.cyanogenmod.org/#/c/119130/",
+      "revId": "81cdf4f492fccaeef5316c617b378f6f4d15bf52",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
