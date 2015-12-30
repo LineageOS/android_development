@@ -16,6 +16,24 @@
       "revId": "81cdf4f492fccaeef5316c617b378f6f4d15bf52",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fce034c_40395e3f",
+        "filename": "scripts/gdbclient",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10094
+      },
+      "writtenOn": "2015-12-30T07:51:00Z",
+      "side": 1,
+      "message": "This script is written to be able to run without running lunch (by gathering the $DEVICE from the connected adb device, not by the build system).  I kept it the same just to maintain that support.",
+      "parentUuid": "3fce034c_72679027",
+      "revId": "81cdf4f492fccaeef5316c617b378f6f4d15bf52",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
