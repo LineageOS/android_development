@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffb9cba7_aecfad7d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 14090
+      },
+      "writtenOn": "2016-03-01T03:16:04Z",
+      "side": 1,
+      "message": "nit: wrap here please",
+      "revId": "3c2da2fa1578fc93a609c85ecf45b3870a3881b5",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffb9cba7_6ec9b576",
+        "filename": "tools/idegen/idegen.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 14090
+      },
+      "writtenOn": "2016-03-01T03:16:04Z",
+      "side": 1,
+      "message": "Not sure we should automate this. I think it\u0027s better to just use ask the user to setup their preferred env.",
+      "revId": "3c2da2fa1578fc93a609c85ecf45b3870a3881b5",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
