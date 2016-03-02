@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffb9cba7_bb3b6e36",
+        "filename": "tools/idegen/idegen.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 14090
+      },
+      "writtenOn": "2016-03-02T01:42:38Z",
+      "side": 1,
+      "message": "This needs to be quoted. If it\u0027s unset the condition would be interpreted as `[ -z ]\u0027\n\nhttp://mywiki.wooledge.org/BashPitfalls#A.5B_.24foo_.3D_.22bar.22_.5D",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 25
+      },
+      "revId": "325e3dcb46470adf2893a862e81ef197808e8fe5",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
