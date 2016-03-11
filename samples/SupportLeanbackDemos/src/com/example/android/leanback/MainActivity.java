@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
@@ -39,7 +40,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         mGuidedStepFragment = new StepFragment();
-        GuidedStepFragment.add(getFragmentManager(), mGuidedStepFragment);
+        GuidedStepFragment.addAsRoot(this, mGuidedStepFragment, android.R.id.content);
+
     }
 
     public static class StepFragment extends GuidedStepFragment {
@@ -55,24 +57,42 @@ public class MainActivity extends Activity {
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             addAction(actions, BrowseActivity.class, R.string.browse, R.string.browse_description);
+            addAction(actions, BrowseSupportActivity.class, R.string.browse_support,
+                    R.string.browse_support_description);
             addAction(actions, SearchActivity.class, R.string.search, R.string.search_description);
+            addAction(actions, SearchSupportActivity.class, R.string.search_support, R.string.search_support_description);
             addAction(actions, DetailsActivity.class, R.string.details, R.string.details_description);
             actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
                     new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+            addAction(actions, DetailsSupportActivity.class, R.string.details_support, R.string.details_support_description);
+            actions.get(actions.size()-1).getIntent().putExtra(DetailsSupportActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
             addAction(actions, SearchDetailsActivity.class, R.string.search_details,
                     R.string.search_details_description);
-            actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
+            actions.get(actions.size()-1).getIntent().putExtra(SearchDetailsActivity.EXTRA_ITEM,
                     new PhotoItem("Hello world", R.drawable.gallery_photo_1));
-            addAction(actions, PlaybackOverlayActivity.class, R.string.playback,
-                    R.string.playback_description);
-            addAction(actions, HorizontalGridTestActivity.class, R.string.hgrid,
-                    R.string.hgrid_description);
+            addAction(actions, SearchDetailsSupportActivity.class, R.string.search_details_support,
+                    R.string.search_details_support_description);
+            actions.get(actions.size()-1).getIntent().putExtra(SearchDetailsSupportActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
             addAction(actions, VerticalGridActivity.class, R.string.vgrid,
                     R.string.vgrid_description);
+            addAction(actions, VerticalGridSupportActivity.class, R.string.vgrid_support,
+                    R.string.vgrid_support_description);
             addAction(actions, GuidedStepActivity.class, R.string.guidedstep,
                     R.string.guidedstep_description);
+            addAction(actions, GuidedStepSupportActivity.class, R.string.guidedstepsupport,
+                    R.string.guidedstepsupport_description);
             addAction(actions, BrowseErrorActivity.class, R.string.browseerror,
                     R.string.browseerror_description);
+            addAction(actions, BrowseErrorSupportActivity.class, R.string.browseerror_support,
+                    R.string.browseerror_support_description);
+            addAction(actions, PlaybackOverlayActivity.class, R.string.playback,
+                    R.string.playback_description);
+            addAction(actions, PlaybackOverlaySupportActivity.class, R.string.playback_support,
+                    R.string.playback_support_description);
+            addAction(actions, HorizontalGridTestActivity.class, R.string.hgrid,
+                    R.string.hgrid_description);
             addAction(actions, DetailsPresenterSelectionActivity.class,
                     R.string.detail_presenter_options,
                     R.string.detail_presenter_options_description);
@@ -90,7 +110,9 @@ public class MainActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             Intent intent = action.getIntent();
             if (intent != null) {
-                startActivity(intent);
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                        .toBundle();
+                startActivity(intent, bundle);
             }
         }
 

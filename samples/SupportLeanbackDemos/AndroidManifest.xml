@@ -25,6 +25,10 @@
             android:theme="@style/Theme.Example.Leanback.Browse"
             android:exported="true" />
 
+        <activity android:name="BrowseSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.Browse"
+            android:exported="true" />
+
         <activity android:name="BrowseAnimationActivity"
             android:exported="true" >
         </activity>
@@ -33,7 +37,15 @@
             android:theme="@style/Theme.Example.Leanback.Details"
             android:exported="true" />
 
+        <activity android:name="DetailsSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.Details"
+            android:exported="true" />
+
         <activity android:name="SearchDetailsActivity"
+            android:theme="@style/Theme.Example.Leanback.SearchDetails"
+            android:exported="true" />
+
+        <activity android:name="SearchDetailsSupportActivity"
             android:theme="@style/Theme.Example.Leanback.SearchDetails"
             android:exported="true" />
 
@@ -41,16 +53,36 @@
             android:theme="@style/Theme.Example.Leanback.Rows"
             android:exported="true" />
 
+        <activity android:name="RowsSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.Rows"
+            android:exported="true" />
+
         <activity android:name="PlaybackOverlayActivity"
             android:exported="true" />
 
+        <activity android:name="PlaybackOverlaySupportActivity"
+            android:exported="true" />
+
         <activity android:name="VerticalGridActivity"
+            android:theme="@style/Theme.Example.Leanback.VerticalGrid"
+            android:exported="true" />
+
+        <activity android:name="VerticalGridSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.VerticalGrid"
             android:exported="true" />
 
         <activity android:name="SearchActivity"
             android:exported="true" />
 
+        <activity android:name="SearchSupportActivity"
+            android:exported="true" />
+
         <activity android:name="BrowseErrorActivity"
+            android:theme="@style/Theme.Example.Leanback.Browse"
+            android:exported="true" />
+
+        <activity android:name="BrowseErrorSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.Browse"
             android:exported="true" />
 
         <activity android:name="HorizontalGridTestActivity"
@@ -58,6 +90,12 @@
 
         <activity android:name="GuidedStepActivity"
             android:theme="@style/Theme.Example.Leanback.GuidedStep"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true" />
+
+        <activity android:name="GuidedStepSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.GuidedStep"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true" />
 
         <activity android:name="DetailsPresenterSelectionActivity"

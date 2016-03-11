@@ -60,8 +60,9 @@
         <!-- MediaRouter Support Samples -->
 
         <activity android:name=".media.SampleMediaRouterActivity"
+                android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_dark"
-                android:theme="@style/Theme.AppCompat">
+                android:theme="@style/Theme.SampleMediaRouter">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -69,8 +70,9 @@
         </activity>
 
         <activity android:name=".media.SampleMediaRouterActivity$Light"
+                android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_light"
-                android:theme="@style/Theme.AppCompat.Light">
+                android:theme="@style/Theme.SampleMediaRouter.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -78,8 +80,9 @@
         </activity>
 
         <activity android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
+                android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
-                android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                android:theme="@style/Theme.SampleMediaRouter.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -191,16 +194,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".app.ActionBarWithDrawerLayout"
-                android:label="@string/action_bar_with_navigation_drawer"
-                android:theme="@style/Theme.AppCompat"
-                >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 
@@ -425,6 +418,16 @@
         </activity>
         <activity android:name=".widget.touch.DragAndDropActivity"
                   android:label="@string/drag_and_drop_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <!-- DrawerLayout demo activity -->
+        <activity android:name=".widget.DrawerLayoutActivity"
+                  android:label="@string/drawer_layout_activity"
+                  android:theme="@style/Theme.SampleDrawerLayout">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
