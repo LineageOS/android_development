@@ -89,17 +89,20 @@ function gdbclient() {
   fi
 
   # let's figure out which executable we are about to debug
-
   # check if user specified a name -> resolve to pid
   if [[ ! "$PID" =~ ^[0-9]+$ ]] ; then
     PROCESS_NAME=$PID
-    PID=$(pid --exact $PROCESS_NAME)
-    if [ -z "$PID" ]; then
+    PIDS=( $(adb shell "pidof $PROCESS_NAME 2> /dev/null" | tr -d '\r\n') )
+    if [[ ${#PIDS[@]} == 0 ]]; then
       echo "Error: couldn't resolve pid by process name: $PROCESS_NAME"
       return -4
-    else
-      echo "Resolved pid for $PROCESS_NAME is $PID"
+    elif [[ ${#PIDS[@]} != 1 ]]; then
+      echo "Error: more than one 1 PID resolved by process name: $PROCESS_NAME"
+      echo "       PIDs -> ${PIDS[@]}"
+      return -5
     fi
+    PID="${PIDS[0]}"
+    echo "Resolved pid for $PROCESS_NAME is [$PID]"
   fi
 
   local ID=`adb shell id -u`
