@@ -94,7 +94,7 @@ function gdbclient() {
   # check if user specified a name -> resolve to pid
   if [[ ! "$PID" =~ ^[0-9]+$ ]] ; then
     PROCESS_NAME=$PID
-    PID=$(pid --exact $PROCESS_NAME)
+    PID=$(adb shell "pidof --exact $PROCESS_NAME 2> /dev/null")
     if [ -z "$PID" ]; then
       echo "Error: couldn't resolve pid by process name: $PROCESS_NAME"
       return -4
