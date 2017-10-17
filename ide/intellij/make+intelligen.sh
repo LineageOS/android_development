@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ ! -f buildspec.mk.default ]; then
     echo "Error: Please run from the root of the tree."
     exit 1
 fi
-    
+
 . envsetup.sh
 lunch 6
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: bgay@google.com (Bruce Gay)

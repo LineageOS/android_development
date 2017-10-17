@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This script cleans up a set of files given as arguments for release in the SDK
 # Note that these files are modified in-place.
 #
 
-DIR=$1
+DIR="$1"
 
 #
 # Remove BEGIN_INCLUDE and END_INCLUDE lines used by the javadoc.
@@ -15,14 +15,14 @@ DIR=$1
 #
 # sed on Mac OS takes -i SUFFIX and sed on Linux takes -iSUFFIX
 #
-if [ $HOST_OS = darwin ] ; then
+if [ "$HOST_OS" = darwin ] ; then
 find $DIR -name "*.java" -o -name "*.xml" | xargs -n 1 \
     sed \
         -e "s/.*BEGIN_INCLUDE(.*//" \
         -e "s/.*END_INCLUDE(.*//" \
         -i ""
 else
-find $DIR -name "*.java" -o -name "*.xml" | xargs -n 1 \
+find "$DIR" -name "*.java" -o -name "*.xml" | xargs -n 1 \
     sed \
         -e "s/.*BEGIN_INCLUDE(.*//" \
         -e "s/.*END_INCLUDE(.*//" \
@@ -32,14 +32,14 @@ fi
 #
 # Fix up the line endings of all text files. This also removes executable permissions.
 #
-if [ $HOST_OS = windows ] ; then
+if [ "$HOST_OS" = windows ] ; then
     ENDING_TYPE=dos
 else
     ENDING_TYPE=unix
 fi
-find $DIR -name "*.aidl" -o -name "*.css" -o -name "*.html" -o -name "*.java" \
+find "$DIR" -name "*.aidl" -o -name "*.css" -o -name "*.html" -o -name "*.java" \
                      -o -name "*.js" -o -name "*.prop" -o -name "*.template" \
                      -o -name "*.txt" -o -name "*.windows" -o -name "*.xml" \
-        | xargs $HOST_OUT_EXECUTABLES/line_endings $ENDING_TYPE
+        | xargs "$HOST_OUT_EXECUTABLES/line_endings" "$ENDING_TYPE"
 
 
