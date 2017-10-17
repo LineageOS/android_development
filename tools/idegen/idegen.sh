@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ ! -d development ]; then
     echo "Error: Run from the root of the tree."
@@ -10,9 +10,9 @@ if [ -z "$ANDROID_HOST_OUT" ]; then
     exit 127
 fi
 
-idegenjar=`find $ANDROID_HOST_OUT -name idegen.jar -follow | grep -v intermediates`
+idegenjar=`find "$ANDROID_HOST_OUT" -name idegen.jar -follow | grep -v intermediates`
 if [ -z "$idegenjar" ]; then
     echo "Couldn't find idegen.jar. Please run 'make idegen' first."
 else
-    java -cp $idegenjar Main
+    java -cp "$idegenjar" Main
 fi
