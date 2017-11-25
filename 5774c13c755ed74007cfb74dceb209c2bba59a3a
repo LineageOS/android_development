@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9edbcd62_16c918f6",
+        "filename": "apps/Development/res/values/strings.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 16082
+      },
+      "writtenOn": "2017-11-25T15:54:29Z",
+      "side": 1,
+      "message": "Can we turn this into a general cleanup and unindent these?",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 66
+      },
+      "revId": "5774c13c755ed74007cfb74dceb209c2bba59a3a",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    }
+  ]
+}
