@@ -420,20 +420,20 @@ public class Connectivity extends Activity {
 
         findViewById(R.id.startDelayedCycle).setOnClickListener(mClickListener);
         findViewById(R.id.stopDelayedCycle).setOnClickListener(mClickListener);
-        mDCOnDurationEdit = (EditText)findViewById(R.id.dc_wifi_on_duration);
+        mDCOnDurationEdit = (EditText)findViewById(R.id.wifiOnDuration);
         mDCOnDurationEdit.setText(Long.toString(mDCOnDuration));
-        mDCOffDurationEdit = (EditText)findViewById(R.id.dc_wifi_off_duration);
+        mDCOffDurationEdit = (EditText)findViewById(R.id.wifiOffDuration);
         mDCOffDurationEdit.setText(Long.toString(mDCOffDuration));
-        mDCCycleCountView = (TextView)findViewById(R.id.dc_wifi_cycles_done);
+        mDCCycleCountView = (TextView)findViewById(R.id.wifiCyclesDone);
         mDCCycleCountView.setText(Integer.toString(mDCCycleCount));
 
         findViewById(R.id.startScreenCycle).setOnClickListener(mClickListener);
         findViewById(R.id.stopScreenCycle).setOnClickListener(mClickListener);
-        mSCOnDurationEdit = (EditText)findViewById(R.id.sc_wifi_on_duration);
+        mSCOnDurationEdit = (EditText)findViewById(R.id.screenOnDuration);
         mSCOnDurationEdit.setText(Long.toString(mSCOnDuration));
-        mSCOffDurationEdit = (EditText)findViewById(R.id.sc_wifi_off_duration);
+        mSCOffDurationEdit = (EditText)findViewById(R.id.screenOffDuration);
         mSCOffDurationEdit.setText(Long.toString(mSCOffDuration));
-        mSCCycleCountView = (TextView)findViewById(R.id.sc_wifi_cycles_done);
+        mSCCycleCountView = (TextView)findViewById(R.id.screenCyclesDone);
         mSCCycleCountView.setText(Integer.toString(mSCCycleCount));
 
         mScanButton = (Button)findViewById(R.id.startScan);

@@ -84,7 +84,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="@string/wifi_on_duration" />
-        <EditText android:id="@+id/dc_wifi_on_duration"
+        <EditText android:id="@+id/wifiOnDuration"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:minEms="15" />
@@ -98,7 +98,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="@string/wifi_off_duration" />
-        <EditText android:id="@+id/dc_wifi_off_duration"
+        <EditText android:id="@+id/wifiOffDuration"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:minEms="15"/>
@@ -111,8 +111,8 @@
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/wifi_cycles_done" />
-        <TextView android:id="@+id/dc_wifi_cycles_done"
+          android:text="@string/cycles_done" />
+        <TextView android:id="@+id/wifiCyclesDone"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:minEms="15"/>
@@ -145,8 +145,8 @@
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/wifi_on_duration" />
-        <EditText android:id="@+id/sc_wifi_on_duration"
+          android:text="@string/screen_on_duration" />
+        <EditText android:id="@+id/screenOnDuration"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:minEms="15" />
@@ -159,8 +159,8 @@
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/wifi_off_duration" />
-        <EditText android:id="@+id/sc_wifi_off_duration"
+          android:text="@string/screen_off_duration" />
+        <EditText android:id="@+id/screenOffDuration"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:minEms="15"/>
@@ -173,8 +173,8 @@
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/wifi_cycles_done" />
-        <TextView android:id="@+id/sc_wifi_cycles_done"
+          android:text="@string/cycles_done" />
+        <TextView android:id="@+id/screenCyclesDone"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:minEms="15"/>

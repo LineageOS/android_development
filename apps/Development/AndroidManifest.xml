@@ -47,13 +47,13 @@
     <uses-permission android:name="com.google.android.googleapps.permission.GOOGLE_AUTH.ALL_SERVICES" />
     <uses-permission android:name="com.google.android.googleapps.permission.GOOGLE_AUTH.YouTubeUser" />
 
-    <application android:label="Dev Tools"
+    <application android:label="Development tools"
             android:icon="@mipmap/ic_launcher_devtools">
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <uses-library android:name="android.test.runner" />
 
-        <activity android:name="Development" android:label="Dev Tools"
+        <activity android:name="Development" android:label="Development tools"
             android:icon="@mipmap/ic_launcher_devtools">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
