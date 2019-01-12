@@ -40,7 +40,6 @@ $(full_target): PRIVATE_ERRORPRONE_FLAGS :=
 endif
 
 my_use_metalava := $(filter metalava%,$(sdk_stub_name))
-$(warning $(sdk_stub_name) $(my_use_metalava))
 
 ifdef my_use_metalava
 $(full_target): $(HOST_OUT_JAVA_LIBRARIES)/stub-annotations$(COMMON_JAVA_PACKAGE_SUFFIX)
