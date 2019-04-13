@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5e726b54_b2292863",
+        "filename": "tools/idegen/src/IntelliJ.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 21592
+      },
+      "writtenOn": "2019-04-13T14:39:49Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "2bbc0f40_efeec909",
+      "range": {
+        "startLine": 39,
+        "startChar": 45,
+        "endLine": 39,
+        "endChar": 58
+      },
+      "revId": "6e05e1e3bff98142b6b44c03a235e874424cfde3",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0452eec_fcaf9218",
         "filename": "tools/idegen/src/Main.java",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "6e05e1e3bff98142b6b44c03a235e874424cfde3",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e131f2bd_c3b83fa9",
+        "filename": "tools/idegen/src/Main.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 21592
+      },
+      "writtenOn": "2019-04-13T14:39:49Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "d0452eec_fcaf9218",
+      "range": {
+        "startLine": 39,
+        "startChar": 12,
+        "endLine": 39,
+        "endChar": 24
+      },
+      "revId": "6e05e1e3bff98142b6b44c03a235e874424cfde3",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": false
     }
   ]
 }
