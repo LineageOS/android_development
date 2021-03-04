@@ -38,7 +38,7 @@ Generates privapp-permissions.xml file for priv-apps.
 Usage:
     Specify which apk to generate priv-app permissions for. If no apk is \
 specified, this will default to all APKs under "<ANDROID_PRODUCT_OUT>/ \
-system/priv-app and (system/)product/priv-app".
+system/priv-app, (system/)product/priv-app, and (system/)system_ext/priv-app".
 
 Examples:
 
@@ -156,7 +156,7 @@ class Resources(object):
                 'You must either set up your build environment, or specify a '
                 'device to run against. See --help for more info.')
 
-        self.system_privapp_apks, self.product_privapp_apks =(
+        self.system_privapp_apks, self.product_privapp_apks, self.system_ext_privapp_apks =(
                 self._resolve_apks(apks))
         self.system_permissions_dir = (
                 self._resolve_sys_path('system/etc/permissions'))
@@ -168,6 +168,12 @@ class Resources(object):
         self.product_sysconfig_dir = (
                 self._resolve_sys_path('product/etc/sysconfig',
                                        'system/product/etc/sysconfig'))
+        self.system_ext_permissions_dir = (
+                self._resolve_sys_path('system_ext/etc/permissions',
+                                       'system/system_ext/etc/permissions'))
+        self.system_ext_sysconfig_dir = (
+                self._resolve_sys_path('system_ext/etc/sysconfig',
+                                       'system/system_ext/etc/sysconfig'))
         self.framework_res_apk = self._resolve_sys_path('system/framework/'
                                                         'framework-res.apk')
 
@@ -299,7 +305,8 @@ class Resources(object):
         """
         if not apks:
             return (self._resolve_all_system_privapps(),
-                   self._resolve_all_product_privapps())
+                   self._resolve_all_product_privapps(),
+                   self._resolve_all_system_ext_privapps())
 
         ret_apks = []
         for apk in apks:
@@ -362,6 +369,35 @@ class Resources(object):
 
         return get_output(
                 'find %s -name "*.apk"' % product_priv_app_dir).split()
+
+    def _resolve_all_system_ext_privapps(self):
+        """Extract package name and requested permissions."""
+        if self._is_android_env:
+            system_ext_priv_app_dir = (
+                    os.path.join(os.environ['ANDROID_PRODUCT_OUT'],
+                                            'system_ext/priv-app'))
+            if not os.path.exists(system_ext_priv_app_dir):
+                system_ext_priv_app_dir  = (
+                        os.path.join(os.environ['ANDROID_PRODUCT_OUT'],
+                                                'system/system_ext/priv-app'))
+        else:
+            try:
+                system_ext_priv_app_dir = self.adb.pull('/system_ext/priv-app/')
+            except subprocess.CalledProcessError:
+                print('Warning: Directory "/system_ext/priv-app" could not be '
+                        'pulled from on device "%s". Trying '
+                        '"/system/system_ext/priv-app"' % self.adb.serial,
+                        file=sys.stderr)
+                try:
+                    system_ext_priv_app_dir = (
+                            self.adb.pull('/system/system_ext/priv-app/'))
+                except subprocess.CalledProcessError:
+                    raise MissingResourceError(
+                        'Directory "/system/system_ext/priv-app" could not be '
+                        'pulled from on device "%s".' % self.adb.serial)
+
+        return get_output(
+                'find %s -name "*.apk"' % system_ext_priv_app_dir).split()
 
     def _resolve_sys_path(self, file_path, fallback_file_path=None):
         """Resolves a path that is a part of an Android System Image."""
@@ -468,6 +504,12 @@ def parse_args():
         default='./product.xml',
         required=False,
         help='Path to system permissions file. Default value is ./product.xml'
+    )
+    parser.add_argument(
+        '--systemexttfile',
+        default='./systemext.xml',
+        required=False,
+        help='Path to system permissions file. Default value is ./systemext.xml'
     )
     cmd_args = parser.parse_args()
 
@@ -654,6 +696,7 @@ if __name__ == '__main__':
         )
         system_permission_file=None
         product_permission_file=None
+        system_ext_permission_file=None
         print('#' * 80)
         print('#')
         if args.writetodisk:
@@ -689,6 +732,24 @@ if __name__ == '__main__':
                 product_permission_file)
             if args.writetodisk:
                 product_permission_file.close()
+        if tool_resources.system_ext_privapp_apks:
+            print('#' * 80)
+            print('#')
+            if args.writetodisk:
+                print('#System_ext XML written to %s:' % args.systemextfile)
+                system_ext_permission_file = open(args.systemextfile, 'w')
+            else:
+                print('#System_ext XML:')
+            print('#')
+            print('#' * 80)
+            create_permission_file(
+                tool_resources,
+                tool_resources.system_ext_privapp_apks,
+                tool_resources.system_ext_permissions_dir,
+                tool_resources.system_ext_sysconfig_dir,
+                system_ext_permission_file)
+            if args.writetodisk:
+                system_ext_permission_file.close()
     except MissingResourceError as e:
         print(str(e), file=sys.stderr)
         exit(1)
