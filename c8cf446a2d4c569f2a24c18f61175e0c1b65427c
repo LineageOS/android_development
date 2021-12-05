@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e71c0a0_aeac191e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15173
+      },
+      "writtenOn": "2021-12-05T23:15:31Z",
+      "side": 1,
+      "message": "Even if infra doesn\u0027t require it, wiki says to use the script and it\u0027s easier to merge this than deal with changing the wiki.",
+      "revId": "c8cf446a2d4c569f2a24c18f61175e0c1b65427c",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
