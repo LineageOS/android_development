@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe9a0832_48ff3251",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30091
+      },
+      "writtenOn": "2021-12-06T22:55:52Z",
+      "side": 1,
+      "message": "Sorry, I double the patch after someone already commit it from Discord lineage-dev channel.\nMy first time getting into LineageOS contribution ;-)",
+      "revId": "9bb61fb10b4631b121d35b2590f29352b55cb2ca",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
