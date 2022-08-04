@@ -60,7 +60,7 @@ else
   exit 1
 fi
 
-openssl req -new -x509 ${hash} -key ${two} -out $1.x509.pem \
+openssl req -new -x509 ${hash} -key ${two} -utf8 -nameopt multiline,utf8 -out $1.x509.pem \
   -days 10000 -subj "$2" &
 
 if [ "${password}" == "" ]; then
