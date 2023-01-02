@@ -46,6 +46,8 @@ mknod ${one} p
 mknod ${two} p
 chmod 0600 ${one} ${two}
 
+tail -f /dev/null > ${one} &
+
 read -p "Enter password for '$1' (blank for none; password will be visible): " \
   password
 
@@ -74,5 +76,6 @@ else
   unset password
 fi
 
+wait
 wait
 wait
