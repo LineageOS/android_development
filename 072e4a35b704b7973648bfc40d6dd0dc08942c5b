@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1422d5e0_5648fb97",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30091
+      },
+      "writtenOn": "2023-01-02T20:19:36Z",
+      "side": 1,
+      "message": "It happens sometime to be stuck when making EC keys and this patch correct this behavior",
+      "revId": "072e4a35b704b7973648bfc40d6dd0dc08942c5b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
