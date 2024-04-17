@@ -38,7 +38,8 @@ fi
 # touch the disk.
 
 tmpdir=$(mktemp -d)
-trap 'rm -rf ${tmpdir}; echo; exit 1' EXIT INT QUIT
+trap 'rm -rf ${tmpdir}; echo; exit 1' INT QUIT
+trap 'rm -rf ${tmpdir}; echo' EXIT
 
 one=${tmpdir}/one
 two=${tmpdir}/two
