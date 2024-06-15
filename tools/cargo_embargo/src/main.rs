@@ -30,7 +30,6 @@ mod bp;
 mod cargo;
 mod config;
 
-use crate::config::legacy;
 use crate::config::Config;
 use crate::config::PackageConfig;
 use crate::config::PackageVariantConfig;
@@ -123,17 +122,6 @@ enum Mode {
         /// `cargo_embargo.json` config file to use.
         config: PathBuf,
     },
-    /// Converts a legacy `cargo2android.json` config file to the equivalent `cargo_embargo.json`
-    /// config.
-    Convert {
-        /// Legacy `cargo2android.json` config file to read.
-        legacy_config: PathBuf,
-        /// The name of the package for which the config is being generated.
-        package_name: String,
-        /// Set `run_cargo: false` in the output config.
-        #[arg(long)]
-        no_build: bool,
-    },
     /// Dumps information about the crates to the given JSON file.
     DumpCrates {
         /// `cargo_embargo.json` config file to use.
@@ -154,14 +142,6 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     match &args.mode {
-        Mode::Convert { legacy_config, package_name, no_build } => {
-            let json_str = std::fs::read_to_string(legacy_config)
-                .with_context(|| format!("failed to read file: {:?}", legacy_config))?;
-            let legacy_config = legacy::Config::from_json_str(&json_str)?;
-            let new_config = legacy_config.to_embargo(package_name, !no_build)?;
-            let new_config_str = new_config.to_json_string()?;
-            println!("{}", new_config_str);
-        }
         Mode::DumpCrates { config, crates } => {
             dump_crates(&args, config, crates)?;
         }
@@ -308,7 +288,7 @@ fn make_crates(args: &Args, cfg: &VariantConfig) -> Result<Vec<Crate>> {
     }
 }
 
-/// Runs cargo_embargo with the given JSON configuration string.
+/// Runs cargo_embargo with the given JSON configuration file.
 fn run_embargo(args: &Args, config_filename: &Path) -> Result<()> {
     let cfg = Config::from_file(config_filename)?;
     let crates = make_all_crates(args, &cfg)?;
@@ -336,6 +316,18 @@ fn run_embargo(args: &Args, config_filename: &Path) -> Result<()> {
                     Err(e) => eprintln!("failed to check for out files: {}", e),
                 }
             }
+        }
+    }
+
+    // If we were configured to run cargo, check whether we could have got away without it.
+    if cfg.variants.iter().any(|variant| variant.run_cargo) && package_out_files.is_empty() {
+        let mut cfg_no_cargo = cfg.clone();
+        for variant in &mut cfg_no_cargo.variants {
+            variant.run_cargo = false;
+        }
+        let crates_no_cargo = make_all_crates(args, &cfg_no_cargo)?;
+        if crates_no_cargo == crates {
+            eprintln!("Running cargo appears to be unnecessary for this crate, consider adding `\"run_cargo\": false` to your cargo_embargo.json.");
         }
     }
 
@@ -843,6 +835,7 @@ fn crate_to_bp_modules(
                 }
             }
             result.sort();
+            result.dedup();
             result
         };
         m.props.set_if_nonempty("rustlibs", process_lib_deps(rust_libs));
