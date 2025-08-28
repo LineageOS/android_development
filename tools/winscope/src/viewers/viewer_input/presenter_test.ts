@@ -226,7 +226,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
 
   override executePropertiesChecksForEmptyTrace(uiData: UiData) {
     expect(uiData.highlightedProperty).toBeFalsy();
-    expect(uiData.dispatchPropertiesTree).toBeUndefined();
+    expect(uiData.dispatchPropertyNodes).toBeUndefined();
     expect(uiData.dispatchPropertiesFilter).toBeDefined();
   }
 
@@ -289,19 +289,10 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     expectedFields.forEach((field) => {
       expect(curEntry.fields).toContain(field);
     });
-
-    const motionEvent = assertDefined(uiData.propertiesTree);
-    expect(motionEvent.getChildByName('eventId')?.getValue()).toBe(330184796);
-    expect(motionEvent.getChildByName('action')?.formattedValue()).toBe(
-      'ACTION_DOWN',
-    );
-
-    const dispatchProperties = assertDefined(uiData.dispatchPropertiesTree);
-    expect(dispatchProperties.getAllChildren().length).toBe(5);
-
-    expect(dispatchProperties.getChildByName('0')?.getDisplayName()).toBe(
-      'win-212',
-    );
+    this.expectEventPresented(uiData, 330184796, 'ACTION_DOWN');
+    const dispatchPropertyNodes = assertDefined(uiData.dispatchPropertyNodes);
+    expect(dispatchPropertyNodes.length).toBe(31);
+    expect(dispatchPropertyNodes.at(1)?.node.getDisplayName()).toBe('win-212');
   }
 
   private expectEventPresented(
@@ -309,9 +300,15 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     eventId: number,
     action: string,
   ) {
-    const properties = assertDefined(uiData.propertiesTree);
-    expect(properties.getChildByName('action')?.formattedValue()).toBe(action);
-    expect(properties.getChildByName('eventId')?.getValue()).toBe(eventId);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
+    expect(
+      propertyNodes.find((row) => row.node.name === 'eventId')?.node.getValue(),
+    ).toBe(eventId);
+    expect(
+      propertyNodes
+        .find((row) => row.node.name === 'action')
+        ?.node.formattedValue(),
+    ).toBe(action);
   }
 
   override executeSpecializedTests() {
@@ -490,14 +487,13 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         this.expectEventPresented(uiData, 1327679296, 'ACTION_OUTSIDE');
 
         const motionDispatchProperties = assertDefined(
-          uiData.dispatchPropertiesTree,
+          uiData.dispatchPropertyNodes,
         );
-        expect(motionDispatchProperties.getAllChildren().length).toBe(1);
+        expect(motionDispatchProperties.length).toBe(7);
         expect(
           motionDispatchProperties
-            .getChildByName('0')
-            ?.getChildByName('windowId')
-            ?.getValue(),
+            .find((row) => row.node.name === 'windowId')
+            ?.node.getValue(),
         ).toBe(98);
       });
 
@@ -687,13 +683,9 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         );
         await sendFirstPositionUpdate(this.getPositionUpdate(), presenter);
         await presenter.onLogEntryClick(3);
-        expect(
-          assertDefined(uiData.dispatchPropertiesTree).getAllChildren().length,
-        ).toBe(5);
+        expect(assertDefined(uiData.dispatchPropertyNodes).length).toBe(31);
         await presenter.onDispatchPropertiesFilterChange(new TextFilter('212'));
-        expect(
-          assertDefined(uiData.dispatchPropertiesTree).getAllChildren().length,
-        ).toBe(1);
+        expect(assertDefined(uiData.dispatchPropertyNodes).length).toBe(3);
       });
 
       it('updates highlighted property', async () => {
@@ -904,17 +896,15 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
           );
         const windowId = layerIdToName[1].id;
         const windowName = layerIdToName[1].name;
-        const dispatchTree = assertDefined(uiData.dispatchPropertiesTree);
+        const dispatchPropertyNodes = assertDefined(
+          uiData.dispatchPropertyNodes,
+        );
 
         const expectedPropertyId = assertDefined(
-          dispatchTree
-            .getAllChildren()
-            .find(
-              (dispatchEntry) =>
-                dispatchEntry.getChildByName('windowId')?.getValue() ===
-                windowId,
-            )
-            ?.getChildByName('windowId')?.id,
+          dispatchPropertyNodes.find(
+            (row) =>
+              row.node.name === 'windowId' && row.node?.getValue() === windowId,
+          )?.node.id,
         );
 
         expect(uiData.highlightedProperty).toEqual(assertDefined(''));

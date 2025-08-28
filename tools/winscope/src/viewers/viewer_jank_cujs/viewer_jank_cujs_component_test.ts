@@ -71,17 +71,13 @@ class ViewerJankCujsComponentTest extends AbstractLogViewerComponentTest<ViewerJ
   }
 
   private createMockCujEntry(entry: TraceEntry<HierarchyTreeNode>): LogEntry {
-    return new CujEntry(
-      entry,
-      [
-        this.testField,
-        this.testField,
-        this.testField,
-        this.testField,
-        this.testField,
-      ],
-      undefined,
-    );
+    return new CujEntry(entry, [
+      this.testField,
+      this.testField,
+      this.testField,
+      this.testField,
+      this.testField,
+    ]);
   }
 }
 

@@ -25,6 +25,7 @@ import {
   UiDataLog,
 } from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 
 export class UiData implements UiDataLog {
   constructor(
@@ -33,7 +34,7 @@ export class UiData implements UiDataLog {
     public currentIndex: undefined | number,
     public selectedIndex: undefined | number,
     public scrollToIndex: undefined | number,
-    public propertiesTree: undefined | UiPropertyTreeNode,
+    public propertyNodes: undefined | Array<UiTreeNodeRow<UiPropertyTreeNode>>,
   ) {}
 
   isFetchingData = false;

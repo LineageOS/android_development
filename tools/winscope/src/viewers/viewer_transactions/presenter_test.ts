@@ -190,47 +190,36 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         await presenter.onAppEvent(this.getPositionUpdate());
         await new Timer().wait(() => !uiData.isFetchingData);
         await presenter.onLogEntryClick(10);
-        expect(
-          assertDefined(uiData.propertiesTree).getAllChildren().length,
-        ).toBe(8);
-        expect(
-          uiData.propertiesTree?.getChildByName('transformToDisplayInverse'),
-        ).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('destinationFrame'),
-        ).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('autoRefresh'),
-        ).toBeDefined();
+        expect(assertDefined(uiData.propertyNodes).length).toBe(17);
+        let properties = assertDefined(uiData.propertyNodes).map(
+          (n) => n.node.name,
+        );
+        expect(properties).toContain('transformToDisplayInverse');
+        expect(properties).toContain('destinationFrame');
+        expect(properties).toContain('autoRefresh');
 
         await presenter.onLogEntryClick(279);
-        expect(uiData.propertiesTree?.getChildByName('flags')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('parentId')).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('relativeParentId'),
-        ).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('transformToDisplayInverse'),
-        ).toBeUndefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('destinationFrame'),
-        ).toBeUndefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('autoRefresh'),
-        ).toBeUndefined();
+        properties = assertDefined(uiData.propertyNodes).map(
+          (n) => n.node.name,
+        );
+        expect(properties).toContain('flags');
+        expect(properties).toContain('parentId');
+        expect(properties).toContain('relativeParentId');
+        expect(properties).not.toContain('transformToDisplayInverse');
+        expect(properties).not.toContain('destinationFrame');
+        expect(properties).not.toContain('autoRefresh');
 
         await presenter.onLogEntryClick(584);
-        expect(uiData.propertiesTree?.getChildByName('flags')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('layerId')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('x')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('y')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('z')).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('parentId'),
-        ).toBeUndefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('relativeParentId'),
-        ).toBeUndefined();
+        properties = assertDefined(uiData.propertyNodes).map(
+          (n) => n.node.name,
+        );
+        expect(properties).toContain('flags');
+        expect(properties).toContain('layerId');
+        expect(properties).toContain('x');
+        expect(properties).toContain('y');
+        expect(properties).toContain('z');
+        expect(properties).not.toContain('parentId');
+        expect(properties).not.toContain('relativeParentId');
       });
     });
   }

@@ -175,7 +175,7 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataLog) {
     expect(uiData.entries.length).toBe(4);
 
-    const selectedTransition = assertDefined(uiData.propertiesTree);
+    const selectedTransition = assertDefined(uiData.propertyNodes?.at(0)).node;
     expect(selectedTransition.getChildByName('id')?.formattedValue()).toBe(
       '32',
     );

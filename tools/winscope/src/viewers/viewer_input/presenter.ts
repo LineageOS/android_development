@@ -388,8 +388,9 @@ export class Presenter extends AbstractLogViewerPresenter<
       this.keepCalculated ?? false,
       this.trace.type,
     );
-    this.uiData.dispatchPropertiesTree =
-      this.dispatchPropertiesPresenter.getFormattedTree();
+    this.uiData.dispatchPropertyNodes = this.flattenProperties(
+      this.dispatchPropertiesPresenter.getFormattedTree(),
+    );
   }
 
   private async handleWindowPropertyHighlight() {

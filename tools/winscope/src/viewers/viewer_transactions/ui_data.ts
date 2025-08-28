@@ -24,6 +24,7 @@ import {
   UiDataLog,
 } from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {UserOptions} from '@viewers/common/user_options';
 
 export class UiData implements UiDataLog {
@@ -33,7 +34,7 @@ export class UiData implements UiDataLog {
     public currentIndex: undefined | number,
     public selectedIndex: undefined | number,
     public scrollToIndex: undefined | number,
-    public propertiesTree: undefined | UiPropertyTreeNode,
+    public propertyNodes: undefined | Array<UiTreeNodeRow<UiPropertyTreeNode>>,
     public propertiesUserOptions: UserOptions,
   ) {}
 

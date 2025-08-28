@@ -28,6 +28,7 @@ import {
   UiDataLog,
 } from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {UserOptions} from '@viewers/common/user_options';
 import {RectSpec} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
@@ -39,14 +40,14 @@ export class UiData implements UiDataLog {
     public selectedIndex: undefined | number,
     public scrollToIndex: undefined | number,
     public currentIndex: undefined | number,
-    public propertiesTree: undefined | UiPropertyTreeNode,
+    public propertyNodes: undefined | Array<UiTreeNodeRow<UiPropertyTreeNode>>,
   ) {}
 
   isFetchingData = false;
   checkScrollViewport = false;
 
   highlightedProperty: string = '';
-  dispatchPropertiesTree: UiPropertyTreeNode | undefined;
+  dispatchPropertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
 
   rectsToDraw: UiRect[] | undefined;
   rectIdToShowState: Map<string, RectShowState> | undefined;
