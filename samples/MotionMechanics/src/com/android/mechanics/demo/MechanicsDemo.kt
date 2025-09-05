@@ -23,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.android.mechanics.demo.documentation.SingleNotificationDismissDemo
+import com.android.mechanics.demo.explanation.ExplanationDemo
 import com.android.mechanics.demo.presentation.DirectionChangeDemo
 import com.android.mechanics.demo.presentation.DirectionSpecDemo
 import com.android.mechanics.demo.presentation.GuaranteeBoxDemo
@@ -46,6 +48,8 @@ object DemoScreens {
                 "Magnetic detach" to DemoScreen(MagneticDetachDemo),
                 "Magnetic detach with Overdrag" to DemoScreen(MagneticDetachWithOverdragDemo),
                 "Customization Picker Mechanics" to DemoScreen(CustomizationMechanicsDemo),
+                "MotionValue Explanation" to DemoScreen(ExplanationDemo),
+                "Notification Dismiss" to DemoScreen(SingleNotificationDismissDemo),
             ),
         )
 }
