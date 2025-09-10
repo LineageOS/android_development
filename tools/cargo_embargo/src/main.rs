@@ -1485,6 +1485,50 @@ mod tests {
     }
 
     #[test]
+    fn generate_rules() {
+        for testdata_directory_path in testdata_directories() {
+            let cfg_path = testdata_directory_path.join("cargo_embargo.json");
+            let crates_path = testdata_directory_path.join("crates.json");
+            let expected_rules_path = testdata_directory_path.join("expected_rules.mk");
+
+            let cfg = Config::from_file(&cfg_path).unwrap();
+            let crates_string = read_to_string(&crates_path).expect("Failed to open crates.json");
+            let crates = serde_json::from_str::<Vec<Vec<Crate>>>(&crates_string).unwrap();
+
+            let old_current_dir = current_dir().unwrap();
+            set_current_dir(&testdata_directory_path).unwrap();
+
+            let module_by_package = group_by_package(crates);
+            assert_eq!(module_by_package.len(), 1);
+            let crates = module_by_package.into_values().next().unwrap();
+
+            let mut rules = String::new();
+            for (variant_index, variant_cfg) in cfg.variants.iter().enumerate() {
+                let variant_crates = &crates[variant_index];
+                let package_name = &variant_crates[0].package_name;
+                let def = PackageVariantConfig::default();
+                let package_variant_cfg = variant_cfg.package.get(package_name).unwrap_or(&def);
+
+                rules += &generate_rules_mk(
+                    variant_cfg,
+                    package_variant_cfg,
+                    package_name,
+                    variant_crates,
+                    &[],
+                )
+                .unwrap();
+            }
+
+            set_current_dir(old_current_dir).unwrap();
+
+            let expected_rules =
+                read_to_string(&expected_rules_path).expect("Failed to open expected_rules.mk");
+
+            assert_that!(&rules, eq(&expected_rules), "for {}", testdata_directory_path.display());
+        }
+    }
+
+    #[test]
     fn crate_to_bp_empty() {
         let c = Crate {
             name: "name".to_string(),
