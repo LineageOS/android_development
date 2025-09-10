@@ -402,9 +402,14 @@ export class Mediator {
               return;
             }
 
-            const trace = this.tracePipeline
+            const screenRecordingTrace = this.tracePipeline
+              .getTraces()
+              .getTrace(TraceType.SCREEN_RECORDING);
+            const eventTrace = this.tracePipeline
               .getTraces()
               .getTrace(event.traceType);
+            const trace = screenRecordingTrace ?? eventTrace;
+
             if (trace === undefined) {
               return;
             }

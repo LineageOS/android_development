@@ -1126,13 +1126,14 @@ export class TimelineComponent
   }
   private getPlaybackStartingPosition() {
     const timelineData = assertDefined(this.timelineData);
+
     if (!this.currentTabTraceType) {
       return;
     }
 
-    const playableTrace = timelineData
-      .getTraces()
-      .getTrace(this.currentTabTraceType);
+    const playableTrace =
+      timelineData.getTraces().getTrace(TraceType.SCREEN_RECORDING) ??
+      timelineData.getTraces().getTrace(this.currentTabTraceType);
 
     if (playableTrace === undefined) {
       return;

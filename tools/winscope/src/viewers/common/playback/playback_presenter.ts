@@ -25,6 +25,10 @@ import {TracePosition} from 'trace_api/trace_position';
 import {Timer} from 'common/time/timer';
 import {TraceEntryEager} from 'trace_api/trace';
 import {PlaybackState} from './playback_state';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {assertDefined} from 'common/assert';
+import {CorrespondingEntries} from './corresponding_entries';
 
 export class PlaybackPresenter {
   private entryIndex = 0;
@@ -35,6 +39,7 @@ export class PlaybackPresenter {
   private readonly baseTime = 50;
   private emitWinscopeEvent: EmitEvent;
   private currPlaybackState: PlaybackState = PlaybackState.PAUSED;
+  private correspondingEntriesMap = new Map<number, CorrespondingEntries>();
 
   constructor(emitWinscopeEvent: EmitEvent) {
     this.emitWinscopeEvent = emitWinscopeEvent;
@@ -48,8 +53,9 @@ export class PlaybackPresenter {
     trace: Trace<HierarchyTreeNode>,
     currentPosition: number,
     requestedState: PlaybackState,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
-    await this.buildBuffer(trace);
+    await this.buildMap(trace, screenRecordingTrace);
     this.entryIndex = currentPosition;
     this.currPlaybackState = requestedState;
     if (
@@ -57,14 +63,17 @@ export class PlaybackPresenter {
       this.entryIndex === 0
     ) {
       // if the user's cursor position is at 0 and they want to reverse play through the trace
-      // change the index to the end of trace
-      this.entryIndex = this.buffer.length - 1;
+      // change the index to the end of tracecons
+      this.entryIndex = this.correspondingEntriesMap.size - 1;
     }
-    if (this.buffer.length > 0 && this.entryIndex < this.buffer.length) {
+    if (
+      this.correspondingEntriesMap.size > 0 &&
+      this.entryIndex < this.correspondingEntriesMap.size
+    ) {
       await this.emitWinscopeEvent(
         new PlaybackStateChangeHandled(this.currPlaybackState),
       );
-      this.runPlaybackLoop(trace);
+      this.runPlaybackLoop();
     }
   }
 
@@ -81,21 +90,40 @@ export class PlaybackPresenter {
     }
   }
 
-  private async runPlaybackLoop(trace: Trace<HierarchyTreeNode>) {
-    const lastIndex = this.buffer.length - 1;
+  private async runPlaybackLoop() {
+    const lastIndex = this.correspondingEntriesMap.size - 1;
 
     let nextIndex;
     let reachedEndOfTrace = false;
 
     while (this.currPlaybackState !== PlaybackState.PAUSED) {
       const currentIndex = this.entryIndex;
-      await this.emitWinscopeEvent(
-        new TracePositionUpdate(
-          TracePosition.fromTraceEntry(this.buffer[currentIndex]),
-          true,
-        ),
+      if (this.correspondingEntriesMap.get(currentIndex) === undefined) {
+        return;
+      }
+      const entryMap = assertDefined(
+        this.correspondingEntriesMap.get(currentIndex),
       );
-      // we debounce the trace position updates to allow time for UI to render
+
+      const traceEntryToUse =
+        entryMap.correspondingScreenRecordingEntry !== undefined &&
+        (entryMap.correspondingTraceEntry === undefined ||
+          entryMap.correspondingScreenRecordingEntry
+            .getTimestamp()
+            .getValueNs() >
+            entryMap.correspondingTraceEntry.getTimestamp().getValueNs())
+          ? entryMap.correspondingScreenRecordingEntry
+          : entryMap.correspondingTraceEntry;
+
+      if (traceEntryToUse) {
+        await this.emitWinscopeEvent(
+          new TracePositionUpdate(
+            TracePosition.fromTraceEntry(traceEntryToUse),
+            true,
+          ),
+        );
+      }
+      //we debounce the trace position updates to allow time for UI to render
       await new Timer(this.entrySleepTime, this.entrySleepTime).sleepMs();
 
       if (this.currPlaybackState === PlaybackState.BACKWARDS) {
@@ -123,10 +151,59 @@ export class PlaybackPresenter {
     await this.pause();
   }
 
-  private async buildBuffer(trace: Trace<HierarchyTreeNode>) {
+  private async buildMap(
+    trace: Trace<HierarchyTreeNode>,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
+  ) {
     if (this.buffer.length === 0) {
       const length = trace.lengthEntries;
-      this.buffer = await trace.getRangeEntryValues({start: 0, end: length});
+      const allEagerTraceEntries = await trace.getRangeEntryValues({
+        start: 0,
+        end: length,
+      });
+      this.buffer = allEagerTraceEntries;
+
+      let screenRecordingEntries;
+      let maximumEntryIndex;
+      if (screenRecordingTrace) {
+        screenRecordingEntries = await screenRecordingTrace.getRangeEntryValues(
+          {start: 0, end: screenRecordingTrace.lengthEntries},
+        );
+        maximumEntryIndex = screenRecordingTrace.lengthEntries;
+      } else {
+        maximumEntryIndex = trace.lengthEntries;
+      }
+
+      for (let entryIndex = 0; entryIndex < maximumEntryIndex; entryIndex++) {
+        let correspondingEntries;
+
+        if (screenRecordingEntries) {
+          let eagerCorrespondingTraceEntry;
+
+          const correspondingTraceEntry =
+            TraceEntryFinder.findCorrespondingEntry(
+              trace,
+              TracePosition.fromTraceEntry(screenRecordingEntries[entryIndex]),
+            );
+          if (correspondingTraceEntry !== undefined) {
+            eagerCorrespondingTraceEntry =
+              this.buffer[correspondingTraceEntry.getIndex()];
+          } else {
+            eagerCorrespondingTraceEntry = undefined;
+          }
+          correspondingEntries = {
+            correspondingScreenRecordingEntry:
+              screenRecordingEntries[entryIndex],
+            correspondingTraceEntry: eagerCorrespondingTraceEntry,
+          };
+        } else {
+          correspondingEntries = {
+            correspondingScreenRecordingEntry: undefined,
+            correspondingTraceEntry: this.buffer[entryIndex],
+          };
+        }
+        this.correspondingEntriesMap.set(entryIndex, correspondingEntries);
+      }
     }
   }
 }

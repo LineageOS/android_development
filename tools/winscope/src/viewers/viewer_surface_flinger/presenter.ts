@@ -67,6 +67,7 @@ import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -263,9 +264,15 @@ the default for its data type.`,
     trace: Trace<HierarchyTreeNode>,
     currentPosition: number,
     requestedState: PlaybackState,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
     this.hierarchyPresenter.setShowDiffAvailability(false);
-    this.playbackPresenter.play(trace, currentPosition, requestedState);
+    this.playbackPresenter.play(
+      trace,
+      currentPosition,
+      requestedState,
+      screenRecordingTrace,
+    );
   }
 
   protected override async pausePlayback(): Promise<void> {
