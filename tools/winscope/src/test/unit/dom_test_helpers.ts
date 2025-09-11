@@ -216,6 +216,18 @@ export class DOMTestHelper<T> {
     this.dispatchEvent(event);
   }
 
+  keydownSpaceBar(toDocument = false) {
+    this.keydownByKey(KeyboardEventKey.SPACE, toDocument);
+  }
+
+  keydownMediaTrackNext(toDocument = false) {
+    this.keydownByKey(KeyboardEventKey.MEDIA_TRACK_NEXT, toDocument);
+  }
+
+  keydownMediaTrackPrevious(toDocument = false) {
+    this.keydownByKey(KeyboardEventKey.MEDIA_TRACK_PREVIOUS, toDocument);
+  }
+
   keydownArrowLeft(toDocument = false) {
     this.keydownByKey(KeyboardEventKey.ARROW_LEFT, toDocument);
   }

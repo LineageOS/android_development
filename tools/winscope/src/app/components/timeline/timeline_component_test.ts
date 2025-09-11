@@ -1123,6 +1123,64 @@ describe('TimelineComponent', () => {
       loadSfWmTraces();
     });
 
+    it('starts playback on space click', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.PAUSED;
+      const spyPlaybackStateChange = spyOn(
+        timelineComponent,
+        'onPlaybackStateChange',
+      );
+
+      dom.keydownSpaceBar(true);
+      expect(spyPlaybackStateChange).toHaveBeenCalledTimes(1);
+      expect(spyPlaybackStateChange).toHaveBeenCalledWith(
+        PlaybackState.FORWARDS,
+      );
+    });
+
+    it('stops playback on space click if already playing', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.FORWARDS;
+      const spyPlaybackStateChange = spyOn(
+        timelineComponent,
+        'onPlaybackStateChange',
+      );
+
+      dom.keydownSpaceBar(true);
+      expect(spyPlaybackStateChange).toHaveBeenCalledTimes(1);
+      expect(spyPlaybackStateChange).toHaveBeenCalledWith(PlaybackState.PAUSED);
+    });
+
+    it('changes playback direction to backwards on media track previous click', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.FORWARDS;
+      const spyPlaybackStateChange = spyOn(
+        timelineComponent,
+        'onPlaybackStateChange',
+      );
+
+      await dom.keydownMediaTrackPrevious(true);
+      expect(spyPlaybackStateChange).toHaveBeenCalledTimes(1);
+      expect(spyPlaybackStateChange).toHaveBeenCalledWith(
+        PlaybackState.BACKWARDS,
+      );
+    });
+
+    it('changes playback direction to forwards on media track next click', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.BACKWARDS;
+      const spyPlaybackStateChange = spyOn(
+        timelineComponent,
+        'onPlaybackStateChange',
+      );
+
+      await dom.keydownMediaTrackNext(true);
+      expect(spyPlaybackStateChange).toHaveBeenCalledTimes(1);
+      expect(spyPlaybackStateChange).toHaveBeenCalledWith(
+        PlaybackState.FORWARDS,
+      );
+    });
+
     it('emits PlaybackSpeedChange event', async () => {
       const timelineComponent = assertDefined(component.timeline);
       const emitEventSpy = jasmine.createSpy('emitEvent');

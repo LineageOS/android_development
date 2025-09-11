@@ -73,6 +73,9 @@ export enum KeyboardEventKey {
   ARROW_UP = 'ArrowUp',
   ENTER = 'Enter',
   ESCAPE = 'Escape',
+  SPACE = ' ',
+  MEDIA_TRACK_PREVIOUS = 'MediaTrackPrevious',
+  MEDIA_TRACK_NEXT = 'MediaTrackNext',
 }
 
 /**
