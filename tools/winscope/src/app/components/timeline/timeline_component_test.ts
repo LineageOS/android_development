@@ -1181,6 +1181,39 @@ describe('TimelineComponent', () => {
       );
     });
 
+    it('does not handle arrow key presses if playback is playing', () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.FORWARDS;
+      dom.detectChanges();
+
+      const spyNextEntry = spyOn(timelineComponent, 'moveToNextEntry');
+      const spyPrevEntry = spyOn(timelineComponent, 'moveToPreviousEntry');
+
+      dom.keydownArrowRight(true);
+      expect(spyNextEntry).not.toHaveBeenCalled();
+
+      dom.keydownArrowLeft(true);
+      expect(spyPrevEntry).not.toHaveBeenCalled();
+    });
+
+    it('prev and next button disabled on playback active', () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.FORWARDS;
+      dom.detectChanges();
+
+      const prevEntryButton = dom.get(prevEntrySelector);
+      const nextEntryButton = dom.get(nextEntrySelector);
+
+      prevEntryButton.checkDisabled(true);
+      nextEntryButton.checkDisabled(true);
+
+      timelineComponent.playbackState = PlaybackState.PAUSED;
+      dom.detectChanges();
+
+      prevEntryButton.checkDisabled(false);
+      nextEntryButton.checkDisabled(false);
+    });
+
     it('emits PlaybackSpeedChange event', async () => {
       const timelineComponent = assertDefined(component.timeline);
       const emitEventSpy = jasmine.createSpy('emitEvent');

@@ -221,8 +221,8 @@ import {globalConfig} from 'common/global_config';
                   id="prev_entry_button"
                   matTooltip="Go to previous entry"
                   (click)="moveToPreviousEntry()"
-                  [class.disabled]="!hasPrevEntry()"
-                  [disabled]="!hasPrevEntry()">
+                  [class.disabled]="isPrevButtonDisabled()"
+                  [disabled]="isPrevButtonDisabled()">
                   <mat-icon>chevron_left</mat-icon>
                 </button>
                 @if (traceSupportsPlayback()) {
@@ -237,8 +237,8 @@ import {globalConfig} from 'common/global_config';
                   id="next_entry_button"
                   matTooltip="Go to next entry"
                   (click)="moveToNextEntry()"
-                  [class.disabled]="!hasNextEntry()"
-                  [disabled]="!hasNextEntry()">
+                  [class.disabled]="isNextButtonDisabled()"
+                  [disabled]="isNextButtonDisabled()">
                   <mat-icon>chevron_right</mat-icon>
                 </button>
               </div>
@@ -794,6 +794,14 @@ export class TimelineComponent
     );
   }
 
+  isPrevButtonDisabled() {
+    return !this.hasPrevEntry() || this.playbackState !== PlaybackState.PAUSED;
+  }
+
+  isNextButtonDisabled() {
+    return !this.hasNextEntry() || this.playbackState !== PlaybackState.PAUSED;
+  }
+
   applyNewTraceSelection(clickedTrace: Trace<object>) {
     this.selectedTraces =
       this.selectedTracesFormControl.value ??
@@ -846,11 +854,13 @@ export class TimelineComponent
     } else if (event.key === KeyboardEventKey.ARROW_LEFT) {
       event.preventDefault();
       this.isProcessingKeyPress = true;
-      await this.moveToPreviousEntry();
+      if (this.playbackState === PlaybackState.PAUSED) {
+        await this.moveToPreviousEntry();
+      }
       this.isProcessingKeyPress = false;
     } else if (event.key === KeyboardEventKey.MEDIA_TRACK_NEXT) {
       event.preventDefault();
-      console.log(PlaybackState.BACKWARDS);
+      this.isProcessingKeyPress = true;
       if (this.playbackState === PlaybackState.BACKWARDS) {
         await this.onPlaybackStateChange(PlaybackState.FORWARDS);
       }
@@ -858,7 +868,9 @@ export class TimelineComponent
     } else if (event.key === KeyboardEventKey.ARROW_RIGHT) {
       event.preventDefault();
       this.isProcessingKeyPress = true;
-      await this.moveToNextEntry();
+      if (this.playbackState === PlaybackState.PAUSED) {
+        await this.moveToNextEntry();
+      }
       this.isProcessingKeyPress = false;
     } else if (event.key === KeyboardEventKey.SPACE) {
       event.preventDefault();
