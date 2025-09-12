@@ -607,7 +607,7 @@ fn write_build_files(
 ) -> Result<()> {
     assert_eq!(crates.len(), out_files.len());
 
-    let mut bp_contents = String::new();
+    let mut bp_modules = Vec::new();
     let mut mk_contents = String::new();
     for (variant_index, variant_config) in cfg.variants.iter().enumerate() {
         let variant_crates = &crates[variant_index];
@@ -629,12 +629,13 @@ fn write_build_files(
         }
 
         if variant_config.generate_androidbp {
-            bp_contents += &generate_android_bp(
+            generate_bp_modules(
                 variant_config,
                 package_variant_cfg,
                 package_name,
                 variant_crates,
                 &out_files[variant_index],
+                &mut bp_modules,
             )?;
         }
         if variant_config.generate_rulesmk {
@@ -647,6 +648,7 @@ fn write_build_files(
             )?;
         }
     }
+    let mut bp_contents = generate_android_bp(bp_modules)?;
     let main_module_name_overrides = &cfg.variants.first().unwrap().module_name_overrides;
     if !mk_contents.is_empty() {
         // If rules.mk is generated, then make it accessible via dirgroup.
@@ -820,17 +822,14 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
 
 /// Generates and returns a Soong Blueprint for the given set of crates, for a single variant of a
 /// package.
-fn generate_android_bp(
+fn generate_bp_modules(
     cfg: &VariantConfig,
     package_cfg: &PackageVariantConfig,
     package_name: &str,
     crates: &[Crate],
     out_files: &[PathBuf],
-) -> Result<String> {
-    let mut bp_contents = String::new();
-
-    let mut modules = Vec::new();
-
+    modules: &mut Vec<BpModule>,
+) -> Result<()> {
     let extra_srcs = if package_cfg.copy_out && !out_files.is_empty() {
         let outs: Vec<String> = out_files
             .iter()
@@ -869,14 +868,23 @@ fn generate_android_bp(
         )?);
     }
 
-    // In some cases there are nearly identical rustc invocations that that get processed into
-    // identical BP modules. So far, dedup'ing them is a good enough fix. At some point we might
-    // need something more complex, maybe like cargo2android's logic for merging crates.
-    modules.sort();
-    modules.dedup();
+    Ok(())
+}
 
-    modules.sort_by_key(|m| m.props.get_string("name").unwrap().to_string());
-    for m in modules {
+fn generate_android_bp(modules: Vec<BpModule>) -> Result<String> {
+    use std::collections::btree_map::Entry;
+
+    let mut module_map: BTreeMap<String, BpModule> = BTreeMap::new();
+    let mut bp_contents = String::new();
+    for module in modules {
+        match module_map.entry(module.props.get_string("name").unwrap().to_string()) {
+            Entry::Vacant(v) => {
+                v.insert(module);
+            }
+            Entry::Occupied(mut o) => o.get_mut().merge(module)?,
+        }
+    }
+    for m in module_map.values() {
         m.write(&mut bp_contents)?;
         bp_contents += "\n";
     }
@@ -1083,7 +1091,7 @@ fn crate_to_bp_modules(
         m.props.set("name", module_name.clone());
 
         let mut defaults = Vec::<String>::new();
-        if package_cfg.no_std {
+        if package_cfg.no_std && !matches!(crate_type, CrateType::Test) {
             defaults.push("rust_baremetal_defaults".to_string());
         }
         if let Some(global_defaults) = &cfg.global_defaults {
@@ -1449,21 +1457,25 @@ mod tests {
                 &cfg.variants.first().unwrap().module_name_overrides,
             )
             .unwrap();
+            let mut modules = Vec::new();
             for (variant_index, variant_cfg) in cfg.variants.iter().enumerate() {
                 let variant_crates = &crates[variant_index];
                 let package_name = &variant_crates[0].package_name;
                 let def = PackageVariantConfig::default();
                 let package_variant_cfg = variant_cfg.package.get(package_name).unwrap_or(&def);
 
-                output += &generate_android_bp(
+                generate_bp_modules(
                     variant_cfg,
                     package_variant_cfg,
                     package_name,
                     variant_crates,
                     &Vec::new(),
+                    &mut modules,
                 )
                 .unwrap();
             }
+
+            output += &generate_android_bp(modules).unwrap();
 
             assert_that!(output, eq(&expected_output), "for {}", testdata_directory_path.display());
 

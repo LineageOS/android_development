@@ -734,6 +734,9 @@ mod tests {
                     })
                     .unwrap(),
             )
+            .with_context(|| {
+                format!("Failed to parse {:?}", testdata_directory_path.join("cargo_embargo.json"))
+            })
             .unwrap();
             let cargo_metadata_path = testdata_directory_path.join("cargo.metadata");
             let expected_crates: Vec<Vec<Crate>> = serde_json::from_reader::<_, Vec<Vec<Crate>>>(
