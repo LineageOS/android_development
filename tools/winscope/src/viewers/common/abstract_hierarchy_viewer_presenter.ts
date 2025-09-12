@@ -292,6 +292,17 @@ export abstract class AbstractHierarchyViewerPresenter<
       },
     );
     await event.visit(
+      WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
+      async (event) => {
+        if (event.stateToReflect === PlaybackState.PAUSED) {
+          this.uiData.isPlaybackPlaying = false;
+        } else {
+          this.uiData.isPlaybackPlaying = true;
+        }
+        this.refreshHierarchyViewerUiData();
+      },
+    );
+    await event.visit(
       WinscopeEventType.PLAYBACK_SPEED_CHANGE,
       async (event) => {
         if (this.playbackPresenter && this.trace) {

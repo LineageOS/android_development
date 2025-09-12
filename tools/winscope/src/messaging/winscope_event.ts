@@ -495,14 +495,17 @@ export class PlaybackStateChangeRequest extends WinscopeEvent {
  * An event for when the playback state change is reflected back to timeline.
  *
  * @param stateToReflect The reflected playback state (FORWARDS, BACKWARDS, or PAUSE).
+ * @param traceType The type of the trace.
  */
 export class PlaybackStateChangeHandled extends WinscopeEvent {
   override readonly type = WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED;
   readonly stateToReflect: PlaybackState;
+  readonly traceType?: TraceType;
 
-  constructor(stateToReflect: PlaybackState) {
+  constructor(stateToReflect: PlaybackState, traceType?: TraceType) {
     super();
     this.stateToReflect = stateToReflect;
+    this.traceType = traceType;
   }
 }
 

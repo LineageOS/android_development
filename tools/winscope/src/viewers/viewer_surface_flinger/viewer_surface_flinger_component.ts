@@ -81,7 +81,14 @@ import {UiData} from './ui_data';
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
 
       @if (!arePropertiesCollapsed()) {
-        <div class="properties">
+        <div class="properties"
+        [class.disabled-component] = "inputData?.isPlaybackPlaying">
+          @if (inputData?.isPlaybackPlaying) {
+            <div
+            class="disabled-message user-notification mat-body-1">
+            Properties disabled due to playback
+            </div>
+          }
           <surface-flinger-property-groups
             class="property-groups"
             [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
@@ -91,6 +98,7 @@ import {UiData} from './ui_data';
 
           <properties-view
             class="properties-view"
+            [class.disabled]="inputData?.isPlaybackPlaying"
             [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
             [title]="propertiesTitle"
             [userOptions]="inputData?.propertiesUserOptions ?? {}"
@@ -113,6 +121,15 @@ import {UiData} from './ui_data';
         display: flex;
         flex-direction: column;
         overflow: auto;
+        position: relative;
+      }
+      .disabled-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        opacity: 1;
       }
     `,
     viewerCardStyle,

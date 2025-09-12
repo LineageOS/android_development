@@ -430,6 +430,13 @@ export class Mediator {
     await event.visit(
       WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
       async (event) => {
+        if (event.traceType) {
+          const viewer = this.findViewerByType(event.traceType);
+          if (!viewer) {
+            return;
+          }
+          viewer.onWinscopeEvent(event);
+        }
         return this.timelineComponent?.onWinscopeEvent(event);
       },
     );

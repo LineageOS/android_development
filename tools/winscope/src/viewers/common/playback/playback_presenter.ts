@@ -29,6 +29,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
 import {assertDefined} from 'common/assert';
 import {CorrespondingEntries} from './corresponding_entries';
+import {TraceType} from 'trace_api/trace_type';
 
 export class PlaybackPresenter {
   private entryIndex = 0;
@@ -40,6 +41,7 @@ export class PlaybackPresenter {
   private emitWinscopeEvent: EmitEvent;
   private currPlaybackState: PlaybackState = PlaybackState.PAUSED;
   private correspondingEntriesMap = new Map<number, CorrespondingEntries>();
+  private traceType: TraceType = TraceType.SURFACE_FLINGER;
 
   constructor(emitWinscopeEvent: EmitEvent) {
     this.emitWinscopeEvent = emitWinscopeEvent;
@@ -56,6 +58,7 @@ export class PlaybackPresenter {
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
     await this.buildMap(trace, screenRecordingTrace);
+    this.traceType = trace.type;
     this.entryIndex = currentPosition;
     this.currPlaybackState = requestedState;
     if (
@@ -71,7 +74,7 @@ export class PlaybackPresenter {
       this.entryIndex < this.correspondingEntriesMap.size
     ) {
       await this.emitWinscopeEvent(
-        new PlaybackStateChangeHandled(this.currPlaybackState),
+        new PlaybackStateChangeHandled(this.currPlaybackState, this.traceType),
       );
       this.runPlaybackLoop();
     }
@@ -85,7 +88,7 @@ export class PlaybackPresenter {
     if (this.isPlaying()) {
       this.currPlaybackState = PlaybackState.PAUSED;
       await this.emitWinscopeEvent(
-        new PlaybackStateChangeHandled(this.currPlaybackState),
+        new PlaybackStateChangeHandled(this.currPlaybackState, this.traceType),
       );
     }
   }

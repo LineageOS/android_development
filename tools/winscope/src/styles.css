@@ -212,6 +212,7 @@ log-view .headers .mat-mdc-form-field-infix {
   pointer-events: none;
   opacity: 0.5;
   filter: grayscale(1);
+  user-select: none;
 }
 
 .rect-type-toggle .mat-button-toggle-label-content {

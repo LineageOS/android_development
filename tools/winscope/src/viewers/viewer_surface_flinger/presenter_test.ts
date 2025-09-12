@@ -22,6 +22,7 @@ import {
   TracePositionUpdate,
   PlaybackStateChangeRequest,
   PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
 } from 'messaging/winscope_event';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
@@ -402,6 +403,22 @@ the default for its data type.`,
         );
         await presenter.onAppEvent(event);
         expect(playbackPresenterSpy).toHaveBeenCalled();
+      });
+
+      it('changes uiData state on PlaybackHandled', async () => {
+        let event = new PlaybackStateChangeHandled(
+          PlaybackState.FORWARDS,
+          TraceType.SURFACE_FLINGER,
+        );
+        await presenter.onAppEvent(event);
+        expect(uiData.isPlaybackPlaying).toEqual(true);
+
+        event = new PlaybackStateChangeHandled(
+          PlaybackState.PAUSED,
+          TraceType.SURFACE_FLINGER,
+        );
+        await presenter.onAppEvent(event);
+        expect(uiData.isPlaybackPlaying).toEqual(false);
       });
 
       it('pauses playback when a PlaybackPause event is received', async () => {
