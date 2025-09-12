@@ -320,6 +320,10 @@ $dark-theme: mat.m2-define-dark-theme(
   );
 }
 
+.playback-speed-selector .mat-mdc-select-arrow{
+  rotate: 180deg;
+}
+
 @include mat.icon-theme($light-theme);
 @include mat.input-theme($light-theme);
 
