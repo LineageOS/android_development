@@ -40,6 +40,7 @@ export enum ViewerEvents {
   RectTypeButtonClick = 'RectTypeButtonClick',
 
   OverlayDblClick = 'OverlayDblClick',
+  OverlayScreenRecordingChange = 'OverlayScreenRecordingChange',
 
   AdditionalPropertySelected = 'AdditionalPropertySelected',
   PropagatePropertyClick = 'PropagatePropertyClick',

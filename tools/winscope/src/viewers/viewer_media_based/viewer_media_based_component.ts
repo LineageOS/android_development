@@ -275,6 +275,14 @@ class ViewerMediaBasedComponent {
     this.index = event.value;
     this.updateSafeUrl();
     event.source.close();
+    const screenIndexChangeEvent = new CustomEvent(
+      ViewerEvents.OverlayScreenRecordingChange,
+      {
+        detail: this.index,
+        bubbles: true,
+      },
+    );
+    this.elementRef.nativeElement.dispatchEvent(screenIndexChangeEvent);
   }
 
   onOverlayDblClick() {

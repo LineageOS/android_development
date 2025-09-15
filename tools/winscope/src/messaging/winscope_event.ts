@@ -22,6 +22,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {AdbFiles} from 'trace_collection/adb_files';
 import {View, Viewer, ViewType} from 'viewers/viewer';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 /**
  * An enum for Winscope event types.
@@ -61,6 +62,7 @@ export enum WinscopeEventType {
   PLAYBACK_STATE_CHANGE_REQUEST,
   PLAYBACK_STATE_CHANGE_HANDLED,
   PLAYBACK_SPEED_CHANGE,
+  SCREEN_RECORDING_CHANGE,
 }
 
 interface TypeMap {
@@ -98,6 +100,7 @@ interface TypeMap {
   [WinscopeEventType.PLAYBACK_STATE_CHANGE_REQUEST]: PlaybackStateChangeRequest;
   [WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED]: PlaybackStateChangeHandled;
   [WinscopeEventType.PLAYBACK_SPEED_CHANGE]: PlaybackSpeedChange;
+  [WinscopeEventType.SCREEN_RECORDING_CHANGE]: ScreenRecordingChange;
 }
 
 /**
@@ -324,6 +327,16 @@ export class ExpandedTimelineToggled extends WinscopeEvent {
 export class ActiveTraceChanged extends WinscopeEvent {
   override readonly type = WinscopeEventType.ACTIVE_TRACE_CHANGED;
   constructor(readonly trace: Trace<object>) {
+    super();
+  }
+}
+
+/**
+ * An event for when the screen recording selected trace has changed.
+ */
+export class ScreenRecordingChange extends WinscopeEvent {
+  override readonly type = WinscopeEventType.SCREEN_RECORDING_CHANGE;
+  constructor(readonly trace: Trace<MediaBasedTraceEntry>) {
     super();
   }
 }

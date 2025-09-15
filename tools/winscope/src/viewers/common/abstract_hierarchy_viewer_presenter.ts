@@ -60,6 +60,7 @@ export abstract class AbstractHierarchyViewerPresenter<
   protected abstract propertiesPresenter: PropertiesPresenter;
   protected abstract readonly multiTraceType?: TraceType;
   private highlightedItem = '';
+  private screenRecordingTrace?: Trace<MediaBasedTraceEntry>;
 
   constructor(
     private readonly trace: Trace<HierarchyTreeNode> | undefined,
@@ -267,6 +268,11 @@ export abstract class AbstractHierarchyViewerPresenter<
         if (!this.trace) {
           return;
         }
+        if (!this.screenRecordingTrace) {
+          this.screenRecordingTrace = this.traces.getTrace(
+            TraceType.SCREEN_RECORDING,
+          );
+        }
 
         switch (event.state) {
           case PlaybackState.FORWARDS:
@@ -276,7 +282,7 @@ export abstract class AbstractHierarchyViewerPresenter<
                 this.trace,
                 assertDefined(event.currentTraceIndex),
                 event.state,
-                this.traces.getTrace(TraceType.SCREEN_RECORDING),
+                this.screenRecordingTrace,
               );
             }
             return;
@@ -308,6 +314,12 @@ export abstract class AbstractHierarchyViewerPresenter<
         if (this.playbackPresenter && this.trace) {
           this.playbackPresenter.changeSpeed(event.speedValue);
         }
+      },
+    );
+    await event.visit(
+      WinscopeEventType.SCREEN_RECORDING_CHANGE,
+      async (event) => {
+        this.screenRecordingTrace = event.trace;
       },
     );
     await this.onViewerSpecificWinscopeEvent(event);

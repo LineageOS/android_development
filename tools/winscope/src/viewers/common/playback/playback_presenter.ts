@@ -42,6 +42,7 @@ export class PlaybackPresenter {
   private currPlaybackState: PlaybackState = PlaybackState.PAUSED;
   private correspondingEntriesMap = new Map<number, CorrespondingEntries>();
   private traceType: TraceType = TraceType.SURFACE_FLINGER;
+  private currentScreenRecording: Trace<MediaBasedTraceEntry> | undefined;
 
   constructor(emitWinscopeEvent: EmitEvent) {
     this.emitWinscopeEvent = emitWinscopeEvent;
@@ -98,6 +99,9 @@ export class PlaybackPresenter {
 
     let nextIndex;
     let reachedEndOfTrace = false;
+    let lastEntry:
+      | TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
+      | undefined;
 
     while (this.currPlaybackState !== PlaybackState.PAUSED) {
       const currentIndex = this.entryIndex;
@@ -109,14 +113,11 @@ export class PlaybackPresenter {
       );
 
       const traceEntryToUse =
-        entryMap.correspondingScreenRecordingEntry !== undefined &&
-        (entryMap.correspondingTraceEntry === undefined ||
-          entryMap.correspondingScreenRecordingEntry
-            .getTimestamp()
-            .getValueNs() >
-            entryMap.correspondingTraceEntry.getTimestamp().getValueNs())
-          ? entryMap.correspondingScreenRecordingEntry
-          : entryMap.correspondingTraceEntry;
+        entryMap.traceEntry === lastEntry || entryMap.traceEntry === undefined
+          ? entryMap.screenRecordingEntry
+          : entryMap.traceEntry;
+
+      lastEntry = entryMap.traceEntry;
 
       if (traceEntryToUse) {
         await this.emitWinscopeEvent(
@@ -165,48 +166,62 @@ export class PlaybackPresenter {
         end: length,
       });
       this.buffer = allEagerTraceEntries;
+    }
 
-      let screenRecordingEntries;
-      let maximumEntryIndex;
-      if (screenRecordingTrace) {
-        screenRecordingEntries = await screenRecordingTrace.getRangeEntryValues(
-          {start: 0, end: screenRecordingTrace.lengthEntries},
+    if (
+      this.currentScreenRecording === screenRecordingTrace &&
+      screenRecordingTrace !== undefined
+    ) {
+      return;
+    }
+    this.currentScreenRecording = screenRecordingTrace;
+    let screenRecordingEntries:
+      | Array<
+          TraceEntryEager<
+            MediaBasedTraceEntry,
+            MediaBasedTraceEntry | undefined
+          >
+        >
+      | undefined;
+    let maximumEntryIndex: number;
+    if (this.currentScreenRecording) {
+      screenRecordingEntries =
+        await this.currentScreenRecording.getRangeEntryValues({
+          start: 0,
+          end: this.currentScreenRecording.lengthEntries,
+        });
+      maximumEntryIndex = this.currentScreenRecording.lengthEntries;
+    } else {
+      maximumEntryIndex = trace.lengthEntries;
+    }
+
+    for (let entryIndex = 0; entryIndex < maximumEntryIndex; entryIndex++) {
+      let correspondingEntries;
+
+      if (screenRecordingEntries) {
+        let eagerCorrespondingTraceEntry;
+
+        const correspondingTraceEntry = TraceEntryFinder.findCorrespondingEntry(
+          trace,
+          TracePosition.fromTraceEntry(screenRecordingEntries[entryIndex]),
         );
-        maximumEntryIndex = screenRecordingTrace.lengthEntries;
-      } else {
-        maximumEntryIndex = trace.lengthEntries;
-      }
-
-      for (let entryIndex = 0; entryIndex < maximumEntryIndex; entryIndex++) {
-        let correspondingEntries;
-
-        if (screenRecordingEntries) {
-          let eagerCorrespondingTraceEntry;
-
-          const correspondingTraceEntry =
-            TraceEntryFinder.findCorrespondingEntry(
-              trace,
-              TracePosition.fromTraceEntry(screenRecordingEntries[entryIndex]),
-            );
-          if (correspondingTraceEntry !== undefined) {
-            eagerCorrespondingTraceEntry =
-              this.buffer[correspondingTraceEntry.getIndex()];
-          } else {
-            eagerCorrespondingTraceEntry = undefined;
-          }
-          correspondingEntries = {
-            correspondingScreenRecordingEntry:
-              screenRecordingEntries[entryIndex],
-            correspondingTraceEntry: eagerCorrespondingTraceEntry,
-          };
+        if (correspondingTraceEntry !== undefined) {
+          eagerCorrespondingTraceEntry =
+            this.buffer[correspondingTraceEntry.getIndex()];
         } else {
-          correspondingEntries = {
-            correspondingScreenRecordingEntry: undefined,
-            correspondingTraceEntry: this.buffer[entryIndex],
-          };
+          eagerCorrespondingTraceEntry = undefined;
         }
-        this.correspondingEntriesMap.set(entryIndex, correspondingEntries);
+        correspondingEntries = {
+          screenRecordingEntry: screenRecordingEntries[entryIndex],
+          traceEntry: eagerCorrespondingTraceEntry,
+        };
+      } else {
+        correspondingEntries = {
+          screenRecordingEntry: undefined,
+          traceEntry: this.buffer[entryIndex],
+        };
       }
+      this.correspondingEntriesMap.set(entryIndex, correspondingEntries);
     }
   }
 }

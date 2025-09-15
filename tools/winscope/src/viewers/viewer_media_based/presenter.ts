@@ -16,6 +16,7 @@
 
 import {
   ActiveTraceChanged,
+  ScreenRecordingChange,
   WinscopeEvent,
   WinscopeEventType,
 } from 'messaging/winscope_event';
@@ -57,6 +58,12 @@ export class Presenter {
         this.onOverlayDblClick((event as CustomEvent).detail);
       },
     );
+    htmlElement.addEventListener(
+      ViewerEvents.OverlayScreenRecordingChange,
+      async (event) => {
+        this.onOverlayScreenRecordingChange((event as CustomEvent).detail);
+      },
+    );
   }
 
   async onAppEvent(event: WinscopeEvent) {
@@ -92,6 +99,13 @@ export class Presenter {
     const currTrace = this.traces.at(index);
     if (currTrace) {
       this.emitWinscopeEvent(new ActiveTraceChanged(currTrace));
+    }
+  }
+
+  async onOverlayScreenRecordingChange(index: number) {
+    const currTrace = this.traces.at(index);
+    if (currTrace) {
+      this.emitWinscopeEvent(new ScreenRecordingChange(currTrace));
     }
   }
 }

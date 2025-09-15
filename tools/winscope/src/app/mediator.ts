@@ -60,6 +60,7 @@ import {TimelineData} from './timeline_data';
 import {TracePipeline} from './trace_pipeline';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 /**
  * Mediator class for communication between components
@@ -85,6 +86,7 @@ export class Mediator {
   private areViewersLoaded = false;
   private lastRemoteToolDeferredTimestampReceived?: () => Timestamp | undefined;
   private currentProgressListener?: ProgressListener;
+  private screenRecordingTrace?: Trace<MediaBasedTraceEntry>;
 
   constructor(
     tracePipeline: TracePipeline,
@@ -297,6 +299,16 @@ export class Mediator {
       },
     );
 
+    await event.visit(
+      WinscopeEventType.SCREEN_RECORDING_CHANGE,
+      async (event) => {
+        this.screenRecordingTrace = event.trace;
+        for (const viewer of this.viewers) {
+          await viewer.onWinscopeEvent(event);
+        }
+      },
+    );
+
     await event.visit(WinscopeEventType.ACTIVE_TRACE_CHANGED, async (event) => {
       if (this.timelineData.trySetActiveTrace(event.trace)) {
         for (const viewer of this.viewers) {
@@ -402,13 +414,15 @@ export class Mediator {
               return;
             }
 
-            const screenRecordingTrace = this.tracePipeline
-              .getTraces()
-              .getTrace(TraceType.SCREEN_RECORDING);
+            if (!this.screenRecordingTrace) {
+              this.screenRecordingTrace = this.tracePipeline
+                .getTraces()
+                .getTrace(TraceType.SCREEN_RECORDING);
+            }
             const eventTrace = this.tracePipeline
               .getTraces()
               .getTrace(event.traceType);
-            const trace = screenRecordingTrace ?? eventTrace;
+            const trace = this.screenRecordingTrace ?? eventTrace;
 
             if (trace === undefined) {
               return;

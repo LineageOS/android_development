@@ -22,10 +22,10 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
  * Interface that associates screen recording entry to other trace entry
  */
 export declare interface CorrespondingEntries {
-  correspondingScreenRecordingEntry:
+  screenRecordingEntry:
     | TraceEntryEager<MediaBasedTraceEntry, MediaBasedTraceEntry | undefined>
     | undefined;
-  correspondingTraceEntry:
+  traceEntry:
     | TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
     | undefined;
 }
