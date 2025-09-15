@@ -48,7 +48,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
         },
         new LogSelectFilter(Array.from({length: 3}, () => '')),
       ),
-      options: ['level0', 'level1', 'level2'],
+      options: ['VERBOSE', 'DEBUG', 'INFO'],
     },
     {
       header: new LogHeader(
@@ -102,7 +102,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           message: 'text0',
           ts: elapsedTime10,
           tag: 'tag0',
-          level: 'level0',
+          level: 'INFO',
           location: 'sourcefile0',
         })
         .build(),
@@ -114,7 +114,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           message: 'text1',
           ts: elapsedTime20,
           tag: 'tag1',
-          level: 'level1',
+          level: 'DEBUG',
         })
         .build(),
 
@@ -125,7 +125,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           message: 'text2',
           ts: elapsedTime30,
           tag: 'tag2',
-          level: 'level2',
+          level: 'VERBOSE',
           location: 'sourcefile2:321',
         })
         .build(),
@@ -137,7 +137,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           message: 'text2',
           ts: elapsedTime30,
           tag: 'tag2',
-          level: 'level2',
+          level: 'VERBOSE',
           location: 'sourcefile2:123',
         })
         .build(),
@@ -148,7 +148,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
       .setTimestamps([time10, time11, time12, time12])
       .setParserCustomQueryResult(
         CustomQueryType.LOG_TABLE_FILTER_VALUES,
-        ['level0', 'level1', 'level2'],
+        ['INFO', 'DEBUG', 'VERBOSE'],
         ProtologColumnType.LEVEL,
       )
       .setParserCustomQueryResult(
@@ -194,6 +194,13 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
 
   override getPositionUpdate(): TracePositionUpdate {
     return assertDefined(this.positionUpdate);
+  }
+
+  override getExpectedSortedOptions() {
+    return {
+      column: 'Log Level',
+      options: ['VERBOSE', 'DEBUG', 'INFO'],
+    };
   }
 }
 
