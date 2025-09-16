@@ -44,6 +44,7 @@ import {
 } from './viewer_events';
 
 export type NotifyLogViewCallbackType<UiData> = (uiData: UiData) => void;
+export type FilterOptionSorter = (a: string, b: string) => number;
 
 export abstract class AbstractLogViewerPresenter<
   UiData extends UiDataLog,
@@ -54,6 +55,9 @@ export abstract class AbstractLogViewerPresenter<
   protected abstract logPresenter: LogPresenter<LogEntry>;
   protected propertiesPresenter?: PropertiesPresenter;
   protected keepCalculated?: boolean;
+  protected filterOptionSorters: {
+    [key: string]: FilterOptionSorter;
+  } = {};
   private activeTrace?: Trace<object>;
   private isInitialized = false;
 
@@ -397,6 +401,12 @@ export abstract class AbstractLogViewerPresenter<
       CustomQueryType.LOG_TABLE_FILTER_VALUES,
       assertDefined(header.spec.columnType),
     );
+    if (header.spec) {
+      const sorter = this.filterOptionSorters[header.spec.name];
+      if (sorter) {
+        filterValues.sort(sorter);
+      }
+    }
     (header.filter as LogSelectFilter).options = filterValues;
     return;
   }

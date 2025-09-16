@@ -89,6 +89,24 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
           this.executePropertiesChecksAfterPositionUpdate(uiData);
         }
       });
+
+      it('sorts filter options according to sorter', async () => {
+        if (!this.getExpectedSortedOptions) {
+          return;
+        }
+
+        await assertDefined(presenter).onAppEvent(
+          assertDefined(this.getPositionUpdate()),
+        );
+        await new Timer().wait(() => !uiData.isFetchingData);
+
+        const expected = this.getExpectedSortedOptions();
+        const header = uiData.headers.find(
+          (h) => h.spec.name === expected.column,
+        );
+        const filter = header?.filter as LogSelectFilter | undefined;
+        expect(filter?.options).toEqual(expected.options);
+      });
     });
 
     function filterEqualityTester(
@@ -134,6 +152,8 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
     callback: NotifyLogViewCallbackType<UiData>,
   ): Promise<AbstractLogViewerPresenter<UiData, object>>;
   abstract getPositionUpdate(): TracePositionUpdate;
+
+  getExpectedSortedOptions?(): {column: string; options: string[]};
 
   resetTestEnvironment?(): void;
   executePropertiesChecksForEmptyTrace?(uiData: UiDataLog): void;
