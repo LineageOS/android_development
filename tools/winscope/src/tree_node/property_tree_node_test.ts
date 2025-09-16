@@ -23,8 +23,139 @@ import {
   makeRectNode,
   makeSizeNode,
 } from 'test/unit/tree_node_test_helpers';
+import {
+  PropertyFormatter,
+  PropertySource,
+  PropertyTreeNode,
+} from './property_tree_node';
 
 describe('property_tree_node', () => {
+  it('can be constructed', () => {
+    const node = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'value',
+    );
+    expect(node.id).toEqual('id');
+    expect(node.name).toEqual('name');
+    expect(node.source).toEqual(PropertySource.PROTO);
+    expect(node.getValue()).toEqual('value');
+  });
+
+  it('handles different value types', () => {
+    const stringNode = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'string value',
+    );
+    expect(stringNode.getValue<string>()).toEqual('string value');
+
+    const numberNode = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      42,
+    );
+    expect(numberNode.getValue<number>()).toEqual(42);
+
+    const bigintNode = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      100n,
+    );
+    expect(bigintNode.getValue<bigint>()).toEqual(100n);
+
+    const booleanNode = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      true,
+    );
+    expect(booleanNode.getValue<boolean>()).toEqual(true);
+
+    const objectNode = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      { key: 'value' },
+    );
+    expect(objectNode.getValue<object>()).toEqual({ key: 'value' });
+
+    const undefinedNode = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      undefined,
+    );
+    expect(undefinedNode.getValue()).toBeUndefined();
+  });
+
+  it('is not a root by default', () => {
+    const node = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'value',
+    );
+    expect(node.isRoot()).toBeFalse();
+  });
+
+  it('can be set as root', () => {
+    const node = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'value',
+    );
+    node.setIsRoot(true);
+    expect(node.isRoot()).toBeTrue();
+    node.setIsRoot(false);
+    expect(node.isRoot()).toBeFalse();
+  });
+
+  it('returns empty string for formatted value by default', () => {
+    const node = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'value',
+    );
+    expect(node.formattedValue()).toEqual('');
+  });
+
+  it('uses formatter to format value', () => {
+    const formatter: PropertyFormatter = {
+      format(nodeToFormat: PropertyTreeNode): string {
+        return `Formatted: ${nodeToFormat.getValue<string>()}`;
+      },
+    };
+    const node = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'value',
+    );
+    node.setFormatter(formatter);
+    expect(node.formattedValue()).toEqual('Formatted: value');
+  });
+
+  it('setFormatter returns the node instance', () => {
+    const formatter: PropertyFormatter = {
+      format(nodeToFormat: PropertyTreeNode): string {
+        return '';
+      },
+    };
+    const node = new PropertyTreeNode(
+      'id',
+      'name',
+      PropertySource.PROTO,
+      'value',
+    );
+    expect(node.setFormatter(formatter)).toBe(node);
+  });
   it('identifies color', () => {
     const color = makeColorNode(0, 0, 0, 1);
     expect(color.isColor()).toBeTrue();
