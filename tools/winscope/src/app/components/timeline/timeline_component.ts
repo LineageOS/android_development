@@ -942,6 +942,9 @@ export class TimelineComponent
   }
 
   async onPlaybackStateChange(state: PlaybackState) {
+    if(this.currentTabTraceType === undefined){
+      return;
+    }
     switch (state) {
       case PlaybackState.FORWARDS:
       case PlaybackState.BACKWARDS:
