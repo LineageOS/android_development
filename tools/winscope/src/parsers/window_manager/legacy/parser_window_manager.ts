@@ -17,23 +17,13 @@
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {RectsComputation} from 'parsers/window_manager/computations/rects_computation';
-import {WmCustomQueryUtils} from 'parsers/window_manager/custom_query_utils';
-import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
-import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
 import root from 'protos/windowmanager/udc/json';
 import {com} from 'protos/windowmanager/udc/static';
 import {TamperedMessageType} from 'trace/proto_utils/tampered_message_type';
-import {
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-  VisitableParserCustomQuery,
-} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
+
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'tree_node/properties_provider';
-import {TAMPERED_PROTOS_UDC} from './tampered_protos_udc';
+import {perfetto} from 'protos/perfetto/trace/static';
 
 type WindowManagerProto = com.android.server.wm.IWindowManagerTraceProto;
 
@@ -52,7 +42,6 @@ export class ParserWindowManager extends AbstractParser<
       root.lookupType('com.android.server.wm.WindowManagerTraceFileProto'),
     );
 
-  private readonly factory = new PropertiesProviderFactory(TAMPERED_PROTOS_UDC);
   private realToBootTimeOffsetNs: bigint | undefined;
 
   override getTraceType(): TraceType {
@@ -88,51 +77,26 @@ export class ParserWindowManager extends AbstractParser<
     );
   }
 
-  override processDecodedEntry(
-    index: number,
-    entry: WindowManagerProto,
-  ): HierarchyTreeNode {
-    return this.makeHierarchyTree(entry);
+  override canConvertToPerfetto(): boolean {
+    return true;
   }
 
-  override customQuery<Q extends CustomQueryType>(
-    type: Q,
-    entriesRange: EntriesRange,
-  ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    return new VisitableParserCustomQuery(type)
-      .visit(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE, () => {
-        const result: CustomQueryParserResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE] =
-          [];
-        this.decodedEntries
-          .slice(entriesRange.start, entriesRange.end)
-          .forEach((windowManagerTraceProto) => {
-            WmCustomQueryUtils.parseWindowsTokenAndTitle(
-              assertDefined(
-                windowManagerTraceProto?.windowManagerService
-                  ?.rootWindowContainer,
-              ),
-              result,
-            );
-          });
-        return Promise.resolve(result);
-      })
-      .getResult();
-  }
-
-  private makeHierarchyTree(entryProto: WindowManagerProto): HierarchyTreeNode {
-    const containers: PropertiesProvider[] =
-      this.factory.makeContainerProperties(
-        assertDefined(entryProto.windowManagerService),
-      );
-
-    const entry = this.factory.makeEntryProperties(
-      assertDefined(entryProto.windowManagerService),
-    );
-
-    return new HierarchyTreeBuilderWm()
-      .setRoot(entry)
-      .setChildren(containers)
-      .setComputations([new RectsComputation()])
-      .build();
+  override convertToPerfettoPackets(
+    sequenceId: number,
+  ): perfetto.protos.TracePacket[] {
+    const packets = [];
+    for (const entry of this.decodedEntries) {
+      const packet = perfetto.protos.TracePacket.create();
+      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
+      packet.timestampClockId =
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.trustedPacketSequenceId = sequenceId;
+      packet.winscopeExtensions = {
+        '.perfetto.protos.WinscopeExtensionsImpl.windowmanager':
+          perfetto.protos.WindowManagerTraceEntry.fromObject(entry),
+      };
+      packets.push(packet);
+    }
+    return packets;
   }
 }

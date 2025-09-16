@@ -26,30 +26,27 @@ import {CustomQueryType} from 'trace_api/custom_query';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
+import Long from 'long';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {perfetto} from 'protos/perfetto/trace/static';
 
 describe('ParserWindowManager', () => {
   describe('trace with real timestamps', () => {
-    let parser: Parser<HierarchyTreeNode>;
-    let trace: Trace<HierarchyTreeNode>;
+    let realParser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      realParser = await new LegacyParserProvider()
         .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
         .getParser<HierarchyTreeNode>();
-      trace = new TraceBuilder<HierarchyTreeNode>()
-        .setType(TraceType.WINDOW_MANAGER)
-        .setParser(parser)
-        .build();
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
+      expect(realParser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
     });
 
     it('has expected coarse version', () => {
-      expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+      expect(realParser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
     });
 
     it('provides timestamps', () => {
@@ -58,37 +55,90 @@ describe('ParserWindowManager', () => {
         makeRealTimestamp(1659107089999048990n),
         makeRealTimestamp(1659107090010194213n),
       ];
-      expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(
+      expect(assertDefined(realParser.getTimestamps()).slice(0, 3)).toEqual(
         expected,
       );
     });
 
-    it('retrieves trace entry', async () => {
-      const entry = await parser.getEntry(1);
-      expect(entry).toBeInstanceOf(HierarchyTreeNode);
-      expect(entry.id).toBe('WindowManagerState root');
+    it('does not provide entry', () => {
+      expect(realParser.getEntry).toThrow();
     });
 
-    it('supports WM_WINDOWS_TOKEN_AND_TITLE custom query', async () => {
-      const tokenAndTitles = await trace
-        .sliceEntries(0, 1)
-        .customQuery(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE);
-      expect(tokenAndTitles.length).toBe(69);
-      expect(tokenAndTitles).toContain({token: 'c06766f', title: 'Leaf:36:36'});
+    it('converts to valid perfetto packets', async () => {
+      const packets = realParser.convertToPerfettoPackets!(10);
+      expect(packets.length).toBe(27);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(
+        packets[0].winscopeExtensions?.[
+          '.perfetto.protos.WinscopeExtensionsImpl.windowmanager'
+        ]?.windowManagerService,
+      ).toBeDefined();
+      const ts = Long.fromString(BigInt(14474594000).toString());
+      ts.unsigned = true;
+      expect(packets[0].timestamp).toEqual(ts);
+      expect(packets[0].timestampClockId).toEqual(
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+    });
+
+    describe('converts to valid perfetto trace', () => {
+      let perfettoParser: Parser<HierarchyTreeNode>;
+      let perfettoTrace: Trace<HierarchyTreeNode>;
+
+      beforeAll(async () => {
+        perfettoParser = await new LegacyParserProvider()
+          .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
+          .setConvertToPerfetto(true)
+          .getParser<HierarchyTreeNode>();
+        perfettoTrace = new TraceBuilder<HierarchyTreeNode>()
+          .setType(TraceType.WINDOW_MANAGER)
+          .setParser(perfettoParser)
+          .build();
+      });
+
+      it('provides timestamps', () => {
+        const expected = [
+          makeRealTimestamp(1659107089075566202n),
+          makeRealTimestamp(1659107089999048990n),
+          makeRealTimestamp(1659107090010194213n),
+        ];
+        expect(
+          assertDefined(perfettoParser.getTimestamps()).slice(0, 3),
+        ).toEqual(expected);
+      });
+
+      it('provides entry', async () => {
+        const entry = await perfettoParser.getEntry(1);
+        expect(entry).toBeInstanceOf(HierarchyTreeNode);
+        expect(entry.getEagerPropertyByName('focusedApp')?.getValue()).toBe(
+          'com.google.android.apps.nexuslauncher/.NexusLauncherActivity',
+        );
+      });
+
+      it('supports WM_WINDOWS_TOKEN_AND_TITLE custom query', async () => {
+        const tokenAndTitles = await perfettoTrace
+          .sliceEntries(0, 1)
+          .customQuery(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE);
+        expect(tokenAndTitles.length).toBe(69);
+        expect(tokenAndTitles).toContain({
+          token: 'c06766f',
+          title: 'Leaf:36:36',
+        });
+      });
     });
   });
 
   describe('trace with only elapsed timestamps', () => {
-    let parser: Parser<HierarchyTreeNode>;
+    let elapsedParser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
-      parser = await new LegacyParserProvider()
+      elapsedParser = await new LegacyParserProvider()
         .addFile('traces/elapsed_timestamp/WindowManager.pb')
         .getParser<HierarchyTreeNode>();
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
+      expect(elapsedParser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
     });
 
     it('provides timestamps', () => {
@@ -97,21 +147,32 @@ describe('ParserWindowManager', () => {
         makeElapsedTimestamp(850763506110n),
         makeElapsedTimestamp(850782750048n),
       ];
-      expect(parser.getTimestamps()).toEqual(expected);
+      expect(elapsedParser.getTimestamps()).toEqual(expected);
     });
 
-    it('retrieves trace entry', async () => {
-      const entry = await parser.getEntry(1);
-      expect(entry).toBeInstanceOf(HierarchyTreeNode);
-      expect(entry.id).toBe('WindowManagerState root');
+    it('converts to valid perfetto packets', async () => {
+      const packets = elapsedParser.convertToPerfettoPackets!(10);
+      expect(packets.length).toBe(3);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(
+        packets[0].winscopeExtensions?.[
+          '.perfetto.protos.WinscopeExtensionsImpl.windowmanager'
+        ]?.windowManagerService,
+      ).toBeDefined();
+      const ts = Long.fromString(BigInt(850254319343).toString());
+      ts.unsigned = true;
+      expect(packets[0].timestamp).toEqual(ts);
+      expect(packets[0].timestampClockId).toEqual(
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
     });
   });
 
   describe('critical mode trace', () => {
-    let parser: Parser<HierarchyTreeNode>;
+    let criticalParser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
-      parser = await new LegacyParserProvider()
+      criticalParser = await new LegacyParserProvider()
         .addFile(
           'traces/elapsed_and_real_timestamp/window_trace_critical.winscope',
         )
@@ -119,7 +180,7 @@ describe('ParserWindowManager', () => {
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
+      expect(criticalParser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
     });
 
     it('provides timestamps', () => {
@@ -128,13 +189,7 @@ describe('ParserWindowManager', () => {
         makeRealTimestamp(1721405246510267496n),
         makeRealTimestamp(1721405246549639200n),
       ];
-      expect(parser.getTimestamps()?.slice(0, 3)).toEqual(expected);
-    });
-
-    it('retrieves trace entry', async () => {
-      const entry = await parser.getEntry(0);
-      expect(entry).toBeInstanceOf(HierarchyTreeNode);
-      expect(entry.id).toBe('WindowManagerState root');
+      expect(criticalParser.getTimestamps()?.slice(0, 3)).toEqual(expected);
     });
   });
 });

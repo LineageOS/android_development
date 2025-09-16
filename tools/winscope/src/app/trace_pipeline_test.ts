@@ -32,7 +32,6 @@ import {
   makeRealTimestampWithUTCOffset,
   timestampEqualityTester,
 } from 'test/unit/time_test_helpers';
-import {extractEntries} from 'test/unit/traces_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
@@ -153,11 +152,6 @@ describe('TracePipeline', () => {
     const traces = tracePipeline.getTraces();
     expect(traces.getSize()).toBe(2);
     expect(traces.getTraces(TraceType.WINDOW_MANAGER).length).toBe(2);
-
-    const traceEntries = await extractEntries(traces);
-    expect(traceEntries.get(TraceType.WINDOW_MANAGER)?.length).toBeGreaterThan(
-      0,
-    );
   });
 
   it('can set download archive filename based on files source', async () => {

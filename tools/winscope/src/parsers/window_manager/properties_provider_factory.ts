@@ -17,7 +17,6 @@
 import {assertDefined} from 'common/assert';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {com} from 'protos/windowmanager/udc/static';
 import {WindowTypePrefix} from 'trace/window_manager/window_type';
 import {
   LazyPropertiesStrategyType,
@@ -32,16 +31,7 @@ import {OperationLists, WmOperationLists} from './operations/operation_lists';
 import {ProtoType} from './proto_type';
 import {TamperedProtos} from './tampered_protos';
 
-type WindowContainerChildTypeUdc =
-  | com.android.server.wm.IWindowContainerProto
-  | com.android.server.wm.IDisplayContentProto
-  | com.android.server.wm.IDisplayAreaProto
-  | com.android.server.wm.ITaskProto
-  | com.android.server.wm.IActivityRecordProto
-  | com.android.server.wm.IWindowTokenProto
-  | com.android.server.wm.IWindowStateProto
-  | com.android.server.wm.ITaskFragmentProto;
-type WindowContainerChildTypeLatest =
+type WindowContainerChildType =
   | perfetto.protos.IWindowContainerProto
   | perfetto.protos.IDisplayContentProto
   | perfetto.protos.IDisplayAreaProto
@@ -50,19 +40,11 @@ type WindowContainerChildTypeLatest =
   | perfetto.protos.IWindowTokenProto
   | perfetto.protos.IWindowStateProto
   | perfetto.protos.ITaskFragmentProto;
-type WindowContainerChildType =
-  | WindowContainerChildTypeUdc
-  | WindowContainerChildTypeLatest;
 
-type IdentifierProto =
-  | com.android.server.wm.IIdentifierProto
-  | perfetto.protos.IIdentifierProto;
+type IdentifierProto = perfetto.protos.IIdentifierProto;
 type WindowManagerServiceDumpProto =
-  | com.android.server.wm.IWindowManagerServiceDumpProto
-  | perfetto.protos.WindowManagerServiceDumpProto;
-type WindowContainerChildProto =
-  | com.android.server.wm.IWindowContainerChildProto
-  | perfetto.protos.IWindowContainerChildProto;
+  perfetto.protos.IWindowManagerServiceDumpProto;
+type WindowContainerChildProto = perfetto.protos.IWindowContainerChildProto;
 
 /**
  * Creates PropertyProvider objects for each container type in a WM trace.
