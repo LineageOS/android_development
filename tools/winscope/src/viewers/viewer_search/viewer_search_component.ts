@@ -51,7 +51,6 @@ import {SEARCH_VIEWS} from 'app/trace_search/trace_search_initializer';
 import {assertDefined} from 'common/assert';
 import {TimeDuration} from 'common/time/time_duration';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {Timer} from 'common/time/timer';
 import {Analytics} from 'logging/analytics';
 import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
@@ -226,7 +225,7 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
                     [showCurrentTimeButton]="false"
                     [padEntries]="false"
                     [isFetchingData]="curr.result.isFetchingData"
-                    [checkScrollViewport]="curr.result.checkScrollViewport || checkScrollViewport === i"></log-view>
+                    [checkScrollViewport]="curr.result.checkScrollViewport || checkScrollViewport === $index"></log-view>
                 </div>
               </div>
             </mat-tab>
@@ -647,7 +646,8 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
 
   onResultTabChange(event: MatTabChangeEvent) {
     this.checkScrollViewport = event.index;
-    new Timer(100, 50).sleepMs().then(() => (this.checkScrollViewport = -1));
+    this.changeDetectorRef.detectChanges();
+    this.checkScrollViewport = -1;
   }
 
   private updateSearchSections(simpleChanges: SimpleChanges) {

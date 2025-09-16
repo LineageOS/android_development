@@ -142,7 +142,8 @@ import {UserTimestamp} from 'common/time/user_timestamp';
           }
 
           @for (header of headers; track $index) {
-            @if (!isHeaderWithFilter(header)) {
+            @let hasFilter = isHeaderWithFilter(header);
+            @if (!hasFilter) {
               <div
                 #headerEl
                 class="mat-body-2 header text-no-overflow"
@@ -151,7 +152,7 @@ import {UserTimestamp} from 'common/time/user_timestamp';
                 [matTooltipDisabled]="disableHeaderTooltip(headerEl)"
                 matTooltipPosition="above">
               {{header.spec.name}}</div>
-            } @else if (isHeaderWithFilter(header) && !showFiltersInTitle) {
+            } @else if (hasFilter && !showFiltersInTitle) {
               <div
                 class="filter mat-body-2"
                 [class]="header.spec.cssClass">
