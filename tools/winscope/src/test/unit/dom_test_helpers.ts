@@ -212,12 +212,9 @@ export class DOMTestHelper<T> {
   keydownSpace() {
     const event = new KeyboardEvent('keydown', {
       keyCode: KeyboardEventKeyCode.SPACE,
+      bubbles: true,
     });
     this.dispatchEvent(event);
-  }
-
-  keydownSpaceBar(toDocument = false) {
-    this.keydownByKey(KeyboardEventKey.SPACE, toDocument);
   }
 
   keydownMediaTrackNext(toDocument = false) {

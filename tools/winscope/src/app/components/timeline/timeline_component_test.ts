@@ -1131,7 +1131,7 @@ describe('TimelineComponent', () => {
         'onPlaybackStateChange',
       );
 
-      dom.keydownSpaceBar(true);
+      dom.keydownSpace();
       expect(spyPlaybackStateChange).toHaveBeenCalledTimes(1);
       expect(spyPlaybackStateChange).toHaveBeenCalledWith(
         PlaybackState.FORWARDS,
@@ -1146,7 +1146,7 @@ describe('TimelineComponent', () => {
         'onPlaybackStateChange',
       );
 
-      dom.keydownSpaceBar(true);
+      dom.keydownSpace();
       expect(spyPlaybackStateChange).toHaveBeenCalledTimes(1);
       expect(spyPlaybackStateChange).toHaveBeenCalledWith(PlaybackState.PAUSED);
     });

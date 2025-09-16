@@ -73,13 +73,14 @@ export enum KeyboardEventKey {
   ARROW_UP = 'ArrowUp',
   ENTER = 'Enter',
   ESCAPE = 'Escape',
-  SPACE = ' ',
   MEDIA_TRACK_PREVIOUS = 'MediaTrackPrevious',
   MEDIA_TRACK_NEXT = 'MediaTrackNext',
 }
 
 /**
- * Keyboard event key codes.
+ * Keyboard event key codes
+ * We are using the deprecated keycode for space
+ * because angular select component still only checks for keyCode property.
  */
 export enum KeyboardEventKeyCode {
   SPACE = 32,

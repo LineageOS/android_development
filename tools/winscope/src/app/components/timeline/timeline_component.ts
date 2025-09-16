@@ -47,7 +47,11 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {TimelineData} from 'app/timeline_data';
 import {assertDefined} from 'common/assert';
-import {isInputTextField, KeyboardEventKey} from 'common/dom';
+import {
+  isInputTextField,
+  KeyboardEventKey,
+  KeyboardEventKeyCode,
+} from 'common/dom';
 import {PersistentStore} from 'common/store/persistent_store';
 import {parseBigIntStrippingUnit} from 'common/string_helpers';
 import {TimeRange, Timestamp} from 'common/time/time';
@@ -872,7 +876,7 @@ export class TimelineComponent
         await this.moveToNextEntry();
       }
       this.isProcessingKeyPress = false;
-    } else if (event.key === KeyboardEventKey.SPACE) {
+    } else if (event.keyCode === KeyboardEventKeyCode.SPACE) {
       event.preventDefault();
       this.isProcessingKeyPress = true;
       if (this.playbackState === PlaybackState.PAUSED) {
