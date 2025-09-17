@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-import {
-  assertBigInt,
-  assertBigIntOrUndefined,
-  assertDefined,
-  assertNumberOrUndefined,
-  assertString,
-  assertStringOrUndefined,
-} from 'common/assert';
+import {assertBigInt, assertDefined, assertString} from 'common/assert';
+import {UINT32_MAX} from 'common/math';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {FakeProto, FakeProtoBuilder} from 'parsers/perfetto/fake_proto_builder';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
+import {queryArgs} from 'parsers/perfetto/utils';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {RectsComputation} from 'parsers/view_capture/computations/rects_computation';
-import {VisibilityComputation} from 'parsers/view_capture/computations/visibility_computation';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {
+  RectExtractor,
+  SnapshotRects,
+} from 'parsers/view_capture/perfetto/rect_extractor';
 import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
 import {TraceFile} from 'trace/trace_file';
 import {
@@ -40,11 +37,16 @@ import {
 } from 'trace_api/custom_query';
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
+import {QueryResult, RowIterator} from 'trace_processor/query_result';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'tree_node/properties_provider';
+import {
+  LazyPropertiesStrategyType,
+  PropertiesProvider,
+} from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {TraceRect} from 'tree_node/trace_rect';
 import {SetFormatters} from 'viewers/operations/set_formatters';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
 
@@ -63,31 +65,27 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     ],
   );
 
-  private static readonly PROPERTY_TREE_OPERATIONS = [
-    new AddDefaults(ParserViewCaptureWindow.PROTO_VIEW_FIELD),
-    new SetFormatters(ParserViewCaptureWindow.PROTO_VIEW_FIELD),
-  ];
+  private static readonly OPERATIONS = {
+    AddDefaults: new AddDefaults(ParserViewCaptureWindow.PROTO_VIEW_FIELD),
+    SetFormatters: new SetFormatters(ParserViewCaptureWindow.PROTO_VIEW_FIELD),
+  };
 
+  private visibleRects: Map<bigint, SnapshotRects> | undefined;
   private readonly packageName: string;
   private readonly windowName: string;
-  private readonly snapshotProtoTransformer: FakeProtoTransformer;
   private readonly viewProtoTransformer: FakeProtoTransformer;
 
   constructor(
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
     packageName: string,
     windowName: string,
   ) {
-    super(traceFile, traceProcessor, timestampConverter);
+    super(traceFile, traceProcessor, timestampConverter, traceGeometryData);
     this.packageName = packageName;
     this.windowName = windowName;
-    this.snapshotProtoTransformer = new FakeProtoTransformer(
-      assertDefined(
-        ParserViewCaptureWindow.PROTO_VIEWCAPTURE_FIELD.tamperedMessageType,
-      ),
-    );
     this.viewProtoTransformer = new FakeProtoTransformer(
       assertDefined(
         ParserViewCaptureWindow.PROTO_VIEW_FIELD.tamperedMessageType,
@@ -104,26 +102,67 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
   }
 
   override async getEntry(index: number): Promise<HierarchyTreeNode> {
-    const viewProtos = (await this.queryViews(index)).map((viewProto) =>
-      this.viewProtoTransformer.transform(viewProto),
-    );
-    const views = this.makeViewPropertyProviders(viewProtos);
+    const range: EntriesRange = {
+      start: index,
+      end: index + 1,
+    };
+    return this.getRangeOfEntries(range).then((trees) => {
+      const entry = trees[0];
+      if (entry === undefined) {
+        throw new Error(
+          `Entry at index ${index} not found or could not be parsed.`,
+        );
+      }
+      return entry;
+    });
+  }
 
-    const rootView = assertDefined(
-      views.find((view) => {
-        const parentId = assertDefined(
-          view.getEagerProperties().getChildByName('parentId'),
-        ).getValue();
-        return parentId === -1;
-      }),
+  override async getRangeOfEntries(
+    range: EntriesRange,
+  ): Promise<Array<HierarchyTreeNode | undefined>> {
+    // assuming the entryIndex monotically increases, true for ViewCapture
+    const snapshotStart = this.entryIndexToRowIdMap[range.start];
+    const snapshotEnd = snapshotStart + range.end - range.start;
+    const viewsResult = await this.queryRangeViewsAndRects(
+      snapshotStart,
+      snapshotEnd,
     );
-    const childrenViews = views.filter((view) => view !== rootView);
+    const visibleRects = await this.fetchAllVisibleRects();
+    return this.makeEntryHierarchyTrees(viewsResult, visibleRects);
+  }
 
-    return new HierarchyTreeBuilderVc()
-      .setRoot(rootView)
-      .setChildren(childrenViews)
-      .setComputations([new VisibilityComputation(), new RectsComputation()])
-      .build();
+  makeEntryHierarchyTrees(
+    viewsResult: QueryResult,
+    visibleRects: Map<bigint, SnapshotRects>,
+  ): HierarchyTreeNode[] {
+    const trees: HierarchyTreeNode[] = [];
+
+    let currSnapshotId: bigint | undefined;
+    let currViews: PropertiesProvider[] = [];
+    const currRects = new Map<bigint, TraceRect>();
+
+    for (const it = viewsResult.iter({}); it.valid(); it.next()) {
+      const snapshotId = assertBigInt(it.get('snapshot_id'));
+      if (currSnapshotId !== undefined && snapshotId !== currSnapshotId) {
+        trees.push(this.buildHierarchyTree(currViews, currRects));
+        currViews = [];
+        currRects.clear();
+      }
+      currSnapshotId = snapshotId;
+
+      const nodeId = assertBigInt(it.get('node_id'));
+      const visibleRect = visibleRects?.get(snapshotId)?.get(nodeId);
+
+      const viewAndRect = this.makeViewAndRect(it, visibleRect);
+      currViews.push(viewAndRect.view);
+      currRects.set(nodeId, viewAndRect.rect);
+    }
+
+    if (currViews.length > 0) {
+      trees.push(this.buildHierarchyTree(currViews, currRects));
+    }
+
+    return trees;
   }
 
   override customQuery<Q extends CustomQueryType>(
@@ -153,10 +192,10 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     const sqlRowIdAndTimestamp = `
         SELECT vc.id as id, vc.ts as ts
         FROM ${this.getTableName()} AS vc
-        JOIN args ON vc.arg_set_id = args.arg_set_id
         WHERE
-          args.key = 'window_name' AND
-          args.string_value = '${this.windowName}'
+          vc.window_name = '${this.windowName}' and vc.package_name = '${
+            this.packageName
+          }'
         ORDER BY vc.ts;
     `;
     const result = await this.traceProcessor.query(sqlRowIdAndTimestamp);
@@ -168,76 +207,187 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     return entryIndexToRowId;
   }
 
-  private async queryViews(
-    index: number,
-  ): Promise<perfetto.protos.ViewCapture.IView[]> {
-    const idToBuilder = new Map<number, FakeProtoBuilder>();
-    const getBuilder = (id: number) => {
-      if (!idToBuilder.has(id)) {
-        idToBuilder.set(id, new FakeProtoBuilder());
-      }
-      return assertDefined(idToBuilder.get(id));
-    };
-
-    const sql = `
-      SELECT
-          vcv.snapshot_id,
-          vcv.id as node_id,
-          args.key,
-          args.value_type,
-          args.int_value,
-          args.string_value,
-          args.real_value
-      FROM
-          __intrinsic_viewcapture_view as vcv
-          INNER JOIN args ON vcv.arg_set_id = args.arg_set_id
-      WHERE snapshot_id = ${this.entryIndexToRowIdMap[index]};
-    `;
-    const result = await this.traceProcessor.query(sql);
-
-    for (const it = result.iter({}); it.valid(); it.next()) {
-      const builder = getBuilder(Number(assertBigInt(it.get('node_id'))));
-      builder.addArg(
-        assertString(it.get('key')),
-        assertString(it.get('value_type')),
-        assertBigIntOrUndefined(it.get('int_value')),
-        assertNumberOrUndefined(it.get('real_value')),
-        assertStringOrUndefined(it.get('string_value')),
+  private async fetchAllVisibleRects(): Promise<Map<bigint, SnapshotRects>> {
+    if (this.visibleRects === undefined) {
+      const visibleRectsResult = await this.queryAllVisibleRects();
+      this.visibleRects = RectExtractor.extractAllRects(
+        visibleRectsResult.iter({}),
+        assertDefined(this.traceGeometryData),
+        (row: RowIterator) => this.makeTreeNodeId(row),
+        (row: RowIterator) => this.makeTreeNodeName(row),
       );
     }
-
-    const viewProtos: perfetto.protos.ViewCapture.IView[] = [];
-    idToBuilder.forEach((builder) => {
-      viewProtos.push(builder.build());
-    });
-    return viewProtos;
+    return this.visibleRects;
   }
 
-  private makeViewPropertyProviders(
-    views: perfetto.protos.ViewCapture.View[],
-  ): PropertiesProvider[] {
-    const providers = views.map((view) => {
-      const allProperties = this.makeViewPropertyTree(view);
-      const provider = new PropertiesProviderBuilder()
-        .setEagerProperties(allProperties)
-        .setCommonOperations(ParserViewCaptureWindow.PROPERTY_TREE_OPERATIONS)
-        .build();
-
-      return provider;
-    });
-
-    return providers;
+  private async queryAllVisibleRects(): Promise<QueryResult> {
+    const visibleRectsDisplayQuery = `
+      SELECT
+        vcv.snapshot_id,
+        vcv.node_id,
+        vcv.class_name,
+        vcv.hashcode,
+        vcv.is_visible,
+        tr.group_id,
+        tr.depth,
+        tr.opacity,
+        tr.rect_id
+      FROM android_viewcapture_view AS vcv
+      LEFT JOIN android_winscope_trace_rect AS tr
+        ON vcv.trace_rect_id = tr.id
+        WHERE vcv.is_visible = true
+        ORDER BY vcv.id;
+    `;
+    return this.traceProcessor.query(visibleRectsDisplayQuery);
   }
 
-  private makeViewPropertyTree(
-    view: perfetto.protos.ViewCapture.IView,
-  ): PropertyTreeNode {
-    const rootName = `${(view as FakeProto).className}@${view.hashcode}`;
-    const nodeProperties = new PropertyTreeBuilderFromProto()
-      .setData(view)
-      .setRootId('ViewNode' + (view.id ?? 0))
-      .setRootName(rootName)
+  private async queryRangeViewsAndRects(
+    start: number,
+    end: number,
+  ): Promise<QueryResult> {
+    const query = `
+      SELECT
+        vcv.snapshot_id,
+        vcv.arg_set_id,
+        vcv.node_id,
+        vcv.class_name,
+        vcv.hashcode,
+        vcv.is_visible,
+        vcv.parent_id,
+        vcv.view_id,
+        tr.group_id,
+        tr.depth,
+        tr.opacity,
+        tr.rect_id
+      FROM android_viewcapture_view AS vcv
+      LEFT JOIN android_winscope_trace_rect AS tr
+        ON vcv.trace_rect_id = tr.id
+      WHERE vcv.snapshot_id >= ${start} AND vcv.snapshot_id < ${end}
+        ORDER BY vcv.id`;
+    return await this.traceProcessor.query(query);
+  }
+
+  private makeViewAndRect(
+    viewRow: RowIterator,
+    visibleRect: TraceRect | undefined,
+  ): {view: PropertiesProvider; rect: TraceRect} {
+    const view = this.makeViewPropertyProvider(viewRow);
+    const viewProperties = view.getEagerProperties();
+    const rect =
+      visibleRect ??
+      RectExtractor.extractRect(
+        viewRow,
+        viewProperties.id,
+        viewProperties.name,
+        assertDefined(this.traceGeometryData),
+      );
+    return {view, rect};
+  }
+
+  private buildHierarchyTree(
+    views: PropertiesProvider[],
+    rects: Map<bigint, TraceRect>,
+  ): HierarchyTreeNode {
+    const rootView = assertDefined(
+      views.find((view) => {
+        const parentId = Number(
+          assertDefined(
+            view.getEagerProperties().getChildByName('parentId'),
+          ).getValue<bigint>(),
+        );
+        return parentId === UINT32_MAX;
+      }),
+    );
+    const childrenViews = views.filter((view) => view !== rootView);
+
+    const tree = new HierarchyTreeBuilderVc()
+      .setRoot(rootView)
+      .setChildren(childrenViews)
       .build();
-    return nodeProperties;
+
+    tree.forEachNodeDfs((node) => {
+      const rect = assertDefined(
+        rects.get(
+          assertBigInt(
+            node.getEagerPropertyByName('nodeId')?.getValue<bigint>(),
+          ),
+        ),
+      );
+      node.setRects([rect]);
+    });
+    return tree;
+  }
+
+  private makeTreeNodeId(row: RowIterator) {
+    return 'ViewNode' + assertBigInt(row.get('node_id'));
+  }
+
+  private makeTreeNodeName(row: RowIterator) {
+    const className = assertString(row.get('class_name'));
+    const hashcode = assertBigInt(row.get('hashcode'));
+    return `${className}@${hashcode}`;
+  }
+
+  private makeViewPropertyProvider(row: RowIterator): PropertiesProvider {
+    const rootId = this.makeTreeNodeId(row);
+    const rootName = this.makeTreeNodeName(row);
+
+    const eagerProperties = this.makeViewEagerPropertiesTree(
+      row,
+      rootId,
+      rootName,
+    );
+
+    const argSetId = assertBigInt(row.get('arg_set_id'));
+    const lazyPropertiesStrategy = this.makeViewLazyPropertiesStrategy(
+      Number(argSetId),
+      rootId,
+      rootName,
+      this.traceProcessor,
+    );
+
+    return new PropertiesProviderBuilder()
+      .setEagerProperties(eagerProperties)
+      .setLazyPropertiesStrategy(lazyPropertiesStrategy)
+      .setCommonOperations([ParserViewCaptureWindow.OPERATIONS.SetFormatters])
+      .setLazyOperations([ParserViewCaptureWindow.OPERATIONS.AddDefaults])
+      .build();
+  }
+
+  private makeViewEagerPropertiesTree(
+    row: RowIterator,
+    rootId: string,
+    rootName: string,
+  ): PropertyTreeNode {
+    return new PropertyTreeBuilderFromQueryRow()
+      .setData(row)
+      .setRootId(rootId)
+      .setRootName(rootName)
+      .setColumns([
+        'node_id',
+        'class_name',
+        'hashcode',
+        'is_visible',
+        'parent_id',
+        'view_id',
+      ])
+      .setConvertColumnToBoolean('is_visible')
+      .build();
+  }
+
+  private makeViewLazyPropertiesStrategy(
+    argSetId: number,
+    rootId: string,
+    rootName: string,
+    traceProcessor: TraceProcessor,
+  ): LazyPropertiesStrategyType {
+    return async () => {
+      const data = await queryArgs(traceProcessor, argSetId);
+      return new PropertyTreeBuilderFromProto()
+        .setData(this.viewProtoTransformer.transform(data))
+        .setRootId(rootId)
+        .setRootName(rootName)
+        .build();
+    };
   }
 }

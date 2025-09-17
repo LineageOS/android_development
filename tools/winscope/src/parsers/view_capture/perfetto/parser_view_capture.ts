@@ -16,6 +16,7 @@
 
 import {assertString, assertTrue} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {TraceFile} from 'trace/trace_file';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {ParserViewCaptureWindow} from './parser_view_capture_window';
@@ -32,6 +33,7 @@ export class ParserViewCapture {
   private readonly traceFile: TraceFile;
   private readonly traceProcessor: TraceProcessor;
   private readonly timestampConverter: ParserTimestampConverter;
+  protected readonly traceGeometryData: TraceGeometryData;
 
   private windowParsers: ParserViewCaptureWindow[] = [];
 
@@ -41,10 +43,12 @@ export class ParserViewCapture {
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
   ) {
     this.traceFile = traceFile;
     this.traceProcessor = traceProcessor;
     this.timestampConverter = timestampConverter;
+    this.traceGeometryData = traceGeometryData;
   }
 
   async parse() {
@@ -64,6 +68,7 @@ export class ParserViewCapture {
           this.traceFile,
           this.traceProcessor,
           this.timestampConverter,
+          this.traceGeometryData,
           windowAndPackage.package,
           windowAndPackage.window,
         ),
@@ -78,24 +83,19 @@ export class ParserViewCapture {
 
   private async queryWindowAndPackageNames(): Promise<WindowAndPackage[]> {
     const sql = `
-        SELECT DISTINCT GROUP_CONCAT(string_value ORDER BY args.key) AS package_and_window
+      SELECT DISTINCT vc.package_name, vc.window_name
         FROM android_viewcapture AS vc
-        JOIN args ON vc.arg_set_id = args.arg_set_id
-        WHERE
-          args.key = 'package_name' OR
-          args.key = 'window_name'
-        GROUP BY vc.id
-        ORDER BY package_and_window;
+        GROUP BY vc.id;
     `;
 
     const result = await this.traceProcessor.query(sql);
 
     const names: WindowAndPackage[] = [];
     for (const it = result.iter({}); it.valid(); it.next()) {
-      const packageAndWindow = assertString(it.get('package_and_window'));
-      const tokens = packageAndWindow.split(',');
-      assertTrue(tokens.length === 2);
-      names.push({package: tokens[0], window: tokens[1]});
+      names.push({
+        package: assertString(it.get('package_name')),
+        window: assertString(it.get('window_name')),
+      });
     }
 
     return names;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {UINT32_MAX} from 'common/math';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -30,8 +31,8 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('0')
     .setName('node0')
     .setChildren([
-      {name: 'id', value: 0},
-      {name: 'parentId', value: -1},
+      {name: 'nodeId', value: 0},
+      {name: 'parentId', value: UINT32_MAX},
     ])
     .build();
   const node0Provider = new PropertiesProvider(
@@ -47,7 +48,7 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('1')
     .setName('node1')
     .setChildren([
-      {name: 'id', value: 1},
+      {name: 'nodeId', value: 1},
       {name: 'parentId', value: 0},
     ])
     .build();
@@ -64,7 +65,7 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('2')
     .setName('node2')
     .setChildren([
-      {name: 'id', value: 2},
+      {name: 'nodeId', value: 2},
       {name: 'parentId', value: 1},
     ])
     .build();
@@ -81,7 +82,7 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('3')
     .setName('node3')
     .setChildren([
-      {name: 'id', value: 3},
+      {name: 'nodeId', value: 3},
       {name: 'parentId', value: 0},
     ])
     .build();

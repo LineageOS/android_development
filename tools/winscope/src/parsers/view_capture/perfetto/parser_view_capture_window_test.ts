@@ -21,6 +21,7 @@ import {
 } from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {CustomQueryType} from 'trace_api/custom_query';
+import {EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -93,5 +94,29 @@ describe('PerfettoParserViewCaptureWindow', () => {
     expect(metadata.windowName).toBe(
       'com.android.internal.policy.PhoneWindow@4f9be60',
     );
+  });
+
+  it('gets a range of entries that excludes the end index', async () => {
+    const index = 1;
+    const numEntries = 6;
+    const range: EntriesRange = {
+      start: index,
+      end: index + numEntries,
+    };
+    const entries = await parser.getRangeOfEntries(range);
+    expect(entries.length).toEqual(numEntries);
+  });
+
+  it('provides eager properties', async () => {
+    const entry = await parser.getEntry(0);
+    expect(entry.getEagerPropertyByName('nodeId')?.getValue()).toEqual(0n);
+    expect(entry.getEagerPropertyByName('className')?.getValue()).toEqual(
+      'com.android.internal.policy.DecorView',
+    );
+    expect(entry.getEagerPropertyByName('hashcode')?.getValue()).toEqual(
+      203589466n,
+    );
+    expect(entry.getEagerPropertyByName('isVisible')?.getValue()).toBeTrue();
+    expect(entry.getEagerPropertyByName('viewId')?.getValue()).toEqual('NO_ID');
   });
 });

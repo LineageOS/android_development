@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertNumber} from 'common/assert';
+import {assertDefined} from 'common/assert';
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
@@ -36,11 +36,11 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
         view,
       );
       const id = assertDefined(
-        viewProperties.getChildByName('id')?.getValue<string>(),
+        viewProperties.getChildByName('nodeId')?.getValue<bigint>(),
       );
-      map.set(id, [viewNode]);
+      map.set(Number(id), [viewNode]);
       return map;
-    }, new Map<string, HierarchyTreeNode[]>());
+    }, new Map<number, HierarchyTreeNode[]>());
     return map;
   }
 
@@ -49,17 +49,19 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
     identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
-    const rootId = assertNumber(root.getEagerPropertyByName('id')?.getValue());
+    const rootId = assertDefined(
+      root.getEagerPropertyByName('nodeId')?.getValue<bigint>(),
+    );
 
     for (const nodes of identifierToChildren.values()) {
       nodes.forEach((node) => {
-        const parentId = assertNumber(
-          node.getEagerPropertyByName('parentId')?.getValue(),
+        const parentId = assertDefined(
+          node.getEagerPropertyByName('parentId')?.getValue<bigint>(),
         );
         const parentIsRoot = parentId === rootId;
         const parent = parentIsRoot
           ? root
-          : assertDefined(identifierToChildren.get(parentId))[0];
+          : assertDefined(identifierToChildren.get(Number(parentId)))[0];
         this.setParentChildRelationship(parent, node);
       });
     }
