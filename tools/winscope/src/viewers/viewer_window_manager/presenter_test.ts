@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
 import {TracePositionUpdate} from 'messaging/winscope_event';
-import {getWindowManagerState} from 'test/unit/fixture_utils';
+import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
 import {makeUiPropertyNode} from 'test/unit/ui_tree_node_utils';
@@ -130,12 +130,14 @@ the default for its data type.`,
     'com.google.(...).NexusLauncherActivity';
 
   override async setUpTestEnvironment(): Promise<void> {
+    const parser = await new LegacyParserProvider()
+      .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
+      .setConvertToPerfetto(true)
+      .getParser<HierarchyTreeNode>();
+
     this.trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.WINDOW_MANAGER)
-      .setEntries([
-        await getWindowManagerState(0),
-        await getWindowManagerState(1),
-      ])
+      .setEntries([await parser.getEntry(0), await parser.getEntry(1)])
       .build();
 
     const firstEntry = this.trace.getEntry(0);

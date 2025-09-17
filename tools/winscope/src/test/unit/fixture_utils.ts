@@ -209,6 +209,29 @@ export async function getTrace<T extends TraceType>(
     .build();
 }
 
+/**
+ * @param type The type of the trace to get.
+ * @param filename The name of the trace file in the test fixtures.
+ * @return The trace.
+ */
+export async function getConvertedTrace<T extends TraceType>(
+  type: T,
+  filename: string,
+): Promise<Trace<T>> {
+  const converter = getTimestampConverter(false);
+  const perfettoParsers = await new LegacyParserProvider()
+    .addFile(filename)
+    .setTimestampConverter(converter)
+    .setConvertToPerfetto(true)
+    .getParsers();
+  expect(perfettoParsers.length).toEqual(1);
+  expect(perfettoParsers[0].getTraceType()).toEqual(type);
+  return new TraceBuilder<T>()
+    .setType(type)
+    .setParser(perfettoParsers[0] as unknown as Parser<T>)
+    .build();
+}
+
 function createTimestamps(
   fileAndParsers: FileAndParser[],
   initializeRealToElapsedTimeOffsetNs: boolean,
@@ -339,43 +362,32 @@ export async function getTracesParser(
 }
 
 /**
- * @param index The index of the entry to get.
- * @return The WindowManager state at the specified index.
- */
-export async function getWindowManagerState(
-  index = 0,
-): Promise<HierarchyTreeNode> {
-  return getTraceEntry(
-    'traces/elapsed_and_real_timestamp/WindowManager.pb',
-    index,
-  );
-}
-
-/**
  * @return The IME trace entries.
  */
 export async function getImeTraceEntries(): Promise<
   [Map<TraceType, HierarchyTreeNode>, Map<TraceType, HierarchyTreeNode>]
 > {
-  const [clientsParser, managerServiceParser, serviceParser, sfParser] =
-    (await new LegacyParserProvider()
-      .addFile('traces/ime/SurfaceFlinger_with_IME.pb')
-      .addFile('traces/ime/InputMethodService.pb')
-      .addFile('traces/ime/InputMethodManagerService.pb')
-      .addFile('traces/ime/InputMethodClients.pb')
-      .setConvertToPerfetto(true)
-      .getParsers()) as Array<Parser<HierarchyTreeNode>>;
+  const [
+    clientsParser,
+    managerServiceParser,
+    serviceParser,
+    sfParser,
+    wmParser,
+  ] = (await new LegacyParserProvider()
+    .addFile('traces/ime/SurfaceFlinger_with_IME.pb')
+    .addFile('traces/ime/InputMethodService.pb')
+    .addFile('traces/ime/InputMethodManagerService.pb')
+    .addFile('traces/ime/InputMethodClients.pb')
+    .addFile('traces/ime/WindowManager_with_IME.pb')
+    .setConvertToPerfetto(true)
+    .getParsers()) as Array<Parser<HierarchyTreeNode>>;
 
   const surfaceFlingerEntry = await sfParser.getEntry(5);
   const imServiceEntry = await serviceParser.getEntry(0);
   const imManagerServiceEntry = await managerServiceParser.getEntry(0);
   const clientsEntry0 = await clientsParser.getEntry(0);
   const clientsEntry1 = await clientsParser.getEntry(1);
-
-  const windowManagerEntry = await getTraceEntry<HierarchyTreeNode>(
-    'traces/ime/WindowManager_with_IME.pb',
-    2,
-  );
+  const windowManagerEntry = await wmParser.getEntry(2);
 
   const entries = new Map<TraceType, HierarchyTreeNode>();
   entries.set(TraceType.INPUT_METHOD_CLIENTS, clientsEntry0);
@@ -390,11 +402,4 @@ export async function getImeTraceEntries(): Promise<
   secondEntries.set(TraceType.WINDOW_MANAGER, windowManagerEntry);
 
   return [entries, secondEntries];
-}
-
-async function getTraceEntry<T>(filename: string, index = 0) {
-  const parser = await new LegacyParserProvider()
-    .addFile(filename)
-    .getParser<T>();
-  return parser.getEntry(index);
 }

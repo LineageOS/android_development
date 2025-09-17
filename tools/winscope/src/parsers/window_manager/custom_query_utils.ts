@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {perfetto} from 'protos/perfetto/trace/static';
-import {com} from 'protos/windowmanager/udc/static';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
@@ -23,31 +22,15 @@ import {
 type WindowsTokenAndTitle =
   CustomQueryParserResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE];
 
-type ActivityRecordProto =
-  | com.android.server.wm.IActivityRecordProto
-  | perfetto.protos.IActivityRecordProto;
-type DisplayAreaProto =
-  | com.android.server.wm.IDisplayAreaProto
-  | perfetto.protos.DisplayAreaProto;
-type DisplayContentProto =
-  | com.android.server.wm.IDisplayContentProto
-  | perfetto.protos.DisplayContentProto;
-type RootWindowContainerProto =
-  | com.android.server.wm.IRootWindowContainerProto
-  | perfetto.protos.IRootWindowContainerProto;
-type TaskFragmentProto =
-  | com.android.server.wm.ITaskFragmentProto
-  | perfetto.protos.ITaskFragmentProto;
-type TaskProto = com.android.server.wm.ITaskProto | perfetto.protos.ITaskProto;
-type WindowContainerProto =
-  | com.android.server.wm.IWindowContainerProto
-  | perfetto.protos.IWindowContainerProto;
-type WindowStateProto =
-  | com.android.server.wm.IWindowStateProto
-  | perfetto.protos.IWindowStateProto;
-type WindowTokenProto =
-  | com.android.server.wm.IWindowTokenProto
-  | perfetto.protos.IWindowTokenProto;
+type ActivityRecordProto = perfetto.protos.IActivityRecordProto;
+type DisplayAreaProto = perfetto.protos.IDisplayAreaProto;
+type DisplayContentProto = perfetto.protos.IDisplayContentProto;
+type RootWindowContainerProto = perfetto.protos.IRootWindowContainerProto;
+type TaskFragmentProto = perfetto.protos.ITaskFragmentProto;
+type TaskProto = perfetto.protos.ITaskProto;
+type WindowContainerProto = perfetto.protos.IWindowContainerProto;
+type WindowStateProto = perfetto.protos.IWindowStateProto;
+type WindowTokenProto = perfetto.protos.IWindowTokenProto;
 
 /**
  * A parser for a custom query on the WM trace, which extracts all valid window

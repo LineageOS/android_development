@@ -76,7 +76,7 @@ export class LegacyToPerfettoConverter {
     // packets to size-limited chunks. TraceProcessor can load files in
     // arbitrary chunks so we don't need to worry about how/where the
     // encoded packets are split into chunks.
-    const chunks: Uint8Array[] = [];
+    const chunks: BlobPart[] = [];
     let currBuffer: Uint8Array[] = [];
     let currSize = 0;
 
@@ -357,7 +357,7 @@ export class LegacyToPerfettoConverter {
     return writer.finish();
   }
 
-  private static createChunk(size: number, buffers: Uint8Array[]): Uint8Array {
+  private static createChunk(size: number, buffers: Uint8Array[]): BlobPart {
     const chunk = new Uint8Array(size);
     let offset = 0;
     for (const buffer of buffers) {

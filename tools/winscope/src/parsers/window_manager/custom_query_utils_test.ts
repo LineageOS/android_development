@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getTrace} from 'test/unit/fixture_utils';
+import {getConvertedTrace} from 'test/unit/fixture_utils';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {TraceType} from 'trace_api/trace_type';
 
 describe('WmCustomQueryUtils', () =>
   (async () => {
     it('parseWindowsTokenAndTitle()', async () => {
-      const trace = await getTrace(
+      const trace = await getConvertedTrace(
         TraceType.WINDOW_MANAGER,
         'traces/elapsed_and_real_timestamp/WindowManager.pb',
       );
