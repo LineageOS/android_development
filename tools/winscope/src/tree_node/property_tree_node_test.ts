@@ -80,9 +80,9 @@ describe('property_tree_node', () => {
       'id',
       'name',
       PropertySource.PROTO,
-      { key: 'value' },
+      {key: 'value'},
     );
-    expect(objectNode.getValue<object>()).toEqual({ key: 'value' });
+    expect(objectNode.getValue<object>()).toEqual({key: 'value'});
 
     const undefinedNode = new PropertyTreeNode(
       'id',

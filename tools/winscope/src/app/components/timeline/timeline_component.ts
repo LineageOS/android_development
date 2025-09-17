@@ -942,7 +942,7 @@ export class TimelineComponent
   }
 
   async onPlaybackStateChange(state: PlaybackState) {
-    if(this.currentTabTraceType === undefined){
+    if (this.currentTabTraceType === undefined) {
       return;
     }
     switch (state) {

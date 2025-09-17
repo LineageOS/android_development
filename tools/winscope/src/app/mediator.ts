@@ -34,6 +34,9 @@ import {
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
   ExpandedTimelineToggled,
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangeRequest,
   ShowTraceUploadWarning,
   TraceAddRequest,
   TracePositionUpdate,
@@ -409,32 +412,10 @@ export class Mediator {
         switch (event.state) {
           case PlaybackState.FORWARDS:
           case PlaybackState.BACKWARDS: {
-            const visible = this.isViewerVisible(viewer);
-            if (!visible) {
-              return;
-            }
-
-            if (!this.screenRecordingTrace) {
-              this.screenRecordingTrace = this.tracePipeline
-                .getTraces()
-                .getTrace(TraceType.SCREEN_RECORDING);
-            }
-            const eventTrace = this.tracePipeline
-              .getTraces()
-              .getTrace(event.traceType);
-            const trace = this.screenRecordingTrace ?? eventTrace;
-
-            if (trace === undefined) {
-              return;
-            }
-
-            this.timelineData.trySetActiveTrace(trace as Trace<object>);
-            await viewer.onWinscopeEvent(event);
-            return;
+            return this.handlePlaybackPlayRequest(viewer, event);
           }
           case PlaybackState.PAUSED:
-            return await viewer.onWinscopeEvent(event);
-
+            return this.handlePlaybackPauseRequest(viewer, event);
           default:
             return;
         }
@@ -444,24 +425,14 @@ export class Mediator {
     await event.visit(
       WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
       async (event) => {
-        if (event.traceType) {
-          const viewer = this.findViewerByType(event.traceType);
-          if (!viewer) {
-            return;
-          }
-          viewer.onWinscopeEvent(event);
-        }
-        return this.timelineComponent?.onWinscopeEvent(event);
+        return this.handlePlaybackStateChanged(event);
       },
     );
 
     await event.visit(
       WinscopeEventType.PLAYBACK_SPEED_CHANGE,
       async (event) => {
-        const viewer = this.findViewerByType(event.traceType);
-        if (viewer) {
-          await viewer.onWinscopeEvent(event);
-        }
+        this.handlePlaybackSpeedChange(event);
       },
     );
   }
@@ -704,6 +675,56 @@ export class Mediator {
     this.initialTimelineTabTraceType = this.focusedTabView?.traces[0]?.type;
     await this.appComponent.onWinscopeEvent(new ViewersLoaded(this.viewers));
     Analytics.Loading.logLoadViewersTime(Date.now() - e2eStartTimeMs);
+  }
+
+  private async handlePlaybackPlayRequest(
+    viewer: Viewer,
+    event: PlaybackStateChangeRequest,
+  ) {
+    const visible = this.isViewerVisible(viewer);
+    if (!visible) {
+      return;
+    }
+
+    if (!this.screenRecordingTrace) {
+      this.screenRecordingTrace = this.tracePipeline
+        .getTraces()
+        .getTrace(TraceType.SCREEN_RECORDING);
+    }
+    const eventTrace = this.tracePipeline.getTraces().getTrace(event.traceType);
+    const trace = this.screenRecordingTrace ?? eventTrace;
+
+    if (trace === undefined) {
+      return;
+    }
+
+    this.timelineData.trySetActiveTrace(trace as Trace<object>);
+    await viewer.onWinscopeEvent(event);
+  }
+
+  private async handlePlaybackPauseRequest(
+    viewer: Viewer,
+    event: PlaybackStateChangeRequest,
+  ) {
+    await viewer.onWinscopeEvent(event);
+  }
+
+  private async handlePlaybackStateChanged(event: PlaybackStateChangeHandled) {
+    if (event.traceType) {
+      const viewer = this.findViewerByType(event.traceType);
+      if (!viewer) {
+        return;
+      }
+      viewer.onWinscopeEvent(event);
+    }
+    return this.timelineComponent?.onWinscopeEvent(event);
+  }
+
+  private async handlePlaybackSpeedChange(event: PlaybackSpeedChange) {
+    const viewer = this.findViewerByType(event.traceType);
+    if (viewer) {
+      await viewer.onWinscopeEvent(event);
+    }
   }
 
   private getInitialTracePosition(): TracePosition | undefined {
