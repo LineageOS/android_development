@@ -31,7 +31,7 @@ export class ParserCujs extends AbstractParser<HierarchyTreeNode> {
   }
 
   protected override async preProcessTrace() {
-    const sql = `SELECT RUN_METRIC('android/android_jank_cuj.sql');
+    const sql = `SELECT RUN_METRIC('android/jank/cujs.sql');
     CREATE PERFETTO TABLE ${this.getTableName()} AS
       SELECT
         ROW_NUMBER() OVER (ORDER BY ts) - 1 AS id,
