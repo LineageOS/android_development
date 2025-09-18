@@ -19,8 +19,15 @@ import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {makeSpyRowIterator} from 'trace_processor/test_utils';
+import {
+  ColumnType,
+  QueryResult,
+  RowIterator,
+} from 'trace_processor/query_result';
+import {
+  makeSpyRowIterator,
+  setupMockIteratorWithRows,
+} from 'trace_processor/test_utils';
 import {TraceRect} from 'tree_node/trace_rect';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {RectExtractor} from './rect_extractor';
@@ -122,26 +129,26 @@ describe('SurfaceFlinger RectExtractor', () => {
     });
 
     it('extracts 1 input rect for 1 snapshot id', () => {
-      const layerRects = new Map<bigint, any>();
+      const layerRects = new Map<bigint, object>();
       layerRects.set(1n, {input: makeExpectedInputRect()});
       checkExtractedMap([], layerRects, snapshotId);
     });
 
     it('extracts 2 input rects for 1 snapshot id', () => {
-      const layerRects = new Map<bigint, any>();
+      const layerRects = new Map<bigint, object>();
       layerRects.set(1n, {input: makeExpectedInputRect()});
       layerRects.set(2n, {input: makeExpectedInputRect()});
       checkExtractedMap([], layerRects, snapshotId);
     });
 
     it('extracts 1 layer rect for 1 snapshot id', () => {
-      const layerRects = new Map<bigint, any>();
+      const layerRects = new Map<bigint, object>();
       layerRects.set(1n, {bounds: makeMinimalLayerRect('layer1')});
       checkExtractedMap([], layerRects, snapshotId);
     });
 
     it('extracts 2 layer rects for 1 snapshot id', () => {
-      const layerRects = new Map<bigint, any>();
+      const layerRects = new Map<bigint, object>();
       layerRects.set(1n, {bounds: makeMinimalLayerRect('layer1')});
       layerRects.set(2n, {bounds: makeMinimalLayerRect('layer2')});
       checkExtractedMap([], layerRects, snapshotId);
@@ -149,7 +156,7 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     it('extracts 1 display rect and 1 layer rect and 1 input rect for 1 snapshot id', () => {
       const displayRect = makeMinimalDisplayRect('display1', 1n);
-      const layerRects = new Map<bigint, any>();
+      const layerRects = new Map<bigint, object>();
       layerRects.set(1n, {
         bounds: makeMinimalLayerRect('layer1_bounds'),
         input: makeExpectedInputRect(),
@@ -168,7 +175,8 @@ describe('SurfaceFlinger RectExtractor', () => {
       let displayIndex = 0;
       snapshotIter.valid.and.callFake(() => displayIndex < displayRows.length);
       snapshotIter.get.and.callFake(
-        (key: string) => (displayRows[displayIndex] as any)?.[key],
+        (key: string) =>
+          (displayRows[displayIndex] as Record<string, ColumnType>)?.[key],
       );
       snapshotIter.next.and.callFake(() => {
         displayIndex++;
@@ -181,7 +189,8 @@ describe('SurfaceFlinger RectExtractor', () => {
       let layerIndex = 0;
       rectsIter.valid.and.callFake(() => layerIndex < layerRows.length);
       rectsIter.get.and.callFake(
-        (key: string) => (layerRows[layerIndex] as any)?.[key],
+        (key: string) =>
+          (layerRows[layerIndex] as Record<string, ColumnType>)?.[key],
       );
       rectsIter.next.and.callFake(() => {
         layerIndex++;
@@ -201,14 +210,14 @@ describe('SurfaceFlinger RectExtractor', () => {
         },
       );
 
-      const layerRects1 = new Map<bigint, any>();
+      const layerRects1 = new Map<bigint, object>();
       layerRects1.set(1n, {bounds: makeMinimalLayerRect('layer1')});
-      const layerRects2 = new Map<bigint, any>();
+      const layerRects2 = new Map<bigint, object>();
       layerRects2.set(2n, {bounds: makeMinimalLayerRect('layer2')});
 
       extractLayerInputRectsSpy.and.callFake(
         (iter: jasmine.SpyObj<RowIterator>, currentId: bigint) => {
-          const rects = new Map<bigint, any>();
+          const rects = new Map<bigint, object>();
           while (iter.valid() && iter.get('snapshot_id') === currentId) {
             const layerId = iter.get('layer_id') as bigint;
             if (currentId === snapshotId1) {
@@ -244,7 +253,7 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     function checkExtractedMap(
       displayRects: TraceRect[],
-      layerRects: Map<bigint, any>,
+      layerRects: Map<bigint, object>,
       expectedSnapshotId: bigint,
       nextDisplaySnapshotId: bigint | undefined = undefined,
       nextLayerSnapshotId: bigint | undefined = undefined,
@@ -294,7 +303,7 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     it('extracts 1 input layer rect for 1 snapshot id', () => {
       const mockInputRect = makeExpectedInputRect();
-      setupMockLayerIterator([layerInputRow()]);
+      setupMockIteratorWithRows(layersIter, [layerInputRow()]);
 
       extractLayerRectsSpy.and.returnValue({input: mockInputRect});
 
@@ -323,7 +332,7 @@ describe('SurfaceFlinger RectExtractor', () => {
         'input_group_id': 5n,
       });
 
-      setupMockLayerIterator([layerInputRow(), layerInputRow2]);
+      setupMockIteratorWithRows(layersIter, [layerInputRow(), layerInputRow2]);
 
       extractLayerRectsSpy.and.returnValues(
         {input: mockInputRect1},
@@ -346,7 +355,7 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     it('extracts 1 bounds layer rect', () => {
       const mockBoundsRect = makeExpectedLayerRect();
-      setupMockLayerIterator([layerBoundsRow()]);
+      setupMockIteratorWithRows(layersIter, [layerBoundsRow()]);
       extractLayerRectsSpy.and.returnValue({
         bounds: mockBoundsRect,
       });
@@ -368,7 +377,7 @@ describe('SurfaceFlinger RectExtractor', () => {
     it('extracts 2 bounds layer rects for different layers', () => {
       const mockBoundsRect1 = makeExpectedLayerRect('1', 'Layer1');
       const mockBoundsRect2 = makeExpectedLayerRect('2', 'Layer2');
-      setupMockLayerIterator([
+      setupMockIteratorWithRows(layersIter, [
         layerBoundsRow({
           layer_id: 1n,
           id: 1n,
@@ -409,7 +418,7 @@ describe('SurfaceFlinger RectExtractor', () => {
     it('extracts combined bounds and input rect for a single layer', () => {
       const mockBounds = makeExpectedLayerRect();
       const mockInput = makeExpectedInputRect();
-      setupMockLayerIterator([layerCombinedRow()]);
+      setupMockIteratorWithRows(layersIter, [layerCombinedRow()]);
       extractLayerRectsSpy.and.returnValue({
         bounds: mockBounds,
         input: mockInput,
@@ -449,7 +458,7 @@ describe('SurfaceFlinger RectExtractor', () => {
         fr_h: 2,
       });
 
-      setupMockLayerIterator([row1, row2]);
+      setupMockIteratorWithRows(layersIter, [row1, row2]);
 
       extractLayerRectsSpy.and.returnValue(mockRects);
       const extractFillRegionRectSpy = spyOn(
@@ -474,22 +483,8 @@ describe('SurfaceFlinger RectExtractor', () => {
       ]);
     });
 
-    function setupMockLayerIterator(rows: Array<{[key: string]: any}>) {
-      let currentRow = 0;
-      layersIter.valid.and.callFake(() => currentRow < rows.length);
-      layersIter.next.and.callFake(() => {
-        currentRow++;
-      });
-      layersIter.get.and.callFake((key: string) => {
-        if (currentRow >= rows.length) {
-          return undefined;
-        }
-        return rows[currentRow][key];
-      });
-    }
-
-    function layerInputRow(overrides: {[key: string]: any} = {}): {
-      [key: string]: any;
+    function layerInputRow(overrides: {[key: string]: ColumnType} = {}): {
+      [key: string]: ColumnType;
     } {
       const defaults = {
         'snapshot_id': currSnapshotId,
@@ -509,12 +504,8 @@ describe('SurfaceFlinger RectExtractor', () => {
       return {...defaults, ...overrides};
     }
 
-    function layerBoundsRow(
-      overrides: {
-        [key: string]: any;
-      } = {},
-    ): {
-      [key: string]: any;
+    function layerBoundsRow(overrides: {[key: string]: ColumnType} = {}): {
+      [key: string]: ColumnType;
     } {
       const defaults = {
         'snapshot_id': currSnapshotId,
@@ -536,12 +527,8 @@ describe('SurfaceFlinger RectExtractor', () => {
       return {...defaults, ...overrides};
     }
 
-    function layerCombinedRow(
-      overrides: {
-        [key: string]: any;
-      } = {},
-    ): {
-      [key: string]: any;
+    function layerCombinedRow(overrides: {[key: string]: ColumnType} = {}): {
+      [key: string]: ColumnType;
     } {
       const defaults = {
         'snapshot_id': currSnapshotId,
@@ -785,7 +772,7 @@ describe('SurfaceFlinger RectExtractor', () => {
     });
 
     it('extracts display rect with isActiveDisplay set', () => {
-      snapshotIteratorMock([defaultDisplayRow({'is_on': true})]);
+      snapshotIteratorMock([defaultDisplayRow({'is_on': 1})]);
       const expectedRect = makeExpectedDisplayRect(undefined, true);
       checkDisplaysExtracted([expectedRect]);
     });
@@ -866,7 +853,7 @@ describe('SurfaceFlinger RectExtractor', () => {
       checkDisplaysExtracted([]);
     });
 
-    function snapshotIteratorMock(rows: Array<{[key: string]: any}>) {
+    function snapshotIteratorMock(rows: Array<{[key: string]: ColumnType}>) {
       let currentRow = 0;
       snapshotIter.valid.and.callFake(() => currentRow < rows.length);
       snapshotIter.next.and.callFake(() => {
@@ -874,19 +861,19 @@ describe('SurfaceFlinger RectExtractor', () => {
       });
       snapshotIter.get.and.callFake((key: string) => {
         if (currentRow >= rows.length) {
-          return undefined;
+          return null;
         }
         return rows[currentRow][key];
       });
     }
 
-    function defaultDisplayRow(overrides: {[key: string]: any} = {}): {
-      [key: string]: any;
+    function defaultDisplayRow(overrides: {[key: string]: ColumnType} = {}): {
+      [key: string]: ColumnType;
     } {
       const defaults = {
         'display_id': 123n,
         'display_name': 'Display 123',
-        'is_on': false,
+        'is_on': 0,
         'is_virtual': 0n,
         'rect_id': 1n,
         'transform_id': 1n,

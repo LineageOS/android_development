@@ -87,3 +87,20 @@ export function makeSpyRowIterator(): jasmine.SpyObj<RowIterator> {
   iter.next.and.callFake(() => iter.valid.and.returnValue(false));
   return iter;
 }
+
+export function setupMockIteratorWithRows(
+  iter: jasmine.SpyObj<RowIterator>,
+  rows: Array<{[key: string]: ColumnType}>,
+) {
+  let currentRow = 0;
+  iter.valid.and.callFake(() => currentRow < rows.length);
+  iter.next.and.callFake(() => {
+    currentRow++;
+  });
+  iter.get.and.callFake((key: string) => {
+    if (currentRow >= rows.length) {
+      return null;
+    }
+    return rows[currentRow][key];
+  });
+}
