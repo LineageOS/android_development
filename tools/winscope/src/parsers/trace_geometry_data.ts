@@ -82,11 +82,11 @@ export class TraceGeometryData {
     }
   }
 
-  getRect(id: bigint) {
+  getRect(id: bigint): Rect | undefined {
     return this.rectsMap.get(id);
   }
 
-  getTransform(id: bigint) {
+  getTransform(id: bigint): TransformMatrix | undefined {
     return this.transformMap.get(id);
   }
 }

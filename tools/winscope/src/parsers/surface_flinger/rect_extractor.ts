@@ -160,7 +160,7 @@ export class RectExtractor {
       }
       const preprocessedRect = assertDefined(traceGeometryData.getRect(rectId));
       const preprocessedTransformMatrix = assertDefined(
-        traceGeometryData?.getTransform(transformId),
+        traceGeometryData.getTransform(transformId),
       );
 
       const rect = new TraceRectBuilderFromQueryRow()

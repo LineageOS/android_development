@@ -94,7 +94,6 @@ describe('PerfettoParserSurfaceFlinger', () => {
       };
       const entries = await parser.getRangeOfEntries(range);
       expect(entries.length).toEqual(amountOfTrees);
-      expect(entries.length).not.toEqual(amountOfTrees + 1);
     });
 
     it('provides eager properties', async () => {

@@ -15,7 +15,6 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {queryEntry} from 'parsers/perfetto/utils';
@@ -24,7 +23,6 @@ import {WmCustomQueryUtils} from 'parsers/window_manager/custom_query_utils';
 import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
 import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {TraceFile} from 'trace/trace_file';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
@@ -32,7 +30,6 @@ import {
 } from 'trace_api/custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
@@ -47,14 +44,6 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
   private readonly factory = new PropertiesProviderFactory(
     TAMPERED_PROTOS_LATEST,
   );
-
-  constructor(
-    traceFile: TraceFile,
-    traceProcessor: TraceProcessor,
-    timestampConverter: ParserTimestampConverter,
-  ) {
-    super(traceFile, traceProcessor, timestampConverter);
-  }
 
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;

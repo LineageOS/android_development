@@ -81,13 +81,8 @@ export class ParserFactory {
     );
 
     await this.processGeometryTables(traceProcessor);
-    let traceGeometryData: TraceGeometryData | undefined;
-    try {
-      traceGeometryData = new TraceGeometryData(traceProcessor);
-      await traceGeometryData.fetchAndBuild();
-    } catch (e) {
-      traceGeometryData = undefined;
-    }
+    const traceGeometryData = new TraceGeometryData(traceProcessor);
+    await traceGeometryData.fetchAndBuild();
 
     const parsers: Array<Parser<object>> = [];
     let hasFoundParser = false;
