@@ -410,11 +410,8 @@ $dark-theme: mat.m2-define-dark-theme(
 }
 
 body {
-  background-color: var(
-    --mat-app-background-color,
-    var(--mat-sys-background, transparent)
-  );
-  color: var(--mat-app-text-color, var(--mat-sys-on-background, inherit));
+  background-color: var(--background-color, transparent);
+  color: var(--default-text-color, inherit);
 }
 
 body:not(.dark-mode) {
