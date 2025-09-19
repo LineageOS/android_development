@@ -731,8 +731,7 @@ public final class VdmService extends Hilt_VdmService {
 
         if (mPreferenceController.getBoolean(R.string.pref_standalone_host_demo)) {
             Intent displayIntent = new Intent(this, DisplayActivity.class);
-            displayIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
+            displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             displayIntent.putExtra(DisplayActivity.EXTRA_DISPLAY_ID, ++mNextLocalDisplayId);
             startActivity(displayIntent);
             return;
