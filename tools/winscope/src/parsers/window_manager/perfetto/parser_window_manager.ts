@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {
+  assertBigIntOrUndefined,
+  assertDefined,
+  assertStringOrUndefined,
+} from 'common/assert';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {queryEntry} from 'parsers/perfetto/utils';
 import {RectsComputation} from 'parsers/window_manager/computations/rects_computation';
-import {WmCustomQueryUtils} from 'parsers/window_manager/custom_query_utils';
 import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
 import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
 import {perfetto} from 'protos/perfetto/trace/static';
@@ -28,7 +31,7 @@ import {
   CustomQueryType,
   VisitableParserCustomQuery,
 } from 'trace_api/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
+import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
@@ -74,34 +77,18 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     return new VisitableParserCustomQuery(type)
       .visit(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE, async () => {
+        const sql = `SELECT DISTINCT token, title FROM android_windowmanager_windowcontainer;`;
+        const queryResult = await this.traceProcessor.query(sql);
         const result: CustomQueryParserResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE] =
           [];
-
-        const fetchAndParseEntry = async (index: AbsoluteEntryIndex) => {
-          const entryProto = await queryEntry(
-            this.traceProcessor,
-            this.getTableName(),
-            this.entryIndexToRowIdMap,
-            index,
-          );
-          WmCustomQueryUtils.parseWindowsTokenAndTitle(
-            entryProto?.windowManagerService?.rootWindowContainer,
-            result,
-          );
-        };
-
-        const promises: Array<Promise<void>> = [];
-        for (
-          let index = entriesRange.start;
-          index < entriesRange.end;
-          ++index
-        ) {
-          promises.push(fetchAndParseEntry(index));
+        for (const it = queryResult.iter({}); it.valid(); it.next()) {
+          const token = assertBigIntOrUndefined(it.get('token') ?? undefined);
+          const title = assertStringOrUndefined(it.get('title') ?? undefined);
+          if (token !== undefined && title !== undefined) {
+            result.push({token: token.toString(16), title});
+          }
         }
-
-        return Promise.all(promises).then(() => {
-          return result;
-        });
+        return result;
       })
       .getResult();
   }
