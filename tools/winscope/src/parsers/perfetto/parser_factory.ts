@@ -71,6 +71,7 @@ export class ParserFactory {
     const traceProcessor = await this.initializeTraceProcessor();
     try {
       await this.loadFileInTp(traceFile.file, traceProcessor, progressListener);
+      await traceProcessor.notifyEof();
     } catch (e) {
       console.error('Trace processor failed to parse data:', e);
       return {
@@ -79,7 +80,6 @@ export class ParserFactory {
         traceGeometryData: undefined,
       };
     }
-    await traceProcessor.notifyEof();
 
     progressListener?.onProgressUpdate(
       'Reading from trace processor...',
