@@ -24,10 +24,10 @@ import {PropertiesProvider} from 'tree_node/properties_provider';
  *
  * The builder is not reusable, it should only be used to build one tree.
  */
-export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
+export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder<bigint> {
   protected override buildIdentifierToChildrenMap(
     views: PropertiesProvider[],
-  ): Map<string | number, readonly HierarchyTreeNode[]> {
+  ): Map<bigint, readonly HierarchyTreeNode[]> {
     const map = views.reduce((map, view) => {
       const viewProperties = view.getEagerProperties();
       const viewNode = this.makeNode(
@@ -38,15 +38,15 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
       const id = assertDefined(
         viewProperties.getChildByName('nodeId')?.getValue<bigint>(),
       );
-      map.set(Number(id), [viewNode]);
+      map.set(id, [viewNode]);
       return map;
-    }, new Map<number, HierarchyTreeNode[]>());
+    }, new Map<bigint, HierarchyTreeNode[]>());
     return map;
   }
 
   protected override assignParentChildRelationships(
     root: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+    identifierToChildren: Map<bigint, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
     const rootId = assertDefined(
@@ -61,7 +61,7 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
         const parentIsRoot = parentId === rootId;
         const parent = parentIsRoot
           ? root
-          : assertDefined(identifierToChildren.get(Number(parentId)))[0];
+          : assertDefined(identifierToChildren.get(parentId))[0];
         this.setParentChildRelationship(parent, node);
       });
     }

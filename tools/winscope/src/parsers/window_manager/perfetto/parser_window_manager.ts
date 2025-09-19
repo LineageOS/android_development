@@ -23,7 +23,7 @@ import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {queryEntry} from 'parsers/perfetto/utils';
 import {RectsComputation} from 'parsers/window_manager/computations/rects_computation';
-import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
+import {HierarchyTreeBuilderWm} from 'parsers/window_manager/perfetto/hierarchy_tree_builder_wm';
 import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {

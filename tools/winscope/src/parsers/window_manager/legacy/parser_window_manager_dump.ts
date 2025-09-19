@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {RectsComputation} from 'parsers/window_manager/computations/rects_computation';
-import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
+import {HierarchyTreeBuilderWm} from 'parsers/window_manager/perfetto/hierarchy_tree_builder_wm';
 import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
 import {com} from 'protos/windowmanager/udc/static';
 import Long from 'long';

@@ -59,15 +59,19 @@ describe('HierarchyTreeBuilderSf', () => {
   });
 
   it('builds root with children correctly', () => {
-    const layer1Provider = makeLayerProperties(1, -1);
+    const layer1Provider = makeLayerProperties(1n, -1n);
     const root = builder.setRoot(entry).setChildren([layer1Provider]).build();
     expectedRoot.addOrReplaceChild(makeHierarchyNode(layer1Provider));
     expect(root).toEqual(expectedRoot);
   });
 
   it('builds root with nested children correctly', () => {
-    const layer1Provider = makeLayerProperties(1, -1, [{name: '0', value: 2}]);
-    const layer2Provider = makeLayerProperties(2, 1, [{name: '1', value: 1}]);
+    const layer1Provider = makeLayerProperties(1n, -1n, [
+      {name: '0', value: 2n},
+    ]);
+    const layer2Provider = makeLayerProperties(2n, 1n, [
+      {name: '1', value: 1n},
+    ]);
 
     const root = builder
       .setRoot(entry)
@@ -84,9 +88,9 @@ describe('HierarchyTreeBuilderSf', () => {
   });
 
   it('builds root with duplicate id layers', () => {
-    const layer1Provider = makeLayerProperties(1, -1);
-    const layer2Provider = makeLayerProperties(2, 1);
-    const layer2Provider2 = makeLayerProperties(2, 1, undefined, true);
+    const layer1Provider = makeLayerProperties(1n, -1n);
+    const layer2Provider = makeLayerProperties(2n, 1n);
+    const layer2Provider2 = makeLayerProperties(2n, 1n, undefined, true);
 
     const root = builder
       .setRoot(entry)
@@ -105,16 +109,16 @@ describe('HierarchyTreeBuilderSf', () => {
   });
 
   it('builds root with default parent values correctly', () => {
-    const layer1Provider = makeLayerProperties(1, -1);
+    const layer1Provider = makeLayerProperties(1n, -1n);
 
     const layer2Props = new PropertyTreeBuilder()
       .setIsRoot(true)
       .setRootId('2')
       .setName('layer2')
       .setChildren([
-        {name: 'layerId', value: 2},
+        {name: 'layerId', value: 2n},
         {name: 'name', value: 'layer2'},
-        {name: 'parent', value: 1, source: PropertySource.DEFAULT},
+        {name: 'parent', value: 1n, source: PropertySource.DEFAULT},
       ])
       .build();
     const layer2Provider = makePropertiesProvider(layer2Props);
@@ -134,16 +138,16 @@ describe('HierarchyTreeBuilderSf', () => {
   });
 
   it('handles missing parent values', () => {
-    const layer1Provider = makeLayerProperties(1);
+    const layer1Provider = makeLayerProperties(1n);
     const root = builder.setRoot(entry).setChildren([layer1Provider]).build();
     expectedRoot.addOrReplaceChild(makeHierarchyNode(layer1Provider));
     expect(root).toEqual(expectedRoot);
   });
 
   it('builds separate root layer with unique id for recursive layers', async () => {
-    const layer1Provider = makeLayerProperties(1, 1);
-    const layer3Provider = makeLayerProperties(3, 3);
-    const layer4Provider = makeLayerProperties(4, -1);
+    const layer1Provider = makeLayerProperties(1n, 1n);
+    const layer3Provider = makeLayerProperties(3n, 3n);
+    const layer4Provider = makeLayerProperties(4n, -1n);
 
     const root = builder
       .setRoot(entry)
@@ -187,8 +191,8 @@ describe('HierarchyTreeBuilderSf', () => {
   });
 
   function makeLayerProperties(
-    id: number,
-    parent?: number,
+    id: bigint,
+    parent?: bigint,
     children?: ChildProperty[],
     isDuplicate = false,
   ): PropertiesProvider {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertNumber} from 'common/assert';
+import {assertDefined} from 'common/assert';
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -24,10 +24,10 @@ import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 import {SetFormatters} from 'viewers/operations/set_formatters';
 
-export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
+export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder<bigint> {
   protected override buildIdentifierToChildrenMap(
     layers: PropertiesProvider[],
-  ): Map<string | number, readonly HierarchyTreeNode[]> {
+  ): Map<bigint, readonly HierarchyTreeNode[]> {
     const map = layers.reduce((map, layer) => {
       const layerProperties = layer.getEagerProperties();
       const layerNode = this.makeNode(
@@ -55,13 +55,13 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
         map.set(layerId, [layerNode]);
       }
       return map;
-    }, new Map<string | number, HierarchyTreeNode[]>());
+    }, new Map<bigint, HierarchyTreeNode[]>());
     return map;
   }
 
   protected override assignParentChildRelationships(
     root: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+    identifierToChildren: Map<bigint, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
     let recurLayerRoot: HierarchyTreeNode | undefined;
@@ -99,25 +99,25 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
   }
 
   private makeRecurParentRoot(
-    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+    identifierToChildren: Map<bigint, HierarchyTreeNode[]>,
   ): HierarchyTreeNode {
-    let uniqueLayerId = 1;
+    let uniqueLayerId = 1n;
     const layerIds = Array.from(identifierToChildren.keys()).sort();
     for (const id of layerIds) {
       if (uniqueLayerId === id) {
         uniqueLayerId++;
-      } else if (assertNumber(id) > uniqueLayerId) {
+      } else if (id > uniqueLayerId) {
         break;
       }
     }
 
     const props = new PropertyTreeBuilderFromProto()
       .setData({
-        layerId: BigInt(uniqueLayerId),
+        layerId: uniqueLayerId,
         detail:
           'This node was artificially created by Winscope as a parent for all recursive layers',
       })
-      .setRootId(uniqueLayerId)
+      .setRootId(uniqueLayerId.toString())
       .setRootName('WinscopeRecursiveLayerRoot')
       .build();
     const provider = new PropertiesProviderBuilder()
@@ -128,7 +128,7 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
     return this.makeNode(props.id, props.name, provider);
   }
 
-  private getIdentifierValue(identifier: PropertyTreeNode): number {
-    return Number(identifier.getValue());
+  private getIdentifierValue(identifier: PropertyTreeNode): bigint {
+    return assertDefined(identifier.getValue<bigint>());
   }
 }

@@ -18,7 +18,7 @@ import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 
-export class HierarchyTreeBuilderInputMethod extends HierarchyTreeBuilder {
+export class HierarchyTreeBuilderInputMethod extends HierarchyTreeBuilder<string> {
   private childIdentifier = 'child';
 
   protected override buildIdentifierToChildrenMap(
@@ -39,7 +39,7 @@ export class HierarchyTreeBuilderInputMethod extends HierarchyTreeBuilder {
 
   protected override assignParentChildRelationships(
     node: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+    identifierToChildren: Map<string, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
     // only ever one child
