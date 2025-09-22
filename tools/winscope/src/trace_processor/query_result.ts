@@ -32,3 +32,10 @@ export interface QueryResult {
   iter<T extends Row>(spec: T): RowIterator;
   firstRow<T extends Row>(spec: T): T;
 }
+
+export interface QueryResults {
+  snapshotRange: QueryResult;
+  layersRange: QueryResult;
+  allVisibleRects: QueryResult | undefined;
+  allSnapshots: QueryResult | undefined;
+}

@@ -30,6 +30,7 @@ import {Parser} from 'trace_api/parser';
 import {TraceMetadata} from 'trace_api/trace_metadata';
 import {TraceType} from 'trace_api/trace_type';
 import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
+import {QueryResults} from 'trace_processor/query_result';
 
 export abstract class AbstractParser<
   T extends object,
@@ -79,6 +80,10 @@ export abstract class AbstractParser<
   }
 
   getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

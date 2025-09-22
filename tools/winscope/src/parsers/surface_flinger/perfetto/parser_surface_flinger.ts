@@ -33,12 +33,14 @@ import {
 } from 'trace_api/custom_query';
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
-import {QueryResult} from 'trace_processor/query_result';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   private readonly factory = new EntryHierarchyTreeFactory();
   private visibleAndDisplayRects: Map<bigint, SnapshotRects> | undefined;
+  private allVisibleRects: QueryResult | undefined;
+  private allSnapshots: QueryResult | undefined;
 
   override getTraceType(): TraceType {
     return TraceType.SURFACE_FLINGER;
@@ -62,28 +64,52 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
 
   override async getRangeOfEntries(
     entriesRange: EntriesRange,
+    precomputedQuery?: QueryResults,
   ): Promise<Array<HierarchyTreeNode | undefined>> {
-    // assuming the entryIndex monotically increases, true for SurfaceFlinger
-    const entriesSnapshotRangeStart =
-      this.entryIndexToRowIdMap[entriesRange.start];
-    const entriesSnapshotRangeEnd =
-      entriesSnapshotRangeStart + entriesRange.end - entriesRange.start;
-    const snapshotResult = await this.queryRangeSnapshots(
-      entriesSnapshotRangeStart,
-      entriesSnapshotRangeEnd,
-    );
-    const layersResult = await this.queryRangeLayersAndRects(
-      entriesSnapshotRangeStart,
-      entriesSnapshotRangeEnd,
-    );
+    const queryResults =
+      precomputedQuery ?? (await this.getQueryResults(entriesRange));
+    const {snapshotRange: snapshotResult, layersRange: layersResult} =
+      queryResults;
+    const traceGeometryData = assertDefined(this.traceGeometryData);
     await this.fetchAllRects();
     return this.factory.makeEntryHierarchyTrees(
       snapshotResult,
       layersResult,
       assertDefined(this.visibleAndDisplayRects),
       this.traceProcessor,
-      assertDefined(this.traceGeometryData),
+      traceGeometryData,
     );
+  }
+
+  override async getQueryResults(
+    entriesRange: EntriesRange,
+  ): Promise<QueryResults> {
+    const entriesSnapshotRangeStart =
+      this.entryIndexToRowIdMap[entriesRange.start];
+    const entriesSnapshotRangeEnd =
+      entriesSnapshotRangeStart + entriesRange.end - entriesRange.start;
+
+    const snapshotResult = await this.queryRangeSnapshots(
+      entriesSnapshotRangeStart,
+      entriesSnapshotRangeEnd,
+    );
+    const layersResult = await this.queryRangeLayersAndRects(
+      entriesSnapshotRangeStart,
+      entriesRange.end,
+    );
+
+    if (this.visibleAndDisplayRects === undefined) {
+      const queryRectsAndSnapshots = await this.queryRectsAndSnapshots();
+      this.allVisibleRects = queryRectsAndSnapshots.allVisibleRects;
+      this.allSnapshots = queryRectsAndSnapshots.allSnapshots;
+    }
+
+    return {
+      snapshotRange: snapshotResult,
+      layersRange: layersResult,
+      allVisibleRects: this.allVisibleRects,
+      allSnapshots: this.allSnapshots,
+    };
   }
 
   override async customQuery<Q extends CustomQueryType>(
@@ -128,17 +154,35 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     return 'android.winscope.surfaceflinger';
   }
 
+  private async queryRectsAndSnapshots(): Promise<{
+    allVisibleRects: QueryResult;
+    allSnapshots: QueryResult;
+  }> {
+    const allVisibleRects = await this.queryAllVisibleAndDisplayRects();
+    const allSnapshots = await this.queryRangeSnapshots(
+      0,
+      this.getLengthEntries(),
+    );
+    return {
+      allVisibleRects,
+      allSnapshots,
+    };
+  }
+
   private async fetchAllRects() {
     if (this.visibleAndDisplayRects === undefined) {
-      const visibleRectsResult = await this.queryAllVisibleAndDisplayRects();
-      const allSnapshotsResults = await this.queryRangeSnapshots(
-        0,
-        this.getLengthEntries(),
-      );
+      const visibleRectsResult = this.allVisibleRects;
+      const allSnapshotsResults = this.allSnapshots;
+      if (
+        visibleRectsResult === undefined ||
+        allSnapshotsResults === undefined
+      ) {
+        return;
+      }
       this.visibleAndDisplayRects =
         RectExtractor.extractAllVisibleAndDisplayRects(
-          allSnapshotsResults,
-          visibleRectsResult,
+          assertDefined(allSnapshotsResults),
+          assertDefined(visibleRectsResult),
           assertDefined(this.traceGeometryData),
         );
     }

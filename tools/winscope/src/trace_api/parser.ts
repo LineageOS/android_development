@@ -24,6 +24,7 @@ import {
 } from './custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {TraceType} from './trace_type';
+import {QueryResults} from 'trace_processor/query_result';
 
 export interface Parser<T> {
   getCoarseVersion(): CoarseVersion;
@@ -31,8 +32,12 @@ export interface Parser<T> {
   getLengthEntries(): number;
   getTimestamps(): Timestamp[] | undefined;
   getEntry(index: AbsoluteEntryIndex): Promise<T>;
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>>;
+  getRangeOfEntries(
+    entriesRange: EntriesRange,
+    precomputedQuery?: QueryResults,
+  ): Promise<Array<T | undefined>>;
   getAllEntries(): Promise<Array<T | undefined>>;
+  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults>;
   customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,

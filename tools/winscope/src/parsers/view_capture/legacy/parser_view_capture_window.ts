@@ -30,6 +30,7 @@ import {
 import {EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
+import {QueryResults} from 'trace_processor/query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 /**
@@ -94,6 +95,10 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
   getRangeOfEntries(
     entriesRange: EntriesRange,
   ): Promise<Array<HierarchyTreeNode | undefined>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
