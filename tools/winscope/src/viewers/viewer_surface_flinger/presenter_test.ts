@@ -493,7 +493,7 @@ the default for its data type.`,
             new HierarchyTreeBuilder()
               .setId('WindowManagerState entry')
               .setName('root')
-              .setProperties({focusedDisplayId: 3})
+              .setProperties({focusedDisplayId: 3n})
               .build(),
           ])
           .build();

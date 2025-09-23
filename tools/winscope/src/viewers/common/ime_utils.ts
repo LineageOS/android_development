@@ -109,24 +109,37 @@ class ImeAdditionalPropertiesUtils {
    * @param wmEntryTimestamp The timestamp of the trace entry.
    * @return A new ProcessedWindowManagerState object.
    */
-  processWindowManagerTraceEntry(
+  async processWindowManagerTraceEntry(
     entry: HierarchyTreeNode,
     wmEntryTimestamp: Timestamp | undefined,
-  ): ProcessedWindowManagerState {
+  ): Promise<ProcessedWindowManagerState> {
     const displayContent = entry.getAllChildren()[0];
+    const displayContentProperties = assertDefined(
+      (await displayContent.getAllProperties()).getChildByName(
+        'displayContent',
+      ),
+    );
+
+    const entryProperties = assertDefined(
+      (await entry.getAllProperties()).getChildByName('windowManagerService'),
+    );
 
     const props: WmStateProperties = {
       timestamp: wmEntryTimestamp ? wmEntryTimestamp.format() : undefined,
-      focusedApp: entry.getEagerPropertyByName('focusedApp')?.getValue(),
-      focusedWindow: this.getFocusedWindowString(entry),
-      focusedActivity: this.getFocusedActivityString(entry),
+      focusedApp: entryProperties.getChildByName('focusedApp')?.getValue(),
+      focusedWindow: await this.getFocusedWindowString(entry),
+      focusedActivity: await this.getFocusedActivityString(entry),
       isInputMethodWindowVisible: this.isInputMethodVisible(displayContent),
-      imeInputTarget: this.getImeInputTargetProperty(displayContent),
-      imeLayeringTarget: this.getImeLayeringTargetProperty(displayContent),
-      imeInsetsSourceProvider: displayContent.getEagerPropertyByName(
+      imeInputTarget: this.getImeInputTargetProperty(displayContentProperties),
+      imeLayeringTarget: this.getImeLayeringTargetProperty(
+        displayContentProperties,
+      ),
+      imeInsetsSourceProvider: displayContentProperties.getChildByName(
         'imeInsetsSourceProvider',
       ),
-      imeControlTarget: this.getImeControlTargetProperty(displayContent),
+      imeControlTarget: this.getImeControlTargetProperty(
+        displayContentProperties,
+      ),
     };
 
     return new ProcessedWindowManagerState(entry.id, entry.name, props, entry);
@@ -229,27 +242,30 @@ class ImeAdditionalPropertiesUtils {
     );
   }
 
-  private getFocusedWindowString(entry: HierarchyTreeNode): string | undefined {
+  private async getFocusedWindowString(
+    entry: HierarchyTreeNode,
+  ): Promise<string | undefined> {
     let focusedWindowString = undefined;
-    const focusedWindow = getFocusedWindow(entry);
+    const focusedWindow = await getFocusedWindow(entry);
     if (focusedWindow) {
+      const containerProperties = await focusedWindow.getAllProperties();
+      const focusedWindowProperties = assertDefined(
+        containerProperties.getChildByName('window'),
+      );
       const token = assertDefined(
         focusedWindow.getEagerPropertyByName('token')?.formattedValue(),
       );
-      const windowTypeSuffix = this.getWindowTypeSuffix(
-        assertDefined(
-          focusedWindow
-            .getEagerPropertyByName('windowType')
-            ?.getValue<number>(),
-        ),
+      const windowType = assertDefined(
+        containerProperties.getChildByName('windowType')?.getValue<number>(),
       );
+      const windowTypeSuffix = this.getWindowTypeSuffix(windowType);
       const type = assertDefined(
-        focusedWindow
-          .getEagerPropertyByName('attributes')
+        focusedWindowProperties
+          ?.getChildByName('attributes')
           ?.getChildByName('type'),
       ).formattedValue();
       const windowFrames = assertDefined(
-        focusedWindow.getEagerPropertyByName('windowFrames'),
+        focusedWindowProperties.getChildByName('windowFrames'),
       );
       const containingFrame = assertDefined(
         windowFrames.getChildByName('containingFrame')?.formattedValue(),
@@ -269,20 +285,23 @@ class ImeAdditionalPropertiesUtils {
    * @param entry The trace entry to process.
    * @return A string representation of the focused activity.
    */
-  private getFocusedActivityString(entry: HierarchyTreeNode): string {
+  private async getFocusedActivityString(
+    entry: HierarchyTreeNode,
+  ): Promise<string> {
     let focusedActivityString = 'null';
-    const focusedActivity = getFocusedActivity(entry);
+    const focusedActivity = await getFocusedActivity(entry);
     if (focusedActivity) {
       const token = assertDefined(
         focusedActivity.getEagerPropertyByName('token'),
       ).formattedValue();
       const state = assertDefined(
-        focusedActivity.getEagerPropertyByName('state'),
+        (await focusedActivity.getAllProperties())
+          .getChildByName('activity')
+          ?.getChildByName('state'),
       ).getValue();
       const isVisible =
-        focusedActivity
-          .getEagerPropertyByName('isComputedVisible')
-          ?.getValue() ?? false;
+        focusedActivity.getEagerPropertyByName('isVisible')?.getValue() ??
+        false;
 
       focusedActivityString = `{${token} ${focusedActivity.name}} state=${state} visible=${isVisible}`;
     }
@@ -326,21 +345,21 @@ class ImeAdditionalPropertiesUtils {
   }
 
   private getImeControlTargetProperty(
-    displayContent: HierarchyTreeNode,
+    displayContent: PropertyTreeNode,
   ): PropertyTreeNode | undefined {
-    return displayContent.getEagerPropertyByName('inputMethodControlTarget');
+    return displayContent.getChildByName('inputMethodControlTarget');
   }
 
   private getImeInputTargetProperty(
-    displayContent: HierarchyTreeNode,
+    displayContent: PropertyTreeNode,
   ): PropertyTreeNode | undefined {
-    return displayContent.getEagerPropertyByName('inputMethodInputTarget');
+    return displayContent.getChildByName('inputMethodInputTarget');
   }
 
   private getImeLayeringTargetProperty(
-    displayContent: HierarchyTreeNode,
+    displayContent: PropertyTreeNode,
   ): PropertyTreeNode | undefined {
-    return displayContent.getEagerPropertyByName('inputMethodTarget');
+    return displayContent.getChildByName('inputMethodTarget');
   }
 
   private isInputMethodVisible(displayContent: HierarchyTreeNode): boolean {
@@ -349,7 +368,7 @@ class ImeAdditionalPropertiesUtils {
     );
     return (
       inputMethodWindowOrLayer
-        ?.getEagerPropertyByName('isComputedVisible')
+        ?.getEagerPropertyByName('isVisible')
         ?.getValue<boolean>() ?? false
     );
   }

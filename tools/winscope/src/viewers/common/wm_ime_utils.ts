@@ -26,27 +26,27 @@ const defaultDisplayId = 0;
  *
  * @return The focused activity, or undefined if no focused activity is found.
  */
-export function getFocusedActivity(
+export async function getFocusedActivity(
   entry: HierarchyTreeNode,
-): HierarchyTreeNode | undefined {
-  const focusedDisplay = getFocusedDisplay(entry);
-  const focusedWindow = getFocusedWindow(entry);
-  const resumedActivity =
-    focusedDisplay?.getEagerPropertyByName('resumedActivity');
+): Promise<HierarchyTreeNode | undefined> {
+  const focusedDisplay = await getFocusedDisplay(entry);
+  const focusedWindow = await getFocusedWindow(entry);
+  const resumedActivity = (await focusedDisplay?.getAllProperties())
+    ?.getChildByName('displayContent')
+    ?.getChildByName('resumedActivity');
 
   let focusedActivity: HierarchyTreeNode | undefined;
   if (focusedDisplay && resumedActivity) {
-    const rootTasks = getRootTasks(focusedDisplay);
+    const rootTasks = await getRootTasks(focusedDisplay);
     focusedActivity = getActivityByName(
       assertDefined(
-        resumedActivity.getChildByName('title')?.getValue<string>(),
+        resumedActivity?.getChildByName('title')?.getValue<string>(),
       ),
       rootTasks,
     );
   } else if (focusedDisplay && focusedWindow) {
-    focusedActivity = getActivitiesForWindowState(
-      focusedWindow,
-      focusedDisplay,
+    focusedActivity = (
+      await getActivitiesForWindowState(focusedWindow, focusedDisplay)
     )?.at(0);
   }
 
@@ -60,62 +60,86 @@ export function getFocusedActivity(
  *
  * @return The focused window, or undefined if no focused window is found.
  */
-export function getFocusedWindow(
+export async function getFocusedWindow(
   entry: HierarchyTreeNode,
-): HierarchyTreeNode | undefined {
-  const focusedWindowTitle = entry
-    .getEagerPropertyByName('focusedWindow')
+): Promise<HierarchyTreeNode | undefined> {
+  const focusedWindowTitle = (await entry.getAllProperties())
+    .getChildByName('windowManagerService')
+    ?.getChildByName('focusedWindow')
     ?.getChildByName('title')
     ?.getValue();
-  return getVisibleWindows(entry).find(
+  return (await getVisibleWindows(entry)).find(
     (window) => window.name === focusedWindowTitle,
   );
 }
 
-function getFocusedDisplay(
+async function getFocusedDisplay(
   entry: HierarchyTreeNode,
-): HierarchyTreeNode | undefined {
-  const focusedDisplayId: number | undefined = entry
-    .getEagerPropertyByName('focusedDisplayId')
-    ?.getValue();
-  return entry
-    .getAllChildren()
-    .find(
-      (node) =>
-        node.getEagerPropertyByName('id')?.getValue() === focusedDisplayId,
-    );
+): Promise<HierarchyTreeNode | undefined> {
+  const focusedDisplayId = Number(
+    entry.getEagerPropertyByName('focusedDisplayId')?.getValue<bigint>(),
+  );
+
+  for (const child of entry.getAllChildren()) {
+    const props = await child.getAllProperties();
+    if (
+      props
+        .getChildByName('displayContent')
+        ?.getChildByName('id')
+        ?.getValue() === focusedDisplayId
+    ) {
+      return child;
+    }
+  }
+  return undefined;
 }
 
-function getVisibleWindows(entry: HierarchyTreeNode): HierarchyTreeNode[] {
+async function getVisibleWindows(
+  entry: HierarchyTreeNode,
+): Promise<HierarchyTreeNode[]> {
   const windowStates = entry.filterDfs((node) => {
     return node.id.startsWith('WindowState ');
   }, true);
-  const display = assertDefined(
-    entry
-      .getAllChildren()
-      .find(
-        (node) =>
-          node.getEagerPropertyByName('id')?.getValue() === defaultDisplayId,
-      ),
-  );
 
-  return windowStates.filter((state) => {
-    const activities = getActivitiesForWindowState(state, display);
+  let display: HierarchyTreeNode | undefined;
+  for (const child of entry.getAllChildren()) {
+    if (
+      (await child.getAllProperties())
+        .getChildByName('displayContent')
+        ?.getChildByName('id')
+        ?.getValue() === defaultDisplayId
+    ) {
+      display = child;
+      break;
+    }
+  }
+
+  const visibleWindows = [];
+
+  for (const state of windowStates) {
+    const activities = await getActivitiesForWindowState(
+      state,
+      assertDefined(display),
+    );
     const windowIsVisible =
-      state.getEagerPropertyByName('isComputedVisible')?.getValue() ?? false;
+      state.getEagerPropertyByName('isVisible')?.getValue() ?? false;
     const activityIsVisible =
       activities.find((activity) =>
-        activity.getEagerPropertyByName('isComputedVisible')?.getValue(),
+        activity.getEagerPropertyByName('isVisible')?.getValue(),
       ) ?? false;
-    return windowIsVisible && (activityIsVisible || activities.length === 0);
-  });
+    if (windowIsVisible && (activityIsVisible || activities.length === 0)) {
+      visibleWindows.push(state);
+    }
+  }
+
+  return visibleWindows;
 }
 
-function getActivitiesForWindowState(
+async function getActivitiesForWindowState(
   windowState: HierarchyTreeNode,
   display: HierarchyTreeNode,
-): HierarchyTreeNode[] {
-  return getRootTasks(display).reduce((activities, stack) => {
+): Promise<HierarchyTreeNode[]> {
+  return (await getRootTasks(display)).reduce((activities, stack) => {
     const activity = getActivity(stack, (activity) =>
       hasWindowState(activity, windowState),
     );
@@ -139,28 +163,49 @@ function hasWindowState(
   );
 }
 
-function getRootTasks(display: HierarchyTreeNode): HierarchyTreeNode[] {
-  const tasks = display.filterDfs((node) => {
+async function getRootTasks(
+  display: HierarchyTreeNode,
+): Promise<HierarchyTreeNode[]> {
+  const promises: Array<Promise<HierarchyTreeNode | undefined>> = [];
+  display.forEachNodeDfs((node) => {
     const isTask = node.id.startsWith('Task ');
-    if (!isTask) return false;
+    if (!isTask) return;
 
-    const taskId = node.getEagerPropertyByName('id')?.getValue();
-    const rootTaskId = node.getEagerPropertyByName('rootTaskId')?.getValue();
-    return rootTaskId !== undefined && taskId === rootTaskId;
+    const promise = node.getAllProperties().then((props) => {
+      const taskProps = assertDefined(props.getChildByName('task'));
+      const taskId = taskProps?.getChildByName('id')?.getValue();
+      const rootTaskId = taskProps.getChildByName('rootTaskId')?.getValue();
+      const isRootTask = rootTaskId !== undefined && taskId === rootTaskId;
+      if (isRootTask) {
+        return node;
+      }
+      return undefined;
+    });
+
+    promises.push(promise);
   }, true);
 
   const rootOrganizedTasks: HierarchyTreeNode[] = [];
 
-  tasks.reverse().filter((task: HierarchyTreeNode) => {
-    if (task.getEagerPropertyByName('createdByOrganiser')?.getValue()) {
+  const tasks = (await Promise.all(promises))
+    .filter((task) => task !== undefined)
+    .reverse();
+
+  const filteredTasks = [];
+  for (const task of tasks) {
+    const props = assertDefined(
+      (await task.getAllProperties()).getChildByName('task'),
+    );
+    if (props.getChildByName('createdByOrganiser')?.getValue()) {
       rootOrganizedTasks.push(task);
-      return false;
+    } else {
+      filteredTasks.push(task);
     }
-    return true;
-  });
+  }
+
   // Add root tasks controlled by an organizer
   rootOrganizedTasks.reverse().forEach((rootOrganizedTask) => {
-    tasks.push(...rootOrganizedTask.getAllChildren().slice().reverse());
+    filteredTasks.push(...rootOrganizedTask.getAllChildren().slice().reverse());
   });
 
   return tasks;

@@ -59,7 +59,10 @@ export class PresenterInputMethodManagerService extends AbstractPresenterInputMe
   ): Promise<ImeAdditionalProperties> {
     return new ImeAdditionalProperties(
       wmEntry
-        ? ImeUtils.processWindowManagerTraceEntry(wmEntry, wmEntryTimestamp)
+        ? await ImeUtils.processWindowManagerTraceEntry(
+            wmEntry,
+            wmEntryTimestamp,
+          )
         : undefined,
       undefined,
     );

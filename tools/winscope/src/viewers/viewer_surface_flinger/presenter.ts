@@ -589,9 +589,13 @@ the default for its data type.`,
         event.position,
       )?.getValue();
     if (wmEntry) {
-      this.wmFocusedDisplayId = wmEntry
-        .getEagerPropertyByName('focusedDisplayId')
-        ?.getValue();
+      this.wmFocusedDisplayId = Number(
+        assertBigInt(
+          wmEntry
+            .getEagerPropertyByName('focusedDisplayId')
+            ?.getValue<bigint>(),
+        ),
+      );
     }
   }
 }
