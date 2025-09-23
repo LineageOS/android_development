@@ -163,7 +163,7 @@ fn sync_to_green(monorepo_path: &Path) -> Result<()> {
     println!("bid = {bid}");
 
     Command::new("/google/data/ro/projects/android/smartsync_repo")
-        .args(["sync", "-j99", "-t", bid])
+        .args(["sync", "-j32", "--retry-fetches=2", "-t", bid])
         .current_dir(monorepo_path)
         .run_and_stream_output()?;
 
