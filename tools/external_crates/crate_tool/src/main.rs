@@ -163,7 +163,7 @@ fn main() -> Result<()> {
 
     let managed_repo = ManagedRepo::new(
         RootedPath::new(args.android_root, args.managed_repo_path)?,
-        args.offline,
+        args.offline || matches!(args.command, Cmd::SuggestUpdates { .. }),
     )?;
 
     match args.command {
