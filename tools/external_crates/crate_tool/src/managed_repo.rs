@@ -567,6 +567,8 @@ We apologize for the inconvenience."#,
         managed_crates.add_from(self.managed_dir().rel())?;
         let legacy_crates = self.legacy_crates()?;
 
+        self.pseudo_crate().cargo_update()?;
+
         for krate in managed_crates.values() {
             debug!("Checking for updates to {}", krate.name());
             let cio_crate = match self.crates_io.get_crate(krate.name()) {

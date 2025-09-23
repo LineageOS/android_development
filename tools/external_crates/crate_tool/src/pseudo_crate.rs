@@ -228,6 +228,16 @@ license = "Apache-2.0"
             .run_quiet_and_expect_success()?;
         Ok(())
     }
+    // Run `cargo update --dry-run` on the pseudo-crate. This has the effect of fetching the latest data from
+    // crates.io, so we can do it once in bulk, rather than one crate at a time, which makes
+    // suggest-updates much faster.
+    pub fn cargo_update(&self) -> Result<()> {
+        Command::new("cargo")
+            .args(["update", "--dry-run"])
+            .current_dir(&self.path)
+            .run_quiet_and_expect_success()?;
+        Ok(())
+    }
     // Mark the crate clean. Ironically, we don't actually need to run "cargo vendor"
     // immediately thanks to LazyCell.
     pub fn vendor(self) -> Result<PseudoCrate<CargoVendorClean>> {
