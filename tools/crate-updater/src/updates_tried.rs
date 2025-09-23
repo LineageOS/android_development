@@ -15,7 +15,7 @@
 use std::{
     collections::BTreeMap,
     fs::{read_to_string, write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use anyhow::Result;
@@ -24,6 +24,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct UpdatesTried {
+    #[serde(skip)]
+    path: PathBuf,
     attempts: BTreeMap<String, CrateUpdate>,
 }
 
@@ -37,13 +39,14 @@ struct CrateUpdate {
 
 impl UpdatesTried {
     /// Read updates-tried.json and prune old entries.
-    // TODO: Put this somewhere better than $CWD.
-    pub fn read() -> Result<Self> {
-        let mut parsed: UpdatesTried = if Path::new("updates-tried.json").exists() {
-            serde_json::from_str(read_to_string("updates-tried.json")?.as_str())?
+    pub fn read(monorepo_path: &impl AsRef<Path>) -> Result<Self> {
+        let updates_tried_path = monorepo_path.as_ref().join("updates-tried.json");
+        let mut parsed: UpdatesTried = if updates_tried_path.exists() {
+            serde_json::from_str(read_to_string(&updates_tried_path)?.as_str())?
         } else {
             UpdatesTried::default()
         };
+        parsed.path = updates_tried_path;
         let now = chrono::Local::now();
         parsed.attempts.retain(|_, u| u.time.checked_add_days(Days::new(14)).unwrap_or(now) > now);
         Ok(parsed)
@@ -51,7 +54,7 @@ impl UpdatesTried {
     pub fn write(&self) -> Result<()> {
         let mut contents = serde_json::to_string_pretty(self)?;
         contents.push('\n');
-        write("updates-tried.json", contents)?;
+        write(&self.path, contents)?;
         Ok(())
     }
     pub fn contains(&self, name: &str, version: &str) -> bool {
