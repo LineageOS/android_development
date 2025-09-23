@@ -231,8 +231,10 @@ impl ManagedCrate<New> {
         self,
         pseudo_crate: &PseudoCrate<CargoVendorClean>,
         run_cargo_embargo: bool,
+        update_imports: bool,
     ) -> Result<ManagedCrate<CopiedAndPatched>> {
-        let regenerated = self.into_vendored(pseudo_crate)?.regenerate(run_cargo_embargo)?;
+        let regenerated =
+            self.into_vendored(pseudo_crate)?.regenerate(run_cargo_embargo, update_imports)?;
         Ok(regenerated)
     }
 }
@@ -325,7 +327,11 @@ impl ManagedCrate<Vendored> {
         }
         Ok(())
     }
-    pub fn regenerate(self, run_cargo_embargo: bool) -> Result<ManagedCrate<CopiedAndPatched>> {
+    pub fn regenerate(
+        self,
+        run_cargo_embargo: bool,
+        update_imports: bool,
+    ) -> Result<ManagedCrate<CopiedAndPatched>> {
         self.copy_to_temporary_build_directory()?;
         self.copy_customizations()?;
 
@@ -348,13 +354,13 @@ impl ManagedCrate<Vendored> {
             Crate::from(self.temporary_build_directory())?.license(),
         )?;
         let regenerated = self.into_copied_and_patched(licenses)?;
-        regenerated.regenerate(run_cargo_embargo)?;
+        regenerated.regenerate(run_cargo_embargo, update_imports)?;
         Ok(regenerated)
     }
 }
 
 impl ManagedCrate<CopiedAndPatched> {
-    pub fn regenerate(&self, run_cargo_embargo: bool) -> Result<()> {
+    pub fn regenerate(&self, run_cargo_embargo: bool, update_imports: bool) -> Result<()> {
         // License logic must happen AFTER applying patches, because we use patches
         // to add missing license files. It must also happen BEFORE cargo_embargo,
         // because cargo_embargo needs to put license information in the Android.bp.
@@ -369,7 +375,7 @@ impl ManagedCrate<CopiedAndPatched> {
         }
 
         self.update_metadata()?;
-        self.fix_test_mapping()?;
+        self.fix_test_mapping(update_imports)?;
         // Fails on dangling symlinks, which happens when we run on the log crate.
         checksum::generate(self.temporary_build_directory())?;
 
@@ -498,12 +504,15 @@ impl ManagedCrate<CopiedAndPatched> {
     }
     /// Updates the TEST_MAPPING file in the temporary build directory, by
     /// removing deleted tests and adding new tests as post-submits.
-    fn fix_test_mapping(&self) -> Result<()> {
+    fn fix_test_mapping(&self, update_imports: bool) -> Result<()> {
         let mut tm = TestMapping::read(self.temporary_build_directory())?;
         let mut changed = tm.fix_import_paths();
         changed |= tm.add_new_tests_to_postsubmit()?;
         changed |= tm.remove_unknown_tests()?;
-        // TODO: Add an option to fix up the reverse dependencies.
+        if update_imports {
+            tm.update_imports()?;
+            changed = true;
+        }
         if changed {
             println!("Updating TEST_MAPPING for {}", self.name());
             tm.write()?;

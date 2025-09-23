@@ -334,7 +334,7 @@ We apologize for the inconvenience."#,
                 krate.name()
             );
         } else {
-            self.regenerate([&crate_name].iter(), true)?;
+            self.regenerate([&crate_name].iter(), true, false)?;
             println!(
                 "Please edit {} and run 'regenerate' for this crate",
                 managed_dir.rel().join("cargo_embargo.json").display()
@@ -349,13 +349,14 @@ We apologize for the inconvenience."#,
         &self,
         crates: impl Iterator<Item = T>,
         run_cargo_embargo: bool,
+        update_imports: bool,
     ) -> Result<()> {
         let pseudo_crate = self.pseudo_crate().vendor()?;
         for crate_name in crates {
             println!("Regenerating {}", crate_name.as_ref());
             let mc = self.managed_crate_for(crate_name.as_ref())?;
             // TODO: Don't give up if there's a failure.
-            mc.regenerate(&pseudo_crate, run_cargo_embargo)?;
+            mc.regenerate(&pseudo_crate, run_cargo_embargo, update_imports)?;
         }
 
         pseudo_crate.regenerate_crate_list()?;
@@ -705,7 +706,7 @@ We apologize for the inconvenience."#,
         for nv in &crate_updates {
             pseudo_crate.cargo_add(nv)?;
         }
-        self.regenerate(crate_updates.iter().map(|nv| nv.name()), true)?;
+        self.regenerate(crate_updates.iter().map(|nv| nv.name()), true, false)?;
         Ok(())
     }
     /// Initialize a new managed repository by creating the necessary directories,
