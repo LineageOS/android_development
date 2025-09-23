@@ -560,6 +560,7 @@ We apologize for the inconvenience."#,
         &self,
         consider_patched_crates: bool,
         semver_compatibility: SemverCompatibilityRule,
+        dep_semver_compatibility: SemverCompatibilityRule,
         json: bool,
     ) -> Result<()> {
         let mut suggestions = UpdateSuggestions::default();
@@ -625,7 +626,7 @@ We apologize for the inconvenience."#,
                     for (_, dep_crate) in cc.get_versions(dep.crate_name()) {
                         if req.matches_with_compatibility_rule(
                             dep_crate.version(),
-                            SemverCompatibilityRule::Loose,
+                            dep_semver_compatibility,
                         ) {
                             return false;
                         }
