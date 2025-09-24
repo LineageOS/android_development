@@ -324,6 +324,11 @@ $dark-theme: mat.m2-define-dark-theme(
   rotate: 180deg;
 }
 
+.playback-speed-selector .mat-mdc-select-value{
+  text-align: right;
+  padding-right: 7px;
+}
+
 @include mat.icon-theme($light-theme);
 @include mat.input-theme($light-theme);
 
