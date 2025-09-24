@@ -34,7 +34,7 @@ import {ParserWindowManager} from 'parsers/window_manager/perfetto/parser_window
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 
 interface ProcessedFile {
@@ -129,10 +129,10 @@ export class ParserFactory {
     return {parsers, isPerfettoTrace: true};
   }
 
-  private async initializeTraceProcessor(): Promise<TraceProcessor> {
+  private async initializeTraceProcessor(): Promise<TraceProcessorProxy> {
     const traceProcessor = TraceProcessorFactory.getSingleInstance();
 
-    await traceProcessor.resetTraceProcessor({
+    await traceProcessor.reset({
       cropTrackEvents: false,
       ingestFtraceInRawTable: false,
       analyzeTraceProtoContent: false,
@@ -143,7 +143,7 @@ export class ParserFactory {
     return traceProcessor;
   }
 
-  private async processGeometryTables(traceProcessor: TraceProcessor) {
+  private async processGeometryTables(traceProcessor: TraceProcessorProxy) {
     await traceProcessor.query('INCLUDE PERFETTO MODULE android.winscope.rect');
     await traceProcessor.query(`CREATE PERFETTO TABLE winscope_rect AS
       SELECT
@@ -165,7 +165,7 @@ export class ParserFactory {
 
   private async loadFileInTp(
     file: File,
-    traceProcessor: TraceProcessor,
+    traceProcessor: TraceProcessorProxy,
     progressListener?: ProgressListener,
   ) {
     for (

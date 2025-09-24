@@ -37,7 +37,7 @@ import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {FilesSource} from './files_source';
 import {TraceFileFilter} from './trace_file_filter';
 import {TracePipeline} from './trace_pipeline';
@@ -322,7 +322,7 @@ describe('TracePipeline', () => {
     spyIter.get.withArgs('value').and.returnValue(2n);
     queryResultObj.iter.and.returnValue(spyIter);
 
-    const spy = spyOn(TraceProcessor.prototype, 'query').and.callThrough();
+    const spy = spyOn(TraceProcessorProxy.prototype, 'query').and.callThrough();
     spy
       .withArgs(
         'SELECT name, value FROM stats ' +
