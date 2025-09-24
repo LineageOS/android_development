@@ -1,0 +1,59 @@
+{
+  "run_cargo": true,
+  "variants": [
+    {
+      "features": [
+        "derive",
+        "simd",
+        "std"
+      ]
+    },
+    {
+      "features": [
+        "alloc",
+        "derive",
+        "simd"
+      ],
+      "package": {
+        "zerocopy": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    },
+    {
+      "features": [
+        "derive",
+        "simd"
+      ],
+      "module_name_overrides": {
+        "libzerocopy": "libzerocopy_nostd_noalloc"
+      },
+      "package": {
+        "zerocopy": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    },
+    {
+      "features": [
+        "alloc",
+        "derive"
+      ],
+      "package": {
+        "zerocopy": {
+          "alloc": true,
+          "no_std": true
+        }
+      },
+      "generate_androidbp": false,
+      "generate_rulesmk": true
+    }
+  ],
+  "recovery_available": true,
+  "min_sdk_version": "29"
+}

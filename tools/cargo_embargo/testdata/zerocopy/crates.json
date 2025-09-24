@@ -1,0 +1,141 @@
+[
+  [
+    {
+      "name": "zerocopy",
+      "package_name": "zerocopy",
+      "version": "0.8.26",
+      "types": [
+        "lib"
+      ],
+      "target": "x86_64-unknown-linux-gnu",
+      "features": [
+        "alloc",
+        "derive",
+        "simd",
+        "std",
+        "zerocopy-derive"
+      ],
+      "cfgs": [],
+      "externs": [
+        {
+          "name": "zerocopy_derive",
+          "lib_name": "zerocopy_derive",
+          "raw_name": "zerocopy-derive",
+          "extern_type": "ProcMacro"
+        }
+      ],
+      "codegens": [],
+      "static_libs": [],
+      "shared_libs": [],
+      "edition": "2021",
+      "package_dir": "/usr/local/google/home/mmaurer/googleplex-android/platform/development/tools/cargo_embargo/testdata/zerocopy",
+      "main_src": "src/lib.rs",
+      "license": "BSD-2-Clause OR Apache-2.0 OR MIT",
+      "license_file": null,
+      "empty_test": false
+    }
+  ],
+  [
+    {
+      "name": "zerocopy",
+      "package_name": "zerocopy",
+      "version": "0.8.26",
+      "types": [
+        "lib"
+      ],
+      "target": "x86_64-unknown-linux-gnu",
+      "features": [
+        "alloc",
+        "derive",
+        "simd",
+        "zerocopy-derive"
+      ],
+      "cfgs": [],
+      "externs": [
+        {
+          "name": "zerocopy_derive",
+          "lib_name": "zerocopy_derive",
+          "raw_name": "zerocopy-derive",
+          "extern_type": "ProcMacro"
+        }
+      ],
+      "codegens": [],
+      "static_libs": [],
+      "shared_libs": [],
+      "edition": "2021",
+      "package_dir": "/usr/local/google/home/mmaurer/googleplex-android/platform/development/tools/cargo_embargo/testdata/zerocopy",
+      "main_src": "src/lib.rs",
+      "license": "BSD-2-Clause OR Apache-2.0 OR MIT",
+      "license_file": null,
+      "empty_test": false
+    }
+  ],
+  [
+    {
+      "name": "zerocopy",
+      "package_name": "zerocopy",
+      "version": "0.8.26",
+      "types": [
+        "lib"
+      ],
+      "target": "x86_64-unknown-linux-gnu",
+      "features": [
+        "derive",
+        "simd",
+        "zerocopy-derive"
+      ],
+      "cfgs": [],
+      "externs": [
+        {
+          "name": "zerocopy_derive",
+          "lib_name": "zerocopy_derive",
+          "raw_name": "zerocopy-derive",
+          "extern_type": "ProcMacro"
+        }
+      ],
+      "codegens": [],
+      "static_libs": [],
+      "shared_libs": [],
+      "edition": "2021",
+      "package_dir": "/usr/local/google/home/mmaurer/googleplex-android/platform/development/tools/cargo_embargo/testdata/zerocopy",
+      "main_src": "src/lib.rs",
+      "license": "BSD-2-Clause OR Apache-2.0 OR MIT",
+      "license_file": null,
+      "empty_test": false
+    }
+  ],
+  [
+    {
+      "name": "zerocopy",
+      "package_name": "zerocopy",
+      "version": "0.8.26",
+      "types": [
+        "lib"
+      ],
+      "target": "x86_64-unknown-linux-gnu",
+      "features": [
+        "alloc",
+        "derive",
+        "zerocopy-derive"
+      ],
+      "cfgs": [],
+      "externs": [
+        {
+          "name": "zerocopy_derive",
+          "lib_name": "zerocopy_derive",
+          "raw_name": "zerocopy-derive",
+          "extern_type": "ProcMacro"
+        }
+      ],
+      "codegens": [],
+      "static_libs": [],
+      "shared_libs": [],
+      "edition": "2021",
+      "package_dir": "/usr/local/google/home/mmaurer/googleplex-android/platform/development/tools/cargo_embargo/testdata/zerocopy",
+      "main_src": "src/lib.rs",
+      "license": "BSD-2-Clause OR Apache-2.0 OR MIT",
+      "license_file": null,
+      "empty_test": false
+    }
+  ]
+]
