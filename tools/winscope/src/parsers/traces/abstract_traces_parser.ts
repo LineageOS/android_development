@@ -26,6 +26,7 @@ import {
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
+import {QueryResults} from 'trace_processor/query_result';
 
 /**
  * A parser that processes and merges multiple traces of different types.
@@ -63,6 +64,10 @@ export abstract class AbstractTracesParser<T> implements Parser<T> {
   }
 
   getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

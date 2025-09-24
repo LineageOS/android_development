@@ -26,6 +26,7 @@ import {
 import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {Parser} from './parser';
 import {TraceType} from './trace_type';
+import {QueryResults} from 'trace_processor/query_result';
 
 export class ParserMock<T> implements Parser<T> {
   constructor(
@@ -83,6 +84,10 @@ export class ParserMock<T> implements Parser<T> {
   }
 
   getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

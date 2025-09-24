@@ -249,6 +249,10 @@ export class Trace<T> {
     }
   }
 
+  async getQueryResults(entriesRange: EntriesRange) {
+    return await this.parser.getQueryResults(entriesRange);
+  }
+
   async customQuery<Q extends CustomQueryType>(
     type: Q,
     param?: CustomQueryParamTypeMap[Q],
