@@ -79,8 +79,8 @@ describe('HierarchyTreeBuilderWm', () => {
       .setIsRoot(true)
       .setChildren([
         {name: 'id', value: 1},
-        {name: 'token', value: '1234567'},
-        {name: 'children', children: [{name: '0', value: '7654321'}]},
+        {name: 'token', value: 1234567},
+        {name: 'children', children: [{name: '0', value: 7654321}]},
       ])
       .build();
 
@@ -98,7 +98,7 @@ describe('HierarchyTreeBuilderWm', () => {
       .setIsRoot(true)
       .setChildren([
         {name: 'id', value: 2},
-        {name: 'token', value: '7654321'},
+        {name: 'token', value: 7654321},
         {name: 'children', value: []},
       ])
       .build();
@@ -145,8 +145,8 @@ describe('HierarchyTreeBuilderWm', () => {
       .setIsRoot(true)
       .setChildren([
         {name: 'id', value: 1},
-        {name: 'token', value: '1234567'},
-        {name: 'children', children: [{name: '0', value: '7654321'}]},
+        {name: 'token', value: 1234567},
+        {name: 'children', children: [{name: '0', value: 7654321}]},
       ])
       .build();
 
@@ -164,8 +164,8 @@ describe('HierarchyTreeBuilderWm', () => {
       .setIsRoot(true)
       .setChildren([
         {name: 'id', value: 2},
-        {name: 'token', value: '7654321'},
-        {name: 'children', children: [{name: '0', value: '4646464'}]},
+        {name: 'token', value: 7654321},
+        {name: 'children', children: [{name: '0', value: 4646464}]},
       ])
       .build();
 
@@ -183,7 +183,7 @@ describe('HierarchyTreeBuilderWm', () => {
       .setIsRoot(true)
       .setChildren([
         {name: 'id', value: 3},
-        {name: 'token', value: '4646464'},
+        {name: 'token', value: 4646464},
         {name: 'children', value: []},
       ])
       .build();

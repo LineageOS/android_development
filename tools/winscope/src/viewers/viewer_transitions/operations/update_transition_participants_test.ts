@@ -23,8 +23,8 @@ describe('UpdateTransitionParticipants', () => {
 
   beforeEach(() => {
     const layerIdToName = new Map<number, string>([[2, 'testLayer']]);
-    const windowTokenToTitle = new Map<string, string>([
-      ['97b5518', 'testTitle'],
+    const windowTokenToTitle = new Map<number, string>([
+      [159077656, 'testTitle'],
     ]);
 
     operation = new UpdateTransitionParticipants(

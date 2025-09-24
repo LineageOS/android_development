@@ -24,7 +24,7 @@ export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
 {
   constructor(
     private readonly layerIdToName: Map<number, string>,
-    private readonly windowTokenToTitle: Map<string, string>,
+    private readonly windowTokenToTitle: Map<number, string>,
   ) {}
 
   abstract apply(node: T): void;
@@ -44,13 +44,13 @@ export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
   }
 
   protected updateWindowId(windowId: PropertyTreeNode) {
-    const value = windowId.getValue<string>() ?? undefined;
+    const value = windowId.getValue<bigint>() ?? undefined;
     if (value === undefined) {
       return;
     }
     const windowIdValue = Number(value);
     const windowIdString = formatAsHex(windowIdValue);
-    const windowTitle = this.windowTokenToTitle.get(windowIdValue.toString(16));
+    const windowTitle = this.windowTokenToTitle.get(windowIdValue);
     windowId.setFormatter(
       new FixedStringFormatter(
         windowTitle

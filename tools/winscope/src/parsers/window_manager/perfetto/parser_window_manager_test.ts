@@ -71,6 +71,6 @@ describe('PerfettoParserWindowManager', () => {
       .sliceEntries(0, 1)
       .customQuery(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE);
     expect(tokenAndTitles.length).toBe(70);
-    expect(tokenAndTitles).toContain({token: '86f4c23', title: 'Leaf:36:36'});
+    expect(tokenAndTitles).toContain({token: 141511715, title: 'Leaf:36:36'});
   });
 });

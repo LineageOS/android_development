@@ -234,7 +234,7 @@ class ImeAdditionalPropertiesUtils {
     const focusedWindow = getFocusedWindow(entry);
     if (focusedWindow) {
       const token = assertDefined(
-        focusedWindow.getEagerPropertyByName('token')?.getValue<string>(),
+        focusedWindow.getEagerPropertyByName('token')?.formattedValue(),
       );
       const windowTypeSuffix = this.getWindowTypeSuffix(
         assertDefined(
@@ -275,7 +275,7 @@ class ImeAdditionalPropertiesUtils {
     if (focusedActivity) {
       const token = assertDefined(
         focusedActivity.getEagerPropertyByName('token'),
-      ).getValue();
+      ).formattedValue();
       const state = assertDefined(
         focusedActivity.getEagerPropertyByName('state'),
       ).getValue();

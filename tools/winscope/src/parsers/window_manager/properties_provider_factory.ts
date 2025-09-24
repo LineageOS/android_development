@@ -273,7 +273,7 @@ export class PropertiesProviderFactory {
       DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
         containerProperties.id,
         'token',
-        token,
+        identifier?.hashCode ?? 0,
       ),
     );
 
@@ -409,12 +409,12 @@ export class PropertiesProviderFactory {
     return assertDefined(containerChild.windowContainer);
   }
 
-  private mapChildrenToTokens(children: WindowContainerChildProto[]): string[] {
+  private mapChildrenToTokens(children: WindowContainerChildProto[]): number[] {
     return children
       .map((child) => {
         const identifier = this.getIdentifier(child);
-        return this.makeToken(identifier);
+        return identifier?.hashCode;
       })
-      .filter((token) => token.length > 0);
+      .filter((token) => token !== undefined) as number[];
   }
 }

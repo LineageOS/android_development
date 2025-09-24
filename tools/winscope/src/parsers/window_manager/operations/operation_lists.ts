@@ -21,7 +21,11 @@ import {DENYLIST_PROPERTIES} from 'parsers/window_manager/denylist_properties';
 import {EAGER_PROPERTIES} from 'parsers/window_manager/eager_properties';
 import {ProtoType} from 'parsers/window_manager/proto_type';
 import {TamperedProtos} from 'parsers/window_manager/tampered_protos';
-import {HEX_FORMATTER, RECT_FORMATTER} from 'trace/formatters';
+import {
+  HEX_FORMATTER,
+  HEX_NO_PREFIX_FORMATTER,
+  RECT_FORMATTER,
+} from 'trace/formatters';
 import {Operation} from 'tree_node/operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {SetFormatters} from 'viewers/operations/set_formatters';
@@ -37,7 +41,10 @@ export declare interface OperationLists {
   lazy: Array<Operation<PropertyTreeNode>>;
 }
 
-const commonFormatters = new Map([['hashCode', HEX_FORMATTER]]);
+const commonFormatters = new Map([
+  ['hashCode', HEX_FORMATTER],
+  ['token', HEX_NO_PREFIX_FORMATTER],
+]);
 
 /**
  * Creates operation lists for all proto types found in a WM trace.

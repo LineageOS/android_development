@@ -28,7 +28,7 @@ import {PropertyTreeNode} from 'tree_node/property_tree_node';
 export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder {
   protected override buildIdentifierToChildrenMap(
     containers: PropertiesProvider[],
-  ): Map<string, readonly HierarchyTreeNode[]> {
+  ): Map<number, readonly HierarchyTreeNode[]> {
     const map = containers.reduce((map, container) => {
       const containerProperties = container.getEagerProperties();
       const containerNode = this.makeNode(
@@ -37,17 +37,17 @@ export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder {
         container,
       );
       const token = assertDefined(
-        containerProperties.getChildByName('token')?.getValue<string>(),
+        containerProperties.getChildByName('token')?.getValue<number>(),
       );
       map.set(token, [containerNode]);
       return map;
-    }, new Map<string, HierarchyTreeNode[]>());
+    }, new Map<number, HierarchyTreeNode[]>());
     return map;
   }
 
   protected override assignParentChildRelationships(
     node: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+    identifierToChildren: Map<number, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
     let childrenTokens: readonly PropertyTreeNode[] | undefined;
@@ -64,7 +64,7 @@ export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder {
         node.getEagerPropertyByName('children')?.getAllChildren() ?? [];
     }
     for (const childToken of childrenTokens) {
-      const tokenValue = assertDefined(childToken.getValue<string | number>());
+      const tokenValue = assertDefined(childToken.getValue<number>());
       const child = identifierToChildren.get(tokenValue)?.at(0);
       if (child) {
         this.setParentChildRelationship(node, child);

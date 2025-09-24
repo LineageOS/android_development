@@ -177,7 +177,7 @@ export declare interface CustomQueryParserResultTypeMap {
    * Result type for this query is an array of objects with token and title
    */
   [CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE]: Array<{
-    token: string;
+    token: number;
     title: string;
   }>;
   /**
@@ -211,7 +211,7 @@ export declare interface CustomQueryResultTypeMap<T> {
    * Result type for this query is an array of objects with token and title
    */
   [CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE]: Array<{
-    token: string;
+    token: number;
     title: string;
   }>;
   /**

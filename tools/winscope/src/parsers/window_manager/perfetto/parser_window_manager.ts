@@ -85,7 +85,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
           const token = assertBigIntOrUndefined(it.get('token') ?? undefined);
           const title = assertStringOrUndefined(it.get('title') ?? undefined);
           if (token !== undefined && title !== undefined) {
-            result.push({token: token.toString(16), title});
+            result.push({token: Number(token), title});
           }
         }
         return result;

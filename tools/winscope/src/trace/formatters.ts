@@ -34,7 +34,11 @@ function formatAsDecimal(value: number): string {
   return value.toString();
 }
 
-function formatAsHex(value: number, upperCase = false): string {
+function formatAsHex(
+  value: number,
+  upperCase = false,
+  withPrefix = true,
+): string {
   if (value < 0) {
     value += Math.pow(2, 32); // convert to 2's complement
   }
@@ -42,7 +46,7 @@ function formatAsHex(value: number, upperCase = false): string {
   if (upperCase) {
     hexValue = hexValue.toUpperCase();
   }
-  return '0x' + hexValue;
+  return withPrefix ? '0x' + hexValue : hexValue;
 }
 
 class BufferFormatter implements PropertyFormatter {
@@ -145,6 +149,13 @@ class HexFormatter implements PropertyFormatter {
   }
 }
 const HEX_FORMATTER = new HexFormatter();
+
+class HexNoPrefixFormatter implements PropertyFormatter {
+  format(node: PropertyTreeNode): string {
+    return formatAsHex(node.getValue() ?? 0, false, false);
+  }
+}
+const HEX_NO_PREFIX_FORMATTER = new HexNoPrefixFormatter();
 
 class LayerIdFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -279,6 +290,7 @@ export {
   FLAG_SEPARATOR,
   formatAsHex,
   HEX_FORMATTER,
+  HEX_NO_PREFIX_FORMATTER,
   LAYER_ID_FORMATTER,
   MATRIX_FORMATTER,
   POSITION_FORMATTER,

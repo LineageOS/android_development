@@ -121,7 +121,7 @@ describe('ParserWindowManager', () => {
           .customQuery(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE);
         expect(tokenAndTitles.length).toBe(72);
         expect(tokenAndTitles).toContain({
-          token: 'c06766f',
+          token: 201750127,
           title: 'Leaf:36:36',
         });
       });
