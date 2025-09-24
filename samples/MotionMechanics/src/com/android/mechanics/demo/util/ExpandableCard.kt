@@ -48,8 +48,9 @@ import com.android.compose.animation.scene.SceneTransitions
 import com.android.compose.animation.scene.Swipe
 import com.android.compose.animation.scene.UserActionDistance
 import com.android.compose.animation.scene.ValueKey
-import com.android.compose.animation.scene.animateElementIntAsState
+import com.android.compose.animation.scene.animateContentIntAsState
 import com.android.compose.animation.scene.transitions
+import com.android.mechanics.demo.util.Elements.Chevron
 
 object Scenes {
     val Collapsed = SceneKey(debugName = "Collapsed")
@@ -145,17 +146,15 @@ private fun ContentScope.ExpansionCard(
 @Composable
 private fun ContentScope.Chevron(rotate: Boolean, modifier: Modifier = Modifier) {
     val key = Elements.Chevron
-    ElementWithValues(key, modifier) {
-        val rotation by animateElementIntAsState(if (rotate) 180 else 0, Values.ChevronRotation)
+    Element(key, modifier) {
+        val rotation by animateContentIntAsState(if (rotate) 180 else 0, Values.ChevronRotation)
 
-        content {
-            Icon(
-                Icons.Default.ExpandMore,
-                null,
-                Modifier.size(24.dp).drawWithContent {
-                    rotate(rotation.toFloat()) { this@drawWithContent.drawContent() }
-                },
-            )
-        }
+        Icon(
+            Icons.Default.ExpandMore,
+            null,
+            Modifier.size(24.dp).drawWithContent {
+                rotate(rotation.toFloat()) { this@drawWithContent.drawContent() }
+            },
+        )
     }
 }

@@ -19,8 +19,6 @@ package {
 
 android_library {
     name: "MotionMechanicsDemoLib",
-
-    sdk_version: "current",
     manifest: "AndroidManifest.xml",
 
     srcs: [
@@ -29,16 +27,17 @@ android_library {
 
     static_libs: [
         "PlatformComposeSceneTransitionLayout",
-        "mechanics",
+        "androidx-constraintlayout_constraintlayout",
         "androidx.activity_activity-compose",
+        "androidx.appcompat_appcompat",
         "androidx.compose.material3_material3",
         "androidx.compose.material3_material3-window-size-class",
         "androidx.compose.material_material-icons-extended",
         "androidx.compose.runtime_runtime",
         "androidx.navigation_navigation-compose",
         "androidx.window_window",
-        "androidx-constraintlayout_constraintlayout",
-        "androidx.appcompat_appcompat",
+        "mechanics",
+        "mechanics-compose",
     ],
 
     kotlincflags: ["-Xjvm-default=all"],
@@ -48,11 +47,11 @@ android_library {
 android_app {
     name: "MotionMechanicsDemo",
     defaults: [
-        "platform_app_defaults",
         "SystemUI_optimized_defaults",
+        "platform_app_defaults",
     ],
 
-    sdk_version: "current",
+    platform_apis: true,
     manifest: "app/AndroidManifest.xml",
 
     static_libs: [
