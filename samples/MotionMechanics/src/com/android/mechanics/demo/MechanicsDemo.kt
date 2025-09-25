@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.android.mechanics.demo.demos.VerticalContainerRevealDemo
 import com.android.mechanics.demo.demos.VerticalFadeContentRevealDemo
 import com.android.mechanics.demo.documentation.SingleNotificationDismissDemo
 import com.android.mechanics.demo.explanation.ExplanationDemo
@@ -52,6 +53,7 @@ object DemoScreens {
                 "MotionValue Explanation" to DemoScreen(ExplanationDemo),
                 "Notification Dismiss" to DemoScreen(SingleNotificationDismissDemo),
                 "Vertical Fade Content Reveal" to DemoScreen(VerticalFadeContentRevealDemo),
+                "Vertical Container Reveal" to DemoScreen(VerticalContainerRevealDemo),
             ),
         )
 }
