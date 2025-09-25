@@ -19,6 +19,10 @@ import {OperationChain} from './operation_chain';
 import {PropertySource, PropertyTreeNode} from './property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from './property_tree_node_factory';
 
+/**
+ * Type for a function that asynchronously provides a `PropertyTreeNode`.
+ * This is used to fetch properties that are not eagerly loaded.
+ */
 export type LazyPropertiesStrategyType = () => Promise<PropertyTreeNode>;
 
 /**
