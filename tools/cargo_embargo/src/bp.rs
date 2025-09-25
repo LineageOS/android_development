@@ -84,6 +84,14 @@ impl BpModule {
         if self.device_std_rlib() && other.no_std() {
             let mut no_std_props = BpProperties::new();
             no_std_props.set("enabled", true);
+            // Normally, props are omitted if empty. If the std variant has a prop set,
+            // and the no_std variant does not, we need to explicitly set it to the empty
+            // list to maintain the semantics of the merged module.
+            for prop in NO_STD_SUPPORTED_PROPS {
+                if self.props.map.contains_key(*prop) && !other.props.map.contains_key(*prop) {
+                    no_std_props.set(prop, BpValue::List(Vec::new()))
+                }
+            }
             for (prop, val) in other.props.map.into_iter() {
                 if self.props.map.get(&prop) != Some(&val) {
                     // For this specific value, we have a no_std equivalent.
