@@ -38,6 +38,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
     entry = new PropertiesProvider(
       entryPropertiesTree,
       async () => entryPropertiesTree,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -63,6 +64,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
@@ -82,6 +84,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
     const childProvider = new PropertiesProvider(
       childProps,
       async () => childProps,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -95,6 +98,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),

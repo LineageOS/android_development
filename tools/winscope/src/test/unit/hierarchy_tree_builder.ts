@@ -83,6 +83,7 @@ export class HierarchyTreeBuilder extends TreeBuilder<
     const provider = new PropertiesProvider(
       propertiesTree,
       async () => propertiesTree,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),

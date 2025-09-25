@@ -15,11 +15,14 @@
  */
 
 import {Warning} from 'common/warning';
-import {PropertiesProvider} from './properties_provider';
 import {PropertyTreeNode} from './property_tree_node';
 import {TraceRect} from './trace_rect';
 import {TreeNode} from './tree_node';
-
+import {TraceProcessor} from 'trace_processor/trace_processor';
+import {
+  LazyPropertiesStrategyType,
+  PropertiesProvider,
+} from './properties_provider';
 /**
  * A node in a hierarchy tree.
  */
@@ -41,6 +44,13 @@ export class HierarchyTreeNode extends TreeNode {
 
   async getAllProperties(): Promise<PropertyTreeNode> {
     return await this.propertiesProvider.getAll();
+  }
+
+  enableLazyPropertiesFetch(
+    strategy: LazyPropertiesStrategyType,
+    tp: TraceProcessor,
+  ) {
+    this.propertiesProvider.enableLazyPropertiesFetch(strategy, tp);
   }
 
   getEagerPropertyByName(name: string): PropertyTreeNode | undefined {

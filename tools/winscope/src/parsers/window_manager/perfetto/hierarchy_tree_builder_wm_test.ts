@@ -39,6 +39,7 @@ describe('HierarchyTreeBuilderWm', () => {
     entry = new PropertiesProvider(
       entryPropertiesTree,
       async () => entryPropertiesTree,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -64,6 +65,7 @@ describe('HierarchyTreeBuilderWm', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
@@ -88,6 +90,7 @@ describe('HierarchyTreeBuilderWm', () => {
     const container1Provider = new PropertiesProvider(
       container1Props,
       async () => container1Props,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -107,6 +110,7 @@ describe('HierarchyTreeBuilderWm', () => {
     const container2Provider = new PropertiesProvider(
       container2Props,
       async () => container2Props,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -123,6 +127,7 @@ describe('HierarchyTreeBuilderWm', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
@@ -154,6 +159,7 @@ describe('HierarchyTreeBuilderWm', () => {
     const container1Provider = new PropertiesProvider(
       container1Props,
       async () => container1Props,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -173,6 +179,7 @@ describe('HierarchyTreeBuilderWm', () => {
     const container2Provider = new PropertiesProvider(
       container2Props,
       async () => container2Props,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -192,6 +199,7 @@ describe('HierarchyTreeBuilderWm', () => {
     const container3Provider = new PropertiesProvider(
       container3Props,
       async () => container3Props,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -208,6 +216,7 @@ describe('HierarchyTreeBuilderWm', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),

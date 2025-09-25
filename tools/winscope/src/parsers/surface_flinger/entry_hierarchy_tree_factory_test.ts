@@ -40,7 +40,7 @@ import {EntryHierarchyTreeFactory} from './entry_hierarchy_tree_factory';
 import {LayerRects, RectExtractor} from './rect_extractor';
 
 describe('EntryHierarchyTreeFactory', () => {
-  const factory = new EntryHierarchyTreeFactory();
+  const factory = EntryHierarchyTreeFactory;
   const traceProcessor = jasmine.createSpyObj<TraceProcessor>(
     'traceProcessor',
     ['query'],

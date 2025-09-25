@@ -22,6 +22,7 @@ import {
   PropertiesProvider,
 } from './properties_provider';
 import {PropertyTreeNode} from './property_tree_node';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 
 /**
  * A builder for a properties provider.
@@ -29,12 +30,18 @@ import {PropertyTreeNode} from './property_tree_node';
 export class PropertiesProviderBuilder {
   private eagerProperties: PropertyTreeNode | undefined;
   private lazyPropertiesStrategy: LazyPropertiesStrategyType | undefined;
+  private tp: TraceProcessor | undefined;
   private commonOperations = OperationChain.emptyChain<PropertyTreeNode>();
   private eagerOperations = OperationChain.emptyChain<PropertyTreeNode>();
   private lazyOperations = OperationChain.emptyChain<PropertyTreeNode>();
 
   setEagerProperties(value: PropertyTreeNode): this {
     this.eagerProperties = value;
+    return this;
+  }
+
+  setTraceProcessor(value: TraceProcessor): this {
+    this.tp = value;
     return this;
   }
 
@@ -62,6 +69,7 @@ export class PropertiesProviderBuilder {
     return new PropertiesProvider(
       assertDefined(this.eagerProperties),
       this.lazyPropertiesStrategy,
+      this.tp,
       this.commonOperations,
       this.eagerOperations,
       this.lazyOperations,

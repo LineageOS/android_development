@@ -37,7 +37,7 @@ import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
-  private readonly factory = new EntryHierarchyTreeFactory();
+  private readonly factory = EntryHierarchyTreeFactory;
   private visibleAndDisplayRects: Map<bigint, SnapshotRects> | undefined;
   private allVisibleRects: QueryResult | undefined;
   private allSnapshots: QueryResult | undefined;

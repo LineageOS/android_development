@@ -99,6 +99,7 @@ describe('HierarchyTreeBuilderLog', () => {
     return new PropertiesProvider(
       properties,
       async () => properties,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
