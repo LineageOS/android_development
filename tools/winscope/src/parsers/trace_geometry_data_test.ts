@@ -19,18 +19,23 @@ import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {QueryResult} from 'trace_processor/query_result';
 import {makeSpyRowIterator} from 'trace_processor/test_utils';
 import {TraceProcessor} from 'trace_processor/trace_processor';
-import {TraceGeometryData} from './trace_geometry_data';
+import {
+  TraceGeometryData,
+  TraceGeometryDataBuilder,
+} from './trace_geometry_data';
 
 describe('TraceGeometryData', () => {
   let mockTraceProcessor: jasmine.SpyObj<TraceProcessor>;
-  let traceGeometryData: TraceGeometryData;
+  let builder: TraceGeometryDataBuilder;
 
   beforeEach(() => {
     mockTraceProcessor = jasmine.createSpyObj<TraceProcessor>(
       'MockTraceProcessor',
       ['query'],
     );
-    traceGeometryData = new TraceGeometryData(mockTraceProcessor);
+    builder = new TraceGeometryDataBuilder().setTraceProcessor(
+      mockTraceProcessor,
+    );
   });
 
   describe('fetchAndBuild', () => {
@@ -45,8 +50,7 @@ describe('TraceGeometryData', () => {
       ];
 
       setupMockQuery(mockRectRows, mockTransformRows);
-
-      await traceGeometryData.fetchAndBuild();
+      const traceGeometryData = await builder.build();
 
       expect(mockTraceProcessor.query).toHaveBeenCalledTimes(2);
 
@@ -63,7 +67,7 @@ describe('TraceGeometryData', () => {
 
     it('should handle empty query results', async () => {
       setupMockQuery([], []);
-      await traceGeometryData.fetchAndBuild();
+      const traceGeometryData = await builder.build();
       expect(mockTraceProcessor.query).toHaveBeenCalledTimes(2);
       expect(traceGeometryData.getRect(1n)).toBeUndefined();
       expect(traceGeometryData.getTransform(1n)).toBeUndefined();
@@ -71,11 +75,12 @@ describe('TraceGeometryData', () => {
   });
 
   describe('getRect', () => {
+    let traceGeometryData: TraceGeometryData;
+
     beforeEach(async () => {
       const mockRectRows = [{id: 100n, x: 1, y: 2, w: 3, h: 4}];
       setupMockQuery(mockRectRows, []);
-
-      await traceGeometryData.fetchAndBuild();
+      traceGeometryData = await builder.build();
     });
 
     it('getRect should return the correct Rect for a valid ID', () => {
@@ -88,14 +93,14 @@ describe('TraceGeometryData', () => {
   });
 
   describe('getTransform', () => {
+    let traceGeometryData: TraceGeometryData;
+
     beforeEach(async () => {
       const mockTransformRows = [
         {id: 100n, dsdx: 1.1, dtdx: 0.1, tx: 10, dtdy: 1.2, dsdy: 0.2, ty: 11},
       ];
-
       setupMockQuery([], mockTransformRows);
-
-      await traceGeometryData.fetchAndBuild();
+      traceGeometryData = await builder.build();
     });
 
     it('getTransform should return the correct TransformMatrix for a valid ID', () => {

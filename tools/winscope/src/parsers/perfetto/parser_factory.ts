@@ -26,7 +26,7 @@ import {ParserInputMethodManagerService} from 'parsers/input_method/perfetto/par
 import {ParserInputMethodService} from 'parsers/input_method/perfetto/parser_input_method_service';
 import {ParserProtolog} from 'parsers/protolog/perfetto/parser_protolog';
 import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {TraceGeometryDataBuilder} from 'parsers/trace_geometry_data';
 import {ParserTransactions} from 'parsers/transactions/perfetto/parser_transactions';
 import {ParserTransitions} from 'parsers/transitions/perfetto/parser_transitions';
 import {ParserViewCapture} from 'parsers/view_capture/perfetto/parser_view_capture';
@@ -81,8 +81,9 @@ export class ParserFactory {
     );
 
     await this.processGeometryTables(traceProcessor);
-    const traceGeometryData = new TraceGeometryData(traceProcessor);
-    await traceGeometryData.fetchAndBuild();
+    const traceGeometryData = await new TraceGeometryDataBuilder()
+      .setTraceProcessor(traceProcessor)
+      .build();
 
     const parsers: Array<Parser<object>> = [];
     let hasFoundParser = false;

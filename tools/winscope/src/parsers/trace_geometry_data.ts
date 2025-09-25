@@ -22,18 +22,21 @@ import {TraceProcessor} from 'trace_processor/trace_processor';
 /**
  * A class for fetching and building geometry data from a trace.
  */
-export class TraceGeometryData {
-  private rectsMap: Map<bigint, Rect>;
-  private transformMap: Map<bigint, TransformMatrix>;
-  private traceProcessor: TraceProcessor;
+export class TraceGeometryDataBuilder {
+  private traceProcessor: TraceProcessor | undefined;
 
-  constructor(traceProcessor: TraceProcessor) {
-    this.traceProcessor = traceProcessor;
-    this.rectsMap = new Map<bigint, Rect>();
-    this.transformMap = new Map<bigint, TransformMatrix>();
+  setTraceProcessor(value: TraceProcessor) {
+    this.traceProcessor = value;
+    return this;
   }
 
-  async fetchAndBuild() {
+  async build(): Promise<TraceGeometryData> {
+    if (!this.traceProcessor) {
+      throw new Error('traceProcessor not set');
+    }
+    const rectsMap = new Map<bigint, Rect>();
+    const transformMap = new Map<bigint, TransformMatrix>();
+
     const allRects = `SELECT
         rr.id,
         rr.x,
@@ -64,7 +67,7 @@ export class TraceGeometryData {
         getNumber('w'),
         getNumber('h'),
       );
-      this.rectsMap.set(currentId, newRect);
+      rectsMap.set(currentId, newRect);
     }
 
     for (const row = transformResults.iter({}); row.valid(); row.next()) {
@@ -78,9 +81,21 @@ export class TraceGeometryData {
         getNumber('dsdy'),
         getNumber('ty'),
       );
-      this.transformMap.set(currentId, newTransform);
+      transformMap.set(currentId, newTransform);
     }
+
+    return new TraceGeometryData(rectsMap, transformMap);
   }
+}
+
+/**
+ * A class for retrieving pre-fetched rects and transforms.
+ */
+export class TraceGeometryData {
+  constructor(
+    private rectsMap: Map<bigint, Rect>,
+    private transformMap: Map<bigint, TransformMatrix>,
+  ) {}
 
   getRect(id: bigint): Rect | undefined {
     return this.rectsMap.get(id);
