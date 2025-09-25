@@ -43,6 +43,7 @@ export class UiData implements UiDataHierarchy {
   propertiesTree: UiPropertyTreeNode | undefined;
   isDarkMode = false;
   isPlaybackPlaying?: boolean;
+  isPlaybackInitializing?: boolean;
   rectSpec: RectSpec | undefined;
   allRectSpecs: RectSpec[] | undefined;
 

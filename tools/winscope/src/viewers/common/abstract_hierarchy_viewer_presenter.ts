@@ -278,6 +278,8 @@ export abstract class AbstractHierarchyViewerPresenter<
           case PlaybackState.FORWARDS:
           case PlaybackState.BACKWARDS:
             if (this.playPlayback) {
+              this.uiData.isPlaybackInitializing = true;
+              this.refreshHierarchyViewerUiData();
               await this.playPlayback(
                 this.trace,
                 assertDefined(event.currentTraceIndex),
@@ -305,6 +307,8 @@ export abstract class AbstractHierarchyViewerPresenter<
         } else {
           this.uiData.isPlaybackPlaying = true;
         }
+        this.uiData.isPlaybackInitializing = false;
+
         this.refreshHierarchyViewerUiData();
       },
     );

@@ -403,6 +403,7 @@ the default for its data type.`,
         );
         await presenter.onAppEvent(event);
         expect(playbackPresenterSpy).toHaveBeenCalled();
+        expect(uiData.isPlaybackInitializing).toEqual(true);
       });
 
       it('changes uiData state on PlaybackHandled', async () => {
@@ -412,6 +413,7 @@ the default for its data type.`,
         );
         await presenter.onAppEvent(event);
         expect(uiData.isPlaybackPlaying).toEqual(true);
+        expect(uiData.isPlaybackInitializing).toEqual(false);
 
         event = new PlaybackStateChangeHandled(
           PlaybackState.PAUSED,
