@@ -343,7 +343,6 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       Number(argSetId),
       rootId,
       rootName,
-      this.traceProcessor,
     );
 
     return new PropertiesProviderBuilder()
@@ -379,10 +378,9 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     argSetId: number,
     rootId: string,
     rootName: string,
-    traceProcessor: TraceProcessor,
   ): LazyPropertiesStrategyType {
     return async () => {
-      const data = await queryArgs(traceProcessor, argSetId);
+      const data = await queryArgs(this.traceProcessor, argSetId);
       return new PropertyTreeBuilderFromProto()
         .setData(this.viewProtoTransformer.transform(data))
         .setRootId(rootId)

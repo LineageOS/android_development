@@ -19,7 +19,7 @@ import {Timer} from 'common/time/timer';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {setNumRowsSpyQueryResult} from 'trace_processor/test_utils';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -52,7 +52,7 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
         const presenter = await this.createPresenterWithEmptyTrace(
           (newData: UiData) => (uiData = newData),
         );
-        spyOn(TraceProcessor.prototype, 'query').and.returnValue(
+        spyOn(TraceProcessorProxy.prototype, 'query').and.returnValue(
           Promise.resolve(setNumRowsSpyQueryResult(0)),
         );
         await presenter.onAppEvent(
