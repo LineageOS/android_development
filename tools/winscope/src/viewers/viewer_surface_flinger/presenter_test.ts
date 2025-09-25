@@ -28,7 +28,6 @@ import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {makeHierarchyNode} from 'test/unit/tree_node_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {EMPTY_OBJ_STRING} from 'trace/formatters';
 import {CustomQueryType} from 'trace_api/custom_query';
@@ -51,6 +50,7 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traceSf: Trace<HierarchyTreeNode> | undefined;
@@ -695,6 +695,7 @@ the default for its data type.`,
         });
 
         const tree = new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('LayerTraceEntry')
           .setName('root')
           .setChildren([
@@ -829,7 +830,12 @@ the default for its data type.`,
       ): Promise<[Presenter, Trace<HierarchyTreeNode>]> {
         const traceVc = new TraceBuilder<HierarchyTreeNode>()
           .setType(TraceType.VIEW_CAPTURE)
-          .setEntries([makeHierarchyNode({id: 'vc id', name: 'vc node'})])
+          .setEntries([
+            new HierarchyTreeBuilder()
+              .setId('vc id')
+              .setName('vc node')
+              .build(),
+          ])
           .setParserCustomQueryResult(CustomQueryType.VIEW_CAPTURE_METADATA, {
             packageName: 'com.android.car.carlauncher',
             windowName: 'not_used',

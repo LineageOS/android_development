@@ -24,6 +24,7 @@ import {TextFilter} from 'viewers/common/text_filter';
 import {DiffType} from './diff_type';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 describe('PropertiesPresenter', () => {
   const pTree = new PropertyTreeBuilder()
@@ -38,6 +39,7 @@ describe('PropertiesPresenter', () => {
     ])
     .build();
   const hTree = new HierarchyTreeBuilder()
+    .setRootNodeFormatter(new SetFormatters())
     .setId('Test Trace')
     .setName('entry')
     .setProperties({setProp: 2})

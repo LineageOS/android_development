@@ -20,6 +20,7 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertySource} from 'tree_node/property_tree_node';
 import {AbstractPresenterInputMethodTest} from 'viewers/common/abstract_presenter_input_method_test';
 import {PresenterInputMethodClients} from './presenter_input_method_clients';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 class PresenterInputMethodClientsTest extends AbstractPresenterInputMethodTest {
   protected override readonly PresenterInputMethod =
@@ -29,6 +30,7 @@ class PresenterInputMethodClientsTest extends AbstractPresenterInputMethodTest {
 
   override getSelectedNode(): HierarchyTreeNode {
     return new HierarchyTreeBuilder()
+      .setRootNodeFormatter(new SetFormatters())
       .setId('InputMethodClients')
       .setName('entry')
       .setProperties({where: 'location', elapsedNanos: 0})
