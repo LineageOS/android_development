@@ -19,6 +19,12 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {MediaBasedTraceEntry} from './media_based_trace_entry';
 
+/**
+ * An enum representing the different types of traces that can be loaded and
+ * visualized in Winscope. Each value corresponds to a specific data source
+ * or analysis output (e.g., Window Manager trace, Surface Flinger trace,
+ * screenshot, etc.).
+ */
 export enum TraceType {
   WINDOW_MANAGER,
   SURFACE_FLINGER,
@@ -46,12 +52,26 @@ export enum TraceType {
   SEARCH,
 }
 
+/**
+ * Represents the set of trace types that are related to the Input Method Editor (IME).
+ * This type is useful for grouping and easily referencing all IME-related traces
+ * within Winscope, allowing for type-safe operations on these specific trace types.
+ */
 export type ImeTraceType =
   | TraceType.INPUT_METHOD_CLIENTS
   | TraceType.INPUT_METHOD_MANAGER_SERVICE
   | TraceType.INPUT_METHOD_SERVICE;
 
-export interface TraceEntryTypeMap {
+/**
+ * Maps each {@link TraceType} to the expected type of its corresponding trace entry data.
+ *
+ * This interface is used to enforce type safety when working with trace entries.
+ * For example, when accessing data for a `TraceType.SURFACE_FLINGER`,
+ * TypeScript will know that the entry is of type `HierarchyTreeNode`.
+ * This prevents runtime errors and improves code maintainability by ensuring
+ * that trace data is used according to its defined structure.
+ */
+export declare interface TraceEntryTypeMap {
   [TraceType.PROTO_LOG]: HierarchyTreeNode;
   [TraceType.SURFACE_FLINGER]: HierarchyTreeNode;
   [TraceType.SCREEN_RECORDING]: MediaBasedTraceEntry;

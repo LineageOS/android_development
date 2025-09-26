@@ -14,17 +14,37 @@
  * limitations under the License.
  */
 
+/**
+ * Represents an index relative to a specific point in a trace or collection of entries.
+ * Useful for operations that need to reference positions without knowing the absolute start.
+ */
 export type RelativeEntryIndex = number;
+/**
+ * Represents an absolute index within a trace or collection of entries.
+ * Provides a global reference point for individual entries.
+ */
 export type AbsoluteEntryIndex = number;
+/**
+ * Represents an absolute index within a collection of frames.
+ * Provides a global reference point for individual frames.
+ */
 export type AbsoluteFrameIndex = number;
 
-// entries = [start; end[ (end not included)
+/**
+ * Defines a range of entries, inclusive of `start` and exclusive of `end`.
+ * This is useful for specifying a segment of entries to process or display.
+ * The range is represented as [start, end).
+ */
 export interface EntriesRange {
   start: AbsoluteEntryIndex;
   end: AbsoluteEntryIndex;
 }
 
-// frames = [start; end[ (end not included)
+/**
+ * Defines a range of frames, inclusive of `start` and exclusive of `end`.
+ * This is useful for specifying a segment of frames to process or display.
+ * The range is represented as [start, end).
+ */
 export interface FramesRange {
   start: AbsoluteFrameIndex;
   end: AbsoluteFrameIndex;

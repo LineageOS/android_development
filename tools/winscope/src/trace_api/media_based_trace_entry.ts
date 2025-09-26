@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-class MediaBasedTraceEntry {
+/**
+ * Represents a single entry in a media-based trace, such as a video or image sequence.
+ * Each entry contains media data (a video frame or an image) and the timestamp
+ * within the video timeline. This is useful for synchronizing trace events with
+ * visual media, allowing users to see what was happening on screen at a specific
+ * point in the trace.
+ */
+export class MediaBasedTraceEntry {
   constructor(
+    /** The timestamp in seconds within the video timeline. */
     public videoTimeSeconds: number,
+    /** The raw media data as a Blob (e.g., a video frame or an image). */
     public videoData: Blob,
-    public isImage: boolean = false,
+    /** True if the media data is an image, false if it's part of a video. */
+    public isImage = false,
   ) {}
 }
-
-export {MediaBasedTraceEntry};

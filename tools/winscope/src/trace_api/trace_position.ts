@@ -18,6 +18,13 @@ import {Timestamp} from 'common/time/time';
 import {AbsoluteFrameIndex} from './index_types';
 import {TraceEntry} from './trace';
 
+/**
+ * Represents a specific position within a trace.
+ * A position can be defined by a timestamp, a frame index, or a specific
+ * trace entry. This class provides a unified way to reference a point
+ * in time across different trace types and allows for navigation and
+ * comparison of trace locations.
+ */
 export class TracePosition {
   static fromTimestamp(timestamp: Timestamp): TracePosition {
     return new TracePosition(timestamp);

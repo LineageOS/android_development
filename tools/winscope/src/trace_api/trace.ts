@@ -41,6 +41,12 @@ import {Parser} from './parser';
 import {TRACE_INFO} from './trace_info';
 import {TraceType} from './trace_type';
 
+/**
+ * Represents a single entry within a trace. This abstract class provides
+ * common properties and methods for accessing entry information like timestamp,
+ * index, and associated frame range.
+ * @template T The type of the trace entry's value.
+ */
 export abstract class TraceEntry<T> {
   constructor(
     protected readonly fullTrace: Trace<T>,
@@ -80,6 +86,11 @@ export abstract class TraceEntry<T> {
   abstract getValue(): any;
 }
 
+/**
+ * Represents a trace entry whose value is loaded lazily when requested.
+ * This is useful for large traces where not all entries are needed at once.
+ * @template T The type of the trace entry's value.
+ */
 export class TraceEntryLazy<T> extends TraceEntry<T> {
   constructor(
     fullTrace: Trace<T>,
@@ -104,6 +115,12 @@ export class TraceEntryLazy<T> extends TraceEntry<T> {
   }
 }
 
+/**
+ * Represents a trace entry whose value is loaded eagerly upon creation.
+ * The value is available immediately without requiring an asynchronous operation.
+ * @template T The type of the full trace entry's value.
+ * @template U The type of this specific eager entry's value.
+ */
 export class TraceEntryEager<T, U> extends TraceEntry<T> {
   private readonly value: U;
 
@@ -124,6 +141,12 @@ export class TraceEntryEager<T, U> extends TraceEntry<T> {
   }
 }
 
+/**
+ * Represents a trace, which is a collection of `TraceEntry` objects.
+ * This class provides methods to access, slice, and query trace data,
+ * including functionality to handle frame-based access if frame information is available.
+ * @template T The type of the trace entries' values.
+ */
 export class Trace<T> {
   readonly type: TraceType;
   readonly lengthEntries: number;
