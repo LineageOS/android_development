@@ -326,7 +326,7 @@ fn main() -> Result<()> {
         .current_dir(&args.android_root)
         .run_and_stream_output()?;
 
-    let mut updates_tried = UpdatesTried::read()?;
+    let mut updates_tried = UpdatesTried::read(&monorepo_path)?;
     let mut updates_tried_string = Vec::new();
     for suggestion in get_suggestions(&monorepo_path)? {
         let crate_name = suggestion.name.as_str();
