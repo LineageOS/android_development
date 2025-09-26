@@ -430,6 +430,8 @@ We apologize for the inconvenience."#,
         let mut cc = self.new_cc();
         cc.add_from(self.managed_dir().rel())?;
 
+        self.pseudo_crate().cargo_update()?;
+
         for krate in cc.values() {
             let cio_crate = self.crates_io.get_crate(krate.name())?;
             let upgrades = cio_crate
