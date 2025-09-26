@@ -28,6 +28,7 @@ import {
   isTransitionWithUnknownEnd,
   isTransitionWithUnknownStart,
 } from './timeline_utils';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 describe('TimelineUtils', () => {
   const zeroTs = makeZeroTimestamp();
@@ -218,6 +219,7 @@ describe('TimelineUtils', () => {
 
   function makeTransition(properties: object) {
     return new HierarchyTreeBuilder()
+      .setRootNodeFormatter(new SetFormatters())
       .setId('')
       .setName('')
       .setProperties(properties)

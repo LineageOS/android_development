@@ -48,6 +48,7 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from './viewer_events';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;
@@ -66,6 +67,7 @@ describe('AbstractLogViewerPresenter', () => {
       .setType(TraceType.TRANSACTIONS)
       .setEntries([
         new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('Test Trace')
           .setName('entry 1')
           .setProperties({
@@ -81,14 +83,17 @@ describe('AbstractLogViewerPresenter', () => {
           })
           .build(),
         new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('Test Trace')
           .setName('entry 2')
           .build(),
         new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('Test Trace')
           .setName('entry 3')
           .build(),
         new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('Test Trace')
           .setName('entry 4')
           .build(),

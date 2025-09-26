@@ -47,6 +47,7 @@ import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UserOptions} from './user_options';
 import {ViewerEvents} from './viewer_events';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 describe('AbstractHierarchyViewerPresenter', () => {
   const timestamp2 = makeElapsedTimestamp(2n);
@@ -66,6 +67,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
       .setType(TraceType.SURFACE_FLINGER)
       .setEntries([
         new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('Test Trace')
           .setName('entry')
           .setChildren([
@@ -81,6 +83,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
           ])
           .build(),
         new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('Test Trace')
           .setName('entry')
           .setChildren([

@@ -19,10 +19,7 @@ import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {
-  makeUiHierarchyNode,
-  treeNodeEqualityTester,
-} from 'test/unit/ui_tree_node_utils';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertySource} from 'tree_node/property_tree_node';
@@ -31,11 +28,14 @@ import {DiffType} from './diff_type';
 import {HierarchyPresenter} from './hierarchy_presenter';
 import {SimplifyNames} from './operations/simplify_names';
 import {UserOptions} from './user_options';
+import {SetFormatters} from 'viewers/operations/set_formatters';
+import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 describe('HierarchyPresenter', () => {
   const timestamp1 = makeElapsedTimestamp(1n);
   const timestamp2 = makeElapsedTimestamp(2n);
   const tree1 = new HierarchyTreeBuilder()
+    .setRootNodeFormatter(new SetFormatters())
     .setId('Test Trace')
     .setName('entry')
     .addChildProperty({name: 'setProp', value: true})
@@ -61,6 +61,7 @@ describe('HierarchyPresenter', () => {
     ])
     .build();
   const tree2 = new HierarchyTreeBuilder()
+    .setRootNodeFormatter(new SetFormatters())
     .setId('Test Trace')
     .setName('entry')
     .setChildren([
@@ -87,6 +88,7 @@ describe('HierarchyPresenter', () => {
     .build();
 
   const tree3 = new HierarchyTreeBuilder()
+    .setRootNodeFormatter(new SetFormatters())
     .setId('Test Trace 2')
     .setName('entry')
     .setChildren([
@@ -372,7 +374,13 @@ describe('HierarchyPresenter', () => {
 
   it('handles pinned item change', () => {
     expect(presenter.getPinnedItems()).toEqual([]);
-    const item = makeUiHierarchyNode({id: '', name: ''});
+    const item = UiHierarchyTreeNode.from(
+      new HierarchyTreeBuilder()
+        .setRootNodeFormatter(new SetFormatters())
+        .setId('')
+        .setName('')
+        .build(),
+    );
     presenter.applyPinnedItemChange(item);
     expect(presenter.getPinnedItems()).toEqual([item]);
     presenter.applyPinnedItemChange(item);
