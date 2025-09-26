@@ -40,7 +40,10 @@ import {
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceTypeUtils} from 'trace_api/trace_type';
+import {
+  isTraceTypeWithViewer,
+  getReasonForNoTraceVisualization,
+} from 'trace_api/trace_type';
 import {LoadProgressComponent} from './load_progress_component';
 
 /**
@@ -493,10 +496,7 @@ export class UploadTracesComponent
     return this.ngZone.run(() => {
       let hasFilesWithViewers = false;
       this.tracePipeline?.getTraces().forEachTrace((trace) => {
-        if (
-          !trace.isCorrupted() &&
-          TraceTypeUtils.isTraceTypeWithViewer(trace.type)
-        ) {
+        if (!trace.isCorrupted() && isTraceTypeWithViewer(trace.type)) {
           hasFilesWithViewers = true;
         }
       });
@@ -517,11 +517,11 @@ export class UploadTracesComponent
   }
 
   canVisualizeTrace(trace: Trace<object>): boolean {
-    return TraceTypeUtils.isTraceTypeWithViewer(trace.type);
+    return isTraceTypeWithViewer(trace.type);
   }
 
   cannotVisualizeTraceTooltip(trace: Trace<object>): string {
-    return TraceTypeUtils.getReasonForNoTraceVisualization(trace.type);
+    return getReasonForNoTraceVisualization(trace.type);
   }
 
   traceErrorTooltip(trace: Trace<object>): string {

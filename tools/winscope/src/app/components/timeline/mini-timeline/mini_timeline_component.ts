@@ -38,7 +38,7 @@ import {TimeRange, Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {Trace} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
-import {TraceTypeUtils} from 'trace_api/trace_type';
+import {compareByDisplayOrder} from 'trace_api/trace_type';
 import {MiniTimelineDrawer} from './drawer/mini_timeline_drawer';
 import {MiniTimelineDrawerImpl} from './drawer/mini_timeline_drawer_impl';
 import {MiniTimelineDrawerInput} from './drawer/mini_timeline_drawer_input';
@@ -273,7 +273,7 @@ export class MiniTimelineComponent {
   getTracesToShow(): Array<Trace<object>> {
     return assertDefined(this.selectedTraces)
       .slice()
-      .sort((a, b) => TraceTypeUtils.compareByDisplayOrder(a.type, b.type))
+      .sort((a, b) => compareByDisplayOrder(a.type, b.type))
       .reverse(); // reversed to ensure display is ordered top to bottom
   }
 

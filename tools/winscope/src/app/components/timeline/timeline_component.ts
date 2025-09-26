@@ -74,7 +74,12 @@ import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
-import {TraceType, TraceTypeUtils} from 'trace_api/trace_type';
+import {
+  TraceType,
+  compareByDisplayOrder,
+  isTraceTypeWithViewer,
+  supportsPlayback,
+} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {multlineTooltip} from 'viewers/components/styles/tooltip.styles';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
@@ -629,8 +634,7 @@ export class TimelineComponent
     this.sortedTraces =
       this.allTraces
         ?.mapTrace((trace) => trace)
-        .sort((a, b) => TraceTypeUtils.compareByDisplayOrder(a.type, b.type)) ??
-      [];
+        .sort((a, b) => compareByDisplayOrder(a.type, b.type)) ?? [];
 
     const storedDeselectedTraces = this.getStoredDeselectedTraceTypes();
     this.selectedTraces = this.sortedTraces.filter((trace) => {
@@ -648,7 +652,7 @@ export class TimelineComponent
     const initialTraceToCropZoom = this.selectedTraces.find((trace) => {
       return (
         trace.type !== TraceType.SCREEN_RECORDING &&
-        TraceTypeUtils.isTraceTypeWithViewer(trace.type) &&
+        isTraceTypeWithViewer(trace.type) &&
         trace.lengthEntries > 0
       );
     });
@@ -717,9 +721,7 @@ export class TimelineComponent
     });
     await event.visit(WinscopeEventType.TRACE_ADD_REQUEST, async (event) => {
       this.sortedTraces.unshift(event.trace);
-      this.sortedTraces.sort((a, b) =>
-        TraceTypeUtils.compareByDisplayOrder(a.type, b.type),
-      );
+      this.sortedTraces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
       const newSelection = [event.trace].concat(
         this.selectedTracesFormControl.value ?? [],
       );
@@ -1150,7 +1152,7 @@ export class TimelineComponent
     }
     if (globalConfig.MODE === 'PROD') return false;
     else {
-      return TraceTypeUtils.supportsPlayback(this.currentTabTraceType);
+      return supportsPlayback(this.currentTabTraceType);
     }
   }
 
@@ -1211,7 +1213,7 @@ export class TimelineComponent
   private getSelectedTracesSortedByDisplayOrder(): Array<Trace<object>> {
     return this.selectedTraces
       .slice()
-      .sort((a, b) => TraceTypeUtils.compareByDisplayOrder(a.type, b.type));
+      .sort((a, b) => compareByDisplayOrder(a.type, b.type));
   }
 
   private getStoredDeselectedTraceTypes(): TraceType[] {
