@@ -19,7 +19,20 @@ import {Trace, TraceEntry} from './trace';
 import {TracePosition} from './trace_position';
 import {TraceTypeUtils} from './trace_type';
 
+/**
+ * A utility class for finding trace entries that correspond to a specific trace position.
+ * This is useful for synchronizing views between different traces.
+ */
 export class TraceEntryFinder {
+  /**
+   * Finds the trace entry in the provided trace that best corresponds to the given trace position.
+   * The method uses different strategies to find the corresponding entry based on the trace type,
+   * frame information, and timestamp.
+   *
+   * @param trace The trace to search within.
+   * @param position The trace position to find the corresponding entry for.
+   * @return The corresponding trace entry, or undefined if no suitable entry is found.
+   */
   static findCorrespondingEntry<T>(
     trace: Trace<T>,
     position: TracePosition,
