@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * The types of protos that can be present in a WM trace.
- */
-export enum ProtoType {
-  WindowManagerService = 'WindowManagerService',
-  RootWindowContainer = 'RootWindowContainer',
-  DisplayContent = 'DisplayContent',
-  DisplayArea = 'DisplayArea',
-  Task = 'Task',
-  TaskFragment = 'TaskFragment',
-  Activity = 'Activity',
-  WindowToken = 'WindowToken',
-  WindowState = 'WindowState',
-  WindowContainer = 'WindowContainer',
-}
+export const DENYLIST_PROPERTIES = [
+  'elapsedRealtimeNanos',
+  'where',
+  'rootWindowContainer',
+  'children',
+];

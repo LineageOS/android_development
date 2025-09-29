@@ -17,13 +17,12 @@
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import root from 'protos/windowmanager/udc/json';
 import {com} from 'protos/windowmanager/udc/static';
-import {TamperedMessageType} from 'trace/proto_utils/tampered_message_type';
 
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
 
 type WindowManagerProto = com.android.server.wm.IWindowManagerTraceProto;
 
@@ -37,10 +36,6 @@ export class ParserWindowManager extends AbstractParser<
   private static readonly MAGIC_NUMBER = [
     0x09, 0x57, 0x49, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .WINTRACE
-  private static readonly WindowManagerTraceFileProto =
-    TamperedMessageType.tamper(
-      root.lookupType('com.android.server.wm.WindowManagerTraceFileProto'),
-    );
 
   private realToBootTimeOffsetNs: bigint | undefined;
 
@@ -61,7 +56,7 @@ export class ParserWindowManager extends AbstractParser<
   }
 
   override decodeTrace(buffer: Uint8Array): WindowManagerProto[] {
-    const decoded = ParserWindowManager.WindowManagerTraceFileProto.decode(
+    const decoded = TAMPERED_PROTO_UDC.decode(
       buffer,
     ) as com.android.server.wm.IWindowManagerTraceFileProto;
     const timeOffset = BigInt(
