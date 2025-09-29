@@ -18,7 +18,7 @@ import {assertTrue} from 'common/assert';
 import {Store} from 'common/store/store';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {Trace} from 'trace_api/trace';
-import {TraceType, TraceTypeUtils} from 'trace_api/trace_type';
+import {TraceType, compareByDisplayOrder} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {Viewer, ViewType} from './viewer';
 import {ViewerInput} from './viewer_input/viewer_input';
@@ -103,7 +103,7 @@ export class ViewerFactory {
         aView.type === ViewType.TRACE_TAB &&
         bView.type === ViewType.TRACE_TAB
       ) {
-        return TraceTypeUtils.compareByDisplayOrder(
+        return compareByDisplayOrder(
           a.getTraces()[0].type,
           b.getTraces()[0].type,
         );

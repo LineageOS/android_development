@@ -17,7 +17,7 @@
 import {analyticsLogEvent} from 'common/analytics';
 import {Trace, TraceEntry} from './trace';
 import {TracePosition} from './trace_position';
-import {TraceTypeUtils} from './trace_type';
+import {compareByUiPipelineOrder} from './trace_type';
 
 /**
  * A utility class for finding trace entries that correspond to a specific trace position.
@@ -68,7 +68,7 @@ export class TraceEntryFinder {
     if (position.entry) {
       const entryTraceType = position.entry.getFullTrace().type;
       const timestamp = position.entry.getTimestamp();
-      if (TraceTypeUtils.compareByUiPipelineOrder(entryTraceType, trace.type)) {
+      if (compareByUiPipelineOrder(entryTraceType, trace.type)) {
         return (
           trace.findFirstGreaterEntry(timestamp) ??
           trace.findFirstGreaterOrEqualEntry(timestamp)

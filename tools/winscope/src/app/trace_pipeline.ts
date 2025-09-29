@@ -68,7 +68,7 @@ import {TraceMetadata} from 'trace_api/trace_metadata';
 import {
   TraceEntryTypeMap,
   TraceType,
-  TraceTypeUtils,
+  isTraceTypeWithViewer,
 } from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {QueryResult} from 'trace_processor/query_result';
@@ -197,7 +197,7 @@ export class TracePipeline
   filterTracesWithoutVisualization() {
     const tracesWithoutVisualization = this.traces
       .mapTrace((trace) => {
-        if (!TraceTypeUtils.isTraceTypeWithViewer(trace.type)) {
+        if (!isTraceTypeWithViewer(trace.type)) {
           return trace;
         }
         return undefined;

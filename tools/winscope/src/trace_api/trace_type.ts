@@ -190,90 +190,73 @@ export declare interface TraceEntryTypeMap {
   [TraceType.SEARCH]: QueryResult;
 }
 
-export class TraceTypeUtils {
-  private static UI_PIPELINE_ORDER = [
-    TraceType.INPUT_EVENT_MERGED,
-    TraceType.INPUT_METHOD_CLIENTS,
-    TraceType.INPUT_METHOD_SERVICE,
-    TraceType.INPUT_METHOD_MANAGER_SERVICE,
-    TraceType.PROTO_LOG,
-    TraceType.WINDOW_MANAGER,
-    TraceType.TRANSACTIONS,
-    TraceType.SURFACE_FLINGER,
-    TraceType.SCREEN_RECORDING,
-  ];
+const UI_PIPELINE_ORDER = [
+  TraceType.INPUT_EVENT_MERGED,
+  TraceType.INPUT_METHOD_CLIENTS,
+  TraceType.INPUT_METHOD_SERVICE,
+  TraceType.INPUT_METHOD_MANAGER_SERVICE,
+  TraceType.PROTO_LOG,
+  TraceType.WINDOW_MANAGER,
+  TraceType.TRANSACTIONS,
+  TraceType.SURFACE_FLINGER,
+  TraceType.SCREEN_RECORDING,
+];
 
-  private static TRACES_WITH_VIEWERS_DISPLAY_ORDER = [
-    TraceType.SEARCH,
-    TraceType.SCREEN_RECORDING,
-    TraceType.SCREENSHOT,
-    TraceType.SURFACE_FLINGER,
-    TraceType.WINDOW_MANAGER,
-    TraceType.INPUT_EVENT_MERGED,
-    TraceType.INPUT_METHOD_CLIENTS,
-    TraceType.INPUT_METHOD_MANAGER_SERVICE,
-    TraceType.INPUT_METHOD_SERVICE,
-    TraceType.TRANSACTIONS,
-    TraceType.PROTO_LOG,
-    TraceType.VIEW_CAPTURE,
-    TraceType.TRANSITION,
-    TraceType.CUJS,
-  ];
+const TRACES_WITH_VIEWERS_DISPLAY_ORDER = [
+  TraceType.SEARCH,
+  TraceType.SCREEN_RECORDING,
+  TraceType.SCREENSHOT,
+  TraceType.SURFACE_FLINGER,
+  TraceType.WINDOW_MANAGER,
+  TraceType.INPUT_EVENT_MERGED,
+  TraceType.INPUT_METHOD_CLIENTS,
+  TraceType.INPUT_METHOD_MANAGER_SERVICE,
+  TraceType.INPUT_METHOD_SERVICE,
+  TraceType.TRANSACTIONS,
+  TraceType.PROTO_LOG,
+  TraceType.VIEW_CAPTURE,
+  TraceType.TRANSITION,
+  TraceType.CUJS,
+];
 
-  // TODO(b/322805621) add other traces once support is provided
-  private static TRACES_SUPPORTING_PLAYBACK = [TraceType.SURFACE_FLINGER];
+// TODO(b/322805621) add other traces once support is provided
+const TRACES_SUPPORTING_PLAYBACK = [TraceType.SURFACE_FLINGER];
 
-  static supportsPlayback(t: TraceType): boolean {
-    return TraceTypeUtils.TRACES_SUPPORTING_PLAYBACK.includes(t);
+export function supportsPlayback(t: TraceType): boolean {
+  return TRACES_SUPPORTING_PLAYBACK.includes(t);
+}
+
+export function isTraceTypeWithViewer(t: TraceType): boolean {
+  return TRACES_WITH_VIEWERS_DISPLAY_ORDER.includes(t);
+}
+
+export function compareByUiPipelineOrder(t: TraceType, u: TraceType): boolean {
+  const tIndex = findIndexInOrder(t, UI_PIPELINE_ORDER);
+  const uIndex = findIndexInOrder(u, UI_PIPELINE_ORDER);
+  return tIndex >= 0 && uIndex >= 0 && tIndex < uIndex;
+}
+
+export function compareByDisplayOrder(t: TraceType, u: TraceType): number {
+  const tIndex = findIndexInOrder(t, TRACES_WITH_VIEWERS_DISPLAY_ORDER);
+  const uIndex = findIndexInOrder(u, TRACES_WITH_VIEWERS_DISPLAY_ORDER);
+  return tIndex - uIndex;
+}
+
+export function getReasonForNoTraceVisualization(t: TraceType): string {
+  switch (t) {
+    case TraceType.WM_TRANSITION:
+      return 'Must also upload a shell transitions trace to visualize transitions.';
+    case TraceType.SHELL_TRANSITION:
+      return 'Must also upload a wm transitions trace to visualize transitions.';
+    case TraceType.EVENT_LOG:
+      return 'Uploaded file does not contain CUJs. Only CUJ visualization is supported in Winscope.';
+    default:
+      return 'Visualization for this trace is not supported in Winscope.';
   }
+}
 
-  static isTraceTypeWithViewer(t: TraceType): boolean {
-    return TraceTypeUtils.TRACES_WITH_VIEWERS_DISPLAY_ORDER.includes(t);
-  }
-
-  static compareByUiPipelineOrder(t: TraceType, u: TraceType): boolean {
-    const tIndex = TraceTypeUtils.findIndexInOrder(
-      t,
-      TraceTypeUtils.UI_PIPELINE_ORDER,
-    );
-    const uIndex = TraceTypeUtils.findIndexInOrder(
-      u,
-      TraceTypeUtils.UI_PIPELINE_ORDER,
-    );
-    return tIndex >= 0 && uIndex >= 0 && tIndex < uIndex;
-  }
-
-  static compareByDisplayOrder(t: TraceType, u: TraceType): number {
-    const tIndex = TraceTypeUtils.findIndexInOrder(
-      t,
-      TraceTypeUtils.TRACES_WITH_VIEWERS_DISPLAY_ORDER,
-    );
-    const uIndex = TraceTypeUtils.findIndexInOrder(
-      u,
-      TraceTypeUtils.TRACES_WITH_VIEWERS_DISPLAY_ORDER,
-    );
-    return tIndex - uIndex;
-  }
-
-  static getReasonForNoTraceVisualization(t: TraceType): string {
-    switch (t) {
-      case TraceType.WM_TRANSITION:
-        return 'Must also upload a shell transitions trace to visualize transitions.';
-      case TraceType.SHELL_TRANSITION:
-        return 'Must also upload a wm transitions trace to visualize transitions.';
-      case TraceType.EVENT_LOG:
-        return 'Uploaded file does not contain CUJs. Only CUJ visualization is supported in Winscope.';
-      default:
-        return 'Visualization for this trace is not supported in Winscope.';
-    }
-  }
-
-  private static findIndexInOrder(
-    traceType: TraceType,
-    order: TraceType[],
-  ): number {
-    return order.findIndex((type) => {
-      return type === traceType;
-    });
-  }
+function findIndexInOrder(traceType: TraceType, order: TraceType[]): number {
+  return order.findIndex((type) => {
+    return type === traceType;
+  });
 }

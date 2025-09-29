@@ -31,7 +31,7 @@ import {assertDefined} from 'common/assert';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
-import {TraceType, TraceTypeUtils} from 'trace_api/trace_type';
+import {TraceType, compareByDisplayOrder} from 'trace_api/trace_type';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';
@@ -182,9 +182,7 @@ export class ExpandedTimelineComponent {
     const traces = assertDefined(this.timelineData)
       .getTraces()
       .mapTrace((trace) => trace);
-    return traces.sort((a, b) =>
-      TraceTypeUtils.compareByDisplayOrder(a.type, b.type),
-    );
+    return traces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
   }
 
   updateScroll(event: WheelEvent) {
