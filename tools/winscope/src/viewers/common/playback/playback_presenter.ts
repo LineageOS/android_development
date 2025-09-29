@@ -26,7 +26,7 @@ import {Timer} from 'common/time/timer';
 import {TraceEntryEager} from 'trace_api/trace';
 import {PlaybackState} from './playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {assertDefined} from 'common/assert';
 import {CorrespondingEntries} from './corresponding_entries';
 import {TraceType} from 'trace_api/trace_type';
@@ -201,7 +201,7 @@ export class PlaybackPresenter {
       if (screenRecordingEntries) {
         let eagerCorrespondingTraceEntry;
 
-        const correspondingTraceEntry = TraceEntryFinder.findCorrespondingEntry(
+        const correspondingTraceEntry = findCorrespondingEntry(
           trace,
           TracePosition.fromTraceEntry(screenRecordingEntries[entryIndex]),
         );

@@ -21,7 +21,7 @@ import {CannotParseAllTransitions} from 'messaging/user_warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {timestampToVideoTimeSeconds} from 'trace/screen_recording_utils';
 import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TracePosition} from 'trace_api/trace_position';
 import {
   TraceType,
@@ -266,7 +266,7 @@ export class TimelineData {
     const firstTimestamp = trace.getEntry(0).getTimestamp();
     let entry;
     try {
-      entry = TraceEntryFinder.findCorrespondingEntry(trace, position);
+      entry = findCorrespondingEntry(trace, position);
     } catch (e) {
       console.warn(
         `Could not find corresponding entry: ${(e as Error).message}`,
@@ -341,7 +341,7 @@ export class TimelineData {
 
     let entry;
     try {
-      entry = TraceEntryFinder.findCorrespondingEntry(trace, position);
+      entry = findCorrespondingEntry(trace, position);
     } catch (e) {
       console.warn(
         `Could not find corresponding entry: ${(e as Error).message}`,

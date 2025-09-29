@@ -23,7 +23,7 @@ import {
 } from 'messaging/winscope_event';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -194,11 +194,10 @@ the default for its data type.`,
     event: TracePositionUpdate,
   ): Promise<void> {
     if (this.uiData && this.surfaceFlingerTrace) {
-      const surfaceFlingerEntry =
-        (await TraceEntryFinder.findCorrespondingEntry(
-          this.surfaceFlingerTrace,
-          event.position,
-        )?.getValue()) as HierarchyTreeNode;
+      const surfaceFlingerEntry = (await findCorrespondingEntry(
+        this.surfaceFlingerTrace,
+        event.position,
+      )?.getValue()) as HierarchyTreeNode;
       if (surfaceFlingerEntry) {
         this.sfRects = UI_RECT_FACTORY.makeUiRects(
           surfaceFlingerEntry,
