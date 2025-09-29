@@ -52,6 +52,7 @@ import {UiData} from './ui_data';
       <rects-view
         class="rects-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
         [title]="getRectsTitle()"
         [store]="store"
         [isStackBased]="true"
@@ -70,6 +71,7 @@ import {UiData} from './ui_data';
       <hierarchy-view
         class="hierarchy-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
         [trees]="inputData?.hierarchyTrees ?? []"
         [dependencies]="inputData?.dependencies ?? []"
         [highlightedItem]="inputData?.highlightedItem ?? ''"
@@ -82,7 +84,8 @@ import {UiData} from './ui_data';
 
       @if (!arePropertiesCollapsed()) {
         <div class="properties"
-        [class.disabled-component] = "inputData?.isPlaybackPlaying">
+        [class.disabled-component]="inputData?.isPlaybackPlaying
+        || inputData?.isPlaybackInitializing">
           @if (inputData?.isPlaybackPlaying) {
             <div
             class="disabled-message user-notification mat-body-1">
@@ -98,7 +101,7 @@ import {UiData} from './ui_data';
 
           <properties-view
             class="properties-view"
-            [class.disabled]="inputData?.isPlaybackPlaying"
+            [class.disabled]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
             [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
             [title]="propertiesTitle"
             [userOptions]="inputData?.propertiesUserOptions ?? {}"

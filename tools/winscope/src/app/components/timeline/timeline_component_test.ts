@@ -1123,6 +1123,13 @@ describe('TimelineComponent', () => {
       loadSfWmTraces();
     });
 
+    it('disables timeline component on playback initialization', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      timelineComponent.playbackState = PlaybackState.PAUSED;
+      dom.keydownSpace();
+      expect(timelineComponent.isDisabled).toEqual(true);
+    });
+
     it('starts playback on space click', async () => {
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.PAUSED;

@@ -72,6 +72,34 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
         assertDefined(properties).checkClassName('disabled-component', false);
       });
 
+      it('disables UI while playback is initializing', async () => {
+        let uiData = new UiData(undefined);
+        uiData = new UiData(undefined);
+        uiData.isPlaybackPlaying = false;
+        uiData.isPlaybackInitializing = true;
+        component.inputData = uiData;
+        dom.detectChanges();
+
+        const properties = dom.get('.properties');
+        properties.checkClassName('disabled-component');
+
+        const hierarchy = dom.get('.hierarchy-view');
+        hierarchy.checkClassName('disabled-component');
+
+        const rects = dom.get('.rects-view');
+        rects.checkClassName('disabled-component');
+
+        uiData = new UiData(undefined);
+        uiData.isPlaybackPlaying = true;
+        uiData.isPlaybackInitializing = false;
+        component.inputData = uiData;
+        dom.detectChanges();
+
+        properties.checkClassName('disabled-component', true);
+        hierarchy.checkClassName('disabled-component', false);
+        rects.checkClassName('disabled-component', false);
+      });
+
       it('handles rect type change', () => {
         let uiData = new UiData(undefined);
         uiData.rectSpec = {

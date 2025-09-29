@@ -109,7 +109,7 @@ import {globalConfig} from 'common/global_config';
   template: `
     @if (isDisabled) {
       <div
-        class="disabled-message user-notification mat-body-1"> Timeline disabled due to ongoing search query </div>
+        class="disabled-message user-notification mat-body-1"> {{ disabledMessage }} </div>
     }
     <div [class.disabled-component]="isDisabled">
       @if (timelineData.hasMoreThanOneDistinctTimestamp()) {
@@ -589,6 +589,7 @@ export class TimelineComponent
   bookmarks: Timestamp[] = [];
   isDisabled = false;
   playbackState: PlaybackState = PlaybackState.PAUSED;
+  disabledMessage: string = 'Timeline disabled due to ongoing search query';
 
   private expanded = false;
   private emitEvent: EmitEvent = () => Promise.resolve();
@@ -754,7 +755,11 @@ export class TimelineComponent
     );
     await event.visit(
       WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
-      async (event) => this.setPlaybackState(event.stateToReflect),
+      async (event) => {
+        this.setPlaybackState(event.stateToReflect);
+        this.setIsDisabled(false);
+        this.disabledMessage = 'Timeline disabled due to ongoing search query';
+      },
     );
     await event.visit(
       WinscopeEventType.TABBED_VIEW_SWITCHED,
@@ -948,6 +953,8 @@ export class TimelineComponent
     switch (state) {
       case PlaybackState.FORWARDS:
       case PlaybackState.BACKWARDS:
+        this.disabledMessage = 'UI disabled due to playback initialization';
+        this.setIsDisabled(true);
         this.emitEvent(
           new PlaybackStateChangeRequest(
             assertDefined(this.currentTabTraceType),
