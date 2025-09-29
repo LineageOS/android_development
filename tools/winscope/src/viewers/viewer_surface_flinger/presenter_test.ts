@@ -23,6 +23,7 @@ import {
   PlaybackStateChangeRequest,
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
+  PlaybackStateChangePropagate,
 } from 'messaging/winscope_event';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
@@ -51,6 +52,9 @@ import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {SetFormatters} from 'viewers/operations/set_formatters';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {Rect} from 'common/geometry/rect';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
 
 class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traceSf: Trace<HierarchyTreeNode> | undefined;
@@ -395,11 +399,15 @@ the default for its data type.`,
       });
 
       it('initializes playback when a PlaybackStart event is received', async () => {
+        const traceGeometryData = new TraceGeometryData(
+          new Map([[0n, new Rect(0, 0, 0, 0)]]),
+          new Map([[0n, new TransformMatrix(1, 1, 1, 1, 1, 1)]]),
+        );
         const playbackPresenterSpy = spyOn(PlaybackPresenter.prototype, 'play');
-        const event = new PlaybackStateChangeRequest(
-          TraceType.SURFACE_FLINGER,
+        const event = new PlaybackStateChangePropagate(
           PlaybackState.FORWARDS,
           0,
+          traceGeometryData,
         );
         await presenter.onAppEvent(event);
         expect(playbackPresenterSpy).toHaveBeenCalled();

@@ -76,6 +76,7 @@ import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 import {FilesSource} from './files_source';
 import {LoadedParsers} from './loaded_parsers';
 import {TraceFileFilter} from './trace_file_filter';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -95,9 +96,14 @@ export class TracePipeline
   private downloadArchiveFilename?: string;
   private lostPerfettoPackets = 0;
   private timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO);
+  private traceGeometryData: TraceGeometryData | undefined;
 
   setEmitEvent(callback: EmitEvent) {
     this.traceFileFilter.setEmitEvent(callback);
+  }
+
+  getTraceGeometryData() {
+    return this.traceGeometryData;
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -356,12 +362,13 @@ export class TracePipeline
     onFailureWarning: UserWarning,
   ): Promise<FileAndParsers | undefined> {
     const startTimeMs = Date.now();
-    const {parsers, isPerfettoTrace} =
+    const {parsers, isPerfettoTrace, traceGeometryData} =
       await new PerfettoParserFactory().processFile(
         file,
         this.timestampConverter,
         progressListener,
       );
+    this.traceGeometryData = traceGeometryData;
     Analytics.Loading.logFileParsingTime(
       'perfetto',
       source,

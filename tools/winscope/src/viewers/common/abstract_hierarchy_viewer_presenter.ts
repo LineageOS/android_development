@@ -275,20 +275,6 @@ export abstract class AbstractHierarchyViewerPresenter<
         }
 
         switch (event.state) {
-          case PlaybackState.FORWARDS:
-          case PlaybackState.BACKWARDS:
-            if (this.playPlayback) {
-              this.uiData.isPlaybackInitializing = true;
-              this.refreshHierarchyViewerUiData();
-              await this.playPlayback(
-                this.trace,
-                assertDefined(event.currentTraceIndex),
-                event.state,
-                this.screenRecordingTrace,
-              );
-            }
-            return;
-
           case PlaybackState.PAUSED:
             if (this.pausePlayback) {
               await this.pausePlayback();
@@ -296,6 +282,29 @@ export abstract class AbstractHierarchyViewerPresenter<
             return;
           default:
             return;
+        }
+      },
+    );
+    await event.visit(
+      WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE,
+      async (event) => {
+        if (!this.trace) {
+          return;
+        }
+        if (!this.screenRecordingTrace) {
+          this.screenRecordingTrace = this.traces.getTrace(
+            TraceType.SCREEN_RECORDING,
+          );
+        }
+        if (this.playPlayback) {
+          this.uiData.isPlaybackInitializing = true;
+          this.refreshHierarchyViewerUiData();
+          await this.playPlayback(
+            this.trace,
+            assertDefined(event.currentTraceIndex),
+            event.state,
+            this.screenRecordingTrace,
+          );
         }
       },
     );
