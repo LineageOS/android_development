@@ -24,7 +24,11 @@ import {
 } from './custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {TraceType} from './trace_type';
-import {QueryResults} from 'trace_processor/query_result';
+import {
+  QueryResults,
+  RawDataQueryResult,
+  QueryResult,
+} from 'trace_processor/query_result';
 
 /**
  * Interface for a trace parser.
@@ -43,10 +47,13 @@ export interface Parser<T> {
   getEntry(index: AbsoluteEntryIndex): Promise<T>;
   getRangeOfEntries(
     entriesRange: EntriesRange,
-    precomputedQuery?: QueryResults,
+    precomputedQuery?: QueryResults<T>,
   ): Promise<Array<T | undefined>>;
   getAllEntries(): Promise<Array<T | undefined>>;
-  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults>;
+  getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>>;
   customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,

@@ -31,7 +31,11 @@ import {Parser} from 'trace_api/parser';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {TraceProcessor} from 'trace_processor/trace_processor';
-import {QueryResults} from 'trace_processor/query_result';
+import {
+  QueryResult,
+  QueryResults,
+  RawDataQueryResult,
+} from 'trace_processor/query_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
   protected traceProcessor: TraceProcessor;
@@ -117,7 +121,10 @@ export abstract class AbstractParser<T> implements Parser<T> {
     return CoarseVersion.LATEST;
   }
 
-  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults> {
+  getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

@@ -22,6 +22,7 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 
 export interface TraceProcessor {
   query(sqlQuery: string): Promise<QueryResult>;
+  rawQuery(sqlQuery: string): Promise<RawDataQueryResult>;
   reset(config: TraceProcessorConfig): Promise<void>;
   parse(data: Uint8Array): Promise<void>;
   notifyEof(): Promise<void>;
@@ -39,6 +40,13 @@ export class TraceProcessorWrapper implements TraceProcessor {
       throw NOT_IMPLEMENTED_ERROR;
     }
     return this.tp.query(sqlQuery);
+  }
+
+  async rawQuery(sqlQuery: string): Promise<RawDataQueryResult> {
+    if (!this.tp) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
+    return this.tp.rawQuery(sqlQuery);
   }
 
   async reset(config: TraceProcessorConfig) {

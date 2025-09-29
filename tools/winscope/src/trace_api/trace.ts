@@ -272,8 +272,8 @@ export class Trace<T> {
     }
   }
 
-  async getQueryResults(entriesRange: EntriesRange) {
-    return await this.parser.getQueryResults(entriesRange);
+  async getQueryResults(entriesRange: EntriesRange, queryRawData: boolean) {
+    return await this.parser.getQueryResults(entriesRange, queryRawData);
   }
 
   async customQuery<Q extends CustomQueryType>(

@@ -26,7 +26,11 @@ import {
 import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {Parser} from './parser';
 import {TraceType} from './trace_type';
-import {QueryResults} from 'trace_processor/query_result';
+import {
+  QueryResult,
+  QueryResults,
+  RawDataQueryResult,
+} from 'trace_processor/query_result';
 
 /**
  * A mock implementation of the Parser interface.
@@ -97,7 +101,9 @@ export class ParserMock<T> implements Parser<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getQueryResults(entriesRange: EntriesRange): Promise<QueryResults> {
+  getQueryResults(
+    entriesRange: EntriesRange,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
