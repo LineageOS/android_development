@@ -22,6 +22,11 @@
  * point in the trace.
  */
 export class MediaBasedTraceEntry {
+  /**
+   * @param videoTimeSeconds The timestamp in seconds within the video timeline.
+   * @param videoData The raw media data as a Blob (e.g., a video frame or an image).
+   * @param isImage True if the media data is an image, false if it's part of a video.
+   */
   constructor(
     /** The timestamp in seconds within the video timeline. */
     public videoTimeSeconds: number,

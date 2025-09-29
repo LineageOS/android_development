@@ -26,29 +26,121 @@ import {MediaBasedTraceEntry} from './media_based_trace_entry';
  * screenshot, etc.).
  */
 export enum TraceType {
+  /**
+   * Represents a Window Manager trace, which provides information about
+   * window management activities, such as window creation, destruction,
+   * and state changes.
+   */
   WINDOW_MANAGER,
+  /**
+   * Represents a Surface Flinger trace, which captures information about
+   * surface composition, layer management, and display updates.
+   */
   SURFACE_FLINGER,
+  /**
+   * Represents a screen recording trace, typically in MP4 format, which
+   * provides a visual record of the device's screen activity.
+   */
   SCREEN_RECORDING,
+  /**
+   * Represents a screenshot trace, which is a single image capture of the
+   * device's screen at a specific moment.
+   */
   SCREENSHOT,
+  /**
+   * Represents a transactions trace, which contains information about
+   * Surface Flinger transactions, including buffer updates and display
+   * state changes.
+   */
   TRANSACTIONS,
+  /**
+   * Represents a Wayland trace, which captures events and states from the
+   * Wayland display server, used in some Android environments.
+   */
   WAYLAND,
+  /**
+   * Represents a Wayland dump, which is a snapshot of the Wayland server's
+   * state at a particular time.
+   */
   WAYLAND_DUMP,
+  /**
+   * Represents a ProtoLog trace, which contains log messages from the
+   * ProtoLog logging system used in various Android components.
+   */
   PROTO_LOG,
+  /**
+   * Represents a System UI trace, which provides information about the
+   * state and events of the Android System UI.
+   */
   SYSTEM_UI,
+  /**
+   * Represents a trace from Input Method Editor (IME) clients, which
+   * captures interactions between applications and the input method.
+   */
   INPUT_METHOD_CLIENTS,
+  /**
+   * Represents a trace from the Input Method Manager Service, which
+   * provides information about the overall state and management of IMEs.
+   */
   INPUT_METHOD_MANAGER_SERVICE,
+  /**
+   * Represents a trace from the Input Method Service, which captures
+   * events and states within a specific IME.
+   */
   INPUT_METHOD_SERVICE,
+  /**
+   * Represents an event log trace, which contains a log of system events.
+   */
   EVENT_LOG,
+  /**
+   * Represents a Window Manager transition trace, which provides
+   * information about window transitions and animations.
+   */
   WM_TRANSITION,
+  /**
+   * Represents a Shell transition trace, which captures information about
+   * transitions and animations within the shell.
+   */
   SHELL_TRANSITION,
+  /**
+   * Represents a combined transition trace, which merges information from
+   * both Window Manager and Shell transition traces.
+   */
   TRANSITION,
+  /**
+   * Represents a Critical User Journey (CUJ) trace, which provides
+   * information about the performance and state of important user
+   * interactions.
+   */
   CUJS,
+  /**
+   * A test trace type used for development and testing, containing string data.
+   */
   TEST_TRACE_STRING,
+  /**
+   * A test trace type used for development and testing, containing numeric data.
+   */
   TEST_TRACE_NUMBER,
+  /**
+   * Represents a View Capture trace, which provides a hierarchical dump of
+   * the views in a window.
+   */
   VIEW_CAPTURE,
+  /**
+   * Represents a trace of input motion events, such as touch gestures.
+   */
   INPUT_MOTION_EVENT,
+  /**
+   * Represents a trace of input key events, such as key presses.
+   */
   INPUT_KEY_EVENT,
+  /**
+   * Represents a merged trace of input events, combining motion and key events.
+   */
   INPUT_EVENT_MERGED,
+  /**
+   * Represents a search trace, used for searching within other traces.
+   */
   SEARCH,
 }
 
