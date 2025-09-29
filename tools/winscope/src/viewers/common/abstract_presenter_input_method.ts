@@ -27,8 +27,9 @@ import {TreeNode} from 'tree_node/tree_node';
 import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
 import {ImeUiData} from 'viewers/common/ime_ui_data';
 import {
+  getImeLayers,
   ImeLayers,
-  ImeUtils,
+  processWindowManagerTraceEntry,
   ProcessedWindowManagerState,
 } from 'viewers/common/ime_utils';
 import {TableProperties} from 'viewers/common/table_properties';
@@ -172,13 +173,13 @@ the default for its data type.`,
     let sfProperties: ImeLayers | undefined;
 
     if (wmEntry) {
-      wmProperties = await ImeUtils.processWindowManagerTraceEntry(
+      wmProperties = await processWindowManagerTraceEntry(
         wmEntry,
         wmEntryTimestamp,
       );
 
       if (sfEntry) {
-        sfProperties = await ImeUtils.getImeLayers(
+        sfProperties = await getImeLayers(
           sfEntry,
           wmProperties,
           sfEntryTimestamp,

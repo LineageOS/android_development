@@ -18,7 +18,7 @@ import {getImeTraceEntries} from 'test/unit/fixture_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {ImeUtils} from './ime_utils';
+import {getImeLayers, processWindowManagerTraceEntry} from './ime_utils';
 
 describe('ImeUtils', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -35,7 +35,7 @@ describe('ImeUtils', () => {
   });
 
   it('processes WindowManager trace entry', async () => {
-    const processed = await ImeUtils.processWindowManagerTraceEntry(
+    const processed = await processWindowManagerTraceEntry(
       assertDefined(entries.get(TraceType.WINDOW_MANAGER)),
       undefined,
     );
@@ -101,13 +101,12 @@ describe('ImeUtils', () => {
 
   it('processes SurfaceFlinger trace entry', async () => {
     const entries = (await getImeTraceEntries())[0];
-    const processedWindowManagerState =
-      await ImeUtils.processWindowManagerTraceEntry(
-        assertDefined(entries.get(TraceType.WINDOW_MANAGER)),
-        undefined,
-      );
+    const processedWindowManagerState = await processWindowManagerTraceEntry(
+      assertDefined(entries.get(TraceType.WINDOW_MANAGER)),
+      undefined,
+    );
     const layers = assertDefined(
-      await ImeUtils.getImeLayers(
+      await getImeLayers(
         assertDefined(entries.get(TraceType.SURFACE_FLINGER)),
         processedWindowManagerState,
         undefined,
