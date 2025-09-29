@@ -22,7 +22,7 @@ import {
   setupMockIteratorWithRows,
 } from 'trace_processor/test_utils';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
-import {RectExtractor, SnapshotRects} from './rect_extractor';
+import {extractAllRects, extractRect, SnapshotRects} from './rect_extractor';
 
 describe('ViewCapture RectExtractor', () => {
   it('extracts rect', () => {
@@ -56,7 +56,7 @@ describe('ViewCapture RectExtractor', () => {
     row.get.withArgs('depth').and.returnValue(4n);
     row.get.withArgs('opacity').and.returnValue(1);
 
-    const rect = RectExtractor.extractRect(
+    const rect = extractRect(
       row,
       'ViewNode',
       'test.package.name@123456789',
@@ -198,7 +198,7 @@ describe('ViewCapture RectExtractor', () => {
     ];
     setupMockIteratorWithRows(iter, rows);
 
-    const rects = RectExtractor.extractAllRects(
+    const rects = extractAllRects(
       iter,
       traceGeometryData,
       () => 'testId',

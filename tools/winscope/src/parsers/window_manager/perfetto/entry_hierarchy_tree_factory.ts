@@ -272,12 +272,12 @@ function buildHierarchyTree(
   return tree;
 }
 
-export const CONTAINER_TRANSFORMER = new FakeProtoTransformer(
+const CONTAINER_TRANSFORMER = new FakeProtoTransformer(
   assertDefined(
     TAMPERED_PROTOS_LATEST.windowContainerChildField.tamperedMessageType,
   ),
 );
 
-export const ENTRY_TRANSFORMER = new FakeProtoTransformer(
+const ENTRY_TRANSFORMER = new FakeProtoTransformer(
   assertDefined(TAMPERED_PROTOS_LATEST.entryField.tamperedMessageType),
 );

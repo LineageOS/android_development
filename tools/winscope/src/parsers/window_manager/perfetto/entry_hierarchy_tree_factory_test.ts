@@ -45,6 +45,7 @@ describe('EntryHierarchyTreeFactory', () => {
 
     const defaultContainerTitle = 'Container1';
     const defaultSnapshotId = 100n;
+    const defaultContainerToken = 10n;
     let containersIter: jasmine.SpyObj<RowIterator>;
     let containersResult: jasmine.SpyObj<QueryResult>;
     let mockTraceGeometryData: jasmine.SpyObj<TraceGeometryData>;
@@ -119,22 +120,39 @@ describe('EntryHierarchyTreeFactory', () => {
           snapshot_id: 101n,
           container_type: ContainerType.DisplayContent,
         }),
+        getContainerRow({
+          snapshot_id: 102n,
+          container_type: ContainerType.DisplayContent,
+          rect_id: 2n,
+        }),
       ]);
-      mockTraceGeometryData.getRect
-        .withArgs(1n)
-        .and.returnValue(new Rect(1, 2, 3, 4));
-      const trees = makeHierarchyTrees();
-      expect(trees.length).toBe(2);
-
-      const displayContent = assertDefined(
-        trees[0].getChildByName('Container1'),
+      const defaultRect = new Rect(1, 2, 3, 4);
+      mockTraceGeometryData.getRect.withArgs(1n).and.returnValue(defaultRect);
+      const otherRect = new Rect(5, 6, 7, 8);
+      const trees = makeHierarchyTrees(
+        new Map([[102n, new Map([[defaultContainerToken, otherRect]])]]),
       );
-      expect(displayContent.getRects()?.length).toBe(1);
+      expect(trees.length).toBe(3);
 
-      const displayContent2 = assertDefined(
-        trees[1].getChildByName('Container1'),
+      let rects = assertDefined(
+        trees[0].getChildByName('Container1')?.getRects(),
       );
-      expect(displayContent2.getRects()).toBeUndefined();
+      expect(rects.length).toBe(1);
+      expect(rects[0].x).toEqual(defaultRect.x);
+      expect(rects[0].y).toEqual(defaultRect.y);
+      expect(rects[0].w).toEqual(defaultRect.w);
+      expect(rects[0].h).toEqual(defaultRect.h);
+
+      expect(
+        assertDefined(trees[1].getChildByName('Container1')).getRects(),
+      ).toBeUndefined();
+
+      rects = assertDefined(trees[2].getChildByName('Container1')?.getRects());
+      expect(rects.length).toBe(1);
+      expect(rects[0].x).toEqual(otherRect.x);
+      expect(rects[0].y).toEqual(otherRect.y);
+      expect(rects[0].w).toEqual(otherRect.w);
+      expect(rects[0].h).toEqual(otherRect.h);
     });
 
     function getContainerRow(overrides: {[key: string]: ColumnType} = {}): {
@@ -147,7 +165,7 @@ describe('EntryHierarchyTreeFactory', () => {
         'arg_set_id': 2n,
         'title': defaultContainerTitle,
         'name_override': null,
-        'token': 10n,
+        'token': defaultContainerToken,
         'parent_token': null,
         'container_type': ContainerType.WindowState,
         'is_visible': 1n,
@@ -159,10 +177,10 @@ describe('EntryHierarchyTreeFactory', () => {
       return {...defaults, ...overrides};
     }
 
-    function makeHierarchyTrees(): HierarchyTreeNode[] {
+    function makeHierarchyTrees(visibleRects = new Map()): HierarchyTreeNode[] {
       return makeEntryHierarchyTrees(
         containersResult,
-        new Map(),
+        visibleRects,
         traceProcessor,
         mockTraceGeometryData,
       );
