@@ -228,6 +228,19 @@ export class Trace<T> {
     });
   }
 
+  createEagerEntriesFromValues(
+    entriesRange: EntriesRange,
+    values: Array<T | undefined>,
+  ): Array<TraceEntryEager<T, T | undefined>> {
+    const eagerEntries: Array<TraceEntryEager<T, T | undefined>> = values.map(
+      (entryValue, i) => {
+        const absoluteIndex = entriesRange.start + i;
+        return this.createEagerEntry<T | undefined>(absoluteIndex, entryValue);
+      },
+    );
+    return eagerEntries;
+  }
+
   async getAllEntryValues(): Promise<Array<T | undefined>> {
     try {
       return await this.parser.getAllEntries();
