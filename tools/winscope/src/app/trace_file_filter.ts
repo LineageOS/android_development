@@ -42,6 +42,7 @@ import {ProcessedFiles} from 'parsers/legacy/parser_factory';
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {TraceMetadata} from 'trace_api/trace_metadata';
+import {BugreportFileSelected} from 'messaging/winscope_event';
 
 /**
  * The build type of the Android device that generated the bugreport.
@@ -140,7 +141,7 @@ export class TraceFileFilter
   async onWinscopeEvent(event: WinscopeEvent) {
     await event.visit(
       WinscopeEventType.BUGREPORT_FILE_SELECTED,
-      async (event) => {
+      async (event: BugreportFileSelected) => {
         this.selectedFile = event.filename;
       },
     );
@@ -188,11 +189,13 @@ export class TraceFileFilter
 
     if (largestPerfettoFile) {
       perfettoParsers = await tryParsePerfetto(largestPerfettoFile);
-      unsupportedFiles.forEach((file) => {
+      unsupportedFiles.forEach((file: TraceFile) => {
         UserNotifier.add(new UnsupportedFileFormat(file.getDescriptor()));
       });
     } else {
-      unsupportedFiles.sort((a, b) => b.file.size - a.file.size);
+      unsupportedFiles.sort(
+        (a: TraceFile, b: TraceFile) => b.file.size - a.file.size,
+      );
       for (const file of unsupportedFiles) {
         perfettoParsers = await tryParsePerfetto(file);
         if (perfettoParsers) {
@@ -373,7 +376,7 @@ export class TraceFileFilter
       if (await isZipFile(file.file)) {
         try {
           const subFiles = await unzipFile(file.file);
-          const subTraceFiles = subFiles.map((subFile) => {
+          const subTraceFiles = subFiles.map((subFile: File) => {
             return new TraceFile(subFile, file.file);
           });
           unzippedLegacyFiles.push(...subTraceFiles);

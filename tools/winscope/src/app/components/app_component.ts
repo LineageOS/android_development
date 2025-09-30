@@ -103,6 +103,10 @@ import {MatMenuModule} from '@angular/material/menu';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
 import {RequestData} from 'cross_tool/g3_proxy';
+import {
+  BugreportFileSelectionRequest,
+  ViewersLoaded,
+} from 'messaging/winscope_event';
 
 /**
  * The root component of the Winscope app.
@@ -753,35 +757,41 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(WinscopeEventType.VIEWERS_LOADED, async (event) => {
-      this.viewers = event.viewers;
-      this.filenameFormControl.setValue(
-        this.tracePipeline.getDownloadArchiveFilename(),
-      );
-      this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
-      this.isEditingFilename = false;
+    await event.visit(
+      WinscopeEventType.VIEWERS_LOADED,
+      async (event: ViewersLoaded) => {
+        this.viewers = event.viewers;
+        this.filenameFormControl.setValue(
+          this.tracePipeline.getDownloadArchiveFilename(),
+        );
+        this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
+        this.isEditingFilename = false;
 
-      // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
-      this.dataLoaded = true;
-      this.changeDetectorRef.detectChanges();
+        // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
+        this.dataLoaded = true;
+        this.changeDetectorRef.detectChanges();
 
-      // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
-      // therefore toolbar elements controlled by a different boolean
-      this.ngZone.run(() => {
-        this.showDataLoadedElements = true;
-      });
-    });
+        // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
+        // therefore toolbar elements controlled by a different boolean
+        this.ngZone.run(() => {
+          this.showDataLoadedElements = true;
+        });
+      },
+    );
 
-    await event.visit(WinscopeEventType.VIEWERS_UNLOADED, async (event) => {
-      this.dataLoaded = false;
-      this.showDataLoadedElements = false;
-      this.pageTitle.setTitle('Winscope');
-      this.changeDetectorRef.detectChanges();
-    });
+    await event.visit(
+      WinscopeEventType.VIEWERS_UNLOADED,
+      async (event: WinscopeEvent) => {
+        this.dataLoaded = false;
+        this.showDataLoadedElements = false;
+        this.pageTitle.setTitle('Winscope');
+        this.changeDetectorRef.detectChanges();
+      },
+    );
 
     await event.visit(
       WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
-      async (event) => {
+      async (event: BugreportFileSelectionRequest) => {
         await this.showFileSelectionDialog(event.filenames);
       },
     );
