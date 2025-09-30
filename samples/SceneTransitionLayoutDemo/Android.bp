@@ -34,7 +34,7 @@ android_library {
         "androidx.compose.runtime_runtime",
         "androidx.compose.material3_material3",
         "androidx.compose.material3_material3-window-size-class",
-        "androidx.compose.material_material-icons-extended",
+        "androidx.compose.material_material-icons-core",
         "androidx.window_window",
     ],
 
