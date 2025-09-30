@@ -20,67 +20,61 @@ import {TracePosition} from './trace_position';
 import {compareByUiPipelineOrder} from './trace_type';
 
 /**
- * A utility class for finding trace entries that correspond to a specific trace position.
- * This is useful for synchronizing views between different traces.
+ * Finds the trace entry in the provided trace that best corresponds to the given trace position.
+ * The method uses different strategies to find the corresponding entry based on the trace type,
+ * frame information, and timestamp.
+ *
+ * @param trace The trace to search within.
+ * @param position The trace position to find the corresponding entry for.
+ * @return The corresponding trace entry, or undefined if no suitable entry is found.
  */
-export class TraceEntryFinder {
-  /**
-   * Finds the trace entry in the provided trace that best corresponds to the given trace position.
-   * The method uses different strategies to find the corresponding entry based on the trace type,
-   * frame information, and timestamp.
-   *
-   * @param trace The trace to search within.
-   * @param position The trace position to find the corresponding entry for.
-   * @return The corresponding trace entry, or undefined if no suitable entry is found.
-   */
-  static findCorrespondingEntry<T>(
-    trace: Trace<T>,
-    position: TracePosition,
-  ): TraceEntry<T> | undefined {
-    if (trace.lengthEntries === 0) {
-      return undefined;
-    }
-
-    if (trace.isDump()) {
-      // always display dumps regardless of the current trace position
-      return trace.getEntry(0);
-    }
-
-    if (position.entry?.getFullTrace() === trace.getEntry(0).getFullTrace()) {
-      return position.entry as TraceEntry<T>;
-    }
-
-    if (position.frame !== undefined && trace.hasFrameInfo()) {
-      try {
-        const frame = trace.getFrame(position.frame);
-        if (frame.lengthEntries > 0) {
-          return frame.getEntry(0);
-        }
-      } catch (e) {
-        const message = (e as Error).message;
-        console.warn(`Could not retrieve frame: ${message}`);
-        analyticsLogEvent('frame_map_error', {
-          message,
-        });
-      }
-    }
-
-    if (position.entry) {
-      const entryTraceType = position.entry.getFullTrace().type;
-      const timestamp = position.entry.getTimestamp();
-      if (compareByUiPipelineOrder(entryTraceType, trace.type)) {
-        return (
-          trace.findFirstGreaterEntry(timestamp) ??
-          trace.findFirstGreaterOrEqualEntry(timestamp)
-        );
-      } else {
-        return (
-          trace.findLastLowerEntry(timestamp) ??
-          trace.findLastLowerOrEqualEntry(timestamp)
-        );
-      }
-    }
-
-    return trace.findLastLowerOrEqualEntry(position.timestamp);
+export function findCorrespondingEntry<T>(
+  trace: Trace<T>,
+  position: TracePosition,
+): TraceEntry<T> | undefined {
+  if (trace.lengthEntries === 0) {
+    return undefined;
   }
+
+  if (trace.isDump()) {
+    // always display dumps regardless of the current trace position
+    return trace.getEntry(0);
+  }
+
+  if (position.entry?.getFullTrace() === trace.getEntry(0).getFullTrace()) {
+    return position.entry as TraceEntry<T>;
+  }
+
+  if (position.frame !== undefined && trace.hasFrameInfo()) {
+    try {
+      const frame = trace.getFrame(position.frame);
+      if (frame.lengthEntries > 0) {
+        return frame.getEntry(0);
+      }
+    } catch (e) {
+      const message = (e as Error).message;
+      console.warn(`Could not retrieve frame: ${message}`);
+      analyticsLogEvent('frame_map_error', {
+        message,
+      });
+    }
+  }
+
+  if (position.entry) {
+    const entryTraceType = position.entry.getFullTrace().type;
+    const timestamp = position.entry.getTimestamp();
+    if (compareByUiPipelineOrder(entryTraceType, trace.type)) {
+      return (
+        trace.findFirstGreaterEntry(timestamp) ??
+        trace.findFirstGreaterOrEqualEntry(timestamp)
+      );
+    } else {
+      return (
+        trace.findLastLowerEntry(timestamp) ??
+        trace.findLastLowerOrEqualEntry(timestamp)
+      );
+    }
+  }
+
+  return trace.findLastLowerOrEqualEntry(position.timestamp);
 }

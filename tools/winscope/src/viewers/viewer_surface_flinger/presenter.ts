@@ -30,7 +30,7 @@ import {EMPTY_OBJ_STRING, FixedStringFormatter} from 'trace/formatters';
 import {LayerFlag} from 'trace/surface_flinger/layer_flag';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -584,7 +584,7 @@ the default for its data type.`,
       return;
     }
     const wmEntry: HierarchyTreeNode | undefined =
-      await TraceEntryFinder.findCorrespondingEntry<HierarchyTreeNode>(
+      await findCorrespondingEntry<HierarchyTreeNode>(
         this.wmTrace,
         event.position,
       )?.getValue();

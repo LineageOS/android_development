@@ -23,7 +23,7 @@ import {
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {UiData} from './ui_data';
 
@@ -71,9 +71,7 @@ export class Presenter {
       WinscopeEventType.TRACE_POSITION_UPDATE,
       async (event) => {
         const traceEntries = this.traces
-          .map((trace) =>
-            TraceEntryFinder.findCorrespondingEntry(trace, event.position),
-          )
+          .map((trace) => findCorrespondingEntry(trace, event.position))
           .filter((entry) => entry !== undefined) as Array<
           TraceEntry<MediaBasedTraceEntry>
         >;

@@ -26,7 +26,7 @@ import {
 } from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -398,16 +398,15 @@ export abstract class AbstractHierarchyViewerPresenter<
       entries = this.traces
         .getTraces(this.multiTraceType)
         .map((trace) => {
-          return TraceEntryFinder.findCorrespondingEntry(
-            trace,
-            event.position,
-          ) as TraceEntry<HierarchyTreeNode> | undefined;
+          return findCorrespondingEntry(trace, event.position) as
+            | TraceEntry<HierarchyTreeNode>
+            | undefined;
         })
         .filter((entry) => entry !== undefined) as Array<
         TraceEntry<HierarchyTreeNode>
       >;
     } else {
-      const entry = TraceEntryFinder.findCorrespondingEntry(
+      const entry = findCorrespondingEntry(
         assertDefined(this.trace),
         event.position,
       );

@@ -26,7 +26,7 @@ import {
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
@@ -316,10 +316,7 @@ export abstract class AbstractLogViewerPresenter<
     if (event.position.entry?.getFullTrace() === this.trace) {
       entry = event.position.entry as TraceEntry<TraceEntryType>;
     } else {
-      entry = TraceEntryFinder.findCorrespondingEntry(
-        this.trace,
-        event.position,
-      );
+      entry = findCorrespondingEntry(this.trace, event.position);
     }
     this.logPresenter.applyTracePositionUpdate(entry);
 

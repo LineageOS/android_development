@@ -59,31 +59,31 @@ interface CustomQueryTraceEntry<U> {
 }
 
 /**
- * A utility class for processing the raw results from custom query parsers
+ * A utility for processing the raw results from custom query parsers
  * into their final result types.
  */
-export class ProcessCustomQueryParserResult {
+export const ProcessCustomQueryParserResult = {
   /**
    * Processes the parser result for SF_LAYERS_ID_AND_NAME.
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  static [CustomQueryType.SF_LAYERS_ID_AND_NAME]<T>(
+  [CustomQueryType.SF_LAYERS_ID_AND_NAME]<T>(
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.SF_LAYERS_ID_AND_NAME],
   ): CustomQueryResultTypeMap<T>[CustomQueryType.SF_LAYERS_ID_AND_NAME] {
     return parserResult;
-  }
+  },
 
   /**
    * Processes the parser result for VIEW_CAPTURE_METADATA.
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  static [CustomQueryType.VIEW_CAPTURE_METADATA]<T>(
+  [CustomQueryType.VIEW_CAPTURE_METADATA]<T>(
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.VIEW_CAPTURE_METADATA],
   ): CustomQueryResultTypeMap<T>[CustomQueryType.VIEW_CAPTURE_METADATA] {
     return parserResult;
-  }
+  },
 
   /**
    * Processes the parser result for VSYNCID, wrapping each vsyncId in a
@@ -92,7 +92,7 @@ export class ProcessCustomQueryParserResult {
    * @param makeTraceEntry A function to create a `CustomQueryTraceEntry` from a vsyncId and index.
    * @return An array of `CustomQueryTraceEntry<bigint>`.
    */
-  static [CustomQueryType.VSYNCID]<T>(
+  [CustomQueryType.VSYNCID]<T>(
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.VSYNCID],
     makeTraceEntry: (
       index: RelativeEntryIndex,
@@ -102,30 +102,30 @@ export class ProcessCustomQueryParserResult {
     return parserResult.map((vsyncId, index) => {
       return makeTraceEntry(index, vsyncId);
     });
-  }
+  },
 
   /**
    * Processes the parser result for WM_WINDOWS_TOKEN_AND_TITLE.
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  static [CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE]<T>(
+  [CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE]<T>(
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE],
   ): CustomQueryResultTypeMap<T>[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE] {
     return parserResult;
-  }
+  },
 
   /**
    * Processes the parser result for LOG_TABLE_FILTER_VALUES.
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  static [CustomQueryType.LOG_TABLE_FILTER_VALUES]<T>(
+  [CustomQueryType.LOG_TABLE_FILTER_VALUES]<T>(
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.LOG_TABLE_FILTER_VALUES],
   ): CustomQueryResultTypeMap<T>[CustomQueryType.LOG_TABLE_FILTER_VALUES] {
     return parserResult;
-  }
-}
+  },
+};
 
 /**
  * Maps each `CustomQueryType` to the type of parameters it requires.
