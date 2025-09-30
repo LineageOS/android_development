@@ -172,7 +172,7 @@ the default for its data type.`,
     let sfProperties: ImeLayers | undefined;
 
     if (wmEntry) {
-      wmProperties = ImeUtils.processWindowManagerTraceEntry(
+      wmProperties = await ImeUtils.processWindowManagerTraceEntry(
         wmEntry,
         wmEntryTimestamp,
       );

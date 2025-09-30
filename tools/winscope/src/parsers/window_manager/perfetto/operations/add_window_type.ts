@@ -31,7 +31,9 @@ export class AddWindowType extends AddOperation<PropertyTreeNode> {
 
     if (windowState.name.startsWith(WindowTypePrefix.STARTING)) {
       windowType = WindowType.STARTING;
-    } else if (windowState.getChildByName('animatingExit')) {
+    } else if (
+      windowState.getChildByName('window')?.getChildByName('animatingExit')
+    ) {
       windowType = WindowType.EXITING;
     } else if (windowState.name.startsWith(WindowTypePrefix.DEBUGGER)) {
       windowType = WindowType.STARTING;

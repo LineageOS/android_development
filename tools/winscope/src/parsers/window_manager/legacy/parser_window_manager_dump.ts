@@ -17,17 +17,13 @@
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {RectsComputation} from 'parsers/window_manager/computations/rects_computation';
-import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
-import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
 import {com} from 'protos/windowmanager/udc/static';
 import Long from 'long';
 
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'tree_node/properties_provider';
-import {TAMPERED_PROTOS_UDC} from './tampered_protos_udc';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
 
 type DumpProto = com.android.server.wm.IWindowManagerServiceDumpProto;
 
@@ -38,7 +34,9 @@ export class ParserWindowManagerDump extends AbstractParser<
   HierarchyTreeNode,
   DumpProto
 > {
-  private readonly factory = new PropertiesProviderFactory(TAMPERED_PROTOS_UDC);
+  private static TAMPERED_PROTO = assertDefined(
+    TAMPERED_PROTO_UDC.fields['entry'].tamperedMessageType,
+  ).fields['windowManagerService'];
 
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;
@@ -57,35 +55,31 @@ export class ParserWindowManagerDump extends AbstractParser<
   }
 
   override decodeTrace(buffer: Uint8Array): DumpProto[] {
-    const entryProto = assertDefined(
-      TAMPERED_PROTOS_UDC.windowManagerServiceField.tamperedMessageType,
-    ).decode(buffer) as DumpProto;
+    const protoType = assertDefined(
+      ParserWindowManagerDump.TAMPERED_PROTO.tamperedMessageType,
+    );
+    const entryProto = protoType.decode(buffer) as DumpProto;
 
     // This parser is prone to accepting invalid inputs because it lacks a magic
-    // number. Let's reduce the chances of accepting invalid inputs by making
-    // sure that a trace entry can actually be created from the decoded proto.
-    // If the trace entry creation fails, an exception is thrown and the parser
-    // will be considered unsuited for this input data.
-    this.makeHierarchyTree(entryProto);
+    // number. Reduce the chances of accepting invalid inputs by ensuring that the
+    // decoded proto actually contains all valid DumpProto keys and is not empty.
+    const objKeys = Object.getOwnPropertyNames(entryProto);
+    if (
+      objKeys.length === 0 ||
+      !objKeys.every((key) => {
+        return (
+          key in com.android.server.wm.WindowManagerServiceDumpProto.prototype
+        );
+      })
+    ) {
+      throw new Error('Entry does not contain any WM dump data');
+    }
 
     return [entryProto];
   }
 
   protected override getTimestamp(entryProto: DumpProto): Timestamp {
     return this.timestampConverter.makeZeroTimestamp();
-  }
-
-  private makeHierarchyTree(entryProto: DumpProto): HierarchyTreeNode {
-    const containers: PropertiesProvider[] =
-      this.factory.makeContainerProperties(assertDefined(entryProto));
-
-    const entry = this.factory.makeEntryProperties(entryProto);
-
-    return new HierarchyTreeBuilderWm()
-      .setRoot(entry)
-      .setChildren(containers)
-      .setComputations([new RectsComputation()])
-      .build();
   }
 
   override canConvertToPerfetto(): boolean {

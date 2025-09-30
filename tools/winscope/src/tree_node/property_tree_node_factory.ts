@@ -183,7 +183,9 @@ export class PropertyTreeNodeFactory {
         if (this.denylistProperties.includes(it)) return false;
 
         const value = objProto[it];
-        if (Array.isArray(value) && value.length > 0) return !value[0].stableId;
+        if (Array.isArray(value) && value.length > 0) {
+          return !value[0].stableId;
+        }
 
         return value !== undefined;
       });

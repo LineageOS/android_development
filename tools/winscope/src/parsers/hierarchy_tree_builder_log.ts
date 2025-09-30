@@ -21,7 +21,7 @@ import {PropertiesProvider} from 'tree_node/properties_provider';
 /**
  * A builder for creating a hierarchy tree from a log.
  */
-export class HierarchyTreeBuilderLog extends HierarchyTreeBuilder {
+export class HierarchyTreeBuilderLog extends HierarchyTreeBuilder<number> {
   protected override buildIdentifierToChildrenMap(
     traceLogEntries: PropertiesProvider[],
   ): Map<number, readonly HierarchyTreeNode[]> {

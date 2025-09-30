@@ -23,8 +23,15 @@ import {
   RecursiveLayerIds,
 } from 'messaging/user_warnings';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {makeSpyRowIterator} from 'trace_processor/test_utils';
+import {
+  ColumnType,
+  QueryResult,
+  RowIterator,
+} from 'trace_processor/query_result';
+import {
+  makeSpyRowIterator,
+  setupMockIteratorWithRows,
+} from 'trace_processor/test_utils';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRect} from 'tree_node/trace_rect';
@@ -324,7 +331,7 @@ describe('EntryHierarchyTreeFactory', () => {
         defaultSnapshotData({'id': 1n, 'arg_set_id': 0n}),
         defaultSnapshotData({'id': 2n, 'arg_set_id': 1n, 'display_id': 1n}),
       ];
-      setupSnapshotIterator(snapshots);
+      setupMockIteratorWithRows(snapshotIter, snapshots);
 
       const allLayers = [
         defaultLayerData({
@@ -351,47 +358,16 @@ describe('EntryHierarchyTreeFactory', () => {
     });
   });
 
-  function setupSnapshotIterator(rows: Array<{[key: string]: any}>) {
-    let currentRow = 0;
-    snapshotIter.valid.and.callFake(() => currentRow < rows.length);
-
-    snapshotIter.next.and.callFake(() => {
-      currentRow++;
-    });
-
-    snapshotIter.get.and.callFake((key: string) => {
-      if (currentRow < 0 || currentRow >= rows.length) {
-        return undefined;
-      }
-      return rows[currentRow][key];
-    });
-  }
-
   function setupLayerIterator(
-    rows: Array<{[key: string]: any}>,
+    rows: Array<{[key: string]: ColumnType}>,
   ): jasmine.SpyObj<RowIterator> {
     const iter = makeSpyRowIterator();
-    let currentRow = 0;
-
-    iter.valid.and.callFake(() => currentRow < rows.length);
-
-    iter.next.and.callFake(() => {
-      currentRow++;
-    });
-
-    iter.get.and.callFake((key: string) => {
-      if (currentRow < 0 || currentRow >= rows.length) {
-        return undefined;
-      }
-      const rowData = rows[currentRow];
-      return rowData ? rowData[key] : undefined;
-    });
-
+    setupMockIteratorWithRows(iter, rows);
     return iter;
   }
 
-  function defaultLayerData(overrides: {[key: string]: any} = {}): {
-    [key: string]: any;
+  function defaultLayerData(overrides: {[key: string]: ColumnType} = {}): {
+    [key: string]: ColumnType;
   } {
     const defaults = {
       'snapshot_id': 1n,
@@ -413,8 +389,8 @@ describe('EntryHierarchyTreeFactory', () => {
     return {...defaults, ...overrides};
   }
 
-  function defaultSnapshotData(overrides: {[key: string]: any} = {}): {
-    [key: string]: any;
+  function defaultSnapshotData(overrides: {[key: string]: ColumnType} = {}): {
+    [key: string]: ColumnType;
   } {
     const defaults = {
       'id': 1n,

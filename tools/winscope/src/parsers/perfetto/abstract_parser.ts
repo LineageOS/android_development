@@ -201,6 +201,22 @@ export abstract class AbstractParser<T> implements Parser<T> {
     return undefined;
   }
 
+  protected async getEntryFromRange(index: number): Promise<T> {
+    const range: EntriesRange = {
+      start: index,
+      end: index + 1,
+    };
+    return this.getRangeOfEntries(range).then((trees) => {
+      const entry = trees[0];
+      if (entry === undefined) {
+        throw new Error(
+          `Entry at index ${index} not found or could not be parsed.`,
+        );
+      }
+      return entry;
+    });
+  }
+
   protected abstract getTableName(): string;
   abstract getEntry(index: AbsoluteEntryIndex): Promise<T>;
   abstract getTraceType(): TraceType;

@@ -102,19 +102,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
   }
 
   override async getEntry(index: number): Promise<HierarchyTreeNode> {
-    const range: EntriesRange = {
-      start: index,
-      end: index + 1,
-    };
-    return this.getRangeOfEntries(range).then((trees) => {
-      const entry = trees[0];
-      if (entry === undefined) {
-        throw new Error(
-          `Entry at index ${index} not found or could not be parsed.`,
-        );
-      }
-      return entry;
-    });
+    return this.getEntryFromRange(index);
   }
 
   override async getRangeOfEntries(
@@ -129,40 +117,6 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     );
     const visibleRects = await this.fetchAllVisibleRects();
     return this.makeEntryHierarchyTrees(viewsResult, visibleRects);
-  }
-
-  makeEntryHierarchyTrees(
-    viewsResult: QueryResult,
-    visibleRects: Map<bigint, SnapshotRects>,
-  ): HierarchyTreeNode[] {
-    const trees: HierarchyTreeNode[] = [];
-
-    let currSnapshotId: bigint | undefined;
-    let currViews: PropertiesProvider[] = [];
-    const currRects = new Map<bigint, TraceRect>();
-
-    for (const it = viewsResult.iter({}); it.valid(); it.next()) {
-      const snapshotId = assertBigInt(it.get('snapshot_id'));
-      if (currSnapshotId !== undefined && snapshotId !== currSnapshotId) {
-        trees.push(this.buildHierarchyTree(currViews, currRects));
-        currViews = [];
-        currRects.clear();
-      }
-      currSnapshotId = snapshotId;
-
-      const nodeId = assertBigInt(it.get('node_id'));
-      const visibleRect = visibleRects?.get(snapshotId)?.get(nodeId);
-
-      const viewAndRect = this.makeViewAndRect(it, visibleRect);
-      currViews.push(viewAndRect.view);
-      currRects.set(nodeId, viewAndRect.rect);
-    }
-
-    if (currViews.length > 0) {
-      trees.push(this.buildHierarchyTree(currViews, currRects));
-    }
-
-    return trees;
   }
 
   override customQuery<Q extends CustomQueryType>(
@@ -265,6 +219,40 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       WHERE vcv.snapshot_id >= ${start} AND vcv.snapshot_id < ${end}
         ORDER BY vcv.id`;
     return await this.traceProcessor.query(query);
+  }
+
+  private makeEntryHierarchyTrees(
+    viewsResult: QueryResult,
+    visibleRects: Map<bigint, SnapshotRects>,
+  ): HierarchyTreeNode[] {
+    const trees: HierarchyTreeNode[] = [];
+
+    let currSnapshotId: bigint | undefined;
+    let currViews: PropertiesProvider[] = [];
+    const currRects = new Map<bigint, TraceRect>();
+
+    for (const it = viewsResult.iter({}); it.valid(); it.next()) {
+      const snapshotId = assertBigInt(it.get('snapshot_id'));
+      if (currSnapshotId !== undefined && snapshotId !== currSnapshotId) {
+        trees.push(this.buildHierarchyTree(currViews, currRects));
+        currViews = [];
+        currRects.clear();
+      }
+      currSnapshotId = snapshotId;
+
+      const nodeId = assertBigInt(it.get('node_id'));
+      const visibleRect = visibleRects?.get(snapshotId)?.get(nodeId);
+
+      const viewAndRect = this.makeViewAndRect(it, visibleRect);
+      currViews.push(viewAndRect.view);
+      currRects.set(nodeId, viewAndRect.rect);
+    }
+
+    if (currViews.length > 0) {
+      trees.push(this.buildHierarchyTree(currViews, currRects));
+    }
+
+    return trees;
   }
 
   private makeViewAndRect(

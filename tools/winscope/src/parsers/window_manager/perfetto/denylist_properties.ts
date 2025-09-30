@@ -15,7 +15,8 @@
  */
 
 export const DENYLIST_PROPERTIES = [
-  'prototype',
+  'elapsedRealtimeNanos',
+  'where',
   'rootWindowContainer',
   'children',
 ];

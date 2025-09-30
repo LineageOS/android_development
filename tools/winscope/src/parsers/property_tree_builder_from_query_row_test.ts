@@ -22,7 +22,7 @@ import {PropertyTreeBuilderFromQueryRow} from './property_tree_builder_from_quer
 describe('PropertyTreeBuilderFromQueryRow', () => {
   const columns = ['test_prop', 'other_prop'];
   const spyRow = makeSpyRowIterator();
-  spyRow.get.withArgs(columns[0]).and.returnValue(1);
+  spyRow.get.withArgs(columns[0]).and.returnValue(1n);
   spyRow.get.withArgs(columns[1]).and.returnValue('test_value');
   let builder: PropertyTreeBuilderFromQueryRow;
 
@@ -43,7 +43,7 @@ describe('PropertyTreeBuilderFromQueryRow', () => {
       .setIsRoot(true)
       .setSource(PropertySource.TP)
       .setChildren([
-        {name: 'testProp', value: 1},
+        {name: 'testProp', value: 1n},
         {name: 'otherProp', value: 'test_value'},
       ])
       .build();
@@ -67,6 +67,26 @@ describe('PropertyTreeBuilderFromQueryRow', () => {
     const tree = builder
       .setColumns(columns)
       .setConvertColumnToBoolean(columns[0])
+      .setData(spyRow)
+      .build();
+    expect(tree).toEqual(expectedRoot);
+  });
+
+  it('converts column to number value', () => {
+    const expectedRoot = new PropertyTreeBuilder()
+      .setRootId('1')
+      .setName('rootName')
+      .setIsRoot(true)
+      .setSource(PropertySource.TP)
+      .setChildren([
+        {name: 'testProp', value: 1},
+        {name: 'otherProp', value: 'test_value'},
+      ])
+      .build();
+
+    const tree = builder
+      .setColumns(columns)
+      .setConvertColumnToNumber(columns[0])
       .setData(spyRow)
       .build();
     expect(tree).toEqual(expectedRoot);

@@ -17,7 +17,10 @@
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {QueryResult} from 'trace_processor/query_result';
-import {makeSpyRowIterator} from 'trace_processor/test_utils';
+import {
+  makeSpyRowIterator,
+  setupMockIteratorWithRows,
+} from 'trace_processor/test_utils';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {
   TraceGeometryData,
@@ -132,20 +135,7 @@ describe('TraceGeometryData', () => {
     rows: Array<{[key: string]: bigint | number | string}>,
   ) {
     const rowIterator = makeSpyRowIterator();
-    let currentRow = 0;
-    rowIterator.valid.and.callFake(() => currentRow < rows.length);
-    rowIterator.next.and.callFake(() => {
-      currentRow++;
-    });
-    rowIterator.get.and.callFake((key: string) => {
-      if (currentRow >= 0 && currentRow < rows.length) {
-        const row = rows[currentRow];
-        return row[key];
-      }
-      throw new Error(
-        `Attempted to 'get' on an invalid row index: ${currentRow}`,
-      );
-    });
+    setupMockIteratorWithRows(rowIterator, rows);
     const queryResult = jasmine.createSpyObj<QueryResult>('QueryResult', [
       'iter',
     ]);

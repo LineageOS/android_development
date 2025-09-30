@@ -26,6 +26,7 @@ import {AbstractPropertyTreeBuilder} from './abstract_property_tree_builder';
 export class PropertyTreeBuilderFromQueryRow extends AbstractPropertyTreeBuilder<RowIterator> {
   private columns: string[] | undefined;
   private booleanColumns: string[] = [];
+  private numberColumns: string[] = [];
 
   setColumns(value: string[]): this {
     this.columns = value;
@@ -34,6 +35,11 @@ export class PropertyTreeBuilderFromQueryRow extends AbstractPropertyTreeBuilder
 
   setConvertColumnToBoolean(column: string): this {
     this.booleanColumns.push(column);
+    return this;
+  }
+
+  setConvertColumnToNumber(column: string): this {
+    this.numberColumns.push(column);
     return this;
   }
 
@@ -57,6 +63,8 @@ export class PropertyTreeBuilderFromQueryRow extends AbstractPropertyTreeBuilder
         const colCamelCase = convertSnakeToCamelCase(col);
         if (this.booleanColumns.includes(col)) {
           val = Boolean(val);
+        } else if (this.numberColumns.includes(col)) {
+          val = Number(val);
         }
         const node = factory.makeTpProperty(rootNodeId, colCamelCase, val);
         rootNode.addOrReplaceChild(node);

@@ -201,7 +201,9 @@ the default for its data type.`,
   override executePropertiesChecksAfterPositionUpdate(uiData: UiData) {
     const propertiesTree = assertDefined(uiData.propertiesTree);
     expect(
-      assertDefined(propertiesTree.getChildByName('state')).formattedValue(),
+      assertDefined(
+        propertiesTree.getChildByName('activity')?.getChildByName('state'),
+      ).formattedValue(),
     ).toBe('STOPPED');
     expect(
       assertDefined(
@@ -220,13 +222,15 @@ the default for its data type.`,
 
   override executeSpecializedChecksForPropertiesFromRect(uiData: UiData) {
     const propertiesTree = assertDefined(uiData.propertiesTree);
-    expect(propertiesTree.getAllChildren().length).toBe(10);
+    expect(propertiesTree.getAllChildren()[0].getAllChildren().length).toBe(10);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(uiData: UiData) {
     const propertiesTree = assertDefined(uiData.propertiesTree);
     expect(
-      assertDefined(propertiesTree.getChildByName('state')).formattedValue(),
+      assertDefined(
+        propertiesTree.getChildByName('activity')?.getChildByName('state'),
+      ).formattedValue(),
     ).toBe('RESUMED');
   }
 

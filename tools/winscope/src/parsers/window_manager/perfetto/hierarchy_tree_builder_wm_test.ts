@@ -21,6 +21,7 @@ import {OperationChain} from 'tree_node/operation_chain';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
+import {ContainerType} from './container_type';
 
 describe('HierarchyTreeBuilderWm', () => {
   let builder: HierarchyTreeBuilderWm;
@@ -78,9 +79,9 @@ describe('HierarchyTreeBuilderWm', () => {
       .setName('1234567 container1')
       .setIsRoot(true)
       .setChildren([
-        {name: 'id', value: 1},
         {name: 'token', value: 1234567},
-        {name: 'children', children: [{name: '0', value: 7654321}]},
+        {name: 'parentToken', value: undefined},
+        {name: 'containerType', value: ContainerType.RootWindowContainer},
       ])
       .build();
 
@@ -97,9 +98,9 @@ describe('HierarchyTreeBuilderWm', () => {
       .setName('7654321 container2')
       .setIsRoot(true)
       .setChildren([
-        {name: 'id', value: 2},
         {name: 'token', value: 7654321},
-        {name: 'children', value: []},
+        {name: 'parentToken', value: 1234567},
+        {name: 'containerType', value: ContainerType.DisplayContent},
       ])
       .build();
 
@@ -144,9 +145,9 @@ describe('HierarchyTreeBuilderWm', () => {
       .setName('1234567 container1')
       .setIsRoot(true)
       .setChildren([
-        {name: 'id', value: 1},
         {name: 'token', value: 1234567},
-        {name: 'children', children: [{name: '0', value: 7654321}]},
+        {name: 'parentToken', value: undefined},
+        {name: 'containerType', value: ContainerType.RootWindowContainer},
       ])
       .build();
 
@@ -163,9 +164,9 @@ describe('HierarchyTreeBuilderWm', () => {
       .setName('7654321 container2')
       .setIsRoot(true)
       .setChildren([
-        {name: 'id', value: 2},
         {name: 'token', value: 7654321},
-        {name: 'children', children: [{name: '0', value: 4646464}]},
+        {name: 'parentToken', value: 1234567},
+        {name: 'containerType', value: ContainerType.DisplayContent},
       ])
       .build();
 
@@ -182,9 +183,9 @@ describe('HierarchyTreeBuilderWm', () => {
       .setName('4646464 container3')
       .setIsRoot(true)
       .setChildren([
-        {name: 'id', value: 3},
         {name: 'token', value: 4646464},
-        {name: 'children', value: []},
+        {name: 'parentToken', value: 7654321},
+        {name: 'containerType', value: ContainerType.DisplayArea},
       ])
       .build();
 

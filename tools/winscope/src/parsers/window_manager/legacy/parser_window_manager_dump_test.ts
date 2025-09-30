@@ -109,9 +109,12 @@ describe('ParserWindowManagerDump', () => {
     it('retrieves trace entry', async () => {
       const entry = await perfettoParser.getEntry(0);
       expect(entry).toBeInstanceOf(HierarchyTreeNode);
-      expect(entry.getEagerPropertyByName('focusedApp')?.getValue()).toBe(
-        'com.google.android.apps.nexuslauncher/.NexusLauncherActivity',
-      );
+      expect(
+        (await entry.getAllProperties())
+          .getChildByName('windowManagerService')
+          ?.getChildByName('focusedApp')
+          ?.getValue(),
+      ).toBe('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
     });
 
     it('supports WM_WINDOWS_TOKEN_AND_TITLE custom query', async () => {

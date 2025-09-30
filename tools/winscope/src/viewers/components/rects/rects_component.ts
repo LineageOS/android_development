@@ -238,7 +238,7 @@ interface CanColor {
                   {{ getSelectTriggerValue() }}
                 </span>
               </mat-select-trigger>
-              @for (display of internalDisplays; track display.displayId) {
+              @for (display of internalDisplays; track display.groupId) {
                 <mat-option
                   [value]="display"
                   [matTooltip]="'Display Id: ' + display.displayId"

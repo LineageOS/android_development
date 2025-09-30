@@ -47,19 +47,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   }
 
   override async getEntry(index: number): Promise<HierarchyTreeNode> {
-    const range: EntriesRange = {
-      start: index,
-      end: index + 1,
-    };
-    return this.getRangeOfEntries(range).then((trees) => {
-      const entry = trees[0];
-      if (entry === undefined) {
-        throw new Error(
-          `Entry at index ${index} not found or could not be parsed.`,
-        );
-      }
-      return entry;
-    });
+    return this.getEntryFromRange(index);
   }
 
   override async getRangeOfEntries(
@@ -71,11 +59,13 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     const {snapshotRange: snapshotResult, layersRange: layersResult} =
       queryResults;
     const traceGeometryData = assertDefined(this.traceGeometryData);
-    await this.fetchAllRects();
+    const visibleAndDisplayRects = assertDefined(
+      await this.fetchAllVisibleAndDisplayRects(),
+    );
     return this.factory.makeEntryHierarchyTrees(
       snapshotResult,
       layersResult,
-      assertDefined(this.visibleAndDisplayRects),
+      visibleAndDisplayRects,
       this.traceProcessor,
       traceGeometryData,
     );
@@ -169,7 +159,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     };
   }
 
-  private async fetchAllRects() {
+  private async fetchAllVisibleAndDisplayRects() {
     if (this.visibleAndDisplayRects === undefined) {
       const visibleRectsResult = this.allVisibleRects;
       const allSnapshotsResults = this.allSnapshots;
@@ -186,6 +176,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           assertDefined(this.traceGeometryData),
         );
     }
+    return this.visibleAndDisplayRects;
   }
 
   private async queryRangeSnapshots(

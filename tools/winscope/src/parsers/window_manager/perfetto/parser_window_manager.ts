@@ -20,12 +20,6 @@ import {
   assertStringOrUndefined,
 } from 'common/assert';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryEntry} from 'parsers/perfetto/utils';
-import {RectsComputation} from 'parsers/window_manager/computations/rects_computation';
-import {HierarchyTreeBuilderWm} from 'parsers/window_manager/hierarchy_tree_builder_wm';
-import {PropertiesProviderFactory} from 'parsers/window_manager/properties_provider_factory';
-import {perfetto} from 'protos/perfetto/trace/static';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
@@ -34,33 +28,45 @@ import {
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'tree_node/properties_provider';
-import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
+import {QueryResult, RowIterator} from 'trace_processor/query_result';
+import {extractAllRects, SnapshotRects} from './rect_extractor';
+import {
+  makeEntryHierarchyTrees,
+  makeTreeNodeId,
+  makeTreeNodeName,
+} from './entry_hierarchy_tree_factory';
 
 /**
  * Parser for WindowManager Perfetto traces.
  */
 export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
-  private readonly protoTransformer = new FakeProtoTransformer(
-    assertDefined(TAMPERED_PROTOS_LATEST.entryField.tamperedMessageType),
-  );
-  private readonly factory = new PropertiesProviderFactory(
-    TAMPERED_PROTOS_LATEST,
-  );
+  private visibleAndDisplayRects: Map<bigint, SnapshotRects> | undefined;
 
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;
   }
 
   override async getEntry(index: number): Promise<HierarchyTreeNode> {
-    let entryProto = await queryEntry(
-      this.traceProcessor,
-      this.getTableName(),
-      this.entryIndexToRowIdMap,
-      index,
+    return this.getEntryFromRange(index);
+  }
+
+  override async getRangeOfEntries(
+    range: EntriesRange,
+  ): Promise<Array<HierarchyTreeNode | undefined>> {
+    // assuming the entryIndex monotically increases, true for WindowManager
+    const snapshotStart = this.entryIndexToRowIdMap[range.start];
+    const snapshotEnd = snapshotStart + range.end - range.start;
+    const containersResult = await this.queryRangeContainersAndRects(
+      snapshotStart,
+      snapshotEnd,
     );
-    entryProto = this.protoTransformer.transform(entryProto);
-    return this.makeHierarchyTree(entryProto);
+    const visibleAndDisplayRects = await this.fetchAllVisibleAndDisplayRects();
+    return makeEntryHierarchyTrees(
+      containersResult,
+      visibleAndDisplayRects,
+      this.traceProcessor,
+      assertDefined(this.traceGeometryData),
+    );
   }
 
   protected override getTableName(): string {
@@ -93,22 +99,73 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
       .getResult();
   }
 
-  private makeHierarchyTree(
-    entryProto: perfetto.protos.IWindowManagerTraceEntry,
-  ): HierarchyTreeNode {
-    const containers: PropertiesProvider[] =
-      this.factory.makeContainerProperties(
-        assertDefined(entryProto.windowManagerService),
+  private async fetchAllVisibleAndDisplayRects(): Promise<
+    Map<bigint, SnapshotRects>
+  > {
+    if (this.visibleAndDisplayRects === undefined) {
+      const visibleRectsResult = await this.queryAllVisibleAndDisplayRects();
+      this.visibleAndDisplayRects = extractAllRects(
+        visibleRectsResult.iter({}),
+        assertDefined(this.traceGeometryData),
+        (row: RowIterator) => makeTreeNodeId(row),
+        (row: RowIterator) => makeTreeNodeName(row),
       );
+    }
+    return this.visibleAndDisplayRects;
+  }
 
-    const entry = this.factory.makeEntryProperties(
-      assertDefined(entryProto.windowManagerService),
-    );
+  private async queryAllVisibleAndDisplayRects(): Promise<QueryResult> {
+    const visibleRectsDisplayQuery = `
+      SELECT
+        snapshot.focused_display_id,
+        wc.snapshot_id,
+        wc.title,
+        wc.token,
+        wc.container_type,
+        wc.name_override,
+        wc.is_visible,
+        tr.group_id,
+        tr.depth,
+        tr.opacity,
+        tr.rect_id
+      FROM android_windowmanager AS snapshot
+      INNER JOIN android_windowmanager_windowcontainer AS wc
+        ON snapshot.id = wc.snapshot_id
+      INNER JOIN android_winscope_trace_rect AS tr
+        ON wc.window_rect_id = tr.id
+        WHERE (wc.is_visible = 1 OR wc.container_type = 'DisplayContent')
+        ORDER BY wc.id;
+    `;
+    return this.traceProcessor.query(visibleRectsDisplayQuery);
+  }
 
-    return new HierarchyTreeBuilderWm()
-      .setRoot(entry)
-      .setChildren(containers)
-      .setComputations([new RectsComputation()])
-      .build();
+  private async queryRangeContainersAndRects(
+    start: number,
+    end: number,
+  ): Promise<QueryResult> {
+    const query = `
+      SELECT
+        snapshot.arg_set_id as snapshot_arg_set_id,
+        snapshot.focused_display_id,
+        wc.snapshot_id,
+        wc.arg_set_id,
+        wc.token,
+        wc.title,
+        wc.container_type,
+        wc.name_override,
+        wc.is_visible,
+        wc.parent_token,
+        tr.group_id,
+        tr.depth,
+        tr.opacity,
+        tr.rect_id
+      FROM android_windowmanager AS snapshot
+      INNER JOIN android_windowmanager_windowcontainer AS wc
+        ON snapshot.id = wc.snapshot_id
+      LEFT JOIN android_winscope_trace_rect AS tr
+        ON wc.window_rect_id = tr.id
+      WHERE wc.snapshot_id >= ${start} AND wc.snapshot_id < ${end}
+        ORDER BY wc.id`;
+    return await this.traceProcessor.query(query);
   }
 }

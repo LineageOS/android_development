@@ -21,7 +21,7 @@ import {PropertiesProvider} from 'tree_node/properties_provider';
 /**
  * An abstract builder for creating a hierarchy tree.
  */
-export abstract class HierarchyTreeBuilder {
+export abstract class HierarchyTreeBuilder<T> {
   protected root: PropertiesProvider | undefined;
   protected children: PropertiesProvider[] | undefined;
   private computations: Computation[] = [];
@@ -65,7 +65,7 @@ export abstract class HierarchyTreeBuilder {
 
   private buildHierarchyTree(
     root: PropertiesProvider,
-    identifierToChildren: Map<string | number, readonly HierarchyTreeNode[]>,
+    identifierToChildren: Map<T, readonly HierarchyTreeNode[]>,
   ): HierarchyTreeNode {
     const rootProperties = root.getEagerProperties();
     const node = this.makeNode(rootProperties.id, rootProperties.name, root);
@@ -91,11 +91,11 @@ export abstract class HierarchyTreeBuilder {
 
   protected abstract buildIdentifierToChildrenMap(
     nodes: PropertiesProvider[],
-  ): Map<string | number, readonly HierarchyTreeNode[]>;
+  ): Map<T, readonly HierarchyTreeNode[]>;
 
   protected abstract assignParentChildRelationships(
     node: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, readonly HierarchyTreeNode[]>,
+    identifierToChildren: Map<T, readonly HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void;
 }
