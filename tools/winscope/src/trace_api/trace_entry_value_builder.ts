@@ -26,7 +26,7 @@ export class TraceEntryValueBuilder {
   private traceType: TraceType | undefined;
   private snapshotResults: QueryResult | undefined;
   private layerResults: QueryResult | undefined;
-  private rectsMap: Map<bigint, SnapshotRects> | undefined;
+  private sfRectsMap: Map<bigint, SnapshotRects> | undefined;
   private traceGeometryData: TraceGeometryData | undefined;
 
   setType(traceType: TraceType) {
@@ -41,8 +41,8 @@ export class TraceEntryValueBuilder {
     this.layerResults = layers;
   }
 
-  setRectMap(rectsMap: Map<bigint, SnapshotRects>) {
-    this.rectsMap = rectsMap;
+  setSfRectsMap(rectsMap: Map<bigint, SnapshotRects>) {
+    this.sfRectsMap = rectsMap;
   }
 
   setGeometryData(data: TraceGeometryData) {
@@ -58,7 +58,7 @@ export class TraceEntryValueBuilder {
         return EntryHierarchyTreeFactory.makeEntryHierarchyTrees(
           assertDefined(this.snapshotResults),
           assertDefined(this.layerResults),
-          assertDefined(this.rectsMap),
+          assertDefined(this.sfRectsMap),
           undefined,
           assertDefined(this.traceGeometryData),
         );

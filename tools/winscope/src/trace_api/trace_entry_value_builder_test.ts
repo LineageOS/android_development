@@ -61,7 +61,9 @@ describe('TraceEntryValueBuilder', async () => {
   });
 
   it('sets the rect map', () => {
-    expect(() => traceEntryValueBuilder.setRectMap(mockRectsMap)).not.toThrow();
+    expect(() =>
+      traceEntryValueBuilder.setSfRectsMap(mockRectsMap),
+    ).not.toThrow();
   });
 
   it('sets the trace geometry data', () => {
@@ -84,7 +86,7 @@ describe('TraceEntryValueBuilder', async () => {
     traceEntryValueBuilder.setType(TraceType.SURFACE_FLINGER);
     traceEntryValueBuilder.setSnapshotResults(mockQueryResult);
     traceEntryValueBuilder.setLayersResults(mockQueryResult);
-    traceEntryValueBuilder.setRectMap(mockRectsMap);
+    traceEntryValueBuilder.setSfRectsMap(mockRectsMap);
     traceEntryValueBuilder.setGeometryData(mockTraceGeometryData);
 
     traceEntryValueBuilder.build();
