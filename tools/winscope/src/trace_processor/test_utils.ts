@@ -99,8 +99,11 @@ export function setupMockIteratorWithRows(
   });
   iter.get.and.callFake((key: string) => {
     if (currentRow >= rows.length) {
-      return null;
+      throw new Error(
+        `Attempted to 'get' on an invalid row index: ${currentRow}`,
+      );
     }
-    return rows[currentRow][key];
+    const rowData = rows[currentRow];
+    return rowData ? rowData[key] : null;
   });
 }

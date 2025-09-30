@@ -180,9 +180,6 @@ function makeContainerPropertyProvider(
 ): PropertiesProvider {
   const rootId = makeTreeNodeId(row);
   const rootName = makeTreeNodeName(row);
-  const containerType = assertString(
-    row.get('container_type'),
-  ) as ContainerType;
 
   const eagerProperties = makeContainerEagerPropertiesTree(
     row,
@@ -195,9 +192,12 @@ function makeContainerPropertyProvider(
     Number(argSetId),
     rootId,
     rootName,
-    containerType,
     traceProcessor,
   );
+
+  const containerType = assertString(
+    row.get('container_type'),
+  ) as ContainerType;
   const operations = assertDefined(WM_OPERATION_LISTS.get(containerType));
 
   return new PropertiesProviderBuilder()
@@ -222,10 +222,8 @@ function makeContainerEagerPropertiesTree(
       'token',
       'title',
       'container_type',
-      'name_override',
       'is_visible',
       'parent_token',
-      'snapshot_arg_set_id',
     ])
     .setConvertColumnToBoolean('is_visible')
     .setConvertColumnToNumber('token')
@@ -237,7 +235,6 @@ function makeContainerLazyPropertiesStrategy(
   argSetId: number,
   rootId: string,
   rootName: string,
-  containerType: ContainerType,
   traceProcessor: TraceProcessor,
 ): LazyPropertiesStrategyType {
   return async () => {
@@ -262,26 +259,13 @@ function buildHierarchyTree(
     .build();
 
   tree.getAllChildren().forEach((displayContent) => {
-    const displayRect = assertDefined(
-      rects.get(
-        assertDefined(
-          displayContent.getEagerPropertyByName('token')?.getValue<number>(),
-        ),
-      ),
-    );
-    displayContent.setRects([displayRect]);
-
-    displayContent.getAllChildren().forEach((child) => {
-      child.forEachNodeDfs((container) => {
-        const rect = rects.get(
-          assertDefined(
-            container.getEagerPropertyByName('token')?.getValue<number>(),
-          ),
-        );
-        if (rect) {
-          container.setRects([rect]);
-        }
-      });
+    displayContent.forEachNodeDfs((node) => {
+      const rect = rects.get(
+        assertDefined(node.getEagerPropertyByName('token')?.getValue<number>()),
+      );
+      if (rect) {
+        node.setRects([rect]);
+      }
     });
   });
 
