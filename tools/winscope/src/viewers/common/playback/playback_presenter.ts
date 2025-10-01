@@ -30,6 +30,13 @@ import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {assertDefined} from 'common/assert';
 import {CorrespondingEntries} from './corresponding_entries';
 import {TraceType} from 'trace_api/trace_type';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {PropertiesProvider} from 'tree_node/properties_provider';
+import {TraceRect} from 'tree_node/trace_rect';
+import {CornerRadii} from 'common/geometry/corner_radii';
+import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 
 export class PlaybackPresenter {
   private entryIndex = 0;
@@ -43,6 +50,7 @@ export class PlaybackPresenter {
   private correspondingEntriesMap = new Map<number, CorrespondingEntries>();
   private traceType: TraceType = TraceType.SURFACE_FLINGER;
   private currentScreenRecording: Trace<MediaBasedTraceEntry> | undefined;
+  private tp = TraceProcessorFactory.getSingleInstance();
 
   constructor(emitWinscopeEvent: EmitEvent) {
     this.emitWinscopeEvent = emitWinscopeEvent;
@@ -223,5 +231,59 @@ export class PlaybackPresenter {
       }
       this.correspondingEntriesMap.set(entryIndex, correspondingEntries);
     }
+  }
+
+  private assignPropertyTreeNodePrototype(node: PropertyTreeNode) {
+    Object.setPrototypeOf(node, PropertyTreeNode.prototype);
+    node
+      .getAllChildren()
+      .forEach((child: PropertyTreeNode) =>
+        this.assignPropertyTreeNodePrototype(child),
+      );
+  }
+
+  private assignNodePrototypes(node: any) {
+    this.assignPropertyTreeNodePrototype(
+      node.propertiesProvider.eagerPropertiesRoot,
+    );
+    Object.setPrototypeOf(
+      node.propertiesProvider,
+      PropertiesProvider.prototype,
+    );
+    Object.setPrototypeOf(node, HierarchyTreeNode.prototype);
+    node.rects?.forEach((rect: TraceRect) => {
+      Object.setPrototypeOf(rect, TraceRect.prototype);
+      Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
+      if (rect?.cornerRadii) {
+        Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
+      }
+    });
+
+    node.secondaryRects?.forEach((rect: TraceRect) => {
+      Object.setPrototypeOf(rect, TraceRect.prototype);
+      Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
+      if (rect?.cornerRadii) {
+        Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
+      }
+    });
+
+    if (node.isRoot()) {
+      node.enableLazyPropertiesFetch(
+        EntryHierarchyTreeFactory.makeEntryLazyPropertiesStrategy(),
+        this.tp,
+      );
+    } else {
+      node.enableLazyPropertiesFetch(
+        EntryHierarchyTreeFactory.makeLayerLazyPropertiesStrategy(
+          node.id.split(' ')[0],
+          node.name,
+          node.duplicateCount,
+        ),
+        this.tp,
+      );
+    }
+    node
+      .getAllChildren()
+      .forEach((child: any) => this.assignNodePrototypes(child));
   }
 }
