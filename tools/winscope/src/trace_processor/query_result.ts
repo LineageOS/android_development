@@ -14,28 +14,97 @@
  * limitations under the License.
  */
 
-export type ColumnType = string | number | bigint | null | Uint8Array;
+/**
+ * Represents the possible data types for a column in a query result.
+ * It can be a string, number, bigint, null, or a Uint8Array for binary data.
+ */
+export type ColumnType = string | number | bigint | Uint8Array;
 
+/**
+ * Defines the structure of a single row in a query result, where each key
+ * is a column name and the value is of a type defined by `ColumnType`.
+ */
 export interface Row {
-  [key: string]: ColumnType;
+  [key: string]: ColumnType | null;
 }
 
+/**
+ * An iterator for traversing rows in a query result.
+ */
 export interface RowIterator {
+  /**
+   * Checks if the iterator is currently pointing to a valid row.
+   * @return True if the iterator is valid, false otherwise.
+   */
   valid(): boolean;
+
+  /**
+   * Moves the iterator to the next row in the result set.
+   */
   next(): void;
-  get(columnName: string): ColumnType;
+
+  /**
+   * Retrieves the value of a specific column from the current row.
+   * @param columnName The name of the column to retrieve.
+   * @return The value of the column.
+   */
+  get(columnName: string): ColumnType | null;
 }
 
+/**
+ * Represents the result of a database query, providing methods to access
+ * the data and its metadata.
+ */
 export interface QueryResult {
+  /**
+   * Gets the total number of rows in the query result.
+   * @return The number of rows.
+   */
   numRows(): number;
+
+  /**
+   * Retrieves the names of all columns in the query result.
+   * @return An array of column names.
+   */
   columns(): string[];
+
+  /**
+   * Creates an iterator for traversing the rows in the result set.
+   * @param spec An object specifying the structure of the rows to iterate over.
+   * @return A `RowIterator` for the result set.
+   */
   iter<T extends Row>(spec: T): RowIterator;
+
+  /**
+   * Retrieves the first row of the query result.
+   * @param spec An object specifying the structure of the first row.
+   * @return The first row of the result.
+   */
   firstRow<T extends Row>(spec: T): T;
 }
 
+/**
+ * A container for multiple query results, typically related to a specific
+ * analysis or snapshot of trace data.
+ */
 export interface QueryResults {
+  /**
+   * The result of a query for a snapshot range.
+   */
   snapshotRange: QueryResult;
+
+  /**
+   * The result of a query for a layers range.
+   */
   layersRange: QueryResult;
+
+  /**
+   * The result of a query for all visible rectangles, or undefined if not available.
+   */
   allVisibleRects: QueryResult | undefined;
+
+  /**
+   * The result of a query for all snapshots, or undefined if not available.
+   */
   allSnapshots: QueryResult | undefined;
 }

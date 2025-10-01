@@ -306,7 +306,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     ];
   }
 
-  private makeLazyPropertiesStrategy(argSetId: ColumnType) {
+  private makeLazyPropertiesStrategy(argSetId: ColumnType | null) {
     return async () => {
       const data = await queryArgs(this.traceProcessor, Number(argSetId));
       return new PropertyTreeBuilderFromProto()

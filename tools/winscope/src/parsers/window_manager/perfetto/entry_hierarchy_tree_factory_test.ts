@@ -155,8 +155,10 @@ describe('EntryHierarchyTreeFactory', () => {
       expect(rects[0].h).toEqual(otherRect.h);
     });
 
-    function getContainerRow(overrides: {[key: string]: ColumnType} = {}): {
-      [key: string]: ColumnType;
+    function getContainerRow(
+      overrides: {[key: string]: ColumnType | null} = {},
+    ): {
+      [key: string]: ColumnType | null;
     } {
       const defaults = {
         'snapshot_id': defaultSnapshotId,

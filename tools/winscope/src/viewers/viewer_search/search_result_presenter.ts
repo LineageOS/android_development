@@ -128,7 +128,7 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
     headers: LogHeader[],
     it: RowIterator,
     header: LogHeader,
-    value: ColumnType | undefined,
+    value: ColumnType | null | undefined,
   ): LogFieldValue | undefined {
     if (
       header.spec.name === 'value' &&
@@ -153,7 +153,7 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
     return undefined;
   }
 
-  private convertToLogFieldValue(value: ColumnType): LogFieldValue {
+  private convertToLogFieldValue(value: ColumnType | null): LogFieldValue {
     if (value === null) {
       return 'NULL';
     }

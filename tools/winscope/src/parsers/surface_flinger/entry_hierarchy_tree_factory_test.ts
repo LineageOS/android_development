@@ -359,15 +359,17 @@ describe('EntryHierarchyTreeFactory', () => {
   });
 
   function setupLayerIterator(
-    rows: Array<{[key: string]: ColumnType}>,
+    rows: Array<{[key: string]: ColumnType | null}>,
   ): jasmine.SpyObj<RowIterator> {
     const iter = makeSpyRowIterator();
     setupMockIteratorWithRows(iter, rows);
     return iter;
   }
 
-  function defaultLayerData(overrides: {[key: string]: ColumnType} = {}): {
-    [key: string]: ColumnType;
+  function defaultLayerData(
+    overrides: {[key: string]: ColumnType | null} = {},
+  ): {
+    [key: string]: ColumnType | null;
   } {
     const defaults = {
       'snapshot_id': 1n,
@@ -389,8 +391,10 @@ describe('EntryHierarchyTreeFactory', () => {
     return {...defaults, ...overrides};
   }
 
-  function defaultSnapshotData(overrides: {[key: string]: ColumnType} = {}): {
-    [key: string]: ColumnType;
+  function defaultSnapshotData(
+    overrides: {[key: string]: ColumnType | null} = {},
+  ): {
+    [key: string]: ColumnType | null;
   } {
     const defaults = {
       'id': 1n,

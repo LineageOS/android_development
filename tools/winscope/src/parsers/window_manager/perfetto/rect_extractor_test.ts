@@ -191,7 +191,7 @@ describe('WindowManager RectExtractor', () => {
       .and.returnValue(new Rect(1, 2, 3, 4));
 
     const iter = makeSpyRowIterator();
-    const rows: Array<{[key: string]: ColumnType}> = [
+    const rows: Array<{[key: string]: ColumnType | null}> = [
       {
         'snapshot_id': 0n,
         'token': 10n,
