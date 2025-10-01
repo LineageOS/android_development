@@ -130,8 +130,8 @@ describe('EntryHierarchyTreeFactory', () => {
       expect(rect2.h).toEqual(otherRect.h);
     });
 
-    function getViewRow(overrides: {[key: string]: ColumnType} = {}): {
-      [key: string]: ColumnType;
+    function getViewRow(overrides: {[key: string]: ColumnType | null} = {}): {
+      [key: string]: ColumnType | null;
     } {
       const defaults = {
         'snapshot_id': defaultSnapshotId,

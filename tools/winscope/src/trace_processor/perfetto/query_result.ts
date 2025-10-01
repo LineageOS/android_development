@@ -56,7 +56,7 @@ import {duration, Time, time} from './time';
 export type SqlValue = string | number | bigint | null | Uint8Array;
 export type ColumnType = SqlValue;
 
-export const UNKNOWN: ColumnType = null;
+export const UNKNOWN: ColumnType | null = null;
 export const NUM = 0;
 export const STR = 'str';
 export const NUM_NULL: number | null = 1;
@@ -155,7 +155,7 @@ export class QueryError extends Error {
 
 // One row extracted from an SQL result:
 export interface Row {
-  [key: string]: ColumnType;
+  [key: string]: ColumnType | null;
 }
 
 // The methods that any iterator has to implement.
@@ -170,7 +170,7 @@ export interface RowIteratorBase {
   // for (const it = queryResult.iter({}); it.valid(); it.next()) {
   //   for (const columnName : queryResult.columns()) {
   //      console.log(it.get(columnName));
-  get(columnName: string): ColumnType;
+  get(columnName: string): ColumnType | null;
 }
 
 // A RowIterator is a type that has all the fields defined in the query spec
@@ -182,7 +182,7 @@ export interface RowIteratorBase {
 //  console.log(iter.name, iter.surname);
 export type RowIterator<T extends Row> = RowIteratorBase & T;
 
-function columnTypeToString(t: ColumnType): string {
+function columnTypeToString(t: ColumnType | null): string {
   switch (t) {
     case NUM:
       return 'NUM';
@@ -207,7 +207,7 @@ function columnTypeToString(t: ColumnType): string {
   }
 }
 
-function isCompatible(actual: CellType, expected: ColumnType): boolean {
+function isCompatible(actual: CellType, expected: ColumnType | null): boolean {
   switch (actual) {
     case CellType.CELL_NULL:
       return (
@@ -730,7 +730,7 @@ class RowIteratorImpl implements RowIteratorBase {
     return new QueryError(message, this.resultObj.errorInfo);
   }
 
-  get(columnName: string): ColumnType {
+  get(columnName: string): ColumnType | null {
     const res = this.rowData[columnName];
     if (res === undefined) {
       throw this.makeError(
@@ -1014,7 +1014,7 @@ export function createQueryResult(
 
 // Throws if the value cannot be reasonably converted to a bigint.
 // Assumes value is in native time units.
-export function timeFromSql(value: ColumnType): time {
+export function timeFromSql(value: ColumnType | null): time {
   if (typeof value === 'bigint') {
     return Time.fromRaw(value);
   } else if (typeof value === 'number') {
@@ -1028,7 +1028,7 @@ export function timeFromSql(value: ColumnType): time {
 
 // Throws if the value cannot be reasonably converted to a bigint.
 // Assumes value is in nanoseconds.
-export function durationFromSql(value: ColumnType): duration {
+export function durationFromSql(value: ColumnType | null): duration {
   if (typeof value === 'bigint') {
     return value;
   } else if (typeof value === 'number') {

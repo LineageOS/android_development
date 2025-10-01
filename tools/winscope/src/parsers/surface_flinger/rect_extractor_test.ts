@@ -483,8 +483,10 @@ describe('SurfaceFlinger RectExtractor', () => {
       ]);
     });
 
-    function layerInputRow(overrides: {[key: string]: ColumnType} = {}): {
-      [key: string]: ColumnType;
+    function layerInputRow(
+      overrides: {[key: string]: ColumnType | null} = {},
+    ): {
+      [key: string]: ColumnType | null;
     } {
       const defaults = {
         'snapshot_id': currSnapshotId,
@@ -504,8 +506,10 @@ describe('SurfaceFlinger RectExtractor', () => {
       return {...defaults, ...overrides};
     }
 
-    function layerBoundsRow(overrides: {[key: string]: ColumnType} = {}): {
-      [key: string]: ColumnType;
+    function layerBoundsRow(
+      overrides: {[key: string]: ColumnType | null} = {},
+    ): {
+      [key: string]: ColumnType | null;
     } {
       const defaults = {
         'snapshot_id': currSnapshotId,
@@ -527,8 +531,10 @@ describe('SurfaceFlinger RectExtractor', () => {
       return {...defaults, ...overrides};
     }
 
-    function layerCombinedRow(overrides: {[key: string]: ColumnType} = {}): {
-      [key: string]: ColumnType;
+    function layerCombinedRow(
+      overrides: {[key: string]: ColumnType | null} = {},
+    ): {
+      [key: string]: ColumnType | null;
     } {
       const defaults = {
         'snapshot_id': currSnapshotId,
@@ -857,8 +863,10 @@ describe('SurfaceFlinger RectExtractor', () => {
       checkDisplaysExtracted([]);
     });
 
-    function defaultDisplayRow(overrides: {[key: string]: ColumnType} = {}): {
-      [key: string]: ColumnType;
+    function defaultDisplayRow(
+      overrides: {[key: string]: ColumnType | null} = {},
+    ): {
+      [key: string]: ColumnType | null;
     } {
       const defaults = {
         'display_id': 123n,
