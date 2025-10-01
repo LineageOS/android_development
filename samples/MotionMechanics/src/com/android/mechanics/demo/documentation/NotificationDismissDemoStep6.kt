@@ -16,12 +16,11 @@
 
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.android.mechanics.docs.examples.notification
+package com.android.mechanics.demo.documentation
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -33,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -40,34 +40,50 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.android.mechanics.debug.DebugEffect
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.docs.Demo
-import com.android.mechanics.docs.HasMotionValueVisualization
+import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.rememberDistanceGestureContext
 import com.android.mechanics.rememberMotionSpecAsState
 import com.android.mechanics.rememberMotionValue
-import com.android.mechanics.spec.InputDirection
 import com.android.mechanics.spec.MotionSpec
 import com.android.mechanics.spec.builder.spatialMotionSpec
 
-object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
-    override val identifier = "notification_demo4"
+object NotificationDismissDemoStep6 : Demo<Unit>, HasMotionValueVisualization {
+    override val identifier = "notification_demo6"
 
     var notificationWidth by mutableFloatStateOf(0f)
 
+    sealed interface State {
+        object Idle : State
+
+        object Dragging : State
+
+        data class Dismissed(val directionSign: Float) : State
+    }
+
     @Composable
-    override fun BoxScope.DemoUi(config: Unit, modifier: Modifier) {
+    override fun DemoUi(config: Unit, modifier: Modifier) {
+        var state by remember { mutableStateOf<State>(State.Idle) }
         val gestureContext = rememberDistanceGestureContext()
         val xPosition =
             rememberMotionValue(
                 input = { gestureContext.dragOffset },
                 spec =
-                    rememberMotionSpecAsState { spatialMotionSpec { after(0f, MagneticDetach()) } },
+                    rememberMotionSpecAsState {
+                        spatialMotionSpec {
+                            val detachEffect = MagneticDetach(detachPosition = 100.dp)
+                            before(0f, detachEffect)
+                            after(0f, detachEffect)
+                        }
+                    },
                 gestureContext = gestureContext,
                 label = "xPosition",
             )
+        DebugEffect(xPosition)
 
         NotificationRow(
             remember { NotificationViewModel("Item 1") },
@@ -81,22 +97,16 @@ object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
                     .draggable(
                         rememberDraggableState { gestureContext.dragOffset += it },
                         Orientation.Horizontal,
-                        onDragStopped = { velocity ->
-                            // TODO
-                        },
                     ),
         )
 
-        IconButton(
-            onClick = { gestureContext.reset(0f, InputDirection.Max) },
-            Modifier.zIndex(-1f),
-        ) {
+        IconButton(onClick = { state = State.Idle }, Modifier.zIndex(-1f)) {
             Icon(Icons.Default.Refresh, "Reset")
         }
     }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
-        get() = -notificationWidth / 4..notificationWidth
+        get() = -notificationWidth..notificationWidth
 
     override fun computeOutputRange(spec: MotionSpec, inputRange: ClosedFloatingPointRange<Float>) =
         DebugMotionValueVisualization.inputRange(spec, inputRange)

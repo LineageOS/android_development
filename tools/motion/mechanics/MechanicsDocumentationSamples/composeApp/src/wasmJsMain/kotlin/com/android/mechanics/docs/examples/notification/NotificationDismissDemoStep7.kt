@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,13 @@
 
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.android.mechanics.demo.documentation
+package com.android.mechanics.docs.examples.notification
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -38,7 +36,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
@@ -47,9 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.tuneable.Demo
-import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
-import com.android.mechanics.effects.FixedValue
+import com.android.mechanics.docs.Demo
+import com.android.mechanics.docs.HasMotionValueVisualization
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.rememberDistanceGestureContext
 import com.android.mechanics.rememberMotionSpecAsState
@@ -61,10 +57,8 @@ import com.android.mechanics.spec.builder.spatialMotionSpec
 import kotlin.math.abs
 import kotlin.math.sign
 
-// Launch flags:
-// --es debug_start_destination "single_notification_dismiss_demo_complete"
-object SingleNotificationDismissDemo : Demo<Unit>, HasMotionValueVisualization {
-    override val identifier = "single_notification_dismiss_demo_complete"
+object NotificationDismissDemoStep7 : Demo<Unit>, HasMotionValueVisualization {
+    override val identifier = "notification_demo7"
 
     var notificationWidth by mutableFloatStateOf(0f)
 
@@ -77,7 +71,7 @@ object SingleNotificationDismissDemo : Demo<Unit>, HasMotionValueVisualization {
     }
 
     @Composable
-    override fun DemoUi(config: Unit, modifier: Modifier) {
+    override fun BoxScope.DemoUi(config: Unit, modifier: Modifier) {
         var state by remember { mutableStateOf<State>(State.Idle) }
         val gestureContext = rememberDistanceGestureContext()
         val xPosition =
@@ -92,13 +86,9 @@ object SingleNotificationDismissDemo : Demo<Unit>, HasMotionValueVisualization {
 
                             State.Dragging ->
                                 spatialMotionSpec {
-                                    val detachEffect = MagneticDetach(detachPosition = 100.dp)
+                                    val detachEffect = MagneticDetach()
                                     before(0f, detachEffect)
                                     after(0f, detachEffect)
-
-                                    val dismissPosition = notificationWidth - 90.dp.toPx()
-                                    after(dismissPosition, FixedValue(notificationWidth))
-                                    before(-dismissPosition, FixedValue(-notificationWidth))
                                 }
                         }
                     },
@@ -108,66 +98,56 @@ object SingleNotificationDismissDemo : Demo<Unit>, HasMotionValueVisualization {
 
         val density = LocalDensity.current
 
-        Box(
-            contentAlignment = Alignment.TopCenter,
-            modifier = Modifier.fillMaxWidth().height(96.dp),
-        ) {
-            NotificationRow(
-                remember { NotificationViewModel("Drag me! 😺") },
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .onPlaced { notificationWidth = it.size.width.toFloat() }
-                        .padding(16.dp)
-                        .offset { IntOffset(xPosition.output.toInt(), 0) }
-                        .debugMotionValue(xPosition)
-                        .draggable(
-                            rememberDraggableState { gestureContext.dragOffset += it },
-                            Orientation.Horizontal,
-                            onDragStarted = {
-                                gestureContext.reset(xPosition.output, InputDirection.Max)
-                                state = State.Dragging
-                            },
-                            onDragStopped = { velocity ->
-                                val sideSign = xPosition.outputTarget.sign
-                                val isAbort = abs(velocity) > with(density) { AbortVelocity.toPx() }
-                                val isFling = abs(velocity) > with(density) { FlingVelocity.toPx() }
-                                val isMovingInSameDirection = velocity.sign == sideSign
+        NotificationRow(
+            remember { NotificationViewModel("Item 1") },
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .onPlaced { notificationWidth = it.size.width.toFloat() }
+                    .padding(16.dp)
+                    .offset { IntOffset(xPosition.output.toInt(), 0) }
+                    .debugMotionValue(xPosition)
+                    .draggable(
+                        rememberDraggableState { gestureContext.dragOffset += it },
+                        Orientation.Horizontal,
+                        onDragStarted = {
+                            gestureContext.reset(xPosition.output, InputDirection.Max)
+                            state = State.Dragging
+                        },
+                        onDragStopped = { velocity ->
+                            val sideSign = xPosition.outputTarget.sign
+                            val isAbort = abs(velocity) > with(density) { AbortVelocity.toPx() }
+                            val isFling = abs(velocity) > with(density) { FlingVelocity.toPx() }
+                            val isMovingInSameDirection = velocity.sign == sideSign
 
-                                val isDismissed =
-                                    when (xPosition[MagneticDetach.Defaults.AttachDetachState]) {
-                                        MagneticDetach.State.Attached ->
-                                            isFling && !isMovingInSameDirection
+                            val isDismissed =
+                                when (xPosition[MagneticDetach.Defaults.AttachDetachState]) {
+                                    MagneticDetach.State.Attached ->
+                                        isFling && !isMovingInSameDirection
 
-                                        MagneticDetach.State.Detached ->
-                                            !isAbort || isMovingInSameDirection
+                                    MagneticDetach.State.Detached ->
+                                        !isAbort || isMovingInSameDirection
 
-                                        else -> isFling
-                                    }
+                                    else -> isFling
+                                }
 
-                                state = if (isDismissed) State.Dismissed(sideSign) else State.Idle
-                            },
-                        ),
-            ) /* omitted ... */
+                            state = if (isDismissed) State.Dismissed(sideSign) else State.Idle
+                        },
+                    ),
+        )
 
-            IconButton(onClick = { state = State.Idle }, Modifier.zIndex(-1f).height(96.dp)) {
-                Icon(Icons.Default.Refresh, "Reset")
-            }
+        IconButton(onClick = { state = State.Idle }, Modifier.zIndex(-1f)) {
+            Icon(Icons.Default.Refresh, "Reset")
         }
     }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
-        get() = -notificationWidth..notificationWidth
+        get() = -notificationWidth * 1.2f..notificationWidth * 1.2f
 
     override fun computeOutputRange(spec: MotionSpec, inputRange: ClosedFloatingPointRange<Float>) =
         DebugMotionValueVisualization.inputRange(spec, inputRange)
 
     @Composable override fun rememberDefaultConfig() = Unit
-
-    @Composable
-    override fun ColumnScope.ConfigUi(config: Unit, onConfigChanged: (Unit) -> Unit) {
-        TODO("Not yet implemented")
-    }
 
     val AbortVelocity = 100.dp // dp/s
     val FlingVelocity = 1000.dp // dp/s

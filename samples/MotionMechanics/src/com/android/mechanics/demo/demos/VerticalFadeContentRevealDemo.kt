@@ -51,7 +51,7 @@ import com.android.compose.animation.scene.mechanics.rememberGestureContext
 import com.android.compose.modifiers.thenIf
 import com.android.mechanics.compose.modifier.motionDriver
 import com.android.mechanics.compose.modifier.verticalFadeContentReveal
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.LabelledCheckbox
 import com.android.mechanics.demo.util.ExpandableCard
@@ -62,7 +62,7 @@ object Elements {
 }
 
 object VerticalFadeContentRevealDemo :
-    Demo<VerticalFadeContentRevealDemo.Config>, HasMotionValueVisualization {
+    DemoWithConfig<VerticalFadeContentRevealDemo.Config>, HasMotionValueVisualization {
 
     data class Config(val showItemBackground: Boolean)
 

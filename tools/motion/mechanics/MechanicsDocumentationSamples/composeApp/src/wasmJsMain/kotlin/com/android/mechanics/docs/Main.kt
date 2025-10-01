@@ -25,23 +25,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeViewport
+import com.android.mechanics.docs.examples.notification.NotificationDismissDemoGoal
 import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep1
 import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep2
 import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep3
 import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep4
 import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep5
 import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep6
+import com.android.mechanics.docs.examples.notification.NotificationDismissDemoStep7
 import kotlinx.browser.document
 import kotlinx.browser.window
 
 private val allDemos =
     listOf<Demo<*>>(
+        NotificationDismissDemoGoal,
         NotificationDismissDemoStep1,
         NotificationDismissDemoStep2,
         NotificationDismissDemoStep3,
         NotificationDismissDemoStep4,
         NotificationDismissDemoStep5,
         NotificationDismissDemoStep6,
+        NotificationDismissDemoStep7,
     )
 
 @OptIn(ExperimentalComposeUiApi::class)

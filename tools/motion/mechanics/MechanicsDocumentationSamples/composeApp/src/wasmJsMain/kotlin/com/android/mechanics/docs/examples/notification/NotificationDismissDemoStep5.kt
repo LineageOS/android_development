@@ -14,37 +14,46 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 
 package com.android.mechanics.docs.examples.notification
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
 import com.android.mechanics.docs.Demo
+import com.android.mechanics.docs.HasConfig
 import com.android.mechanics.docs.HasMotionValueVisualization
-import com.android.mechanics.effects.FixedValue
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.rememberDistanceGestureContext
 import com.android.mechanics.rememberMotionSpecAsState
@@ -53,29 +62,25 @@ import com.android.mechanics.spec.InputDirection
 import com.android.mechanics.spec.MotionSpec
 import com.android.mechanics.spec.builder.spatialMotionSpec
 
-object NotificationDismissDemoStep5 : Demo<Unit>, HasMotionValueVisualization {
-    override val identifier = "single_notification_dismiss_demo_step5"
+object NotificationDismissDemoStep5 : Demo<Dp>, HasMotionValueVisualization, HasConfig<Dp> {
+    override val identifier = "notification_demo5"
 
     var notificationWidth by mutableFloatStateOf(0f)
 
     @Composable
-    override fun BoxScope.DemoUi(config: Unit, modifier: Modifier) {
+    override fun BoxScope.DemoUi(config: Dp, modifier: Modifier) {
         val gestureContext = rememberDistanceGestureContext()
+
         val xPosition =
             rememberMotionValue(
                 input = { gestureContext.dragOffset },
                 spec =
                     rememberMotionSpecAsState {
                         spatialMotionSpec {
-                            val detachEffect = MagneticDetach(detachPosition = 100.dp)
-                            before(0f, detachEffect)
-                            after(0f, detachEffect)
-
-                            val dismissPosition = notificationWidth - 90.dp.toPx()
-                            if (dismissPosition > 100.dp.toPx()) {
-                                after(dismissPosition, FixedValue(notificationWidth))
-                                before(-dismissPosition, FixedValue(-notificationWidth))
-                            }
+                            after(
+                                0f,
+                                MagneticDetach(detachPosition = config, attachPosition = config / 2),
+                            )
                         }
                     },
                 gestureContext = gestureContext,
@@ -109,10 +114,26 @@ object NotificationDismissDemoStep5 : Demo<Unit>, HasMotionValueVisualization {
     }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
-        get() = -notificationWidth..notificationWidth
+        get() = -notificationWidth / 4..notificationWidth
 
     override fun computeOutputRange(spec: MotionSpec, inputRange: ClosedFloatingPointRange<Float>) =
         DebugMotionValueVisualization.inputRange(spec, inputRange)
 
-    @Composable override fun rememberDefaultConfig() = Unit
+    @Composable override fun rememberDefaultConfig() = 80.dp
+
+    @Composable
+    override fun ColumnScope.ConfigUi(config: Dp, onConfigChanged: (Dp) -> Unit) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text("Detach Distance: ${config.value.toInt()}dp")
+            Slider(
+                value = config.value,
+                onValueChange = { onConfigChanged(it.dp) },
+                valueRange = 10f..300f,
+                modifier = Modifier.width(200.dp),
+            )
+        }
+    }
 }

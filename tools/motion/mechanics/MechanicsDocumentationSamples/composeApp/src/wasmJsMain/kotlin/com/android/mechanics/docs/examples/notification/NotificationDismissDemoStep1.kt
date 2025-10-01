@@ -47,7 +47,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 object NotificationDismissDemoStep1 : Demo<Unit> {
-    override val identifier = "single_notification_dismiss_demo_step1"
+    override val identifier = "notification_demo1"
 
     var notificationWidth by mutableFloatStateOf(0f)
 

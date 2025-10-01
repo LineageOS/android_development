@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.android.compose.modifiers.height
 import com.android.compose.modifiers.width
 import com.android.mechanics.debug.DebugMotionValueVisualization
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.DpSlider
 import com.android.mechanics.demo.tuneable.Dropdown
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
@@ -69,7 +69,7 @@ import com.android.mechanics.spec.builder.spatialDirectionalMotionSpec
 import com.android.mechanics.spring.SpringParameters
 import kotlin.math.min
 
-object GuaranteeBoxDemo : Demo<GuaranteeBoxDemo.Config>, HasMotionValueVisualization {
+object GuaranteeBoxDemo : DemoWithConfig<GuaranteeBoxDemo.Config>, HasMotionValueVisualization {
     enum class Scenario(val label: String) {
         Mapped("Mapped"),
         Triggered("With Triggers"),

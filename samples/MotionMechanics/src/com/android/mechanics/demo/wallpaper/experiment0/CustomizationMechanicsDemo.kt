@@ -59,7 +59,7 @@ import com.android.mechanics.DistanceGestureContext
 import com.android.mechanics.MotionValue
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.DpSlider
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.SliderWithPreview
@@ -94,7 +94,7 @@ import kotlinx.coroutines.launch
 // Start directly with:
 // --es debug_start_destination "customization-mechanics-experiment-0-demo"
 object CustomizationMechanicsDemo :
-    Demo<CustomizationMechanicsDemo.Config>, HasMotionValueVisualization {
+    DemoWithConfig<CustomizationMechanicsDemo.Config>, HasMotionValueVisualization {
 
     data class Config(
         val minPreviewHeight: Dp = 200.dp,

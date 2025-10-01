@@ -20,7 +20,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -149,8 +148,6 @@ object DirectionChangeDemo : Demo<Unit>, HasMotionValueVisualization {
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
         get() = inputRange
-
-    @Composable override fun ColumnScope.ConfigUi(config: Unit, onConfigChanged: (Unit) -> Unit) {}
 
     override val identifier: String = "DirectionChangeDemo"
 }

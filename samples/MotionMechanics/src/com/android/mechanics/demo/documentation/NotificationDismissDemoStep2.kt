@@ -16,12 +16,11 @@
 
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.android.mechanics.docs.examples.notification
+package com.android.mechanics.demo.documentation
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -40,33 +39,25 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.android.mechanics.debug.DebugMotionValueVisualization
-import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.docs.Demo
-import com.android.mechanics.docs.HasMotionValueVisualization
-import com.android.mechanics.effects.MagneticDetach
+import com.android.mechanics.demo.tuneable.Demo
 import com.android.mechanics.rememberDistanceGestureContext
-import com.android.mechanics.rememberMotionSpecAsState
 import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.InputDirection
 import com.android.mechanics.spec.MotionSpec
-import com.android.mechanics.spec.builder.spatialMotionSpec
 
-object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
-    override val identifier = "notification_demo4"
+object NotificationDismissDemoStep2 : Demo<Unit> {
+    override val identifier = "notification_demo2"
 
     var notificationWidth by mutableFloatStateOf(0f)
 
     @Composable
-    override fun BoxScope.DemoUi(config: Unit, modifier: Modifier) {
+    override fun DemoUi(config: Unit, modifier: Modifier) {
         val gestureContext = rememberDistanceGestureContext()
-        val xPosition =
+        val xPosition by
             rememberMotionValue(
                 input = { gestureContext.dragOffset },
-                spec =
-                    rememberMotionSpecAsState { spatialMotionSpec { after(0f, MagneticDetach()) } },
+                spec = { MotionSpec.Identity },
                 gestureContext = gestureContext,
-                label = "xPosition",
             )
 
         NotificationRow(
@@ -76,8 +67,7 @@ object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
                     .fillMaxWidth()
                     .onPlaced { notificationWidth = it.size.width.toFloat() }
                     .padding(16.dp)
-                    .offset { IntOffset(xPosition.output.toInt(), 0) }
-                    .debugMotionValue(xPosition)
+                    .offset { IntOffset(xPosition.toInt(), 0) }
                     .draggable(
                         rememberDraggableState { gestureContext.dragOffset += it },
                         Orientation.Horizontal,
@@ -94,12 +84,6 @@ object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
             Icon(Icons.Default.Refresh, "Reset")
         }
     }
-
-    override val visualizationInputRange: ClosedFloatingPointRange<Float>
-        get() = -notificationWidth / 4..notificationWidth
-
-    override fun computeOutputRange(spec: MotionSpec, inputRange: ClosedFloatingPointRange<Float>) =
-        DebugMotionValueVisualization.inputRange(spec, inputRange)
 
     @Composable override fun rememberDefaultConfig() = Unit
 }

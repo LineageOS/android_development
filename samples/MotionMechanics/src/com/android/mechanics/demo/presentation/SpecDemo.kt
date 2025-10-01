@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.Dropdown
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.LabelledCheckbox
@@ -64,7 +64,7 @@ import com.android.mechanics.spec.MotionSpec
 import com.android.mechanics.spec.builder.MotionBuilderContext
 import com.android.mechanics.spec.builder.spatialDirectionalMotionSpec
 
-object SpecDemo : Demo<SpecDemo.Config>, HasMotionValueVisualization {
+object SpecDemo : DemoWithConfig<SpecDemo.Config>, HasMotionValueVisualization {
     enum class Scenario(val label: String) {
         Identity("Simple"),
         Toggle("Toggle"),

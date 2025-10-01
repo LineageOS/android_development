@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -69,7 +70,14 @@ fun DebugUi(
 ) {
     MotionValueDebuggerProvider {
         Box(modifier = modifier.fillMaxHeight()) {
-            Box(modifier = Modifier.fillMaxWidth().align(Alignment.TopStart)) { content() }
+            Box(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .wrapContentHeight(Alignment.Top)
+                        .align(Alignment.TopStart)
+            ) {
+                content()
+            }
 
             var isExpanded by rememberSaveable(key = "debugUiExpanded") { mutableStateOf(true) }
             Card(modifier = Modifier.fillMaxWidth().padding(16.dp).align(Alignment.BottomStart)) {

@@ -50,7 +50,7 @@ import com.android.mechanics.spec.InputDirection
 import com.android.mechanics.spec.MotionSpec
 
 object NotificationDismissDemoStep3 : Demo<Unit>, HasMotionValueVisualization {
-    override val identifier = "single_notification_dismiss_demo_step3"
+    override val identifier = "notification_demo3"
 
     var notificationWidth by mutableFloatStateOf(0f)
 

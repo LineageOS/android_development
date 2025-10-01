@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.LabelledCheckbox
 import com.android.mechanics.effects.MagneticDetach
@@ -64,7 +64,7 @@ import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.builder.spatialMotionSpec
 
 @OptIn(HapticsExperimentalApi::class)
-object MagneticDetachDemo : Demo<MagneticDetachDemo.Config>, HasMotionValueVisualization {
+object MagneticDetachDemo : DemoWithConfig<MagneticDetachDemo.Config>, HasMotionValueVisualization {
     var inputRange by mutableStateOf(0f..0f)
 
     @Composable

@@ -16,12 +16,11 @@
 
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.android.mechanics.docs.examples.notification
+package com.android.mechanics.demo.documentation
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -40,10 +39,11 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.android.mechanics.debug.DebugEffect
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.docs.Demo
-import com.android.mechanics.docs.HasMotionValueVisualization
+import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.rememberDistanceGestureContext
 import com.android.mechanics.rememberMotionSpecAsState
@@ -58,7 +58,7 @@ object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
     var notificationWidth by mutableFloatStateOf(0f)
 
     @Composable
-    override fun BoxScope.DemoUi(config: Unit, modifier: Modifier) {
+    override fun DemoUi(config: Unit, modifier: Modifier) {
         val gestureContext = rememberDistanceGestureContext()
         val xPosition =
             rememberMotionValue(
@@ -68,6 +68,7 @@ object NotificationDismissDemoStep4 : Demo<Unit>, HasMotionValueVisualization {
                 gestureContext = gestureContext,
                 label = "xPosition",
             )
+        DebugEffect(xPosition)
 
         NotificationRow(
             remember { NotificationViewModel("Item 1") },

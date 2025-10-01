@@ -75,7 +75,7 @@ import com.android.compose.animation.Easings
 import com.android.mechanics.DistanceGestureContext
 import com.android.mechanics.MotionValueState
 import com.android.mechanics.demo.explanation.ExplanationDemo.TargetState
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.effects.ExpansionToggle
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.effects.Toggle
@@ -98,7 +98,7 @@ import kotlinx.coroutines.delay
 
 data class ExplanationConfig(val experiment: Experiment)
 
-object ExplanationDemo : Demo<ExplanationConfig> {
+object ExplanationDemo : DemoWithConfig<ExplanationConfig> {
     override val identifier: String = "explanation_demo"
 
     val padding = 4.dp

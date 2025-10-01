@@ -25,21 +25,13 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,8 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -63,6 +55,7 @@ import com.android.mechanics.debug.LocalMotionValueDebugController
 import com.android.mechanics.debug.MotionValueDebuggerProvider
 import com.android.mechanics.spec.MotionSpec
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.round
 
 interface Demo<T> {
@@ -94,78 +87,139 @@ fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
 
     var config by remember { mutableStateOf(defaultConfig) }
     var resetIteration by remember { mutableStateOf(0) }
-    var showConfig by remember { mutableStateOf(false) }
 
     MotionValueDebuggerProvider {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier) {
-            Row {
-                // actual demo
-                Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-                        Surface(
-                            tonalElevation = 1.dp,
-                            shape = RoundedCornerShape(8.dp),
-                            border =
-                                BorderStroke(Dp.Hairline, MaterialTheme.colorScheme.outlineVariant),
-                            modifier = Modifier.padding(16.dp).demoWidth(),
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            val hasConfig = this@ConfigurableDemo is HasConfig<*>
+            val hasMotionValueVisualization = this@ConfigurableDemo is HasMotionValueVisualization
+
+            DemoSection(
+                "Demo",
+                isFirstSection = true,
+                isLastSection = !(hasConfig || hasMotionValueVisualization),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Surface(
+                    tonalElevation = 1.dp,
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(Dp.Hairline, MaterialTheme.colorScheme.outlineVariant),
+                    modifier = Modifier.padding(16.dp).demoWidth(),
+                ) {
+                    key(resetIteration) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
-                            key(resetIteration) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
-                                    DemoUi(config, modifier = Modifier.fillMaxWidth())
-                                }
+                            DemoUi(config, modifier = Modifier.fillMaxWidth())
+                        }
+                    }
+                }
+            }
+
+            if (hasConfig) {
+                DemoSection(
+                    "Tweaks",
+                    isFirstSection = false,
+                    isLastSection = !hasMotionValueVisualization,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        this@ConfigurableDemo as HasConfig<T>
+                        ConfigUi(config, { config = it })
+                    }
+                }
+            }
+
+            if (hasMotionValueVisualization) {
+                DemoSection(
+                    "Visualization",
+                    isFirstSection = false,
+                    isLastSection = true,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(16.dp),
+                    ) {
+                        val debuggerState = checkNotNull(LocalMotionValueDebugController.current)
+
+                        debuggerState.observed.forEachIndexed { index, motionValue ->
+                            key(motionValue) {
+                                this@ConfigurableDemo as HasMotionValueVisualization
+                                DebugVisualization(motionValue, DpSize(200.dp, 200.dp))
                             }
                         }
                     }
                 }
-                Column(modifier = Modifier) {
-                    // Action buttons
-                    if (this@ConfigurableDemo is HasReset) {
-                        IconButton(onClick = { resetIteration++ }) {
-                            Icon(Icons.Default.Refresh, "Reset")
-                        }
-                    }
-
-                    if (this@ConfigurableDemo is HasConfig<*>) {
-                        IconToggleButton(
-                            checked = showConfig,
-                            onCheckedChange = { showConfig = it },
-                        ) {
-                            Icon(Icons.Default.Settings, "Config")
-                        }
-                    }
-                }
             }
+        }
+    }
+}
 
-            if (this@ConfigurableDemo is HasMotionValueVisualization) {
-                // Visualization below
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier =
-                        Modifier.weight(1f, fill = true)
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp),
+@Composable
+fun DemoSection(
+    label: String,
+    isFirstSection: Boolean,
+    isLastSection: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val topRadius = if (isFirstSection) 16.dp else 8.dp
+    val bottomRadius = if (isLastSection) 16.dp else 8.dp
+    Surface(
+        modifier = modifier.fillMaxWidth().wrapContentHeight(),
+        shape =
+            RoundedCornerShape(
+                topStart = topRadius,
+                topEnd = topRadius,
+                bottomStart = bottomRadius,
+                bottomEnd = bottomRadius,
+            ),
+    ) {
+        Layout(
+            content = {
+                Text(label, style = MaterialTheme.typography.titleMediumEmphasized)
+                Box { content() }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            measurePolicy = { measurables, constraints ->
+                val textPlaceable = measurables[0].measure(Constraints())
+
+                // going to rotate by 90 degrees
+                val textWidth = textPlaceable.height
+                val textHeight = textPlaceable.width
+
+                var contentConstraints = constraints
+                if (contentConstraints.hasBoundedWidth) {
+                    val maxContentWidth = contentConstraints.maxWidth - textWidth
+                    contentConstraints =
+                        contentConstraints.copy(
+                            minWidth = min(contentConstraints.minWidth, maxContentWidth),
+                            maxWidth = maxContentWidth,
+                        )
+                }
+
+                val contentPlaceable = measurables[1].measure(contentConstraints)
+
+                layout(
+                    textWidth + contentPlaceable.width,
+                    max(textHeight, contentPlaceable.height),
                 ) {
-                    val debuggerState = checkNotNull(LocalMotionValueDebugController.current)
-
-                    debuggerState.observed.forEachIndexed { index, motionValue ->
-                        key(motionValue) { DebugVisualization(motionValue, DpSize(300.dp, 150.dp)) }
+                    textPlaceable.placeWithLayer(
+                        x = -(textPlaceable.width / 2 - textPlaceable.height / 2),
+                        y =
+                            -(textPlaceable.height / 2 - textPlaceable.width / 2) +
+                                16.dp.roundToPx(),
+                    ) {
+                        this.rotationZ = -90f
                     }
+                    contentPlaceable.placeRelative(textPlaceable.height, 0)
                 }
-            }
-        }
-
-        if (showConfig) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
-            ) {
-                this@ConfigurableDemo as HasConfig<T>
-                ConfigUi(config, { config = it })
-            }
-        }
+            },
+        )
     }
 }
 
@@ -176,28 +230,19 @@ fun HasMotionValueVisualization.DebugVisualization(
     modifier: Modifier = Modifier,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier) {
-        Text(
-            motionValue.label ?: "(no label)",
-            style = MaterialTheme.typography.labelSmall,
-            modifier =
-                Modifier.layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    this.layout(placeable.height, placeable.width) {
-                        placeable.placeWithLayer(
-                            x = -(placeable.width / 2 - placeable.height / 2),
-                            y = -(placeable.height / 2 - placeable.width / 2),
-                        ) {
-                            this.rotationZ = -90f
-                        }
-                    }
-                },
-        )
-        DebugMotionValueVisualization(
+        val colors = MaterialTheme.colorScheme
+
+        TransformFunctionVisualization(
             motionValue,
             visualizationInputRange,
-            outputRange = ::computeOutputRange,
-            modifier = Modifier.size(size),
+            Axis.Input,
+            Axis.Output,
+            colors.primaryFixed,
+            colors.primaryFixedDim,
+            colors.onPrimaryFixed,
+            modifier = Modifier.padding(start = 32.dp, bottom = 32.dp).size(size),
         )
+
         val inspector = remember(motionValue) { motionValue.debugInspector() }
 
         fun formattedFloat(value: Float): String {
@@ -256,7 +301,7 @@ fun HasMotionValueVisualization.DebugVisualization(
                 for (row in rowHeights.indices) {
                     val label = labels[row]
                     val value = values[row]
-                    label.placeRelative(xPadding + labelWidth - label.width, y)
+                    label.placeRelative(xPadding, y)
                     value.placeRelative(xPadding + labelWidth + xSpacing, y)
                     y += rowHeights[row]
                 }
