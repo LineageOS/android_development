@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.demo.staging.debug.DebugUi
+import com.android.mechanics.haptics.HapticsExperimentalApi
+import com.android.mechanics.haptics.SpringTensionHapticPlayerProvider
 import com.android.mechanics.spec.MotionSpec
 
 interface Demo<T> {
@@ -73,6 +75,7 @@ interface HasMotionValueVisualization {
         get() = 48.dp
 }
 
+@OptIn(HapticsExperimentalApi::class)
 @Composable
 fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
     val defaultConfig = rememberDefaultConfig()
@@ -115,7 +118,11 @@ fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
             }
         }
 
-        val demoContent = remember { movableContentOf { DemoUi(config, modifier = Modifier) } }
+        val demoContent = remember {
+            movableContentOf {
+                SpringTensionHapticPlayerProvider { DemoUi(config, modifier = Modifier) }
+            }
+        }
 
         SectionContainer {
             MaterialTheme(
