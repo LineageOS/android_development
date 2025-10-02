@@ -16,8 +16,6 @@
 
 package com.android.mechanics.demo.presentation
 
-import android.content.Context
-import android.os.VibratorManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
@@ -46,10 +44,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.android.mechanics.debug.DebugEffect
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
 import com.android.mechanics.demo.tuneable.DemoWithConfig
@@ -57,7 +54,6 @@ import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.LabelledCheckbox
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.haptics.HapticsExperimentalApi
-import com.android.mechanics.haptics.SpringTensionHapticPlayer
 import com.android.mechanics.rememberDistanceGestureContext
 import com.android.mechanics.rememberMotionSpecAsState
 import com.android.mechanics.rememberMotionValue
@@ -72,14 +68,6 @@ object MagneticDetachDemo : DemoWithConfig<MagneticDetachDemo.Config>, HasMotion
         val colors = MaterialTheme.colorScheme
 
         val gestureContext = rememberDistanceGestureContext()
-        val density = LocalDensity.current
-        val context = LocalContext.current
-        val hapticPlayer =
-            remember(density, context) {
-                val vibratorManager =
-                    context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                SpringTensionHapticPlayer(density, vibratorManager)
-            }
         val motionValue =
             rememberMotionValue(
                 input = { gestureContext.dragOffset },
@@ -93,8 +81,8 @@ object MagneticDetachDemo : DemoWithConfig<MagneticDetachDemo.Config>, HasMotion
                             )
                         }
                     },
-                hapticPlayer = hapticPlayer,
             )
+        DebugEffect(motionValue)
 
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -156,7 +144,7 @@ object MagneticDetachDemo : DemoWithConfig<MagneticDetachDemo.Config>, HasMotion
     }
 
     @Composable
-    override fun rememberDefaultConfig(): Config = remember { Config(enableHaptics = false) }
+    override fun rememberDefaultConfig(): Config = remember { Config(enableHaptics = true) }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
         get() = inputRange
