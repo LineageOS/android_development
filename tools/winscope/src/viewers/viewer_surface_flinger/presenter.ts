@@ -68,6 +68,7 @@ import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -159,10 +160,13 @@ the default for its data type.`,
     undefined,
     ['a', 'type'],
   );
-  protected override playbackPresenter = new PlaybackPresenter((event) => {
-    this.hierarchyPresenter.setShowDiffAvailability(true);
-    return this.emitWinscopeEvent(event);
-  });
+  protected override playbackPresenter = new PlaybackPresenter(
+    (event) => {
+      this.hierarchyPresenter.setShowDiffAvailability(true);
+      return this.emitWinscopeEvent(event);
+    },
+    assertDefined(this.traces.getTrace(TraceType.SURFACE_FLINGER)),
+  );
   protected override multiTraceType = undefined;
 
   private viewCapturePackageNames: string[] | undefined;
@@ -261,14 +265,14 @@ the default for its data type.`,
   }
 
   protected override async playPlayback(
-    trace: Trace<HierarchyTreeNode>,
     currentPosition: number,
     requestedState: PlaybackState,
+    traceGeometryData: TraceGeometryData,
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
     this.hierarchyPresenter.setShowDiffAvailability(false);
+    this.playbackPresenter.setTraceGeometryData(traceGeometryData);
     this.playbackPresenter.play(
-      trace,
       currentPosition,
       requestedState,
       screenRecordingTrace,

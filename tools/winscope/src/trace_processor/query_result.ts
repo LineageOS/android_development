@@ -90,16 +90,16 @@ export interface QueryResult {
  * A container for multiple query results, typically related to a specific
  * analysis or snapshot of trace data.
  */
-export interface QueryResults {
+export interface QueryResults<T> {
   /**
    * The result of a query for a snapshot range.
    */
-  snapshotRange: QueryResult;
+  snapshotRange: T;
 
   /**
    * The result of a query for a layers range.
    */
-  layersRange: QueryResult;
+  layersRange: T;
 
   /**
    * The result of a query for all visible rectangles, or undefined if not available.
@@ -109,7 +109,7 @@ export interface QueryResults {
   /**
    * The result of a query for all snapshots, or undefined if not available.
    */
-  allSnapshots: QueryResult | undefined;
+  allSnapshots: T | undefined;
 }
 
 export class RawDataQueryResult implements WritableQueryResult {

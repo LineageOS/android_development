@@ -45,6 +45,7 @@ import {ViewerEvents} from './viewer_events';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 
@@ -300,9 +301,9 @@ export abstract class AbstractHierarchyViewerPresenter<
           this.uiData.isPlaybackInitializing = true;
           this.refreshHierarchyViewerUiData();
           await this.playPlayback(
-            this.trace,
             assertDefined(event.currentTraceIndex),
             event.state,
+            event.traceGeometryData,
             this.screenRecordingTrace,
           );
         }
@@ -585,9 +586,9 @@ export abstract class AbstractHierarchyViewerPresenter<
   protected abstract refreshUIData(): void;
   protected initializeIfNeeded?(event: TracePositionUpdate): Promise<void>;
   protected playPlayback?(
-    trace: Trace<HierarchyTreeNode>,
     currentPosition: number,
     requestedState: PlaybackState,
+    traceGeometryData: TraceGeometryData,
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ): Promise<void>;
   protected pausePlayback?(): Promise<void>;

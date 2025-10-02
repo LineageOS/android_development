@@ -29,7 +29,6 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {assertDefined} from 'common/assert';
 import {CorrespondingEntries} from './corresponding_entries';
-import {TraceType} from 'trace_api/trace_type';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {TraceRect} from 'tree_node/trace_rect';
@@ -37,23 +36,38 @@ import {CornerRadii} from 'common/geometry/corner_radii';
 import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
+import {RawDataQueryResult} from 'trace_processor/query_result';
 
 export class PlaybackPresenter {
   private entryIndex = 0;
   private entrySleepTime = 50;
-  private buffer: Array<
-    TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
-  > = [];
+  private buffer:
+    | Array<TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>>
+    | undefined = [];
   private readonly baseTime = 50;
   private emitWinscopeEvent: EmitEvent;
   private currPlaybackState: PlaybackState = PlaybackState.PAUSED;
   private correspondingEntriesMap = new Map<number, CorrespondingEntries>();
-  private traceType: TraceType = TraceType.SURFACE_FLINGER;
   private currentScreenRecording: Trace<MediaBasedTraceEntry> | undefined;
   private tp = TraceProcessorFactory.getSingleInstance();
+  private traceGeometryData: TraceGeometryData | undefined;
+  private trace: Trace<HierarchyTreeNode> | undefined;
+  private playbackWorker: Worker;
+  private workerPromiseResolver:
+    | ((value: Array<HierarchyTreeNode | undefined>) => void)
+    | null = null;
+  private workerPromiseRejecter: ((reason?: any) => void) | null = null;
 
-  constructor(emitWinscopeEvent: EmitEvent) {
+  constructor(emitWinscopeEvent: EmitEvent, trace: Trace<HierarchyTreeNode>) {
     this.emitWinscopeEvent = emitWinscopeEvent;
+    this.trace = trace;
+    this.playbackWorker = this.createPlaybackWorker();
+  }
+
+  setTraceGeometryData(traceGeometryData: TraceGeometryData) {
+    this.traceGeometryData = traceGeometryData;
   }
 
   isPlaying() {
@@ -61,13 +75,19 @@ export class PlaybackPresenter {
   }
 
   async play(
-    trace: Trace<HierarchyTreeNode>,
     currentPosition: number,
     requestedState: PlaybackState,
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
-    await this.buildMap(trace, screenRecordingTrace);
-    this.traceType = trace.type;
+    if (!this.trace) {
+      return;
+    }
+    const trees = await this.fetchTreesFromWorker(0, this.trace.lengthEntries);
+    await this.buildCorrespondingEntriesMap(
+      trees,
+      this.trace,
+      screenRecordingTrace,
+    );
     this.entryIndex = currentPosition;
     this.currPlaybackState = requestedState;
     if (
@@ -83,7 +103,7 @@ export class PlaybackPresenter {
       this.entryIndex < this.correspondingEntriesMap.size
     ) {
       await this.emitWinscopeEvent(
-        new PlaybackStateChangeHandled(this.currPlaybackState, this.traceType),
+        new PlaybackStateChangeHandled(this.currPlaybackState, this.trace.type),
       );
       this.runPlaybackLoop();
     }
@@ -97,7 +117,10 @@ export class PlaybackPresenter {
     if (this.isPlaying()) {
       this.currPlaybackState = PlaybackState.PAUSED;
       await this.emitWinscopeEvent(
-        new PlaybackStateChangeHandled(this.currPlaybackState, this.traceType),
+        new PlaybackStateChangeHandled(
+          this.currPlaybackState,
+          assertDefined(this.trace).type,
+        ),
       );
     }
   }
@@ -163,19 +186,24 @@ export class PlaybackPresenter {
     await this.pause();
   }
 
-  private async buildMap(
+  private async buildCorrespondingEntriesMap(
+    trees: Array<HierarchyTreeNode | undefined>,
     trace: Trace<HierarchyTreeNode>,
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
-    if (this.buffer.length === 0) {
-      const length = trace.lengthEntries;
-      const allEagerTraceEntries = await trace.getRangeEntryValues({
-        start: 0,
-        end: length,
-      });
-      this.buffer = allEagerTraceEntries;
+    this.buffer = assertDefined(this.trace).createEagerEntriesFromValues(
+      {start: 0, end: assertDefined(this.trace).lengthEntries},
+      trees,
+    );
+    this.buffer.forEach((entry) => {
+      const tree = entry.getValue();
+      if (tree) {
+        this.assignNodePrototypes(tree);
+      }
+    });
+    if (!this.buffer) {
+      return;
     }
-
     if (
       this.currentScreenRecording === screenRecordingTrace &&
       screenRecordingTrace !== undefined
@@ -285,5 +313,86 @@ export class PlaybackPresenter {
     node
       .getAllChildren()
       .forEach((child: any) => this.assignNodePrototypes(child));
+  }
+
+  private createPlaybackWorker(): Worker {
+    const worker = new Worker(new URL('./playback_worker', import.meta.url), {
+      type: 'module',
+    });
+
+    worker.onmessage = (event: MessageEvent) => {
+      const {trees} = event.data;
+
+      try {
+        if (this.workerPromiseResolver) {
+          this.workerPromiseResolver(trees);
+        }
+      } catch (error) {
+        if (this.workerPromiseRejecter) {
+          this.workerPromiseRejecter(error);
+        }
+      } finally {
+        this.workerPromiseResolver = null;
+        this.workerPromiseRejecter = null;
+      }
+    };
+
+    worker.onerror = () => {
+      if (this.workerPromiseRejecter) {
+        this.workerPromiseRejecter(new Error('Web Worker failed'));
+        this.workerPromiseResolver = null;
+        this.workerPromiseRejecter = null;
+      }
+    };
+
+    return worker;
+  }
+
+  private async fetchTreesFromWorker(
+    start: number,
+    end: number,
+  ): Promise<Array<HierarchyTreeNode | undefined>> {
+    return assertDefined(this.trace)
+      .getQueryResults({start, end}, true)
+      .then((queryResults) => {
+        return new Promise<Array<HierarchyTreeNode | undefined>>(
+          (resolve, reject) => {
+            this.workerPromiseResolver = resolve as (
+              value: Array<HierarchyTreeNode | undefined>,
+            ) => void;
+            this.workerPromiseRejecter = reject;
+
+            const snapshotResults = queryResults.snapshotRange;
+            const layersResults = queryResults.layersRange;
+
+            if (
+              !(
+                snapshotResults instanceof RawDataQueryResult &&
+                layersResults instanceof RawDataQueryResult
+              )
+            ) {
+              return;
+            }
+
+            const snapshotBatches = snapshotResults.batches;
+            const layerBatches = layersResults.batches;
+            const parser = assertDefined(this.trace).getParser();
+            let map;
+            if (parser instanceof ParserSurfaceFlinger) {
+              map = parser.getSfRectsMap();
+            }
+
+            this.playbackWorker.postMessage({
+              start,
+              end,
+              snapshotBatches,
+              layerBatches,
+              type: assertDefined(this.trace).type,
+              traceGeometryData: this.traceGeometryData,
+              visibleRectsMap: map,
+            });
+          },
+        );
+      });
   }
 }
