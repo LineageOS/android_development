@@ -29,9 +29,16 @@ import {
   TracePositionUpdate,
 } from 'messaging/winscope_event';
 import {PlaybackState} from './playback_state';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {assertDefined} from 'common/assert';
+import {
+  RawDataQueryResult,
+  QueryResult,
+  QueryResults,
+} from 'trace_processor/query_result';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {Rect} from 'common/geometry/rect';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
 
 describe('PlaybackPresenter', () => {
   const timestamp0 = makeElapsedTimestamp(0n);
@@ -47,13 +54,23 @@ describe('PlaybackPresenter', () => {
       timestamp5,
     ])
     .build();
+  const screenRecordingTrace = assertDefined(
+    traces.getTrace(TraceType.SCREEN_RECORDING),
+  );
+  const traceGeometryData = new TraceGeometryData(
+    new Map([[0n, new Rect(0, 0, 0, 0)]]),
+    new Map([[0n, new TransformMatrix(1, 1, 1, 1, 1, 1)]]),
+  );
 
   let trace: Trace<HierarchyTreeNode>;
-  let screenRecordingTrace: Trace<MediaBasedTraceEntry>;
   let presenter: PlaybackPresenter;
   let mockEmitWinscopeEvent: jasmine.Spy<EmitEvent>;
+  let postMessageSpy: jasmine.Spy;
 
-  beforeAll(() => {
+  beforeEach(() => {
+    mockEmitWinscopeEvent = jasmine.createSpy('emitWinscopeEvent');
+    mockEmitWinscopeEvent.and.resolveTo();
+
     trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.SURFACE_FLINGER)
       .setEntries([
@@ -72,15 +89,34 @@ describe('PlaybackPresenter', () => {
       ])
       .setTimestamps([timestamp2, timestamp3, timestamp4])
       .build();
-    screenRecordingTrace = assertDefined(
-      traces.getTrace(TraceType.SCREEN_RECORDING),
-    );
-  });
 
-  beforeEach(() => {
-    mockEmitWinscopeEvent = jasmine.createSpy('emitWinscopeEvent');
-    mockEmitWinscopeEvent.and.resolveTo();
-    presenter = new PlaybackPresenter(mockEmitWinscopeEvent);
+    spyOn(trace, 'getQueryResults').and.callFake(async () => {
+      return Promise.resolve({
+        snapshotRange: new RawDataQueryResult(),
+        layersRange: new RawDataQueryResult(),
+        allVisibleRects: undefined,
+        allSnapshots: undefined,
+      } as QueryResults<QueryResult | RawDataQueryResult>);
+    });
+
+    presenter = new PlaybackPresenter(mockEmitWinscopeEvent, trace);
+    presenter.setTraceGeometryData(traceGeometryData);
+
+    postMessageSpy = spyOn(presenter['playbackWorker'], 'postMessage');
+
+    postMessageSpy.and.callFake((message) => {
+      const numEntries = message.end - message.start;
+      const mockTrees = Array.from({length: numEntries}).map((i) =>
+        new HierarchyTreeBuilder()
+          .setId(`Tree ${message.start + i}`)
+          .setName(`Node ${message.start + i}`)
+          .build(),
+      );
+
+      if (presenter['workerPromiseResolver']) {
+        presenter['workerPromiseResolver'](mockTrees);
+      }
+    });
   });
 
   it('initializes in a paused state', () => {
@@ -90,15 +126,15 @@ describe('PlaybackPresenter', () => {
   describe('play', () => {
     describe('with no SR trace', async () => {
       it('starts playback', async () => {
-        await presenter.play(trace, 0, PlaybackState.FORWARDS, undefined);
+        await presenter.play(0, PlaybackState.FORWARDS, undefined);
         expect(presenter.isPlaying()).toBeTrue();
 
-        presenter.play(trace, 0, PlaybackState.BACKWARDS, undefined);
+        presenter.play(0, PlaybackState.BACKWARDS, undefined);
         expect(presenter.isPlaying()).toBeTrue();
       });
 
       it('in reverse starts at the last position of the trace if starting index is 0', async () => {
-        await presenter.play(trace, 0, PlaybackState.BACKWARDS, undefined);
+        await presenter.play(0, PlaybackState.BACKWARDS, undefined);
         const update = mockEmitWinscopeEvent.calls.argsFor(1)[0];
         expect(update).toBeInstanceOf(TracePositionUpdate);
         expect(
@@ -107,7 +143,7 @@ describe('PlaybackPresenter', () => {
       });
 
       it('plays through all the entries in the trace', async () => {
-        await presenter.play(trace, 0, PlaybackState.FORWARDS, undefined);
+        await presenter.play(0, PlaybackState.FORWARDS, undefined);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = mockEmitWinscopeEvent.calls.all();
         for (let i = 1; i < trace.lengthEntries + 1; i++) {
@@ -119,7 +155,7 @@ describe('PlaybackPresenter', () => {
       });
 
       it('in reverse plays through all the entries in the trace', async () => {
-        await presenter.play(trace, 0, PlaybackState.BACKWARDS, undefined);
+        await presenter.play(0, PlaybackState.BACKWARDS, undefined);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = mockEmitWinscopeEvent.calls.all();
         for (let i = 1; i < trace.lengthEntries + 1; i++) {
@@ -131,7 +167,7 @@ describe('PlaybackPresenter', () => {
       });
 
       it('plays from specific starting entry', async () => {
-        await presenter.play(trace, 1, PlaybackState.FORWARDS, undefined);
+        await presenter.play(1, PlaybackState.FORWARDS, undefined);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const update = mockEmitWinscopeEvent.calls.all()[2].args[0];
         expect(update).toBeInstanceOf(TracePositionUpdate);
@@ -141,7 +177,7 @@ describe('PlaybackPresenter', () => {
       });
 
       it('plays from specific starting entry in reverse', async () => {
-        await presenter.play(trace, 1, PlaybackState.BACKWARDS, undefined);
+        await presenter.play(1, PlaybackState.BACKWARDS, undefined);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const reverseUpdate = mockEmitWinscopeEvent.calls.all()[2].args[0];
         expect(reverseUpdate).toBeInstanceOf(TracePositionUpdate);
@@ -151,18 +187,14 @@ describe('PlaybackPresenter', () => {
       });
 
       it('does not throw for an empty trace', async () => {
-        await presenter.play(
-          makeEmptyTrace(TraceType.SURFACE_FLINGER),
-          0,
-          PlaybackState.FORWARDS,
-          undefined,
-        );
+        trace = makeEmptyTrace(TraceType.SURFACE_FLINGER);
+        presenter = new PlaybackPresenter(mockEmitWinscopeEvent, trace);
+        await presenter.play(0, PlaybackState.FORWARDS, undefined);
         expect(mockEmitWinscopeEvent).not.toHaveBeenCalled();
       });
 
       it('does not play if the starting index is out of bounds', async () => {
         await presenter.play(
-          trace,
           trace.lengthEntries + 1,
           PlaybackState.FORWARDS,
           undefined,
@@ -173,12 +205,7 @@ describe('PlaybackPresenter', () => {
 
     describe('with SR trace', async () => {
       it('plays through all the SR entries in the trace', async () => {
-        await presenter.play(
-          trace,
-          0,
-          PlaybackState.FORWARDS,
-          screenRecordingTrace,
-        );
+        await presenter.play(0, PlaybackState.FORWARDS, screenRecordingTrace);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = mockEmitWinscopeEvent.calls.all();
         for (let i = 1; i < screenRecordingTrace.lengthEntries + 1; i++) {
@@ -187,12 +214,7 @@ describe('PlaybackPresenter', () => {
       });
 
       it('plays through all the SR entries in reverse in the trace', async () => {
-        await presenter.play(
-          trace,
-          0,
-          PlaybackState.BACKWARDS,
-          screenRecordingTrace,
-        );
+        await presenter.play(0, PlaybackState.BACKWARDS, screenRecordingTrace);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = mockEmitWinscopeEvent.calls.all();
         for (let i = 1; i < screenRecordingTrace.lengthEntries + 1; i++) {
@@ -204,7 +226,7 @@ describe('PlaybackPresenter', () => {
 
   describe('pause', () => {
     it('stops the playback loop', async () => {
-      await presenter.play(trace, 0, PlaybackState.FORWARDS, undefined);
+      await presenter.play(0, PlaybackState.FORWARDS, undefined);
       expect(presenter.isPlaying()).toBeTrue();
       await presenter.pause();
       expect(presenter.isPlaying()).toBeFalse();
@@ -219,10 +241,10 @@ describe('PlaybackPresenter', () => {
 
   describe('speed change', () => {
     it('does not skip entries while playing through the trace', async () => {
-      await presenter.play(trace, 0, PlaybackState.FORWARDS, undefined);
+      await presenter.play(0, PlaybackState.FORWARDS, undefined);
       presenter.changeSpeed(2);
       await new Timer(1000).wait(() => !presenter.isPlaying());
-      expect(mockEmitWinscopeEvent).toHaveBeenCalledTimes(5);
+      expect(mockEmitWinscopeEvent).toHaveBeenCalledTimes(6);
     });
   });
 });
