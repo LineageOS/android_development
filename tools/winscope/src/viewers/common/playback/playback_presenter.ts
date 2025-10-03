@@ -27,38 +27,46 @@ import {TraceEntryEager} from 'trace_api/trace';
 import {PlaybackState} from './playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
-import {assertDefined} from 'common/assert';
 import {CorrespondingEntries} from './corresponding_entries';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {TraceRect} from 'tree_node/trace_rect';
 import {CornerRadii} from 'common/geometry/corner_radii';
-import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
 import {RawDataQueryResult} from 'trace_processor/query_result';
 
+type EagerTraceEntry<T = HierarchyTreeNode> = TraceEntryEager<T, T | undefined>;
+
 export class PlaybackPresenter {
+  private readonly chunkSize = 150;
+  private readonly baseTime = 50;
+
   private entryIndex = 0;
   private entrySleepTime = 50;
-  private buffer:
-    | Array<TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>>
-    | undefined = [];
-  private readonly baseTime = 50;
   private emitWinscopeEvent: EmitEvent;
   private currPlaybackState: PlaybackState = PlaybackState.PAUSED;
-  private correspondingEntriesMap = new Map<number, CorrespondingEntries>();
   private currentScreenRecording: Trace<MediaBasedTraceEntry> | undefined;
-  private tp = TraceProcessorFactory.getSingleInstance();
   private traceGeometryData: TraceGeometryData | undefined;
-  private trace: Trace<HierarchyTreeNode> | undefined;
+  private trace: Trace<HierarchyTreeNode>;
   private playbackWorker: Worker;
   private workerPromiseResolver:
     | ((value: Array<HierarchyTreeNode | undefined>) => void)
-    | null = null;
-  private workerPromiseRejecter: ((reason?: any) => void) | null = null;
+    | undefined = undefined;
+  private workerPromiseRejecter: ((reason?: any) => void) | undefined =
+    undefined;
+  private activeBuffer: CorrespondingEntries[] = [];
+  private pendingBuffer: CorrespondingEntries[] = [];
+  private fetchPendingBuffer: Promise<void> | undefined = undefined;
+  private workerBufferStartIndex = 0;
+  private isFetching = false;
+  private nextChunkTraceStartIndex = 0;
+  private totalEntries = 0;
+  private activeBufferStartIndex = 0;
+  private allScreenRecordingEntries:
+    | Array<EagerTraceEntry<MediaBasedTraceEntry>>
+    | undefined;
 
   constructor(emitWinscopeEvent: EmitEvent, trace: Trace<HierarchyTreeNode>) {
     this.emitWinscopeEvent = emitWinscopeEvent;
@@ -79,29 +87,74 @@ export class PlaybackPresenter {
     requestedState: PlaybackState,
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
-    if (!this.trace) {
+    const traceForLengthCheck = screenRecordingTrace ?? this.trace;
+    if (
+      !traceForLengthCheck ||
+      !this.trace ||
+      currentPosition >= traceForLengthCheck.lengthEntries
+    ) {
       return;
     }
-    const trees = await this.fetchTreesFromWorker(0, this.trace.lengthEntries);
-    await this.buildCorrespondingEntriesMap(
-      trees,
-      this.trace,
-      screenRecordingTrace,
-    );
-    this.entryIndex = currentPosition;
-    this.currPlaybackState = requestedState;
-    if (
-      this.currPlaybackState === PlaybackState.BACKWARDS &&
-      this.entryIndex === 0
-    ) {
-      // if the user's cursor position is at 0 and they want to reverse play through the trace
-      // change the index to the end of tracecons
-      this.entryIndex = this.correspondingEntriesMap.size - 1;
+
+    const screenRecordingHasChanged =
+      this.currentScreenRecording !== screenRecordingTrace;
+    if (!screenRecordingHasChanged && this.activeBuffer.length > 0) {
+      const targetIndex =
+        requestedState === PlaybackState.BACKWARDS && currentPosition === 0
+          ? this.totalEntries - 1
+          : currentPosition;
+
+      if (
+        targetIndex >= this.activeBufferStartIndex &&
+        targetIndex < this.activeBufferStartIndex + this.chunkSize
+      ) {
+        this.currPlaybackState = requestedState;
+        this.entryIndex = targetIndex;
+        await this.emitWinscopeEvent(
+          new PlaybackStateChangeHandled(
+            this.currPlaybackState,
+            this.trace.type,
+          ),
+        );
+        this.runPlaybackLoop();
+        return;
+      }
     }
-    if (
-      this.correspondingEntriesMap.size > 0 &&
-      this.entryIndex < this.correspondingEntriesMap.size
-    ) {
+
+    this.currentScreenRecording = screenRecordingTrace;
+    if (this.currentScreenRecording) {
+      this.totalEntries = this.currentScreenRecording.lengthEntries;
+      this.allScreenRecordingEntries =
+        await this.currentScreenRecording.getRangeEntryValues({
+          start: 0,
+          end: this.totalEntries,
+        });
+    } else {
+      this.totalEntries = this.trace.lengthEntries;
+      this.allScreenRecordingEntries = undefined;
+    }
+
+    this.currPlaybackState = requestedState;
+    this.entryIndex =
+      requestedState === PlaybackState.BACKWARDS && currentPosition === 0
+        ? this.totalEntries - 1
+        : currentPosition;
+
+    const startChunk = Math.floor(this.entryIndex / this.chunkSize);
+    this.activeBufferStartIndex = startChunk * this.chunkSize;
+    const end = Math.min(
+      this.activeBufferStartIndex + this.chunkSize,
+      this.totalEntries,
+    );
+    this.activeBuffer = await this.processTraceChunk(
+      this.activeBufferStartIndex,
+      end,
+    );
+
+    this.nextChunkTraceStartIndex = end;
+    this.manageNextPendingBufferFetch();
+
+    if (this.activeBuffer.length > 0) {
       await this.emitWinscopeEvent(
         new PlaybackStateChangeHandled(this.currPlaybackState, this.trace.type),
       );
@@ -114,41 +167,80 @@ export class PlaybackPresenter {
   }
 
   async pause() {
-    if (this.isPlaying()) {
-      this.currPlaybackState = PlaybackState.PAUSED;
+    if (!this.isPlaying()) {
+      return;
+    }
+
+    this.currPlaybackState = PlaybackState.PAUSED;
+    await this.emitWinscopeEvent(
+      new PlaybackStateChangeHandled(this.currPlaybackState, this.trace.type),
+    );
+
+    let finalEntryForPositionUpdate;
+
+    if (this.allScreenRecordingEntries) {
+      finalEntryForPositionUpdate =
+        this.allScreenRecordingEntries[this.entryIndex];
+    } else {
+      finalEntryForPositionUpdate = await this.trace.getEntry(this.entryIndex);
+    }
+
+    if (finalEntryForPositionUpdate) {
       await this.emitWinscopeEvent(
-        new PlaybackStateChangeHandled(
-          this.currPlaybackState,
-          assertDefined(this.trace).type,
+        new TracePositionUpdate(
+          TracePosition.fromTraceEntry(finalEntryForPositionUpdate),
+          true,
         ),
       );
     }
   }
 
   private async runPlaybackLoop() {
-    const lastIndex = this.correspondingEntriesMap.size - 1;
-
-    let nextIndex;
-    let reachedEndOfTrace = false;
     let lastEntry:
       | TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
       | undefined;
 
     while (this.currPlaybackState !== PlaybackState.PAUSED) {
-      const currentIndex = this.entryIndex;
-      if (this.correspondingEntriesMap.get(currentIndex) === undefined) {
-        return;
+      const bufferIndex = this.entryIndex - this.activeBufferStartIndex;
+
+      if (
+        this.currPlaybackState === PlaybackState.FORWARDS &&
+        bufferIndex >= this.activeBuffer.length
+      ) {
+        await this.swapBuffers();
+        if (this.activeBuffer.length === 0) break;
+        continue;
       }
-      const entryMap = assertDefined(
-        this.correspondingEntriesMap.get(currentIndex),
-      );
+
+      if (
+        this.currPlaybackState === PlaybackState.BACKWARDS &&
+        bufferIndex < 0
+      ) {
+        const prevChunkStart = this.activeBufferStartIndex - this.chunkSize;
+        if (prevChunkStart < 0) break;
+
+        this.activeBuffer = await this.processTraceChunk(
+          prevChunkStart,
+          this.activeBufferStartIndex,
+        );
+        this.activeBufferStartIndex = prevChunkStart;
+        continue;
+      }
+
+      const correspondingEntry = this.activeBuffer[bufferIndex];
+
+      const traceEntryValue = correspondingEntry?.traceEntry?.getValue();
+      if (traceEntryValue) {
+        this.assignNodePrototypes(traceEntryValue);
+      }
 
       const traceEntryToUse =
-        entryMap.traceEntry === lastEntry || entryMap.traceEntry === undefined
-          ? entryMap.screenRecordingEntry
-          : entryMap.traceEntry;
+        correspondingEntry.traceEntry === lastEntry ||
+        correspondingEntry.traceEntry === undefined
+          ? correspondingEntry.screenRecordingEntry
+          : correspondingEntry.traceEntry;
 
-      lastEntry = entryMap.traceEntry;
+      lastEntry = correspondingEntry.traceEntry;
 
       if (traceEntryToUse) {
         await this.emitWinscopeEvent(
@@ -158,107 +250,126 @@ export class PlaybackPresenter {
           ),
         );
       }
-      //we debounce the trace position updates to allow time for UI to render
+
       await new Timer(this.entrySleepTime, this.entrySleepTime).sleepMs();
 
-      if (this.currPlaybackState === PlaybackState.BACKWARDS) {
-        nextIndex = currentIndex - 1;
-        if (nextIndex < 0) {
-          reachedEndOfTrace = true;
-          this.entryIndex = 0;
-        } else {
-          this.entryIndex = nextIndex;
-        }
-      } else {
-        nextIndex = currentIndex + 1;
-        if (nextIndex > lastIndex) {
-          reachedEndOfTrace = true;
-          this.entryIndex = lastIndex;
-        } else {
-          this.entryIndex = nextIndex;
-        }
-      }
+      const nextIndex =
+        this.currPlaybackState === PlaybackState.BACKWARDS
+          ? this.entryIndex - 1
+          : this.entryIndex + 1;
 
-      if (reachedEndOfTrace && this.entryIndex === currentIndex) {
+      if (nextIndex < 0 || nextIndex >= this.totalEntries) {
         break;
       }
+      this.entryIndex = nextIndex;
     }
     await this.pause();
   }
 
-  private async buildCorrespondingEntriesMap(
-    trees: Array<HierarchyTreeNode | undefined>,
-    trace: Trace<HierarchyTreeNode>,
-    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
-  ) {
-    this.buffer = assertDefined(this.trace).createEagerEntriesFromValues(
-      {start: 0, end: assertDefined(this.trace).lengthEntries},
+  private async swapBuffers() {
+    if (this.fetchPendingBuffer) {
+      await this.fetchPendingBuffer;
+    }
+
+    this.activeBuffer = this.pendingBuffer;
+    this.activeBufferStartIndex = this.workerBufferStartIndex;
+    this.pendingBuffer = [];
+    this.fetchPendingBuffer = undefined;
+
+    this.manageNextPendingBufferFetch();
+  }
+
+  private manageNextPendingBufferFetch() {
+    if (this.isFetching || this.nextChunkTraceStartIndex >= this.totalEntries) {
+      return;
+    }
+
+    this.isFetching = true;
+    const start = this.nextChunkTraceStartIndex;
+    this.workerBufferStartIndex = start;
+    const end = Math.min(start + this.chunkSize, this.totalEntries);
+
+    this.fetchPendingBuffer = this.processTraceChunk(start, end)
+      .then((processedChunk) => {
+        this.pendingBuffer = processedChunk;
+        this.nextChunkTraceStartIndex = end;
+      })
+      .finally(() => {
+        this.isFetching = false;
+      });
+  }
+
+  private async processTraceChunk(
+    start: number,
+    end: number,
+  ): Promise<CorrespondingEntries[]> {
+    if (start >= end) {
+      return [];
+    }
+
+    const sfRangeToFetch = {
+      start,
+      end: Math.min(end, this.trace.lengthEntries),
+    };
+
+    if (
+      sfRangeToFetch.start >= sfRangeToFetch.end &&
+      this.trace.lengthEntries > 0
+    ) {
+      sfRangeToFetch.start = this.trace.lengthEntries - 1;
+      sfRangeToFetch.end = this.trace.lengthEntries;
+    }
+
+    const trees = await this.fetchTreesFromWorker(
+      sfRangeToFetch.start,
+      sfRangeToFetch.end,
+    );
+
+    const chunkEagerTraceEntries = this.trace.createEagerEntriesFromValues(
+      sfRangeToFetch,
       trees,
     );
-    this.buffer.forEach((entry) => {
-      const tree = entry.getValue();
-      if (tree) {
-        this.assignNodePrototypes(tree);
-      }
-    });
-    if (!this.buffer) {
-      return;
-    }
-    if (
-      this.currentScreenRecording === screenRecordingTrace &&
-      screenRecordingTrace !== undefined
-    ) {
-      return;
-    }
-    this.currentScreenRecording = screenRecordingTrace;
-    let screenRecordingEntries:
-      | Array<
-          TraceEntryEager<
-            MediaBasedTraceEntry,
-            MediaBasedTraceEntry | undefined
-          >
-        >
-      | undefined;
-    let maximumEntryIndex: number;
-    if (this.currentScreenRecording) {
-      screenRecordingEntries =
-        await this.currentScreenRecording.getRangeEntryValues({
-          start: 0,
-          end: this.currentScreenRecording.lengthEntries,
-        });
-      maximumEntryIndex = this.currentScreenRecording.lengthEntries;
-    } else {
-      maximumEntryIndex = trace.lengthEntries;
-    }
 
-    for (let entryIndex = 0; entryIndex < maximumEntryIndex; entryIndex++) {
-      let correspondingEntries;
+    const chunkTraceEntryMap = new Map<
+      number,
+      TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
+    >();
+    chunkEagerTraceEntries.forEach((entry) =>
+      chunkTraceEntryMap.set(entry.getIndex(), entry),
+    );
 
-      if (screenRecordingEntries) {
-        let eagerCorrespondingTraceEntry;
+    const chunkCorrespondingEntries: CorrespondingEntries[] = [];
+    for (let index = start; index < end; index++) {
+      let correspondingEntries: CorrespondingEntries;
 
-        const correspondingTraceEntry = findCorrespondingEntry(
-          trace,
-          TracePosition.fromTraceEntry(screenRecordingEntries[entryIndex]),
+      if (this.allScreenRecordingEntries) {
+        const screenRecordingEntry = this.allScreenRecordingEntries[index];
+        const correspondingLazyTraceEntry = findCorrespondingEntry(
+          this.trace,
+          TracePosition.fromTraceEntry(screenRecordingEntry),
         );
-        if (correspondingTraceEntry !== undefined) {
-          eagerCorrespondingTraceEntry =
-            this.buffer[correspondingTraceEntry.getIndex()];
-        } else {
-          eagerCorrespondingTraceEntry = undefined;
+
+        let eagerCorrespondingTraceEntry:
+          | EagerTraceEntry<HierarchyTreeNode>
+          | undefined;
+        if (correspondingLazyTraceEntry) {
+          eagerCorrespondingTraceEntry = chunkTraceEntryMap.get(
+            correspondingLazyTraceEntry.getIndex(),
+          );
         }
         correspondingEntries = {
-          screenRecordingEntry: screenRecordingEntries[entryIndex],
+          screenRecordingEntry,
           traceEntry: eagerCorrespondingTraceEntry,
         };
       } else {
         correspondingEntries = {
           screenRecordingEntry: undefined,
-          traceEntry: this.buffer[entryIndex],
+          traceEntry: chunkEagerTraceEntries[index - start],
         };
       }
-      this.correspondingEntriesMap.set(entryIndex, correspondingEntries);
+      chunkCorrespondingEntries.push(correspondingEntries);
     }
+    return chunkCorrespondingEntries;
   }
 
   private assignPropertyTreeNodePrototype(node: PropertyTreeNode) {
@@ -280,7 +391,6 @@ export class PlaybackPresenter {
     );
     Object.setPrototypeOf(node, HierarchyTreeNode.prototype);
     node.rects?.forEach((rect: TraceRect) => {
-      Object.setPrototypeOf(rect, TraceRect.prototype);
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
       if (rect?.cornerRadii) {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
@@ -288,28 +398,11 @@ export class PlaybackPresenter {
     });
 
     node.secondaryRects?.forEach((rect: TraceRect) => {
-      Object.setPrototypeOf(rect, TraceRect.prototype);
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
       if (rect?.cornerRadii) {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
       }
     });
-
-    if (node.isRoot()) {
-      node.enableLazyPropertiesFetch(
-        EntryHierarchyTreeFactory.makeEntryLazyPropertiesStrategy(),
-        this.tp,
-      );
-    } else {
-      node.enableLazyPropertiesFetch(
-        EntryHierarchyTreeFactory.makeLayerLazyPropertiesStrategy(
-          node.id.split(' ')[0],
-          node.name,
-          node.duplicateCount,
-        ),
-        this.tp,
-      );
-    }
     node
       .getAllChildren()
       .forEach((child: any) => this.assignNodePrototypes(child));
@@ -332,16 +425,18 @@ export class PlaybackPresenter {
           this.workerPromiseRejecter(error);
         }
       } finally {
-        this.workerPromiseResolver = null;
-        this.workerPromiseRejecter = null;
+        this.workerPromiseResolver = undefined;
+        this.workerPromiseRejecter = undefined;
       }
     };
 
-    worker.onerror = () => {
+    worker.onerror = (error) => {
       if (this.workerPromiseRejecter) {
-        this.workerPromiseRejecter(new Error('Web Worker failed'));
-        this.workerPromiseResolver = null;
-        this.workerPromiseRejecter = null;
+        this.workerPromiseRejecter(
+          new Error(`Playback worker failed: ${error.message}`),
+        );
+        this.workerPromiseResolver = undefined;
+        this.workerPromiseRejecter = undefined;
       }
     };
 
@@ -352,7 +447,7 @@ export class PlaybackPresenter {
     start: number,
     end: number,
   ): Promise<Array<HierarchyTreeNode | undefined>> {
-    return assertDefined(this.trace)
+    return this.trace
       .getQueryResults({start, end}, true)
       .then((queryResults) => {
         return new Promise<Array<HierarchyTreeNode | undefined>>(
@@ -376,7 +471,7 @@ export class PlaybackPresenter {
 
             const snapshotBatches = snapshotResults.batches;
             const layerBatches = layersResults.batches;
-            const parser = assertDefined(this.trace).getParser();
+            const parser = this.trace.getParser();
             let map;
             if (parser instanceof ParserSurfaceFlinger) {
               map = parser.getSfRectsMap();
@@ -387,7 +482,7 @@ export class PlaybackPresenter {
               end,
               snapshotBatches,
               layerBatches,
-              type: assertDefined(this.trace).type,
+              type: this.trace.type,
               traceGeometryData: this.traceGeometryData,
               visibleRectsMap: map,
             });
