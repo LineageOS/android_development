@@ -27,7 +27,7 @@ import {TraceEntryTypeMap, TraceType} from './trace_type';
  * all contained traces, such as slicing by time or frames.
  */
 export class Traces {
-  private traces = new Set<Trace<{}>>();
+  private readonly traces = new Set<Trace<{}>>();
 
   addTrace(trace: Trace<{}>) {
     this.traces.add(trace);

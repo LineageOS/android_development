@@ -25,6 +25,15 @@ import {Trace} from 'trace_api/trace';
 import {TraceEntryTypeMap, TraceType} from 'trace_api/trace_type';
 import {TraceBuilder} from './trace_builder';
 
+/**
+ * Extracts all entries from a trace.
+ *
+ * This utility function is useful in tests to easily obtain all the underlying
+ * data values from a `Trace` object without dealing with individual `TraceEntry`
+ * objects.
+ * @param trace The trace to extract entries from.
+ * @return A promise that resolves to an array containing all trace entry values.
+ */
 export async function extractEntries<T>(trace: Trace<T>): Promise<T[]> {
   const promises = trace.mapEntry(async (entry, index) => {
     return await entry.getValue();
@@ -32,6 +41,14 @@ export async function extractEntries<T>(trace: Trace<T>): Promise<T[]> {
   return await Promise.all(promises);
 }
 
+/**
+ * Extracts all timestamps from a trace.
+ *
+ * This function provides a convenient way to get all timestamps present in a
+ * trace, which is often needed for test assertions or setup.
+ * @param trace The trace to extract timestamps from.
+ * @return An array of `Timestamp` objects.
+ */
 export function extractTimestamps<T>(trace: Trace<T>): Timestamp[] {
   const timestamps = new Array<Timestamp>();
   trace.forEachTimestamp((timestamp) => {
@@ -40,6 +57,15 @@ export function extractTimestamps<T>(trace: Trace<T>): Timestamp[] {
   return timestamps;
 }
 
+/**
+ * Extracts all frames from a trace, mapping each frame index to its entries.
+ *
+ * This is useful for tests that need to verify the content of each frame within
+ * a trace, providing a map from `AbsoluteFrameIndex` to an array of entries
+ * within that frame.
+ * @param trace The trace to extract frames from.
+ * @return A promise that resolves to a Map where keys are frame indices and values are arrays of entries.
+ */
 export async function extractFrames<T>(
   trace: Trace<T>,
 ): Promise<Map<AbsoluteFrameIndex, T[]>> {
@@ -51,6 +77,17 @@ export async function extractFrames<T>(
   return frames;
 }
 
+/**
+ * Creates an empty `Trace` object of a specified type.
+ *
+ * This function simplifies the creation of empty or minimal trace objects for
+ * testing purposes, allowing tests to focus on specific behaviors without
+ * needing a fully populated trace. It can also include custom query results.
+ * @param traceType The type of the trace.
+ * @param descriptors Optional descriptors for the trace.
+ * @param parserCustomQueryResult Optional custom query results to include in the trace.
+ * @return An empty `Trace` instance.
+ */
 export function makeEmptyTrace<T extends TraceType>(
   traceType: T,
   descriptors: string[] = [],
