@@ -220,6 +220,7 @@ describe('HierarchyTreeBuilderSf', () => {
     return new PropertiesProvider(
       node,
       async () => node,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),

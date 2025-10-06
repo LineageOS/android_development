@@ -45,6 +45,7 @@ import {ViewerEvents} from './viewer_events';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 
@@ -275,20 +276,6 @@ export abstract class AbstractHierarchyViewerPresenter<
         }
 
         switch (event.state) {
-          case PlaybackState.FORWARDS:
-          case PlaybackState.BACKWARDS:
-            if (this.playPlayback) {
-              this.uiData.isPlaybackInitializing = true;
-              this.refreshHierarchyViewerUiData();
-              await this.playPlayback(
-                this.trace,
-                assertDefined(event.currentTraceIndex),
-                event.state,
-                this.screenRecordingTrace,
-              );
-            }
-            return;
-
           case PlaybackState.PAUSED:
             if (this.pausePlayback) {
               await this.pausePlayback();
@@ -296,6 +283,29 @@ export abstract class AbstractHierarchyViewerPresenter<
             return;
           default:
             return;
+        }
+      },
+    );
+    await event.visit(
+      WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE,
+      async (event) => {
+        if (!this.trace) {
+          return;
+        }
+        if (!this.screenRecordingTrace) {
+          this.screenRecordingTrace = this.traces.getTrace(
+            TraceType.SCREEN_RECORDING,
+          );
+        }
+        if (this.playPlayback) {
+          this.uiData.isPlaybackInitializing = true;
+          this.refreshHierarchyViewerUiData();
+          await this.playPlayback(
+            assertDefined(event.currentTraceIndex),
+            event.state,
+            event.traceGeometryData,
+            this.screenRecordingTrace,
+          );
         }
       },
     );
@@ -576,9 +586,9 @@ export abstract class AbstractHierarchyViewerPresenter<
   protected abstract refreshUIData(): void;
   protected initializeIfNeeded?(event: TracePositionUpdate): Promise<void>;
   protected playPlayback?(
-    trace: Trace<HierarchyTreeNode>,
     currentPosition: number,
     requestedState: PlaybackState,
+    traceGeometryData: TraceGeometryData,
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
   ): Promise<void>;
   protected pausePlayback?(): Promise<void>;

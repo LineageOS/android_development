@@ -33,14 +33,22 @@ import {
 } from 'trace_api/custom_query';
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {
+  QueryResult,
+  QueryResults,
+  RawDataQueryResult,
+} from 'trace_processor/query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
-  private readonly factory = new EntryHierarchyTreeFactory();
+  private readonly factory = EntryHierarchyTreeFactory;
   private visibleAndDisplayRects: Map<bigint, SnapshotRects> | undefined;
   private allVisibleRects: QueryResult | undefined;
   private allSnapshots: QueryResult | undefined;
+
+  getSfRectsMap() {
+    return this.visibleAndDisplayRects;
+  }
 
   override getTraceType(): TraceType {
     return TraceType.SURFACE_FLINGER;
@@ -52,12 +60,18 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
 
   override async getRangeOfEntries(
     entriesRange: EntriesRange,
-    precomputedQuery?: QueryResults,
+    precomputedQuery?: QueryResults<QueryResult>,
   ): Promise<Array<HierarchyTreeNode | undefined>> {
     const queryResults =
-      precomputedQuery ?? (await this.getQueryResults(entriesRange));
+      precomputedQuery ?? (await this.getQueryResults(entriesRange, false));
     const {snapshotRange: snapshotResult, layersRange: layersResult} =
       queryResults;
+    if (
+      snapshotResult instanceof RawDataQueryResult ||
+      layersResult instanceof RawDataQueryResult
+    ) {
+      return [];
+    }
     const traceGeometryData = assertDefined(this.traceGeometryData);
     const visibleAndDisplayRects = assertDefined(
       await this.fetchAllVisibleAndDisplayRects(),
@@ -73,7 +87,8 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
 
   override async getQueryResults(
     entriesRange: EntriesRange,
-  ): Promise<QueryResults> {
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     const entriesSnapshotRangeStart =
       this.entryIndexToRowIdMap[entriesRange.start];
     const entriesSnapshotRangeEnd =
@@ -82,10 +97,12 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     const snapshotResult = await this.queryRangeSnapshots(
       entriesSnapshotRangeStart,
       entriesSnapshotRangeEnd,
+      queryRawData,
     );
     const layersResult = await this.queryRangeLayersAndRects(
       entriesSnapshotRangeStart,
       entriesRange.end,
+      queryRawData,
     );
 
     if (this.visibleAndDisplayRects === undefined) {
@@ -149,10 +166,11 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     allSnapshots: QueryResult;
   }> {
     const allVisibleRects = await this.queryAllVisibleAndDisplayRects();
-    const allSnapshots = await this.queryRangeSnapshots(
+    const allSnapshots = (await this.queryRangeSnapshots(
       0,
       this.getLengthEntries(),
-    );
+      false,
+    )) as QueryResult;
     return {
       allVisibleRects,
       allSnapshots,
@@ -182,7 +200,8 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   private async queryRangeSnapshots(
     start: number,
     end: number,
-  ): Promise<QueryResult> {
+    queryRawData: boolean,
+  ): Promise<QueryResult | RawDataQueryResult> {
     const snapshotQuery = `
   SELECT
           sfs.id,
@@ -202,13 +221,14 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           ON display.trace_rect_id = trace_rect.id
         WHERE sfs.id >= ${start} AND sfs.id < ${end}
           ORDER BY sfs.id, display.id;`;
-    return await this.traceProcessor.query(snapshotQuery);
+    return await this.executeQuery(snapshotQuery, queryRawData);
   }
 
   private async queryRangeLayersAndRects(
     start: number,
     end: number,
-  ): Promise<QueryResult> {
+    queryRawData: boolean,
+  ): Promise<QueryResult | RawDataQueryResult> {
     const layersQuery = `
   SELECT
           sfl.snapshot_id,
@@ -250,7 +270,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           ON fr.rect_id = frr.id
         WHERE sfl.snapshot_id >= ${start} AND sfl.snapshot_id < ${end}
           ORDER BY sfl.id`;
-    return await this.traceProcessor.query(layersQuery);
+    return await this.executeQuery(layersQuery, queryRawData);
   }
 
   private async queryAllVisibleAndDisplayRects(): Promise<QueryResult> {
@@ -293,5 +313,13 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           ORDER BY sfl.id;
     `;
     return this.traceProcessor.query(visibleRectsDisplayQuery);
+  }
+
+  private async executeQuery(sqlQuery: string, queryRawData: boolean = false) {
+    if (queryRawData) {
+      return this.traceProcessor.rawQuery(sqlQuery);
+    } else {
+      return this.traceProcessor.query(sqlQuery);
+    }
   }
 }

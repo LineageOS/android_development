@@ -38,6 +38,7 @@ describe('HierarchyTreeBuilderVc', () => {
   const node0Provider = new PropertiesProvider(
     node0Properties,
     async () => node0Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
@@ -55,6 +56,7 @@ describe('HierarchyTreeBuilderVc', () => {
   const node1Provider = new PropertiesProvider(
     node1Properties,
     async () => node1Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
@@ -72,6 +74,7 @@ describe('HierarchyTreeBuilderVc', () => {
   const node2Provider = new PropertiesProvider(
     node2Properties,
     async () => node2Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
@@ -89,6 +92,7 @@ describe('HierarchyTreeBuilderVc', () => {
   const node3Provider = new PropertiesProvider(
     node3Properties,
     async () => node3Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),

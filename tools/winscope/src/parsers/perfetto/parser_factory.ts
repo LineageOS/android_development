@@ -36,10 +36,12 @@ import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 interface ProcessedFile {
   parsers: Array<Parser<object>>;
   isPerfettoTrace: boolean;
+  traceGeometryData: TraceGeometryData | undefined;
 }
 
 export class ParserFactory {
@@ -71,7 +73,11 @@ export class ParserFactory {
       await this.loadFileInTp(traceFile.file, traceProcessor, progressListener);
     } catch (e) {
       console.error('Trace processor failed to parse data:', e);
-      return {parsers: [], isPerfettoTrace: false};
+      return {
+        parsers: [],
+        isPerfettoTrace: false,
+        traceGeometryData: undefined,
+      };
     }
     await traceProcessor.notifyEof();
 
@@ -127,7 +133,7 @@ export class ParserFactory {
         new InvalidPerfettoTrace(traceFile.getDescriptor(), errors),
       );
     }
-    return {parsers, isPerfettoTrace: true};
+    return {parsers, isPerfettoTrace: true, traceGeometryData};
   }
 
   private async initializeTraceProcessor(): Promise<TraceProcessorProxy> {

@@ -17,11 +17,12 @@
 import {analyticsLogEvent} from 'common/analytics';
 import {TraceProcessorConfig} from './perfetto/engine';
 import {WasmEngineProxy} from './perfetto/wasm_engine_proxy';
-import {QueryResult} from './query_result';
+import {QueryResult, RawDataQueryResult} from './query_result';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 
 export interface TraceProcessor {
   query(sqlQuery: string): Promise<QueryResult>;
+  rawQuery(sqlQuery: string): Promise<RawDataQueryResult>;
   reset(config: TraceProcessorConfig): Promise<void>;
   parse(data: Uint8Array): Promise<void>;
   notifyEof(): Promise<void>;
@@ -39,6 +40,13 @@ export class TraceProcessorWrapper implements TraceProcessor {
       throw NOT_IMPLEMENTED_ERROR;
     }
     return this.tp.query(sqlQuery);
+  }
+
+  async rawQuery(sqlQuery: string): Promise<RawDataQueryResult> {
+    if (!this.tp) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
+    return this.tp.rawQuery(sqlQuery);
   }
 
   async reset(config: TraceProcessorConfig) {
@@ -77,6 +85,13 @@ export class TraceProcessorProxy implements TraceProcessor {
       value: Date.now() - startTimeMs,
     });
     return result;
+  }
+
+  async rawQuery(sqlQuery: string): Promise<RawDataQueryResult> {
+    const result = new RawDataQueryResult();
+    this.wasmEngine.streamingQuery(result, sqlQuery);
+    const resolvedResult = await result.waitAllBatches();
+    return resolvedResult;
   }
 
   async reset(config: TraceProcessorConfig) {

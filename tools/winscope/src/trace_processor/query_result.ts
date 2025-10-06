@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {WritableQueryResult} from './perfetto/query_result';
+import protobuf from 'protobufjs/minimal';
+import {assertTrue} from 'common/assert';
 
 /**
  * Represents the possible data types for a column in a query result.
@@ -87,16 +90,16 @@ export interface QueryResult {
  * A container for multiple query results, typically related to a specific
  * analysis or snapshot of trace data.
  */
-export interface QueryResults {
+export interface QueryResults<T> {
   /**
    * The result of a query for a snapshot range.
    */
-  snapshotRange: QueryResult;
+  snapshotRange: T;
 
   /**
    * The result of a query for a layers range.
    */
-  layersRange: QueryResult;
+  layersRange: T;
 
   /**
    * The result of a query for all visible rectangles, or undefined if not available.
@@ -106,5 +109,71 @@ export interface QueryResults {
   /**
    * The result of a query for all snapshots, or undefined if not available.
    */
-  allSnapshots: QueryResult | undefined;
+  allSnapshots: T | undefined;
+}
+
+export class RawDataQueryResult implements WritableQueryResult {
+  batches: Uint8Array[] = [];
+  private lastBatchReceived = false;
+  private resolveAllBatches:
+    | ((value: void | PromiseLike<void>) => void)
+    | undefined;
+  private allBatchesPromise = new Promise<void>(
+    (resolve) => (this.resolveAllBatches = resolve),
+  );
+
+  waitAllBatches(): Promise<RawDataQueryResult> {
+    return this.allBatchesPromise.then(() => {
+      return this;
+    });
+  }
+
+  appendResultBatch(resBytes: Uint8Array): void {
+    this.batches.push(resBytes);
+    // We need to do enough decoding to determine if this is the last batch
+    const reader = protobuf.Reader.create(resBytes);
+    assertTrue(reader.pos === 0);
+    while (reader.pos < reader.len) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 3: {
+          const batchLen = reader.uint32();
+          const batchRaw = resBytes.subarray(reader.pos, reader.pos + batchLen);
+          reader.pos += batchLen;
+          this.lastBatchReceived = this.extractIsLastBatch(batchRaw);
+          break;
+        }
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    if (this.lastBatchReceived && this.resolveAllBatches !== undefined) {
+      this.resolveAllBatches();
+    }
+  }
+
+  isComplete(): boolean {
+    return this.lastBatchReceived;
+  }
+
+  private extractIsLastBatch(batchBytes: Uint8Array) {
+    const reader = protobuf.Reader.create(batchBytes);
+    assertTrue(reader.pos === 0);
+    const end = reader.len;
+    let result = false;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 6:
+          result = !!reader.bool();
+          break;
+
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return result;
+  }
 }

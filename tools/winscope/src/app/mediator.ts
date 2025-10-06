@@ -36,6 +36,7 @@ import {
   ExpandedTimelineToggled,
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
+  PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
   ShowTraceUploadWarning,
   TraceAddRequest,
@@ -740,14 +741,23 @@ export class Mediator {
         .getTrace(TraceType.SCREEN_RECORDING);
     }
     const eventTrace = this.tracePipeline.getTraces().getTrace(event.traceType);
+    const traceGeometryData = this.tracePipeline.getTraceGeometryData();
     const trace = this.screenRecordingTrace ?? eventTrace;
 
+    if (traceGeometryData === undefined) {
+      return;
+    }
     if (trace === undefined) {
       return;
     }
 
+    const playbackStatePropagate = new PlaybackStateChangePropagate(
+      event.state,
+      assertDefined(event.currentTraceIndex),
+      traceGeometryData,
+    );
     this.timelineData.trySetActiveTrace(trace as Trace<object>);
-    await viewer.onWinscopeEvent(event);
+    await viewer.onWinscopeEvent(playbackStatePropagate);
   }
 
   private async handlePlaybackPauseRequest(

@@ -112,14 +112,14 @@ export class EntryHierarchyTreeFactory {
     UpdateCornerRadii: new UpdateCornerRadii(),
   };
 
-  makeEntryHierarchyTrees(
+  static makeEntryHierarchyTrees(
     snapshotResults: QueryResult,
     layersResults: QueryResult,
     visibleRectsResults: Map<
       bigint,
       {displayRects: TraceRect[]; layerRects: Map<bigint, LayerRects>}
     >,
-    traceProcessor: TraceProcessor,
+    traceProcessor: TraceProcessor | undefined,
     traceGeometryData: TraceGeometryData,
   ): HierarchyTreeNode[] {
     const currLayer = layersResults.iter({});
@@ -128,23 +128,25 @@ export class EntryHierarchyTreeFactory {
     while (currSnapshot.valid()) {
       const currentId = assertBigInt(currSnapshot.get('id'));
 
-      const currSnapshotProperties = this.makeEntryProperties(
-        currSnapshot,
-        traceProcessor,
-      );
+      const currSnapshotProperties =
+        EntryHierarchyTreeFactory.makeEntryProperties(
+          currSnapshot,
+          traceProcessor,
+        );
       const visibleRects = assertDefined(visibleRectsResults.get(currentId));
       const displayRects = visibleRects.displayRects;
       const visibleLayerRects = visibleRects.layerRects;
 
-      const {layers, rects, warnings} = this.makeLayersAndNonvisibleRects(
-        currLayer,
-        traceProcessor,
-        currentId,
-        visibleLayerRects,
-        traceGeometryData,
-      );
+      const {layers, rects, warnings} =
+        EntryHierarchyTreeFactory.makeLayersAndNonvisibleRects(
+          currLayer,
+          traceProcessor,
+          currentId,
+          visibleLayerRects,
+          traceGeometryData,
+        );
 
-      const tree = this.buildHierarchyTree(
+      const tree = EntryHierarchyTreeFactory.buildHierarchyTree(
         currSnapshotProperties,
         layers,
         warnings,
@@ -165,7 +167,7 @@ export class EntryHierarchyTreeFactory {
     return trees;
   }
 
-  private buildHierarchyTree(
+  private static buildHierarchyTree(
     root: PropertiesProvider,
     layers: PropertiesProvider[],
     warnings: UserWarning[],
@@ -198,35 +200,37 @@ export class EntryHierarchyTreeFactory {
     return tree;
   }
 
-  private makeEntryProperties(
+  private static makeEntryProperties(
     snapshotResult: RowIterator,
-    traceProcessor: TraceProcessor,
+    traceProcessor: TraceProcessor | undefined,
   ): PropertiesProvider {
+    const argSetId = assertBigInt(snapshotResult.get('arg_set_id'));
     const eagerProperties = new PropertyTreeBuilderFromProto()
-      .setData({})
+      .setData({argSetId})
       .setRootId('LayerTraceEntry')
       .setRootName('root')
       .build();
-    const argSetId = assertDefined(snapshotResult.get('arg_set_id'));
     const entryProps = new PropertiesProviderBuilder()
       .setEagerProperties(eagerProperties)
-      .setLazyPropertiesStrategy(
-        this.makeEntryLazyPropertiesStrategy(Number(argSetId), traceProcessor),
-      )
       .setLazyOperations([
         EntryHierarchyTreeFactory.Operations.AddDisplayProperties,
         EntryHierarchyTreeFactory.Operations.AddDefaultsEntry,
         EntryHierarchyTreeFactory.Operations.SetFormattersEntry,
         EntryHierarchyTreeFactory.Operations.TranslateIntDefEntry,
-      ])
-      .build();
-
-    return entryProps;
+      ]);
+    if (traceProcessor) {
+      entryProps
+        .setTraceProcessor(traceProcessor)
+        .setLazyPropertiesStrategy(
+          EntryHierarchyTreeFactory.makeEntryLazyPropertiesStrategy(),
+        );
+    }
+    return entryProps.build();
   }
 
-  private makeLayersAndNonvisibleRects(
+  private static makeLayersAndNonvisibleRects(
     layersIter: RowIterator,
-    traceProcessor: TraceProcessor,
+    traceProcessor: TraceProcessor | undefined,
     currSnapshotId: bigint | undefined,
     visibleLayerInputRects: Map<bigint, LayerRects>,
     traceGeometryData: TraceGeometryData,
@@ -259,7 +263,11 @@ export class EntryHierarchyTreeFactory {
         const layerIdBigint = assertBigInt(it.get('layer_id'));
         const layerRects = rects.get(layerIdBigint);
         if (layerRects) {
-          this.tryUpdateFillRegion(layerRects, it, traceGeometryData);
+          EntryHierarchyTreeFactory.tryUpdateFillRegion(
+            layerRects,
+            it,
+            traceGeometryData,
+          );
         }
         continue;
       }
@@ -283,7 +291,7 @@ export class EntryHierarchyTreeFactory {
       processedLayerIdCounts.set(layerId, duplicateCount + 1);
 
       const layerName = assertString(it.get('layer_name'));
-      const layerProps = this.makeLayerPropertiesProvider(
+      const layerProps = EntryHierarchyTreeFactory.makeLayerPropertiesProvider(
         it,
         layerId,
         layerName,
@@ -307,7 +315,11 @@ export class EntryHierarchyTreeFactory {
         );
         if (layerRects) {
           rects.set(layerIdBigint, layerRects);
-          this.tryUpdateFillRegion(layerRects, it, traceGeometryData);
+          EntryHierarchyTreeFactory.tryUpdateFillRegion(
+            layerRects,
+            it,
+            traceGeometryData,
+          );
         }
       }
     }
@@ -333,7 +345,7 @@ export class EntryHierarchyTreeFactory {
     };
   }
 
-  private tryUpdateFillRegion(
+  private static tryUpdateFillRegion(
     layerRects: LayerRects,
     row: RowIterator,
     traceGeometryData: TraceGeometryData,
@@ -349,35 +361,26 @@ export class EntryHierarchyTreeFactory {
     }
   }
 
-  private makeLayerPropertiesProvider(
+  private static makeLayerPropertiesProvider(
     row: RowIterator,
     layerId: number,
     layerName: string,
     duplicateCount: number,
-    traceProcessor: TraceProcessor,
+    traceProcessor: TraceProcessor | undefined,
   ): PropertiesProvider {
-    const eagerProperties = this.makeLayerEagerPropertiesTree(
-      row,
-      layerId,
-      layerName,
-      duplicateCount,
-    );
+    const eagerProperties =
+      EntryHierarchyTreeFactory.makeLayerEagerPropertiesTree(
+        row,
+        layerId,
+        layerName,
+        duplicateCount,
+      );
 
-    const argSetId = assertBigInt(row.get('arg_set_id'));
-    const lazyPropertiesStrategy = this.makeLayerLazyPropertiesStrategy(
-      Number(argSetId),
-      layerId,
-      layerName,
-      traceProcessor,
-      duplicateCount,
-    );
-
-    return new PropertiesProviderBuilder()
+    const builder = new PropertiesProviderBuilder()
       .setEagerProperties(eagerProperties)
       .setCommonOperations([
         EntryHierarchyTreeFactory.Operations.AddCompositionType,
       ])
-      .setLazyPropertiesStrategy(lazyPropertiesStrategy)
       .setLazyOperations([
         EntryHierarchyTreeFactory.Operations.AddDefaultsLayer,
         EntryHierarchyTreeFactory.Operations.UpdateTransforms,
@@ -385,11 +388,24 @@ export class EntryHierarchyTreeFactory {
         EntryHierarchyTreeFactory.Operations.SetFormattersLayer,
         EntryHierarchyTreeFactory.Operations.TranslateIntDefLayer,
         EntryHierarchyTreeFactory.Operations.TranslateFlags,
-      ])
-      .build();
+      ]);
+
+    if (traceProcessor) {
+      const lazyPropertiesStrategy =
+        EntryHierarchyTreeFactory.makeLayerLazyPropertiesStrategy(
+          layerId,
+          layerName,
+          duplicateCount,
+        );
+      builder
+        .setLazyPropertiesStrategy(lazyPropertiesStrategy)
+        .setTraceProcessor(traceProcessor);
+    }
+
+    return builder.build();
   }
 
-  private makeLayerEagerPropertiesTree(
+  private static makeLayerEagerPropertiesTree(
     layerRow: RowIterator,
     layerId: number,
     layerName: string,
@@ -409,6 +425,7 @@ export class EntryHierarchyTreeFactory {
         'is_hidden_by_policy',
         'z_order_relative_of',
         'is_missing_z_parent',
+        'arg_set_id',
       ])
       .setConvertColumnToBoolean('is_visible')
       .setConvertColumnToBoolean('is_hidden_by_policy')
@@ -416,15 +433,16 @@ export class EntryHierarchyTreeFactory {
       .build();
   }
 
-  private makeLayerLazyPropertiesStrategy(
-    argSetId: number,
+  static makeLayerLazyPropertiesStrategy(
     layerId: number,
     layerName: string,
-    traceProcessor: TraceProcessor,
     duplicateCount: number,
   ): LazyPropertiesStrategyType {
-    return async () => {
-      const data = await queryArgs(traceProcessor, argSetId);
+    return async (traceProcessor?: TraceProcessor, argSetId?: bigint) => {
+      const data = await queryArgs(
+        assertDefined(traceProcessor),
+        Number(argSetId),
+      );
       return new PropertyTreeBuilderFromProto()
         .setData(EntryHierarchyTreeFactory.LAYER_TRANSFORMER.transform(data))
         .setRootId(layerId)
@@ -435,12 +453,12 @@ export class EntryHierarchyTreeFactory {
     };
   }
 
-  private makeEntryLazyPropertiesStrategy(
-    argSetId: number,
-    traceProcessor: TraceProcessor,
-  ): LazyPropertiesStrategyType {
-    return async () => {
-      const data = await queryArgs(traceProcessor, argSetId);
+  static makeEntryLazyPropertiesStrategy(): LazyPropertiesStrategyType {
+    return async (traceProcessor?: TraceProcessor, argSetId?: bigint) => {
+      const data = await queryArgs(
+        assertDefined(traceProcessor),
+        Number(argSetId),
+      );
       return new PropertyTreeBuilderFromProto()
         .setData(EntryHierarchyTreeFactory.SNAPSHOT_TRANSFORMER.transform(data))
         .setRootId('LayerTraceEntry')
