@@ -19,7 +19,7 @@ import {QueryResult} from 'trace_processor/query_result';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {SnapshotRects} from 'parsers/surface_flinger/rect_extractor';
 import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {TraceType} from './trace_type';
+import {TraceType} from 'trace_api/trace_type';
 
 describe('TraceEntryValueBuilder', async () => {
   const mockQueryResult: QueryResult = {} as QueryResult;

@@ -16,8 +16,8 @@
 
 import {perfetto} from 'protos/perfetto/trace/static';
 import {
-    SCM_REVISION as BaseSCM_REVISION,
-    VERSION as BaseVERSION,
+  SCM_REVISION as BaseSCM_REVISION,
+  VERSION as BaseVERSION,
 } from '../../deps_build/trace_processor/ui/tsc/gen/perfetto_version';
 
 /**
