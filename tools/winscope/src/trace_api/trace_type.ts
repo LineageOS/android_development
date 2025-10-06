@@ -222,26 +222,88 @@ const TRACES_WITH_VIEWERS_DISPLAY_ORDER = [
 // TODO(b/322805621) add other traces once support is provided
 const TRACES_SUPPORTING_PLAYBACK = [TraceType.SURFACE_FLINGER];
 
+/**
+ * Checks if a given {@link TraceType} supports playback.
+ *
+ * This function is useful to determine whether a specific trace can be
+ * controlled by playback features in the Winscope UI, allowing users to
+ * navigate through the trace data over time. For example, Surface Flinger
+ * traces support playback, enabling frame-by-frame analysis.
+ *
+ * @param t The {@link TraceType} to check.
+ * @return True if the trace type supports playback, false otherwise.
+ */
 export function supportsPlayback(t: TraceType): boolean {
   return TRACES_SUPPORTING_PLAYBACK.includes(t);
 }
 
+/**
+ * Checks if a given {@link TraceType} has an associated viewer in Winscope.
+ *
+ * This function helps in organizing and displaying trace types that can be
+ * visualized within the application. Trace types without a dedicated viewer
+ * might still be loadable but won't be shown in the main viewing area.
+ *
+ * @param t The {@link TraceType} to check.
+ * @return True if the trace type has a viewer, false otherwise.
+ */
 export function isTraceTypeWithViewer(t: TraceType): boolean {
   return TRACES_WITH_VIEWERS_DISPLAY_ORDER.includes(t);
 }
 
+/**
+ * Compares two {@link TraceType} values based on their order in the
+ * `UI_PIPELINE_ORDER`.
+ *
+ * This function is used to establish a consistent ordering of trace types
+ * within the Winscope UI, reflecting the typical flow or dependency between
+ * different trace data in the system's pipeline (e.g., input events -> IME ->
+ * Window Manager -> Surface Flinger).
+ *
+ * @param t The first {@link TraceType}.
+ * @param u The second {@link TraceType}.
+ * @return True if `t` appears before `u` in the `UI_PIPELINE_ORDER`, false otherwise.
+ */
 export function compareByUiPipelineOrder(t: TraceType, u: TraceType): boolean {
   const tIndex = findIndexInOrder(t, UI_PIPELINE_ORDER);
   const uIndex = findIndexInOrder(u, UI_PIPELINE_ORDER);
   return tIndex >= 0 && uIndex >= 0 && tIndex < uIndex;
 }
 
+/**
+ * Compares two {@link TraceType} values based on their order in the
+ * `TRACES_WITH_VIEWERS_DISPLAY_ORDER`.
+ *
+ * This function is used to sort trace types that have associated viewers
+ * within the Winscope UI. It ensures a consistent and user-friendly display
+ * order for the different trace viewers, making it easier for users to
+ * navigate between them.
+ *
+ * @param t The first {@link TraceType}.
+ * @param u The second {@link TraceType}.
+ * @return A negative number if `t` comes before `u`, a positive number if `t`
+ *     comes after `u`, or 0 if they are considered equal in order.
+ */
 export function compareByDisplayOrder(t: TraceType, u: TraceType): number {
   const tIndex = findIndexInOrder(t, TRACES_WITH_VIEWERS_DISPLAY_ORDER);
   const uIndex = findIndexInOrder(u, TRACES_WITH_VIEWERS_DISPLAY_ORDER);
   return tIndex - uIndex;
 }
 
+/**
+ * Returns a human-readable string explaining why a specific {@link TraceType}
+ * cannot be visualized in Winscope.
+ *
+ * This function is used to provide feedback to the user when a trace type
+ * is uploaded but cannot be displayed in a viewer. It covers cases where
+ * a trace type requires another trace to be present (e.g., WM transitions
+ * need Shell transitions) or when visualization for a specific type is
+ * not yet supported. This helps guide the user on what might be missing
+ * or why a certain trace isn't being shown.
+ *
+ * @param t The {@link TraceType} for which to get the reason.
+ * @return A string explaining why the trace cannot be visualized.
+ */
 export function getReasonForNoTraceVisualization(t: TraceType): string {
   switch (t) {
     case TraceType.WM_TRANSITION:

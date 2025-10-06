@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket} from 'compat/perfetto_version';
 import {CoarseVersion} from './coarse_version';
 import {
   CustomQueryParamTypeMap,
@@ -68,6 +68,6 @@ export interface Parser<T> {
     sequenceId: number,
     trustedUid?: number,
     trustedPid?: number,
-  ): perfetto.protos.TracePacket[];
+  ): TracePacket[];
   isPerfetto(): boolean;
 }

@@ -22,9 +22,18 @@ import {
   CustomQueryType,
 } from 'trace_api/custom_query';
 import {Parser} from 'trace_api/parser';
-import {ParserMock} from 'trace_api/parser_mock';
+import {ParserMock} from './parser_mock';
 import {TraceType} from 'trace_api/trace_type';
 
+/**
+ * Helper class to build `ParserMock` instances for testing.
+ *
+ * This builder simplifies the creation of `ParserMock` objects by providing
+ * a fluent interface to set up different parser configurations, such as
+ * trace type, entries, timestamps, and custom query results. It also
+ * provides default values for timestamps or entries if only one is provided,
+ * making test setup more concise.
+ */
 export class ParserBuilder<T> {
   private type = TraceType.SURFACE_FLINGER;
   private entries?: T[];

@@ -15,17 +15,17 @@
  */
 
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
+import {TracePacket} from 'compat/perfetto_version';
 import {Timestamp} from 'common/time/time';
-import {perfetto} from 'protos/perfetto/trace/static';
-import {CoarseVersion} from './coarse_version';
+import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from './custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from './index_types';
-import {Parser} from './parser';
-import {TraceType} from './trace_type';
+} from 'trace_api/custom_query';
+import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
+import {Parser} from 'trace_api/parser';
+import {TraceType} from 'trace_api/trace_type';
 import {
   QueryResult,
   QueryResults,
@@ -145,6 +145,6 @@ export class ParserMock<T> implements Parser<T> {
   }
 
   convertToPerfettoPackets:
-    | ((sequenceId: number) => perfetto.protos.TracePacket[])
+    | ((sequenceId: number) => TracePacket[])
     | undefined = undefined;
 }

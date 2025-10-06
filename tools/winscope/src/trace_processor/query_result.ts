@@ -58,7 +58,7 @@ export interface RowIterator {
  * Represents the result of a database query, providing methods to access
  * the data and its metadata.
  */
-export interface QueryResult {
+export declare interface QueryResult {
   /**
    * Gets the total number of rows in the query result.
    * @return The number of rows.
@@ -112,15 +112,22 @@ export interface QueryResults<T> {
   allSnapshots: T | undefined;
 }
 
+/**
+ * Represents a query result where the raw data is received in multiple batches.
+ * This class implements `WritableQueryResult` to allow appending byte arrays
+ * as they become available. It's useful for handling large query results
+ * that are streamed or processed in chunks, providing a mechanism to wait
+ * until all batches have been received before further processing.
+ */
 export class RawDataQueryResult implements WritableQueryResult {
   batches: Uint8Array[] = [];
   private lastBatchReceived = false;
   private resolveAllBatches:
     | ((value: void | PromiseLike<void>) => void)
     | undefined;
-  private allBatchesPromise = new Promise<void>(
-    (resolve) => (this.resolveAllBatches = resolve),
-  );
+  private readonly allBatchesPromise = new Promise<void>((resolve) => {
+    this.resolveAllBatches = resolve;
+  });
 
   waitAllBatches(): Promise<RawDataQueryResult> {
     return this.allBatchesPromise.then(() => {
