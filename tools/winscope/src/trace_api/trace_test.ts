@@ -1310,7 +1310,7 @@ describe('Trace', () => {
     expect(trace.isCorrupted()).toBeFalse();
     expect(trace.getCorruptedReason()).toBeUndefined();
 
-    expectAsync(trace.getEntry(0).getValue()).toBeRejected();
+    await expectAsync(trace.getEntry(0).getValue()).toBeRejected();
     try {
       await trace.getEntry(0).getValue();
     } catch (e) {

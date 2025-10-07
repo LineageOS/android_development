@@ -483,7 +483,10 @@ describe('FrameMapper', () => {
       async function getExpectedFrameMap(
         expected: Array<[number[], number]>,
       ): Promise<Map<AbsoluteFrameIndex, Map<TraceType, Array<{}>>>> {
-        const expectedFrames = new Map();
+        const expectedFrames = new Map<
+          AbsoluteFrameIndex,
+          Map<TraceType, Array<{}>>
+        >();
         for (const [
           frameIndex,
           [traceIndexes, sfIndex],
