@@ -21,7 +21,7 @@ import {
   PropertyFormatter,
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
-import {CujType} from './cuj_type';
+import {CUJ_TYPE} from './cuj_type';
 
 const EMPTY_OBJ_STRING = '{empty}';
 const EMPTY_ARRAY_STRING = '[empty]';
@@ -89,8 +89,8 @@ class CujTypeFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
     const cujTypeId: string = `${node.getValue()}`;
     let cujTypeString: string | undefined;
-    if (cujTypeId in CujType) {
-      cujTypeString = CujType[cujTypeId as keyof typeof CujType];
+    if (cujTypeId in CUJ_TYPE) {
+      cujTypeString = CUJ_TYPE[cujTypeId as keyof typeof CUJ_TYPE];
     } else {
       cujTypeString = 'UNKNOWN';
     }

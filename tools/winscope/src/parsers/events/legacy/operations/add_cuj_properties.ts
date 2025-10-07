@@ -17,7 +17,7 @@
 import {assertDefined} from 'common/assert';
 import {isNumeric} from 'common/string_helpers';
 import {EventTag} from 'parsers/events/legacy/event_tag';
-import {CujType} from 'trace/cuj_type';
+import {CUJ_TYPE} from 'trace/cuj_type';
 import {AddOperation} from 'tree_node/add_operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
@@ -90,7 +90,7 @@ export class AddCujProperties extends AddOperation<PropertyTreeNode> {
 
   private getCujTypeFromData(dataEntries: string[]): number {
     const eventId = Number(dataEntries[0]);
-    if (eventId in CujType) {
+    if (eventId in CUJ_TYPE) {
       return eventId;
     }
     return -1;

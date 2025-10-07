@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import {INTDEF_MAPPING_JSON} from 'compat/intdef_mapping';
+import intDefMapping from 'common/intDefMapping.json';
 
-/**
- * Provides access to the values defined in `com.android.internal.jank.Cuj.CujType`.
- * This is used to map integer values found in traces to human-readable CUJ type names,
- * which is essential for understanding and analyzing jank traces within Winscope.
+/*
+ * Wrapper for IntDef json file for easier interop with google3
  */
-export const CUJ_TYPE =
-  INTDEF_MAPPING_JSON['com.android.internal.jank.Cuj.CujType'].values;
+const INTDEF_MAPPING_JSON = intDefMapping;
+
+export {INTDEF_MAPPING_JSON};
