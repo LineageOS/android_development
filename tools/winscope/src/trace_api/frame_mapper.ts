@@ -34,7 +34,7 @@ export class FrameMapper {
   /** Value used to narrow time-based searches of corresponding trace entries */
   private static readonly MAX_UI_PIPELINE_LATENCY_NS = 2000000000n; // 2 seconds
 
-  constructor(private traces: Traces) {}
+  constructor(private readonly traces: Traces) {}
 
   async computeMapping() {
     this.pickMostReliableTraceAndSetInitialFrameInfo();
