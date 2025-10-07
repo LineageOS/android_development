@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TraceType} from 'trace_api/trace_type';
+
 /** An identifier for a test artifact. */
 export declare interface ArtifactIdentifier {
   name: string;
@@ -26,4 +28,8 @@ export declare interface RequestData {
   testMode?: boolean;
   origin?: string; // For tracking the origin of the request.
   useBetaWinscope?: boolean;
+  searchQueries?: string[];
+  timestamp?: string;
+  traceType?: TraceType;
+  bookmarks?: string[];
 }

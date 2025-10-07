@@ -82,6 +82,8 @@ import {
   TabbedViewSwitchRequest,
   TraceRemoveRequest,
   TraceSearchRequest,
+  ActiveSearchQueriesUpdate,
+  BookmarksChanged,
 } from 'messaging/winscope_event';
 
 /**
@@ -109,6 +111,7 @@ export class Mediator {
   private lastRemoteToolDeferredTimestampReceived?: () => Timestamp | undefined;
   private currentProgressListener?: ProgressListener;
   private screenRecordingTrace?: Trace<MediaBasedTraceEntry>;
+  private activeSearchQueries: string[] = [];
 
   constructor(
     tracePipeline: TracePipeline,
@@ -327,6 +330,7 @@ export class Mediator {
         }
         await this.propagateTracePosition(event.position, false);
         UserNotifier.notify();
+        await this.appComponent.onWinscopeEvent(event);
       },
     );
 
@@ -355,6 +359,7 @@ export class Mediator {
             await viewer.onWinscopeEvent(event);
           }
           await this.timelineComponent?.onWinscopeEvent(event);
+          await this.appComponent.onWinscopeEvent(event);
         }
       },
     );
@@ -484,6 +489,33 @@ export class Mediator {
         this.handlePlaybackSpeedChange(event);
       },
     );
+
+    await event.visit(
+      WinscopeEventType.BOOKMARKS_CHANGED,
+      async (event: BookmarksChanged) => {
+        await this.appComponent.onWinscopeEvent(event);
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE,
+      async (event: ActiveSearchQueriesUpdate) => {
+        this.activeSearchQueries = event.queries;
+        await this.appComponent.onWinscopeEvent(event);
+      },
+    );
+  }
+
+  getActiveSearchQueries(): string[] {
+    return this.activeSearchQueries;
+  }
+
+  getActiveTraceType(): TraceType | undefined {
+    return this.focusedTabView?.traces[0]?.type;
+  }
+
+  getCurrentTimestamp(): Timestamp | undefined {
+    return this.timelineData.getCurrentPosition()?.timestamp;
   }
 
   private async loadFiles(files: File[], source: FilesSource) {

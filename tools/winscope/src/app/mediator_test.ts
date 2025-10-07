@@ -31,6 +31,7 @@ import {
   NoValidFiles,
 } from 'messaging/user_warnings';
 import {
+  ActiveSearchQueriesUpdate,
   ActiveTraceChanged,
   AppFilesCollected,
   AppFilesUploaded,
@@ -39,6 +40,7 @@ import {
   AppResetRequest,
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
+  BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
   DarkModeToggled,
@@ -944,6 +946,21 @@ describe('Mediator', () => {
       expect(viewerStub0.onWinscopeEvent).not.toHaveBeenCalled();
       expect(viewerStub1.onWinscopeEvent).not.toHaveBeenCalled();
     });
+  });
+
+  it('notifies app component of bookmarks changed', async () => {
+    const event = new BookmarksChanged([]);
+    await mediator.onWinscopeEvent(event);
+    expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(event);
+  });
+
+  it('notifies app component of active search queries update and updates its internal state', async () => {
+    const queries = ['query1', 'query2'];
+    const event = new ActiveSearchQueriesUpdate(queries);
+    expect(mediator.getActiveSearchQueries()).toEqual([]);
+    await mediator.onWinscopeEvent(event);
+    expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(event);
+    expect(mediator.getActiveSearchQueries()).toEqual(queries);
   });
 
   async function loadFiles(files = inputFiles) {

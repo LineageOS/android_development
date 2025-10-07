@@ -41,6 +41,7 @@ import {
 } from 'viewers/common/viewer_events';
 import {SearchResultPresenter} from './search_result_presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
+import {ActiveSearchQueriesUpdate} from 'messaging/winscope_event';
 
 interface ActiveSearch {
   search: CurrentSearch;
@@ -213,6 +214,13 @@ export class Presenter {
 
   private updateCurrentSearches() {
     this.uiData.currentSearches = this.activeSearches.map((a) => a.search);
+    this.emitWinscopeEvent(
+      new ActiveSearchQueriesUpdate(
+        this.uiData.currentSearches
+          .map((s) => s.query)
+          .filter((q) => q !== undefined) as string[],
+      ),
+    );
     this.copyUiDataAndNotifyView();
   }
 

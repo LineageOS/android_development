@@ -65,6 +65,8 @@ export enum WinscopeEventType {
   PLAYBACK_SPEED_CHANGE,
   SCREEN_RECORDING_CHANGE,
   PLAYBACK_STATE_CHANGE_PROPAGATE,
+  ACTIVE_SEARCH_QUERIES_UPDATE,
+  BOOKMARKS_CHANGED,
 }
 
 interface TypeMap {
@@ -104,6 +106,8 @@ interface TypeMap {
   [WinscopeEventType.PLAYBACK_SPEED_CHANGE]: PlaybackSpeedChange;
   [WinscopeEventType.SCREEN_RECORDING_CHANGE]: ScreenRecordingChange;
   [WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE]: PlaybackStateChangePropagate;
+  [WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE]: ActiveSearchQueriesUpdate;
+  [WinscopeEventType.BOOKMARKS_CHANGED]: BookmarksChanged;
 }
 
 /**
@@ -565,5 +569,24 @@ export class PlaybackStateChangePropagate extends WinscopeEvent {
     this.state = state;
     this.currentTraceIndex = currentTraceIndex;
     this.traceGeometryData = traceGeometryData;
+  }
+}
+
+/**
+ * An event for when the active search queries have been updated.
+ */
+export class ActiveSearchQueriesUpdate extends WinscopeEvent {
+  override readonly type = WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE;
+
+  constructor(readonly queries: string[]) {
+    super();
+  }
+}
+
+export class BookmarksChanged extends WinscopeEvent {
+  override readonly type = WinscopeEventType.BOOKMARKS_CHANGED;
+
+  constructor(readonly bookmarks: Timestamp[]) {
+    super();
   }
 }
