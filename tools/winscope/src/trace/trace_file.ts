@@ -16,6 +16,14 @@
 
 import {removeDirFromFileName} from 'common/io';
 
+/**
+ * Represents a trace file loaded into Winscope.
+ *
+ * This class wraps a standard `File` object, providing additional context
+ * such as whether the file was extracted from a larger archive. It's useful
+ * for managing and displaying trace files, especially when multiple traces
+ * might originate from a single source (e.g., a bug report zip).
+ */
 export class TraceFile {
   constructor(
     public file: File,
