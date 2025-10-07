@@ -65,6 +65,7 @@ import {
   TabbedViewSwitched,
   PlaybackStateChangeRequest,
   PlaybackSpeedChange,
+  BookmarksChanged,
 } from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -1118,11 +1119,13 @@ export class TimelineComponent
         ).makeTimestampFromNs(clickedNs),
       ]);
     }
+    this.emitEvent(new BookmarksChanged(this.bookmarks));
     Analytics.Navigation.logTimeBookmark();
   }
 
   removeAllBookmarks() {
     this.bookmarks = [];
+    this.emitEvent(new BookmarksChanged(this.bookmarks));
   }
 
   async onMiniTimelineTraceClicked(eventData: [Trace<object>, Timestamp]) {

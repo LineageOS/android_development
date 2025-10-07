@@ -56,11 +56,17 @@ import {
 } from 'messaging/user_warnings';
 import {
   AppRefreshDumpsRequest,
+  BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
+  TabbedViewSwitchRequest,
+  TracePositionUpdate,
+  TraceSearchRequest,
   ViewersLoaded,
   ViewersUnloaded,
 } from 'messaging/winscope_event';
+import {TraceType} from 'trace_api/trace_type';
+import {View, Viewer, ViewType} from 'viewers/viewer';
 import {UserNotifier} from 'services/user_notifier';
 import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {UTC_CONVERTER} from 'test/unit/time_test_helpers';
@@ -665,6 +671,158 @@ describe('AppComponent', () => {
         const copyButton = dom.getInDocument('.share-link-container button');
         copyButton.checkDisabled(true);
       });
+    });
+  });
+
+  describe('processRequestData', () => {
+    let getReportedRequestSpy: jasmine.Spy;
+    let onWinscopeEventSpy: jasmine.Spy;
+
+    beforeEach(() => {
+      component.dataLoaded = true;
+      component.showDataLoadedElements = true;
+      getReportedRequestSpy = spyOn(
+        component,
+        'getReportedRequest',
+      ).and.returnValue(undefined);
+      onWinscopeEventSpy = spyOn(
+        component.mediator,
+        'onWinscopeEvent',
+      ).and.callThrough();
+    });
+
+    it('processes bookmarks', async () => {
+      component.timelineData.initialize(
+        new TracesBuilder().build(),
+        undefined,
+        UTC_CONVERTER,
+      );
+      dom.detectChanges();
+      const request: RequestData = {
+        artifacts: [],
+        bookmarks: ['10', '20'],
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      await component.onWinscopeEvent(new ViewersLoaded([]));
+
+      const bookmarksChangedEvent = onWinscopeEventSpy.calls
+        .all()
+        .find((call) => call.args[0] instanceof BookmarksChanged)
+        ?.args[0] as BookmarksChanged;
+      expect(bookmarksChangedEvent).toBeInstanceOf(BookmarksChanged);
+      expect(bookmarksChangedEvent.bookmarks.length).toEqual(2);
+      expect(bookmarksChangedEvent.bookmarks[0].getValueNs()).toEqual(10n);
+      expect(bookmarksChangedEvent.bookmarks[1].getValueNs()).toEqual(20n);
+      expect(component.timelineComponent?.bookmarks.length).toEqual(2);
+    });
+
+    it('processes timestamp', async () => {
+      const traces = new TracesBuilder()
+        .setTimestamps(TraceType.SURFACE_FLINGER, [
+          UTC_CONVERTER.makeTimestampFromNs(10n),
+        ])
+        .build();
+      component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      dom.detectChanges();
+      component.timelineData.trySetActiveTrace(
+        assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER)),
+      );
+
+      const request: RequestData = {
+        artifacts: [],
+        timestamp: '15',
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      await component.onWinscopeEvent(new ViewersLoaded([]));
+
+      const tracePositionUpdateEvent = onWinscopeEventSpy.calls
+        .all()
+        .find((call) => call.args[0] instanceof TracePositionUpdate)
+        ?.args[0] as TracePositionUpdate;
+      expect(tracePositionUpdateEvent).toBeInstanceOf(TracePositionUpdate);
+      expect(tracePositionUpdateEvent.position.timestamp.getValueNs()).toEqual(
+        15n,
+      );
+      expect(tracePositionUpdateEvent.updateTimeline).toBeTrue();
+    });
+
+    it('processes search queries', async () => {
+      spyOn(component.tracePipeline, 'tryCreateSearchTrace').and.resolveTo(
+        undefined,
+      );
+      spyOn(UserNotifier, 'add');
+      component.timelineData.initialize(
+        new TracesBuilder().build(),
+        undefined,
+        UTC_CONVERTER,
+      );
+      dom.detectChanges();
+      const request: RequestData = {
+        artifacts: [],
+        searchQueries: ['query1', 'query2'],
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      await component.onWinscopeEvent(new ViewersLoaded([]));
+
+      const searchRequests = onWinscopeEventSpy.calls
+        .all()
+        .filter((call) => call.args[0] instanceof TraceSearchRequest);
+      expect(searchRequests.length).toEqual(2);
+      expect(searchRequests[0].args[0].query).toEqual('query1');
+      expect(searchRequests[1].args[0].query).toEqual('query2');
+      expect(
+        component.tracePipeline.tryCreateSearchTrace,
+      ).toHaveBeenCalledTimes(2);
+      expect(component.tracePipeline.tryCreateSearchTrace).toHaveBeenCalledWith(
+        'query1',
+      );
+      expect(component.tracePipeline.tryCreateSearchTrace).toHaveBeenCalledWith(
+        'query2',
+      );
+    });
+
+    it('processes trace type to switch view', async () => {
+      const traces = new TracesBuilder()
+        .setEntries(TraceType.SURFACE_FLINGER, [])
+        .build();
+      const trace = assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER));
+      spyOn(component.tracePipeline, 'getTraces').and.returnValue(traces);
+
+      component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      dom.detectChanges();
+      const request: RequestData = {
+        artifacts: [],
+        traceType: TraceType.SURFACE_FLINGER,
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      const mockView: View = {
+        title: 'Mock View',
+        type: ViewType.TRACE_TAB,
+        traces: [trace],
+        htmlElement: document.createElement('div'),
+      };
+      const mockViewer = {
+        getViews: () => [mockView],
+        getTraces: () => [trace],
+        onWinscopeEvent: jasmine.createSpy(),
+        setEmitEvent: jasmine.createSpy(),
+        getName: () => 'MockViewer',
+      } as unknown as Viewer;
+
+      await component.onWinscopeEvent(new ViewersLoaded([mockViewer]));
+
+      const switchRequest = onWinscopeEventSpy.calls
+        .all()
+        .find((call) => call.args[0] instanceof TabbedViewSwitchRequest)
+        ?.args[0] as TabbedViewSwitchRequest;
+      expect(switchRequest).toBeInstanceOf(TabbedViewSwitchRequest);
+      expect(switchRequest.newActiveTrace.type).toEqual(
+        TraceType.SURFACE_FLINGER,
+      );
     });
   });
 

@@ -207,8 +207,8 @@ describe('PresenterSearch', () => {
       query,
       makeEmptyTrace(TraceType.SEARCH, [query]),
     );
-    emitEventSpy.calls.reset();
     presenter.addSearch();
+    emitEventSpy.calls.reset();
     await runSearchWithNoRowsAndCheckUiData(
       query,
       makeEmptyTrace(TraceType.SEARCH, [query]),
