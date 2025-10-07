@@ -30,11 +30,8 @@ import {Parser} from 'trace_api/parser';
 import {TraceMetadata} from 'trace_api/trace_metadata';
 import {TraceType} from 'trace_api/trace_type';
 import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
-import {
-  QueryResult,
-  QueryResults,
-  RawDataQueryResult,
-} from 'trace_processor/query_result';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 
 export abstract class AbstractParser<
   T extends object,

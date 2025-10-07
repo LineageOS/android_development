@@ -35,7 +35,7 @@ import {CornerRadii} from 'common/geometry/corner_radii';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
-import {RawDataQueryResult} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 
 type EagerTraceEntry<T = HierarchyTreeNode> = TraceEntryEager<T, T | undefined>;
 
@@ -458,7 +458,7 @@ export class PlaybackPresenter {
             this.workerPromiseRejecter = reject;
 
             const snapshotResults = queryResults.snapshotRange;
-            const layersResults = queryResults.layersRange;
+            const layersResults = queryResults.nodeRange;
 
             if (
               !(

@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {WritableQueryResult} from './perfetto/query_result';
-import protobuf from 'protobufjs/minimal';
-import {assertTrue} from 'common/assert';
 
 /**
  * Represents the possible data types for a column in a query result.
@@ -92,14 +89,14 @@ export declare interface QueryResult {
  */
 export declare interface QueryResults<T> {
   /**
-   * The result of a query for a snapshot range.
+   * The result of a query for a node range.
    */
-  snapshotRange: T;
+  nodeRange: T;
 
   /**
-   * The result of a query for a layers range.
+   * The result of a query for a snapshot range.
    */
-  layersRange: T;
+  snapshotRange: T | undefined;
 
   /**
    * The result of a query for all visible rectangles, or undefined if not available.
@@ -110,77 +107,4 @@ export declare interface QueryResults<T> {
    * The result of a query for all snapshots, or undefined if not available.
    */
   allSnapshots: T | undefined;
-}
-
-/**
- * Represents a query result where the raw data is received in multiple batches.
- * This class implements `WritableQueryResult` to allow appending byte arrays
- * as they become available. It's useful for handling large query results
- * that are streamed or processed in chunks, providing a mechanism to wait
- * until all batches have been received before further processing.
- */
-export class RawDataQueryResult implements WritableQueryResult {
-  batches: Uint8Array[] = [];
-  private lastBatchReceived = false;
-  private resolveAllBatches:
-    | ((value: void | PromiseLike<void>) => void)
-    | undefined;
-  private readonly allBatchesPromise = new Promise<void>((resolve) => {
-    this.resolveAllBatches = resolve;
-  });
-
-  waitAllBatches(): Promise<RawDataQueryResult> {
-    return this.allBatchesPromise.then(() => {
-      return this;
-    });
-  }
-
-  appendResultBatch(resBytes: Uint8Array): void {
-    this.batches.push(resBytes);
-    // We need to do enough decoding to determine if this is the last batch
-    const reader = protobuf.Reader.create(resBytes);
-    assertTrue(reader.pos === 0);
-    while (reader.pos < reader.len) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 3: {
-          const batchLen = reader.uint32();
-          const batchRaw = resBytes.subarray(reader.pos, reader.pos + batchLen);
-          reader.pos += batchLen;
-          this.lastBatchReceived = this.extractIsLastBatch(batchRaw);
-          break;
-        }
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    if (this.lastBatchReceived && this.resolveAllBatches !== undefined) {
-      this.resolveAllBatches();
-    }
-  }
-
-  isComplete(): boolean {
-    return this.lastBatchReceived;
-  }
-
-  private extractIsLastBatch(batchBytes: Uint8Array) {
-    const reader = protobuf.Reader.create(batchBytes);
-    assertTrue(reader.pos === 0);
-    const end = reader.len;
-    let result = false;
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 6:
-          result = !!reader.bool();
-          break;
-
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return result;
-  }
 }
