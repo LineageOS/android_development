@@ -804,6 +804,7 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         "Apache-2.0 AND BSD-3-Clause" => vec!["Apache-2.0", "BSD-3-Clause"],
 
         // Other cases.
+        "MIT OR BSD-3-Clause" => vec!["MIT"],
         "MIT OR LGPL-3.0-or-later" => vec!["MIT"],
         "MIT/BSD-3-Clause" => vec!["MIT"],
         "MIT AND (MIT OR Apache-2.0)" => vec!["MIT"],
