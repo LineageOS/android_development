@@ -23,7 +23,7 @@ import {
   makeElapsedTimestamp,
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';

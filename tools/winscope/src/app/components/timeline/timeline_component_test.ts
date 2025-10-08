@@ -55,7 +55,7 @@ import {
 import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';

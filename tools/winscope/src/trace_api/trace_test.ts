@@ -27,7 +27,7 @@ import {
   extractFrames,
   extractTimestamps,
   makeEmptyTrace,
-} from 'test/unit/trace_utils';
+} from 'test/unit/trace_test_helpers';
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';
 import {Trace} from './trace';
