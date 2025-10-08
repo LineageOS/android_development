@@ -15,10 +15,12 @@
  */
 
 import {perfetto} from 'protos/perfetto/trace/static';
+/* eslint-disable no-restricted-imports */
 import {
   SCM_REVISION as BaseSCM_REVISION,
   VERSION as BaseVERSION,
 } from '../../deps_build/trace_processor/ui/tsc/gen/perfetto_version';
+/* eslint-enable */
 
 /**
  * The version string of the Perfetto build or compatible version.

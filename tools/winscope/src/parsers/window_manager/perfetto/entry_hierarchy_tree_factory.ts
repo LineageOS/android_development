@@ -122,13 +122,11 @@ function makeEntryProperties(
   snapshotResult: RowIterator,
   traceProcessor: TraceProcessor,
 ): PropertiesProvider {
-  const focusedDisplayId = assertDefined(
-    snapshotResult.get('focused_display_id'),
-  );
-  const eagerProperties = new PropertyTreeBuilderFromProto()
-    .setData({focusedDisplayId})
+  const eagerProperties = new PropertyTreeBuilderFromQueryRow()
+    .setData(snapshotResult)
     .setRootId('WindowManagerState')
     .setRootName('root')
+    .setColumns(['focused_display_id'])
     .build();
   const argSetId = assertDefined(snapshotResult.get('snapshot_arg_set_id'));
   const operations = assertDefined(

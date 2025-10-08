@@ -204,11 +204,11 @@ export class EntryHierarchyTreeFactory {
     snapshotResult: RowIterator,
     traceProcessor: TraceProcessor | undefined,
   ): PropertiesProvider {
-    const argSetId = assertBigInt(snapshotResult.get('arg_set_id'));
-    const eagerProperties = new PropertyTreeBuilderFromProto()
-      .setData({argSetId})
+    const eagerProperties = new PropertyTreeBuilderFromQueryRow()
+      .setData(snapshotResult)
       .setRootId('LayerTraceEntry')
       .setRootName('root')
+      .setColumns(['arg_set_id'])
       .build();
     const entryProps = new PropertiesProviderBuilder()
       .setEagerProperties(eagerProperties)
