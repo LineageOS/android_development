@@ -31,11 +31,8 @@ import {Parser} from 'trace_api/parser';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {TraceProcessor} from 'trace_processor/trace_processor';
-import {
-  QueryResult,
-  QueryResults,
-  RawDataQueryResult,
-} from 'trace_processor/query_result';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
   protected traceProcessor: TraceProcessor;

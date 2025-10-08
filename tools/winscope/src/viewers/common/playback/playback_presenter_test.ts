@@ -31,11 +31,8 @@ import {
 import {PlaybackState} from './playback_state';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {assertDefined} from 'common/assert';
-import {
-  RawDataQueryResult,
-  QueryResult,
-  QueryResults,
-} from 'trace_processor/query_result';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
@@ -93,7 +90,7 @@ describe('PlaybackPresenter', () => {
     spyOn(trace, 'getQueryResults').and.callFake(async () => {
       return Promise.resolve({
         snapshotRange: new RawDataQueryResult(),
-        layersRange: new RawDataQueryResult(),
+        nodeRange: new RawDataQueryResult(),
         allVisibleRects: undefined,
         allSnapshots: undefined,
       } as QueryResults<QueryResult | RawDataQueryResult>);
