@@ -33,18 +33,19 @@ import {
   QueryResult,
   RowIterator,
 } from 'trace_processor/query_result';
-import {extractAllRects, SnapshotRects} from './rect_extractor';
+import {extractAllRects} from './rect_extractor';
 import {
   makeEntryHierarchyTrees,
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
+import {RectsForTrace} from 'parsers/snapshot_rects_map';
 
 /**
  * Parser for WindowManager Perfetto traces.
  */
 export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
-  private visibleAndDisplayRects: Map<bigint, SnapshotRects> | undefined;
+  private visibleAndDisplayRects: RectsForTrace | undefined;
 
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;
@@ -124,9 +125,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
       .getResult();
   }
 
-  private async fetchAllVisibleAndDisplayRects(): Promise<
-    Map<bigint, SnapshotRects>
-  > {
+  private async fetchAllVisibleAndDisplayRects(): Promise<RectsForTrace> {
     if (this.visibleAndDisplayRects === undefined) {
       const visibleRectsResult = await this.queryAllVisibleAndDisplayRects();
       this.visibleAndDisplayRects = extractAllRects(

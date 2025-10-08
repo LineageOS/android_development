@@ -25,7 +25,7 @@ import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {ContainerType} from './container_type';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {extractRect, SnapshotRects} from './rect_extractor';
+import {extractRect} from './rect_extractor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRect} from 'tree_node/trace_rect';
 import {queryArgs} from 'parsers/perfetto/utils';
@@ -36,13 +36,14 @@ import {TraceProcessor} from 'trace_processor/trace_processor';
 import {WM_OPERATION_LISTS} from './operations/operation_lists';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
+import {RectsForTrace} from 'parsers/snapshot_rects_map';
 
 /**
  * Creates HierarchyTreeNode objects for a WM trace.
  */
 export function makeEntryHierarchyTrees(
   containersResult: QueryResult,
-  visibleRects: Map<bigint, SnapshotRects>,
+  visibleRects: RectsForTrace,
   traceProcessor: TraceProcessor | undefined,
   traceGeometryData: TraceGeometryData,
 ): HierarchyTreeNode[] {
@@ -73,7 +74,8 @@ export function makeEntryHierarchyTrees(
     }
 
     const token = assertBigInt(it.get('token'));
-    const visibleRect = visibleRects?.get(snapshotId)?.get(token);
+    const nodeRect = visibleRects?.get(snapshotId)?.get(token);
+    const visibleRect = nodeRect?.primaryRects[0];
 
     const {container, rect} = makeContainerAndRect(
       it,
