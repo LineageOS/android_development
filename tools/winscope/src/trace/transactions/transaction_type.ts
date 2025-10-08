@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the different types of transactions that can occur within the system.
+ * These transactions describe changes to displays or layers, such as creation,
+ * destruction, or property updates. This enum is useful for categorizing and
+ * filtering transaction traces in tools like Winscope.
+ */
 export enum TransactionType {
   DISPLAY_ADDED = 'DISPLAY_ADDED',
   DISPLAY_REMOVED = 'DISPLAY_REMOVED',

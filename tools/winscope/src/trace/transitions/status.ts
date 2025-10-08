@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the status of a shell transition.
+ *
+ * This enum is used to categorize the outcome of a transition, indicating
+ * whether it was aborted, merged with another transition, or played out
+ * successfully.
+ */
 export enum TransitionStatus {
   ABORTED = 'ABORTED',
   MERGED = 'MERGED',

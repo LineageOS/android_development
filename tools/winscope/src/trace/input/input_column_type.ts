@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the different types of columns available in an input trace table.
+ * These columns help categorize and display various properties of input events,
+ * such as the event type, source device, action performed, and associated windows.
+ */
 export enum InputColumnType {
   EVENT_TYPE,
   SOURCE,

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the composition type of a SurfaceFlinger layer.
+ *
+ * This enum distinguishes whether a layer is composed by the Hardware Composer (HWC)
+ * or by the GPU. Understanding the composition type is useful for analyzing
+ * performance and power consumption in SurfaceFlinger traces.
+ */
 export enum LayerCompositionType {
   HWC,
   GPU,

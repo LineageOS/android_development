@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Represents special types of windows within the Window Manager trace.
+ * These types are used to categorize windows that are in a particular state
+ * or serve a specific purpose, such as starting, exiting, or waiting for a debugger.
+ */
 export enum WindowType {
   UNKNOWN = 0,
   STARTING = 1,
@@ -21,6 +26,11 @@ export enum WindowType {
   DEBUGGER = 3,
 }
 
+/**
+ * Provides string prefixes associated with certain WindowType values.
+ * These prefixes are useful for identifying or displaying information
+ * about windows of a specific type in the Winscope UI.
+ */
 export enum WindowTypePrefix {
   STARTING = 'Starting ',
   DEBUGGER = 'Waiting For Debugger: ',
