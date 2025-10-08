@@ -15,7 +15,7 @@
  */
 
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Trace} from 'trace_api/trace';
+import {Trace, TraceEntry} from 'trace_api/trace';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {
   PlaybackStateChangeHandled,
@@ -176,13 +176,14 @@ export class PlaybackPresenter {
       new PlaybackStateChangeHandled(this.currPlaybackState, this.trace.type),
     );
 
-    let finalEntryForPositionUpdate;
-
+    let finalEntryForPositionUpdate:
+      | EagerTraceEntry<MediaBasedTraceEntry>
+      | TraceEntry<HierarchyTreeNode>;
     if (this.allScreenRecordingEntries) {
       finalEntryForPositionUpdate =
         this.allScreenRecordingEntries[this.entryIndex];
     } else {
-      finalEntryForPositionUpdate = await this.trace.getEntry(this.entryIndex);
+      finalEntryForPositionUpdate = this.trace.getEntry(this.entryIndex);
     }
 
     if (finalEntryForPositionUpdate) {
@@ -196,9 +197,7 @@ export class PlaybackPresenter {
   }
 
   private async runPlaybackLoop() {
-    let lastEntry:
-      | TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
-      | undefined;
+    let lastEntry: EagerTraceEntry<HierarchyTreeNode> | undefined;
 
     while (this.currPlaybackState !== PlaybackState.PAUSED) {
       const bufferIndex = this.entryIndex - this.activeBufferStartIndex;
