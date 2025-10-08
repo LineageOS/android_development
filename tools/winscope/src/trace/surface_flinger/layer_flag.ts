@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the flags associated with a SurfaceFlinger layer.
+ * These flags are used to define various properties and behaviors of a layer,
+ * such as visibility, opacity, security, and how it interacts with screenshots
+ * and display composition.
+ */
 export enum LayerFlag {
   HIDDEN = 0x01,
   OPAQUE = 0x02,

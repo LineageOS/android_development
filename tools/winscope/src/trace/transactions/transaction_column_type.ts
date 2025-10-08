@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the different types of columns available when displaying transaction trace data.
+ * Each enum value corresponds to a specific piece of information about a transaction,
+ * such as its ID, VSYNC ID, process ID, or layer/display ID.
+ */
 export enum TransactionColumnType {
   TRANSACTION_ID,
   VSYNC_ID,

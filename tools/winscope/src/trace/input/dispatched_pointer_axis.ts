@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the axis of a dispatched pointer event.
+ * This enum is used to distinguish between the X and Y axes when analyzing
+ * pointer dispatch information in traces.
+ */
 export enum DispatchedPointerAxis {
   X = 0,
   Y = 1,
