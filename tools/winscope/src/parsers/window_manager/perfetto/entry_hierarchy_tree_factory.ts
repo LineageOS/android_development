@@ -43,7 +43,7 @@ import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
 export function makeEntryHierarchyTrees(
   containersResult: QueryResult,
   visibleRects: Map<bigint, SnapshotRects>,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
   traceGeometryData: TraceGeometryData,
 ): HierarchyTreeNode[] {
   const trees: HierarchyTreeNode[] = [];
@@ -120,7 +120,7 @@ export function makeTreeNodeName(row: RowIterator): string {
 
 function makeEntryProperties(
   snapshotResult: RowIterator,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
 ): PropertiesProvider {
   const eagerProperties = new PropertyTreeBuilderFromQueryRow()
     .setData(snapshotResult)
@@ -134,21 +134,24 @@ function makeEntryProperties(
   );
   const entryProps = new PropertiesProviderBuilder()
     .setEagerProperties(eagerProperties)
-    .setLazyPropertiesStrategy(
-      makeEntryLazyPropertiesStrategy(Number(argSetId), traceProcessor),
-    )
-    .setLazyOperations(operations.lazy)
-    .build();
+    .setLazyOperations(operations.lazy);
 
-  return entryProps;
+  if (traceProcessor) {
+    entryProps
+      .setLazyPropertiesStrategy(
+        makeEntryLazyPropertiesStrategy(Number(argSetId), traceProcessor),
+      )
+      .setTraceProcessor(traceProcessor);
+  }
+  return entryProps.build();
 }
 
 function makeEntryLazyPropertiesStrategy(
   argSetId: number,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(traceProcessor, argSetId);
+    const data = await queryArgs(assertDefined(traceProcessor), argSetId);
     return new PropertyTreeBuilderFromProto()
       .setData(ENTRY_TRANSFORMER.transform(data))
       .setRootId('WindowManager')
@@ -162,7 +165,7 @@ function makeContainerAndRect(
   row: RowIterator,
   traceGeometryData: TraceGeometryData,
   visibleRect: TraceRect | undefined,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
 ): {container: PropertiesProvider; rect: TraceRect | undefined} {
   const container = makeContainerPropertyProvider(row, traceProcessor);
   const properties = container.getEagerProperties();
@@ -174,7 +177,7 @@ function makeContainerAndRect(
 
 function makeContainerPropertyProvider(
   row: RowIterator,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
 ): PropertiesProvider {
   const rootId = makeTreeNodeId(row);
   const rootName = makeTreeNodeName(row);
@@ -186,25 +189,30 @@ function makeContainerPropertyProvider(
   );
 
   const argSetId = assertBigInt(row.get('arg_set_id'));
-  const lazyPropertiesStrategy = makeContainerLazyPropertiesStrategy(
-    Number(argSetId),
-    rootId,
-    rootName,
-    traceProcessor,
-  );
 
   const containerType = assertString(
     row.get('container_type'),
   ) as ContainerType;
   const operations = assertDefined(WM_OPERATION_LISTS.get(containerType));
 
-  return new PropertiesProviderBuilder()
+  const propertiesBuilder = new PropertiesProviderBuilder()
     .setEagerProperties(eagerProperties)
-    .setLazyPropertiesStrategy(lazyPropertiesStrategy)
     .setCommonOperations(operations.common)
     .setEagerOperations(operations.eager)
-    .setLazyOperations(operations.lazy)
-    .build();
+    .setLazyOperations(operations.lazy);
+
+  if (traceProcessor) {
+    const lazyPropertiesStrategy = makeContainerLazyPropertiesStrategy(
+      Number(argSetId),
+      rootId,
+      rootName,
+      traceProcessor,
+    );
+    propertiesBuilder
+      .setLazyPropertiesStrategy(lazyPropertiesStrategy)
+      .setTraceProcessor(traceProcessor);
+  }
+  return propertiesBuilder.build();
 }
 
 function makeContainerEagerPropertiesTree(
@@ -233,10 +241,10 @@ function makeContainerLazyPropertiesStrategy(
   argSetId: number,
   rootId: string,
   rootName: string,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(traceProcessor, argSetId);
+    const data = await queryArgs(assertDefined(traceProcessor), argSetId);
     return new PropertyTreeBuilderFromProto()
       .setData(CONTAINER_TRANSFORMER.transform(data))
       .setRootId(rootId)

@@ -1157,7 +1157,7 @@ export class TimelineComponent
   }
 
   private traceSupportsPlayback() {
-    if (!this.currentTabTraceType) {
+    if (this.currentTabTraceType === undefined) {
       return false;
     }
     if (globalConfig.MODE === 'PROD') return false;
@@ -1180,7 +1180,7 @@ export class TimelineComponent
   private getPlaybackStartingPosition() {
     const timelineData = assertDefined(this.timelineData);
 
-    if (!this.currentTabTraceType) {
+    if (this.currentTabTraceType === undefined) {
       return;
     }
 

@@ -28,7 +28,11 @@ import {
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
+import {
+  QueryResults,
+  QueryResult,
+  RowIterator,
+} from 'trace_processor/query_result';
 import {extractAllRects, SnapshotRects} from './rect_extractor';
 import {
   makeEntryHierarchyTrees,
@@ -59,6 +63,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
     const containersResult = await this.queryRangeContainersAndRects(
       snapshotStart,
       snapshotEnd,
+      false,
     );
     const visibleAndDisplayRects = await this.fetchAllVisibleAndDisplayRects();
     return makeEntryHierarchyTrees(
@@ -67,6 +72,26 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
       this.traceProcessor,
       assertDefined(this.traceGeometryData),
     );
+  }
+
+  override async getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult>> {
+    const snapshotStart = this.entryIndexToRowIdMap[entriesRange.start];
+    const snapshotEnd = snapshotStart + entriesRange.end - entriesRange.start;
+    const containersResult = await this.queryRangeContainersAndRects(
+      snapshotStart,
+      snapshotEnd,
+      queryRawData,
+    );
+    const visibleRects = await this.queryAllVisibleAndDisplayRects();
+    return {
+      snapshotRange: undefined,
+      nodeRange: containersResult,
+      allVisibleRects: visibleRects,
+      allSnapshots: undefined,
+    };
   }
 
   protected override getTableName(): string {
@@ -142,6 +167,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
   private async queryRangeContainersAndRects(
     start: number,
     end: number,
+    queryRawData: boolean,
   ): Promise<QueryResult> {
     const query = `
       SELECT
@@ -166,6 +192,10 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
         ON wc.window_rect_id = tr.id
       WHERE wc.snapshot_id >= ${start} AND wc.snapshot_id < ${end}
         ORDER BY wc.id`;
-    return await this.traceProcessor.query(query);
+    if (queryRawData) {
+      return await this.traceProcessor.rawQuery(query);
+    } else {
+      return await this.traceProcessor.query(query);
+    }
   }
 }
