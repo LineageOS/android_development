@@ -21,20 +21,20 @@ import {assertTrue} from 'common/assert';
  * Represents the possible data types for a column in a query result.
  * It can be a string, number, bigint, null, or a Uint8Array for binary data.
  */
-export type ColumnType = string | number | bigint | Uint8Array;
+export declare type ColumnType = string | number | bigint | Uint8Array;
 
 /**
  * Defines the structure of a single row in a query result, where each key
  * is a column name and the value is of a type defined by `ColumnType`.
  */
-export interface Row {
+export declare interface Row {
   [key: string]: ColumnType | null;
 }
 
 /**
  * An iterator for traversing rows in a query result.
  */
-export interface RowIterator {
+export declare interface RowIterator {
   /**
    * Checks if the iterator is currently pointing to a valid row.
    * @return True if the iterator is valid, false otherwise.
@@ -90,7 +90,7 @@ export declare interface QueryResult {
  * A container for multiple query results, typically related to a specific
  * analysis or snapshot of trace data.
  */
-export interface QueryResults<T> {
+export declare interface QueryResults<T> {
   /**
    * The result of a query for a snapshot range.
    */
