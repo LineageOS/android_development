@@ -28,7 +28,7 @@ import {
   isTransitionWithUnknownEnd,
   isTransitionWithUnknownStart,
 } from './timeline_utils';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 describe('TimelineUtils', () => {
   const zeroTs = makeZeroTimestamp();

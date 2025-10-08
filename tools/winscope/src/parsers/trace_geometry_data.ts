@@ -93,8 +93,8 @@ export class TraceGeometryDataBuilder {
  */
 export class TraceGeometryData {
   constructor(
-    private rectsMap: Map<bigint, Rect>,
-    private transformMap: Map<bigint, TransformMatrix>,
+    private readonly rectsMap: Map<bigint, Rect>,
+    private readonly transformMap: Map<bigint, TransformMatrix>,
   ) {}
 
   getRect(id: bigint): Rect | undefined {

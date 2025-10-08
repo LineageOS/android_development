@@ -30,7 +30,7 @@ import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export class TracesParserCujs extends AbstractTracesParser<HierarchyTreeNode> {
   private static readonly ADD_CUJ_PROPERTIES = new AddCujProperties();

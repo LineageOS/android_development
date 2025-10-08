@@ -22,6 +22,16 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {assertDefined} from 'common/assert';
 import {QueryResult} from 'trace_processor/query_result';
 
+/**
+ * A builder class for creating trace entry values.
+ *
+ * This class collects various data dependencies required to construct a specific
+ * type of trace entry value (e.g., a hierarchy tree for SurfaceFlinger traces).
+ * It allows setting different components like trace type, query results, and
+ * geometry data, and then uses these to build the final object when `build()`
+ * is called. This is useful for decoupling the creation logic from the
+ * components that provide the necessary data.
+ */
 export class TraceEntryValueBuilder {
   private traceType: TraceType | undefined;
   private snapshotResults: QueryResult | undefined;

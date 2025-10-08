@@ -16,6 +16,7 @@
 
 import {TransformTypeFlags} from 'common/geometry/transform';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {TreeNode} from 'tree_node/tree_node';
 import {PropertyTreeNode, PropertyValue} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 import {ChildHierarchy, HierarchyTreeBuilder} from './hierarchy_tree_builder';
@@ -237,4 +238,53 @@ export function makeCalculatedPropertyNode(
     name,
     value,
   );
+}
+
+/**
+ * Custom equality tester for tree nodes in Jasmine tests.
+ *
+ * @param first The first tree node to compare.
+ * @param second The second tree node to compare.
+ * @return True if the nodes are equal, false otherwise.
+ */
+export function treeNodeEqualityTester(
+  first: unknown,
+  second: unknown,
+): boolean | undefined {
+  if (first instanceof TreeNode && second instanceof TreeNode) {
+    return testTreeNodes(first, second);
+  }
+  return undefined;
+}
+
+/**
+ * Recursively compares two `TreeNode` objects for equality.
+ *
+ * This function checks if two tree nodes have the same ID, name, and
+ * an identical structure of children. It's used as a helper for
+ * `treeNodeEqualityTester` to provide deep equality checks for tree nodes
+ * within Jasmine tests. This ensures that test assertions on tree structures
+ * correctly validate the entire tree content, not just the root node.
+ *
+ * @param node The first tree node to compare.
+ * @param expectedNode The second tree node to compare against.
+ * @return True if the nodes and their descendants are equal, false otherwise.
+ */
+export function testTreeNodes(node: TreeNode, expectedNode: TreeNode): boolean {
+  if (node.id !== expectedNode.id) return false;
+  if (node.name !== expectedNode.name) return false;
+
+  const nodeChildren = node.getAllChildren();
+  const expectedChildren = expectedNode.getAllChildren();
+  if (nodeChildren.length !== expectedChildren.length) return false;
+
+  for (let i = 0; i < nodeChildren.length; i++) {
+    const nodeChild = nodeChildren[i];
+    const expectedChild = expectedChildren[i];
+
+    if (!testTreeNodes(nodeChild, expectedChild)) {
+      return false;
+    }
+  }
+  return true;
 }

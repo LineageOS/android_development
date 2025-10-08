@@ -48,7 +48,7 @@ import {
   PropertyFormatter,
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 /**
  * Parser for Transitions Perfetto traces.

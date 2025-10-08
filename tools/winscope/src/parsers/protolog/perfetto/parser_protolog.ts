@@ -31,7 +31,7 @@ import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export class ParserProtolog extends AbstractParser<HierarchyTreeNode> {
   override getTraceType(): TraceType {

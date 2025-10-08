@@ -28,7 +28,7 @@ import {DiffType} from './diff_type';
 import {HierarchyPresenter} from './hierarchy_presenter';
 import {SimplifyNames} from './operations/simplify_names';
 import {UserOptions} from './user_options';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 describe('HierarchyPresenter', () => {

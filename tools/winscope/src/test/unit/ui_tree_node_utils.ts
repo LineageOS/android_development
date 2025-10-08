@@ -18,7 +18,11 @@ import {TreeNode} from 'tree_node/tree_node';
 import {DiffNode} from 'viewers/common/diff_node';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {makeHierarchyNode, makePropertyNode} from './tree_node_test_helpers';
+import {
+  makeHierarchyNode,
+  makePropertyNode,
+  testTreeNodes as baseTestTreeNodes,
+} from './tree_node_test_helpers';
 
 /**
  * Creates a UI hierarchy tree node for tests.
@@ -64,9 +68,6 @@ export function treeNodeEqualityTester(
 }
 
 function testTreeNodes(node: TreeNode, expectedNode: TreeNode): boolean {
-  if (node.id !== expectedNode.id) return false;
-  if (node.name !== expectedNode.name) return false;
-
   if ((node as DiffNode).getDiff && (expectedNode as DiffNode).getDiff) {
     if ((node as DiffNode).getDiff() !== (expectedNode as DiffNode).getDiff()) {
       return false;
@@ -93,17 +94,5 @@ function testTreeNodes(node: TreeNode, expectedNode: TreeNode): boolean {
     }
   }
 
-  const nodeChildren = node.getAllChildren();
-  const expectedChildren = expectedNode.getAllChildren();
-  if (nodeChildren.length !== expectedChildren.length) return false;
-
-  for (let i = 0; i < nodeChildren.length; i++) {
-    const nodeChild = nodeChildren[i];
-    const expectedChild = expectedChildren[i];
-
-    if (!testTreeNodes(nodeChild, expectedChild)) {
-      return false;
-    }
-  }
-  return true;
+  return baseTestTreeNodes(node, expectedNode) ?? false;
 }

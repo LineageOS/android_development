@@ -24,7 +24,7 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export class HierarchyTreeServiceFactory {
   private static readonly ENTRY_DENYLIST_PROPERTIES = ['inputMethodService'];

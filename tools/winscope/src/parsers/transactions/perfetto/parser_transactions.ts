@@ -59,7 +59,7 @@ import {
   PropertyFormatter,
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TransactionsTraceEntryField =

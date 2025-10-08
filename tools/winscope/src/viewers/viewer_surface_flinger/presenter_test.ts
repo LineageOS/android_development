@@ -51,7 +51,7 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';

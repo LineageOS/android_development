@@ -25,7 +25,7 @@ import {
 } from 'trace/formatters';
 import {Operation} from 'tree_node/operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 import {AddWindowType} from './add_window_type';
 import {TAMPERED_PROTOS_LATEST} from 'parsers/window_manager/perfetto/tampered_protos_latest';
 

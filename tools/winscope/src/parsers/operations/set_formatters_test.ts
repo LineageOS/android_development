@@ -33,7 +33,7 @@ import {
   TamperedProtoField,
 } from 'trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 describe('SetFormatters', () => {
   let propertyRoot: PropertyTreeNode;

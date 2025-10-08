@@ -35,7 +35,7 @@ import {TraceRect} from 'tree_node/trace_rect';
 import {extractRect, SnapshotRects} from './rect_extractor';
 import {UINT32_MAX} from 'common/math';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 /**
  * Creates node id for a ViewCapture view. Used to construct nodes and rects

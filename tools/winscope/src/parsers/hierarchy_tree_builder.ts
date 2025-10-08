@@ -56,9 +56,9 @@ export abstract class HierarchyTreeBuilder<T> {
 
     const root = this.buildHierarchyTree(this.root, identifierToChildren);
 
-    this.computations.forEach((computation) =>
-      computation.setRoot(root).executeInPlace(),
-    );
+    this.computations.forEach((computation) => {
+      computation.setRoot(root).executeInPlace();
+    });
 
     return root;
   }
