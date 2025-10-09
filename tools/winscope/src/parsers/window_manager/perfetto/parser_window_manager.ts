@@ -39,7 +39,7 @@ import {
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
-import {RectsForTrace} from 'parsers/snapshot_rects_map';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 /**
  * Parser for WindowManager Perfetto traces.

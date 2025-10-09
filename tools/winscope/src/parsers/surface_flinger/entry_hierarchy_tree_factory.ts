@@ -59,7 +59,7 @@ import {
   SnapshotRects,
   RectsForTrace,
   NodeRects,
-} from 'parsers/snapshot_rects_map';
+} from 'parsers/rect_extractor_result';
 
 export class EntryHierarchyTreeFactory {
   private static readonly ENTRY_FIELD =

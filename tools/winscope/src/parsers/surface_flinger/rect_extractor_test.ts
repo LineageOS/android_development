@@ -31,7 +31,7 @@ import {
 import {TraceRect} from 'tree_node/trace_rect';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {RectExtractor} from './rect_extractor';
-import {SnapshotRects, RectsForTrace} from 'parsers/snapshot_rects_map';
+import {SnapshotRects, RectsForTrace} from 'parsers/rect_extractor_result';
 
 describe('SurfaceFlinger RectExtractor', () => {
   const expectedMatrix = TransformMatrix.from({

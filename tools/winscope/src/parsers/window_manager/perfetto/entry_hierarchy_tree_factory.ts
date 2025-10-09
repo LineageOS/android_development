@@ -36,7 +36,7 @@ import {TraceProcessor} from 'trace_processor/trace_processor';
 import {WM_OPERATION_LISTS} from './operations/operation_lists';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
-import {RectsForTrace} from 'parsers/snapshot_rects_map';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 /**
  * Creates HierarchyTreeNode objects for a WM trace.

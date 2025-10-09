@@ -33,7 +33,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {RectsForTrace} from 'parsers/snapshot_rects_map';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   private readonly factory = EntryHierarchyTreeFactory;

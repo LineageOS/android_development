@@ -20,7 +20,7 @@ import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {assertDefined} from 'common/assert';
 import {QueryResult} from 'trace_processor/query_result';
-import {RectsForTrace} from './snapshot_rects_map';
+import {RectsForTrace} from './rect_extractor_result';
 import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from './window_manager/perfetto/entry_hierarchy_tree_factory';
 
 /**
