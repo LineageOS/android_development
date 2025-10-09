@@ -241,9 +241,16 @@ export async function checkFinalRealTimestamp(timestamp: string) {
  * @param timestamp The expected timestamp.
  */
 export async function checkWinscopeRealTimestamp(timestamp: string) {
-  const inputElement = element(by.css('input[name="humanTimeInput"]'));
-  const value = await inputElement.getAttribute('value');
-  expect(value).toEqual(timestamp);
+  let value: string | undefined;
+  await browser.wait(
+    async () => {
+      const inputElement = element(by.css('input[name="humanTimeInput"]'));
+      value = await inputElement.getAttribute('value');
+      return value === timestamp;
+    },
+    1000,
+    `Expected '${timestamp}' to equal '${value}'`,
+  );
 }
 
 /**
