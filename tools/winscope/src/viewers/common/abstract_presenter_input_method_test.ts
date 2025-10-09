@@ -50,6 +50,7 @@ export abstract class AbstractPresenterInputMethodTest extends AbstractHierarchy
 
   override readonly shouldExecuteRectTests = false;
   override readonly shouldExecuteSimplifyNamesTest = false;
+  override readonly shouldExecutePlaybackTests = false;
   override readonly keepCalculatedPropertiesInChild = false;
   override readonly keepCalculatedPropertiesInRoot = false;
   override readonly expectedHierarchyOpts = {

@@ -20,10 +20,6 @@ import {Store} from 'common/store/store';
 import {
   TabbedViewSwitchRequest,
   TracePositionUpdate,
-  PlaybackStateChangeRequest,
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangePropagate,
 } from 'messaging/winscope_event';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
@@ -33,6 +29,7 @@ import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {EMPTY_OBJ_STRING} from 'trace/formatters';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
+import {SetFormatters} from 'parsers/set_formatters';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -49,12 +46,6 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {SetFormatters} from 'parsers/set_formatters';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {Rect} from 'common/geometry/rect';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
 
 class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traceSf: Trace<HierarchyTreeNode> | undefined;
@@ -65,6 +56,7 @@ class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<U
 
   override readonly shouldExecuteRectTests = true;
   override readonly shouldExecuteSimplifyNamesTest = true;
+  override readonly shouldExecutePlaybackTests = true;
   override readonly keepCalculatedPropertiesInChild = false;
   override readonly keepCalculatedPropertiesInRoot = true;
   override readonly expectedHierarchyOpts = {
@@ -398,62 +390,6 @@ the default for its data type.`,
         expect(spy).toHaveBeenCalledOnceWith(TraceRectType.LAYERS);
       });
 
-      it('initializes playback when a PlaybackStart event is received', async () => {
-        const traceGeometryData = new TraceGeometryData(
-          new Map([[0n, new Rect(0, 0, 0, 0)]]),
-          new Map([[0n, new TransformMatrix(1, 1, 1, 1, 1, 1)]]),
-        );
-        const playbackPresenterSpy = spyOn(PlaybackPresenter.prototype, 'play');
-        const event = new PlaybackStateChangePropagate(
-          PlaybackState.FORWARDS,
-          0,
-          traceGeometryData,
-        );
-        await presenter.onAppEvent(event);
-        expect(playbackPresenterSpy).toHaveBeenCalled();
-        expect(uiData.isPlaybackInitializing).toEqual(true);
-      });
-
-      it('changes uiData state on PlaybackHandled', async () => {
-        let event = new PlaybackStateChangeHandled(
-          PlaybackState.FORWARDS,
-          TraceType.SURFACE_FLINGER,
-        );
-        await presenter.onAppEvent(event);
-        expect(uiData.isPlaybackPlaying).toEqual(true);
-        expect(uiData.isPlaybackInitializing).toEqual(false);
-
-        event = new PlaybackStateChangeHandled(
-          PlaybackState.PAUSED,
-          TraceType.SURFACE_FLINGER,
-        );
-        await presenter.onAppEvent(event);
-        expect(uiData.isPlaybackPlaying).toEqual(false);
-      });
-
-      it('pauses playback when a PlaybackPause event is received', async () => {
-        const playbackPresenterSpy = spyOn(
-          PlaybackPresenter.prototype,
-          'pause',
-        );
-        const event = new PlaybackStateChangeRequest(
-          TraceType.SURFACE_FLINGER,
-          PlaybackState.PAUSED,
-        );
-        await presenter.onAppEvent(event);
-        expect(playbackPresenterSpy).toHaveBeenCalled();
-      });
-
-      it('changes playback speed when a PlaybackSpeedChange event is received', async () => {
-        const playbackPresenterSpy = spyOn(
-          PlaybackPresenter.prototype,
-          'changeSpeed',
-        );
-        const event = new PlaybackSpeedChange(TraceType.SURFACE_FLINGER, 2);
-        await presenter.onAppEvent(event);
-        expect(playbackPresenterSpy).toHaveBeenCalled();
-      });
-
       it('handles displays with no visible layers', async () => {
         await presenter?.onAppEvent(assertDefined(this.positionUpdate));
         expect(uiData?.displays?.length).toBe(5);
@@ -634,40 +570,6 @@ the default for its data type.`,
           '1970-01-01, 00:00:00.000',
         );
         expect(uiData.curatedProperties).toBeUndefined();
-      });
-
-      it('sets showDiff button as unavailable during playback', async () => {
-        await presenter.onAppEvent(this.getPositionUpdate());
-        const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
-        await presenter.onHighlightedIdChange(selectedId);
-
-        const playbackPresenter = PlaybackPresenter.prototype;
-        expect(playbackPresenter).toBeDefined();
-
-        const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
-        isPlayingSpy.and.returnValue(true);
-
-        expect(
-          uiData.propertiesUserOptions?.['showDiff']?.isUnavailable,
-        ).toBeTrue();
-      });
-
-      it("doesn't update properties tree on position update if playback is playing", async () => {
-        await presenter.onAppEvent(this.getPositionUpdate());
-        const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
-        await presenter.onHighlightedIdChange(selectedId);
-        expect(uiData.propertiesTree).toBeDefined();
-        const propsTreeBeforePlayback = uiData.propertiesTree;
-
-        const playbackPresenter = PlaybackPresenter.prototype;
-        expect(playbackPresenter).toBeDefined();
-
-        const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
-
-        isPlayingSpy.and.returnValue(true);
-
-        await presenter.onAppEvent(this.getSecondPositionUpdate());
-        expect(uiData.propertiesTree).toEqual(propsTreeBeforePlayback);
       });
 
       it('sets properties tree but no curated properties for recursive root node', async () => {

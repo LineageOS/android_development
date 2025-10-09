@@ -17,7 +17,13 @@
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
-import {TracePositionUpdate} from 'messaging/winscope_event';
+import {
+  TracePositionUpdate,
+  PlaybackStateChangeRequest,
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangePropagate,
+} from 'messaging/winscope_event';
 import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {PropertySource} from 'tree_node/property_tree_node';
@@ -32,6 +38,12 @@ import {UserOptions} from 'viewers/common/user_options';
 import {RectSpec} from 'viewers/components/rects/rect_spec';
 import {Chip} from './chip';
 import {UiDataHierarchy} from './ui_data_hierarchy';
+import {PlaybackPresenter} from './playback/playback_presenter';
+import {PlaybackState} from './playback/playback_state';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {Rect} from 'common/geometry/rect';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {TraceType} from 'trace_api/trace_type';
 
 export abstract class AbstractHierarchyViewerPresenterTest<
   UiData extends UiDataHierarchy,
@@ -183,6 +195,103 @@ export abstract class AbstractHierarchyViewerPresenterTest<
         });
       }
 
+      if (this.shouldExecutePlaybackTests) {
+        it('sets showDiff button as unavailable during playback', async () => {
+          await presenter.onAppEvent(this.getPositionUpdate());
+          const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
+          await presenter.onHighlightedIdChange(selectedId);
+
+          const playbackPresenter = PlaybackPresenter.prototype;
+          expect(playbackPresenter).toBeDefined();
+
+          const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
+          isPlayingSpy.and.returnValue(true);
+
+          expect(
+            uiData.propertiesUserOptions?.['showDiff']?.isUnavailable,
+          ).toBeTrue();
+        });
+
+        it("doesn't update properties tree on position update if playback is playing", async () => {
+          await presenter.onAppEvent(this.getPositionUpdate());
+          const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
+          await presenter.onHighlightedIdChange(selectedId);
+          expect(uiData.propertiesTree).toBeDefined();
+          const propsTreeBeforePlayback = uiData.propertiesTree;
+
+          const playbackPresenter = PlaybackPresenter.prototype;
+          expect(playbackPresenter).toBeDefined();
+
+          const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
+
+          isPlayingSpy.and.returnValue(true);
+
+          await presenter.onAppEvent(
+            assertDefined(this.getSecondPositionUpdate()),
+          );
+          expect(uiData.propertiesTree).toEqual(propsTreeBeforePlayback);
+        });
+
+        it('initializes playback when a PlaybackStart event is received', async () => {
+          const traceGeometryData = new TraceGeometryData(
+            new Map([[0n, new Rect(0, 0, 0, 0)]]),
+            new Map([[0n, new TransformMatrix(1, 1, 1, 1, 1, 1)]]),
+          );
+          const playbackPresenterSpy = spyOn(
+            PlaybackPresenter.prototype,
+            'play',
+          );
+          const event = new PlaybackStateChangePropagate(
+            PlaybackState.FORWARDS,
+            0,
+            traceGeometryData,
+          );
+          await presenter.onAppEvent(event);
+          expect(playbackPresenterSpy).toHaveBeenCalled();
+          expect(uiData.isPlaybackInitializing).toEqual(true);
+        });
+
+        it('changes uiData state on PlaybackHandled', async () => {
+          let event = new PlaybackStateChangeHandled(
+            PlaybackState.FORWARDS,
+            TraceType.SURFACE_FLINGER,
+          );
+          await presenter.onAppEvent(event);
+          expect(uiData.isPlaybackPlaying).toEqual(true);
+          expect(uiData.isPlaybackInitializing).toEqual(false);
+
+          event = new PlaybackStateChangeHandled(
+            PlaybackState.PAUSED,
+            TraceType.SURFACE_FLINGER,
+          );
+          await presenter.onAppEvent(event);
+          expect(uiData.isPlaybackPlaying).toEqual(false);
+        });
+
+        it('pauses playback when a PlaybackPause event is received', async () => {
+          const playbackPresenterSpy = spyOn(
+            PlaybackPresenter.prototype,
+            'pause',
+          );
+          const event = new PlaybackStateChangeRequest(
+            TraceType.SURFACE_FLINGER,
+            PlaybackState.PAUSED,
+          );
+          await presenter.onAppEvent(event);
+          expect(playbackPresenterSpy).toHaveBeenCalled();
+        });
+
+        it('changes playback speed when a PlaybackSpeedChange event is received', async () => {
+          const playbackPresenterSpy = spyOn(
+            PlaybackPresenter.prototype,
+            'changeSpeed',
+          );
+          const event = new PlaybackSpeedChange(TraceType.SURFACE_FLINGER, 2);
+          await presenter.onAppEvent(event);
+          expect(playbackPresenterSpy).toHaveBeenCalled();
+        });
+      }
+
       function chipEqualityTester(
         first: any,
         second: any,
@@ -206,6 +315,7 @@ export abstract class AbstractHierarchyViewerPresenterTest<
   abstract readonly shouldExecuteRectTests: boolean;
   abstract readonly shouldExecuteSimplifyNamesTest: boolean;
   abstract readonly keepCalculatedPropertiesInChild: boolean;
+  abstract readonly shouldExecutePlaybackTests: boolean;
   abstract readonly keepCalculatedPropertiesInRoot: boolean;
   abstract readonly expectedHierarchyOpts: UserOptions;
   abstract readonly expectedPropertiesOpts: UserOptions;
