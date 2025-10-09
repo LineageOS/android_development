@@ -20,7 +20,7 @@ import {Store} from 'common/store/store';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {getImeTraceEntries} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {makePropertyNode} from 'test/unit/tree_node_test_helpers';
 import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';

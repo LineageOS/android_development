@@ -19,7 +19,7 @@ import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {getTracesParser} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';

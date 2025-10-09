@@ -21,7 +21,7 @@ import {
   makeZeroTimestamp,
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';

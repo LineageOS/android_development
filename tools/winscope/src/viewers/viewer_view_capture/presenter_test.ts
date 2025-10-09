@@ -24,7 +24,7 @@ import {
 import {getFixtureFile} from 'test/unit/io_helpers';
 import {getPerfettoParser, LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {TraceFile} from 'trace/trace_file';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Parser} from 'trace_api/parser';

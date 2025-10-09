@@ -28,7 +28,7 @@ import {
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {EMPTY_OBJ_STRING} from 'trace/formatters';
 import {CustomQueryType} from 'trace_api/custom_query';

@@ -23,7 +23,7 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceType} from 'trace_api/trace_type';
 import {Timer} from 'common/time/timer';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {
   PlaybackStateChangeHandled,
   TracePositionUpdate,

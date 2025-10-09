@@ -21,7 +21,7 @@ import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {Trace} from 'trace_api/trace';

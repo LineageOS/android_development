@@ -30,7 +30,7 @@ import {
   makeRealTimestamp,
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {
   makeUiHierarchyNode,
   treeNodeEqualityTester,

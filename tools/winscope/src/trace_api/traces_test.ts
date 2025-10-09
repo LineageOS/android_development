@@ -20,7 +20,7 @@ import {TraceBuilder} from 'test/unit/trace_builder';
 import {
   extractEntries as extractTraceEntries,
   makeEmptyTrace,
-} from 'test/unit/trace_utils';
+} from 'test/unit/trace_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {
   extractEntries,
