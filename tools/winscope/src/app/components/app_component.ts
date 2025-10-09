@@ -88,7 +88,7 @@ import {ViewerTransactionsComponent} from 'viewers/viewer_transactions/viewer_tr
 import {ViewerTransitionsComponent} from 'viewers/viewer_transitions/viewer_transitions_component';
 import {ViewerViewCaptureComponent} from 'viewers/viewer_view_capture/viewer_view_capture_component';
 import {ViewerWindowManagerComponent} from 'viewers/viewer_window_manager/viewer_window_manager_component';
-import {OriginAllowList} from 'cross_tool/origin_allow_list';
+import {isAllowedIframeParentOrigin} from 'cross_tool/origin_allow_list';
 import {
   MatDrawer,
   MatDrawerContainer,
@@ -952,7 +952,7 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   isSupportedReportedParentOrigin(parentOrigin: string): boolean {
-    return OriginAllowList.isAllowedIframeParentOrigin(parentOrigin);
+    return isAllowedIframeParentOrigin(parentOrigin);
   }
 
   openSettings() {
@@ -1129,7 +1129,7 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   showCrossToolSyncButton(): boolean {
-    return this.crossToolProtocol.isConnected();
+    return this.crossToolProtocol.isAllowedTimestampSync();
   }
 
   getCrossToolSyncTooltip(): string {

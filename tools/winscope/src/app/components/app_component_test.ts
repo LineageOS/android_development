@@ -361,14 +361,12 @@ describe('AppComponent', () => {
     const fileDescriptor = dom.get('.file-descriptor');
     expect(fileDescriptor.find('.cross-tool-sync-button')).toBeUndefined();
 
-    spyOn(component.crossToolProtocol, 'isConnected').and.returnValue(true);
+    spyOn(
+      component.crossToolProtocol,
+      'isAllowedTimestampSync',
+    ).and.returnValue(true);
     dom.detectChanges();
     const syncButton = fileDescriptor.get('.cross-tool-sync-button');
-    await syncButton.checkTooltip('Cross Tool Sync ON (Click to turn OFF)');
-    syncButton.checkClassName('mat-primary', true);
-    syncButton.checkClassName('mat-accent', false);
-
-    syncButton.click();
     await syncButton.checkTooltip('Cross Tool Sync OFF (Click to turn ON)');
     syncButton.checkClassName('mat-accent', true);
     syncButton.checkClassName('mat-primary', false);
@@ -377,6 +375,11 @@ describe('AppComponent', () => {
     await syncButton.checkTooltip('Cross Tool Sync ON (Click to turn OFF)');
     syncButton.checkClassName('mat-primary', true);
     syncButton.checkClassName('mat-accent', false);
+
+    syncButton.click();
+    await syncButton.checkTooltip('Cross Tool Sync OFF (Click to turn ON)');
+    syncButton.checkClassName('mat-accent', true);
+    syncButton.checkClassName('mat-primary', false);
   });
 
   it('shows warning icon for packet loss', async () => {
