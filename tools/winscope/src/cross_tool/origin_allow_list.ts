@@ -45,6 +45,7 @@ export class OriginAllowList {
     /https:\/\/winscope.corp.google.com/,
     /https:\/\/winscope-staging.corp.google.com/,
     /https:\/\/winscope-autopush.corp.google.com/,
+    /https:\/\/[a-z0-9]+\.proxy\.googlers\.com/,
   ];
 
   private static readonly IFRAME_PARENT_ALLOW_LIST_DEV = [
