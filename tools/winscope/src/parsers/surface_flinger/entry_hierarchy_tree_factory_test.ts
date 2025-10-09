@@ -17,11 +17,9 @@
 import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {
-  DuplicateLayerIds,
-  MissingLayerIds,
-  RecursiveLayerIds,
-} from 'messaging/user_warnings';
+import {MissingLayerIds} from 'parsers/warnings/missing_layer_ids';
+import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
+import {RecursiveLayerIds} from 'parsers/warnings/recursive_layer_ids';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {
   ColumnType,

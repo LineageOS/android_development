@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ProxyTracingWarnings} from 'messaging/user_warnings';
+import {ProxyTracingWarnings} from 'trace_collection/warnings/proxy_tracing_warnings';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {AdbDeviceState} from 'trace_collection/adb/adb_device_connection';
 import {ConnectionStateListener} from 'trace_collection/connection_state_listener';

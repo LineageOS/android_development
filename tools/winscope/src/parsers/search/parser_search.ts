@@ -19,7 +19,7 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
-import {TraceSearchQueryFailed} from 'messaging/user_warnings';
+import {TraceSearchQueryFailed} from 'parsers/warnings/trace_search_query_failed';
 import {UserNotifier} from 'services/user_notifier';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {

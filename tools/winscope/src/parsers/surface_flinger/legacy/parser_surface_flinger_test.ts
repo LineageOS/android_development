@@ -15,7 +15,7 @@
  */
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {DuplicateLayerIds} from 'messaging/user_warnings';
+import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';

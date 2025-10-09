@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import {TimeRange} from 'common/time/time';
-import {CannotParseAllTransitions} from 'messaging/user_warnings';
+import {CannotParseAllTransitions} from 'app/warnings/cannot_parse_all_transitions';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';

@@ -21,6 +21,10 @@ import {QueryResult} from './query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 
+/**
+ * Interface for a trace processor, defining methods to query, reset, parse,
+ * and notify end-of-file for trace data.
+ */
 export interface TraceProcessor {
   query(sqlQuery: string): Promise<QueryResult>;
   rawQuery(sqlQuery: string): Promise<RawDataQueryResult>;
@@ -29,6 +33,11 @@ export interface TraceProcessor {
   notifyEof(): Promise<void>;
 }
 
+/**
+ * A wrapper class for `TraceProcessor`. It allows setting a `TraceProcessor`
+ * instance dynamically and throws an error if methods are called before an
+ * instance is set. Useful for deferring initialization.
+ */
 export class TraceProcessorWrapper implements TraceProcessor {
   private tp: TraceProcessor | undefined;
 
@@ -72,8 +81,14 @@ export class TraceProcessorWrapper implements TraceProcessor {
   }
 }
 
+/**
+ * A `TraceProcessor` implementation that proxies calls to a WebAssembly-based
+ * trace processing engine (`WasmEngineProxy`). This class is responsible for
+ * interacting with the WASM module to perform trace queries and parsing.
+ * It also logs analytics for query performance.
+ */
 export class TraceProcessorProxy implements TraceProcessor {
-  private wasmEngine: WasmEngineProxy;
+  private readonly wasmEngine: WasmEngineProxy;
 
   constructor(engineId: string) {
     this.wasmEngine = new WasmEngineProxy(engineId);

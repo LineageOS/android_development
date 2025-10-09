@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {FailedToConvertLegacyTraces} from 'messaging/user_warnings';
+import {FailedToConvertLegacyTraces} from 'parsers/warnings/failed_to_convert_legacy_traces';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';

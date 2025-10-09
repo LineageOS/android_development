@@ -17,7 +17,7 @@
 import {TimeRange, Timestamp} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
-import {CannotParseAllTransitions} from 'messaging/user_warnings';
+import {CannotParseAllTransitions} from 'app/warnings/cannot_parse_all_transitions';
 import {UserNotifier} from 'services/user_notifier';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';

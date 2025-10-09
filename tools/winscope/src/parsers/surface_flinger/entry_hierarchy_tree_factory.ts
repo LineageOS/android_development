@@ -21,11 +21,9 @@ import {
   assertString,
 } from 'common/assert';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  DuplicateLayerIds,
-  MissingLayerIds,
-  RecursiveLayerIds,
-} from 'messaging/user_warnings';
+import {MissingLayerIds} from 'parsers/warnings/missing_layer_ids';
+import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
+import {RecursiveLayerIds} from 'parsers/warnings/recursive_layer_ids';
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
