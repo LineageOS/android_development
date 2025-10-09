@@ -22,8 +22,9 @@ import {
   setupMockIteratorWithRows,
 } from 'trace_processor/test_utils';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
-import {extractAllRects, extractRect, SnapshotRects} from './rect_extractor';
+import {extractAllRects, extractRect} from './rect_extractor';
 import {ContainerType} from './container_type';
+import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
 
 describe('WindowManager RectExtractor', () => {
   it('handles row without rect id', () => {
@@ -99,82 +100,102 @@ describe('WindowManager RectExtractor', () => {
   });
 
   it('extracts all rects', () => {
-    const expectedRectSnapshot1 = new Map([
+    const expectedRectSnapshot1: SnapshotRects = new Map([
       [
         10n,
-        new TraceRectBuilder()
-          .setX(5)
-          .setY(6)
-          .setWidth(4)
-          .setHeight(3)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(true)
-          .setIsDisplay(false)
-          .setDepth(4)
-          .setOpacity(1)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(5)
+              .setY(6)
+              .setWidth(4)
+              .setHeight(3)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(true)
+              .setIsDisplay(false)
+              .setDepth(4)
+              .setOpacity(1)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: [],
+        },
       ],
 
       [
         20n,
-        new TraceRectBuilder()
-          .setX(1)
-          .setY(2)
-          .setWidth(3)
-          .setHeight(4)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(false)
-          .setIsDisplay(false)
-          .setDepth(8)
-          .setOpacity(0.5)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(1)
+              .setY(2)
+              .setWidth(3)
+              .setHeight(4)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(false)
+              .setIsDisplay(false)
+              .setDepth(8)
+              .setOpacity(0.5)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: [],
+        },
       ],
     ]);
-    const expectedRectSnapshot2 = new Map([
+    const expectedRectSnapshot2: SnapshotRects = new Map([
       [
         10n,
-        new TraceRectBuilder()
-          .setX(1)
-          .setY(2)
-          .setWidth(3)
-          .setHeight(4)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(true)
-          .setIsDisplay(false)
-          .setDepth(4)
-          .setOpacity(1)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(1)
+              .setY(2)
+              .setWidth(3)
+              .setHeight(4)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(true)
+              .setIsDisplay(false)
+              .setDepth(4)
+              .setOpacity(1)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: [],
+        },
       ],
 
       [
         20n,
-        new TraceRectBuilder()
-          .setX(5)
-          .setY(6)
-          .setWidth(4)
-          .setHeight(3)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(false)
-          .setIsDisplay(false)
-          .setDepth(8)
-          .setOpacity(0.5)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(5)
+              .setY(6)
+              .setWidth(4)
+              .setHeight(3)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(false)
+              .setIsDisplay(false)
+              .setDepth(8)
+              .setOpacity(0.5)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: [],
+        },
       ],
     ]);
 
-    const expectedRects = new Map<bigint, SnapshotRects>([
+    const expectedRects: RectsForTrace = new Map([
       [0n, expectedRectSnapshot1],
       [1n, expectedRectSnapshot2],
     ]);

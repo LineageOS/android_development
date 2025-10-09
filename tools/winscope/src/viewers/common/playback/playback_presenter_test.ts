@@ -36,6 +36,7 @@ import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {Parser} from 'trace_api/parser';
 
 describe('PlaybackPresenter', () => {
   const timestamp0 = makeElapsedTimestamp(0n);
@@ -86,7 +87,12 @@ describe('PlaybackPresenter', () => {
       ])
       .setTimestamps([timestamp2, timestamp3, timestamp4])
       .build();
-
+    const mockParser = {
+      getRectsMap: () => new Map(),
+    };
+    spyOn(trace, 'getParser').and.returnValue(
+      mockParser as Parser<HierarchyTreeNode>,
+    );
     spyOn(trace, 'getQueryResults').and.callFake(async () => {
       return Promise.resolve({
         snapshotRange: new RawDataQueryResult(),

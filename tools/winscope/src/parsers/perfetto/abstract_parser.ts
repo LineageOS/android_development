@@ -33,6 +33,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
   protected traceProcessor: TraceProcessor;
@@ -130,6 +131,10 @@ export abstract class AbstractParser<T> implements Parser<T> {
     entriesRange: EntriesRange,
     param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getRectsMap(): RectsForTrace | undefined {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

@@ -34,7 +34,6 @@ import {TraceRect} from 'tree_node/trace_rect';
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 
 type EagerTraceEntry<T = HierarchyTreeNode> = TraceEntryEager<T, T | undefined>;
@@ -457,30 +456,33 @@ export class PlaybackPresenter {
             this.workerPromiseRejecter = reject;
 
             const snapshotResults = queryResults.snapshotRange;
-            const layersResults = queryResults.nodeRange;
+            const nodesResults = queryResults.nodeRange;
 
-            if (
-              !(
-                snapshotResults instanceof RawDataQueryResult &&
-                layersResults instanceof RawDataQueryResult
-              )
-            ) {
+            if (!(nodesResults instanceof RawDataQueryResult)) {
               return;
             }
 
-            const snapshotBatches = snapshotResults.batches;
-            const layerBatches = layersResults.batches;
-            const parser = this.trace.getParser();
-            let map;
-            if (parser instanceof ParserSurfaceFlinger) {
-              map = parser.getSfRectsMap();
+            let snapshotBatches: Uint8Array[] | undefined;
+            if (
+              snapshotResults !== undefined &&
+              snapshotResults instanceof RawDataQueryResult
+            ) {
+              snapshotBatches = snapshotResults.batches;
             }
+            const nodeBatches = nodesResults.batches;
+            const parser = this.trace.getParser();
+            if (parser.getRectsMap === undefined) {
+              throw Error(
+                'Playback is only implemented for parsers with rects map',
+              );
+            }
+            const map = parser.getRectsMap();
 
             this.playbackWorker.postMessage({
               start,
               end,
               snapshotBatches,
-              layerBatches,
+              nodeBatches,
               type: this.trace.type,
               traceGeometryData: this.traceGeometryData,
               visibleRectsMap: map,

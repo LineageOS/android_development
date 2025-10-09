@@ -52,6 +52,7 @@ class PresenterViewCaptureTest extends AbstractHierarchyViewerPresenterTest<UiDa
 
   override readonly shouldExecuteRectTests = true;
   override readonly shouldExecuteSimplifyNamesTest = true;
+  override readonly shouldExecutePlaybackTests = false;
   override readonly keepCalculatedPropertiesInChild = false;
   override readonly keepCalculatedPropertiesInRoot = false;
   override readonly expectedHierarchyOpts = {

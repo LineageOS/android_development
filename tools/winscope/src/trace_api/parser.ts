@@ -26,6 +26,7 @@ import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {TraceType} from './trace_type';
 import {QueryResults, QueryResult} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 /**
  * Interface for a trace parser.
@@ -61,6 +62,7 @@ export interface Parser<T> {
   getRealToBootTimeOffsetNs(): bigint | undefined;
   createTimestamps(): void;
   canConvertToPerfetto(): boolean;
+  getRectsMap?(): RectsForTrace | undefined;
   convertToPerfettoPackets?(
     sequenceId: number,
     trustedUid?: number,

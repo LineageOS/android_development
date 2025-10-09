@@ -16,7 +16,6 @@
 
 import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
-
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {
   ColumnType,
@@ -35,6 +34,8 @@ import {
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
+import {SnapshotRects, RectsForTrace} from 'parsers/rect_extractor_result';
+import {TraceRect} from 'tree_node/trace_rect';
 
 describe('EntryHierarchyTreeFactory', () => {
   describe('makeEntryHierarchyTrees', () => {
@@ -129,9 +130,24 @@ describe('EntryHierarchyTreeFactory', () => {
       const defaultRect = new Rect(1, 2, 3, 4);
       mockTraceGeometryData.getRect.withArgs(1n).and.returnValue(defaultRect);
       const otherRect = new Rect(5, 6, 7, 8);
-      const trees = makeHierarchyTrees(
-        new Map([[102n, new Map([[defaultContainerToken, otherRect]])]]),
-      );
+
+      const mockTraceRect = jasmine.createSpyObj<TraceRect>('TraceRect', [], {
+        x: otherRect.x,
+        y: otherRect.y,
+        w: otherRect.w,
+        h: otherRect.h,
+      });
+
+      const snapshotRectFor102: SnapshotRects = new Map([
+        [
+          defaultContainerToken,
+          {primaryRects: [mockTraceRect], secondaryRects: []},
+        ],
+      ]);
+      const visibleRects: RectsForTrace = new Map([[102n, snapshotRectFor102]]);
+
+      const trees = makeHierarchyTrees(visibleRects);
+
       expect(trees.length).toBe(3);
 
       let rects = assertDefined(

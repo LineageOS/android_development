@@ -24,6 +24,7 @@ import {TraceRectBuilderFromQueryRow} from 'parsers/trace_rect_builder_from_quer
 import {RowIterator} from 'trace_processor/query_result';
 import {TraceRect} from 'tree_node/trace_rect';
 import {ContainerType} from './container_type';
+import {SnapshotRects, RectsForTrace} from 'parsers/rect_extractor_result';
 
 /**
  * Extracts a WM rect from a trace processor query result row.
@@ -64,8 +65,8 @@ export function extractAllRects(
   traceGeometryData: TraceGeometryData,
   makeRectId: (row: RowIterator) => string,
   makeRectName: (row: RowIterator) => string,
-): Map<bigint, SnapshotRects> {
-  const allRects = new Map<bigint, SnapshotRects>();
+): RectsForTrace {
+  const allRects: RectsForTrace = new Map();
 
   for (const it = rowIterator; it.valid(); it.next()) {
     const rectName = makeRectName(it);
@@ -83,15 +84,15 @@ export function extractAllRects(
     const token = assertBigInt(it.get('token'));
     const existingRectsForSnapshot = allRects.get(snapshotId);
 
+    const nodeRect = {primaryRects: [rect], secondaryRects: []};
+
     if (existingRectsForSnapshot) {
-      existingRectsForSnapshot.set(token, rect);
+      existingRectsForSnapshot.set(token, nodeRect);
     } else {
-      const rectsForSnapshot = new Map<bigint, TraceRect>([[token, rect]]);
+      const rectsForSnapshot: SnapshotRects = new Map([[token, nodeRect]]);
       allRects.set(snapshotId, rectsForSnapshot);
     }
   }
 
   return allRects;
 }
-
-export declare type SnapshotRects = Map<bigint, TraceRect>;
