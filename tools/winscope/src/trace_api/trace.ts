@@ -27,7 +27,7 @@ import {
   CustomQueryParserResultTypeMap,
   CustomQueryResultTypeMap,
   CustomQueryType,
-  ProcessCustomQueryParserResult,
+  PROCESS_CUSTOM_QUERY_PARSER_RESULT,
 } from './custom_query';
 import {FrameMap} from './frame_map';
 import {
@@ -301,7 +301,7 @@ export class Trace<T> {
       return this.createEagerEntry(index, value);
     };
 
-    const processParserResult = ProcessCustomQueryParserResult[type] as (
+    const processParserResult = PROCESS_CUSTOM_QUERY_PARSER_RESULT[type] as (
       parserResult: CustomQueryParserResultTypeMap[Q],
       make: typeof makeTraceEntry,
     ) => CustomQueryResultTypeMap<T>[Q];

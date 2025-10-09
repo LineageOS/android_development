@@ -62,7 +62,7 @@ interface CustomQueryTraceEntry<U> {
  * A utility for processing the raw results from custom query parsers
  * into their final result types.
  */
-export const ProcessCustomQueryParserResult = {
+export const PROCESS_CUSTOM_QUERY_PARSER_RESULT = {
   /**
    * Processes the parser result for SF_LAYERS_ID_AND_NAME.
    * @param parserResult The raw result from the parser.
@@ -188,7 +188,7 @@ export declare interface CustomQueryParserResultTypeMap {
 
 /**
  * Maps each `CustomQueryType` to the final processed result type,
- * potentially after being handled by `ProcessCustomQueryParserResult`.
+ * potentially after being handled by `PROCESS_CUSTOM_QUERY_PARSER_RESULT`.
  * @template T A generic type parameter, often used for context.
  */
 export declare interface CustomQueryResultTypeMap<T> {
