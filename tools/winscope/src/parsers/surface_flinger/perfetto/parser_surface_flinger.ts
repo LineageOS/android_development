@@ -41,7 +41,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   private allVisibleRects: QueryResult | undefined;
   private allSnapshots: QueryResult | undefined;
 
-  getSfRectsMap() {
+  override getRectsMap() {
     return this.visibleAndDisplayRects;
   }
 

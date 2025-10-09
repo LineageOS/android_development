@@ -19,15 +19,15 @@ import {TraceRect} from 'tree_node/trace_rect';
 /*
  * Type to keep the primary and secondary rects
  */
-export type NodeRects = {primaryRects: TraceRect[], secondaryRects: TraceRect[] | undefined}
+export interface NodeRects {
+  primaryRects: TraceRect[];
+  secondaryRects: TraceRect[] | undefined;
+}
 
 /*
  * Map for a singular snapshot
  */
-export type SnapshotRects = Map<
-  bigint,
-  NodeRects
->;
+export type SnapshotRects = Map<bigint, NodeRects>;
 
 /*
  * Map for snapshot rects, where the snapshot id is mapped to the rects

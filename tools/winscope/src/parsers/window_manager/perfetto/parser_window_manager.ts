@@ -47,6 +47,10 @@ import {RectsForTrace} from 'parsers/snapshot_rects_map';
 export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
   private visibleAndDisplayRects: RectsForTrace | undefined;
 
+  override getRectsMap() {
+    return this.visibleAndDisplayRects;
+  }
+
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;
   }

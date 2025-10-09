@@ -219,8 +219,11 @@ const TRACES_WITH_VIEWERS_DISPLAY_ORDER = [
   TraceType.CUJS,
 ];
 
-// TODO(b/322805621) add other traces once support is provided
-const TRACES_SUPPORTING_PLAYBACK = [TraceType.SURFACE_FLINGER];
+// TODO(b/449929778) add other traces once support is provided
+const TRACES_SUPPORTING_PLAYBACK = [
+  TraceType.SURFACE_FLINGER,
+  TraceType.WINDOW_MANAGER,
+];
 
 /**
  * Checks if a given {@link TraceType} supports playback.

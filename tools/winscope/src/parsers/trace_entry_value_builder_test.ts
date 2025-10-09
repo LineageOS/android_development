@@ -53,7 +53,7 @@ describe('TraceEntryValueBuilder', async () => {
 
   it('sets the layer results', () => {
     expect(() =>
-      traceEntryValueBuilder.setLayersResults(mockQueryResult),
+      traceEntryValueBuilder.setNodeResults(mockQueryResult),
     ).not.toThrow();
   });
 
@@ -82,7 +82,7 @@ describe('TraceEntryValueBuilder', async () => {
   it('successfully calls makeEntryHierarchyTrees when all data is set', () => {
     traceEntryValueBuilder.setType(TraceType.SURFACE_FLINGER);
     traceEntryValueBuilder.setSnapshotResults(mockQueryResult);
-    traceEntryValueBuilder.setLayersResults(mockQueryResult);
+    traceEntryValueBuilder.setNodeResults(mockQueryResult);
     traceEntryValueBuilder.setRectsMap(mockRectsMap);
     traceEntryValueBuilder.setGeometryData(mockTraceGeometryData);
 

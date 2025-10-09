@@ -28,15 +28,17 @@ self.onmessage = async (event) => {
     event.data.start,
     event.data.end,
     event.data.snapshotBatches,
-    event.data.layerBatches,
+    event.data.nodeBatches,
   );
   const snapshot = queries[0];
-  const layer = queries[1];
+  const node = queries[1];
 
   const treeBuilder = new TraceEntryValueBuilder();
   treeBuilder.setType(event.data.type);
-  treeBuilder.setSnapshotResults(snapshot);
-  treeBuilder.setLayersResults(layer);
+  if (snapshot) {
+    treeBuilder.setSnapshotResults(snapshot);
+  }
+  treeBuilder.setNodeResults(node);
   treeBuilder.setRectsMap(event.data.visibleRectsMap);
   treeBuilder.setGeometryData(traceGeometryData);
 
@@ -44,14 +46,17 @@ self.onmessage = async (event) => {
   self.postMessage({trees});
 };
 
-function processQueryResults(start, end, snapshotBatches, layerBatches) {
-  const snapshotQueryString = snapshotQuery(start, end);
-  const snapshotErrorInfo = {
-    query: snapshotQueryString,
-  };
-  const snapshotQueryResult = createQueryResult(snapshotErrorInfo);
-  for (let i = 0; i < snapshotBatches.length; i++) {
-    snapshotQueryResult.appendResultBatch(snapshotBatches[i]);
+function processQueryResults(start, end, snapshotBatches, nodeBatches) {
+  let snapshotQueryResult;
+  if (snapshotBatches) {
+    const snapshotQueryString = snapshotQuery(start, end);
+    const snapshotErrorInfo = {
+      query: snapshotQueryString,
+    };
+    snapshotQueryResult = createQueryResult(snapshotErrorInfo);
+    for (let i = 0; i < snapshotBatches.length; i++) {
+      snapshotQueryResult.appendResultBatch(snapshotBatches[i]);
+    }
   }
 
   const layerQueryString = layerQuery(start, end);
@@ -59,8 +64,8 @@ function processQueryResults(start, end, snapshotBatches, layerBatches) {
     query: layerQueryString,
   };
   const layerQueryResult = createQueryResult(layerErrorInfo);
-  for (let i = 0; i < layerBatches.length; i++) {
-    layerQueryResult.appendResultBatch(layerBatches[i]);
+  for (let i = 0; i < nodeBatches.length; i++) {
+    layerQueryResult.appendResultBatch(nodeBatches[i]);
   }
   return [snapshotQueryResult, layerQueryResult];
 }

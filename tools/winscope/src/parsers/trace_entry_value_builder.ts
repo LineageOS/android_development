@@ -21,6 +21,7 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {assertDefined} from 'common/assert';
 import {QueryResult} from 'trace_processor/query_result';
 import {RectsForTrace} from './snapshot_rects_map';
+import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from './window_manager/perfetto/entry_hierarchy_tree_factory';
 
 /**
  * A builder class for creating trace entry values.
@@ -35,8 +36,8 @@ import {RectsForTrace} from './snapshot_rects_map';
 export class TraceEntryValueBuilder {
   private traceType: TraceType | undefined;
   private snapshotResults: QueryResult | undefined;
-  private layerResults: QueryResult | undefined;
   private rectsMap: RectsForTrace | undefined;
+  private nodeResults: QueryResult | undefined;
   private traceGeometryData: TraceGeometryData | undefined;
 
   setType(traceType: TraceType) {
@@ -47,8 +48,8 @@ export class TraceEntryValueBuilder {
     this.snapshotResults = snapshots;
   }
 
-  setLayersResults(layers: QueryResult) {
-    this.layerResults = layers;
+  setNodeResults(layers: QueryResult) {
+    this.nodeResults = layers;
   }
 
   setRectsMap(rectsMap: RectsForTrace) {
@@ -67,7 +68,14 @@ export class TraceEntryValueBuilder {
       case TraceType.SURFACE_FLINGER:
         return EntryHierarchyTreeFactory.makeEntryHierarchyTrees(
           assertDefined(this.snapshotResults),
-          assertDefined(this.layerResults),
+          assertDefined(this.nodeResults),
+          assertDefined(this.rectsMap),
+          undefined,
+          assertDefined(this.traceGeometryData),
+        );
+      case TraceType.WINDOW_MANAGER:
+        return wmMakeEntryHierarchyTrees(
+          assertDefined(this.nodeResults),
           assertDefined(this.rectsMap),
           undefined,
           assertDefined(this.traceGeometryData),

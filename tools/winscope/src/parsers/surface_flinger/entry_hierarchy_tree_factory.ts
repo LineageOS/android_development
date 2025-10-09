@@ -45,7 +45,6 @@ import {
 } from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TraceRect} from 'tree_node/trace_rect';
 import {SetFormatters} from 'parsers/set_formatters';
 import {ZOrderPathsComputation} from './computations/z_order_paths_computation';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
@@ -56,7 +55,11 @@ import {TranslateFlags} from './operations/translate_flags';
 import {UpdateCornerRadii} from './operations/update_corner_radii';
 import {UpdateTransforms} from './operations/update_transforms';
 import {RectExtractor} from './rect_extractor';
-import {SnapshotRects, RectsForTrace, NodeRects} from 'parsers/snapshot_rects_map';
+import {
+  SnapshotRects,
+  RectsForTrace,
+  NodeRects,
+} from 'parsers/snapshot_rects_map';
 
 export class EntryHierarchyTreeFactory {
   private static readonly ENTRY_FIELD =
