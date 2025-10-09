@@ -37,11 +37,15 @@ export class TracePosition {
     let frame: AbsoluteFrameIndex | undefined;
     if (entry.getFullTrace().hasFrameInfo()) {
       const frames = entry.getFramesRange();
-      frame = frames && frames.start < frames.end ? frames.start : undefined;
+      frame =
+        frames !== undefined && frames.start < frames.end
+          ? frames.start
+          : undefined;
     }
-    const timestamp = explicitTimestamp
-      ? explicitTimestamp
-      : entry.getTimestamp();
+    const timestamp =
+      explicitTimestamp !== undefined
+        ? explicitTimestamp
+        : entry.getTimestamp();
     return new TracePosition(timestamp, frame, entry);
   }
 
