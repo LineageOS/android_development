@@ -31,7 +31,7 @@ export class TracePosition {
   }
 
   static fromTraceEntry(
-    entry: TraceEntry<{}>,
+    entry: TraceEntry<{}, {} | undefined>,
     explicitTimestamp?: Timestamp,
   ): TracePosition {
     let frame: AbsoluteFrameIndex | undefined;
@@ -57,6 +57,6 @@ export class TracePosition {
   private constructor(
     readonly timestamp: Timestamp,
     readonly frame?: AbsoluteFrameIndex,
-    readonly entry?: TraceEntry<{}>,
+    readonly entry?: TraceEntry<{}, {} | undefined>,
   ) {}
 }

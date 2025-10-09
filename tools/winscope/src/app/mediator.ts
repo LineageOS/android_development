@@ -52,7 +52,7 @@ import {
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
@@ -846,7 +846,7 @@ export class Mediator {
       })
       .filter((entry) => {
         return entry !== undefined;
-      }) as Array<TraceEntry<object>>;
+      });
 
     if (firstEntries.length > 0) {
       return TracePosition.fromTraceEntry(firstEntries[0]);

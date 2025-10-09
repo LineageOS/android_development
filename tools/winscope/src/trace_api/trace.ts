@@ -45,9 +45,10 @@ import {TraceType} from './trace_type';
  * Represents a single entry within a trace. This abstract class provides
  * common properties and methods for accessing entry information like timestamp,
  * index, and associated frame range.
- * @template T The type of the trace entry's value.
+ * @template T The type of the full trace entry's value.
+ * @template U The type of this specific entry's value.
  */
-export abstract class TraceEntry<T> {
+export abstract class TraceEntry<T, U = Promise<T>> {
   constructor(
     protected readonly fullTrace: Trace<T>,
     protected readonly parser: Parser<T>,
@@ -83,7 +84,7 @@ export abstract class TraceEntry<T> {
     return this.framesRange;
   }
 
-  abstract getValue(): any;
+  abstract getValue(): U;
 }
 
 /**
@@ -121,7 +122,7 @@ export class TraceEntryLazy<T> extends TraceEntry<T> {
  * @template T The type of the full trace entry's value.
  * @template U The type of this specific eager entry's value.
  */
-export class TraceEntryEager<T, U> extends TraceEntry<T> {
+export class TraceEntryEager<T, U> extends TraceEntry<T, U> {
   private readonly value: U;
 
   constructor(
