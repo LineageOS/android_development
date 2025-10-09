@@ -11,7 +11,7 @@ atest --host cargo_embargo.test
 When the output of `cargo metadata` changes, you need to update the
 `cargo.metadata` files found in the subdirectories here. Do this with:
 
-```
+```shell
 for crate in aho-corasick async-trait either plotters rustc-demangle-capi; do
     pushd $ANDROID_BUILD_TOP/external/rust/crates/$crate
     cargo metadata --format-version 1 | jq --sort-keys \
