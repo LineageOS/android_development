@@ -144,9 +144,7 @@ describe('EntryHierarchyTreeFactory', () => {
           {primaryRects: [mockTraceRect], secondaryRects: []},
         ],
       ]);
-      const visibleRects: RectsForTrace = new Map([
-        [102n, snapshotRectFor102],
-      ]);
+      const visibleRects: RectsForTrace = new Map([[102n, snapshotRectFor102]]);
 
       const trees = makeHierarchyTrees(visibleRects);
 

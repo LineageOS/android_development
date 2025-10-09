@@ -17,11 +17,16 @@
 import {TraceRect} from 'tree_node/trace_rect';
 
 /*
+ * Type to keep the primary and secondary rects
+ */
+export type NodeRects = {primaryRects: TraceRect[], secondaryRects: TraceRect[] | undefined}
+
+/*
  * Map for a singular snapshot
  */
 export type SnapshotRects = Map<
   bigint,
-  {primaryRects: TraceRect[]; secondaryRects: TraceRect[] | undefined}
+  NodeRects
 >;
 
 /*

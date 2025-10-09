@@ -22,10 +22,7 @@ import {
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {queryVsyncId} from 'parsers/perfetto/utils';
 import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {
-  RectExtractor,
-  SnapshotRects,
-} from 'parsers/surface_flinger/rect_extractor';
+import {RectExtractor} from 'parsers/surface_flinger/rect_extractor';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
@@ -36,10 +33,11 @@ import {TraceType} from 'trace_api/trace_type';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {RectsForTrace} from 'parsers/snapshot_rects_map';
 
 export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   private readonly factory = EntryHierarchyTreeFactory;
-  private visibleAndDisplayRects: Map<bigint, SnapshotRects> | undefined;
+  private visibleAndDisplayRects: RectsForTrace | undefined;
   private allVisibleRects: QueryResult | undefined;
   private allSnapshots: QueryResult | undefined;
 
@@ -200,7 +198,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     queryRawData: boolean,
   ): Promise<QueryResult> {
     const snapshotQuery = `
-  SELECT
+    SELECT
           sfs.id,
           sfs.arg_set_id,
           display.is_on,
@@ -227,7 +225,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     queryRawData: boolean,
   ): Promise<QueryResult> {
     const layersQuery = `
-  SELECT
+    SELECT
           sfl.snapshot_id,
           sfl.id,
           sfl.arg_set_id,

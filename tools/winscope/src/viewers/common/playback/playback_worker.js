@@ -37,7 +37,7 @@ self.onmessage = async (event) => {
   treeBuilder.setType(event.data.type);
   treeBuilder.setSnapshotResults(snapshot);
   treeBuilder.setLayersResults(layer);
-  treeBuilder.setSfRectsMap(event.data.visibleRectsMap);
+  treeBuilder.setRectsMap(event.data.visibleRectsMap);
   treeBuilder.setGeometryData(traceGeometryData);
 
   const trees = treeBuilder.build();

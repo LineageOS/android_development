@@ -55,7 +55,8 @@ import {AddDisplayProperties} from './operations/add_display_properties';
 import {TranslateFlags} from './operations/translate_flags';
 import {UpdateCornerRadii} from './operations/update_corner_radii';
 import {UpdateTransforms} from './operations/update_transforms';
-import {LayerRects, RectExtractor} from './rect_extractor';
+import {RectExtractor} from './rect_extractor';
+import {SnapshotRects, RectsForTrace, NodeRects} from 'parsers/snapshot_rects_map';
 
 export class EntryHierarchyTreeFactory {
   private static readonly ENTRY_FIELD =
@@ -115,10 +116,7 @@ export class EntryHierarchyTreeFactory {
   static makeEntryHierarchyTrees(
     snapshotResults: QueryResult,
     layersResults: QueryResult,
-    visibleRectsResults: Map<
-      bigint,
-      {displayRects: TraceRect[]; layerRects: Map<bigint, LayerRects>}
-    >,
+    visibleRectsResults: RectsForTrace,
     traceProcessor: TraceProcessor | undefined,
     traceGeometryData: TraceGeometryData,
   ): HierarchyTreeNode[] {
@@ -133,16 +131,14 @@ export class EntryHierarchyTreeFactory {
           currSnapshot,
           traceProcessor,
         );
-      const visibleRects = assertDefined(visibleRectsResults.get(currentId));
-      const displayRects = visibleRects.displayRects;
-      const visibleLayerRects = visibleRects.layerRects;
+      const snapshotRect = assertDefined(visibleRectsResults.get(currentId));
 
       const {layers, rects, warnings} =
         EntryHierarchyTreeFactory.makeLayersAndNonvisibleRects(
           currLayer,
           traceProcessor,
           currentId,
-          visibleLayerRects,
+          snapshotRect,
           traceGeometryData,
         );
 
@@ -151,7 +147,6 @@ export class EntryHierarchyTreeFactory {
         layers,
         warnings,
         rects,
-        displayRects,
       );
       // Since our query uses left joins there might be multiple rows for the same snapshotID
       // We've already processed the unique information for the currentId, so we skip any remaining rows for this ID.
@@ -171,8 +166,7 @@ export class EntryHierarchyTreeFactory {
     root: PropertiesProvider,
     layers: PropertiesProvider[],
     warnings: UserWarning[],
-    rects: Map<bigint, LayerRects>,
-    displayRects: TraceRect[],
+    snapshotRect: SnapshotRects,
   ): HierarchyTreeNode {
     const tree = new HierarchyTreeBuilderSf()
       .setRoot(root)
@@ -184,18 +178,15 @@ export class EntryHierarchyTreeFactory {
 
     tree.forEachNodeDfs((node) => {
       if (node.isRoot()) {
-        node.setRects(displayRects);
+        node.setRects(snapshotRect.get(-1n)?.primaryRects ?? []);
         return;
       }
-      const layerRects = rects.get(
-        assertBigInt(node.getEagerPropertyByName('layerId')?.getValue()),
+      const layerId = assertBigInt(
+        node.getEagerPropertyByName('layerId')?.getValue(),
       );
-      if (layerRects?.bounds) {
-        node.setRects([layerRects.bounds]);
-      }
-      if (layerRects?.input) {
-        node.setSecondaryRects([layerRects.input]);
-      }
+      const layerRects = snapshotRect.get(layerId);
+      node.setRects(layerRects?.primaryRects ?? []);
+      node.setSecondaryRects(layerRects?.secondaryRects ?? []);
     });
     return tree;
   }
@@ -232,15 +223,15 @@ export class EntryHierarchyTreeFactory {
     layersIter: RowIterator,
     traceProcessor: TraceProcessor | undefined,
     currSnapshotId: bigint | undefined,
-    visibleLayerInputRects: Map<bigint, LayerRects>,
+    visibleRects: SnapshotRects,
     traceGeometryData: TraceGeometryData,
   ): {
     layers: PropertiesProvider[];
-    rects: Map<bigint, LayerRects>;
+    rects: SnapshotRects;
     warnings: UserWarning[];
   } {
     let missingLayerIds = false;
-    const rects = new Map<bigint, LayerRects>();
+    const rects: SnapshotRects = new Map();
     const layers: PropertiesProvider[] = [];
     const recursiveIds: number[] = [];
     const processedUniqueRowIds = new Set<bigint>();
@@ -301,10 +292,8 @@ export class EntryHierarchyTreeFactory {
       layers.push(layerProps);
       const uniqueNodeId = layerProps.getEagerProperties().id;
 
-      if (visibleLayerInputRects.has(layerIdBigint)) {
-        const precomputedRects = assertDefined(
-          visibleLayerInputRects.get(layerIdBigint),
-        );
+      if (visibleRects.has(layerIdBigint)) {
+        const precomputedRects = assertDefined(visibleRects.get(layerIdBigint));
         rects.set(layerIdBigint, precomputedRects);
       } else {
         const layerRects = RectExtractor.extractLayerRects(
@@ -315,11 +304,6 @@ export class EntryHierarchyTreeFactory {
         );
         if (layerRects) {
           rects.set(layerIdBigint, layerRects);
-          EntryHierarchyTreeFactory.tryUpdateFillRegion(
-            layerRects,
-            it,
-            traceGeometryData,
-          );
         }
       }
     }
@@ -338,6 +322,11 @@ export class EntryHierarchyTreeFactory {
       warnings.push(new RecursiveLayerIds(recursiveIds));
     }
 
+    const displayRects = visibleRects.get(-1n);
+    if (displayRects) {
+      rects.set(-1n, displayRects);
+    }
+
     return {
       layers,
       rects,
@@ -346,17 +335,18 @@ export class EntryHierarchyTreeFactory {
   }
 
   private static tryUpdateFillRegion(
-    layerRects: LayerRects,
+    layerRects: NodeRects,
     row: RowIterator,
     traceGeometryData: TraceGeometryData,
   ) {
-    if (layerRects?.input) {
+    const inputRect = layerRects?.secondaryRects?.[0];
+    if (inputRect?.fillRegion) {
       const fillRegionRect = RectExtractor.extractFillRegionRect(
         row,
         traceGeometryData,
       );
       if (fillRegionRect) {
-        assertDefined(layerRects.input.fillRegion).rects.push(fillRegionRect);
+        assertDefined(inputRect.fillRegion).rects.push(fillRegionRect);
       }
     }
   }

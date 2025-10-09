@@ -17,10 +17,10 @@
 import {TraceType} from 'trace_api/trace_type';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {SnapshotRects} from 'parsers/surface_flinger/rect_extractor';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {assertDefined} from 'common/assert';
 import {QueryResult} from 'trace_processor/query_result';
+import {RectsForTrace} from './snapshot_rects_map';
 
 /**
  * A builder class for creating trace entry values.
@@ -36,7 +36,7 @@ export class TraceEntryValueBuilder {
   private traceType: TraceType | undefined;
   private snapshotResults: QueryResult | undefined;
   private layerResults: QueryResult | undefined;
-  private sfRectsMap: Map<bigint, SnapshotRects> | undefined;
+  private rectsMap: RectsForTrace | undefined;
   private traceGeometryData: TraceGeometryData | undefined;
 
   setType(traceType: TraceType) {
@@ -51,8 +51,8 @@ export class TraceEntryValueBuilder {
     this.layerResults = layers;
   }
 
-  setSfRectsMap(rectsMap: Map<bigint, SnapshotRects>) {
-    this.sfRectsMap = rectsMap;
+  setRectsMap(rectsMap: RectsForTrace) {
+    this.rectsMap = rectsMap;
   }
 
   setGeometryData(data: TraceGeometryData) {
@@ -68,7 +68,7 @@ export class TraceEntryValueBuilder {
         return EntryHierarchyTreeFactory.makeEntryHierarchyTrees(
           assertDefined(this.snapshotResults),
           assertDefined(this.layerResults),
-          assertDefined(this.sfRectsMap),
+          assertDefined(this.rectsMap),
           undefined,
           assertDefined(this.traceGeometryData),
         );

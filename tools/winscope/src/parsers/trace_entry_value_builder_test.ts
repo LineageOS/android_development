@@ -17,17 +17,14 @@
 import {TraceEntryValueBuilder} from './trace_entry_value_builder';
 import {QueryResult} from 'trace_processor/query_result';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {SnapshotRects} from 'parsers/surface_flinger/rect_extractor';
 import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TraceType} from 'trace_api/trace_type';
+import {RectsForTrace} from './snapshot_rects_map';
 
 describe('TraceEntryValueBuilder', async () => {
   const mockQueryResult: QueryResult = {} as QueryResult;
   const mockTraceGeometryData: TraceGeometryData = {} as TraceGeometryData;
-  const mockRectsMap: Map<bigint, SnapshotRects> = new Map<
-    bigint,
-    SnapshotRects
-  >();
+  const mockRectsMap: RectsForTrace = new Map();
 
   let traceEntryValueBuilder: TraceEntryValueBuilder;
   let makeEntryHierarchyTreesSpy: jasmine.Spy;
@@ -62,7 +59,7 @@ describe('TraceEntryValueBuilder', async () => {
 
   it('sets the rect map', () => {
     expect(() =>
-      traceEntryValueBuilder.setSfRectsMap(mockRectsMap),
+      traceEntryValueBuilder.setRectsMap(mockRectsMap),
     ).not.toThrow();
   });
 
@@ -86,7 +83,7 @@ describe('TraceEntryValueBuilder', async () => {
     traceEntryValueBuilder.setType(TraceType.SURFACE_FLINGER);
     traceEntryValueBuilder.setSnapshotResults(mockQueryResult);
     traceEntryValueBuilder.setLayersResults(mockQueryResult);
-    traceEntryValueBuilder.setSfRectsMap(mockRectsMap);
+    traceEntryValueBuilder.setRectsMap(mockRectsMap);
     traceEntryValueBuilder.setGeometryData(mockTraceGeometryData);
 
     traceEntryValueBuilder.build();
