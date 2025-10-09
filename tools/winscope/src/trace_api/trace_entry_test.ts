@@ -19,14 +19,47 @@ import {
   timestampEqualityTester,
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {Trace} from './trace';
 
 describe('TraceEntry', () => {
-  let trace: Trace<string>;
-
   beforeAll(() => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    trace = new TraceBuilder<string>()
+  });
+
+  it('getFullTrace()', () => {
+    const trace = new TraceBuilder<string>()
+      .setTimestamps([makeRealTimestamp(10n), makeRealTimestamp(11n)])
+      .setEntries(['entry-0', 'entry-1'])
+      .build();
+    expect(trace.getEntry(0).getFullTrace()).toEqual(trace);
+    expect(trace.sliceEntries(0, 1).getEntry(0).getFullTrace()).toEqual(trace);
+  });
+
+  it('getIndex()', () => {
+    const trace = new TraceBuilder<string>()
+      .setTimestamps([
+        makeRealTimestamp(10n),
+        makeRealTimestamp(11n),
+        makeRealTimestamp(12n),
+        makeRealTimestamp(13n),
+      ])
+      .setEntries(['entry-0', 'entry-1', 'entry-2', 'entry-3'])
+      .build();
+    expect(trace.getEntry(0).getIndex()).toBe(0);
+    expect(trace.sliceEntries(2, 4).getEntry(0).getIndex()).toBe(2);
+    expect(trace.sliceEntries(2, 4).getEntry(1).getIndex()).toBe(3);
+  });
+
+  it('getTimestamp()', () => {
+    const trace = new TraceBuilder<string>()
+      .setTimestamps([makeRealTimestamp(10n), makeRealTimestamp(11n)])
+      .setEntries(['entry-0', 'entry-1'])
+      .build();
+    expect(trace.getEntry(0).getTimestamp()).toEqual(makeRealTimestamp(10n));
+    expect(trace.getEntry(1).getTimestamp()).toEqual(makeRealTimestamp(11n));
+  });
+
+  it('getFramesRange()', () => {
+    const trace = new TraceBuilder<string>()
       .setTimestamps([
         makeRealTimestamp(10n),
         makeRealTimestamp(11n),
@@ -50,25 +83,6 @@ describe('TraceEntry', () => {
       .setFrame(3, 2)
       .setFrame(5, 4)
       .build();
-  });
-
-  it('getFullTrace()', () => {
-    expect(trace.getEntry(0).getFullTrace()).toEqual(trace);
-    expect(trace.sliceEntries(0, 1).getEntry(0).getFullTrace()).toEqual(trace);
-  });
-
-  it('getIndex()', () => {
-    expect(trace.getEntry(0).getIndex()).toBe(0);
-    expect(trace.sliceEntries(2, 4).getEntry(0).getIndex()).toBe(2);
-    expect(trace.sliceEntries(2, 4).getEntry(1).getIndex()).toBe(3);
-  });
-
-  it('getTimestamp()', () => {
-    expect(trace.getEntry(0).getTimestamp()).toEqual(makeRealTimestamp(10n));
-    expect(trace.getEntry(1).getTimestamp()).toEqual(makeRealTimestamp(11n));
-  });
-
-  it('getFramesRange()', () => {
     expect(trace.getEntry(0).getFramesRange()).toEqual({start: 0, end: 2});
     expect(trace.getEntry(1).getFramesRange()).toEqual({start: 1, end: 2});
     expect(trace.getEntry(2).getFramesRange()).toEqual({start: 1, end: 2});
@@ -78,6 +92,10 @@ describe('TraceEntry', () => {
   });
 
   it('getValue()', async () => {
+    const trace = new TraceBuilder<string>()
+      .setTimestamps([makeRealTimestamp(10n), makeRealTimestamp(11n)])
+      .setEntries(['entry-0', 'entry-1'])
+      .build();
     expect(await trace.getEntry(0).getValue()).toBe('entry-0');
     expect(await trace.getEntry(1).getValue()).toBe('entry-1');
   });
