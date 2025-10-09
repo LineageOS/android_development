@@ -20,6 +20,12 @@ import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {TraceBuilder} from './trace_builder';
 
+/**
+ * A builder for Traces objects.
+ *
+ * This class simplifies the creation of Traces objects by providing methods
+ * for setting entries, timestamps, and frame maps for each trace type.
+ */
 export class TracesBuilder {
   private readonly traceBuilders = new Map<TraceType, TraceBuilder<{}>>();
 

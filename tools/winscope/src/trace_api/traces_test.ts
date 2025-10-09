@@ -26,7 +26,7 @@ import {
   extractEntries,
   extractFrames,
   extractTraces,
-} from 'test/unit/traces_utils';
+} from 'test/unit/traces_test_helpers';
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';
 import {TraceType} from './trace_type';
