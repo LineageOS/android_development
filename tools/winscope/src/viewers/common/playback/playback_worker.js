@@ -33,14 +33,14 @@ self.onmessage = async (event) => {
   const snapshot = queries[0];
   const node = queries[1];
 
-  const treeBuilder = new TraceEntryValueBuilder();
-  treeBuilder.setType(event.data.type);
+  const treeBuilder = new TraceEntryValueBuilder()
+    .setType(event.data.type)
+    .setNodeResults(node)
+    .setRectsMap(event.data.visibleRectsMap)
+    .setGeometryData(traceGeometryData);
   if (snapshot) {
     treeBuilder.setSnapshotResults(snapshot);
   }
-  treeBuilder.setNodeResults(node);
-  treeBuilder.setRectsMap(event.data.visibleRectsMap);
-  treeBuilder.setGeometryData(traceGeometryData);
 
   const trees = treeBuilder.build();
   self.postMessage({trees});
