@@ -73,6 +73,15 @@ export const viewerCardStyle = `
   .rects-view:not(.collapsed) {
     overflow-y: hidden;
   }
+
+  .disabled-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    opacity: 1;
+}
 `;
 
 export const viewerCardInnerStyle = `

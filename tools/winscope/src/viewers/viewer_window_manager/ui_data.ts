@@ -37,6 +37,8 @@ export class UiData implements UiDataHierarchy {
   propertiesFilter = new TextFilter();
   pinnedItems: UiHierarchyTreeNode[] = [];
   rectsUserOptions: UserOptions = {};
+  isPlaybackPlaying?: boolean;
+  isPlaybackInitializing?: boolean;
   hierarchyUserOptions: UserOptions = {};
   propertiesUserOptions: UserOptions = {};
   hierarchyTrees: UiHierarchyTreeNode[] | undefined;
