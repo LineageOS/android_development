@@ -38,7 +38,11 @@ import {
   MessageType,
   TimestampType,
 } from './messages';
-import {OriginAllowList} from './origin_allow_list';
+import {
+  isAllowed,
+  isOriginAllowedTimestampSync,
+  isUnauthorizedOriginExpected,
+} from './origin_allow_list';
 
 class RemoteTool {
   timestampType?: TimestampType;
@@ -58,7 +62,7 @@ export class CrossToolProtocol
   private remoteTool?: RemoteTool;
   private emitEvent: EmitEvent = () => Promise.resolve();
   private timestampConverter: RemoteToolTimestampConverter;
-  private allowTimestampSync = true;
+  private allowTimestampSync = false;
 
   constructor(timestampConverter: RemoteToolTimestampConverter) {
     this.timestampConverter = timestampConverter;
@@ -79,6 +83,7 @@ export class CrossToolProtocol
         if (
           !this.remoteTool ||
           !this.remoteTool.timestampType ||
+          !this.isAllowedTimestampSync() ||
           !this.allowTimestampSync
         ) {
           return;
@@ -101,8 +106,11 @@ export class CrossToolProtocol
     );
   }
 
-  isConnected() {
-    return this.remoteTool !== undefined;
+  isAllowedTimestampSync() {
+    return (
+      this.remoteTool !== undefined &&
+      isOriginAllowedTimestampSync(this.remoteTool.origin)
+    );
   }
 
   setAllowTimestampSync(value: boolean) {
@@ -114,8 +122,8 @@ export class CrossToolProtocol
   }
 
   private async onMessageReceived(event: MessageEvent) {
-    if (!OriginAllowList.isAllowed(event.origin)) {
-      if (!OriginAllowList.isUnauthorizedOriginExpected(event.origin)) {
+    if (!isAllowed(event.origin)) {
+      if (!isUnauthorizedOriginExpected(event.origin)) {
         console.warn(
           'Cross-tool protocol received message from unauthorized origin:',
           event.origin,
@@ -131,6 +139,7 @@ export class CrossToolProtocol
 
     if (!this.remoteTool) {
       this.remoteTool = new RemoteTool(event.source as Window, event.origin);
+      this.allowTimestampSync = isOriginAllowedTimestampSync(event.origin);
     }
 
     switch (message.type) {
@@ -208,7 +217,7 @@ export class CrossToolProtocol
   }
 
   private async onMessageTimestampReceived(message: MessageTimestamp) {
-    if (!this.allowTimestampSync) {
+    if (!this.allowTimestampSync || !this.isAllowedTimestampSync()) {
       return;
     }
     this.setRemoteToolTimestampTypeIfNeeded(message.timestampType);
