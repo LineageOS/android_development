@@ -18,10 +18,7 @@ import {assertDefined} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {
-  extractAllRects,
-  SnapshotRects,
-} from 'parsers/view_capture/perfetto/rect_extractor';
+import {extractAllRects} from 'parsers/view_capture/perfetto/rect_extractor';
 import {TraceFile} from 'trace/trace_file';
 import {
   CustomQueryParserResultTypeMap,
@@ -38,12 +35,13 @@ import {
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 /**
  * A parser for a single window in a Perfetto ViewCapture trace.
  */
 export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
-  private visibleRects: Map<bigint, SnapshotRects> | undefined;
+  private visibleRects: RectsForTrace | undefined;
   private readonly packageName: string;
   private readonly windowName: string;
 
@@ -133,7 +131,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     return entryIndexToRowId;
   }
 
-  private async fetchAllVisibleRects(): Promise<Map<bigint, SnapshotRects>> {
+  private async fetchAllVisibleRects(): Promise<RectsForTrace> {
     if (this.visibleRects === undefined) {
       const visibleRectsResult = await this.queryAllVisibleRects();
       this.visibleRects = extractAllRects(

@@ -19,6 +19,11 @@ import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {TraceRectBuilderFromQueryRow} from 'parsers/trace_rect_builder_from_query_row';
 import {RowIterator} from 'trace_processor/query_result';
 import {TraceRect} from 'tree_node/trace_rect';
+import {
+  RectsForTrace,
+  NodeRects,
+  SnapshotRects,
+} from 'parsers/rect_extractor_result';
 
 /**
  * Extracts VC rect from a trace processor query result row.
@@ -49,8 +54,8 @@ export function extractAllRects(
   traceGeometryData: TraceGeometryData,
   makeRectId: (row: RowIterator) => string,
   makeRectName: (row: RowIterator) => string,
-): Map<bigint, SnapshotRects> {
-  const allRects = new Map<bigint, SnapshotRects>();
+): RectsForTrace {
+  const allRects: RectsForTrace = new Map();
 
   for (const it = rowIterator; it.valid(); it.next()) {
     const rect = extractRect(
@@ -64,15 +69,18 @@ export function extractAllRects(
     const nodeId = assertBigInt(it.get('node_id'));
     const existingRectsForSnapshot = allRects.get(snapshotId);
 
+    const nodeRect: NodeRects = {
+      primaryRects: [rect],
+      secondaryRects: undefined,
+    };
+
     if (existingRectsForSnapshot) {
-      existingRectsForSnapshot.set(nodeId, rect);
+      existingRectsForSnapshot.set(nodeId, nodeRect);
     } else {
-      const rectsForSnapshot = new Map<bigint, TraceRect>([[nodeId, rect]]);
+      const rectsForSnapshot: SnapshotRects = new Map([[nodeId, nodeRect]]);
       allRects.set(snapshotId, rectsForSnapshot);
     }
   }
 
   return allRects;
 }
-
-export declare type SnapshotRects = Map<bigint, TraceRect>;

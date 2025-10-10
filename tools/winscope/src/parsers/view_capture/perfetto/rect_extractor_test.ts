@@ -22,7 +22,8 @@ import {
   setupMockIteratorWithRows,
 } from 'trace_processor/test_utils';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
-import {extractAllRects, extractRect, SnapshotRects} from './rect_extractor';
+import {extractAllRects, extractRect} from './rect_extractor';
+import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
 
 describe('ViewCapture RectExtractor', () => {
   it('extracts rect', () => {
@@ -66,82 +67,102 @@ describe('ViewCapture RectExtractor', () => {
   });
 
   it('extracts all rects', () => {
-    const expectedRectSnapshot1 = new Map([
+    const expectedRectSnapshot1: SnapshotRects = new Map([
       [
         10n,
-        new TraceRectBuilder()
-          .setX(5)
-          .setY(6)
-          .setWidth(4)
-          .setHeight(3)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(true)
-          .setIsDisplay(false)
-          .setDepth(4)
-          .setOpacity(1)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(5)
+              .setY(6)
+              .setWidth(4)
+              .setHeight(3)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(true)
+              .setIsDisplay(false)
+              .setDepth(4)
+              .setOpacity(1)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: undefined,
+        },
       ],
 
       [
         20n,
-        new TraceRectBuilder()
-          .setX(1)
-          .setY(2)
-          .setWidth(3)
-          .setHeight(4)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(false)
-          .setIsDisplay(false)
-          .setDepth(8)
-          .setOpacity(0.5)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(1)
+              .setY(2)
+              .setWidth(3)
+              .setHeight(4)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(false)
+              .setIsDisplay(false)
+              .setDepth(8)
+              .setOpacity(0.5)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: undefined,
+        },
       ],
     ]);
-    const expectedRectSnapshot2 = new Map([
+    const expectedRectSnapshot2: SnapshotRects = new Map([
       [
         10n,
-        new TraceRectBuilder()
-          .setX(1)
-          .setY(2)
-          .setWidth(3)
-          .setHeight(4)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(true)
-          .setIsDisplay(false)
-          .setDepth(4)
-          .setOpacity(1)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(1)
+              .setY(2)
+              .setWidth(3)
+              .setHeight(4)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(true)
+              .setIsDisplay(false)
+              .setDepth(4)
+              .setOpacity(1)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: undefined,
+        },
       ],
 
       [
         20n,
-        new TraceRectBuilder()
-          .setX(5)
-          .setY(6)
-          .setWidth(4)
-          .setHeight(3)
-          .setId('testId testName')
-          .setName('testName')
-          .setGroupId(0)
-          .setIsVisible(false)
-          .setIsDisplay(false)
-          .setDepth(8)
-          .setOpacity(0.5)
-          .setIsSpy(false)
-          .build(),
+        {
+          primaryRects: [
+            new TraceRectBuilder()
+              .setX(5)
+              .setY(6)
+              .setWidth(4)
+              .setHeight(3)
+              .setId('testId testName')
+              .setName('testName')
+              .setGroupId(0)
+              .setIsVisible(false)
+              .setIsDisplay(false)
+              .setDepth(8)
+              .setOpacity(0.5)
+              .setIsSpy(false)
+              .build(),
+          ],
+          secondaryRects: undefined,
+        },
       ],
     ]);
 
-    const expectedRects = new Map<bigint, SnapshotRects>([
+    const expectedRects: RectsForTrace = new Map<bigint, SnapshotRects>([
       [0n, expectedRectSnapshot1],
       [1n, expectedRectSnapshot2],
     ]);
@@ -160,40 +181,40 @@ describe('ViewCapture RectExtractor', () => {
     const iter = makeSpyRowIterator();
     const rows: Array<{[key: string]: ColumnType | null}> = [
       {
-        'snapshot_id': 0n,
-        'node_id': 10n,
-        'rect_id': 1n,
-        'is_visible': 1n,
-        'group_id': 0n,
-        'depth': 4n,
-        'opacity': 1,
+        snapshot_id: 0n,
+        node_id: 10n,
+        rect_id: 1n,
+        is_visible: 1n,
+        group_id: 0n,
+        depth: 4n,
+        opacity: 1,
       },
       {
-        'snapshot_id': 0n,
-        'node_id': 20n,
-        'rect_id': 2n,
-        'is_visible': 0n,
-        'group_id': 0n,
-        'depth': 8n,
-        'opacity': 0.5,
+        snapshot_id: 0n,
+        node_id: 20n,
+        rect_id: 2n,
+        is_visible: 0n,
+        group_id: 0n,
+        depth: 8n,
+        opacity: 0.5,
       },
       {
-        'snapshot_id': 1n,
-        'node_id': 10n,
-        'rect_id': 2n,
-        'is_visible': 1n,
-        'group_id': 0n,
-        'depth': 4n,
-        'opacity': 1,
+        snapshot_id: 1n,
+        node_id: 10n,
+        rect_id: 2n,
+        is_visible: 1n,
+        group_id: 0n,
+        depth: 4n,
+        opacity: 1,
       },
       {
-        'snapshot_id': 1n,
-        'node_id': 20n,
-        'rect_id': 1n,
-        'is_visible': 0n,
-        'group_id': 0n,
-        'depth': 8n,
-        'opacity': 0.5,
+        snapshot_id: 1n,
+        node_id: 20n,
+        rect_id: 1n,
+        is_visible: 0n,
+        group_id: 0n,
+        depth: 8n,
+        opacity: 0.5,
       },
     ];
     setupMockIteratorWithRows(iter, rows);

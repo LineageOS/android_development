@@ -32,10 +32,11 @@ import {
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {TraceRect} from 'tree_node/trace_rect';
-import {extractRect, SnapshotRects} from './rect_extractor';
+import {extractRect} from './rect_extractor';
 import {UINT32_MAX} from 'common/math';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
 import {SetFormatters} from 'parsers/set_formatters';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 /**
  * Creates node id for a ViewCapture view. Used to construct nodes and rects
@@ -60,7 +61,7 @@ export function makeTreeNodeName(row: RowIterator) {
  */
 export function makeEntryHierarchyTrees(
   viewsResult: QueryResult,
-  visibleRects: Map<bigint, SnapshotRects>,
+  visibleRects: RectsForTrace,
   traceProcessor: TraceProcessor,
   traceGeometryData: TraceGeometryData,
 ): HierarchyTreeNode[] {
@@ -80,7 +81,8 @@ export function makeEntryHierarchyTrees(
     currSnapshotId = snapshotId;
 
     const nodeId = assertBigInt(it.get('node_id'));
-    const visibleRect = visibleRects?.get(snapshotId)?.get(nodeId);
+    const nodeRect = visibleRects?.get(snapshotId)?.get(nodeId);
+    const visibleRect = nodeRect?.primaryRects[0];
 
     const viewAndRect = makeViewAndRect(
       it,
