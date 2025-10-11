@@ -69,9 +69,8 @@ describe('TraceEntryValueBuilder', async () => {
     ).not.toThrow();
   });
 
-  it('returns undefined if trace type is not set on build', () => {
-    const result = traceEntryValueBuilder.build();
-    expect(result).toBeUndefined();
+  it('throws error if trace type is not set on build', () => {
+    expect(() => traceEntryValueBuilder.build()).toThrow();
   });
 
   it('throws error for not implement trace type', () => {
@@ -80,13 +79,13 @@ describe('TraceEntryValueBuilder', async () => {
   });
 
   it('successfully calls makeEntryHierarchyTrees when all data is set', () => {
-    traceEntryValueBuilder.setType(TraceType.SURFACE_FLINGER);
-    traceEntryValueBuilder.setSnapshotResults(mockQueryResult);
-    traceEntryValueBuilder.setNodeResults(mockQueryResult);
-    traceEntryValueBuilder.setRectsMap(mockRectsMap);
-    traceEntryValueBuilder.setGeometryData(mockTraceGeometryData);
-
-    traceEntryValueBuilder.build();
+    traceEntryValueBuilder
+      .setType(TraceType.SURFACE_FLINGER)
+      .setSnapshotResults(mockQueryResult)
+      .setNodeResults(mockQueryResult)
+      .setRectsMap(mockRectsMap)
+      .setGeometryData(mockTraceGeometryData)
+      .build();
 
     expect(makeEntryHierarchyTreesSpy).toHaveBeenCalledTimes(1);
     expect(makeEntryHierarchyTreesSpy).toHaveBeenCalledWith(
