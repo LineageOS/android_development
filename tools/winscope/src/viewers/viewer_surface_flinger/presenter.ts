@@ -162,7 +162,6 @@ the default for its data type.`,
   );
   protected override playbackPresenter = new PlaybackPresenter(
     (event) => {
-      this.hierarchyPresenter.setShowDiffAvailability(true);
       return this.emitWinscopeEvent(event);
     },
     assertDefined(this.traces.getTrace(TraceType.SURFACE_FLINGER)),

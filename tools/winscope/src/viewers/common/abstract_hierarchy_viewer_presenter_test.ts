@@ -226,9 +226,7 @@ export abstract class AbstractHierarchyViewerPresenterTest<
 
           isPlayingSpy.and.returnValue(true);
 
-          await presenter.onAppEvent(
-            assertDefined(this.getSecondPositionUpdate()),
-          );
+          await presenter.onHighlightedIdChange(selectedId);
           expect(uiData.propertiesTree).toEqual(propsTreeBeforePlayback);
         });
 
