@@ -330,6 +330,7 @@ export class UserRequestParser {
       group_overrides {
         group_name: "${group.name}"
         collect_stacktrace: ${group.stacktrace}
+        log_from: PROTOLOG_LEVEL_VERBOSE
       }`;
       })
       .join('');
