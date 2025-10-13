@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
 import {AbsoluteFrameIndex} from 'trace_api/index_types';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -40,14 +39,12 @@ export function extractTraces(traces: Traces): Array<Trace<{}>> {
 export async function extractEntries(
   traces: Traces,
 ): Promise<Map<TraceType, Array<{}>>> {
-  const entries = new Map<TraceType, Array<{}>>();
-
-  const promises = traces.mapTrace(async (trace) => {
-    entries.set(trace.type, await extractTraceEntries(trace));
-  });
-  await Promise.all(promises);
-
-  return entries;
+  const traceEntries: Array<[TraceType, Array<{}>]> = await Promise.all(
+    traces.mapTrace(async (trace) => {
+      return [trace.type, await extractTraceEntries(trace)];
+    }),
+  );
+  return new Map<TraceType, Array<{}>>(traceEntries);
 }
 
 /**
@@ -58,20 +55,14 @@ export async function extractEntries(
  */
 export async function extractFrames(
   traces: Traces,
-): Promise<Map<AbsoluteFrameIndex, Map<TraceType, Array<{}>>>> {
-  const frames = new Map<AbsoluteFrameIndex, Map<TraceType, Array<{}>>>();
-
-  const framePromises = traces.mapFrame(async (frame, index) => {
-    frames.set(index, new Map<TraceType, Array<{}>>());
-    const tracePromises = frame.mapTrace(async (trace, type) => {
-      assertDefined(frames.get(index)).set(
-        type,
-        await extractTraceEntries(trace),
-      );
-    });
-    await Promise.all(tracePromises);
-  });
-  await Promise.all(framePromises);
-
-  return frames;
+): Promise<Map<AbsoluteFrameIndex, FrameMap>> {
+  const frames: Array<[AbsoluteFrameIndex, FrameMap]> = await Promise.all(
+    traces.mapFrame(async (frame, index) => {
+      const frameEntries = await extractEntries(frame);
+      return [index, frameEntries];
+    }),
+  );
+  return new Map<AbsoluteFrameIndex, FrameMap>(frames);
 }
+
+type FrameMap = Map<TraceType, Array<{}>>;
