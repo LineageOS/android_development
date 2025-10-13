@@ -59,11 +59,11 @@ pub type TypedFeatures<'a> = BTreeSet<FeatureRef<'a>>;
 /// A trait for merging explicit features and optional dependencies into a single set.
 pub trait FeaturesAndOptionalDeps {
     /// Returns a unified list of the features and optional dependencies of a crate version.
-    fn features_and_optional_deps(&self) -> TypedFeatures;
+    fn features_and_optional_deps(&self) -> TypedFeatures<'_>;
 }
 
 impl FeaturesAndOptionalDeps for Version {
-    fn features_and_optional_deps(&self) -> TypedFeatures {
+    fn features_and_optional_deps(&self) -> TypedFeatures<'_> {
         let explicit_deps = self
             .features()
             .values()
