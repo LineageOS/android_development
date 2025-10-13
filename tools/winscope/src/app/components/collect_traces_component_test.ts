@@ -741,13 +741,36 @@ describe('CollectTracesComponent', () => {
       expect(restartSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('tries to authorize device', () => {
+    it('tries to authorize device on list item click', () => {
       const device = new WdpDeviceConnection('35562', component);
       const authorizeSpy = spyOn(device, 'tryAuthorize');
       const stateSpy = spyOn(device, 'getState');
       setSpyWithDevices([device]);
       stateSpy.and.returnValue(AdbDeviceState.OFFLINE);
       dom.detectChanges();
+
+      dom.findAndClick('.available-device');
+      expect(authorizeSpy).not.toHaveBeenCalled();
+
+      stateSpy.and.returnValue(AdbDeviceState.AVAILABLE);
+      dom.detectChanges();
+      dom.findAndClick('.available-device');
+      expect(authorizeSpy).not.toHaveBeenCalled();
+
+      stateSpy.and.returnValue(AdbDeviceState.UNAUTHORIZED);
+      dom.detectChanges();
+      dom.findAndClick('.available-device');
+      expect(authorizeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('tries to authorize device on authorize button click', () => {
+      const device = new WdpDeviceConnection('35562', component);
+      const authorizeSpy = spyOn(device, 'tryAuthorize');
+      const stateSpy = spyOn(device, 'getState');
+      setSpyWithDevices([device]);
+      stateSpy.and.returnValue(AdbDeviceState.OFFLINE);
+      dom.detectChanges();
+
       expect(dom.find('.authorize-btn')).toBeUndefined();
 
       stateSpy.and.returnValue(AdbDeviceState.AVAILABLE);

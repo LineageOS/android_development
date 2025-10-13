@@ -172,12 +172,12 @@ import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
                         <p matListItemTitle>
                           {{ getDeviceName(device) }}
                         </p>
-                        @if (showTryAuthorizeButton(device)) {
+                        @if (deviceNeedsAuthFromWinscope(device)) {
                           <mat-icon-button
                             matListItemMeta
                             class="material-symbols-outlined authorize-btn"
                             matTooltip="Authorize device"
-                            (click)="device.tryAuthorize()">
+                            (click)="onAuthorizeButtonClick($event, device)">
                             <mat-icon>lock_open</mat-icon>
                           </mat-icon-button>
                         }
@@ -541,10 +541,22 @@ export class CollectTracesComponent
   }
 
   onDeviceClick(device: AdbDeviceConnection) {
+    if (this.deviceNeedsAuthFromWinscope(device)) {
+      device.tryAuthorize();
+      return;
+    }
+    if (device.getState() !== AdbDeviceState.AVAILABLE) {
+      return;
+    }
     this.selectedDevice = device;
     this.onDevicesChange(assertDefined(this.controller).getDevices());
     this.storage?.add(this.storeKeyLastDevice, device.id);
     this.changeDetectorRef.detectChanges();
+  }
+
+  onAuthorizeButtonClick(event: MouseEvent, device: AdbDeviceConnection) {
+    event.stopPropagation();
+    device.tryAuthorize();
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -778,7 +790,7 @@ export class CollectTracesComponent
     return device.getFormattedName();
   }
 
-  showTryAuthorizeButton(device: AdbDeviceConnection): boolean {
+  deviceNeedsAuthFromWinscope(device: AdbDeviceConnection): boolean {
     return (
       device.getState() === AdbDeviceState.UNAUTHORIZED &&
       this.getConnectionType() === AdbConnectionType.WDP
