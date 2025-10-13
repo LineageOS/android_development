@@ -34,7 +34,7 @@ impl NamedAndVersioned for Crate {
     fn version(&self) -> &Version {
         &self.version
     }
-    fn key(&self) -> NameAndVersionRef {
+    fn key(&self) -> NameAndVersionRef<'_> {
         NameAndVersionRef::new(self.name(), self.version())
     }
 }

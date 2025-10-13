@@ -33,7 +33,7 @@ pub trait NamedAndVersioned {
     /// Returns the version.
     fn version(&self) -> &Version;
     /// Returns a reference that can be used as a map key.
-    fn key(&self) -> NameAndVersionRef;
+    fn key(&self) -> NameAndVersionRef<'_>;
 }
 
 /// An owned namd and version.
@@ -77,7 +77,7 @@ impl NamedAndVersioned for NameAndVersion {
     fn version(&self) -> &Version {
         &self.version
     }
-    fn key(&self) -> NameAndVersionRef {
+    fn key(&self) -> NameAndVersionRef<'_> {
         NameAndVersionRef::new(self.name(), self.version())
     }
 }
@@ -96,7 +96,7 @@ impl NamedAndVersioned for NameAndVersionRef<'_> {
     fn version(&self) -> &Version {
         self.version
     }
-    fn key(&self) -> NameAndVersionRef {
+    fn key(&self) -> NameAndVersionRef<'_> {
         *self
     }
 }
