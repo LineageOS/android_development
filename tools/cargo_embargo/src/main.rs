@@ -1091,6 +1091,10 @@ fn crate_to_bp_modules(
         }
         m.props.set("name", module_name.clone());
 
+        if !package_cfg.enabled {
+            m.props.set("enabled", false);
+        }
+
         let mut defaults = Vec::<String>::new();
         if package_cfg.no_std && !matches!(crate_type, CrateType::Test) {
             defaults.push("rust_baremetal_defaults".to_string());
@@ -1585,6 +1589,22 @@ mod tests {
                 }
             }]
         );
+    }
+
+    #[test]
+    fn crate_to_bp_disabled() {
+        let c = Crate {
+            name: "name".to_string(),
+            package_name: "package_name".to_string(),
+            edition: "2021".to_string(),
+            types: vec![CrateType::Lib],
+            ..Default::default()
+        };
+        let cfg = VariantConfig { ..Default::default() };
+        let package_cfg = PackageVariantConfig { enabled: false, ..Default::default() };
+        let modules = crate_to_bp_modules(&c, &cfg, &package_cfg, &[]).unwrap();
+
+        assert_eq!(modules[0].props.map.get("enabled"), Some(&BpValue::Bool(false)));
     }
 
     #[test]
