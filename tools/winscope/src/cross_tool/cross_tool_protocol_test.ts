@@ -25,28 +25,17 @@ import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';
 
 describe('CrossToolProtocol', () => {
+  const FAKE_ORIGIN = 'http://localhost:8081';
+
   let protocol: CrossToolProtocol;
   let timestampConverter: TimestampConverter;
   let emittedEvent: WinscopeEvent | undefined;
 
-  const FAKE_ORIGIN = 'http://localhost:8081';
-
-  beforeEach(() => {
-    emittedEvent = undefined;
-
-    const timezoneInfo: TimezoneInfo = {
-      timezone: 'UTC',
-      locale: 'en-US',
-    };
-    timestampConverter = new TimestampConverter(timezoneInfo, 0n);
-    protocol = new CrossToolProtocol(timestampConverter);
-    protocol.setEmitEvent(async (event) => {
-      emittedEvent = event;
+  describe('handles debug info', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
     });
 
-    spyOn(window, 'postMessage');
-  });
-  describe('handles debug info', () => {
     it('handles debug info message and extracts timestamp', () => {
       const stackTrace = `
 android.tools.flicker.subject.exceptions.IncorrectVisibilityException: com.android.server.wm.flicker.testapp/com.android.server.wm.flicker.testapp.SimpleActivity# should be visible
@@ -138,6 +127,10 @@ Check the test run artifacts for trace files
   });
 
   describe('timestamp sync', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
+    });
+
     it('is allowed timestamp sync based on remote tool origin', () => {
       expect(protocol.isAllowedTimestampSync()).toBeFalse();
       window.dispatchEvent(
@@ -176,4 +169,20 @@ Check the test run artifacts for trace files
       expect(protocol.getAllowTimestampSync()).toBeFalse();
     });
   });
+
+  function setUpTestEnvironment() {
+    emittedEvent = undefined;
+
+    const timezoneInfo: TimezoneInfo = {
+      timezone: 'UTC',
+      locale: 'en-US',
+    };
+    timestampConverter = new TimestampConverter(timezoneInfo, 0n);
+    protocol = new CrossToolProtocol(timestampConverter);
+    protocol.setEmitEvent(async (event) => {
+      emittedEvent = event;
+    });
+
+    spyOn(window, 'postMessage');
+  }
 });
