@@ -300,6 +300,7 @@ export class Canvas {
     mesh.position.z = rect.topLeft.z;
     mesh.name = rect.id;
     mesh.applyMatrix4(this.toMatrix4(rect.transform));
+    mesh.renderOrder = rect.topLeft.z;
     this.scene.add(mesh);
     return mesh;
   }
