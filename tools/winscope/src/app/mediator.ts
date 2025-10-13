@@ -800,9 +800,9 @@ export class Mediator {
   }
 
   private async handlePlaybackStateChanged(event: PlaybackStateChangeHandled) {
-    if (event.traceType) {
+    if (event.traceType !== undefined) {
       const viewer = this.findViewerByType(event.traceType);
-      if (!viewer) {
+      if (viewer === undefined) {
         return;
       }
       viewer.onWinscopeEvent(event);

@@ -126,14 +126,6 @@ import {UiData} from './ui_data';
         overflow: auto;
         position: relative;
       }
-      .disabled-message {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 100;
-        opacity: 1;
-      }
     `,
     viewerCardStyle,
   ],

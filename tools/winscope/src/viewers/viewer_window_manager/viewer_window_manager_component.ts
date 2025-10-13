@@ -48,6 +48,7 @@ import {UiData} from './ui_data';
       <rects-view
         class="rects-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
         [title]="getRectsTitle()"
         [store]="store"
         [rects]="inputData?.rectsToDraw ?? []"
@@ -63,6 +64,7 @@ import {UiData} from './ui_data';
       <hierarchy-view
         class="hierarchy-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
         [trees]="inputData?.hierarchyTrees ?? []"
         [dependencies]="inputData?.dependencies ?? []"
         [highlightedItem]="inputData?.highlightedItem ?? ''"
@@ -72,9 +74,20 @@ import {UiData} from './ui_data';
         [userOptions]="inputData?.hierarchyUserOptions ?? {}"
         [rectIdToShowState]="inputData?.rectIdToShowState"
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
-      <properties-view
+      <div class="properties"
+        [class.disabled-component]="inputData?.isPlaybackPlaying
+        || inputData?.isPlaybackInitializing">
+        @if (inputData?.isPlaybackPlaying) {
+          <div
+          class="disabled-message user-notification mat-body-1">
+          Properties disabled due to playback
+          </div>
+        }
+        <properties-view
         class="properties-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+        [class.disabled-component]="inputData?.isPlaybackPlaying
+        || inputData?.isPlaybackInitializing"
         [userOptions]="inputData?.propertiesUserOptions ?? {}"
         [propertiesTree]="inputData?.propertiesTree"
         [traceType]="${TraceType.WINDOW_MANAGER}"
@@ -85,8 +98,20 @@ import {UiData} from './ui_data';
         placeholderText="No selected item."
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
     </div>
+  </div>
   `,
-  styles: [viewerCardStyle],
+  styles: [
+    `
+    .properties{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+      position: relative;
+    }
+    `,
+    viewerCardStyle,
+  ],
 })
 export class ViewerWindowManagerComponent extends ViewerComponent<UiData> {
   @Input() active = false;
