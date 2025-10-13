@@ -39,6 +39,10 @@ import {TraceBuilder} from 'test/unit/trace_builder';
 import {Traces} from 'trace_api/traces';
 import {LoadProgressComponent} from './load_progress_component';
 import {UploadTracesComponent} from './upload_traces_component';
+import {
+  getReasonForNoTraceVisualization,
+  TraceType,
+} from 'trace_api/trace_type';
 
 describe('UploadTracesComponent', () => {
   const uploadSelector = '.upload-btn';
@@ -257,9 +261,35 @@ describe('UploadTracesComponent', () => {
       'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
     );
     await loadFiles([shellTransitionFile]);
-    expect(dom.find('.warning-icon')).toBeDefined();
+    await dom
+      .get('.warning-icon')
+      .checkTooltip(
+        getReasonForNoTraceVisualization(TraceType.SHELL_TRANSITION),
+      );
     dom.get(viewTracesSelector).checkDisabled(true);
     dom.get(discardLegacySelector).checkDisabled(true);
+  });
+
+  it('shows warning elements for legacy traces', async () => {
+    const imeClientsFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/InputMethodClients.pb',
+    );
+    await loadFiles([imeClientsFile]);
+    await dom
+      .get('.warning-icon')
+      .checkTooltip(component.legacyTraceWarningTooltip);
+    dom.get(viewTracesSelector).checkDisabled(false);
+    dom.get(discardLegacySelector).checkDisabled(false);
+  });
+
+  it('does not show warning elements for legacy traces without perfetto conversion', async () => {
+    const eventlogFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/eventlog.winscope',
+    );
+    await loadFiles([eventlogFile]);
+    expect(dom.find('.warning-icon')).toBeUndefined();
+    dom.get(viewTracesSelector).checkDisabled(false);
+    dom.get(discardLegacySelector).checkDisabled(false);
   });
 
   it('shows error elements for corrupted traces', async () => {

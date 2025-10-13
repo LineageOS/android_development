@@ -185,6 +185,11 @@ import {LoadProgressComponent} from './load_progress_component';
                         class="warning-icon"
                         [matTooltip]="cannotVisualizeTraceTooltip(trace)">warning</mat-icon>
                     }
+                    @if (isLegacyTrace(trace)) {
+                      <mat-icon
+                        class="warning-icon"
+                        [matTooltip]="legacyTraceWarningTooltip">warning</mat-icon>
+                    }
                     @if (trace.isCorrupted()) {
                       <mat-icon
                         class="error-icon"
@@ -367,6 +372,11 @@ export class UploadTracesComponent
   warningMessages: string[] = [];
   discardLegacyTraces = false;
 
+  readonly legacyTraceWarningTooltip =
+    'This trace has a legacy format. ' +
+    'Unless "Discard legacy traces" is selected, this trace will be converted ' +
+    'to a Perfetto trace when you click "View traces".';
+
   @Input() tracePipeline: TracePipeline | undefined;
   @Input() storage: Store | undefined;
   @Output() filesUploaded = new EventEmitter<File[]>();
@@ -518,6 +528,10 @@ export class UploadTracesComponent
 
   canVisualizeTrace(trace: Trace<object>): boolean {
     return isTraceTypeWithViewer(trace.type);
+  }
+
+  isLegacyTrace(trace: Trace<object>): boolean {
+    return !trace.isPerfetto() && trace.getParser().canConvertToPerfetto();
   }
 
   cannotVisualizeTraceTooltip(trace: Trace<object>): string {
