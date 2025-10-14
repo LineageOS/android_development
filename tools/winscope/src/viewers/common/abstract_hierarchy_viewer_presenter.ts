@@ -440,7 +440,10 @@ export abstract class AbstractHierarchyViewerPresenter<
 
     const propertiesOpts = this.propertiesPresenter.getUserOptions();
     const hasPreviousEntry = entries.some((e) => e.getIndex() > 0);
-    if (propertiesOpts['showDiff']?.isUnavailable !== undefined) {
+    if (
+      propertiesOpts['showDiff']?.isUnavailable !== undefined &&
+      !this.playbackPresenter?.isPlaying()
+    ) {
       propertiesOpts['showDiff'].isUnavailable = !hasPreviousEntry;
     }
 
@@ -522,14 +525,16 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.uiData.hierarchyTrees = this.hierarchyPresenter.getAllFormattedTrees();
     this.uiData.hierarchyFilter = this.hierarchyPresenter.getTextFilter();
 
-    this.uiData.propertiesUserOptions =
-      this.propertiesPresenter.getUserOptions();
-    this.uiData.propertiesTree = this.propertiesPresenter.getFormattedTree();
-    this.uiData.highlightedProperty =
-      this.propertiesPresenter.getHighlightedProperty();
-    this.uiData.propertiesFilter = assertDefined(
-      this.propertiesPresenter.getTextFilter(),
-    );
+    if (!this.playbackPresenter || !this.playbackPresenter.isPlaying()) {
+      this.uiData.propertiesUserOptions =
+        this.propertiesPresenter.getUserOptions();
+      this.uiData.propertiesTree = this.propertiesPresenter.getFormattedTree();
+      this.uiData.highlightedProperty =
+        this.propertiesPresenter.getHighlightedProperty();
+      this.uiData.propertiesFilter = assertDefined(
+        this.propertiesPresenter.getTextFilter(),
+      );
+    }
 
     if (this.rectsPresenter) {
       this.uiData.rectsToDraw = this.rectsPresenter?.getRectsToDraw();

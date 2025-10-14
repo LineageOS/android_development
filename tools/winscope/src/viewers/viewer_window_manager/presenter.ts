@@ -138,7 +138,6 @@ the default for its data type.`,
   protected override multiTraceType = undefined;
   protected override playbackPresenter = new PlaybackPresenter(
     (event) => {
-      this.hierarchyPresenter.setShowDiffAvailability(true);
       return this.emitWinscopeEvent(event);
     },
     assertDefined(this.traces.getTrace(TraceType.WINDOW_MANAGER)),
