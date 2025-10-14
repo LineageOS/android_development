@@ -284,10 +284,12 @@ describe('UserRequestParser', () => {
       group_overrides {
         group_name: "GROUP_1"
         collect_stacktrace: false
+        log_from: PROTOLOG_LEVEL_VERBOSE
       }
       group_overrides {
         group_name: "GROUP_2"
         collect_stacktrace: true
+        log_from: PROTOLOG_LEVEL_VERBOSE
       }
     }
   }
