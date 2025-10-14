@@ -35,6 +35,8 @@ import {
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
 import {UINT32_MAX} from 'common/math';
+import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
+import {TraceRect} from 'tree_node/trace_rect';
 
 describe('EntryHierarchyTreeFactory', () => {
   it('makeTreeNodeId', () => {
@@ -111,10 +113,28 @@ describe('EntryHierarchyTreeFactory', () => {
           rect_id: 2n,
         }),
       ]);
+
       const otherRect = new Rect(5, 6, 7, 8);
-      const trees = makeHierarchyTrees(
-        new Map([[101n, new Map([[defaultNodeId, otherRect]])]]),
-      );
+
+      const mockTraceRect = jasmine.createSpyObj<TraceRect>('TraceRect', [], {
+        x: otherRect.x,
+        y: otherRect.y,
+        w: otherRect.w,
+        h: otherRect.h,
+      });
+
+      const snapshotRectsFor101: SnapshotRects = new Map([
+        [
+          defaultNodeId,
+          {primaryRects: [mockTraceRect], secondaryRects: undefined},
+        ],
+      ]);
+      const visibleRects: RectsForTrace = new Map([
+        [101n, snapshotRectsFor101],
+      ]);
+
+      const trees = makeHierarchyTrees(visibleRects);
+
       expect(trees.length).toBe(2);
 
       const rect1 = assertDefined(trees[0].getRects())[0];
