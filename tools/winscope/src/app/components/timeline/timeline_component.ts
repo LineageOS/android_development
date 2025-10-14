@@ -857,24 +857,11 @@ export class TimelineComponent
     ) {
       return;
     }
-    if (event.key === KeyboardEventKey.MEDIA_TRACK_PREVIOUS) {
-      event.preventDefault();
-      if (this.playbackState === PlaybackState.FORWARDS) {
-        await this.onPlaybackStateChange(PlaybackState.BACKWARDS);
-      }
-      this.isProcessingKeyPress = false;
-    } else if (event.key === KeyboardEventKey.ARROW_LEFT) {
+    if (event.key === KeyboardEventKey.ARROW_LEFT) {
       event.preventDefault();
       this.isProcessingKeyPress = true;
       if (this.playbackState === PlaybackState.PAUSED) {
         await this.moveToPreviousEntry();
-      }
-      this.isProcessingKeyPress = false;
-    } else if (event.key === KeyboardEventKey.MEDIA_TRACK_NEXT) {
-      event.preventDefault();
-      this.isProcessingKeyPress = true;
-      if (this.playbackState === PlaybackState.BACKWARDS) {
-        await this.onPlaybackStateChange(PlaybackState.FORWARDS);
       }
       this.isProcessingKeyPress = false;
     } else if (event.key === KeyboardEventKey.ARROW_RIGHT) {
@@ -882,6 +869,25 @@ export class TimelineComponent
       this.isProcessingKeyPress = true;
       if (this.playbackState === PlaybackState.PAUSED) {
         await this.moveToNextEntry();
+      }
+      this.isProcessingKeyPress = false;
+    }
+
+    if (!this.traceSupportsPlayback()) {
+      return;
+    }
+
+    if (event.key === KeyboardEventKey.MEDIA_TRACK_PREVIOUS) {
+      event.preventDefault();
+      if (this.playbackState === PlaybackState.FORWARDS) {
+        await this.onPlaybackStateChange(PlaybackState.BACKWARDS);
+      }
+      this.isProcessingKeyPress = false;
+    } else if (event.key === KeyboardEventKey.MEDIA_TRACK_NEXT) {
+      event.preventDefault();
+      this.isProcessingKeyPress = true;
+      if (this.playbackState === PlaybackState.BACKWARDS) {
+        await this.onPlaybackStateChange(PlaybackState.FORWARDS);
       }
       this.isProcessingKeyPress = false;
     } else if (event.keyCode === KeyboardEventKeyCode.SPACE) {
