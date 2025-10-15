@@ -11,11 +11,12 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { MotionGoldenData, MotionGoldenFeature, DataSource } from '../../model/golden';
-import { Visualization, DataPoint } from './visualization';
-import { LineGraphVisualization } from './line-graph-visualization';
+import { Visualization, ValueDataPoint } from './visualization';
 import * as d3 from 'd3';
 import { NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { LineGraphVisualizationForString } from './line-graph-visualization-for-string';
+import { LineGraphVisualizationForNumber } from './line-graph-visualization-for-number';
 
 @Component({
   selector: 'app-graph',
@@ -37,11 +38,12 @@ export class GraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chartContainer', { static: true })
   chartContainer!: ElementRef<HTMLDivElement>;
   graphId: string = '';
+  static readonly UNSPECIFIED: string = "unspecified";
 
   private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private width!: number;
   private height!: number;
-  private data: DataPoint[] = [];
+  private data: ValueDataPoint[] = [];
   private visualization!: Visualization;
   private resizeObserver: ResizeObserver | null = null;
 
@@ -100,10 +102,15 @@ export class GraphComponent implements AfterViewInit, OnChanges {
       (f) => f.name === this.featureName
     )
     this.visualization = this.createVisualization(actualFeature, expectedFeature);
-    if (this.visualization instanceof LineGraphVisualization) {
+    if (this.isVisualizationSupported()) {
       this.createLineChartData(actualFeature, expectedFeature);
     } else {
     }
+  }
+
+  private isVisualizationSupported() {
+    return this.visualization instanceof LineGraphVisualizationForNumber
+      || this.visualization instanceof LineGraphVisualizationForString;
   }
 
   private createLineChartData(
@@ -140,12 +147,16 @@ export class GraphComponent implements AfterViewInit, OnChanges {
         x = frameIdSource?.frame_ids[i] as number;
       }
 
-      const newPoint: DataPoint = { x };
-      if (typeof actualDataPoint === 'number') {
+      const newPoint: ValueDataPoint = { x };
+      if (typeof actualDataPoint === 'number' || typeof actualDataPoint === 'string') {
         newPoint.actualValue = actualDataPoint;
+      } else if (typeof actualDataPoint === 'boolean') {
+        newPoint.actualValue = (actualDataPoint ? "true" : "false");
       }
-      if (typeof expectedDataPoint === 'number') {
+      if (typeof expectedDataPoint === 'number' || typeof expectedDataPoint === 'string') {
         newPoint.expectedValue = expectedDataPoint;
+      } else if (typeof expectedDataPoint === 'boolean') {
+        newPoint.expectedValue = (expectedDataPoint ? "true" : "false");
       }
       this.data.push(newPoint);
     }
@@ -158,17 +169,32 @@ export class GraphComponent implements AfterViewInit, OnChanges {
     const name = actualFeature?.name;
     const type = actualFeature?.type;
 
-    let numericValues: number[] = [];
-    if (actualFeature?.data_points) {
-      numericValues = numericValues.concat(actualFeature.data_points.filter(
+    const actualDataPoints = actualFeature?.data_points ?? [];
+    const expectedDataPoints = expectedFeature?.data_points ?? [];
+    const dataPoints = [...actualDataPoints, ...expectedDataPoints];
+    const firstValidPoint = dataPoints.find(d => d !== undefined
+      && d !== GraphComponent.UNSPECIFIED);
+
+    const dataType = firstValidPoint !== undefined
+      ? typeof firstValidPoint
+      : GraphComponent.UNSPECIFIED;
+
+    if (dataType === 'boolean' || dataType === 'string') {
+      return new LineGraphVisualizationForString(
+        this.graphId,
+        this.previewService,
+        this.dataSource
+      );
+    }
+
+    const numericValues: number[] =
+      actualDataPoints.filter(
         (it): it is number => typeof it === 'number'
-      ))
-    };
-    if (expectedFeature?.data_points) {
-      numericValues = numericValues.concat(expectedFeature.data_points.filter(
-        (it): it is number => typeof it === 'number'
-      ))
-    };
+      ).concat(
+        expectedDataPoints.filter(
+          (it): it is number => typeof it === 'number'
+        )
+      )
 
     let minValue = Math.min(...numericValues) ?? 0;
     let maxValue = Math.max(...numericValues) ?? 1;
@@ -180,7 +206,7 @@ export class GraphComponent implements AfterViewInit, OnChanges {
       minValue -= (maxValue - minValue) / 10;
     }
 
-    return new LineGraphVisualization(
+    return new LineGraphVisualizationForNumber(
       minValue,
       maxValue,
       this.graphId,
