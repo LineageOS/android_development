@@ -62,7 +62,7 @@ export function makeTreeNodeName(row: RowIterator) {
 export function makeEntryHierarchyTrees(
   viewsResult: QueryResult,
   visibleRects: RectsForTrace,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
   traceGeometryData: TraceGeometryData,
 ): HierarchyTreeNode[] {
   const trees: HierarchyTreeNode[] = [];
@@ -104,7 +104,7 @@ export function makeEntryHierarchyTrees(
 function makeViewAndRect(
   viewRow: RowIterator,
   visibleRect: TraceRect | undefined,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
   traceGeometryData: TraceGeometryData,
 ): {view: PropertiesProvider; rect: TraceRect} {
   const view = makeViewPropertyProvider(viewRow, traceProcessor);
@@ -154,7 +154,7 @@ function buildHierarchyTree(
 
 function makeViewPropertyProvider(
   row: RowIterator,
-  traceProcessor: TraceProcessor,
+  traceProcessor: TraceProcessor | undefined,
 ): PropertiesProvider {
   const rootId = makeTreeNodeId(row);
   const rootName = makeTreeNodeName(row);
@@ -162,19 +162,22 @@ function makeViewPropertyProvider(
   const eagerProperties = makeViewEagerPropertiesTree(row, rootId, rootName);
 
   const argSetId = assertBigInt(row.get('arg_set_id'));
-  const lazyPropertiesStrategy = makeViewLazyPropertiesStrategy(
-    Number(argSetId),
-    rootId,
-    rootName,
-    traceProcessor,
-  );
-
-  return new PropertiesProviderBuilder()
+  const propertiesBuilder = new PropertiesProviderBuilder()
     .setEagerProperties(eagerProperties)
-    .setLazyPropertiesStrategy(lazyPropertiesStrategy)
     .setCommonOperations([OPERATIONS.SetFormatters])
-    .setLazyOperations([OPERATIONS.AddDefaults])
-    .build();
+    .setLazyOperations([OPERATIONS.AddDefaults]);
+  if (traceProcessor) {
+    const lazyPropertiesStrategy = makeViewLazyPropertiesStrategy(
+      Number(argSetId),
+      rootId,
+      rootName,
+      traceProcessor,
+    );
+    propertiesBuilder
+      .setLazyPropertiesStrategy(lazyPropertiesStrategy)
+      .setTraceProcessor(traceProcessor);
+  }
+  return propertiesBuilder.build();
 }
 
 function makeViewEagerPropertiesTree(
