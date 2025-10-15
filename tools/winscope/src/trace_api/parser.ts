@@ -46,7 +46,7 @@ export interface Parser<T> {
   getRangeOfEntries(
     entriesRange: EntriesRange,
     precomputedQuery?: QueryResults<T>,
-  ): Promise<Array<T | undefined>>;
+  ): Promise<T[]>;
   getAllEntries(): Promise<Array<T | undefined>>;
   getQueryResults(
     entriesRange: EntriesRange,

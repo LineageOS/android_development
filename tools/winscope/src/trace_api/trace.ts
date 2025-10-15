@@ -231,12 +231,12 @@ export class Trace<T> {
 
   createEagerEntriesFromValues(
     entriesRange: EntriesRange,
-    values: Array<T | undefined>,
-  ): Array<TraceEntryEager<T, T | undefined>> {
-    const eagerEntries: Array<TraceEntryEager<T, T | undefined>> = values.map(
+    values: T[],
+  ): Array<TraceEntryEager<T, T>> {
+    const eagerEntries: Array<TraceEntryEager<T, T>> = values.map(
       (entryValue, i) => {
         const absoluteIndex = entriesRange.start + i;
-        return this.createEagerEntry<T | undefined>(absoluteIndex, entryValue);
+        return this.createEagerEntry<T>(absoluteIndex, entryValue);
       },
     );
     return eagerEntries;
@@ -255,18 +255,18 @@ export class Trace<T> {
 
   async getRangeEntryValues(
     entriesRange: EntriesRange,
-  ): Promise<Array<TraceEntryEager<T, T | undefined>>> {
+  ): Promise<Array<TraceEntryEager<T, T>>> {
     try {
       const entries = await this.parser.getRangeOfEntries(entriesRange);
 
       const eagerEntries = entries.map((entryValue, i) => {
         const absoluteIndex = entriesRange.start + i;
-        return this.createEagerEntry<T | undefined>(absoluteIndex, entryValue);
+        return this.createEagerEntry<T>(absoluteIndex, entryValue);
       });
 
       return eagerEntries;
     } catch (e) {
-      const result: Array<Promise<TraceEntryEager<T, T | undefined>>> = [];
+      const result: Array<Promise<TraceEntryEager<T, T>>> = [];
       for (
         let absoluteIndex = entriesRange.start;
         absoluteIndex < entriesRange.end;
@@ -275,10 +275,7 @@ export class Trace<T> {
         const entryPromise = this.parser
           .getEntry(absoluteIndex)
           .then((entryValue) => {
-            return this.createEagerEntry<T | undefined>(
-              absoluteIndex,
-              entryValue,
-            );
+            return this.createEagerEntry<T>(absoluteIndex, entryValue);
           });
         result.push(entryPromise);
       }

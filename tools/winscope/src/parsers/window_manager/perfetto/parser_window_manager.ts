@@ -61,7 +61,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
 
   override async getRangeOfEntries(
     range: EntriesRange,
-  ): Promise<Array<HierarchyTreeNode | undefined>> {
+  ): Promise<HierarchyTreeNode[]> {
     // assuming the entryIndex monotically increases, true for WindowManager
     const snapshotStart = this.entryIndexToRowIdMap[range.start];
     const snapshotEnd = snapshotStart + range.end - range.start;

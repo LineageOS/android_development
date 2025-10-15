@@ -23,9 +23,7 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
  */
 export declare interface CorrespondingEntries {
   screenRecordingEntry:
-    | TraceEntryEager<MediaBasedTraceEntry, MediaBasedTraceEntry | undefined>
+    | TraceEntryEager<MediaBasedTraceEntry, MediaBasedTraceEntry>
     | undefined;
-  traceEntry:
-    | TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
-    | undefined;
+  traceEntry: TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode> | undefined;
 }

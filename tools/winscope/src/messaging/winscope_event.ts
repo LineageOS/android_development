@@ -16,7 +16,7 @@
 
 import {assertTrue} from 'common/assert';
 import {Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {Trace, TraceEntry, TraceEntryEager} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {AdbFiles} from 'trace_collection/adb_files';
@@ -262,11 +262,17 @@ export class TracePositionUpdate extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_POSITION_UPDATE;
   readonly position: TracePosition;
   readonly updateTimeline: boolean;
+  readonly prefetchedEntry?: TraceEntryEager<object, object>;
 
-  constructor(position: TracePosition, updateTimeline = false) {
+  constructor(
+    position: TracePosition,
+    updateTimeline = false,
+    prefetchedEntry?: TraceEntryEager<object, object>,
+  ) {
     super();
     this.position = position;
     this.updateTimeline = updateTimeline;
+    this.prefetchedEntry = prefetchedEntry;
   }
 
   /**

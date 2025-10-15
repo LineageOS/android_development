@@ -75,9 +75,7 @@ export class ParserSearch implements Parser<QueryResult> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(
-    entriesRange: EntriesRange,
-  ): Promise<Array<QueryResult | undefined>> {
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<QueryResult[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

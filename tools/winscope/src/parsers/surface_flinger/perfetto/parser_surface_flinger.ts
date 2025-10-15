@@ -56,7 +56,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
   override async getRangeOfEntries(
     entriesRange: EntriesRange,
     precomputedQuery?: QueryResults<QueryResult>,
-  ): Promise<Array<HierarchyTreeNode | undefined>> {
+  ): Promise<HierarchyTreeNode[]> {
     const queryResults =
       precomputedQuery ?? (await this.getQueryResults(entriesRange, false));
     const {snapshotRange: snapshotResult, nodeRange: layersResult} =

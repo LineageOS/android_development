@@ -404,7 +404,9 @@ export abstract class AbstractHierarchyViewerPresenter<
     const hierarchyStartTime = Date.now();
 
     let entries: Array<TraceEntry<HierarchyTreeNode>> = [];
-    if (this.multiTraceType !== undefined) {
+    if (event.prefetchedEntry) {
+      entries = [event.prefetchedEntry as TraceEntry<HierarchyTreeNode>];
+    } else if (this.multiTraceType !== undefined) {
       entries = this.traces
         .getTraces(this.multiTraceType)
         .map((trace) => {

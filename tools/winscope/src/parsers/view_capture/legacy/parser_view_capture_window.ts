@@ -93,9 +93,7 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(
-    entriesRange: EntriesRange,
-  ): Promise<Array<HierarchyTreeNode | undefined>> {
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<HierarchyTreeNode[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

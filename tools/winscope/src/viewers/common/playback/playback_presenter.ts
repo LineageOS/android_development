@@ -36,7 +36,7 @@ import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 
-type EagerTraceEntry<T = HierarchyTreeNode> = TraceEntryEager<T, T | undefined>;
+type EagerTraceEntry<T = HierarchyTreeNode> = TraceEntryEager<T, T>;
 
 export class PlaybackPresenter {
   private readonly chunkSize = 150;
@@ -241,10 +241,18 @@ export class PlaybackPresenter {
       lastEntry = correspondingEntry.traceEntry;
 
       if (traceEntryToUse) {
+        let eagerEntry:
+          | TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode>
+          | undefined;
+        if (correspondingEntry.traceEntry) {
+          eagerEntry = correspondingEntry.traceEntry;
+        }
+
         await this.emitWinscopeEvent(
           new TracePositionUpdate(
             TracePosition.fromTraceEntry(traceEntryToUse),
             true,
+            eagerEntry,
           ),
         );
       }
@@ -330,7 +338,7 @@ export class PlaybackPresenter {
 
     const chunkTraceEntryMap = new Map<
       number,
-      TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode | undefined>
+      TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode>
     >();
     chunkEagerTraceEntries.forEach((entry) =>
       chunkTraceEntryMap.set(entry.getIndex(), entry),
@@ -444,51 +452,49 @@ export class PlaybackPresenter {
   private async fetchTreesFromWorker(
     start: number,
     end: number,
-  ): Promise<Array<HierarchyTreeNode | undefined>> {
+  ): Promise<HierarchyTreeNode[]> {
     return this.trace
       .getQueryResults({start, end}, true)
       .then((queryResults) => {
-        return new Promise<Array<HierarchyTreeNode | undefined>>(
-          (resolve, reject) => {
-            this.workerPromiseResolver = resolve as (
-              value: Array<HierarchyTreeNode | undefined>,
-            ) => void;
-            this.workerPromiseRejecter = reject;
+        return new Promise<HierarchyTreeNode[]>((resolve, reject) => {
+          this.workerPromiseResolver = resolve as (
+            value: Array<HierarchyTreeNode | undefined>,
+          ) => void;
+          this.workerPromiseRejecter = reject;
 
-            const snapshotResults = queryResults.snapshotRange;
-            const nodesResults = queryResults.nodeRange;
+          const snapshotResults = queryResults.snapshotRange;
+          const nodesResults = queryResults.nodeRange;
 
-            if (!(nodesResults instanceof RawDataQueryResult)) {
-              return;
-            }
+          if (!(nodesResults instanceof RawDataQueryResult)) {
+            return;
+          }
 
-            let snapshotBatches: Uint8Array[] | undefined;
-            if (
-              snapshotResults !== undefined &&
-              snapshotResults instanceof RawDataQueryResult
-            ) {
-              snapshotBatches = snapshotResults.batches;
-            }
-            const nodeBatches = nodesResults.batches;
-            const parser = this.trace.getParser();
-            if (parser.getRectsMap === undefined) {
-              throw Error(
-                'Playback is only implemented for parsers with rects map',
-              );
-            }
-            const map = parser.getRectsMap();
+          let snapshotBatches: Uint8Array[] | undefined;
+          if (
+            snapshotResults !== undefined &&
+            snapshotResults instanceof RawDataQueryResult
+          ) {
+            snapshotBatches = snapshotResults.batches;
+          }
+          const nodeBatches = nodesResults.batches;
+          const parser = this.trace.getParser();
+          if (parser.getRectsMap === undefined) {
+            throw Error(
+              'Playback is only implemented for parsers with rects map',
+            );
+          }
+          const map = parser.getRectsMap();
 
-            this.playbackWorker.postMessage({
-              start,
-              end,
-              snapshotBatches,
-              nodeBatches,
-              type: this.trace.type,
-              traceGeometryData: this.traceGeometryData,
-              visibleRectsMap: map,
-            });
-          },
-        );
+          this.playbackWorker.postMessage({
+            start,
+            end,
+            snapshotBatches,
+            nodeBatches,
+            type: this.trace.type,
+            traceGeometryData: this.traceGeometryData,
+            visibleRectsMap: map,
+          });
+        });
       });
   }
 }

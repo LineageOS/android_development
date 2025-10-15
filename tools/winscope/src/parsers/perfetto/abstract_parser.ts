@@ -158,7 +158,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
