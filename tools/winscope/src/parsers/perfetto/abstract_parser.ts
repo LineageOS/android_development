@@ -134,7 +134,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRectsMap(): RectsForTrace | undefined {
+  async getRectsMap(): Promise<RectsForTrace | undefined> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

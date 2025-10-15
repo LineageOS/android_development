@@ -47,7 +47,10 @@ import {RectsForTrace} from 'parsers/rect_extractor_result';
 export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
   private visibleAndDisplayRects: RectsForTrace | undefined;
 
-  override getRectsMap() {
+  override async getRectsMap() {
+    if (!this.visibleAndDisplayRects) {
+      this.visibleAndDisplayRects = await this.fetchAllVisibleAndDisplayRects();
+    }
     return this.visibleAndDisplayRects;
   }
 

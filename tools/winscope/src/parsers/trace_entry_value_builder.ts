@@ -23,6 +23,7 @@ import {QueryResult} from 'trace_processor/query_result';
 import {RectsForTrace} from './rect_extractor_result';
 import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from './window_manager/perfetto/entry_hierarchy_tree_factory';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTree} from './view_capture/perfetto/entry_hierarchy_tree_factory';
 
 /**
  * A builder class for creating trace entry values.
@@ -79,6 +80,13 @@ export class TraceEntryValueBuilder {
         );
       case TraceType.WINDOW_MANAGER:
         return wmMakeEntryHierarchyTrees(
+          assertDefined(this.nodeResults),
+          assertDefined(this.rectsMap),
+          undefined,
+          assertDefined(this.traceGeometryData),
+        );
+      case TraceType.VIEW_CAPTURE:
+        return vcMakeEntryHierarchyTree(
           assertDefined(this.nodeResults),
           assertDefined(this.rectsMap),
           undefined,

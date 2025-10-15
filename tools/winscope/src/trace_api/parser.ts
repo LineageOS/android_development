@@ -62,7 +62,7 @@ export interface Parser<T> {
   getRealToBootTimeOffsetNs(): bigint | undefined;
   createTimestamps(): void;
   canConvertToPerfetto(): boolean;
-  getRectsMap?(): RectsForTrace | undefined;
+  getRectsMap?(): Promise<RectsForTrace | undefined>;
   convertToPerfettoPackets?(
     sequenceId: number,
     trustedUid?: number,

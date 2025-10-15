@@ -27,7 +27,11 @@ import {
 } from 'trace_api/custom_query';
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
+import {
+  QueryResult,
+  QueryResults,
+  RowIterator,
+} from 'trace_processor/query_result';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {
@@ -56,6 +60,13 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
     super(traceFile, traceProcessor, timestampConverter, traceGeometryData);
     this.packageName = packageName;
     this.windowName = windowName;
+  }
+
+  override async getRectsMap() {
+    if (!this.visibleRects) {
+      this.visibleRects = await this.fetchAllVisibleRects();
+    }
+    return this.visibleRects;
   }
 
   override getTraceType(): TraceType {
@@ -87,6 +98,26 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       this.traceProcessor,
       assertDefined(this.traceGeometryData),
     );
+  }
+
+  override async getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult>> {
+    const snapshotStart = this.entryIndexToRowIdMap[entriesRange.start];
+    const snapshotEnd = snapshotStart + entriesRange.end - entriesRange.start;
+    const viewsResult = await this.queryRangeViewsAndRects(
+      snapshotStart,
+      snapshotEnd,
+      queryRawData,
+    );
+    const visibleRects = await this.queryAllVisibleRects();
+    return {
+      snapshotRange: undefined,
+      nodeRange: viewsResult,
+      allVisibleRects: visibleRects,
+      allSnapshots: undefined,
+    };
   }
 
   override customQuery<Q extends CustomQueryType>(
@@ -168,6 +199,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
   private async queryRangeViewsAndRects(
     start: number,
     end: number,
+    queryRawData = false,
   ): Promise<QueryResult> {
     const query = `
       SELECT
@@ -188,6 +220,10 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
         ON vcv.trace_rect_id = tr.id
       WHERE vcv.snapshot_id >= ${start} AND vcv.snapshot_id < ${end}
         ORDER BY vcv.id`;
-    return await this.traceProcessor.query(query);
+    if (queryRawData) {
+      return await this.traceProcessor.rawQuery(query);
+    } else {
+      return await this.traceProcessor.query(query);
+    }
   }
 }

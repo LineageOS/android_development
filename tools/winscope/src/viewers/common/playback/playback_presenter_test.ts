@@ -88,7 +88,7 @@ describe('PlaybackPresenter', () => {
       .setTimestamps([timestamp2, timestamp3, timestamp4])
       .build();
     const mockParser = {
-      getRectsMap: () => new Map(),
+      getRectsMap: async () => new Map(),
     };
     spyOn(trace, 'getParser').and.returnValue(
       mockParser as Parser<HierarchyTreeNode>,
