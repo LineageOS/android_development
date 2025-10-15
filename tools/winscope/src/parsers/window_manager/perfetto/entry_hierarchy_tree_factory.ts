@@ -150,10 +150,10 @@ function makeEntryProperties(
 
 function makeEntryLazyPropertiesStrategy(
   argSetId: number,
-  traceProcessor: TraceProcessor | undefined,
+  traceProcessor: TraceProcessor,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(assertDefined(traceProcessor), argSetId);
+    const data = await queryArgs(traceProcessor, argSetId);
     return new PropertyTreeBuilderFromProto()
       .setData(ENTRY_TRANSFORMER.transform(data))
       .setRootId('WindowManager')
@@ -243,10 +243,10 @@ function makeContainerLazyPropertiesStrategy(
   argSetId: number,
   rootId: string,
   rootName: string,
-  traceProcessor: TraceProcessor | undefined,
+  traceProcessor: TraceProcessor,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(assertDefined(traceProcessor), argSetId);
+    const data = await queryArgs(traceProcessor, argSetId);
     return new PropertyTreeBuilderFromProto()
       .setData(CONTAINER_TRANSFORMER.transform(data))
       .setRootId(rootId)
