@@ -45,13 +45,20 @@ use cargo::{
 use clap::Parser;
 use clap::Subcommand;
 use log::debug;
-use nix::fcntl::OFlag;
-use nix::unistd::pipe2;
+#[cfg(not(target_os = "macos"))]
+use nix::{fcntl::OFlag, unistd::pipe2};
+#[cfg(target_os = "macos")]
+use nix::{
+    fcntl::{fcntl, FdFlag},
+    unistd::pipe,
+};
 use std::collections::BTreeMap;
 use std::collections::VecDeque;
 use std::env;
 use std::fs::{read_to_string, write, File};
 use std::io::{Read, Write};
+#[cfg(target_os = "macos")]
+use std::os::fd::AsRawFd;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -431,6 +438,14 @@ fn write_all_build_files(
 
 /// Runs the given command, and returns its standard output and (optionally) standard error as a string.
 fn run_cargo(cmd: &mut Command, include_stderr: bool) -> Result<String> {
+    #[cfg(target_os = "macos")]
+    let (pipe_read, pipe_write) = {
+        let (pipe_read, pipe_write) = pipe()?;
+        fcntl(pipe_read.as_raw_fd(), nix::fcntl::F_SETFD(FdFlag::FD_CLOEXEC))?;
+        fcntl(pipe_write.as_raw_fd(), nix::fcntl::F_SETFD(FdFlag::FD_CLOEXEC))?;
+        (pipe_read, pipe_write)
+    };
+    #[cfg(not(target_os = "macos"))]
     let (pipe_read, pipe_write) = pipe2(OFlag::O_CLOEXEC)?;
     if include_stderr {
         cmd.stderr(pipe_write.try_clone()?);

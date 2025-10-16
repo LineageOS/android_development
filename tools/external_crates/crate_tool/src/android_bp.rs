@@ -15,7 +15,7 @@
 use std::{
     env,
     ffi::OsString,
-    path::Path,
+    path::{Path, PathBuf},
     process::{Command, Output},
     time::{Duration, SystemTime},
 };
@@ -24,8 +24,20 @@ use anyhow::{Context, Result};
 use rooted_path::RootedPath;
 use success_or_error::SuccessOrError;
 
+fn arch_dir() -> &'static str {
+    if std::env::consts::OS == "macos" {
+        "darwin-x86"
+    } else {
+        "linux-x86"
+    }
+}
+
+fn cargo_embargo_rel_path() -> PathBuf {
+    Path::new("out/host").join(arch_dir()).join("bin/cargo_embargo")
+}
+
 fn add_bpfmt_to_path(repo_root: impl AsRef<Path>) -> Result<OsString> {
-    let host_bin = repo_root.as_ref().join("prebuilts/build-tools/linux-x86/bin");
+    let host_bin = repo_root.as_ref().join("prebuilts/build-tools").join(arch_dir()).join("bin");
     let new_path = match env::var_os("PATH") {
         Some(p) => {
             let mut paths = vec![host_bin];
@@ -41,9 +53,8 @@ pub fn run_cargo_embargo(temporary_build_path: &RootedPath) -> Result<Output> {
     maybe_build_cargo_embargo(&temporary_build_path.root(), false)?;
     let new_path = add_bpfmt_to_path(temporary_build_path.root())?;
 
-    let mut cmd = Command::new(
-        temporary_build_path.with_same_root("out/host/linux-x86/bin/cargo_embargo")?.abs(),
-    );
+    let mut cmd =
+        Command::new(temporary_build_path.with_same_root(cargo_embargo_rel_path())?.abs());
     let output = cmd
         .args(["generate", "cargo_embargo.json"])
         .env("PATH", new_path)
@@ -60,7 +71,7 @@ pub fn cargo_embargo_autoconfig(path: &RootedPath) -> Result<Output> {
     maybe_build_cargo_embargo(&path.root(), false)?;
     let new_path = add_bpfmt_to_path(path.root())?;
 
-    let mut cmd = Command::new(path.with_same_root("out/host/linux-x86/bin/cargo_embargo")?.abs());
+    let mut cmd = Command::new(path.with_same_root(cargo_embargo_rel_path())?.abs());
     cmd.args(["autoconfig", "cargo_embargo.json"])
         .env("PATH", new_path)
         .env("ANDROID_BUILD_TOP", path.root())
@@ -72,7 +83,7 @@ pub fn cargo_embargo_autoconfig(path: &RootedPath) -> Result<Output> {
 
 /// Rebuilds cargo_embargo if it hasn't been built recently, or `force_rebuild` is true.
 pub fn maybe_build_cargo_embargo(repo_root: &impl AsRef<Path>, force_rebuild: bool) -> Result<()> {
-    let cargo_embargo = repo_root.as_ref().join("out/host/linux-x86/bin/cargo_embargo");
+    let cargo_embargo = repo_root.as_ref().join(cargo_embargo_rel_path());
     if force_rebuild
         || !cargo_embargo.exists()
         || SystemTime::now().duration_since(cargo_embargo.metadata()?.modified()?)?

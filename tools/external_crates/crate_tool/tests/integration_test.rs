@@ -114,6 +114,7 @@ mod test {
         );
         managed_repo.update("base64", "0.22.1")?;
 
+        #[cfg(not(target_os = "macos"))]
         dump(managed_repo_path.monorepo_path());
 
         Ok(())
