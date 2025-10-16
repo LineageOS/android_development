@@ -24,7 +24,7 @@ import {Size} from 'common/geometry/size';
 export class MediaBasedTraceEntry {
   /**
    * @param imgData The raw image data as a Blob (for images).
-   * @param videoFrame The decoded frame to be visualised (for videos).
+   * @param videoFrame The decoded frame to be visualized (for videos).
    * @param videoRotationAngle The rotation angle for the video frame if provided.
    */
   constructor(

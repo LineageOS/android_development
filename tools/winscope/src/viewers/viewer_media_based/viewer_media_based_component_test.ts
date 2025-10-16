@@ -120,10 +120,13 @@ describe('ViewerMediaBasedComponent', () => {
   it('shows video', async () => {
     const initialMaxWidth = getContainerMaxWidth();
     const firstFrame = await screenRecordingParser.getEntry(0);
+    const spy = spyOn(firstFrame, 'tryDrawOnCanvas').and.callThrough();
     component.currentTraceEntries = [firstFrame];
     await dom.detectChangesAndWaitStable();
+
     const videoContainer = dom.get('.video-container');
     expect(videoContainer.find('canvas')).toBeDefined();
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(videoContainer.find('img')).toBeUndefined();
     expect(getContainerMaxWidth()).not.toEqual(initialMaxWidth);
   });
@@ -172,6 +175,22 @@ describe('ViewerMediaBasedComponent', () => {
     expect(screenComponent.safeUrl).toEqual(url);
   });
 
+  it('emits event on overlay trace change', () => {
+    let index: number | undefined;
+    dom.addEventListener(ViewerEvents.OverlayMediaBasedTraceChange, (event) => {
+      index = (event as CustomEvent).detail;
+    });
+    component.currentTraceEntries = [
+      new MediaBasedTraceEntry(new Blob()),
+      new MediaBasedTraceEntry(new Blob()),
+    ];
+    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    dom.detectChanges();
+    dom.openMatSelect();
+    dom.getMatSelectPanel().findAndClickByIndex('mat-option', 1);
+    expect(index).toEqual(1);
+  });
+
   it('video frame updated on selector entry change', async () => {
     component.currentTraceEntries = [
       await screenRecordingParser.getEntry(0),
@@ -188,10 +207,15 @@ describe('ViewerMediaBasedComponent', () => {
     dom.openMatSelect();
     const options = dom.getMatSelectPanel().findAll('mat-option');
 
+    const spy = spyOn(
+      component.currentTraceEntries[1],
+      'tryDrawOnCanvas',
+    ).and.callThrough();
     options[1].click();
     expect(
       dom.get('canvas').getHTMLElement<HTMLCanvasElement>().toDataURL(),
     ).not.toBe(dataUrl);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     options[0].click();
     expect(
