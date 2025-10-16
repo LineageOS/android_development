@@ -35,6 +35,7 @@ import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
 import {
   CorruptedArchive,
+  InvalidLegacyTrace,
   InvalidPerfettoTrace,
   NoValidFiles,
   UnsupportedFileFormat,
@@ -149,6 +150,9 @@ export class TracePipeline
     if (!singlePerfettoTrace) {
       return;
     }
+    this.clearChildTransitionTraces((type) =>
+      this.loadedParsers.removeByType(type),
+    );
     const perfettoParsers = await this.processPerfettoFile(
       singlePerfettoTrace,
       FilesSource.APP,
@@ -172,25 +176,28 @@ export class TracePipeline
   }
 
   discardLegacyTraces() {
-    const tracesToRemove = this.getLegacyTracesWithPerfettoConversion();
-    tracesToRemove.forEach((trace) => this.removeTrace(trace));
-  }
-
-  private getLegacyTracesWithPerfettoConversion() {
-    const traces: Array<Trace<object>> = [];
-    this.traces.forEachTrace((trace) => {
-      if (trace.getParser()?.canConvertToPerfetto()) {
-        traces.push(trace);
-      }
+    this.clearChildTransitionTraces((type: TraceType) => {
+      this.loadedParsers.removeByType(type);
     });
-    return traces;
+
+    const tracesToRemove = this.getLegacyTracesWithPerfettoConversion();
+    tracesToRemove.forEach((trace) => {
+      this.removeTrace(trace);
+    });
   }
 
-  removeTrace<T extends TraceType>(
-    trace: Trace<TraceEntryTypeMap[T]>,
-    keepFileForDownload = false,
-  ) {
-    this.loadedParsers.remove(trace.getParser(), keepFileForDownload);
+  removeTrace<T extends TraceType>(trace: Trace<TraceEntryTypeMap[T]>) {
+    const clear = (type: TraceType) => {
+      this.loadedParsers.removeByType(type);
+    };
+    if (trace.type === TraceType.TRANSITION) {
+      this.clearChildTransitionTraces(clear);
+    } else if (trace.type === TraceType.CUJS) {
+      this.clearChildCujTrace(clear);
+    } else if (trace.type === TraceType.INPUT_EVENT_MERGED) {
+      this.clearChildInputTraces(clear);
+    }
+    this.loadedParsers.remove(trace.getParser());
     this.traces.deleteTrace(trace);
   }
 
@@ -276,6 +283,16 @@ export class TracePipeline
     this.lostPerfettoPackets = 0;
   }
 
+  private getLegacyTracesWithPerfettoConversion() {
+    const traces: Array<Trace<object>> = [];
+    this.traces.forEachTrace((trace) => {
+      if (trace.getParser()?.canConvertToPerfetto()) {
+        traces.push(trace);
+      }
+    });
+    return traces;
+  }
+
   private async loadUnzippedFiles(
     unzippedFiles: TraceFile[],
     source: FilesSource,
@@ -321,7 +338,10 @@ export class TracePipeline
       await this.checkForLostPerfettoPackets();
     }
 
-    this.updateTimestamps(parsedFiles.legacy, parsedFiles.perfetto);
+    parsedFiles.legacy = this.updateTimestamps(
+      parsedFiles.legacy,
+      parsedFiles.perfetto,
+    );
     this.loadedParsers.addParsers(parsedFiles.legacy, parsedFiles.perfetto);
 
     return warnings;
@@ -401,7 +421,7 @@ export class TracePipeline
   private updateTimestamps(
     nonPerfettoParsers: FileAndParser[],
     perfettoParsers?: FileAndParsers,
-  ) {
+  ): FileAndParser[] {
     const allParsers = nonPerfettoParsers
       .map((fileAndParser) => fileAndParser.parser)
       .concat(perfettoParsers?.parsers ?? []);
@@ -426,9 +446,20 @@ export class TracePipeline
     }
 
     perfettoParsers?.parsers.forEach((p) => p.createTimestamps());
-    nonPerfettoParsers.forEach((fileAndParser) =>
-      fileAndParser.parser.createTimestamps(),
-    );
+    return nonPerfettoParsers.filter((fileAndParser) => {
+      try {
+        fileAndParser.parser.createTimestamps();
+        return true;
+      } catch (e) {
+        UserNotifier.add(
+          new InvalidLegacyTrace(
+            fileAndParser.file.getDescriptor(),
+            `Failed to create timestamps: ${(e as Error).message}`,
+          ),
+        );
+        return false;
+      }
+    });
   }
 
   private async convertLoadedParsersToTraces() {
@@ -450,24 +481,43 @@ export class TracePipeline
       this.traces.addTrace(trace);
     });
 
+    const clear = (type: TraceType) => {
+      this.removeTracesKeepForDownload(type);
+    };
+    this.clearChildTransitionTraces(clear);
+    this.clearChildCujTrace(clear);
+    this.clearChildInputTraces(clear);
+  }
+
+  private clearChildTransitionTraces(clear: (type: TraceType) => void) {
     const hasTransitionTrace =
       this.traces.getTrace(TraceType.TRANSITION) !== undefined;
     if (hasTransitionTrace) {
-      this.removeTracesAndParsersByType(TraceType.WM_TRANSITION);
-      this.removeTracesAndParsersByType(TraceType.SHELL_TRANSITION);
+      clear(TraceType.WM_TRANSITION);
+      clear(TraceType.SHELL_TRANSITION);
     }
+  }
 
+  private clearChildCujTrace(clear: (type: TraceType) => void) {
     const hasCujTrace = this.traces.getTrace(TraceType.CUJS) !== undefined;
     if (hasCujTrace) {
-      this.removeTracesAndParsersByType(TraceType.EVENT_LOG);
+      clear(TraceType.EVENT_LOG);
     }
+  }
 
+  private clearChildInputTraces(clear: (type: TraceType) => void) {
     const hasMergedInputTrace =
       this.traces.getTrace(TraceType.INPUT_EVENT_MERGED) !== undefined;
     if (hasMergedInputTrace) {
-      this.removeTracesAndParsersByType(TraceType.INPUT_KEY_EVENT);
-      this.removeTracesAndParsersByType(TraceType.INPUT_MOTION_EVENT);
+      clear(TraceType.INPUT_KEY_EVENT);
+      clear(TraceType.INPUT_MOTION_EVENT);
     }
+  }
+
+  private removeTracesKeepForDownload(type: TraceType) {
+    this.traces.getTraces(type).forEach((trace) => {
+      this.traces.deleteTrace(trace);
+    });
   }
 
   private async convertLegacyParsersToPerfettoFile(): Promise<
@@ -564,12 +614,5 @@ export class TracePipeline
     progressListener?.onProgressUpdate(progressMessage, 100);
 
     return unzippedFiles;
-  }
-
-  private removeTracesAndParsersByType(type: TraceType) {
-    const traces = this.traces.getTraces(type);
-    traces.forEach((trace) => {
-      this.removeTrace(trace, true);
-    });
   }
 }

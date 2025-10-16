@@ -18,7 +18,11 @@ import {assertDefined} from 'common/assert';
 import {unzipFile} from 'common/io';
 import {TimeRange} from 'common/time/time';
 import {UserWarning} from 'messaging/user_warning';
-import {TraceHasOldData, TraceOverridden} from 'messaging/user_warnings';
+import {
+  TraceHasElapsedTimestamps,
+  TraceHasOldData,
+  TraceOverridden,
+} from 'messaging/user_warnings';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ParserBuilder} from 'test/unit/parser_builder';
@@ -79,7 +83,7 @@ describe('LoadedParsers', () => {
     .build();
   const parserSf_elapsed = new ParserBuilder<object>()
     .setType(TraceType.SURFACE_FLINGER)
-    .setTimestamps(elapsedTimestamps)
+    .setTimestamps(timestamps)
     .setDescriptors(['sf elapsed'])
     .setNoOffsets(true)
     .build();
@@ -100,7 +104,7 @@ describe('LoadedParsers', () => {
     .build();
   const parserWm_elapsed = new ParserBuilder<object>()
     .setType(TraceType.WINDOW_MANAGER)
-    .setTimestamps(elapsedTimestamps)
+    .setTimestamps(timestamps)
     .setDescriptors(['wm elapsed'])
     .setNoOffsets(true)
     .build();
@@ -180,12 +184,15 @@ describe('LoadedParsers', () => {
     expectLoadResult([parserSf0, parserSf1], []);
   });
 
-  it('drops elapsed-only parsers if parsers with real timestamps present', () => {
+  it('warns about elapsed-only parsers if parsers with real timestamps present', () => {
     loadParsers([parserSf_elapsed, parserSf0], []);
-    expectLoadResult([parserSf0], [new TraceHasOldData('sf elapsed')]);
+    expectLoadResult(
+      [parserSf_elapsed, parserSf0],
+      [new TraceHasElapsedTimestamps('sf elapsed')],
+    );
   });
 
-  it('doesnt drop elapsed-only parsers if no parsers with real timestamps present', () => {
+  it('does not warn about elapsed-only parsers if no parsers with real timestamps present', () => {
     loadParsers([parserSf_elapsed, parserWm_elapsed], []);
     expectLoadResult([parserSf_elapsed, parserWm_elapsed], []);
   });
@@ -446,20 +453,20 @@ describe('LoadedParsers', () => {
     expectLoadResult([], []);
   });
 
-  it('can remove parsers but keep for download', async () => {
-    loadParsers([parserSf0, parserWm0], []);
+  it('can remove parsers by type', () => {
+    loadParsers([parserSf0], [parserWm0]);
     expectLoadResult([parserSf0, parserWm0], []);
 
-    loadedParsers.remove(parserWm0, true);
+    loadedParsers.removeByType(TraceType.WINDOW_MANAGER);
     expectLoadResult([parserSf0], []);
 
-    await expectDownloadResult(['sf/sf0.winscope', 'wm/wm0.winscope']);
+    loadedParsers.removeByType(TraceType.SURFACE_FLINGER);
+    expectLoadResult([], []);
   });
 
   it('can be cleared', async () => {
     loadedParsers.clear();
     loadParsers([parserSf0, parserWm0], []);
-    loadedParsers.remove(parserWm0, true);
     loadedParsers.clear();
     expectLoadResult([], []);
     await expectDownloadResult([]);
