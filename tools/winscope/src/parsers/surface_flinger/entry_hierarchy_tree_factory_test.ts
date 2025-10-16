@@ -35,13 +35,12 @@ import {
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRect} from 'tree_node/trace_rect';
-import {EntryHierarchyTreeFactory} from './entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from './entry_hierarchy_tree_factory';
 import {RectExtractor} from './rect_extractor';
 import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 
 describe('EntryHierarchyTreeFactory', () => {
-  const factory = EntryHierarchyTreeFactory;
   const traceProcessor = jasmine.createSpyObj<TraceProcessor>(
     'traceProcessor',
     ['query'],
@@ -424,7 +423,7 @@ describe('EntryHierarchyTreeFactory', () => {
   function makeEntryHierarchyTree(
     visibleRectsResults?: RectsForTrace,
   ): HierarchyTreeNode {
-    const trees = factory.makeEntryHierarchyTrees(
+    const trees = sfMakeEntryHierarchyTrees(
       snapshotResult,
       layersResult,
       visibleRectsResults ?? new Map(),
@@ -437,7 +436,7 @@ describe('EntryHierarchyTreeFactory', () => {
   function makeEntryHierarchyTrees(
     visibleRectsResults?: RectsForTrace,
   ): HierarchyTreeNode[] {
-    return factory.makeEntryHierarchyTrees(
+    return sfMakeEntryHierarchyTrees(
       snapshotResult,
       layersResult,
       visibleRectsResults ?? new Map(),

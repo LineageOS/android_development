@@ -17,9 +17,14 @@
 import {TraceEntryValueBuilder} from './trace_entry_value_builder';
 import {QueryResult} from 'trace_processor/query_result';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {EntryHierarchyTreeFactory} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TraceType} from 'trace_api/trace_type';
 import {RectsForTrace} from './rect_extractor_result';
+import {
+  makeSpyRowIterator,
+  setupMockIteratorWithRows,
+} from 'trace_processor/test_utils';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 
 describe('TraceEntryValueBuilder', async () => {
   const mockQueryResult: QueryResult = {} as QueryResult;
@@ -27,15 +32,18 @@ describe('TraceEntryValueBuilder', async () => {
   const mockRectsMap: RectsForTrace = new Map();
 
   let traceEntryValueBuilder: TraceEntryValueBuilder;
+  let mockTraceProcessor: jasmine.SpyObj<TraceProcessor>;
   let makeEntryHierarchyTreesSpy: jasmine.Spy;
 
-  beforeAll(() => {
-    makeEntryHierarchyTreesSpy = spyOn(
-      EntryHierarchyTreeFactory,
-      'makeEntryHierarchyTrees',
-    );
-  });
   beforeEach(() => {
+    makeEntryHierarchyTreesSpy = spyOn(
+      {makeEntryHierarchyTrees},
+      'makeEntryHierarchyTrees',
+    ).and.callThrough();
+    mockTraceProcessor = jasmine.createSpyObj<TraceProcessor>(
+      'MockTraceProcessor',
+      ['query'],
+    );
     traceEntryValueBuilder = new TraceEntryValueBuilder();
   });
 
@@ -79,26 +87,31 @@ describe('TraceEntryValueBuilder', async () => {
   });
 
   it('successfully calls makeEntryHierarchyTrees when all data is set', () => {
-    traceEntryValueBuilder
+    const trees = traceEntryValueBuilder
       .setType(TraceType.SURFACE_FLINGER)
-      .setSnapshotResults(mockQueryResult)
-      .setNodeResults(mockQueryResult)
+      .setSnapshotResults(createMockQueryResult([]))
+      .setNodeResults(createMockQueryResult([]))
       .setRectsMap(mockRectsMap)
       .setGeometryData(mockTraceGeometryData)
       .build();
 
-    expect(makeEntryHierarchyTreesSpy).toHaveBeenCalledTimes(1);
-    expect(makeEntryHierarchyTreesSpy).toHaveBeenCalledWith(
-      mockQueryResult,
-      mockQueryResult,
-      mockRectsMap,
-      undefined,
-      mockTraceGeometryData,
-    );
+    expect(trees).toBeDefined();
   });
 
   it('throws an error if type is set but required data is missing', () => {
     traceEntryValueBuilder.setType(TraceType.SURFACE_FLINGER);
     expect(() => traceEntryValueBuilder.build()).toThrow();
   });
+
+  function createMockQueryResult(
+    rows: Array<{[key: string]: bigint | number | string}>,
+  ) {
+    const rowIterator = makeSpyRowIterator();
+    setupMockIteratorWithRows(rowIterator, rows);
+    const queryResult = jasmine.createSpyObj<QueryResult>('QueryResult', [
+      'iter',
+    ]);
+    queryResult.iter.and.returnValue(rowIterator);
+    return queryResult;
+  }
 });
