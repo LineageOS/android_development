@@ -218,7 +218,11 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           ON display.trace_rect_id = trace_rect.id
         WHERE sfs.id >= ${start} AND sfs.id < ${end}
           ORDER BY sfs.id, display.id;`;
-    return await this.executeQuery(snapshotQuery, queryRawData);
+    if (queryRawData) {
+      return await this.traceProcessor.rawQuery(snapshotQuery);
+    } else {
+      return await this.traceProcessor.query(snapshotQuery);
+    }
   }
 
   private async queryRangeLayersAndRects(
@@ -267,7 +271,11 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           ON fr.rect_id = frr.id
         WHERE sfl.snapshot_id >= ${start} AND sfl.snapshot_id < ${end}
           ORDER BY sfl.id`;
-    return await this.executeQuery(layersQuery, queryRawData);
+    if (queryRawData) {
+      return await this.traceProcessor.rawQuery(layersQuery);
+    } else {
+      return await this.traceProcessor.query(layersQuery);
+    }
   }
 
   private async queryAllVisibleAndDisplayRects(): Promise<QueryResult> {
@@ -310,13 +318,5 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
           ORDER BY sfl.id;
     `;
     return this.traceProcessor.query(visibleRectsDisplayQuery);
-  }
-
-  private async executeQuery(sqlQuery: string, queryRawData: boolean = false) {
-    if (queryRawData) {
-      return this.traceProcessor.rawQuery(sqlQuery);
-    } else {
-      return this.traceProcessor.query(sqlQuery);
-    }
   }
 }
