@@ -163,12 +163,16 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
       'android.view.WindowInsets.Type.InsetsType',
     'InsetsSourceControlProto.typeNumber':
       'android.view.WindowInsets.Type.InsetsType',
+    'RemoteInsetsControlTargetProto.animatingTypes':
+      'android.view.WindowInsets.Type.InsetsType',
     'RemoteInsetsControlTargetProto.requestedVisibleTypes':
       'android.view.WindowInsets.Type.InsetsType',
     'ShellTransition.flags': 'android.view.WindowManager.TransitionFlags',
     'Target.flags': 'android.window.TransitionInfo.ChangeFlags',
     'WindowContainerProto.orientation':
       'android.content.pm.ActivityInfo.ScreenOrientation',
+    'WindowStateProto.animatingTypes':
+      'android.view.WindowInsets.Type.InsetsType',
     'WindowStateProto.requestedVisibleTypes':
       'android.view.WindowInsets.Type.InsetsType',
   };
