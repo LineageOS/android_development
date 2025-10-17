@@ -112,6 +112,26 @@ export class TraceHasOldData extends UserWarning {
 }
 
 /**
+ * A warning for a trace with elapsed timestamps.
+ */
+export class TraceHasElapsedTimestamps extends UserWarning {
+  constructor(private readonly descriptor: string) {
+    super();
+  }
+
+  getDescriptor(): string {
+    return 'elapsed trace';
+  }
+
+  getMessage(): string {
+    return (
+      `${this.descriptor}: trace contains only elapsed timestamps` +
+      ' so many not be accurately synced with other real-time traces.'
+    );
+  }
+}
+
+/**
  * A warning for a trace that has been overridden.
  */
 export class TraceOverridden extends UserWarning {

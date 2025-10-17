@@ -56,6 +56,8 @@ describe('TracePipeline', () => {
   let perfettoFileProtolog: File;
   let perfettoFileTransactions: File;
   let elapsedFile: File;
+  let eventlogFile: File;
+  let inputFile: File;
 
   let progressListener: ProgressListenerStub;
   let tracePipeline: TracePipeline;
@@ -100,6 +102,12 @@ describe('TracePipeline', () => {
     );
     elapsedFile = await getFixtureFile(
       'traces/elapsed_timestamp/SurfaceFlinger.pb',
+    );
+    eventlogFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/eventlog.winscope',
+    );
+    inputFile = await getFixtureFile(
+      'traces/perfetto/input-events.perfetto-trace',
     );
   });
 
@@ -372,61 +380,70 @@ describe('TracePipeline', () => {
     await expectLoadResult(0, []);
   });
 
-  it('removes constituent traces of transitions trace but keeps for download', async () => {
-    const files = [wmTransitionFile, wmTransitionFile, shellTransitionFile];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const transitionTrace = assertDefined(
-      tracePipeline.getTraces().getTrace(TraceType.TRANSITION),
+  it('removes legacy transitions trace and its consituents', async () => {
+    const downloadResult = [
+      'transition/shell_transition_trace.pb',
+      'transition/wm_transition_trace.pb',
+    ];
+    await removesTraceAndConsituents(
+      [wmTransitionFile, wmTransitionFile, shellTransitionFile],
+      downloadResult,
+      TraceType.TRANSITION,
     );
-
-    tracePipeline.removeTrace(transitionTrace);
-    await expectLoadResult(0, []);
 
     await loadFiles([wmTransitionFile]);
     await expectLoadResult(1, []);
     expect(
       tracePipeline.getTraces().getTrace(TraceType.WM_TRANSITION),
     ).toBeDefined();
-    await expectDownloadResult([
+    await expectDownloadResult(['transition/wm_transition_trace.pb']);
+  });
+
+  it('keeps constituents of legacy transitions trace for download', async () => {
+    const downloadResult = [
       'transition/shell_transition_trace.pb',
       'transition/wm_transition_trace.pb',
-    ]);
+    ];
+    await checkConstituentsKeptForDownload(
+      [wmTransitionFile, wmTransitionFile, shellTransitionFile],
+      downloadResult,
+      true,
+      TraceType.TRANSITION,
+    );
   });
 
-  it('removes constituent traces of CUJs trace but keeps for download', async () => {
-    const files = [
-      await getFixtureFile(
-        'traces/elapsed_and_real_timestamp/eventlog.winscope',
-      ),
-    ];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const cujTrace = assertDefined(
-      tracePipeline.getTraces().getTrace(TraceType.CUJS),
+  it('removes CUJ trace and its consituents', async () => {
+    await removesTraceAndConsituents(
+      [eventlogFile],
+      ['eventlog/eventlog.winscope'],
+      TraceType.CUJS,
     );
-
-    tracePipeline.removeTrace(cujTrace);
-    await expectLoadResult(0, []);
-    await expectDownloadResult(['eventlog/eventlog.winscope']);
   });
 
-  it('removes constituent traces of input trace but keeps for download', async () => {
-    const files = [
-      await getFixtureFile('traces/perfetto/input-events.perfetto-trace'),
-    ];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const inputTrace = assertDefined(
-      tracePipeline.getTraces().getTrace(TraceType.INPUT_EVENT_MERGED),
+  it('keeps constituents of CUJ trace for download', async () => {
+    await checkConstituentsKeptForDownload(
+      [eventlogFile],
+      ['eventlog/eventlog.winscope'],
+      false,
+      TraceType.CUJS,
     );
+  });
 
-    tracePipeline.removeTrace(inputTrace);
-    await expectLoadResult(0, []);
-    await expectDownloadResult(['input-events.perfetto-trace']);
+  it('removes Input trace and its consituents', async () => {
+    await removesTraceAndConsituents(
+      [inputFile],
+      ['input-events.perfetto-trace'],
+      TraceType.INPUT_EVENT_MERGED,
+    );
+  });
+
+  it('keeps constituents of Input trace for download', async () => {
+    await checkConstituentsKeptForDownload(
+      [inputFile],
+      ['input-events.perfetto-trace'],
+      false,
+      TraceType.INPUT_EVENT_MERGED,
+    );
   });
 
   it('gets loaded traces', async () => {
@@ -537,7 +554,24 @@ describe('TracePipeline', () => {
     await expectLoadResult(1, []);
   });
 
-  it('discards legacy traces without conversion', async () => {
+  it('discards legacy traces that can be converted', async () => {
+    await loadFiles([validSfFile]);
+    const traces = tracePipeline.getTraces();
+    expect(traces.getSize()).toBe(1);
+    tracePipeline.discardLegacyTraces();
+    expect(traces.getSize()).toBe(0);
+  });
+
+  it('keeps legacy traces that cannot be converted', async () => {
+    await checkTraceIsNotDiscarded(screenshotFile, TraceType.SCREENSHOT);
+    await checkTraceIsNotDiscarded(eventlogFile, TraceType.CUJS);
+    await checkTraceIsNotDiscarded(
+      screenRecordingFile,
+      TraceType.SCREEN_RECORDING,
+    );
+  });
+
+  it('keeps legacy traces without conversion', async () => {
     await loadFiles([validSfFile, screenshotFile]);
     expectLoadResult(2, []);
     tracePipeline.discardLegacyTraces();
@@ -627,6 +661,13 @@ describe('TracePipeline', () => {
       checkSfTraceIsPerfetto();
     });
 
+    it('discards constituent files of converted transitions trace', async () => {
+      tracePipeline.clear();
+      await loadFiles([wmTransitionFile, shellTransitionFile]);
+      await tracePipeline.convertLegacyTracesToPerfetto();
+      await expectDownloadResult(['combined_winscope_trace.perfetto-trace']);
+    });
+
     function checkSfTraceIsPerfetto() {
       const traces = tracePipeline.getTraces();
       const trace = traces.getTrace(TraceType.SURFACE_FLINGER);
@@ -664,5 +705,49 @@ describe('TracePipeline', () => {
       .map((file) => file.name)
       .sort();
     expect(actualArchiveContents).toEqual(expectedArchiveContents);
+  }
+
+  async function checkTraceIsNotDiscarded(file: File, type: TraceType) {
+    tracePipeline.clear();
+    await loadFiles([file]);
+    tracePipeline.discardLegacyTraces();
+    const traces = tracePipeline.getTraces();
+    expect(traces.getSize()).toBe(1);
+    expect(traces.getTrace(type)).toBeDefined();
+  }
+
+  async function removesTraceAndConsituents(
+    files: File[],
+    downloadResult: string[],
+    traceType: TraceType,
+  ) {
+    await loadFiles(files);
+    await expectLoadResult(1, []);
+    await expectDownloadResult(downloadResult);
+
+    const trace = assertDefined(tracePipeline.getTraces().getTrace(traceType));
+    tracePipeline.removeTrace(trace);
+    await expectLoadResult(0, []);
+    await expectDownloadResult([]);
+  }
+
+  async function checkConstituentsKeptForDownload(
+    files: File[],
+    downloadResult: string[],
+    screenshotFirst: boolean,
+    traceType: TraceType,
+  ) {
+    await loadFiles(files);
+    await expectLoadResult(1, []);
+    await expectDownloadResult(downloadResult);
+
+    await loadFiles([screenshotFile]);
+    await expectLoadResult(2, []);
+    await expectDownloadResult(
+      screenshotFirst
+        ? ['screenshot.png', ...downloadResult]
+        : [...downloadResult, 'screenshot.png'],
+    );
+    expect(tracePipeline.getTraces().getTrace(traceType)).toBeDefined();
   }
 });

@@ -24,7 +24,11 @@ import {
 } from 'common/io';
 import {INVALID_TIME_NS, TimeRange, Timestamp} from 'common/time/time';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {TraceHasOldData, TraceOverridden} from 'messaging/user_warnings';
+import {
+  TraceHasElapsedTimestamps,
+  TraceHasOldData,
+  TraceOverridden,
+} from 'messaging/user_warnings';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {
@@ -57,8 +61,6 @@ export class LoadedParsers {
 
   private legacyParsers = new Array<FileAndParser>();
   private perfettoParsers = new Array<FileAndParser>();
-  private legacyParsersKeptForDownload = new Array<FileAndParser>();
-  private perfettoParsersKeptForDownload = new Array<FileAndParser>();
 
   addParsers(
     legacyParsers: FileAndParser[],
@@ -93,35 +95,23 @@ export class LoadedParsers {
     return this.perfettoParsers.at(0)?.file;
   }
 
-  remove<T extends TraceType>(
-    parser: Parser<TraceEntryTypeMap[T]>,
-    keepForDownload = false,
-  ) {
-    const predicate = (
-      fileAndParser: FileAndParser,
-      parsersToKeep: FileAndParser[],
-    ) => {
-      const shouldRemove = fileAndParser.parser === parser;
-      if (shouldRemove && keepForDownload) {
-        parsersToKeep.push(fileAndParser);
-      }
-      return !shouldRemove;
+  remove<T extends TraceType>(parser: Parser<TraceEntryTypeMap[T]>) {
+    const predicate = (fileAndParser: FileAndParser) => {
+      return fileAndParser.parser !== parser;
     };
-    this.legacyParsers = this.legacyParsers.filter(
-      (fileAndParser: FileAndParser) =>
-        predicate(fileAndParser, this.legacyParsersKeptForDownload),
-    );
-    this.perfettoParsers = this.perfettoParsers.filter(
-      (fileAndParser: FileAndParser) =>
-        predicate(fileAndParser, this.perfettoParsersKeptForDownload),
-    );
+    this.removeWithPredicate((fileAndParser) => predicate(fileAndParser));
+  }
+
+  removeByType(type: TraceType) {
+    const predicate = (fileAndParser: FileAndParser) => {
+      return fileAndParser.parser.getTraceType() !== type;
+    };
+    this.removeWithPredicate((fileAndParser) => predicate(fileAndParser));
   }
 
   clear() {
     this.legacyParsers = [];
     this.perfettoParsers = [];
-    this.legacyParsersKeptForDownload = [];
-    this.perfettoParsersKeptForDownload = [];
   }
 
   async makeZipArchive(onProgressUpdate?: OnProgressUpdateType): Promise<Blob> {
@@ -130,10 +120,7 @@ export class LoadedParsers {
 
     if (onProgressUpdate) onProgressUpdate(0);
     const totalParsers =
-      this.perfettoParsers.length +
-      this.perfettoParsersKeptForDownload.length +
-      this.legacyParsers.length +
-      this.legacyParsersKeptForDownload.length;
+      this.perfettoParsers.length + this.legacyParsers.length;
     let progress = 0;
 
     const tryPushOutputFile = (file: File, filename: string) => {
@@ -182,13 +169,9 @@ export class LoadedParsers {
 
     if (this.perfettoParsers.length > 0) {
       tryPushOutPerfettoFile(this.perfettoParsers);
-    } else if (this.perfettoParsersKeptForDownload.length > 0) {
-      tryPushOutPerfettoFile(this.perfettoParsersKeptForDownload);
     }
     if (onProgressUpdate) {
-      progress =
-        this.perfettoParsers.length +
-        this.perfettoParsersKeptForDownload.length;
+      progress = this.perfettoParsers.length;
       onProgressUpdate((0.5 * progress) / totalParsers);
     }
 
@@ -211,7 +194,6 @@ export class LoadedParsers {
     };
 
     this.legacyParsers.forEach(tryPushOutputLegacyFile);
-    this.legacyParsersKeptForDownload.forEach(tryPushOutputLegacyFile);
 
     const archiveFiles = [...outputFilenameToFiles.entries()]
       .map(([filename, files]) => {
@@ -446,21 +428,22 @@ export class LoadedParsers {
     });
 
     if (hasParserWithOffset && hasParserWithoutOffset) {
-      return newLegacyParsers.filter(({parser}) => {
+      newLegacyParsers.forEach(({parser}) => {
         if (
           LoadedParsers.REAL_TIME_TRACES_WITHOUT_RTE_OFFSET.some(
             (traceType) => parser.getTraceType() === traceType,
           )
         ) {
-          return true;
+          return;
         }
         const hasOffset =
           parser.getRealToMonotonicTimeOffsetNs() !== undefined ||
           parser.getRealToBootTimeOffsetNs() !== undefined;
         if (!hasOffset) {
-          UserNotifier.add(new TraceHasOldData(parser.getDescriptors().join()));
+          UserNotifier.add(
+            new TraceHasElapsedTimestamps(parser.getDescriptors().join()),
+          );
         }
-        return hasOffset;
       });
     }
 
@@ -484,6 +467,17 @@ export class LoadedParsers {
     }
 
     return undefined;
+  }
+
+  private removeWithPredicate(
+    predicate: (fileAndParser: FileAndParser) => boolean,
+  ) {
+    this.legacyParsers = this.legacyParsers.filter(
+      (fileAndParser: FileAndParser) => predicate(fileAndParser),
+    );
+    this.perfettoParsers = this.perfettoParsers.filter(
+      (fileAndParser: FileAndParser) => predicate(fileAndParser),
+    );
   }
 
   private hasValidTimestamps(timestamps: Timestamp[] | undefined): boolean {
