@@ -51,7 +51,7 @@ export class PlaybackPresenter {
   private trace: Trace<HierarchyTreeNode>;
   private playbackWorker: Worker;
   private workerPromiseResolver:
-    | ((value: Array<HierarchyTreeNode | undefined>) => void)
+    | ((value: HierarchyTreeNode[]) => void)
     | undefined = undefined;
   private workerPromiseRejecter: ((reason?: any) => void) | undefined =
     undefined;
@@ -452,7 +452,7 @@ export class PlaybackPresenter {
   private async fetchTreesFromWorker(
     start: number,
     end: number,
-  ): Promise<Array<HierarchyTreeNode | undefined>> {
+  ): Promise<HierarchyTreeNode[]> {
     const queryResults = await this.trace.getQueryResults({start, end}, true);
 
     const snapshotResults = queryResults.snapshotRange;
@@ -479,23 +479,21 @@ export class PlaybackPresenter {
 
     const map = await parser.getRectsMap();
 
-    return new Promise<Array<HierarchyTreeNode | undefined>>(
-      (resolve, reject) => {
-        this.workerPromiseResolver = resolve as (
-          value: Array<HierarchyTreeNode | undefined>,
-        ) => void;
-        this.workerPromiseRejecter = reject;
+    return new Promise<HierarchyTreeNode[]>((resolve, reject) => {
+      this.workerPromiseResolver = resolve as (
+        value: HierarchyTreeNode[],
+      ) => void;
+      this.workerPromiseRejecter = reject;
 
-        this.playbackWorker.postMessage({
-          start,
-          end,
-          snapshotBatches,
-          nodeBatches,
-          type: this.trace.type,
-          traceGeometryData: this.traceGeometryData,
-          visibleRectsMap: map,
-        });
-      },
-    );
+      this.playbackWorker.postMessage({
+        start,
+        end,
+        snapshotBatches,
+        nodeBatches,
+        type: this.trace.type,
+        traceGeometryData: this.traceGeometryData,
+        visibleRectsMap: map,
+      });
+    });
   }
 }
