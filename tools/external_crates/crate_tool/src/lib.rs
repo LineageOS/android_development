@@ -71,7 +71,7 @@ fn ensure_exists_and_empty(dir: impl AsRef<Path>) -> Result<()> {
 // The copy_dir crate doesn't handle symlinks.
 fn copy_dir(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<()> {
     Command::new("cp")
-        .arg("--archive")
+        .arg("-a") // Preserve ownership and symlinks. Works on Linux and Mac.
         .arg(src.as_ref())
         .arg(dst.as_ref())
         .run_quiet_and_expect_success()?;
