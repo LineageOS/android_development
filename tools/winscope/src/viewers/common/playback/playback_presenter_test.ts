@@ -16,7 +16,7 @@
 
 import {PlaybackPresenter} from './playback_presenter';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {Trace} from 'trace_api/trace';
+import {Trace, TraceEntryEager, TraceEntryLazy} from 'trace_api/trace';
 import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -132,7 +132,7 @@ describe('PlaybackPresenter', () => {
         await presenter.play(0, PlaybackState.FORWARDS, undefined);
         expect(presenter.isPlaying()).toBeTrue();
 
-        presenter.play(0, PlaybackState.BACKWARDS, undefined);
+        await presenter.play(0, PlaybackState.BACKWARDS, undefined);
         expect(presenter.isPlaying()).toBeTrue();
       });
 
@@ -209,21 +209,73 @@ describe('PlaybackPresenter', () => {
     describe('with SR trace', async () => {
       it('plays through all the SR entries in the trace', async () => {
         await presenter.play(0, PlaybackState.FORWARDS, screenRecordingTrace);
-        await new Timer(1000).wait(() => !presenter.isPlaying());
+        await new Timer(5000).wait(() => !presenter.isPlaying());
         const allUpdates = mockEmitWinscopeEvent.calls.all();
-        for (let i = 1; i < screenRecordingTrace.lengthEntries + 1; i++) {
-          expect(allUpdates[i].args[0]).toBeInstanceOf(TracePositionUpdate);
-        }
+        checkAllEntriesPlayed(allUpdates, PlaybackState.FORWARDS);
       });
 
       it('plays through all the SR entries in reverse in the trace', async () => {
         await presenter.play(0, PlaybackState.BACKWARDS, screenRecordingTrace);
-        await new Timer(1000).wait(() => !presenter.isPlaying());
+        await new Timer(5000).wait(() => !presenter.isPlaying());
         const allUpdates = mockEmitWinscopeEvent.calls.all();
-        for (let i = 1; i < screenRecordingTrace.lengthEntries + 1; i++) {
-          expect(allUpdates[i].args[0]).toBeInstanceOf(TracePositionUpdate);
-        }
+        checkAllEntriesPlayed(allUpdates, PlaybackState.BACKWARDS);
       });
+
+      function checkAllEntriesPlayed(
+        allUpdates: ReadonlyArray<jasmine.CallInfo<EmitEvent>>,
+        stateToReflect: PlaybackState,
+      ) {
+        const startEvent = allUpdates[0].args[0] as PlaybackStateChangeHandled;
+        expect(startEvent).toBeInstanceOf(PlaybackStateChangeHandled);
+        expect(startEvent.stateToReflect).toEqual(stateToReflect);
+
+        const eagerUpdates = [
+          {srIndex: 0, traceIndex: 0},
+          {srIndex: 1, traceIndex: 0},
+          {srIndex: 2, traceIndex: 0},
+          {srIndex: 3, traceIndex: 1},
+          {srIndex: 3, traceIndex: 2},
+        ];
+        if (stateToReflect === PlaybackState.BACKWARDS) {
+          eagerUpdates.reverse();
+        }
+
+        for (let i = 1; i < eagerUpdates.length + 1; i++) {
+          const event = allUpdates[i].args[0] as TracePositionUpdate;
+          expect(event).toBeInstanceOf(TracePositionUpdate);
+
+          expect(event.position.entry).toBeInstanceOf(TraceEntryEager);
+          expect(event.position.entry?.getIndex()).toEqual(
+            eagerUpdates[i - 1].srIndex,
+          );
+          expect(event.position.entry?.getFullTrace()).toEqual(
+            screenRecordingTrace,
+          );
+
+          expect(event.prefetchedEntry).toBeDefined();
+          expect(event.prefetchedEntry?.getIndex()).toEqual(
+            eagerUpdates[i - 1].traceIndex,
+          );
+          expect(event.prefetchedEntry?.getFullTrace()).toEqual(trace);
+        }
+
+        const pauseEvent = allUpdates[allUpdates.length - 2]
+          .args[0] as PlaybackStateChangeHandled;
+        expect(pauseEvent).toBeInstanceOf(PlaybackStateChangeHandled);
+        expect(pauseEvent.stateToReflect).toEqual(PlaybackState.PAUSED);
+
+        const lazyEventUpdate = allUpdates[allUpdates.length - 1]
+          .args[0] as TracePositionUpdate;
+        expect(lazyEventUpdate).toBeInstanceOf(TracePositionUpdate);
+        expect(lazyEventUpdate.position.entry).toBeInstanceOf(TraceEntryLazy);
+        expect(lazyEventUpdate.position.entry?.getIndex()).toEqual(
+          eagerUpdates[eagerUpdates.length - 1].srIndex,
+        );
+        expect(lazyEventUpdate.position.entry?.getFullTrace()).toEqual(
+          screenRecordingTrace,
+        );
+        expect(lazyEventUpdate.prefetchedEntry).toBeUndefined();
+      }
     });
   });
 
