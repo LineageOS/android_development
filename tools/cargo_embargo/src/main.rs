@@ -45,13 +45,20 @@ use cargo::{
 use clap::Parser;
 use clap::Subcommand;
 use log::debug;
-use nix::fcntl::OFlag;
-use nix::unistd::pipe2;
+#[cfg(not(target_os = "macos"))]
+use nix::{fcntl::OFlag, unistd::pipe2};
+#[cfg(target_os = "macos")]
+use nix::{
+    fcntl::{fcntl, FdFlag},
+    unistd::pipe,
+};
 use std::collections::BTreeMap;
 use std::collections::VecDeque;
 use std::env;
 use std::fs::{read_to_string, write, File};
 use std::io::{Read, Write};
+#[cfg(target_os = "macos")]
+use std::os::fd::AsRawFd;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -431,6 +438,14 @@ fn write_all_build_files(
 
 /// Runs the given command, and returns its standard output and (optionally) standard error as a string.
 fn run_cargo(cmd: &mut Command, include_stderr: bool) -> Result<String> {
+    #[cfg(target_os = "macos")]
+    let (pipe_read, pipe_write) = {
+        let (pipe_read, pipe_write) = pipe()?;
+        fcntl(pipe_read.as_raw_fd(), nix::fcntl::F_SETFD(FdFlag::FD_CLOEXEC))?;
+        fcntl(pipe_write.as_raw_fd(), nix::fcntl::F_SETFD(FdFlag::FD_CLOEXEC))?;
+        (pipe_read, pipe_write)
+    };
+    #[cfg(not(target_os = "macos"))]
     let (pipe_read, pipe_write) = pipe2(OFlag::O_CLOEXEC)?;
     if include_stderr {
         cmd.stderr(pipe_write.try_clone()?);
@@ -607,7 +622,7 @@ fn write_build_files(
 ) -> Result<()> {
     assert_eq!(crates.len(), out_files.len());
 
-    let mut bp_contents = String::new();
+    let mut bp_modules = Vec::new();
     let mut mk_contents = String::new();
     for (variant_index, variant_config) in cfg.variants.iter().enumerate() {
         let variant_crates = &crates[variant_index];
@@ -629,12 +644,13 @@ fn write_build_files(
         }
 
         if variant_config.generate_androidbp {
-            bp_contents += &generate_android_bp(
+            generate_bp_modules(
                 variant_config,
                 package_variant_cfg,
                 package_name,
                 variant_crates,
                 &out_files[variant_index],
+                &mut bp_modules,
             )?;
         }
         if variant_config.generate_rulesmk {
@@ -647,6 +663,7 @@ fn write_build_files(
             )?;
         }
     }
+    let mut bp_contents = generate_android_bp(bp_modules)?;
     let main_module_name_overrides = &cfg.variants.first().unwrap().module_name_overrides;
     if !mk_contents.is_empty() {
         // If rules.mk is generated, then make it accessible via dirgroup.
@@ -802,6 +819,7 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         "Apache-2.0 AND BSD-3-Clause" => vec!["Apache-2.0", "BSD-3-Clause"],
 
         // Other cases.
+        "MIT OR BSD-3-Clause" => vec!["MIT"],
         "MIT OR LGPL-3.0-or-later" => vec!["MIT"],
         "MIT/BSD-3-Clause" => vec!["MIT"],
         "MIT AND (MIT OR Apache-2.0)" => vec!["MIT"],
@@ -820,17 +838,14 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
 
 /// Generates and returns a Soong Blueprint for the given set of crates, for a single variant of a
 /// package.
-fn generate_android_bp(
+fn generate_bp_modules(
     cfg: &VariantConfig,
     package_cfg: &PackageVariantConfig,
     package_name: &str,
     crates: &[Crate],
     out_files: &[PathBuf],
-) -> Result<String> {
-    let mut bp_contents = String::new();
-
-    let mut modules = Vec::new();
-
+    modules: &mut Vec<BpModule>,
+) -> Result<()> {
     let extra_srcs = if package_cfg.copy_out && !out_files.is_empty() {
         let outs: Vec<String> = out_files
             .iter()
@@ -869,14 +884,23 @@ fn generate_android_bp(
         )?);
     }
 
-    // In some cases there are nearly identical rustc invocations that that get processed into
-    // identical BP modules. So far, dedup'ing them is a good enough fix. At some point we might
-    // need something more complex, maybe like cargo2android's logic for merging crates.
-    modules.sort();
-    modules.dedup();
+    Ok(())
+}
 
-    modules.sort_by_key(|m| m.props.get_string("name").unwrap().to_string());
-    for m in modules {
+fn generate_android_bp(modules: Vec<BpModule>) -> Result<String> {
+    use std::collections::btree_map::Entry;
+
+    let mut module_map: BTreeMap<String, BpModule> = BTreeMap::new();
+    let mut bp_contents = String::new();
+    for module in modules {
+        match module_map.entry(module.props.get_string("name").unwrap().to_string()) {
+            Entry::Vacant(v) => {
+                v.insert(module);
+            }
+            Entry::Occupied(mut o) => o.get_mut().merge(module)?,
+        }
+    }
+    for m in module_map.values() {
         m.write(&mut bp_contents)?;
         bp_contents += "\n";
     }
@@ -1082,8 +1106,12 @@ fn crate_to_bp_modules(
         }
         m.props.set("name", module_name.clone());
 
+        if !package_cfg.enabled {
+            m.props.set("enabled", false);
+        }
+
         let mut defaults = Vec::<String>::new();
-        if package_cfg.no_std {
+        if package_cfg.no_std && !matches!(crate_type, CrateType::Test) {
             defaults.push("rust_baremetal_defaults".to_string());
         }
         if let Some(global_defaults) = &cfg.global_defaults {
@@ -1449,25 +1477,73 @@ mod tests {
                 &cfg.variants.first().unwrap().module_name_overrides,
             )
             .unwrap();
+            let mut modules = Vec::new();
             for (variant_index, variant_cfg) in cfg.variants.iter().enumerate() {
                 let variant_crates = &crates[variant_index];
                 let package_name = &variant_crates[0].package_name;
                 let def = PackageVariantConfig::default();
                 let package_variant_cfg = variant_cfg.package.get(package_name).unwrap_or(&def);
 
-                output += &generate_android_bp(
+                generate_bp_modules(
                     variant_cfg,
                     package_variant_cfg,
                     package_name,
                     variant_crates,
                     &Vec::new(),
+                    &mut modules,
                 )
                 .unwrap();
             }
 
+            output += &generate_android_bp(modules).unwrap();
+
             assert_that!(output, eq(&expected_output), "for {}", testdata_directory_path.display());
 
             set_current_dir(old_current_dir).unwrap();
+        }
+    }
+
+    #[test]
+    fn generate_rules() {
+        for testdata_directory_path in testdata_directories() {
+            let cfg_path = testdata_directory_path.join("cargo_embargo.json");
+            let crates_path = testdata_directory_path.join("crates.json");
+            let expected_rules_path = testdata_directory_path.join("expected_rules.mk");
+
+            let cfg = Config::from_file(&cfg_path).unwrap();
+            let crates_string = read_to_string(&crates_path).expect("Failed to open crates.json");
+            let crates = serde_json::from_str::<Vec<Vec<Crate>>>(&crates_string).unwrap();
+
+            let old_current_dir = current_dir().unwrap();
+            set_current_dir(&testdata_directory_path).unwrap();
+
+            let module_by_package = group_by_package(crates);
+            assert_eq!(module_by_package.len(), 1);
+            let crates = module_by_package.into_values().next().unwrap();
+
+            let mut rules = String::new();
+            for (variant_index, variant_cfg) in cfg.variants.iter().enumerate() {
+                let variant_crates = &crates[variant_index];
+                let package_name = &variant_crates[0].package_name;
+                let def = PackageVariantConfig::default();
+                let package_variant_cfg = variant_cfg.package.get(package_name).unwrap_or(&def);
+
+                rules += &generate_rules_mk(
+                    variant_cfg,
+                    package_variant_cfg,
+                    package_name,
+                    variant_crates,
+                    &[],
+                )
+                .unwrap();
+            }
+
+            set_current_dir(old_current_dir).unwrap();
+
+            let expected_rules =
+                read_to_string(&expected_rules_path).expect("Failed to open expected_rules.mk");
+
+            assert_that!(&rules, eq(&expected_rules), "for {}", testdata_directory_path.display());
         }
     }
 
@@ -1528,6 +1604,22 @@ mod tests {
                 }
             }]
         );
+    }
+
+    #[test]
+    fn crate_to_bp_disabled() {
+        let c = Crate {
+            name: "name".to_string(),
+            package_name: "package_name".to_string(),
+            edition: "2021".to_string(),
+            types: vec![CrateType::Lib],
+            ..Default::default()
+        };
+        let cfg = VariantConfig { ..Default::default() };
+        let package_cfg = PackageVariantConfig { enabled: false, ..Default::default() };
+        let modules = crate_to_bp_modules(&c, &cfg, &package_cfg, &[]).unwrap();
+
+        assert_eq!(modules[0].props.map.get("enabled"), Some(&BpValue::Bool(false)));
     }
 
     #[test]

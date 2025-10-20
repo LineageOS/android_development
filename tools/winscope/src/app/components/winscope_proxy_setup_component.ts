@@ -23,11 +23,14 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {proxySetupStyles} from 'app/styles/proxy_setup.styles';
-import {Download} from 'common/download';
-import {getRootUrl} from 'common/url_utils';
+import {DownloadRequest, downloadFromUrl} from 'common/download';
+import {getRootUrl} from 'common/window';
 import {ConnectionState} from 'trace_collection/connection_state';
 import {VERSION} from 'trace_collection/winscope_proxy/utils';
 
+/**
+ * A component for displaying the Winscope proxy setup instructions.
+ */
 @Component({
   selector: 'winscope-proxy-setup',
   standalone: true,
@@ -42,13 +45,13 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
     FormsModule,
   ],
   template: `
-    <ng-container [ngSwitch]="state">
-      <ng-container *ngSwitchCase="${ConnectionState.CONNECTING}">
+    @switch (state) {
+      @case (${ConnectionState.CONNECTING}) {
         <p class="connecting-message mat-body-1">
           Connecting...
         </p>
-      </ng-container>
-      <ng-container *ngSwitchCase="${ConnectionState.NOT_FOUND}">
+      }
+      @case (${ConnectionState.NOT_FOUND}) {
         <div class="further-adb-info-text">
           <p class="mat-body-1">
             Launch the Winscope ADB Connect proxy to capture traces directly from your browser.
@@ -79,9 +82,8 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
             Retry
           </button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="${ConnectionState.INVALID_VERSION}">
+      }
+      @case (${ConnectionState.INVALID_VERSION}) {
         <div class="further-adb-info-text">
           <p class="icon-information mat-body-1">
             <mat-icon class="adb-icon">update</mat-icon>
@@ -115,9 +117,8 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
             Retry
           </button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="${ConnectionState.UNAUTH}">
+      }
+      @case (${ConnectionState.UNAUTH}) {
         <div class="further-adb-info-text">
           <p class="icon-information mat-body-1">
             <mat-icon class="adb-icon">lock</mat-icon>
@@ -140,10 +141,8 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
             Connect
           </button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchDefault></ng-container>
-    </ng-container>
+      }
+    }
   `,
   styles: [
     `
@@ -157,6 +156,12 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
 })
 export class WinscopeProxySetupComponent {
   @Input() state: ConnectionState | undefined;
+  @Input() downloadRequest: DownloadRequest = (
+    url: string,
+    fileName: string,
+  ) => {
+    downloadFromUrl(url, fileName);
+  };
   @Output() readonly retryConnection = new EventEmitter<string>();
 
   readonly downloadProxyUrl: string = getRootUrl() + 'winscope_proxy.py';
@@ -177,6 +182,6 @@ export class WinscopeProxySetupComponent {
   }
 
   onDownloadProxyClick() {
-    Download.fromUrl(this.downloadProxyUrl, 'winscope_proxy.py');
+    this.downloadRequest(this.downloadProxyUrl, 'winscope_proxy.py');
   }
 }

@@ -42,6 +42,12 @@ interface TraceInfoMap {
   };
 }
 
+/**
+ * A map containing information and metadata for each `TraceType`.
+ * This includes display properties like name, icon, and color,
+ * as well as practical information like the directory for downloading
+ * archived traces and the legacy file extension.
+ */
 export const TRACE_INFO: TraceInfoMap = {
   [TraceType.WINDOW_MANAGER]: {
     name: 'Window Manager',

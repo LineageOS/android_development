@@ -45,7 +45,7 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('view 7654321');
+    expect(hierarchyRoot.getDisplayName()).toBe('view 7654321');
   });
 
   it('changes display name of client node without view', () => {
@@ -54,7 +54,7 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('null');
+    expect(hierarchyRoot.getDisplayName()).toBe('null');
   });
 
   it('does not change name of non-client node', () => {
@@ -76,6 +76,6 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('service');
+    expect(hierarchyRoot.getDisplayName()).toBe('service');
   });
 });

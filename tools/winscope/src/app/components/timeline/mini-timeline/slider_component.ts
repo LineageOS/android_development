@@ -33,13 +33,16 @@ import {
   ViewChild,
 } from '@angular/core';
 import {Color} from 'app/colors';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Point} from 'common/geometry/point';
 import {TimeRange, Timestamp} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {TracePosition} from 'trace_api/trace_position';
 import {Transformer} from './transformer';
 
+/**
+ * A component for displaying a slider to control the zoom level of the timeline.
+ */
 @Component({
   selector: 'slider',
   standalone: true,
@@ -163,7 +166,7 @@ export class SliderComponent {
   syncDragPositionTo(zoomRange: TimeRange) {
     this.sliderWidth = this.computeSliderWidth();
     const middleOfZoomRange = zoomRange.from.add(
-      zoomRange.to.minus(zoomRange.from.getValueNs()).div(2n).getValueNs(),
+      zoomRange.to.minus(zoomRange.from).div(2n).getValueNs(),
     );
 
     this.dragPosition = {
@@ -245,14 +248,12 @@ export class SliderComponent {
     // Calculation to adjust for min width slider
     const from = this.getTransformer()
       .untransform(newX + this.sliderWidth / 2)
-      .minus(
-        zoomRange.to.minus(zoomRange.from.getValueNs()).div(2n).getValueNs(),
-      );
+      .minus(zoomRange.to.minus(zoomRange.from).div(2n));
 
     const to = assertDefined(this.timestampConverter).makeTimestampFromNs(
       from.getValueNs() +
-        (assertDefined(this.zoomRange).to.getValueNs() -
-          assertDefined(this.zoomRange).from.getValueNs()),
+        (assertDefined(this.zoomRange).endNs -
+          assertDefined(this.zoomRange).startNs),
     );
 
     this.onZoomChanged.emit(new TimeRange(from, to));
@@ -269,10 +270,10 @@ export class SliderComponent {
     const listener = (event: MouseEvent) => {
       const movedX = event.pageX - startPos;
       let from = this.getTransformer().untransform(startOffset + movedX);
-      if (from.getValueNs() < assertDefined(this.fullRange).from.getValueNs()) {
+      if (from.getValueNs() < assertDefined(this.fullRange).startNs) {
         from = assertDefined(this.fullRange).from;
       }
-      if (from.getValueNs() > assertDefined(this.zoomRange).to.getValueNs()) {
+      if (from.getValueNs() > assertDefined(this.zoomRange).endNs) {
         from = assertDefined(this.zoomRange).to;
       }
       const to = assertDefined(this.zoomRange).to;
@@ -300,10 +301,10 @@ export class SliderComponent {
       const movedX = event.pageX - startPos;
       const from = assertDefined(this.zoomRange).from;
       let to = this.getTransformer().untransform(startOffset + movedX);
-      if (to.getValueNs() > assertDefined(this.fullRange).to.getValueNs()) {
+      if (to.getValueNs() > assertDefined(this.fullRange).endNs) {
         to = assertDefined(this.fullRange).to;
       }
-      if (to.getValueNs() < assertDefined(this.zoomRange).from.getValueNs()) {
+      if (to.getValueNs() < assertDefined(this.zoomRange).startNs) {
         to = assertDefined(this.zoomRange).from;
       }
 
@@ -319,4 +320,7 @@ export class SliderComponent {
   }
 }
 
+/**
+ * The minimum width of the slider in pixels.
+ */
 export const MIN_SLIDER_WIDTH = 30;

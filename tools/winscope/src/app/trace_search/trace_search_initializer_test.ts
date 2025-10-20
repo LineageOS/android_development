@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
@@ -44,7 +44,7 @@ describe('TraceSearchInitializer', () => {
         AND property='flags'
         AND value!=previous_value
     `);
-    expect(queryResult.numRows()).toEqual(2);
+    expect(queryResult.numRows()).toBe(2);
 
     const queryResultEntry = await runQueryAndGetResult(`
       SELECT * FROM sf_hierarchy_root_search
@@ -54,7 +54,7 @@ describe('TraceSearchInitializer', () => {
           OR flat_property='displays.is_virtual'
         )
     `);
-    expect(queryResultEntry.numRows()).toEqual(40);
+    expect(queryResultEntry.numRows()).toBe(40);
   });
 
   it('initializes transactions', async () => {
@@ -68,14 +68,14 @@ describe('TraceSearchInitializer', () => {
         WHERE flat_property='transactions.layer_changes.x'
         AND value!='0.0'
     `);
-    expect(queryResultTransaction.numRows()).toEqual(3);
+    expect(queryResultTransaction.numRows()).toBe(3);
 
     const queryResultAddedLayer = await runQueryAndGetResult(`
       SELECT * FROM transactions_search
         WHERE flat_property='added_layers.name'
         AND value='ImeContainer'
     `);
-    expect(queryResultAddedLayer.numRows()).toEqual(1);
+    expect(queryResultAddedLayer.numRows()).toBe(1);
   });
 
   it('initializes protolog', async () => {
@@ -87,7 +87,7 @@ describe('TraceSearchInitializer', () => {
     const queryResult = await runQueryAndGetResult(`
       SELECT * FROM protolog WHERE message LIKE '%string%'
     `);
-    expect(queryResult.numRows()).toEqual(2);
+    expect(queryResult.numRows()).toBe(2);
   });
 
   it('initializes transitions', async () => {
@@ -101,7 +101,7 @@ describe('TraceSearchInitializer', () => {
         WHERE flat_property='handler'
         AND value LIKE '%DefaultMixedHandler'
     `);
-    expect(queryResult.numRows()).toEqual(2);
+    expect(queryResult.numRows()).toBe(2);
   });
 
   it('initializes view capture', async () => {
@@ -116,7 +116,7 @@ describe('TraceSearchInitializer', () => {
         AND flat_property='translation_y'
         AND value!=previous_value
     `);
-    expect(queryResult.numRows()).toEqual(28);
+    expect(queryResult.numRows()).toBe(28);
   });
 
   async function createViewsAndTestExamples(

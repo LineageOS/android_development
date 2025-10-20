@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Box3D} from 'common/geometry/box3d';
 import {Distance} from 'common/geometry/distance';
 import {Point3D} from 'common/geometry/point3d';
 import {Rect3D} from 'common/geometry/rect3d';
 import {Size} from 'common/geometry/size';
-import {
-  IDENTITY_MATRIX,
-  TransformMatrix,
-} from 'common/geometry/transform_matrix';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {ColorType} from './color_type';
@@ -54,7 +51,7 @@ class Mapper3D {
   private cameraRotationFactor = Mapper3D.CAMERA_ROTATION_FACTOR_INIT;
   private zSpacingFactor = Mapper3D.Z_SPACING_FACTOR_INIT;
   private zoomFactor = Mapper3D.ZOOM_FACTOR_INIT;
-  private panScreenDistance = new Distance(0, 0);
+  private panScreenDistance: Distance = {dx: 0, dy: 0};
   private currentGroupIds = [0]; // default stack id is usually 0
   private shadingModeIndex = 0;
   private allowedShadingModes: ShadingMode[] = [ShadingMode.GRADIENT];
@@ -288,7 +285,7 @@ class Mapper3D {
           };
         });
       }
-      const transform = rect2d.transform ?? IDENTITY_MATRIX;
+      const transform = rect2d.transform ?? TransformMatrix.IDENTITY;
 
       const rect: UiRect3D = {
         id: rect2d.id,

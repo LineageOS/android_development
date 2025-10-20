@@ -55,253 +55,303 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
         (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
     </div>
 
-    <span class="mat-body-1 placeholder-text" *ngIf="!additionalProperties"> No IME entry found. </span>
+    @if (!additionalProperties) {
+      <span class="mat-body-1 placeholder-text"> No IME entry found. </span>
+    }
 
-    <div class="additional-properties-content" *ngIf="additionalProperties">
-      <div *ngIf="isAllPropertiesUndefined()" class="group">
-        <p class="mat-body-1">
-          There is no corresponding WM / SF additionalProperties for this IME entry – no WM / SF
-          entry is recorded before this IME entry in time. View later frames for WM & SF properties.
-        </p>
+    @if (additionalProperties) {
+      <div class="additional-properties-content">
+        @if (isAllPropertiesUndefined()) {
+          <div class="group">
+            <p class="mat-body-1">
+              There is no corresponding WM / SF additionalProperties for this IME entry – no WM / SF
+              entry is recorded before this IME entry in time. View later frames for WM & SF properties.
+            </p>
+          </div>
+        }
+
+        @if (isImeManagerService) {
+          <div class="group ime-manager-service">
+            @if (wmHierarchyTree()) {
+              <button
+                [color]="getButtonColor(wmHierarchyTree())"
+                mat-button
+                class="group-header"
+                [class]="{selected: isHighlighted(wmHierarchyTree())}"
+                (click)="onClickShowInPropertiesPanelWm(wmHierarchyTree(), 'Window Manager State')">
+                WMState
+              </button>
+            }
+            @if (!wmHierarchyTree()) {
+              <h3 class="group-header mat-subtitle-1">WMState</h3>
+            }
+            <div class="left-column wm-state">
+              @if (additionalProperties?.wm) {
+                <p class="mat-body-1">
+                  {{ wmRootLabel() }}
+                </p>
+              }
+              @if (!additionalProperties?.wm) {
+                <p class="mat-body-1">
+                  There is no corresponding WMState entry.
+                </p>
+              }
+            </div>
+          </div>
+          @if (wmInsetsSourceProvider()) {
+            <div class="group insets-source-provider">
+              <button
+                [color]="getButtonColor(wmInsetsSourceProvider())"
+                mat-button
+                class="group-header"
+                [class]="{selected: isHighlighted(wmInsetsSourceProvider())}"
+                (click)="
+                  onClickShowInPropertiesPanelWm(wmInsetsSourceProvider(), 'Ime Insets Source Provider')
+                ">
+                IME Insets Source Provider
+              </button>
+              <div class="left-column">
+                <p class="mat-body-2">Source Frame:</p>
+                <coordinates-table
+                  [coordinates]="wmInsetsSourceProviderSourceFrame()"></coordinates-table>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Source Visible:</span>
+                  &ngsp;
+                  {{ wmInsetsSourceProviderSourceVisible() }}
+                </p>
+                <p class="mat-body-2">Source Visible Frame:</p>
+                <coordinates-table
+                  [coordinates]="wmInsetsSourceProviderSourceVisibleFrame()"></coordinates-table>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Position:</span>
+                  &ngsp;
+                  {{ wmInsetsSourceProviderPosition() }}
+                </p>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">IsLeashReadyForDispatching:</span>
+                  &ngsp;
+                  {{ wmInsetsSourceProviderIsLeashReady() }}
+                </p>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Controllable:</span>
+                  &ngsp;
+                  {{ wmInsetsSourceProviderControllable() }}
+                </p>
+              </div>
+            </div>
+          }
+          @if (wmImeControlTarget()) {
+            <div class="group ime-control-target">
+              <button
+              [color]="getButtonColor(wmImeControlTarget())"
+                mat-button
+                class="group-header ime-control-target-button"
+                [class]="{selected: isHighlighted(wmImeControlTarget())}"
+                (click)="onClickShowInPropertiesPanelWm(wmImeControlTarget(), 'Ime Control Target')">
+                IME Control Target
+              </button>
+              <div class="left-column">
+                @if (wmImeControlTargetTitle()) {
+                  <p class="mat-body-1">
+                    <span class="mat-body-2">Title:</span>
+                    &ngsp;
+                    {{ wmImeControlTargetTitle() }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+          @if (wmImeInputTarget()) {
+            <div class="group ime-input-target">
+              <button
+              [color]="getButtonColor(wmImeInputTarget())"
+                mat-button
+                class="group-header"
+                [class]="{selected: isHighlighted(wmImeInputTarget())}"
+                (click)="onClickShowInPropertiesPanelWm(wmImeInputTarget(), 'Ime Input Target')">
+                IME Input Target
+              </button>
+              <div class="left-column">
+                @if (wmImeInputTargetTitle()) {
+                  <p class="mat-body-1">
+                    <span class="mat-body-2">Title:</span>
+                    &ngsp;
+                    {{ wmImeInputTargetTitle() }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+          @if (wmImeLayeringTarget()) {
+            <div class="group ime-layering-target">
+              <button
+              [color]="getButtonColor(wmImeLayeringTarget())"
+                mat-button
+                class="group-header"
+                [class]="{selected: isHighlighted(wmImeLayeringTarget())}"
+                (click)="onClickShowInPropertiesPanelWm(wmImeLayeringTarget(), 'Ime Layering Target')">
+                IME Layering Target
+              </button>
+              <div class="left-column">
+                @if (wmImeLayeringTargetTitle()) {
+                  <p class="mat-body-1">
+                    <span class="mat-body-2">Title:</span>
+                    &ngsp;
+                    {{ wmImeLayeringTargetTitle() }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (!isImeManagerService) {
+          <!-- Ime Client or Ime Service -->
+          <div class="group">
+            @if (wmHierarchyTree()) {
+              <button
+                [color]="getButtonColor(wmHierarchyTree())"
+                mat-button
+                class="group-header wm-state-button"
+                [class]="{selected: isHighlighted(wmHierarchyTree())}"
+                (click)="onClickShowInPropertiesPanelWm(wmHierarchyTree(), 'Window Manager State')">
+                WMState
+              </button>
+            }
+            @if (!wmHierarchyTree()) {
+              <h3 class="group-header mat-subtitle-1">WMState</h3>
+            }
+            <div class="left-column wm-state">
+              @if (additionalProperties?.wm) {
+                <p class="mat-body-1">
+                  {{ wmRootLabel() }}
+                </p>
+              }
+              @if (!additionalProperties?.wm) {
+                <p class="mat-body-1">
+                  There is no corresponding WMState entry.
+                </p>
+              }
+            </div>
+          </div>
+          <div class="group">
+            <h3 class="group-header mat-subtitle-1">SFLayer</h3>
+            <div class="left-column sf-state">
+              @if (additionalProperties?.sf) {
+                <p class="mat-body-1">
+                  {{ sfRootLabel() }}
+                </p>
+              }
+              @if (!additionalProperties?.sf) {
+                <p class="mat-body-1">
+                  There is no corresponding SFLayer entry.
+                </p>
+              }
+            </div>
+          </div>
+          @if (additionalProperties?.wm) {
+            <div class="group focus">
+              <h3 class="group-header mat-subtitle-1">Focus</h3>
+              <div class="left-column">
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Focused App:</span>
+                  &ngsp;
+                  {{ additionalProperties.wm.wmStateProperties.focusedApp }}
+                </p>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Focused Activity:</span>
+                  &ngsp;
+                  {{ additionalProperties.wm.wmStateProperties.focusedActivity }}
+                </p>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Focused Window:</span>
+                  &ngsp;
+                  {{ additionalProperties.wm.wmStateProperties.focusedWindow ?? 'null' }}
+                </p>
+                @if (additionalProperties.sf) {
+                  <p class="mat-body-1">
+                    <span class="mat-body-2">Focused Window Color:</span>
+                    &ngsp;
+                    {{ formattedWindowColor() }}
+                  </p>
+                }
+                <p class="mat-body-2">Input Control Target Frame:</p>
+                <coordinates-table [coordinates]="wmControlTargetFrame()"></coordinates-table>
+              </div>
+            </div>
+          }
+          <div class="group visibility">
+            <h3 class="group-header mat-subtitle-1">Visibility</h3>
+            <div class="left-column">
+              @if (additionalProperties?.wm) {
+                <p class="mat-body-1">
+                  <span class="mat-body-2">InputMethod Window:</span>
+                  &ngsp;
+                  {{ additionalProperties.wm.wmStateProperties.isInputMethodWindowVisible }}
+                </p>
+              }
+              @if (additionalProperties?.sf) {
+                <p class="mat-body-1">
+                  <span class="mat-body-2">InputMethod Surface:</span>
+                  &ngsp;
+                  {{ additionalProperties.sf.properties.inputMethodSurface?.isVisible ?? false }}
+                </p>
+              }
+            </div>
+          </div>
+          @if (additionalProperties?.sf) {
+            <div class="group ime-container">
+              <button
+              [color]="getButtonColor(additionalProperties.sf.properties.imeContainer)"
+                mat-button
+                class="group-header ime-container-button"
+                [class]="{selected: isHighlighted(additionalProperties.sf.properties.imeContainer)}"
+                (click)="
+                  onClickShowInPropertiesPanelSf(additionalProperties.sf.properties.imeContainer)
+                ">
+                Ime Container
+              </button>
+              <div class="left-column">
+                <p class="mat-body-1">
+                  <span class="mat-body-2">ZOrderRelativeOfId:</span>
+                  &ngsp;
+                  {{ additionalProperties.sf.properties.imeContainer.zOrderRelativeOfId }}
+                </p>
+                <p class="mat-body-1">
+                  <span class="mat-body-2">Z:</span>
+                  &ngsp;
+                  {{ additionalProperties.sf.properties.imeContainer.z }}
+                </p>
+              </div>
+            </div>
+          }
+          @if (additionalProperties?.sf) {
+            <div class="group input-method-surface">
+              <button
+              [color]="getButtonColor(additionalProperties.sf.properties.inputMethodSurface)"
+                mat-button
+                class="group-header input-method-surface-button"
+                [class]="{
+                  selected: isHighlighted(additionalProperties.sf.properties.inputMethodSurface)
+                }"
+                (click)="
+                  onClickShowInPropertiesPanelSf(additionalProperties.sf.properties.inputMethodSurface)
+                ">
+                Input Method Surface
+              </button>
+              <div class="left-column">
+                <p class="mat-body-2">Screen Bounds:</p>
+                <coordinates-table [coordinates]="sfImeContainerScreenBounds()"></coordinates-table>
+              </div>
+              <div class="right-column">
+                <p class="mat-body-2">Rect:</p>
+                <coordinates-table [coordinates]="sfImeContainerRect()"></coordinates-table>
+              </div>
+            </div>
+          }
+        }
       </div>
-
-      <ng-container *ngIf="isImeManagerService">
-        <div class="group ime-manager-service">
-          <button
-            *ngIf="wmHierarchyTree()"
-            [color]="getButtonColor(wmHierarchyTree())"
-            mat-button
-            class="group-header"
-            [class]="{selected: isHighlighted(wmHierarchyTree())}"
-            (click)="onClickShowInPropertiesPanelWm(wmHierarchyTree(), 'Window Manager State')">
-            WMState
-          </button>
-          <h3 *ngIf="!wmHierarchyTree()" class="group-header mat-subtitle-1">WMState</h3>
-          <div class="left-column wm-state">
-            <p *ngIf="additionalProperties?.wm" class="mat-body-1">
-              {{ wmRootLabel() }}
-            </p>
-            <p *ngIf="!additionalProperties?.wm" class="mat-body-1">
-              There is no corresponding WMState entry.
-            </p>
-          </div>
-        </div>
-        <div *ngIf="wmInsetsSourceProvider()" class="group insets-source-provider">
-          <button
-            [color]="getButtonColor(wmInsetsSourceProvider())"
-            mat-button
-            class="group-header"
-            [class]="{selected: isHighlighted(wmInsetsSourceProvider())}"
-            (click)="
-              onClickShowInPropertiesPanelWm(wmInsetsSourceProvider(), 'Ime Insets Source Provider')
-            ">
-            IME Insets Source Provider
-          </button>
-          <div class="left-column">
-            <p class="mat-body-2">Source Frame:</p>
-            <coordinates-table
-              [coordinates]="wmInsetsSourceProviderSourceFrame()"></coordinates-table>
-            <p class="mat-body-1">
-              <span class="mat-body-2">Source Visible:</span>
-              &ngsp;
-              {{ wmInsetsSourceProviderSourceVisible() }}
-            </p>
-            <p class="mat-body-2">Source Visible Frame:</p>
-            <coordinates-table
-              [coordinates]="wmInsetsSourceProviderSourceVisibleFrame()"></coordinates-table>
-            <p class="mat-body-1">
-              <span class="mat-body-2">Position:</span>
-              &ngsp;
-              {{ wmInsetsSourceProviderPosition() }}
-            </p>
-            <p class="mat-body-1">
-              <span class="mat-body-2">IsLeashReadyForDispatching:</span>
-              &ngsp;
-              {{ wmInsetsSourceProviderIsLeashReady() }}
-            </p>
-            <p class="mat-body-1">
-              <span class="mat-body-2">Controllable:</span>
-              &ngsp;
-              {{ wmInsetsSourceProviderControllable() }}
-            </p>
-          </div>
-        </div>
-        <div *ngIf="wmImeControlTarget()" class="group ime-control-target">
-          <button
-          [color]="getButtonColor(wmImeControlTarget())"
-            mat-button
-            class="group-header ime-control-target-button"
-            [class]="{selected: isHighlighted(wmImeControlTarget())}"
-            (click)="onClickShowInPropertiesPanelWm(wmImeControlTarget(), 'Ime Control Target')">
-            IME Control Target
-          </button>
-          <div class="left-column">
-            <p *ngIf="wmImeControlTargetTitle()" class="mat-body-1">
-              <span class="mat-body-2">Title:</span>
-              &ngsp;
-              {{ wmImeControlTargetTitle() }}
-            </p>
-          </div>
-        </div>
-        <div *ngIf="wmImeInputTarget()" class="group ime-input-target">
-          <button
-          [color]="getButtonColor(wmImeInputTarget())"
-            mat-button
-            class="group-header"
-            [class]="{selected: isHighlighted(wmImeInputTarget())}"
-            (click)="onClickShowInPropertiesPanelWm(wmImeInputTarget(), 'Ime Input Target')">
-            IME Input Target
-          </button>
-          <div class="left-column">
-            <p *ngIf="wmImeInputTargetTitle()" class="mat-body-1">
-              <span class="mat-body-2">Title:</span>
-              &ngsp;
-              {{ wmImeInputTargetTitle() }}
-            </p>
-          </div>
-        </div>
-        <div *ngIf="wmImeLayeringTarget()" class="group ime-layering-target">
-          <button
-          [color]="getButtonColor(wmImeLayeringTarget())"
-            mat-button
-            class="group-header"
-            [class]="{selected: isHighlighted(wmImeLayeringTarget())}"
-            (click)="onClickShowInPropertiesPanelWm(wmImeLayeringTarget(), 'Ime Layering Target')">
-            IME Layering Target
-          </button>
-          <div class="left-column">
-            <p *ngIf="wmImeLayeringTargetTitle()" class="mat-body-1">
-              <span class="mat-body-2">Title:</span>
-              &ngsp;
-              {{ wmImeLayeringTargetTitle() }}
-            </p>
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="!isImeManagerService">
-        <!-- Ime Client or Ime Service -->
-        <div class="group">
-          <button
-            *ngIf="wmHierarchyTree()"
-            [color]="getButtonColor(wmHierarchyTree())"
-            mat-button
-            class="group-header wm-state-button"
-            [class]="{selected: isHighlighted(wmHierarchyTree())}"
-            (click)="onClickShowInPropertiesPanelWm(wmHierarchyTree(), 'Window Manager State')">
-            WMState
-          </button>
-          <h3 *ngIf="!wmHierarchyTree()" class="group-header mat-subtitle-1">WMState</h3>
-          <div class="left-column wm-state">
-            <p *ngIf="additionalProperties?.wm" class="mat-body-1">
-              {{ wmRootLabel() }}
-            </p>
-            <p *ngIf="!additionalProperties?.wm" class="mat-body-1">
-              There is no corresponding WMState entry.
-            </p>
-          </div>
-        </div>
-        <div class="group">
-          <h3 class="group-header mat-subtitle-1">SFLayer</h3>
-          <div class="left-column sf-state">
-            <p *ngIf="additionalProperties?.sf" class="mat-body-1">
-              {{ sfRootLabel() }}
-            </p>
-            <p *ngIf="!additionalProperties?.sf" class="mat-body-1">
-              There is no corresponding SFLayer entry.
-            </p>
-          </div>
-        </div>
-        <div *ngIf="additionalProperties?.wm" class="group focus">
-          <h3 class="group-header mat-subtitle-1">Focus</h3>
-          <div class="left-column">
-            <p class="mat-body-1">
-              <span class="mat-body-2">Focused App:</span>
-              &ngsp;
-              {{ additionalProperties.wm.wmStateProperties.focusedApp }}
-            </p>
-            <p class="mat-body-1">
-              <span class="mat-body-2">Focused Activity:</span>
-              &ngsp;
-              {{ additionalProperties.wm.wmStateProperties.focusedActivity }}
-            </p>
-            <p class="mat-body-1">
-              <span class="mat-body-2">Focused Window:</span>
-              &ngsp;
-              {{ additionalProperties.wm.wmStateProperties.focusedWindow ?? 'null' }}
-            </p>
-            <p *ngIf="additionalProperties.sf" class="mat-body-1">
-              <span class="mat-body-2">Focused Window Color:</span>
-              &ngsp;
-              {{ formattedWindowColor() }}
-            </p>
-            <p class="mat-body-2">Input Control Target Frame:</p>
-            <coordinates-table [coordinates]="wmControlTargetFrame()"></coordinates-table>
-          </div>
-        </div>
-        <div class="group visibility">
-          <h3 class="group-header mat-subtitle-1">Visibility</h3>
-          <div class="left-column">
-            <p *ngIf="additionalProperties?.wm" class="mat-body-1">
-              <span class="mat-body-2">InputMethod Window:</span>
-              &ngsp;
-              {{ additionalProperties.wm.wmStateProperties.isInputMethodWindowVisible }}
-            </p>
-            <p *ngIf="additionalProperties?.sf" class="mat-body-1">
-              <span class="mat-body-2">InputMethod Surface:</span>
-              &ngsp;
-              {{ additionalProperties.sf.properties.inputMethodSurface?.isVisible ?? false }}
-            </p>
-          </div>
-        </div>
-        <div *ngIf="additionalProperties?.sf" class="group ime-container">
-          <button
-          [color]="getButtonColor(additionalProperties.sf.properties.imeContainer)"
-            mat-button
-            class="group-header ime-container-button"
-            [class]="{selected: isHighlighted(additionalProperties.sf.properties.imeContainer)}"
-            (click)="
-              onClickShowInPropertiesPanelSf(additionalProperties.sf.properties.imeContainer)
-            ">
-            Ime Container
-          </button>
-          <div class="left-column">
-            <p class="mat-body-1">
-              <span class="mat-body-2">ZOrderRelativeOfId:</span>
-              &ngsp;
-              {{ additionalProperties.sf.properties.imeContainer.zOrderRelativeOfId }}
-            </p>
-            <p class="mat-body-1">
-              <span class="mat-body-2">Z:</span>
-              &ngsp;
-              {{ additionalProperties.sf.properties.imeContainer.z }}
-            </p>
-          </div>
-        </div>
-        <div *ngIf="additionalProperties?.sf" class="group input-method-surface">
-          <button
-          [color]="getButtonColor(additionalProperties.sf.properties.inputMethodSurface)"
-            mat-button
-            class="group-header input-method-surface-button"
-            [class]="{
-              selected: isHighlighted(additionalProperties.sf.properties.inputMethodSurface)
-            }"
-            (click)="
-              onClickShowInPropertiesPanelSf(additionalProperties.sf.properties.inputMethodSurface)
-            ">
-            Input Method Surface
-          </button>
-          <div class="left-column">
-            <p class="mat-body-2">Screen Bounds:</p>
-            <coordinates-table [coordinates]="sfImeContainerScreenBounds()"></coordinates-table>
-          </div>
-          <div class="right-column">
-            <p class="mat-body-2">Rect:</p>
-            <coordinates-table [coordinates]="sfImeContainerRect()"></coordinates-table>
-          </div>
-        </div>
-      </ng-container>
-    </div>
+    }
   `,
   styles: [
     `

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  getTimestampConverter,
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {TraceSearchQueryFailed} from 'messaging/user_warnings';
 import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
+import {
+  getTimestampConverter,
+  makeElapsedTimestamp,
+  makeZeroTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserSearch} from './parser_search';
@@ -67,14 +68,14 @@ describe('ParserSearch', () => {
     });
 
     it('has length entries equal to number of rows', () => {
-      expect(parser.getLengthEntries()).toEqual(21);
+      expect(parser.getLengthEntries()).toBe(21);
     });
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeElapsedTimestamp(14500282843n),
-        TimestampConverterUtils.makeElapsedTimestamp(14631249355n),
-        TimestampConverterUtils.makeElapsedTimestamp(15403446377n),
+        makeElapsedTimestamp(14500282843n),
+        makeElapsedTimestamp(14631249355n),
+        makeElapsedTimestamp(15403446377n),
       ];
       const actual = assertDefined(parser.getTimestamps()).slice(0, 3);
       expect(actual).toEqual(expected);
@@ -83,10 +84,10 @@ describe('ParserSearch', () => {
 
     it('provides query result', async () => {
       const entry = await parser.getEntry(0);
-      expect(entry.numRows()).toEqual(21);
+      expect(entry.numRows()).toBe(21);
       const firstRow = entry.iter({});
-      expect(firstRow.get('id')).toEqual(0n);
-      expect(firstRow.get('ts')).toEqual(14500282843n);
+      expect(firstRow.get('id')).toBe(0n);
+      expect(firstRow.get('ts')).toBe(14500282843n);
     });
   });
 
@@ -101,22 +102,20 @@ describe('ParserSearch', () => {
     });
 
     it('has length entries equal to 1 so query result can be accessed', () => {
-      expect(parser.getLengthEntries()).toEqual(1);
+      expect(parser.getLengthEntries()).toBe(1);
     });
 
     it('provides one invalid timestamp so query result can be accessed', () => {
-      expect(parser.getTimestamps()).toEqual([
-        TimestampConverterUtils.makeZeroTimestamp(),
-      ]);
+      expect(parser.getTimestamps()).toEqual([makeZeroTimestamp()]);
     });
 
     it('provides query result', async () => {
       const entry = await parser.getEntry(0);
-      expect(entry.numRows()).toEqual(1815);
+      expect(entry.numRows()).toBe(1815);
       const firstRow = entry.iter({});
-      expect(firstRow.get('id')).toEqual(0n);
-      expect(firstRow.get('arg_set_id')).toEqual(0n);
-      expect(firstRow.get('snapshot_id')).toEqual(0n);
+      expect(firstRow.get('id')).toBe(0n);
+      expect(firstRow.get('snapshot_id')).toBe(0n);
+      expect(firstRow.get('layer_id')).toBe(3n);
     });
   });
 
@@ -130,13 +129,11 @@ describe('ParserSearch', () => {
     });
 
     it('has length entries equal to 1 so query result can be accessed', () => {
-      expect(parser.getLengthEntries()).toEqual(1);
+      expect(parser.getLengthEntries()).toBe(1);
     });
 
     it('provides one invalid timestamp so query result can be accessed', () => {
-      expect(parser.getTimestamps()).toEqual([
-        TimestampConverterUtils.makeZeroTimestamp(),
-      ]);
+      expect(parser.getTimestamps()).toEqual([makeZeroTimestamp()]);
     });
 
     it('provides query result', async () => {
@@ -148,7 +145,7 @@ describe('ParserSearch', () => {
         'base64_proto_id',
         'vsync_id',
       ]);
-      expect(entry.numRows()).toEqual(0);
+      expect(entry.numRows()).toBe(0);
     });
   });
 

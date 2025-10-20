@@ -22,12 +22,13 @@ export class PresenterInputMethodService extends AbstractPresenterInputMethod {
       ?.at(0)
       ?.getChildByName('inputMethodService');
     const windowVisible =
-      inputMethodService?.getEagerPropertyByName('windowVisible')?.getValue() ??
-      false;
+      inputMethodService
+        ?.getEagerPropertyByName('windowVisible')
+        ?.getValue<boolean>() ?? false;
     const decorViewVisible =
       inputMethodService
         ?.getEagerPropertyByName('decorViewVisible')
-        ?.getValue() ?? false;
+        ?.getValue<boolean>() ?? false;
     const packageName = inputMethodService
       ?.getEagerPropertyByName('inputEditorInfo')
       ?.getChildByName('packageName')

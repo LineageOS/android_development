@@ -16,12 +16,15 @@
 
 import {Inject, Injectable, NgZone} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {NotificationType, UserNotification} from 'messaging/user_notification';
 import {SnackBarComponent} from './snack_bar_component';
 
 type Messages = string[];
 
+/**
+ * A class to handle opening snack bars for user notifications.
+ */
 @Injectable({providedIn: 'root'})
 export class SnackBarOpener {
   private static CROP_THRESHOLD = 5;

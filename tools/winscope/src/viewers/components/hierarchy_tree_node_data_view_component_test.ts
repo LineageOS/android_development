@@ -15,8 +15,8 @@
  */
 import {TestBed} from '@angular/core/testing';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeUiHierarchyNode} from 'test/unit/ui_tree_node_utils';
 import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
@@ -34,7 +34,7 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     dom.detectChanges();
-    testNode = UiTreeNodeUtils.makeUiHierarchyNode({
+    testNode = makeUiHierarchyNode({
       id: 1,
       name: 'test node',
     });

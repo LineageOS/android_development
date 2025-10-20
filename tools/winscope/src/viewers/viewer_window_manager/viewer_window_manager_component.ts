@@ -15,6 +15,7 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
+import {assertDefined} from 'common/assert';
 import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
 import {CollapsibleSections} from 'viewers/common/collapsible_sections';
@@ -47,7 +48,8 @@ import {UiData} from './ui_data';
       <rects-view
         class="rects-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [title]="rectsTitle"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
+        [title]="getRectsTitle()"
         [store]="store"
         [rects]="inputData?.rectsToDraw ?? []"
         [displays]="inputData?.displays ?? []"
@@ -62,6 +64,7 @@ import {UiData} from './ui_data';
       <hierarchy-view
         class="hierarchy-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
         [trees]="inputData?.hierarchyTrees ?? []"
         [dependencies]="inputData?.dependencies ?? []"
         [highlightedItem]="inputData?.highlightedItem ?? ''"
@@ -71,9 +74,20 @@ import {UiData} from './ui_data';
         [userOptions]="inputData?.hierarchyUserOptions ?? {}"
         [rectIdToShowState]="inputData?.rectIdToShowState"
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
-      <properties-view
+      <div class="properties"
+        [class.disabled-component]="inputData?.isPlaybackPlaying
+        || inputData?.isPlaybackInitializing">
+        @if (inputData?.isPlaybackPlaying) {
+          <div
+          class="disabled-message user-notification mat-body-1">
+          Properties disabled due to playback
+          </div>
+        }
+        <properties-view
         class="properties-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+        [class.disabled-component]="inputData?.isPlaybackPlaying
+        || inputData?.isPlaybackInitializing"
         [userOptions]="inputData?.propertiesUserOptions ?? {}"
         [propertiesTree]="inputData?.propertiesTree"
         [traceType]="${TraceType.WINDOW_MANAGER}"
@@ -84,19 +98,30 @@ import {UiData} from './ui_data';
         placeholderText="No selected item."
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
     </div>
+  </div>
   `,
-  styles: [viewerCardStyle],
+  styles: [
+    `
+    .properties{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+      position: relative;
+    }
+    `,
+    viewerCardStyle,
+  ],
 })
 export class ViewerWindowManagerComponent extends ViewerComponent<UiData> {
   @Input() active = false;
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
 
-  rectsTitle = 'WINDOWS';
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.RECTS,
-      label: this.rectsTitle,
+      label: 'WINDOWS',
       isCollapsed: false,
     },
     {
@@ -115,4 +140,9 @@ export class ViewerWindowManagerComponent extends ViewerComponent<UiData> {
     ShadingMode.OPACITY,
     ShadingMode.WIRE_FRAME,
   ];
+
+  getRectsTitle(): string {
+    return assertDefined(this.sections.getSection(CollapsibleSectionType.RECTS))
+      .label;
+  }
 }

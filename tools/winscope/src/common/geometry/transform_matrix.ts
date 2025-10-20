@@ -36,6 +36,15 @@ export class TransformMatrix {
     readonly ty: number,
   ) {}
 
+  static readonly IDENTITY: TransformMatrix = new TransformMatrix(
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+  );
+
   static from(
     m: {
       dsdx?: number;
@@ -45,7 +54,7 @@ export class TransformMatrix {
       dsdy?: number;
       ty?: number;
     } = {},
-    fallback: TransformMatrix = IDENTITY_MATRIX,
+    fallback: TransformMatrix = TransformMatrix.IDENTITY,
   ): TransformMatrix {
     return new TransformMatrix(
       m.dsdx ?? fallback.dsdx,
@@ -114,8 +123,3 @@ export class TransformMatrix {
     return this.dsdx * this.dsdy - this.dtdx * this.dtdy;
   }
 }
-
-/**
- * The identity matrix, which has no effect on any point or rect.
- */
-export const IDENTITY_MATRIX = new TransformMatrix(1, 0, 0, 0, 1, 0);

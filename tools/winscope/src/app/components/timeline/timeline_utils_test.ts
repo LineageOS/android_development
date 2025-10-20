@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TimeRange} from 'common/time/time';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {
+  makeRealTimestamp,
+  makeZeroTimestamp,
+  UTC_CONVERTER,
+} from 'test/unit/time_test_helpers';
 import {TransitionStatus} from 'trace/transitions/status';
 import {
   convertHexToRgb,
@@ -24,9 +28,10 @@ import {
   isTransitionWithUnknownEnd,
   isTransitionWithUnknownStart,
 } from './timeline_utils';
+import {SetFormatters} from 'parsers/set_formatters';
 
 describe('TimelineUtils', () => {
-  const zeroTs = TimestampConverterUtils.makeZeroTimestamp();
+  const zeroTs = makeZeroTimestamp();
 
   describe('isTransitionWithUnknownStart', () => {
     it('returns true if dispatch time missing', () => {
@@ -66,17 +71,17 @@ describe('TimelineUtils', () => {
   });
 
   describe('getTimeRangeForTransition', () => {
-    const ts8 = TimestampConverterUtils.makeRealTimestamp(8n);
-    const ts9 = TimestampConverterUtils.makeRealTimestamp(9n);
-    const ts10 = TimestampConverterUtils.makeRealTimestamp(10n);
-    const ts12 = TimestampConverterUtils.makeRealTimestamp(12n);
-    const ts16 = TimestampConverterUtils.makeRealTimestamp(16n);
-    const ts17 = TimestampConverterUtils.makeRealTimestamp(17n);
-    const ts20 = TimestampConverterUtils.makeRealTimestamp(20n);
-    const ts21 = TimestampConverterUtils.makeRealTimestamp(21n);
-    const ts22 = TimestampConverterUtils.makeRealTimestamp(22n);
+    const ts8 = makeRealTimestamp(8n);
+    const ts9 = makeRealTimestamp(9n);
+    const ts10 = makeRealTimestamp(10n);
+    const ts12 = makeRealTimestamp(12n);
+    const ts16 = makeRealTimestamp(16n);
+    const ts17 = makeRealTimestamp(17n);
+    const ts20 = makeRealTimestamp(20n);
+    const ts21 = makeRealTimestamp(21n);
+    const ts22 = makeRealTimestamp(22n);
     const fullTimeRange = new TimeRange(ts10, ts20);
-    const converter = TimestampConverterUtils.TIMESTAMP_CONVERTER;
+    const converter = UTC_CONVERTER;
 
     it('returns undefined if dispatch, finish and abort times missing', () => {
       const transition = makeTransition({});
@@ -208,12 +213,13 @@ describe('TimelineUtils', () => {
     });
 
     it('robust to invalid hex string', () => {
-      expect(convertHexToRgb('#1')).toEqual(undefined);
+      expect(convertHexToRgb('#1')).toBeUndefined();
     });
   });
 
   function makeTransition(properties: object) {
     return new HierarchyTreeBuilder()
+      .setRootNodeFormatter(new SetFormatters())
       .setId('')
       .setName('')
       .setProperties(properties)

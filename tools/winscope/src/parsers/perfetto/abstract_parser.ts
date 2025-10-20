@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined, assertTrue} from 'common/assert_utils';
+import {assertBigInt, assertDefined, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {TraceFile} from 'trace/trace_file';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {
@@ -30,6 +31,9 @@ import {Parser} from 'trace_api/parser';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {TraceProcessor} from 'trace_processor/trace_processor';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
   protected traceProcessor: TraceProcessor;
@@ -37,6 +41,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
   protected timestampConverter: ParserTimestampConverter;
   protected entryIndexToRowIdMap: number[] = [];
   protected preProcessTrace?(): Promise<void>;
+  protected traceGeometryData?: TraceGeometryData;
 
   private lengthEntries = 0;
   private traceFile: TraceFile;
@@ -47,10 +52,12 @@ export abstract class AbstractParser<T> implements Parser<T> {
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
+    traceGeometryData?: TraceGeometryData,
   ) {
     this.traceFile = traceFile;
     this.traceProcessor = traceProcessor;
     this.timestampConverter = timestampConverter;
+    this.traceGeometryData = traceGeometryData;
   }
 
   isPerfetto(): boolean {
@@ -112,11 +119,22 @@ export abstract class AbstractParser<T> implements Parser<T> {
     return CoarseVersion.LATEST;
   }
 
+  getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
   customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,
     param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  async getRectsMap(): Promise<RectsForTrace | undefined> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -140,7 +158,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -190,6 +208,22 @@ export abstract class AbstractParser<T> implements Parser<T> {
 
   protected getStdLibModuleName(): string | undefined {
     return undefined;
+  }
+
+  protected async getEntryFromRange(index: number): Promise<T> {
+    const range: EntriesRange = {
+      start: index,
+      end: index + 1,
+    };
+    return this.getRangeOfEntries(range).then((trees) => {
+      const entry = trees[0];
+      if (entry === undefined) {
+        throw new Error(
+          `Entry at index ${index} not found or could not be parsed.`,
+        );
+      }
+      return entry;
+    });
   }
 
   protected abstract getTableName(): string;

@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
-export interface Warning {
+/**
+ * An interface for a warning.
+ */
+export declare interface Warning {
+  /**
+   * Gets the warning message.
+   *
+   * @return The warning message.
+   */
   getMessage(): string;
 }

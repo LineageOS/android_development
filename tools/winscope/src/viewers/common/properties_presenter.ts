@@ -27,7 +27,15 @@ import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';
 import {Filter} from './operations/filter';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {UiTreeFormatter} from './ui_tree_formatter';
-import {TreeNodeFilter, UiTreeUtils} from './ui_tree_utils';
+import {
+  isNotCalculated,
+  isNotFromTP,
+  makeDenyListFilterByName,
+  makeIdMatchFilter,
+  makeIsNotDefaultFilter,
+  makeNodeFilter,
+  TreeNodeFilter,
+} from './ui_tree_utils';
 import {UserOptions} from './user_options';
 
 export class PropertiesPresenter {
@@ -43,7 +51,7 @@ export class PropertiesPresenter {
     private customOperations?: Array<Operation<UiPropertyTreeNode>>,
     private defaultAllowlist: string[] = [],
   ) {
-    this.propertiesFilter = UiTreeUtils.makeNodeFilter(
+    this.propertiesFilter = makeNodeFilter(
       this.textFilter.getFilterPredicate(),
     );
   }
@@ -82,9 +90,7 @@ export class PropertiesPresenter {
 
   applyPropertiesFilterChange(textFilter: TextFilter) {
     this.textFilter = textFilter;
-    this.propertiesFilter = UiTreeUtils.makeNodeFilter(
-      textFilter.getFilterPredicate(),
-    );
+    this.propertiesFilter = makeNodeFilter(textFilter.getFilterPredicate());
   }
 
   applyPropertiesUserOptionsChange(userOptions: UserOptions) {
@@ -112,7 +118,7 @@ export class PropertiesPresenter {
       !this.userOptions['showDiff']?.isUnavailable
     ) {
       const prevEntryNode = previousHierarchyTree?.findDfs(
-        UiTreeUtils.makeIdMatchFilter(this.propertiesTree.id),
+        makeIdMatchFilter(this.propertiesTree.id),
       );
       const prevEntryUiTree = prevEntryNode
         ? UiPropertyTreeNode.from(await prevEntryNode.getAllProperties())
@@ -135,22 +141,22 @@ export class PropertiesPresenter {
     }
 
     const predicatesKeepingChildren = [this.propertiesFilter];
-    const predicatesDiscardingChildren = [UiTreeUtils.isNotFromTP];
+    const predicatesDiscardingChildren = [isNotFromTP];
 
     if (this.propertiesDenylist) {
       predicatesDiscardingChildren.push(
-        UiTreeUtils.makeDenyListFilterByName(this.propertiesDenylist),
+        makeDenyListFilterByName(this.propertiesDenylist),
       );
     }
 
     if (!this.userOptions['showDefaults']?.enabled) {
       predicatesDiscardingChildren.push(
-        UiTreeUtils.makeIsNotDefaultFilter(this.defaultAllowlist),
+        makeIsNotDefaultFilter(this.defaultAllowlist),
       );
     }
 
     if (!keepCalculated) {
-      predicatesDiscardingChildren.push(UiTreeUtils.isNotCalculated);
+      predicatesDiscardingChildren.push(isNotCalculated);
     }
     const formatter = new UiTreeFormatter<UiPropertyTreeNode>().setUiTree(
       uiTree,

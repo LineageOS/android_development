@@ -17,10 +17,7 @@
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {
-  IDENTITY_MATRIX,
-  TransformMatrix,
-} from 'common/geometry/transform_matrix';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {RowIterator} from 'trace_processor/query_result';
 import {makeSpyRowIterator} from 'trace_processor/test_utils';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
@@ -129,7 +126,9 @@ describe('TraceRectBuilderFromQueryRow', () => {
 
   it('does not extract matrix', () => {
     setDefaultColumnValues();
-    const expectedRect = makeExpectedRect({transformMatrix: IDENTITY_MATRIX});
+    const expectedRect = makeExpectedRect({
+      transformMatrix: TransformMatrix.IDENTITY,
+    });
     expect(builder.setExtractMatrix(false).build()).toEqual(expectedRect);
   });
 

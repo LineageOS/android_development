@@ -22,11 +22,11 @@ import update
 import utils
 
 VNDK_SNAPSHOT_SOURCE_BRANCHES = {
-    29: 'qt-gsi-release',
     30: 'android11-gsi',
     31: 'android12-gsi',
     32: 'android12L-gsi',
     33: 'android13-gsi',
+    34: 'android14-gsi',
 }
 
 def fetch_and_update_snapshots(versions, args):
@@ -57,9 +57,9 @@ def get_args(parser):
         help='Perform the update in the current branch. Do not repo start.')
     parser.add_argument(
         '--remote',
-        default='aosp',
+        default='goog',
         help=('Remote name to fetch and check if the revision of VNDK snapshot '
-              'is included in the source to conform GPL license. default=aosp'))
+              'is included in the source to conform GPL license. default=goog'))
     parser.add_argument(
         '-v',
         '--verbose',

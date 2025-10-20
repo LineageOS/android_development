@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {ChangeDetectorRef, Component, Inject} from '@angular/core';
-import {assertDefined, assertUnreachable} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
-import {TimeUtils} from 'common/time/time_utils';
+import {assertDefined, assertUnreachable} from 'common/assert';
+import {Timer} from 'common/time/timer';
 import {
   Message,
   MessageBugReport,
@@ -30,6 +30,8 @@ import {
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <span class="app-title">Remote Tool Mock (simulates cross-tool protocol)</span>
 
@@ -77,6 +79,9 @@ import {
     <p class="paragraph-received-boottime-timestamp"></p>
   `,
 })
+/**
+ * A mock remote tool that can be used to test the cross-tool communication protocol.
+ */
 export class AppComponent {
   static readonly TARGET = 'http://localhost:8080';
   static readonly TIMESTAMP_IN_BUGREPORT_MESSAGE = 1670509911000000000n;
@@ -84,7 +89,7 @@ export class AppComponent {
 
   private winscope: Window | null = null;
   private isWinscopeUp = false;
-  private onMessagePongReceived = FunctionUtils.DO_NOTHING;
+  private onMessagePongReceived: () => void = () => {};
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
@@ -156,7 +161,7 @@ export class AppComponent {
           new MessagePing(),
           AppComponent.TARGET,
         );
-        await TimeUtils.sleepMs(10);
+        await new Timer(10).sleepMs();
       }
     }, 0);
 

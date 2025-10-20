@@ -16,7 +16,7 @@
 
 import {Directive, Input} from '@angular/core';
 import {MatFormField} from '@angular/material/form-field';
-import {isElementOverflowing} from 'common/dom_utils';
+import {isElementOverflowing} from 'common/dom';
 
 @Directive()
 export abstract class AbstractFormFieldComponent {

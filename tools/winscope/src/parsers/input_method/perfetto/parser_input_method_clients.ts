@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeClientsFactory} from 'parsers/input_method/hierarchy_tree_clients_factory';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';

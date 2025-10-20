@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {binarySearchFirstGreaterOrEqual} from 'common/array_utils';
-import {assertDefined} from 'common/assert_utils';
+import {binarySearchFirstGreaterOrEqual} from 'common/typed_array';
+import {assertDefined} from 'common/assert';
 import {TraceEntry} from 'trace_api/trace';
 import {StringFilterPredicate} from 'viewers/common/string_filter_predicate';
 import {TextFilter} from 'viewers/common/text_filter';

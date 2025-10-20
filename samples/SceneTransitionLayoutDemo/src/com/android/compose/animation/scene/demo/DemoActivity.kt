@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.android.compose.modifiers.thenIf
+import com.android.mechanics.debug.MotionValueDebuggerProvider
 
 class DemoActivity : ComponentActivity() {
     private companion object {
@@ -96,16 +97,19 @@ class DemoActivity : ComponentActivity() {
             DemoTheme(configuration) {
                 val indication = if (disableRipple) NoIndication else LocalIndication.current
                 CompositionLocalProvider(LocalIndication provides indication) {
-                    SystemUi(
-                        configuration,
-                        { configuration = it },
-                        Modifier.thenIf(!configuration.isFullscreen) {
-                            Modifier.safeDrawingPadding()
-                        },
-                        initialScene = initialScene,
-                    )
+                    MotionValueDebuggerProvider(
+                        enableDebugger = configuration.enableMotionValueDebugger
+                    ) {
+                        SystemUi(
+                            configuration,
+                            { configuration = it },
+                            Modifier.thenIf(!configuration.isFullscreen) {
+                                Modifier.safeDrawingPadding()
+                            },
+                            initialScene = initialScene,
+                        )
+                    }
                 }
-
                 ReportDrawn()
             }
         }

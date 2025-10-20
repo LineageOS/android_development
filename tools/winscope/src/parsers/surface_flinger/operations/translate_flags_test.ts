@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makePropertyNode} from 'test/unit/tree_node_test_helpers';
 import {FixedStringFormatter} from 'trace/formatters';
 import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {TranslateFlags} from './translate_flags';
@@ -96,6 +96,6 @@ describe('TranslateFlags', () => {
   }
 
   function makeFlagsNode(value: number): PropertyTreeNode {
-    return TreeNodeUtils.makePropertyNode(propertyRoot.id, 'flags', value);
+    return makePropertyNode(propertyRoot.id, 'flags', value);
   }
 });

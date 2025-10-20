@@ -41,10 +41,10 @@ import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer} from '@angular/platform-browser';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Distance} from 'common/geometry/distance';
 import {PersistentStore} from 'common/store/persistent_store';
-import {getRootUrl} from 'common/url_utils';
+import {getRootUrl} from 'common/window';
 import {Analytics} from 'logging/analytics';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
@@ -100,9 +100,13 @@ interface CanColor {
             [matTooltip]="getShadingMode()"
             [disabled]="shadingModes.length < 2"
             (click)="onShadingModeButtonClicked()" #shadingModeButton>
-            <mat-icon *ngIf="largeRectsMapper3d.isWireFrame()" class="material-symbols-outlined" aria-hidden="true"> deployed_code </mat-icon>
-            <mat-icon *ngIf="largeRectsMapper3d.isShadedByGradient()" svgIcon="cube_partial_shade"></mat-icon>
-            <mat-icon *ngIf="largeRectsMapper3d.isShadedByOpacity()" svgIcon="cube_full_shade"></mat-icon>
+            @if (largeRectsMapper3d.isWireFrame()) {
+              <mat-icon class="material-symbols-outlined" aria-hidden="true"> deployed_code </mat-icon>
+            } @else if (largeRectsMapper3d.isShadedByGradient()) {
+              <mat-icon svgIcon="cube_partial_shade"></mat-icon>
+            } @else if (largeRectsMapper3d.isShadedByOpacity()) {
+              <mat-icon svgIcon="cube_full_shade"></mat-icon>
+            }
           </button>
 
           <div class="icon-divider"></div>
@@ -111,7 +115,7 @@ interface CanColor {
             <mat-icon
               color="accent"
               matTooltip="Rotation"
-              class="slider-icon"
+              class="slider-icon icon-small"
               (mouseenter)="onInteractionStart([rotationSlider, rotationSliderIcon])"
               (mouseleave)="onInteractionEnd([rotationSlider, rotationSliderIcon])" #rotationSliderIcon> rotate_90_degrees_ccw </mat-icon>
             <mat-slider
@@ -133,7 +137,7 @@ interface CanColor {
             <mat-icon
               color="accent"
               matTooltip="Spacing"
-              class="slider-icon material-symbols-outlined"
+              class="slider-icon icon-small material-symbols-outlined"
               (mouseenter)="onInteractionStart([spacingSlider, spacingSliderIcon])"
               (mouseleave)="onInteractionEnd([spacingSlider, spacingSliderIcon])" #spacingSliderIcon> format_letter_spacing </mat-icon>
             <mat-slider
@@ -199,20 +203,23 @@ interface CanColor {
         </user-options>
 
         <div class="displays-section">
-          <mat-button-toggle-group
-            *ngIf="allRectSpecs"
-            [value]="rectSpec"
-            (change)="onRectTypeButtonClicked($event)"
-            appearance="legacy"
-            class="rect-type-toggle"
-            [hideSingleSelectionIndicator]="true">
-            <mat-button-toggle *ngFor="let spec of allRectSpecs" [value]="spec">
-              <mat-icon
-                [color]="spec === rectSpec ? 'primary' : 'accent'"
-                [matTooltip]="'Show ' + spec.type"
-                class="rect-type-icon material-symbols-outlined">{{spec.icon}}</mat-icon>
-            </mat-button-toggle>
-          </mat-button-toggle-group>
+          @if (allRectSpecs) {
+            <mat-button-toggle-group
+              [value]="rectSpec"
+              (change)="onRectTypeButtonClicked($event)"
+              appearance="legacy"
+              class="rect-type-toggle"
+              [hideSingleSelectionIndicator]="true">
+              @for (spec of allRectSpecs; track $index) {
+                <mat-button-toggle [value]="spec">
+                  <mat-icon
+                    [color]="spec === rectSpec ? 'primary' : 'accent'"
+                    [matTooltip]="'Show ' + spec.type"
+                    class="rect-type-icon material-symbols-outlined">{{spec.icon}}</mat-icon>
+                </mat-button-toggle>
+              }
+            </mat-button-toggle-group>
+          }
           <span class="mat-body-1">{{groupLabel}}:</span>
           <mat-form-field
             class="displays-select"
@@ -231,35 +238,41 @@ interface CanColor {
                   {{ getSelectTriggerValue() }}
                 </span>
               </mat-select-trigger>
-              <mat-option
-                *ngFor="let display of internalDisplays"
-                [value]="display"
-                [matTooltip]="'Display Id: ' + display.displayId"
-                matTooltipPosition="right">
-                <div class="option-with-chip">
-                  <button
-                    mat-flat-button
-                    class="option-only-button"
-                    (click)="onOnlyButtonClick($event, display)">Only</button>
-                  <span class="option-label-text text-no-overflow">{{ display.name }}</span>
-                </div>
-              </mat-option>
+              @for (display of internalDisplays; track display.groupId) {
+                <mat-option
+                  [value]="display"
+                  [matTooltip]="'Display Id: ' + display.displayId"
+                  matTooltipPosition="right">
+                  <div class="option-with-chip">
+                    <button
+                      mat-flat-button
+                      class="option-only-button"
+                      (click)="onOnlyButtonClick($event, display)">Only</button>
+                    <span class="option-label-text text-no-overflow">{{ display.name }}</span>
+                  </div>
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
       </div>
     </div>
     <mat-divider></mat-divider>
-    <span
-      *ngIf="showRectSpecWarning()"
-      class="mat-body-1 warning">
-      <mat-icon class="warning-icon"> warning </mat-icon>
-      <span class="warning-message text-no-overflow">
-        Showing {{rectSpec.type}} - change rect type via toggle above
+    @if (showRectSpecWarning()) {
+      <span
+        class="mat-body-1 warning">
+        <mat-icon class="warning-icon icon-small"> warning </mat-icon>
+        <span class="warning-message text-no-overflow">
+          Showing {{rectSpec.type}} - change rect type via toggle above
+        </span>
       </span>
-    </span>
-    <span class="mat-body-1 placeholder-text" *ngIf="rects.length===0"> No rects found. </span>
-    <span class="mat-body-1 placeholder-text" *ngIf="currentDisplays.length===0"> No displays selected. </span>
+    }
+    @if (rects.length===0) {
+      <span class="mat-body-1 placeholder-text"> No rects found. </span>
+    }
+    @if (currentDisplays.length===0) {
+      <span class="mat-body-1 placeholder-text"> No displays selected. </span>
+    }
     <div class="rects-content">
       <div class="canvas-container">
         <canvas
@@ -274,33 +287,39 @@ interface CanColor {
           oncontextmenu="return false"></canvas>
       </div>
     </div>
-    <span class="mat-body-1 rect-legend" *ngIf="rectSpec">
-      <span class="shading-opts" [class.force-show-all]="legendExpanded" #shadingOpts>
-        <ng-container *ngFor="let opt of rectSpec.legend">
-          <span
-            *ngIf="!largeRectsMapper3d.isWireFrame() || opt.showInWireFrameMode"
-            class="shading-opt">
-            <mat-icon
-              *ngIf="opt.fill === undefined"
-              [style.border-color]="opt.border"
-              class="square">question_mark</mat-icon>
-            <div
-              *ngIf="opt.fill !== undefined"
-              [style.background-color]="opt.fill"
-              [style.border-color]="opt.border"
-              class="square"></div>
-            <span class="mat-body-1 shading-opt-desc">{{opt.desc}}</span>
-          </span>
-        </ng-container>
+    @if (rectSpec) {
+      <span class="mat-body-1 rect-legend">
+        <span class="shading-opts" [class.force-show-all]="legendExpanded" #shadingOpts>
+          @for (opt of rectSpec.legend; track opt) {
+            @if (!largeRectsMapper3d.isWireFrame() || opt.showInWireFrameMode) {
+              <span
+                class="shading-opt">
+                @if (opt.fill === undefined) {
+                  <mat-icon
+                    [style.border-color]="opt.border"
+                    class="square">question_mark</mat-icon>
+                }
+                @if (opt.fill !== undefined) {
+                  <div
+                    [style.background-color]="opt.fill"
+                    [style.border-color]="opt.border"
+                    class="square"></div>
+                }
+                <span class="mat-body-1 shading-opt-desc">{{opt.desc}}</span>
+              </span>
+            }
+          }
+        </span>
+        @if (showExpandButton(shadingOpts)) {
+          <button
+            mat-icon-button
+            class="rect-legend-expand-button"
+            (click)="legendExpanded = !legendExpanded">
+            <mat-icon class="material-symbols-outlined">{{legendExpanded ? 'expand_circle_down' : 'more_horiz'}}</mat-icon>
+          </button>
+        }
       </span>
-      <button
-        *ngIf="showExpandButton(shadingOpts)"
-        mat-icon-button
-        class="rect-legend-expand-button"
-        (click)="legendExpanded = !legendExpanded">
-        <mat-icon class="material-symbols-outlined">{{legendExpanded ? 'expand_circle_down' : 'more_horiz'}}</mat-icon>
-      </button>
-    </span>
+    }
   `,
   styles: [
     `
@@ -329,10 +348,6 @@ interface CanColor {
       }
       .slider-icon {
         min-width: 18px;
-        width: 18px;
-        height: 18px;
-        line-height: 18px;
-        font-size: 18px;
       }
       .filter-controls {
         justify-content: space-between;
@@ -758,7 +773,7 @@ export class RectsComponent implements OnInit, OnDestroy {
 
   onMouseMove(event: MouseEvent) {
     this.panning = true;
-    const distance = new Distance(event.movementX, event.movementY);
+    const distance: Distance = {dx: event.movementX, dy: event.movementY};
     this.largeRectsMapper3d.addPanScreenDistance(distance);
     this.updateLargeRectsPosition();
   }

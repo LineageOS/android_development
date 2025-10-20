@@ -22,9 +22,9 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {getFixtureFile} from 'test/unit/fixture_file_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {getFixtureFile} from 'test/unit/io_helpers';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
@@ -80,13 +80,13 @@ describe('ViewerMediaBasedComponent', () => {
   it('can be minimized and maximized', () => {
     const buttonMinimize = dom.get('.button-minimize');
     const videoContainer = dom.get('.video-container').getHTMLElement();
-    expect(videoContainer.style.height).toEqual('');
+    expect(videoContainer.style.height).toBe('');
 
     buttonMinimize.click();
-    expect(videoContainer.style.height).toEqual('0px');
+    expect(videoContainer.style.height).toBe('0px');
 
     buttonMinimize.click();
-    expect(videoContainer.style.height).toEqual('');
+    expect(videoContainer.style.height).toBe('');
   });
 
   it('forces minimized state', () => {
@@ -95,12 +95,12 @@ describe('ViewerMediaBasedComponent', () => {
 
     const buttonMinimize = dom.get('.button-minimize');
     const videoContainer = dom.get('.video-container').getHTMLElement();
-    expect(videoContainer.style.height).toEqual('0px');
+    expect(videoContainer.style.height).toBe('0px');
     buttonMinimize.checkDisabled(true);
 
     component.forceMinimize = false;
     dom.detectChanges();
-    expect(videoContainer.style.height).toEqual('');
+    expect(videoContainer.style.height).toBe('');
     buttonMinimize.checkDisabled(false);
   });
 
@@ -176,7 +176,7 @@ describe('ViewerMediaBasedComponent', () => {
 
     expect(
       dom.get('video').getHTMLElement<HTMLVideoElement>().currentTime,
-    ).toEqual(10);
+    ).toBe(10);
 
     dom.openMatSelect();
     const options = dom.getMatSelectPanel().findAll('mat-option');
@@ -184,7 +184,7 @@ describe('ViewerMediaBasedComponent', () => {
     options[1].click();
     expect(
       dom.get('video').getHTMLElement<HTMLVideoElement>().currentTime,
-    ).toEqual(15);
+    ).toBe(15);
   });
 
   it('does not update frame if trace entries do not change', () => {
@@ -238,7 +238,7 @@ describe('ViewerMediaBasedComponent', () => {
     dom.detectChanges();
     expect(dom.find('.info-icon')).toBeDefined();
     container.doubleClick();
-    expect(index).toEqual(0);
+    expect(index).toBe(0);
   });
 
   function getContainerMaxWidth(): number {

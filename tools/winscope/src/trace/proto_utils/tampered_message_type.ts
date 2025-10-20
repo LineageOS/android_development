@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import * as protobuf from 'protobufjs';
 import root from 'protos/perfetto/trace/json';
 

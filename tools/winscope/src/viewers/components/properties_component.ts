@@ -67,38 +67,49 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
           (filterChange)="onFilterChange($event)"></search-box>
       </div>
 
-      <user-options
-        *ngIf="hasUserOptions()"
-        class="view-controls"
-        [userOptions]="userOptions"
-        [eventType]="ViewerEvents.PropertiesUserOptionsChange"
-        [traceType]="traceType"
-        [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged">
-      </user-options>
+      @if (hasUserOptions()) {
+        <user-options
+          class="view-controls"
+          [userOptions]="userOptions"
+          [eventType]="ViewerEvents.PropertiesUserOptionsChange"
+          [traceType]="traceType"
+          [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged">
+        </user-options>
+      }
     </div>
 
-    <mat-divider *ngIf="hasUserOptions()"></mat-divider>
+    @if (hasUserOptions()) {
+      <mat-divider></mat-divider>
+    }
 
-    <ng-container *ngIf="showViewCaptureFormat()">
-      <view-capture-property-groups
-        class="property-groups"
-        [properties]="curatedProperties"></view-capture-property-groups>
+    @if (showViewCaptureFormat()) {
+      <ng-container>
+        <view-capture-property-groups
+          class="property-groups"
+          [properties]="curatedProperties"></view-capture-property-groups>
 
-      <mat-divider *ngIf="showPropertiesTree()"></mat-divider>
-    </ng-container>
+        @if (showPropertiesTree()) {
+          <mat-divider></mat-divider>
+        }
+      </ng-container>
+    }
 
-    <div *ngIf="showPropertiesTree()" class="properties-content">
-      <div class="tree-wrapper">
-        <tree-view
-          [node]="propertiesTree"
-          [useStoredExpandedState]="!!store"
-          [itemsClickable]="true"
-          [highlightedItem]="highlightedProperty"
-          (highlightedChange)="onHighlightedPropertyChange($event)"></tree-view>
+    @if (showPropertiesTree()) {
+      <div class="properties-content">
+        <div class="tree-wrapper">
+          <tree-view
+            [node]="propertiesTree"
+            [useStoredExpandedState]="!!store"
+            [itemsClickable]="true"
+            [highlightedItem]="highlightedProperty"
+            (highlightedChange)="onHighlightedPropertyChange($event)"></tree-view>
+        </div>
       </div>
-    </div>
+    }
 
-    <span class="mat-body-1 placeholder-text" *ngIf="showPlaceholderText()"> {{ placeholderText }} </span>
+    @if (showPlaceholderText()) {
+      <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
+    }
   `,
   styles: [
     `

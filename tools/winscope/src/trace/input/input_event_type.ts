@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the different types of input events that can be captured in a trace.
+ * This enum is used to categorize input events as either key events or motion events.
+ */
 export enum InputEventType {
   KEY,
   MOTION,

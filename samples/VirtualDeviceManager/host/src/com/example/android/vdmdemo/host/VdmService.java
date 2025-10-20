@@ -725,14 +725,13 @@ public final class VdmService extends Hilt_VdmService {
         mPendingRemoteIntent = intent;
         if (mPendingRemoteIntent != null) {
             mPendingRemoteIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_NEW_TASK);
         }
         mPendingDisplayType = type;
 
         if (mPreferenceController.getBoolean(R.string.pref_standalone_host_demo)) {
             Intent displayIntent = new Intent(this, DisplayActivity.class);
-            displayIntent
-                    .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             displayIntent.putExtra(DisplayActivity.EXTRA_DISPLAY_ID, ++mNextLocalDisplayId);
             startActivity(displayIntent);
             return;

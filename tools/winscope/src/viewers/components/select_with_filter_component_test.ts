@@ -26,9 +26,9 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {KeyboardEventCode} from 'common/dom_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {KeyboardEventCode} from 'common/dom';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {SelectWithFilterComponent} from './select_with_filter_component';
 
 describe('SelectWithFilterComponent', () => {
@@ -132,10 +132,10 @@ describe('SelectWithFilterComponent', () => {
     checkSelectValue(['0']);
 
     const pinnedOptions = getPinnedOptions();
-    expect(pinnedOptions.length).toEqual(1);
+    expect(pinnedOptions.length).toBe(1);
     pinnedOptions[0].click();
     checkSelectValue([]);
-    expect(getPinnedOptions().length).toEqual(0);
+    expect(getPinnedOptions().length).toBe(0);
   });
 
   it('resets filter on close', async () => {
@@ -276,7 +276,7 @@ describe('SelectWithFilterComponent', () => {
     options: Array<DOMTestHelper<TestHostComponent>>,
     expectedIndexes: number[],
   ) {
-    expect(options.length).toEqual(3);
+    expect(options.length).toBe(3);
     options.forEach((option, index) => {
       const exp = expectedIndexes[index];
       if (exp !== undefined) {

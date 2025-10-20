@@ -37,6 +37,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatMenuModule} from '@angular/material/menu';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -46,23 +47,29 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {Download} from 'common/download';
-import {FileUtils} from 'common/file_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {RequestData} from 'cross_tool/g3_proxy';
+import {DOWNLOAD_FILENAME_REGEX} from 'common/io';
 import {
   FailedToInitializeTimelineData,
   NoValidFiles,
 } from 'messaging/user_warnings';
 import {
   AppRefreshDumpsRequest,
+  BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
+  TabbedViewSwitchRequest,
+  TracePositionUpdate,
+  TraceSearchRequest,
   ViewersLoaded,
   ViewersUnloaded,
 } from 'messaging/winscope_event';
+import {TraceType} from 'trace_api/trace_type';
+import {View, Viewer, ViewType} from 'viewers/viewer';
 import {UserNotifier} from 'services/user_notifier';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {ViewerSurfaceFlingerComponent} from 'viewers/viewer_surface_flinger/viewer_surface_flinger_component';
@@ -120,6 +127,7 @@ describe('AppComponent', () => {
         MatSnackBarModule,
         MatCheckboxModule,
         MatProgressBarModule,
+        MatMenuModule,
         MatTabsModule,
         WinscopeProxySetupComponent,
         WdpSetupComponent,
@@ -150,10 +158,13 @@ describe('AppComponent', () => {
       'winscope',
       Validators.compose([
         Validators.required,
-        Validators.pattern(FileUtils.DOWNLOAD_FILENAME_REGEX),
+        Validators.pattern(DOWNLOAD_FILENAME_REGEX),
       ]),
     );
-    downloadTracesSpy = spyOn(Download, 'fromUrl');
+    downloadTracesSpy = jasmine.createSpy('fromUrl');
+    component.downloadRequest = (url: string, fileName: string) => {
+      downloadTracesSpy(url, fileName);
+    };
     dom.detectChanges();
   });
 
@@ -162,7 +173,7 @@ describe('AppComponent', () => {
   });
 
   it('has the expected title', () => {
-    expect(component.title).toEqual('winscope');
+    expect(component.title).toBe('winscope');
   });
 
   it('shows permanent header items on homepage', () => {
@@ -263,7 +274,7 @@ describe('AppComponent', () => {
     component.timelineData.initialize(
       new TracesBuilder().build(),
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
 
     await component.onWinscopeEvent(new ViewersUnloaded());
@@ -350,14 +361,12 @@ describe('AppComponent', () => {
     const fileDescriptor = dom.get('.file-descriptor');
     expect(fileDescriptor.find('.cross-tool-sync-button')).toBeUndefined();
 
-    spyOn(component.crossToolProtocol, 'isConnected').and.returnValue(true);
+    spyOn(
+      component.crossToolProtocol,
+      'isAllowedTimestampSync',
+    ).and.returnValue(true);
     dom.detectChanges();
     const syncButton = fileDescriptor.get('.cross-tool-sync-button');
-    await syncButton.checkTooltip('Cross Tool Sync ON (Click to turn OFF)');
-    syncButton.checkClassName('mat-primary', true);
-    syncButton.checkClassName('mat-accent', false);
-
-    syncButton.click();
     await syncButton.checkTooltip('Cross Tool Sync OFF (Click to turn ON)');
     syncButton.checkClassName('mat-accent', true);
     syncButton.checkClassName('mat-primary', false);
@@ -366,6 +375,11 @@ describe('AppComponent', () => {
     await syncButton.checkTooltip('Cross Tool Sync ON (Click to turn OFF)');
     syncButton.checkClassName('mat-primary', true);
     syncButton.checkClassName('mat-accent', false);
+
+    syncButton.click();
+    await syncButton.checkTooltip('Cross Tool Sync OFF (Click to turn ON)');
+    syncButton.checkClassName('mat-accent', true);
+    syncButton.checkClassName('mat-primary', false);
   });
 
   it('shows warning icon for packet loss', async () => {
@@ -454,7 +468,7 @@ describe('AppComponent', () => {
 
     const mediatorSpy = spyOn(component.mediator, 'onWinscopeEvent');
     const actions = dialog.findAll('.warning-action-buttons button');
-    expect(actions.length).toEqual(1);
+    expect(actions.length).toBe(1);
     actions[0].click();
     await dom.whenStable();
     expect(eventHandled).toBeTrue();
@@ -464,13 +478,364 @@ describe('AppComponent', () => {
     expect(dom.findInDocument('warning-dialog')).toBeUndefined();
   });
 
+  describe('settings button', () => {
+    let isInsideWinscopeProxyFrameSpy: jasmine.Spy;
+    let getReportedParentOriginSpy: jasmine.Spy;
+    let isSupportedParentOriginSpy: jasmine.Spy;
+
+    beforeEach(() => {
+      isInsideWinscopeProxyFrameSpy = spyOn(
+        component,
+        'isInsideWinscopeProxyFrame',
+      ).and.returnValue(false);
+      getReportedParentOriginSpy = spyOn(
+        component,
+        'getReportedParentOrigin',
+      ).and.returnValue(null);
+      isSupportedParentOriginSpy = spyOn(
+        component,
+        'isSupportedReportedParentOrigin',
+      ).and.returnValue(false);
+    });
+
+    it('is not shown if not in winscope proxy iframe', () => {
+      isInsideWinscopeProxyFrameSpy.and.returnValue(false);
+      dom.detectChanges();
+      expect(dom.find('.iframe-settings')).toBeUndefined();
+    });
+
+    it('is shown if in winscope proxy iframe', () => {
+      isInsideWinscopeProxyFrameSpy.and.returnValue(true);
+      dom.detectChanges();
+      expect(dom.find('.iframe-settings')).toBeTruthy();
+    });
+
+    it('sends message to parent on click', () => {
+      const parentOrigin = 'https://allowed.origin';
+      isInsideWinscopeProxyFrameSpy.and.returnValue(true);
+      getReportedParentOriginSpy.and.returnValue(parentOrigin);
+      isSupportedParentOriginSpy.and.returnValue(true);
+      dom.detectChanges();
+      const postMessageSpy: jasmine.Spy<
+        (message: any, targetOrigin: string, transfer?: Transferable[]) => void
+      > = spyOn(window.parent, 'postMessage');
+      dom.findAndClick('.iframe-settings');
+      expect(postMessageSpy).toHaveBeenCalledOnceWith(
+        {winscopeAction: 'openSettings'},
+        parentOrigin,
+      );
+    });
+  });
+
+  describe('share button', () => {
+    let isInsideWinscopeProxyFrameSpy: jasmine.Spy;
+    let getReportedParentOriginSpy: jasmine.Spy;
+    let getReportedRequestSpy: jasmine.Spy;
+
+    beforeEach(() => {
+      isInsideWinscopeProxyFrameSpy = spyOn(
+        component,
+        'isInsideWinscopeProxyFrame',
+      ).and.returnValue(false);
+      getReportedParentOriginSpy = spyOn(
+        component,
+        'getReportedParentOrigin',
+      ).and.returnValue(null);
+      getReportedRequestSpy = spyOn(
+        component,
+        'getReportedRequest',
+      ).and.returnValue(undefined);
+    });
+
+    it('is always shown', () => {
+      dom.detectChanges();
+      expect(dom.find('.share-btn')).toBeTruthy();
+    });
+
+    describe('when not in winscope proxy iframe', () => {
+      beforeEach(() => {
+        isInsideWinscopeProxyFrameSpy.and.returnValue(false);
+        dom.detectChanges();
+      });
+
+      it('is disabled', () => {
+        const shareButton = dom.get('.share-btn');
+        shareButton.checkDisabled(true);
+      });
+
+      it('shows tooltip explaining why it is disabled', async () => {
+        const shareButtonWrapper = dom.get('.share-btn-wrapper');
+        await shareButtonWrapper.checkTooltip(
+          'Share functionality is not available for the provided traces',
+        );
+      });
+    });
+
+    describe('when in winscope proxy iframe', () => {
+      const parentOrigin = 'https://winscope.corp.google.com';
+      const request: RequestData = {
+        artifacts: [{name: 'artifact', invocationId: '123'}],
+      };
+
+      beforeEach(() => {
+        isInsideWinscopeProxyFrameSpy.and.returnValue(true);
+        getReportedParentOriginSpy.and.returnValue(parentOrigin);
+        getReportedRequestSpy.and.returnValue(request);
+        dom.detectChanges();
+      });
+
+      it('is enabled', () => {
+        const shareButton = dom.get('.share-btn');
+        shareButton.checkDisabled(false);
+      });
+
+      it('shows "Share" tooltip', async () => {
+        const shareButton = dom.get('.share-btn');
+        await shareButton.checkTooltip('Share');
+      });
+
+      it('generates correct share link and shows it in menu', async () => {
+        component.updateShareLink();
+        dom.detectChanges();
+
+        const params = new URLSearchParams();
+        params.set(
+          'request',
+          btoa(JSON.stringify({artifacts: request.artifacts})),
+        );
+        const expectedLink = `${parentOrigin}?${params.toString()}`;
+        expect(component.generatedShareLink).toEqual(expectedLink);
+
+        dom.findAndClick('.share-btn');
+        await dom.whenStable();
+
+        const shareInputElement = document.querySelector(
+          '.share-link-field input',
+        ) as HTMLInputElement;
+        assertDefined(shareInputElement);
+        expect(shareInputElement.value).toEqual(expectedLink);
+
+        const copyButton = dom.getInDocument('.share-link-container button');
+        copyButton.checkDisabled(false);
+      });
+
+      it('generates correct share link with no artifacts', async () => {
+        const request: RequestData = {
+          artifacts: [],
+        };
+        getReportedRequestSpy.and.returnValue(request);
+
+        component.updateShareLink();
+        dom.detectChanges();
+
+        const params = new URLSearchParams();
+        params.set('request', btoa(JSON.stringify({artifacts: []})));
+        const expectedLink = `${parentOrigin}?${params.toString()}`;
+        expect(component.generatedShareLink).toEqual(expectedLink);
+
+        dom.findAndClick('.share-btn');
+        await dom.whenStable();
+
+        const shareInputElement = document.querySelector(
+          '.share-link-field input',
+        ) as HTMLInputElement;
+        assertDefined(shareInputElement);
+        expect(shareInputElement.value).toEqual(expectedLink);
+      });
+
+      it('generates correct share link when original request is undefined', async () => {
+        getReportedRequestSpy.and.returnValue(undefined);
+
+        component.updateShareLink();
+        dom.detectChanges();
+
+        const params = new URLSearchParams();
+        params.set('request', btoa(JSON.stringify({artifacts: []})));
+        const expectedLink = `${parentOrigin}?${params.toString()}`;
+        expect(component.generatedShareLink).toEqual(expectedLink);
+
+        dom.findAndClick('.share-btn');
+        await dom.whenStable();
+
+        const shareInputElement = document.querySelector(
+          '.share-link-field input',
+        ) as HTMLInputElement;
+        assertDefined(shareInputElement);
+        expect(shareInputElement.value).toEqual(expectedLink);
+      });
+
+      it('disables copy button when no link is generated', async () => {
+        component.generatedShareLink = '';
+        dom.detectChanges();
+
+        dom.findAndClick('.share-btn');
+        await dom.whenStable();
+
+        const copyButton = dom.getInDocument('.share-link-container button');
+        copyButton.checkDisabled(true);
+      });
+    });
+  });
+
+  describe('processRequestData', () => {
+    let getReportedRequestSpy: jasmine.Spy;
+    let onWinscopeEventSpy: jasmine.Spy;
+
+    beforeEach(() => {
+      component.dataLoaded = true;
+      component.showDataLoadedElements = true;
+      getReportedRequestSpy = spyOn(
+        component,
+        'getReportedRequest',
+      ).and.returnValue(undefined);
+      onWinscopeEventSpy = spyOn(
+        component.mediator,
+        'onWinscopeEvent',
+      ).and.callThrough();
+    });
+
+    it('processes bookmarks', async () => {
+      component.timelineData.initialize(
+        new TracesBuilder().build(),
+        undefined,
+        UTC_CONVERTER,
+      );
+      dom.detectChanges();
+      const request: RequestData = {
+        artifacts: [],
+        bookmarks: ['10', '20'],
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      await component.onWinscopeEvent(new ViewersLoaded([]));
+
+      const bookmarksChangedEvent = onWinscopeEventSpy.calls
+        .all()
+        .find((call) => call.args[0] instanceof BookmarksChanged)
+        ?.args[0] as BookmarksChanged;
+      expect(bookmarksChangedEvent).toBeInstanceOf(BookmarksChanged);
+      expect(bookmarksChangedEvent.bookmarks.length).toEqual(2);
+      expect(bookmarksChangedEvent.bookmarks[0].getValueNs()).toEqual(10n);
+      expect(bookmarksChangedEvent.bookmarks[1].getValueNs()).toEqual(20n);
+      expect(component.timelineComponent?.bookmarks.length).toEqual(2);
+    });
+
+    it('processes timestamp', async () => {
+      const traces = new TracesBuilder()
+        .setTimestamps(TraceType.SURFACE_FLINGER, [
+          UTC_CONVERTER.makeTimestampFromNs(10n),
+        ])
+        .build();
+      component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      dom.detectChanges();
+      component.timelineData.trySetActiveTrace(
+        assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER)),
+      );
+
+      const request: RequestData = {
+        artifacts: [],
+        timestamp: '15',
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      await component.onWinscopeEvent(new ViewersLoaded([]));
+
+      const tracePositionUpdateEvent = onWinscopeEventSpy.calls
+        .all()
+        .find((call) => call.args[0] instanceof TracePositionUpdate)
+        ?.args[0] as TracePositionUpdate;
+      expect(tracePositionUpdateEvent).toBeInstanceOf(TracePositionUpdate);
+      expect(tracePositionUpdateEvent.position.timestamp.getValueNs()).toEqual(
+        15n,
+      );
+      expect(tracePositionUpdateEvent.updateTimeline).toBeTrue();
+    });
+
+    it('processes search queries', async () => {
+      spyOn(component.tracePipeline, 'tryCreateSearchTrace').and.resolveTo(
+        undefined,
+      );
+      spyOn(UserNotifier, 'add');
+      component.timelineData.initialize(
+        new TracesBuilder().build(),
+        undefined,
+        UTC_CONVERTER,
+      );
+      dom.detectChanges();
+      const request: RequestData = {
+        artifacts: [],
+        searchQueries: ['query1', 'query2'],
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      await component.onWinscopeEvent(new ViewersLoaded([]));
+
+      const searchRequests = onWinscopeEventSpy.calls
+        .all()
+        .filter((call) => call.args[0] instanceof TraceSearchRequest);
+      expect(searchRequests.length).toEqual(2);
+      expect(searchRequests[0].args[0].query).toEqual('query1');
+      expect(searchRequests[1].args[0].query).toEqual('query2');
+      expect(
+        component.tracePipeline.tryCreateSearchTrace,
+      ).toHaveBeenCalledTimes(2);
+      expect(component.tracePipeline.tryCreateSearchTrace).toHaveBeenCalledWith(
+        'query1',
+      );
+      expect(component.tracePipeline.tryCreateSearchTrace).toHaveBeenCalledWith(
+        'query2',
+      );
+    });
+
+    it('processes trace type to switch view', async () => {
+      const traces = new TracesBuilder()
+        .setEntries(TraceType.SURFACE_FLINGER, [])
+        .build();
+      const trace = assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER));
+      spyOn(component.tracePipeline, 'getTraces').and.returnValue(traces);
+
+      component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      dom.detectChanges();
+      const request: RequestData = {
+        artifacts: [],
+        traceType: TraceType.SURFACE_FLINGER,
+      };
+      getReportedRequestSpy.and.returnValue(request);
+
+      const mockView: View = {
+        title: 'Mock View',
+        type: ViewType.TRACE_TAB,
+        traces: [trace],
+        htmlElement: document.createElement('div'),
+      };
+      const mockViewer = {
+        getViews: () => [mockView],
+        getTraces: () => [trace],
+        onWinscopeEvent: jasmine.createSpy(),
+        setEmitEvent: jasmine.createSpy(),
+        getName: () => 'MockViewer',
+      } as unknown as Viewer;
+
+      await component.onWinscopeEvent(new ViewersLoaded([mockViewer]));
+
+      const switchRequest = onWinscopeEventSpy.calls
+        .all()
+        .find((call) => call.args[0] instanceof TabbedViewSwitchRequest)
+        ?.args[0] as TabbedViewSwitchRequest;
+      expect(switchRequest).toBeInstanceOf(TabbedViewSwitchRequest);
+      expect(switchRequest.newActiveTrace.type).toEqual(
+        TraceType.SURFACE_FLINGER,
+      );
+    });
+  });
+
   function goToTraceView() {
     component.dataLoaded = true;
     component.showDataLoadedElements = true;
     component.timelineData.initialize(
       new TracesBuilder().build(),
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
     dom.detectChanges();
   }

@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {KeyboardEventKey} from 'common/dom_utils';
+import {assertDefined} from 'common/assert';
+import {KeyboardEventKey} from 'common/dom';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {TimeUtils} from 'common/time/time_utils';
+import {Timer} from 'common/time/timer';
 import {
   ActiveTraceChanged,
   DarkModeToggled,
   TracePositionUpdate,
 } from 'messaging/winscope_event';
+import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {MockPresenter} from 'test/unit/mock_log_viewer_presenter';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+  makeZeroTimestamp,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 import {Trace} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
-import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {TextFilter} from 'viewers/common/text_filter';
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogHeader, UiDataLog} from './ui_data_log';
@@ -43,60 +48,53 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from './viewer_events';
+import {SetFormatters} from 'parsers/set_formatters';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;
   let presenter: MockPresenter;
-  let trace: Trace<PropertyTreeNode>;
+  let trace: Trace<HierarchyTreeNode>;
   let positionUpdate: TracePositionUpdate;
   let secondPositionUpdate: TracePositionUpdate;
   let lastEntryPositionUpdate: TracePositionUpdate;
 
   beforeAll(async () => {
-    const timestamp1 = TimestampConverterUtils.makeElapsedTimestamp(1n);
-    const timestamp2 = TimestampConverterUtils.makeElapsedTimestamp(2n);
-    const timestamp3 = TimestampConverterUtils.makeElapsedTimestamp(3n);
-    const timestamp4 = TimestampConverterUtils.makeElapsedTimestamp(4n);
-    trace = new TraceBuilder<PropertyTreeNode>()
+    const timestamp1 = makeElapsedTimestamp(1n);
+    const timestamp2 = makeElapsedTimestamp(2n);
+    const timestamp3 = makeElapsedTimestamp(3n);
+    const timestamp4 = makeElapsedTimestamp(4n);
+    trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.TRANSACTIONS)
       .setEntries([
-        new PropertyTreeBuilder()
-          .setRootId('Test Trace')
+        new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
+          .setId('Test Trace')
           .setName('entry 1')
-          .setChildren([
-            {
-              name: 'pass1',
-              value: 'pass',
-              formatter: DEFAULT_PROPERTY_FORMATTER,
-            },
-            {
-              name: 'pass2',
-              value: 'fail',
-              formatter: DEFAULT_PROPERTY_FORMATTER,
-              source: PropertySource.DEFAULT,
-            },
-            {
-              name: 'fail1',
-              value: 'pass',
-              formatter: DEFAULT_PROPERTY_FORMATTER,
-            },
-            {
-              name: 'fail2',
-              value: 'fail',
-              formatter: DEFAULT_PROPERTY_FORMATTER,
-            },
-          ])
+          .setProperties({
+            pass1: 'pass',
+            fail1: 'pass',
+            fail2: 'fail',
+          })
+          .addChildProperty({
+            name: 'pass2',
+            value: 'fail',
+            formatter: DEFAULT_PROPERTY_FORMATTER,
+            source: PropertySource.DEFAULT,
+          })
           .build(),
-        new PropertyTreeBuilder()
-          .setRootId('Test Trace')
+        new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
+          .setId('Test Trace')
           .setName('entry 2')
           .build(),
-        new PropertyTreeBuilder()
-          .setRootId('Test Trace')
+        new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
+          .setId('Test Trace')
           .setName('entry 3')
           .build(),
-        new PropertyTreeBuilder()
-          .setRootId('Test Trace')
+        new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
+          .setId('Test Trace')
           .setName('entry 4')
           .build(),
       ])
@@ -173,7 +171,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(spy).toHaveBeenCalledWith(uiData.entries[0].traceEntry);
 
     spy = spyOn(presenter, 'onRawTimestampClick');
-    const ts = TimestampConverterUtils.makeZeroTimestamp();
+    const ts = makeZeroTimestamp();
     element.dispatchEvent(
       new CustomEvent(ViewerEvents.TimestampClick, {
         detail: new TimestampClickDetail(undefined, ts),
@@ -224,7 +222,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.scrollToIndex).toBeUndefined();
     expect(uiData.currentIndex).toBeUndefined();
     expect(uiData.selectedIndex).toBeUndefined();
-    expect(uiData.entries.length).toEqual(0);
+    expect(uiData.entries.length).toBe(0);
     expect(uiData.propertiesTree).toBeUndefined();
     expect(uiData.headers).toEqual([]);
 
@@ -233,11 +231,11 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.scrollToIndex).toBeDefined();
     expect(uiData.currentIndex).toBeDefined();
     expect(uiData.selectedIndex).toBeUndefined();
-    expect(uiData.entries.length).toEqual(4);
+    expect(uiData.entries.length).toBe(4);
     expect(assertDefined(uiData.propertiesTree).id).toEqual(
       (await getPropertiesTree(0)).id,
     );
-    expect(uiData.headers.length).toEqual(3);
+    expect(uiData.headers.length).toBe(3);
     expect((uiData.headers[0].filter as LogSelectFilter).options).toEqual([
       'stringValue',
       'differentValue',
@@ -246,7 +244,7 @@ describe('AbstractLogViewerPresenter', () => {
 
   it('processes trace position update and updates ui data', async () => {
     await sendPositionUpdate(secondPositionUpdate, true);
-    expect(uiData.currentIndex).toEqual(1);
+    expect(uiData.currentIndex).toBe(1);
     expect(assertDefined(uiData.propertiesTree).id).toEqual(
       (await getPropertiesTree(1)).id,
     );
@@ -261,9 +259,7 @@ describe('AbstractLogViewerPresenter', () => {
 
     await sendPositionUpdate(
       new TracePositionUpdate(
-        TracePosition.fromTimestamp(
-          TimestampConverterUtils.makeElapsedTimestamp(-1n),
-        ),
+        TracePosition.fromTimestamp(makeElapsedTimestamp(-1n)),
       ),
       true,
     );
@@ -422,21 +418,21 @@ describe('AbstractLogViewerPresenter', () => {
   it('updates indices when filters change', async () => {
     await sendPositionUpdate(lastEntryPositionUpdate, true);
     presenter.onLogEntryClick(1);
-    expect(uiData.currentIndex).toEqual(3);
-    expect(uiData.selectedIndex).toEqual(1);
+    expect(uiData.currentIndex).toBe(3);
+    expect(uiData.selectedIndex).toBe(1);
 
     const header = uiData.headers[1];
     await presenter.onSelectFilterChange(header, ['0']);
-    expect(uiData.currentIndex).toEqual(0);
-    expect(uiData.selectedIndex).toEqual(0);
+    expect(uiData.currentIndex).toBe(0);
+    expect(uiData.selectedIndex).toBe(0);
 
     await presenter.onSelectFilterChange(header, ['0', '2']);
-    expect(uiData.currentIndex).toEqual(1);
-    expect(uiData.selectedIndex).toEqual(0);
+    expect(uiData.currentIndex).toBe(1);
+    expect(uiData.selectedIndex).toBe(0);
 
     await presenter.onSelectFilterChange(header, []);
-    expect(uiData.currentIndex).toEqual(3);
-    expect(uiData.selectedIndex).toEqual(0);
+    expect(uiData.currentIndex).toBe(3);
+    expect(uiData.selectedIndex).toBe(0);
   });
 
   it('updates properties tree when entry clicked', async () => {
@@ -457,7 +453,7 @@ describe('AbstractLogViewerPresenter', () => {
     await presenter.onLogEntryClick(0);
 
     await presenter.onArrowDownPress();
-    expect(uiData.selectedIndex).toEqual(1);
+    expect(uiData.selectedIndex).toBe(1);
     expect(assertDefined(uiData.propertiesTree).id).toEqual(
       (await getPropertiesTree(1)).id,
     );
@@ -465,18 +461,18 @@ describe('AbstractLogViewerPresenter', () => {
     const expectedId0 = (await getPropertiesTree(0)).id;
 
     await presenter.onArrowUpPress();
-    expect(uiData.selectedIndex).toEqual(0);
+    expect(uiData.selectedIndex).toBe(0);
     expect(assertDefined(uiData.propertiesTree).id).toEqual(expectedId0);
 
     // does not remove selection if index out of range
     await presenter.onArrowUpPress();
-    expect(uiData.selectedIndex).toEqual(0);
+    expect(uiData.selectedIndex).toBe(0);
     expect(assertDefined(uiData.propertiesTree).id).toEqual(expectedId0);
 
     // does not remove selection if index out of range
     await presenter.onLogEntryClick(3);
     await presenter.onArrowDownPress();
-    expect(uiData.selectedIndex).toEqual(3);
+    expect(uiData.selectedIndex).toBe(3);
     expect(assertDefined(uiData.propertiesTree).id).toEqual(
       (await getPropertiesTree(3)).id,
     );
@@ -498,7 +494,7 @@ describe('AbstractLogViewerPresenter', () => {
     const spy = jasmine.createSpy();
     presenter.setEmitEvent(spy);
 
-    const ts = TimestampConverterUtils.makeZeroTimestamp();
+    const ts = makeZeroTimestamp();
     await presenter.onRawTimestampClick(ts);
     expect(spy).toHaveBeenCalledWith(
       TracePositionUpdate.fromTimestamp(ts, true),
@@ -507,20 +503,20 @@ describe('AbstractLogViewerPresenter', () => {
 
   it('filters properties tree', async () => {
     await sendPositionUpdate(positionUpdate, true);
-    expect(
-      assertDefined(uiData.propertiesTree).getAllChildren().length,
-    ).toEqual(3);
+    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
+      3,
+    );
     await presenter.onPropertiesFilterChange(new TextFilter('pass'));
-    expect(
-      assertDefined(uiData.propertiesTree).getAllChildren().length,
-    ).toEqual(2);
+    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
+      2,
+    );
   });
 
   it('shows/hides defaults', async () => {
     await sendPositionUpdate(positionUpdate, true);
-    expect(
-      assertDefined(uiData.propertiesTree).getAllChildren().length,
-    ).toEqual(3);
+    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
+      3,
+    );
     const userOptions: UserOptions = {
       showDefaults: {
         name: 'Show defaults',
@@ -529,9 +525,9 @@ describe('AbstractLogViewerPresenter', () => {
     };
     await presenter.onPropertiesUserOptionsChange(userOptions);
     expect(uiData.propertiesUserOptions).toEqual(userOptions);
-    expect(
-      assertDefined(uiData.propertiesTree).getAllChildren().length,
-    ).toEqual(4);
+    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
+      4,
+    );
   });
 
   it('updates dark mode', async () => {
@@ -549,9 +545,7 @@ describe('AbstractLogViewerPresenter', () => {
     );
 
     await sendPositionUpdate(
-      TracePositionUpdate.fromTimestamp(
-        TimestampConverterUtils.makeRealTimestamp(0n),
-      ),
+      TracePositionUpdate.fromTimestamp(makeRealTimestamp(0n)),
       true,
       presenter,
     );
@@ -560,7 +554,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.selectedIndex).toBeUndefined();
     expect(uiData.scrollToIndex).toBeUndefined();
     expect(uiData.currentIndex).toBeUndefined();
-    expect(uiData.headers.length).toEqual(3);
+    expect(uiData.headers.length).toBe(3);
     expect(uiData.propertiesTree).toBeUndefined();
     expect(uiData.propertiesUserOptions).toBeDefined();
     expect(uiData.propertiesFilter).toBeDefined();
@@ -624,7 +618,7 @@ describe('AbstractLogViewerPresenter', () => {
     await assertDefined(p).onAppEvent(update);
     if (isFirst) {
       expect(uiData.isFetchingData).toBeTrue(); // fetches data asynchronously
-      await TimeUtils.wait(() => !uiData.isFetchingData);
+      await new Timer().wait(() => !uiData.isFetchingData);
     }
     expect(uiData.isFetchingData).toBeFalse();
   }

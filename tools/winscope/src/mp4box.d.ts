@@ -18,15 +18,19 @@ declare module 'mp4box' {
   // mp4box does not have TypeScript support, so we must declare the types below
   export interface FileInfo {
     tracks: Track[];
+    videoTracks: Track[];
+    metadataTracks: Track[];
   }
 
   export interface Track {
     id: number;
+    nb_samples: number;
   }
 
   export interface Sample {
     duration: number;
     timescale: number;
+    data: Uint8Array;
   }
 
   export type MP4ArrayBuffer = ArrayBuffer & {fileStart: number};

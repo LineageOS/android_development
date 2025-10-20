@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Styles for overlay panels.
+ */
 export const overlayPanelStyles = `
   .overlay-panel {
     font-family: 'Roboto', sans-serif;

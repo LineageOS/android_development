@@ -19,6 +19,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 
+/**
+ * A component for displaying a warning dialog.
+ */
 @Component({
   selector: 'warning-dialog',
   standalone: true,
@@ -32,19 +35,21 @@ import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 
       <div class="warning-actions">
         <div class="warning-action-boxes">
-          <mat-checkbox
-            *ngFor="let option of data.options; let i = index"
-            color="primary"
-            [checked]="selectedOptions.includes(option)"
-            (change)="updateSelectedOptions(option)">{{ option }}</mat-checkbox>
+          @for (option of data.options; track option; let i = $index) {
+            <mat-checkbox
+              color="primary"
+              [checked]="selectedOptions.includes(option)"
+              (change)="updateSelectedOptions(option)">{{ option }}</mat-checkbox>
+          }
         </div>
         <div class="warning-action-buttons">
-          <button
-            *ngFor="let action of data.actions"
-            [mat-dialog-close]="getDialogResult(action)"
-            class="not-last"
-            color="primary"
-            mat-stroked-button> {{ action }} </button>
+          @for (action of data.actions; track action) {
+            <button
+              [mat-dialog-close]="getDialogResult(action)"
+              class="not-last"
+              color="primary"
+              mat-stroked-button> {{ action }} </button>
+          }
           <button
             [mat-dialog-close]="getDialogResult(data.closeText)"
             color="primary"
@@ -57,11 +62,6 @@ import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
     `
       .warning-dialog-title {
         display: flex;
-      }
-      .warning-close-button {
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
       }
       .warning-content {
         overflow: visible;
@@ -112,6 +112,9 @@ export class WarningDialogComponent {
   }
 }
 
+/**
+ * Data for the warning dialog.
+ */
 export interface WarningDialogData {
   message: string | undefined;
   actions: string[] | undefined;
@@ -120,6 +123,9 @@ export interface WarningDialogData {
   singleSelection?: boolean;
 }
 
+/**
+ * Result of the warning dialog.
+ */
 export interface WarningDialogResult {
   closeActionText: string | undefined;
   selectedOptions: string[];

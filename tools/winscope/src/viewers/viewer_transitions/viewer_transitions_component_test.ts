@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {TraceEntry} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -64,7 +64,7 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.TRANSITION)
       .setEntries([this.transitionTree])
-      .setTimestamps([TimestampConverterUtils.makeElapsedTimestamp(20n)])
+      .setTimestamps([makeElapsedTimestamp(20n)])
       .build();
     const entry = trace.getEntry(0);
 

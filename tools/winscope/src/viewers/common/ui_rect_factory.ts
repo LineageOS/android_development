@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Point} from 'common/geometry/point';
 import {DispatchedPointerAxis} from 'trace/input/dispatched_pointer_axis';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -148,7 +148,7 @@ class UiRectFactory {
         const id = c.getChildByName('windowId');
         return (
           id !== undefined &&
-          traceRect.id.split(' ')[0] === id.getValue().toString()
+          traceRect.id.split(' ')[0] === id.getValue<number>()?.toString()
         );
       });
 
@@ -156,8 +156,8 @@ class UiRectFactory {
         ?.getChildByName('dispatchedPointer')
         ?.getAllChildren()
         .forEach((pointer) => {
-          const rawX = pointer.getChildByName('xInDisplay')?.getValue();
-          const rawY = pointer.getChildByName('yInDisplay')?.getValue();
+          const rawX = pointer.getChildByName('xInDisplay')?.getValue<number>();
+          const rawY = pointer.getChildByName('yInDisplay')?.getValue<number>();
           if (rawX !== undefined && rawY !== undefined) {
             rays.push({x: rawX, y: rawY});
           }
@@ -168,11 +168,13 @@ class UiRectFactory {
           let pointerX: number | undefined;
           let pointerY: number | undefined;
           axes?.forEach((axisValue) => {
-            const axis = Number(axisValue.getChildByName('axis')?.getValue());
+            const axis = Number(
+              axisValue.getChildByName('axis')?.getValue<number>(),
+            );
             if (axis === DispatchedPointerAxis.X) {
-              pointerX = axisValue.getChildByName('value')?.getValue();
+              pointerX = axisValue.getChildByName('value')?.getValue<number>();
             } else if (axis === DispatchedPointerAxis.Y) {
-              pointerY = axisValue.getChildByName('value')?.getValue();
+              pointerY = axisValue.getChildByName('value')?.getValue<number>();
             }
           });
           if (pointerX !== undefined && pointerY !== undefined) {

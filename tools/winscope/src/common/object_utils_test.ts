@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {ObjectUtils} from './object_utils';
+import {setProperty} from './object_utils';
 
-describe('ObjectUtils', () => {
+describe('object_utils', () => {
   it('setProperty()', () => {
     const obj = {};
 
-    ObjectUtils.setProperty(obj, 'child0.key0', 'value0');
+    setProperty(obj, 'child0.key0', 'value0');
     expect(obj).toEqual({
       child0: {
         key0: 'value0',
       },
     });
 
-    ObjectUtils.setProperty(obj, 'child1[0].key1', 'value1');
-    ObjectUtils.setProperty(obj, 'child1[1]', 10);
+    setProperty(obj, 'child1[0].key1', 'value1');
+    setProperty(obj, 'child1[1]', 10);
     expect(obj).toEqual({
       child0: {
         key0: 'value0',

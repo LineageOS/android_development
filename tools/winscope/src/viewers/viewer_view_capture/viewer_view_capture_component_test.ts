@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from 'viewers/common/abstract_hierarchy_viewer_component_test';
 import {ViewerViewCaptureComponent} from './viewer_view_capture_component';
 

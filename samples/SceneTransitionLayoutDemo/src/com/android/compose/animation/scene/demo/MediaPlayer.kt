@@ -44,7 +44,6 @@ import com.android.compose.animation.scene.content.state.TransitionState
 import com.android.compose.modifiers.thenIf
 import com.android.mechanics.compose.modifier.verticalFadeContentReveal
 import com.android.mechanics.compose.modifier.verticalTactileSurfaceReveal
-import com.android.mechanics.spec.builder.rememberMotionBuilderContext
 
 object MediaPlayer {
     object Elements {
@@ -153,21 +152,13 @@ fun ContentScope.MediaPlayer(
                 MediaPlayer.Elements.MediaPlayer
             }
 
-        val motionBuilderContext = rememberMotionBuilderContext()
         val deltaY = -with(LocalDensity.current) { QuickSettingsGrid.Dimensions.Spacing.toPx() }
 
         MovableElement(
             key,
             modifier
                 .thenIf(revealEffect) {
-                    Modifier.verticalTactileSurfaceReveal(
-                        contentScope = this@MediaPlayer,
-                        motionBuilderContext = motionBuilderContext,
-                        container = QuickSettingsShade.Elements.Root,
-                        deltaY = deltaY,
-                        label = "mediaPlayer",
-                        debug = true,
-                    )
+                    Modifier.verticalTactileSurfaceReveal(deltaY = deltaY, label = "mediaPlayer")
                 }
                 .fillMaxWidth()
                 .height(
@@ -183,12 +174,8 @@ fun ContentScope.MediaPlayer(
                         )
                         .thenIf(revealEffect) {
                             Modifier.verticalFadeContentReveal(
-                                contentScope = this@MediaPlayer,
-                                motionBuilderContext = motionBuilderContext,
-                                container = QuickSettingsShade.Elements.Root,
                                 deltaY = deltaY,
                                 label = "mediaPlayer",
-                                debug = true,
                             )
                         }
                         .padding(8.dp)

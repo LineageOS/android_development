@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Analytics} from 'logging/analytics';
 import {Trace, TraceEntry} from 'trace_api/trace';
@@ -27,7 +27,13 @@ import {TreeNode} from 'tree_node/tree_node';
 import {IsModifiedCallbackType} from 'viewers/common/add_diffs';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {TreeNodeFilter, UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {
+  TreeNodeFilter,
+  isVisible,
+  makeIdMatchFilter,
+  makeNodeFilter,
+  shouldGetProperties,
+} from 'viewers/common/ui_tree_utils';
 import {UserOptions} from 'viewers/common/user_options';
 import {SimplifyNamesVc} from 'viewers/viewer_view_capture/operations/simplify_names';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
@@ -80,9 +86,7 @@ export class HierarchyPresenter {
       [TraceType, Array<Operation<UiHierarchyTreeNode>>]
     >,
   ) {
-    this.hierarchyFilter = UiTreeUtils.makeNodeFilter(
-      textFilter.getFilterPredicate(),
-    );
+    this.hierarchyFilter = makeNodeFilter(textFilter.getFilterPredicate());
   }
 
   getUserOptions(): UserOptions {
@@ -109,6 +113,16 @@ export class HierarchyPresenter {
     trace: Trace<HierarchyTreeNode>,
   ): string[] | undefined {
     return this.getCurrentTreesByTrace(trace)?.displayNames;
+  }
+
+  setShowDiffAvailability(isAvailable: boolean) {
+    const hierarchyShowDiff = this.userOptions['showDiff'];
+    if (hierarchyShowDiff) {
+      hierarchyShowDiff.isUnavailable = !isAvailable;
+      if (!isAvailable) {
+        hierarchyShowDiff.enabled = false;
+      }
+    }
   }
 
   async addCurrentHierarchyTrees(
@@ -298,8 +312,8 @@ export class HierarchyPresenter {
     if (!this.currentTrees) {
       return;
     }
-    if (UiTreeUtils.shouldGetProperties(tree)) {
-      const idMatchFilter = UiTreeUtils.makeIdMatchFilter(tree.id);
+    if (shouldGetProperties(tree)) {
+      const idMatchFilter = makeIdMatchFilter(tree.id);
       let offset = 0;
       for (const {trace, trees} of this.currentTrees) {
         const treeIndex = trees.findIndex((t) => t.findDfs(idMatchFilter));
@@ -319,9 +333,7 @@ export class HierarchyPresenter {
 
   async applyHierarchyFilterChange(textFilter: TextFilter) {
     this.textFilter = textFilter;
-    this.hierarchyFilter = UiTreeUtils.makeNodeFilter(
-      textFilter.getFilterPredicate(),
-    );
+    this.hierarchyFilter = makeNodeFilter(textFilter.getFilterPredicate());
     await this.formatHierarchyTreesAndUpdatePinnedItems();
   }
 
@@ -484,7 +496,7 @@ export class HierarchyPresenter {
     );
     const predicates = [this.hierarchyFilter];
     if (this.userOptions['showOnlyVisible']?.enabled) {
-      predicates.push(UiTreeUtils.isVisible);
+      predicates.push(isVisible);
     }
     return formatter.addOperation(new Filter(predicates, true)).format();
   }
@@ -496,7 +508,7 @@ export class HierarchyPresenter {
     if (!this.currentTrees) {
       return undefined;
     }
-    const idMatchFilter = UiTreeUtils.makeIdMatchFilter(id);
+    const idMatchFilter = makeIdMatchFilter(id);
     let indexOffset = 0;
     for (const curr of this.currentTrees) {
       const treesToSearch = searchFormatted

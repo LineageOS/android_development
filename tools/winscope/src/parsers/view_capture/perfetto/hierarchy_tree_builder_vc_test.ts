@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import {UINT32_MAX} from 'common/math';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {OperationChain} from 'tree_node/operation_chain';
 import {PropertiesProvider} from 'tree_node/properties_provider';
@@ -30,13 +31,14 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('0')
     .setName('node0')
     .setChildren([
-      {name: 'id', value: 0},
-      {name: 'parentId', value: -1},
+      {name: 'nodeId', value: 0},
+      {name: 'parentId', value: UINT32_MAX},
     ])
     .build();
   const node0Provider = new PropertiesProvider(
     node0Properties,
     async () => node0Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
@@ -47,13 +49,14 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('1')
     .setName('node1')
     .setChildren([
-      {name: 'id', value: 1},
+      {name: 'nodeId', value: 1},
       {name: 'parentId', value: 0},
     ])
     .build();
   const node1Provider = new PropertiesProvider(
     node1Properties,
     async () => node1Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
@@ -64,13 +67,14 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('2')
     .setName('node2')
     .setChildren([
-      {name: 'id', value: 2},
+      {name: 'nodeId', value: 2},
       {name: 'parentId', value: 1},
     ])
     .build();
   const node2Provider = new PropertiesProvider(
     node2Properties,
     async () => node2Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
@@ -81,20 +85,21 @@ describe('HierarchyTreeBuilderVc', () => {
     .setRootId('3')
     .setName('node3')
     .setChildren([
-      {name: 'id', value: 3},
+      {name: 'nodeId', value: 3},
       {name: 'parentId', value: 0},
     ])
     .build();
   const node3Provider = new PropertiesProvider(
     node3Properties,
     async () => node3Properties,
+    undefined,
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
     OperationChain.emptyChain<PropertyTreeNode>(),
   );
 
   beforeEach(() => {
-    jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+    jasmine.addCustomEqualityTester(treeNodeEqualityTester);
     builder = new HierarchyTreeBuilderVc();
   });
 

@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
+/**
+ * An interface for a draggable object on a canvas.
+ */
 export interface DraggableCanvasObject {
+  /**
+   * Draws the object on the canvas.
+   *
+   * @param ctx The canvas rendering context.
+   */
   draw(ctx: CanvasRenderingContext2D): void;
+
+  /**
+   * Defines the path of the object for hit testing.
+   *
+   * @param ctx The canvas rendering context.
+   */
   definePath(ctx: CanvasRenderingContext2D): void;
 }

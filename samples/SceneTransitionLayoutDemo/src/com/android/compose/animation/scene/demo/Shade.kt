@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import com.android.compose.animation.scene.Back
 import com.android.compose.animation.scene.ContentScope
@@ -245,7 +246,19 @@ private fun ContentScope.ShadeLayout(
 
         val background = measurables[0][0].measure(constraints)
         val underScrim = measurables[1][0].measure(constraints)
-        val scrim = measurables[2][0].measure(constraints)
+
+        val additionalScrimOffset = additionalScrimOffset?.value?.toPx() ?: 0f
+        val scrimOffsetY =
+            underScrim.height + (scrimOffset.value + additionalScrimOffset).roundToInt()
+        val constrainedScrimHeight =
+            constraints.constrainHeight(constraints.maxHeight - scrimOffsetY)
+        val scrim =
+            measurables[2][0].measure(
+                constraints.copy(
+                    minHeight = constrainedScrimHeight,
+                    maxHeight = constrainedScrimHeight,
+                )
+            )
 
         // Update the last height of underScrim.
         underScrimHeight.value = underScrim.height.toFloat()
@@ -256,12 +269,7 @@ private fun ContentScope.ShadeLayout(
         ) {
             background.place(0, 0)
             underScrim.place(0, 0)
-
-            val additionalScrimOffset = additionalScrimOffset?.value?.toPx() ?: 0f
-            scrim.placeWithLayer(
-                0,
-                underScrim.height + (scrimOffset.value + additionalScrimOffset).roundToInt(),
-            )
+            scrim.placeWithLayer(0, scrimOffsetY)
         }
     }
 }
@@ -425,7 +433,7 @@ private fun ContentScope.Scrim(
         )
 
         Box(
-            Modifier.padding(bottom = scrimMinTopPadding)
+            Modifier
                 // Make sure this list is full size so that shared notifications are not clipped
                 // when animating from lockscreen to shade.
                 .fillMaxSize(),

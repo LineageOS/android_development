@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket} from 'compat/perfetto_version';
 import {CoarseVersion} from './coarse_version';
 import {
   CustomQueryParamTypeMap,
@@ -24,15 +24,34 @@ import {
 } from './custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {TraceType} from './trace_type';
+import {QueryResults, QueryResult} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
+/**
+ * Interface for a trace parser.
+ *
+ * This interface defines the methods required to parse and interact with a specific trace format.
+ * It provides access to trace entries, timestamps, version information, and allows for custom queries
+ * and conversion to Perfetto format.
+ *
+ * @template T The type of the individual trace entries parsed by this interface.
+ */
 export interface Parser<T> {
   getCoarseVersion(): CoarseVersion;
   getTraceType(): TraceType;
   getLengthEntries(): number;
   getTimestamps(): Timestamp[] | undefined;
   getEntry(index: AbsoluteEntryIndex): Promise<T>;
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>>;
+  getRangeOfEntries(
+    entriesRange: EntriesRange,
+    precomputedQuery?: QueryResults<T>,
+  ): Promise<T[]>;
   getAllEntries(): Promise<Array<T | undefined>>;
+  getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>>;
   customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,
@@ -43,10 +62,11 @@ export interface Parser<T> {
   getRealToBootTimeOffsetNs(): bigint | undefined;
   createTimestamps(): void;
   canConvertToPerfetto(): boolean;
+  getRectsMap?(): Promise<RectsForTrace | undefined>;
   convertToPerfettoPackets?(
     sequenceId: number,
     trustedUid?: number,
     trustedPid?: number,
-  ): perfetto.protos.TracePacket[];
+  ): TracePacket[];
   isPerfetto(): boolean;
 }

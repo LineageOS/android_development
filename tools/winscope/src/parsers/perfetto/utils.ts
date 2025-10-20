@@ -21,7 +21,7 @@ import {
   assertString,
   assertStringOrUndefined,
   assertTrue,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {MissingVsyncId} from 'messaging/user_warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';

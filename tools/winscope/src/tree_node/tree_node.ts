@@ -16,6 +16,9 @@
 
 import {Item} from './item';
 
+/**
+ * A node in a tree.
+ */
 export abstract class TreeNode implements Item {
   protected children: this[] = [];
 
@@ -59,9 +62,9 @@ export abstract class TreeNode implements Item {
         this.children[i].forEachNodeDfs(callback, reverseChildren);
       }
     } else {
-      this.children.forEach((child) =>
-        child.forEachNodeDfs(callback, reverseChildren),
-      );
+      this.children.forEach((child) => {
+        child.forEachNodeDfs(callback, reverseChildren);
+      });
     }
   }
 

@@ -19,7 +19,7 @@ import {Point3D} from './point3d';
 /**
  * Represents a 3D circle.
  */
-export interface Circle3D {
+export declare interface Circle3D {
   radius: number;
   center: Point3D;
 }

@@ -23,45 +23,53 @@
 
 $typography: mat.m2-define-typography-config(
   $font-family: 'Roboto, sans-serif',
-  $headline-1: mat.m2-define-typography-level(
+  $headline-1:
+    mat.m2-define-typography-level(
       $font-size: 24px,
       $letter-spacing: normal,
       $font-weight: 400,
     ),
-  $headline-2: mat.m2-define-typography-level(
+  $headline-2:
+    mat.m2-define-typography-level(
       $font-size: 20px,
       $letter-spacing: normal,
       $font-weight: 500,
     ),
-  $headline-6: mat.m2-define-typography-level(
+  $headline-6:
+    mat.m2-define-typography-level(
       $font-size: 20px,
       $letter-spacing: normal,
       $font-weight: 500,
     ),
-  $subtitle-1: mat.m2-define-typography-level(
+  $subtitle-1:
+    mat.m2-define-typography-level(
       $font-size: 16px,
       $line-height: 28px,
       $letter-spacing: normal,
       $font-weight: 400,
     ),
-  $subtitle-2: mat.m2-define-typography-level(
+  $subtitle-2:
+    mat.m2-define-typography-level(
       $font-size: 20px,
       $letter-spacing: normal,
       $font-weight: 400,
     ),
-  $body-1: mat.m2-define-typography-level(
+  $body-1:
+    mat.m2-define-typography-level(
       $font-size: 14px,
       $line-height: 20px,
       $letter-spacing: normal,
       $font-weight: 400,
     ),
-  $body-2: mat.m2-define-typography-level(
+  $body-2:
+    mat.m2-define-typography-level(
       $font-size: 14px,
       $line-height: 20px,
       $letter-spacing: normal,
       $font-weight: 500,
     ),
-  $button: mat.m2-define-typography-level(
+  $button:
+    mat.m2-define-typography-level(
       $font-size: 14px,
       $letter-spacing: normal,
       $font-weight: 500,
@@ -103,10 +111,7 @@ $dark-theme: mat.m2-define-dark-theme(
   $contrast-config: mat.m2-get-color-config($contrast-theme);
   $contrast-background: map.get($contrast-config, background);
   & {
-    --background-color: #{mat.m2-get-color-from-palette(
-        $background,
-        background
-      )};
+    --background-color: #{mat.m2-get-color-from-palette($background, background)};
     --contrast-background-color: #{mat.m2-get-color-from-palette(
         $contrast-background,
         background
@@ -177,9 +182,10 @@ $dark-theme: mat.m2-define-dark-theme(
 .file-name-input-field {
   @include mat.form-field-overrides(
     (
-      container-height: 36px,
-      filled-with-label-container-padding-top: 12px,
-      filled-with-label-container-padding-bottom: 8px,
+      container-height: 32px,
+      filled-with-label-container-padding-top: 8px,
+      filled-with-label-container-padding-bottom: 0px,
+      filled-container-shape: 0px,
     )
   );
 }
@@ -299,15 +305,28 @@ $dark-theme: mat.m2-define-dark-theme(
     touch-target-display: -1,
   )
 );
+.toolbar {
+  @include mat.icon-button-density(-5);
+};
 .no-touch-target-button,
 .rect-legend,
 .search-box,
-.listed-search-option {
+.listed-search-option,
+.toolbar {
   @include mat.icon-button-overrides(
     (
       touch-target-display: none,
     )
   );
+}
+
+.playback-speed-selector .mat-mdc-select-arrow{
+  rotate: 180deg;
+}
+
+.playback-speed-selector .mat-mdc-select-value{
+  text-align: right;
+  padding-right: 7px;
 }
 
 @include mat.icon-theme($light-theme);
@@ -329,7 +348,15 @@ $dark-theme: mat.m2-define-dark-theme(
 @include mat.slider-theme($light-theme);
 @include mat.snack-bar-theme($light-theme);
 @include mat.tabs-theme($light-theme);
+
 @include mat.toolbar-theme($light-theme);
+@include mat.toolbar-overrides(
+  (
+    standard-height: 32px,
+    mobile-height: 32px,
+  )
+);
+
 @include mat.tooltip-theme($light-theme);
 
 @mixin winscope-color-overrides() {
@@ -388,11 +415,8 @@ $dark-theme: mat.m2-define-dark-theme(
 }
 
 body {
-  background-color: var(
-    --mat-app-background-color,
-    var(--mat-sys-background, transparent)
-  );
-  color: var(--mat-app-text-color, var(--mat-sys-on-background, inherit));
+  background-color: var(--background-color, transparent);
+  color: var(--default-text-color, inherit);
 }
 
 body:not(.dark-mode) {
@@ -410,6 +434,7 @@ body:not(.dark-mode) {
   --gray-text-color: #7f7f7f;
   --green-text-color: #4e9c00;
   --hover-element-color: #eaeaea;
+  --logo-blue: #063C8C;
   --modified-element-color: #b8eaea;
   --overlay-panel-background-color: white;
   --primary: #{mat.m2-get-color-from-palette(mat.$m2-blue-palette, 700)};
@@ -452,6 +477,7 @@ body.dark-mode {
   --gray-text-color: #aeaeae;
   --green-text-color: #6ad400;
   --hover-element-color: #656565;
+  --logo-blue: #3995D7;
   --modified-element-color: #619696;
   --overlay-panel-background-color: #424242;
   --primary: #{mat.m2-get-color-from-palette(mat.$m2-blue-palette, 400)};

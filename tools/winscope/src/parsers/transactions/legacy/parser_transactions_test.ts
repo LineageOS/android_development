@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
+import {
+  makeRealTimestamp,
+  makeElapsedTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Parser} from 'trace_api/parser';
@@ -50,12 +51,12 @@ describe('ParserTransactions', () => {
     it('provides timestamps', () => {
       const timestamps = assertDefined(parser.getTimestamps());
 
-      expect(timestamps.length).toEqual(712);
+      expect(timestamps.length).toBe(712);
 
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1659507541051480997n),
-        TimestampConverterUtils.makeRealTimestamp(1659507541118452067n),
-        TimestampConverterUtils.makeRealTimestamp(1659507542621651001n),
+        makeRealTimestamp(1659507541051480997n),
+        makeRealTimestamp(1659507541118452067n),
+        makeRealTimestamp(1659507542621651001n),
       ];
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
@@ -66,11 +67,11 @@ describe('ParserTransactions', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = parser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(712);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
-      expect(
-        packets[0].surfaceflingerTransactions?.transactions?.length,
-      ).toEqual(2);
+      expect(packets.length).toBe(712);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].surfaceflingerTransactions?.transactions?.length).toBe(
+        2,
+      );
       expect(packets[0].timestamp).toEqual(
         Long.fromString(BigInt(2450981445).toString()),
       );
@@ -92,12 +93,12 @@ describe('ParserTransactions', () => {
       it('provides timestamps', () => {
         const timestamps = assertDefined(perfettoParser.getTimestamps());
 
-        expect(timestamps.length).toEqual(712);
+        expect(timestamps.length).toBe(712);
 
         const expected = [
-          TimestampConverterUtils.makeRealTimestamp(1659507541051480997n),
-          TimestampConverterUtils.makeRealTimestamp(1659507541118452067n),
-          TimestampConverterUtils.makeRealTimestamp(1659507542621651001n),
+          makeRealTimestamp(1659507541051480997n),
+          makeRealTimestamp(1659507541118452067n),
+          makeRealTimestamp(1659507542621651001n),
         ];
         expect(timestamps.slice(0, 3)).toEqual(expected);
       });
@@ -111,13 +112,13 @@ describe('ParserTransactions', () => {
               .slice(0, 2)
               .map((child) => child.getAllProperties()),
           );
-          expect(transaction0.getChildByName('what')?.formattedValue()).toEqual(
+          expect(transaction0.getChildByName('what')?.formattedValue()).toBe(
             'eLayerChanged',
           );
 
-          expect(
-            transaction1?.getChildByName('what')?.formattedValue(),
-          ).toEqual('eFlagsChanged | eDestinationFrameChanged');
+          expect(transaction1?.getChildByName('what')?.formattedValue()).toBe(
+            'eFlagsChanged | eDestinationFrameChanged',
+          );
         }
         {
           // translates upper and lower bits
@@ -125,7 +126,7 @@ describe('ParserTransactions', () => {
           const transaction = await entry
             .getAllChildren()[42]
             .getAllProperties();
-          expect(transaction.getChildByName('what')?.formattedValue()).toEqual(
+          expect(transaction.getChildByName('what')?.formattedValue()).toBe(
             'eLayerStackChanged | eDisplayProjectionChanged | eFlagsChanged',
           );
         }
@@ -161,23 +162,23 @@ describe('ParserTransactions', () => {
     it('provides timestamps', () => {
       const timestamps = assertDefined(parser.getTimestamps());
 
-      expect(timestamps.length).toEqual(4997);
+      expect(timestamps.length).toBe(4997);
 
       const expected = [
-        TimestampConverterUtils.makeElapsedTimestamp(14862317023n),
-        TimestampConverterUtils.makeElapsedTimestamp(14873423549n),
-        TimestampConverterUtils.makeElapsedTimestamp(14884850511n),
+        makeElapsedTimestamp(14862317023n),
+        makeElapsedTimestamp(14873423549n),
+        makeElapsedTimestamp(14884850511n),
       ];
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
 
     it('converts to valid perfetto packets', async () => {
       const packets = parser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(4997);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
-      expect(
-        packets[0].surfaceflingerTransactions?.transactions?.length,
-      ).toEqual(1);
+      expect(packets.length).toBe(4997);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].surfaceflingerTransactions?.transactions?.length).toBe(
+        1,
+      );
       expect(packets[0].timestamp).toEqual(
         Long.fromString(BigInt(14862317023).toString()),
       );

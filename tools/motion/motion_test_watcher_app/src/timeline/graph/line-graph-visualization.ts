@@ -1,71 +1,73 @@
-import { Visualization, DataPoint, COLORS } from './visualization';
+import { COLORS, ValueDataPoint, Visualization } from './visualization';
 import * as d3 from 'd3';
 import { PreviewService } from '../../service/preview.service';
-import { MotionGolden, DataSource } from '../../model/golden';
+import { DataSource } from '../../model/golden';
 
-export class LineGraphVisualization implements Visualization {
-  minValue: number;
-  maxValue: number;
+export abstract class LineGraphVisualization implements Visualization {
+
   graphId: string;
+  valueOfUndefinedNumber: number;
   dataSource: DataSource | null = null;
   viewSelectedCurrentFrame: number = 0;
   // TODO Can't seem to select the graph with id while updating the marker.
   // Using a global variable of type `any` is ofc a bad idea for this. Using this
   // as temp fix. Hope I don't still see this here in 6 months
-  graph: any;
+  graph: d3.Selection<SVGGElement, unknown, null, undefined> | any;
 
   margin = { top: 20, right: 20, bottom: 30, left: 50 };
   chartWidth = 0;
   chartHeight = 0;
+  legendMarginBottom = 50;
   xScale = d3.scaleLinear();
-  yScale = d3.scaleLinear();
   solidLineLegend: string = '';
-  dottedLineLegend: string ='';
+  dottedLineLegend: string = '';
+  undefinedExpectedLegend: string = "Undefined Expected";
+  undefinedActualLegend: string = "Undefined Actual";
   firstValidDataPoint: number = 0;
   currentShowMarkerState: boolean = true;
 
+  abstract yScale: d3.ScalePoint<string> | d3.ScaleLinear<number, number>;
+  protected abstract createYScale(data: ValueDataPoint[]): void;
+  protected abstract yScaleFunction: (val: number | string) => number;
+  protected abstract getYAxis(): d3.Axis<d3.NumberValue> | d3.Axis<string>;
+
   constructor(
-    minValue: number,
-    maxValue: number,
     graphId: string,
-    private previewService: PreviewService,
-    dataSource: DataSource | null = null
+    protected previewService: PreviewService,
+    dataSource: DataSource | null = null,
+    valueOfUndefinedNumber: number
   ) {
-    this.minValue = minValue;
-    this.maxValue = maxValue;
+    this.valueOfUndefinedNumber = valueOfUndefinedNumber;
     this.graphId = graphId;
-    this.dataSource= dataSource;
+    this.dataSource = dataSource;
     this.previewService.currentFrameFromView$.subscribe((frame) => {
       if (this.viewSelectedCurrentFrame === frame) return;
       this.viewSelectedCurrentFrame = frame ? frame : 0;
       this.updateMarker();
     });
-    this.previewService.showMarker$.subscribe((showMarker) =>{
-      this.currentShowMarkerState= showMarker;
+    this.previewService.showMarker$.subscribe((showMarker) => {
+      this.currentShowMarkerState = showMarker;
       this.graph.selectAll('.currentFrameLine').remove();
-      if(!showMarker) return;
+      if (!showMarker) return;
       this.addMarker(this.graph, this.xScale(this.firstValidDataPoint));
     });
   }
 
   render(
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-    data: DataPoint[],
+    data: ValueDataPoint[],
     width: number,
     height: number
   ): void {
     this.chartWidth = width - this.margin.left - this.margin.right;
-    this.chartHeight = height - this.margin.top - this.margin.bottom;
+    this.chartHeight = height - this.margin.top - this.margin.bottom - this.legendMarginBottom;
 
     this.xScale = d3
       .scaleLinear()
       .domain(d3.extent(data, (d) => d.x) as [number, number])
       .range([0, this.chartWidth]);
 
-    this.yScale = d3
-      .scaleLinear()
-      .domain([this.minValue, this.maxValue])
-      .range([this.chartHeight, 0]);
+    this.createYScale(data);
 
     const g = svg
       .append('g')
@@ -79,73 +81,77 @@ export class LineGraphVisualization implements Visualization {
     this.firstValidDataPoint = data[1]?.x ?? 0;
 
     this.drawAxes(g);
-    this.drawExpected(g, data);
-    this.drawActual(g, data);
+    this.drawExpected(g, data, this.yScaleFunction);
+    this.drawActual(g, data, this.yScaleFunction);
     this.drawLegend(g);
-    this.drawHover(g, data);
+    this.drawHover(g, data, this.yScaleFunction);
     if (this.currentShowMarkerState) {
       this.addMarker(g, this.xScale(this.firstValidDataPoint));
     }
   }
 
-  private drawAxes(g: d3.Selection<SVGGElement, unknown, null, undefined>) {
+  protected drawAxes(g: d3.Selection<SVGGElement, unknown, null, undefined>) {
     const xAxis = d3.axisBottom(this.xScale);
-    const currentYAxisTicks = this.yScale.ticks().length;
-    const newYAxisTicks = Math.max(1, Math.floor(currentYAxisTicks / 2));
-    const yAxis = d3.axisLeft(this.yScale)
-                    .ticks(newYAxisTicks);
-    const xAxisGroup= g.append('g')
+    const xAxisGroup = g.append('g')
       .attr('class', 'x axis')
       .attr('transform', `translate(0, ${this.chartHeight})`)
       .call(xAxis);
-      xAxisGroup.selectAll('path').attr('stroke', COLORS.gray); // Main axis line
-      xAxisGroup.selectAll('line').attr('stroke', COLORS.gray); // Tick marks
-      xAxisGroup.selectAll('text').attr('fill', COLORS.gray); // Labels
 
-    const yAxisGroup= g.append('g')
+    // Apply X-Axis Styling
+    xAxisGroup.selectAll('path').attr('stroke', COLORS.gray);
+    xAxisGroup.selectAll('line').attr('stroke', COLORS.gray);
+    xAxisGroup.selectAll('text').attr('fill', COLORS.gray);
+
+    const yAxis = this.getYAxis();
+    const yAxisGroup = g.append('g')
       .attr('class', 'y axis')
       .call(yAxis);
-      yAxisGroup.selectAll('path').attr('stroke', COLORS.gray); // Main axis line
-      yAxisGroup.selectAll('line').attr('stroke', COLORS.gray); // Tick marks
-      yAxisGroup.selectAll('text').attr('fill', COLORS.gray); // Labels
+
+    // Apply Y-Axis Styling
+    yAxisGroup.selectAll('path').attr('stroke', COLORS.gray);
+    yAxisGroup.selectAll('line').attr('stroke', COLORS.gray);
+    yAxisGroup.selectAll('text').attr('fill', COLORS.gray);
   }
 
-  private drawExpected(
+  protected drawExpected(
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
-    data: DataPoint[]
+    data: ValueDataPoint[],
+    yScaleFunc: (x: string | number) => number
   ) {
     const expectedLine = d3
-      .line<DataPoint>()
+      .line<ValueDataPoint>()
       .x((d) => this.xScale(d.x))
-      .y((d) => this.yScale(d.expectedValue as number))
-      .defined(d => d.expectedValue != null && typeof d.expectedValue === 'number')
+      .y((d) => yScaleFunc(d.expectedValue as number | string))
+      .defined(d => d.expectedValue != null &&
+        (typeof d.expectedValue === 'number' || typeof d.expectedValue === 'string'))
 
     g.append('path')
       .datum(data)
       .attr('fill', 'none')
-      .attr('stroke',COLORS.green)
+      .attr('stroke', COLORS.green)
       .attr('stroke-width', 2.4)
       .attr('stroke-dasharray', '10, 5')
       .attr('d', expectedLine);
 
     g.selectAll('.dot-expected')
-      .data(data.filter((d) => d.expectedValue !== undefined))
+      .data(data)
       .enter()
       .append('circle')
       .attr('class', 'dot-expected')
       .attr('cx', (d) => this.xScale(d.x))
-      .attr('cy', (d) => this.yScale(d.expectedValue || 0))
+      .attr('cy', (d) => yScaleFunc(d.expectedValue ?? this.valueOfUndefinedNumber))
       .attr('r', 5)
       .attr('fill', 'none')
-      .attr('stroke', COLORS.green)
+      .attr('stroke', (d) => d.expectedValue != undefined ? COLORS.green : COLORS.dark_gray)
       .attr('stroke-width', 2);
   }
 
-  private drawActual(
+  protected drawActual(
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
-    data: DataPoint[]
+    data: ValueDataPoint[],
+    yScaleFunc: (x: string | number) => number
   ) {
-    const isActualDifferentFromExpected = (d: DataPoint): boolean => {
+    const isActualDifferentFromExpected = (d: ValueDataPoint): boolean => {
       if (d.actualValue == null && d.expectedValue == null) {
         return false;
       }
@@ -165,33 +171,36 @@ export class LineGraphVisualization implements Visualization {
 
       g.append('line')
         .attr('x1', this.xScale(p1.x))
-        .attr('y1', this.yScale(p1.actualValue))
+        .attr('y1', yScaleFunc(p1.actualValue ?? this.valueOfUndefinedNumber))
         .attr('x2', this.xScale(p2.x))
-        .attr('y2', this.yScale(p2.actualValue))
+        .attr('y2', yScaleFunc(p2.actualValue ?? this.valueOfUndefinedNumber))
         .attr('stroke', segmentColor)
         .attr('stroke-width', 2.5)
     }
     g.selectAll('.dot-actual')
-      .data(data.filter((d) => d.actualValue !== undefined))
+      .data(data)
       .enter()
       .append('circle')
       .attr('class', 'dot-actual')
       .attr('cx', (d) => this.xScale(d.x))
-      .attr('cy', (d) => this.yScale(d.actualValue || 0))
+      .attr('cy', (d) => yScaleFunc(d.actualValue ?? this.valueOfUndefinedNumber))
       .attr('r', (d) => { return isActualDifferentFromExpected(d) ? 4 : 3 })
       .attr('fill', (d) => {
-        return isActualDifferentFromExpected(d) ? COLORS.red : COLORS.blue;
+        if (d.actualValue != undefined) {
+          return isActualDifferentFromExpected(d) ? COLORS.red : COLORS.blue;
+        }
+        return COLORS.dark_gray;
       })
   }
 
-  private drawLegend(g: d3.Selection<SVGGElement, unknown, null, undefined>) {
+  protected drawLegend(g: d3.Selection<SVGGElement, unknown, null, undefined>) {
     this.updateLegend();
     const legend = g
       .append('g')
       .attr('class', 'legend')
       .attr(
         'transform',
-        `translate(${this.chartWidth - 100}, ${this.chartHeight - 100})`
+        `translate(0, ${this.chartHeight + this.legendMarginBottom})`
       );
 
     legend
@@ -221,25 +230,56 @@ export class LineGraphVisualization implements Visualization {
 
     legend
       .append('line')
-      .attr('x1', 0)
-      .attr('y1', 20)
-      .attr('x2', 20)
-      .attr('y2', 20)
+      .attr('x1', 85)
+      .attr('y1', 0)
+      .attr('x2', 105)
+      .attr('y2', 0)
       .attr('stroke', COLORS.green)
       .attr('stroke-dasharray', '8, 3')
       .attr('stroke-width', 2.5);
 
     legend
       .append('text')
-      .attr('x', 25)
-      .attr('y', 20)
+      .attr('x', 110)
+      .attr('y', 0)
       .text(this.dottedLineLegend)
+      .attr('alignment-baseline', 'middle');
+
+    legend
+      .append('circle')
+      .attr('r', 5)
+      .attr('cx', 195)
+      .attr('cy', 0)
+      .attr('fill', 'none')
+      .attr('stroke', COLORS.dark_gray)
+      .attr('stroke-width', 2);
+
+    legend
+      .append('text')
+      .attr('x', 205)
+      .attr('y', 0)
+      .text(this.undefinedExpectedLegend)
+      .attr('alignment-baseline', 'middle');
+
+    legend
+      .append('circle')
+      .attr('r', 4)
+      .attr('cx', 365)
+      .attr('cy', 0)
+      .attr('fill', COLORS.dark_gray)
+
+    legend
+      .append('text')
+      .attr('x', 375)
+      .attr('y', 0)
+      .text(this.undefinedActualLegend)
       .attr('alignment-baseline', 'middle');
   }
 
-  private drawHover(
+  protected drawHover(
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
-    data: DataPoint[]
+    data: ValueDataPoint[],
+    yScaleFunc: (x: string | number) => number
   ) {
     const YmarkerLine = g
       .append('line')
@@ -318,7 +358,7 @@ export class LineGraphVisualization implements Visualization {
 
           tooltip.attr(
             'transform',
-            `translate(${tooltipX},${this.yScale(dataPoint.actualValue || 0)})`
+            `translate(${tooltipX},${yScaleFunc(dataPoint.actualValue ?? this.valueOfUndefinedNumber)})`
           );
 
           tooltip.style('display', 'block');
@@ -328,7 +368,7 @@ export class LineGraphVisualization implements Visualization {
       });
   }
 
-  private getDataPointAtX(x: number, data: DataPoint[]): DataPoint | null {
+  protected getDataPointAtX(x: number, data: ValueDataPoint[]): ValueDataPoint | null {
     const xValue = this.xScale.invert(x);
     let closestDataPoint = null;
     let minDistance = Infinity;
@@ -343,7 +383,7 @@ export class LineGraphVisualization implements Visualization {
     return closestDataPoint;
   }
 
-  private addMarker(
+  protected addMarker(
     g: d3.Selection<SVGGElement, unknown, null, undefined>,
     xPos: number
   ): void {
@@ -358,7 +398,7 @@ export class LineGraphVisualization implements Visualization {
       .attr('stroke-linecap', 'butt')
   }
 
-  private updateMarker(): void {
+  protected updateMarker(): void {
     if (!this.graph) return;
     this.graph.selectAll('.currentFrameLine').remove();
     const xPos = this.xScale(this.viewSelectedCurrentFrame);
@@ -367,8 +407,8 @@ export class LineGraphVisualization implements Visualization {
     }
   }
 
-  private updateLegend(): void{
-    switch(this.dataSource){
+  protected updateLegend(): void {
+    switch (this.dataSource) {
       case DataSource.GERRIT:
         this.solidLineLegend = 'Right';
         this.dottedLineLegend = 'Left';

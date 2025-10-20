@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {
   extractEntries as extractTraceEntries,
   makeEmptyTrace,
-} from 'test/unit/trace_utils';
+} from 'test/unit/trace_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {
   extractEntries,
   extractFrames,
   extractTraces,
-} from 'test/unit/traces_utils';
+} from 'test/unit/traces_test_helpers';
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';
 import {TraceType} from './trace_type';
@@ -36,21 +35,69 @@ import {Traces} from './traces';
 describe('Traces', () => {
   let traces: Traces;
 
-  const time1 = TimestampConverterUtils.makeRealTimestamp(1n);
-  const time2 = TimestampConverterUtils.makeRealTimestamp(2n);
-  const time3 = TimestampConverterUtils.makeRealTimestamp(3n);
-  const time4 = TimestampConverterUtils.makeRealTimestamp(4n);
-  const time5 = TimestampConverterUtils.makeRealTimestamp(5n);
-  const time6 = TimestampConverterUtils.makeRealTimestamp(6n);
-  const time7 = TimestampConverterUtils.makeRealTimestamp(7n);
-  const time8 = TimestampConverterUtils.makeRealTimestamp(8n);
-  const time9 = TimestampConverterUtils.makeRealTimestamp(9n);
-  const time10 = TimestampConverterUtils.makeRealTimestamp(10n);
+  const time1 = makeRealTimestamp(1n);
+  const time2 = makeRealTimestamp(2n);
+  const time3 = makeRealTimestamp(3n);
+  const time4 = makeRealTimestamp(4n);
+  const time5 = makeRealTimestamp(5n);
+  const time6 = makeRealTimestamp(6n);
+  const time7 = makeRealTimestamp(7n);
+  const time8 = makeRealTimestamp(8n);
+  const time9 = makeRealTimestamp(9n);
+  const time10 = makeRealTimestamp(10n);
 
-  let extractedEntriesEmpty: Map<TraceType, Array<{}>>;
-  let extractedEntriesFull: Map<TraceType, Array<{}>>;
-  let extractedFramesEmpty: Map<AbsoluteFrameIndex, Map<TraceType, Array<{}>>>;
-  let extractedFramesFull: Map<AbsoluteFrameIndex, Map<TraceType, Array<{}>>>;
+  const extractedEntriesEmpty: ReadonlyMap<TraceType, Array<{}>> = new Map([
+    [TraceType.TEST_TRACE_STRING, []],
+    [TraceType.TEST_TRACE_NUMBER, []],
+  ]);
+  const extractedEntriesFull: ReadonlyMap<TraceType, Array<{}>> = new Map([
+    [TraceType.TEST_TRACE_STRING, ['0', '1', '2', '3', '4']],
+    [TraceType.TEST_TRACE_NUMBER, [0, 1, 2, 3, 4]],
+  ]);
+  const extractedFramesEmpty: ReadonlyMap<
+    AbsoluteFrameIndex,
+    Map<TraceType, Array<{}>>
+  > = new Map();
+  const extractedFramesFull: ReadonlyMap<
+    AbsoluteFrameIndex,
+    Map<TraceType, Array<{}>>
+  > = new Map([
+    [
+      0,
+      new Map<TraceType, Array<{}>>([
+        [TraceType.TEST_TRACE_STRING, ['0']],
+        [TraceType.TEST_TRACE_NUMBER, [0]],
+      ]),
+    ],
+    [
+      1,
+      new Map<TraceType, Array<{}>>([
+        [TraceType.TEST_TRACE_STRING, ['1', '2']],
+        [TraceType.TEST_TRACE_NUMBER, [1]],
+      ]),
+    ],
+    [
+      2,
+      new Map<TraceType, Array<{}>>([
+        [TraceType.TEST_TRACE_STRING, ['3']],
+        [TraceType.TEST_TRACE_NUMBER, [2, 3]],
+      ]),
+    ],
+    [
+      3,
+      new Map<TraceType, Array<{}>>([
+        [TraceType.TEST_TRACE_STRING, ['4']],
+        [TraceType.TEST_TRACE_NUMBER, [4]],
+      ]),
+    ],
+    [
+      4,
+      new Map<TraceType, Array<{}>>([
+        [TraceType.TEST_TRACE_STRING, ['4']],
+        [TraceType.TEST_TRACE_NUMBER, [4]],
+      ]),
+    ],
+  ]);
 
   beforeAll(() => {
     // Time:               1  2  3  4  5  6  7  8  9 10
@@ -88,61 +135,6 @@ describe('Traces', () => {
         .setFrame(4, 3)
         .setFrame(4, 4)
         .build(),
-    );
-
-    extractedEntriesEmpty = new Map<TraceType, Array<{}>>([
-      [TraceType.TEST_TRACE_STRING, []],
-      [TraceType.TEST_TRACE_NUMBER, []],
-    ]);
-
-    extractedEntriesFull = new Map<TraceType, Array<{}>>([
-      [TraceType.TEST_TRACE_STRING, ['0', '1', '2', '3', '4']],
-      [TraceType.TEST_TRACE_NUMBER, [0, 1, 2, 3, 4]],
-    ]);
-
-    extractedFramesEmpty = new Map<
-      AbsoluteFrameIndex,
-      Map<TraceType, Array<{}>>
-    >();
-
-    extractedFramesFull = new Map<
-      AbsoluteFrameIndex,
-      Map<TraceType, Array<{}>>
-    >();
-    extractedFramesFull.set(
-      0,
-      new Map<TraceType, Array<{}>>([
-        [TraceType.TEST_TRACE_STRING, ['0']],
-        [TraceType.TEST_TRACE_NUMBER, [0]],
-      ]),
-    );
-    extractedFramesFull.set(
-      1,
-      new Map<TraceType, Array<{}>>([
-        [TraceType.TEST_TRACE_STRING, ['1', '2']],
-        [TraceType.TEST_TRACE_NUMBER, [1]],
-      ]),
-    );
-    extractedFramesFull.set(
-      2,
-      new Map<TraceType, Array<{}>>([
-        [TraceType.TEST_TRACE_STRING, ['3']],
-        [TraceType.TEST_TRACE_NUMBER, [2, 3]],
-      ]),
-    );
-    extractedFramesFull.set(
-      3,
-      new Map<TraceType, Array<{}>>([
-        [TraceType.TEST_TRACE_STRING, ['4']],
-        [TraceType.TEST_TRACE_NUMBER, [4]],
-      ]),
-    );
-    extractedFramesFull.set(
-      4,
-      new Map<TraceType, Array<{}>>([
-        [TraceType.TEST_TRACE_STRING, ['4']],
-        [TraceType.TEST_TRACE_NUMBER, [4]],
-      ]),
     );
   });
 
@@ -205,12 +197,16 @@ describe('Traces', () => {
     // empty
     {
       const slice = traces.sliceTime(time3, time3);
-      expect(await extractEntries(slice)).toEqual(extractedEntriesEmpty);
+      expect(await extractEntries(slice)).toEqual(
+        new Map(extractedEntriesEmpty),
+      );
     }
     // full
     {
       const slice = traces.sliceTime();
-      expect(await extractEntries(slice)).toEqual(extractedEntriesFull);
+      expect(await extractEntries(slice)).toEqual(
+        new Map(extractedEntriesFull),
+      );
     }
     // middle
     {
@@ -248,36 +244,49 @@ describe('Traces', () => {
     // empty
     {
       const slice = traces.sliceFrames(1, 1);
-      expect(await extractFrames(slice)).toEqual(extractedFramesEmpty);
+      expect(await extractFrames(slice)).toEqual(new Map(extractedFramesEmpty));
     }
     // full
     {
       const slice = traces.sliceFrames();
-      expect(await extractFrames(slice)).toEqual(extractedFramesFull);
+      expect(await extractFrames(slice)).toEqual(new Map(extractedFramesFull));
     }
     // middle
     {
       const slice = traces.sliceFrames(1, 4);
-      const expectedFrames = structuredClone(extractedFramesFull);
-      expectedFrames.delete(0);
-      expectedFrames.delete(4);
+      const expectedFrames: Map<
+        AbsoluteFrameIndex,
+        Map<TraceType, Array<{}>>
+      > = new Map([
+        [1, assertDefined(extractedFramesFull.get(1))],
+        [2, assertDefined(extractedFramesFull.get(2))],
+        [3, assertDefined(extractedFramesFull.get(3))],
+      ]);
       expect(await extractFrames(slice)).toEqual(expectedFrames);
     }
     // slice away front
     {
       const slice = traces.sliceFrames(2);
-      const expectedFrames = structuredClone(extractedFramesFull);
-      expectedFrames.delete(0);
-      expectedFrames.delete(1);
+      const expectedFrames: Map<
+        AbsoluteFrameIndex,
+        Map<TraceType, Array<{}>>
+      > = new Map([
+        [2, assertDefined(extractedFramesFull.get(2))],
+        [3, assertDefined(extractedFramesFull.get(3))],
+        [4, assertDefined(extractedFramesFull.get(4))],
+      ]);
       expect(await extractFrames(slice)).toEqual(expectedFrames);
     }
     // slice away back
     {
       const slice = traces.sliceFrames(undefined, 2);
-      const expectedFrames = structuredClone(extractedFramesFull);
-      expectedFrames.delete(2);
-      expectedFrames.delete(3);
-      expectedFrames.delete(4);
+      const expectedFrames: Map<
+        AbsoluteFrameIndex,
+        Map<TraceType, Array<{}>>
+      > = new Map([
+        [0, assertDefined(extractedFramesFull.get(0))],
+        [1, assertDefined(extractedFramesFull.get(1))],
+      ]);
       expect(await extractFrames(slice)).toEqual(expectedFrames);
     }
   });
@@ -292,7 +301,7 @@ describe('Traces', () => {
   });
 
   it('mapFrame()', async () => {
-    expect(await extractFrames(traces)).toEqual(extractedFramesFull);
+    expect(await extractFrames(traces)).toEqual(new Map(extractedFramesFull));
   });
 
   it('supports empty traces', async () => {
@@ -310,21 +319,23 @@ describe('Traces', () => {
       )
       .build();
 
-    expect(await extractEntries(traces)).toEqual(extractedEntriesEmpty);
-    expect(await extractFrames(traces)).toEqual(extractedFramesEmpty);
+    expect(await extractEntries(traces)).toEqual(
+      new Map(extractedEntriesEmpty),
+    );
+    expect(await extractFrames(traces)).toEqual(new Map(extractedFramesEmpty));
 
     expect(await extractEntries(traces.sliceTime(time1, time10))).toEqual(
-      extractedEntriesEmpty,
+      new Map(extractedEntriesEmpty),
     );
     expect(await extractFrames(traces.sliceTime(time1, time10))).toEqual(
-      extractedFramesEmpty,
+      new Map(extractedFramesEmpty),
     );
 
     expect(await extractEntries(traces.sliceFrames(0, 10))).toEqual(
-      extractedEntriesEmpty,
+      new Map(extractedEntriesEmpty),
     );
     expect(await extractFrames(traces.sliceFrames(0, 10))).toEqual(
-      extractedFramesEmpty,
+      new Map(extractedFramesEmpty),
     );
   });
 
@@ -351,10 +362,10 @@ describe('Traces', () => {
       traces.sliceFrames();
     }).toThrow();
     expect(() => {
-      traces.forEachFrame(FunctionUtils.DO_NOTHING);
+      traces.forEachFrame(() => {});
     }).toThrow();
     expect(() => {
-      traces.mapFrame(FunctionUtils.DO_NOTHING);
+      traces.mapFrame(() => {});
     }).toThrow();
   });
 

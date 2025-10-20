@@ -34,13 +34,8 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {equal} from 'common/array_utils';
-import {
-  assertDefined,
-  assertTrue,
-  assertUnreachable,
-} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {equal} from 'common/typed_array';
+import {assertDefined, assertTrue, assertUnreachable} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
@@ -87,6 +82,9 @@ import {
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 
+/**
+ * A component for collecting traces from an Android device.
+ */
 @Component({
   selector: 'collect-traces',
   standalone: true,
@@ -111,193 +109,215 @@ import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
         <mat-card-title class="title">Collect Traces</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content *ngIf="controller" class="collect-card-content">
-        <mat-form-field class="connection-type mat-form-field-appearance-none">
-          <mat-label>Select connection type</mat-label>
-          <mat-select
-            [value]="getConnectionType()"
-            (selectionChange)="onConnectionChange($event)"
-            [disabled]="disableTraceSection()">
-            <mat-option [value]="AdbConnectionType.WINSCOPE_PROXY">
-                <span>{{AdbConnectionType.WINSCOPE_PROXY}}</span>
-              </mat-option>
-            <mat-option [value]="AdbConnectionType.WDP">
-                <span>{{AdbConnectionType.WDP}}</span>
-              </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <button
-          mat-icon-button
-          class="refresh-connection"
-          (click)="onRetryConnection()"
-          matTooltip="Refresh connection"><mat-icon>refresh</mat-icon></button>
-
-        <ng-container *ngIf="!adbSuccess()">
-          <winscope-proxy-setup
-            *ngIf="getConnectionType() === AdbConnectionType.WINSCOPE_PROXY"
-            [state]="state"
-            (retryConnection)="onRetryConnection($event)"></winscope-proxy-setup>
-          <wdp-setup
-            *ngIf="getConnectionType() === AdbConnectionType.WDP"
-            [state]="state"
-            (retryConnection)="onRetryConnection()"></wdp-setup>
-        </ng-container>
-
-        <div *ngIf="showAllDevices()" class="devices-connecting">
-          <div
-            *ngIf="controller.getDevices().length === 0"
-            class="no-device-detected">
-            <p class="mat-body-3 icon">
-              <mat-icon inline fontIcon="phonelink_erase"></mat-icon>
-            </p>
-            <p class="mat-body-1">No devices detected</p>
-          </div>
-          <div
-            *ngIf="controller.getDevices().length > 0"
-            class="device-selection">
-            <p class="mat-body-1 instruction">Select a device:</p>
-            <mat-action-list>
-              <mat-list-item
-                *ngFor="let device of controller.getDevices()"
-                [disabled]="device.state === ${AdbDeviceState.OFFLINE}"
-                (click)="onDeviceClick(device)"
-                class="available-device">
-                <mat-icon matListItemIcon>
-                  {{ getDeviceStateIcon(device.state) }}
-                </mat-icon>
-                <p matListItemTitle>
-                  {{ getDeviceName(device) }}
-                </p>
-                <mat-icon-button
-                  matListItemMeta
-                  *ngIf="showTryAuthorizeButton(device)"
-                  class="material-symbols-outlined authorize-btn"
-                  matTooltip="Authorize device"
-                  (click)="device.tryAuthorize()">
-                  <mat-icon>lock_open</mat-icon>
-                </mat-icon-button>
-              </mat-list-item>
-            </mat-action-list>
-          </div>
-        </div>
-
-        <div
-          *ngIf="showTraceCollectionConfig()"
-          class="trace-collection-config">
-          <div class="selected-device">
-            <div class="device-info">
-              <mat-icon>smartphone</mat-icon>
-              <p class="mat-body-1 name text-no-overflow">
-                {{ getSelectedDevice()}}
-              </p>
-            </div>
-
-            <div class="device-actions">
-              <button
-                color="primary"
-                class="change-btn"
-                mat-stroked-button
-                (click)="onChangeDeviceButton()"
-                [disabled]="isTracingOrLoading()">
-                Change device
-              </button>
-              <button
-                color="primary"
-                class="fetch-btn"
-                mat-stroked-button
-                (click)="fetchExistingTraces()"
-                [disabled]="isTracingOrLoading()">
-                Fetch traces from last session
-              </button>
-            </div>
-          </div>
-
-          <mat-tab-group [mat-stretch-tabs]="false" [selectedIndex]="targetTabIndex" class="target-tabs">
-            <mat-tab
-              label="Trace"
+      @if (controller) {
+        <mat-card-content class="collect-card-content">
+          <mat-form-field class="connection-type mat-form-field-appearance-none">
+            <mat-label>Select connection type</mat-label>
+            <mat-select
+              [value]="getConnectionType()"
+              (selectionChange)="onConnectionChange($event)"
               [disabled]="disableTraceSection()">
-              <div class="tabbed-section">
-                <div
-                  class="trace-section"
-                  *ngIf="state === ${ConnectionState.IDLE}">
-                  <trace-config
-                    title="Trace targets"
-                    [traceConfig]="traceConfig"
-                    [storage]="storage"
-                    [traceConfigStoreKey]="storeKeyPrefixTraceConfig"
-                    (traceConfigChange)="onTraceConfigChange($event)"></trace-config>
-                  <div class="start-btn">
-                    <button
-                      color="primary"
-                      mat-raised-button
-                      (click)="startTracing()">Start trace</button>
-                  </div>
-                </div>
+              <mat-option [value]="AdbConnectionType.WINSCOPE_PROXY">
+                  <span>{{AdbConnectionType.WINSCOPE_PROXY}}</span>
+                </mat-option>
+              <mat-option [value]="AdbConnectionType.WDP">
+                  <span>{{AdbConnectionType.WDP}}</span>
+                </mat-option>
+            </mat-select>
+          </mat-form-field>
 
-                <div *ngIf="isTracingOrLoading()" class="tracing-progress">
-                  <load-progress
-                    [icon]="progressIcon"
-                    [message]="progressMessage"
-                    [progressPercentage]="progressPercentage">
-                  </load-progress>
-                  <div class="end-btn" *ngIf="isTracing()">
-                    <button
-                      color="primary"
-                      mat-raised-button
-                      [disabled]="state !== ${ConnectionState.TRACING}"
-                      (click)="endTrace()">
-                      End trace
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </mat-tab>
-            <mat-tab
-              label="Dump"
-              [disabled]="isTracingOrLoading()">
-              <div class="tabbed-section">
-                <div
-                  class="dump-section"
-                  *ngIf="state === ${ConnectionState.IDLE} && !refreshDumps">
-                  <trace-config
-                    title="Dump targets"
-                    [traceConfig]="dumpConfig"
-                    [storage]="storage"
-                    [traceConfigStoreKey]="storeKeyPrefixDumpConfig"
-                    (traceConfigChange)="onDumpConfigChange($event)"></trace-config>
-                  <div class="dump-btn" *ngIf="!refreshDumps">
-                    <button
-                      color="primary"
-                      mat-raised-button
-                      (click)="dumpState()">Dump state</button>
-                  </div>
-                </div>
-
-                <load-progress
-                  class="dumping-state"
-                  *ngIf="isDumpingState()"
-                  [progressPercentage]="progressPercentage"
-                  [message]="progressMessage">
-                </load-progress>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
-        </div>
-
-        <div *ngIf="state === ${ConnectionState.ERROR}" class="unknown-error">
-          <p class="error-wrapper mat-body-1">
-            <mat-icon class="error-icon">error</mat-icon>
-            Error:
-          </p>
-          <pre> {{ errorText }} </pre>
           <button
-            color="primary"
-            class="retry-btn"
-            mat-raised-button
-            (click)="onRetryButton()">Retry</button>
-        </div>
-      </mat-card-content>
+            mat-icon-button
+            class="refresh-connection"
+            (click)="onRetryConnection()"
+            matTooltip="Refresh connection"><mat-icon>refresh</mat-icon></button>
+
+          @if (!adbSuccess()) {
+            @if (getConnectionType() === AdbConnectionType.WINSCOPE_PROXY) {
+              <winscope-proxy-setup
+                [state]="state"
+                (retryConnection)="onRetryConnection($event)"></winscope-proxy-setup>
+            }
+            @if (getConnectionType() === AdbConnectionType.WDP) {
+              <wdp-setup
+                [state]="state"
+                (retryConnection)="onRetryConnection()"></wdp-setup>
+            }
+          }
+
+          @if (showAllDevices()) {
+            <div class="devices-connecting">
+              @if (controller.getDevices().length === 0) {
+                <div
+                  class="no-device-detected">
+                  <p class="mat-body-3 icon">
+                    <mat-icon inline fontIcon="phonelink_erase"></mat-icon>
+                  </p>
+                  <p class="mat-body-1">No devices detected</p>
+                </div>
+              }
+              @if (controller.getDevices().length > 0) {
+                <div
+                  class="device-selection">
+                  <p class="mat-body-1 instruction">Select a device:</p>
+                  <mat-action-list>
+                    @for (device of controller.getDevices(); track device.id) {
+                      <mat-list-item
+                        [disabled]="device.state === ${AdbDeviceState.OFFLINE}"
+                        (click)="onDeviceClick(device)"
+                        class="available-device">
+                        <mat-icon matListItemIcon>
+                          {{ getDeviceStateIcon(device.state) }}
+                        </mat-icon>
+                        <p matListItemTitle>
+                          {{ getDeviceName(device) }}
+                        </p>
+                        @if (deviceNeedsAuthFromWinscope(device)) {
+                          <mat-icon-button
+                            matListItemMeta
+                            class="material-symbols-outlined authorize-btn"
+                            matTooltip="Authorize device"
+                            (click)="onAuthorizeButtonClick($event, device)">
+                            <mat-icon>lock_open</mat-icon>
+                          </mat-icon-button>
+                        }
+                      </mat-list-item>
+                    }
+                  </mat-action-list>
+                </div>
+              }
+            </div>
+          }
+
+          @if (showTraceCollectionConfig()) {
+            <div
+              class="trace-collection-config">
+              <div class="selected-device">
+                <div class="device-info">
+                  <mat-icon>smartphone</mat-icon>
+                  <p class="mat-body-1 name text-no-overflow">
+                    {{ getSelectedDevice()}}
+                  </p>
+                </div>
+
+                <div class="device-actions">
+                  <button
+                    color="primary"
+                    class="change-btn"
+                    mat-stroked-button
+                    (click)="onChangeDeviceButton()"
+                    [disabled]="isTracingOrLoading()">
+                    Change device
+                  </button>
+                  <button
+                    color="primary"
+                    class="fetch-btn"
+                    mat-stroked-button
+                    (click)="fetchExistingTraces()"
+                    [disabled]="isTracingOrLoading()">
+                    Fetch traces from last session
+                  </button>
+                </div>
+              </div>
+
+              <mat-tab-group [mat-stretch-tabs]="false" [selectedIndex]="targetTabIndex" class="target-tabs">
+                <mat-tab
+                  label="Trace"
+                  [disabled]="disableTraceSection()">
+                  <div class="tabbed-section">
+                    @if (state === ${ConnectionState.IDLE}) {
+                      <div
+                        class="trace-section">
+                        <trace-config
+                          title="Trace targets"
+                          [traceConfig]="traceConfig"
+                          [storage]="storage"
+                          [traceConfigStoreKey]="storeKeyPrefixTraceConfig"
+                          (traceConfigChange)="onTraceConfigChange($event)"></trace-config>
+                        <div class="start-btn">
+                          <button
+                            color="primary"
+                            mat-raised-button
+                            (click)="startTracing()">Start trace</button>
+                        </div>
+                      </div>
+                    }
+
+                    @if (isTracingOrLoading()) {
+                      <div class="tracing-progress">
+                        <load-progress
+                          [icon]="progressIcon"
+                          [message]="progressMessage"
+                          [progressPercentage]="progressPercentage">
+                        </load-progress>
+                        @if (isTracing()) {
+                          <div class="end-btn">
+                            <button
+                              color="primary"
+                              mat-raised-button
+                              [disabled]="state !== ${ConnectionState.TRACING}"
+                              (click)="endTrace()">
+                              End trace
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </mat-tab>
+                <mat-tab
+                  label="Dump"
+                  [disabled]="isTracingOrLoading()">
+                  <div class="tabbed-section">
+                    @if (state === ${ConnectionState.IDLE} && !refreshDumps) {
+                      <div
+                        class="dump-section">
+                        <trace-config
+                          title="Dump targets"
+                          [traceConfig]="dumpConfig"
+                          [storage]="storage"
+                          [traceConfigStoreKey]="storeKeyPrefixDumpConfig"
+                          (traceConfigChange)="onDumpConfigChange($event)"></trace-config>
+                        @if (!refreshDumps) {
+                          <div class="dump-btn">
+                            <button
+                              color="primary"
+                              mat-raised-button
+                              (click)="dumpState()">Dump state</button>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (isDumpingState()) {
+                      <load-progress
+                        class="dumping-state"
+                        [progressPercentage]="progressPercentage"
+                        [message]="progressMessage">
+                      </load-progress>
+                    }
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          }
+
+          @if (state === ${ConnectionState.ERROR}) {
+            <div class="unknown-error">
+              <p class="error-wrapper mat-body-1">
+                <mat-icon class="error-icon">error</mat-icon>
+                Error:
+              </p>
+              <pre> {{ errorText }} </pre>
+              <button
+                color="primary"
+                class="retry-btn"
+                mat-raised-button
+                (click)="onRetryButton()">Retry</button>
+            </div>
+          }
+        </mat-card-content>
+      }
     </mat-card>
   `,
   styles: [
@@ -466,7 +486,7 @@ export class CollectTracesComponent
   private readonly storeKeyAdbConnectionType = 'adbConnectionType';
 
   private selectedDevice: AdbDeviceConnection | undefined;
-  private emitEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitEvent: EmitEvent = () => Promise.resolve();
 
   private readonly notConnected = [
     ConnectionState.CONNECTING,
@@ -521,10 +541,22 @@ export class CollectTracesComponent
   }
 
   onDeviceClick(device: AdbDeviceConnection) {
+    if (this.deviceNeedsAuthFromWinscope(device)) {
+      device.tryAuthorize();
+      return;
+    }
+    if (device.getState() !== AdbDeviceState.AVAILABLE) {
+      return;
+    }
     this.selectedDevice = device;
     this.onDevicesChange(assertDefined(this.controller).getDevices());
     this.storage?.add(this.storeKeyLastDevice, device.id);
     this.changeDetectorRef.detectChanges();
+  }
+
+  onAuthorizeButtonClick(event: MouseEvent, device: AdbDeviceConnection) {
+    event.stopPropagation();
+    device.tryAuthorize();
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -758,7 +790,7 @@ export class CollectTracesComponent
     return device.getFormattedName();
   }
 
-  showTryAuthorizeButton(device: AdbDeviceConnection): boolean {
+  deviceNeedsAuthFromWinscope(device: AdbDeviceConnection): boolean {
     return (
       device.getState() === AdbDeviceState.UNAUTHORIZED &&
       this.getConnectionType() === AdbConnectionType.WDP

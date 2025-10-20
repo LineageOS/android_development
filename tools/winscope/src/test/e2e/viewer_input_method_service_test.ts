@@ -67,7 +67,7 @@ describe('Viewer Input Method Service', () => {
     const nodes = await element.all(
       by.css(`${viewerSelector} hierarchy-view .node`),
     );
-    expect(nodes.length).toEqual(4);
+    expect(nodes.length).toBe(4);
     expect(await nodes[0].getText()).toContain(
       'InputMethodService - 2022-11-21, 18:05:14.720 - InputMethodService#applyVisibilityInInsetsConsumerIfNecessary',
     );

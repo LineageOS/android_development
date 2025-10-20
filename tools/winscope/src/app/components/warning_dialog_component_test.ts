@@ -28,7 +28,7 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {
   WarningDialogComponent,
   WarningDialogData,

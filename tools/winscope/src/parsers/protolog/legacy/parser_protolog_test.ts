@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {utf8Encode} from 'common/string_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -135,7 +135,7 @@ abstract class ParserProtologTest {
           this.expectedConfig,
         );
         expect(viewerConfigPacket.trustedUid).toEqual(trustedUid);
-        expect(viewerConfigPacket.trustedPid).toEqual(0);
+        expect(viewerConfigPacket.trustedPid).toBe(0);
         expect(viewerConfigPacket.internedData).toBeNull();
         expect(viewerConfigPacket.protologMessage).toBeNull();
 
@@ -241,9 +241,9 @@ class ParserProtolog32Test extends ParserProtologTest {
     'traces/elapsed_and_real_timestamp/ProtoLog32.pb';
   override readonly timestampCount = 50;
   override readonly first3ExpectedRealTimestamps = [
-    TimestampConverterUtils.makeRealTimestamp(1655727125377266486n),
-    TimestampConverterUtils.makeRealTimestamp(1655727125377336718n),
-    TimestampConverterUtils.makeRealTimestamp(1655727125377350430n),
+    makeRealTimestamp(1655727125377266486n),
+    makeRealTimestamp(1655727125377336718n),
+    makeRealTimestamp(1655727125377350430n),
   ];
   override readonly expectedConfig = CONFIG_32;
   override readonly internedData1: ExpectedInternedData = {
@@ -292,9 +292,9 @@ class ParserProtolog64Test extends ParserProtologTest {
     'traces/elapsed_and_real_timestamp/ProtoLog64.pb';
   override readonly timestampCount = 4615;
   override readonly first3ExpectedRealTimestamps = [
-    TimestampConverterUtils.makeRealTimestamp(1709196806399529939n),
-    TimestampConverterUtils.makeRealTimestamp(1709196806399763866n),
-    TimestampConverterUtils.makeRealTimestamp(1709196806400297151n),
+    makeRealTimestamp(1709196806399529939n),
+    makeRealTimestamp(1709196806399763866n),
+    makeRealTimestamp(1709196806400297151n),
   ];
   override readonly expectedConfig = CONFIG_64;
   override readonly internedData1: ExpectedInternedData = {
@@ -342,9 +342,9 @@ class ParserProtologMissingConfigTest extends ParserProtologTest {
     'traces/elapsed_and_real_timestamp/ProtoLogMissingConfigMessage.pb';
   override readonly timestampCount = 7295;
   override readonly first3ExpectedRealTimestamps = [
-    TimestampConverterUtils.makeRealTimestamp(1669053909777144978n),
-    TimestampConverterUtils.makeRealTimestamp(1669053909778011697n),
-    TimestampConverterUtils.makeRealTimestamp(1669053909778800707n),
+    makeRealTimestamp(1669053909777144978n),
+    makeRealTimestamp(1669053909778011697n),
+    makeRealTimestamp(1669053909778800707n),
   ];
   override readonly expectedConfig = CONFIG_32;
   override readonly internedData1: ExpectedInternedData = {

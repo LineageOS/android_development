@@ -16,14 +16,23 @@ sys_img_props := $(patsubst \
                    $(wildcard $(TOPDIR)development/sys-img/*_source.prop_template))
 ALL_SDK_FILES += $(sdk_props) $(sample_props) $(sys_img_props)
 
+# Set the beta version. Set to the empty string unless PREVIEW_SDK_INT
+# (PLATFORM_PREVIEW_SDK_VERSION) represents a beta of an upcoming SDK (when the
+# value is on the format MMmB, where MM is the major version, m the minor
+# version, B the beta version; 3612 would be the 2nd beta of an upcoming 36.1
+# SDK).
+BETA_SDK_VERSION := $(shell if [[ "$(PLATFORM_PREVIEW_SDK_VERSION)" =~ ^[0-9]{4}$$ ]]; then echo "$(PLATFORM_PREVIEW_SDK_VERSION)" | cut -c4 ; fi)
+
 # Rule to convert a source.prop template into the desired source.property
 # This needs to vary based on the CPU ABI for the system-image files.
 # Rewritten variables:
-# - ${PLATFORM_VERSION}               e.g. "1.0"
-# - ${PLATFORM_SDK_VERSION}           e.g. "3.1", aka the API major.minor version
+# - ${BETA_SDK_VERSION}               e.g. "", "1", "2"
 # - ${PLATFORM_EXTENSION_SDK_VERSION} e.g. "7" -- the extension sdk level
 # - ${PLATFORM_IS_BASE_SDK}           bool. -- whether the current extension sdk is the base extension for this api level
+# - ${PLATFORM_PREVIEW_SDK_VERSION}   e.g. "0", "1", "3701", "20251006"
+# - ${PLATFORM_SDK_VERSION}           e.g. "3.1", aka the API major.minor version
 # - ${PLATFORM_VERSION_CODENAME}      e.g. "REL" (transformed into "") or "Cupcake"
+# - ${PLATFORM_VERSION}               e.g. "1.0"
 # - ${TARGET_ARCH}                    e.g. "arm", "x86", "mips" and their 64-bit variants.
 # - ${TARGET_CPU_ABI}                 e.g. "armeabi", "x86", "mips" and their 64-bit variants.
 define process_prop_template
@@ -35,6 +44,8 @@ $(hide) sed \
 	-e 's/$${PLATFORM_SDK_EXTENSION_VERSION}/$(PLATFORM_SDK_EXTENSION_VERSION)/' \
 	-e 's/$${PLATFORM_IS_BASE_SDK}/$(if $(filter $(PLATFORM_SDK_EXTENSION_VERSION),$(PLATFORM_BASE_SDK_EXTENSION_VERSION)),true,false)/' \
 	-e 's/$${PLATFORM_VERSION_CODENAME}/$(subst REL,,$(PLATFORM_VERSION_CODENAME))/' \
+	-e 's/$${PLATFORM_PREVIEW_SDK_VERSION}/$(PLATFORM_PREVIEW_SDK_VERSION)/' \
+	-e 's/$${BETA_SDK_VERSION}/$(BETA_SDK_VERSION)/' \
 	-e 's/$${TARGET_ARCH}/$(TARGET_ARCH)/' \
 	-e 's/$${TARGET_CPU_ABI}/$(TARGET_CPU_ABI)/' \
 	-e 's/$${EMULATOR_MINIMAL_VERSION}/$(EMULATOR_MINIMAL_VERSION)/' \

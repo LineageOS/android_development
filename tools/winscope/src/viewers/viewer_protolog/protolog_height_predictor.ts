@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert_utils';
+import {assertString} from 'common/assert';
 import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
 import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
 import {ProtologEntry} from 'viewers/viewer_protolog/ui_data';

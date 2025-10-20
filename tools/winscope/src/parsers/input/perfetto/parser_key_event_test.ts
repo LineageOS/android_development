@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {CustomQueryType} from 'trace_api/custom_query';
@@ -48,45 +48,45 @@ describe('PerfettoParserKeyEvent', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
 
-    expect(timestamps.length).toEqual(2);
+    expect(timestamps.length).toBe(2);
 
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1718386905115026232n),
-      TimestampConverterUtils.makeRealTimestamp(1718386905123057319n),
+      makeRealTimestamp(1718386905115026232n),
+      makeRealTimestamp(1718386905123057319n),
     ];
     expect(timestamps).toEqual(expected);
   });
 
   it('retrieves all entries', async () => {
     const entries = await parser.getAllEntries();
-    expect(entries.length).toEqual(2);
+    expect(entries.length).toBe(2);
     expect(entries.every((entry) => entry !== undefined)).toBeTrue();
   });
 
   it('retrieves trace entry from timestamp', async () => {
     const entry = await parser.getEntry(1);
-    expect(entry.id).toEqual('AndroidKeyEvent entry');
+    expect(entry.id).toBe('AndroidKeyEvent entry');
   });
 
   it('retrieves and translates eager property values', async () => {
     const entry = await parser.getEntry(0);
 
-    expect(entry.getEagerPropertyByName('eventId')?.getValue()).toEqual(
+    expect(entry.getEagerPropertyByName('eventId')?.getValue()).toBe(
       759309047n,
     );
-    expect(entry.getEagerPropertyByName('action')?.formattedValue()).toEqual(
+    expect(entry.getEagerPropertyByName('action')?.formattedValue()).toBe(
       'ACTION_DOWN',
     );
-    expect(entry.getEagerPropertyByName('source')?.formattedValue()).toEqual(
+    expect(entry.getEagerPropertyByName('source')?.formattedValue()).toBe(
       'SOURCE_KEYBOARD',
     );
-    expect(entry.getEagerPropertyByName('deviceId')?.formattedValue()).toEqual(
+    expect(entry.getEagerPropertyByName('deviceId')?.formattedValue()).toBe(
       '2',
     );
-    expect(entry.getEagerPropertyByName('displayId')?.formattedValue()).toEqual(
+    expect(entry.getEagerPropertyByName('displayId')?.formattedValue()).toBe(
       '-1',
     );
-    expect(entry.getEagerPropertyByName('keyCode')?.formattedValue()).toEqual(
+    expect(entry.getEagerPropertyByName('keyCode')?.formattedValue()).toBe(
       'KEYCODE_VOLUME_UP',
     );
   });
@@ -97,24 +97,22 @@ describe('PerfettoParserKeyEvent', () => {
     const properties = await entry.getAllProperties();
     const keyEvent = assertDefined(properties.getChildByName('event'));
 
-    expect(keyEvent.getChildByName('flags')?.formattedValue()).toEqual(
+    expect(keyEvent.getChildByName('flags')?.formattedValue()).toBe(
       'FLAG_FROM_SYSTEM',
     );
-    expect(keyEvent.getChildByName('action')?.formattedValue()).toEqual(
+    expect(keyEvent.getChildByName('action')?.formattedValue()).toBe(
       'ACTION_DOWN',
     );
-    expect(keyEvent.getChildByName('source')?.formattedValue()).toEqual(
+    expect(keyEvent.getChildByName('source')?.formattedValue()).toBe(
       'SOURCE_KEYBOARD',
     );
-    expect(keyEvent.getChildByName('deviceId')?.getValue()).toEqual(2);
-    expect(keyEvent.getChildByName('displayId')?.getValue()).toEqual(-1);
-    expect(keyEvent.getChildByName('metaState')?.formattedValue()).toEqual(
-      '0x0',
-    );
-    expect(keyEvent.getChildByName('keyCode')?.formattedValue()).toEqual(
+    expect(keyEvent.getChildByName('deviceId')?.getValue()).toBe(2);
+    expect(keyEvent.getChildByName('displayId')?.getValue()).toBe(-1);
+    expect(keyEvent.getChildByName('metaState')?.formattedValue()).toBe('0x0');
+    expect(keyEvent.getChildByName('keyCode')?.formattedValue()).toBe(
       'KEYCODE_VOLUME_UP',
     );
-    expect(keyEvent.getChildByName('scanCode')?.getValue()).toEqual(115);
+    expect(keyEvent.getChildByName('scanCode')?.getValue()).toBe(115);
   });
 
   it('merges key event with all associated dispatch events', async () => {
@@ -125,19 +123,19 @@ describe('PerfettoParserKeyEvent', () => {
       properties.getChildByName('dispatchEvents'),
     );
 
-    expect(windowDispatchEvents?.getAllChildren().length).toEqual(2);
+    expect(windowDispatchEvents?.getAllChildren().length).toBe(2);
     expect(
       windowDispatchEvents
         ?.getChildByName('0')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toEqual(212n);
+    ).toBe(212n);
     expect(
       windowDispatchEvents
         ?.getChildByName('1')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toEqual(0n);
+    ).toBe(0n);
   });
 
   it('supports VSYNCID custom query', async () => {

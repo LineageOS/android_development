@@ -17,7 +17,7 @@ import {Component} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {VcCuratedProperties} from 'viewers/common/curated_properties';
 import {TransformMatrixComponent} from './transform_matrix_component';
 import {ViewCapturePropertyGroupsComponent} from './view_capture_property_groups_component';

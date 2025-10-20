@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
+/**
+ * Represents a coarse version of a trace format.
+ *
+ * This is used to distinguish between major versions of trace formats
+ * that might require different parsing or handling logic.
+ */
 export enum CoarseVersion {
+  /** Represents an older, potentially deprecated, version of the trace format. */
   LEGACY,
+  /** Represents the latest supported version of the trace format. */
   LATEST,
+  /** Represents a mock version, likely used for testing. */
   MOCK,
 }

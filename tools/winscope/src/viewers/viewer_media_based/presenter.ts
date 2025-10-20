@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {FunctionUtils} from 'common/function_utils';
 import {
   ActiveTraceChanged,
+  ScreenRecordingChange,
   WinscopeEvent,
   WinscopeEventType,
 } from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {UiData} from './ui_data';
 
@@ -33,7 +33,7 @@ export class Presenter {
   private readonly uiData: UiData;
   private readonly traces: Array<Trace<MediaBasedTraceEntry>>;
   private readonly notifyViewCallback: NotifyHierarchyViewCallbackType<UiData>;
-  private emitWinscopeEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitWinscopeEvent: EmitEvent = () => Promise.resolve();
 
   constructor(
     traces: Array<Trace<MediaBasedTraceEntry>>,
@@ -58,6 +58,12 @@ export class Presenter {
         this.onOverlayDblClick((event as CustomEvent).detail);
       },
     );
+    htmlElement.addEventListener(
+      ViewerEvents.OverlayScreenRecordingChange,
+      async (event) => {
+        this.onOverlayScreenRecordingChange((event as CustomEvent).detail);
+      },
+    );
   }
 
   async onAppEvent(event: WinscopeEvent) {
@@ -65,9 +71,7 @@ export class Presenter {
       WinscopeEventType.TRACE_POSITION_UPDATE,
       async (event) => {
         const traceEntries = this.traces
-          .map((trace) =>
-            TraceEntryFinder.findCorrespondingEntry(trace, event.position),
-          )
+          .map((trace) => findCorrespondingEntry(trace, event.position))
           .filter((entry) => entry !== undefined) as Array<
           TraceEntry<MediaBasedTraceEntry>
         >;
@@ -93,6 +97,13 @@ export class Presenter {
     const currTrace = this.traces.at(index);
     if (currTrace) {
       this.emitWinscopeEvent(new ActiveTraceChanged(currTrace));
+    }
+  }
+
+  async onOverlayScreenRecordingChange(index: number) {
+    const currTrace = this.traces.at(index);
+    if (currTrace) {
+      this.emitWinscopeEvent(new ScreenRecordingChange(currTrace));
     }
   }
 }

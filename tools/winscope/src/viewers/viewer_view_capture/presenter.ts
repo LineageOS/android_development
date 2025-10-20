@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {assertDefined, assertTrue} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {
   TabbedViewSwitchRequest,
@@ -23,7 +23,7 @@ import {
 } from 'messaging/winscope_event';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -56,7 +56,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
 
   private windowNames: string[] = [];
   protected override hierarchyPresenter = new HierarchyPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'VcHierarchyOptions',
       {
         showDiff: {
@@ -82,7 +82,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     true,
   );
   protected override rectsPresenter = new RectsPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'VcRectsOptions',
       {
         ignoreRectShowState: {
@@ -106,7 +106,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     undefined,
   );
   protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'VcPropertyOptions',
       {
         showDiff: {
@@ -194,11 +194,10 @@ the default for its data type.`,
     event: TracePositionUpdate,
   ): Promise<void> {
     if (this.uiData && this.surfaceFlingerTrace) {
-      const surfaceFlingerEntry =
-        (await TraceEntryFinder.findCorrespondingEntry(
-          this.surfaceFlingerTrace,
-          event.position,
-        )?.getValue()) as HierarchyTreeNode;
+      const surfaceFlingerEntry = (await findCorrespondingEntry(
+        this.surfaceFlingerTrace,
+        event.position,
+      )?.getValue()) as HierarchyTreeNode;
       if (surfaceFlingerEntry) {
         this.sfRects = UI_RECT_FACTORY.makeUiRects(
           surfaceFlingerEntry,

@@ -19,7 +19,7 @@ import {
   assertBigIntOrUndefined,
   assertDefined,
   assertString,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {AddDefaults} from 'parsers/operations/add_defaults';
@@ -55,9 +55,11 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Operation} from 'tree_node/operation';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyFormatter} from 'tree_node/property_formatter';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {
+  PropertyFormatter,
+  PropertyTreeNode,
+} from 'tree_node/property_tree_node';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TransactionsTraceEntryField =

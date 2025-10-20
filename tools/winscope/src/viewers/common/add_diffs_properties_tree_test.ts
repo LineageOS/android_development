@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {
+  makeUiPropertyNode,
+  treeNodeEqualityTester,
+} from 'test/unit/ui_tree_node_utils';
 import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 import {TreeNode} from 'tree_node/tree_node';
 import {AbstractAddDiffsTest} from './abstract_add_diffs_test';
@@ -38,7 +41,7 @@ class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode
   }
 
   makeRoot(value = 'value'): UiPropertyTreeNode {
-    const root = UiTreeNodeUtils.makeUiPropertyNode('test', 'root', value);
+    const root = makeUiPropertyNode('test', 'root', value);
     root.setIsRoot(true);
     return root;
   }
@@ -48,7 +51,7 @@ class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode
     value = 'value',
     name = 'child',
   ): UiPropertyTreeNode {
-    const child = UiTreeNodeUtils.makeUiPropertyNode('test node', name, value);
+    const child = makeUiPropertyNode('test node', name, value);
     rootNode.addOrReplaceChild(child);
     return child;
   }
@@ -65,7 +68,7 @@ class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode
       });
 
       beforeEach(() => {
-        jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
         newRoot = this.makeRoot();
         oldRoot = this.makeRoot();
         expectedRoot = this.makeRoot();
@@ -90,7 +93,7 @@ class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode
 
         await addDiffs.executeInPlace(newRoot, oldRoot);
         expect(newRoot).toEqual(expectedRoot);
-        expect(newRoot.getChildByName('child')?.getOldValue()).toEqual('null');
+        expect(newRoot.getChildByName('child')?.getOldValue()).toBe('null');
       });
 
       it('processes MODIFIED node by setting old value to old formatted value', async () => {
@@ -102,7 +105,7 @@ class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode
 
         await addDiffs.executeInPlace(newRoot, oldRoot);
         expect(newRoot).toEqual(expectedRoot);
-        expect(newRoot.getChildByName('child')?.getOldValue()).toEqual('old');
+        expect(newRoot.getChildByName('child')?.getOldValue()).toBe('old');
       });
 
       it('processes MODIFIED flag values into diff value parts', async () => {

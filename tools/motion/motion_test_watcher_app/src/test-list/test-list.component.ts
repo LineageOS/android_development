@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { MotionGolden } from '../model/golden';
+import { MotionGolden, PresubmitTest } from '../model/golden';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TestModes } from '../model/test_mode';
 
 @Component({
   selector: 'app-test-list',
@@ -33,25 +34,25 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   templateUrl: './test-list.component.html',
   styleUrl: './test-list.component.css',
 })
-export class TestListComponent implements OnChanges{
+export class TestListComponent implements OnChanges {
   @Input() goldens: MotionGolden[] = [];
-  @Input() testNames: String[] = [];
+  @Input() presubmitTests: PresubmitTest[] = [];
   @Input() showCheckBoxes: boolean = false;
   @Input() isRefreshing: boolean = false;
-  @Input() testMode: String = "";
+  @Input() testMode: string = "";
   @Output() showCheckBoxesChange = new EventEmitter<boolean>();
-  @Output() selectedTestNameChange = new EventEmitter<String>();
+  @Output() selectedTestNameChange = new EventEmitter<PresubmitTest>();
   @Output() refreshRequest = new EventEmitter<boolean>();
   @Output() selectedGoldenChange = new EventEmitter<MotionGolden>();
   selectedGolden: MotionGolden | null = null;
-  selectedTest: String | null = null;
-  selectedGoldenIds: Set<string> =new Set<string>();
+  selectedPresubmitTest: PresubmitTest | null = null;
+  selectedGoldenIds: Set<string> = new Set<string>();
   isUpdating: boolean = false;
 
   constructor(
     private goldenService: GoldensService,
     private snackBar: MatSnackBar,
-  ){}
+  ) { }
 
 
   filterStatus: 'all' | 'pass' | 'fail' = 'all';
@@ -91,29 +92,29 @@ export class TestListComponent implements OnChanges{
     }
   }
 
-  extractLastPart(path: String): String {
-  return path.split('/').pop() || '';
-}
-
- calculateGoldenFetchedTime(timestamp: string): string {
-  const fetchedDate = new Date(timestamp)
-  const millisecondsDiff = new Date().getTime() - fetchedDate.getTime();
-  const minutesDiff = Math.round(millisecondsDiff / (60 * 1000));
-  if (minutesDiff == 0){
-    return "Fetched just now"
+  extractLastPart(path: string): string {
+    return path.split('/').pop() || '';
   }
-  const hrs = Math.floor(minutesDiff/60)
-  if (hrs > 0) {
-    return `Fetched ${hrs} hour ${minutesDiff%60} mins ago`
-  }else{
-  return `Fetched ${minutesDiff} mins ago`;
-  }
-}
 
-  testOpened(testName: String): void {
-    console.log(`testName clicked : ${testName}`)
-    this.selectedTest = testName;
-    this.selectedTestNameChange.emit(testName);
+  calculateGoldenFetchedTime(timestamp: string): string {
+    const fetchedDate = new Date(timestamp)
+    const millisecondsDiff = new Date().getTime() - fetchedDate.getTime();
+    const minutesDiff = Math.round(millisecondsDiff / (60 * 1000));
+    if (minutesDiff == 0) {
+      return "Fetched just now"
+    }
+    const hrs = Math.floor(minutesDiff / 60)
+    if (hrs > 0) {
+      return `Fetched ${hrs} hour ${minutesDiff % 60} mins ago`
+    } else {
+      return `Fetched ${minutesDiff} mins ago`;
+    }
+  }
+
+  presubmitTestOpened(presubmitTest: PresubmitTest): void {
+    console.log(`testName clicked : ${presubmitTest.testname}`)
+    this.selectedPresubmitTest = presubmitTest;
+    this.selectedTestNameChange.emit(this.selectedPresubmitTest);
   }
 
   private updateAndGroupGoldens(): void {
@@ -133,16 +134,16 @@ export class TestListComponent implements OnChanges{
     this.updateAndGroupGoldens();
   }
 
-  private sortGoldensBasedOnFetchTime(goldens : MotionGolden[]) : void {
-      goldens.sort((a, b) => {
+  private sortGoldensBasedOnFetchTime(goldens: MotionGolden[]): void {
+    goldens.sort((a, b) => {
       const dateA = new Date(a.testTime);
       const dateB = new Date(b.testTime);
       return dateB.getTime() - dateA.getTime();
-      })
+    })
   }
 
   // Goldens grouped by their test fetch time
-  filteredGoldens : { key: string; value: MotionGolden[] }[] = []
+  filteredGoldens: { key: string; value: MotionGolden[] }[] = []
 
   private groupGoldensByTime(objectsList: MotionGolden[]): { key: string; value: MotionGolden[] }[] {
     const groupedDataMap = new Map<string, MotionGolden[]>();
@@ -187,7 +188,7 @@ export class TestListComponent implements OnChanges{
   }
 
   areAllBoxesSelected(): boolean {
-    const visibleGoldens : MotionGolden[] = this.filteredGoldens.flatMap(item => item.value);
+    const visibleGoldens: MotionGolden[] = this.filteredGoldens.flatMap(item => item.value);
     if (visibleGoldens.length === 0) {
       return false;
     }
@@ -341,7 +342,8 @@ export class TestListComponent implements OnChanges{
   }
 
   get shouldShowRefreshButton(): boolean {
-    return this.testMode !== 'GERRIT' && this.testMode !== 'PRESUBMIT';
+    return this.testMode !== TestModes.GERRIT
+      && this.testMode !== TestModes.PRESUBMIT;
   }
 }
 

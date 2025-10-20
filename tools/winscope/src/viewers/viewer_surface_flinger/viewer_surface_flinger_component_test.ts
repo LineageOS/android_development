@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 import {Component} from '@angular/core';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from 'viewers/common/abstract_hierarchy_viewer_component_test';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {SurfaceFlingerPropertyGroupsComponent} from 'viewers/components/surface_flinger_property_groups_component';
 import {UiData} from './ui_data';
 import {ViewerSurfaceFlingerComponent} from './viewer_surface_flinger_component';
+import {assertDefined} from 'common/assert';
 
 @Component({
   imports: [ViewerSurfaceFlingerComponent],
@@ -52,6 +53,51 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
 
       it('handles property groups section collapse/expand', () => {
         dom.checkSectionCollapseAndExpand('.property-groups', 'PROPERTIES');
+      });
+
+      it('disables properties while playback is playing', async () => {
+        let uiData = new UiData(undefined);
+        uiData.isPlaybackPlaying = true;
+        component.inputData = uiData;
+        dom.detectChanges();
+        const properties = dom.find('.properties');
+        expect(properties).toBeDefined();
+        assertDefined(properties).checkClassName('disabled-component');
+
+        uiData = new UiData(undefined);
+        uiData.isPlaybackPlaying = false;
+        component.inputData = uiData;
+        dom.detectChanges();
+        expect(properties).toBeDefined();
+        assertDefined(properties).checkClassName('disabled-component', false);
+      });
+
+      it('disables UI while playback is initializing', async () => {
+        let uiData = new UiData(undefined);
+        uiData = new UiData(undefined);
+        uiData.isPlaybackPlaying = false;
+        uiData.isPlaybackInitializing = true;
+        component.inputData = uiData;
+        dom.detectChanges();
+
+        const properties = dom.get('.properties');
+        properties.checkClassName('disabled-component');
+
+        const hierarchy = dom.get('.hierarchy-view');
+        hierarchy.checkClassName('disabled-component');
+
+        const rects = dom.get('.rects-view');
+        rects.checkClassName('disabled-component');
+
+        uiData = new UiData(undefined);
+        uiData.isPlaybackPlaying = true;
+        uiData.isPlaybackInitializing = false;
+        component.inputData = uiData;
+        dom.detectChanges();
+
+        properties.checkClassName('disabled-component', true);
+        hierarchy.checkClassName('disabled-component', false);
+        rects.checkClassName('disabled-component', false);
       });
 
       it('handles rect type change', () => {

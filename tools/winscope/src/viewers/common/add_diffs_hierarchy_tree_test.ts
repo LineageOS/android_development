@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {
+  makeUiHierarchyNode,
+  treeNodeEqualityTester,
+} from 'test/unit/ui_tree_node_utils';
 import {TreeNode} from 'tree_node/tree_node';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {AbstractAddDiffsTest} from './abstract_add_diffs_test';
@@ -41,7 +44,7 @@ class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode
   }
 
   override makeRoot(value = 'value'): UiHierarchyTreeNode {
-    return UiTreeNodeUtils.makeUiHierarchyNode({
+    return makeUiHierarchyNode({
       id: 'test',
       name: 'root',
       exampleProperty: value,
@@ -53,7 +56,7 @@ class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode
     value = 'value',
     name = 'child',
   ): UiHierarchyTreeNode {
-    const child = UiTreeNodeUtils.makeUiHierarchyNode({
+    const child = makeUiHierarchyNode({
       id: 'test node',
       name,
       exampleProperty: value,
@@ -75,7 +78,7 @@ class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode
       });
 
       beforeEach(() => {
-        jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
         newRoot = this.makeRoot();
         oldRoot = this.makeRoot();
         expectedRoot = this.makeRoot();
@@ -122,7 +125,7 @@ class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode
   private makeParentAndAddToRoot(
     rootNode: UiHierarchyTreeNode,
   ): UiHierarchyTreeNode {
-    const parent = UiTreeNodeUtils.makeUiHierarchyNode({
+    const parent = makeUiHierarchyNode({
       id: 'test node',
       name: 'parent',
       exampleProperty: 'value',

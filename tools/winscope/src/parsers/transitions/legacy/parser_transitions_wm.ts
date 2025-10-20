@@ -19,12 +19,17 @@ import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import root from 'protos/transitions/udc/json';
 import {com} from 'protos/transitions/udc/static';
 import {TraceType} from 'trace_api/trace_type';
+import {
+  nullifyIfDefaultValue,
+  PerfettoTransition,
+} from './perfetto_conversion_helpers';
 
-type TransitionProto = com.android.server.wm.shell.ITransition;
-
+/**
+ * Parser for WM Transition trace files.
+ */
 export class ParserTransitionsWm extends AbstractParser<
-  TransitionProto,
-  TransitionProto
+  LegacyTransition,
+  PerfettoTransition
 > {
   private static readonly TransitionTraceProto = root.lookupType(
     'com.android.server.wm.shell.TransitionTraceProto',
@@ -46,12 +51,31 @@ export class ParserTransitionsWm extends AbstractParser<
 
   override processDecodedEntry(
     index: number,
-    entryProto: TransitionProto,
-  ): TransitionProto {
-    return entryProto;
+    wmTransition: LegacyTransition,
+  ): PerfettoTransition {
+    const perfettoTransition: PerfettoTransition = {
+      id: wmTransition.id,
+      createTimeNs: nullifyIfDefaultValue(wmTransition.createTimeNs),
+      sendTimeNs: nullifyIfDefaultValue(wmTransition.sendTimeNs),
+      wmAbortTimeNs: nullifyIfDefaultValue(wmTransition.abortTimeNs),
+      finishTimeNs: nullifyIfDefaultValue(wmTransition.finishTimeNs),
+      startTransactionId: nullifyIfDefaultValue(
+        wmTransition.startTransactionId,
+      ),
+      finishTransactionId: nullifyIfDefaultValue(
+        wmTransition.finishTransactionId,
+      ),
+      type: nullifyIfDefaultValue(wmTransition.type),
+      targets: nullifyIfDefaultValue(wmTransition.targets),
+      flags: nullifyIfDefaultValue(wmTransition.flags),
+      startingWindowRemoveTimeNs: nullifyIfDefaultValue(
+        wmTransition.startingWindowRemoveTimeNs,
+      ),
+    };
+    return perfettoTransition;
   }
 
-  override decodeTrace(buffer: Uint8Array): TransitionProto[] {
+  override decodeTrace(buffer: Uint8Array): PerfettoTransition[] {
     const decodedProto = ParserTransitionsWm.TransitionTraceProto.decode(
       buffer,
     ) as unknown as com.android.server.wm.shell.ITransitionTraceProto;
@@ -68,9 +92,11 @@ export class ParserTransitionsWm extends AbstractParser<
     return [0x09, 0x54, 0x52, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45]; // .TRNTRACE
   }
 
-  protected override getTimestamp(entry: TransitionProto): Timestamp {
+  protected override getTimestamp(entry: LegacyTransition): Timestamp {
     // for consistency with all transitions, elapsed nanos are defined as
     // shell dispatch time else INVALID_TIME_NS
     return this.timestampConverter.makeZeroTimestamp();
   }
 }
+
+type LegacyTransition = com.android.server.wm.shell.ITransition;

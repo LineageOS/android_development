@@ -24,12 +24,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {FilterFlag} from 'common/filter_flag';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {PersistentStore} from 'common/store/persistent_store';
 import {DuplicateLayerIds, MissingLayerIds} from 'messaging/user_warnings';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_utils';
+import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
@@ -127,7 +127,7 @@ describe('HierarchyComponent', () => {
     ];
     dom.detectChanges();
     const trees = dom.findAll('.tree-wrapper .tree');
-    expect(trees.length).toEqual(2);
+    expect(trees.length).toBe(2);
     trees[1].checkText('subtree');
   });
 
@@ -211,7 +211,13 @@ describe('HierarchyComponent', () => {
 
     component.trees = [
       component.trees[0],
-      UiHierarchyTreeNode.from(component.trees[0]),
+      UiHierarchyTreeNode.from(
+        new HierarchyTreeBuilder()
+          .setId('RootNode2')
+          .setName('Root node')
+          .setChildren([{id: 'Child2', name: 'Child node'}])
+          .build(),
+      ),
     ];
     dom.detectChanges();
     const warning1 = new DuplicateLayerIds([123]);
@@ -220,7 +226,7 @@ describe('HierarchyComponent', () => {
     component.trees[1].addWarning(warning2);
     dom.detectChanges();
     const warnings = dom.findAll('.warning');
-    expect(warnings.length).toEqual(2);
+    expect(warnings.length).toBe(2);
     warnings[0].checkTextExact('warning ' + warning1.getMessage());
     warnings[1].checkTextExact('warning ' + warning2.getMessage());
   });

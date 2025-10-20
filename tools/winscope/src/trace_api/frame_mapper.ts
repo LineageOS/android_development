@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {CustomQueryType} from './custom_query';
 import {FrameMapBuilder} from './frame_map_builder';
 import {FramesRange} from './index_types';
@@ -22,11 +22,19 @@ import {Trace, TraceEntry} from './trace';
 import {TraceType} from './trace_type';
 import {Traces} from './traces';
 
+/**
+ * Maps frames between different trace types.
+ *
+ * The mapper first picks the most reliable trace (e.g., screen recording)
+ * and uses its entries as the base for frame information. It then propagates
+ * this frame information to other traces based on time and other trace-specific
+ * properties (e.g., vsync IDs).
+ */
 export class FrameMapper {
-  // Value used to narrow time-based searches of corresponding trace entries
+  /** Value used to narrow time-based searches of corresponding trace entries */
   private static readonly MAX_UI_PIPELINE_LATENCY_NS = 2000000000n; // 2 seconds
 
-  constructor(private traces: Traces) {}
+  constructor(private readonly traces: Traces) {}
 
   async computeMapping() {
     this.pickMostReliableTraceAndSetInitialFrameInfo();

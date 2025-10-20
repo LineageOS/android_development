@@ -145,6 +145,13 @@ struct UpdateSuggestion {
     version: String,
 }
 
+fn smartsync(monorepo_path: &Path, bid: &str) -> Result<ExitStatus> {
+    Command::new("/google/data/ro/projects/android/smartsync_repo")
+        .args(["sync", "-j32", "--retry-fetches=2", "-t", bid])
+        .current_dir(monorepo_path)
+        .run_and_stream_output()
+}
+
 fn sync_to_green(monorepo_path: &Path) -> Result<()> {
     Command::new("prodcertstatus").run_and_stream_output()?;
     Command::new("/google/data/ro/projects/android/smartsync_login").run_and_stream_output()?;
@@ -162,10 +169,11 @@ fn sync_to_green(monorepo_path: &Path) -> Result<()> {
     let bid = from_utf8(&output.stdout)?.trim();
     println!("bid = {bid}");
 
-    Command::new("/google/data/ro/projects/android/smartsync_repo")
-        .args(["sync", "-j99", "-t", bid])
-        .current_dir(monorepo_path)
-        .run_and_stream_output()?;
+    // Sometimes the repo sync fails, particularly if there there updates
+    // to large repos like kernel prebuilts. An immediate re-try usually succeeds.
+    if smartsync(monorepo_path, bid).is_err() {
+        smartsync(monorepo_path, bid)?;
+    }
 
     // Even though we sync the rest of the repository to a green build,
     // we sync the monorepo to tip-of-tree, which reduces merge conflicts
@@ -326,7 +334,7 @@ fn main() -> Result<()> {
         .current_dir(&args.android_root)
         .run_and_stream_output()?;
 
-    let mut updates_tried = UpdatesTried::read()?;
+    let mut updates_tried = UpdatesTried::read(&monorepo_path)?;
     let mut updates_tried_string = Vec::new();
     for suggestion in get_suggestions(&monorepo_path)? {
         let crate_name = suggestion.name.as_str();

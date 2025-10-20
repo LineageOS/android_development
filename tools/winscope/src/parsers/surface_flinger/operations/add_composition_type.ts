@@ -26,7 +26,7 @@ export class AddCompositionType extends AddOperation<PropertyTreeNode> {
   ): PropertyTreeNode[] {
     let hwcCompositionType = value
       .getChildByName('hwcCompositionType')
-      ?.getValue();
+      ?.getValue<bigint | number>();
     if (hwcCompositionType === undefined) {
       return [];
     }

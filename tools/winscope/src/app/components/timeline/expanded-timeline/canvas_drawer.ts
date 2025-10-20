@@ -15,9 +15,12 @@
  */
 
 import {convertHexToRgb} from 'app/components/timeline/timeline_utils';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
 
+/**
+ * A class for drawing shapes on a canvas.
+ */
 export class CanvasDrawer {
   private canvas: HTMLCanvasElement | undefined;
   private ctx: CanvasRenderingContext2D | undefined;

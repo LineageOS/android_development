@@ -14,17 +14,30 @@
  * limitations under the License.
  */
 
-import {TransformType} from 'common/geometry/transform_utils';
+import {getTypeFlags} from 'common/geometry/transform';
 import {Timestamp} from 'common/time/time';
 import {TimeDuration} from 'common/time/time_duration';
-import {PropertyFormatter} from 'tree_node/property_formatter';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {RawDataUtils} from 'tree_node/raw_data_utils';
-import {CujType} from './cuj_type';
+import {
+  PropertyFormatter,
+  PropertyTreeNode,
+} from 'tree_node/property_tree_node';
+import {CUJ_TYPE} from './cuj_type';
 
-const EMPTY_OBJ_STRING = '{empty}';
-const EMPTY_ARRAY_STRING = '[empty]';
-const FLAG_SEPARATOR = ' | ';
+/**
+ * String used to represent an empty object in formatted output.
+ * Useful for clearly indicating that a property tree node represents an empty object.
+ */
+export const EMPTY_OBJ_STRING = '{empty}';
+/**
+ * String used to represent an empty array in formatted output.
+ * Useful for clearly indicating that a property tree node represents an empty array.
+ */
+export const EMPTY_ARRAY_STRING = '[empty]';
+/**
+ * Separator used when concatenating multiple flag strings.
+ * This provides a consistent way to display multiple flags within a single formatted string.
+ */
+export const FLAG_SEPARATOR = ' | ';
 
 function formatAsDecimal(value: number): string {
   if (!Number.isInteger(value)) {
@@ -33,7 +46,22 @@ function formatAsDecimal(value: number): string {
   return value.toString();
 }
 
-function formatAsHex(value: number, upperCase = false): string {
+/**
+ * Formats a number as a hexadecimal string.
+ * This function is useful for displaying numerical values in a hexadecimal format,
+ * which is common in low-level system traces and debugging.
+ *
+ * @param value The number to format. Negative values are converted to their
+ *        32-bit two's complement representation.
+ * @param upperCase If true, the hex characters (a-f) will be in upper case. Defaults to false.
+ * @param withPrefix If true, the output string will be prefixed with '0x'. Defaults to true.
+ * @return The hexadecimal string representation of the value.
+ */
+export function formatAsHex(
+  value: number,
+  upperCase = false,
+  withPrefix = true,
+): string {
   if (value < 0) {
     value += Math.pow(2, 32); // convert to 2's complement
   }
@@ -41,7 +69,7 @@ function formatAsHex(value: number, upperCase = false): string {
   if (upperCase) {
     hexValue = hexValue.toUpperCase();
   }
-  return '0x' + hexValue;
+  return withPrefix ? '0x' + hexValue : hexValue;
 }
 
 class BufferFormatter implements PropertyFormatter {
@@ -53,7 +81,13 @@ class BufferFormatter implements PropertyFormatter {
       ?.getValue()}`;
   }
 }
-const BUFFER_FORMATTER = new BufferFormatter();
+
+/**
+ * Formats buffer properties (width, height, stride, format) into a concise string.
+ * This formatter is useful for displaying essential buffer information in a readable format
+ * within the Winscope UI, making it easier to understand buffer configurations at a glance.
+ */
+export const BUFFER_FORMATTER = new BufferFormatter();
 
 class ColorFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -72,27 +106,41 @@ class ColorFormatter implements PropertyFormatter {
 
     const alpha = formatAsDecimal(alphaNode?.getValue() ?? 0);
     const alphaString = `alpha: ${alpha}`;
-    if (RawDataUtils.isEmptyObj(node)) {
+    if (node.isEmptyObj()) {
       return `${EMPTY_OBJ_STRING}, ${alphaString}`;
     }
     return `${rgbString}, ${alphaString}`;
   }
 }
-const COLOR_FORMATTER = new ColorFormatter();
+
+/**
+ * Formats color properties (r, g, b, a) from a `PropertyTreeNode` into a concise string.
+ * This formatter is useful for displaying color values in a readable format within the Winscope UI,
+ * making it easier to understand color configurations.
+ */
+export const COLOR_FORMATTER = new ColorFormatter();
 
 class CujTypeFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
     const cujTypeId: string = `${node.getValue()}`;
-    let cujTypeString: string | undefined;
-    if (cujTypeId in CujType) {
-      cujTypeString = CujType[cujTypeId as keyof typeof CujType];
+    const cujTypeKey = cujTypeId as keyof typeof CUJ_TYPE;
+    const cujTypeString = CUJ_TYPE[cujTypeKey];
+
+    if (cujTypeString !== undefined) {
+      return `${cujTypeString} (${cujTypeId})`;
     } else {
-      cujTypeString = 'UNKNOWN';
+      return `UNKNOWN (${cujTypeId})`;
     }
-    return `${cujTypeString} (${cujTypeId})`;
   }
 }
-const CUJ_TYPE_FORMATTER = new CujTypeFormatter();
+
+/**
+ * Formats a CUJ (Critical User Journey) type ID into a more descriptive string.
+ * This formatter takes a numeric or string ID and maps it to a known CUJ type name
+ * from `CUJ_TYPE`, also including the original ID for clarity. It's useful for
+ * displaying CUJ types in a user-friendly format within the Winscope UI.
+ */
+export const CUJ_TYPE_FORMATTER = new CujTypeFormatter();
 
 class DefaultPropertyFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -110,9 +158,25 @@ class DefaultPropertyFormatter implements PropertyFormatter {
     return `${value}`;
   }
 }
-const DEFAULT_PROPERTY_FORMATTER = new DefaultPropertyFormatter();
 
-class EnumFormatter implements PropertyFormatter {
+/**
+ * Provides a default formatting strategy for `PropertyTreeNode` values.
+ * This formatter is used when no specific formatter is provided for a property.
+ * It handles empty arrays, formats numbers as decimals, and uses the object's
+ * `toString()` method if available, falling back to a string coercion.
+ */
+export const DEFAULT_PROPERTY_FORMATTER = new DefaultPropertyFormatter();
+
+/**
+ * Formats a numeric or bigint enum value into a human-readable string.
+ * This formatter is useful for displaying enum properties in the Winscope UI,
+ * by mapping the enum's numeric ID to a descriptive string.
+ *
+ * @param valuesById A map where keys are enum numeric values and values are their string representations.
+ * @param overrideValue An optional string to return if the enum value is not found in `valuesById`.
+ *        If not provided, the raw value is returned as a string.
+ */
+export class EnumFormatter implements PropertyFormatter {
   constructor(
     private readonly valuesById: {[key: number]: string},
     private readonly overrideValue?: string,
@@ -130,7 +194,12 @@ class EnumFormatter implements PropertyFormatter {
   }
 }
 
-class FixedStringFormatter implements PropertyFormatter {
+/**
+ * A formatter that always returns a fixed, predefined string.
+ * This is useful for displaying static labels or placeholders in the UI,
+ * regardless of the actual value of the property node.
+ */
+export class FixedStringFormatter implements PropertyFormatter {
   constructor(private readonly fixedStringValue: string) {}
 
   format(node: PropertyTreeNode): string {
@@ -143,7 +212,24 @@ class HexFormatter implements PropertyFormatter {
     return formatAsHex(node.getValue() ?? 0);
   }
 }
-const HEX_FORMATTER = new HexFormatter();
+/**
+ * Formats a numeric property tree node value as a hexadecimal string, prefixed with '0x'.
+ * This is useful for displaying values like memory addresses or bitmasks in a standard hexadecimal format
+ * within the Winscope UI.
+ */
+export const HEX_FORMATTER = new HexFormatter();
+
+class HexNoPrefixFormatter implements PropertyFormatter {
+  format(node: PropertyTreeNode): string {
+    return formatAsHex(node.getValue() ?? 0, false, false);
+  }
+}
+/**
+ * Formats a numeric property tree node value as a hexadecimal string, without the '0x' prefix.
+ * This is useful for displaying hexadecimal values in contexts where the '0x' prefix is redundant
+ * or not desired, providing a more compact representation within the Winscope UI.
+ */
+export const HEX_NO_PREFIX_FORMATTER = new HexNoPrefixFormatter();
 
 class LayerIdFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -151,7 +237,12 @@ class LayerIdFormatter implements PropertyFormatter {
     return value === -1 || value === 0 ? 'none' : `${value}`;
   }
 }
-const LAYER_ID_FORMATTER = new LayerIdFormatter();
+/**
+ * Formats a layer ID. Returns 'none' for layer IDs of -1 or 0, which commonly represent
+ * an invalid or absent layer, and the ID itself otherwise. This makes layer ID properties
+ * more readable in the Winscope UI.
+ */
+export const LAYER_ID_FORMATTER = new LayerIdFormatter();
 
 class MatrixFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -183,7 +274,13 @@ class MatrixFormatter implements PropertyFormatter {
     );
   }
 }
-const MATRIX_FORMATTER = new MatrixFormatter();
+
+/**
+ * Formats matrix properties (dsdx, dtdx, dtdy, dsdy, tx, ty) into a concise string.
+ * This formatter is useful for displaying transformation matrices in a readable format
+ * within the Winscope UI, including special handling for identity or null matrices.
+ */
+export const MATRIX_FORMATTER = new MatrixFormatter();
 
 class PositionFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -192,11 +289,16 @@ class PositionFormatter implements PropertyFormatter {
     return `x: ${x}, y: ${y}`;
   }
 }
-const POSITION_FORMATTER = new PositionFormatter();
+/**
+ * Formats position properties (x, y) into a concise string.
+ * This formatter is useful for displaying 2D coordinates in a readable format
+ * within the Winscope UI.
+ */
+export const POSITION_FORMATTER = new PositionFormatter();
 
 class RectFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
-    if (!RawDataUtils.isRect(node) || RawDataUtils.isEmptyObj(node)) {
+    if (!node.isRect() || node.isEmptyObj()) {
       return EMPTY_OBJ_STRING;
     }
     const left = formatAsDecimal(node.getChildByName('left')?.getValue() ?? 0);
@@ -211,7 +313,12 @@ class RectFormatter implements PropertyFormatter {
     return `(${left}, ${top}) - (${right}, ${bottom})`;
   }
 }
-const RECT_FORMATTER = new RectFormatter();
+/**
+ * Formats rectangle properties (left, top, right, bottom) into a concise string.
+ * This formatter is useful for displaying rectangular bounds in a readable format
+ * within the Winscope UI.
+ */
+export const RECT_FORMATTER = new RectFormatter();
 
 class RegionFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -229,7 +336,12 @@ class RegionFormatter implements PropertyFormatter {
     return res + ')';
   }
 }
-const REGION_FORMATTER = new RegionFormatter();
+/**
+ * Formats a region, which is a collection of rectangles, into a string.
+ * This formatter iterates through the 'rect' children of the node and
+ * displays each rectangle's bounds.
+ */
+export const REGION_FORMATTER = new RegionFormatter();
 
 class SizeFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -238,7 +350,12 @@ class SizeFormatter implements PropertyFormatter {
     }`;
   }
 }
-const SIZE_FORMATTER = new SizeFormatter();
+/**
+ * Formats size properties (w, h) into a concise "width x height" string.
+ * This formatter is useful for displaying dimensions in a readable format
+ * within the Winscope UI.
+ */
+export const SIZE_FORMATTER = new SizeFormatter();
 
 class TimestampNodeFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
@@ -249,45 +366,34 @@ class TimestampNodeFormatter implements PropertyFormatter {
     return 'null';
   }
 }
-const TIMESTAMP_NODE_FORMATTER = new TimestampNodeFormatter();
+/**
+ * Formats a timestamp or time duration node.
+ * It uses the `format()` method of `Timestamp` or `TimeDuration` objects
+ * to provide a human-readable representation.
+ */
+export const TIMESTAMP_NODE_FORMATTER = new TimestampNodeFormatter();
 
 class TransformFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
     const type = node.getChildByName('type');
-    return type !== undefined
-      ? TransformType.getTypeFlags(type.getValue() ?? 0)
-      : 'null';
+    return type !== undefined ? getTypeFlags(type.getValue() ?? 0) : 'null';
   }
 }
-const TRANSFORM_FORMATTER = new TransformFormatter();
+/**
+ * Formats a transform type by converting its numeric value to a string
+ * representing the transform flags. This is useful for understanding
+ * the nature of a transformation.
+ */
+export const TRANSFORM_FORMATTER = new TransformFormatter();
 
 class UpperCaseFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
     return node.getValue()?.toString().toUpperCase() ?? '';
   }
 }
-const UPPER_CASE_FORMATTER = new UpperCaseFormatter();
-
-export {
-  BUFFER_FORMATTER,
-  COLOR_FORMATTER,
-  CUJ_TYPE_FORMATTER,
-  DEFAULT_PROPERTY_FORMATTER,
-  EMPTY_ARRAY_STRING,
-  EMPTY_OBJ_STRING,
-  EnumFormatter,
-  FixedStringFormatter,
-  FLAG_SEPARATOR,
-  formatAsHex,
-  HEX_FORMATTER,
-  LAYER_ID_FORMATTER,
-  MATRIX_FORMATTER,
-  POSITION_FORMATTER,
-  PropertyFormatter,
-  RECT_FORMATTER,
-  REGION_FORMATTER,
-  SIZE_FORMATTER,
-  TIMESTAMP_NODE_FORMATTER,
-  TRANSFORM_FORMATTER,
-  UPPER_CASE_FORMATTER,
-};
+/**
+ * Formats a property tree node's value by converting it to an upper-case string.
+ * This is useful for displaying string values in a consistent upper-case format
+ * within the Winscope UI, for example, when presenting enum names or status strings.
+ */
+export const UPPER_CASE_FORMATTER = new UpperCaseFormatter();

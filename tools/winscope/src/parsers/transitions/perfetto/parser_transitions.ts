@@ -18,7 +18,7 @@ import {
   assertBigIntOrUndefined,
   assertDefined,
   assertString,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {MakeTimestampStrategyType} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
@@ -44,10 +44,15 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Operation} from 'tree_node/operation';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyFormatter} from 'tree_node/property_formatter';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {
+  PropertyFormatter,
+  PropertyTreeNode,
+} from 'tree_node/property_tree_node';
+import {SetFormatters} from 'parsers/set_formatters';
 
+/**
+ * Parser for Transitions Perfetto traces.
+ */
 export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TRANSITION_FIELD =
     TAMPERED_TRACE_PACKET.fields['shellTransition'];
@@ -119,7 +124,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     const columns = ParserTransitions.EAGER_COLUMNS.map(
       (column) => `transitions.${column}`,
     ).join(', ');
-    const sql = `SELECT ${columns} FROM ${this.getTableName()} as transitions;`;
+    const sql = `SELECT ${columns} FROM ${this.getTableName()} as transitions ORDER BY transitions.ts;`;
     return this.makeHierarchyTrees(sql);
   }
 
@@ -301,7 +306,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     ];
   }
 
-  private makeLazyPropertiesStrategy(argSetId: ColumnType) {
+  private makeLazyPropertiesStrategy(argSetId: ColumnType | null) {
     return async () => {
       const data = await queryArgs(this.traceProcessor, Number(argSetId));
       return new PropertyTreeBuilderFromProto()

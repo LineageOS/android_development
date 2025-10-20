@@ -29,7 +29,7 @@ export class TranslateFlags implements Operation<PropertyTreeNode> {
     if (flagsNode === undefined) {
       return;
     }
-    const flags = flagsNode.getValue();
+    const flags = flagsNode.getValue<number>() ?? 0;
 
     const tokens: string[] = [];
     Object.keys(LayerFlag)

@@ -15,133 +15,132 @@
  */
 
 import {FilesSource} from 'app/files_source';
-import {Analytics as CommonAnalytics} from 'common/analytics';
+import {analyticsLogEvent} from 'common/analytics';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 
-export class Analytics {
-  private static BUGANIZER_OPENED = 'buganizer_opened';
-  private static CROSS_TOOL_SYNC = 'cross_tool_sync';
-  private static DARK_MODE_ENABLED = 'dark_mode_enabled';
-  private static DIFF_COMPUTATION_TIME = 'diff_computation_time';
-  private static DOCUMENTATION_OPENED = 'documentation_opened';
-  private static EXPANDED_TIMELINE_OPENED = 'expanded_timeline_opened';
-  private static FETCH_COMPONENT_DATA_TIME = 'fetch_component_data_time';
-  private static FILE_EXTRACTION_TIME = 'file_extraction_time';
-  private static FILE_PARSING_TIME = 'file_parsing_time';
-  private static FRAME_MAP_BUILD_TIME = 'frame_map_build_time';
-  private static FRAME_MAP_ERROR = 'frame_map_error';
-  private static GLOBAL_EXCEPTION = 'global_exception';
-  private static HIERARCHY_SETTINGS = 'hierarchy_settings';
-  private static JS_MEMORY_USAGE = 'js_memory_usage';
-  private static LOAD_FILES_TIME = 'load_files_time';
-  private static LOAD_VIEWERS_TIME = 'load_viewer_time';
-  private static NAVIGATION_ZOOM_EVENT = 'navigation_zoom';
-  private static PROPERTIES_SETTINGS = 'properties_settings';
-  private static PROXY_ERROR = 'proxy_error';
-  private static PROXY_SERVER_NOT_FOUND = 'proxy_server_not_found';
-  private static PROXY_NO_FILES_FOUND = 'proxy_no_files_found';
-  private static RECT_SETTINGS = 'rect_settings';
-  private static REFRESH_DUMPS = 'refresh_dumps';
-  private static TP_GENERAL_QUERY_TIME = 'tp_general_query_time';
-  private static TP_QUERY_EXECUTION_TIME = 'tp_query_execution_time';
-  private static TP_QUERY_REQUESTED = 'tp_query_requested';
-  private static TP_QUERY_FAILED = 'tp_query_failed';
-  private static TP_QUERY_SAVED = 'tp_query_saved';
-  private static TP_SEARCH_INITIALIZATION_TIME =
-    'tp_search_initialization_time';
-  private static TIME_BOOKMARK = 'time_bookmark';
-  private static TIME_COPIED = 'time_copied';
-  private static TIME_INPUT = 'time_input';
-  private static TIME_PROPAGATED = 'time_propagated';
-  private static TRACE_TAB_SWITCHED = 'trace_tab_switched';
-  private static TRACE_TIMELINE_DESELECTED = 'trace_timeline_deselected';
-  private static TRACING_COLLECT_DUMP = 'tracing_collect_dump';
-  private static TRACING_COLLECT_TRACE = 'tracing_collect_trace';
-  private static TRACING_LOADED_EVENT = 'tracing_trace_loaded';
-  private static TRACING_OPEN_FROM_ABT = 'tracing_from_abt';
-  private static TRACING_START_TIME = 'tracing_start_time';
-  private static USER_WARNING = 'user_warning';
-  private static VIEWER_INITIALIZATION_TIME = 'viewer_initialization_time';
+const BUGANIZER_OPENED = 'buganizer_opened';
+const CROSS_TOOL_SYNC = 'cross_tool_sync';
+const DARK_MODE_ENABLED = 'dark_mode_enabled';
+const DIFF_COMPUTATION_TIME = 'diff_computation_time';
+const DOCUMENTATION_OPENED = 'documentation_opened';
+const EXPANDED_TIMELINE_OPENED = 'expanded_timeline_opened';
+const FETCH_COMPONENT_DATA_TIME = 'fetch_component_data_time';
+const FILE_EXTRACTION_TIME = 'file_extraction_time';
+const FILE_PARSING_TIME = 'file_parsing_time';
+const FRAME_MAP_BUILD_TIME = 'frame_map_build_time';
+const FRAME_MAP_ERROR = 'frame_map_error';
+const GLOBAL_EXCEPTION = 'global_exception';
+const HIERARCHY_SETTINGS = 'hierarchy_settings';
+const JS_MEMORY_USAGE = 'js_memory_usage';
+const LOAD_FILES_TIME = 'load_files_time';
+const LOAD_VIEWERS_TIME = 'load_viewer_time';
+const NAVIGATION_ZOOM_EVENT = 'navigation_zoom';
+const PROPERTIES_SETTINGS = 'properties_settings';
+const PROXY_ERROR = 'proxy_error';
+const PROXY_SERVER_NOT_FOUND = 'proxy_server_not_found';
+const PROXY_NO_FILES_FOUND = 'proxy_no_files_found';
+const RECT_SETTINGS = 'rect_settings';
+const REFRESH_DUMPS = 'refresh_dumps';
+const TP_GENERAL_QUERY_TIME = 'tp_general_query_time';
+const TP_QUERY_EXECUTION_TIME = 'tp_query_execution_time';
+const TP_QUERY_REQUESTED = 'tp_query_requested';
+const TP_QUERY_FAILED = 'tp_query_failed';
+const TP_QUERY_SAVED = 'tp_query_saved';
+const TP_SEARCH_INITIALIZATION_TIME = 'tp_search_initialization_time';
+const TIME_BOOKMARK = 'time_bookmark';
+const TIME_COPIED = 'time_copied';
+const TIME_INPUT = 'time_input';
+const TIME_PROPAGATED = 'time_propagated';
+const TRACE_TAB_SWITCHED = 'trace_tab_switched';
+const TRACE_TIMELINE_DESELECTED = 'trace_timeline_deselected';
+const TRACING_COLLECT_DUMP = 'tracing_collect_dump';
+const TRACING_COLLECT_TRACE = 'tracing_collect_trace';
+const TRACING_LOADED_EVENT = 'tracing_trace_loaded';
+const TRACING_OPEN_FROM_ABT = 'tracing_from_abt';
+const TRACING_START_TIME = 'tracing_start_time';
+const USER_WARNING = 'user_warning';
+const VIEWER_INITIALIZATION_TIME = 'viewer_initialization_time';
 
-  static Error = class {
-    static logGlobalException(description: string) {
-      CommonAnalytics.analyticsLogEvent(Analytics.GLOBAL_EXCEPTION, {
+export const Analytics = {
+  Error: {
+    logGlobalException(description: string) {
+      analyticsLogEvent(GLOBAL_EXCEPTION, {
         description,
       } as Gtag.CustomParams);
-    }
-    static logProxyError(description: string) {
-      CommonAnalytics.analyticsLogEvent(Analytics.PROXY_ERROR, {
+    },
+    logProxyError(description: string) {
+      analyticsLogEvent(PROXY_ERROR, {
         description,
       } as Gtag.CustomParams);
-    }
-    static logFrameMapError(description: string) {
-      CommonAnalytics.analyticsLogEvent(Analytics.FRAME_MAP_ERROR, {
+    },
+    logFrameMapError(description: string) {
+      analyticsLogEvent(FRAME_MAP_ERROR, {
         description,
       } as Gtag.CustomParams);
-    }
-  };
+    },
+  },
 
-  static Help = class {
-    static logDocumentationOpened() {
-      CommonAnalytics.analyticsLogEvent(Analytics.DOCUMENTATION_OPENED);
-    }
+  Help: {
+    logDocumentationOpened() {
+      analyticsLogEvent(DOCUMENTATION_OPENED);
+    },
 
-    static logBuganizerOpened() {
-      CommonAnalytics.analyticsLogEvent(Analytics.BUGANIZER_OPENED);
-    }
-  };
+    logBuganizerOpened() {
+      analyticsLogEvent(BUGANIZER_OPENED);
+    },
+  },
 
-  static Loading = class {
-    static logFileExtractionTime(
+  Loading: {
+    logFileExtractionTime(
       type: 'bugreport' | 'device',
       ms: number,
       file_size: number,
     ) {
-      Analytics.logTimeMs(Analytics.FILE_EXTRACTION_TIME, ms, {
+      logTimeMs(FILE_EXTRACTION_TIME, ms, {
         type,
         file_size,
       });
-    }
+    },
 
-    static logFileParsingTime(
+    logFileParsingTime(
       type: 'perfetto' | 'legacy',
       files_source: FilesSource,
       ms: number,
     ) {
-      Analytics.logTimeMs(Analytics.FILE_PARSING_TIME, ms, {
+      logTimeMs(FILE_PARSING_TIME, ms, {
         files_source,
         type,
       });
-    }
+    },
 
-    static logFrameMapBuildTime(ms: number) {
-      Analytics.logTimeMs(Analytics.FRAME_MAP_BUILD_TIME, ms);
-    }
+    logFrameMapBuildTime(ms: number) {
+      logTimeMs(FRAME_MAP_BUILD_TIME, ms);
+    },
 
-    static logLoadFilesTime(ms: number, files_source: FilesSource) {
-      Analytics.logTimeMs(Analytics.LOAD_FILES_TIME, ms, {files_source});
-    }
+    logLoadFilesTime(ms: number, files_source: FilesSource) {
+      logTimeMs(LOAD_FILES_TIME, ms, {files_source});
+    },
 
-    static logLoadViewersTime(ms: number) {
-      Analytics.logTimeMs(Analytics.LOAD_VIEWERS_TIME, ms);
-    }
+    logLoadViewersTime(ms: number) {
+      logTimeMs(LOAD_VIEWERS_TIME, ms);
+    },
 
-    static logViewerInitializationTime(
+    logViewerInitializationTime(
       traceType: string,
       files_source: FilesSource,
       ms: number,
     ) {
-      Analytics.logTimeMs(Analytics.VIEWER_INITIALIZATION_TIME, ms, {
+      logTimeMs(VIEWER_INITIALIZATION_TIME, ms, {
         files_source,
         traceType,
       });
-    }
-  };
+    },
+  },
 
-  static Memory = class {
-    static logUsage(stage: string, params: object = {}) {
+  Memory: {
+    logUsage(stage: string, params: object = {}) {
       const memory: Memory | undefined = (performance as any).memory;
       if (memory) {
         Object.assign(params, {
@@ -152,237 +151,226 @@ export class Analytics {
           usedHeapSize: memory.usedJSHeapSize,
           fractionUsed: memory.usedJSHeapSize / memory.jsHeapSizeLimit,
         });
-        CommonAnalytics.analyticsLogEvent(Analytics.JS_MEMORY_USAGE, params);
+        analyticsLogEvent(JS_MEMORY_USAGE, params);
       }
-    }
-  };
+    },
+  },
 
-  static Navigation = class {
-    static logDiffComputationTime(
+  Navigation: {
+    logDiffComputationTime(
       component: 'hierarchy' | 'properties',
       traceType: string,
       ms: number,
     ) {
-      Analytics.logTimeMs(Analytics.DIFF_COMPUTATION_TIME, ms, {
+      logTimeMs(DIFF_COMPUTATION_TIME, ms, {
         component,
         traceType,
       });
-    }
+    },
 
-    static logExpandedTimelineOpened() {
-      CommonAnalytics.analyticsLogEvent(Analytics.EXPANDED_TIMELINE_OPENED);
-    }
+    logExpandedTimelineOpened() {
+      analyticsLogEvent(EXPANDED_TIMELINE_OPENED);
+    },
 
-    static logFetchComponentDataTime(
+    logFetchComponentDataTime(
       component: 'hierarchy' | 'properties' | 'rects',
       traceType: string,
       withDiffs: boolean,
       ms: number,
     ) {
-      Analytics.logTimeMs(Analytics.FETCH_COMPONENT_DATA_TIME, ms, {
+      logTimeMs(FETCH_COMPONENT_DATA_TIME, ms, {
         component,
         traceType,
         withDiffs,
       });
-    }
+    },
 
-    static logHierarchySettingsChanged(
+    logHierarchySettingsChanged(
       option: string,
       value: boolean,
       traceType: string,
     ) {
-      CommonAnalytics.analyticsLogEvent(Analytics.HIERARCHY_SETTINGS, {
+      analyticsLogEvent(HIERARCHY_SETTINGS, {
         option,
         value,
         traceType,
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logPropertiesSettingsChanged(
+    logPropertiesSettingsChanged(
       option: string,
       value: boolean,
       traceType: string,
     ) {
-      CommonAnalytics.analyticsLogEvent(Analytics.PROPERTIES_SETTINGS, {
+      analyticsLogEvent(PROPERTIES_SETTINGS, {
         option,
         value,
         traceType,
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logRectSettingsChanged(
+    logRectSettingsChanged(
       option: string,
       value: string | number | boolean,
       traceType: string,
     ) {
-      CommonAnalytics.analyticsLogEvent(Analytics.RECT_SETTINGS, {
+      analyticsLogEvent(RECT_SETTINGS, {
         option,
         value,
         traceType,
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logTabSwitched(
-      tabTraceType: string,
-      ms: number,
-      first_switch: boolean,
-    ) {
-      Analytics.logTimeMs(Analytics.TRACE_TAB_SWITCHED, ms, {
+    logTabSwitched(tabTraceType: string, ms: number, first_switch: boolean) {
+      logTimeMs(TRACE_TAB_SWITCHED, ms, {
         type: tabTraceType,
         first_switch,
       });
-    }
+    },
 
-    static logTimeBookmark() {
-      CommonAnalytics.analyticsLogEvent(Analytics.TIME_BOOKMARK);
-    }
+    logTimeBookmark() {
+      analyticsLogEvent(TIME_BOOKMARK);
+    },
 
-    static logTimeCopied(type: 'ns' | 'human') {
-      CommonAnalytics.analyticsLogEvent(Analytics.TIME_COPIED, {
+    logTimeCopied(type: 'ns' | 'human') {
+      analyticsLogEvent(TIME_COPIED, {
         type,
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logTimeInput(type: 'ns' | 'human') {
-      CommonAnalytics.analyticsLogEvent(Analytics.TIME_INPUT, {
+    logTimeInput(type: 'ns' | 'human') {
+      analyticsLogEvent(TIME_INPUT, {
         type,
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logTimePropagated(target: string, ms: number) {
-      Analytics.logTimeMs(Analytics.TIME_PROPAGATED, ms, {target});
-    }
+    logTimePropagated(target: string, ms: number) {
+      logTimeMs(TIME_PROPAGATED, ms, {target});
+    },
 
-    static logTraceTimelineDeselected(type: string) {
-      CommonAnalytics.analyticsLogEvent(Analytics.TRACE_TIMELINE_DESELECTED, {
+    logTraceTimelineDeselected(type: string) {
+      analyticsLogEvent(TRACE_TIMELINE_DESELECTED, {
         type,
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logZoom(
+    logZoom(
       type: 'scroll' | 'button' | 'reset' | 'key',
       component: 'rects' | 'timeline',
       direction?: 'in' | 'out',
     ) {
-      CommonAnalytics.analyticsLogEvent(Analytics.NAVIGATION_ZOOM_EVENT, {
+      analyticsLogEvent(NAVIGATION_ZOOM_EVENT, {
         direction,
         component,
         type,
       } as Gtag.CustomParams);
-    }
-  };
+    },
+  },
 
-  static Proxy = class {
-    static logServerNotFound(connectionType: string) {
-      CommonAnalytics.analyticsLogEvent(Analytics.PROXY_SERVER_NOT_FOUND, {
+  Proxy: {
+    logServerNotFound(connectionType: string) {
+      analyticsLogEvent(PROXY_SERVER_NOT_FOUND, {
         connectionType,
       });
-    }
+    },
 
-    static logNoFilesFound() {
-      CommonAnalytics.analyticsLogEvent(Analytics.PROXY_NO_FILES_FOUND);
-    }
-  };
+    logNoFilesFound() {
+      analyticsLogEvent(PROXY_NO_FILES_FOUND);
+    },
+  },
 
-  static Settings = class {
-    static logDarkModeEnabled() {
-      CommonAnalytics.analyticsLogEvent(Analytics.DARK_MODE_ENABLED);
-    }
-    static logCrossToolSync(value: boolean) {
-      CommonAnalytics.analyticsLogEvent(Analytics.CROSS_TOOL_SYNC, {
+  Settings: {
+    logDarkModeEnabled() {
+      analyticsLogEvent(DARK_MODE_ENABLED);
+    },
+    logCrossToolSync(value: boolean) {
+      analyticsLogEvent(CROSS_TOOL_SYNC, {
         value,
       } as Gtag.CustomParams);
-    }
-  };
+    },
+  },
 
-  static TraceProcessor = class {
-    static logQueryExecutionTime(ms: number) {
-      Analytics.logTimeMs(Analytics.TP_GENERAL_QUERY_TIME, ms);
-    }
-  };
+  TraceProcessor: {
+    logQueryExecutionTime(ms: number) {
+      logTimeMs(TP_GENERAL_QUERY_TIME, ms);
+    },
+  },
 
-  static TraceSearch = class {
-    static logInitializationTime(traceType: string, ms: number) {
-      Analytics.logTimeMs(Analytics.TP_SEARCH_INITIALIZATION_TIME, ms, {
+  TraceSearch: {
+    logInitializationTime(traceType: string, ms: number) {
+      logTimeMs(TP_SEARCH_INITIALIZATION_TIME, ms, {
         traceType,
       });
-    }
-    static logQueryExecutionTime(ms: number) {
-      Analytics.logTimeMs(Analytics.TP_QUERY_EXECUTION_TIME, ms);
-    }
-    static logQueryFailure() {
-      CommonAnalytics.analyticsLogEvent(Analytics.TP_QUERY_FAILED);
-    }
-    static logQueryRequested(type: 'new' | 'saved' | 'recent') {
-      CommonAnalytics.analyticsLogEvent(Analytics.TP_QUERY_REQUESTED, {
+    },
+    logQueryExecutionTime(ms: number) {
+      logTimeMs(TP_QUERY_EXECUTION_TIME, ms);
+    },
+    logQueryFailure() {
+      analyticsLogEvent(TP_QUERY_FAILED);
+    },
+    logQueryRequested(type: 'new' | 'saved' | 'recent') {
+      analyticsLogEvent(TP_QUERY_REQUESTED, {
         type,
       } as Gtag.CustomParams);
-    }
-    static logQuerySaved() {
-      CommonAnalytics.analyticsLogEvent(Analytics.TP_QUERY_SAVED);
-    }
-  };
+    },
+    logQuerySaved() {
+      analyticsLogEvent(TP_QUERY_SAVED);
+    },
+  },
 
-  static Tracing = class {
-    static logTraceLoaded(parser: Parser<object>) {
-      CommonAnalytics.analyticsLogEvent(Analytics.TRACING_LOADED_EVENT, {
+  Tracing: {
+    logTraceLoaded(parser: Parser<object>) {
+      analyticsLogEvent(TRACING_LOADED_EVENT, {
         type: TraceType[parser.getTraceType()],
         coarse_version: CoarseVersion[parser.getCoarseVersion()],
       } as Gtag.CustomParams);
-    }
+    },
 
-    static logCollectDumps(requestedDumps: string[], connectionType?: string) {
+    logCollectDumps(requestedDumps: string[], connectionType?: string) {
       requestedDumps.forEach((dumpType) => {
-        CommonAnalytics.analyticsLogEvent(Analytics.TRACING_COLLECT_DUMP, {
+        analyticsLogEvent(TRACING_COLLECT_DUMP, {
           type: dumpType,
           connectionType,
         } as Gtag.CustomParams);
       });
-    }
+    },
 
-    static logCollectTraces(
-      requestedTraces: string[],
-      connectionType?: string,
-    ) {
+    logCollectTraces(requestedTraces: string[], connectionType?: string) {
       requestedTraces.forEach((traceType) => {
-        CommonAnalytics.analyticsLogEvent(Analytics.TRACING_COLLECT_TRACE, {
+        analyticsLogEvent(TRACING_COLLECT_TRACE, {
           type: traceType,
           connectionType,
         } as Gtag.CustomParams);
       });
-    }
+    },
 
-    static logStartTime(ms: number) {
-      Analytics.logTimeMs(Analytics.TRACING_START_TIME, ms);
-    }
+    logStartTime(ms: number) {
+      logTimeMs(TRACING_START_TIME, ms);
+    },
 
-    static logOpenFromABT() {
-      CommonAnalytics.analyticsLogEvent(Analytics.TRACING_OPEN_FROM_ABT);
-    }
+    logOpenFromABT() {
+      analyticsLogEvent(TRACING_OPEN_FROM_ABT);
+    },
 
-    static logRefreshDumps() {
-      CommonAnalytics.analyticsLogEvent(Analytics.REFRESH_DUMPS);
-    }
-  };
+    logRefreshDumps() {
+      analyticsLogEvent(REFRESH_DUMPS);
+    },
+  },
 
-  static UserNotification = class {
-    static logUserWarning(description: string, message: string) {
-      CommonAnalytics.analyticsLogEvent(Analytics.USER_WARNING, {
+  UserNotification: {
+    logUserWarning(description: string, message: string) {
+      analyticsLogEvent(USER_WARNING, {
         description,
         message,
       } as Gtag.CustomParams);
-    }
-  };
+    },
+  },
+};
 
-  private static logTimeMs(
-    eventName: string,
-    ms: number,
-    params?: Gtag.CustomParams,
-  ) {
-    if (ms > 0) {
-      const finalParams = Object.assign({value: ms}, params);
-      CommonAnalytics.analyticsLogEvent(eventName, finalParams);
-    }
+function logTimeMs(eventName: string, ms: number, params?: Gtag.CustomParams) {
+  if (ms > 0) {
+    const finalParams = Object.assign({value: ms}, params);
+    analyticsLogEvent(eventName, finalParams);
   }
 }
 

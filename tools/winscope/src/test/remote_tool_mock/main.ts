@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// organize-imports-ignore
+import '@angular/compiler';
 import {bootstrapApplication} from '@angular/platform-browser';
-import {AppComponent} from 'app/components/app_component';
+import {AppComponent} from './app_component';
 
 bootstrapApplication(AppComponent).catch((e) => console.error(e));

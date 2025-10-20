@@ -75,25 +75,25 @@ describe('InputCoordinatePropagator', () => {
         ?.getChildByName('x')
         ?.getChildByName('axis')
         ?.getValue(),
-    ).toEqual(0);
+    ).toBe(0);
     expect(
       axisValueInWindow
         ?.getChildByName('x')
         ?.getChildByName('value')
         ?.getValue(),
-    ).toEqual(1.23);
+    ).toBe(1.23);
     expect(
       axisValueInWindow
         ?.getChildByName('y')
         ?.getChildByName('axis')
         ?.getValue(),
-    ).toEqual(1);
+    ).toBe(1);
     expect(
       axisValueInWindow
         ?.getChildByName('y')
         ?.getChildByName('value')
         ?.getValue(),
-    ).toEqual(9.87);
+    ).toBe(9.87);
     expect(
       root
         .getChildByName('dispatchEvents')
@@ -102,7 +102,7 @@ describe('InputCoordinatePropagator', () => {
         ?.getChildByName('0')
         ?.getChildByName('xInDisplay')
         ?.getValue(),
-    ).toEqual(1.23);
+    ).toBe(1.23);
     expect(
       root
         .getChildByName('dispatchEvents')
@@ -111,7 +111,7 @@ describe('InputCoordinatePropagator', () => {
         ?.getChildByName('0')
         ?.getChildByName('yInDisplay')
         ?.getValue(),
-    ).toEqual(9.87);
+    ).toBe(9.87);
   });
 
   it('does not propagate when pointer ids do not match', () => {
@@ -200,26 +200,26 @@ describe('InputCoordinatePropagator', () => {
         ?.getChildByName('0')
         ?.getChildByName('axis')
         ?.getValue(),
-    ).toEqual(0);
+    ).toBe(0);
     expect(
       axisValueInWindow
         ?.getChildByName('0')
         ?.getChildByName('value')
         ?.getValue(),
-    ).toEqual(5);
+    ).toBe(5);
     expect(axisValueInWindow?.getChildByName('1')).toBeUndefined();
     expect(
       axisValueInWindow
         ?.getChildByName('y')
         ?.getChildByName('axis')
         ?.getValue(),
-    ).toEqual(1);
+    ).toBe(1);
     expect(
       axisValueInWindow
         ?.getChildByName('y')
         ?.getChildByName('value')
         ?.getValue(),
-    ).toEqual(9.87);
+    ).toBe(9.87);
     expect(
       root
         .getChildByName('dispatchEvents')
@@ -228,7 +228,7 @@ describe('InputCoordinatePropagator', () => {
         ?.getChildByName('0')
         ?.getChildByName('xInDisplay')
         ?.getValue(),
-    ).toEqual(0.98);
+    ).toBe(0.98);
     expect(
       root
         .getChildByName('dispatchEvents')
@@ -237,7 +237,7 @@ describe('InputCoordinatePropagator', () => {
         ?.getChildByName('0')
         ?.getChildByName('yInDisplay')
         ?.getValue(),
-    ).toEqual(9.87);
+    ).toBe(9.87);
   });
 
   it('does not propagate when XY not present in event', () => {

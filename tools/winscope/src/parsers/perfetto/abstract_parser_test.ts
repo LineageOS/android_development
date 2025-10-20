@@ -21,7 +21,7 @@ describe('PerfettoAbstractParser', () => {
     const parsers = await getPerfettoParsers(
       'invalid_files/no_winscope_traces.perfetto-trace',
     );
-    expect(parsers.length).toEqual(0);
+    expect(parsers.length).toBe(0);
   });
 
   it('robust to non-perfetto file', async () => {
@@ -30,7 +30,7 @@ describe('PerfettoAbstractParser', () => {
       false,
       false,
     );
-    expect(parsers.length).toEqual(0);
+    expect(parsers.length).toBe(0);
   });
 
   it('has expected descriptors', async () => {

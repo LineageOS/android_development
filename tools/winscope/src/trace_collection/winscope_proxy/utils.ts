@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertUnreachable} from 'common/assert_utils';
+import {assertUnreachable} from 'common/assert';
 import {
   HttpRequest,
   HttpRequestHeaderType,
@@ -28,7 +28,7 @@ import {
 import {ConnectionState} from 'trace_collection/connection_state';
 
 export const WINSCOPE_PROXY_URL = 'http://localhost:5544';
-export const VERSION = '6.0.0';
+export const VERSION = '6.0.1';
 
 type StateChangeCallbackType = (
   newState: ConnectionState,

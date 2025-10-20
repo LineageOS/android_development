@@ -19,24 +19,26 @@ import {
   assertBigIntOrUndefined,
   assertNumber,
   assertNumberOrUndefined,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {
-  IDENTITY_MATRIX,
-  TransformMatrix,
-} from 'common/geometry/transform_matrix';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {RowIterator} from 'trace_processor/query_result';
 import {TraceRect} from 'tree_node/trace_rect';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 
+/**
+ * A builder for creating a trace rect from a query row.
+ */
 export class TraceRectBuilderFromQueryRow {
   private row: RowIterator | undefined;
   private id: string | undefined;
   private name: string | undefined;
   private isDisplay = false;
   private isActiveDisplay = false;
+  private rect: Rect | undefined;
+  private transformMatrix: TransformMatrix | undefined;
   private xCol = 'x';
   private yCol = 'y';
   private wCol = 'w';
@@ -49,6 +51,16 @@ export class TraceRectBuilderFromQueryRow {
   private extractCornerRadii = false;
   private extractIsSpy = false;
   private fillRegion: Region | undefined;
+
+  setRect(value: Rect | undefined): this {
+    this.rect = value;
+    return this;
+  }
+
+  setTransformMatrix(value: TransformMatrix | undefined): this {
+    this.transformMatrix = value;
+    return this;
+  }
 
   setRow(value: RowIterator | undefined): this {
     this.row = value;
@@ -134,10 +146,21 @@ export class TraceRectBuilderFromQueryRow {
       throw new Error('name not set');
     }
 
-    const x = assertNumber(this.row.get(this.xCol));
-    const y = assertNumber(this.row.get(this.yCol));
-    const w = assertNumber(this.row.get(this.wCol));
-    const h = assertNumber(this.row.get(this.hCol));
+    let x;
+    let y;
+    let w;
+    let h;
+    if (this.rect) {
+      x = this.rect.x;
+      y = this.rect.y;
+      w = this.rect.w;
+      h = this.rect.h;
+    } else {
+      x = assertNumber(this.row.get(this.xCol));
+      y = assertNumber(this.row.get(this.yCol));
+      w = assertNumber(this.row.get(this.wCol));
+      h = assertNumber(this.row.get(this.hCol));
+    }
 
     const isVisible = this.isDisplay
       ? 0n
@@ -150,17 +173,21 @@ export class TraceRectBuilderFromQueryRow {
       ? assertBigInt(this.row.get('is_spy') ?? 0n)
       : 0n;
 
-    let matrix = IDENTITY_MATRIX;
-
+    let matrix = TransformMatrix.IDENTITY;
     if (this.extractMatrix) {
-      matrix = TransformMatrix.from({
-        dsdx: assertNumberOrUndefined(this.row.get('dsdx') ?? undefined),
-        dtdx: assertNumberOrUndefined(this.row.get('dtdx') ?? undefined),
-        tx: assertNumberOrUndefined(this.row.get('tx') ?? undefined),
-        dtdy: assertNumberOrUndefined(this.row.get('dtdy') ?? undefined),
-        dsdy: assertNumberOrUndefined(this.row.get('dsdy') ?? undefined),
-        ty: assertNumberOrUndefined(this.row.get('ty') ?? undefined),
-      });
+      if (this.transformMatrix) {
+        matrix = this.transformMatrix;
+      } else {
+        //TODO(b/436835528): remove once consumers of TraceRectBuilderFromQueryRow are adapted to use TraceGeometryData
+        matrix = TransformMatrix.from({
+          dsdx: assertNumber(this.row.get('dsdx')),
+          dtdx: assertNumber(this.row.get('dtdx')),
+          tx: assertNumber(this.row.get('tx')),
+          dtdy: assertNumber(this.row.get('dtdy')),
+          dsdy: assertNumber(this.row.get('dsdy')),
+          ty: assertNumber(this.row.get('ty')),
+        });
+      }
     }
 
     const builder = new TraceRectBuilder()

@@ -18,6 +18,7 @@ import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {InvalidPerfettoTrace} from 'messaging/user_warnings';
+import {ParserCujs} from 'parsers/events/perfetto/parser_cujs';
 import {ParserKeyEvent} from 'parsers/input/perfetto/parser_key_event';
 import {ParserMotionEvent} from 'parsers/input/perfetto/parser_motion_event';
 import {ParserInputMethodClients} from 'parsers/input_method/perfetto/parser_input_method_clients';
@@ -25,6 +26,7 @@ import {ParserInputMethodManagerService} from 'parsers/input_method/perfetto/par
 import {ParserInputMethodService} from 'parsers/input_method/perfetto/parser_input_method_service';
 import {ParserProtolog} from 'parsers/protolog/perfetto/parser_protolog';
 import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
+import {TraceGeometryDataBuilder} from 'parsers/trace_geometry_data';
 import {ParserTransactions} from 'parsers/transactions/perfetto/parser_transactions';
 import {ParserTransitions} from 'parsers/transitions/perfetto/parser_transitions';
 import {ParserViewCapture} from 'parsers/view_capture/perfetto/parser_view_capture';
@@ -32,12 +34,14 @@ import {ParserWindowManager} from 'parsers/window_manager/perfetto/parser_window
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 interface ProcessedFile {
   parsers: Array<Parser<object>>;
   isPerfettoTrace: boolean;
+  traceGeometryData: TraceGeometryData | undefined;
 }
 
 export class ParserFactory {
@@ -53,6 +57,7 @@ export class ParserFactory {
     ParserWindowManager,
     ParserMotionEvent,
     ParserKeyEvent,
+    ParserCujs,
   ];
   private static readonly CHUNK_SIZE_BYTES = 50 * 1024 * 1024;
   private static readonly NO_ENTRIES_ERROR_REGEX =
@@ -68,7 +73,11 @@ export class ParserFactory {
       await this.loadFileInTp(traceFile.file, traceProcessor, progressListener);
     } catch (e) {
       console.error('Trace processor failed to parse data:', e);
-      return {parsers: [], isPerfettoTrace: false};
+      return {
+        parsers: [],
+        isPerfettoTrace: false,
+        traceGeometryData: undefined,
+      };
     }
     await traceProcessor.notifyEof();
 
@@ -78,6 +87,9 @@ export class ParserFactory {
     );
 
     await this.processGeometryTables(traceProcessor);
+    const traceGeometryData = await new TraceGeometryDataBuilder()
+      .setTraceProcessor(traceProcessor)
+      .build();
 
     const parsers: Array<Parser<object>> = [];
     let hasFoundParser = false;
@@ -89,6 +101,7 @@ export class ParserFactory {
           traceFile,
           traceProcessor,
           timestampConverter,
+          traceGeometryData,
         );
         await parser.parse();
         if (parser instanceof ParserViewCapture) {
@@ -114,17 +127,19 @@ export class ParserFactory {
       if (errors.length === 0) {
         errors.push('Perfetto trace has no Winscope trace entries');
       }
+    }
+    if (errors.length > 0) {
       UserNotifier.add(
         new InvalidPerfettoTrace(traceFile.getDescriptor(), errors),
       );
     }
-    return {parsers, isPerfettoTrace: true};
+    return {parsers, isPerfettoTrace: true, traceGeometryData};
   }
 
-  private async initializeTraceProcessor(): Promise<TraceProcessor> {
+  private async initializeTraceProcessor(): Promise<TraceProcessorProxy> {
     const traceProcessor = TraceProcessorFactory.getSingleInstance();
 
-    await traceProcessor.resetTraceProcessor({
+    await traceProcessor.reset({
       cropTrackEvents: false,
       ingestFtraceInRawTable: false,
       analyzeTraceProtoContent: false,
@@ -135,7 +150,7 @@ export class ParserFactory {
     return traceProcessor;
   }
 
-  private async processGeometryTables(traceProcessor: TraceProcessor) {
+  private async processGeometryTables(traceProcessor: TraceProcessorProxy) {
     await traceProcessor.query('INCLUDE PERFETTO MODULE android.winscope.rect');
     await traceProcessor.query(`CREATE PERFETTO TABLE winscope_rect AS
       SELECT
@@ -157,7 +172,7 @@ export class ParserFactory {
 
   private async loadFileInTp(
     file: File,
-    traceProcessor: TraceProcessor,
+    traceProcessor: TraceProcessorProxy,
     progressListener?: ProgressListener,
   ) {
     for (

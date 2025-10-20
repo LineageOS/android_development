@@ -1,5 +1,7 @@
 export enum TestModes {
   ATEST = 'atest',
   ROBOLECTRIC = 'robolectric',
-  ADB = 'adb'
+  ADB = 'adb',
+  GERRIT = 'gerrit',
+  PRESUBMIT = 'presubmit'
 }

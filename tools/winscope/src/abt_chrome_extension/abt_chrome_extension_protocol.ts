@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {FunctionUtils} from 'common/function_utils';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
@@ -33,12 +32,17 @@ import {
   WebCommandMessage,
 } from './messages';
 
+/**
+ * Protocol for communication between Winscope and the ABT Chrome extension.
+ *
+ * The extension is used to download traces from Buganizer.
+ */
 export class AbtChromeExtensionProtocol
   implements WinscopeEventEmitter, WinscopeEventListener
 {
   static readonly ABT_EXTENSION_ID = 'mbbaofdfoekifkfpgehgffcpagbbjkmj';
 
-  private emitEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitEvent: EmitEvent = () => Promise.resolve();
 
   setEmitEvent(callback: EmitEvent) {
     this.emitEvent = callback;

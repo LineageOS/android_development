@@ -17,6 +17,9 @@
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 
+/**
+ * A class that associates a file with a list of parsers.
+ */
 export class FileAndParsers {
   constructor(
     readonly file: TraceFile,

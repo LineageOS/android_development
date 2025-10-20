@@ -403,6 +403,9 @@ pub struct PackageVariantConfig {
     /// Whether to compile for device. Defaults to true.
     #[serde(default = "default_true", skip_serializing_if = "is_true")]
     pub device_supported: bool,
+    /// Whether this module should be enabled. Defaults to true.
+    #[serde(default = "default_true", skip_serializing_if = "is_true")]
+    pub enabled: bool,
     /// Whether to compile for host. Defaults to true.
     #[serde(default = "default_true", skip_serializing_if = "is_true")]
     pub host_supported: bool,
@@ -457,6 +460,7 @@ impl Default for PackageVariantConfig {
         Self {
             alloc: false,
             device_supported: true,
+            enabled: true,
             host_supported: true,
             host_cross_supported: true,
             host_first_multilib: false,
@@ -491,6 +495,7 @@ mod tests {
                 "another": {
                     "add_toplevel_block": "block.bp",
                     "device_supported": false,
+                    "enabled": false,
                     "force_rlib": true,
                     "target_windows": true
                 },
@@ -537,6 +542,7 @@ mod tests {
                                 "another".to_string(),
                                 PackageVariantConfig {
                                     device_supported: false,
+                                    enabled: false,
                                     force_rlib: true,
                                     target_windows: true,
                                     ..Default::default()
@@ -561,6 +567,7 @@ mod tests {
                                 PackageVariantConfig {
                                     alloc: false,
                                     device_supported: false,
+                                    enabled: false,
                                     force_rlib: false,
                                     target_windows: true,
                                     ..Default::default()
@@ -623,6 +630,7 @@ mod tests {
                         PackageVariantConfig {
                             dep_blocklist: vec!["bad_dep".to_string()],
                             target_windows: true,
+                            enabled: false,
                             ..Default::default()
                         },
                     )]
@@ -644,6 +652,7 @@ mod tests {
                             dep_blocklist: vec!["bad_dep".to_string()],
                             no_std: true,
                             target_windows: true,
+                            enabled: false,
                             ..Default::default()
                         },
                     )]
@@ -670,6 +679,7 @@ mod tests {
       "dep_blocklist": [
         "bad_dep"
       ],
+      "enabled": false,
       "target_windows": true
     }
   },

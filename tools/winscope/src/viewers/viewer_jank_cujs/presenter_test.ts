@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {getTracesParser} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
 import {LogHeader} from 'viewers/common/ui_data_log';
@@ -64,7 +64,7 @@ class PresenterJankCujsTest extends AbstractLogViewerPresenterTest<UiData> {
       }),
     },
   ];
-  private trace: Trace<PropertyTreeNode> | undefined;
+  private trace: Trace<HierarchyTreeNode> | undefined;
   private positionUpdate: TracePositionUpdate | undefined;
 
   override async setUpTestEnvironment(): Promise<void> {
@@ -72,9 +72,9 @@ class PresenterJankCujsTest extends AbstractLogViewerPresenterTest<UiData> {
       await getTracesParser([
         'traces/elapsed_and_real_timestamp/eventlog.winscope',
       ])
-    ).tracesParser as Parser<PropertyTreeNode>;
+    ).tracesParser as Parser<HierarchyTreeNode>;
 
-    this.trace = new TraceBuilder<PropertyTreeNode>()
+    this.trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.CUJS)
       .setParser(parser)
       .build();

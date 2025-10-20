@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {AbstractInputEventParser} from 'parsers/input/perfetto/abstract_input_event_parser';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {InputEventType} from 'trace/input/input_event_type';
 import {TraceType} from 'trace_api/trace_type';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export class ParserKeyEvent extends AbstractInputEventParser {
   private static readonly KEY_EVENT_FIELD =

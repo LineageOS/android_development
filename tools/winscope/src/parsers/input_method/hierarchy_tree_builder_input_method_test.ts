@@ -16,7 +16,7 @@
 
 import {HierarchyTreeBuilderInputMethod} from 'parsers/input_method/hierarchy_tree_builder_input_method';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {OperationChain} from 'tree_node/operation_chain';
 import {PropertiesProvider} from 'tree_node/properties_provider';
@@ -28,7 +28,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
   let entryPropertiesTree: PropertyTreeNode;
 
   beforeEach(() => {
-    jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+    jasmine.addCustomEqualityTester(treeNodeEqualityTester);
     builder = new HierarchyTreeBuilderInputMethod();
     entryPropertiesTree = new PropertyTreeBuilder()
       .setIsRoot(true)
@@ -38,6 +38,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
     entry = new PropertiesProvider(
       entryPropertiesTree,
       async () => entryPropertiesTree,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -63,6 +64,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
@@ -82,6 +84,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
     const childProvider = new PropertiesProvider(
       childProps,
       async () => childProps,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -95,6 +98,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
       new PropertiesProvider(
         entryPropertiesTree,
         async () => entryPropertiesTree,
+        undefined,
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),
         OperationChain.emptyChain<PropertyTreeNode>(),

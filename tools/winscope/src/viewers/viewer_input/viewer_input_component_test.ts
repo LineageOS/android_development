@@ -15,11 +15,11 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {InputColumnType} from 'trace/input/input_column_type';
 import {TraceType} from 'trace_api/trace_type';
@@ -52,7 +52,7 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
   private trace = new TraceBuilder<HierarchyTreeNode>()
     .setType(TraceType.INPUT_EVENT_MERGED)
     .setEntries([this.hTree])
-    .setTimestamps([TimestampConverterUtils.makeElapsedTimestamp(20n)])
+    .setTimestamps([makeElapsedTimestamp(20n)])
     .build();
   private entry = this.trace.getEntry(0);
 

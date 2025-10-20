@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Trace} from 'trace_api/trace';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -32,7 +32,7 @@ import {UserOptions} from 'viewers/common/user_options';
 
 export class MockPresenter extends AbstractLogViewerPresenter<
   UiDataLog,
-  PropertyTreeNode
+  HierarchyTreeNode
 > {
   protected override logPresenter = new LogPresenter<LogEntry>();
   protected override propertiesPresenter = new PropertiesPresenter(
@@ -62,7 +62,7 @@ the default for its data type.`,
   };
 
   constructor(
-    trace: Trace<PropertyTreeNode>,
+    trace: Trace<HierarchyTreeNode>,
     readonly storage: Store,
     notifyViewCallback: NotifyLogViewCallbackType<UiDataLog>,
   ) {
@@ -82,7 +82,8 @@ the default for its data type.`,
             value: this.trace.getEntry(0).getTimestamp(),
           },
         ],
-        getPropertiesTree: async () => await this.trace.getEntry(0).getValue(),
+        getPropertiesTree: async () =>
+          (await this.trace.getEntry(0).getValue()).getAllProperties(),
       },
       {
         traceEntry: this.trace.getEntry(1),
@@ -94,7 +95,8 @@ the default for its data type.`,
             value: this.trace.getEntry(1).getTimestamp(),
           },
         ],
-        getPropertiesTree: async () => await this.trace.getEntry(1).getValue(),
+        getPropertiesTree: async () =>
+          (await this.trace.getEntry(1).getValue()).getAllProperties(),
       },
       {
         traceEntry: this.trace.getEntry(2),
@@ -106,7 +108,8 @@ the default for its data type.`,
             value: this.trace.getEntry(2).getTimestamp(),
           },
         ],
-        getPropertiesTree: async () => await this.trace.getEntry(2).getValue(),
+        getPropertiesTree: async () =>
+          (await this.trace.getEntry(2).getValue()).getAllProperties(),
       },
       {
         traceEntry: this.trace.getEntry(3),
@@ -118,7 +121,8 @@ the default for its data type.`,
             value: this.trace.getEntry(3).getTimestamp(),
           },
         ],
-        getPropertiesTree: async () => await this.trace.getEntry(3).getValue(),
+        getPropertiesTree: async () =>
+          (await this.trace.getEntry(3).getValue()).getAllProperties(),
       },
     ];
     return entries;

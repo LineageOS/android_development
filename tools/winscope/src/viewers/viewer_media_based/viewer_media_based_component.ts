@@ -31,7 +31,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Size} from 'common/geometry/size';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
@@ -55,39 +55,41 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         <button mat-button class="button-drag draggable" cdkDragHandle>
           <mat-icon class="drag-icon">drag_indicator</mat-icon>
         </button>
-        <span
-          #titleText
-          *ngIf="titles.length <= 1"
-          cdkDragHandle
-          class="mat-body-2 overlay-title text-no-overflow draggable"
-          [matTooltip]="titles.at(index)"
-          matTooltipPosition="above"
-          [matTooltipShowDelay]="300"
-          >{{ titles.at(0)?.split(".")[0].split(" ")[0] ?? 'Screen recording'}}</span>
-
-        <mat-select
-          *ngIf="titles.length > 1"
-          class="overlay-title text-no-overflow select-title"
-          [matTooltip]="titles.at(index)"
-          matTooltipPosition="above"
-          [matTooltipShowDelay]="300"
-          (selectionChange)="onSelectChange($event)"
-          [value]="index">
-          <mat-option
-            *ngFor="let title of titles; index as i"
-            [value]="i">
-            {{ titles[i].split(".")[0] }}
-          </mat-option>
-        </mat-select>
+        @if (titles.length <= 1) {
+          <span
+            #titleText
+            cdkDragHandle
+            class="mat-body-2 overlay-title text-no-overflow draggable"
+            [matTooltip]="titles.at(index)"
+            matTooltipPosition="above"
+            [matTooltipShowDelay]="300"
+            >{{ titles.at(0)?.split(".")[0].split(" ")[0] ?? 'Screen recording'}}</span>
+        } @else {
+          <mat-select
+            class="overlay-title text-no-overflow select-title"
+            [matTooltip]="titles.at(index)"
+            matTooltipPosition="above"
+            [matTooltipShowDelay]="300"
+            (selectionChange)="onSelectChange($event)"
+            [value]="index">
+            @for (title of titles; track $index; let i = $index) {
+              <mat-option
+                [value]="i">
+                {{ titles[i].split(".")[0] }}
+              </mat-option>
+            }
+          </mat-select>
+        }
 
         <span class="header-end">
-          <mat-icon
-            class="info-icon material-symbols-outlined"
-            *ngIf="enableDoubleClick"
-            matTooltip="Double click overlay to change active trace to this screen recording"
-            matTooltipPosition="above">
-            info
-          </mat-icon>
+          @if (enableDoubleClick) {
+            <mat-icon
+              class="info-icon material-symbols-outlined"
+              matTooltip="Double click overlay to change active trace to this screen recording"
+              matTooltipPosition="above">
+              info
+            </mat-icon>
+          }
 
           <button mat-button class="button-minimize" [disabled]="forceMinimize" (click)="onMinimizeButtonClick()">
             <mat-icon>
@@ -97,25 +99,20 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         </span>
       </mat-card-title>
       <div class="video-container" cdkDragHandle [style.height]="isMinimized() ? '0px' : ''">
-        <ng-container *ngIf="hasFrameToShow(); then video; else noVideo"> </ng-container>
-      </div>
-    </mat-card>
-
-    <ng-template #video>
-      <video
-        *ngIf="hasFrameToShow()"
-        [currentTime]="getCurrentTime()"
-        [src]="safeUrl"
-        #videoElement></video>
-    </ng-template>
-
-    <ng-template #noVideo>
-      <img *ngIf="hasImage()" [src]="safeUrl" />
-
-      <div class="no-video" *ngIf="!hasImage()">
-        <p class="mat-body-2">No frame to show.</p>
-      </div>
-    </ng-template>
+        @if (hasFrameToShow()) {
+          <video
+            [currentTime]="getCurrentTime()"
+            [src]="safeUrl"
+            #videoElement></video>
+        } @else {
+          @if (hasImage()) {
+            <img [src]="safeUrl" />
+          } @else {
+            <div class="no-video">
+              <p class="mat-body-2">No frame to show.</p>
+            </div>
+          }
+        }
     </div>
   `,
   styles: [
@@ -278,6 +275,14 @@ class ViewerMediaBasedComponent {
     this.index = event.value;
     this.updateSafeUrl();
     event.source.close();
+    const screenIndexChangeEvent = new CustomEvent(
+      ViewerEvents.OverlayScreenRecordingChange,
+      {
+        detail: this.index,
+        bubbles: true,
+      },
+    );
+    this.elementRef.nativeElement.dispatchEvent(screenIndexChangeEvent);
   }
 
   onOverlayDblClick() {

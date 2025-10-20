@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {TimeUtils} from 'common/time/time_utils';
+import {assertDefined} from 'common/assert';
+import {Timer} from 'common/time/timer';
 import {TracePositionUpdate} from 'messaging/winscope_event';
+import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {setNumRowsSpyQueryResult} from 'trace_processor/test_utils';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -42,7 +42,7 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
         presenter = await this.createPresenter((newData) => {
           uiData = newData;
         });
-        await TimeUtils.wait(() => !uiData.isFetchingData);
+        await new Timer().wait(() => !uiData.isFetchingData);
         if (this.resetTestEnvironment) {
           this.resetTestEnvironment();
         }
@@ -52,15 +52,13 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
         const presenter = await this.createPresenterWithEmptyTrace(
           (newData: UiData) => (uiData = newData),
         );
-        spyOn(TraceProcessor.prototype, 'query').and.returnValue(
+        spyOn(TraceProcessorProxy.prototype, 'query').and.returnValue(
           Promise.resolve(setNumRowsSpyQueryResult(0)),
         );
         await presenter.onAppEvent(
-          TracePositionUpdate.fromTimestamp(
-            TimestampConverterUtils.makeRealTimestamp(0n),
-          ),
+          TracePositionUpdate.fromTimestamp(makeRealTimestamp(0n)),
         );
-        await TimeUtils.wait(() => !uiData.isFetchingData);
+        await new Timer().wait(() => !uiData.isFetchingData);
         for (const [index, expectedHeader] of this.expectedHeaders.entries()) {
           const header = uiData.headers[index];
           expect(header.spec).toEqual(expectedHeader.header.spec);
@@ -77,7 +75,7 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
         await assertDefined(presenter).onAppEvent(
           assertDefined(this.getPositionUpdate()),
         );
-        await TimeUtils.wait(() => !uiData.isFetchingData);
+        await new Timer().wait(() => !uiData.isFetchingData);
         for (const [index, expectedHeader] of this.expectedHeaders.entries()) {
           const header = uiData.headers[index];
           expect(header).toEqual(expectedHeader.header);
@@ -90,6 +88,24 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
         if (this.executePropertiesChecksAfterPositionUpdate) {
           this.executePropertiesChecksAfterPositionUpdate(uiData);
         }
+      });
+
+      it('sorts filter options according to sorter', async () => {
+        if (!this.getExpectedSortedOptions) {
+          return;
+        }
+
+        await assertDefined(presenter).onAppEvent(
+          assertDefined(this.getPositionUpdate()),
+        );
+        await new Timer().wait(() => !uiData.isFetchingData);
+
+        const expected = this.getExpectedSortedOptions();
+        const header = uiData.headers.find(
+          (h) => h.spec.name === expected.column,
+        );
+        const filter = header?.filter as LogSelectFilter | undefined;
+        expect(filter?.options).toEqual(expected.options);
       });
     });
 
@@ -136,6 +152,8 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
     callback: NotifyLogViewCallbackType<UiData>,
   ): Promise<AbstractLogViewerPresenter<UiData, object>>;
   abstract getPositionUpdate(): TracePositionUpdate;
+
+  getExpectedSortedOptions?(): {column: string; options: string[]};
 
   resetTestEnvironment?(): void;
   executePropertiesChecksForEmptyTrace?(uiData: UiDataLog): void;

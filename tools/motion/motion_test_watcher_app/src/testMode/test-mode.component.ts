@@ -29,15 +29,15 @@ import { TruncatePipe } from '../app/pipes/truncate.pipe';
   ],
   templateUrl: './test-mode.component.html',
 })
-export class TestModeComponent implements OnChanges{
-  constructor(private elementRef: ElementRef) {}
+export class TestModeComponent implements OnChanges {
+  constructor(private elementRef: ElementRef) { }
 
-  @Input() testModes: String[] = [];
-  @Input() testMode: String = "";  // will either be GERRIT OR PRESUBMIT (special cases that cannot come in test modes api response)
-  @Output() selectedTestMode = new EventEmitter<String>();
+  @Input() testModes: string[] = [];
+  @Input() testMode: string = "";
+  @Output() selectedTestMode = new EventEmitter<string>();
 
 
-  selectedMode : String= ""
+  selectedMode: string = ""
   showDropdown = false
 
   toggleDropdown(): void {
@@ -52,29 +52,21 @@ export class TestModeComponent implements OnChanges{
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['testModes'] && this.testMode.length == 0) {
-      this.setFirstTestModeAsDefaultMode()
-    }
-    if (changes["testMode"] && this.testMode.length > 0) {
+    if (changes["testMode"]) {
       this.selectedMode = this.testMode
     }
   }
 
-  onActionSelected(action: String): void {
-    this.selectedMode = action
-    this.switchMode(action)
+  onActionSelected(action: string): void {
+    if (this.selectedMode !== action) {// Take action only when selected mode changes.
+      this.selectedMode = action
+      this.switchMode(action)
+    }
     this.toggleDropdown()
   }
 
-  switchMode(mode : String) {
+  switchMode(mode: string) {
     this.selectedTestMode.emit(mode);
-  }
-
-  setFirstTestModeAsDefaultMode() {
-    if (this.testModes && this.testModes.length > 0 && this.testModes[0] != null) {
-      this.selectedMode = this.testModes[0]
-      this.switchMode(this.selectedMode)
-    }
   }
 }
 

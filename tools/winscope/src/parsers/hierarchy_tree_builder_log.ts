@@ -18,7 +18,10 @@ import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 
-export class HierarchyTreeBuilderLog extends HierarchyTreeBuilder {
+/**
+ * A builder for creating a hierarchy tree from a log.
+ */
+export class HierarchyTreeBuilderLog extends HierarchyTreeBuilder<number> {
   protected override buildIdentifierToChildrenMap(
     traceLogEntries: PropertiesProvider[],
   ): Map<number, readonly HierarchyTreeNode[]> {

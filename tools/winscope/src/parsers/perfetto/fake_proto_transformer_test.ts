@@ -39,8 +39,8 @@ describe('FakeProtoTransformer', () => {
       enum1: 1n,
     };
     const transformed = transformer.transform(proto);
-    expect(transformed.enum0).toEqual(1);
-    expect(transformed.enum1).toEqual(1);
+    expect(transformed.enum0).toBe(1);
+    expect(transformed.enum1).toBe(1);
   });
 
   it('converts fields to number if 32-bits type', () => {
@@ -48,7 +48,7 @@ describe('FakeProtoTransformer', () => {
       number_32bit: 32n,
     };
     const transformed = transformer.transform(proto);
-    expect(transformed.number_32bit).toEqual(32);
+    expect(transformed.number_32bit).toBe(32);
   });
 
   it('converts fields to bigint if 64-bits type', () => {
@@ -56,6 +56,6 @@ describe('FakeProtoTransformer', () => {
       number_64bit: 64,
     };
     const transformed = transformer.transform(proto);
-    expect(transformed.number_64bit).toEqual(64n);
+    expect(transformed.number_64bit).toBe(64n);
   });
 });

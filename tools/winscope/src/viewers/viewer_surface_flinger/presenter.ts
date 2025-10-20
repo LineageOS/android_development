@@ -19,8 +19,8 @@ import {
   assertDefined,
   assertNumberOrUndefined,
   assertString,
-} from 'common/assert_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {
   TabbedViewSwitchRequest,
@@ -30,7 +30,7 @@ import {EMPTY_OBJ_STRING, FixedStringFormatter} from 'trace/formatters';
 import {LayerFlag} from 'trace/surface_flinger/layer_flag';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -65,6 +65,10 @@ import {
 } from 'viewers/components/rects/rect_spec';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UiData} from './ui_data';
+import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -75,7 +79,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   ];
 
   protected override hierarchyPresenter = new HierarchyPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'SfHierarchyOptions',
       {
         showDiff: {
@@ -106,7 +110,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     this.getEntryFormattedTimestamp,
   );
   protected override rectsPresenter = new RectsPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'SfRectsOptions',
       {
         ignoreRectShowState: {
@@ -133,7 +137,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     convertRectIdToLayerorDisplayName,
   );
   protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'SfPropertyOptions',
       {
         showDiff: {
@@ -155,6 +159,12 @@ the default for its data type.`,
     Presenter.DENYLIST_PROPERTY_NAMES,
     undefined,
     ['a', 'type'],
+  );
+  protected override playbackPresenter = new PlaybackPresenter(
+    (event) => {
+      return this.emitWinscopeEvent(event);
+    },
+    assertDefined(this.traces.getTrace(TraceType.SURFACE_FLINGER)),
   );
   protected override multiTraceType = undefined;
 
@@ -253,8 +263,32 @@ the default for its data type.`,
     await this.setInitialWmActiveDisplay(event);
   }
 
+  protected override async playPlayback(
+    currentPosition: number,
+    requestedState: PlaybackState,
+    traceGeometryData: TraceGeometryData,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
+  ) {
+    this.hierarchyPresenter.setShowDiffAvailability(false);
+    this.playbackPresenter.setTraceGeometryData(traceGeometryData);
+    this.playbackPresenter.play(
+      currentPosition,
+      requestedState,
+      screenRecordingTrace,
+    );
+  }
+
+  protected override async pausePlayback(): Promise<void> {
+    this.hierarchyPresenter.setShowDiffAvailability(true);
+    this.playbackPresenter.pause();
+  }
+
   protected override async processDataAfterPositionUpdate(): Promise<void> {
-    this.updateCuratedProperties();
+    if (this.playbackPresenter.isPlaying()) {
+      this.hierarchyPresenter.setShowDiffAvailability(false);
+    } else {
+      this.updateCuratedProperties();
+    }
   }
 
   protected override refreshUIData() {
@@ -415,7 +449,8 @@ the default for its data type.`,
         inputWindowInfo?.getChildByName('inputConfig')?.formattedValue() ??
         'null',
       ignoreDestinationFrame:
-        (flags.getValue() & LayerFlag.IGNORE_DESTINATION_FRAME) ===
+        ((flags.getValue<number>() ?? 0) &
+          LayerFlag.IGNORE_DESTINATION_FRAME) ===
         LayerFlag.IGNORE_DESTINATION_FRAME,
       hasInputChannel,
     };
@@ -552,14 +587,18 @@ the default for its data type.`,
       return;
     }
     const wmEntry: HierarchyTreeNode | undefined =
-      await TraceEntryFinder.findCorrespondingEntry<HierarchyTreeNode>(
+      await findCorrespondingEntry<HierarchyTreeNode>(
         this.wmTrace,
         event.position,
       )?.getValue();
     if (wmEntry) {
-      this.wmFocusedDisplayId = wmEntry
-        .getEagerPropertyByName('focusedDisplayId')
-        ?.getValue();
+      this.wmFocusedDisplayId = Number(
+        assertBigInt(
+          wmEntry
+            .getEagerPropertyByName('focusedDisplayId')
+            ?.getValue<bigint>(),
+        ),
+      );
     }
   }
 }

@@ -39,8 +39,8 @@ import {
 } from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
-import {assertDefined} from 'common/assert_utils';
-import {isElementOverflowing} from 'common/dom_utils';
+import {assertDefined} from 'common/assert';
+import {isElementOverflowing} from 'common/dom';
 import {globalConfig} from 'common/global_config';
 import {Store} from 'common/store/store';
 import {
@@ -53,6 +53,9 @@ import {
 import {AbstractSelectComponent} from 'viewers/components/abstract_select_component';
 import {userOptionStyle} from 'viewers/components/styles/user_option.styles';
 
+/**
+ * A component for displaying and editing trace configurations.
+ */
 @Component({
   selector: 'trace-config',
   standalone: true,
@@ -72,139 +75,152 @@ import {userOptionStyle} from 'viewers/components/styles/user_option.styles';
     <h3 class="mat-subtitle-1">{{title}}</h3>
 
     <div class="checkboxes" [style.height]="getTraceCheckboxContainerHeight()">
-      <mat-checkbox
-        *ngFor="let traceKey of getSortedTraceKeys()"
-        color="primary"
-        class="trace-checkbox"
-        [disabled]="!traceConfig[traceKey].available"
-        [(ngModel)]="traceConfig[traceKey].config.enabled"
-        (ngModelChange)="onTraceConfigChange()">
-          <span>{{ traceConfig[traceKey].name }}</span>
-          <button
-            *ngIf="hasAdvancedConfig(traceKey)"
-            mat-icon-button
-            class="advanced-settings-button"
-            [disabled]="!traceConfig[traceKey].config.enabled"
-            cdkOverlayOrigin
-            #settingsTrigger="cdkOverlayOrigin"
-            (click)="onSettingsOverlayTriggerClick(traceKey, settingsTrigger)">
-              <mat-icon>settings</mat-icon>
-          </button>
+      @for (traceKey of getSortedTraceKeys(); track traceKey) {
+        <mat-checkbox
+          color="primary"
+          class="trace-checkbox"
+          [disabled]="!traceConfig[traceKey].available"
+          [(ngModel)]="traceConfig[traceKey].config.enabled"
+          (ngModelChange)="onTraceConfigChange()">
+            <span>{{ traceConfig[traceKey].name }}</span>
+            @if (hasAdvancedConfig(traceKey)) {
+<button
+              mat-icon-button
+              class="advanced-settings-button"
+              [disabled]="!traceConfig[traceKey].config.enabled"
+              cdkOverlayOrigin
+              #settingsTrigger="cdkOverlayOrigin"
+              (click)="onSettingsOverlayTriggerClick(traceKey, settingsTrigger)">
+                <mat-icon>settings</mat-icon>
+            </button>
+}
 
-          <ng-template
-            cdkConnectedOverlay
-            [cdkConnectedOverlayOrigin]="advancedSettingsTrigger"
-            [cdkConnectedOverlayOpen]="traceKey === advancedSettingsKey"
-            [cdkConnectedOverlayHasBackdrop]="true"
-            cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-            (backdropClick)="onSettingsOverlayTriggerClick(traceKey, advancedSettingsTrigger)">
-              <div class="config-section overlay-panel">
-                <h3 class="mat-subtitle-1 config-title">{{ traceConfig[advancedSettingsKey].name }} configuration</h3>
+            <ng-template
+              cdkConnectedOverlay
+              [cdkConnectedOverlayOrigin]="advancedSettingsTrigger"
+              [cdkConnectedOverlayOpen]="traceKey === advancedSettingsKey"
+              [cdkConnectedOverlayHasBackdrop]="true"
+              cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+              (backdropClick)="onSettingsOverlayTriggerClick(traceKey, advancedSettingsTrigger)">
+                <div class="config-section overlay-panel">
+                  <h3 class="mat-subtitle-1 config-title">{{ traceConfig[advancedSettingsKey].name }} configuration</h3>
 
-                <div class="overlay-panel-content">
-                  <div
-                    *ngIf="traceConfig[advancedSettingsKey].config.checkboxConfigs.length > 0"
-                    class="enable-config-opt overlay-panel-section mat-body-1">
-                    <mat-checkbox
-                      *ngFor="let checkboxConfig of getSortedConfigs(traceConfig[advancedSettingsKey].config.checkboxConfigs)"
-                      color="primary"
-                      class="enable-config"
-                      [disabled]="checkboxConfig.disabled"
-                      [(ngModel)]="checkboxConfig.enabled"
-                      (ngModelChange)="onTraceConfigChange()">{{ checkboxConfig.name }}</mat-checkbox>
+                  <div class="overlay-panel-content">
+                    @if (traceConfig[advancedSettingsKey].config.checkboxConfigs.length > 0) {
+<div
+                      class="enable-config-opt overlay-panel-section mat-body-1">
+                      @for (checkboxConfig of getSortedConfigs(traceConfig[advancedSettingsKey].config.checkboxConfigs); track checkboxConfig.key) {
+<mat-checkbox
+                        color="primary"
+                        class="enable-config"
+                        [disabled]="checkboxConfig.disabled"
+                        [(ngModel)]="checkboxConfig.enabled"
+                        (ngModelChange)="onTraceConfigChange()">{{ checkboxConfig.name }}</mat-checkbox>
+}
+                    </div>
+}
+
+                    @if (traceConfig[advancedSettingsKey].config.selectionConfigs.length > 0) {
+<div
+                      class="selection-config-opt overlay-panel-section mat-body-1">
+                      @for (selectionConfig of getSortedConfigs(traceConfig[advancedSettingsKey].config.selectionConfigs); track selectionConfig.key) {
+                        <mat-form-field
+                          class="config-selection"
+                          subscriptSizing="dynamic"
+                          [class.wide-field]="selectionConfig.wideField"
+                          appearance="fill">
+                          <mat-label>{{ selectionConfig.name }}</mat-label>
+
+                          <mat-select
+                            #matSelect
+                            [multiple]="isMultipleSelect(selectionConfig)"
+                            disableOptionCentering
+                            class="selected-value"
+                            [attr.label]="advancedSettingsKey + selectionConfig.name"
+                            [value]="selectionConfig.value"
+                            [disabled]="selectionConfig.options.length === 0"
+                            (opened)="handleSelectOpened(matSelect, selectionConfig)"
+                            (selectionChange)="onSelectChange($event, selectionConfig)">
+
+                            <mat-select-trigger>{{ getSelectTriggerValue(matSelect) }}</mat-select-trigger>
+
+                            @if (selectionConfig.filterString !== undefined) {
+<mat-form-field
+                              class="select-config-filter mat-form-field-appearance-none"
+                              subscriptSizing="dynamic">
+                                <mat-label>Filter options</mat-label>
+                                <input matInput [(ngModel)]="selectionConfig.filterString" />
+                            </mat-form-field>
+}
+
+                            @if (matSelect.multiple || selectionConfig.optional) {
+<span class="mat-mdc-option">
+                              @if (matSelect.multiple) {
+<button
+                                mat-flat-button
+                                class="user-option"
+                                [color]="matSelect.value.length === selectionConfig.options.length ? 'primary' : undefined"
+                                [class.not-enabled]="matSelect.value.length !== selectionConfig.options.length"
+                                (click)="onAllButtonClick(matSelect, selectionConfig)">All</button>
+}
+
+                              @if (selectionConfig.optional && !matSelect.multiple) {
+<button
+                                mat-flat-button
+                                class="user-option"
+                                [color]="matSelect.value.length === 0 ? 'primary' : undefined"
+                                [class.not-enabled]="matSelect.value.length > 0"
+                                (click)="onNoneButtonClick(matSelect, selectionConfig)"> None </button>
+}
+                            </span>
+}
+
+                            @for (option of selectionConfig.options; track option; let i = $index) {
+<mat-option
+                              #matOption
+                              class="option"
+                              [class.hidden-option]="hideOption(option.value, selectionConfig.filterString ?? '')"
+                              (click)="onOptionClick($event, matSelect, matOption, i, selectionConfig)"
+                              [value]="option.value"
+                              matTooltipPosition="right"
+                              [matTooltip]="option.value"
+                              [matTooltipDisabled]="disableOptionTooltip(optionEl)">
+                                <span class="option-with-chip">
+                                  <span
+                                    class="option-value text-no-overflow"
+                                    #optionEl> {{ option.value }} </span>
+                                  @if (option.chip) {
+<button
+                                    mat-flat-button
+                                    class="user-option"
+                                    [disabled]="!selectionConfig.value.includes(option.value)"
+                                    [color]="option.chip.enabled ? 'primary' : undefined"
+                                    [class.not-enabled]="!option.chip.enabled"
+                                    (click)="onChipClick($event, option)">{{option.chip.name}}</button>
+}
+                                </span>
+                            </mat-option>
+}
+
+                          </mat-select>
+                        </mat-form-field>
+                      }
+                    </div>
+}
+
+                    @if (traceConfig[advancedSettingsKey].config.desc) {
+<span
+                      class="config-desc mat-body-1 overlay-panel-section">
+                        {{traceConfig[advancedSettingsKey].config.desc}}
+                    </span>
+}
+
                   </div>
-
-                  <div
-                    *ngIf="traceConfig[advancedSettingsKey].config.selectionConfigs.length > 0"
-                    class="selection-config-opt overlay-panel-section mat-body-1">
-                    <ng-container *ngFor="let selectionConfig of getSortedConfigs(traceConfig[advancedSettingsKey].config.selectionConfigs)">
-                      <mat-form-field
-                        class="config-selection"
-                        subscriptSizing="dynamic"
-                        [class.wide-field]="selectionConfig.wideField"
-                        appearance="fill">
-                        <mat-label>{{ selectionConfig.name }}</mat-label>
-
-                        <mat-select
-                          #matSelect
-                          [multiple]="isMultipleSelect(selectionConfig)"
-                          disableOptionCentering
-                          class="selected-value"
-                          [attr.label]="advancedSettingsKey + selectionConfig.name"
-                          [value]="selectionConfig.value"
-                          [disabled]="selectionConfig.options.length === 0"
-                          (opened)="handleSelectOpened(matSelect, selectionConfig)"
-                          (selectionChange)="onSelectChange($event, selectionConfig)">
-
-                          <mat-select-trigger>{{ getSelectTriggerValue(matSelect) }}</mat-select-trigger>
-
-                          <mat-form-field
-                            *ngIf="selectionConfig.filterString !== undefined"
-                            class="select-config-filter mat-form-field-appearance-none"
-                            subscriptSizing="dynamic">
-                              <mat-label>Filter options</mat-label>
-                              <input matInput [(ngModel)]="selectionConfig.filterString" />
-                          </mat-form-field>
-
-                          <span class="mat-mdc-option" *ngIf="matSelect.multiple || selectionConfig.optional">
-                            <button
-                              *ngIf="matSelect.multiple"
-                              mat-flat-button
-                              class="user-option"
-                              [color]="matSelect.value.length === selectionConfig.options.length ? 'primary' : undefined"
-                              [class.not-enabled]="matSelect.value.length !== selectionConfig.options.length"
-                              (click)="onAllButtonClick(matSelect, selectionConfig)">All</button>
-
-                            <button
-                              *ngIf="selectionConfig.optional && !matSelect.multiple"
-                              mat-flat-button
-                              class="user-option"
-                              [color]="matSelect.value.length === 0 ? 'primary' : undefined"
-                              [class.not-enabled]="matSelect.value.length > 0"
-                              (click)="onNoneButtonClick(matSelect, selectionConfig)"> None </button>
-                          </span>
-
-                          <mat-option
-                            #matOption
-                            *ngFor="let option of selectionConfig.options; index as i"
-                            class="option"
-                            [class.hidden-option]="hideOption(option.value, selectionConfig.filterString ?? '')"
-                            (click)="onOptionClick($event, matSelect, matOption, i, selectionConfig)"
-                            [value]="option.value"
-                            matTooltipPosition="right"
-                            [matTooltip]="option.value"
-                            [matTooltipDisabled]="disableOptionTooltip(optionEl)">
-                              <span class="option-with-chip">
-                                <span
-                                  class="option-value text-no-overflow"
-                                  #optionEl> {{ option.value }} </span>
-                                <button
-                                  *ngIf="option.chip"
-                                  mat-flat-button
-                                  class="user-option"
-                                  [disabled]="!selectionConfig.value.includes(option.value)"
-                                  [color]="option.chip.enabled ? 'primary' : undefined"
-                                  [class.not-enabled]="!option.chip.enabled"
-                                  (click)="onChipClick($event, option)">{{option.chip.name}}</button>
-                              </span>
-                          </mat-option>
-
-                        </mat-select>
-                      </mat-form-field>
-                    </ng-container>
-                  </div>
-
-                  <span
-                    class="config-desc mat-body-1 overlay-panel-section"
-                    *ngIf="traceConfig[advancedSettingsKey].config.desc">
-                      {{traceConfig[advancedSettingsKey].config.desc}}
-                  </span>
-
                 </div>
-              </div>
 
-          </ng-template>
-      </mat-checkbox>
+            </ng-template>
+        </mat-checkbox>
+      }
     </div>
   `,
   styles: [

@@ -18,7 +18,7 @@ import {
   CdkVirtualScrollViewport,
   VirtualScrollStrategy,
 } from '@angular/cdk/scrolling';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {TraceType} from 'trace_api/trace_type';
 import {InputHeightPredictor} from 'viewers/viewer_input/input_height_predictor';

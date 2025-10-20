@@ -18,20 +18,20 @@ import {divideAndRound, getMax} from './bigint_math';
 
 describe('BigintMath', () => {
   it('divideAndRound', () => {
-    expect(divideAndRound(0n, 10n)).toEqual(0n);
-    expect(divideAndRound(10n, 10n)).toEqual(1n);
-    expect(divideAndRound(10n, 6n)).toEqual(2n);
-    expect(divideAndRound(10n, 5n)).toEqual(2n);
-    expect(divideAndRound(10n, 4n)).toEqual(3n);
+    expect(divideAndRound(0n, 10n)).toBe(0n);
+    expect(divideAndRound(10n, 10n)).toBe(1n);
+    expect(divideAndRound(10n, 6n)).toBe(2n);
+    expect(divideAndRound(10n, 5n)).toBe(2n);
+    expect(divideAndRound(10n, 4n)).toBe(3n);
     expect(() => divideAndRound(1n, 0n)).toThrowError();
-    expect(divideAndRound(10000n + 4999n, 10000n)).toEqual(1n);
-    expect(divideAndRound(10000n + 5000n, 10000n)).toEqual(2n);
+    expect(divideAndRound(10000n + 4999n, 10000n)).toBe(1n);
+    expect(divideAndRound(10000n + 5000n, 10000n)).toBe(2n);
   });
 
   it('getMax', () => {
     expect(getMax([])).toBeUndefined();
-    expect(getMax([1n])).toEqual(1n);
-    expect(getMax([1n, 2n])).toEqual(2n);
-    expect(getMax([-1n, 1n])).toEqual(1n);
+    expect(getMax([1n])).toBe(1n);
+    expect(getMax([1n, 2n])).toBe(2n);
+    expect(getMax([-1n, 1n])).toBe(1n);
   });
 });

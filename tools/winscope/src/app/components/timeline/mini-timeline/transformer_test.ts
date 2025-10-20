@@ -14,84 +14,66 @@
  * limitations under the License.
  */
 
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TimeRange} from 'common/time/time';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {Transformer} from './transformer';
 
 describe('Transformer', () => {
   it('can transform', () => {
     const fromRange = new TimeRange(
-      TimestampConverterUtils.makeRealTimestamp(1689763211000000000n),
-      TimestampConverterUtils.makeRealTimestamp(1689763571000000000n),
+      makeRealTimestamp(1689763211000000000n),
+      makeRealTimestamp(1689763571000000000n),
     );
     const toRange = {
       from: 100,
       to: 1100,
     };
-    const transformer = new Transformer(
-      fromRange,
-      toRange,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    const transformer = new Transformer(fromRange, toRange, UTC_CONVERTER);
 
-    const rangeStart = fromRange.from.getValueNs();
-    const rangeEnd = fromRange.to.getValueNs();
-    const range = fromRange.to.getValueNs() - fromRange.from.getValueNs();
+    const rangeStart = fromRange.startNs;
+    const rangeEnd = fromRange.endNs;
+    const range = fromRange.endNs - fromRange.startNs;
 
     expect(transformer.transform(fromRange.from)).toBe(toRange.from);
     expect(transformer.transform(fromRange.to)).toBe(toRange.to);
 
     expect(
-      transformer.transform(
-        TimestampConverterUtils.makeRealTimestamp(rangeStart + range / 2n),
-      ),
+      transformer.transform(makeRealTimestamp(rangeStart + range / 2n)),
     ).toBe(toRange.from + (toRange.to - toRange.from) / 2);
     expect(
-      transformer.transform(
-        TimestampConverterUtils.makeRealTimestamp(rangeStart + range / 4n),
-      ),
+      transformer.transform(makeRealTimestamp(rangeStart + range / 4n)),
     ).toBe(toRange.from + (toRange.to - toRange.from) / 4);
     expect(
-      transformer.transform(
-        TimestampConverterUtils.makeRealTimestamp(rangeStart + range / 20n),
-      ),
+      transformer.transform(makeRealTimestamp(rangeStart + range / 20n)),
     ).toBe(toRange.from + (toRange.to - toRange.from) / 20);
 
     expect(
-      transformer.transform(
-        TimestampConverterUtils.makeRealTimestamp(rangeStart - range / 2n),
-      ),
+      transformer.transform(makeRealTimestamp(rangeStart - range / 2n)),
     ).toBe(toRange.from - (toRange.to - toRange.from) / 2);
     expect(
-      transformer.transform(
-        TimestampConverterUtils.makeRealTimestamp(rangeEnd + range / 2n),
-      ),
+      transformer.transform(makeRealTimestamp(rangeEnd + range / 2n)),
     ).toBe(toRange.to + (toRange.to - toRange.from) / 2);
   });
 
   it('can untransform', () => {
     const fromRange = new TimeRange(
-      TimestampConverterUtils.makeRealTimestamp(1689763211000000000n),
-      TimestampConverterUtils.makeRealTimestamp(1689763571000000000n),
+      makeRealTimestamp(1689763211000000000n),
+      makeRealTimestamp(1689763571000000000n),
     );
     const toRange = {
       from: 100,
       to: 1100,
     };
-    const transformer = new Transformer(
-      fromRange,
-      toRange,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    const transformer = new Transformer(fromRange, toRange, UTC_CONVERTER);
 
-    const rangeStart = fromRange.from.getValueNs();
-    const range = fromRange.to.getValueNs() - fromRange.from.getValueNs();
+    const rangeStart = fromRange.startNs;
+    const range = fromRange.endNs - fromRange.startNs;
 
     expect(transformer.untransform(toRange.from).getValueNs()).toBe(
-      fromRange.from.getValueNs(),
+      fromRange.startNs,
     );
     expect(transformer.untransform(toRange.to).getValueNs()).toBe(
-      fromRange.to.getValueNs(),
+      fromRange.endNs,
     );
 
     expect(

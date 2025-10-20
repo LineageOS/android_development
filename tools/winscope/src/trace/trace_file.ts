@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-import {FileUtils} from 'common/file_utils';
+import {removeDirFromFileName} from 'common/io';
 
+/**
+ * Represents a trace file loaded into Winscope.
+ *
+ * This class wraps a standard `File` object, providing additional context
+ * such as whether the file was extracted from a larger archive. It's useful
+ * for managing and displaying trace files, especially when multiple traces
+ * might originate from a single source (e.g., a bug report zip).
+ */
 export class TraceFile {
   constructor(
     public file: File,
@@ -23,7 +31,7 @@ export class TraceFile {
   ) {}
 
   getDescriptor(): string {
-    let descriptor = FileUtils.removeDirFromFileName(this.file.name);
+    let descriptor = removeDirFromFileName(this.file.name);
     if (this.parentArchive?.name) {
       descriptor += ` (${this.parentArchive.name})`;
     }

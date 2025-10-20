@@ -33,7 +33,7 @@ describe('Viewer Screenshot', () => {
   it('processes file and renders view', async () => {
     await uploadFixture('traces/screenshot/screenshot.png');
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
 
     const viewer = element(by.css(viewerSelector));
     expect(await viewer.isPresent()).toBeTruthy();
@@ -49,7 +49,7 @@ describe('Viewer Screenshot', () => {
       'traces/screenshot/screenshot_2.png',
     );
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
 
     const viewer = element(by.css(viewerSelector));
     expect(await viewer.isPresent()).toBeTruthy();
@@ -60,7 +60,7 @@ describe('Viewer Screenshot', () => {
     expect(src).toContain('blob:');
 
     const overlayTitle = element(by.css(`${viewerSelector} .overlay-title`));
-    expect(await overlayTitle.getText()).toEqual('screenshot');
+    expect(await overlayTitle.getText()).toBe('screenshot');
 
     const selectTrigger = element(
       by.css(`${viewerSelector} .mat-mdc-select-trigger`),
@@ -74,6 +74,6 @@ describe('Viewer Screenshot', () => {
     const newSrc = await img.getAttribute('src');
     expect(newSrc).toContain('blob:');
     expect(newSrc).not.toEqual(src);
-    expect(await overlayTitle.getText()).toEqual('screenshot_2');
+    expect(await overlayTitle.getText()).toBe('screenshot_2');
   });
 });

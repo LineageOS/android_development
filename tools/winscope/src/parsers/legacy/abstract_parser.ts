@@ -29,7 +29,10 @@ import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TraceMetadata} from 'trace_api/trace_metadata';
 import {TraceType} from 'trace_api/trace_type';
-import {ParsingUtils} from './parsing_utils';
+import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 export abstract class AbstractParser<
   T extends object,
@@ -62,10 +65,7 @@ export abstract class AbstractParser<
 
   async parse() {
     const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
-    ParsingUtils.throwIfMagicNumberDoesNotMatch(
-      traceBuffer,
-      this.getMagicNumber(),
-    );
+    throwIfMagicNumberDoesNotMatch(traceBuffer, this.getMagicNumber());
     this.decodedEntries = await this.decodeTrace(traceBuffer);
   }
 
@@ -81,7 +81,14 @@ export abstract class AbstractParser<
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -119,6 +126,10 @@ export abstract class AbstractParser<
     trustedPid: number,
     trustedUid: number,
   ): perfetto.protos.TracePacket[] {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  async getRectsMap(): Promise<RectsForTrace | undefined> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

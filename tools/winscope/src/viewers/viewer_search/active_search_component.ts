@@ -30,8 +30,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {assertDefined} from 'common/assert_utils';
-import {KeyboardEventKey} from 'common/dom_utils';
+import {assertDefined} from 'common/assert';
+import {KeyboardEventKey} from 'common/dom';
 import {Analytics} from 'logging/analytics';
 
 @Component({
@@ -49,32 +49,39 @@ import {Analytics} from 'logging/analytics';
   template: `
     <span class="header">
       <span class="mat-body-2"> {{label}} </span>
-      <button
-        mat-button
-        class="query-button end-align-button clear-button"
-        color="primary"
-        (click)="clearQueryClick.emit()"
-        *ngIf="canClear">
-        <mat-icon> delete </mat-icon>
-        <span> Clear </span>
-      </button>
+      @if (canClear) {
+        <button
+          mat-button
+          class="query-button end-align-button clear-button"
+          color="primary"
+          (click)="clearQueryClick.emit()">
+          <mat-icon> delete </mat-icon>
+          <span> Clear </span>
+        </button>
+      }
     </span>
     <mat-form-field appearance="outline" class="query-field padded-field">
       <textarea matInput [formControl]="searchQueryControl" (keydown)="onTextAreaKeydown($event)" [readonly]="runningQuery"></textarea>
-      <mat-error *ngIf="searchQueryControl.invalid && searchQueryControl.value">Enter valid SQL query.</mat-error>
+      @if (searchQueryControl.invalid && searchQueryControl.value) {
+        <mat-error>Enter valid SQL query.</mat-error>
+      }
     </mat-form-field>
 
     <div class="query-actions">
-      <div *ngIf="runningQuery" class="running-query-message text-no-overflow">
-        <mat-icon class="material-symbols-outlined"> timer </mat-icon>
-        <span class="mat-body-2 message-with-spinner">
-          <span>Calculating results </span>
-          <mat-spinner [diameter]="20"></mat-spinner>
+      @if (runningQuery) {
+        <div class="running-query-message text-no-overflow">
+          <mat-icon class="material-symbols-outlined"> timer </mat-icon>
+          <span class="mat-body-2 message-with-spinner">
+            <span>Calculating results </span>
+            <mat-spinner [diameter]="20"></mat-spinner>
+          </span>
+        </div>
+      }
+      @if (lastQueryExecutionTime) {
+        <span class="query-execution-time text-no-overflow mat-body-1">
+         Executed in {{lastQueryExecutionTime}}
         </span>
-      </div>
-      <span *ngIf="lastQueryExecutionTime" class="query-execution-time text-no-overflow mat-body-1">
-       Executed in {{lastQueryExecutionTime}}
-      </span>
+      }
       <button
         mat-flat-button
         class="query-button search-button"
@@ -82,23 +89,27 @@ import {Analytics} from 'logging/analytics';
         (click)="onSearchQueryClick()"
         [disabled]="searchQueryDisabled()"> Run Search Query </button>
     </div>
-    <div class="current-search" *ngIf="executedQuery">
-      <span class="query">
-        <span class="mat-body-2"> Last executed: </span>
-        <span class="mat-body-1"> {{executedQuery}} </span>
-      </span>
-      <ng-container
-        *ngIf="!lastTraceFailed"
-        [ngTemplateOutlet]="saveQueryField"
-        [ngTemplateOutletContext]="{query: executedQuery, control: saveQueryNameControl}"></ng-container>
-    </div>
-    <button
-      *ngIf="canAdd"
-      [disabled]="!executedQuery || lastTraceFailed"
-      mat-stroked-button
-      class="query-button add-button"
-      color="primary"
-      (click)="addQueryClick.emit()"> + Add Query </button>
+    @if (executedQuery) {
+      <div class="current-search">
+        <span class="query">
+          <span class="mat-body-2"> Last executed: </span>
+          <span class="mat-body-1"> {{executedQuery}} </span>
+        </span>
+        @if (!lastTraceFailed) {
+          <ng-container
+            [ngTemplateOutlet]="saveQueryField"
+            [ngTemplateOutletContext]="{query: executedQuery, control: saveQueryNameControl}"></ng-container>
+        }
+      </div>
+    }
+    @if (canAdd) {
+      <button
+        [disabled]="!executedQuery || lastTraceFailed"
+        mat-stroked-button
+        class="query-button add-button"
+        color="primary"
+        (click)="addQueryClick.emit()"> + Add Query </button>
+    }
   `,
   styles: [
     `

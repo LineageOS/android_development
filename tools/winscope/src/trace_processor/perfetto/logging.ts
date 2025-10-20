@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SCM_REVISION, VERSION} from '../../../deps_build/trace_processor/ui/tsc/gen/perfetto_version';
+import {
+  SCM_REVISION,
+  VERSION,
+} from '../../../deps_build/trace_processor/ui/tsc/gen/perfetto_version';
 
 export type ErrorHandler = (err: string) => void;
 
@@ -20,7 +23,7 @@ let errorHandler: ErrorHandler = (_: string) => {};
 
 export function assertExists<A>(value: A | null | undefined): A {
   if (value === null || value === undefined) {
-    throw new Error('Value doesn\'t exist');
+    throw new Error("Value doesn't exist");
   }
   return value;
 }
@@ -39,7 +42,7 @@ export function setErrorHandler(handler: ErrorHandler) {
   errorHandler = handler;
 }
 
-export function reportError(err: ErrorEvent|PromiseRejectionEvent|{}) {
+export function reportError(err: ErrorEvent | PromiseRejectionEvent | {}) {
   let errLog = '';
   let errorObj = undefined;
 

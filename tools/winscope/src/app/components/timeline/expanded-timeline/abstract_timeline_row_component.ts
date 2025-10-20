@@ -23,7 +23,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Point} from 'common/geometry/point';
 import {TimeRange} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
@@ -32,6 +32,9 @@ import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {CanvasDrawer} from './canvas_drawer';
 
+/**
+ * An abstract component for a single row in the expanded timeline view.
+ */
 @Directive()
 export abstract class AbstractTimelineRowComponent<T extends {}> {
   abstract selectedEntry: TraceEntry<T> | undefined;

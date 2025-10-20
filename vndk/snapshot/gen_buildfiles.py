@@ -637,7 +637,7 @@ class GenBuildFile(object):
 
             def rename_generated_dirs(dirs):
                 # Rename out/soong/.intermediates to generated-headers for better readability.
-                return [d.replace(utils.SOONG_INTERMEDIATES_DIR, utils.GENERATED_HEADERS_DIR, 1) for d in dirs]
+                return sorted(set([d.replace(utils.SOONG_INTERMEDIATES_DIR, utils.GENERATED_HEADERS_DIR, 1) for d in dirs]))
 
             for src in sorted(srcs_props.keys()):
                 include_dirs = ''

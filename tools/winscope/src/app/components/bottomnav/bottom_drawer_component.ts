@@ -36,7 +36,7 @@ import {
   NgZone,
   ViewEncapsulation,
 } from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Subject} from 'rxjs';
 import {debounceTime, takeUntil} from 'rxjs/operators';
 
@@ -119,6 +119,9 @@ export class MatDrawer {
   }
 }
 
+/**
+ * This component corresponds to the content of the drawer container.
+ */
 @Component({
   selector: 'mat-drawer-content',
   standalone: true,

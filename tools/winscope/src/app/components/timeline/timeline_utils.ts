@@ -14,28 +14,40 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {TimeRange, Timestamp} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {TransitionStatus} from 'trace/transitions/status';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
+/**
+ * Checks if a transition has an unknown start time.
+ *
+ * @param transition The transition to check.
+ */
 export function isTransitionWithUnknownStart(
   transition: HierarchyTreeNode,
 ): boolean {
   const dispatchTimestamp: Timestamp | undefined = transition
     ?.getEagerPropertyByName('dispatchTimeNs')
-    ?.getValue();
+    ?.getValue<Timestamp>();
   return dispatchTimestamp === undefined;
 }
 
+/**
+ * Checks if a transition has an unknown end time.
+ *
+ * @param transition The transition to check.
+ */
 export function isTransitionWithUnknownEnd(
   transition: HierarchyTreeNode,
 ): boolean {
   const aborted = isAborted(transition);
   const finishOrAbortTimestamp: Timestamp | undefined = aborted
-    ? transition?.getEagerPropertyByName('shellAbortTimeNs')?.getValue()
-    : transition?.getEagerPropertyByName('finishTimeNs')?.getValue();
+    ? transition
+        ?.getEagerPropertyByName('shellAbortTimeNs')
+        ?.getValue<Timestamp>()
+    : transition?.getEagerPropertyByName('finishTimeNs')?.getValue<Timestamp>();
   return finishOrAbortTimestamp === undefined;
 }
 
@@ -46,6 +58,13 @@ function isAborted(transition: HierarchyTreeNode): boolean {
   );
 }
 
+/**
+ * Gets the time range for a transition.
+ *
+ * @param transition The transition to get the time range for.
+ * @param fullTimeRange The full time range of the timeline.
+ * @param converter The timestamp converter.
+ */
 export function getTimeRangeForTransition(
   transition: HierarchyTreeNode,
   fullTimeRange: TimeRange,
@@ -74,8 +93,8 @@ export function getTimeRangeForTransition(
     return undefined;
   }
 
-  const timeRangeMin = fullTimeRange.from.getValueNs();
-  const timeRangeMax = fullTimeRange.to.getValueNs();
+  const timeRangeMin = fullTimeRange.startNs;
+  const timeRangeMax = fullTimeRange.endNs;
 
   if (
     finishOrAbortTimestamp &&
@@ -115,6 +134,11 @@ export function getTimeRangeForTransition(
   return new TimeRange(startTime, finishTime);
 }
 
+/**
+ * Converts a hex color string to an RGB object.
+ *
+ * @param hex The hex color string to convert.
+ */
 export function convertHexToRgb(
   hex: string,
 ): {r: number; g: number; b: number} | undefined {

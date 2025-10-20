@@ -15,7 +15,8 @@
     </div>
   </mat-toolbar>
   <div *ngIf="isVideoPresent" class="absolute w-full justify-end flex">
-    <button class="px-2 pt-1 rounded-b-lg bg-gray-300 hover:bg-gray-400 mr-10 relative group" (click)="openPreviewComponent()">
+    <button class="px-2 pt-1 rounded-b-lg bg-gray-300 hover:bg-gray-400 mr-10 relative group"
+      (click)="openPreviewComponent()">
       <span class="google-symbols">slideshow</span>
       <span class="
               absolute right-full top-1/2 -translate-y-1/2 mr-2
@@ -66,16 +67,10 @@
     </div>
   </div>
   <div *ngIf="showTestList" [@sidebarMenuAnimation] class="w-1/4 bg-white rounded-r-md overflow-y-auto mr-2 2xl:mr-4">
-      <app-test-list
-        [goldens]="goldens"
-        [testMode]="testMode"
-        (refreshRequest)="refreshGoldens($event)"
-        (selectedGoldenChange)="setSelectedGolden($event)"
-        [testNames]="testNames"
-        (selectedTestNameChange)="setSelectedTest($event)"
-        [(showCheckBoxes)]="showCheckBoxes"
-        [isRefreshing]="isRefreshing"
-      ></app-test-list>
+    <app-test-list [goldens]="goldens" [testMode]="testMode" (refreshRequest)="refreshGoldens($event)"
+      (selectedGoldenChange)="setSelectedGolden($event)" [presubmitTests]="presubmitTests"
+      (selectedTestNameChange)="setSelectedPresubmitTest($event)" [(showCheckBoxes)]="showCheckBoxes"
+      [isRefreshing]="isRefreshing"></app-test-list>
   </div>
 
   <div class="flex flex-col flex-grow space-y-4" [ngStyle]="{ 'width': showTestList ? '75%' : '90%' }">
@@ -85,17 +80,16 @@
     </div>
     <div class="bg-white rounded-md shadow-md p-4 overflow-y-auto no-scrollbar"
       [@timelineHeightChange]="(showPreviewComponent && isVideoPresent)">
-      <app-timeline [selectedGolden]="selectedGolden" [showTestList]="showTestList"></app-timeline>
+      <app-timeline [selectedGolden]="selectedGolden" [showTestList]="showTestList" [testMode]="testMode"></app-timeline>
     </div>
   </div>
 </div>
 
 <div *ngIf="showLoader"
-class="fixed top-0 left-0 w-screen h-screen bg-black/60 flex flex-col justify-center items-center z-50 text-white">
-  <mat-spinner diameter="50"></mat-spinner> <p>Loading data...</p>
+  class="fixed top-0 left-0 w-screen h-screen bg-black/60 flex flex-col justify-center items-center z-50 text-white">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p>Loading data...</p>
 </div>
 
-<div
-  *ngIf="showProgress"
-  class="fixed top-0 left-0 w-full h-1 bg-blue-500 transition-all duration-300 ease-in-out"
-></div>
+<div *ngIf="showProgress" class="fixed top-0 left-0 w-full h-1 bg-blue-500 transition-all duration-300 ease-in-out">
+</div>

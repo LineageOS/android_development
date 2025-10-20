@@ -73,6 +73,15 @@ export const viewerCardStyle = `
   .rects-view:not(.collapsed) {
     overflow-y: hidden;
   }
+
+  .disabled-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    opacity: 1;
+}
 `;
 
 export const viewerCardInnerStyle = `
@@ -115,13 +124,7 @@ export const viewerCardInnerStyle = `
     align-items: center;
     width: 100%;
   }
-  .warning-icon, .inline-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+  .warning-icon {
     padding-inline-end: 4px;
-  }
-  .inline-icon {
-    padding-inline-start: 4px;
   }
 `;

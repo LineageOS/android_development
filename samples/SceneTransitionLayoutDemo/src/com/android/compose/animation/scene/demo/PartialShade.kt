@@ -31,9 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.android.compose.animation.scene.ContentScope
 import com.android.compose.animation.scene.ElementKey
+import com.android.compose.animation.scene.mechanics.rememberGestureContext
 import com.android.compose.modifiers.thenIf
 import com.android.mechanics.behavior.VerticalExpandContainerSpec
 import com.android.mechanics.behavior.verticalExpandContainerBackground
+import com.android.mechanics.compose.modifier.motionDriver
 
 object PartialShade {
     object Colors {
@@ -46,6 +48,7 @@ object PartialShade {
 fun ContentScope.PartialShade(
     rootElement: ElementKey,
     modifier: Modifier = Modifier,
+    revealEffect: Boolean = false,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val isSplitShade = shouldUseSplitScenes(calculateWindowSizeClass())
@@ -57,6 +60,7 @@ fun ContentScope.PartialShade(
         remember(isSplitShade) { VerticalExpandContainerSpec(isFloating = isSplitShade) }
 
     val contentOverscrollEffect = checkNotNull(rememberOverscrollEffect())
+    val gestureContext = rememberGestureContext()
     Box(
         modifier
             .fillMaxWidth(if (isSplitShade) 0.5f else 1f)
@@ -64,6 +68,9 @@ fun ContentScope.PartialShade(
             .overscroll(contentOverscrollEffect)
             .thenIf(isSplitShade) { Modifier.padding(16.dp) }
             .element(rootElement)
+            .thenIf(revealEffect) {
+                Modifier.motionDriver(gestureContext = gestureContext, label = "PartialShade")
+            }
             .verticalExpandContainerBackground(
                 backgroundColor = PartialShade.Colors.Background,
                 spec = shadeMotionSpec,

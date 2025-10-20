@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
+import {trySanitizeUrl} from 'compat/safevalues';
+import {setAnchorHref} from 'compat/safevalues/dom';
+import {assertDefined} from './assert';
+
 /**
- * Utility class for downloading files.
+ * Type for requesting a download
  */
-export class Download {
-  /**
-   * Downloads a file from the given URL with the given filename.
-   *
-   * @param url The URL of the file to download.
-   * @param filename The desired filename of the downloaded file.
-   */
-  static fromUrl(url: string, filename: string) {
-    const a = document.createElement('a');
-    document.body.appendChild(a);
-    // TODO: Do not assign non-constant values to HTMLAnchorElement#href, as this can lead to XSS
-    a.href = url;
-    a.download = filename;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  }
+export type DownloadRequest = (url: string, filename: string) => void;
+
+/**
+ * Downloads a file from the given URL with the given filename.
+ *
+ * @param url The URL of the file to download.
+ * @param filename The desired filename of the downloaded file.
+ */
+export function downloadFromUrl(url: string, filename: string) {
+  const a = document.createElement('a');
+  document.body.appendChild(a);
+  setAnchorHref(a, assertDefined(trySanitizeUrl(url)));
+  a.download = filename;
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
 }

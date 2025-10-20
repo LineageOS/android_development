@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
@@ -46,6 +46,11 @@ import {
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {PropagateHashCodes} from './operations/propagate_hash_codes';
 import {UiData} from './ui_data';
+import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
+import {assertDefined} from 'common/assert';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -56,7 +61,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   ];
 
   protected override hierarchyPresenter = new HierarchyPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'WmHierarchyOptions',
       {
         showDiff: {
@@ -87,7 +92,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     this.getEntryFormattedTimestamp,
   );
   protected override rectsPresenter = new RectsPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'WmRectsOptions',
       {
         ignoreRectShowState: {
@@ -108,7 +113,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     this.convertRectIdtoContainerName,
   );
   protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'WmPropertyOptions',
       {
         showDiff: {
@@ -131,6 +136,12 @@ the default for its data type.`,
     [new PropagateHashCodes()],
   );
   protected override multiTraceType = undefined;
+  protected override playbackPresenter = new PlaybackPresenter(
+    (event) => {
+      return this.emitWinscopeEvent(event);
+    },
+    assertDefined(this.traces.getTrace(TraceType.WINDOW_MANAGER)),
+  );
 
   constructor(
     trace: Trace<HierarchyTreeNode>,
@@ -151,7 +162,7 @@ the default for its data type.`,
     if (node.name !== 'hashCode') {
       return;
     }
-    const token = (node.getValue() ?? 0).toString(16);
+    const token = (node.getValue<number>() ?? 0).toString(16);
     const target = this.uiData.hierarchyTrees
       ?.at(0)
       ?.findDfs((node) => node.id.includes(token));
@@ -197,6 +208,26 @@ the default for its data type.`,
 
   protected override refreshUIData() {
     this.refreshHierarchyViewerUiData();
+  }
+
+  protected override async playPlayback(
+    currentPosition: number,
+    requestedState: PlaybackState,
+    traceGeometryData: TraceGeometryData,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
+  ) {
+    this.hierarchyPresenter.setShowDiffAvailability(false);
+    this.playbackPresenter.setTraceGeometryData(traceGeometryData);
+    this.playbackPresenter.play(
+      currentPosition,
+      requestedState,
+      screenRecordingTrace,
+    );
+  }
+
+  protected override async pausePlayback(): Promise<void> {
+    this.hierarchyPresenter.setShowDiffAvailability(true);
+    this.playbackPresenter.pause();
   }
 
   private getDisplays(rects: UiRect[]): DisplayIdentifier[] {

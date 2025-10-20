@@ -36,7 +36,7 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {ProxyTraceTimeout} from 'messaging/user_warnings';
 import {
@@ -44,7 +44,7 @@ import {
   NoTraceTargetsSelected,
   WinscopeEvent,
 } from 'messaging/winscope_event';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceType} from 'trace_api/trace_type';
@@ -741,13 +741,36 @@ describe('CollectTracesComponent', () => {
       expect(restartSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('tries to authorize device', () => {
+    it('tries to authorize device on list item click', () => {
       const device = new WdpDeviceConnection('35562', component);
       const authorizeSpy = spyOn(device, 'tryAuthorize');
       const stateSpy = spyOn(device, 'getState');
       setSpyWithDevices([device]);
       stateSpy.and.returnValue(AdbDeviceState.OFFLINE);
       dom.detectChanges();
+
+      dom.findAndClick('.available-device');
+      expect(authorizeSpy).not.toHaveBeenCalled();
+
+      stateSpy.and.returnValue(AdbDeviceState.AVAILABLE);
+      dom.detectChanges();
+      dom.findAndClick('.available-device');
+      expect(authorizeSpy).not.toHaveBeenCalled();
+
+      stateSpy.and.returnValue(AdbDeviceState.UNAUTHORIZED);
+      dom.detectChanges();
+      dom.findAndClick('.available-device');
+      expect(authorizeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('tries to authorize device on authorize button click', () => {
+      const device = new WdpDeviceConnection('35562', component);
+      const authorizeSpy = spyOn(device, 'tryAuthorize');
+      const stateSpy = spyOn(device, 'getState');
+      setSpyWithDevices([device]);
+      stateSpy.and.returnValue(AdbDeviceState.OFFLINE);
+      dom.detectChanges();
+
       expect(dom.find('.authorize-btn')).toBeUndefined();
 
       stateSpy.and.returnValue(AdbDeviceState.AVAILABLE);
@@ -941,13 +964,15 @@ describe('CollectTracesComponent', () => {
     imports: [CollectTracesComponent, CommonModule],
     selector: 'host-component',
     template: `
-      <collect-traces
-        *ngIf="showFirstComponent"
-        [storage]="storage"></collect-traces>
+      @if (showFirstComponent) {
+        <collect-traces
+          [storage]="storage"></collect-traces>
+      }
 
-      <collect-traces
-        *ngIf="showSecondComponent"
-        [storage]="storage"></collect-traces>
+      @if (showSecondComponent) {
+        <collect-traces
+          [storage]="storage"></collect-traces>
+      }
     `,
   })
   class TestHostComponent {

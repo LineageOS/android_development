@@ -24,15 +24,15 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TimeRange} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {TraceType} from 'trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 
 describe('DefaultTimelineRowComponent', () => {
   let component: DefaultTimelineRowComponent;
@@ -249,17 +249,17 @@ describe('DefaultTimelineRowComponent', () => {
       .setType(TraceType.TRANSITION)
       .setEntries([{}, {}, {}, {}])
       .setTimestamps([
-        TimestampConverterUtils.makeRealTimestamp(10n),
-        TimestampConverterUtils.makeRealTimestamp(12n),
-        TimestampConverterUtils.makeRealTimestamp(15n),
-        TimestampConverterUtils.makeRealTimestamp(70n),
+        makeRealTimestamp(10n),
+        makeRealTimestamp(12n),
+        makeRealTimestamp(15n),
+        makeRealTimestamp(70n),
       ])
       .build();
     component.selectionRange = new TimeRange(
-      TimestampConverterUtils.makeRealTimestamp(low),
-      TimestampConverterUtils.makeRealTimestamp(high),
+      makeRealTimestamp(low),
+      makeRealTimestamp(high),
     );
-    component.timestampConverter = TimestampConverterUtils.TIMESTAMP_CONVERTER;
+    component.timestampConverter = UTC_CONVERTER;
   }
 
   async function drawCorrectEntryOnClick(

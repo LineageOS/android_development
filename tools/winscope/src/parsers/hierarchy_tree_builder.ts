@@ -18,7 +18,10 @@ import {Computation} from 'tree_node/computation';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 
-export abstract class HierarchyTreeBuilder {
+/**
+ * An abstract builder for creating a hierarchy tree.
+ */
+export abstract class HierarchyTreeBuilder<T> {
   protected root: PropertiesProvider | undefined;
   protected children: PropertiesProvider[] | undefined;
   private computations: Computation[] = [];
@@ -53,16 +56,16 @@ export abstract class HierarchyTreeBuilder {
 
     const root = this.buildHierarchyTree(this.root, identifierToChildren);
 
-    this.computations.forEach((computation) =>
-      computation.setRoot(root).executeInPlace(),
-    );
+    this.computations.forEach((computation) => {
+      computation.setRoot(root).executeInPlace();
+    });
 
     return root;
   }
 
   private buildHierarchyTree(
     root: PropertiesProvider,
-    identifierToChildren: Map<string | number, readonly HierarchyTreeNode[]>,
+    identifierToChildren: Map<T, readonly HierarchyTreeNode[]>,
   ): HierarchyTreeNode {
     const rootProperties = root.getEagerProperties();
     const node = this.makeNode(rootProperties.id, rootProperties.name, root);
@@ -88,11 +91,11 @@ export abstract class HierarchyTreeBuilder {
 
   protected abstract buildIdentifierToChildrenMap(
     nodes: PropertiesProvider[],
-  ): Map<string | number, readonly HierarchyTreeNode[]>;
+  ): Map<T, readonly HierarchyTreeNode[]>;
 
   protected abstract assignParentChildRelationships(
     node: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, readonly HierarchyTreeNode[]>,
+    identifierToChildren: Map<T, readonly HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void;
 }

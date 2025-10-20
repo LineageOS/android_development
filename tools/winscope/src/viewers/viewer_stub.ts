@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {FunctionUtils} from 'common/function_utils';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {Trace} from 'trace_api/trace';
@@ -25,7 +24,7 @@ class ViewerStub implements Viewer {
   private htmlElement: HTMLElement;
   private title: string;
   private view: View;
-  private emitAppEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitAppEvent: EmitEvent = () => Promise.resolve();
 
   constructor(
     title: string,

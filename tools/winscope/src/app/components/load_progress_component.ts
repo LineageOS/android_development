@@ -19,6 +19,9 @@ import {Component, Input} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 
+/**
+ * A component for displaying a progress bar with a message.
+ */
 @Component({
   selector: 'load-progress',
   standalone: true,
@@ -29,13 +32,16 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
         <mat-icon [fontIcon]="icon"> </mat-icon>
       </p>
 
-      <mat-progress-bar *ngIf="progressPercentage === undefined" mode="indeterminate">
-      </mat-progress-bar>
-      <mat-progress-bar
-        *ngIf="progressPercentage !== undefined"
-        mode="determinate"
-        [value]="progressPercentage">
-      </mat-progress-bar>
+      @if (progressPercentage === undefined) {
+        <mat-progress-bar mode="indeterminate">
+        </mat-progress-bar>
+      }
+      @if (progressPercentage !== undefined) {
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progressPercentage">
+        </mat-progress-bar>
+      }
 
       <p class="mat-body-1 progress-message">{{ message }}</p>
     </div>

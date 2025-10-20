@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {DiffType} from 'viewers/common/diff_type';
 import {AddDiffs} from './add_diffs';
 import {DiffNode} from './diff_node';
@@ -32,7 +32,7 @@ export abstract class AbstractAddDiffsTest<T extends DiffNode> {
       });
 
       beforeEach(() => {
-        jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
         newRoot = this.makeRoot();
         oldRoot = this.makeRoot();
         expectedRoot = this.makeRoot();

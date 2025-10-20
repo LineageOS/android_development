@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {assertDefined} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {
@@ -42,6 +41,7 @@ import {
 } from 'viewers/common/viewer_events';
 import {SearchResultPresenter} from './search_result_presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
+import {ActiveSearchQueriesUpdate} from 'messaging/winscope_event';
 
 interface ActiveSearch {
   search: CurrentSearch;
@@ -50,7 +50,7 @@ interface ActiveSearch {
 }
 
 export class Presenter {
-  private emitWinscopeEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitWinscopeEvent: EmitEvent = () => Promise.resolve();
   private uiData = UiData.createEmpty();
   private activeSearchUid = 0;
   private activeSearches: ActiveSearch[] = [];
@@ -64,7 +64,7 @@ export class Presenter {
     private readonly notifyViewCallback: (uiData: UiData) => void,
     private readonly timestampConverter: TimestampConverter,
   ) {
-    this.savedSearches = PersistentStoreProxy.new<{searches: ListedSearch[]}>(
+    this.savedSearches = createPersistentStoreProxy<{searches: ListedSearch[]}>(
       'savedSearches',
       {searches: []},
       this.storage,
@@ -214,6 +214,13 @@ export class Presenter {
 
   private updateCurrentSearches() {
     this.uiData.currentSearches = this.activeSearches.map((a) => a.search);
+    this.emitWinscopeEvent(
+      new ActiveSearchQueriesUpdate(
+        this.uiData.currentSearches
+          .map((s) => s.query)
+          .filter((q) => q !== undefined) as string[],
+      ),
+    );
     this.copyUiDataAndNotifyView();
   }
 

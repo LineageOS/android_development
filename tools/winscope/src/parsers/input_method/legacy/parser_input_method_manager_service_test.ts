@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -49,7 +50,7 @@ describe('ParserInputMethodManagerService', () => {
 
     it('provides timestamps', () => {
       expect(parser.getTimestamps()).toEqual([
-        TimestampConverterUtils.makeRealTimestamp(1659107090565549479n),
+        makeRealTimestamp(1659107090565549479n),
       ]);
     });
 
@@ -59,14 +60,14 @@ describe('ParserInputMethodManagerService', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = parser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(1);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(packets.length).toBe(1);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
       const data =
         packets[0].winscopeExtensions?.[
           '.perfetto.protos.WinscopeExtensionsImpl.inputmethodManagerService'
         ];
       expect(data?.inputMethodManagerService).toBeDefined();
-      expect(data?.where).toEqual(
+      expect(data?.where).toBe(
         'InputMethodManagerService#startInputOrWindowGainedFocus',
       );
       const ts = Long.fromString(BigInt(15963782518).toString());
@@ -83,12 +84,12 @@ describe('ParserInputMethodManagerService', () => {
         .getParser<HierarchyTreeNode>();
 
       expect(perfettoParser.getTimestamps()).toEqual([
-        TimestampConverterUtils.makeRealTimestamp(1659107090565549479n),
+        makeRealTimestamp(1659107090565549479n),
       ]);
 
       const entry = await perfettoParser.getEntry(0);
       expect(entry).toBeInstanceOf(HierarchyTreeNode);
-      expect(entry.getEagerPropertyByName('where')?.getValue()).toEqual(
+      expect(entry.getEagerPropertyByName('where')?.getValue()).toBe(
         'InputMethodManagerService#startInputOrWindowGainedFocus',
       );
     });
@@ -111,7 +112,7 @@ describe('ParserInputMethodManagerService', () => {
 
     it('provides timestamps', () => {
       expect(assertDefined(parser.getTimestamps())[0]).toEqual(
-        TimestampConverterUtils.makeElapsedTimestamp(1149226290110n),
+        makeElapsedTimestamp(1149226290110n),
       );
     });
 
@@ -121,14 +122,14 @@ describe('ParserInputMethodManagerService', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = parser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(3);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(packets.length).toBe(3);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
       const data =
         packets[0].winscopeExtensions?.[
           '.perfetto.protos.WinscopeExtensionsImpl.inputmethodManagerService'
         ];
       expect(data?.inputMethodManagerService).toBeDefined();
-      expect(data?.where).toEqual(
+      expect(data?.where).toBe(
         'InputMethodManagerService#startInputOrWindowGainedFocus',
       );
       const ts = Long.fromString(BigInt(1149226290110).toString());

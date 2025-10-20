@@ -25,8 +25,8 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {
   SearchQueryClickDetail,
   ViewerEvents,
@@ -183,10 +183,10 @@ describe('ActiveSearchComponent', () => {
     );
     expect(
       currentSearch.querySelector('.test-query')?.textContent?.trim(),
-    ).toEqual('test query');
+    ).toBe('test query');
     expect(
       currentSearch.querySelector('.test-control-value')?.textContent?.trim(),
-    ).toEqual('test name');
+    ).toBe('test name');
   });
 
   function getTextInput(): DOMTestHelper<ActiveSearchComponent> {

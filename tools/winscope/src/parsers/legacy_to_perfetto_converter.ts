@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 // TODO(b/311642700): Not compatible with google3
 import Long from 'long';
@@ -31,12 +31,18 @@ import {
   getParserWithLatestRealToMonotonicTimeOffset,
 } from './parser_time_utils';
 
+/**
+ * An interface for a clock snapshot.
+ */
 export interface ClockSnapshot {
   realtime: bigint;
   boottime: bigint | undefined;
   monotonic: bigint | undefined;
 }
 
+/**
+ * A class for converting legacy traces to Perfetto format.
+ */
 export class LegacyToPerfettoConverter {
   static async convertToSinglePerfettoFile(
     legacyParsers: Array<Parser<object>>,
@@ -70,7 +76,7 @@ export class LegacyToPerfettoConverter {
     // packets to size-limited chunks. TraceProcessor can load files in
     // arbitrary chunks so we don't need to worry about how/where the
     // encoded packets are split into chunks.
-    const chunks: Uint8Array[] = [];
+    const chunks: BlobPart[] = [];
     let currBuffer: Uint8Array[] = [];
     let currSize = 0;
 
@@ -351,7 +357,7 @@ export class LegacyToPerfettoConverter {
     return writer.finish();
   }
 
-  private static createChunk(size: number, buffers: Uint8Array[]): Uint8Array {
+  private static createChunk(size: number, buffers: Uint8Array[]): BlobPart {
     const chunk = new Uint8Array(size);
     let offset = 0;
     for (const buffer of buffers) {

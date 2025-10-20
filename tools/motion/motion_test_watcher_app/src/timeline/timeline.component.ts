@@ -5,6 +5,7 @@ import {
   MotionGoldenFeature,
   isNotFound,
   DataSource,
+  DataPoint,
 } from '../model/golden';
 import { GoldensService } from '../service/goldens.service';
 import { PreviewService } from '../service/preview.service';
@@ -17,6 +18,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilterComponent, SelectOption } from '../filter/filter.component';
 import { FilterService } from '../service/filter.service';
 import { Subscription } from 'rxjs';
+import { TestModes } from '../model/test_mode';
 
 @Component({
   selector: 'app-timeline',
@@ -39,13 +41,13 @@ export class TimelineComponent implements OnChanges {
 
   @Input() selectedGolden: MotionGolden | null = null;
   @Input() showTestList: boolean = false;
+  @Input() testMode: string = "";
 
   actualData: MotionGoldenData | undefined;
   expectedData: MotionGoldenData | undefined;
   loading: boolean = false;
   featureCount = 0;
   expandedGraphIdx: number = -1;
-  showUpdateButton: boolean = true;
   availableOptions: SelectOption[] = [];
   displayedData: SelectOption[] = [];
 
@@ -64,13 +66,11 @@ export class TimelineComponent implements OnChanges {
     if (changes['selectedGolden']) {
       this.receivedSelectedOptions = [];
       if(this.selectedGolden?.dataSource === DataSource.GERRIT){
-        this.showUpdateButton = false
         this.updatePageFromData(
           this.selectedGolden.actualData,
           this.selectedGolden.expectedData
         );
       } else {
-        this.showUpdateButton = true
         this.updatePage();
       }
     }
@@ -248,17 +248,30 @@ export class TimelineComponent implements OnChanges {
     });
   }
 
+  areArraysEqual(arr1?: DataPoint[], arr2?: DataPoint[]): boolean {
+    if (arr1?.length !== arr2?.length) {
+      return false;
+    }
+    return arr1?.every((value, index) => value === arr2![index]) ?? true;
+  }
+
   populateFeatureOptions(): void {
     this.availableOptions = [];
     if (this.actualData && this.actualData.features) {
       let nextId = 1;
       this.actualData.features.forEach((feature) => {
         const featureName = feature.name;
+        const expectedDataPoints = this.expectedData?.features.find(
+         (f) => f.name === featureName
+        )?.data_points;
+        const actualDataPoints = feature.data_points;
+        const isFeaturePassing = this.areArraysEqual(actualDataPoints, expectedDataPoints);
         if (featureName) {
           this.availableOptions.push({
             id: nextId++,
             name: featureName,
-            selected: true
+            selected: true,
+            passing: isFeaturePassing
           });
         }
       });
@@ -271,9 +284,17 @@ export class TimelineComponent implements OnChanges {
     if (this.receivedSelectedOptions.length === 0) {
       return true;
     }
-
+    const isFilteringByFailing = this.receivedSelectedOptions.length === 1 && this.receivedSelectedOptions[0].name === "Failing features";
+    if (isFilteringByFailing) {
+      return this.availableOptions.some((option) => option.name === featureName && !option.passing);
+    }
     return this.receivedSelectedOptions.some(selectedOption =>
       selectedOption.name === featureName
-    );
+    )
+  }
+
+  get showUpdateButton(): boolean {
+    return this.testMode != TestModes.PRESUBMIT
+      && this.testMode != TestModes.GERRIT;
   }
 }

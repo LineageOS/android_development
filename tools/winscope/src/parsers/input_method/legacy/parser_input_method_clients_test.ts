@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -47,9 +48,9 @@ describe('ParserInputMethodClients', () => {
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1659107090215405395n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090249283325n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090279417928n),
+        makeRealTimestamp(1659107090215405395n),
+        makeRealTimestamp(1659107090249283325n),
+        makeRealTimestamp(1659107090279417928n),
       ];
       expect(parser.getTimestamps()?.slice(0, 3)).toEqual(expected);
     });
@@ -60,14 +61,14 @@ describe('ParserInputMethodClients', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = parser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(13);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(packets.length).toBe(13);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
       const data =
         packets[0].winscopeExtensions?.[
           '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients'
         ];
       expect(data?.client).toBeDefined();
-      expect(data?.where).toEqual('InsetsSourceConsumer#setControl');
+      expect(data?.where).toBe('InsetsSourceConsumer#setControl');
       const ts = Long.fromString(BigInt(15613638434).toString());
       ts.unsigned = true;
       expect(packets[0].timestamp).toEqual(ts);
@@ -80,9 +81,9 @@ describe('ParserInputMethodClients', () => {
         .getParser<HierarchyTreeNode>();
 
       expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual([
-        TimestampConverterUtils.makeRealTimestamp(1659107090215405395n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090249283325n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090279417928n),
+        makeRealTimestamp(1659107090215405395n),
+        makeRealTimestamp(1659107090249283325n),
+        makeRealTimestamp(1659107090279417928n),
       ]);
 
       const entry = await perfettoParser.getEntry(10);
@@ -96,7 +97,7 @@ describe('ParserInputMethodClients', () => {
         ?.getChildByName('viewRootImpl')
         ?.getChildByName('windowAttributes')
         ?.getChildByName('type');
-      expect(intdefProperty?.formattedValue()).toEqual('TYPE_BASE_APPLICATION');
+      expect(intdefProperty?.formattedValue()).toBe('TYPE_BASE_APPLICATION');
     });
   });
 
@@ -116,7 +117,7 @@ describe('ParserInputMethodClients', () => {
 
     it('provides timestamps', () => {
       expect(assertDefined(parser.getTimestamps())[0]).toEqual(
-        TimestampConverterUtils.makeElapsedTimestamp(1149083651642n),
+        makeElapsedTimestamp(1149083651642n),
       );
     });
 
@@ -126,14 +127,14 @@ describe('ParserInputMethodClients', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = parser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(33);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(packets.length).toBe(33);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
       const data =
         packets[0].winscopeExtensions?.[
           '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients'
         ];
       expect(data?.client).toBeDefined();
-      expect(data?.where).toEqual('InsetsSourceConsumer#setControl');
+      expect(data?.where).toBe('InsetsSourceConsumer#setControl');
       const ts = Long.fromString(BigInt(1149083651642).toString());
       ts.unsigned = true;
       expect(packets[0].timestamp).toEqual(ts);

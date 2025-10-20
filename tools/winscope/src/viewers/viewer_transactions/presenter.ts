@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {assertDefined} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {FLAG_SEPARATOR} from 'trace/formatters';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
@@ -94,7 +94,7 @@ export class Presenter extends AbstractLogViewerPresenter<
   ) {
     super(trace, notifyViewCallback, UiData.createEmpty());
     this.propertiesPresenter = new PropertiesPresenter(
-      PersistentStoreProxy.new<UserOptions>(
+      createPersistentStoreProxy<UserOptions>(
         'TransactionsPropertyOptions',
         {
           showDefaults: {
@@ -178,7 +178,9 @@ export class Presenter extends AbstractLogViewerPresenter<
     ) {
       const entry = this.trace.getEntry(traceIndex);
       const entryNode = assertDefined(entryNodes.at(traceIndex));
-      const vsyncId = entryNode.getEagerPropertyByName('vsyncId')?.getValue();
+      const vsyncId = entryNode
+        .getEagerPropertyByName('vsyncId')
+        ?.getValue<number>();
 
       for (const transactionNode of entryNode.getAllChildren()) {
         const transactionType = assertDefined(

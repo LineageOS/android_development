@@ -17,7 +17,7 @@
 /**
  * Represents padding values for a rectangle.
  */
-export interface Padding {
+export declare interface Padding {
   top: number;
   right: number;
   bottom: number;

@@ -31,6 +31,7 @@ exports.config = {
     },
   },
   chromeDriver: './deps_build/chromedriver-linux64/chromedriver',
+  rootElement: 'app-root',
 
   allScriptsTimeout: 10000,
   getPageTimeout: 10000,
@@ -41,7 +42,6 @@ exports.config = {
 
   onPrepare: async () => {
     browser.ignoreSynchronization = true;
-    await browser.waitForAngular();
     await browser.sleep(500);
   },
 };

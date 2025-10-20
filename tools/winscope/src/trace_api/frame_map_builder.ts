@@ -21,6 +21,15 @@ import {
   FramesRange,
 } from './index_types';
 
+/**
+ * Builds a FrameMap incrementally.
+ *
+ * FrameMap is an immutable data structure used to efficiently query the
+ * relationship between trace entries and display frames. Since the full mapping
+ * might not be available at once, this builder allows populating the necessary
+ * lookup tables over time. Once all data is added, the `build()` method
+ * finalizes the tables and returns an immutable FrameMap instance.
+ */
 export class FrameMapBuilder {
   private readonly lengthEntries: number;
   private readonly lengthFrames: number;

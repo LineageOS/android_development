@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {ResizableBuffer} from 'common/buffer_utils';
-import {binaryEncode, utf8Decode} from 'common/string_utils';
-import {WindowUtils} from 'common/window_utils';
+import {ResizableBuffer} from 'common/buffer';
+import {binaryEncode, utf8Decode} from 'common/string_helpers';
+import {showPopupWindow} from 'common/window';
 import {
   ProxyTracingErrors,
   ProxyTracingWarnings,
@@ -31,7 +31,6 @@ import {TraceTarget} from 'trace_collection/trace_target';
 import {DataListener} from './adb_websocket_stream';
 import {ShellStream} from './shell_stream';
 import {StreamProvider} from './stream_provider';
-import {WdpDeviceConnectionResponse} from './wdp_host_connection';
 import {ErrorListener} from './websocket_stream';
 
 export class WdpDeviceConnection extends AdbDeviceConnection {
@@ -44,6 +43,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
     id: string,
     listener: AdbDeviceConnectionListener,
     private approveUrl?: string,
+    private showWindow: (url: string) => boolean = showPopupWindow,
   ) {
     super(id, listener);
   }
@@ -54,7 +54,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
 
   override async tryAuthorize(): Promise<void> {
     if (this.approveUrl) {
-      const popup = WindowUtils.showPopupWindow(this.approveUrl);
+      const popup = this.showWindow(this.approveUrl);
       if (!popup) {
         await this.listener.onError(`Please enable popups and try again.`);
         this.authorizeDevicePopup = false;
@@ -199,3 +199,11 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
 }
 
 const ESC_CHAR_VINTR = new Uint8Array([0x03]);
+
+export interface WdpDeviceConnectionResponse {
+  serialNumber: string;
+  proxyStatus: 'ADB' | 'PROXY_UNAUTHORIZED';
+  adbStatus: string;
+  adbProps?: {[key: string]: string};
+  approveUrl?: string;
+}

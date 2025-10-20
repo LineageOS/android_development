@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the corner radii of a rectangle.
+ */
 export class CornerRadii {
   constructor(
     public tl: number,

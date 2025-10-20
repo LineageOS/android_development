@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Styles for the proxy setup component.
+ */
 export const proxySetupStyles = `
   .icon-information {
     display: flex;

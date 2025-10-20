@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {TimezoneInfo} from 'common/time/time';
 import {
   MissingPersistentTrace,
@@ -28,11 +28,19 @@ import {
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ProcessedFiles} from 'parsers/legacy/parser_factory';
-import {getFixtureFile} from 'test/unit/fixture_file_utils';
+import {getFixtureFile} from 'test/unit/io_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceFile} from 'trace/trace_file';
 import {TraceMetadata} from 'trace_api/trace_metadata';
-import {BuildType, TraceFileFilter} from './trace_file_filter';
+import {
+  BuildType,
+  ParseLegacyFilesStrategy,
+  TraceFileFilter,
+} from './trace_file_filter';
+import {
+  BugreportFileSelectionRequest,
+  WinscopeEvent,
+} from 'messaging/winscope_event';
 
 describe('TraceFileFilter', () => {
   const filter = new TraceFileFilter();
@@ -148,10 +156,10 @@ describe('TraceFileFilter', () => {
 
     it('sends request for file selection if multiple files in perfetto directory', async () => {
       let requested: string[] | undefined;
-      filter.setEmitEvent(async (event) => {
+      filter.setEmitEvent(async (event: WinscopeEvent) => {
         await event.visit(
           WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
-          async (event) => {
+          async (event: BugreportFileSelectionRequest) => {
             requested = event.filenames;
             await filter.onWinscopeEvent(
               new BugreportFileSelected(event.filenames[1]),
@@ -210,7 +218,7 @@ describe('TraceFileFilter', () => {
       ];
 
       let identifiedTimezoneInfo: TimezoneInfo | undefined;
-      const tryParseLegacyFiles = (
+      const tryParseLegacyFiles: ParseLegacyFilesStrategy = (
         files: TraceFile[],
         _,
         timezoneInfo?: TimezoneInfo,
@@ -315,7 +323,7 @@ describe('TraceFileFilter', () => {
         tryParsePerfetto,
       );
       expect(result.perfetto?.file).toEqual(perfettoSysTrace);
-      expect(result.criticalWarnings?.length).toEqual(0); // No warnings expected
+      expect(result.criticalWarnings?.length).toBe(0); // No warnings expected
       userNotifierChecker.expectNone();
     });
 
@@ -480,7 +488,7 @@ describe('TraceFileFilter', () => {
 
     expect(result.perfetto).toBeUndefined();
     expect(result.criticalWarnings).toBeDefined();
-    expect(result.criticalWarnings?.length).toEqual(1);
+    expect(result.criticalWarnings?.length).toBe(1);
     const warning = assertDefined(
       result.criticalWarnings,
     )[0] as MissingPersistentTrace;

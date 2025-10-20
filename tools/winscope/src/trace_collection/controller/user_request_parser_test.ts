@@ -284,10 +284,12 @@ describe('UserRequestParser', () => {
       group_overrides {
         group_name: "GROUP_1"
         collect_stacktrace: false
+        log_from: PROTOLOG_LEVEL_VERBOSE
       }
       group_overrides {
         group_name: "GROUP_2"
         collect_stacktrace: true
+        log_from: PROTOLOG_LEVEL_VERBOSE
       }
     }
   }
@@ -798,29 +800,23 @@ describe('UserRequestParser', () => {
     ]);
   });
 
-  it('makes eventlog session', async () => {
-    const startTimeSeconds = 123000;
-    spyOn(Date, 'now').and.returnValue(startTimeSeconds);
-    const req = [{target: UiTraceTarget.EVENTLOG, config: []}];
-    expect(await parseRequests(req)).toEqual([
-      new TracingSession(
-        new TraceTarget(
-          'Eventlog',
-          [],
-          'rm -f /data/local/tmp/eventlog.winscope' +
-            '\n echo "EventLog started."',
-          'echo "EventLog\\n" > /data/local/tmp/eventlog.winscope ' +
-            `&& su root logcat -b events -v threadtime -v printable -v uid -v nsec -v epoch -b events -t 123 >> /data/local/tmp/eventlog.winscope`,
-          [
-            new AdbFileIdentifier(
-              '/data/local/tmp',
-              ['eventlog.winscope', 'eventlog.pb'],
-              'eventlog',
-            ),
-          ],
-        ),
-      ),
-    ]);
+  it('makes CUJ perfetto session', async () => {
+    const configDs = `data_sources: {
+  config {
+    name: "linux.ftrace"
+    ftrace_config {
+      atrace_apps: "com.android.systemui"
+      atrace_apps: "com.google.android.apps.nexuslauncher"
+      atrace_apps: "com.android.launcher3"
+      atrace_apps: "system_server"
+    }
+  }
+}`;
+    await checkPerfettoSessionCreated(
+      configDs,
+      'linux.ftrace',
+      UiTraceTarget.EVENTLOG,
+    );
   });
 
   it('makes SF dump legacy session', async () => {

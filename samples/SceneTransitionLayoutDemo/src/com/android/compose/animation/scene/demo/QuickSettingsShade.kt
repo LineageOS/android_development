@@ -57,7 +57,11 @@ fun ContentScope.QuickSettingsShade(
     revealEffect: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    PartialShade(QuickSettingsShade.Elements.Root, modifier) {
+    PartialShade(
+        rootElement = QuickSettingsShade.Elements.Root,
+        modifier = modifier,
+        revealEffect = revealEffect,
+    ) {
         Column(Modifier.element(QuickSettingsShade.Elements.Content)) {
             if (mediaPlayer != null) {
                 // Ensure that the media player is above the QS tiles when they fade in.

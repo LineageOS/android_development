@@ -31,6 +31,6 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('SfSubtree - Task');
+    expect(hierarchyRoot.getDisplayName()).toBe('SfSubtree - Task');
   });
 });

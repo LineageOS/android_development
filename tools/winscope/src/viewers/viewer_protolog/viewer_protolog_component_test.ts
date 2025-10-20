@@ -15,9 +15,9 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -51,7 +51,7 @@ class ViewerProtologComponentTest extends AbstractLogViewerComponentTest<ViewerP
       .setId('Protolog')
       .setName('tree')
       .build();
-    const ts = TimestampConverterUtils.makeElapsedTimestamp(10n);
+    const ts = makeElapsedTimestamp(10n);
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setEntries([tree, tree])
       .setTimestamps([ts, ts])

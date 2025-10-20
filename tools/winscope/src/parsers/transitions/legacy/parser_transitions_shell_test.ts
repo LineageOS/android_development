@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {com} from 'protos/transitions/udc/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -47,35 +47,41 @@ describe('ParserTransitionsShell', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1683188477607285317n),
-      TimestampConverterUtils.makeRealTimestamp(1683130827957362976n),
-      TimestampConverterUtils.makeRealTimestamp(1683130827957362976n),
-      TimestampConverterUtils.makeRealTimestamp(1683188479256449868n),
-      TimestampConverterUtils.makeRealTimestamp(1683130827957362976n),
-      TimestampConverterUtils.makeRealTimestamp(1683130827957362976n),
+      makeRealTimestamp(1683188477607285317n),
+      makeRealTimestamp(1683130827957362976n),
+      makeRealTimestamp(1683130827957362976n),
+      makeRealTimestamp(1683188479256449868n),
+      makeRealTimestamp(1683130827957362976n),
+      makeRealTimestamp(1683130827957362976n),
     ];
     expect(timestamps).toEqual(expected);
   });
 
   it('provides decoded proto', async () => {
     const entry = await parser.getEntry(0);
-    expect(entry.id).toEqual(6);
-    expect(entry.dispatchTimeNs.toString()).toEqual('57649649922341');
-    expect(entry.handler).toEqual(2);
+    expect(entry.id).toBe(6);
+    expect(entry.dispatchTimeNs.toString()).toBe('57649649922341');
+    expect(entry.handler).toBe(2);
   });
 
-  it('provides shell mapping', async () => {
+  it('creates shell mapping packet', async () => {
     expect(parser).toBeInstanceOf(ParserTransitionsShell);
-    const mapping = (
+    const mappingPacketEnc = (
       parser as unknown as ParserTransitionsShell
-    ).getShellHandlerMapping();
-    expect(mapping.length).toEqual(2);
-    expect(mapping[0].id).toEqual(2);
-    expect(mapping[0].name).toEqual(
+    ).createHandlerMappingPacket(2);
+
+    expect(mappingPacketEnc.trustedPacketSequenceId).toEqual(2);
+    const mapping = assertDefined(
+      mappingPacketEnc.shellHandlerMappings?.mapping,
+    );
+
+    expect(mapping.length).toBe(2);
+    expect(mapping[0].id).toBe(2);
+    expect(mapping[0].name).toBe(
       'com.android.wm.shell.transition.DefaultMixedHandler',
     );
-    expect(mapping[1].id).toEqual(3);
-    expect(mapping[1].name).toEqual(
+    expect(mapping[1].id).toBe(3);
+    expect(mapping[1].name).toBe(
       'com.android.wm.shell.recents.RecentsTransitionHandler',
     );
   });

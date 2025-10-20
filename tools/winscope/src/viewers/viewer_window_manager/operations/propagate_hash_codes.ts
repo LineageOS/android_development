@@ -34,7 +34,7 @@ export class PropagateHashCodes implements Operation<UiPropertyTreeNode> {
         if (child.name !== 'hashCode') {
           return;
         }
-        const hex = (child.getValue() ?? 0).toString(16);
+        const hex = (child.getValue<number>() ?? 0).toString(16);
         if (child.id.split(' ').at(1) === hex) {
           return;
         }

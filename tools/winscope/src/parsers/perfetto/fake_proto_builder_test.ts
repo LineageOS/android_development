@@ -38,22 +38,22 @@ describe('FakeProtoBuilder', () => {
   it('number', () => {
     const args = [makeArg('a', 1), makeArg('b', 10)];
     const proto = buildFakeProto(args);
-    expect(proto.a).toEqual(1);
-    expect(proto.b).toEqual(10);
+    expect(proto.a).toBe(1);
+    expect(proto.b).toBe(10);
   });
 
   it('bigint', () => {
     const args = [makeArg('a', 1n), makeArg('b', 10n)];
     const proto = buildFakeProto(args);
-    expect(proto.a).toEqual(1n);
-    expect(proto.b).toEqual(10n);
+    expect(proto.a).toBe(1n);
+    expect(proto.b).toBe(10n);
   });
 
   it('string', () => {
     const args = [makeArg('a', 'valuea'), makeArg('b', 'valueb')];
     const proto = buildFakeProto(args);
-    expect(proto.a).toEqual('valuea');
-    expect(proto.b).toEqual('valueb');
+    expect(proto.a).toBe('valuea');
+    expect(proto.b).toBe('valueb');
   });
 
   it('array', () => {
@@ -78,11 +78,11 @@ describe('FakeProtoBuilder', () => {
     ];
     const proto = buildFakeProto(args);
     expect(proto.a.b).toEqual(false);
-    expect(proto.a.numbers[0]).toEqual(10);
-    expect(proto.a.numbers[1]).toEqual(11);
-    expect(proto.a.objects[0].c.d).toEqual('20');
-    expect(proto.a.objects[0].c.e).toEqual('21');
-    expect(proto.a.objects[1].c).toEqual(21n);
+    expect(proto.a.numbers[0]).toBe(10);
+    expect(proto.a.numbers[1]).toBe(11);
+    expect(proto.a.objects[0].c.d).toBe('20');
+    expect(proto.a.objects[0].c.e).toBe('21');
+    expect(proto.a.objects[1].c).toBe(21n);
   });
 
   it('converts snake_case to camelCase', () => {
@@ -100,11 +100,11 @@ describe('FakeProtoBuilder', () => {
       TamperedMessageType.tamper(root.lookupType('Entry')),
     ).transform(proto);
 
-    expect(transformed._case_64bit).toEqual(10n);
-    expect(transformed.case_64bit).toEqual(11n);
-    expect(transformed.case_64bitLsb).toEqual(12n);
-    expect(transformed.case_64Bit).toEqual(13n);
-    expect(transformed.case_64BitLsb).toEqual(14n);
+    expect(transformed._case_64bit).toBe(10n);
+    expect(transformed.case_64bit).toBe(11n);
+    expect(transformed.case_64bitLsb).toBe(12n);
+    expect(transformed.case_64Bit).toBe(13n);
+    expect(transformed.case_64BitLsb).toBe(14n);
   });
 
   const makeArg = (

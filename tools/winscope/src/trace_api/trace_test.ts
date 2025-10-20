@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
 import {ParserBuilder} from 'test/unit/parser_builder';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+  makeZeroTimestamp,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {
   extractEntries,
   extractFrames,
   extractTimestamps,
   makeEmptyTrace,
-} from 'test/unit/trace_utils';
+} from 'test/unit/trace_test_helpers';
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';
 import {Trace} from './trace';
@@ -32,13 +36,13 @@ import {TraceType} from './trace_type';
 describe('Trace', () => {
   let trace: Trace<string>;
 
-  const time9 = TimestampConverterUtils.makeRealTimestamp(9n);
-  const time10 = TimestampConverterUtils.makeRealTimestamp(10n);
-  const time11 = TimestampConverterUtils.makeRealTimestamp(11n);
-  const time12 = TimestampConverterUtils.makeRealTimestamp(12n);
-  const time13 = TimestampConverterUtils.makeRealTimestamp(13n);
-  const time14 = TimestampConverterUtils.makeRealTimestamp(14n);
-  const time15 = TimestampConverterUtils.makeRealTimestamp(15n);
+  const time9 = makeRealTimestamp(9n);
+  const time10 = makeRealTimestamp(10n);
+  const time11 = makeRealTimestamp(11n);
+  const time12 = makeRealTimestamp(12n);
+  const time13 = makeRealTimestamp(13n);
+  const time14 = makeRealTimestamp(14n);
+  const time15 = makeRealTimestamp(15n);
 
   beforeAll(() => {
     // Time:       10    11                 12    13
@@ -58,14 +62,14 @@ describe('Trace', () => {
   });
 
   it('getEntry()', async () => {
-    expect(await trace.getEntry(0).getValue()).toEqual('entry-0');
-    expect(await trace.getEntry(4).getValue()).toEqual('entry-4');
+    expect(await trace.getEntry(0).getValue()).toBe('entry-0');
+    expect(await trace.getEntry(4).getValue()).toBe('entry-4');
     expect(() => {
       trace.getEntry(5);
     }).toThrow();
 
-    expect(await trace.getEntry(-1).getValue()).toEqual('entry-4');
-    expect(await trace.getEntry(-5).getValue()).toEqual('entry-0');
+    expect(await trace.getEntry(-1).getValue()).toBe('entry-4');
+    expect(await trace.getEntry(-5).getValue()).toBe('entry-0');
     expect(() => {
       trace.getEntry(-6);
     }).toThrow();
@@ -101,20 +105,20 @@ describe('Trace', () => {
 
     // slice
     const slice = trace.sliceEntries(1, -1);
-    expect(await slice.findClosestEntry(time9)?.getValue()).toEqual('entry-1');
-    expect(await slice.findClosestEntry(time10)?.getValue()).toEqual('entry-1');
-    expect(await slice.findClosestEntry(time11)?.getValue()).toEqual('entry-1');
-    expect(await slice.findClosestEntry(time12)?.getValue()).toEqual('entry-3');
-    expect(await slice.findClosestEntry(time13)?.getValue()).toEqual('entry-3');
-    expect(await slice.findClosestEntry(time14)?.getValue()).toEqual('entry-3');
+    expect(await slice.findClosestEntry(time9)?.getValue()).toBe('entry-1');
+    expect(await slice.findClosestEntry(time10)?.getValue()).toBe('entry-1');
+    expect(await slice.findClosestEntry(time11)?.getValue()).toBe('entry-1');
+    expect(await slice.findClosestEntry(time12)?.getValue()).toBe('entry-3');
+    expect(await slice.findClosestEntry(time13)?.getValue()).toBe('entry-3');
+    expect(await slice.findClosestEntry(time14)?.getValue()).toBe('entry-3');
 
     // full trace
-    expect(await trace.findClosestEntry(time9)?.getValue()).toEqual('entry-0');
-    expect(await trace.findClosestEntry(time10)?.getValue()).toEqual('entry-0');
-    expect(await trace.findClosestEntry(time11)?.getValue()).toEqual('entry-1');
-    expect(await trace.findClosestEntry(time12)?.getValue()).toEqual('entry-3');
-    expect(await trace.findClosestEntry(time13)?.getValue()).toEqual('entry-4');
-    expect(await trace.findClosestEntry(time14)?.getValue()).toEqual('entry-4');
+    expect(await trace.findClosestEntry(time9)?.getValue()).toBe('entry-0');
+    expect(await trace.findClosestEntry(time10)?.getValue()).toBe('entry-0');
+    expect(await trace.findClosestEntry(time11)?.getValue()).toBe('entry-1');
+    expect(await trace.findClosestEntry(time12)?.getValue()).toBe('entry-3');
+    expect(await trace.findClosestEntry(time13)?.getValue()).toBe('entry-4');
+    expect(await trace.findClosestEntry(time14)?.getValue()).toBe('entry-4');
   });
 
   it('findFirstGreaterOrEqualEntry()', async () => {
@@ -128,33 +132,33 @@ describe('Trace', () => {
     expect(await slice.findFirstGreaterOrEqualEntry(time9)?.getValue()).toEqual(
       'entry-1',
     );
-    expect(
-      await slice.findFirstGreaterOrEqualEntry(time10)?.getValue(),
-    ).toEqual('entry-1');
-    expect(
-      await slice.findFirstGreaterOrEqualEntry(time11)?.getValue(),
-    ).toEqual('entry-1');
-    expect(
-      await slice.findFirstGreaterOrEqualEntry(time12)?.getValue(),
-    ).toEqual('entry-3');
+    expect(await slice.findFirstGreaterOrEqualEntry(time10)?.getValue()).toBe(
+      'entry-1',
+    );
+    expect(await slice.findFirstGreaterOrEqualEntry(time11)?.getValue()).toBe(
+      'entry-1',
+    );
+    expect(await slice.findFirstGreaterOrEqualEntry(time12)?.getValue()).toBe(
+      'entry-3',
+    );
     expect(await slice.findFirstGreaterOrEqualEntry(time13)).toBeUndefined();
 
     // full trace
     expect(await trace.findFirstGreaterOrEqualEntry(time9)?.getValue()).toEqual(
       'entry-0',
     );
-    expect(
-      await trace.findFirstGreaterOrEqualEntry(time10)?.getValue(),
-    ).toEqual('entry-0');
-    expect(
-      await trace.findFirstGreaterOrEqualEntry(time11)?.getValue(),
-    ).toEqual('entry-1');
-    expect(
-      await trace.findFirstGreaterOrEqualEntry(time12)?.getValue(),
-    ).toEqual('entry-3');
-    expect(
-      await trace.findFirstGreaterOrEqualEntry(time13)?.getValue(),
-    ).toEqual('entry-4');
+    expect(await trace.findFirstGreaterOrEqualEntry(time10)?.getValue()).toBe(
+      'entry-0',
+    );
+    expect(await trace.findFirstGreaterOrEqualEntry(time11)?.getValue()).toBe(
+      'entry-1',
+    );
+    expect(await trace.findFirstGreaterOrEqualEntry(time12)?.getValue()).toBe(
+      'entry-3',
+    );
+    expect(await trace.findFirstGreaterOrEqualEntry(time13)?.getValue()).toBe(
+      'entry-4',
+    );
     expect(await trace.findFirstGreaterOrEqualEntry(time14)).toBeUndefined();
   });
 
@@ -880,8 +884,8 @@ describe('Trace', () => {
     ]);
 
     // time
-    const time12 = TimestampConverterUtils.makeRealTimestamp(12n);
-    const time13 = TimestampConverterUtils.makeRealTimestamp(13n);
+    const time12 = makeRealTimestamp(12n);
+    const time13 = makeRealTimestamp(13n);
     expect(await extractEntries(trace.sliceTime(time12, time12))).toEqual([]);
     expect(await extractEntries(trace.sliceTime())).toEqual([
       'entry-0',
@@ -934,8 +938,8 @@ describe('Trace', () => {
     expect(await extractEntries(empty.sliceEntries(1, 2))).toEqual([]);
 
     // time
-    const time12 = TimestampConverterUtils.makeRealTimestamp(12n);
-    const time13 = TimestampConverterUtils.makeRealTimestamp(13n);
+    const time12 = makeRealTimestamp(12n);
+    const time13 = makeRealTimestamp(13n);
     expect(await extractEntries(empty.sliceTime())).toEqual([]);
     expect(await extractEntries(empty.sliceTime(time12))).toEqual([]);
     expect(await extractEntries(empty.sliceTime(time12, time13))).toEqual([]);
@@ -1005,7 +1009,7 @@ describe('Trace', () => {
     expect(trace.sliceEntries(2).getFramesRange()).toEqual({start: 1, end: 7});
     expect(trace.sliceEntries(3).getFramesRange()).toEqual({start: 4, end: 7});
     expect(trace.sliceEntries(4).getFramesRange()).toEqual({start: 6, end: 7});
-    expect(trace.sliceEntries(5).getFramesRange()).toEqual(undefined);
+    expect(trace.sliceEntries(5).getFramesRange()).toBeUndefined();
 
     expect(trace.sliceEntries(undefined, 5).getFramesRange()).toEqual({
       start: 0,
@@ -1188,7 +1192,7 @@ describe('Trace', () => {
       .setFrameMap(undefined)
       .build();
 
-    expect(await trace.getEntry(0).getValue()).toEqual('entry-0');
+    expect(await trace.getEntry(0).getValue()).toBe('entry-0');
     expect(await extractEntries(trace)).toEqual([
       'entry-0',
       'entry-1',
@@ -1288,7 +1292,7 @@ describe('Trace', () => {
   it('isDumpWithoutTimestamp()', () => {
     const trace = new TraceBuilder<string>()
       .setEntries(['entry-0'])
-      .setTimestamps([TimestampConverterUtils.makeZeroTimestamp()])
+      .setTimestamps([makeZeroTimestamp()])
       .build();
     expect(trace.isDumpWithoutTimestamp()).toBeTrue();
   });
@@ -1299,14 +1303,14 @@ describe('Trace', () => {
         new ParserBuilder<string>()
           .setIsCorrupted(true)
           .setEntries(['entry-0'])
-          .setTimestamps([TimestampConverterUtils.makeZeroTimestamp()])
+          .setTimestamps([makeZeroTimestamp()])
           .build(),
       )
       .build();
     expect(trace.isCorrupted()).toBeFalse();
     expect(trace.getCorruptedReason()).toBeUndefined();
 
-    expectAsync(trace.getEntry(0).getValue()).toBeRejected();
+    await expectAsync(trace.getEntry(0).getValue()).toBeRejected();
     try {
       await trace.getEntry(0).getValue();
     } catch (e) {
@@ -1318,18 +1322,13 @@ describe('Trace', () => {
   });
 
   it('spansMultipleDates()', () => {
-    const time0 = TimestampConverterUtils.makeZeroTimestamp();
+    const time0 = makeZeroTimestamp();
     const emptyTrace = makeEmptyTrace(TraceType.TEST_TRACE_STRING);
     expect(emptyTrace.spansMultipleDates()).toBeFalse();
 
     const traceWithElapsedTimestamps = new TraceBuilder<string>()
       .setEntries(['entry-0', 'entry-1'])
-      .setTimestamps([
-        time0,
-        TimestampConverterUtils.makeElapsedTimestamp(
-          BigInt(TIME_UNIT_TO_NANO.d),
-        ),
-      ])
+      .setTimestamps([time0, makeElapsedTimestamp(BigInt(TIME_UNIT_TO_NANO.d))])
       .build();
     expect(traceWithElapsedTimestamps.spansMultipleDates()).toBeFalse();
 
@@ -1342,12 +1341,8 @@ describe('Trace', () => {
     const traceWitMultipleDates = new TraceBuilder<string>()
       .setEntries(['entry-0', 'entry-1'])
       .setTimestamps([
-        TimestampConverterUtils.makeRealTimestamp(
-          BigInt(TIME_UNIT_TO_NANO.h * 23),
-        ),
-        TimestampConverterUtils.makeRealTimestamp(
-          BigInt(TIME_UNIT_TO_NANO.h * 25),
-        ),
+        makeRealTimestamp(BigInt(TIME_UNIT_TO_NANO.h * 23)),
+        makeRealTimestamp(BigInt(TIME_UNIT_TO_NANO.h * 25)),
       ])
       .build();
     expect(traceWitMultipleDates.spansMultipleDates()).toBeTrue();

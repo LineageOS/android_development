@@ -35,26 +35,38 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.demo.staging.debug.DebugUi
+import com.android.mechanics.haptics.HapticsExperimentalApi
+import com.android.mechanics.haptics.SpringTensionHapticPlayerProvider
+import com.android.mechanics.spec.MotionSpec
 
 interface Demo<T> {
     val identifier: String
 
     @Composable fun rememberDefaultConfig(): T
 
-    @Composable fun ColumnScope.ConfigUi(config: T, onConfigChanged: (T) -> Unit)
-
     @Composable fun DemoUi(config: T, modifier: Modifier)
 }
 
+interface HasConfig<T> {
+    @Composable fun ColumnScope.ConfigUi(config: T, onConfigChanged: (T) -> Unit)
+}
+
+interface DemoWithConfig<T> : Demo<T>, HasConfig<T>
+
 interface HasMotionValueVisualization {
     val visualizationInputRange: ClosedFloatingPointRange<Float>
+
+    fun computeOutputRange(spec: MotionSpec, inputRange: ClosedFloatingPointRange<Float>) =
+        DebugMotionValueVisualization.default(spec, inputRange)
 
     val expandedGraphHeight: Dp
         get() = 96.dp
@@ -63,6 +75,7 @@ interface HasMotionValueVisualization {
         get() = 48.dp
 }
 
+@OptIn(HapticsExperimentalApi::class)
 @Composable
 fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
     val defaultConfig = rememberDefaultConfig()
@@ -70,28 +83,44 @@ fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
 
     var showConfigurationDialog by remember { mutableStateOf(false) }
     var expressive by remember { mutableStateOf(true) }
+    var showDebugger by remember { mutableStateOf(false) }
 
-    if (showConfigurationDialog) {
+    if (showConfigurationDialog && this@ConfigurableDemo is HasConfig<*>) {
         ConfigDialog(
             config,
             onConfigurationChange = { config = it },
             onDismissRequest = { showConfigurationDialog = false },
             defaultConfig = defaultConfig,
         ) { value, onValueChanged ->
+            this@ConfigurableDemo as HasConfig<T>
             ConfigUi(value, onValueChanged)
         }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            TextButton(onClick = { showConfigurationDialog = true }) {
-                Icon(Icons.Default.Settings, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Config")
+            if (this@ConfigurableDemo is HasConfig<*>) {
+                TextButton(onClick = { showConfigurationDialog = true }) {
+                    Icon(Icons.Default.Settings, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Config")
+                }
             }
 
             TextButton(onClick = { expressive = !expressive }) {
                 Text(if (expressive) "Expressive" else "Standard")
+            }
+
+            if (this@ConfigurableDemo is HasMotionValueVisualization) {
+                TextButton(onClick = { showDebugger = !showDebugger }) {
+                    Text(if (showDebugger) "Hide Debugger" else "Show Debugger")
+                }
+            }
+        }
+
+        val demoContent = remember {
+            movableContentOf {
+                SpringTensionHapticPlayerProvider { DemoUi(config, modifier = Modifier) }
             }
         }
 
@@ -102,17 +131,18 @@ fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
                         if (expressive) MotionScheme.expressive() else MotionScheme.standard()
                     }
             ) {
-                if (this@ConfigurableDemo is HasMotionValueVisualization) {
+                if (showDebugger && this@ConfigurableDemo is HasMotionValueVisualization) {
                     DebugUi(
-                        visualizationInputRange,
-                        expandedGraphHeight,
-                        collapsedGraphHeight,
+                        visualizationInputRange = visualizationInputRange,
+                        outputRange = this@ConfigurableDemo::computeOutputRange,
+                        expandedGraphHeight = expandedGraphHeight,
+                        collapsedGraphHeight = collapsedGraphHeight,
                         modifier = modifier.fillMaxWidth().weight(1f, fill = true),
-                    ) { contentModifier ->
-                        DemoUi(config, contentModifier)
+                    ) {
+                        demoContent()
                     }
                 } else {
-                    DemoUi(config, modifier.fillMaxWidth().weight(1f, fill = true))
+                    demoContent()
                 }
             }
         }

@@ -20,8 +20,14 @@ import {TimeRange} from 'common/time/time';
 import {Trace} from 'trace_api/trace';
 import {MiniTimelineDrawerOutput} from './mini_timeline_drawer_output';
 
+/**
+ * A map of traces to their timeline data.
+ */
 export type TimelineTraces = Map<Trace<object>, TimelineTrace>;
 
+/**
+ * Data for rendering a trace on the mini timeline.
+ */
 export interface TimelineTrace {
   points: number[];
   segments: Segment[];
@@ -29,6 +35,9 @@ export interface TimelineTrace {
   activeSegment: Segment | undefined;
 }
 
+/**
+ * Data for the mini canvas drawer.
+ */
 export class MiniCanvasDrawerData {
   constructor(
     public selectedPosition: number,

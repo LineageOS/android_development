@@ -5,7 +5,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { TestListComponent } from '../test-list/test-list.component';
 import { PreviewComponent } from '../preview/preview.component';
 import { TimelineComponent } from '../timeline/timeline.component';
-import { MotionGolden } from '../model/golden';
+import { GerritLinkPair, MotionGolden, PresubmitTest } from '../model/golden';
 import { finalize, Subscription } from 'rxjs';
 import { NgFor } from '@angular/common';
 import { JsonPipe, NgIf, NgStyle } from '@angular/common';
@@ -27,6 +27,7 @@ import { TestModeComponent } from '../testMode/test-mode.component';
 import { PreviewService } from '../service/preview.service';
 import { ErrorService } from '../service/error.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TestModes } from '../model/test_mode';
 @Component({
   selector: 'app-root',
   imports: [
@@ -42,7 +43,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatButtonModule,
     NgStyle,
     TestModeComponent
-],
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   animations: [
@@ -100,26 +101,66 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     private errorService: ErrorService,
     private snackBar: MatSnackBar,
     private previewService: PreviewService
-    ) {}
+  ) { }
 
   private errorSubscription!: Subscription;
 
-  isNullOrEmpty(obj : any) : Boolean {
+  isNullOrEmpty(obj: any): Boolean {
     return (obj == null || obj.length == 0)
   }
-  testModes: String[] =  []
+  testModes: string[] = []
 
- switchMode(mode : String) {
+  switchMode(mode: string) {
     this.showLoaderBar()
-    this.testMode = ""
-    this.goldenService.switchMode(mode).
-    pipe(finalize(() => this.hideLoaderBar()))
-    .subscribe((goldens) => {
-      this.testNames = []
-      this.selectedTest = null
-      this.selectedGolden = null
-      this.goldens = goldens || []
-    });
+    this.resetVariables()
+    this.testMode = mode
+    const response = this.goldenService.switchMode(mode)
+      .pipe(finalize(() => this.hideLoaderBar()))
+    if (mode === TestModes.PRESUBMIT) {// test names list expected instead of goldens
+      response
+        .subscribe({
+          next: (fetchedPresubmitTests) => {
+            this.handlePresubmitSuccess(fetchedPresubmitTests as PresubmitTest[])
+          },
+          error: (err) => {
+            this.showErrorAlert(err)
+          }
+        })
+    } else {
+      response
+        .subscribe((goldens) => {
+          this.goldens = goldens as MotionGolden[]
+        });
+    }
+  }
+
+  private handlePresubmitSuccess(fetchedPresubmitTests: PresubmitTest[]): void {
+    const index = this.testModes.indexOf(TestModes.PRESUBMIT)
+    if (this.isNullOrEmpty(fetchedPresubmitTests)) {
+      fetchedPresubmitTests = []
+      console.log("No artifacts found")
+      this.snackBar.open("No artifacts found", 'Dismiss', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top'
+      });
+      if (index > -1) {// remove PRESUBMIT mode if it was previously inserted.
+        this.testModes.splice(index, 1)
+      }
+    } else {
+      if (index == -1) {// Add PRESUBMIT mode only when data is found and it was NOT present in the list
+        this.testModes.push(TestModes.PRESUBMIT)
+      }
+    }
+    this.presubmitTests = fetchedPresubmitTests
+    this.testMode = TestModes.PRESUBMIT
+  }
+
+  resetVariables(): void {
+    this.goldens = []
+    this.selectedGolden = null
+    this.presubmitTests = []
+    this.selectedPresubmitTest = null
   }
 
   openDialog(): void {
@@ -129,41 +170,31 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(invocationID => {
       if (invocationID) {
+        this.resetVariables()
         this.showLoaderBar()
-        this.goldenService.getTestArtifacts(invocationID)
-        .pipe(finalize(() => this.hideLoaderBar()))
-        .subscribe({
-          next : (fetchedTestNames) => {
-            if (this.isNullOrEmpty(fetchedTestNames)) {
-              fetchedTestNames = []
-              console.log("No artifacts found")
-              alert("No artifacts found")
+        this.goldenService.getPresubmitTestArtifacts(invocationID)
+          .pipe(finalize(() => this.hideLoaderBar()))
+          .subscribe({
+            next: (fetchedPresubmitTests) => {
+              this.handlePresubmitSuccess(fetchedPresubmitTests as PresubmitTest[])
+            },
+            error: (err) => {
+              this.showErrorAlert(err)
             }
-            this.goldens = []
-            this.selectedGolden = null
-            this.testNames = fetchedTestNames
-            this.testMode = "PRESUBMIT"
-          },
-          error : (err) => {
-            this.testNames = []
-            this.goldens = []
-            this.selectedGolden = null
-            this.showErrorAlert(err)
-          }
-        })
+          })
       }
     });
   }
 
   showProgress = false;
-  testMode = "";
+  testMode: string = "";
   showLoader = false;
   goldens: MotionGolden[] = [];
-  testNames: String[] = [];
-  selectedTest: String | null = null;
+  presubmitTests: PresubmitTest[] = [];
+  selectedPresubmitTest: PresubmitTest | null = null;
   selectedGolden: MotionGolden | null = null;
   showTestList: boolean = true;
-  showCheckBoxes: boolean =false;
+  showCheckBoxes: boolean = false;
   showPreviewComponent: boolean = true;
   isRefreshing: boolean = false;
 
@@ -178,11 +209,11 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
   showErrorAlert(err: Error) {
     alert(`Some error occurred ${err.message}`)
   }
-  showLoaderBar() : void {
+  showLoaderBar(): void {
     this.showLoader = true;
   }
 
-  hideLoaderBar() : void {
+  hideLoaderBar(): void {
     this.showLoader = false;
   }
 
@@ -192,6 +223,7 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.addGerritMainChangelistDataListener();
     const searchParams = new URLSearchParams(window.location.search);
     const leftLink = searchParams.get('leftLink') ?? ""
     const rightLink = searchParams.get('rightLink') ?? ""
@@ -201,25 +233,58 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
         horizontalPosition: 'left',
         verticalPosition: 'bottom',
       }
-      if(error.displayDuration != null){
+      if (error.displayDuration != null) {
         config.duration = error.displayDuration
       }
       this.snackBar.open(error.message, undefined, config);
     });
 
-    if(leftLink || rightLink){
-      this.testMode = "GERRIT"
+    if (leftLink || rightLink) {
       this.fetchGerritData(leftLink, rightLink)
     } else {
       console.log("GERRIT: left and right is null")
     }
-    this.goldenService.getTestModes().subscribe((modes)=> {
-      this.testModes = modes
-      console.log(modes)
+    this.goldenService.getTestModes().subscribe((modes) => {
+      this.testModes = this.testModes.concat(modes)
+      if (this.testModes.length > 0 && this.testModes[0]
+        && this.testModes[0] !== TestModes.GERRIT) { //set First TestMode As Default Mode
+        this.switchMode(this.testModes[0])
+      }
+      console.log(this.testModes)
     })
   }
 
-  fetchGerritData(leftLink: string, rightLink: string){
+  private addGerritMainChangelistDataListener() {
+    window.addEventListener("message", (event) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data && event.data.type === "FROM_CONTENT_SCRIPT") {
+        console.log("Received dat via postMessage from gerrit extension content script:", event.data);
+
+        const linkPairs: GerritLinkPair[] = event.data.payload as GerritLinkPair[];
+        this.fetchMultipleJsonsFromGerrit(linkPairs);
+
+      }
+    });
+  }
+
+  fetchMultipleJsonsFromGerrit(linkPairs :GerritLinkPair[]) {
+    this.testMode = TestModes.GERRIT
+    this.goldens = []
+    this.showLoaderBar()
+    this.goldenService.getMultipleJsonsFromGerritLinks(linkPairs)
+    .pipe(finalize(() => this.hideLoaderBar()))
+    .subscribe((goldens) => {
+        this.goldens = goldens as MotionGolden[]
+      })
+    this.testModes.push(TestModes.GERRIT)
+
+  }
+
+  fetchGerritData(leftLink: string, rightLink: string) {
+    this.testMode = TestModes.GERRIT
     this.showLoaderBar()
     this.goldenService
       .getGerritData(leftLink, rightLink)
@@ -228,6 +293,7 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
         this.goldens = JSON.parse(JSON.stringify(goldens)) as MotionGolden[]
         this.setSelectedGolden(JSON.parse(JSON.stringify(goldens[0])) as MotionGolden)
       })
+    this.testModes.push(TestModes.GERRIT)
   }
 
   refreshGoldens(clear: boolean): void {
@@ -259,19 +325,20 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     this.previewService.setShowMarker(this.showPreviewComponent && this.isVideoPresent);
   }
 
-   setSelectedTest(testName: String): void {
-    this.selectedTest = testName;
+  setSelectedPresubmitTest(presubmitTest: PresubmitTest): void {
+    this.selectedPresubmitTest = presubmitTest;
     this.showLoaderBar();
-    this.goldenService.getTestArtifactsForTestName(testName).pipe(finalize(() => this.hideLoaderBar())).subscribe({
-      next: (fetchedGolden) => {
-        this.selectedGolden = fetchedGolden
-      },
-      error: (err) => {
-        this.goldens = [];
-        this.selectedGolden = null;
-        this.showErrorAlert(err)
-      }
-    })
+    this.goldenService.getPresubmitTestArtifactsForTestName(presubmitTest.testname)
+      .pipe(finalize(() => this.hideLoaderBar())).subscribe({
+        next: (fetchedGolden) => {
+          this.selectedGolden = fetchedGolden
+        },
+        error: (err) => {
+          this.goldens = [];
+          this.selectedGolden = null;
+          this.showErrorAlert(err)
+        }
+      })
   }
 
   toggleCheckBoxes(): void {

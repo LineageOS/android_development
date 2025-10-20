@@ -18,23 +18,34 @@ import {Timestamp} from 'common/time/time';
 import {AbsoluteFrameIndex} from './index_types';
 import {TraceEntry} from './trace';
 
+/**
+ * Represents a specific position within a trace.
+ * A position can be defined by a timestamp, a frame index, or a specific
+ * trace entry. This class provides a unified way to reference a point
+ * in time across different trace types and allows for navigation and
+ * comparison of trace locations.
+ */
 export class TracePosition {
   static fromTimestamp(timestamp: Timestamp): TracePosition {
     return new TracePosition(timestamp);
   }
 
   static fromTraceEntry(
-    entry: TraceEntry<{}>,
+    entry: TraceEntry<{}, {} | undefined>,
     explicitTimestamp?: Timestamp,
   ): TracePosition {
     let frame: AbsoluteFrameIndex | undefined;
     if (entry.getFullTrace().hasFrameInfo()) {
       const frames = entry.getFramesRange();
-      frame = frames && frames.start < frames.end ? frames.start : undefined;
+      frame =
+        frames !== undefined && frames.start < frames.end
+          ? frames.start
+          : undefined;
     }
-    const timestamp = explicitTimestamp
-      ? explicitTimestamp
-      : entry.getTimestamp();
+    const timestamp =
+      explicitTimestamp !== undefined
+        ? explicitTimestamp
+        : entry.getTimestamp();
     return new TracePosition(timestamp, frame, entry);
   }
 
@@ -50,6 +61,6 @@ export class TracePosition {
   private constructor(
     readonly timestamp: Timestamp,
     readonly frame?: AbsoluteFrameIndex,
-    readonly entry?: TraceEntry<{}>,
+    readonly entry?: TraceEntry<{}, {} | undefined>,
   ) {}
 }

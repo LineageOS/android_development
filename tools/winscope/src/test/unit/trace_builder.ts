@@ -32,10 +32,16 @@ import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserBuilder} from './parser_builder';
 
+/**
+ * A builder class for creating `Trace` instances in tests.
+ * This allows for easy and flexible construction of `Trace` objects
+ * with custom properties like entries, timestamps, frame maps, and parser results,
+ * without needing to interact directly with the `Trace` or `Parser` constructors.
+ */
 export class TraceBuilder<T> {
   private type = TraceType.SURFACE_FLINGER;
   private parser?: Parser<T>;
-  private parserCustomQueryResult = new Map<
+  private readonly parserCustomQueryResult = new Map<
     CustomQueryType,
     Map<
       CustomQueryParamTypeMap[CustomQueryType],

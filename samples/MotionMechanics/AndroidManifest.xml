@@ -16,8 +16,9 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.mechanics.demo">
+  package="com.android.mechanics.demo">
 
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:enableOnBackInvokedCallback="true" />
 

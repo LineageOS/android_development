@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {equal} from 'common/array_utils';
-import {assertDefined, assertUnreachable} from 'common/assert_utils';
+import {equal} from 'common/typed_array';
+import {assertDefined, assertUnreachable} from 'common/assert';
 import {Box3D} from 'common/geometry/box3d';
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {Point3D} from 'common/geometry/point3d';
@@ -300,6 +300,7 @@ export class Canvas {
     mesh.position.z = rect.topLeft.z;
     mesh.name = rect.id;
     mesh.applyMatrix4(this.toMatrix4(rect.transform));
+    mesh.renderOrder = rect.topLeft.z;
     this.scene.add(mesh);
     return mesh;
   }
@@ -485,8 +486,8 @@ export class Canvas {
 
   private createPinnedBorderRects(rect: UiRect3D): THREE.Shape[] {
     const cornerRadii = this.getAdjustedCornerRadii(rect);
-    const xBoldWidth = Canvas.RECT_EDGE_BOLD_WIDTH / rect.transform.dsdx;
-    const yBorderWidth = Canvas.RECT_EDGE_BOLD_WIDTH / rect.transform.dsdy;
+    const xBoldWidth = Canvas.RECT_EDGE_BOLD_WIDTH;
+    const yBorderWidth = Canvas.RECT_EDGE_BOLD_WIDTH;
     const borderRects = [
       // left and bottom borders
       new THREE.Shape()

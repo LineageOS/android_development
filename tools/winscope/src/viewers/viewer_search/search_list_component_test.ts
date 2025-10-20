@@ -22,7 +22,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {ListItemOption, SearchListComponent} from './search_list_component';
 import {ListedSearch} from './ui_data';
 
@@ -68,7 +68,7 @@ describe('SearchListComponent', () => {
     dom.detectChanges();
 
     const listedSearches = dom.findAll('.listed-search');
-    expect(listedSearches.length).toEqual(2);
+    expect(listedSearches.length).toBe(2);
 
     const queryName1 = listedSearches[0].get('.listed-search-name');
     const queryName2 = listedSearches[1].get('.listed-search-name');

@@ -15,11 +15,9 @@
  */
 
 /**
- * A class representing a distance between two points.
+ * An itnerface representing a distance between two points.
  */
-export class Distance {
-  constructor(
-    public dx: number,
-    public dy: number,
-  ) {}
+export declare interface Distance {
+  dx: number;
+  dy: number;
 }

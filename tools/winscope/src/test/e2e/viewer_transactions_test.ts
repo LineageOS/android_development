@@ -79,24 +79,24 @@ describe('Viewer Transactions', () => {
     expect(await selectedEntry.isPresent()).toBeTruthy();
 
     const transactionId = selectedEntry.element(by.css('.transaction-id'));
-    expect(await transactionId.getText()).toEqual('7975754272149');
+    expect(await transactionId.getText()).toBe('7975754272149');
 
     const vsyncId = selectedEntry.element(by.css('.vsyncid'));
-    expect(await vsyncId.getText()).toEqual('93389');
+    expect(await vsyncId.getText()).toBe('93389');
 
     const pid = selectedEntry.element(by.css('.pid'));
-    expect(await pid.getText()).toEqual('1857');
+    expect(await pid.getText()).toBe('1857');
 
     const uid = selectedEntry.element(by.css('.uid'));
-    expect(await uid.getText()).toEqual('1000');
+    expect(await uid.getText()).toBe('1000');
 
     const type = selectedEntry.element(by.css('.transaction-type'));
-    expect(await type.getText()).toEqual('LAYER_CHANGED');
+    expect(await type.getText()).toBe('LAYER_CHANGED');
 
     const layerOrDisplayId = selectedEntry.element(
       by.css('.layer-or-display-id'),
     );
-    expect(await layerOrDisplayId.getText()).toEqual('798');
+    expect(await layerOrDisplayId.getText()).toBe('798');
 
     const whatString =
       'eLayerChanged | eAlphaChanged | eFlagsChanged | eReparent | eColorChanged | eHasListenerCallbacksChanged';

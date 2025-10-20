@@ -20,8 +20,11 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule, MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
-import {getRootUrl} from 'common/url_utils';
+import {getRootUrl} from 'common/window';
 
+/**
+ * A component for displaying a list of essential keyboard shortcuts.
+ */
 @Component({
   selector: 'shortcuts-panel',
   standalone: true,

@@ -17,6 +17,11 @@
 import {Operation} from './operation';
 import {TreeNode} from './tree_node';
 
+/**
+ * A chain of operations to be applied to a tree node.
+ *
+ * @param <T> The type of tree node.
+ */
 export class OperationChain<T extends TreeNode> {
   constructor(private readonly enclosedOperations: Array<Operation<T>>) {}
 

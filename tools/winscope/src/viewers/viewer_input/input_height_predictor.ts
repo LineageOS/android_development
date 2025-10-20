@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert_utils';
+import {assertString} from 'common/assert';
 import {InputColumnType} from 'trace/input/input_column_type';
 import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
 import {InputEntry} from 'viewers/viewer_input/ui_data';

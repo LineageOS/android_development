@@ -26,7 +26,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FilterFlag} from 'common/filter_flag';
 import {PersistentStore} from 'common/store/persistent_store';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {TraceType} from 'trace_api/trace_type';
 import {TextFilter} from 'viewers/common/text_filter';
@@ -105,7 +105,7 @@ describe('PropertiesComponent', () => {
     const tree = new PropertyTreeBuilder()
       .setRootId('selectedItem')
       .setName('property')
-      .setValue(null)
+      .setValue(undefined)
       .build();
     tree.setIsRoot(true);
     component.propertiesTree = UiPropertyTreeNode.from(tree);
@@ -124,7 +124,7 @@ describe('PropertiesComponent', () => {
     const tree = new PropertyTreeBuilder()
       .setRootId('selectedItem')
       .setName('property')
-      .setValue(null)
+      .setValue(undefined)
       .build();
     tree.setIsRoot(true);
     component.propertiesTree = UiPropertyTreeNode.from(tree);

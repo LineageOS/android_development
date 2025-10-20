@@ -22,7 +22,7 @@ import {
   isTransitionWithUnknownStart,
 } from 'app/components/timeline/timeline_utils';
 import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {TimeRange, Timestamp} from 'common/time/time';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -33,6 +33,9 @@ import {
   TimelineTraces,
 } from './mini_canvas_drawer_data';
 
+/**
+ * Input data for the mini timeline drawer.
+ */
 export class MiniTimelineDrawerInput {
   constructor(
     public fullRange: TimeRange,

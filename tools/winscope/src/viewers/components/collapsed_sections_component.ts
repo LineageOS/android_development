@@ -27,12 +27,12 @@ import {CollapsibleSections} from 'viewers/common/collapsible_sections';
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule, MatRippleModule],
   template: `
-      <ng-container *ngFor="let section of sections.getCollapsedSections()">
+      @for (section of sections.getCollapsedSections(); track section.type) {
         <span matRipple class="collapsed-section" (click)="onCollapsedSectionClick(section.type)">
             <span class="collapsed-section-text"> {{section.label.toUpperCase()}} </span>
             <mat-icon> arrow_right </mat-icon>
         </span>
-      </ng-container>
+      }
     `,
   styles: [
     `

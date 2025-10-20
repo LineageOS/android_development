@@ -57,9 +57,9 @@ describe('updateConfigsFromStore', () => {
       selectionConfigs: [{name: 'new2', key: 'test2', options: ['1']}],
     };
     updateConfigs(sourceConfig);
-    expect(target[traceKey].config.checkboxConfigs[0].name).toEqual('test1');
+    expect(target[traceKey].config.checkboxConfigs[0].name).toBe('test1');
     const newSelectionConfig = target[traceKey].config.selectionConfigs[0];
-    expect(newSelectionConfig.name).toEqual('test2');
+    expect(newSelectionConfig.name).toBe('test2');
     expect(newSelectionConfig.options).toEqual([]);
   });
 

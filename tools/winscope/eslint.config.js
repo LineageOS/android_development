@@ -5,6 +5,7 @@ const typescriptEslint = require('@typescript-eslint/eslint-plugin');
 const tsParser = require('@typescript-eslint/parser');
 const globals = require('globals');
 const js = require('@eslint/js');
+const unusedImports = require('eslint-plugin-unused-imports');
 
 const {FlatCompat} = require('@eslint/eslintrc');
 
@@ -22,6 +23,7 @@ module.exports = defineConfig([
     plugins: {
       prettier,
       '@typescript-eslint': typescriptEslint,
+      'unused-imports': unusedImports,
     },
 
     languageOptions: {
@@ -44,6 +46,7 @@ module.exports = defineConfig([
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': 'error',
       'no-var': 'error',
 
       'prefer-const': [

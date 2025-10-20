@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Computation} from 'tree_node/computation';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
@@ -39,7 +39,9 @@ export class ZOrderPathsComputation implements Computation {
     assertDefined(this.root).forEachNodeDfs((node) => {
       if (node.isRoot()) return;
       layerIdToTreeNode.set(
-        assertDefined(node.getEagerPropertyByName('layerId')).getValue(),
+        assertDefined(
+          node.getEagerPropertyByName('layerId')?.getValue<number>(),
+        ),
         node,
       );
     });
@@ -52,7 +54,7 @@ export class ZOrderPathsComputation implements Computation {
     assertDefined(this.root).forEachNodeDfs((node) => {
       const zOrderRelativeOf = node
         .getEagerPropertyByName('zOrderRelativeOf')
-        ?.getValue();
+        ?.getValue<number>();
       if (zOrderRelativeOf && zOrderRelativeOf > 0) {
         const zParent = layerIdToTreeNode.get(zOrderRelativeOf);
         if (!zParent) {

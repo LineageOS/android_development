@@ -17,7 +17,7 @@
 /**
  * Represents a size with width and height.
  */
-export interface Size {
+export declare interface Size {
   width: number;
   height: number;
 }

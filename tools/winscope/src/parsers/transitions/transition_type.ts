@@ -16,6 +16,9 @@
 
 const FRST_CUSTOM = 1000;
 
+/**
+ * The type of a transition.
+ */
 export enum TransitionType {
   UNDEFINED = -1,
   NONE = 0,

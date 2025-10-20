@@ -15,8 +15,19 @@
  */
 import {WinscopeEvent} from './winscope_event';
 
+/**
+ * A callback function for emitting Winscope events.
+ */
 export type EmitEvent = (event: WinscopeEvent) => Promise<void>;
 
+/**
+ * An interface for classes that can emit Winscope events.
+ */
 export interface WinscopeEventEmitter {
+  /**
+   * Sets the callback function for emitting Winscope events.
+   *
+   * @param callback The callback function.
+   */
   setEmitEvent(callback: EmitEvent): void;
 }

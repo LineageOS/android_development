@@ -16,7 +16,7 @@
 
 import {MatOption} from '@angular/material/core';
 import {MatSelect} from '@angular/material/select';
-import {KeyboardEventCode} from 'common/dom_utils';
+import {KeyboardEventCode} from 'common/dom';
 import {AbstractFormFieldComponent} from './abstract_form_field_component';
 
 export abstract class AbstractSelectComponent<

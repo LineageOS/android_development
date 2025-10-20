@@ -15,6 +15,14 @@
  */
 import {WinscopeEvent} from './winscope_event';
 
+/**
+ * An interface for classes that can listen to Winscope events.
+ */
 export interface WinscopeEventListener {
+  /**
+   * Called when a Winscope event is received.
+   *
+   * @param event The event.
+   */
   onWinscopeEvent(event: WinscopeEvent): Promise<void>;
 }

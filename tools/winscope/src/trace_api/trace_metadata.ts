@@ -14,11 +14,32 @@
  * limitations under the License.
  */
 
-export interface TraceMetadata {
+/**
+ * Metadata associated with a trace. Contains information needed to synchronize
+ * and interpret the trace data.
+ */
+export declare interface TraceMetadata {
+  /**
+   * Offsets required to synchronize screen recording timestamps with the
+   * trace's elapsed time base.
+   */
   screenRecordingOffsets?: ScreenRecordingOffsets;
 }
 
-export interface ScreenRecordingOffsets {
+/**
+ * Contains timestamps and offsets necessary to align screen recording
+ * timestamps with the trace's elapsed time base. This allows converting
+ * between real time (often used by screen recordings) and elapsed time
+ * (often used by other traces).
+ */
+export declare interface ScreenRecordingOffsets {
+  /**
+   * The elapsed real time in nanoseconds at a specific point.
+   */
   elapsedRealTimeNanos: bigint;
+  /**
+   * The offset to convert from real time to elapsed time.
+   * The relationship is: `elapsedTime = realTime - realToElapsedTimeOffsetNanos`.
+   */
   realToElapsedTimeOffsetNanos: bigint;
 }

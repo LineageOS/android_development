@@ -14,6 +14,7 @@ export interface SelectOption {
   id: any;
   name: string;
   selected?: boolean;
+  passing?: boolean;
 }
 
 @Component({
@@ -162,6 +163,10 @@ export class FilterComponent implements OnInit, OnDestroy {
       this.filterService.sendSelectedOptions(this.selectedItems);
       this.dialogRef.close(this.selectedItems.map(item => item.id));
     }
+  }
+
+  selectFailing(): void {
+    this.TempselectedItems = [{id: -1, name: "Failing features", selected: true, passing: false }]
   }
 
   cancelFilters(): void {

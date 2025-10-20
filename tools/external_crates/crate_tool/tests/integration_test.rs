@@ -101,7 +101,12 @@ mod test {
 
         managed_repo.analyze_updates("base64")?;
 
-        managed_repo.suggest_updates(true, crate_tool::SemverCompatibilityRule::Ignore, false)?;
+        managed_repo.suggest_updates(
+            true,
+            crate_tool::SemverCompatibilityRule::Ignore,
+            crate_tool::SemverCompatibilityRule::Ignore,
+            false,
+        )?;
 
         assert!(
             managed_repo.update("base64", "0.21.123").is_err(),
@@ -109,6 +114,7 @@ mod test {
         );
         managed_repo.update("base64", "0.22.1")?;
 
+        #[cfg(not(target_os = "macos"))]
         dump(managed_repo_path.monorepo_path());
 
         Ok(())

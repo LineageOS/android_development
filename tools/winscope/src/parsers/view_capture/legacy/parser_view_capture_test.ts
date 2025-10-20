@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {utf8Encode} from 'common/string_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {utf8Encode} from 'common/string_helpers';
 import Long from 'long';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -57,9 +57,9 @@ describe('ParserViewCapture', () => {
 
   it('provides timestamps', () => {
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1691692936292808460n),
-      TimestampConverterUtils.makeRealTimestamp(1691692936301385080n),
-      TimestampConverterUtils.makeRealTimestamp(1691692936309419870n),
+      makeRealTimestamp(1691692936292808460n),
+      makeRealTimestamp(1691692936301385080n),
+      makeRealTimestamp(1691692936309419870n),
     ];
     expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
   });
@@ -70,17 +70,17 @@ describe('ParserViewCapture', () => {
 
   it('converts to valid perfetto packets', async () => {
     const packets = parser.convertToPerfettoPackets!(10, 2, 3);
-    expect(packets.length).toEqual(2000);
-    expect(packets[0].trustedPacketSequenceId).toEqual(10);
+    expect(packets.length).toBe(2000);
+    expect(packets[0].trustedPacketSequenceId).toBe(10);
     expect(packets[0].timestamp).toEqual(
       Long.fromString(BigInt(181114412436130).toString()),
     );
     expect(packets[0].timestampClockId).toEqual(
       perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
-    expect(packets[0].trustedUid).toEqual(2);
-    expect(packets[0].trustedPid).toEqual(3);
-    expect(packets[0].sequenceFlags).toEqual(3);
+    expect(packets[0].trustedUid).toBe(2);
+    expect(packets[0].trustedPid).toBe(3);
+    expect(packets[0].sequenceFlags).toBe(3);
     expect(packets[1].sequenceFlags).toEqual(
       perfetto.protos.TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     );
@@ -90,13 +90,13 @@ describe('ParserViewCapture', () => {
         '.perfetto.protos.WinscopeExtensionsImpl.viewcapture'
       ],
     );
-    expect(vcData.packageNameIid).toEqual(1);
-    expect(vcData.windowNameIid).toEqual(1);
-    expect(vcData.views?.length).toEqual(17);
+    expect(vcData.packageNameIid).toBe(1);
+    expect(vcData.windowNameIid).toBe(1);
+    expect(vcData.views?.length).toBe(17);
 
     const internedData = assertDefined(packets[0].internedData);
 
-    expect(internedData.viewcapturePackageName?.length).toEqual(1);
+    expect(internedData.viewcapturePackageName?.length).toBe(1);
     expect(internedData.viewcapturePackageName?.[0].iid).toEqual(
       Long.fromNumber(1, true),
     );
@@ -104,7 +104,7 @@ describe('ParserViewCapture', () => {
       utf8Encode('com.google.android.apps.nexuslauncher'),
     );
 
-    expect(internedData.viewcaptureWindowName?.length).toEqual(1);
+    expect(internedData.viewcaptureWindowName?.length).toBe(1);
     expect(internedData.viewcaptureWindowName?.[0].iid).toEqual(
       Long.fromNumber(1, true),
     );
@@ -112,7 +112,7 @@ describe('ParserViewCapture', () => {
       utf8Encode('.Taskbar'),
     );
 
-    expect(internedData.viewcaptureClassName?.length).toEqual(68);
+    expect(internedData.viewcaptureClassName?.length).toBe(68);
     expect(internedData.viewcaptureClassName?.[3].iid).toEqual(
       Long.fromNumber(3, true),
     );
@@ -120,7 +120,7 @@ describe('ParserViewCapture', () => {
       utf8Encode('com.android.launcher3.views.DoubleShadowBubbleTextView'),
     );
 
-    expect(internedData.viewcaptureViewId?.length).toEqual(11);
+    expect(internedData.viewcaptureViewId?.length).toBe(11);
     expect(internedData.viewcaptureViewId?.[1].iid).toEqual(
       Long.fromNumber(2, true),
     );
@@ -139,15 +139,15 @@ describe('ParserViewCapture', () => {
       .setConvertToPerfetto(true)
       .getParser<HierarchyTreeNode>();
     expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual([
-      TimestampConverterUtils.makeRealTimestamp(1691692936292808460n),
-      TimestampConverterUtils.makeRealTimestamp(1691692936301385080n),
-      TimestampConverterUtils.makeRealTimestamp(1691692936309419870n),
+      makeRealTimestamp(1691692936292808460n),
+      makeRealTimestamp(1691692936301385080n),
+      makeRealTimestamp(1691692936309419870n),
     ]);
 
     const entry = await perfettoParser.getEntry(1);
-    expect(entry.name).toEqual(
+    expect(entry.name).toBe(
       'com.android.launcher3.taskbar.TaskbarDragLayer@265160962',
     );
-    expect(entry.getRects()?.length).toEqual(1);
+    expect(entry.getRects()?.length).toBe(1);
   });
 });

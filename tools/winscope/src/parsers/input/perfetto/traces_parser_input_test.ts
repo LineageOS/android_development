@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {getTracesParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {CoarseVersion} from 'trace_api/coarse_version';
@@ -60,21 +60,21 @@ describe('TracesParserInput', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1718386903800330430n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903800330430n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903821511338n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903827304592n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903836681382n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903841727281n),
-      TimestampConverterUtils.makeRealTimestamp(1718386905115026232n),
-      TimestampConverterUtils.makeRealTimestamp(1718386905123057319n),
+      makeRealTimestamp(1718386903800330430n),
+      makeRealTimestamp(1718386903800330430n),
+      makeRealTimestamp(1718386903821511338n),
+      makeRealTimestamp(1718386903827304592n),
+      makeRealTimestamp(1718386903836681382n),
+      makeRealTimestamp(1718386903841727281n),
+      makeRealTimestamp(1718386905115026232n),
+      makeRealTimestamp(1718386905123057319n),
     ];
     expect(timestamps).toEqual(expected);
   });
 
   it('retrieves all entries', async () => {
     const entries = await parser.getAllEntries();
-    expect(entries.length).toEqual(8);
+    expect(entries.length).toBe(8);
     expect(entries.every((entry) => entry !== undefined)).toBeTrue();
   });
 
@@ -91,9 +91,9 @@ describe('TracesParserInput', () => {
     expect(motionEvent.getEagerPropertyByName('eventId')?.getValue()).toEqual(
       330184796n,
     );
-    expect(
-      motionEvent.getEagerPropertyByName('type')?.formattedValue(),
-    ).toEqual('MOTION');
+    expect(motionEvent.getEagerPropertyByName('type')?.formattedValue()).toBe(
+      'MOTION',
+    );
   });
 
   it('supports VSYNCID custom query', async () => {

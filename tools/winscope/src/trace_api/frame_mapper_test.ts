@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {extractFrames} from 'test/unit/traces_utils';
+import {extractFrames} from 'test/unit/traces_test_helpers';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {CustomQueryType} from './custom_query';
@@ -28,18 +28,16 @@ import {TraceType} from './trace_type';
 import {Traces} from './traces';
 
 describe('FrameMapper', () => {
-  const time0 = TimestampConverterUtils.makeRealTimestamp(0n);
-  const time1 = TimestampConverterUtils.makeRealTimestamp(1n);
-  const time2 = TimestampConverterUtils.makeRealTimestamp(2n);
-  const time3 = TimestampConverterUtils.makeRealTimestamp(3n);
-  const time4 = TimestampConverterUtils.makeRealTimestamp(4n);
-  const time5 = TimestampConverterUtils.makeRealTimestamp(5n);
-  const time6 = TimestampConverterUtils.makeRealTimestamp(6n);
-  const time7 = TimestampConverterUtils.makeRealTimestamp(7n);
-  const time8 = TimestampConverterUtils.makeRealTimestamp(8n);
-  const time10seconds = TimestampConverterUtils.makeRealTimestamp(
-    10n * 1000000000n,
-  );
+  const time0 = makeRealTimestamp(0n);
+  const time1 = makeRealTimestamp(1n);
+  const time2 = makeRealTimestamp(2n);
+  const time3 = makeRealTimestamp(3n);
+  const time4 = makeRealTimestamp(4n);
+  const time5 = makeRealTimestamp(5n);
+  const time6 = makeRealTimestamp(6n);
+  const time7 = makeRealTimestamp(7n);
+  const time8 = makeRealTimestamp(8n);
+  const time10seconds = makeRealTimestamp(10n * 1000000000n);
 
   describe('ProtoLog <-> WindowManager', () => {
     let protoLog: Trace<PropertyTreeNode>;
@@ -485,7 +483,10 @@ describe('FrameMapper', () => {
       async function getExpectedFrameMap(
         expected: Array<[number[], number]>,
       ): Promise<Map<AbsoluteFrameIndex, Map<TraceType, Array<{}>>>> {
-        const expectedFrames = new Map();
+        const expectedFrames = new Map<
+          AbsoluteFrameIndex,
+          Map<TraceType, Array<{}>>
+        >();
         for (const [
           frameIndex,
           [traceIndexes, sfIndex],

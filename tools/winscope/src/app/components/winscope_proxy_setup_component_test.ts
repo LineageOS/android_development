@@ -24,11 +24,11 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {Download} from 'common/download';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {ConnectionState} from 'trace_collection/connection_state';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
+import {DownloadRequest} from 'common/download';
 
 describe('WinscopeProxySetupComponent', () => {
   let component: WinscopeProxySetupComponent;
@@ -92,8 +92,11 @@ describe('WinscopeProxySetupComponent', () => {
 
   it('download proxy button downloads proxy', () => {
     component.state = ConnectionState.NOT_FOUND;
+    const spy: DownloadRequest = jasmine.createSpy('fromUrl');
+    component.downloadRequest = (url: string, fileName: string) => {
+      spy(url, fileName);
+    };
     dom.detectChanges();
-    const spy = spyOn(Download, 'fromUrl');
     dom.findAndClick('.download-proxy-btn');
     expect(spy).toHaveBeenCalledWith(
       component.downloadProxyUrl,

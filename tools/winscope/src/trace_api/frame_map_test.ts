@@ -34,10 +34,10 @@ describe('FrameMapTest', () => {
 
   it('getFramesRange()', () => {
     // empty
-    expect(map.getFramesRange({start: -2, end: -1})).toEqual(undefined);
-    expect(map.getFramesRange({start: 0, end: 1})).toEqual(undefined);
-    expect(map.getFramesRange({start: 5, end: 6})).toEqual(undefined);
-    expect(map.getFramesRange({start: 1, end: 1})).toEqual(undefined);
+    expect(map.getFramesRange({start: -2, end: -1})).toBeUndefined();
+    expect(map.getFramesRange({start: 0, end: 1})).toBeUndefined();
+    expect(map.getFramesRange({start: 5, end: 6})).toBeUndefined();
+    expect(map.getFramesRange({start: 1, end: 1})).toBeUndefined();
 
     // full
     expect(map.getFramesRange({start: 0, end: 6})).toEqual({start: 1, end: 7});
@@ -47,7 +47,7 @@ describe('FrameMapTest', () => {
     expect(map.getFramesRange({start: 1, end: 4})).toEqual({start: 1, end: 2});
     expect(map.getFramesRange({start: 1, end: 2})).toEqual({start: 1, end: 2});
     expect(map.getFramesRange({start: 2, end: 3})).toEqual({start: 1, end: 2});
-    expect(map.getFramesRange({start: 3, end: 4})).toEqual(undefined);
+    expect(map.getFramesRange({start: 3, end: 4})).toBeUndefined();
     expect(map.getFramesRange({start: 4, end: 5})).toEqual({start: 4, end: 7});
 
     // slice away front
@@ -55,16 +55,16 @@ describe('FrameMapTest', () => {
     expect(map.getFramesRange({start: 2, end: 6})).toEqual({start: 1, end: 7});
     expect(map.getFramesRange({start: 3, end: 6})).toEqual({start: 4, end: 7});
     expect(map.getFramesRange({start: 4, end: 6})).toEqual({start: 4, end: 7});
-    expect(map.getFramesRange({start: 5, end: 6})).toEqual(undefined);
-    expect(map.getFramesRange({start: 6, end: 6})).toEqual(undefined);
+    expect(map.getFramesRange({start: 5, end: 6})).toBeUndefined();
+    expect(map.getFramesRange({start: 6, end: 6})).toBeUndefined();
 
     // slice away back
     expect(map.getFramesRange({start: 0, end: 5})).toEqual({start: 1, end: 7});
     expect(map.getFramesRange({start: 0, end: 4})).toEqual({start: 1, end: 2});
     expect(map.getFramesRange({start: 0, end: 3})).toEqual({start: 1, end: 2});
     expect(map.getFramesRange({start: 0, end: 2})).toEqual({start: 1, end: 2});
-    expect(map.getFramesRange({start: 0, end: 1})).toEqual(undefined);
-    expect(map.getFramesRange({start: 0, end: 0})).toEqual(undefined);
+    expect(map.getFramesRange({start: 0, end: 1})).toBeUndefined();
+    expect(map.getFramesRange({start: 0, end: 0})).toBeUndefined();
 
     // query out of bounds
     expect(map.getFramesRange({start: -1, end: 7})).toEqual({start: 1, end: 7});
@@ -78,11 +78,11 @@ describe('FrameMapTest', () => {
 
   it('getEntriesRange()', () => {
     // empty
-    expect(map.getEntriesRange({start: -2, end: -1})).toEqual(undefined);
-    expect(map.getEntriesRange({start: 7, end: 8})).toEqual(undefined);
-    expect(map.getEntriesRange({start: 2, end: 4})).toEqual(undefined);
-    expect(map.getEntriesRange({start: 3, end: 2})).toEqual(undefined);
-    expect(map.getEntriesRange({start: 2, end: 2})).toEqual(undefined);
+    expect(map.getEntriesRange({start: -2, end: -1})).toBeUndefined();
+    expect(map.getEntriesRange({start: 7, end: 8})).toBeUndefined();
+    expect(map.getEntriesRange({start: 2, end: 4})).toBeUndefined();
+    expect(map.getEntriesRange({start: 3, end: 2})).toBeUndefined();
+    expect(map.getEntriesRange({start: 2, end: 2})).toBeUndefined();
 
     // full
     expect(map.getEntriesRange({start: 0, end: 7})).toEqual({start: 1, end: 5});
@@ -106,7 +106,7 @@ describe('FrameMapTest', () => {
     expect(map.getEntriesRange({start: 4, end: 7})).toEqual({start: 4, end: 5});
     expect(map.getEntriesRange({start: 5, end: 7})).toEqual({start: 4, end: 5});
     expect(map.getEntriesRange({start: 6, end: 7})).toEqual({start: 4, end: 5});
-    expect(map.getEntriesRange({start: 7, end: 7})).toEqual(undefined);
+    expect(map.getEntriesRange({start: 7, end: 7})).toBeUndefined();
 
     // slice away back
     expect(map.getEntriesRange({start: 1, end: 6})).toEqual({start: 1, end: 5});
@@ -114,7 +114,7 @@ describe('FrameMapTest', () => {
     expect(map.getEntriesRange({start: 1, end: 4})).toEqual({start: 1, end: 3});
     expect(map.getEntriesRange({start: 1, end: 3})).toEqual({start: 1, end: 3});
     expect(map.getEntriesRange({start: 1, end: 2})).toEqual({start: 1, end: 3});
-    expect(map.getEntriesRange({start: 1, end: 1})).toEqual(undefined);
+    expect(map.getEntriesRange({start: 1, end: 1})).toBeUndefined();
 
     // query out of bounds
     expect(map.getEntriesRange({start: 0, end: 8})).toEqual({start: 1, end: 5});

@@ -17,7 +17,7 @@
 /**
  * A point in 2D space.
  */
-export interface Point {
+export declare interface Point {
   x: number;
   y: number;
 }

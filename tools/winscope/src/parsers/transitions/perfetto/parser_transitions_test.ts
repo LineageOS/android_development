@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -47,10 +47,10 @@ describe('PerfettoParserTransitions', () => {
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1700573425448299306n),
-        TimestampConverterUtils.makeRealTimestamp(1700573426522433299n),
-        TimestampConverterUtils.makeRealTimestamp(1700573433040642612n),
-        TimestampConverterUtils.makeRealTimestamp(1700573433279358351n),
+        makeRealTimestamp(1700573425448299306n),
+        makeRealTimestamp(1700573426522433299n),
+        makeRealTimestamp(1700573433040642612n),
+        makeRealTimestamp(1700573433279358351n),
       ];
       const actual = assertDefined(parser.getTimestamps());
       expect(actual).toEqual(expected);
@@ -58,36 +58,37 @@ describe('PerfettoParserTransitions', () => {
 
     it('retrieves all entries', async () => {
       const entries = await parser.getAllEntries();
-      expect(entries.length).toEqual(4);
+      expect(entries.length).toBe(4);
       expect(entries.every((entry) => entry !== undefined)).toBeTrue();
     });
 
     it('extracts eager properties', async () => {
       const entry = await parser.getEntry(0);
 
-      expect(entry.getEagerPropertyByName('transitionId')?.getValue()).toEqual(
+      expect(entry.getEagerPropertyByName('transitionId')?.getValue()).toBe(
         32n,
       );
       expect(
         entry.getEagerPropertyByName('transitionType')?.formattedValue(),
-      ).toEqual('OPEN');
+      ).toBe('OPEN');
 
-      expect(
-        entry.getEagerPropertyByName('sendTimeNs')?.formattedValue(),
-      ).toEqual('2023-11-21, 13:30:25.442');
+      expect(entry.getEagerPropertyByName('sendTimeNs')?.formattedValue()).toBe(
+        '2023-11-21, 13:30:25.442',
+      );
       expect(
         entry.getEagerPropertyByName('dispatchTimeNs')?.formattedValue(),
-      ).toEqual('2023-11-21, 13:30:25.448');
-      expect(
-        entry.getEagerPropertyByName('durationNs')?.formattedValue(),
-      ).toEqual('528 ms');
+      ).toBe('2023-11-21, 13:30:25.448');
+      expect(entry.getEagerPropertyByName('durationNs')?.formattedValue()).toBe(
+        '528 ms',
+      );
 
       const layerParticipants: Array<bigint> = assertDefined(
         entry.getEagerPropertyByName('layers'),
       )
         .getAllChildren()
-        .map((child) => child.getValue());
-      expect(layerParticipants.length).toEqual(2);
+        .map((child) => child.getValue())
+        .filter((value): value is bigint => value !== undefined);
+      expect(layerParticipants.length).toBe(2);
       expect(layerParticipants).toContain(47n);
       expect(layerParticipants).toContain(398n);
 
@@ -95,22 +96,23 @@ describe('PerfettoParserTransitions', () => {
         entry.getEagerPropertyByName('windows'),
       )
         .getAllChildren()
-        .map((child) => child.getValue());
-      expect(windowParticipants.length).toEqual(2);
+        .map((child) => child.getValue())
+        .filter((value): value is bigint => value !== undefined);
+      expect(windowParticipants.length).toBe(2);
       expect(windowParticipants).toContain(159077656n);
       expect(windowParticipants).toContain(193491296n);
 
-      expect(entry.getEagerPropertyByName('handler')?.formattedValue()).toEqual(
+      expect(entry.getEagerPropertyByName('handler')?.formattedValue()).toBe(
         'com.android.wm.shell.transition.DefaultMixedHandler',
       );
-      expect(entry.getEagerPropertyByName('status')?.formattedValue()).toEqual(
+      expect(entry.getEagerPropertyByName('status')?.formattedValue()).toBe(
         'PLAYED',
       );
 
       const entryWithFlags = await parser.getEntry(1);
       expect(
         entryWithFlags.getEagerPropertyByName('flags')?.formattedValue(),
-      ).toEqual('TRANSIT_FLAG_IS_RECENTS');
+      ).toBe('TRANSIT_FLAG_IS_RECENTS');
     });
 
     it('decodes lazy transition properties', async () => {
@@ -118,81 +120,79 @@ describe('PerfettoParserTransitions', () => {
 
       const properties = await entry.getAllProperties();
 
-      expect(properties.getChildByName('id')?.getValue()).toEqual(32);
-      expect(
-        properties.getChildByName('createTimeNs')?.formattedValue(),
-      ).toEqual('2023-11-21, 13:30:25.429');
-      expect(properties.getChildByName('sendTimeNs')?.formattedValue()).toEqual(
+      expect(properties.getChildByName('id')?.getValue()).toBe(32);
+      expect(properties.getChildByName('createTimeNs')?.formattedValue()).toBe(
+        '2023-11-21, 13:30:25.429',
+      );
+      expect(properties.getChildByName('sendTimeNs')?.formattedValue()).toBe(
         '2023-11-21, 13:30:25.442',
       );
-      expect(
-        properties.getChildByName('finishTimeNs')?.formattedValue(),
-      ).toEqual('2023-11-21, 13:30:25.970');
-      expect(entry.getEagerPropertyByName('status')?.getValue()).toEqual(
-        'played',
+      expect(properties.getChildByName('finishTimeNs')?.formattedValue()).toBe(
+        '2023-11-21, 13:30:25.970',
       );
+      expect(entry.getEagerPropertyByName('status')?.getValue()).toBe('played');
 
       expect(
         assertDefined(
           properties.getChildByName('startingWindowRemoveTimeNs'),
         ).formattedValue(),
-      ).toEqual('2023-11-21, 13:30:25.565');
+      ).toBe('2023-11-21, 13:30:25.565');
       expect(
         assertDefined(
           properties.getChildByName('startTransactionId'),
         ).formattedValue(),
-      ).toEqual('5811090758076');
+      ).toBe('5811090758076');
       expect(
         assertDefined(
           properties.getChildByName('finishTransactionId'),
         ).formattedValue(),
-      ).toEqual('5811090758077');
+      ).toBe('5811090758077');
       expect(
         assertDefined(properties.getChildByName('type')).formattedValue(),
-      ).toEqual('OPEN');
+      ).toBe('OPEN');
 
       const targets = assertDefined(
         properties.getChildByName('targets'),
       ).getAllChildren();
-      expect(targets.length).toEqual(2);
+      expect(targets.length).toBe(2);
       expect(
         assertDefined(targets[0].getChildByName('layerId')).formattedValue(),
-      ).toEqual('398');
+      ).toBe('398');
       expect(
         assertDefined(targets[1].getChildByName('layerId')).formattedValue(),
-      ).toEqual('47');
+      ).toBe('47');
       expect(
         assertDefined(targets[0].getChildByName('mode')).formattedValue(),
-      ).toEqual('TO_FRONT');
+      ).toBe('TO_FRONT');
       expect(
         assertDefined(targets[1].getChildByName('mode')).formattedValue(),
-      ).toEqual('TO_BACK');
+      ).toBe('TO_BACK');
       expect(
         assertDefined(targets[0].getChildByName('flags')).formattedValue(),
-      ).toEqual('FLAG_MOVED_TO_TOP');
+      ).toBe('FLAG_MOVED_TO_TOP');
       expect(
         assertDefined(targets[1].getChildByName('flags')).formattedValue(),
-      ).toEqual('FLAG_SHOW_WALLPAPER');
+      ).toBe('FLAG_SHOW_WALLPAPER');
 
       expect(
         assertDefined(
           properties.getChildByName('dispatchTimeNs'),
         ).formattedValue(),
-      ).toEqual('2023-11-21, 13:30:25.448');
+      ).toBe('2023-11-21, 13:30:25.448');
       expect(properties.getChildByName('mergeRequestTime')).toBeUndefined();
       expect(properties.getChildByName('mergeTime')).toBeUndefined();
       expect(properties.getChildByName('shellAbortTimeNs')).toBeUndefined();
       expect(properties.getChildByName('mergeTarget')).toBeUndefined();
       expect(
         assertDefined(properties.getChildByName('handler')).formattedValue(),
-      ).toEqual('com.android.wm.shell.transition.DefaultMixedHandler');
+      ).toBe('com.android.wm.shell.transition.DefaultMixedHandler');
 
       const entryWithFlags = await parser.getEntry(1);
       expect(
         assertDefined(
           (await entryWithFlags.getAllProperties()).getChildByName('flags'),
         ).formattedValue(),
-      ).toEqual('TRANSIT_FLAG_IS_RECENTS');
+      ).toBe('TRANSIT_FLAG_IS_RECENTS');
     });
   });
 });

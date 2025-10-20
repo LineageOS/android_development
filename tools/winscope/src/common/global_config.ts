@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * The schema for the global configuration.
+ */
 export type Schema = Omit<GlobalConfig, 'set'>;
 
 class GlobalConfig {
@@ -24,4 +27,7 @@ class GlobalConfig {
   }
 }
 
+/**
+ * The global configuration for the application.
+ */
 export const globalConfig = new GlobalConfig();

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -38,14 +39,18 @@ import com.android.mechanics.demo.tuneable.ConfigurableDemo
 import com.android.mechanics.demo.tuneable.Demo
 
 /** A screen in the demo app. */
-sealed class Screen(val identifier: String)
+sealed class Screen(val identifier: String, val color: Color? = null)
 
 /** A parent screen, which lists its child screens to navigate to them. */
-class ParentScreen(identifier: String, val children: Map<String, Screen>) : Screen(identifier)
+class ParentScreen(identifier: String, val children: Map<String, Screen>, color: Color? = null) :
+    Screen(identifier, color)
 
 /** A child screen, which shows some [content]. */
-class ChildScreen(identifier: String, val content: @Composable (NavController) -> Unit) :
-    Screen(identifier)
+class ChildScreen(
+    identifier: String,
+    color: Color? = null,
+    val content: @Composable (NavController) -> Unit,
+) : Screen(identifier, color)
 
 /** A child screen, which shows a [demo]. */
 class DemoScreen(val demo: Demo<*>) : Screen(demo.identifier)
@@ -94,7 +99,7 @@ private fun ScreenMenu(screen: ParentScreen, navController: NavController) {
             item {
                 Surface(
                     Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    color = child.color ?: MaterialTheme.colorScheme.secondaryContainer,
                     shape = CircleShape,
                 ) {
                     val onClick = { navController.navigate(child.identifier) }

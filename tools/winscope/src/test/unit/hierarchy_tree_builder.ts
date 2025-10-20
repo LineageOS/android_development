@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {Operation} from 'tree_node/operation';
 import {OperationChain} from 'tree_node/operation_chain';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {PropertyTreeNodeFactory} from 'tree_node/property_tree_node_factory';
 import {TraceRect} from 'tree_node/trace_rect';
-import {SetFormatters} from 'viewers/operations/set_formatters';
 import {ChildProperty, PropertyTreeBuilder} from './property_tree_builder';
 import {TreeBuilder} from './tree_builder';
 
+/**
+ * Builder for a hierarchy tree.
+ *
+ * The builder is not reusable, it should only be used to build one tree.
+ */
 export class HierarchyTreeBuilder extends TreeBuilder<
   HierarchyTreeNode,
   ChildHierarchy
 > {
   private properties: object | undefined;
-  private additionalProperties: ChildProperty[] = [];
+  private readonly additionalProperties: ChildProperty[] = [];
+  private rootNodeFormatter?: Operation<PropertyTreeNode>;
 
   setId(value: string | number | undefined): this {
     this.id = value;
@@ -39,6 +45,11 @@ export class HierarchyTreeBuilder extends TreeBuilder<
 
   setProperties(value: object | undefined): this {
     this.properties = value;
+    return this;
+  }
+
+  setRootNodeFormatter(value: Operation<PropertyTreeNode> | undefined): this {
+    this.rootNodeFormatter = value;
     return this;
   }
 
@@ -66,10 +77,13 @@ export class HierarchyTreeBuilder extends TreeBuilder<
       propertiesTree.addOrReplaceChild(childNode);
     });
 
-    new SetFormatters().apply(propertiesTree);
+    if (this.rootNodeFormatter) {
+      this.rootNodeFormatter.apply(propertiesTree);
+    }
     const provider = new PropertiesProvider(
       propertiesTree,
       async () => propertiesTree,
+      undefined,
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
       OperationChain.emptyChain<PropertyTreeNode>(),
@@ -87,6 +101,7 @@ export class HierarchyTreeBuilder extends TreeBuilder<
       .setName(child.name)
       .setProperties(child.properties)
       .setChildren(child.children ?? [])
+      .setRootNodeFormatter(this.rootNodeFormatter)
       .build();
     rootNode.addOrReplaceChild(childNode);
     childNode.setParent(rootNode);
@@ -103,7 +118,10 @@ export class HierarchyTreeBuilder extends TreeBuilder<
   }
 }
 
-export interface ChildHierarchy {
+/**
+ * A child in a hierarchy tree.
+ */
+export declare interface ChildHierarchy {
   id: string | number;
   name: string;
   properties?: object;

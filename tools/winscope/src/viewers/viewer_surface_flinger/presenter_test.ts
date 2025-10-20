@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
 import {
@@ -24,12 +24,12 @@ import {
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {EMPTY_OBJ_STRING} from 'trace/formatters';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
+import {SetFormatters} from 'parsers/set_formatters';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
@@ -41,7 +41,7 @@ import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiDataHierarchy} from 'viewers/common/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {makeIdMatchFilter, makeNodeFilter} from 'viewers/common/ui_tree_utils';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
@@ -56,6 +56,7 @@ class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<U
 
   override readonly shouldExecuteRectTests = true;
   override readonly shouldExecuteSimplifyNamesTest = true;
+  override readonly shouldExecutePlaybackTests = true;
   override readonly keepCalculatedPropertiesInChild = false;
   override readonly keepCalculatedPropertiesInRoot = true;
   override readonly expectedHierarchyOpts = {
@@ -202,7 +203,7 @@ the default for its data type.`,
 
     const layer = assertDefined(
       firstEntryDataTree.findDfs(
-        UiTreeUtils.makeIdMatchFilter(
+        makeIdMatchFilter(
           '576 com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher#576',
         ),
       ),
@@ -220,7 +221,7 @@ the default for its data type.`,
       assertDefined(
         firstEntryDataTree
           .findDfs(
-            UiTreeUtils.makeIdMatchFilter(
+            makeIdMatchFilter(
               '630 com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity#630',
             ),
           )
@@ -276,12 +277,12 @@ the default for its data type.`,
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataHierarchy) {
     expect(
       uiData.propertiesTree?.getChildByName('screenBounds')?.formattedValue(),
-    ).toEqual('(0, 0) - (1080, 600)');
+    ).toBe('(0, 0) - (1080, 600)');
     expect(
       assertDefined(
         uiData.propertiesTree?.getChildByName('damageRegion'),
       ).formattedValue(),
-    ).toEqual('SkRegion((0, 0, 1080, 600))');
+    ).toBe('SkRegion((0, 0, 1080, 600))');
     expect(uiData.displays?.at(0)).toEqual({
       displayId: '4619827259835644672',
       groupId: 0,
@@ -391,7 +392,7 @@ the default for its data type.`,
 
       it('handles displays with no visible layers', async () => {
         await presenter?.onAppEvent(assertDefined(this.positionUpdate));
-        expect(uiData?.displays?.length).toEqual(5);
+        expect(uiData?.displays?.length).toBe(5);
         // we want the displays to be sorted by name
         expect(uiData?.displays).toEqual([
           {
@@ -436,7 +437,7 @@ the default for its data type.`,
             new HierarchyTreeBuilder()
               .setId('WindowManagerState entry')
               .setName('root')
-              .setProperties({focusedDisplayId: 3})
+              .setProperties({focusedDisplayId: 3n})
               .build(),
           ])
           .build();
@@ -467,7 +468,7 @@ the default for its data type.`,
         await createPresenterWithViewCapture(assertDefined(this.traceSf));
         expect(
           uiData.rectsToDraw.filter((rect) => rect.hasContent).length,
-        ).toEqual(1);
+        ).toBe(1);
       });
 
       it('handles rect double click if view capture trace present', async () => {
@@ -526,7 +527,7 @@ the default for its data type.`,
         const nodeWithRelZChild = this.getSelectedTree();
         const nodeWithRelZParent = assertDefined(
           assertDefined(uiData.hierarchyTrees)[0].findDfs(
-            UiTreeUtils.makeNodeFilter(
+            makeNodeFilter(
               new TextFilter(
                 '626 SurfaceView[com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher]#626',
               ).getFilterPredicate(),
@@ -537,7 +538,7 @@ the default for its data type.`,
         await presenter.onHighlightedNodeChange(nodeWithRelZChild);
         const secondRelZChildName =
           'Background for SurfaceView[com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher]#628';
-        expect(uiData.curatedProperties?.relativeParent).toEqual('none');
+        expect(uiData.curatedProperties?.relativeParent).toBe('none');
         expect(uiData.curatedProperties?.relativeChildren).toEqual([
           {
             layerId: '626',
@@ -606,6 +607,7 @@ the default for its data type.`,
         });
 
         const tree = new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
           .setId('LayerTraceEntry')
           .setName('root')
           .setChildren([
@@ -677,38 +679,38 @@ the default for its data type.`,
             layerValues: [{layerId: '3', nodeId: '3 layer3', name: 'layer3'}],
           },
         ]);
-        expect(properties.calcColor).toEqual('(0, 0, 0), alpha: 1');
-        expect(properties.reqColor).toEqual('no color found');
-        expect(properties.calcShadowRadius).toEqual('1 px');
-        expect(properties.calcCornerRadii).toEqual('(1, 2, 0, 4)');
-        expect(properties.destinationFrame).toEqual('(0, 0) - (1, 1)');
+        expect(properties.calcColor).toBe('(0, 0, 0), alpha: 1');
+        expect(properties.reqColor).toBe('no color found');
+        expect(properties.calcShadowRadius).toBe('1 px');
+        expect(properties.calcCornerRadii).toBe('(1, 2, 0, 4)');
+        expect(properties.destinationFrame).toBe('(0, 0) - (1, 1)');
         expect(properties.calcCrop).toEqual(EMPTY_OBJ_STRING);
-        expect(properties.reqCrop).toEqual('(0, 0) - (1, 2)');
-        expect(properties.reqCornerRadii).toEqual('(5, 5, 5, 5)');
+        expect(properties.reqCrop).toBe('(0, 0) - (1, 2)');
+        expect(properties.reqCornerRadii).toBe('(5, 5, 5, 5)');
 
         await presenter.onHighlightedIdChange(
           assertDefined(tree.getChildByName('layer0')).id,
         );
         properties = assertDefined(uiData.curatedProperties);
-        expect(properties.calcCornerRadii).toEqual('(0, 0, 0, 0)');
-        expect(properties.reqCornerRadii).toEqual('(0, 0, 0, 0)');
+        expect(properties.calcCornerRadii).toBe('(0, 0, 0, 0)');
+        expect(properties.reqCornerRadii).toBe('(0, 0, 0, 0)');
 
         await presenter.onHighlightedIdChange(
           assertDefined(tree.getChildByName('layer2')).id,
         );
         properties = assertDefined(uiData.curatedProperties);
-        expect(properties.calcCornerRadii).toEqual('(6, 6, 6, 6)');
-        expect(properties.reqCornerRadii).toEqual('(0, 0, 3, 0)');
+        expect(properties.calcCornerRadii).toBe('(6, 6, 6, 6)');
+        expect(properties.reqCornerRadii).toBe('(0, 0, 3, 0)');
       });
 
       it('draws input windows', async () => {
         await presenter.onAppEvent(this.getPositionUpdate());
-        expect(uiData.rectsToDraw.length).toEqual(27);
+        expect(uiData.rectsToDraw.length).toBe(27);
         expect(uiData.rectsToDraw[6].label).toEqual(
           'Bounds for - com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher#577',
         );
         presenter.onRectTypeButtonClicked(TraceRectType.INPUT_WINDOWS);
-        expect(uiData.rectsToDraw.length).toEqual(15);
+        expect(uiData.rectsToDraw.length).toBe(15);
         expect(uiData.rectsToDraw[6].label).toEqual(
           'com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity#630',
         );
@@ -732,7 +734,7 @@ the default for its data type.`,
           uiData.propertiesTree
             ?.getChildByName('requestedTransform')
             ?.formattedValue(),
-        ).toEqual('IDENTITY');
+        ).toBe('IDENTITY');
       }
 
       async function createPresenterWithViewCapture(
@@ -741,7 +743,10 @@ the default for its data type.`,
         const traceVc = new TraceBuilder<HierarchyTreeNode>()
           .setType(TraceType.VIEW_CAPTURE)
           .setEntries([
-            TreeNodeUtils.makeHierarchyNode({id: 'vc id', name: 'vc node'}),
+            new HierarchyTreeBuilder()
+              .setId('vc id')
+              .setName('vc node')
+              .build(),
           ])
           .setParserCustomQueryResult(CustomQueryType.VIEW_CAPTURE_METADATA, {
             packageName: 'com.android.car.carlauncher',

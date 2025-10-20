@@ -19,7 +19,7 @@ import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {SnackBarComponent} from './snack_bar_component';
 
 describe('SnackBarComponent', () => {
@@ -53,7 +53,7 @@ describe('SnackBarComponent', () => {
 
   it('shows all messages', () => {
     const messageElements = dom.findAll('.message');
-    expect(messageElements.length).toEqual(2);
+    expect(messageElements.length).toBe(2);
     messageElements[0].checkTextExact(messages[0]);
     messageElements[1].checkTextExact(messages[1]);
   });

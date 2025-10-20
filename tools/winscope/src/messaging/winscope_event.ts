@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-import {assertTrue} from 'common/assert_utils';
+import {assertTrue} from 'common/assert';
 import {Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {Trace, TraceEntry, TraceEntryEager} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {AdbFiles} from 'trace_collection/adb_files';
 import {View, Viewer, ViewType} from 'viewers/viewer';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
+/**
+ * An enum for Winscope event types.
+ */
 export enum WinscopeEventType {
   APP_INITIALIZED,
   APP_FILES_COLLECTED,
@@ -54,6 +60,13 @@ export enum WinscopeEventType {
   INITIALIZE_TRACE_SEARCH_REQUEST,
   TRACE_SEARCH_INITIALIZED,
   SHOW_TRACE_UPLOAD_WARNING,
+  PLAYBACK_STATE_CHANGE_REQUEST,
+  PLAYBACK_STATE_CHANGE_HANDLED,
+  PLAYBACK_SPEED_CHANGE,
+  SCREEN_RECORDING_CHANGE,
+  PLAYBACK_STATE_CHANGE_PROPAGATE,
+  ACTIVE_SEARCH_QUERIES_UPDATE,
+  BOOKMARKS_CHANGED,
 }
 
 interface TypeMap {
@@ -88,11 +101,27 @@ interface TypeMap {
   [WinscopeEventType.TRACE_SEARCH_INITIALIZED]: TraceSearchInitialized;
   [WinscopeEventType.TRACE_SEARCH_COMPLETED]: TraceSearchCompleted;
   [WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING]: ShowTraceUploadWarning;
+  [WinscopeEventType.PLAYBACK_STATE_CHANGE_REQUEST]: PlaybackStateChangeRequest;
+  [WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED]: PlaybackStateChangeHandled;
+  [WinscopeEventType.PLAYBACK_SPEED_CHANGE]: PlaybackSpeedChange;
+  [WinscopeEventType.SCREEN_RECORDING_CHANGE]: ScreenRecordingChange;
+  [WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE]: PlaybackStateChangePropagate;
+  [WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE]: ActiveSearchQueriesUpdate;
+  [WinscopeEventType.BOOKMARKS_CHANGED]: BookmarksChanged;
 }
 
+/**
+ * An abstract class for Winscope events.
+ */
 export abstract class WinscopeEvent {
   abstract readonly type: WinscopeEventType;
 
+  /**
+   * Visits the event if it is of the given type.
+   *
+   * @param type The type of the event to visit.
+   * @param callback The callback to execute if the event is of the given type.
+   */
   async visit<T extends WinscopeEventType>(
     type: T,
     callback: (event: TypeMap[T]) => Promise<void>,
@@ -104,10 +133,16 @@ export abstract class WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the application has been initialized.
+ */
 export class AppInitialized extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_INITIALIZED;
 }
 
+/**
+ * An event for when files have been collected from a device.
+ */
 export class AppFilesCollected extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_FILES_COLLECTED;
 
@@ -116,6 +151,9 @@ export class AppFilesCollected extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when files have been uploaded by the user.
+ */
 export class AppFilesUploaded extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_FILES_UPLOADED;
 
@@ -124,10 +162,16 @@ export class AppFilesUploaded extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request has been made to reset the application.
+ */
 export class AppResetRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_RESET_REQUEST;
 }
 
+/**
+ * An event for when a request has been made to view traces.
+ */
 export class AppTraceViewRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_TRACE_VIEW_REQUEST;
   constructor(readonly discardLegacyTraces = false) {
@@ -135,18 +179,30 @@ export class AppTraceViewRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request to view traces has been handled.
+ */
 export class AppTraceViewRequestHandled extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_TRACE_VIEW_REQUEST_HANDLED;
 }
 
+/**
+ * An event for when a request has been made to refresh dumps.
+ */
 export class AppRefreshDumpsRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.APP_REFRESH_DUMPS_REQUEST;
 }
 
+/**
+ * An event for when a download from a remote tool has started.
+ */
 export class RemoteToolDownloadStart extends WinscopeEvent {
   override readonly type = WinscopeEventType.REMOTE_TOOL_DOWNLOAD_START;
 }
 
+/**
+ * An event for when files have been received from a remote tool.
+ */
 export class RemoteToolFilesReceived extends WinscopeEvent {
   override readonly type = WinscopeEventType.REMOTE_TOOL_FILES_RECEIVED;
 
@@ -158,6 +214,9 @@ export class RemoteToolFilesReceived extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a timestamp has been received from a remote tool.
+ */
 export class RemoteToolTimestampReceived extends WinscopeEvent {
   override readonly type = WinscopeEventType.REMOTE_TOOL_TIMESTAMP_RECEIVED;
 
@@ -166,6 +225,9 @@ export class RemoteToolTimestampReceived extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the tabbed view has been switched.
+ */
 export class TabbedViewSwitched extends WinscopeEvent {
   override readonly type = WinscopeEventType.TABBED_VIEW_SWITCHED;
   readonly newFocusedView: View;
@@ -179,6 +241,9 @@ export class TabbedViewSwitched extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request has been made to switch the tabbed view.
+ */
 export class TabbedViewSwitchRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.TABBED_VIEW_SWITCH_REQUEST;
 
@@ -190,17 +255,33 @@ export class TabbedViewSwitchRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the trace position has been updated.
+ */
 export class TracePositionUpdate extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_POSITION_UPDATE;
   readonly position: TracePosition;
   readonly updateTimeline: boolean;
+  readonly prefetchedEntry?: TraceEntryEager<object, object>;
 
-  constructor(position: TracePosition, updateTimeline = false) {
+  constructor(
+    position: TracePosition,
+    updateTimeline = false,
+    prefetchedEntry?: TraceEntryEager<object, object>,
+  ) {
     super();
     this.position = position;
     this.updateTimeline = updateTimeline;
+    this.prefetchedEntry = prefetchedEntry;
   }
 
+  /**
+   * Creates a new TracePositionUpdate event from a timestamp.
+   *
+   * @param timestamp The timestamp.
+   * @param updateTimeline Whether to update the timeline.
+   * @return The new event.
+   */
   static fromTimestamp(
     timestamp: Timestamp,
     updateTimeline = false,
@@ -209,6 +290,13 @@ export class TracePositionUpdate extends WinscopeEvent {
     return new TracePositionUpdate(position, updateTimeline);
   }
 
+  /**
+   * Creates a new TracePositionUpdate event from a trace entry.
+   *
+   * @param entry The trace entry.
+   * @param updateTimeline Whether to update the timeline.
+   * @return The new event.
+   */
   static fromTraceEntry(
     entry: TraceEntry<{}>,
     updateTimeline = false,
@@ -218,6 +306,9 @@ export class TracePositionUpdate extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the viewers have been loaded.
+ */
 export class ViewersLoaded extends WinscopeEvent {
   override readonly type = WinscopeEventType.VIEWERS_LOADED;
 
@@ -226,10 +317,16 @@ export class ViewersLoaded extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the viewers have been unloaded.
+ */
 export class ViewersUnloaded extends WinscopeEvent {
   override readonly type = WinscopeEventType.VIEWERS_UNLOADED;
 }
 
+/**
+ * An event for when the expanded timeline has been toggled.
+ */
 export class ExpandedTimelineToggled extends WinscopeEvent {
   override readonly type = WinscopeEventType.EXPANDED_TIMELINE_TOGGLED;
   constructor(readonly isTimelineExpanded: boolean) {
@@ -237,6 +334,9 @@ export class ExpandedTimelineToggled extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the active trace has changed.
+ */
 export class ActiveTraceChanged extends WinscopeEvent {
   override readonly type = WinscopeEventType.ACTIVE_TRACE_CHANGED;
   constructor(readonly trace: Trace<object>) {
@@ -244,6 +344,19 @@ export class ActiveTraceChanged extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when the screen recording selected trace has changed.
+ */
+export class ScreenRecordingChange extends WinscopeEvent {
+  override readonly type = WinscopeEventType.SCREEN_RECORDING_CHANGE;
+  constructor(readonly trace: Trace<MediaBasedTraceEntry>) {
+    super();
+  }
+}
+
+/**
+ * An event for when dark mode has been toggled.
+ */
 export class DarkModeToggled extends WinscopeEvent {
   override readonly type = WinscopeEventType.DARK_MODE_TOGGLED;
   constructor(readonly isDarkMode: boolean) {
@@ -251,10 +364,16 @@ export class DarkModeToggled extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when no trace targets have been selected.
+ */
 export class NoTraceTargetsSelected extends WinscopeEvent {
   override readonly type = WinscopeEventType.NO_TRACE_TARGETS_SELECTED;
 }
 
+/**
+ * An event for when a request has been made to save a filter preset.
+ */
 export class FilterPresetSaveRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.FILTER_PRESET_SAVE_REQUEST;
   constructor(
@@ -265,6 +384,9 @@ export class FilterPresetSaveRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request has been made to apply a filter preset.
+ */
 export class FilterPresetApplyRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.FILTER_PRESET_APPLY_REQUEST;
   constructor(
@@ -275,6 +397,9 @@ export class FilterPresetApplyRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a trace search request has been made.
+ */
 export class TraceSearchRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_SEARCH_REQUEST;
   constructor(readonly query: string) {
@@ -282,10 +407,16 @@ export class TraceSearchRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a trace search has failed.
+ */
 export class TraceSearchFailed extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_SEARCH_FAILED;
 }
 
+/**
+ * An event for when a request has been made to add a trace.
+ */
 export class TraceAddRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_ADD_REQUEST;
   constructor(readonly trace: Trace<object>) {
@@ -293,6 +424,9 @@ export class TraceAddRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request has been made to remove a trace.
+ */
 export class TraceRemoveRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_REMOVE_REQUEST;
   constructor(readonly trace: Trace<object>) {
@@ -300,10 +434,16 @@ export class TraceRemoveRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request has been made to initialize trace search.
+ */
 export class InitializeTraceSearchRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.INITIALIZE_TRACE_SEARCH_REQUEST;
 }
 
+/**
+ * An event for when trace search has been initialized.
+ */
 export class TraceSearchInitialized extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_SEARCH_INITIALIZED;
 
@@ -312,10 +452,16 @@ export class TraceSearchInitialized extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a trace search has been completed.
+ */
 export class TraceSearchCompleted extends WinscopeEvent {
   override readonly type = WinscopeEventType.TRACE_SEARCH_COMPLETED;
 }
 
+/**
+ * An event for when a bugreport file has been selected.
+ */
 export class BugreportFileSelected extends WinscopeEvent {
   override readonly type = WinscopeEventType.BUGREPORT_FILE_SELECTED;
 
@@ -324,6 +470,9 @@ export class BugreportFileSelected extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a request has been made to select a bugreport file.
+ */
 export class BugreportFileSelectionRequest extends WinscopeEvent {
   override readonly type = WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST;
 
@@ -332,10 +481,118 @@ export class BugreportFileSelectionRequest extends WinscopeEvent {
   }
 }
 
+/**
+ * An event for when a trace upload warning should be shown.
+ */
 export class ShowTraceUploadWarning extends WinscopeEvent {
   override readonly type = WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING;
 
   constructor(readonly message: string) {
+    super();
+  }
+}
+
+/**
+ * An event for when the playback state change is requested.
+ *
+ * @param traceType The type of the trace.
+ * @param state The desired playback state (FORWARDS, BACKWARDS, or PAUSE).
+ * @param currentTraceIndex Current position in the trace (relevant for FORWARDS/BACKWARDS states).
+ */
+export class PlaybackStateChangeRequest extends WinscopeEvent {
+  override readonly type = WinscopeEventType.PLAYBACK_STATE_CHANGE_REQUEST;
+  readonly traceType: TraceType;
+  readonly currentTraceIndex?: number;
+  readonly state: PlaybackState;
+
+  constructor(
+    traceType: TraceType,
+    state: PlaybackState,
+    currentTraceIndex?: number,
+  ) {
+    super();
+    this.traceType = traceType;
+    this.state = state;
+    this.currentTraceIndex = currentTraceIndex;
+  }
+}
+
+/**
+ * An event for when the playback state change is reflected back to timeline.
+ *
+ * @param stateToReflect The reflected playback state (FORWARDS, BACKWARDS, or PAUSE).
+ * @param traceType The type of the trace.
+ */
+export class PlaybackStateChangeHandled extends WinscopeEvent {
+  override readonly type = WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED;
+  readonly stateToReflect: PlaybackState;
+  readonly traceType?: TraceType;
+
+  constructor(stateToReflect: PlaybackState, traceType?: TraceType) {
+    super();
+    this.stateToReflect = stateToReflect;
+    this.traceType = traceType;
+  }
+}
+
+/**
+ * An event for when playback's speed should change.
+ *
+ * @param traceType The type of the trace.
+ * @param speedValue The new speed value.
+ */
+export class PlaybackSpeedChange extends WinscopeEvent {
+  override readonly type = WinscopeEventType.PLAYBACK_SPEED_CHANGE;
+  readonly traceType: TraceType;
+  readonly speedValue: number;
+
+  constructor(traceType: TraceType, speedValue: number) {
+    super();
+    this.traceType = traceType;
+    this.speedValue = speedValue;
+  }
+}
+
+/**
+ * An event for when the playback state change is propagated from mediator back to viewers.
+ *
+ * @param state The playback state (FORWARDS, BACKWARDS).
+ * @param currentTraceIndex Starting position in the trace.
+ * @param traceGeometryData Trace geometry data from the pipeline.
+ */
+export class PlaybackStateChangePropagate extends WinscopeEvent {
+  override readonly type = WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE;
+  readonly state: PlaybackState;
+  readonly currentTraceIndex: number;
+  readonly traceGeometryData: TraceGeometryData;
+
+  constructor(
+    state: PlaybackState,
+    currentTraceIndex: number,
+    traceGeometryData: TraceGeometryData,
+  ) {
+    super();
+    this.state = state;
+    this.currentTraceIndex = currentTraceIndex;
+    this.traceGeometryData = traceGeometryData;
+  }
+}
+
+/**
+ * An event for when the active search queries have been updated.
+ */
+export class ActiveSearchQueriesUpdate extends WinscopeEvent {
+  override readonly type = WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE;
+
+  constructor(readonly queries: string[]) {
+    super();
+  }
+}
+
+export class BookmarksChanged extends WinscopeEvent {
+  override readonly type = WinscopeEventType.BOOKMARKS_CHANGED;
+
+  constructor(readonly bookmarks: Timestamp[]) {
     super();
   }
 }

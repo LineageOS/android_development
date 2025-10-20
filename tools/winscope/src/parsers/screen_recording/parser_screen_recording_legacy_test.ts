@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
@@ -42,19 +42,19 @@ describe('ParserScreenRecordingLegacy', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
 
-    expect(timestamps.length).toEqual(85);
+    expect(timestamps.length).toBe(85);
 
     let expected = [
-      TimestampConverterUtils.makeElapsedTimestamp(19446131807000n),
-      TimestampConverterUtils.makeElapsedTimestamp(19446158500000n),
-      TimestampConverterUtils.makeElapsedTimestamp(19446167117000n),
+      makeElapsedTimestamp(19446131807000n),
+      makeElapsedTimestamp(19446158500000n),
+      makeElapsedTimestamp(19446167117000n),
     ];
     expect(timestamps.slice(0, 3)).toEqual(expected);
 
     expected = [
-      TimestampConverterUtils.makeElapsedTimestamp(19448470076000n),
-      TimestampConverterUtils.makeElapsedTimestamp(19448487525000n),
-      TimestampConverterUtils.makeElapsedTimestamp(19448501007000n),
+      makeElapsedTimestamp(19448470076000n),
+      makeElapsedTimestamp(19448487525000n),
+      makeElapsedTimestamp(19448501007000n),
     ];
     expect(timestamps.slice(timestamps.length - 3, timestamps.length)).toEqual(
       expected,

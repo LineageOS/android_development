@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert_utils';
-import {getTimestampConverter} from 'common/time/test_utils';
+import {assertDefined, assertTrue} from 'common/assert';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {ParserFactory as LegacyParserFactory} from 'parsers/legacy/parser_factory';
@@ -26,7 +25,8 @@ import {
 } from 'parsers/parser_time_utils';
 import {ParserFactory as PerfettoParserFactory} from 'parsers/perfetto/parser_factory';
 import {TracesParserFactory} from 'parsers/traces/traces_parser_factory';
-import {getFixtureFile} from 'test/unit/fixture_file_utils';
+import {getFixtureFile} from 'test/unit/io_helpers';
+import {getTimestampConverter} from 'test/unit/time_test_helpers';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
@@ -36,6 +36,9 @@ import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceBuilder} from './trace_builder';
 
+/**
+ * Provides a parser for a trace file from the test fixtures.
+ */
 export class LegacyParserProvider {
   private files: Array<{src: string; dst?: string}> = [];
   private timestampConverter = getTimestampConverter();
@@ -44,6 +47,10 @@ export class LegacyParserProvider {
   private convertToPerfetto = false;
   private existingPerfettoFile: TraceFile | undefined;
 
+  /**
+   * @param src Path to the trace file in the test fixtures.
+   * @param dst An optional destination file name.
+   */
   addFile(src: string, dst?: string) {
     this.files.push({src, dst});
     return this;
@@ -74,6 +81,9 @@ export class LegacyParserProvider {
     return this;
   }
 
+  /**
+   * @return The parser for the specified trace file.
+   */
   async getParser<T>(): Promise<Parser<T>> {
     const parsers = await this.getParsers();
 
@@ -88,6 +98,9 @@ export class LegacyParserProvider {
     return parsers[0] as Parser<T>;
   }
 
+  /**
+   * @return The parsers for the specified trace files.
+   */
   async getParsers(): Promise<Array<Parser<object>>> {
     const files = [];
     for (const fixture of this.files) {
@@ -132,6 +145,14 @@ export class LegacyParserProvider {
   }
 }
 
+/**
+ * Converts legacy traces to a single Perfetto trace.
+ *
+ * @param fileAndParsers The legacy traces to convert.
+ * @param timestampConverter The timestamp converter to use.
+ * @param existingPerfettoFile An optional existing Perfetto file to merge with.
+ * @return The converted Perfetto trace.
+ */
 export async function convertToPerfettoTrace(
   fileAndParsers: FileAndParser[],
   timestampConverter: TimestampConverter,
@@ -156,6 +177,11 @@ export async function convertToPerfettoTrace(
   return fileAndParsers;
 }
 
+/**
+ * @param type The type of the trace to get.
+ * @param filename The name of the trace file in the test fixtures.
+ * @return The trace.
+ */
 export async function getTrace<T extends TraceType>(
   type: T,
   filename: string,
@@ -175,6 +201,29 @@ export async function getTrace<T extends TraceType>(
   }
 
   const perfettoParsers = await getPerfettoParsers(filename);
+  expect(perfettoParsers.length).toBe(1);
+  expect(perfettoParsers[0].getTraceType()).toEqual(type);
+  return new TraceBuilder<T>()
+    .setType(type)
+    .setParser(perfettoParsers[0] as unknown as Parser<T>)
+    .build();
+}
+
+/**
+ * @param type The type of the trace to get.
+ * @param filename The name of the trace file in the test fixtures.
+ * @return The trace.
+ */
+export async function getConvertedTrace<T extends TraceType>(
+  type: T,
+  filename: string,
+): Promise<Trace<T>> {
+  const converter = getTimestampConverter(false);
+  const perfettoParsers = await new LegacyParserProvider()
+    .addFile(filename)
+    .setTimestampConverter(converter)
+    .setConvertToPerfetto(true)
+    .getParsers();
   expect(perfettoParsers.length).toEqual(1);
   expect(perfettoParsers[0].getTraceType()).toEqual(type);
   return new TraceBuilder<T>()
@@ -207,6 +256,12 @@ function createTimestamps(
   });
 }
 
+/**
+ * @param traceType The type of the trace to get.
+ * @param fixturePath The path to the trace file in the test fixtures.
+ * @param withUTCOffset Whether to include the UTC offset in the timestamp converter.
+ * @return The parser for the specified trace file.
+ */
 export async function getPerfettoParser<T extends TraceType>(
   traceType: T,
   fixturePath: string,
@@ -219,6 +274,12 @@ export async function getPerfettoParser<T extends TraceType>(
   return parser as Parser<TraceEntryTypeMap[T]>;
 }
 
+/**
+ * @param fixturePath The path to the trace file in the test fixtures.
+ * @param withUTCOffset Whether to include the UTC offset in the timestamp converter.
+ * @param isPerfetto Whether the trace file is a Perfetto trace.
+ * @return The parsers for the specified trace file.
+ */
 export async function getPerfettoParsers(
   fixturePath: string,
   withUTCOffset = false,
@@ -246,6 +307,11 @@ export async function getPerfettoParsers(
   return parsers;
 }
 
+/**
+ * @param filenames The names of the trace files in the test fixtures.
+ * @param withUTCOffset Whether to include the UTC offset in the timestamp converter.
+ * @return The traces parser and its constituent parsers.
+ */
 export async function getTracesParser(
   filenames: string[],
   withUTCOffset = false,
@@ -295,37 +361,33 @@ export async function getTracesParser(
   return {tracesParser: tracesParsers[0], constituentParsers: parsersArray};
 }
 
-export async function getWindowManagerState(
-  index = 0,
-): Promise<HierarchyTreeNode> {
-  return getTraceEntry(
-    'traces/elapsed_and_real_timestamp/WindowManager.pb',
-    index,
-  );
-}
-
+/**
+ * @return The IME trace entries.
+ */
 export async function getImeTraceEntries(): Promise<
   [Map<TraceType, HierarchyTreeNode>, Map<TraceType, HierarchyTreeNode>]
 > {
-  const [clientsParser, managerServiceParser, serviceParser, sfParser] =
-    (await new LegacyParserProvider()
-      .addFile('traces/ime/SurfaceFlinger_with_IME.pb')
-      .addFile('traces/ime/InputMethodService.pb')
-      .addFile('traces/ime/InputMethodManagerService.pb')
-      .addFile('traces/ime/InputMethodClients.pb')
-      .setConvertToPerfetto(true)
-      .getParsers()) as Array<Parser<HierarchyTreeNode>>;
+  const [
+    clientsParser,
+    managerServiceParser,
+    serviceParser,
+    sfParser,
+    wmParser,
+  ] = (await new LegacyParserProvider()
+    .addFile('traces/ime/SurfaceFlinger_with_IME.pb')
+    .addFile('traces/ime/InputMethodService.pb')
+    .addFile('traces/ime/InputMethodManagerService.pb')
+    .addFile('traces/ime/InputMethodClients.pb')
+    .addFile('traces/ime/WindowManager_with_IME.pb')
+    .setConvertToPerfetto(true)
+    .getParsers()) as Array<Parser<HierarchyTreeNode>>;
 
   const surfaceFlingerEntry = await sfParser.getEntry(5);
   const imServiceEntry = await serviceParser.getEntry(0);
   const imManagerServiceEntry = await managerServiceParser.getEntry(0);
   const clientsEntry0 = await clientsParser.getEntry(0);
   const clientsEntry1 = await clientsParser.getEntry(1);
-
-  const windowManagerEntry = await getTraceEntry<HierarchyTreeNode>(
-    'traces/ime/WindowManager_with_IME.pb',
-    2,
-  );
+  const windowManagerEntry = await wmParser.getEntry(2);
 
   const entries = new Map<TraceType, HierarchyTreeNode>();
   entries.set(TraceType.INPUT_METHOD_CLIENTS, clientsEntry0);
@@ -340,11 +402,4 @@ export async function getImeTraceEntries(): Promise<
   secondEntries.set(TraceType.WINDOW_MANAGER, windowManagerEntry);
 
   return [entries, secondEntries];
-}
-
-async function getTraceEntry<T>(filename: string, index = 0) {
-  const parser = await new LegacyParserProvider()
-    .addFile(filename)
-    .getParser<T>();
-  return parser.getEntry(index);
 }

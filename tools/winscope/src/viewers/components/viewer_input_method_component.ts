@@ -44,28 +44,30 @@ import {viewerCardStyle} from './styles/viewer_card.styles';
         (sectionChange)="sections.onCollapseStateChange($event, false)">
       </collapsed-sections>
 
-      <div class="left-views" *ngIf="!areLeftViewsCollapsed()">
-        <hierarchy-view
-          class="hierarchy-view"
-          [trees]="this.inputData?.hierarchyTrees ?? []"
-          [dependencies]="inputData ? [inputData.traceType] : []"
-          [highlightedItem]="inputData?.highlightedItem"
-          [pinnedItems]="inputData?.pinnedItems ?? []"
-          [tableProperties]="inputData?.hierarchyTableProperties"
-          [textFilter]="inputData?.hierarchyFilter"
-          [store]="store"
-          [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-          placeholderText="No IME entry found."></hierarchy-view>
-        <ime-additional-properties
-          class="ime-additional-properties"
-          [isImeManagerService]="isImeManagerService()"
-          [highlightedItem]="inputData?.highlightedItem ?? ''"
-          [additionalProperties]="inputData?.additionalProperties"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"></ime-additional-properties>
-      </div>
+      @if (!areLeftViewsCollapsed()) {
+        <div class="left-views">
+          <hierarchy-view
+            class="hierarchy-view"
+            [trees]="this.inputData?.hierarchyTrees ?? []"
+            [dependencies]="inputData ? [inputData.traceType] : []"
+            [highlightedItem]="inputData?.highlightedItem"
+            [pinnedItems]="inputData?.pinnedItems ?? []"
+            [tableProperties]="inputData?.hierarchyTableProperties"
+            [textFilter]="inputData?.hierarchyFilter"
+            [store]="store"
+            [userOptions]="inputData?.hierarchyUserOptions ?? {}"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+            placeholderText="No IME entry found."></hierarchy-view>
+          <ime-additional-properties
+            class="ime-additional-properties"
+            [isImeManagerService]="isImeManagerService()"
+            [highlightedItem]="inputData?.highlightedItem ?? ''"
+            [additionalProperties]="inputData?.additionalProperties"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"></ime-additional-properties>
+        </div>
+      }
 
       <properties-view
         class="properties-view"

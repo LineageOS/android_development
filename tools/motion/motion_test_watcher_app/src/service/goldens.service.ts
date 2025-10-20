@@ -19,7 +19,7 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
 
-import { MotionGolden, MotionGoldenData } from '../model/golden';
+import { GerritLinkPair, MotionGolden, MotionGoldenData, PresubmitTest } from '../model/golden';
 import { RecordedMotion } from '../model/recorded-motion';
 import { Timeline } from '../model/timeline';
 import { VideoSource } from '../model/video-source';
@@ -63,40 +63,40 @@ export class GoldensService {
     );
   }
 
-  getTestArtifacts(invocation_id: String) : Observable<String[]> {
+  getPresubmitTestArtifacts(invocation_id: string): Observable<PresubmitTest[]> {
     return this.http
-    .post<String[]>(
-      `${this.serverRoot}/service/presubmit_artifact/list`,
-      { invocation_id },
-      {
-        headers: {
-          ...this.defaultHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-    .pipe(
-      tap((artifacts) => console.log(`fetched ${artifacts.length} for invocationID : ${invocation_id}`)),
-      catchError(this.handleError<String[]>('e'))
-    );
+      .post<PresubmitTest[]>(
+        `${this.serverRoot}/service/presubmit_artifact/list`,
+        { invocation_id },
+        {
+          headers: {
+            ...this.defaultHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      .pipe(
+        tap((artifacts) => console.log(`fetched ${artifacts.length} for invocationID : ${invocation_id}`)),
+        catchError(this.handleError<PresubmitTest[]>('e'))
+      );
   }
 
-  getTestArtifactsForTestName(resource_id: String) : Observable<MotionGolden> {
+  getPresubmitTestArtifactsForTestName(resource_id: string): Observable<MotionGolden> {
     return this.http
-    .post<MotionGolden>(
-      `${this.serverRoot}/service/fetch_artifact`,
-      { resource_id },
-      {
-        headers: {
-          ...this.defaultHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-    .pipe(
-      tap((artifact) => console.log(`fetched ${artifact} for testName : ${resource_id}`)),
-      catchError(this.handleError<MotionGolden>('e'))
-    );
+      .post<MotionGolden>(
+        `${this.serverRoot}/service/fetch_artifact`,
+        { resource_id },
+        {
+          headers: {
+            ...this.defaultHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      .pipe(
+        tap((artifact) => console.log(`fetched ${artifact} for testName : ${resource_id}`)),
+        catchError(this.handleError<MotionGolden>('e'))
+      );
   }
 
   getActualGoldenData(golden: MotionGolden): Observable<MotionGoldenData> {
@@ -139,9 +139,9 @@ export class GoldensService {
       );
   }
 
-  switchMode(mode : String) : Observable<MotionGolden[]> {
-      return this.http
-      .post<MotionGolden[]>(
+  switchMode(mode: string): Observable<MotionGolden[] | PresubmitTest[]> {
+    return this.http
+      .post<MotionGolden[] | PresubmitTest[]>(
         `${this.serverRoot}/service/mode`,
         { mode },
         {
@@ -153,10 +153,9 @@ export class GoldensService {
       )
       .pipe(
         tap((artifacts) => console.log(`fetched ${artifacts.length} goldens for testMode : ${mode}`)),
-        catchError(this.handleError<MotionGolden[]>('e'))
+        catchError(this.handleError<MotionGolden[] | PresubmitTest[]>('e'))
       );
-
-    }
+  }
 
   updateGolden(golden: MotionGolden): Observable<Record<string, string>> {
     return this.http
@@ -191,11 +190,11 @@ export class GoldensService {
       );
   }
 
-  getTestModes() : Observable<string[]>{
+  getTestModes(): Observable<string[]> {
     return this.http
       .get<string[]>(
         `${this.serverRoot}/service/testModes/list`,
-       {
+        {
           headers: {
             ...this.defaultHeaders,
             'Content-Type': 'application/json',
@@ -208,7 +207,22 @@ export class GoldensService {
       );
   }
 
-  getGerritData(leftLink: string, rightLink: string){
+  getMultipleJsonsFromGerritLinks(linkPairs : GerritLinkPair[]) : Observable<MotionGolden[]> {
+    return this.http.post<MotionGolden[]>(`${this.serverRoot}/getMultipleGoldensFromGerrit`,
+      { linkPairs },
+      {
+      headers: {
+            ...this.defaultHeaders,
+            'Content-Type': 'application/json',
+          },
+      }
+    ).pipe(
+      tap((x) => console.log(`Got response as ${x}`)),
+      catchError(this.handleError<MotionGolden[]>('e'))
+    )
+  }
+
+  getGerritData(leftLink: string, rightLink: string) {
     let params = new HttpParams()
     params = params.set('leftLink', leftLink)
     params = params.set('rightLink', rightLink)
@@ -227,10 +241,10 @@ export class GoldensService {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(error);
-      if (error.status == 0){
+      if (error.status == 0) {
         this.showNoServerError();
-      }else{
-        const apiError: Error= {
+      } else {
+        const apiError: Error = {
           displayDuration: 5000,
           statusCode: error.status,
           message: error.error?.message
@@ -245,7 +259,7 @@ export class GoldensService {
   private handleErrorForUpdatingGolden<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(error);
-      if (error.status == 0){
+      if (error.status == 0) {
         this.showNoServerError();
       }
       const response = error.error;
@@ -253,8 +267,8 @@ export class GoldensService {
     };
   }
 
-  private showNoServerError(){
-    const serverError: Error= {
+  private showNoServerError() {
+    const serverError: Error = {
       statusCode: 0,
       message: 'Server is not connected. Run the server and try again.'
     }

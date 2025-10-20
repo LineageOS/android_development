@@ -28,10 +28,10 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {TimeRange} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TracePosition} from 'trace_api/trace_position';
 import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';
 
@@ -40,12 +40,12 @@ describe('SliderComponent', () => {
   let dom: DOMTestHelper<SliderComponent>;
   const leftCropperSelector = '.slider .cropper.left';
   const rightCropperSelector = '.slider .cropper.right';
-  const time100 = TimestampConverterUtils.makeRealTimestamp(100n);
-  const time125 = TimestampConverterUtils.makeRealTimestamp(125n);
-  const time126 = TimestampConverterUtils.makeRealTimestamp(126n);
-  const time150 = TimestampConverterUtils.makeRealTimestamp(150n);
-  const time175 = TimestampConverterUtils.makeRealTimestamp(175n);
-  const time200 = TimestampConverterUtils.makeRealTimestamp(200n);
+  const time100 = makeRealTimestamp(100n);
+  const time125 = makeRealTimestamp(125n);
+  const time126 = makeRealTimestamp(126n);
+  const time150 = makeRealTimestamp(150n);
+  const time175 = makeRealTimestamp(175n);
+  const time200 = makeRealTimestamp(200n);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -74,7 +74,7 @@ describe('SliderComponent', () => {
     component.fullRange = new TimeRange(time100, time200);
     component.zoomRange = new TimeRange(time125, time175);
     component.currentPosition = TracePosition.fromTimestamp(time150);
-    component.timestampConverter = TimestampConverterUtils.TIMESTAMP_CONVERTER;
+    component.timestampConverter = UTC_CONVERTER;
     dom.detectChanges();
   });
 
@@ -133,7 +133,7 @@ describe('SliderComponent', () => {
 
     const box = assertDefined(component.sliderBox);
     spyOnProperty(box.nativeElement, 'offsetWidth', 'get').and.returnValue(100);
-    expect(box.nativeElement.offsetWidth).toEqual(100);
+    expect(box.nativeElement.offsetWidth).toBe(100);
 
     slider.style.width = '587px';
     window.dispatchEvent(new Event('resize'));
@@ -182,9 +182,9 @@ describe('SliderComponent', () => {
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
     expect(finalZoom.from).not.toEqual(initialZoom.from);
     expect(finalZoom.to).not.toEqual(initialZoom.to);
-    expect(
-      finalZoom.to.minus(finalZoom.from.getValueNs()).getValueNs(),
-    ).toEqual(initialZoom.to.minus(initialZoom.from.getValueNs()).getValueNs());
+    expect(finalZoom.to.minus(finalZoom.from).getValueNs()).toEqual(
+      initialZoom.to.minus(initialZoom.from).getValueNs(),
+    );
   });
 
   it('moving slider left pointer around updates zoom', fakeAsync(() => {
@@ -252,8 +252,8 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
   }));
 
@@ -276,8 +276,8 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
   }));
 
@@ -300,8 +300,8 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
   }));
 
@@ -324,8 +324,8 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
   }));
 
@@ -348,11 +348,11 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
   });
 
   function checkVisible(element: HTMLElement) {
-    expect(window.getComputedStyle(element).visibility).toEqual('visible');
+    expect(window.getComputedStyle(element).visibility).toBe('visible');
   }
 });

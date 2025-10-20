@@ -212,6 +212,7 @@ log-view .headers .mat-mdc-form-field-infix {
   pointer-events: none;
   opacity: 0.5;
   filter: grayscale(1);
+  user-select: none;
 }
 
 .rect-type-toggle .mat-button-toggle-label-content {
@@ -260,4 +261,21 @@ log-view .headers .mat-mdc-form-field-infix {
 
 .result-tabs .mat-mdc-tab-body-wrapper {
   flex-grow: 1;
+}
+
+.small-icon-container .mat-mdc-icon-button, .icon-button-small.mat-mdc-icon-button {
+  height: 24px;
+  width: 24px;
+  display: flex;
+  padding: 0px;
+  align-items: center;
+  justify-content: center;
+}
+
+.small-icon-container .mat-icon, .icon-button-small .mat-icon, .icon-small.mat-icon {
+  display: flex;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
 }

@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  isElementVisible,
-  isInputTextField,
-  KeyboardEventKey,
-} from 'common/dom_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {assertDefined} from 'common/assert';
+import {isElementVisible, isInputTextField, KeyboardEventKey} from 'common/dom';
 import {Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {
@@ -31,7 +26,7 @@ import {
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
@@ -49,16 +44,20 @@ import {
 } from './viewer_events';
 
 export type NotifyLogViewCallbackType<UiData> = (uiData: UiData) => void;
+export type FilterOptionSorter = (a: string, b: string) => number;
 
 export abstract class AbstractLogViewerPresenter<
   UiData extends UiDataLog,
   TraceEntryType extends object,
 > {
   protected static readonly VALUE_NA = 'N/A';
-  protected emitAppEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  protected emitAppEvent: EmitEvent = () => Promise.resolve();
   protected abstract logPresenter: LogPresenter<LogEntry>;
   protected propertiesPresenter?: PropertiesPresenter;
   protected keepCalculated?: boolean;
+  protected filterOptionSorters: {
+    [key: string]: FilterOptionSorter;
+  } = {};
   private activeTrace?: Trace<object>;
   private isInitialized = false;
 
@@ -317,10 +316,7 @@ export abstract class AbstractLogViewerPresenter<
     if (event.position.entry?.getFullTrace() === this.trace) {
       entry = event.position.entry as TraceEntry<TraceEntryType>;
     } else {
-      entry = TraceEntryFinder.findCorrespondingEntry(
-        this.trace,
-        event.position,
-      );
+      entry = findCorrespondingEntry(this.trace, event.position);
     }
     this.logPresenter.applyTracePositionUpdate(entry);
 
@@ -402,6 +398,12 @@ export abstract class AbstractLogViewerPresenter<
       CustomQueryType.LOG_TABLE_FILTER_VALUES,
       assertDefined(header.spec.columnType),
     );
+    if (header.spec) {
+      const sorter = this.filterOptionSorters[header.spec.name];
+      if (sorter) {
+        filterValues.sort(sorter);
+      }
+    }
     (header.filter as LogSelectFilter).options = filterValues;
     return;
   }

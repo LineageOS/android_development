@@ -21,6 +21,7 @@ globalConfig.set({
   MODE: 'KARMA_TEST',
 });
 
+// zone.js and zone.js/testing must be imported before any other Angular imports
 import 'zone.js';
 import 'zone.js/testing';
 import {TestBed} from '@angular/core/testing';

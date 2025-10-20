@@ -39,8 +39,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
-import {assertDefined} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {
@@ -66,6 +65,9 @@ interface Tab {
   isTooltipStable: boolean;
 }
 
+/**
+ * A component for displaying the trace view.
+ */
 @Component({
   selector: 'trace-view',
   standalone: true,
@@ -87,8 +89,8 @@ interface Tab {
       <div class="header-items-wrapper">
         <div class="trace-tabs-wrapper header-items-wrapper">
           <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="tabs-navigation-bar">
-            <a
-                *ngFor="let tab of tabs; last as isLast"
+            @for (tab of tabs; track tab; let isLast = $last) {
+              <a
                 mat-tab-link
                 [active]="isCurrentActiveTab(tab)"
                 [class.active]="isCurrentActiveTab(tab)"
@@ -101,15 +103,16 @@ interface Tab {
                 (mouseenter)="onTabHover($event, tab)"
                 [class.last]="isLast"
                 class="tab text-no-overflow">
-              <mat-icon
-                class="icon"
-                [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
-                  {{ getTabIcon(tab) }}
-              </mat-icon>
-              <span>
-                {{ getTitle(tab.view) }}
-              </span>
-            </a>
+                <mat-icon
+                  class="icon"
+                  [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
+                    {{ getTabIcon(tab) }}
+                </mat-icon>
+                <span class="tab-title">
+                  {{ getTitle(tab.view) }}
+                </span>
+              </a>
+            }
           </nav>
         </div>
 
@@ -149,7 +152,9 @@ interface Tab {
                 <div class="outline-field save-field">
                   <mat-form-field subscriptSizing="dynamic" appearance="outline">
                     <input matInput [formControl]="filterPresetNameControl" (keydown.enter)="savePreset()"/>
-                    <mat-error *ngIf="filterPresetNameControl.invalid && filterPresetNameControl.value">Preset with that name already exists.</mat-error>
+                    @if (filterPresetNameControl.invalid && filterPresetNameControl.value) {
+                      <mat-error>Preset with that name already exists.</mat-error>
+                    }
                   </mat-form-field>
                   <button mat-flat-button color="primary" [disabled]="filterPresetNameControl.invalid" (click)="savePreset()"> Save </button>
                 </div>
@@ -159,18 +164,22 @@ interface Tab {
 
               <div class="overlay-panel-section existing-presets-section">
                 <span class="mat-body-2 overlay-panel-section-title"> Apply a preset </span>
-                <span class="mat-body-1" *ngIf="getCurrentFilterPresets().length === 0"> No existing presets found. </span>
-                <div *ngFor="let preset of getCurrentFilterPresets()" class="existing-preset inline">
-                  <button
-                      mat-button
-                      color="primary"
-                      (click)="onExistingPresetClick(preset)">
-                    {{ preset.split(".")[0] }}
-                  </button>
-                  <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
-                    <mat-icon class="material-symbols-outlined"> delete </mat-icon>
-                  </button>
-                </div>
+                @if (getCurrentFilterPresets().length === 0) {
+                  <span class="mat-body-1"> No existing presets found. </span>
+                }
+                @for (preset of getCurrentFilterPresets(); track preset) {
+                  <div class="existing-preset inline">
+                    <button
+                        mat-button
+                        color="primary"
+                        (click)="onExistingPresetClick(preset)">
+                      {{ preset.split(".")[0] }}
+                    </button>
+                    <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
+                      <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+                    </button>
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -300,7 +309,7 @@ export class TraceViewComponent
   );
 
   private currentActiveTab: undefined | Tab;
-  private emitAppEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitAppEvent: EmitEvent = () => Promise.resolve();
   private filterPresetsStoreKey = 'filterPresets';
   private allFilterPresets: string[] = [];
 

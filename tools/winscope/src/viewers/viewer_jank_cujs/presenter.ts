@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Timestamp} from 'common/time/time';
 import {TimeDuration} from 'common/time/time_duration';
 import {Trace} from 'trace_api/trace';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -32,7 +32,7 @@ import {CujEntry, CujStatus, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<
   UiData,
-  PropertyTreeNode
+  HierarchyTreeNode
 > {
   private static readonly COLUMNS = {
     type: {
@@ -56,7 +56,6 @@ export class Presenter extends AbstractLogViewerPresenter<
       cssClass: 'status right-align',
     },
   };
-  private transitionTrace: Trace<PropertyTreeNode>;
 
   protected override logPresenter = new LogPresenter<CujEntry>();
   protected override propertiesPresenter = new PropertiesPresenter(
@@ -67,12 +66,11 @@ export class Presenter extends AbstractLogViewerPresenter<
   );
 
   constructor(
-    trace: Trace<PropertyTreeNode>,
+    trace: Trace<HierarchyTreeNode>,
     private readonly storage: Store,
     notifyViewCallback: NotifyLogViewCallbackType<UiData>,
   ) {
     super(trace, notifyViewCallback, UiData.createEmpty());
-    this.transitionTrace = trace;
   }
 
   protected override makeHeaders(): LogHeader[] {
@@ -87,18 +85,23 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   protected override async makeUiDataEntries(): Promise<CujEntry[]> {
     const cujs: CujEntry[] = [];
+    const entryNodes = await this.trace.getAllEntryValues();
+
     for (
       let traceIndex = 0;
-      traceIndex < this.transitionTrace.lengthEntries;
+      traceIndex < this.trace.lengthEntries;
       ++traceIndex
     ) {
+      const cujNode = assertDefined(entryNodes[traceIndex]);
       const entry = assertDefined(this.trace.getEntry(traceIndex));
-      const cujNode = await entry.getValue();
 
+      const isCancelled: boolean =
+        assertDefined(cujNode.getEagerPropertyByName('canceled')).getValue() ??
+        false;
       let status: CujStatus;
       let statusIcon: string;
       let statusIconColor: string;
-      if (assertDefined(cujNode.getChildByName('canceled')).getValue()) {
+      if (isCancelled) {
         status = CujStatus.CANCELLED;
         statusIcon = 'close';
         statusIconColor = 'red';
@@ -108,11 +111,9 @@ export class Presenter extends AbstractLogViewerPresenter<
         statusIconColor = 'green';
       }
 
-      const startTs: Timestamp | undefined = cujNode
-        .getChildByName('startTimestamp')
-        ?.getValue();
+      const startTs = entry.getTimestamp();
       const endTs: Timestamp | undefined = cujNode
-        .getChildByName('endTimestamp')
+        .getEagerPropertyByName('endTimestamp')
         ?.getValue();
 
       let timeDiff: TimeDuration | undefined = undefined;
@@ -122,7 +123,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       }
 
       const cujType = assertDefined(
-        cujNode.getChildByName('cujType'),
+        cujNode.getEagerPropertyByName('cujType'),
       ).formattedValue();
 
       const fields: LogField[] = [
@@ -146,7 +147,9 @@ export class Presenter extends AbstractLogViewerPresenter<
           iconColor: statusIconColor,
         },
       ];
-      cujs.push(new CujEntry(entry, fields, async () => cujNode));
+      cujs.push(
+        new CujEntry(entry, fields, async () => cujNode.getAllProperties()),
+      );
     }
 
     return cujs;

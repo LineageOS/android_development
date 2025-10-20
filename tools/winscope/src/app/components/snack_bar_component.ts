@@ -20,6 +20,9 @@ import {Component, ElementRef, Inject} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
 
+/**
+ * A component for displaying a snack bar with a message and action buttons.
+ */
 @Component({
   selector: 'snack-bar',
   standalone: true,
@@ -27,9 +30,11 @@ import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
   template: `
     <div class="snack-bar-container">
       <div class="message-container">
-        <p *ngFor="let message of messages" class="message mat-body-1">
-          {{ message }}
-        </p>
+        @for (message of messages; track $index) {
+          <p class="message mat-body-1">
+            {{ message }}
+          </p>
+        }
       </div>
       <div class="snack-bar-actions">
         <button

@@ -40,9 +40,9 @@ import {
   isElementOverflowing,
   isElementVisible,
   KeyboardEventKey,
-} from 'common/dom_utils';
-import {Timestamp, TimestampFormatType} from 'common/time/time';
-import {TimeUtils} from 'common/time/time_utils';
+} from 'common/dom';
+import {Timestamp} from 'common/time/time';
+import {Timer} from 'common/time/timer';
 import {TraceType} from 'trace_api/trace_type';
 import {TextFilter} from 'viewers/common/text_filter';
 import {
@@ -73,6 +73,8 @@ import {
   viewerCardInnerStyle,
   viewerCardStyle,
 } from 'viewers/components/styles/viewer_card.styles';
+import {assertDefined} from 'common/assert';
+import {UserTimestamp} from 'common/time/user_timestamp';
 
 @Component({
   selector: 'log-view',
@@ -91,121 +93,136 @@ import {
     VariableHeightScrollDirective,
   ],
   template: `
-    <div class="view-header" *ngIf="title">
-      <div class="title-section">
-        <collapsible-section-title
-            class="log-title"
-            [title]="title"
-            (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
+    @if (title) {
+      <div class="view-header">
+        <div class="title-section">
+          <collapsible-section-title
+              class="log-title"
+              [title]="title"
+              (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
+        </div>
       </div>
-    </div>
+    }
 
     <div class="entries" [class.padded]="padEntries">
-      <div class="headers table-header" *ngIf="headers.length > 0">
-        <div *ngIf="showTraceEntryTimes" class="time time-controls cell">
-          <button
-              color="primary"
-              mat-icon-button
-              class="time-button go-to-first-entry"
-              (click)="onGoToFirstEntryClick()"
-              matTooltip="Go to first entry"
-              matTooltipPosition="above">
-            <mat-icon>first_page</mat-icon>
-          </button>
-          <button
-              color="primary"
-              mat-icon-button
-              class="time-button go-to-current-entry"
-              *ngIf="showCurrentTimeButton"
-              (click)="onGoToCurrentEntryClick()"
-              matTooltip="Go to current entry"
-              matTooltipPosition="above">
-            <mat-icon>move_down</mat-icon>
-          </button>
-          <button
-              color="primary"
-              mat-icon-button
-              class="time-button go-to-last-entry"
-              (click)="onGoToLastEntryClick()"
-              matTooltip="Go to last entry"
-              matTooltipPosition="above">
-              <mat-icon>last_page</mat-icon>
-          </button>
+      @if (headers.length > 0) {
+        <div class="headers table-header">
+          @if (showTraceEntryTimes) {
+            <div class="time time-controls cell">
+              <button
+                  color="primary"
+                  mat-icon-button
+                  class="time-button go-to-first-entry"
+                  (click)="onGoToFirstEntryClick()"
+                  matTooltip="Go to first entry"
+                  matTooltipPosition="above">
+                <mat-icon>first_page</mat-icon>
+              </button>
+              @if (showCurrentTimeButton) {
+                <button
+                    color="primary"
+                    mat-icon-button
+                    class="time-button go-to-current-entry"
+                    (click)="onGoToCurrentEntryClick()"
+                    matTooltip="Go to current entry"
+                    matTooltipPosition="above">
+                  <mat-icon>move_down</mat-icon>
+                </button>
+              }
+              <button
+                  color="primary"
+                  mat-icon-button
+                  class="time-button go-to-last-entry"
+                  (click)="onGoToLastEntryClick()"
+                  matTooltip="Go to last entry"
+                  matTooltipPosition="above">
+                  <mat-icon>last_page</mat-icon>
+              </button>
+            </div>
+          }
+
+          @for (header of headers; track $index) {
+            @let hasFilter = isHeaderWithFilter(header);
+            @if (!hasFilter) {
+              <div
+                #headerEl
+                class="mat-body-2 header text-no-overflow"
+                [class]="header.spec.cssClass"
+                [matTooltip]="header.spec.name"
+                [matTooltipDisabled]="disableHeaderTooltip(headerEl)"
+                matTooltipPosition="above">
+              {{header.spec.name}}</div>
+            } @else if (hasFilter && !showFiltersInTitle) {
+              <div
+                class="filter mat-body-2"
+                [class]="header.spec.cssClass">
+                @if ((header.filter.options?.length ?? 0) > 0) {
+                  <select-with-filter
+                      [label]="header.spec.name"
+                      [options]="header.filter.options"
+                      [outerFilterWidth]="header.filter.outerFilterWidthCss"
+                      [innerFilterWidth]="header.filter.innerFilterWidthCss"
+                      formFieldClass="log-select-filter mat-form-field-appearance-none no-ripple-field"
+                      subscriptSizing="dynamic"
+                      (selectChange)="onFilterChange($event, header)">
+                  </select-with-filter>
+                }
+                @if (header.filter.textFilter) {
+                  <search-box
+                    [textFilter]="header.filter.textFilter"
+                    [label]="header.spec.name"
+                    [filterName]="header.spec.name"
+                    [formFieldClass]="
+                      'wide-field center-field mat-form-field-appearance-none no-ripple-field '
+                       + header.spec.cssClass
+                       + (header.filter.textFilter.filterString?.length === 0 ? ' mat-body-2' : '')
+                    "
+                    (filterChange)="onSearchBoxChange($event, header)"></search-box>
+                }
+              </div>
+            }
+          }
         </div>
+      }
 
-        <ng-container *ngFor="let header of headers">
-          <div
-            #headerEl
-            *ngIf="!isHeaderWithFilter(header)"
-            class="mat-body-2 header text-no-overflow"
-            [class]="header.spec.cssClass"
-            [matTooltip]="header.spec.name"
-            [matTooltipDisabled]="disableHeaderTooltip(headerEl)"
-            matTooltipPosition="above">
-          {{header.spec.name}}</div>
+      @if (!isFetchingData && entries.length === 0) {
+        <div class="placeholder-text mat-body-1"> No entries found. </div>
+      }
 
-          <div
-            *ngIf="isHeaderWithFilter(header) && !showFiltersInTitle"
-            class="filter mat-body-2"
-            [class]="header.spec.cssClass">
-            <select-with-filter
-                *ngIf="(header.filter.options?.length ?? 0) > 0"
-                [label]="header.spec.name"
-                [options]="header.filter.options"
-                [outerFilterWidth]="header.filter.outerFilterWidthCss"
-                [innerFilterWidth]="header.filter.innerFilterWidthCss"
-                formFieldClass="log-select-filter mat-form-field-appearance-none no-ripple-field"
-                subscriptSizing="dynamic"
-                (selectChange)="onFilterChange($event, header)">
-            </select-with-filter>
+      @if (isFetchingData) {
+        <div class="fetching-data mat-body-1">
+          <span class="message-with-spinner">
+            <span>Fetching all data</span>
+            <mat-spinner [diameter]="20"></mat-spinner>
+          </span>
+        </div>
+      }
 
-            <search-box
-              *ngIf="header.filter.textFilter"
-              [textFilter]="header.filter.textFilter"
-              [label]="header.spec.name"
-              [filterName]="header.spec.name"
-              [formFieldClass]="
-                'wide-field center-field mat-form-field-appearance-none no-ripple-field '
-                 + header.spec.cssClass
-                 + (header.filter.textFilter.filterString?.length === 0 ? ' mat-body-2' : '')
-              "
-              (filterChange)="onSearchBoxChange($event, header)"></search-box>
-          </div>
-        </ng-container>
-      </div>
+      @if (!isFixedSizeScrollViewport()) {
+        <cdk-virtual-scroll-viewport
+            variableHeightScroll
+            class="scroll"
+            [traceType]="traceType"
+            [scrollItems]="entries">
+          <ng-container
+              *cdkVirtualFor="let entry of entries; let i = index"
+              [ngTemplateOutlet]="content"
+              [ngTemplateOutletContext]="{entry: entry, i: i}"> </ng-container>
+        </cdk-virtual-scroll-viewport>
+      }
 
-      <div class="placeholder-text mat-body-1" *ngIf="!isFetchingData && entries.length === 0"> No entries found. </div>
-
-      <div class="fetching-data mat-body-1" *ngIf="isFetchingData">
-        <span class="message-with-spinner">
-          <span>Fetching all data</span>
-          <mat-spinner [diameter]="20"></mat-spinner>
-        </span>
-      </div>
-
-      <cdk-virtual-scroll-viewport
-          *ngIf="!isFixedSizeScrollViewport()"
-          variableHeightScroll
-          class="scroll"
-          [traceType]="traceType"
-          [scrollItems]="entries">
-        <ng-container
-            *cdkVirtualFor="let entry of entries; let i = index"
-            [ngTemplateOutlet]="content"
-            [ngTemplateOutletContext]="{entry: entry, i: i}"> </ng-container>
-      </cdk-virtual-scroll-viewport>
-
-      <cdk-virtual-scroll-viewport
-          *ngIf="isFixedSizeScrollViewport()"
-          [itemSize]="36"
-          [minBufferPx]="1000"
-          [maxBufferPx]="2000"
-          class="scroll">
-        <ng-container
-            *cdkVirtualFor="let entry of entries; let i = index"
-            [ngTemplateOutlet]="content"
-            [ngTemplateOutletContext]="{entry: entry, i: i}"> </ng-container>
-      </cdk-virtual-scroll-viewport>
+      @if (isFixedSizeScrollViewport()) {
+        <cdk-virtual-scroll-viewport
+            [itemSize]="36"
+            [minBufferPx]="1000"
+            [maxBufferPx]="2000"
+            class="scroll">
+          <ng-container
+              *cdkVirtualFor="let entry of entries; let i = index"
+              [ngTemplateOutlet]="content"
+              [ngTemplateOutletContext]="{entry: entry, i: i}"> </ng-container>
+        </cdk-virtual-scroll-viewport>
+      }
 
       <ng-template #content let-entry="entry" let-i="i">
         <div
@@ -214,56 +231,68 @@ import {
             [class.current]="isCurrentEntry(i)"
             [class.selected]="isSelectedEntry(i)"
             (click)="onEntryClicked(i)">
-          <div *ngIf="showTraceEntryTimes" class="time cell">
-            <button
-                mat-button
-                class="time-button"
-                color="primary"
-                (click)="onTraceEntryTimestampClick($event, entry)"
-                [disabled]="!entry.traceEntry.hasValidTimestamp()">
-              {{ formatTimestamp(entry.traceEntry.getTimestamp()) }}
-            </button>
-          </div>
+          @if (showTraceEntryTimes) {
+            <div class="time cell">
+              <button
+                  mat-button
+                  class="time-button"
+                  color="primary"
+                  (click)="onTraceEntryTimestampClick($event, entry)"
+                  [disabled]="!entry.traceEntry.hasValidTimestamp()">
+                {{ formatTimestamp(entry.traceEntry.getTimestamp()) }}
+              </button>
+            </div>
+          }
 
-          <div [class]="field.spec.cssClass + ' cell'" *ngFor="let field of entry.fields; index as i">
-            <span class="mat-body-1" *ngIf="!showFieldButton(entry, field) && !isClickableArray(field.value)">{{ field.value }}</span>
-            <button
-                *ngIf="showFieldButton(entry, field)"
-                mat-button
-                class="time-button"
-                color="primary"
-                (click)="onFieldButtonClick($event, entry, field)">
-              {{ formatFieldButton(field.value) }}
-            </button>
-            <ng-container *ngIf="isClickableArray(field.value)">
-              <ng-container *ngFor="let item of field.value; let index=index">
-                  <span *ngIf ="isString(item)" class='mat-body-1'>{{item}}</span>
-                  <button
-                    *ngIf ="!isString(item)"
+          @for (field of entry.fields; track $index) {
+            <div [class]="field.spec.cssClass + ' cell'">
+              @if (!showFieldButton(entry, field) && !isClickableArray(field.value)) {
+                <span class="mat-body-1">{{ field.value }}</span>
+              }
+              @if (showFieldButton(entry, field)) {
+                <button
                     mat-button
-                    class="window-button"
+                    class="time-button"
                     color="primary"
-                    [matTooltip]="item.tooltip"
-                    matTooltipPosition = "above"
-                    matTooltipShowDelay = 100
-                    (click)="item.onClick()">
-                    {{ item.propertyValue }}
-                  </button>
-              </ng-container>
-            </ng-container>
+                    (click)="onFieldButtonClick($event, entry, field)">
+                  {{ formatFieldButton(field.value) }}
+                </button>
+              }
+              @if (isClickableArray(field.value)) {
+                @for (item of field.value; track $index) {
+                    @if (isString(item)) {
+                      <span class='mat-body-1'>{{item}}</span>
+                    } @else {
+                      <button
+                        mat-button
+                        class="window-button"
+                        color="primary"
+                        [matTooltip]="item.tooltip"
+                        matTooltipPosition = "above"
+                        matTooltipShowDelay = 100
+                        (click)="item.onClick()">
+                        {{ item.propertyValue }}
+                      </button>
+                    }
+                }
+              }
 
-            <mat-icon
-                *ngIf="field.icon"
-                aria-hidden="false"
-                [style]="{color: field.iconColor}"> {{field.icon}} </mat-icon>
-            <button
-                mat-icon-button
-                *ngIf="field.spec.canCopy"
-                class="copy-button"
-                [cdkCopyToClipboard]="field.value.toString()">
-              <mat-icon>content_copy</mat-icon>
-            </button>
-          </div>
+              @if (field.icon) {
+                <mat-icon
+                    aria-hidden="false"
+                    class="icon-small"
+                    [style]="{color: field.iconColor}"> {{field.icon}} </mat-icon>
+              }
+              @if (field.spec.canCopy) {
+                <button
+                    mat-icon-button
+                    class="copy-button icon-button-small"
+                    [cdkCopyToClipboard]="field.value.toString()">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              }
+            </div>
+          }
         </div>
       </ng-template>
     </div>
@@ -356,7 +385,12 @@ export class LogComponent {
 
   formatTimestamp(timestamp: Timestamp) {
     if (!this.areMultipleDatesPresent()) {
-      return timestamp.format(TimestampFormatType.DROP_DATE);
+      const fmtTime = timestamp.format();
+      const parsedTime = new UserTimestamp(fmtTime).extractTime();
+      if (!parsedTime) {
+        return fmtTime;
+      }
+      return assertDefined(parsedTime);
     }
     return timestamp.format();
   }
@@ -377,7 +411,7 @@ export class LogComponent {
   }
 
   async ngAfterContentInit() {
-    await TimeUtils.sleepMs(10);
+    await new Timer(10, 10).sleepMs();
     this.updateTableMarginEnd();
   }
 

@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FileUtils} from 'common/file_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {createZipArchive, DOWNLOAD_FILENAME_REGEX, unzipFile} from 'common/io';
 import {ProgressListenerStub} from 'messaging/progress_listener_stub';
 import {UserWarning} from 'messaging/user_warning';
 import {
@@ -31,14 +27,17 @@ import {
 } from 'messaging/user_warnings';
 import {BugreportFileSelected} from 'messaging/winscope_event';
 import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
-import {getFixtureFile} from 'test/unit/fixture_file_utils';
-import {extractEntries} from 'test/unit/traces_utils';
+import {getFixtureFile} from 'test/unit/io_helpers';
+import {
+  makeRealTimestampWithUTCOffset,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceProcessorProxy} from 'trace_processor/trace_processor';
 import {FilesSource} from './files_source';
 import {TraceFileFilter} from './trace_file_filter';
 import {TracePipeline} from './trace_pipeline';
@@ -57,6 +56,8 @@ describe('TracePipeline', () => {
   let perfettoFileProtolog: File;
   let perfettoFileTransactions: File;
   let elapsedFile: File;
+  let eventlogFile: File;
+  let inputFile: File;
 
   let progressListener: ProgressListenerStub;
   let tracePipeline: TracePipeline;
@@ -102,6 +103,12 @@ describe('TracePipeline', () => {
     elapsedFile = await getFixtureFile(
       'traces/elapsed_timestamp/SurfaceFlinger.pb',
     );
+    eventlogFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/eventlog.winscope',
+    );
+    inputFile = await getFixtureFile(
+      'traces/perfetto/input-events.perfetto-trace',
+    );
   });
 
   beforeEach(async () => {
@@ -120,7 +127,7 @@ describe('TracePipeline', () => {
   });
 
   it('can load valid trace files', async () => {
-    expect(tracePipeline.getTraces().getSize()).toEqual(0);
+    expect(tracePipeline.getTraces().getSize()).toBe(0);
 
     await loadFiles([validSfFile, validWmFile], FilesSource.TEST);
     await expectLoadResult(2, []);
@@ -128,7 +135,7 @@ describe('TracePipeline', () => {
     expect(tracePipeline.getDownloadArchiveFilename()).toMatch(
       new RegExp(`${FilesSource.TEST}_`),
     );
-    expect(tracePipeline.getTraces().getSize()).toEqual(2);
+    expect(tracePipeline.getTraces().getSize()).toBe(2);
 
     const traces = tracePipeline.getTraces();
     expect(
@@ -140,7 +147,7 @@ describe('TracePipeline', () => {
   });
 
   it('can load valid gzipped file and archive', async () => {
-    expect(tracePipeline.getTraces().getSize()).toEqual(0);
+    expect(tracePipeline.getTraces().getSize()).toBe(0);
 
     const gzippedFile = await getFixtureFile('archives/WindowManager.pb.gz');
     const gzippedArchive = await getFixtureFile(
@@ -151,13 +158,8 @@ describe('TracePipeline', () => {
     await expectLoadResult(2, []);
 
     const traces = tracePipeline.getTraces();
-    expect(traces.getSize()).toEqual(2);
-    expect(traces.getTraces(TraceType.WINDOW_MANAGER).length).toEqual(2);
-
-    const traceEntries = await extractEntries(traces);
-    expect(traceEntries.get(TraceType.WINDOW_MANAGER)?.length).toBeGreaterThan(
-      0,
-    );
+    expect(traces.getSize()).toBe(2);
+    expect(traces.getTraces(TraceType.WINDOW_MANAGER).length).toBe(2);
   });
 
   it('can set download archive filename based on files source', async () => {
@@ -183,11 +185,11 @@ describe('TracePipeline', () => {
     await loadFiles([fileWithIllegalName]);
     await expectLoadResult(1, []);
     const downloadFilename = tracePipeline.getDownloadArchiveFilename();
-    expect(FileUtils.DOWNLOAD_FILENAME_REGEX.test(downloadFilename)).toBeTrue();
+    expect(DOWNLOAD_FILENAME_REGEX.test(downloadFilename)).toBeTrue();
   });
 
   it('detects bugreports and filters out files based on their directory', async () => {
-    expect(tracePipeline.getTraces().getSize()).toEqual(0);
+    expect(tracePipeline.getTraces().getSize()).toBe(0);
 
     const bugreportFiles = [
       brMainEntryFile,
@@ -200,7 +202,7 @@ describe('TracePipeline', () => {
     ];
 
     const bugreportArchive = new File(
-      [await FileUtils.createZipArchive(bugreportFiles)],
+      [await createZipArchive(bugreportFiles)],
       'bugreport.zip',
     );
 
@@ -227,7 +229,7 @@ describe('TracePipeline', () => {
   it('detects bugreports and extracts timezone info, then calculates utc offset', async () => {
     const bugreportFiles = [brMainEntryFile, brCodenameFile, brSfFile];
     const bugreportArchive = new File(
-      [await FileUtils.createZipArchive(bugreportFiles)],
+      [await createZipArchive(bugreportFiles)],
       'bugreport.zip',
     );
 
@@ -236,12 +238,10 @@ describe('TracePipeline', () => {
 
     const timestampConverter = tracePipeline.getTimestampConverter();
     expect(timestampConverter);
-    expect(timestampConverter.getUTCOffset()).toEqual('UTC+05:30');
+    expect(timestampConverter.getUTCOffset()).toBe('UTC+05:30');
 
     const expectedTimestamp =
-      TimestampConverterUtils.makeRealTimestampWithUTCOffset(
-        1659107089102062832n,
-      );
+      makeRealTimestampWithUTCOffset(1659107089102062832n);
     expect(
       timestampConverter.makeTimestampFromMonotonicNs(14500282843n),
     ).toEqual(expectedTimestamp);
@@ -315,7 +315,7 @@ describe('TracePipeline', () => {
 
   it('surfaces information about packet loss', async () => {
     await loadFiles([perfettoFileProtolog]);
-    expect(tracePipeline.lostPackets()).toEqual(0);
+    expect(tracePipeline.lostPackets()).toBe(0);
 
     const queryResultObj = jasmine.createSpyObj<QueryResult>('result', [
       'numRows',
@@ -330,7 +330,7 @@ describe('TracePipeline', () => {
     spyIter.get.withArgs('value').and.returnValue(2n);
     queryResultObj.iter.and.returnValue(spyIter);
 
-    const spy = spyOn(TraceProcessor.prototype, 'query').and.callThrough();
+    const spy = spyOn(TraceProcessorProxy.prototype, 'query').and.callThrough();
     spy
       .withArgs(
         'SELECT name, value FROM stats ' +
@@ -338,21 +338,21 @@ describe('TracePipeline', () => {
       )
       .and.returnValue(Promise.resolve(queryResultObj));
     await loadFiles([perfettoFileProtolog]);
-    expect(tracePipeline.lostPackets()).toEqual(2);
+    expect(tracePipeline.lostPackets()).toBe(2);
 
     queryResultObj.numRows.and.returnValue(0);
     await loadFiles([perfettoFileProtolog]); // clears lost packets from previous load on overwrite
-    expect(tracePipeline.lostPackets()).toEqual(0);
+    expect(tracePipeline.lostPackets()).toBe(0);
 
     queryResultObj.numRows.and.returnValue(1);
     await loadFiles([perfettoFileProtolog]);
-    expect(tracePipeline.lostPackets()).toEqual(2);
+    expect(tracePipeline.lostPackets()).toBe(2);
     tracePipeline.clear(); // resets lost packets on explicit clear call
-    expect(tracePipeline.lostPackets()).toEqual(0);
+    expect(tracePipeline.lostPackets()).toBe(0);
   });
 
   it('is robust to mixed valid and invalid trace files', async () => {
-    expect(tracePipeline.getTraces().getSize()).toEqual(0);
+    expect(tracePipeline.getTraces().getSize()).toBe(0);
     const files = [jpgFile, elapsedFile];
 
     await loadFiles(files);
@@ -380,61 +380,70 @@ describe('TracePipeline', () => {
     await expectLoadResult(0, []);
   });
 
-  it('removes constituent traces of transitions trace but keeps for download', async () => {
-    const files = [wmTransitionFile, wmTransitionFile, shellTransitionFile];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const transitionTrace = assertDefined(
-      tracePipeline.getTraces().getTrace(TraceType.TRANSITION),
+  it('removes legacy transitions trace and its consituents', async () => {
+    const downloadResult = [
+      'transition/shell_transition_trace.pb',
+      'transition/wm_transition_trace.pb',
+    ];
+    await removesTraceAndConsituents(
+      [wmTransitionFile, wmTransitionFile, shellTransitionFile],
+      downloadResult,
+      TraceType.TRANSITION,
     );
-
-    tracePipeline.removeTrace(transitionTrace);
-    await expectLoadResult(0, []);
 
     await loadFiles([wmTransitionFile]);
     await expectLoadResult(1, []);
     expect(
       tracePipeline.getTraces().getTrace(TraceType.WM_TRANSITION),
     ).toBeDefined();
-    await expectDownloadResult([
+    await expectDownloadResult(['transition/wm_transition_trace.pb']);
+  });
+
+  it('keeps constituents of legacy transitions trace for download', async () => {
+    const downloadResult = [
       'transition/shell_transition_trace.pb',
       'transition/wm_transition_trace.pb',
-    ]);
+    ];
+    await checkConstituentsKeptForDownload(
+      [wmTransitionFile, wmTransitionFile, shellTransitionFile],
+      downloadResult,
+      true,
+      TraceType.TRANSITION,
+    );
   });
 
-  it('removes constituent traces of CUJs trace but keeps for download', async () => {
-    const files = [
-      await getFixtureFile(
-        'traces/elapsed_and_real_timestamp/eventlog.winscope',
-      ),
-    ];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const cujTrace = assertDefined(
-      tracePipeline.getTraces().getTrace(TraceType.CUJS),
+  it('removes CUJ trace and its consituents', async () => {
+    await removesTraceAndConsituents(
+      [eventlogFile],
+      ['eventlog/eventlog.winscope'],
+      TraceType.CUJS,
     );
-
-    tracePipeline.removeTrace(cujTrace);
-    await expectLoadResult(0, []);
-    await expectDownloadResult(['eventlog/eventlog.winscope']);
   });
 
-  it('removes constituent traces of input trace but keeps for download', async () => {
-    const files = [
-      await getFixtureFile('traces/perfetto/input-events.perfetto-trace'),
-    ];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const inputTrace = assertDefined(
-      tracePipeline.getTraces().getTrace(TraceType.INPUT_EVENT_MERGED),
+  it('keeps constituents of CUJ trace for download', async () => {
+    await checkConstituentsKeptForDownload(
+      [eventlogFile],
+      ['eventlog/eventlog.winscope'],
+      false,
+      TraceType.CUJS,
     );
+  });
 
-    tracePipeline.removeTrace(inputTrace);
-    await expectLoadResult(0, []);
-    await expectDownloadResult(['input-events.perfetto-trace']);
+  it('removes Input trace and its consituents', async () => {
+    await removesTraceAndConsituents(
+      [inputFile],
+      ['input-events.perfetto-trace'],
+      TraceType.INPUT_EVENT_MERGED,
+    );
+  });
+
+  it('keeps constituents of Input trace for download', async () => {
+    await checkConstituentsKeptForDownload(
+      [inputFile],
+      ['input-events.perfetto-trace'],
+      false,
+      TraceType.INPUT_EVENT_MERGED,
+    );
   });
 
   it('gets loaded traces', async () => {
@@ -512,7 +521,7 @@ describe('TracePipeline', () => {
     await expectLoadResult(2, []);
 
     tracePipeline.clear();
-    expect(tracePipeline.getTraces().getSize()).toEqual(0);
+    expect(tracePipeline.getTraces().getSize()).toBe(0);
   });
 
   it('can filter traces without visualization', async () => {
@@ -520,7 +529,7 @@ describe('TracePipeline', () => {
     await expectLoadResult(1, []);
 
     tracePipeline.filterTracesWithoutVisualization();
-    expect(tracePipeline.getTraces().getSize()).toEqual(0);
+    expect(tracePipeline.getTraces().getSize()).toBe(0);
     expect(
       tracePipeline.getTraces().getTrace(TraceType.SHELL_TRANSITION),
     ).toBeUndefined();
@@ -545,12 +554,29 @@ describe('TracePipeline', () => {
     await expectLoadResult(1, []);
   });
 
-  it('discards legacy traces without conversion', async () => {
+  it('discards legacy traces that can be converted', async () => {
+    await loadFiles([validSfFile]);
+    const traces = tracePipeline.getTraces();
+    expect(traces.getSize()).toBe(1);
+    tracePipeline.discardLegacyTraces();
+    expect(traces.getSize()).toBe(0);
+  });
+
+  it('keeps legacy traces that cannot be converted', async () => {
+    await checkTraceIsNotDiscarded(screenshotFile, TraceType.SCREENSHOT);
+    await checkTraceIsNotDiscarded(eventlogFile, TraceType.CUJS);
+    await checkTraceIsNotDiscarded(
+      screenRecordingFile,
+      TraceType.SCREEN_RECORDING,
+    );
+  });
+
+  it('keeps legacy traces without conversion', async () => {
     await loadFiles([validSfFile, screenshotFile]);
     expectLoadResult(2, []);
     tracePipeline.discardLegacyTraces();
     const traces = tracePipeline.getTraces();
-    expect(traces.getSize()).toEqual(1);
+    expect(traces.getSize()).toBe(1);
     expect(traces.getTrace(TraceType.SCREENSHOT)).toBeDefined();
   });
 
@@ -605,7 +631,7 @@ describe('TracePipeline', () => {
         [parserSf],
         undefined,
       );
-      expect(tracePipeline.getTraces().getSize()).toEqual(1);
+      expect(tracePipeline.getTraces().getSize()).toBe(1);
       checkSfTraceIsPerfetto();
     });
 
@@ -618,7 +644,7 @@ describe('TracePipeline', () => {
         [parserSf, parserPerfetto],
         new TraceFile(perfettoFileProtolog),
       );
-      expect(tracePipeline.getTraces().getSize()).toEqual(2);
+      expect(tracePipeline.getTraces().getSize()).toBe(2);
       checkSfTraceIsPerfetto();
     });
 
@@ -631,8 +657,15 @@ describe('TracePipeline', () => {
         [parserSf, parserWm],
         undefined,
       );
-      expect(tracePipeline.getTraces().getSize()).toEqual(2);
+      expect(tracePipeline.getTraces().getSize()).toBe(2);
       checkSfTraceIsPerfetto();
+    });
+
+    it('discards constituent files of converted transitions trace', async () => {
+      tracePipeline.clear();
+      await loadFiles([wmTransitionFile, shellTransitionFile]);
+      await tracePipeline.convertLegacyTracesToPerfetto();
+      await expectDownloadResult(['combined_winscope_trace.perfetto-trace']);
     });
 
     function checkSfTraceIsPerfetto() {
@@ -668,9 +701,53 @@ describe('TracePipeline', () => {
 
   async function expectDownloadResult(expectedArchiveContents: string[]) {
     const zipArchive = await tracePipeline.makeZipArchiveWithLoadedTraceFiles();
-    const actualArchiveContents = (await FileUtils.unzipFile(zipArchive))
+    const actualArchiveContents = (await unzipFile(zipArchive))
       .map((file) => file.name)
       .sort();
     expect(actualArchiveContents).toEqual(expectedArchiveContents);
+  }
+
+  async function checkTraceIsNotDiscarded(file: File, type: TraceType) {
+    tracePipeline.clear();
+    await loadFiles([file]);
+    tracePipeline.discardLegacyTraces();
+    const traces = tracePipeline.getTraces();
+    expect(traces.getSize()).toBe(1);
+    expect(traces.getTrace(type)).toBeDefined();
+  }
+
+  async function removesTraceAndConsituents(
+    files: File[],
+    downloadResult: string[],
+    traceType: TraceType,
+  ) {
+    await loadFiles(files);
+    await expectLoadResult(1, []);
+    await expectDownloadResult(downloadResult);
+
+    const trace = assertDefined(tracePipeline.getTraces().getTrace(traceType));
+    tracePipeline.removeTrace(trace);
+    await expectLoadResult(0, []);
+    await expectDownloadResult([]);
+  }
+
+  async function checkConstituentsKeptForDownload(
+    files: File[],
+    downloadResult: string[],
+    screenshotFirst: boolean,
+    traceType: TraceType,
+  ) {
+    await loadFiles(files);
+    await expectLoadResult(1, []);
+    await expectDownloadResult(downloadResult);
+
+    await loadFiles([screenshotFile]);
+    await expectLoadResult(2, []);
+    await expectDownloadResult(
+      screenshotFirst
+        ? ['screenshot.png', ...downloadResult]
+        : [...downloadResult, 'screenshot.png'],
+    );
+    expect(tracePipeline.getTraces().getTrace(traceType)).toBeDefined();
   }
 });

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
 import {Trace} from 'trace_api/trace';
@@ -65,6 +65,18 @@ export class Presenter extends AbstractLogViewerPresenter<
     private storage: Store,
   ) {
     super(trace, notifyViewCallback, UiData.createEmpty());
+    const levelOrder = ['VERBOSE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'WTF'];
+    this.filterOptionSorters[Presenter.COLUMNS.logLevel.name] = (
+      a: string,
+      b: string,
+    ) => {
+      const indexA = levelOrder.indexOf(a);
+      const indexB = levelOrder.indexOf(b);
+      if (indexA === -1 && indexB === -1) return 0;
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    };
   }
 
   protected override makeHeaders(): LogHeader[] {

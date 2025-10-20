@@ -16,8 +16,11 @@
 
 import {TraceType} from 'trace_api/trace_type';
 import {AbstractSearchViewFactory} from './abstract_search_view_factory';
-import {SearchView} from './trace_search_initializer';
+import {SearchView} from './search_view';
 
+/**
+ * A factory for creating search views for View Capture traces.
+ */
 export class SearchViewFactoryVc extends AbstractSearchViewFactory {
   override readonly traceType = TraceType.VIEW_CAPTURE;
   private static readonly VIEW: SearchView = {
@@ -72,9 +75,6 @@ WHERE class_name LIKE '%SearchContainerView'
   }
 
   override async createSearchViews(): Promise<string[]> {
-    const viewSnapshotArgsTable = await this.createSqlTableWithDefaults(
-      '__intrinsic_viewcapture',
-    );
     const viewArgsTable = await this.createSqlTableWithDefaults(
       '__intrinsic_viewcapture_view',
     );
@@ -93,43 +93,6 @@ WHERE class_name LIKE '%SearchContainerView'
           `;
     await this.traceProcessor.query(sqlCreateTableStateChanges);
 
-    const sqlCreateTableSnapshotIdentifier = `
-      CREATE PERFETTO TABLE vc_snapshot_identifier AS
-        SELECT
-          SNAPSHOT.*,
-          PACKAGE_NAME.string_value AS package_name,
-          WINDOW_NAME.string_value AS window_name
-        FROM __intrinsic_viewcapture SNAPSHOT
-
-        INNER JOIN ${viewSnapshotArgsTable} PACKAGE_NAME
-          ON PACKAGE_NAME.base64_proto_id = SNAPSHOT.base64_proto_id
-          AND PACKAGE_NAME.key = 'package_name'
-
-        LEFT JOIN ${viewSnapshotArgsTable} WINDOW_NAME
-          ON WINDOW_NAME.base64_proto_id = SNAPSHOT.base64_proto_id
-          AND WINDOW_NAME.key = 'window_name'
-    `;
-    await this.traceProcessor.query(sqlCreateTableSnapshotIdentifier);
-
-    const sqlCreateTableNodeIdentifier = `
-            CREATE PERFETTO TABLE vc_node_identifier AS
-              SELECT
-                NODE.snapshot_id as state_id,
-                NODE_ID.int_value as node_id,
-                CLASS_NAME.string_value AS class_name,
-                NODE.base64_proto_id
-              FROM __intrinsic_viewcapture_view NODE
-
-              INNER JOIN ${viewArgsTable} NODE_ID
-                ON NODE_ID.base64_proto_id = NODE.base64_proto_id
-                AND NODE_ID.key = 'id'
-
-              INNER JOIN ${viewArgsTable} CLASS_NAME
-                ON CLASS_NAME.base64_proto_id = NODE.base64_proto_id
-                AND CLASS_NAME.key = 'class_name'
-          `;
-    await this.traceProcessor.query(sqlCreateTableNodeIdentifier);
-
     const sqlCreateNodeWithProperties = `
             CREATE PERFETTO VIEW vc_node_with_properties AS
               SELECT
@@ -142,9 +105,9 @@ WHERE class_name LIKE '%SearchContainerView'
                 PROPERTY.key AS property,
                 PROPERTY.flat_key AS flat_property,
                 PROPERTY.display_value AS value
-              FROM vc_snapshot_identifier STATE
-              INNER JOIN vc_node_identifier NODE
-                ON NODE.state_id = STATE.id
+              FROM __intrinsic_viewcapture STATE
+              INNER JOIN __intrinsic_viewcapture_view NODE
+                ON NODE.snapshot_id = STATE.id
               INNER JOIN ${viewArgsTable} PROPERTY
                 ON PROPERTY.base64_proto_id = NODE.base64_proto_id;
           `;

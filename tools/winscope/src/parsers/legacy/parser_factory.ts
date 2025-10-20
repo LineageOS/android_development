@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertTrue} from 'common/assert_utils';
+import {assertTrue} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {ProgressListener} from 'messaging/progress_listener';
 import {InvalidLegacyTrace} from 'messaging/user_warnings';
-import {ParserEventLog} from 'parsers/events/parser_eventlog';
+import {ParserEventLog} from 'parsers/events/legacy/parser_eventlog';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {ParserInputMethodClients} from 'parsers/input_method/legacy/parser_input_method_clients';
 import {ParserInputMethodManagerService} from 'parsers/input_method/legacy/parser_input_method_manager_service';

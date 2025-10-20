@@ -15,7 +15,7 @@
  */
 
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makePropertyNode} from 'test/unit/tree_node_test_helpers';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 import {UpdateCornerRadii} from './update_corner_radii';
@@ -60,7 +60,7 @@ describe('UpdateCornerRadii', () => {
 
   function checkRadiiNodeStripped(radiiName: string, radii = defaultRadii) {
     propertyRoot.addOrReplaceChild(
-      TreeNodeUtils.makePropertyNode(propertyRoot.id, radiiName, radii),
+      makePropertyNode(propertyRoot.id, radiiName, radii),
     );
     const expectedRoot = makeExpectedNode(radiiName);
     operation.apply(propertyRoot);
@@ -68,11 +68,7 @@ describe('UpdateCornerRadii', () => {
   }
 
   function checkRadiiNodeNotStripped(radiiName: string, radii = defaultRadii) {
-    const originalNode = TreeNodeUtils.makePropertyNode(
-      propertyRoot.id,
-      radiiName,
-      radii,
-    );
+    const originalNode = makePropertyNode(propertyRoot.id, radiiName, radii);
     propertyRoot.addOrReplaceChild(originalNode);
     operation.apply(propertyRoot);
     expect(propertyRoot.getChildByName(radiiName)).toEqual(originalNode);

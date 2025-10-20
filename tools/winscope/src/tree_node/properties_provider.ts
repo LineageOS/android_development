@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {SetFormatters} from 'viewers/operations/set_formatters';
 import {OperationChain} from './operation_chain';
 import {PropertySource, PropertyTreeNode} from './property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from './property_tree_node_factory';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 
-export type LazyPropertiesStrategyType = () => Promise<PropertyTreeNode>;
+/**
+ * Type for a function that asynchronously provides a `PropertyTreeNode`.
+ * This is used to fetch properties that are not eagerly loaded.
+ */
+export type LazyPropertiesStrategyType = (
+  tp?: TraceProcessor,
+  argSetId?: bigint,
+) => Promise<PropertyTreeNode>;
 
+/**
+ * A provider for properties of a tree node.
+ */
 export class PropertiesProvider {
-  private eagerPropertiesRoot: PropertyTreeNode;
   private lazyPropertiesRoot: PropertyTreeNode | undefined;
   private allPropertiesRoot: PropertyTreeNode | undefined;
 
   constructor(
-    eagerPropertiesRoot: PropertyTreeNode,
-    private readonly lazyPropertiesStrategy:
-      | LazyPropertiesStrategyType
-      | undefined,
+    private readonly eagerPropertiesRoot: PropertyTreeNode,
+    private lazyPropertiesStrategy: LazyPropertiesStrategyType | undefined,
+    private tp: TraceProcessor | undefined,
     private readonly commonOperations: OperationChain<PropertyTreeNode>,
     private readonly eagerOperations: OperationChain<PropertyTreeNode>,
     private readonly lazyOperations: OperationChain<PropertyTreeNode>,
@@ -41,12 +48,19 @@ export class PropertiesProvider {
     );
   }
 
+  enableLazyPropertiesFetch(
+    strategy: LazyPropertiesStrategyType,
+    tp: TraceProcessor,
+  ) {
+    this.lazyPropertiesStrategy = strategy;
+    this.tp = tp;
+  }
+
   getEagerProperties(): PropertyTreeNode {
     return this.eagerPropertiesRoot;
   }
 
   addEagerProperty(property: PropertyTreeNode) {
-    new SetFormatters().apply(property);
     this.eagerPropertiesRoot.addOrReplaceChild(property);
   }
 
@@ -62,13 +76,16 @@ export class PropertiesProvider {
     const children = [...this.eagerPropertiesRoot.getAllChildren()];
 
     // all eager properties have already had operations applied so no need to reapply
-    const mustFetchLazyProperties =
-      !this.lazyPropertiesRoot && this.lazyPropertiesStrategy !== undefined;
-    if (mustFetchLazyProperties) {
+    if (!this.lazyPropertiesRoot && this.lazyPropertiesStrategy !== undefined) {
+      const argSetId = this.eagerPropertiesRoot
+        .getChildByName('argSetId')
+        ?.getValue<bigint>();
+      const lazyProperties = await this.lazyPropertiesStrategy(
+        this.tp,
+        argSetId,
+      );
       this.lazyPropertiesRoot = this.commonOperations.apply(
-        this.lazyOperations.apply(
-          await assertDefined(this.lazyPropertiesStrategy)(),
-        ),
+        this.lazyOperations.apply(lazyProperties),
       );
     }
     if (this.lazyPropertiesRoot) {

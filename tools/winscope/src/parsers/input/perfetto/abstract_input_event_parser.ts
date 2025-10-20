@@ -21,7 +21,7 @@ import {
   assertNumberOrUndefined,
   assertString,
   assertStringOrUndefined,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {InputCoordinatePropagator} from 'parsers/input/operations/input_coordinate_propagator';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
@@ -49,7 +49,7 @@ import {PropertiesProvider} from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
-import {SetFormatters} from 'viewers/operations/set_formatters';
+import {SetFormatters} from 'parsers/set_formatters';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected static readonly WRAPPER_PROTO = assertDefined(
@@ -221,18 +221,20 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
     windows: Array<bigint>,
   ): HierarchyTreeNode {
     const rootId = properties.getEagerProperties().id;
-    properties.addEagerProperty(
-      DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeTpProperty(
-        rootId,
-        'windows',
-        windows,
-      ),
+    const formatter = new SetFormatters();
+    const property = DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeTpProperty(
+      rootId,
+      'windows',
+      windows,
     );
+    formatter.apply(property);
+    properties.addEagerProperty(property);
     const type = DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeTpProperty(
       rootId,
       'type',
       this.eventType,
     );
+    formatter.apply(type);
     properties.addEagerProperty(type);
     type.setFormatter(AbstractInputEventParser.EVENT_TYPE_FORMATTER);
     return new HierarchyTreeBuilderLog()

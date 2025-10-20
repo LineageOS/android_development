@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
@@ -477,7 +477,7 @@ export function updateConfigsFromStore(
   storeKeyPrefix: string,
 ) {
   for (const [key, target] of Object.entries(configMap)) {
-    const stored = PersistentStoreProxy.new(
+    const stored = createPersistentStoreProxy(
       storeKeyPrefix + key,
       target.config,
       storage,

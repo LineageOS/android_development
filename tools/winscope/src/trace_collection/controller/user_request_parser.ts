@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {AdbFileIdentifier, TraceTarget} from 'trace_collection/trace_target';
 import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
 import {UserRequest, UserRequestConfig} from 'trace_collection/user_request';
@@ -42,6 +42,7 @@ export class UserRequestParser {
     [UiTraceTarget.INPUT, 'android.input.inputevent'],
     [UiTraceTarget.SURFACE_FLINGER_DUMP, 'android.surfaceflinger.layers'],
     [UiTraceTarget.WINDOW_MANAGER_DUMP, 'android.windowmanager'],
+    [UiTraceTarget.EVENTLOG, 'linux.ftrace'],
   ]);
 
   private perfettoModerator: PerfettoSessionModerator | undefined;
@@ -116,6 +117,8 @@ export class UserRequestParser {
         return this.getSfDumpPerfettoConfigDataSource();
       case UiTraceTarget.WINDOW_MANAGER_DUMP:
         return this.getWmDumpPerfettoConfigDataSource();
+      case UiTraceTarget.EVENTLOG:
+        return this.getCujPerfettoConfigDataSource();
       default:
         return undefined;
     }
@@ -141,8 +144,6 @@ export class UserRequestParser {
         return this.getScreenRecordingTargets(req);
       case UiTraceTarget.WAYLAND:
         return [this.getWaylandTarget()];
-      case UiTraceTarget.EVENTLOG:
-        return [this.getEventlogTarget()];
       case UiTraceTarget.SURFACE_FLINGER_DUMP:
         return [this.getSfDumpLegacyTarget()];
       case UiTraceTarget.WINDOW_MANAGER_DUMP:
@@ -329,6 +330,7 @@ export class UserRequestParser {
       group_overrides {
         group_name: "${group.name}"
         collect_stacktrace: ${group.stacktrace}
+        log_from: PROTOLOG_LEVEL_VERBOSE
       }`;
       })
       .join('');
@@ -498,21 +500,15 @@ export class UserRequestParser {
     );
   }
 
-  private getEventlogTarget(): TraceTarget {
-    const startTimeSeconds = (Date.now() / 1000).toString();
-    return new TraceTarget(
-      'Eventlog',
-      [],
-      'rm -f /data/local/tmp/eventlog.winscope' + '\n echo "EventLog started."',
-      'echo "EventLog\\n" > /data/local/tmp/eventlog.winscope ' +
-        `&& su root logcat -b events -v threadtime -v printable -v uid -v nsec -v epoch -b events -t ${startTimeSeconds} >> /data/local/tmp/eventlog.winscope`,
-      [
-        new AdbFileIdentifier(
-          '/data/local/tmp',
-          makeMatchersWithWinscopeExts('eventlog'),
-          'eventlog',
-        ),
-      ],
+  private getCujPerfettoConfigDataSource(): string {
+    return assertDefined(this.perfettoModerator).makeConfigDataSource(
+      'linux.ftrace',
+      `ftrace_config {
+      atrace_apps: "com.android.systemui"
+      atrace_apps: "com.google.android.apps.nexuslauncher"
+      atrace_apps: "com.android.launcher3"
+      atrace_apps: "system_server"
+    }`,
     );
   }
 

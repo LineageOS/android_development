@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
 import {TransactionType} from 'trace/transactions/transaction_type';
@@ -52,25 +52,25 @@ describe('PerfettoParserTransactions', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
 
-    expect(timestamps.length).toEqual(712);
+    expect(timestamps.length).toBe(712);
 
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1659507541051480997n),
-      TimestampConverterUtils.makeRealTimestamp(1659507541118452067n),
-      TimestampConverterUtils.makeRealTimestamp(1659507542621651001n),
+      makeRealTimestamp(1659507541051480997n),
+      makeRealTimestamp(1659507541118452067n),
+      makeRealTimestamp(1659507542621651001n),
     ];
     expect(timestamps.slice(0, 3)).toEqual(expected);
   });
 
   it('retrieves all entries', async () => {
     const entries = await parser.getAllEntries();
-    expect(entries.length).toEqual(712);
+    expect(entries.length).toBe(712);
     expect(entries.every((entry) => entry !== undefined)).toBeTrue();
   });
 
   it('retrieves trace entry', async () => {
     const entry = await parser.getEntry(1);
-    expect(entry.id).toEqual('TransactionsTraceEntry entry');
+    expect(entry.id).toBe('TransactionsTraceEntry entry');
   });
 
   describe('eager property fetching', () => {
@@ -227,15 +227,15 @@ describe('PerfettoParserTransactions', () => {
       const layerChange1 = await entry0.getAllChildren()[1].getAllProperties();
 
       // Add default values
-      expect(layerChange1?.getChildByName('alpha')?.getValue()).toEqual(0);
+      expect(layerChange1?.getChildByName('alpha')?.getValue()).toBe(0);
 
       // Convert value types (bigint -> number)
-      expect(layerChange1?.getChildByName('flags')?.getValue()).toEqual(256);
+      expect(layerChange1?.getChildByName('flags')?.getValue()).toBe(256);
 
       // Decode enum IDs
       expect(
         layerChange1?.getChildByName('dropInputMode')?.formattedValue(),
-      ).toEqual('NONE');
+      ).toBe('NONE');
 
       const entry2 = await parser.getEntry(2);
       const layerChange2 = await entry2.getAllChildren()[0].getAllProperties();
@@ -244,7 +244,7 @@ describe('PerfettoParserTransactions', () => {
           ?.getChildByName('bufferData')
           ?.getChildByName('pixelFormat')
           ?.formattedValue(),
-      ).toEqual('PIXEL_FORMAT_RGBA_1010102');
+      ).toBe('PIXEL_FORMAT_RGBA_1010102');
     });
 
     it("decodes 'what' field", async () => {

@@ -20,6 +20,9 @@ import {Region} from 'common/geometry/region';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {Item} from './item';
 
+/**
+ * A rectangle in a trace.
+ */
 export class TraceRect extends Rect implements Item {
   constructor(
     x: number,

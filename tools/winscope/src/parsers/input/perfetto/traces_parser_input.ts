@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert_utils';
+import {assertDefined, assertTrue} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
 import {CoarseVersion} from 'trace_api/coarse_version';

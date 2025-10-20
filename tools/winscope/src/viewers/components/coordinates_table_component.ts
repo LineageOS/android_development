@@ -22,37 +22,40 @@ import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <p *ngIf="!hasCoordinates()" class="mat-body-1">null</p>
-    <table *ngIf="hasCoordinates()" class="table">
-      <tr class="header-row">
-        <td>
-          <p class="mat-body-1">Left</p>
-        </td>
-        <td>
-          <p class="mat-body-1">Top</p>
-        </td>
-        <td>
-          <p class="mat-body-1">Right</p>
-        </td>
-        <td>
-          <p class="mat-body-1">Bottom</p>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <p class="mat-body-1">{{ coordinates.getChildByName('left')?.formattedValue() }}</p>
-        </td>
-        <td>
-          <p class="mat-body-1">{{ coordinates.getChildByName('top')?.formattedValue() }}</p>
-        </td>
-        <td>
-          <p class="mat-body-1">{{ coordinates.getChildByName('right')?.formattedValue() }}</p>
-        </td>
-        <td>
-          <p class="mat-body-1">{{ coordinates.getChildByName('bottom')?.formattedValue() }}</p>
-        </td>
-      </tr>
-    </table>
+    @if (hasCoordinates()) {
+      <table class="table">
+        <tr class="header-row">
+          <td>
+            <p class="mat-body-1">Left</p>
+          </td>
+          <td>
+            <p class="mat-body-1">Top</p>
+          </td>
+          <td>
+            <p class="mat-body-1">Right</p>
+          </td>
+          <td>
+            <p class="mat-body-1">Bottom</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p class="mat-body-1">{{ coordinates.getChildByName('left')?.formattedValue() }}</p>
+          </td>
+          <td>
+            <p class="mat-body-1">{{ coordinates.getChildByName('top')?.formattedValue() }}</p>
+          </td>
+          <td>
+            <p class="mat-body-1">{{ coordinates.getChildByName('right')?.formattedValue() }}</p>
+          </td>
+          <td>
+            <p class="mat-body-1">{{ coordinates.getChildByName('bottom')?.formattedValue() }}</p>
+          </td>
+        </tr>
+      </table>
+    } @else {
+      <p class="mat-body-1">null</p>
+    }
   `,
   styles: [
     `

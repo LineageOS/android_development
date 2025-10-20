@@ -27,7 +27,7 @@ export function makeFakeWebSocket(): jasmine.SpyObj<WebSocket> {
 }
 
 export function makeFakeWebSocketMessage(
-  data: Blob | ArrayBuffer | number | string,
+  data: Blob | ArrayBufferLike | Uint8Array | number | string,
 ): MessageEvent {
   return jasmine.createSpyObj<MessageEvent>([], {'data': data});
 }

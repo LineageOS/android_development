@@ -1,75 +1,45 @@
-<div
-  *ngIf="totalTestCount === 0 && testNames.length == 0"
-  class="flex flex-col items-center justify-center h-full p-8 bg-white rounded-md"
->
+<div *ngIf="totalTestCount === 0 && presubmitTests.length == 0"
+  class="flex flex-col items-center justify-center h-full p-8 bg-white rounded-md">
   <p class="text-gray-500 text-center">
     No tests found.
     <span *ngIf="shouldShowRefreshButton">
       Click refresh to load tests.
     </span>
   </p>
-  <button
-    *ngIf="!isRefreshing && shouldShowRefreshButton"
-    (click)="triggerRefresh(false)"
-    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-  >
+  <button *ngIf="!isRefreshing && shouldShowRefreshButton" (click)="triggerRefresh(false)"
+    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
     Refresh
   </button>
-   <mat-spinner
-      class="my-3"
-      *ngIf="isRefreshing"
-      [diameter]="30"
-      [strokeWidth]="3"
-      matTooltip="Refreshing"
-    >
-    </mat-spinner>
+  <mat-spinner class="my-3" *ngIf="isRefreshing" [diameter]="30" [strokeWidth]="3" matTooltip="Refreshing">
+  </mat-spinner>
 </div>
 
 <div *ngIf="totalTestCount > 0">
   <div class="p-4 bg-white rounded-md">
-    <div *ngIf="shouldShowRefreshButton"
-      class="flex justify-between items-center pb-2 mb-2 text-sm 2xl:text-base">
-      <select
-        id="statusFilter"
-        class="mt-1 mr-2 block border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm rounded-md
+    <div *ngIf="shouldShowRefreshButton" class="flex justify-between items-center pb-2 mb-2 text-sm 2xl:text-base">
+      <select id="statusFilter" class="mt-1 mr-2 block border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm rounded-md
         py-2 pl-1 pr-5
-        2xl:pl-3 2xl:pr-10"
-        [(ngModel)]="filterStatus"
-        (change)="onFilterStatusChange()"
-      >
+        2xl:pl-3 2xl:pr-10" [(ngModel)]="filterStatus" (change)="onFilterStatusChange()">
         <option value="all">All Tests ({{ totalTestCount }})</option>
         <option value="pass">Passing Tests ({{ passingTestCount }})</option>
         <option value="fail">Failing Tests ({{ failingTestCount }})</option>
       </select>
       <div class="flex items-center space-x-2">
-        <div class="flex items-center justify-center h-7 w-7 rounded-full bg-green-500 text-white font-bold" matTooltip="{{passingTestCount}} Passed">
+        <div class="flex items-center justify-center h-7 w-7 rounded-full bg-green-500 text-white font-bold"
+          matTooltip="{{passingTestCount}} Passed">
           <span>{{passingTestCount}}</span>
         </div>
-        <div class="flex items-center justify-center h-7 w-7 rounded-full bg-red-500 text-white font-bold" matTooltip="{{failingTestCount}} Failed">
+        <div class="flex items-center justify-center h-7 w-7 rounded-full bg-red-500 text-white font-bold"
+          matTooltip="{{failingTestCount}} Failed">
           <span>{{failingTestCount}}</span>
         </div>
         <div class="flex items-center">
-          <button
-            *ngIf="!isRefreshing"
-            mat-icon-button
-            (click)="triggerRefresh(false)"
-            matTooltip="Refresh Goldens"
-          >
+          <button *ngIf="!isRefreshing" mat-icon-button (click)="triggerRefresh(false)" matTooltip="Refresh Goldens">
             <mat-icon>refresh</mat-icon>
           </button>
-          <mat-spinner
-            class="mx-2"
-            *ngIf="isRefreshing"
-            [diameter]="20"
-            [strokeWidth]="3"
-            matTooltip="Refreshing"
-          >
+          <mat-spinner class="mx-2" *ngIf="isRefreshing" [diameter]="20" [strokeWidth]="3" matTooltip="Refreshing">
           </mat-spinner>
-          <button
-            mat-icon-button
-            (click)="triggerRefresh(true)"
-            matTooltip="Clear"
-          >
+          <button mat-icon-button (click)="triggerRefresh(true)" matTooltip="Clear">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -78,47 +48,46 @@
     <mat-accordion class="mt-4" displayMode="flat">
       <div *ngFor="let goldenEntry of filteredGoldens">
         <p class="mt-2 mb-2 font-medium text-gray-400">{{ goldenEntry.key }}</p>
-         <mat-expansion-panel
-        *ngFor="let golden of goldenEntry.value"
-        (opened)="panelOpened(golden)"
-        (closed)="panelClosed(golden)"
-        [ngClass]="getResultClass(golden)"
-      >
-        <mat-expansion-panel-header class="flex items-center" matTooltip={{golden.testMethodName}} matTooltipPosition="right">
-          <mat-panel-title class="flex-1 min-w-0 flex items-center">
-            <div *ngIf="showCheckBoxes" class="flex-shrink-0">
-              <label for="golden-checkbox-{{ golden.id }}"
-                class="flex items-center text-sm 2xl:text-base cursor-pointer p-3 rounded-full hover:bg-gray-200 transition-colors"
-                (click)="$event.stopPropagation()">
-                <input class="h-5 w-5" id="golden-checkbox-{{ golden.id }}" type="checkbox"
-                  [checked]="isGoldenSelected(golden)" (change)="toggleGoldenSelection(golden, $event)"
+        <mat-expansion-panel *ngFor="let golden of goldenEntry.value" (opened)="panelOpened(golden)"
+          (closed)="panelClosed(golden)" [ngClass]="getResultClass(golden)">
+          <mat-expansion-panel-header class="flex items-center" matTooltip={{golden.testMethodName}}
+            matTooltipPosition="right">
+            <mat-panel-title class="flex-1 min-w-0 flex items-center">
+              <div *ngIf="showCheckBoxes" class="flex-shrink-0">
+                <label for="golden-checkbox-{{ golden.id }}"
+                  class="flex items-center text-sm 2xl:text-base cursor-pointer p-3 rounded-full hover:bg-gray-200 transition-colors"
                   (click)="$event.stopPropagation()">
-              </label>
-            </div>
+                  <input class="h-5 w-5" id="golden-checkbox-{{ golden.id }}" type="checkbox"
+                    [checked]="isGoldenSelected(golden)" (change)="toggleGoldenSelection(golden, $event)"
+                    (click)="$event.stopPropagation()">
+                </label>
+              </div>
 
-            <div class="flex-grow min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-              <span class="truncate">{{ golden.testMethodName }}</span>
+              <div class="flex-grow min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                <span class="truncate">{{ golden.testMethodName }}</span>
+              </div>
+            </mat-panel-title>
+            <div class="status-indicator-container flex items-center space-x-2 mr-2">
+              <mat-spinner *ngIf="golden.status === 'UPDATING'" [diameter]="20" [strokeWidth]="3"
+                matTooltip="Updating...">
+              </mat-spinner>
+              <button mat-icon-button *ngIf="golden.status === 'FAILED_UPDATE'"
+                (click)="retryGolden(golden.id); $event.stopPropagation()"
+                [matTooltip]="'Retry. Error: ' + golden.error">
+                <mat-icon class="text-red-500">replay</mat-icon>
+              </button>
             </div>
-          </mat-panel-title>
-          <div class="status-indicator-container flex items-center space-x-2 mr-2">
-            <mat-spinner *ngIf="golden.status === 'UPDATING'" [diameter]="20" [strokeWidth]="3" matTooltip="Updating...">
-            </mat-spinner>
-            <button mat-icon-button *ngIf="golden.status === 'FAILED_UPDATE'"
-              (click)="retryGolden(golden.id); $event.stopPropagation()" [matTooltip]="'Retry. Error: ' + golden.error">
-              <mat-icon class="text-red-500">replay</mat-icon>
-            </button>
+          </mat-expansion-panel-header>
+          <div class="p-2 pt-0">
+            <div class="font-medium text-sm 2xl:text-base text-gray-700">
+              {{ golden.testClassName }}
+            </div>
+            <div class="text-gray-600 text-sm 2xl:text-base break-all">Golden: {{ golden.label }}</div>
+            <div class="text-gray-500 text-sm">
+              {{ golden.testTime | date : "medium" }}
+            </div>
           </div>
-        </mat-expansion-panel-header>
-        <div class="p-2 pt-0">
-          <div class="font-medium text-sm 2xl:text-base text-gray-700">
-            {{ golden.testClassName }}
-          </div>
-          <div class="text-gray-600 text-sm 2xl:text-base break-all">Golden: {{ golden.label }}</div>
-          <div class="text-gray-500 text-sm">
-            {{ golden.testTime | date : "medium" }}
-          </div>
-        </div>
-      </mat-expansion-panel>
+        </mat-expansion-panel>
       </div>
 
     </mat-accordion>
@@ -137,20 +106,17 @@
   </div>
 </div>
 
-<div *ngIf="testNames.length > 0">
+<div *ngIf="presubmitTests.length > 0">
   <div class="p-4 bg-white rounded-md">
     <mat-accordion class="mt-4" displayMode="flat">
-      <mat-expansion-panel hideToggle=""
-        *ngFor="let golden of testNames"
-        (opened)="testOpened(golden)"
-      >
-      <mat-expansion-panel-header class="flex items-center">
+      <mat-expansion-panel hideToggle="" *ngFor="let golden of presubmitTests" (opened)="presubmitTestOpened(golden)">
+        <mat-expansion-panel-header class="flex items-center">
           <mat-panel-title class="flex-1 min-w-0">
             <div class="flex items-center">
-              <span >{{extractLastPart(golden) }}</span>
+              <span>{{extractLastPart(golden.testname) }}</span>
             </div>
           </mat-panel-title>
-      </mat-expansion-panel-header>
+        </mat-expansion-panel-header>
       </mat-expansion-panel>
     </mat-accordion>
   </div>

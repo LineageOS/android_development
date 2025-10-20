@@ -158,7 +158,7 @@ describe('WinscopeProxyDeviceConnection', () => {
       };
       await setHttpSpies(successfulResponse);
       const output = await connection.runShellCommand('test cmd');
-      expect(output).toEqual('123');
+      expect(output).toBe('123');
       expect(postSpy).toHaveBeenCalledOnceWith(
         WINSCOPE_PROXY_URL + Endpoint.RUN_ADB_CMD + `${testId}/`,
         securityHeader,
@@ -176,7 +176,7 @@ describe('WinscopeProxyDeviceConnection', () => {
       };
       await setHttpSpies(successfulResponse);
       const output = await connection.runShellCommand('');
-      expect(output).toEqual('123');
+      expect(output).toBe('123');
     });
 
     it('handles undefined output', async () => {
@@ -189,7 +189,7 @@ describe('WinscopeProxyDeviceConnection', () => {
       };
       await setHttpSpies(successfulResponse);
       const output = await connection.runShellCommand('');
-      expect(output).toEqual('');
+      expect(output).toBe('');
     });
   });
 

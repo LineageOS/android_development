@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import root from 'protos/test/fake_proto/json';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {
@@ -42,28 +42,28 @@ describe('AddDefaults', () => {
   it('adds only defaults from allowlist', () => {
     operation = new AddDefaults(rootField, ['number_32bit']);
     operation.apply(propertyRoot);
-    expect(propertyRoot.getAllChildren().length).toEqual(1);
+    expect(propertyRoot.getAllChildren().length).toBe(1);
     const defaultNode = assertDefined(
       propertyRoot.getChildByName('number_32bit'),
     );
-    expect(defaultNode.getValue()).toEqual(0);
+    expect(defaultNode.getValue()).toBe(0);
     checkAllNodesAreDefault(propertyRoot);
   });
 
   it('adds all defaults from prototype definition in absence of allowlist', () => {
     operation = new AddDefaults(rootField);
     operation.apply(propertyRoot);
-    expect(propertyRoot.getAllChildren().length).toEqual(11);
+    expect(propertyRoot.getAllChildren().length).toBe(11);
     checkAllNodesAreDefault(propertyRoot);
     expect(
       assertDefined(propertyRoot.getChildByName('array')).getValue(),
     ).toEqual([]);
     expect(
       assertDefined(propertyRoot.getChildByName('number_32bit')).getValue(),
-    ).toEqual(0);
+    ).toBe(0);
     expect(
       assertDefined(propertyRoot.getChildByName('number_64bit')).getValue(),
-    ).toEqual(0n);
+    ).toBe(0n);
     expect(
       assertDefined(propertyRoot.getChildByName('boolValue')).getValue(),
     ).toBeFalse();
@@ -76,7 +76,7 @@ describe('AddDefaults', () => {
     ]);
     operation.apply(propertyRoot);
 
-    expect(propertyRoot.getAllChildren().length).toEqual(9);
+    expect(propertyRoot.getAllChildren().length).toBe(9);
     checkAllNodesAreDefault(propertyRoot);
     expect(propertyRoot.getChildByName('number_32bit')).toBeUndefined();
     expect(propertyRoot.getChildByName('number_64bit')).toBeUndefined();
@@ -92,11 +92,11 @@ describe('AddDefaults', () => {
       .build();
     operation.apply(propertyRoot);
 
-    expect(propertyRoot.getAllChildren().length).toEqual(1);
+    expect(propertyRoot.getAllChildren().length).toBe(1);
     const defaultNode = assertDefined(
       propertyRoot.getChildByName('number_32bit'),
     );
-    expect(defaultNode.getValue()).toEqual(0);
+    expect(defaultNode.getValue()).toBe(0);
     checkAllNodesAreDefault(propertyRoot);
   });
 

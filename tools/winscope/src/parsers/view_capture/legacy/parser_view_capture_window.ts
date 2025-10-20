@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {utf8Encode} from 'common/string_utils';
+import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import Long from 'long';
@@ -30,8 +30,13 @@ import {
 import {EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
+/**
+ * A parser for a single window in a legacy ViewCapture trace.
+ */
 export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
   private static readonly PACKAGE_OR_WINDOW_IID = 1;
 
@@ -88,9 +93,13 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<HierarchyTreeNode[]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(
     entriesRange: EntriesRange,
-  ): Promise<Array<HierarchyTreeNode | undefined>> {
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

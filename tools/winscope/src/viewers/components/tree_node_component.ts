@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {DiffType} from 'viewers/common/diff_type';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
@@ -46,67 +46,80 @@ import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_
     PropertyTreeNodeDataViewComponent,
   ],
   template: `
-    <div *ngIf="showStateIcon" class="icon-wrapper-show-state" [style]="getShowStateIconStyle()">
-      <button
-        mat-icon-button
-        class="icon-button toggle-rect-show-state-btn"
-        (click)="toggleRectShowState($event)">
-        <mat-icon class="material-symbols-outlined">
-          {{ showStateIcon }}
-        </mat-icon>
-      </button>
-    </div>
-    <div *ngIf="showChevron()" class="icon-wrapper">
-      <button
-        mat-icon-button
-        class="icon-button toggle-tree-btn"
-        (click)="toggleTree($event)">
-        <mat-icon>
-          {{ isExpanded ? 'arrow_drop_down' : 'chevron_right' }}
-        </mat-icon>
-      </button>
-    </div>
+    @if (showStateIcon) {
+      <div class="icon-wrapper-show-state" [style]="getShowStateIconStyle()">
+        <button
+          mat-icon-button
+          class="icon-button toggle-rect-show-state-btn"
+          (click)="toggleRectShowState($event)">
+          <mat-icon class="material-symbols-outlined">
+            {{ showStateIcon }}
+          </mat-icon>
+        </button>
+      </div>
+    }
+    @if (showChevron()) {
+      <div class="icon-wrapper">
+        <button
+          mat-icon-button
+          class="icon-button toggle-tree-btn"
+          (click)="toggleTree($event)">
+          <mat-icon>
+            {{ isExpanded ? 'arrow_drop_down' : 'chevron_right' }}
+          </mat-icon>
+        </button>
+      </div>
+    }
 
-    <div *ngIf="!showChevron()" class="icon-wrapper leaf-node-icon-wrapper">
-      <mat-icon class="leaf-node-icon"></mat-icon>
-    </div>
+    @if (!showChevron() && !isInPinnedSection) {
+      <div class="icon-wrapper leaf-node-icon-wrapper">
+        <mat-icon class="leaf-node-icon"></mat-icon>
+      </div>
+    }
 
-    <div *ngIf="showPinNodeIcon()" class="icon-wrapper">
-      <button
-        mat-icon-button
-        class="icon-button pin-node-btn"
-        (click)="pinNode($event)">
-        <mat-icon [class.material-symbols-outlined]="!isPinned">push_pin</mat-icon>
-      </button>
-    </div>
+    @if (showPinNodeIcon()) {
+      <div class="icon-wrapper">
+        <button
+          mat-icon-button
+          class="icon-button pin-node-btn"
+          (click)="pinNode($event)">
+          <mat-icon [class.material-symbols-outlined]="!isPinned">push_pin</mat-icon>
+        </button>
+      </div>
+    }
 
     <div class="description">
-      <hierarchy-tree-node-data-view
-        *ngIf="node && !isPropertyTreeNode()"
-        [node]="node"></hierarchy-tree-node-data-view>
-      <property-tree-node-data-view
-        *ngIf="isPropertyTreeNode()"
-        [node]="node"></property-tree-node-data-view>
+      @if (node && !isPropertyTreeNode()) {
+        <hierarchy-tree-node-data-view
+          [node]="node"></hierarchy-tree-node-data-view>
+      } @else {
+        <property-tree-node-data-view
+          [node]="node"></property-tree-node-data-view>
+      }
     </div>
 
-    <div *ngIf="!isLeaf && !isExpanded && !isPinned" class="icon-wrapper">
-      <button
-        mat-icon-button
-        class="icon-button expand-tree-btn"
-        [class]="collapseDiffClass"
-        (click)="expandTree($event)">
-        <mat-icon aria-hidden="true"> more_horiz </mat-icon>
-      </button>
-    </div>
-    <div *ngIf="showCopyButton()" class="icon-wrapper-copy">
-      <button
-        mat-icon-button
-        class="icon-button copy-btn"
-        [cdkCopyToClipboard]="getCopyText()"
-        (click)="$event.stopPropagation()">
-        <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
-      </button>
-    </div>
+    @if (!isLeaf && !isExpanded && !isPinned) {
+      <div class="icon-wrapper">
+        <button
+          mat-icon-button
+          class="icon-button expand-tree-btn"
+          [class]="collapseDiffClass"
+          (click)="expandTree($event)">
+          <mat-icon aria-hidden="true"> more_horiz </mat-icon>
+        </button>
+      </div>
+    }
+    @if (showCopyButton()) {
+      <div class="icon-wrapper-copy">
+        <button
+          mat-icon-button
+          class="icon-button copy-btn"
+          [cdkCopyToClipboard]="getCopyText()"
+          (click)="$event.stopPropagation()">
+          <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
+        </button>
+      </div>
+    }
   `,
   styles: [nodeInnerItemStyles],
 })

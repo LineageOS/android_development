@@ -107,6 +107,7 @@ specified outside of a package.
 | `license_text`          | list of paths             | -       | no          | Files to use for `license_text` in `license` module.                                                               |
 | `alloc`                 | boolean                   | `false` | yes         | Link against `alloc`. Only valid if `no_std` is also true.                                                         |
 | `device_supported`      | boolean                   | `true`  | yes         | Whether to compile for device. Defaults to true.                                                                   |
+| `enabled`               | boolean                   | `true`  | yes         | Whether this module should be enabled. Defaults to true.                                                           |
 | `host_supported`        | boolean                   | `true`  | yes         | Whether to compile for host. Defaults to true.                                                                     |
 | `host_first_multilib`   | boolean                   | `false` | yes         | Add a `compile_multilib: "first"` property to host modules.                                                        |
 | `force_rlib`            | boolean                   | `false` | yes         | Generate "rust_library_rlib" instead of "rust_library".                                                            |

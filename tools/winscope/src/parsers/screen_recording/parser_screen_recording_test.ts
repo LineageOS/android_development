@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
@@ -49,12 +49,12 @@ describe('ParserScreenRecording', () => {
     it('provides timestamps', () => {
       const timestamps = assertDefined(parser.getTimestamps());
 
-      expect(timestamps.length).toEqual(123);
+      expect(timestamps.length).toBe(123);
 
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1666361048792787045n),
-        TimestampConverterUtils.makeRealTimestamp(1666361048807348045n),
-        TimestampConverterUtils.makeRealTimestamp(1666361048827119045n),
+        makeRealTimestamp(1666361048792787045n),
+        makeRealTimestamp(1666361048807348045n),
+        makeRealTimestamp(1666361048827119045n),
       ];
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
@@ -69,6 +69,51 @@ describe('ParserScreenRecording', () => {
         const entry = await parser.getEntry(parser.getLengthEntries() - 1);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
         expect(Number(entry.videoTimeSeconds)).toBeCloseTo(1.371077, 0.001);
+      }
+    });
+  });
+
+  describe('metadata v3', () => {
+    beforeAll(async () => {
+      jasmine.addCustomEqualityTester(timestampEqualityTester);
+      parser = await new LegacyParserProvider()
+        .addFile(
+          'traces/elapsed_and_real_timestamp/screen_recording_metadata_v3.mp4',
+        )
+        .getParser<MediaBasedTraceEntry>();
+    });
+
+    it('has expected trace type', () => {
+      expect(parser.getTraceType()).toEqual(TraceType.SCREEN_RECORDING);
+    });
+
+    it('has expected coarse version', () => {
+      expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LATEST);
+    });
+
+    it('provides timestamps', () => {
+      const timestamps = assertDefined(parser.getTimestamps());
+      expect(timestamps.length).toBe(105);
+      const expected = [
+        makeRealTimestamp(1755862820270527000n),
+        makeRealTimestamp(1755862820414660000n),
+        makeRealTimestamp(1755862820431423000n),
+        makeRealTimestamp(1755862820447282000n),
+        makeRealTimestamp(1755862820464489000n),
+      ];
+      expect(timestamps.slice(0, 5)).toEqual(expected);
+    });
+
+    it('retrieves trace entry', async () => {
+      {
+        const entry = await parser.getEntry(0);
+        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
+        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+      }
+      {
+        const entry = await parser.getEntry(parser.getLengthEntries() - 1);
+        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
+        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(3.251884, 0.001);
       }
     });
   });
@@ -97,22 +142,22 @@ describe('ParserScreenRecording', () => {
           'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
         )
         .getParsers();
-      expect(parsers.length).toEqual(0);
+      expect(parsers.length).toBe(0);
     });
 
     it('sets real to boot time offset', () => {
-      expect(parser.getRealToBootTimeOffsetNs()).toEqual(10n);
+      expect(parser.getRealToBootTimeOffsetNs()).toBe(10n);
     });
 
     it('provides timestamps', () => {
       const timestamps = assertDefined(parser.getTimestamps());
-      expect(timestamps.length).toEqual(158);
+      expect(timestamps.length).toBe(158);
 
       const totalOffset = elapsedNs + realtoElapsedNs;
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(599300000n + totalOffset),
-        TimestampConverterUtils.makeRealTimestamp(599400000n + totalOffset),
-        TimestampConverterUtils.makeRealTimestamp(1066066666n + totalOffset),
+        makeRealTimestamp(599300000n + totalOffset),
+        makeRealTimestamp(599400000n + totalOffset),
+        makeRealTimestamp(1066066666n + totalOffset),
       ];
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
@@ -206,17 +251,17 @@ describe('ParserScreenRecording', () => {
       });
 
       it('sets real to boot time offset', () => {
-        expect(parser.getRealToBootTimeOffsetNs()).toEqual(0n);
+        expect(parser.getRealToBootTimeOffsetNs()).toBe(0n);
       });
 
       it('provides timestamps', () => {
         const timestamps = assertDefined(parser.getTimestamps());
-        expect(timestamps.length).toEqual(158);
+        expect(timestamps.length).toBe(158);
 
         const expected = [
-          TimestampConverterUtils.makeRealTimestamp(599300000n + startTimeNs),
-          TimestampConverterUtils.makeRealTimestamp(599400000n + startTimeNs),
-          TimestampConverterUtils.makeRealTimestamp(1066066666n + startTimeNs),
+          makeRealTimestamp(599300000n + startTimeNs),
+          makeRealTimestamp(599400000n + startTimeNs),
+          makeRealTimestamp(1066066666n + startTimeNs),
         ];
         expect(timestamps.slice(0, 3)).toEqual(expected);
       });
@@ -242,7 +287,7 @@ describe('ParserScreenRecording', () => {
           filename,
         )
         .getParsers();
-      expect(parsers.length).toEqual(0);
+      expect(parsers.length).toBe(0);
     }
   });
 });

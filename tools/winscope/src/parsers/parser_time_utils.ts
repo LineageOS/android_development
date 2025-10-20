@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Parser} from 'trace_api/parser';
 
+/**
+ * Gets the parser with the latest real-to-boottime offset.
+ *
+ * @param parsers The parsers to search.
+ * @return The parser with the latest real-to-boottime offset, or undefined if no such parser exists.
+ */
 export function getParserWithLatestRealToBootTimeOffset(
   parsers: Array<Parser<object>>,
 ): Parser<object> | undefined {
@@ -31,6 +37,12 @@ export function getParserWithLatestRealToBootTimeOffset(
     .at(-1);
 }
 
+/**
+ * Gets the parser with the latest real-to-monotonic offset.
+ *
+ * @param parsers The parsers to search.
+ * @return The parser with the latest real-to-monotonic offset, or undefined if no such parser exists.
+ */
 export function getParserWithLatestRealToMonotonicTimeOffset(
   parsers: Array<Parser<object>>,
 ): Parser<object> | undefined {

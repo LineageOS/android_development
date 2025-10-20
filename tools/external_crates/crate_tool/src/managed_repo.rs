@@ -334,7 +334,7 @@ We apologize for the inconvenience."#,
                 krate.name()
             );
         } else {
-            self.regenerate([&crate_name].iter(), true)?;
+            self.regenerate([&crate_name].iter(), true, false)?;
             println!(
                 "Please edit {} and run 'regenerate' for this crate",
                 managed_dir.rel().join("cargo_embargo.json").display()
@@ -349,13 +349,14 @@ We apologize for the inconvenience."#,
         &self,
         crates: impl Iterator<Item = T>,
         run_cargo_embargo: bool,
+        update_imports: bool,
     ) -> Result<()> {
         let pseudo_crate = self.pseudo_crate().vendor()?;
         for crate_name in crates {
             println!("Regenerating {}", crate_name.as_ref());
             let mc = self.managed_crate_for(crate_name.as_ref())?;
             // TODO: Don't give up if there's a failure.
-            mc.regenerate(&pseudo_crate, run_cargo_embargo)?;
+            mc.regenerate(&pseudo_crate, run_cargo_embargo, update_imports)?;
         }
 
         pseudo_crate.regenerate_crate_list()?;
@@ -429,6 +430,8 @@ We apologize for the inconvenience."#,
     pub fn updatable_crates(&self) -> Result<()> {
         let mut cc = self.new_cc();
         cc.add_from(self.managed_dir().rel())?;
+
+        self.pseudo_crate().cargo_update()?;
 
         for krate in cc.values() {
             let cio_crate = self.crates_io.get_crate(krate.name())?;
@@ -560,12 +563,15 @@ We apologize for the inconvenience."#,
         &self,
         consider_patched_crates: bool,
         semver_compatibility: SemverCompatibilityRule,
+        dep_semver_compatibility: SemverCompatibilityRule,
         json: bool,
     ) -> Result<()> {
         let mut suggestions = UpdateSuggestions::default();
         let mut managed_crates = self.new_cc();
         managed_crates.add_from(self.managed_dir().rel())?;
         let legacy_crates = self.legacy_crates()?;
+
+        self.pseudo_crate().cargo_update()?;
 
         for krate in managed_crates.values() {
             debug!("Checking for updates to {}", krate.name());
@@ -625,7 +631,7 @@ We apologize for the inconvenience."#,
                     for (_, dep_crate) in cc.get_versions(dep.crate_name()) {
                         if req.matches_with_compatibility_rule(
                             dep_crate.version(),
-                            SemverCompatibilityRule::Loose,
+                            dep_semver_compatibility,
                         ) {
                             return false;
                         }
@@ -705,7 +711,7 @@ We apologize for the inconvenience."#,
         for nv in &crate_updates {
             pseudo_crate.cargo_add(nv)?;
         }
-        self.regenerate(crate_updates.iter().map(|nv| nv.name()), true)?;
+        self.regenerate(crate_updates.iter().map(|nv| nv.name()), true, false)?;
         Ok(())
     }
     /// Initialize a new managed repository by creating the necessary directories,

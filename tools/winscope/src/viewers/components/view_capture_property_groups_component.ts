@@ -23,136 +23,146 @@ import {VcCuratedProperties} from 'viewers/common/curated_properties';
   standalone: true,
   imports: [CommonModule, MatDividerModule],
   template: `
-    <div *ngIf="properties" class="group view">
-      <h3 class="group-header mat-subtitle-1">View</h3>
-      <div class="left-column">
-        <p class="mat-body-2 class-name">
-          <span class="mat-body-1">Class: </span>
-          &ngsp;
-          {{ properties.className }}
-        </p>
-        <p class="mat-body-2 hashcode">
-          <span class="mat-body-1">Hashcode: </span>
-          &ngsp;
-          {{ properties.hashcode }}
-        </p>
-        <p class="mat-body-2 view-id">
-          <span class="mat-body-1">View Id: </span>
-          &ngsp;
-          {{ properties.viewId }}
-        </p>
+    @if (properties) {
+      <div class="group view">
+        <h3 class="group-header mat-subtitle-1">View</h3>
+        <div class="left-column">
+          <p class="mat-body-2 class-name">
+            <span class="mat-body-1">Class: </span>
+            &ngsp;
+            {{ properties.className }}
+          </p>
+          <p class="mat-body-2 hashcode">
+            <span class="mat-body-1">Hashcode: </span>
+            &ngsp;
+            {{ properties.hashcode }}
+          </p>
+          <p class="mat-body-2 view-id">
+            <span class="mat-body-1">View Id: </span>
+            &ngsp;
+            {{ properties.viewId }}
+          </p>
+        </div>
       </div>
-    </div>
+    }
     <mat-divider></mat-divider>
-    <div *ngIf="properties" class="group geometry">
-      <h3 class="group-header mat-subtitle-1">Geometry</h3>
-      <div class="left-column coordinates">
-        <p class="column-header mat-small">Coordinates</p>
-        <p class="mat-body-2 left">
-          <span class="mat-body-1">Left: </span>
-          &ngsp;
-          {{ properties.left }}
-        </p>
-        <p class="mat-body-2 top">
-          <span class="mat-body-1">Top: </span>
-          &ngsp;
-          {{ properties.top }}
-        </p>
-        <p class="mat-body-2 elevation">
-          <span class="mat-body-1">Elevation: </span>
-          &ngsp;
-          {{ properties.elevation }}
-        </p>
+    @if (properties) {
+      <div class="group geometry">
+        <h3 class="group-header mat-subtitle-1">Geometry</h3>
+        <div class="left-column coordinates">
+          <p class="column-header mat-small">Coordinates</p>
+          <p class="mat-body-2 left">
+            <span class="mat-body-1">Left: </span>
+            &ngsp;
+            {{ properties.left }}
+          </p>
+          <p class="mat-body-2 top">
+            <span class="mat-body-1">Top: </span>
+            &ngsp;
+            {{ properties.top }}
+          </p>
+          <p class="mat-body-2 elevation">
+            <span class="mat-body-1">Elevation: </span>
+            &ngsp;
+            {{ properties.elevation }}
+          </p>
+        </div>
+        <div class="right-column size">
+          <p class="column-header mat-small">Size</p>
+          <p class="mat-body-2 height">
+            <span class="mat-body-1">Height: </span>
+            &ngsp;
+            {{ properties.height }}
+          </p>
+          <p class="mat-body-2 width">
+            <span class="mat-body-1">Width: </span>
+            &ngsp;
+            {{ properties.width }}
+          </p>
+        </div>
       </div>
-      <div class="right-column size">
-        <p class="column-header mat-small">Size</p>
-        <p class="mat-body-2 height">
-          <span class="mat-body-1">Height: </span>
-          &ngsp;
-          {{ properties.height }}
-        </p>
-        <p class="mat-body-2 width">
-          <span class="mat-body-1">Width: </span>
-          &ngsp;
-          {{ properties.width }}
-        </p>
+    }
+    @if (properties) {
+      <div class="group geometry">
+        <h3 class="group-header mat-subtitle-1"></h3>
+        <div class="left-column translation">
+          <p class="column-header mat-small">Translation</p>
+          <p class="mat-body-2 translationx">
+            <span class="mat-body-1">Translation X: </span>
+            &ngsp;
+            {{ properties.translationX }}
+          </p>
+          <p class="mat-body-2 translationy">
+            <span class="mat-body-1">Translation Y: </span>
+            &ngsp;
+            {{ properties.translationY }}
+          </p>
+        </div>
+        <div class="right-column scroll">
+          <p class="column-header mat-small">Scroll</p>
+          <p class="mat-body-2 scrollx">
+            <span class="mat-body-1">Scroll X: </span>
+            &ngsp;
+            {{ properties.scrollX }}
+          </p>
+          <p class="mat-body-2 scrolly">
+            <span class="mat-body-1">Scroll Y: </span>
+            &ngsp;
+            {{ properties.scrollY }}
+          </p>
+        </div>
       </div>
-    </div>
-    <div *ngIf="properties" class="group geometry">
-      <h3 class="group-header mat-subtitle-1"></h3>
-      <div class="left-column translation">
-        <p class="column-header mat-small">Translation</p>
-        <p class="mat-body-2 translationx">
-          <span class="mat-body-1">Translation X: </span>
-          &ngsp;
-          {{ properties.translationX }}
-        </p>
-        <p class="mat-body-2 translationy">
-          <span class="mat-body-1">Translation Y: </span>
-          &ngsp;
-          {{ properties.translationY }}
-        </p>
+    }
+    @if (properties) {
+      <div class="group geometry">
+        <h3 class="group-header mat-subtitle-1"></h3>
+        <div class="left-column scale">
+          <p class="column-header mat-small">Scale</p>
+          <p class="mat-body-2 scalex">
+            <span class="mat-body-1">Scale X: </span>
+            &ngsp;
+            {{ properties.scaleX }}
+          </p>
+          <p class="mat-body-2 scaley">
+            <span class="mat-body-1">Scale Y: </span>
+            &ngsp;
+            {{ properties.scaleY }}
+          </p>
+        </div>
       </div>
-      <div class="right-column scroll">
-        <p class="column-header mat-small">Scroll</p>
-        <p class="mat-body-2 scrollx">
-          <span class="mat-body-1">Scroll X: </span>
-          &ngsp;
-          {{ properties.scrollX }}
-        </p>
-        <p class="mat-body-2 scrolly">
-          <span class="mat-body-1">Scroll Y: </span>
-          &ngsp;
-          {{ properties.scrollY }}
-        </p>
-      </div>
-    </div>
-    <div *ngIf="properties" class="group geometry">
-      <h3 class="group-header mat-subtitle-1"></h3>
-      <div class="left-column scale">
-        <p class="column-header mat-small">Scale</p>
-        <p class="mat-body-2 scalex">
-          <span class="mat-body-1">Scale X: </span>
-          &ngsp;
-          {{ properties.scaleX }}
-        </p>
-        <p class="mat-body-2 scaley">
-          <span class="mat-body-1">Scale Y: </span>
-          &ngsp;
-          {{ properties.scaleY }}
-        </p>
-      </div>
-    </div>
+    }
     <mat-divider></mat-divider>
-    <div *ngIf="properties" class="group effects">
-      <h3 class="group-header mat-subtitle-1">Effects</h3>
-      <div class="left-column translation">
-        <p class="column-header mat-small">Translation</p>
-        <p class="mat-body-2 visibility">
-          <span class="mat-body-1">Visibility: </span>
-          &ngsp;
-          {{ properties.visibility }}
-        </p>
-        <p class="mat-body-2 alpha">
-          <span class="mat-body-1">Alpha: </span>
-          &ngsp;
-          {{ properties.alpha }}
-        </p>
-        <p class="mat-body-2 will-not-draw">
-          <span class="mat-body-1">Will Not Draw: </span>
-          &ngsp;
-          {{ properties.willNotDraw }}
-        </p>
+    @if (properties) {
+      <div class="group effects">
+        <h3 class="group-header mat-subtitle-1">Effects</h3>
+        <div class="left-column translation">
+          <p class="column-header mat-small">Translation</p>
+          <p class="mat-body-2 visibility">
+            <span class="mat-body-1">Visibility: </span>
+            &ngsp;
+            {{ properties.visibility }}
+          </p>
+          <p class="mat-body-2 alpha">
+            <span class="mat-body-1">Alpha: </span>
+            &ngsp;
+            {{ properties.alpha }}
+          </p>
+          <p class="mat-body-2 will-not-draw">
+            <span class="mat-body-1">Will Not Draw: </span>
+            &ngsp;
+            {{ properties.willNotDraw }}
+          </p>
+        </div>
+        <div class="right-column misc">
+          <p class="column-header mat-small">Miscellaneous</p>
+          <p class="mat-body-2 clip-children">
+            <span class="mat-body-1">Clip Children: </span>
+            &ngsp;
+            {{ properties.clipChildren }}
+          </p>
+        </div>
       </div>
-      <div class="right-column misc">
-        <p class="column-header mat-small">Miscellaneous</p>
-        <p class="mat-body-2 clip-children">
-          <span class="mat-body-1">Clip Children: </span>
-          &ngsp;
-          {{ properties.clipChildren }}
-        </p>
-      </div>
-    </div>
+    }
   `,
   styles: [
     `

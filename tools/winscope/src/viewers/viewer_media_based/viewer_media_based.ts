@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace} from 'trace_api/trace';

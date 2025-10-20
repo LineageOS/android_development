@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {ColumnType, QueryResult, RowIterator} from './query_result';
 import {TraceProcessorFactory} from './trace_processor_factory';
 
+/**
+ * Creates Jasmine spy objects for `QueryResult` and `RowIterator` to mock the
+ * results of a trace processor search query.
+ * @param ts Optional timestamp to include in the mock results.
+ * @param value Optional value to include in the mock results.
+ * @return A tuple containing the `QueryResult` spy and the `RowIterator` spy.
+ */
 export function makeSearchTraceSpies(
   ts?: Timestamp,
-  value?: ColumnType,
+  value?: ColumnType | null,
 ): [jasmine.SpyObj<QueryResult>, jasmine.SpyObj<RowIterator>] {
   const spyQueryResult = jasmine.createSpyObj<QueryResult>('result', [
     'numRows',
@@ -57,6 +64,11 @@ export function makeSearchTraceSpies(
   return [spyQueryResult, spyIter];
 }
 
+/**
+ * Runs a trace processor query using the singleton `TraceProcessorFactory`.
+ * @param query The query string to execute.
+ * @return A Promise resolving to the `QueryResult`.
+ */
 export async function runQueryAndGetResult(
   query: string,
 ): Promise<QueryResult> {
@@ -68,6 +80,12 @@ function makeSpyQueryResult(): jasmine.SpyObj<QueryResult> {
   return jasmine.createSpyObj<QueryResult>('result', ['numRows']);
 }
 
+/**
+ * Sets the number of rows returned by a `QueryResult` spy's `numRows` method.
+ * @param rows The number of rows to return.
+ * @param spyQueryResult Optional existing `QueryResult` spy. If not provided, a new one is created.
+ * @return The `QueryResult` spy with `numRows` configured.
+ */
 export function setNumRowsSpyQueryResult(
   rows: number,
   spyQueryResult?: jasmine.SpyObj<QueryResult>,
@@ -77,6 +95,11 @@ export function setNumRowsSpyQueryResult(
   return spy;
 }
 
+/**
+ * Creates a basic Jasmine spy object for `RowIterator`.
+ * The iterator is initially valid and becomes invalid after the first call to `next`.
+ * @return A Jasmine spy object for `RowIterator`.
+ */
 export function makeSpyRowIterator(): jasmine.SpyObj<RowIterator> {
   const iter = jasmine.createSpyObj<RowIterator>('row', [
     'get',
@@ -86,4 +109,29 @@ export function makeSpyRowIterator(): jasmine.SpyObj<RowIterator> {
   iter.valid.and.returnValue(true);
   iter.next.and.callFake(() => iter.valid.and.returnValue(false));
   return iter;
+}
+
+/**
+ * Configures a `RowIterator` spy to simulate iterating through a provided array of row data.
+ * @param iter The `RowIterator` spy to configure.
+ * @param rows An array of objects, where each object represents a row and keys are column names.
+ */
+export function setupMockIteratorWithRows(
+  iter: jasmine.SpyObj<RowIterator>,
+  rows: Array<{[key: string]: ColumnType | null}>,
+) {
+  let currentRow = 0;
+  iter.valid.and.callFake(() => currentRow < rows.length);
+  iter.next.and.callFake(() => {
+    currentRow++;
+  });
+  iter.get.and.callFake((key: string) => {
+    if (currentRow >= rows.length) {
+      throw new Error(
+        `Attempted to 'get' on an invalid row index: ${currentRow}`,
+      );
+    }
+    const rowData = rows[currentRow];
+    return rowData ? rowData[key] : null;
+  });
 }

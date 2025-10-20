@@ -26,7 +26,12 @@ import {
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
+import {QueryResult, QueryResults} from 'trace_processor/query_result';
+import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 
+/**
+ * A parser that processes and merges multiple traces of different types.
+ */
 export abstract class AbstractTracesParser<T> implements Parser<T> {
   protected timestamps: Timestamp[] | undefined;
   protected timestampConverter: ParserTimestampConverter;
@@ -59,7 +64,13 @@ export abstract class AbstractTracesParser<T> implements Parser<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(
+    entriesRange: EntriesRange,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

@@ -59,27 +59,35 @@ export class FormatDispatchEntry implements Operation<UiPropertyTreeNode> {
     pointers.forEach((pointer, index) => {
       pointer.setDisplayName(`${index} - Pointer`);
 
-      const id = pointer.getChildByName('pointerId')?.getValue() ?? '?';
+      const id = pointer.getChildByName('pointerId')?.getValue<string>() ?? '?';
 
       const axisValues = pointer.getChildByName('axisValueInWindow');
       let x = '?';
       let y = '?';
       axisValues?.getAllChildren()?.forEach((axisValue) => {
-        const axis = Number(axisValue.getChildByName('axis')?.getValue());
+        const axis = Number(
+          axisValue.getChildByName('axis')?.getValue<string>(),
+        );
         if (axis === DispatchedPointerAxis.X) {
-          x = axisValue.getChildByName('value')?.getValue()?.toFixed(2) ?? '?';
+          x =
+            axisValue.getChildByName('value')?.getValue<number>()?.toFixed(2) ??
+            '?';
           return;
         }
         if (axis === DispatchedPointerAxis.Y) {
-          y = axisValue.getChildByName('value')?.getValue()?.toFixed(2) ?? '?';
+          y =
+            axisValue.getChildByName('value')?.getValue<number>()?.toFixed(2) ??
+            '?';
           return;
         }
       });
 
       const rawX =
-        pointer.getChildByName('xInDisplay')?.getValue()?.toFixed(2) ?? '?';
+        pointer.getChildByName('xInDisplay')?.getValue<number>()?.toFixed(2) ??
+        '?';
       const rawY =
-        pointer.getChildByName('yInDisplay')?.getValue()?.toFixed(2) ?? '?';
+        pointer.getChildByName('yInDisplay')?.getValue<number>()?.toFixed(2) ??
+        '?';
 
       pointer.setFormatter(
         new FixedStringFormatter(

@@ -35,6 +35,9 @@ import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
 import {UserOptions} from 'viewers/common/user_options';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 
+/**
+ * Mock implementation of AbstractHierarchyViewerPresenter for tests.
+ */
 export class MockPresenter extends AbstractHierarchyViewerPresenter<UiDataHierarchy> {
   protected override hierarchyPresenter = new HierarchyPresenter(
     {opt: {name: '', enabled: false}},
@@ -93,6 +96,9 @@ export class MockPresenter extends AbstractHierarchyViewerPresenter<UiDataHierar
   }
 }
 
+/**
+ * Mock implementation of UiDataHierarchy for tests.
+ */
 export class MockData implements UiDataHierarchy {
   highlightedItem = '';
   pinnedItems: UiHierarchyTreeNode[] = [];

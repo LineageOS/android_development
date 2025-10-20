@@ -67,7 +67,7 @@ describe('AdbDeviceConnection', () => {
       AdbDeviceState.OFFLINE,
       listener,
     );
-    expect(connection.getFormattedName()).toEqual('offline Pixel (35562)');
+    expect(connection.getFormattedName()).toBe('offline Pixel (35562)');
   });
 
   it('formats name for unauthorized device', () => {
@@ -77,11 +77,11 @@ describe('AdbDeviceConnection', () => {
       AdbDeviceState.UNAUTHORIZED,
       listener,
     );
-    expect(connection.getFormattedName()).toEqual('unauthorized Pixel (35562)');
+    expect(connection.getFormattedName()).toBe('unauthorized Pixel (35562)');
   });
 
   it('formats name for idle device', () => {
-    expect(connection.getFormattedName()).toEqual('Pixel (35562)');
+    expect(connection.getFormattedName()).toBe('Pixel (35562)');
   });
 
   it('updates availability of wayland trace if available', async () => {
@@ -164,10 +164,10 @@ describe('AdbDeviceConnection', () => {
       .withArgs(dumpsysCmd)
       .and.returnValue('Display 12345 Extra Info');
     await connection.updateProperties({});
-    expect(connection.getDisplays().length).toEqual(1);
+    expect(connection.getDisplays().length).toBe(1);
     runShellCmdSpy.withArgs(dumpsysCmd).and.returnValue('');
     await connection.updateProperties({});
-    expect(connection.getDisplays().length).toEqual(0);
+    expect(connection.getDisplays().length).toBe(0);
   });
 
   it('finds files via exact filepath', async () => {

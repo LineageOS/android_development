@@ -306,8 +306,11 @@ final class AudioStreamer {
                 return false;
             }
 
-            AudioPolicy.Builder sessionPolicyBuilder =
-                    new AudioPolicy.Builder(mApplicationContext).addMix(audioMix);
+            Log.i(TAG, "Register MediaSession audio policy on context deviceId: "
+                    + mDeviceContext.getDeviceId());
+
+            AudioPolicy.Builder sessionPolicyBuilder = new AudioPolicy.Builder(mDeviceContext)
+                    .addMix(audioMix);
             sessionPolicyBuilder.setAudioPolicyFocusListener(
                     new AudioFocusChangeListener("Session policy"));
             sessionPolicyBuilder.setIsAudioFocusPolicy(false);
@@ -359,7 +362,10 @@ final class AudioStreamer {
                         .setFormat(AUDIO_FORMAT)
                         .build();
 
-        AudioPolicy.Builder uidPolicyBuilder = new AudioPolicy.Builder(mApplicationContext)
+        Log.i(TAG, "Register UID audio policy on context deviceId: "
+                + mDeviceContext.getDeviceId());
+
+        AudioPolicy.Builder uidPolicyBuilder = new AudioPolicy.Builder(mDeviceContext)
                 .addMix(uidAudioMix);
         uidPolicyBuilder.setAudioPolicyFocusListener(new AudioFocusChangeListener("Uid policy"));
         uidPolicyBuilder.setIsAudioFocusPolicy(false);

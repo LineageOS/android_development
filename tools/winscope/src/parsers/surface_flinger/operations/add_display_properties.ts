@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert_utils';
-import {UINT32_MAX} from 'common/math_utils';
+import {assertDefined, assertTrue} from 'common/assert';
+import {UINT32_MAX} from 'common/math';
 import {Operation} from 'tree_node/operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
@@ -33,8 +33,10 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
       if (!(dpiX && dpiY)) continue;
 
       const size = assertDefined(display.getChildByName('size'));
-      const width = assertDefined(size.getChildByName('w')).getValue();
-      const height = assertDefined(size.getChildByName('h')).getValue();
+      const width = assertDefined(size.getChildByName('w')?.getValue<number>());
+      const height = assertDefined(
+        size.getChildByName('h')?.getValue<number>(),
+      );
       const smallestWidth = this.dpiFromPx(
         Math.min(width, height),
         Number(dpiX.getValue()),

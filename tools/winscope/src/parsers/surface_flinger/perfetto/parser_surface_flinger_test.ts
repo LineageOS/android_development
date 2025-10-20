@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
 import {DuplicateLayerIds} from 'messaging/user_warnings';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {CoarseVersion} from 'trace_api/coarse_version';
@@ -31,7 +31,7 @@ import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {makeIdMatchFilter} from 'viewers/common/ui_tree_utils';
 
 describe('PerfettoParserSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -71,9 +71,9 @@ describe('PerfettoParserSurfaceFlinger', () => {
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1659107089102062832n),
-        TimestampConverterUtils.makeRealTimestamp(1659107089233029344n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090005226366n),
+        makeRealTimestamp(1659107089102062832n),
+        makeRealTimestamp(1659107089233029344n),
+        makeRealTimestamp(1659107090005226366n),
       ];
       const actual = assertDefined(parser.getTimestamps()).slice(0, 3);
       expect(actual).toEqual(expected);
@@ -81,8 +81,8 @@ describe('PerfettoParserSurfaceFlinger', () => {
 
     it('provides correct root entry node', async () => {
       const entry = await parser.getEntry(1);
-      expect(entry.id).toEqual('LayerTraceEntry root');
-      expect(entry.name).toEqual('root');
+      expect(entry.id).toBe('LayerTraceEntry root');
+      expect(entry.name).toBe('root');
     });
 
     it('gets a range of entries that excludes the end index', async () => {
@@ -94,13 +94,12 @@ describe('PerfettoParserSurfaceFlinger', () => {
       };
       const entries = await parser.getRangeOfEntries(range);
       expect(entries.length).toEqual(amountOfTrees);
-      expect(entries.length).not.toEqual(amountOfTrees + 1);
     });
 
     it('provides eager properties', async () => {
       const entry = await parser.getEntry(0);
       const leaf = assertDefined(
-        entry.findDfs(UiTreeUtils.makeIdMatchFilter('27 Leaf:24:25#27')),
+        entry.findDfs(makeIdMatchFilter('27 Leaf:24:25#27')),
       );
       expect(leaf.getEagerPropertyByName('isVisible')?.getValue()).toBeTrue();
       expect(
@@ -109,10 +108,10 @@ describe('PerfettoParserSurfaceFlinger', () => {
       expect(
         leaf.getEagerPropertyByName('isMissingZParent')?.getValue(),
       ).toBeFalse();
-      expect(leaf.getParent()?.name).toEqual('WindowedMagnification:0:31#4');
+      expect(leaf.getParent()?.name).toBe('WindowedMagnification:0:31#4');
 
       const task = assertDefined(
-        entry.findDfs(UiTreeUtils.makeIdMatchFilter('45 Task=1#45')),
+        entry.findDfs(makeIdMatchFilter('45 Task=1#45')),
       );
       expect(task.getEagerPropertyByName('isVisible')?.getValue()).toBeFalse();
       expect(
@@ -120,41 +119,37 @@ describe('PerfettoParserSurfaceFlinger', () => {
       ).toBeTrue();
 
       const relZParent = assertDefined(
-        entry.findDfs(
-          UiTreeUtils.makeIdMatchFilter('11 ImePlaceholder:13:14#11'),
-        ),
+        entry.findDfs(makeIdMatchFilter('11 ImePlaceholder:13:14#11')),
       );
       const relZChild = assertDefined(
-        entry.findDfs(UiTreeUtils.makeIdMatchFilter('12 ImeContainer#12')),
+        entry.findDfs(makeIdMatchFilter('12 ImeContainer#12')),
       );
       expect(relZParent.getRelativeChildren()).toEqual([relZChild]);
       expect(relZChild.getZParent()).toEqual(relZParent);
       expect(
         relZChild.getEagerPropertyByName('zOrderRelativeOf')?.getValue(),
-      ).toEqual(11n);
+      ).toBe(11n);
     });
 
     it('provides rects', async () => {
       const entry = await parser.getEntry(0);
       const displays = entry.getRects();
-      expect(displays?.length).toEqual(1);
+      expect(displays?.length).toBe(1);
       expect(displays?.[0].isDisplay).toBeTrue();
 
       const overlay = assertDefined(
-        entry.findDfs(
-          UiTreeUtils.makeIdMatchFilter('60 ScreenDecorOverlay#60'),
-        ),
+        entry.findDfs(makeIdMatchFilter('60 ScreenDecorOverlay#60')),
       );
       const layerRect = assertDefined(overlay.getRects()?.[0]);
       expect(layerRect.isDisplay).toBeFalse();
-      expect(layerRect.w).toEqual(1080);
-      expect(layerRect.h).toEqual(118);
+      expect(layerRect.w).toBe(1080);
+      expect(layerRect.h).toBe(118);
       expect(layerRect.fillRegion).toBeUndefined();
 
       const inputRect = assertDefined(overlay.getSecondaryRects()?.[0]);
       expect(inputRect.isDisplay).toBeFalse();
-      expect(inputRect.w).toEqual(1080);
-      expect(inputRect.h).toEqual(118);
+      expect(inputRect.w).toBe(1080);
+      expect(inputRect.h).toBe(118);
       expect(inputRect.fillRegion).toEqual(
         new Region([new Rect(492, 0, 124, 118)]),
       );
@@ -164,38 +159,36 @@ describe('PerfettoParserSurfaceFlinger', () => {
       const entry = await parser.getEntry(0);
       {
         const layer = assertDefined(
-          entry.findDfs(UiTreeUtils.makeIdMatchFilter('27 Leaf:24:25#27')),
+          entry.findDfs(makeIdMatchFilter('27 Leaf:24:25#27')),
         );
-        expect(layer.name).toEqual('Leaf:24:25#27');
+        expect(layer.name).toBe('Leaf:24:25#27');
 
         const props = await layer.getAllProperties();
         expect(
           assertDefined(props.getChildByName('flags')).formattedValue(),
-        ).toEqual('0');
+        ).toBe('0');
       }
       {
         const layer = assertDefined(
-          entry.findDfs(UiTreeUtils.makeIdMatchFilter('48 Task=4#48')),
+          entry.findDfs(makeIdMatchFilter('48 Task=4#48')),
         );
-        expect(layer.name).toEqual('Task=4#48');
+        expect(layer.name).toBe('Task=4#48');
 
         const props = await layer.getAllProperties();
         expect(
           assertDefined(props.getChildByName('flags')).formattedValue(),
-        ).toEqual('HIDDEN (0x1)');
+        ).toBe('HIDDEN (0x1)');
       }
       {
         const layer = assertDefined(
-          entry.findDfs(
-            UiTreeUtils.makeIdMatchFilter('77 Wallpaper BBQ wrapper#77'),
-          ),
+          entry.findDfs(makeIdMatchFilter('77 Wallpaper BBQ wrapper#77')),
         );
-        expect(layer.name).toEqual('Wallpaper BBQ wrapper#77');
+        expect(layer.name).toBe('Wallpaper BBQ wrapper#77');
 
         const props = await layer.getAllProperties();
         expect(
           assertDefined(props.getChildByName('flags')).formattedValue(),
-        ).toEqual('ENABLE_BACKPRESSURE (0x100)');
+        ).toBe('ENABLE_BACKPRESSURE (0x100)');
       }
     });
 
@@ -232,7 +225,7 @@ describe('PerfettoParserSurfaceFlinger', () => {
 
       const layer = assertDefined(
         entry.findDfs(
-          UiTreeUtils.makeIdMatchFilter(
+          makeIdMatchFilter(
             '-2147483595 Input Consumer recents_animation_input_consumer#408(Mirror)',
           ),
         ),
@@ -240,11 +233,11 @@ describe('PerfettoParserSurfaceFlinger', () => {
       expect(layer.name).toEqual(
         'Input Consumer recents_animation_input_consumer#408(Mirror)',
       );
-      expect(layer.getAllChildren().length).toEqual(0);
+      expect(layer.getAllChildren().length).toBe(0);
 
       const dupLayer = assertDefined(
         entry.findDfs(
-          UiTreeUtils.makeIdMatchFilter(
+          makeIdMatchFilter(
             '-2147483595 Input Consumer recents_animation_input_consumer#408(Mirror) duplicate(1)',
           ),
         ),
@@ -252,7 +245,7 @@ describe('PerfettoParserSurfaceFlinger', () => {
       expect(dupLayer.name).toEqual(
         'Input Consumer recents_animation_input_consumer#408(Mirror) duplicate(1)',
       );
-      expect(dupLayer.getAllChildren().length).toEqual(0);
+      expect(dupLayer.getAllChildren().length).toBe(0);
     });
   });
 });

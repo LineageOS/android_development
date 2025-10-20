@@ -195,19 +195,8 @@ export const logComponentStyles = `
     justify-content: space-between;
   }
 
-  .status .mat-icon, .copy-button, .copy-button .mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-  }
-
   .cell:not(:hover) .copy-button {
     visibility: hidden;
-  }
-
-  .copy-button .mat-icon {
-    min-width: 18px;
   }
 
   .input-type {

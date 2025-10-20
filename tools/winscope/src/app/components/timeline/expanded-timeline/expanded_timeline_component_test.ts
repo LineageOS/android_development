@@ -29,10 +29,10 @@ import {
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
 import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
@@ -44,12 +44,12 @@ describe('ExpandedTimelineComponent', () => {
   let component: ExpandedTimelineComponent;
   let dom: DOMTestHelper<ExpandedTimelineComponent>;
   let timelineData: TimelineData;
-  const time10 = TimestampConverterUtils.makeRealTimestamp(10n);
-  const time11 = TimestampConverterUtils.makeRealTimestamp(11n);
-  const time12 = TimestampConverterUtils.makeRealTimestamp(12n);
-  const time30 = TimestampConverterUtils.makeRealTimestamp(30n);
-  const time60 = TimestampConverterUtils.makeRealTimestamp(60n);
-  const time110 = TimestampConverterUtils.makeRealTimestamp(110n);
+  const time10 = makeRealTimestamp(10n);
+  const time11 = makeRealTimestamp(11n);
+  const time12 = makeRealTimestamp(12n);
+  const time30 = makeRealTimestamp(30n);
+  const time60 = makeRealTimestamp(60n);
+  const time110 = makeRealTimestamp(110n);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -106,11 +106,7 @@ describe('ExpandedTimelineComponent', () => {
       .setTimestamps(TraceType.TRANSITION, [time10, time60])
       .setTimestamps(TraceType.PROTO_LOG, [time12, time12])
       .build();
-    await timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
     component.timelineData = timelineData;
   });
 
@@ -122,17 +118,17 @@ describe('ExpandedTimelineComponent', () => {
     dom.detectChanges();
 
     const timelineElements = dom.findAll('.timeline.row single-timeline');
-    expect(timelineElements.length).toEqual(4);
+    expect(timelineElements.length).toBe(4);
 
     const transitionElement = dom.findAll('.timeline.row transition-timeline');
-    expect(transitionElement.length).toEqual(1);
+    expect(transitionElement.length).toBe(1);
   });
 
   it('passes initial selectedEntry of correct type into each timeline', () => {
     dom.detectChanges();
 
     const singleTimelines = assertDefined(component.singleTimelines);
-    expect(singleTimelines.length).toEqual(4);
+    expect(singleTimelines.length).toBe(4);
 
     // initially only first entry of SF is set
     singleTimelines.forEach((timeline) => {
@@ -158,7 +154,7 @@ describe('ExpandedTimelineComponent', () => {
     dom.detectChanges();
 
     const singleTimelines = assertDefined(component.singleTimelines);
-    expect(singleTimelines.length).toEqual(4);
+    expect(singleTimelines.length).toBe(4);
 
     singleTimelines.forEach((timeline) => {
       // protolog and transactions traces have no timestamps before current position

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -53,6 +53,10 @@ pub enum BpValue {
     List(Vec<BpValue>),
 }
 
+const NO_STD_FILTERED_PROPS: &[&str] = &["prefer_rlib", "no_stdlibs", "stdlibs"];
+const NO_STD_SUPPORTED_PROPS: &[&str] = &["srcs", "features", "cfgs", "rustlibs"];
+const NO_STD_BAREMETAL_DEFAULTS: &str = "rust_baremetal_nostd_defaults";
+
 impl BpModule {
     pub fn new(module_type: String) -> BpModule {
         BpModule { module_type, props: BpProperties::new() }
@@ -65,6 +69,70 @@ impl BpModule {
         self.props.write(w)?;
         w.write_str("\n")?;
         Ok(())
+    }
+
+    pub fn merge(&mut self, mut other: BpModule) -> Result<()> {
+        // Dedup
+        if *self == other {
+            return Ok(());
+        }
+
+        // Attempt no_std merge
+        if self.no_std() && other.device_std_rlib() {
+            std::mem::swap(self, &mut other)
+        }
+        if self.device_std_rlib() && other.no_std() {
+            let mut no_std_props = BpProperties::new();
+            no_std_props.set("enabled", true);
+            // Normally, props are omitted if empty. If the std variant has a prop set,
+            // and the no_std variant does not, we need to explicitly set it to the empty
+            // list to maintain the semantics of the merged module.
+            for prop in NO_STD_SUPPORTED_PROPS {
+                if self.props.map.contains_key(*prop) && !other.props.map.contains_key(*prop) {
+                    no_std_props.set(prop, BpValue::List(Vec::new()))
+                }
+            }
+            for (prop, val) in other.props.map.into_iter() {
+                if self.props.map.get(&prop) != Some(&val) {
+                    // For this specific value, we have a no_std equivalent.
+                    if prop == "defaults"
+                        && val == BpValue::List(vec![BpValue::from("rust_baremetal_defaults")])
+                    {
+                        let mut defaults = match self.props.map.get(&prop) {
+                            Some(BpValue::List(defaults)) => defaults.clone(),
+                            None => Vec::new(),
+                            bad => panic!("Invalid defaults: {bad:?}"),
+                        };
+                        if !defaults.contains(&BpValue::from(NO_STD_BAREMETAL_DEFAULTS)) {
+                            defaults.push(BpValue::from(NO_STD_BAREMETAL_DEFAULTS));
+                        }
+                        self.props.set("defaults", defaults);
+                        continue;
+                    }
+                    if NO_STD_FILTERED_PROPS.contains(&prop.as_str()) {
+                        continue;
+                    }
+                    if NO_STD_SUPPORTED_PROPS.contains(&prop.as_str()) {
+                        no_std_props.set(&prop, val);
+                        continue;
+                    }
+                    bail!("Unsupported no_std property: {prop}")
+                }
+            }
+            self.props.set("no_std", BpValue::Object(no_std_props));
+            return Ok(());
+        }
+
+        bail!("failed merge {self:?} <-> {other:?}")
+    }
+
+    fn device_std_rlib(&self) -> bool {
+        self.module_type == "rust_library_rlib" || self.module_type == "rust_library"
+    }
+
+    fn no_std(&self) -> bool {
+        (self.module_type == "rust_library_rlib" || self.module_type == "rust_library")
+            && self.props.map.get("no_stdlibs") == Some(&BpValue::Bool(true))
     }
 }
 

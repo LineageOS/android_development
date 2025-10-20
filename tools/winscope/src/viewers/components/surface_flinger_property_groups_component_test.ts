@@ -18,8 +18,8 @@ import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeUiPropertyNode} from 'test/unit/ui_tree_node_utils';
 import {EMPTY_OBJ_STRING} from 'trace/formatters';
 import {SfCuratedProperties} from 'viewers/common/curated_properties';
 import {ViewerEvents} from 'viewers/common/viewer_events';
@@ -213,21 +213,17 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
     `,
   })
   class TestHostComponent {
-    transformNode = UiTreeNodeUtils.makeUiPropertyNode(
-      'transform',
-      'transform',
-      {
-        type: 0,
-        matrix: {
-          dsdx: 1,
-          dsdy: 0,
-          dtdx: 0,
-          dtdy: 1,
-          tx: 0,
-          ty: 0,
-        },
+    transformNode = makeUiPropertyNode('transform', 'transform', {
+      type: 0,
+      matrix: {
+        dsdx: 1,
+        dsdy: 0,
+        dtdx: 0,
+        dtdy: 1,
+        tx: 0,
+        ty: 0,
       },
-    );
+    });
 
     properties: SfCuratedProperties = {
       summary: [

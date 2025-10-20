@@ -16,7 +16,10 @@
 
 import {HierarchyTreeNode} from './hierarchy_tree_node';
 
-export interface Computation {
+/**
+ * A computation to be executed on a hierarchy tree.
+ */
+export declare interface Computation {
   setRoot(value: HierarchyTreeNode): Computation;
   executeInPlace(): void;
 }

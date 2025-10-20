@@ -33,7 +33,7 @@ pub trait NamedAndVersioned {
     /// Returns the version.
     fn version(&self) -> &Version;
     /// Returns a reference that can be used as a map key.
-    fn key(&self) -> NameAndVersionRef;
+    fn key(&self) -> NameAndVersionRef<'_>;
 }
 
 /// An owned namd and version.
@@ -77,7 +77,7 @@ impl NamedAndVersioned for NameAndVersion {
     fn version(&self) -> &Version {
         &self.version
     }
-    fn key(&self) -> NameAndVersionRef {
+    fn key(&self) -> NameAndVersionRef<'_> {
         NameAndVersionRef::new(self.name(), self.version())
     }
 }
@@ -96,7 +96,7 @@ impl NamedAndVersioned for NameAndVersionRef<'_> {
     fn version(&self) -> &Version {
         self.version
     }
-    fn key(&self) -> NameAndVersionRef {
+    fn key(&self) -> NameAndVersionRef<'_> {
         *self
     }
 }
@@ -107,27 +107,27 @@ impl<'a> Borrow<dyn NamedAndVersioned + 'a> for NameAndVersion {
     }
 }
 
-impl PartialEq for (dyn NamedAndVersioned + '_) {
+impl PartialEq for dyn NamedAndVersioned + '_ {
     fn eq(&self, other: &Self) -> bool {
         self.key().eq(&other.key())
     }
 }
 
-impl Eq for (dyn NamedAndVersioned + '_) {}
+impl Eq for dyn NamedAndVersioned + '_ {}
 
-impl PartialOrd for (dyn NamedAndVersioned + '_) {
+impl PartialOrd for dyn NamedAndVersioned + '_ {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for (dyn NamedAndVersioned + '_) {
+impl Ord for dyn NamedAndVersioned + '_ {
     fn cmp(&self, other: &Self) -> Ordering {
         self.key().cmp(&other.key())
     }
 }
 
-impl Hash for (dyn NamedAndVersioned + '_) {
+impl Hash for dyn NamedAndVersioned + '_ {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.key().hash(state)
     }

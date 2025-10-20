@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-import {globalConfig} from 'common/global_config';
+import {globalConfig} from './global_config';
 
-export class Analytics {
-  static analyticsLogEvent(
-    eventName: Gtag.EventNames | (string & {}),
-    eventParams?: Gtag.ControlParams | Gtag.EventParams | Gtag.CustomParams,
-  ) {
-    if (globalConfig.MODE === 'PROD') {
-      gtag('event', eventName, eventParams);
-    }
+/**
+ * Logs an analytics event.
+ *
+ * A no-op unless in PROD mode.
+ *
+ * @param eventName The name of the event.
+ * @param eventParams The event parameters.
+ */
+export function analyticsLogEvent(
+  eventName: Gtag.EventNames | (string & {}),
+  eventParams?: Gtag.ControlParams | Gtag.EventParams | Gtag.CustomParams,
+) {
+  if (globalConfig.MODE === 'PROD') {
+    gtag('event', eventName, eventParams);
   }
 }

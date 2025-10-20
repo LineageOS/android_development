@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ViewerSearch} from 'viewers/viewer_search/viewer_search';
 import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -42,14 +43,14 @@ import {GlobalErrorHandler} from 'app/global_error_handler';
 import {Mediator} from 'app/mediator';
 import {TimelineData} from 'app/timeline_data';
 import {TracePipeline} from 'app/trace_pipeline';
-import {Download} from 'common/download';
-import {FileUtils} from 'common/file_utils';
+import {DownloadRequest, downloadFromUrl} from 'common/download';
+import {DOWNLOAD_FILENAME_REGEX} from 'common/io';
 import {globalConfig} from 'common/global_config';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {PersistentStore} from 'common/store/persistent_store';
 import {Store} from 'common/store/store';
 import {Timestamp} from 'common/time/time';
-import {getRootUrl} from 'common/url_utils';
+import {getRootUrl} from 'common/window';
 import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
@@ -61,9 +62,15 @@ import {
   AppResetRequest,
   AppTraceViewRequest,
   BugreportFileSelected,
+  BugreportFileSelectionRequest,
+  ViewersLoaded,
   DarkModeToggled,
   WinscopeEvent,
   WinscopeEventType,
+} from 'messaging/winscope_event';
+import {
+  ActiveSearchQueriesUpdate,
+  BookmarksChanged,
 } from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
@@ -81,6 +88,7 @@ import {ViewerTransactionsComponent} from 'viewers/viewer_transactions/viewer_tr
 import {ViewerTransitionsComponent} from 'viewers/viewer_transitions/viewer_transitions_component';
 import {ViewerViewCaptureComponent} from 'viewers/viewer_view_capture/viewer_view_capture_component';
 import {ViewerWindowManagerComponent} from 'viewers/viewer_window_manager/viewer_window_manager_component';
+import {isAllowedIframeParentOrigin} from 'cross_tool/origin_allow_list';
 import {
   MatDrawer,
   MatDrawerContainer,
@@ -97,19 +105,38 @@ import {
   WarningDialogData,
   WarningDialogResult,
 } from './warning_dialog_component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatMenuModule} from '@angular/material/menu';
+import {ClipboardModule} from '@angular/cdk/clipboard';
+import {FormsModule} from '@angular/forms';
+import {RequestData} from 'cross_tool/g3_proxy';
+import {
+  ActiveTraceChanged,
+  TabbedViewSwitchRequest,
+  TracePositionUpdate,
+  TraceSearchRequest,
+} from 'messaging/winscope_event';
+import {Trace} from 'trace_api/trace';
 
+/**
+ * The root component of the Winscope app.
+ */
 @Component({
   selector: 'app-root',
   encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
+    ClipboardModule,
     CommonModule,
+    FormsModule,
     MatToolbarModule,
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatMenuModule,
+    MatCheckboxModule,
     ReactiveFormsModule,
     MatProgressBarModule,
     MatDividerModule,
@@ -127,95 +154,118 @@ import {
   providers: [Title, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
   template: `
     <mat-toolbar class="toolbar">
-      <div class="horizontal-align vertical-align fixed">
+      <div class="horizontal-align vertical-align fixed logo">
         <img class="app-title" [src]="getLogoUrl()"/>
+        @if (isBeta) {
+          <span class="beta-tag">BETA</span>
+        }
       </div>
 
-      <div class="horizontal-align vertical-align icon-actions">
-        <div *ngIf="showDataLoadedElements" class="download-files-section">
-          <div
-            class="file-descriptor vertical-align"
-            [class.file-warning]="packetLossWarning() !== undefined">
-            <button
-              mat-icon-button
-              *ngIf="showCrossToolSyncButton()"
-              [matTooltip]="getCrossToolSyncTooltip()"
-              class="cross-tool-sync-button"
-              (click)="onCrossToolSyncButtonClick()"
-              [color]="getCrossToolSyncButtonColor()">
-              <mat-icon class="material-symbols-outlined">cloud_sync</mat-icon>
-            </button>
-            <mat-icon
-              *ngIf="packetLossWarning()"
-              [matTooltip]="packetLossWarning()"
-              class="warning-icon fixed">warning</mat-icon>
-            <span *ngIf="!isEditingFilename" class="download-file-info text-no-overflow mat-body-2">
-              {{ filenameFormControl.value }}
-            </span>
-            <span *ngIf="!isEditingFilename" class="download-file-ext mat-body-2">.zip</span>
-            <mat-form-field
-              class="file-name-input-field"
-              *ngIf="isEditingFilename"
-              subscriptSizing="dynamic"
-              floatLabel="always"
-              (keydown.esc)="trySubmitFilename()"
-              (keydown.enter)="trySubmitFilename()"
-              (focusout)="trySubmitFilename()"
-              matTooltip="Allowed: A-Z a-z 0-9 . _ - #">
-              <mat-label>Edit file name</mat-label>
-              <input matInput class="right-align" [formControl]="filenameFormControl" />
-              <span matTextSuffix>.zip</span>
-            </mat-form-field>
-            <button
-              *ngIf="isEditingFilename"
-              mat-icon-button
-              class="check-button no-touch-target-button"
-              matTooltip="Submit file name"
-              (click)="trySubmitFilename()">
-              <mat-icon>check</mat-icon>
-            </button>
-            <button
-              *ngIf="!isEditingFilename"
-              mat-icon-button
-              class="edit-button no-touch-target-button"
-              matTooltip="Edit file name"
-              (click)="onPencilIconClick()">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              [disabled]="isEditingFilename"
-              matTooltip="Download all traces"
-              class="save-button no-touch-target-button"
-              (click)="onDownloadTracesButtonClick()">
-              <mat-icon class="material-symbols-outlined">download</mat-icon>
-            </button>
+      <div class="horizontal-align vertical-align icon-actions small-icon-container">
+        @if (showDataLoadedElements) {
+          @let packetLoss = packetLossWarning();
+          @let showFileWarningStyle = downloadProgress === undefined
+            && !isEditingFilename
+            && packetLoss !== undefined;
+          <div class="download-files-section">
+            <div
+              class="file-descriptor vertical-align"
+              [class.file-warning]="showFileWarningStyle">
+              @if (showCrossToolSyncButton()) {
+                <button
+                  mat-icon-button
+                  [matTooltip]="getCrossToolSyncTooltip()"
+                  class="cross-tool-sync-button"
+                  (click)="onCrossToolSyncButtonClick()"
+                  [color]="getCrossToolSyncButtonColor()">
+                  <mat-icon class="material-symbols-outlined">cloud_sync</mat-icon>
+                </button>
+              }
+              @if (packetLoss !== undefined) {
+                <mat-icon
+                  [matTooltip]="packetLoss"
+                  class="warning-icon fixed">warning</mat-icon>
+              }
+              @if (!isEditingFilename) {
+                <span class="download-file-info text-no-overflow mat-body-2">
+                  {{ filenameFormControl.value }}
+                </span>
+              }
+              @if (!isEditingFilename) {
+                <span class="download-file-ext mat-body-2">.zip</span>
+              }
+              @if (isEditingFilename) {
+                <mat-form-field
+                  class="file-name-input-field"
+                  subscriptSizing="dynamic"
+                  floatLabel="always"
+                  (keydown.esc)="trySubmitFilename()"
+                  (keydown.enter)="trySubmitFilename()"
+                  (focusout)="trySubmitFilename()"
+                  matTooltip="Allowed: A-Z a-z 0-9 . _ - #">
+                  <mat-label>Edit file name</mat-label>
+                  <input matInput class="right-align" [formControl]="filenameFormControl" />
+                  <span matTextSuffix>.zip</span>
+                </mat-form-field>
+              }
+              @if (isEditingFilename) {
+                <button
+                  mat-icon-button
+                  class="check-button"
+                  matTooltip="Submit file name"
+                  (click)="trySubmitFilename()">
+                  <mat-icon>check</mat-icon>
+                </button>
+              }
+              @if (!isEditingFilename) {
+                <button
+                  mat-icon-button
+                  class="edit-button"
+                  matTooltip="Edit file name"
+                  (click)="onPencilIconClick()">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              <button
+                mat-icon-button
+                [disabled]="isEditingFilename"
+                matTooltip="Download all traces"
+                class="save-button"
+                (click)="onDownloadTracesButtonClick()">
+                <mat-icon class="material-symbols-outlined">download</mat-icon>
+              </button>
+            </div>
+            @if (downloadProgress !== undefined) {
+              <mat-progress-bar
+                mode="determinate"
+                [value]="downloadProgress">
+              </mat-progress-bar>
+            }
           </div>
-          <mat-progress-bar
-            *ngIf="downloadProgress !== undefined"
-            mode="determinate"
-            [value]="downloadProgress">
-          </mat-progress-bar>
-        </div>
+        }
 
-        <div *ngIf="showDataLoadedElements" class="icon-divider toolbar-icon-divider"></div>
-        <button
-          *ngIf="showDataLoadedElements && allTracesAreDumps()"
-          color="primary"
-          mat-icon-button
-          matTooltip="Refresh dumps"
-          class="refresh-dumps"
-          (click)="onRefreshDumpsButtonClick()">
-          <mat-icon class="material-symbols-outlined">refresh</mat-icon>
-        </button>
-        <button
-          *ngIf="showDataLoadedElements"
-          mat-icon-button
-          matTooltip="Upload or collect new trace"
-          class="upload-new"
-          (click)="onUploadNewButtonClick()">
-          <mat-icon class="material-symbols-outlined">upload</mat-icon>
-        </button>
+        @if (showDataLoadedElements) {
+          <div class="icon-divider toolbar-icon-divider"></div>
+        }
+        @if (showDataLoadedElements && allTracesAreDumps()) {
+          <button
+            color="primary"
+            mat-icon-button
+            matTooltip="Refresh dumps"
+            class="refresh-dumps"
+            (click)="onRefreshDumpsButtonClick()">
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+          </button>
+        }
+        @if (showDataLoadedElements) {
+          <button
+            mat-icon-button
+            matTooltip="Upload or collect new trace"
+            class="upload-new"
+            (click)="onUploadNewButtonClick()">
+            <mat-icon class="material-symbols-outlined">upload</mat-icon>
+          </button>
+        }
 
         <button
           mat-icon-button
@@ -250,64 +300,143 @@ import {
             {{ isDarkModeOn ? 'brightness_5' : 'brightness_4' }}
           </mat-icon>
         </button>
+
+        <div class="share-btn-wrapper" matTooltip="Share functionality is not available for the provided traces" [matTooltipDisabled]="isInsideWinscopeProxyFrame()">
+          <button
+            mat-icon-button
+            matTooltip="Share"
+            class="share-btn"
+            [disabled]="!isInsideWinscopeProxyFrame()"
+            (click)="updateShareState()"
+            [matMenuTriggerFor]="shareMenu">
+            <mat-icon>share</mat-icon>
+          </button>
+        </div>
+        <mat-menu #shareMenu="matMenu" (click)="$event.stopPropagation()">
+          <div class="share-menu-content" (click)="$event.stopPropagation()">
+            <div class="share-options" *ngIf="showShareOptionsContainer">
+              <p class="mat-subheading-2" style="margin: 0 0 8px;">Select what to share</p>
+
+              <div class="share-option" *ngIf="canShareLocation">
+                <mat-checkbox [(ngModel)]="shareOptions.location" (change)="updateShareLink()">
+                  Current location</mat-checkbox>
+                <mat-icon
+                  class="info-icon"
+                  matTooltip="Shares the active position in the timeline and the tab of the active trace being viewed. The shared URL will jump to this trace and timestamp when opened."
+                  >info_outline</mat-icon>
+              </div>
+              <div class="share-option" *ngIf="canShareBookmarks">
+                <mat-checkbox [(ngModel)]="shareOptions.bookmarks" (change)="updateShareLink()">Bookmarks</mat-checkbox>
+                <mat-icon
+                  class="info-icon"
+                  matTooltip="Shares any bookmarks you have added to the timeline."
+                  >info_outline</mat-icon>
+              </div>
+              <div class="share-option" *ngIf="canShareQueries">
+                <mat-checkbox [(ngModel)]="shareOptions.searchQueries" (change)="updateShareLink()"
+                  >Search queries</mat-checkbox
+                >
+                <mat-icon
+                  class="info-icon"
+                  matTooltip="Shares your search queries and results."
+                  >info_outline</mat-icon>
+              </div>
+            </div>
+
+            <div class="share-link-container">
+              <mat-form-field class="share-link-field" subscriptSizing="dynamic">
+                <mat-label>Shareable link</mat-label>
+                <input matInput readonly [value]="generatedShareLink">
+              </mat-form-field>
+
+              <button mat-icon-button [cdkCopyToClipboard]="generatedShareLink" matTooltip="Copy link" [disabled]="!generatedShareLink">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+        </mat-menu>
+
+        @if (isInsideWinscopeProxyFrame()) {
+          <button
+            mat-icon-button
+            class="iframe-settings"
+            matTootltip="Settings"
+            (click)="openSettings()">
+            <mat-icon>settings</mat-icon>
+          </button>
+        }
       </div>
     </mat-toolbar>
 
     <mat-divider></mat-divider>
 
-    <mat-drawer-container autosize disableClose autoFocus>
+    <mat-drawer-container
+      autosize
+      disableClose
+      autoFocus
+      style.background="var(--background-color)">
       <mat-drawer-content>
-        <ng-container *ngIf="dataLoaded; else noLoadedTracesBlock">
+        @if (dataLoaded) {
           <trace-view class="viewers" [viewers]="viewers" [store]="persistentStore"></trace-view>
 
           <mat-divider></mat-divider>
-        </ng-container>
+        } @else {
+          <div class="center">
+            <div class="landing-content">
+              <h1 class="welcome-info mat-headline-1">
+                Welcome to Winscope. Please select source to view traces.
+              </h1>
+
+              <div class="card-grid landing-grid">
+                <collect-traces
+                  class="collect-traces-card homepage-card"
+                  [storage]="appStorage"
+                  (filesCollected)="onFilesCollected($event)"></collect-traces>
+
+                <upload-traces
+                  #uploadTraces
+                  class="upload-traces-card homepage-card"
+                  [tracePipeline]="tracePipeline"
+                  [storage]="appStorage"
+                  (filesUploaded)="onFilesUploaded($event)"
+                  (viewTracesButtonClick)="onViewTracesButtonClick($event)"
+                  (downloadTracesClick)="onDownloadTracesButtonClick(uploadTraces)"></upload-traces>
+              </div>
+            </div>
+          </div>
+        }
       </mat-drawer-content>
 
       <mat-drawer #drawer mode="overlay" opened="true" [baseHeight]="collapsedTimelineHeight">
-        <timeline
-          *ngIf="dataLoaded"
-          [allTraces]="tracePipeline.getTraces()"
-          [timelineData]="timelineData"
-          [store]="persistentStore"
-          (collapsedTimelineSizeChanged)="onCollapsedTimelineSizeChanged($event)"></timeline>
+        @if (dataLoaded) {
+          <timeline
+            [allTraces]="tracePipeline.getTraces()"
+            [timelineData]="timelineData"
+            [store]="persistentStore"
+            [initialTabTraceType]="mediator.initialTimelineTabTraceType"
+            (collapsedTimelineSizeChanged)="onCollapsedTimelineSizeChanged($event)"></timeline>
+        }
       </mat-drawer>
     </mat-drawer-container>
-
-    <ng-template #noLoadedTracesBlock>
-      <div class="center">
-        <div class="landing-content">
-          <h1 class="welcome-info mat-headline-1">
-            Welcome to Winscope. Please select source to view traces.
-          </h1>
-
-          <div class="card-grid landing-grid">
-            <collect-traces
-              class="collect-traces-card homepage-card"
-              [storage]="appStorage"
-              (filesCollected)="onFilesCollected($event)"></collect-traces>
-
-            <upload-traces
-              #uploadTraces
-              class="upload-traces-card homepage-card"
-              [tracePipeline]="tracePipeline"
-              [storage]="appStorage"
-              (filesUploaded)="onFilesUploaded($event)"
-              (viewTracesButtonClick)="onViewTracesButtonClick($event)"
-              (downloadTracesClick)="onDownloadTracesButtonClick(uploadTraces)"></upload-traces>
-          </div>
-        </div>
-      </div>
-    </ng-template>
   `,
   styles: [
     `
       .toolbar {
         gap: 10px;
         justify-content: space-between;
-        min-height: 64px;
+      }
+      .logo {
+        height: 50%;
       }
       .app-title {
+        height: 100%;
+      }
+      .beta-tag {
+        font-size: 0.5rem;
+        margin-left: 0.1rem;
+        color: var(--logo-blue);
+        font-weight: 800;
+        line-height: normal;
         height: 100%;
       }
       .welcome-info {
@@ -336,6 +465,7 @@ import {
       .icon-actions {
         height: 100%;
       }
+
       .download-files-section {
         overflow-x: hidden;
       }
@@ -396,6 +526,36 @@ import {
         flex-grow: 1;
         margin: auto;
       }
+
+      .share-menu-content {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+      }
+      .share-menu-content mat-checkbox {
+        margin-bottom: 8px;
+      }
+      .share-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .info-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+        color: var(--text-color-secondary);
+      }
+      .share-link-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .share-link-field {
+        flex-grow: 1;
+      }
     `,
     iconDividerStyle,
   ],
@@ -407,10 +567,22 @@ export class AppComponent implements WinscopeEventListener {
   crossToolProtocol: CrossToolProtocol;
   dataLoaded = false;
   showDataLoadedElements = false;
+  isBeta = /beta(_[a-z]+)?\/index\.html/.test(window.location.href);
   collapsedTimelineHeight = 0;
   isEditingFilename = false;
   persistentStore = new PersistentStore();
   viewers: Viewer[] = [];
+  showShareOptionsContainer = false;
+  canShareLocation = false;
+  canShareBookmarks = false;
+  canShareQueries = false;
+
+  shareOptions = {
+    location: true,
+    bookmarks: true,
+    searchQueries: true,
+  };
+  generatedShareLink = '';
 
   isDarkModeOn = false;
   changeDetectorRef: ChangeDetectorRef;
@@ -421,12 +593,15 @@ export class AppComponent implements WinscopeEventListener {
     'winscope',
     Validators.compose([
       Validators.required,
-      Validators.pattern(FileUtils.DOWNLOAD_FILENAME_REGEX),
+      Validators.pattern(DOWNLOAD_FILENAME_REGEX),
     ]),
   );
 
   appStorage: Store;
   downloadProgress: number | undefined;
+  downloadRequest: DownloadRequest = (url: string, fileName: string) => {
+    downloadFromUrl(url, fileName);
+  };
 
   @ViewChild(UploadTracesComponent)
   uploadTracesComponent?: UploadTracesComponent;
@@ -457,6 +632,8 @@ export class AppComponent implements WinscopeEventListener {
       this,
       new PersistentStore(),
     );
+
+    this.updateShareState();
 
     const storeDarkMode = this.persistentStore.get('dark-mode');
     const prefersDarkQuery = window.matchMedia?.(
@@ -641,36 +818,74 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(WinscopeEventType.VIEWERS_LOADED, async (event) => {
-      this.viewers = event.viewers;
-      this.filenameFormControl.setValue(
-        this.tracePipeline.getDownloadArchiveFilename(),
-      );
-      this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
-      this.isEditingFilename = false;
+    await event.visit(
+      WinscopeEventType.VIEWERS_LOADED,
+      async (event: ViewersLoaded) => {
+        this.viewers = event.viewers;
+        this.filenameFormControl.setValue(
+          this.tracePipeline.getDownloadArchiveFilename(),
+        );
+        this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
+        this.isEditingFilename = false;
 
-      // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
-      this.dataLoaded = true;
-      this.changeDetectorRef.detectChanges();
+        // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
+        this.dataLoaded = true;
+        this.changeDetectorRef.detectChanges();
 
-      // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
-      // therefore toolbar elements controlled by a different boolean
-      this.ngZone.run(() => {
-        this.showDataLoadedElements = true;
-      });
-    });
+        // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
+        // therefore toolbar elements controlled by a different boolean
+        this.ngZone.run(() => {
+          this.showDataLoadedElements = true;
+        });
+        this.updateShareState();
 
-    await event.visit(WinscopeEventType.VIEWERS_UNLOADED, async (event) => {
-      this.dataLoaded = false;
-      this.showDataLoadedElements = false;
-      this.pageTitle.setTitle('Winscope');
-      this.changeDetectorRef.detectChanges();
-    });
+        await this.processRequestData();
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.VIEWERS_UNLOADED,
+      async (event: WinscopeEvent) => {
+        this.dataLoaded = false;
+        this.showDataLoadedElements = false;
+        this.pageTitle.setTitle('Winscope');
+        this.changeDetectorRef.detectChanges();
+        this.updateShareState();
+      },
+    );
 
     await event.visit(
       WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
-      async (event) => {
+      async (event: BugreportFileSelectionRequest) => {
         await this.showFileSelectionDialog(event.filenames);
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.BOOKMARKS_CHANGED,
+      async (event: BookmarksChanged) => {
+        this.updateShareState();
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE,
+      async (event: ActiveSearchQueriesUpdate) => {
+        this.updateShareState();
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.TRACE_POSITION_UPDATE,
+      async (event: TracePositionUpdate) => {
+        this.updateShareState();
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.ACTIVE_TRACE_CHANGED,
+      async (event: ActiveTraceChanged) => {
+        this.updateShareState();
       },
     );
   }
@@ -702,6 +917,208 @@ export class AppComponent implements WinscopeEventListener {
     this.setDarkMode(!this.isDarkModeOn);
   }
 
+  isInsideWinscopeProxyFrame(): boolean {
+    // NOTE: Technically anyone can pass whatever they want as the origin parameter,
+    // but that is fine; in those cases we would just show a settings button that does nothing,
+    // because we would fail posting the message due to origin check failures.
+    const reportedParentOrigin = this.getReportedParentOrigin();
+    if (
+      !reportedParentOrigin ||
+      !this.isSupportedReportedParentOrigin(reportedParentOrigin)
+    ) {
+      return false;
+    }
+
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      // Catch potential cross-origin errors when accessing window.top
+      return true;
+    }
+  }
+
+  getReportedParentOrigin(): string | null {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('parentOrigin');
+  }
+
+  getReportedRequest(): RequestData | undefined {
+    const urlParams = new URLSearchParams(window.location.search);
+    const request = urlParams.get('request');
+    if (request == null) {
+      return undefined;
+    }
+    return JSON.parse(atob(request));
+  }
+
+  isSupportedReportedParentOrigin(parentOrigin: string): boolean {
+    return isAllowedIframeParentOrigin(parentOrigin);
+  }
+
+  openSettings() {
+    const parentOrigin = this.getReportedParentOrigin();
+
+    if (parentOrigin == null) {
+      console.warn(
+        "Provided 'parentOrigin' is null cannot send request to open settings menu",
+      );
+      return;
+    }
+
+    // Check if inside an iframe
+    if (
+      this.isInsideWinscopeProxyFrame() &&
+      this.isSupportedReportedParentOrigin(parentOrigin)
+    ) {
+      // Send message to the parent window
+      window.parent.postMessage({winscopeAction: 'openSettings'}, parentOrigin);
+    } else {
+      console.warn(
+        'Not inside an iframe...',
+        window.self.origin,
+        window.top?.origin,
+      );
+    }
+  }
+
+  hasBookmarksToShare(): boolean {
+    return (this.timelineComponent?.bookmarks?.length ?? 0) > 0;
+  }
+
+  hasTimestampToShare(): boolean {
+    return this.mediator.getCurrentTimestamp() !== undefined;
+  }
+
+  hasQueriesToShare(): boolean {
+    return this.getTraceSearchQueries().length > 0;
+  }
+
+  private async processRequestData() {
+    const request = this.getReportedRequest();
+    if (!request) {
+      return;
+    }
+
+    if (request.bookmarks && this.timelineComponent) {
+      const converter = this.timelineData.getTimestampConverter();
+      if (converter) {
+        this.timelineComponent.bookmarks = request.bookmarks.map((b) =>
+          converter.makeTimestampFromNs(BigInt(b)),
+        );
+        await this.mediator.onWinscopeEvent(
+          new BookmarksChanged(this.timelineComponent.bookmarks),
+        );
+      }
+    }
+
+    if (request.timestamp) {
+      const converter = this.timelineData.getTimestampConverter();
+      const timestamp = converter?.makeTimestampFromNs(
+        BigInt(request.timestamp),
+      );
+      if (timestamp) {
+        const position =
+          this.timelineData.makePositionFromActiveTrace(timestamp);
+        await this.mediator.onWinscopeEvent(
+          new TracePositionUpdate(position, true),
+        );
+      }
+    }
+
+    if (request.searchQueries) {
+      for (const query of request.searchQueries) {
+        await this.mediator.onWinscopeEvent(new TraceSearchRequest(query));
+      }
+    }
+
+    if (request.traceType) {
+      const trace = this.tracePipeline
+        .getTraces()
+        .getTrace(request.traceType) as Trace<object>;
+      if (trace) {
+        await this.mediator.onWinscopeEvent(new TabbedViewSwitchRequest(trace));
+      }
+    }
+  }
+
+  private updateShareState() {
+    this.updateShareOptionsVisibility();
+    this.updateShareLink();
+  }
+
+  private updateShareOptionsVisibility() {
+    this.canShareLocation = this.hasTimestampToShare();
+    this.canShareBookmarks = this.hasBookmarksToShare();
+    this.canShareQueries = this.hasQueriesToShare();
+    this.showShareOptionsContainer =
+      this.canShareLocation || this.canShareBookmarks || this.canShareQueries;
+  }
+
+  getTraceSearchQueries(): string[] {
+    return (
+      this.viewers
+        .find((v) => v instanceof ViewerSearch)
+        ?.getTraces()
+        .flatMap((t) => t.getDescriptors()) ?? []
+    );
+  }
+
+  updateShareLink() {
+    const selectedOptions = Object.entries(this.shareOptions)
+      .filter(([_key, value]) => value)
+      .map(([key, _value]) => key);
+
+    if (selectedOptions.length === 0) {
+      this.generatedShareLink = '';
+      return;
+    }
+
+    const originalRequest = this.getReportedRequest();
+
+    const newRequest: RequestData = {
+      artifacts: [],
+    };
+
+    if (originalRequest && originalRequest.artifacts) {
+      newRequest.artifacts = originalRequest.artifacts;
+    }
+
+    if (originalRequest && originalRequest.testMode) {
+      newRequest.testMode = originalRequest.testMode;
+    }
+
+    if (this.shareOptions.location) {
+      newRequest.timestamp = this.mediator
+        .getCurrentTimestamp()
+        ?.getValueNs()
+        .toString();
+      newRequest.traceType = this.mediator.getActiveTraceType();
+    }
+
+    if (this.shareOptions.searchQueries) {
+      const searchQueries = this.getTraceSearchQueries();
+      if (searchQueries.length > 0) {
+        newRequest.searchQueries = searchQueries;
+      }
+    }
+
+    if (this.shareOptions.bookmarks) {
+      const bookmarks =
+        this.timelineComponent?.bookmarks.map((bookmark) =>
+          bookmark.getValueNs().toString(),
+        ) ?? [];
+      if (bookmarks.length > 0) {
+        newRequest.bookmarks = bookmarks;
+      }
+    }
+
+    const params = new URLSearchParams();
+    params.set('request', btoa(JSON.stringify(newRequest)));
+
+    const baseUrl = this.getReportedParentOrigin() || getRootUrl();
+    this.generatedShareLink = `${baseUrl}?${params.toString()}`;
+  }
+
   allTracesAreDumps(): boolean {
     for (const trace of this.timelineData.getTraces()) {
       if (!trace.isDump()) {
@@ -712,7 +1129,7 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   showCrossToolSyncButton(): boolean {
-    return this.crossToolProtocol.isConnected();
+    return this.crossToolProtocol.isAllowedTimestampSync();
   }
 
   getCrossToolSyncTooltip(): string {
@@ -785,6 +1202,6 @@ export class AppComponent implements WinscopeEventListener {
 
   private downloadTraces(blob: Blob, filename: string) {
     const url = window.URL.createObjectURL(blob);
-    Download.fromUrl(url, filename);
+    this.downloadRequest(url, filename);
   }
 }

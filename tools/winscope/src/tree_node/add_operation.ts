@@ -17,6 +17,11 @@
 import {Operation} from './operation';
 import {TreeNode} from './tree_node';
 
+/**
+ * An operation that adds new properties to a tree node.
+ *
+ * @param <T> The type of tree node.
+ */
 export abstract class AddOperation<T extends TreeNode> implements Operation<T> {
   apply(value: T): void {
     const newProperties = this.makeProperties(value);

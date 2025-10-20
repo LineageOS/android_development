@@ -83,19 +83,22 @@ import {AbstractSelectComponent} from './abstract_select_component';
           <mat-label>Filter options</mat-label>
           <input matInput #filter [(ngModel)]="filterString" (ngModelChange)="onFilterStringChange()" />
         </mat-form-field>
-        <div *ngIf="(select.value?.length ?? 0) > 0" class="selected-options">
-          <span class="mat-mdc-option mat-mdc-option-active mdc-list-item mdc-list-item--selected">Selected:</span>
-          <div
-            class="mat-mdc-option mat-mdc-option-active mat-mdc-option-multiple mdc-list-item mdc-list-item--selected selected-option"
-            *ngFor="let option of selectedOptions(select)"
-            (click)="onSelectedOptionClick(option, select)">
-          <mat-pseudo-checkbox
-            color="primary"
-            state="checked"
-            class="mat-option-pseudo-checkbox"></mat-pseudo-checkbox>
-          <div class="mat-option-text">{{option}}</div>
+        @if ((select.value?.length ?? 0) > 0) {
+          <div class="selected-options">
+            <span class="mat-mdc-option mat-mdc-option-active mdc-list-item mdc-list-item--selected">Selected:</span>
+            @for (option of selectedOptions(select); track option) {
+              <div
+                class="mat-mdc-option mat-mdc-option-active mat-mdc-option-multiple mdc-list-item mdc-list-item--selected selected-option"
+                (click)="onSelectedOptionClick(option, select)">
+              <mat-pseudo-checkbox
+                color="primary"
+                state="checked"
+                class="mat-option-pseudo-checkbox"></mat-pseudo-checkbox>
+              <div class="mat-option-text">{{option}}</div>
+              </div>
+            }
           </div>
-        </div>
+        }
         <mat-divider [vertical]="false"></mat-divider>
         <cdk-virtual-scroll-viewport
           [itemSize]="48"
@@ -113,10 +116,11 @@ import {AbstractSelectComponent} from './abstract_select_component';
             (click)="onOptClick($event, nonHiddenOptionToIndex[i], select, matOption)"
             #matOption>{{ option }}</mat-option>
         </cdk-virtual-scroll-viewport>
-        <mat-option
-          *ngFor="let option of hiddenOptions()"
-          [value]="option"
-          class="option hidden-option"></mat-option>
+        @for (option of hiddenOptions(); track option) {
+          <mat-option
+            [value]="option"
+            class="option hidden-option"></mat-option>
+        }
       </mat-select>
     </mat-form-field>
   `,

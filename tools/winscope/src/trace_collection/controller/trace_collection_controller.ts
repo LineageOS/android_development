@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {FileUtils} from 'common/file_utils';
-import {TimeUtils} from 'common/time/time_utils';
+import {removeDirFromFileName} from 'common/io';
+import {Timer} from 'common/time/timer';
 import {ProgressListener} from 'messaging/progress_listener';
 import {ProxyTracingWarnings} from 'messaging/user_warnings';
 import {UserNotifier} from 'services/user_notifier';
@@ -96,7 +96,7 @@ export class TraceCollectionController {
       this.activeTracingSessions.push(session);
     }
     // TODO(b/330118129): identify source of additional start latency that affects some traces
-    await TimeUtils.sleepMs(1000); // 1s timeout ensures SR fully started
+    await new Timer(1000).sleepMs(); // 1s timeout ensures SR fully started
   }
 
   async endTrace(device: AdbDeviceConnection) {
@@ -139,7 +139,7 @@ export class TraceCollectionController {
     for (const [index, filepath] of paths.entries()) {
       console.debug(`Fetching file ${filepath} from device`);
       const data = await device.pullFile(filepath);
-      const filename = FileUtils.removeDirFromFileName(filepath);
+      const filename = removeDirFromFileName(filepath);
       adbData.push(new File([data], filename));
       this.listener.onProgressUpdate(
         'Fetching files...',

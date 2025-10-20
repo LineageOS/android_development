@@ -29,11 +29,14 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {KeyboardEventKey} from 'common/dom_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {KeyboardEventKey} from 'common/dom';
 import {Timestamp} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {TraceEntry} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -112,7 +115,7 @@ describe('LogComponent', () => {
   });
 
   it('renders filters', () => {
-    expect(dom.findAll('.entries .filter').length).toEqual(2);
+    expect(dom.findAll('.entries .filter').length).toBe(2);
   });
 
   it('renders entries', () => {
@@ -134,7 +137,7 @@ describe('LogComponent', () => {
     });
     dom.findAndClick('.go-to-first-entry');
     expect(spy).toHaveBeenCalledWith(0);
-    expect(clicked?.getIndex()).toEqual(0);
+    expect(clicked?.getIndex()).toBe(0);
   });
 
   it('scrolls to current entry on button click', () => {
@@ -159,7 +162,7 @@ describe('LogComponent', () => {
     });
     dom.findAndClick('.go-to-last-entry');
     expect(spy).toHaveBeenCalledWith(1);
-    expect(clicked?.getIndex()).toEqual(1);
+    expect(clicked?.getIndex()).toBe(1);
   });
 
   it('applies select filter correctly', async () => {
@@ -180,15 +183,15 @@ describe('LogComponent', () => {
         return entryValue.includes(detail.value);
       });
     });
-    expect(dom.findAll('.entry').length).toEqual(2);
+    expect(dom.findAll('.entry').length).toBe(2);
     await dom.openMatSelect();
 
     const firstOption = dom.getMatSelectPanel().get('mat-option');
     firstOption.click();
-    expect(dom.findAll('.entry').length).toEqual(1);
+    expect(dom.findAll('.entry').length).toBe(1);
 
     firstOption.click();
-    expect(dom.findAll('.entry').length).toEqual(2);
+    expect(dom.findAll('.entry').length).toBe(2);
   });
 
   it('applies text filter correctly', async () => {
@@ -206,21 +209,21 @@ describe('LogComponent', () => {
         return entryValue.includes(detail.filter.filterString);
       });
     });
-    expect(dom.findAll('.entry').length).toEqual(2);
+    expect(dom.findAll('.entry').length).toBe(2);
 
     const inputEl = dom.get('.headers input');
 
     inputEl.dispatchInput('123');
-    expect(dom.findAll('.entry').length).toEqual(2);
+    expect(dom.findAll('.entry').length).toBe(2);
 
     inputEl.dispatchInput('1234');
-    expect(dom.findAll('.entry').length).toEqual(1);
+    expect(dom.findAll('.entry').length).toBe(1);
 
     inputEl.dispatchInput('12345');
-    expect(dom.findAll('.entry').length).toEqual(0);
+    expect(dom.findAll('.entry').length).toBe(0);
 
     inputEl.dispatchInput('');
-    expect(dom.findAll('.entry').length).toEqual(2);
+    expect(dom.findAll('.entry').length).toBe(2);
   });
 
   it('emits event on arrow key press', () => {
@@ -234,16 +237,16 @@ describe('LogComponent', () => {
     });
 
     dom.keydownArrowUp(true);
-    expect(upArrowPressedTimes).toEqual(1);
+    expect(upArrowPressedTimes).toBe(1);
 
     dom.keydownArrowDown(true);
-    expect(downArrowPressedTimes).toEqual(1);
+    expect(downArrowPressedTimes).toBe(1);
 
     dom.keydownArrowUp(true);
-    expect(upArrowPressedTimes).toEqual(2);
+    expect(upArrowPressedTimes).toBe(2);
 
     dom.keydownArrowDown(true);
-    expect(downArrowPressedTimes).toEqual(2);
+    expect(downArrowPressedTimes).toBe(2);
   });
 
   it('propagates entry on trace entry timestamp click', () => {
@@ -409,11 +412,11 @@ describe('LogComponent', () => {
     let entryTime: Timestamp;
     let fieldTime: Timestamp;
     if (elapsed) {
-      entryTime = TimestampConverterUtils.makeElapsedTimestamp(1n);
-      fieldTime = TimestampConverterUtils.makeElapsedTimestamp(2n);
+      entryTime = makeElapsedTimestamp(1n);
+      fieldTime = makeElapsedTimestamp(2n);
     } else {
-      entryTime = TimestampConverterUtils.makeRealTimestamp(1n);
-      fieldTime = TimestampConverterUtils.makeRealTimestamp(2n);
+      entryTime = makeRealTimestamp(1n);
+      fieldTime = makeRealTimestamp(2n);
     }
 
     const fields1: LogField[] = [

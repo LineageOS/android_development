@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertNumber} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 
-export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
+/**
+ * Builder for a VC hierarchy tree.
+ *
+ * The builder is not reusable, it should only be used to build one tree.
+ */
+export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder<bigint> {
   protected override buildIdentifierToChildrenMap(
     views: PropertiesProvider[],
-  ): Map<string | number, readonly HierarchyTreeNode[]> {
+  ): Map<bigint, readonly HierarchyTreeNode[]> {
     const map = views.reduce((map, view) => {
       const viewProperties = view.getEagerProperties();
       const viewNode = this.makeNode(
@@ -30,24 +35,28 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
         viewProperties.name,
         view,
       );
-      const id = assertDefined(viewProperties.getChildByName('id')).getValue();
+      const id = assertDefined(
+        viewProperties.getChildByName('nodeId')?.getValue<bigint>(),
+      );
       map.set(id, [viewNode]);
       return map;
-    }, new Map<string, HierarchyTreeNode[]>());
+    }, new Map<bigint, HierarchyTreeNode[]>());
     return map;
   }
 
   protected override assignParentChildRelationships(
     root: HierarchyTreeNode,
-    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+    identifierToChildren: Map<bigint, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
-    const rootId = assertNumber(root.getEagerPropertyByName('id')?.getValue());
+    const rootId = assertDefined(
+      root.getEagerPropertyByName('nodeId')?.getValue<bigint>(),
+    );
 
     for (const nodes of identifierToChildren.values()) {
       nodes.forEach((node) => {
-        const parentId = assertNumber(
-          node.getEagerPropertyByName('parentId')?.getValue(),
+        const parentId = assertDefined(
+          node.getEagerPropertyByName('parentId')?.getValue<bigint>(),
         );
         const parentIsRoot = parentId === rootId;
         const parent = parentIsRoot

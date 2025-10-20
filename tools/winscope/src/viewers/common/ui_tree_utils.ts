@@ -23,65 +23,127 @@ import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 export type TreeNodeFilter = (node: TreeNode) => boolean;
 
-export class UiTreeUtils {
-  static isHighlighted(item: TreeNode, highlighted: string): boolean {
-    return highlighted === item.id;
+/**
+ * Checks if an item is highlighted.
+ *
+ * @param item The item to check.
+ * @param highlighted The highlighted item's id.
+ * @return True if the item is highlighted, false otherwise.
+ */
+export function isHighlighted(item: TreeNode, highlighted: string): boolean {
+  return highlighted === item.id;
+}
+
+/**
+ * Checks if a node is visible.
+ *
+ * @param node The node to check.
+ * @return True if the node is visible, false otherwise.
+ */
+export const isVisible: (node: TreeNode) => boolean = (node: TreeNode) => {
+  if (!(node instanceof UiHierarchyTreeNode)) {
+    return false;
   }
-
-  static isVisible: TreeNodeFilter = (node: TreeNode) => {
-    if (!(node instanceof UiHierarchyTreeNode)) {
-      return;
-    }
-    const isComputedVisible = node
-      .getEagerPropertyByName('isComputedVisible')
-      ?.getValue();
-    if (isComputedVisible !== undefined) {
-      return isComputedVisible;
-    }
-    return node.getEagerPropertyByName('isVisible')?.getValue() ?? false;
-  };
-
-  static makeIsNotDefaultFilter(allowList: string[]): TreeNodeFilter {
-    return (node: TreeNode) => {
-      return (
-        node instanceof UiPropertyTreeNode &&
-        (node.source !== PropertySource.DEFAULT ||
-          allowList.includes(node.name))
-      );
-    };
+  const isComputedVisible = node
+    .getEagerPropertyByName('isComputedVisible')
+    ?.getValue<boolean>();
+  if (isComputedVisible !== undefined) {
+    return isComputedVisible;
   }
+  return node.getEagerPropertyByName('isVisible')?.getValue<boolean>() ?? false;
+};
 
-  static isNotCalculated: TreeNodeFilter = (node: TreeNode) => {
+/**
+ * Creates a filter that removes default properties, unless they are in the allow list.
+ *
+ * @param allowList The list of properties to allow.
+ * @return A filter function.
+ */
+export function makeIsNotDefaultFilter(
+  allowList: string[],
+): (node: TreeNode) => boolean {
+  return (node: TreeNode) => {
     return (
       node instanceof UiPropertyTreeNode &&
-      node.source !== PropertySource.CALCULATED
+      (node.source !== PropertySource.DEFAULT || allowList.includes(node.name))
     );
   };
+}
 
-  static isNotFromTP: TreeNodeFilter = (node: TreeNode) => {
+/**
+ * A filter that removes calculated properties.
+ *
+ * @param node The node to check.
+ * @return True if the node is not calculated, false otherwise.
+ */
+export const isNotCalculated: (node: TreeNode) => boolean = (
+  node: TreeNode,
+) => {
+  return (
+    node instanceof UiPropertyTreeNode &&
+    node.source !== PropertySource.CALCULATED
+  );
+};
+
+/**
+ * A filter that removes properties from the trace processor.
+ *
+ * @param node The node to check.
+ * @return True if the node is not from the trace processor, false otherwise.
+ */
+export const isNotFromTP: (node: TreeNode) => boolean = (node: TreeNode) => {
+  return (
+    node instanceof UiPropertyTreeNode && node.source !== PropertySource.TP
+  );
+};
+
+/**
+ * Creates a filter that checks if a node's id or formatted value matches a predicate.
+ *
+ * @param predicate The predicate to use.
+ * @return A filter function.
+ */
+export function makeNodeFilter(
+  predicate: StringFilterPredicate,
+): (node: TreeNode) => boolean {
+  return (node: TreeNode) => {
     return (
-      node instanceof UiPropertyTreeNode && node.source !== PropertySource.TP
+      predicate(node.id) ||
+      (node instanceof PropertyTreeNode && predicate(node.formattedValue()))
     );
   };
+}
 
-  static makeNodeFilter(predicate: StringFilterPredicate): TreeNodeFilter {
-    return (node: TreeNode) => {
-      return (
-        predicate(node.id) ||
-        (node instanceof PropertyTreeNode && predicate(node.formattedValue()))
-      );
-    };
-  }
+/**
+ * Creates a filter that checks if a node's id matches a target id.
+ *
+ * @param targetId The target id to match.
+ * @return A filter function.
+ */
+export function makeIdMatchFilter(
+  targetId: string,
+): (node: TreeNode) => boolean {
+  return (node: TreeNode) => node.id === targetId;
+}
 
-  static makeIdMatchFilter(targetId: string): TreeNodeFilter {
-    return (node: TreeNode) => node.id === targetId;
-  }
+/**
+ * Creates a filter that removes nodes whose name is in a denylist.
+ *
+ * @param denylist The list of names to deny.
+ * @return A filter function.
+ */
+export function makeDenyListFilterByName(
+  denylist: string[],
+): (node: TreeNode) => boolean {
+  return (node: TreeNode) => !denylist.includes(node.name);
+}
 
-  static makeDenyListFilterByName(denylist: string[]): TreeNodeFilter {
-    return (node: TreeNode) => !denylist.includes(node.name);
-  }
-
-  static shouldGetProperties(node: UiHierarchyTreeNode): boolean {
-    return !node.isOldNode() || node.getDiff() === DiffType.DELETED;
-  }
+/**
+ * Checks if a node should have its properties fetched.
+ *
+ * @param node The node to check.
+ * @return True if the node should have its properties fetched, false otherwise.
+ */
+export function shouldGetProperties(node: UiHierarchyTreeNode): boolean {
+  return !node.isOldNode() || node.getDiff() === DiffType.DELETED;
 }

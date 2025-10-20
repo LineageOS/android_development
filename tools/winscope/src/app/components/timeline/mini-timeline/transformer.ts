@@ -18,6 +18,9 @@ import {Segment} from 'app/components/timeline/segment';
 import {TimeRange, Timestamp} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 
+/**
+ * A class for transforming timestamps to canvas coordinates and vice versa.
+ */
 export class Transformer {
   private tsRangeWidth: bigint;
   private canvasWidth: number;
@@ -30,14 +33,13 @@ export class Transformer {
     private canvasPosRange: Segment,
     private timestampConverter: ComponentTimestampConverter,
   ) {
-    this.tsRangeWidth =
-      this.tsRange.to.getValueNs() - this.tsRange.from.getValueNs();
+    this.tsRangeWidth = BigInt(this.tsRange.endNs - this.tsRange.startNs);
     // Needs to be a whole number to be compatible with bigints
     this.canvasWidth = Math.round(
       this.canvasPosRange.to - this.canvasPosRange.from,
     );
 
-    this.tsOffset = this.tsRange.from.getValueNs();
+    this.tsOffset = this.tsRange.startNs;
     // Needs to be a whole number to be compatible with bigints
     this.canvasOffset = this.canvasPosRange.from;
   }

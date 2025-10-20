@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-export interface Item {
+/**
+ * An item with an id and a name.
+ */
+export declare interface Item {
   id: string;
   name: string;
 }

@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+  TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
+  UTC_CONVERTER,
+} from 'test/unit/time_test_helpers';
 import {TimeRange} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
 
 describe('Timestamp', () => {
   describe('arithmetic', () => {
-    const REAL_TIMESTAMP_10 = TimestampConverterUtils.makeRealTimestamp(10n);
-    const REAL_TIMESTAMP_20 = TimestampConverterUtils.makeRealTimestamp(20n);
-    const ELAPSED_TIMESTAMP_10 =
-      TimestampConverterUtils.makeElapsedTimestamp(10n);
-    const ELAPSED_TIMESTAMP_20 =
-      TimestampConverterUtils.makeElapsedTimestamp(20n);
+    const REAL_TIMESTAMP_10 = makeRealTimestamp(10n);
+    const REAL_TIMESTAMP_20 = makeRealTimestamp(20n);
+    const ELAPSED_TIMESTAMP_10 = makeElapsedTimestamp(10n);
+    const ELAPSED_TIMESTAMP_20 = makeElapsedTimestamp(20n);
 
     it('can add', () => {
       let timestamp = REAL_TIMESTAMP_10.add(REAL_TIMESTAMP_20.getValueNs());
@@ -44,7 +47,7 @@ describe('Timestamp', () => {
     });
 
     it('can divide', () => {
-      let timestamp = TimestampConverterUtils.makeRealTimestamp(10n).div(2n);
+      let timestamp = makeRealTimestamp(10n).div(2n);
       expect(timestamp.getValueNs()).toBe(5n);
 
       timestamp = ELAPSED_TIMESTAMP_10.div(2n);
@@ -60,79 +63,53 @@ describe('Timestamp', () => {
     const DAY = BigInt(TIME_UNIT_TO_NANO.d);
 
     it('elapsed timestamps', () => {
-      expect(TimestampConverterUtils.makeElapsedTimestamp(0n).format()).toEqual(
-        '0ns',
+      expect(makeElapsedTimestamp(0n).format()).toEqual('0ns');
+      expect(makeElapsedTimestamp(1000n).format()).toBe('1000ns');
+      expect(makeElapsedTimestamp(10n * MILLISECOND).format()).toBe('10ms0ns');
+
+      expect(makeElapsedTimestamp(SECOND - 1n).format()).toBe('999ms999999ns');
+      expect(makeElapsedTimestamp(SECOND).format()).toBe('1s0ms0ns');
+      expect(makeElapsedTimestamp(SECOND + MILLISECOND).format()).toBe(
+        '1s1ms0ns',
+      );
+
+      expect(makeElapsedTimestamp(MINUTE - 1n).format()).toBe(
+        '59s999ms999999ns',
+      );
+      expect(makeElapsedTimestamp(MINUTE).format()).toBe('1m0s0ms0ns');
+      expect(makeElapsedTimestamp(MINUTE + SECOND + MILLISECOND).format()).toBe(
+        '1m1s1ms0ns',
       );
       expect(
-        TimestampConverterUtils.makeElapsedTimestamp(1000n).format(),
-      ).toEqual('1000ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(
-          10n * MILLISECOND,
-        ).format(),
-      ).toEqual('10ms0ns');
+        makeElapsedTimestamp(MINUTE + SECOND + MILLISECOND + 1n).format(),
+      ).toBe('1m1s1ms1ns');
 
+      expect(makeElapsedTimestamp(HOUR - 1n).format()).toBe(
+        '59m59s999ms999999ns',
+      );
+      expect(makeElapsedTimestamp(HOUR).format()).toBe('1h0m0s0ms0ns');
       expect(
-        TimestampConverterUtils.makeElapsedTimestamp(SECOND - 1n).format(),
-      ).toEqual('999ms999999ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(SECOND).format(),
-      ).toEqual('1s0ms0ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(
-          SECOND + MILLISECOND,
-        ).format(),
-      ).toEqual('1s1ms0ns');
+        makeElapsedTimestamp(HOUR + MINUTE + SECOND + MILLISECOND).format(),
+      ).toBe('1h1m1s1ms0ns');
 
+      expect(makeElapsedTimestamp(DAY - 1n).format()).toBe(
+        '23h59m59s999ms999999ns',
+      );
+      expect(makeElapsedTimestamp(DAY).format()).toBe('1d0h0m0s0ms0ns');
       expect(
-        TimestampConverterUtils.makeElapsedTimestamp(MINUTE - 1n).format(),
-      ).toEqual('59s999ms999999ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(MINUTE).format(),
-      ).toEqual('1m0s0ms0ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(
-          MINUTE + SECOND + MILLISECOND,
-        ).format(),
-      ).toEqual('1m1s1ms0ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(
-          MINUTE + SECOND + MILLISECOND + 1n,
-        ).format(),
-      ).toEqual('1m1s1ms1ns');
-
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(HOUR - 1n).format(),
-      ).toEqual('59m59s999ms999999ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(HOUR).format(),
-      ).toEqual('1h0m0s0ms0ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(
-          HOUR + MINUTE + SECOND + MILLISECOND,
-        ).format(),
-      ).toEqual('1h1m1s1ms0ns');
-
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(DAY - 1n).format(),
-      ).toEqual('23h59m59s999ms999999ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(DAY).format(),
-      ).toEqual('1d0h0m0s0ms0ns');
-      expect(
-        TimestampConverterUtils.makeElapsedTimestamp(
+        makeElapsedTimestamp(
           DAY + HOUR + MINUTE + SECOND + MILLISECOND,
         ).format(),
-      ).toEqual('1d1h1m1s1ms0ns');
+      ).toBe('1d1h1m1s1ms0ns');
     });
 
     it('real timestamps without timezone info', () => {
       const NOV_10_2022 = 1668038400000n * MILLISECOND;
-      expect(TimestampConverterUtils.makeRealTimestamp(0n).format()).toEqual(
+      expect(makeRealTimestamp(0n).format()).toEqual(
         '1970-01-01, 00:00:00.000',
       );
       expect(
-        TimestampConverterUtils.makeRealTimestamp(
+        makeRealTimestamp(
           NOV_10_2022 +
             22n * HOUR +
             4n * MINUTE +
@@ -140,19 +117,19 @@ describe('Timestamp', () => {
             186n * MILLISECOND +
             123212n,
         ).format(),
-      ).toEqual('2022-11-10, 22:04:54.186');
-      expect(
-        TimestampConverterUtils.makeRealTimestamp(NOV_10_2022).format(),
-      ).toEqual('2022-11-10, 00:00:00.000');
-      expect(
-        TimestampConverterUtils.makeRealTimestamp(NOV_10_2022 + 1n).format(),
-      ).toEqual('2022-11-10, 00:00:00.000');
+      ).toBe('2022-11-10, 22:04:54.186');
+      expect(makeRealTimestamp(NOV_10_2022).format()).toBe(
+        '2022-11-10, 00:00:00.000',
+      );
+      expect(makeRealTimestamp(NOV_10_2022 + 1n).format()).toBe(
+        '2022-11-10, 00:00:00.000',
+      );
 
-      expect(TimestampConverterUtils.makeRealTimestamp(0n).format()).toEqual(
+      expect(makeRealTimestamp(0n).format()).toEqual(
         '1970-01-01, 00:00:00.000',
       );
       expect(
-        TimestampConverterUtils.makeRealTimestamp(
+        makeRealTimestamp(
           NOV_10_2022 +
             22n * HOUR +
             4n * MINUTE +
@@ -160,24 +137,24 @@ describe('Timestamp', () => {
             186n * MILLISECOND +
             123212n,
         ).format(),
-      ).toEqual('2022-11-10, 22:04:54.186');
-      expect(
-        TimestampConverterUtils.makeRealTimestamp(NOV_10_2022).format(),
-      ).toEqual('2022-11-10, 00:00:00.000');
-      expect(
-        TimestampConverterUtils.makeRealTimestamp(NOV_10_2022 + 1n).format(),
-      ).toEqual('2022-11-10, 00:00:00.000');
+      ).toBe('2022-11-10, 22:04:54.186');
+      expect(makeRealTimestamp(NOV_10_2022).format()).toBe(
+        '2022-11-10, 00:00:00.000',
+      );
+      expect(makeRealTimestamp(NOV_10_2022 + 1n).format()).toBe(
+        '2022-11-10, 00:00:00.000',
+      );
     });
 
     it('real timestamps with timezone info', () => {
       const NOV_10_2022 = 1668038400000n * MILLISECOND;
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           0n,
         ).format(),
-      ).toEqual('1970-01-01, 05:30:00.000');
+      ).toBe('1970-01-01, 05:30:00.000');
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           NOV_10_2022 +
             22n * HOUR +
             4n * MINUTE +
@@ -185,25 +162,25 @@ describe('Timestamp', () => {
             186n * MILLISECOND +
             123212n,
         ).format(),
-      ).toEqual('2022-11-11, 03:34:54.186');
+      ).toBe('2022-11-11, 03:34:54.186');
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           NOV_10_2022,
         ).format(),
-      ).toEqual('2022-11-10, 05:30:00.000');
+      ).toBe('2022-11-10, 05:30:00.000');
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           NOV_10_2022 + 1n,
         ).format(),
-      ).toEqual('2022-11-10, 05:30:00.000');
+      ).toBe('2022-11-10, 05:30:00.000');
 
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           0n,
         ).format(),
-      ).toEqual('1970-01-01, 05:30:00.000');
+      ).toBe('1970-01-01, 05:30:00.000');
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           NOV_10_2022 +
             22n * HOUR +
             4n * MINUTE +
@@ -211,17 +188,17 @@ describe('Timestamp', () => {
             186n * MILLISECOND +
             123212n,
         ).format(),
-      ).toEqual('2022-11-11, 03:34:54.186');
+      ).toBe('2022-11-11, 03:34:54.186');
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           NOV_10_2022,
         ).format(),
-      ).toEqual('2022-11-10, 05:30:00.000');
+      ).toBe('2022-11-10, 05:30:00.000');
       expect(
-        TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
+        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
           NOV_10_2022 + 1n,
         ).format(),
-      ).toEqual('2022-11-10, 05:30:00.000');
+      ).toBe('2022-11-10, 05:30:00.000');
     });
   });
 });
@@ -229,41 +206,31 @@ describe('Timestamp', () => {
 describe('TimeRange', () => {
   describe('containsTimestamp', () => {
     const range = new TimeRange(
-      TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(10n),
-      TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(600n),
+      UTC_CONVERTER.makeTimestampFromNs(10n),
+      UTC_CONVERTER.makeTimestampFromNs(600n),
     );
 
     it('returns true for range containing timestamp', () => {
       expect(
-        range.containsTimestamp(
-          TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(10n),
-        ),
+        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(10n)),
       ).toBeTrue();
 
       expect(
-        range.containsTimestamp(
-          TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(600n),
-        ),
+        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(600n)),
       ).toBeTrue();
 
       expect(
-        range.containsTimestamp(
-          TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(300n),
-        ),
+        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(300n)),
       ).toBeTrue();
     });
 
     it('returns false for range not containing timestamp', () => {
       expect(
-        range.containsTimestamp(
-          TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(0n),
-        ),
+        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(0n)),
       ).toBeFalse();
 
       expect(
-        range.containsTimestamp(
-          TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(601n),
-        ),
+        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(601n)),
       ).toBeFalse();
     });
   });

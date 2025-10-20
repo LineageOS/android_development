@@ -28,7 +28,7 @@ const configProd = {
   },
   output: {
     path: path.resolve(__dirname, 'dist/prod'),
-    publicPath: './',
+    publicPath: 'auto',
     filename: 'js/[name].[hash].js',
     chunkFilename: 'js/[name].[id].[hash].chunk.js',
   },

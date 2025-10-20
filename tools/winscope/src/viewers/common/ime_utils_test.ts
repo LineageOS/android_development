@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {getImeTraceEntries} from 'test/unit/fixture_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {ImeUtils} from './ime_utils';
+import {getImeLayers, processWindowManagerTraceEntry} from './ime_utils';
 
 describe('ImeUtils', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -35,7 +35,7 @@ describe('ImeUtils', () => {
   });
 
   it('processes WindowManager trace entry', async () => {
-    const processed = ImeUtils.processWindowManagerTraceEntry(
+    const processed = await processWindowManagerTraceEntry(
       assertDefined(entries.get(TraceType.WINDOW_MANAGER)),
       undefined,
     );
@@ -94,19 +94,19 @@ describe('ImeUtils', () => {
         ?.getChildByName('identifier')
         ?.getChildByName('title')
         ?.getValue(),
-    ).toEqual('SnapshotStartingWindow for taskId=1393');
+    ).toBe('SnapshotStartingWindow for taskId=1393');
 
     expect(processed.wmStateProperties.isInputMethodWindowVisible).toBeFalse();
   });
 
   it('processes SurfaceFlinger trace entry', async () => {
     const entries = (await getImeTraceEntries())[0];
-    const processedWindowManagerState = ImeUtils.processWindowManagerTraceEntry(
+    const processedWindowManagerState = await processWindowManagerTraceEntry(
       assertDefined(entries.get(TraceType.WINDOW_MANAGER)),
       undefined,
     );
     const layers = assertDefined(
-      await ImeUtils.getImeLayers(
+      await getImeLayers(
         assertDefined(entries.get(TraceType.SURFACE_FLINGER)),
         processedWindowManagerState,
         undefined,
@@ -136,19 +136,19 @@ describe('ImeUtils', () => {
     expect(inputMethodSurface.screenBounds).toBeDefined();
 
     const imeContainer = assertDefined(layers.properties.imeContainer);
-    expect(imeContainer.id).toEqual('12 ImeContainer#12');
-    expect(imeContainer.z).toEqual(1);
-    expect(imeContainer.zOrderRelativeOfId).toEqual(115);
+    expect(imeContainer.id).toBe('12 ImeContainer#12');
+    expect(imeContainer.z).toBe(1);
+    expect(imeContainer.zOrderRelativeOfId).toBe(115);
 
     expect(
       assertDefined(layers.properties.focusedWindowColor).formattedValue(),
-    ).toEqual('(0, 0, 0), alpha: 1');
+    ).toBe('(0, 0, 0), alpha: 1');
 
     const taskLayerOfImeContainer = assertDefined(
       layers.taskLayerOfImeContainer,
     );
-    expect(taskLayerOfImeContainer.id).toEqual('114 Task=1391#114');
-    expect(taskLayerOfImeContainer.name).toEqual('Task=1391#114');
+    expect(taskLayerOfImeContainer.id).toBe('114 Task=1391#114');
+    expect(taskLayerOfImeContainer.name).toBe('Task=1391#114');
 
     expect(layers.taskLayerOfImeSnapshot).toBeUndefined();
   });

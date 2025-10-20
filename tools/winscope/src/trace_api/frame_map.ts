@@ -21,38 +21,54 @@ import {
   FramesRange,
 } from './index_types';
 
+/**
+ * Provides efficient (O(1)) conversions between ranges of trace entries and
+ * ranges of trace frames.
+ *
+ * This class precomputes lookup tables to quickly find the corresponding
+ * frame range for a given entry range, and vice versa. This is useful for
+ * navigating and synchronizing views across different time granularities
+ * within a trace, where "entries" might represent individual trace events
+ * and "frames" represent aggregated visual updates.
+ */
 export class FrameMap {
   readonly lengthEntries: number;
   readonly lengthFrames: number;
 
-  // These lookup tables allow to convert a "[start_entry; end_entry[" range
-  // to "[start_frame; end_frame[" in O(1) time.
-  //
-  // entryToStartFrame[i] is:
-  // - start_frame of entry_i
-  // - start_frame of the first entry_j (j > i), if entry_i has no associated frames
-  // - undefined, if all the entries with index >= i have no associated frames
-  //
-  // entryToEndFrame[i] is:
-  // - end_frame of entry_i
-  // - end_frame of the last entry_j (j < i), if entry_i has no associated frames
-  // - undefined, if all the entries with index <= i have no associated frames
+  /**
+   * These lookup tables allow to convert a "[start_entry; end_entry[" range
+   * to "[start_frame; end_frame[" in O(1) time.
+   *
+   * entryToStartFrame[i] is:
+   * - start_frame of entry_i
+   * - start_frame of the first entry_j (j > i), if entry_i has no associated frames
+   * - undefined, if all the entries with index >= i have no associated frames
+   */
   private readonly entryToStartFrame: Array<AbsoluteFrameIndex | undefined>;
+  /**
+   * entryToEndFrame[i] is:
+   * - end_frame of entry_i
+   * - end_frame of the last entry_j (j < i), if entry_i has no associated frames
+   * - undefined, if all the entries with index <= i have no associated frames
+   */
   private readonly entryToEndFrame: Array<AbsoluteFrameIndex | undefined>;
 
-  // These lookup tables allow to convert a "[start_frame; end_frame[" range
-  // to "[start_entry; end_entry[" in O(1) time.
-  //
-  // frameToStartEntry[i] is:
-  // - start_entry of frame_i
-  // - start_entry of the first frame_j (j > i), if frame_i has no associated entries
-  // - undefined, if all the frames with index >= i have no associated entries
-  //
-  // frameToEndEntry[i] is:
-  // - end_entry of frame_i
-  // - end_entry of the last frame_j (j < i), if frame_i has no associated entries
-  // - undefined, if all the frames with index <= i have no associated entries
+  /**
+   * These lookup tables allow to convert a "[start_frame; end_frame[" range
+   * to "[start_entry; end_entry[" in O(1) time.
+   *
+   * frameToStartEntry[i] is:
+   * - start_entry of frame_i
+   * - start_entry of the first frame_j (j > i), if frame_i has no associated entries
+   * - undefined, if all the frames with index >= i have no associated entries
+   */
   private readonly frameToStartEntry: Array<AbsoluteEntryIndex | undefined>;
+  /**
+   * frameToEndEntry[i] is:
+   * - end_entry of frame_i
+   * - end_entry of the last frame_j (j < i), if frame_i has no associated entries
+   * - undefined, if all the frames with index <= i have no associated entries
+   */
   private readonly frameToEndEntry: Array<AbsoluteEntryIndex | undefined>;
 
   constructor(
@@ -71,6 +87,11 @@ export class FrameMap {
     this.frameToEndEntry = frameToEndEntry;
   }
 
+  /**
+   * Gets the range of frames corresponding to a given range of entries.
+   * @param entries The range of entries.
+   * @return The corresponding frame range, or undefined if no frames are associated.
+   */
   getFramesRange(entries: EntriesRange): FramesRange | undefined {
     entries = this.clampEntriesRangeToFitBounds(entries);
 
@@ -96,10 +117,19 @@ export class FrameMap {
     return {start: startFrame, end: endFrame};
   }
 
+  /**
+   * Gets the range of frames covering the entire trace.
+   * @return The frame range for the full trace, or undefined.
+   */
   getFullTraceFramesRange(): FramesRange | undefined {
     return this.getFramesRange({start: 0, end: this.lengthEntries});
   }
 
+  /**
+   * Gets the range of entries corresponding to a given range of frames.
+   * @param frames The range of frames.
+   * @return The corresponding entry range, or undefined if no entries are associated.
+   */
   getEntriesRange(frames: FramesRange): EntriesRange | undefined {
     frames = this.clampFramesRangeToFitBounds(frames);
     if (frames.start >= frames.end) {

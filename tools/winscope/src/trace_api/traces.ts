@@ -19,8 +19,15 @@ import {AbsoluteFrameIndex} from './index_types';
 import {Trace} from './trace';
 import {TraceEntryTypeMap, TraceType} from './trace_type';
 
+/**
+ * A container for a collection of traces.
+ *
+ * This class provides methods for adding, retrieving, and managing multiple
+ * traces of different types. It also allows for operations that span across
+ * all contained traces, such as slicing by time or frames.
+ */
 export class Traces {
-  private traces = new Set<Trace<{}>>();
+  private readonly traces = new Set<Trace<{}>>();
 
   addTrace(trace: Trace<{}>) {
     this.traces.add(trace);

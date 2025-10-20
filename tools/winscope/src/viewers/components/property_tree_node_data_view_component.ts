@@ -16,7 +16,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, ElementRef, Inject, Input} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {DiffType} from 'viewers/common/diff_type';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
@@ -32,52 +32,61 @@ import {
   standalone: true,
   imports: [CommonModule, MatButtonModule],
   template: `
-    <div class="node-property" *ngIf="node">
-      <span class=" mat-body-1 property-key"> {{ getKey(node) }} </span>
-      <div *ngIf="node.formattedValue()" class="property-value" [class]="[timeClass()]">
-        <button
-          *ngIf="isTimestamp()"
-          class="time-button"
-          mat-button
-          color="primary"
-          (click)="onTimestampClicked(node)">
-          {{ node.formattedValue() }}
-        </button>
-
-        <ng-container *ngIf="!isTimestamp() && !node.hasDiffValueParts()">
-          <div *ngIf="node.canPropagate()" class="inline">
-            <button
-              mat-button
-              color="primary"
-              (click)="onPropagateButtonClicked(node)">
-              {{ node.formattedValue() }}
-            </button>
+    @if (node) {
+      <div class="node-property">
+        <span class=" mat-body-1 property-key"> {{ getKey(node) }} </span>
+        @if (node.formattedValue()) {
+          <div class="property-value" [class]="[timeClass()]">
+            @if (isTimestamp()) {
+              <button
+                class="time-button"
+                mat-button
+                color="primary"
+                (click)="onTimestampClicked(node)">
+                {{ node.formattedValue() }}
+              </button>
+            } @else if (!isTimestamp() && !node.hasDiffValueParts()) {
+              @if (node.canPropagate()) {
+                <div class="inline">
+                  <button
+                    mat-button
+                    color="primary"
+                    (click)="onPropagateButtonClicked(node)">
+                    {{ node.formattedValue() }}
+                  </button>
+                </div>
+              } @else {
+                <span
+                  [class]="valueClass()"
+                  class="mat-body-2 value new-value">{{ node.formattedValue() }}</span>
+              }
+              @if (isModified()) {
+                <s class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
+              }
+            } @else if (node.hasDiffValueParts()) {
+              <span
+                class="value diff-value-parts">
+                @for (part of node.getDiffValueParts(); track $index; let i = $index) {
+                  @if (i > 0) {
+                    <span>&ngsp; | &ngsp;</span>
+                  }
+                  @if (part.isNew) {
+                    <span
+                      class="mat-body-2 new-value">{{ part.value }}</span>
+                  } @else if (part.isOld) {
+                    <s
+                      class="mat-body-2 old-value">{{ part.value }}</s>
+                  } @else if (!part.isNew && !part.isOld) {
+                    <span
+                      class="mat-body-1 unchanged-value">{{ part.value }}</span>
+                  }
+                }
+              </span>
+            }
           </div>
-          <span
-            *ngIf="!node.canPropagate()"
-            [class]="valueClass()"
-            class="mat-body-2 value new-value">{{ node.formattedValue() }}</span>
-          <s *ngIf="isModified()" class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
-        </ng-container>
-
-        <span
-          *ngIf="node.hasDiffValueParts()"
-          class="value diff-value-parts">
-          <ng-container *ngFor="let part of node.getDiffValueParts(); index as i">
-            <span *ngIf="i > 0">&ngsp; | &ngsp;</span>
-            <span
-              *ngIf="part.isNew"
-              class="mat-body-2 new-value">{{ part.value }}</span>
-            <s
-              *ngIf="part.isOld"
-              class="mat-body-2 old-value">{{ part.value }}</s>
-            <span
-              *ngIf="!part.isNew && !part.isOld"
-              class="mat-body-1 unchanged-value">{{ part.value }}</span>
-          </ng-container>
-        </span>
+        }
       </div>
-    </div>
+    }
   `,
   styles: [
     `
@@ -107,7 +116,9 @@ export class PropertyTreeNodeDataViewComponent {
   }
 
   onTimestampClicked(timestampNode: UiPropertyTreeNode) {
-    const timestamp: Timestamp = timestampNode.getValue();
+    const timestamp: Timestamp = assertDefined(
+      timestampNode.getValue<Timestamp>(),
+    );
     const customEvent = new CustomEvent(ViewerEvents.TimestampClick, {
       bubbles: true,
       detail: new TimestampClickDetail(undefined, timestamp),

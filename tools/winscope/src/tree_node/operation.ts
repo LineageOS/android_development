@@ -16,6 +16,9 @@
 
 import {TreeNode} from './tree_node';
 
-export interface Operation<T extends TreeNode> {
+/**
+ * An operation to be applied to a tree node.
+ */
+export declare interface Operation<T extends TreeNode> {
   apply(value: T): void;
 }

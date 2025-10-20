@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
+import {perfetto} from 'protos/perfetto/trace/static';
 import root from 'protos/transitions/udc/json';
 import {com} from 'protos/transitions/udc/static';
 import {TraceType} from 'trace_api/trace_type';
+import {
+  nullifyIfDefaultValue,
+  PerfettoTransition,
+} from './perfetto_conversion_helpers';
 
-type TransitionProto = com.android.wm.shell.ITransition;
-type HandlerProto = com.android.wm.shell.IHandlerMapping;
-
+/**
+ * Parser for Shell Transition trace files.
+ */
 export class ParserTransitionsShell extends AbstractParser<
-  TransitionProto,
-  TransitionProto
+  ShellTransition,
+  PerfettoTransition
 > {
   private static readonly WmShellTransitionsTraceProto = root.lookupType(
     'com.android.wm.shell.WmShellTransitionTraceProto',
   );
 
   private realToBootTimeOffsetNs: bigint | undefined;
-  private handlerMapping: undefined | HandlerProto[];
+  private handlerMapping: undefined | HandlerMapping[];
 
   override getTraceType(): TraceType {
     return TraceType.SHELL_TRANSITION;
@@ -47,7 +51,7 @@ export class ParserTransitionsShell extends AbstractParser<
     return undefined;
   }
 
-  override decodeTrace(traceBuffer: Uint8Array): TransitionProto[] {
+  override decodeTrace(traceBuffer: Uint8Array): ShellTransition[] {
     const decodedProto =
       ParserTransitionsShell.WmShellTransitionsTraceProto.decode(
         traceBuffer,
@@ -60,18 +64,35 @@ export class ParserTransitionsShell extends AbstractParser<
     return decodedProto.transitions ?? [];
   }
 
-  getShellHandlerMapping(): HandlerProto[] {
-    return assertDefined(this.handlerMapping);
-  }
-
   override processDecodedEntry(
     index: number,
-    entryProto: TransitionProto,
-  ): TransitionProto {
-    return entryProto;
+    shellTransition: ShellTransition,
+  ): PerfettoTransition {
+    const perfettoTransition: PerfettoTransition = {
+      id: shellTransition.id,
+      dispatchTimeNs: nullifyIfDefaultValue(shellTransition.dispatchTimeNs),
+      mergeTimeNs: nullifyIfDefaultValue(shellTransition.mergeTimeNs),
+      mergeRequestTimeNs: nullifyIfDefaultValue(
+        shellTransition.mergeRequestTimeNs,
+      ),
+      shellAbortTimeNs: nullifyIfDefaultValue(shellTransition.abortTimeNs),
+      handler: nullifyIfDefaultValue(shellTransition.handler),
+      mergeTarget: nullifyIfDefaultValue(shellTransition.mergeTarget),
+    };
+    return perfettoTransition;
   }
 
-  protected override getTimestamp(entry: TransitionProto): Timestamp {
+  createHandlerMappingPacket(sequenceId: number): perfetto.protos.TracePacket {
+    const packet = perfetto.protos.TracePacket.create();
+    packet.trustedPacketSequenceId = sequenceId;
+    packet.shellHandlerMappings =
+      perfetto.protos.ShellHandlerMappings.fromObject({
+        mapping: this.handlerMapping,
+      });
+    return packet;
+  }
+
+  protected override getTimestamp(entry: ShellTransition): Timestamp {
     return entry.dispatchTimeNs
       ? this.timestampConverter.makeTimestampFromBootTimeNs(
           BigInt(entry.dispatchTimeNs.toString()),
@@ -83,3 +104,6 @@ export class ParserTransitionsShell extends AbstractParser<
     return [0x09, 0x57, 0x4d, 0x53, 0x54, 0x52, 0x41, 0x43, 0x45]; // .WMSTRACE
   }
 }
+
+type ShellTransition = com.android.wm.shell.ITransition;
+type HandlerMapping = com.android.wm.shell.IHandlerMapping;

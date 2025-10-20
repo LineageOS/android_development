@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {com} from 'protos/transitions/udc/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {
+  makeZeroTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
@@ -45,15 +45,15 @@ describe('ParserTransitionsWm', () => {
 
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
-    expect(timestamps.length).toEqual(8);
-    const expected = TimestampConverterUtils.makeZeroTimestamp();
+    expect(timestamps.length).toBe(8);
+    const expected = makeZeroTimestamp();
     timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));
   });
 
   it('provides decoded proto', async () => {
     const entry = await parser.getEntry(0);
-    expect(entry.id).toEqual(6);
-    expect(entry.startTransactionId?.toString()).toEqual('13086765351818');
-    expect(entry.sendTimeNs?.toString()).toEqual('57649646973488');
+    expect(entry.id).toBe(6);
+    expect(entry.startTransactionId?.toString()).toBe('13086765351818');
+    expect(entry.sendTimeNs?.toString()).toBe('57649646973488');
   });
 });

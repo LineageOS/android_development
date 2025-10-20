@@ -16,6 +16,9 @@
 
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
+/**
+ * An abstract builder for creating a property tree.
+ */
 export abstract class AbstractPropertyTreeBuilder<T> {
   protected data: T | undefined;
   private rootId: string | number = 'UnknownRootId';

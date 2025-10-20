@@ -48,10 +48,9 @@ import {
 } from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {SEARCH_VIEWS} from 'app/trace_search/trace_search_initializer';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {TimeDuration} from 'common/time/time_duration';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {TimeUtils} from 'common/time/time_utils';
 import {Analytics} from 'logging/analytics';
 import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
@@ -100,7 +99,8 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
   ],
   selector: 'viewer-search',
   template: `
-    <div class="card-grid" *ngIf="inputData">
+    @if (inputData) {
+      <div class="card-grid">
       <collapsed-sections
         [class.empty]="sections.areAllSectionsExpanded()"
         [sections]="sections"
@@ -115,10 +115,12 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
           <collapsible-section-title
             [title]="CollapsibleSectionType.GLOBAL_SEARCH"
             (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.GLOBAL_SEARCH, true)"></collapsible-section-title>
-            <span class="mat-body-2 message-with-spinner text-no-overflow" *ngIf="initializing">
-              <span>Initializing</span>
-              <mat-spinner [diameter]="20"></mat-spinner>
-            </span>
+            @if (initializing) {
+              <span class="mat-body-2 message-with-spinner text-no-overflow">
+                <span>Initializing</span>
+                <mat-spinner [diameter]="20"></mat-spinner>
+              </span>
+            }
         </div>
 
         <mat-tab-group
@@ -132,8 +134,10 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
                 {{globalSearchText}}
               </span>
 
-              <ng-container *ngFor="let section of searchSections; index as i">
-                <mat-divider *ngIf="i > 0" class="section-divider"></mat-divider>
+              @for (section of searchSections; track section.uid; let i = $index) {
+                @if (i > 0) {
+                  <mat-divider class="section-divider"></mat-divider>
+                }
                 <active-search
                   [canClear]="searchSections.length > 1"
                   [isSearchInitialized]="inputData.initialized"
@@ -148,7 +152,7 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
                   (clearQueryClick)="clearQuery(section.uid)"
                   (searchQueryClick)="searchQuery($event, section.uid)"
                   (addQueryClick)="addQuery()"></active-search>
-              </ng-container>
+              }
             </div>
           </mat-tab>
 
@@ -173,7 +177,9 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
             <div class="outline-field save-field">
               <mat-form-field subscriptSizing="dynamic" appearance="outline">
                 <input matInput [formControl]="control" (keydown.enter)="onSaveQueryClick(query, control)"/>
-                <mat-error *ngIf="control.invalid && control.value">Query with that name already exists.</mat-error>
+                @if (control.invalid && control.value) {
+                  <mat-error>Query with that name already exists.</mat-error>
+                }
               </mat-form-field>
               <button
                 mat-flat-button
@@ -194,34 +200,36 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
             [title]="CollapsibleSectionType.SEARCH_RESULTS"
             (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.SEARCH_RESULTS, true)"></collapsible-section-title>
         </div>
-        <div
-          *ngIf="showResultsPlaceholder()"
-          class="results-placeholder placeholder-text mat-body-1"> Run a search to view tabulated results. </div>
+        @if (showResultsPlaceholder()) {
+          <div
+            class="results-placeholder placeholder-text mat-body-1"> Run a search to view tabulated results. </div>
+        }
         <mat-tab-group
           [mat-stretch-tabs]="false"
           (selectedTabChange)="onResultTabChange($event)"
           class="result-tabs">
-          <mat-tab
-            *ngFor="let curr of getCurrentSearchesWithResults(); index as i; trackBy: trackResultTabByUid"
-            [label]="getQueryLabel(curr.uid)">
-            <div class="result">
-              <div class="results-table">
-                <log-view
-                  class="results-log-view"
-                  [entries]="curr.result.entries"
-                  [headers]="curr.result.headers"
-                  [selectedIndex]="curr.result.selectedIndex"
-                  [scrollToIndex]="curr.result.scrollToIndex"
-                  [currentIndex]="curr.result.currentIndex"
-                  [traceType]="${TraceType.SEARCH}"
-                  [showTraceEntryTimes]="false"
-                  [showCurrentTimeButton]="false"
-                  [padEntries]="false"
-                  [isFetchingData]="curr.result.isFetchingData"
-                  [checkScrollViewport]="curr.result.checkScrollViewport || checkScrollViewport === i"></log-view>
+          @for (curr of getCurrentSearchesWithResults(); track curr.uid) {
+            <mat-tab
+              [label]="getQueryLabel(curr.uid)">
+              <div class="result">
+                <div class="results-table">
+                  <log-view
+                    class="results-log-view"
+                    [entries]="curr.result.entries"
+                    [headers]="curr.result.headers"
+                    [selectedIndex]="curr.result.selectedIndex"
+                    [scrollToIndex]="curr.result.scrollToIndex"
+                    [currentIndex]="curr.result.currentIndex"
+                    [traceType]="${TraceType.SEARCH}"
+                    [showTraceEntryTimes]="false"
+                    [showCurrentTimeButton]="false"
+                    [padEntries]="false"
+                    [isFetchingData]="curr.result.isFetchingData"
+                    [checkScrollViewport]="curr.result.checkScrollViewport || checkScrollViewport === $index"></log-view>
+                </div>
               </div>
-            </div>
-          </mat-tab>
+            </mat-tab>
+          }
         </mat-tab-group>
       </div>
 
@@ -240,51 +248,58 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
           </span>
 
           <cdk-accordion class="how-to-accordion" [multi]="true">
-            <cdk-accordion-item *ngFor="let searchView of SEARCH_VIEWS" class="accordion-item" #accordionItem="cdkAccordionItem">
-              <span
-                class="mat-body-1 accordion-item-header"
-                (click)="onHeaderClick(accordionItem)">
-                <span class="view-title">
-                  <mat-icon>
-                    {{ accordionItem.expanded ? 'arrow_drop_down' : 'chevron_right' }}
-                  </mat-icon>
-                  <code>{{searchView.name}}</code>
-                  </span>
-                <a
-                  [href]="searchView.docsUrl"
-                  target="_blank"
-                  (click)="$event.stopPropagation()">
-                  <mat-icon
-                    class="open-docs-icon"
-                    [matTooltipShowDelay]="500"
-                    matTooltipPosition="left"
-                    matTooltip="Open full documentation">open_in_new</mat-icon>
-                </a>
-              </span>
-              <div *ngIf="accordionItem.expanded" class="accordion-item-body">
-                <span class="mat-body-1">
-                  Use to search {{searchView.dataType}} data.
+            @for (searchView of SEARCH_VIEWS; track searchView.name) {
+              <cdk-accordion-item class="accordion-item" #accordionItem="cdkAccordionItem">
+                <span
+                  class="mat-body-1 accordion-item-header"
+                  (click)="onHeaderClick(accordionItem)">
+                  <span class="view-title">
+                    <mat-icon>
+                      {{ accordionItem.expanded ? 'arrow_drop_down' : 'chevron_right' }}
+                    </mat-icon>
+                    <code>{{searchView.name}}</code>
+                    </span>
+                  <a
+                    [href]="searchView.docsUrl"
+                    target="_blank"
+                    (click)="$event.stopPropagation()">
+                    <mat-icon
+                      class="open-docs-icon"
+                      [matTooltipShowDelay]="500"
+                      matTooltipPosition="left"
+                      matTooltip="Open full documentation">open_in_new</mat-icon>
+                  </a>
                 </span>
-                <span class="mat-body-2">Spec:</span>
-                <table>
-                  <tr *ngFor="let column of searchView.columns">
-                    <td><code>{{column.name}}</code></td>
-                    <td class="mat-body-1">{{column.desc}}</td>
-                  </tr>
-                </table>
-                <span class="mat-body-2">
-                  Examples:
-                </span>
-                <ng-container *ngFor="let example of searchView.examples">
-                  <pre><code>{{example.query}}</code></pre>
-                  <span class="mat-body-1 indented"><i>{{example.desc}}</i></span>
-                </ng-container>
-              </div>
-            </cdk-accordion-item>
+                @if (accordionItem.expanded) {
+                  <div class="accordion-item-body">
+                    <span class="mat-body-1">
+                      Use to search {{searchView.dataType}} data.
+                    </span>
+                    <span class="mat-body-2">Spec:</span>
+                    <table>
+                      @for (column of searchView.columns; track column.name) {
+                        <tr>
+                          <td><code>{{column.name}}</code></td>
+                          <td class="mat-body-1">{{column.desc}}</td>
+                        </tr>
+                      }
+                    </table>
+                    <span class="mat-body-2">
+                      Examples:
+                    </span>
+                    @for (example of searchView.examples; track example.query) {
+                      <pre><code>{{example.query}}</code></pre>
+                      <span class="mat-body-1 indented"><i>{{example.desc}}</i></span>
+                    }
+                  </div>
+                }
+              </cdk-accordion-item>
+            }
           </cdk-accordion>
         </div>
       </div>
     </div>
+      }
   `,
   styles: [
     `
@@ -631,11 +646,8 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
 
   onResultTabChange(event: MatTabChangeEvent) {
     this.checkScrollViewport = event.index;
-    TimeUtils.sleepMs(50).then(() => (this.checkScrollViewport = -1));
-  }
-
-  trackResultTabByUid(i: number, j: CurrentSearch) {
-    return j.uid;
+    this.changeDetectorRef.detectChanges();
+    this.checkScrollViewport = -1;
   }
 
   private updateSearchSections(simpleChanges: SimpleChanges) {

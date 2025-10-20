@@ -35,7 +35,7 @@ describe('Viewer ScreenRecording', () => {
       'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
     );
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
 
     const viewer = element(by.css(viewerSelector));
     expect(await viewer.isPresent()).toBeTruthy();
@@ -52,7 +52,7 @@ describe('Viewer ScreenRecording', () => {
       'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
     );
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
 
     const viewer = element(by.css(viewerSelector));
     expect(await viewer.isPresent()).toBeTruthy();

@@ -46,13 +46,15 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert_utils';
-import {isInputTextField, KeyboardEventKey} from 'common/dom_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {assertDefined} from 'common/assert';
+import {
+  isInputTextField,
+  KeyboardEventKey,
+  KeyboardEventKeyCode,
+} from 'common/dom';
 import {PersistentStore} from 'common/store/persistent_store';
-import {parseBigIntStrippingUnit} from 'common/string_utils';
-import {TimeRange, Timestamp, TimestampFormatType} from 'common/time/time';
-import {TimestampUtils} from 'common/time/timestamp_utils';
+import {parseBigIntStrippingUnit} from 'common/string_helpers';
+import {TimeRange, Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {
   ActiveTraceChanged,
@@ -60,6 +62,10 @@ import {
   TracePositionUpdate,
   WinscopeEvent,
   WinscopeEventType,
+  TabbedViewSwitched,
+  PlaybackStateChangeRequest,
+  PlaybackSpeedChange,
+  BookmarksChanged,
 } from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -69,12 +75,24 @@ import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
-import {TraceType, TraceTypeUtils} from 'trace_api/trace_type';
+import {
+  TraceType,
+  compareByDisplayOrder,
+  isTraceTypeWithViewer,
+  supportsPlayback,
+} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {multlineTooltip} from 'viewers/components/styles/tooltip.styles';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
 import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
+import {UserTimestamp} from 'common/time/user_timestamp';
+import {PlaybackControlsComponent} from './playback_component';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {globalConfig} from 'common/global_config';
 
+/**
+ * A component for displaying the timeline view.
+ */
 @Component({
   selector: 'timeline',
   encapsulation: ViewEncapsulation.None,
@@ -92,47 +110,60 @@ import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
     ClipboardModule,
     MatSelectModule,
     MatRippleModule,
+    PlaybackControlsComponent,
   ],
   template: `
-    <div
-      *ngIf="isDisabled"
-      class="disabled-message user-notification mat-body-1"> Timeline disabled due to ongoing search query </div>
+    @if (isDisabled) {
+      <div
+        class="disabled-message user-notification mat-body-1"> {{ disabledMessage }} </div>
+    }
     <div [class.disabled-component]="isDisabled">
-      <div id="toggle" *ngIf="timelineData.hasMoreThanOneDistinctTimestamp()">
-        <button
-          mat-icon-button
-          [class]="TOGGLE_BUTTON_CLASS"
-          color="basic"
-          aria-label="Toggle Expanded Timeline"
-          (click)="toggleExpand()">
-            <mat-icon *ngIf="!expanded" class="material-symbols-outlined">expand_circle_up</mat-icon>
-            <mat-icon *ngIf="expanded" class="material-symbols-outlined">expand_circle_down</mat-icon>
-          </button>
-      </div>
-      <div id="expanded-nav" *ngIf="expanded">
-        <div id="video-content" *ngIf="videoUrl !== undefined">
-          <video
-            *ngIf="getVideoCurrentTime() !== undefined"
-            id="video"
-            [currentTime]="getVideoCurrentTime()"
-            [src]="videoUrl"></video>
-          <div *ngIf="getVideoCurrentTime() === undefined" class="no-video-message">
-            <p>No screenrecording frame to show</p>
-            <p>Current timestamp before first screenrecording frame.</p>
-          </div>
+      @if (timelineData.hasMoreThanOneDistinctTimestamp()) {
+        <div id="toggle">
+          <button
+            mat-icon-button
+            [class]="TOGGLE_BUTTON_CLASS"
+            color="basic"
+            aria-label="Toggle Expanded Timeline"
+            (click)="toggleExpand()">
+              @if (!expanded) {
+                <mat-icon class="material-symbols-outlined">expand_circle_up</mat-icon>
+              } @else {
+                <mat-icon class="material-symbols-outlined">expand_circle_down</mat-icon>
+              }
+            </button>
         </div>
-        <expanded-timeline
-          [timelineData]="timelineData"
-          (onTracePositionUpdate)="updatePosition($event)"
-          (onScrollEvent)="updateScrollEvent($event)"
-          (onTraceClicked)="onExpandedTimelineTraceClicked($event)"
-          (onMouseXRatioUpdate)="updateExpandedTimelineMouseXRatio($event)"
-          id="expanded-timeline"></expanded-timeline>
-      </div>
+      }
+      @if (expanded) {
+        <div id="expanded-nav">
+          @if (videoUrl !== undefined) {
+            <div id="video-content">
+              @if (getVideoCurrentTime() !== undefined) {
+                <video
+                  id="video"
+                  [currentTime]="getVideoCurrentTime()"
+                  [src]="videoUrl"></video>
+              } @else {
+                <div class="no-video-message">
+                  <p>No screenrecording frame to show</p>
+                  <p>Current timestamp before first screenrecording frame.</p>
+                </div>
+              }
+            </div>
+          }
+          <expanded-timeline
+            [timelineData]="timelineData"
+            (onTracePositionUpdate)="updatePosition($event)"
+            (onScrollEvent)="updateScrollEvent($event)"
+            (onTraceClicked)="onExpandedTimelineTraceClicked($event)"
+            (onMouseXRatioUpdate)="updateExpandedTimelineMouseXRatio($event)"
+            id="expanded-timeline"></expanded-timeline>
+        </div>
+      }
       <div class="navbar-toggle">
         <div class="navbar" #collapsedTimeline>
-          <ng-template [ngIf]="timelineData.hasTimestamps()">
-            <div id="time-selector">
+          @if (timelineData.hasTimestamps()) {
+            <div id="time-selector" class="small-icon-container">
               <form [formGroup]="timestampForm" class="time-selector-form">
                 <mat-form-field
                   class="time-input human"
@@ -200,17 +231,24 @@ import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
                   id="prev_entry_button"
                   matTooltip="Go to previous entry"
                   (click)="moveToPreviousEntry()"
-                  [class.disabled]="!hasPrevEntry()"
-                  [disabled]="!hasPrevEntry()">
+                  [class.disabled]="isPrevButtonDisabled()"
+                  [disabled]="isPrevButtonDisabled()">
                   <mat-icon>chevron_left</mat-icon>
                 </button>
+                @if (traceSupportsPlayback()) {
+                  <playback-controls
+                    [currentState]="playbackState"
+                    (playbackStateChange)="onPlaybackStateChange($event)"
+                    (speedChange)="onPlaybackSpeedChange($event)">
+                  </playback-controls>
+                }
                 <button
                   mat-icon-button
                   id="next_entry_button"
                   matTooltip="Go to next entry"
                   (click)="moveToNextEntry()"
-                  [class.disabled]="!hasNextEntry()"
-                  [disabled]="!hasNextEntry()">
+                  [class.disabled]="isNextButtonDisabled()"
+                  [disabled]="isNextButtonDisabled()">
                   <mat-icon>chevron_right</mat-icon>
                 </button>
               </div>
@@ -220,85 +258,91 @@ import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
                 <mat-select #traceSelector [formControl]="selectedTracesFormControl" panelWidth="340px" multiple>
                   <div class="select-traces-panel">
                     <div class="tip">Filter traces in the timeline</div>
-                    <mat-option
-                      *ngFor="let trace of sortedTraces"
-                      [value]="trace"
-                      [matTooltip]="trace.getDescriptors().join(', ')"
-                      matTooltipPosition="right"
-                      [style]="{
-                        opacity: isOptionDisabled(trace) ? 0.5 : 1.0
-                      }"
-                      [disabled]="isOptionDisabled(trace)"
-                      (click)="applyNewTraceSelection(trace)">
-                      <mat-icon
+                    @for (trace of sortedTraces; track trace) {
+                      <mat-option
+                        [value]="trace"
+                        [matTooltip]="trace.getDescriptors().join(', ')"
+                        matTooltipPosition="right"
                         [style]="{
-                          color: TRACE_INFO[trace.type].color
+                          opacity: isOptionDisabled(trace) ? 0.5 : 1.0
                         }"
-                      >{{ TRACE_INFO[trace.type].icon }}</mat-icon>
-                      {{ getTitle(trace) }}
-                    </mat-option>
+                        [disabled]="isOptionDisabled(trace)"
+                        (click)="applyNewTraceSelection(trace)">
+                        <mat-icon
+                          [style]="{
+                            color: TRACE_INFO[trace.type].color
+                          }"
+                        >{{ TRACE_INFO[trace.type].icon }}</mat-icon>
+                        {{ getTitle(trace) }}
+                      </mat-option>
+                    }
                     <div class="actions">
                       <button mat-flat-button color="primary" (click)="traceSelector.close()">
                         Done
                       </button>
                     </div>
                   </div>
-                  <mat-select-trigger matRipple class="shown-selection">
+                  <mat-select-trigger matRipple class="shown-selection small-icon-container">
                     <div class="filter-header">
                       <span class="mat-body-2"> Filter </span>
                       <mat-icon class="material-symbols-outlined">expand_circle_up</mat-icon>
                     </div>
 
                     <div class="trace-icons">
-                      <mat-icon
-                        class="trace-icon"
-                        *ngFor="let selectedTrace of getSelectedTracesToShow()"
-                        [style]="{color: TRACE_INFO[selectedTrace.type].color}"
-                        [matTooltip]="getTraceTooltip(selectedTrace)"
-                        #tooltip="matTooltip"
-                        (mouseenter)="tooltip.disabled = false"
-                        (mouseleave)="tooltip.disabled = true">
-                        {{ TRACE_INFO[selectedTrace.type].icon }}
-                      </mat-icon>
-                      <mat-icon
-                        class="trace-icon"
-                        *ngIf="selectedTraces.length > 8">
-                        more_horiz
-                      </mat-icon>
+                      @for (selectedTrace of getSelectedTracesToShow(); track selectedTrace) {
+                        <mat-icon
+                          class="trace-icon"
+                          [style]="{color: TRACE_INFO[selectedTrace.type].color}"
+                          [matTooltip]="getTraceTooltip(selectedTrace)"
+                          #tooltip="matTooltip"
+                          (mouseenter)="tooltip.disabled = false"
+                          (mouseleave)="tooltip.disabled = true">
+                          {{ TRACE_INFO[selectedTrace.type].icon }}
+                        </mat-icon>
+                      }
+                      @if (selectedTraces.length > 8) {
+                        <mat-icon
+                          class="trace-icon">
+                          more_horiz
+                        </mat-icon>
+                      }
                     </div>
                   </mat-select-trigger>
                 </mat-select>
               </mat-form-field>
             </div>
-            <mini-timeline
-              *ngIf="timelineData.hasMoreThanOneDistinctTimestamp()"
-              [timelineData]="timelineData"
-              [currentTracePosition]="getCurrentTracePosition()"
-              [selectedTraces]="selectedTraces"
-              [initialZoom]="initialZoom"
-              [expandedTimelineScrollEvent]="expandedTimelineScrollEvent"
-              [expandedTimelineMouseXRatio]="expandedTimelineMouseXRatio"
-              [bookmarks]="bookmarks"
-              [store]="store"
-              (onTracePositionUpdate)="updatePosition($event)"
-              (onSeekTimestampUpdate)="updateSeekTimestamp($event)"
-              (onRemoveAllBookmarks)="removeAllBookmarks()"
-              (onToggleBookmark)="toggleBookmarkRange($event.range, $event.rangeContainsBookmark)"
-              (onTraceClicked)="onMiniTimelineTraceClicked($event)"
-              id="mini-timeline"
-              #miniTimeline></mini-timeline>
-          </ng-template>
-          <div
-            *ngIf="!timelineData.hasMoreThanOneDistinctTimestamp()"
-            class="no-timeline-msg">
-              <p class="mat-body-2">No timeline to show!</p>
-              <p
-                *ngIf="timelineData.hasTimestamps()"
-                class="mat-body-1">Only a single timestamp has been recorded.</p>
-              <p
-                *ngIf="!timelineData.hasTimestamps()"
-                class="mat-body-1">All loaded traces contain no timestamps.</p>
-          </div>
+            @if (timelineData.hasMoreThanOneDistinctTimestamp()) {
+              <mini-timeline
+                [timelineData]="timelineData"
+                [currentTracePosition]="getCurrentTracePosition()"
+                [selectedTraces]="selectedTraces"
+                [initialZoom]="initialZoom"
+                [expandedTimelineScrollEvent]="expandedTimelineScrollEvent"
+                [expandedTimelineMouseXRatio]="expandedTimelineMouseXRatio"
+                [bookmarks]="bookmarks"
+                [store]="store"
+                (onTracePositionUpdate)="updatePosition($event)"
+                (onSeekTimestampUpdate)="updateSeekTimestamp($event)"
+                (onRemoveAllBookmarks)="removeAllBookmarks()"
+                (onToggleBookmark)="toggleBookmarkRange($event.range, $event.rangeContainsBookmark)"
+                (onTraceClicked)="onMiniTimelineTraceClicked($event)"
+                id="mini-timeline"
+                #miniTimeline></mini-timeline>
+            }
+          }
+          @if (!timelineData.hasMoreThanOneDistinctTimestamp()) {
+            <div
+              class="no-timeline-msg">
+                <p class="mat-body-2">No timeline to show!</p>
+                @if (timelineData.hasTimestamps()) {
+                  <p
+                    class="mat-body-1">Only a single timestamp has been recorded.</p>
+                } @else {
+                  <p
+                    class="mat-body-1">All loaded traces contain no timestamps.</p>
+                }
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -397,26 +441,8 @@ import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
         width: 90%;
         background-color: var(--drawer-block-secondary);
       }
-      #time-selector .mat-mdc-icon-button {
-        width: 24px;
-        height: 24px;
-        padding-left: 3px;
-        padding-right: 3px;
-        display: flex;
-        align-items: center;
-      }
-      #time-selector .mat-icon {
-        display: flex;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        line-height: 18px;
-      }
       .shown-selection .trace-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        padding-left: 4px;fweb
+        padding-left: 4px;
         padding-right: 4px;
         padding-top: 2px;
       }
@@ -533,10 +559,12 @@ export class TimelineComponent
 {
   readonly TOGGLE_BUTTON_CLASS: string = 'button-toggle-expansion';
   readonly MAX_SELECTED_TRACES = 3;
+  readonly PlaybackState = PlaybackState;
 
   @Input() timelineData: TimelineData | undefined;
   @Input() allTraces: Traces | undefined;
   @Input() store: PersistentStore | undefined;
+  @Input() initialTabTraceType: TraceType | undefined;
 
   @Output() readonly collapsedTimelineSizeChanged = new EventEmitter<number>();
 
@@ -566,12 +594,16 @@ export class TimelineComponent
   storeKeyDeselectedTraces = 'miniTimeline.deselectedTraces';
   bookmarks: Timestamp[] = [];
   isDisabled = false;
+  playbackState: PlaybackState = PlaybackState.PAUSED;
+  disabledMessage: string = 'Timeline disabled due to ongoing search query';
 
   private expanded = false;
-  private emitEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitEvent: EmitEvent = () => Promise.resolve();
   private expandedTimelineScrollEvent: WheelEvent | undefined;
   private expandedTimelineMouseXRatio: number | undefined;
   private seekTracePosition?: TracePosition;
+  private isProcessingKeyPress = false;
+  private currentTabTraceType: TraceType | undefined;
 
   constructor(
     @Inject(DomSanitizer) private sanitizer: DomSanitizer,
@@ -580,6 +612,7 @@ export class TimelineComponent
 
   ngOnInit() {
     const timelineData = assertDefined(this.timelineData);
+    this.currentTabTraceType = this.initialTabTraceType;
     if (timelineData.hasTimestamps()) {
       this.updateTimeInputValuesToCurrentTimestamp();
     }
@@ -603,8 +636,7 @@ export class TimelineComponent
     this.sortedTraces =
       this.allTraces
         ?.mapTrace((trace) => trace)
-        .sort((a, b) => TraceTypeUtils.compareByDisplayOrder(a.type, b.type)) ??
-      [];
+        .sort((a, b) => compareByDisplayOrder(a.type, b.type)) ?? [];
 
     const storedDeselectedTraces = this.getStoredDeselectedTraceTypes();
     this.selectedTraces = this.sortedTraces.filter((trace) => {
@@ -622,7 +654,7 @@ export class TimelineComponent
     const initialTraceToCropZoom = this.selectedTraces.find((trace) => {
       return (
         trace.type !== TraceType.SCREEN_RECORDING &&
-        TraceTypeUtils.isTraceTypeWithViewer(trace.type) &&
+        isTraceTypeWithViewer(trace.type) &&
         trace.lengthEntries > 0
       );
     });
@@ -691,9 +723,7 @@ export class TimelineComponent
     });
     await event.visit(WinscopeEventType.TRACE_ADD_REQUEST, async (event) => {
       this.sortedTraces.unshift(event.trace);
-      this.sortedTraces.sort((a, b) =>
-        TraceTypeUtils.compareByDisplayOrder(a.type, b.type),
-      );
+      this.sortedTraces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
       const newSelection = [event.trace].concat(
         this.selectedTracesFormControl.value ?? [],
       );
@@ -725,6 +755,22 @@ export class TimelineComponent
     );
     await event.visit(WinscopeEventType.TRACE_SEARCH_COMPLETED, async () =>
       this.setIsDisabled(false),
+    );
+    await event.visit(
+      WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
+      async (event) => {
+        this.setPlaybackState(event.stateToReflect);
+        this.setIsDisabled(false);
+        this.disabledMessage = 'Timeline disabled due to ongoing search query';
+      },
+    );
+    await event.visit(
+      WinscopeEventType.TABBED_VIEW_SWITCHED,
+      async (event: TabbedViewSwitched) => {
+        await this.onPlaybackStateChange(PlaybackState.PAUSED);
+        this.currentTabTraceType = event.newFocusedView.traces[0]?.type;
+        this.changeDetectorRef.detectChanges();
+      },
     );
   }
 
@@ -758,6 +804,14 @@ export class TimelineComponent
     return (
       !timelineData.hasTrace(trace) || timelineData.getActiveTrace() === trace
     );
+  }
+
+  isPrevButtonDisabled() {
+    return !this.hasPrevEntry() || this.playbackState !== PlaybackState.PAUSED;
+  }
+
+  isNextButtonDisabled() {
+    return !this.hasNextEntry() || this.playbackState !== PlaybackState.PAUSED;
   }
 
   applyNewTraceSelection(clickedTrace: Trace<object>) {
@@ -798,17 +852,63 @@ export class TimelineComponent
     if (
       this.isDisabled ||
       this.isInputFormFocused ||
-      !assertDefined(this.timelineData).hasMoreThanOneDistinctTimestamp()
+      !assertDefined(this.timelineData).hasMoreThanOneDistinctTimestamp() ||
+      this.isProcessingKeyPress
     ) {
       return;
     }
     if (event.key === KeyboardEventKey.ARROW_LEFT) {
       event.preventDefault();
-      await this.moveToPreviousEntry();
+      this.isProcessingKeyPress = true;
+      if (this.playbackState === PlaybackState.PAUSED) {
+        await this.moveToPreviousEntry();
+      }
+      this.isProcessingKeyPress = false;
     } else if (event.key === KeyboardEventKey.ARROW_RIGHT) {
       event.preventDefault();
-      await this.moveToNextEntry();
+      this.isProcessingKeyPress = true;
+      if (this.playbackState === PlaybackState.PAUSED) {
+        await this.moveToNextEntry();
+      }
+      this.isProcessingKeyPress = false;
     }
+
+    if (!this.traceSupportsPlayback()) {
+      return;
+    }
+
+    if (event.key === KeyboardEventKey.MEDIA_TRACK_PREVIOUS) {
+      event.preventDefault();
+      if (this.playbackState === PlaybackState.FORWARDS) {
+        await this.onPlaybackStateChange(PlaybackState.BACKWARDS);
+      }
+      this.isProcessingKeyPress = false;
+    } else if (event.key === KeyboardEventKey.MEDIA_TRACK_NEXT) {
+      event.preventDefault();
+      this.isProcessingKeyPress = true;
+      if (this.playbackState === PlaybackState.BACKWARDS) {
+        await this.onPlaybackStateChange(PlaybackState.FORWARDS);
+      }
+      this.isProcessingKeyPress = false;
+    } else if (event.keyCode === KeyboardEventKeyCode.SPACE) {
+      event.preventDefault();
+      this.isProcessingKeyPress = true;
+      if (this.playbackState === PlaybackState.PAUSED) {
+        await this.onPlaybackStateChange(PlaybackState.FORWARDS);
+      } else {
+        await this.onPlaybackStateChange(PlaybackState.PAUSED);
+      }
+      this.isProcessingKeyPress = false;
+    }
+  }
+
+  onPlaybackSpeedChange(selectedScale: number) {
+    this.emitEvent(
+      new PlaybackSpeedChange(
+        assertDefined(this.currentTabTraceType),
+        selectedScale,
+      ),
+    );
   }
 
   hasPrevEntry(): boolean {
@@ -855,20 +955,52 @@ export class TimelineComponent
     await this.emitEvent(new TracePositionUpdate(position));
   }
 
+  async onPlaybackStateChange(state: PlaybackState) {
+    if (this.currentTabTraceType === undefined) {
+      return;
+    }
+    switch (state) {
+      case PlaybackState.FORWARDS:
+      case PlaybackState.BACKWARDS:
+        this.disabledMessage = 'UI disabled due to playback initialization';
+        this.setIsDisabled(true);
+        this.emitEvent(
+          new PlaybackStateChangeRequest(
+            assertDefined(this.currentTabTraceType),
+            state,
+            this.getPlaybackStartingPosition(),
+          ),
+        );
+        return;
+
+      case PlaybackState.PAUSED:
+        this.emitEvent(
+          new PlaybackStateChangeRequest(
+            assertDefined(this.currentTabTraceType),
+            state,
+          ),
+        );
+        return;
+
+      default:
+        return;
+    }
+  }
+
   async onHumanTimeInputChange(event: Event) {
     if (event.type !== 'change' || !this.selectedTimeFormControl.valid) {
       return;
     }
     const target = event.target as HTMLInputElement;
-    let input = target.value;
+    let input = new UserTimestamp(target.value);
     // if hh:mm:ss.zz format, append date of current timestamp
-    if (TimestampUtils.isRealTimeOnlyFormat(input)) {
+    if (input.isRealTimeOnlyFormat()) {
       const date = assertDefined(
-        TimestampUtils.extractDateFromHumanTimestamp(
+        new UserTimestamp(
           this.getCurrentTracePosition().timestamp.format(),
-        ),
+        ).extractDate(),
       );
-      input = date + 'T' + input;
+      input = new UserTimestamp(date + 'T' + input.timestampHuman);
     }
     const timelineData = assertDefined(this.timelineData);
     const timestamp = assertDefined(
@@ -974,7 +1106,7 @@ export class TimelineComponent
         range.containsTimestamp(bookmark),
       );
     }
-    const clickedNs = (range.from.getValueNs() + range.to.getValueNs()) / 2n;
+    const clickedNs = (range.startNs + range.endNs) / 2n;
     if (rangeContainsBookmark) {
       const closestBookmark = this.bookmarks.reduce((prev, curr) => {
         if (clickedNs - curr.getValueNs() < 0) return prev;
@@ -993,11 +1125,13 @@ export class TimelineComponent
         ).makeTimestampFromNs(clickedNs),
       ]);
     }
+    this.emitEvent(new BookmarksChanged(this.bookmarks));
     Analytics.Navigation.logTimeBookmark();
   }
 
   removeAllBookmarks() {
     this.bookmarks = [];
+    this.emitEvent(new BookmarksChanged(this.bookmarks));
   }
 
   async onMiniTimelineTraceClicked(eventData: [Trace<object>, Timestamp]) {
@@ -1028,6 +1162,16 @@ export class TimelineComponent
     return tooltip;
   }
 
+  private traceSupportsPlayback() {
+    if (this.currentTabTraceType === undefined) {
+      return false;
+    }
+    if (globalConfig.MODE === 'PROD') return false;
+    else {
+      return supportsPlayback(this.currentTabTraceType);
+    }
+  }
+
   private updateSelectedTraces(trace: Trace<object> | undefined) {
     if (!trace) {
       return;
@@ -1039,17 +1183,45 @@ export class TimelineComponent
       this.selectedTracesFormControl.setValue(this.selectedTraces);
     }
   }
+  private getPlaybackStartingPosition() {
+    const timelineData = assertDefined(this.timelineData);
+
+    if (this.currentTabTraceType === undefined) {
+      return;
+    }
+
+    const playableTrace =
+      timelineData.getTraces().getTrace(TraceType.SCREEN_RECORDING) ??
+      timelineData.getTraces().getTrace(this.currentTabTraceType);
+
+    if (playableTrace === undefined) {
+      return;
+    }
+
+    const startingPosition = timelineData
+      .findCurrentEntryFor(playableTrace as Trace<object>)
+      ?.getIndex();
+
+    if (startingPosition === undefined) {
+      return;
+    }
+    return startingPosition;
+  }
 
   private updateTimeInputValuesToCurrentTimestamp() {
     const currentTimestampNs =
       this.getCurrentTracePosition().timestamp.getValueNs();
     const timelineData = assertDefined(this.timelineData);
 
-    const formattedCurrentTimestamp = assertDefined(
-      timelineData.getTimestampConverter(),
-    )
-      .makeTimestampFromNs(currentTimestampNs)
-      .format(TimestampFormatType.DROP_DATE);
+    const converter = assertDefined(timelineData.getTimestampConverter());
+
+    const timestamp = converter.makeTimestampFromNs(currentTimestampNs);
+    let formattedCurrentTimestamp = timestamp.format();
+    const parser = new UserTimestamp(formattedCurrentTimestamp);
+    if (converter.canMakeRealTimestamps()) {
+      formattedCurrentTimestamp = assertDefined(parser.extractTime());
+    }
+
     this.selectedTimeFormControl.setValue(formattedCurrentTimestamp);
     this.selectedNsFormControl.setValue(`${currentTimestampNs} ns`);
   }
@@ -1057,7 +1229,7 @@ export class TimelineComponent
   private getSelectedTracesSortedByDisplayOrder(): Array<Trace<object>> {
     return this.selectedTraces
       .slice()
-      .sort((a, b) => TraceTypeUtils.compareByDisplayOrder(a.type, b.type));
+      .sort((a, b) => compareByDisplayOrder(a.type, b.type));
   }
 
   private getStoredDeselectedTraceTypes(): TraceType[] {
@@ -1097,12 +1269,16 @@ export class TimelineComponent
   }
 
   private validateNsFormat(control: FormControl): ValidationErrors | null {
-    const valid = TimestampUtils.isNsFormat(control.value ?? '');
+    const valid = new UserTimestamp(control.value ?? '').isNsFormat();
     return !valid ? {invalidInput: control.value} : null;
   }
 
   private setIsDisabled(value: boolean) {
     this.isDisabled = value;
     this.changeDetectorRef.detectChanges();
+  }
+
+  private setPlaybackState(stateToReflect: PlaybackState) {
+    this.playbackState = stateToReflect;
   }
 }

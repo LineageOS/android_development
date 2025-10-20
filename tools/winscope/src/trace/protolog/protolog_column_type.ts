@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Represents the different types of columns available in a ProtoLog table.
+ * Each enum value corresponds to a specific field within a ProtoLog entry
+ * that can be displayed as a column.
+ */
 export enum ProtologColumnType {
   TS,
   TAG,

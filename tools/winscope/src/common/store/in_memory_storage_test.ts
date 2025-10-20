@@ -21,7 +21,7 @@ describe('InMemoryStorage', () => {
     const mockStorage = new InMemoryStorage();
     expect(mockStorage.get('key')).toBeUndefined();
     mockStorage.add('key', 'value');
-    expect(mockStorage.get('key')).toEqual('value');
+    expect(mockStorage.get('key')).toBe('value');
   });
 
   it('can clear values', () => {

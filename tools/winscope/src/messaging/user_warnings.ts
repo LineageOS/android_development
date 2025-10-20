@@ -21,6 +21,9 @@ import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {UserWarning} from './user_warning';
 
+/**
+ * A warning for a corrupted archive.
+ */
 export class CorruptedArchive extends UserWarning {
   constructor(private readonly file: File) {
     super();
@@ -35,6 +38,9 @@ export class CorruptedArchive extends UserWarning {
   }
 }
 
+/**
+ * A warning for when no valid files are found.
+ */
 export class NoValidFiles extends UserWarning {
   constructor(private traces?: string[]) {
     super();
@@ -51,6 +57,9 @@ export class NoValidFiles extends UserWarning {
   }
 }
 
+/**
+ * A warning for a missing persistent trace.
+ */
 export class MissingPersistentTrace extends UserWarning {
   constructor(private bugreportData: BugreportData) {
     super();
@@ -76,6 +85,9 @@ export class MissingPersistentTrace extends UserWarning {
   }
 }
 
+/**
+ * A warning for a trace with old data.
+ */
 export class TraceHasOldData extends UserWarning {
   constructor(
     private readonly descriptor: string,
@@ -90,9 +102,7 @@ export class TraceHasOldData extends UserWarning {
 
   getMessage(): string {
     const elapsedTime = this.timeGap
-      ? new TimeDuration(
-          this.timeGap.to.getValueNs() - this.timeGap.from.getValueNs(),
-        )
+      ? new TimeDuration(this.timeGap.endNs - this.timeGap.startNs)
       : undefined;
     return (
       `${this.descriptor}: discarded because data is old` +
@@ -101,6 +111,29 @@ export class TraceHasOldData extends UserWarning {
   }
 }
 
+/**
+ * A warning for a trace with elapsed timestamps.
+ */
+export class TraceHasElapsedTimestamps extends UserWarning {
+  constructor(private readonly descriptor: string) {
+    super();
+  }
+
+  getDescriptor(): string {
+    return 'elapsed trace';
+  }
+
+  getMessage(): string {
+    return (
+      `${this.descriptor}: trace contains only elapsed timestamps` +
+      ' so many not be accurately synced with other real-time traces.'
+    );
+  }
+}
+
+/**
+ * A warning for a trace that has been overridden.
+ */
 export class TraceOverridden extends UserWarning {
   constructor(
     private readonly descriptor: string,
@@ -123,6 +156,9 @@ export class TraceOverridden extends UserWarning {
   }
 }
 
+/**
+ * A warning for an unsupported file format.
+ */
 export class UnsupportedFileFormat extends UserWarning {
   constructor(private readonly descriptor: string) {
     super();
@@ -137,6 +173,9 @@ export class UnsupportedFileFormat extends UserWarning {
   }
 }
 
+/**
+ * A warning for an invalid legacy trace.
+ */
 export class InvalidLegacyTrace extends UserWarning {
   constructor(
     private readonly descriptor: string,
@@ -154,6 +193,9 @@ export class InvalidLegacyTrace extends UserWarning {
   }
 }
 
+/**
+ * A warning for an invalid Perfetto trace.
+ */
 export class InvalidPerfettoTrace extends UserWarning {
   constructor(
     private readonly descriptor: string,
@@ -171,6 +213,9 @@ export class InvalidPerfettoTrace extends UserWarning {
   }
 }
 
+/**
+ * A warning for when a traces parser fails to be created.
+ */
 export class FailedToCreateTracesParser extends UserWarning {
   constructor(
     private readonly traceType: TraceType,
@@ -190,6 +235,9 @@ export class FailedToCreateTracesParser extends UserWarning {
   }
 }
 
+/**
+ * A warning for when a trace entry cannot be visualized.
+ */
 export class CannotVisualizeTraceEntry extends UserWarning {
   constructor(private readonly errorMessage: string) {
     super();
@@ -204,6 +252,9 @@ export class CannotVisualizeTraceEntry extends UserWarning {
   }
 }
 
+/**
+ * A warning for when timeline data fails to initialize.
+ */
 export class FailedToInitializeTimelineData extends UserWarning {
   getDescriptor(): string {
     return 'failed to initialize timeline data';
@@ -214,6 +265,9 @@ export class FailedToInitializeTimelineData extends UserWarning {
   }
 }
 
+/**
+ * A warning for an incomplete frame mapping.
+ */
 export class IncompleteFrameMapping extends UserWarning {
   constructor(private readonly errorMessage: string) {
     super();
@@ -228,6 +282,9 @@ export class IncompleteFrameMapping extends UserWarning {
   }
 }
 
+/**
+ * A warning for when no trace targets are selected.
+ */
 export class NoTraceTargetsSelected extends UserWarning {
   getDescriptor(): string {
     return 'No trace targets selected';
@@ -238,6 +295,9 @@ export class NoTraceTargetsSelected extends UserWarning {
   }
 }
 
+/**
+ * A warning for a missing vsync ID.
+ */
 export class MissingVsyncId extends UserWarning {
   constructor(private readonly tableName: string) {
     super();
@@ -252,6 +312,9 @@ export class MissingVsyncId extends UserWarning {
   }
 }
 
+/**
+ * A warning for a proxy trace timeout.
+ */
 export class ProxyTraceTimeout extends UserWarning {
   getDescriptor(): string {
     return 'proxy trace timeout';
@@ -262,6 +325,9 @@ export class ProxyTraceTimeout extends UserWarning {
   }
 }
 
+/**
+ * A warning for proxy tracing warnings.
+ */
 export class ProxyTracingWarnings extends UserWarning {
   constructor(private readonly warnings: string[]) {
     super();
@@ -276,6 +342,9 @@ export class ProxyTracingWarnings extends UserWarning {
   }
 }
 
+/**
+ * A warning for proxy tracing errors.
+ */
 export class ProxyTracingErrors extends UserWarning {
   constructor(private readonly errorMessages: string[]) {
     super();
@@ -290,6 +359,9 @@ export class ProxyTracingErrors extends UserWarning {
   }
 }
 
+/**
+ * A warning for missing layer IDs.
+ */
 export class MissingLayerIds extends UserWarning {
   getDescriptor(): string {
     return 'missing layer ids';
@@ -300,6 +372,9 @@ export class MissingLayerIds extends UserWarning {
   }
 }
 
+/**
+ * A warning for duplicate layer IDs.
+ */
 export class DuplicateLayerIds extends UserWarning {
   constructor(private readonly layerIds: number[]) {
     super();

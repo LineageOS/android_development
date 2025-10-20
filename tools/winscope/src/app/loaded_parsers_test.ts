@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FileUtils} from 'common/file_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {unzipFile} from 'common/io';
 import {TimeRange} from 'common/time/time';
 import {UserWarning} from 'messaging/user_warning';
-import {TraceHasOldData, TraceOverridden} from 'messaging/user_warnings';
+import {
+  TraceHasElapsedTimestamps,
+  TraceHasOldData,
+  TraceOverridden,
+} from 'messaging/user_warnings';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ParserBuilder} from 'test/unit/parser_builder';
+import {
+  makeRealTimestamp,
+  makeElapsedTimestamp,
+} from 'test/unit/time_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
@@ -30,28 +37,28 @@ import {TraceType} from 'trace_api/trace_type';
 import {LoadedParsers} from './loaded_parsers';
 
 describe('LoadedParsers', () => {
-  const realZeroTimestamp = TimestampConverterUtils.makeRealTimestamp(0n);
-  const elapsedZeroTimestamp = TimestampConverterUtils.makeElapsedTimestamp(0n);
+  const realZeroTimestamp = makeRealTimestamp(0n);
+  const elapsedZeroTimestamp = makeElapsedTimestamp(0n);
   const oldTimestamps = [
     realZeroTimestamp,
-    TimestampConverterUtils.makeRealTimestamp(1n),
-    TimestampConverterUtils.makeRealTimestamp(2n),
-    TimestampConverterUtils.makeRealTimestamp(3n),
-    TimestampConverterUtils.makeRealTimestamp(4n),
+    makeRealTimestamp(1n),
+    makeRealTimestamp(2n),
+    makeRealTimestamp(3n),
+    makeRealTimestamp(4n),
   ];
 
   const elapsedTimestamps = [
     elapsedZeroTimestamp,
-    TimestampConverterUtils.makeElapsedTimestamp(1n),
-    TimestampConverterUtils.makeElapsedTimestamp(2n),
-    TimestampConverterUtils.makeElapsedTimestamp(3n),
-    TimestampConverterUtils.makeElapsedTimestamp(4n),
+    makeElapsedTimestamp(1n),
+    makeElapsedTimestamp(2n),
+    makeElapsedTimestamp(3n),
+    makeElapsedTimestamp(4n),
   ];
 
   const timestamps = [
-    TimestampConverterUtils.makeRealTimestamp(5n * 60n * 1000000000n + 10n), // 5m10ns
-    TimestampConverterUtils.makeRealTimestamp(5n * 60n * 1000000000n + 11n), // 5m11ns
-    TimestampConverterUtils.makeRealTimestamp(5n * 60n * 1000000000n + 12n), // 5m12ns
+    makeRealTimestamp(5n * 60n * 1000000000n + 10n), // 5m10ns
+    makeRealTimestamp(5n * 60n * 1000000000n + 11n), // 5m11ns
+    makeRealTimestamp(5n * 60n * 1000000000n + 12n), // 5m12ns
   ];
 
   const parserSf0 = new ParserBuilder<object>()
@@ -76,7 +83,7 @@ describe('LoadedParsers', () => {
     .build();
   const parserSf_elapsed = new ParserBuilder<object>()
     .setType(TraceType.SURFACE_FLINGER)
-    .setTimestamps(elapsedTimestamps)
+    .setTimestamps(timestamps)
     .setDescriptors(['sf elapsed'])
     .setNoOffsets(true)
     .build();
@@ -97,7 +104,7 @@ describe('LoadedParsers', () => {
     .build();
   const parserWm_elapsed = new ParserBuilder<object>()
     .setType(TraceType.WINDOW_MANAGER)
-    .setTimestamps(elapsedTimestamps)
+    .setTimestamps(timestamps)
     .setDescriptors(['wm elapsed'])
     .setNoOffsets(true)
     .build();
@@ -142,7 +149,7 @@ describe('LoadedParsers', () => {
 
   beforeEach(() => {
     loadedParsers = new LoadedParsers();
-    expect(loadedParsers.getParsers().length).toEqual(0);
+    expect(loadedParsers.getParsers().length).toBe(0);
     userNotifierChecker.reset();
   });
 
@@ -177,12 +184,15 @@ describe('LoadedParsers', () => {
     expectLoadResult([parserSf0, parserSf1], []);
   });
 
-  it('drops elapsed-only parsers if parsers with real timestamps present', () => {
+  it('warns about elapsed-only parsers if parsers with real timestamps present', () => {
     loadParsers([parserSf_elapsed, parserSf0], []);
-    expectLoadResult([parserSf0], [new TraceHasOldData('sf elapsed')]);
+    expectLoadResult(
+      [parserSf_elapsed, parserSf0],
+      [new TraceHasElapsedTimestamps('sf elapsed')],
+    );
   });
 
-  it('doesnt drop elapsed-only parsers if no parsers with real timestamps present', () => {
+  it('does not warn about elapsed-only parsers if no parsers with real timestamps present', () => {
     loadParsers([parserSf_elapsed, parserWm_elapsed], []);
     expectLoadResult([parserSf_elapsed, parserWm_elapsed], []);
   });
@@ -417,6 +427,21 @@ describe('LoadedParsers', () => {
     });
   });
 
+  it('filters eventlog parsers if perfetto cuj uploaded', () => {
+    loadParsers([parserEventlog], []);
+    expectLoadResult([parserEventlog], []);
+
+    const parserCuj = new ParserBuilder<object>()
+      .setType(TraceType.CUJS)
+      .setTimestamps(timestamps)
+      .setDescriptors(['cujs'])
+      .setNoOffsets(true)
+      .build();
+
+    loadParsers([parserEventlog], [parserCuj]);
+    expectLoadResult([parserCuj], []);
+  });
+
   it('can remove parsers', () => {
     loadParsers([parserSf0], [parserWm0]);
     expectLoadResult([parserSf0, parserWm0], []);
@@ -428,20 +453,20 @@ describe('LoadedParsers', () => {
     expectLoadResult([], []);
   });
 
-  it('can remove parsers but keep for download', async () => {
-    loadParsers([parserSf0, parserWm0], []);
+  it('can remove parsers by type', () => {
+    loadParsers([parserSf0], [parserWm0]);
     expectLoadResult([parserSf0, parserWm0], []);
 
-    loadedParsers.remove(parserWm0, true);
+    loadedParsers.removeByType(TraceType.WINDOW_MANAGER);
     expectLoadResult([parserSf0], []);
 
-    await expectDownloadResult(['sf/sf0.winscope', 'wm/wm0.winscope']);
+    loadedParsers.removeByType(TraceType.SURFACE_FLINGER);
+    expectLoadResult([], []);
   });
 
   it('can be cleared', async () => {
     loadedParsers.clear();
     loadParsers([parserSf0, parserWm0], []);
-    loadedParsers.remove(parserWm0, true);
     loadedParsers.clear();
     expectLoadResult([], []);
     await expectDownloadResult([]);
@@ -556,7 +581,7 @@ describe('LoadedParsers', () => {
 
   async function expectDownloadResult(expectedArchiveContents: string[]) {
     const zipArchive = await loadedParsers.makeZipArchive();
-    const actualArchiveContents = (await FileUtils.unzipFile(zipArchive))
+    const actualArchiveContents = (await unzipFile(zipArchive))
       .map((file) => file.name)
       .sort();
     expect(actualArchiveContents).toEqual(expectedArchiveContents);

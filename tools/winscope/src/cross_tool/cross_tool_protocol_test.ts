@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Timestamp, TimezoneInfo} from 'common/time/time';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {
@@ -22,41 +22,22 @@ import {
   WinscopeEvent,
 } from 'messaging/winscope_event';
 import {CrossToolProtocol} from './cross_tool_protocol';
-import {MessageTestFailureInfo, TimestampType} from './messages';
+import {MessageTestFailureInfo, MessageType} from './messages';
 
 describe('CrossToolProtocol', () => {
+  const FAKE_ORIGIN = 'http://localhost:8081';
+
   let protocol: CrossToolProtocol;
   let timestampConverter: TimestampConverter;
   let emittedEvent: WinscopeEvent | undefined;
 
-  const FAKE_ORIGIN = 'http://localhost:8080';
-  const FAKE_WINDOW = {
-    postMessage: () => {},
-  } as unknown as Window;
-
-  beforeEach(() => {
-    emittedEvent = undefined;
-
-    const timezoneInfo: TimezoneInfo = {
-      timezone: 'UTC',
-      locale: 'en-US',
-    };
-    timestampConverter = new TimestampConverter(timezoneInfo, 0n);
-    protocol = new CrossToolProtocol(timestampConverter);
-    protocol.setEmitEvent(async (event) => {
-      emittedEvent = event;
+  describe('handles debug info', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
     });
 
-    // @ts-expect-error(remoteTool is private but needs to be mocked in this test)
-    protocol.remoteTool = {
-      window: FAKE_WINDOW,
-      origin: FAKE_ORIGIN,
-      timestampType: TimestampType.CLOCK_REALTIME,
-    };
-  });
-
-  it('handles debug info message and extracts timestamp', async () => {
-    const stackTrace = `
+    it('handles debug info message and extracts timestamp', () => {
+      const stackTrace = `
 android.tools.flicker.subject.exceptions.IncorrectVisibilityException: com.android.server.wm.flicker.testapp/com.android.server.wm.flicker.testapp.SimpleActivity# should be visible
 
 Where?
@@ -100,34 +81,108 @@ Check the test run artifacts for trace files
 	at android.tools.flicker.assertions.BaseFlickerTest.assertLayers(BaseFlickerTest.kt:87)
 	at com.android.server.wm.flicker.launch.OpenAppFromIconColdTest.appLayerBecomesVisible(OpenAppFromIconColdTest.kt:100)
     `;
-    const message = new MessageTestFailureInfo(stackTrace);
+      const message = new MessageTestFailureInfo(stackTrace);
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: message,
+        }),
+      );
 
-    // @ts-expect-error(onMessageDebugInfoReceived is private but needs to be mocked in this test)
-    await protocol.onMessageDebugInfoReceived(message);
+      expect(emittedEvent).toBeInstanceOf(RemoteToolTimestampReceived);
+      const receivedEvent = emittedEvent as RemoteToolTimestampReceived;
+      const timestamp = assertDefined(receivedEvent.deferredTimestamp)();
+      expect(timestamp).toBeInstanceOf(Timestamp);
+      expect(timestamp?.getValueNs()).toBe(1750932189844553958n);
+    });
 
-    expect(emittedEvent).toBeInstanceOf(RemoteToolTimestampReceived);
-    const receivedEvent = emittedEvent as RemoteToolTimestampReceived;
-    const timestamp = assertDefined(receivedEvent.deferredTimestamp)();
-    expect(timestamp).toBeInstanceOf(Timestamp);
-    expect(timestamp?.getValueNs()).toEqual(1750932189844553958n);
-  });
-
-  it('handles debug info message without timestamp', async () => {
-    const stackTrace = `
+    it('handles debug info message without timestamp', () => {
+      const stackTrace = `
       Where?
         Some other information without a timestamp.
     `;
-    const message = new MessageTestFailureInfo(stackTrace);
+      const message = new MessageTestFailureInfo(stackTrace);
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: message,
+        }),
+      );
+      expect(emittedEvent).toBeUndefined();
+    });
 
-    // @ts-expect-error(onMessageDebugInfoReceived is private but needs to be mocked in this test)
-    await protocol.onMessageDebugInfoReceived(message);
-    expect(emittedEvent).toBeUndefined();
+    it('handles debug info message with no stacktrace', () => {
+      const message = new MessageTestFailureInfo(undefined);
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: message,
+        }),
+      );
+      expect(emittedEvent).toBeUndefined();
+    });
   });
 
-  it('handles debug info message with no stacktrace', async () => {
-    const message = new MessageTestFailureInfo(undefined);
-    // @ts-expect-error(onMessageDebugInfoReceived is private but needs to be mocked in this test)
-    await protocol.onMessageDebugInfoReceived(message);
-    expect(emittedEvent).toBeUndefined();
+  describe('timestamp sync', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
+    });
+
+    it('is allowed timestamp sync based on remote tool origin', () => {
+      expect(protocol.isAllowedTimestampSync()).toBeFalse();
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: {type: MessageType.PING},
+        }),
+      );
+      expect(protocol.isAllowedTimestampSync()).toBeTrue();
+    });
+
+    it('is not allowed timestamp sync based on remote tool origin', () => {
+      expect(protocol.isAllowedTimestampSync()).toBeFalse();
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: 'http://localhost:8082',
+          source: window,
+          data: {type: MessageType.PING},
+        }),
+      );
+      expect(protocol.isAllowedTimestampSync()).toBeFalse();
+    });
+
+    it('toggles whether timestamp sync is allowed', () => {
+      expect(protocol.getAllowTimestampSync()).toBeFalse();
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: {type: MessageType.PING},
+        }),
+      );
+      expect(protocol.getAllowTimestampSync()).toBeTrue();
+      protocol.setAllowTimestampSync(false);
+      expect(protocol.getAllowTimestampSync()).toBeFalse();
+    });
   });
+
+  function setUpTestEnvironment() {
+    emittedEvent = undefined;
+
+    const timezoneInfo: TimezoneInfo = {
+      timezone: 'UTC',
+      locale: 'en-US',
+    };
+    timestampConverter = new TimestampConverter(timezoneInfo, 0n);
+    protocol = new CrossToolProtocol(timestampConverter);
+    protocol.setEmitEvent(async (event) => {
+      emittedEvent = event;
+    });
+
+    spyOn(window, 'postMessage');
+  }
 });

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {FunctionUtils} from 'common/function_utils';
-import {TimeUtils} from 'common/time/time_utils';
+import {Timer} from 'common/time/timer';
 
 export type ErrorListener = (msg: string) => Promise<void>;
 
@@ -27,11 +26,11 @@ export abstract class WebSocketStream {
 
   abstract connect(): Promise<void>;
 
-  protected onError: ErrorListener = FunctionUtils.DO_NOTHING_ASYNC;
-  protected onClose: () => void = FunctionUtils.DO_NOTHING;
+  protected onError: ErrorListener = () => Promise.resolve();
+  protected onClose: () => void = () => {};
 
   async write(data: string | Uint8Array): Promise<void> {
-    await TimeUtils.wait(() => this.isOpen());
+    await new Timer().wait(() => this.isOpen());
     this.sock.send(data);
   }
 

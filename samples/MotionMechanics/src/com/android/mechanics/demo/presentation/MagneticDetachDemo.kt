@@ -46,21 +46,25 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.android.mechanics.debug.DebugEffect
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
+import com.android.mechanics.demo.tuneable.LabelledCheckbox
 import com.android.mechanics.effects.MagneticDetach
+import com.android.mechanics.haptics.HapticsExperimentalApi
 import com.android.mechanics.rememberDistanceGestureContext
 import com.android.mechanics.rememberMotionSpecAsState
 import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.builder.spatialMotionSpec
 
-object MagneticDetachDemo : Demo<Unit>, HasMotionValueVisualization {
+@OptIn(HapticsExperimentalApi::class)
+object MagneticDetachDemo : DemoWithConfig<MagneticDetachDemo.Config>, HasMotionValueVisualization {
     var inputRange by mutableStateOf(0f..0f)
 
     @Composable
-    override fun DemoUi(config: Unit, modifier: Modifier) {
+    override fun DemoUi(config: Config, modifier: Modifier) {
         val colors = MaterialTheme.colorScheme
 
         val gestureContext = rememberDistanceGestureContext()
@@ -70,9 +74,15 @@ object MagneticDetachDemo : Demo<Unit>, HasMotionValueVisualization {
                 gestureContext = gestureContext,
                 spec =
                     rememberMotionSpecAsState {
-                        spatialMotionSpec { after(50.dp.toPx(), MagneticDetach()) }
+                        spatialMotionSpec {
+                            after(
+                                50.dp.toPx(),
+                                MagneticDetach(enableHaptics = config.enableHaptics),
+                            )
+                        }
                     },
             )
+        DebugEffect(motionValue)
 
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -133,12 +143,24 @@ object MagneticDetachDemo : Demo<Unit>, HasMotionValueVisualization {
         }
     }
 
-    @Composable override fun rememberDefaultConfig() {}
+    @Composable
+    override fun rememberDefaultConfig(): Config = remember { Config(enableHaptics = true) }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
         get() = inputRange
 
-    @Composable override fun ColumnScope.ConfigUi(config: Unit, onConfigChanged: (Unit) -> Unit) {}
+    @Composable
+    override fun ColumnScope.ConfigUi(config: Config, onConfigChanged: (Config) -> Unit) {
+
+        LabelledCheckbox(
+            "Haptics",
+            config.enableHaptics,
+            onCheckedChange = { onConfigChanged(config.copy(enableHaptics = it)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 
     override val identifier: String = "MagneticDetach"
+
+    data class Config(val enableHaptics: Boolean)
 }

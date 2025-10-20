@@ -16,7 +16,7 @@
 
 import {CommonModule} from '@angular/common';
 import {Component, Input, SimpleChanges} from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
 import {CollapsibleSections} from 'viewers/common/collapsible_sections';
@@ -52,7 +52,8 @@ import {UiData} from './ui_data';
       <rects-view
         class="rects-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [title]="rectsTitle"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
+        [title]="getRectsTitle()"
         [store]="store"
         [isStackBased]="true"
         [rects]="inputData?.rectsToDraw ?? []"
@@ -70,6 +71,7 @@ import {UiData} from './ui_data';
       <hierarchy-view
         class="hierarchy-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+        [class.disabled-component]="inputData?.isPlaybackInitializing"
         [trees]="inputData?.hierarchyTrees ?? []"
         [dependencies]="inputData?.dependencies ?? []"
         [highlightedItem]="inputData?.highlightedItem ?? ''"
@@ -80,28 +82,39 @@ import {UiData} from './ui_data';
         [rectIdToShowState]="inputData?.rectIdToShowState"
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
 
-      <div class="properties" *ngIf="!arePropertiesCollapsed()">
-        <surface-flinger-property-groups
-          class="property-groups"
-          [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
-          [properties]="inputData?.curatedProperties"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)"></surface-flinger-property-groups>
+      @if (!arePropertiesCollapsed()) {
+        <div class="properties"
+        [class.disabled-component]="inputData?.isPlaybackPlaying
+        || inputData?.isPlaybackInitializing">
+          @if (inputData?.isPlaybackPlaying) {
+            <div
+            class="disabled-message user-notification mat-body-1">
+            Properties disabled due to playback
+            </div>
+          }
+          <surface-flinger-property-groups
+            class="property-groups"
+            [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
+            [properties]="inputData?.curatedProperties"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)"></surface-flinger-property-groups>
 
-        <properties-view
-          class="properties-view"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-          [title]="propertiesTitle"
-          [userOptions]="inputData?.propertiesUserOptions ?? {}"
-          [propertiesTree]="inputData?.propertiesTree"
-          [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-          [traceType]="${TraceType.SURFACE_FLINGER}"
-          [store]="store"
-          [isProtoDump]="true"
-          placeholderText="No selected entry or layer."
-          [textFilter]="inputData?.propertiesFilter"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-      </div>
+          <properties-view
+            class="properties-view"
+            [class.disabled]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+            [title]="propertiesTitle"
+            [userOptions]="inputData?.propertiesUserOptions ?? {}"
+            [propertiesTree]="inputData?.propertiesTree"
+            [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+            [traceType]="${TraceType.SURFACE_FLINGER}"
+            [store]="store"
+            [isProtoDump]="true"
+            placeholderText="No selected entry or layer."
+            [textFilter]="inputData?.propertiesFilter"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -111,6 +124,7 @@ import {UiData} from './ui_data';
         display: flex;
         flex-direction: column;
         overflow: auto;
+        position: relative;
       }
     `,
     viewerCardStyle,
@@ -121,12 +135,11 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
 
-  rectsTitle = 'LAYERS';
   propertiesTitle = 'PROTO DUMP';
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.RECTS,
-      label: this.rectsTitle,
+      label: 'LAYERS',
       isCollapsed: false,
     },
     {
@@ -163,12 +176,17 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
   ngOnChanges(simpleChanges: SimpleChanges) {
     const data = simpleChanges['inputData'];
     if (data?.currentValue?.rectSpec !== data?.previousValue?.rectSpec) {
-      this.rectsTitle = assertDefined(
+      const rectsSection = assertDefined(
+        this.sections.getSection(CollapsibleSectionType.RECTS),
+      );
+      rectsSection.label = assertDefined(
         this.inputData?.rectSpec,
       ).type.toUpperCase();
-      assertDefined(
-        this.sections.getSection(CollapsibleSectionType.RECTS),
-      ).label = this.rectsTitle;
     }
+  }
+
+  getRectsTitle(): string {
+    return assertDefined(this.sections.getSection(CollapsibleSectionType.RECTS))
+      .label;
   }
 }

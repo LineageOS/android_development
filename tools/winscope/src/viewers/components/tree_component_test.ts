@@ -19,10 +19,10 @@ import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {makeUiPropertyNode} from 'test/unit/ui_tree_node_utils';
 import {RectShowState} from 'viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
@@ -230,7 +230,7 @@ describe('TreeComponent', () => {
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeDefined();
 
-    component.tree = UiTreeNodeUtils.makeUiPropertyNode(
+    component.tree = makeUiPropertyNode(
       component.tree.id,
       component.tree.name,
       0,
@@ -253,7 +253,7 @@ describe('TreeComponent', () => {
 
   it('copies text via copy button without selecting node', () => {
     dom.detectChanges();
-    component.tree = UiTreeNodeUtils.makeUiPropertyNode(
+    component.tree = makeUiPropertyNode(
       component.tree.id,
       component.tree.name,
       0,

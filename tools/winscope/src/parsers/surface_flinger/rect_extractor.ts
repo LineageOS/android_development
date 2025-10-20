@@ -17,53 +17,65 @@
 import {
   assertBigInt,
   assertBigIntOrUndefined,
-  assertNumber,
-  assertNumberOrUndefined,
+  assertDefined,
   assertString,
   assertStringOrUndefined,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {TraceRectBuilderFromQueryRow} from 'parsers/trace_rect_builder_from_query_row';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';
 import {TraceRect} from 'tree_node/trace_rect';
+import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
 
+/**
+ * Extracts rects from a trace processor query result.
+ */
 export class RectExtractor {
   static extractAllVisibleAndDisplayRects(
     snapshotResult: QueryResult,
     rectsResult: QueryResult,
-  ) {
-    const allRectsMap = new Map<
-      bigint,
-      {displayRects: TraceRect[]; layerRects: Map<bigint, LayerRects>}
-    >();
+    traceGeometryData: TraceGeometryData,
+  ): RectsForTrace {
+    const allRectsMap: RectsForTrace = new Map();
     const currRect = rectsResult.iter({});
     const currSnapshot = snapshotResult.iter({});
     while (currSnapshot.valid()) {
       const currentId = assertBigInt(currSnapshot.get('id'));
+
       // currSnapshot is iterated in extractDisplayRectsForSnapshot
       const {displayRects} = RectExtractor.extractDisplayRectsForSnapshot(
         currSnapshot,
         currentId,
+        traceGeometryData,
       );
-      // currRect is iterated in extractLayerInputRectsForSnapshot
-      const {rects} = RectExtractor.extractLayerInputRectsForSnapshot(
+
+      // currRect is iterated in extractLayerRectsForSnapshot
+      const {rects: layerRects} = RectExtractor.extractLayerRectsForSnapshot(
         currRect,
         currentId,
+        traceGeometryData,
       );
-      const combinedRects = {
-        displayRects,
-        layerRects: rects,
-      };
-      allRectsMap.set(currentId, combinedRects);
+
+      const snapshotRect: SnapshotRects = layerRects;
+      if (displayRects.length > 0) {
+        snapshotRect.set(-1n, {
+          primaryRects: displayRects,
+          secondaryRects: undefined,
+        });
+      }
+
+      allRectsMap.set(currentId, snapshotRect);
     }
     return allRectsMap;
   }
 
-  static extractLayerInputRectsForSnapshot(
+  static extractLayerRectsForSnapshot(
     rectIter: RowIterator,
     currSnapshotId: bigint,
-  ): {rects: Map<bigint, LayerRects>} {
-    const rects = new Map<bigint, LayerRects>();
+    traceGeometryData: TraceGeometryData,
+  ): {rects: SnapshotRects} {
+    const rects: SnapshotRects = new Map();
     let prevUniqueRowId: bigint | undefined;
 
     while (rectIter.valid()) {
@@ -88,10 +100,14 @@ export class RectExtractor {
 
       if (prevUniqueRowId !== undefined && uniqueRowId === prevUniqueRowId) {
         const layerEntry = rects.get(layerIdBigint);
-        if (layerEntry?.input?.fillRegion) {
-          const fillRegionRect = RectExtractor.extractFillRegionRect(rectIter);
+        const inputRect = layerEntry?.secondaryRects?.[0];
+        if (inputRect?.fillRegion) {
+          const fillRegionRect = RectExtractor.extractFillRegionRect(
+            rectIter,
+            traceGeometryData,
+          );
           if (fillRegionRect) {
-            layerEntry.input.fillRegion.rects.push(fillRegionRect);
+            inputRect.fillRegion.rects.push(fillRegionRect);
           }
         }
       } else {
@@ -103,6 +119,7 @@ export class RectExtractor {
           rectIter,
           nodeId,
           layerName,
+          traceGeometryData,
         );
         if (layerRects) {
           rects.set(layerIdBigint, layerRects);
@@ -116,6 +133,7 @@ export class RectExtractor {
   static extractDisplayRectsForSnapshot(
     snapshotIter: RowIterator,
     targetSnapshotId: bigint | undefined,
+    traceGeometryData: TraceGeometryData,
   ): {displayRects: TraceRect[]} {
     const displayRects: TraceRect[] = [];
 
@@ -140,8 +158,23 @@ export class RectExtractor {
       const name = assertStringOrUndefined(
         snapshotIter.get('display_name') ?? undefined,
       );
+      const rectId = assertBigIntOrUndefined(
+        snapshotIter.get('rect_id') ?? undefined,
+      );
+      const transformId = assertBigIntOrUndefined(
+        snapshotIter.get('transform_id') ?? undefined,
+      );
+      if (rectId === undefined || transformId === undefined) {
+        continue;
+      }
+      const preprocessedRect = assertDefined(traceGeometryData.getRect(rectId));
+      const preprocessedTransformMatrix = assertDefined(
+        traceGeometryData.getTransform(transformId),
+      );
 
       const rect = new TraceRectBuilderFromQueryRow()
+        .setRect(preprocessedRect)
+        .setTransformMatrix(preprocessedTransformMatrix)
         .setRow(snapshotIter)
         .setId('Display - ' + displayIdString)
         .setName(name ?? 'Unknown Display')
@@ -154,42 +187,80 @@ export class RectExtractor {
     return {displayRects};
   }
 
-  static extractFillRegionRect(row: RowIterator): Rect | undefined {
-    const fillRegionX = assertNumberOrUndefined(row.get('fr_x') ?? undefined);
-    if (fillRegionX === undefined) {
+  static extractFillRegionRect(
+    row: RowIterator,
+    traceGeometryData: TraceGeometryData,
+  ): Rect | undefined {
+    const fillRegionId = assertBigIntOrUndefined(row.get('fr_id') ?? undefined);
+    if (fillRegionId === undefined) {
       return undefined;
     }
-    return new Rect(
-      fillRegionX,
-      assertNumber(row.get('fr_y')),
-      assertNumber(row.get('fr_w')),
-      assertNumber(row.get('fr_h')),
-    );
+    const rect = traceGeometryData.getRect(fillRegionId);
+    if (rect === undefined) {
+      return undefined;
+    }
+    return new Rect(rect.x, rect.y, rect.w, rect.h);
   }
 
   static extractLayerRects(
     row: RowIterator,
     rectId: string,
     layerName: string,
-  ): LayerRects | undefined {
-    const bounds = RectExtractor.extractBoundsRect(row, rectId, layerName);
-    const input = RectExtractor.extractInputRect(row, rectId, layerName);
+    traceGeometryData: TraceGeometryData,
+  ):
+    | {primaryRects: TraceRect[]; secondaryRects: TraceRect[] | undefined}
+    | undefined {
+    const bounds = RectExtractor.extractBoundsRect(
+      row,
+      rectId,
+      layerName,
+      traceGeometryData,
+    );
+    const input = RectExtractor.extractInputRect(
+      row,
+      rectId,
+      layerName,
+      traceGeometryData,
+    );
     if (!bounds && !input) {
       return undefined;
     }
-    return {bounds, input};
+    return {
+      primaryRects: bounds ? [bounds] : [],
+      secondaryRects: input ? [input] : undefined,
+    };
   }
 
   private static extractBoundsRect(
     row: RowIterator,
     rectId: string,
     layerName: string,
+    traceGeometryData: TraceGeometryData,
   ): TraceRect | undefined {
     const groupId = assertBigIntOrUndefined(row.get('group_id') ?? undefined);
     if (groupId === undefined) {
       return undefined;
     }
+    const preprocessedRectId = assertBigIntOrUndefined(
+      row.get('rect_id') ?? undefined,
+    );
+    const preprocessedTransformId = assertBigIntOrUndefined(
+      row.get('transform_id') ?? undefined,
+    );
+    if (
+      preprocessedRectId === undefined ||
+      preprocessedTransformId === undefined
+    ) {
+      return undefined;
+    }
+    const rect = traceGeometryData.getRect(preprocessedRectId);
+    const transform = traceGeometryData.getTransform(preprocessedTransformId);
+    if (rect === undefined || transform === undefined) {
+      return undefined;
+    }
     return new TraceRectBuilderFromQueryRow()
+      .setRect(rect)
+      .setTransformMatrix(transform)
       .setRow(row)
       .setId(rectId)
       .setName(layerName)
@@ -202,6 +273,7 @@ export class RectExtractor {
     row: RowIterator,
     rectId: string,
     layerName: string,
+    traceGeometryData: TraceGeometryData,
   ): TraceRect | undefined {
     const groupId = assertBigIntOrUndefined(
       row.get('input_group_id') ?? undefined,
@@ -209,8 +281,28 @@ export class RectExtractor {
     if (groupId === undefined) {
       return undefined;
     }
+    const preprocessedRectId = assertBigIntOrUndefined(
+      row.get('input_trace_rect_id') ?? undefined,
+    );
+    const preprocessedTransformId = assertBigIntOrUndefined(
+      row.get('input_transform_id') ?? undefined,
+    );
 
+    if (
+      preprocessedRectId === undefined ||
+      preprocessedTransformId === undefined ||
+      traceGeometryData === undefined
+    ) {
+      return undefined;
+    }
+    const rect = traceGeometryData.getRect(preprocessedRectId);
+    const transform = traceGeometryData.getTransform(preprocessedTransformId);
+    if (rect === undefined || transform === undefined) {
+      return undefined;
+    }
     const builder = new TraceRectBuilderFromQueryRow()
+      .setRect(rect)
+      .setTransformMatrix(transform)
       .setRow(row)
       .setId(rectId)
       .setName(layerName)
@@ -220,16 +312,14 @@ export class RectExtractor {
       .setIsVisibleColumn('input_is_visible')
       .setExtractIsSpy(true);
 
-    const fillRegionRect = RectExtractor.extractFillRegionRect(row);
+    const fillRegionRect = RectExtractor.extractFillRegionRect(
+      row,
+      traceGeometryData,
+    );
     if (fillRegionRect) {
       builder.addFillRegionRect(fillRegionRect);
     }
 
     return builder.build();
   }
-}
-
-export interface LayerRects {
-  bounds?: TraceRect;
-  input?: TraceRect;
 }

@@ -18,6 +18,10 @@ import {SnackBarOpener} from 'app/components/snack_bar_opener';
 import {Analytics} from 'logging/analytics';
 import {UserNotification} from 'messaging/user_notification';
 
+/**
+ * A utility class to collect and display notifications to the user.
+ * Notifications are displayed via a snack bar.
+ */
 export class UserNotifier {
   static setSnackBarOpener(snackBarOpener: SnackBarOpener) {
     UserNotifier.snackBarOpener = snackBarOpener;

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import {searchSubarray, toUintLittleEndian} from 'common/array_utils';
+import {searchSubarray} from 'common/typed_array';
 import {Timestamp} from 'common/time/time';
+import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {ScreenRecordingUtils} from 'trace/screen_recording_utils';
+import {timestampToVideoTimeSeconds} from 'trace/screen_recording_utils';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
+import {parseIntFromBuffer, parseLongFromBuffer} from './utils';
 
-class ParserScreenRecordingLegacy extends AbstractParser<
+export class ParserScreenRecordingLegacy extends AbstractParser<
   MediaBasedTraceEntry,
   bigint
 > {
@@ -40,9 +42,10 @@ class ParserScreenRecordingLegacy extends AbstractParser<
   override getRealToBootTimeOffsetNs(): bigint | undefined {
     return undefined;
   }
+
   override decodeTrace(videoData: Uint8Array): Array<bigint> {
     const posCount = this.searchMagicString(videoData);
-    const [posTimestamps, count] = this.parseFramesCount(videoData, posCount);
+    const [posTimestamps, count] = parseIntFromBuffer(videoData, posCount);
     return this.parseVideoData(videoData, posTimestamps, count);
   }
 
@@ -54,7 +57,7 @@ class ParserScreenRecordingLegacy extends AbstractParser<
     index: number,
     entry: bigint,
   ): MediaBasedTraceEntry {
-    const videoTimeSeconds = ScreenRecordingUtils.timestampToVideoTimeSeconds(
+    const videoTimeSeconds = timestampToVideoTimeSeconds(
       this.decodedEntries[0],
       entry,
     );
@@ -74,20 +77,6 @@ class ParserScreenRecordingLegacy extends AbstractParser<
     return pos;
   }
 
-  private parseFramesCount(
-    videoData: Uint8Array,
-    pos: number,
-  ): [number, number] {
-    if (pos + 4 > videoData.length) {
-      throw new TypeError(
-        'Failed to parse frames count. Video data is too short.',
-      );
-    }
-    const framesCount = Number(toUintLittleEndian(videoData, pos, pos + 4));
-    pos += 4;
-    return [pos, framesCount];
-  }
-
   private parseVideoData(
     videoData: Uint8Array,
     pos: number,
@@ -100,9 +89,9 @@ class ParserScreenRecordingLegacy extends AbstractParser<
     }
     const timestamps: Array<bigint> = [];
     for (let i = 0; i < count; ++i) {
-      const value = toUintLittleEndian(videoData, pos, pos + 8) * 1000n;
-      pos += 8;
-      timestamps.push(value);
+      const [newPos, timestamp] = parseLongFromBuffer(videoData, pos);
+      pos = newPos;
+      timestamps.push(timestamp * BigInt(TIME_UNIT_TO_NANO.us));
     }
     return timestamps;
   }
@@ -114,7 +103,4 @@ class ParserScreenRecordingLegacy extends AbstractParser<
     0x23, 0x56, 0x56, 0x31, 0x4e, 0x53, 0x43, 0x30, 0x50, 0x45, 0x54, 0x31,
     0x4d, 0x45, 0x21, 0x23,
   ]; // #VV1NSC0PET1ME!#
-  private static readonly EPSILON = 0.00001;
 }
-
-export {ParserScreenRecordingLegacy};

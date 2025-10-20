@@ -15,7 +15,7 @@
  */
 
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {UiTreeNodeUtils} from 'test/unit/ui_tree_node_utils';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {TreeNode} from 'tree_node/tree_node';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {Filter} from './filter';
@@ -26,7 +26,7 @@ describe('Filter', () => {
 
   describe('keeping parents and children', () => {
     beforeEach(() => {
-      jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+      jasmine.addCustomEqualityTester(treeNodeEqualityTester);
       const filter = (item: TreeNode | undefined) => {
         if (item) {
           return item.name === 'keep';
@@ -251,7 +251,7 @@ describe('Filter', () => {
 
   describe('without keeping parents and children', () => {
     beforeEach(() => {
-      jasmine.addCustomEqualityTester(UiTreeNodeUtils.treeNodeEqualityTester);
+      jasmine.addCustomEqualityTester(treeNodeEqualityTester);
       const filter = (item: TreeNode | undefined) => {
         if (item) {
           return item.name === 'keep';

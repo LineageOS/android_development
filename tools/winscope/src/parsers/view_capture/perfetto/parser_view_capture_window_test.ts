@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {CustomQueryType} from 'trace_api/custom_query';
+import {EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -55,12 +56,12 @@ describe('PerfettoParserViewCaptureWindow', () => {
   });
 
   it('provides timestamps', () => {
-    expect(assertDefined(parser.getTimestamps()).length).toEqual(36);
+    expect(assertDefined(parser.getTimestamps()).length).toBe(36);
 
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1716828479973482553n),
-      TimestampConverterUtils.makeRealTimestamp(1716828479982373666n),
-      TimestampConverterUtils.makeRealTimestamp(1716828479986084197n),
+      makeRealTimestamp(1716828479973482553n),
+      makeRealTimestamp(1716828479982373666n),
+      makeRealTimestamp(1716828479986084197n),
     ];
     expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
   });
@@ -68,34 +69,54 @@ describe('PerfettoParserViewCaptureWindow', () => {
   it('builds trace entry', async () => {
     const root = await parser.getEntry(1);
     expect(root).toBeInstanceOf(HierarchyTreeNode);
-    expect(root.name).toEqual(
-      'com.android.internal.policy.DecorView@203589466',
-    );
-    expect(root.getRects()?.length).toEqual(1);
+    expect(root.name).toBe('com.android.internal.policy.DecorView@203589466');
+    expect(root.getRects()?.length).toBe(1);
 
     const children = root.getAllChildren();
-    expect(children.length).toEqual(1);
-    expect(children[0].name).toEqual('android.widget.LinearLayout@160251275');
-    expect(children[0].getRects()?.length).toEqual(1);
+    expect(children.length).toBe(1);
+    expect(children[0].name).toBe('android.widget.LinearLayout@160251275');
+    expect(children[0].getRects()?.length).toBe(1);
   });
 
   it('sets property default values + formatters', async () => {
     const root = await parser.getEntry(1);
     const properties = await root.getAllProperties();
     const defaultProperty = assertDefined(properties.getChildByName('left'));
-    expect(defaultProperty.getValue()).toEqual(0);
-    expect(defaultProperty.formattedValue()).toEqual('0');
+    expect(defaultProperty.getValue()).toBe(0);
+    expect(defaultProperty.formattedValue()).toBe('0');
   });
 
   it('supports VIEW_CAPTURE_METADATA custom query', async () => {
     const metadata = await trace.customQuery(
       CustomQueryType.VIEW_CAPTURE_METADATA,
     );
-    expect(metadata.packageName).toEqual(
-      'com.google.android.apps.nexuslauncher',
-    );
-    expect(metadata.windowName).toEqual(
+    expect(metadata.packageName).toBe('com.google.android.apps.nexuslauncher');
+    expect(metadata.windowName).toBe(
       'com.android.internal.policy.PhoneWindow@4f9be60',
     );
+  });
+
+  it('gets a range of entries that excludes the end index', async () => {
+    const index = 1;
+    const numEntries = 6;
+    const range: EntriesRange = {
+      start: index,
+      end: index + numEntries,
+    };
+    const entries = await parser.getRangeOfEntries(range);
+    expect(entries.length).toEqual(numEntries);
+  });
+
+  it('provides eager properties', async () => {
+    const entry = await parser.getEntry(0);
+    expect(entry.getEagerPropertyByName('nodeId')?.getValue()).toEqual(0n);
+    expect(entry.getEagerPropertyByName('className')?.getValue()).toEqual(
+      'com.android.internal.policy.DecorView',
+    );
+    expect(entry.getEagerPropertyByName('hashcode')?.getValue()).toEqual(
+      203589466n,
+    );
+    expect(entry.getEagerPropertyByName('isVisible')?.getValue()).toBeTrue();
+    expect(entry.getEagerPropertyByName('viewId')?.getValue()).toEqual('NO_ID');
   });
 });

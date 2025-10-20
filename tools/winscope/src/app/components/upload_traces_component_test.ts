@@ -25,20 +25,24 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {FilesSource} from 'app/files_source';
 import {TracePipeline} from 'app/trace_pipeline';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
   ShowTraceUploadWarning,
 } from 'messaging/winscope_event';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {getFixtureFile} from 'test/unit/fixture_file_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {getFixtureFile} from 'test/unit/io_helpers';
+import {makeZeroTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {Traces} from 'trace_api/traces';
 import {LoadProgressComponent} from './load_progress_component';
 import {UploadTracesComponent} from './upload_traces_component';
+import {
+  getReasonForNoTraceVisualization,
+  TraceType,
+} from 'trace_api/trace_type';
 
 describe('UploadTracesComponent', () => {
   const uploadSelector = '.upload-btn';
@@ -147,17 +151,17 @@ describe('UploadTracesComponent', () => {
     const progressBar = assertDefined(
       dom.findByDirective(LoadProgressComponent),
     );
-    expect(progressBar.progressPercentage).toEqual(10);
+    expect(progressBar.progressPercentage).toBe(10);
 
     component.onProgressUpdate(undefined, 20);
     dom.detectChanges();
-    expect(progressBar.progressPercentage).toEqual(10);
+    expect(progressBar.progressPercentage).toBe(10);
 
     const now = Date.now();
     spyOn(Date, 'now').and.returnValue(now + 500);
     component.onProgressUpdate(undefined, 20);
     dom.detectChanges();
-    expect(progressBar.progressPercentage).toEqual(20);
+    expect(progressBar.progressPercentage).toBe(20);
   });
 
   it('can display uploaded traces', async () => {
@@ -168,13 +172,13 @@ describe('UploadTracesComponent', () => {
 
   it('can remove one of two uploaded traces', async () => {
     await loadFiles([validSfFile, validWmFile]);
-    expect(component.tracePipeline?.getTraces().getSize()).toEqual(2);
+    expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
 
     const spy = spyOn(component, 'onOperationFinished');
     dom.findAndClick(removeTraceSelector);
     expect(dom.find('.uploaded-files')).toBeDefined();
     expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toEqual(1);
+    expect(component.tracePipeline?.getTraces().getSize()).toBe(1);
   });
 
   it('handles removal of the only uploaded trace', async () => {
@@ -184,18 +188,18 @@ describe('UploadTracesComponent', () => {
     dom.findAndClick(removeTraceSelector);
     expect(dom.find('.drop-info')).toBeDefined();
     expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toEqual(0);
+    expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
   });
 
   it('can remove all uploaded traces', async () => {
     await loadFiles([validSfFile, validWmFile]);
-    expect(component.tracePipeline?.getTraces().getSize()).toEqual(2);
+    expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
 
     const spy = spyOn(component, 'onOperationFinished');
     dom.findAndClick(clearAllSelector);
     expect(dom.find('.drop-info')).toBeDefined();
     expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toEqual(0);
+    expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
   });
 
   it('can emit view traces event', async () => {
@@ -257,15 +261,41 @@ describe('UploadTracesComponent', () => {
       'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
     );
     await loadFiles([shellTransitionFile]);
-    expect(dom.find('.warning-icon')).toBeDefined();
+    await dom
+      .get('.warning-icon')
+      .checkTooltip(
+        getReasonForNoTraceVisualization(TraceType.SHELL_TRANSITION),
+      );
     dom.get(viewTracesSelector).checkDisabled(true);
     dom.get(discardLegacySelector).checkDisabled(true);
+  });
+
+  it('shows warning elements for legacy traces', async () => {
+    const imeClientsFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/InputMethodClients.pb',
+    );
+    await loadFiles([imeClientsFile]);
+    await dom
+      .get('.warning-icon')
+      .checkTooltip(component.legacyTraceWarningTooltip);
+    dom.get(viewTracesSelector).checkDisabled(false);
+    dom.get(discardLegacySelector).checkDisabled(false);
+  });
+
+  it('does not show warning elements for legacy traces without perfetto conversion', async () => {
+    const eventlogFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/eventlog.winscope',
+    );
+    await loadFiles([eventlogFile]);
+    expect(dom.find('.warning-icon')).toBeUndefined();
+    dom.get(viewTracesSelector).checkDisabled(false);
+    dom.get(discardLegacySelector).checkDisabled(false);
   });
 
   it('shows error elements for corrupted traces', async () => {
     const corruptedTrace = new TraceBuilder<string>()
       .setEntries(['entry-0'])
-      .setTimestamps([TimestampConverterUtils.makeZeroTimestamp()])
+      .setTimestamps([makeZeroTimestamp()])
       .build();
     corruptedTrace.setCorruptedState(true);
     const traces = new Traces();
@@ -324,8 +354,8 @@ describe('UploadTracesComponent', () => {
     const warningEvent2 = new ShowTraceUploadWarning(warningMessage2);
 
     // Initially, no banners should be visible
-    expect(component.warningMessages.length).toEqual(0);
-    expect(dom.findAll(warningBannerSelector).length).toEqual(0);
+    expect(component.warningMessages.length).toBe(0);
+    expect(dom.findAll(warningBannerSelector).length).toBe(0);
 
     // Simulate receiving the first event
     await component.onWinscopeEvent(warningEvent1);
@@ -334,7 +364,7 @@ describe('UploadTracesComponent', () => {
     // Assert first banner visibility and message content
     expect(component.warningMessages).toEqual([warningMessage1]);
     let bannerElements = dom.findAll(warningBannerSelector);
-    expect(bannerElements.length).toEqual(1);
+    expect(bannerElements.length).toBe(1);
     bannerElements[0]
       .get(warningMessageSelector)
       .checkTextExact(warningMessage1);
@@ -349,7 +379,7 @@ describe('UploadTracesComponent', () => {
       warningMessage2,
     ]);
     bannerElements = dom.findAll(warningBannerSelector);
-    expect(bannerElements.length).toEqual(2);
+    expect(bannerElements.length).toBe(2);
     bannerElements[0]
       .get(warningMessageSelector)
       .checkTextExact(warningMessage1);
@@ -364,7 +394,7 @@ describe('UploadTracesComponent', () => {
       warningMessage1,
       warningMessage2,
     ]);
-    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+    expect(dom.findAll(warningBannerSelector).length).toBe(2);
   });
 
   it('clears specific warning banner when its close button is clicked', async () => {
@@ -378,7 +408,7 @@ describe('UploadTracesComponent', () => {
     await component.onWinscopeEvent(warningEvent2);
     dom.detectChanges();
     let warningBanners = dom.findAll(warningBannerSelector);
-    expect(warningBanners.length).toEqual(2);
+    expect(warningBanners.length).toBe(2);
     warningBanners[0]
       .get(warningMessageSelector)
       .checkTextExact(warningMessage1);
@@ -394,7 +424,7 @@ describe('UploadTracesComponent', () => {
 
     // Assert only the first banner is removed
     warningBanners = dom.findAll(warningBannerSelector);
-    expect(warningBanners.length).toEqual(1);
+    expect(warningBanners.length).toBe(1);
     warningBanners[0]
       .get(warningMessageSelector)
       .checkTextExact(warningMessage2);
@@ -411,15 +441,15 @@ describe('UploadTracesComponent', () => {
     await component.onWinscopeEvent(warningEvent1);
     await component.onWinscopeEvent(warningEvent2);
     dom.detectChanges();
-    expect(component.warningMessages.length).toEqual(2);
-    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+    expect(component.warningMessages.length).toBe(2);
+    expect(dom.findAll(warningBannerSelector).length).toBe(2);
 
     // Click clear all
     dom.findAndClick(clearAllSelector);
 
     // Assert banners are hidden
-    expect(component.warningMessages.length).toEqual(0);
-    expect(dom.findAll(warningBannerSelector).length).toEqual(0);
+    expect(component.warningMessages.length).toBe(0);
+    expect(dom.findAll(warningBannerSelector).length).toBe(0);
   });
 
   it('warning banners are not cleared when new files are uploaded', async () => {
@@ -432,16 +462,16 @@ describe('UploadTracesComponent', () => {
     await component.onWinscopeEvent(warningEvent1);
     await component.onWinscopeEvent(warningEvent2);
     dom.detectChanges();
-    expect(component.warningMessages.length).toEqual(2);
-    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+    expect(component.warningMessages.length).toBe(2);
+    expect(dom.findAll(warningBannerSelector).length).toBe(2);
 
     // Start a new progress update
     component.onProgressUpdate('Loading new files...', 0);
     dom.detectChanges();
 
     // Assert banners are hidden
-    expect(component.warningMessages.length).toEqual(2);
-    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+    expect(component.warningMessages.length).toBe(2);
+    expect(dom.findAll(warningBannerSelector).length).toBe(2);
   });
 
   async function loadFiles(files: File[]) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import intDefMapping from 'common/intDefMapping.json';
+import {INTDEF_MAPPING_JSON} from 'compat/intdef_mapping';
 import {
   FixedStringFormatter,
   FLAG_SEPARATOR,
@@ -102,7 +102,8 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
   ): string {
     const flags: string[] = [];
     const mapping =
-      intDefMapping[annotationType as keyof typeof intDefMapping]?.values ?? {};
+      INTDEF_MAPPING_JSON[annotationType as keyof typeof INTDEF_MAPPING_JSON]
+        ?.values ?? {};
 
     const knownFlagValues = Object.keys(mapping)
       .reverse()
