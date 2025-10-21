@@ -38,4 +38,7 @@ android_app {
         "kotlinx_coroutines",
         "kotlinx-coroutines-android",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
