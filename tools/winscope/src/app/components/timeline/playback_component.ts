@@ -147,6 +147,7 @@ export class PlaybackControlsComponent {
 
   changeSpeed(event: MatSelectChange): void {
     this.selectedScale = event.value;
+    event.source.close();
     this.speedChange.emit(this.selectedScale);
   }
 }

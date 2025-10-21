@@ -88,7 +88,6 @@ import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
 import {UserTimestamp} from 'common/time/user_timestamp';
 import {PlaybackControlsComponent} from './playback_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {globalConfig} from 'common/global_config';
 
 /**
  * A component for displaying the timeline view.
@@ -172,9 +171,10 @@ import {globalConfig} from 'common/global_config';
                   (keydown.esc)="$event.target.blur()"
                   (keydown.enter)="onKeydownEnterTimeInputField($event)"
                   (change)="onHumanTimeInputChange($event)">
+                  @let humanTooltip = getHumanTimeTooltip();
                   <mat-icon
                     class="prefix"
-                    [matTooltip]="getHumanTimeTooltip()"
+                    [matTooltip]="humanTooltip"
                     matTooltipClass="multline-tooltip"
                     matIconPrefix>schedule</mat-icon>
                   <input
@@ -604,6 +604,7 @@ export class TimelineComponent
   private seekTracePosition?: TracePosition;
   private isProcessingKeyPress = false;
   private currentTabTraceType: TraceType | undefined;
+  private lastPlayState: PlaybackState | undefined;
 
   constructor(
     @Inject(DomSanitizer) private sanitizer: DomSanitizer,
@@ -894,7 +895,9 @@ export class TimelineComponent
       event.preventDefault();
       this.isProcessingKeyPress = true;
       if (this.playbackState === PlaybackState.PAUSED) {
-        await this.onPlaybackStateChange(PlaybackState.FORWARDS);
+        await this.onPlaybackStateChange(
+          this.lastPlayState ?? PlaybackState.FORWARDS,
+        );
       } else {
         await this.onPlaybackStateChange(PlaybackState.PAUSED);
       }
@@ -953,38 +956,6 @@ export class TimelineComponent
     timelineData.moveToNextEntryFor(activeTrace);
     const position = assertDefined(timelineData.getCurrentPosition());
     await this.emitEvent(new TracePositionUpdate(position));
-  }
-
-  async onPlaybackStateChange(state: PlaybackState) {
-    if (this.currentTabTraceType === undefined) {
-      return;
-    }
-    switch (state) {
-      case PlaybackState.FORWARDS:
-      case PlaybackState.BACKWARDS:
-        this.disabledMessage = 'UI disabled due to playback initialization';
-        this.setIsDisabled(true);
-        this.emitEvent(
-          new PlaybackStateChangeRequest(
-            assertDefined(this.currentTabTraceType),
-            state,
-            this.getPlaybackStartingPosition(),
-          ),
-        );
-        return;
-
-      case PlaybackState.PAUSED:
-        this.emitEvent(
-          new PlaybackStateChangeRequest(
-            assertDefined(this.currentTabTraceType),
-            state,
-          ),
-        );
-        return;
-
-      default:
-        return;
-    }
   }
 
   async onHumanTimeInputChange(event: Event) {
@@ -1166,10 +1137,7 @@ export class TimelineComponent
     if (this.currentTabTraceType === undefined) {
       return false;
     }
-    if (globalConfig.MODE === 'PROD') return false;
-    else {
-      return supportsPlayback(this.currentTabTraceType);
-    }
+    return supportsPlayback(this.currentTabTraceType);
   }
 
   private updateSelectedTraces(trace: Trace<object> | undefined) {
@@ -1183,29 +1151,55 @@ export class TimelineComponent
       this.selectedTracesFormControl.setValue(this.selectedTraces);
     }
   }
-  private getPlaybackStartingPosition() {
-    const timelineData = assertDefined(this.timelineData);
 
+  private async onPlaybackStateChange(state: PlaybackState) {
     if (this.currentTabTraceType === undefined) {
       return;
     }
+    switch (state) {
+      case PlaybackState.FORWARDS:
+      case PlaybackState.BACKWARDS:
+        this.disabledMessage = 'UI disabled due to playback initialization';
+        this.setIsDisabled(true);
+        this.emitEvent(
+          new PlaybackStateChangeRequest(
+            assertDefined(this.currentTabTraceType),
+            state,
+            this.getPlaybackStartingPosition(),
+          ),
+        );
+        return;
 
-    const playableTrace =
-      timelineData.getTraces().getTrace(TraceType.SCREEN_RECORDING) ??
-      timelineData.getTraces().getTrace(this.currentTabTraceType);
+      case PlaybackState.PAUSED:
+        this.emitEvent(
+          new PlaybackStateChangeRequest(
+            assertDefined(this.currentTabTraceType),
+            state,
+          ),
+        );
+        return;
 
-    if (playableTrace === undefined) {
-      return;
+      default:
+        return;
+    }
+  }
+
+  private getPlaybackStartingPosition(): number | undefined {
+    if (this.currentTabTraceType === undefined) {
+      return undefined;
     }
 
-    const startingPosition = timelineData
-      .findCurrentEntryFor(playableTrace as Trace<object>)
+    const currentTrace = this.timelineData
+      ?.getTraces()
+      .getTrace(this.currentTabTraceType);
+
+    if (!currentTrace) {
+      return undefined;
+    }
+
+    return this.timelineData
+      ?.findCurrentEntryFor(currentTrace as Trace<object>)
       ?.getIndex();
-
-    if (startingPosition === undefined) {
-      return;
-    }
-    return startingPosition;
   }
 
   private updateTimeInputValuesToCurrentTimestamp() {
@@ -1279,6 +1273,9 @@ export class TimelineComponent
   }
 
   private setPlaybackState(stateToReflect: PlaybackState) {
+    if (this.playbackState !== PlaybackState.PAUSED) {
+      this.lastPlayState = this.playbackState;
+    }
     this.playbackState = stateToReflect;
   }
 }
