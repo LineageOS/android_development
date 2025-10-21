@@ -128,14 +128,9 @@ export class PlaybackPresenter {
   }
 
   private async fetchActiveBufferForTarget(targetEntryIndex: number) {
-    let bufferEntryStart =
+    const bufferEntryStart =
       Math.floor(targetEntryIndex / this.traceChunkSize) * this.traceChunkSize;
-    if (
-      this.currState === PlaybackState.BACKWARDS &&
-      bufferEntryStart === this.trace.lengthEntries
-    ) {
-      bufferEntryStart -= this.traceChunkSize;
-    }
+
     this.activeBufferFirstEntry = bufferEntryStart;
     const end = Math.min(
       this.activeBufferFirstEntry + this.traceChunkSize,
@@ -198,17 +193,42 @@ export class PlaybackPresenter {
     requestedState: PlaybackState,
   ): Promise<boolean> {
     const start = this.activeBufferFirstEntry ?? 0;
-    const inRange =
-      target >= start &&
-      target < Math.min(this.trace.lengthEntries, start + this.traceChunkSize);
-    if (!inRange) {
+    const end = Math.min(this.trace.lengthEntries, start + this.traceChunkSize);
+    if (target < start || target >= end) {
       return false;
     }
 
-    const bufferIndex = this.activeBuffer.findIndex((bufferEntry) => {
+    let bufferIndex = this.activeBuffer.findIndex((bufferEntry) => {
       return target === bufferEntry.trace?.getIndex();
     });
     assertTrue(bufferIndex !== -1);
+
+    if (requestedState === PlaybackState.FORWARDS) {
+      while (bufferIndex > 0) {
+        const prevBufferEntry = this.activeBuffer[bufferIndex - 1];
+        if (
+          prevBufferEntry.trace &&
+          prevBufferEntry.trace.getIndex() !== target
+        ) {
+          break;
+        }
+        if (start !== 0 && prevBufferEntry.trace === undefined) {
+          break;
+        }
+        bufferIndex--;
+      }
+    } else {
+      while (bufferIndex < this.activeBuffer.length - 1) {
+        const nextBufferEntry = this.activeBuffer[bufferIndex + 1];
+        if (
+          nextBufferEntry.trace &&
+          nextBufferEntry.trace.getIndex() !== target
+        ) {
+          break;
+        }
+        bufferIndex++;
+      }
+    }
 
     this.currState = requestedState;
     await this.emitWinscopeEvent(
@@ -244,12 +264,24 @@ export class PlaybackPresenter {
       if (traceEntryValue) {
         this.assignNodePrototypes(traceEntryValue);
       }
-      this.lastEntryUpdated = assertDefined(
+      const entryForPosition = assertDefined(
         bufferEntry.screenRecording ?? bufferEntry.trace,
       );
+
+      if (this.currState === PlaybackState.FORWARDS) {
+        this.lastEntryUpdated = entryForPosition;
+      } else {
+        if (this.lastEntryUpdated === entryForPosition) {
+          this.lastEntryUpdated =
+            bufferEntry.trace ?? bufferEntry.screenRecording;
+        } else {
+          this.lastEntryUpdated = entryForPosition;
+        }
+      }
+
       await this.emitWinscopeEvent(
         new TracePositionUpdate(
-          TracePosition.fromTraceEntry(this.lastEntryUpdated),
+          TracePosition.fromTraceEntry(entryForPosition),
           true,
           bufferEntry.trace,
         ),
@@ -321,6 +353,9 @@ export class PlaybackPresenter {
     }
 
     const trees = await this.fetchTreesFromWorker(traceRange);
+    if (trees.length !== traceRange.end - traceRange.start) {
+      return [];
+    }
     const chunkEagerTraceEntries = this.trace.createEagerEntriesFromValues(
       traceRange,
       trees,

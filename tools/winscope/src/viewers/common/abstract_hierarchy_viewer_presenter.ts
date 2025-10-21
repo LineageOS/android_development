@@ -456,9 +456,7 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.rectsPresenter?.applyHierarchyTreesChange(currentHierarchyTrees ?? []);
     this.logFetchComponentData(rectStartTime, 'rects');
 
-    if (!this.playbackPresenter || !this.playbackPresenter.isPlaying()) {
-      await this.updatePropertiesTree();
-    }
+    await this.updatePropertiesTree();
   }
 
   protected async applyHighlightedNodeChange(node: UiHierarchyTreeNode) {
@@ -474,6 +472,9 @@ export abstract class AbstractHierarchyViewerPresenter<
   }
 
   protected async updatePropertiesTree() {
+    if (this.playbackPresenter?.isPlaying()) {
+      return;
+    }
     const showDiff = this.propertiesPresenter.getUserOptions()['showDiff'];
     const propertiesStartTime = Date.now();
 

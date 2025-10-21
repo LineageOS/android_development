@@ -212,22 +212,38 @@ export abstract class AbstractHierarchyViewerPresenterTest<
           ).toBeTrue();
         });
 
-        it("doesn't update properties tree on position update if playback is playing", async () => {
+        it("doesn't update properties tree onHighlightedIdChange if playback is playing", async () => {
           await presenter.onAppEvent(this.getPositionUpdate());
-          const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
-          await presenter.onHighlightedIdChange(selectedId);
+          const node = this.getSelectedTreeAfterPositionUpdate();
+          expect(uiData.propertiesTree).toBeUndefined();
+          spyOn(PlaybackPresenter.prototype, 'isPlaying').and.returnValue(true);
+
+          await presenter.onHighlightedIdChange(node.id);
+          expect(uiData.propertiesTree).toBeUndefined();
+        });
+
+        it("doesn't update properties tree onHighlightedNodeChange if playback is playing", async () => {
+          await presenter.onAppEvent(this.getPositionUpdate());
+          const node = this.getSelectedTreeAfterPositionUpdate();
+          expect(uiData.propertiesTree).toBeUndefined();
+          spyOn(PlaybackPresenter.prototype, 'isPlaying').and.returnValue(true);
+
+          await presenter.onHighlightedNodeChange(node);
+          expect(uiData.propertiesTree).toBeUndefined();
+        });
+
+        it("doesn't update properties tree on trace position update if playback is playing", async () => {
+          await presenter.onAppEvent(this.getPositionUpdate());
+          const node = this.getSelectedTreeAfterPositionUpdate();
+          await presenter.onHighlightedIdChange(node.id);
           expect(uiData.propertiesTree).toBeDefined();
-          const propsTreeBeforePlayback = uiData.propertiesTree;
+          const prevProperties = uiData.propertiesTree;
+          spyOn(PlaybackPresenter.prototype, 'isPlaying').and.returnValue(true);
 
-          const playbackPresenter = PlaybackPresenter.prototype;
-          expect(playbackPresenter).toBeDefined();
-
-          const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
-
-          isPlayingSpy.and.returnValue(true);
-
-          await presenter.onHighlightedIdChange(selectedId);
-          expect(uiData.propertiesTree).toEqual(propsTreeBeforePlayback);
+          await presenter.onAppEvent(
+            assertDefined(this.getSecondPositionUpdate()),
+          );
+          expect(uiData.propertiesTree).toEqual(prevProperties);
         });
 
         it('initializes playback when a PlaybackStart event is received', async () => {
