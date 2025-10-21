@@ -116,8 +116,8 @@ describe('PlaybackPresenter', () => {
           .build(),
       );
 
-      if (presenter['workerPromiseResolver']) {
-        presenter['workerPromiseResolver'](mockTrees);
+      if (presenter['workerPromiseResolve']) {
+        presenter['workerPromiseResolve'](mockTrees);
       }
     });
   });
