@@ -52,7 +52,8 @@ class SceneTransitionLayoutDemoBenchmark {
             // Start the demo in the shade. This is our more busy screen because it has a bunch of
             // elements for the quick settings but also nested SceneTransitionLayouts for each
             // notification.
-            benchmarkScope().startDemoActivity(StlDemoConstants.SHADE_SCENE)
+            benchmarkScope()
+                .startDemoActivity(StlDemoConstants.SHADE_SCENE, notificationsInShade = 300)
         }
     }
 
