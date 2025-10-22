@@ -34,7 +34,7 @@ import {
   parseIntFromBuffer,
   ScreenRecordingParser,
   WINSCOPE_MAGIC_STRING,
-} from './utils';
+} from './helpers';
 
 export class ParserScreenRecording extends AbstractParser<
   MediaBasedTraceEntry,

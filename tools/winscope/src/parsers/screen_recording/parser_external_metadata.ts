@@ -19,7 +19,7 @@ import {
   ParserResult,
   parseTimestampsFromMp4VideoTrack,
   ScreenRecordingParser,
-} from './utils';
+} from './helpers';
 
 export class ParserExternalMetadata implements ScreenRecordingParser {
   private offsets: ScreenRecordingOffsets;
