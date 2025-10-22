@@ -25,12 +25,31 @@ declare module 'mp4box' {
   export interface Track {
     id: number;
     nb_samples: number;
+    timescale: number;
+    codec: string;
+    video: {width: number; height: number};
+    duration: number;
+    matrix: Int32Array;
   }
 
   export interface Sample {
     duration: number;
     timescale: number;
     data: Uint8Array;
+    is_sync: boolean;
+    cts: number;
+    description: {avcC?: AvcCBox};
+  }
+
+  export interface AvcCBox {
+    SPS: Array<{length: number; data: Uint8Array}>;
+    PPS: Array<{length: number; data: Uint8Array}>;
+    configurationVersion: number;
+    AVCProfileIndication: number;
+    profile_compatibility: number;
+    AVCLevelIndication: number;
+    nb_PPS_nalus: number;
+    nb_SPS_nalus: number;
   }
 
   export type MP4ArrayBuffer = ArrayBuffer & {fileStart: number};
@@ -45,7 +64,12 @@ declare module 'mp4box' {
       user?: unknown,
       options?: {nbSamples?: number; rapAlignment?: number},
     ): void;
+    flush(): void;
   }
 
   export function createFile(): MP4File;
+
+  export interface MP4BoxBuffer extends ArrayBuffer {
+    fileStart: number;
+  }
 }
