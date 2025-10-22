@@ -38,6 +38,7 @@ export class GraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chartContainer', { static: true })
   chartContainer!: ElementRef<HTMLDivElement>;
   graphId: string = '';
+  dataType: string = '';
   static readonly UNSPECIFIED: string = "unspecified";
 
   private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
@@ -148,15 +149,20 @@ export class GraphComponent implements AfterViewInit, OnChanges {
       }
 
       const newPoint: ValueDataPoint = { x };
-      if (typeof actualDataPoint === 'number' || typeof actualDataPoint === 'string') {
-        newPoint.actualValue = actualDataPoint;
-      } else if (typeof actualDataPoint === 'boolean') {
-        newPoint.actualValue = (actualDataPoint ? "true" : "false");
+      if (this.dataType === typeof actualDataPoint) {
+        if (typeof actualDataPoint === 'number' || typeof actualDataPoint === 'string') {
+          newPoint.actualValue = actualDataPoint;
+        } else if (typeof actualDataPoint === 'boolean') {
+          newPoint.actualValue = (actualDataPoint ? "true" : "false");
+        }
       }
-      if (typeof expectedDataPoint === 'number' || typeof expectedDataPoint === 'string') {
-        newPoint.expectedValue = expectedDataPoint;
-      } else if (typeof expectedDataPoint === 'boolean') {
-        newPoint.expectedValue = (expectedDataPoint ? "true" : "false");
+
+      if (this.dataType === typeof expectedDataPoint) {
+        if (typeof expectedDataPoint === 'number' || typeof expectedDataPoint === 'string') {
+          newPoint.expectedValue = expectedDataPoint;
+        } else if (typeof expectedDataPoint === 'boolean') {
+          newPoint.expectedValue = (expectedDataPoint ? "true" : "false");
+        }
       }
       this.data.push(newPoint);
     }
@@ -175,11 +181,11 @@ export class GraphComponent implements AfterViewInit, OnChanges {
     const firstValidPoint = dataPoints.find(d => d !== undefined
       && d !== GraphComponent.UNSPECIFIED);
 
-    const dataType = firstValidPoint !== undefined
+    this.dataType = firstValidPoint !== undefined
       ? typeof firstValidPoint
       : GraphComponent.UNSPECIFIED;
 
-    if (dataType === 'boolean' || dataType === 'string') {
+    if (this.dataType === 'boolean' || this.dataType === 'string') {
       return new LineGraphVisualizationForString(
         this.graphId,
         this.previewService,
@@ -196,8 +202,8 @@ export class GraphComponent implements AfterViewInit, OnChanges {
         )
       )
 
-    let minValue = Math.min(...numericValues) ?? 0;
-    let maxValue = Math.max(...numericValues) ?? 1;
+    let minValue = numericValues.length > 0 ? Math.min(...numericValues) : 0;
+    let maxValue = numericValues.length > 0 ? Math.max(...numericValues) : 1;
 
     if (minValue === maxValue) {
       maxValue += 1;
