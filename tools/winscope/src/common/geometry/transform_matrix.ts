@@ -119,6 +119,34 @@ export class TransformMatrix {
     );
   }
 
+  getRotationAngle(): number {
+    if (
+      this.dsdx === 0 &&
+      this.dtdx === -1 &&
+      this.dtdy === 1 &&
+      this.dsdy === 0
+    ) {
+      return 90;
+    }
+    if (
+      this.dsdx === -1 &&
+      this.dtdx === 0 &&
+      this.dtdy === 0 &&
+      this.dsdy === -1
+    ) {
+      return 180;
+    }
+    if (
+      this.dsdx === 0 &&
+      this.dtdx === 1 &&
+      this.dtdy === -1 &&
+      this.dsdy === 0
+    ) {
+      return 270;
+    }
+    return 0;
+  }
+
   private det(): number {
     return this.dsdx * this.dsdy - this.dtdx * this.dtdy;
   }

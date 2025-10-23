@@ -96,4 +96,27 @@ describe('TransformMatrix', () => {
     expect(matrix.isEqual(sameMatrix)).toBeTrue();
     expect(matrix.isEqual(differentMatrix)).toBeFalse();
   });
+
+  it('should return correct rotation angles', () => {
+    expect(TransformMatrix.IDENTITY.getRotationAngle()).toBe(0);
+    expect(
+      TransformMatrix.from({
+        dsdx: 0,
+        dtdx: -1,
+        dtdy: 1,
+        dsdy: 0,
+      }).getRotationAngle(),
+    ).toBe(90);
+    expect(TransformMatrix.from({dsdx: -1, dsdy: -1}).getRotationAngle()).toBe(
+      180,
+    );
+    expect(
+      TransformMatrix.from({
+        dsdx: 0,
+        dtdx: 1,
+        dtdy: -1,
+        dsdy: 0,
+      }).getRotationAngle(),
+    ).toBe(270);
+  });
 });
