@@ -26,6 +26,7 @@ import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {UiData} from './ui_data';
+import {TraceType} from 'trace_api/trace_type';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 
@@ -59,9 +60,11 @@ export class Presenter {
       },
     );
     htmlElement.addEventListener(
-      ViewerEvents.OverlayScreenRecordingChange,
+      ViewerEvents.OverlayMediaBasedTraceChange,
       async (event) => {
-        this.onOverlayScreenRecordingChange((event as CustomEvent).detail);
+        if (this.traces.at(0)?.type === TraceType.SCREEN_RECORDING) {
+          this.onOverlayScreenRecordingChange((event as CustomEvent).detail);
+        }
       },
     );
   }
