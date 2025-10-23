@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {toIntLittleEndian, toUintLittleEndian} from './utils';
+import {toIntLittleEndian, toUintLittleEndian} from './helpers';
 
 describe('utils_test', () => {
   it('toUintLittleEndian', () => {

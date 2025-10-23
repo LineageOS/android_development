@@ -18,13 +18,13 @@ import {assertTrue} from 'common/assert';
 import {Sample} from 'mp4box';
 import {startsWithMagicNumber} from 'parsers/legacy/parsing_utils';
 import {
-  MP4FileOnReady,
+  MP4FileOnReadyTimestamps,
   parseLongFromBuffer,
   ParserResult,
   parseTimestampsFromMp4Track,
   ScreenRecordingParser,
   WINSCOPE_MAGIC_STRING,
-} from './utils';
+} from './helpers';
 
 // Metadata v3 is written sample-by-sample. Each sample contains:
 // - Realtime-to-elapsed time offset in ns (8B little endian)
@@ -39,7 +39,12 @@ export class ParserMetadataV3 implements ScreenRecordingParser {
     // do not set boot time offset as it is more accurate to use the updated offsets
     // from each sample
 
-    const onReady: MP4FileOnReady = (info, mp4File, timestamps, resolve) => {
+    const onReady: MP4FileOnReadyTimestamps = (
+      info,
+      mp4File,
+      timestamps,
+      resolve,
+    ) => {
       assertTrue(info.videoTracks.length === 1);
       assertTrue(info.metadataTracks.length === 1);
       mp4File.onSamples = (id, _, samples) => {

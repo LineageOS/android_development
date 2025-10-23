@@ -19,7 +19,7 @@ import {
   parseLongFromBuffer,
   ParserResult,
   ScreenRecordingParser,
-} from './utils';
+} from './helpers';
 
 //  Metadata v2 is written as a binary array with the following format:
 //  - Winscope magic string
