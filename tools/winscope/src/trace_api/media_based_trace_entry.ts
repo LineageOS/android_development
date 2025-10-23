@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {assertDefined} from 'common/assert';
+import {Size} from 'common/geometry/size';
 
 /**
  * Represents a single entry in a media-based trace, such as a video or image sequence.
@@ -31,24 +33,65 @@ export class MediaBasedTraceEntry {
     /** Defined if the media data is a video. */
     readonly videoFrame?: VideoFrame,
     /** Gives rotation angle for video frame. */
-    readonly videoRotationAngle = 0,
+    private readonly videoRotationAngle = 0,
   ) {}
 
-  shouldFlipDimensions(): boolean {
+  tryDrawOnCanvas(canvas: HTMLCanvasElement) {
+    if (!this.videoFrame) {
+      return;
+    }
+
+    const ctx = assertDefined(canvas.getContext('2d'));
+
+    const canvasDimensions = this.canvasDimensions(this.videoFrame);
+    canvas.width = canvasDimensions.width;
+    canvas.height = canvasDimensions.height;
+
+    ctx.rotate(this.rotationAngleRadians());
+
+    ctx.drawImage(
+      this.videoFrame,
+      this.xOffset(this.videoFrame),
+      this.yOffset(this.videoFrame),
+      this.videoFrame.codedWidth,
+      this.videoFrame.codedHeight,
+    );
+
+    ctx.resetTransform();
+  }
+
+  private canvasDimensions(videoFrame: VideoFrame): Size {
+    if (this.shouldFlipDimensions()) {
+      return {
+        width: videoFrame.codedHeight,
+        height: videoFrame.codedWidth,
+      };
+    }
+    return {
+      width: videoFrame.codedWidth,
+      height: videoFrame.codedHeight,
+    };
+  }
+
+  private shouldFlipDimensions(): boolean {
     return this.videoRotationAngle % 180 !== 0;
   }
 
-  yOffset(): number {
+  private yOffset(videoFrame: VideoFrame): number {
     if (this.videoRotationAngle === 90 || this.videoRotationAngle === 180) {
-      return -assertDefined(this.videoFrame).codedHeight;
+      return -videoFrame.codedHeight;
     }
     return 0;
   }
 
-  xOffset(): number {
+  private xOffset(videoFrame: VideoFrame): number {
     if (this.videoRotationAngle === 180 || this.videoRotationAngle === 270) {
-      return -assertDefined(this.videoFrame).codedWidth;
+      return -videoFrame.codedWidth;
     }
     return 0;
+  }
+
+  private rotationAngleRadians() {
+    return (this.videoRotationAngle * Math.PI) / 180;
   }
 }

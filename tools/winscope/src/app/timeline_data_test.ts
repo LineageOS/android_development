@@ -69,7 +69,7 @@ describe('TimelineData', () => {
     timelineData = new TimelineData();
   });
 
- it('can be initialized without screen recording', () => {
+  it('can be initialized without screen recording', () => {
     expect(timelineData.getCurrentPosition()).toBeUndefined();
     timelineData.initialize(traces, undefined, UTC_CONVERTER);
     expect(timelineData.getCurrentPosition()).toBeDefined();
