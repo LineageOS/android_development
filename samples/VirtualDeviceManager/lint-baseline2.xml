@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha08" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha08">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 34): `android.companion.virtual.sensor.VirtualSensor#sendAdditionalInfo`"
+        errorLine1="                sensor.sendAdditionalInfo("
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/host/src/com/example/android/vdmdemo/host/RemoteSensorManager.java"
+            line="104"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 34): `new android.companion.virtual.sensor.VirtualSensorAdditionalInfo.Builder`"
+        errorLine1="                        new VirtualSensorAdditionalInfo.Builder(TYPE_INTERNAL_TEMPERATURE)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/host/src/com/example/android/vdmdemo/host/RemoteSensorManager.java"
+            line="105"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 34): `android.companion.virtual.sensor.VirtualSensorAdditionalInfo.Builder#addValues`"
+        errorLine1="                                .addValues(Floats.toArray(sensorEvent.getValuesList()))"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/host/src/com/example/android/vdmdemo/host/RemoteSensorManager.java"
+            line="106"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 34): `android.companion.virtual.sensor.VirtualSensorAdditionalInfo.Builder#build`"
+        errorLine1="                                .build());"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/host/src/com/example/android/vdmdemo/host/RemoteSensorManager.java"
+            line="107"
+            column="34"/>
+    </issue>
+
+</issues>

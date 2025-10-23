@@ -28,6 +28,9 @@ android_app {
         "guava",
         "hilt_android",
     ],
+    lint: {
+        baseline_filename: "lint-baseline2.xml",
+    },
 }
 
 android_app {
@@ -70,6 +73,9 @@ android_app {
         "androidx.appcompat_appcompat",
         "com.google.android.material_material",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 android_library {
