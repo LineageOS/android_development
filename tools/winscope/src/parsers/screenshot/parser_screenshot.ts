@@ -20,7 +20,10 @@ import {CoarseVersion} from 'trace_api/coarse_version';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 
-class ParserScreenshot extends AbstractParser<MediaBasedTraceEntry, number> {
+export class ParserScreenshot extends AbstractParser<
+  MediaBasedTraceEntry,
+  number
+> {
   private static readonly MAGIC_NUMBER = [
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   ]; // currently only support png files
@@ -53,13 +56,10 @@ class ParserScreenshot extends AbstractParser<MediaBasedTraceEntry, number> {
     return [0]; // require a non-empty array to be returned so trace can provide timestamps
   }
 
-  override processDecodedEntry(
+  override async processDecodedEntry(
     index: number,
     entry: number,
-  ): MediaBasedTraceEntry {
-    const screenshotData = this.traceFile.file;
-    return new MediaBasedTraceEntry(0, screenshotData, true);
+  ): Promise<MediaBasedTraceEntry> {
+    return new MediaBasedTraceEntry(this.traceFile.file);
   }
 }
-
-export {ParserScreenshot};

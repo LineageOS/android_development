@@ -63,12 +63,12 @@ describe('ParserScreenRecording', () => {
       {
         const entry = await parser.getEntry(0);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+        expect(entry.videoFrame?.timestamp).toBe(0);
       }
       {
         const entry = await parser.getEntry(parser.getLengthEntries() - 1);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(1.371077, 0.001);
+        expect(entry.videoFrame?.timestamp).toBe(1371066);
       }
     });
   });
@@ -108,12 +108,12 @@ describe('ParserScreenRecording', () => {
       {
         const entry = await parser.getEntry(0);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+        expect(entry.videoFrame?.timestamp).toBe(0);
       }
       {
         const entry = await parser.getEntry(parser.getLengthEntries() - 1);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(3.251884, 0.001);
+        expect(entry.videoFrame?.timestamp).toBe(3251911);
       }
     });
   });
@@ -166,12 +166,12 @@ describe('ParserScreenRecording', () => {
       {
         const entry = await parser.getEntry(0);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+        expect(entry.videoFrame?.timestamp).toBe(1136755);
       }
       {
         const entry = await parser.getEntry(parser.getLengthEntries() - 1);
         expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(Number(entry.videoTimeSeconds)).toBeCloseTo(4.192109, 0.001);
+        expect(entry.videoFrame?.timestamp).toBe(5912966);
       }
     });
   });
@@ -270,12 +270,12 @@ describe('ParserScreenRecording', () => {
         {
           const entry = await parser.getEntry(0);
           expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-          expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+          expect(entry.videoFrame?.timestamp).toBe(1136755);
         }
         {
           const entry = await parser.getEntry(parser.getLengthEntries() - 1);
           expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-          expect(Number(entry.videoTimeSeconds)).toBeCloseTo(4.192109, 0.001);
+          expect(entry.videoFrame?.timestamp).toBe(5912966);
         }
       });
     }
