@@ -99,11 +99,8 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         </span>
       </mat-card-title>
       <div class="video-container" cdkDragHandle [style.height]="isMinimized() ? '0px' : ''">
-        @if (hasFrameToShow()) {
-          <video
-            [currentTime]="getCurrentTime()"
-            [src]="safeUrl"
-            #videoElement></video>
+        @if (hasVideoFrameToShow()) {
+          <canvas id="videoCanvasElementOverlay"></canvas>
         } @else {
           @if (hasImage()) {
             <img [src]="safeUrl" />
@@ -186,7 +183,7 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         min-width: 24px;
       }
 
-      .video-container, video, img {
+      .video-container, canvas, img {
         border: 1px solid var(--default-border);
         width: 100%;
         height: auto;
@@ -201,7 +198,7 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
     `,
   ],
 })
-class ViewerMediaBasedComponent {
+export class ViewerMediaBasedComponent {
   safeUrl: undefined | SafeUrl = undefined;
   shouldMinimize = false;
   index = 0;
@@ -231,6 +228,8 @@ class ViewerMediaBasedComponent {
       return;
     }
 
+    this.updateRenderedFrame();
+
     if (this.safeUrl === undefined) {
       this.updateSafeUrl();
     }
@@ -258,25 +257,22 @@ class ViewerMediaBasedComponent {
     return this.forceMinimize || this.shouldMinimize;
   }
 
-  hasFrameToShow() {
+  hasVideoFrameToShow() {
     const curr = this.currentTraceEntries.at(this.index);
-    return curr && !curr.isImage && curr.videoTimeSeconds !== undefined;
+    return curr && !curr.imgData && curr.videoFrame !== undefined;
   }
 
   hasImage() {
-    return this.currentTraceEntries.at(this.index)?.isImage ?? false;
-  }
-
-  getCurrentTime(): number {
-    return this.currentTraceEntries.at(this.index)?.videoTimeSeconds ?? 0;
+    return this.currentTraceEntries.at(this.index)?.imgData !== undefined;
   }
 
   onSelectChange(event: MatSelectChange) {
     this.index = event.value;
-    this.updateSafeUrl();
+    this.updateRenderedFrame();
+    this.updateFrameSize();
     event.source.close();
     const screenIndexChangeEvent = new CustomEvent(
-      ViewerEvents.OverlayScreenRecordingChange,
+      ViewerEvents.OverlayMediaBasedTraceChange,
       {
         detail: this.index,
         bubbles: true,
@@ -295,6 +291,20 @@ class ViewerMediaBasedComponent {
     }
   }
 
+  private updateRenderedFrame() {
+    const entry = this.currentTraceEntries.at(this.index);
+    if (!entry?.videoFrame) {
+      this.updateSafeUrl();
+      return;
+    }
+    const canvas = assertDefined(
+      this.elementRef.nativeElement.querySelector<HTMLCanvasElement>(
+        '#videoCanvasElementOverlay',
+      ),
+    );
+    entry.tryDrawOnCanvas(canvas);
+  }
+
   private resetFrameSizeWorker() {
     if (this.frameSizeWorker === undefined) {
       this.frameSizeWorker = window.setInterval(
@@ -305,12 +315,14 @@ class ViewerMediaBasedComponent {
   }
 
   private updateFrameSize() {
-    const video =
-      this.elementRef.nativeElement.querySelector<HTMLVideoElement>('video');
-    if (video && video.readyState) {
+    const canvas =
+      this.elementRef.nativeElement.querySelector<HTMLCanvasElement>(
+        '#videoCanvasElementOverlay',
+      );
+    if (canvas) {
       this.frameSize = {
-        width: video.videoWidth,
-        height: video.videoHeight,
+        width: canvas.width,
+        height: canvas.height,
       };
       this.clearFrameSizeWorker();
       this.updateMaxContainerSize();
@@ -320,8 +332,8 @@ class ViewerMediaBasedComponent {
       this.elementRef.nativeElement.querySelector<HTMLImageElement>('img');
     if (image) {
       this.frameSize = {
-        width: image.naturalWidth,
-        height: image.naturalHeight,
+        width: image.width,
+        height: image.height,
       };
       this.clearFrameSizeWorker();
       this.updateMaxContainerSize();
@@ -330,14 +342,11 @@ class ViewerMediaBasedComponent {
 
   private updateSafeUrl() {
     const curr = this.currentTraceEntries.at(this.index);
-    if (curr) {
+    if (curr?.imgData !== undefined) {
       this.safeUrl = this.sanitizer.bypassSecurityTrustUrl(
-        URL.createObjectURL(curr.videoData),
+        URL.createObjectURL(curr.imgData),
       );
       this.changeDetectorRef.detectChanges();
-      const video =
-        this.elementRef.nativeElement.querySelector<HTMLVideoElement>('video');
-      if (video) video.currentTime = this.getCurrentTime();
       this.resetFrameSizeWorker();
     }
   }
@@ -366,5 +375,3 @@ class ViewerMediaBasedComponent {
     this.frameSizeWorker = undefined;
   }
 }
-
-export {ViewerMediaBasedComponent};
