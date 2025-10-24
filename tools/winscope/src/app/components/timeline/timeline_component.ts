@@ -878,29 +878,36 @@ export class TimelineComponent
       return;
     }
 
-    if (event.key === KeyboardEventKey.MEDIA_TRACK_PREVIOUS) {
-      event.preventDefault();
-      if (this.playbackState === PlaybackState.FORWARDS) {
-        await this.onPlaybackStateChange(PlaybackState.BACKWARDS);
-      }
-      this.isProcessingKeyPress = false;
-    } else if (event.key === KeyboardEventKey.MEDIA_TRACK_NEXT) {
+    if (
+      event.key === KeyboardEventKey.MEDIA_TRACK_PREVIOUS &&
+      this.playbackState !== PlaybackState.BACKWARDS
+    ) {
       event.preventDefault();
       this.isProcessingKeyPress = true;
-      if (this.playbackState === PlaybackState.BACKWARDS) {
-        await this.onPlaybackStateChange(PlaybackState.FORWARDS);
-      }
+      await this.onPlaybackStateChange(PlaybackState.BACKWARDS);
       this.isProcessingKeyPress = false;
-    } else if (event.keyCode === KeyboardEventKeyCode.SPACE) {
+      return;
+    }
+
+    if (
+      event.key === KeyboardEventKey.MEDIA_TRACK_NEXT &&
+      this.playbackState !== PlaybackState.FORWARDS
+    ) {
       event.preventDefault();
       this.isProcessingKeyPress = true;
-      if (this.playbackState === PlaybackState.PAUSED) {
-        await this.onPlaybackStateChange(
-          this.lastPlayState ?? PlaybackState.FORWARDS,
-        );
-      } else {
-        await this.onPlaybackStateChange(PlaybackState.PAUSED);
-      }
+      await this.onPlaybackStateChange(PlaybackState.FORWARDS);
+      this.isProcessingKeyPress = false;
+      return;
+    }
+
+    if (event.keyCode === KeyboardEventKeyCode.SPACE) {
+      event.preventDefault();
+      this.isProcessingKeyPress = true;
+      const newState =
+        this.playbackState === PlaybackState.PAUSED
+          ? (this.lastPlayState ?? PlaybackState.FORWARDS)
+          : PlaybackState.PAUSED;
+      await this.onPlaybackStateChange(newState);
       this.isProcessingKeyPress = false;
     }
   }
