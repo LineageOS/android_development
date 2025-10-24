@@ -1170,7 +1170,7 @@ describe('TimelineComponent', () => {
     expect(drawSpy).toHaveBeenCalledTimes(1);
   });
 
-  describe('playback controls', async () => {
+  describe('playback controls', () => {
     let emitEventSpy: jasmine.Spy;
 
     beforeEach(() => {
@@ -1181,14 +1181,14 @@ describe('TimelineComponent', () => {
       component.timeline?.setEmitEvent(emitEventSpy);
     });
 
-    it('disables timeline component on playback initialization', async () => {
+    it('disables timeline component on playback initialization', () => {
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.PAUSED;
       dom.keydownSpace();
       expect(timelineComponent.isDisabled).toEqual(true);
     });
 
-    it('starts playback on space click', async () => {
+    it('starts playback on space click', () => {
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.PAUSED;
 
@@ -1223,7 +1223,7 @@ describe('TimelineComponent', () => {
       );
     });
 
-    it('stops playback on space click if already playing', async () => {
+    it('stops playback on space click if already playing', () => {
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.FORWARDS;
 
@@ -1237,7 +1237,19 @@ describe('TimelineComponent', () => {
       );
     });
 
-    it('changes playback direction to backwards on media track previous click', async () => {
+    it('starts playing backwards on media track previous click', () => {
+      dom.keydownMediaTrackPrevious(true);
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+      expect(emitEventSpy).toHaveBeenCalledWith(
+        new PlaybackStateChangeRequest(
+          TraceType.SURFACE_FLINGER,
+          PlaybackState.BACKWARDS,
+          0,
+        ),
+      );
+    });
+
+    it('changes playback direction to backwards on media track previous click', () => {
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.FORWARDS;
 
@@ -1252,7 +1264,26 @@ describe('TimelineComponent', () => {
       );
     });
 
-    it('changes playback direction to forwards on media track next click', async () => {
+    it('does not send event on media track previous click if already playing backwards', () => {
+      dom.keydownMediaTrackPrevious(true);
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+      dom.keydownMediaTrackPrevious(true);
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('starts playing forwards on media track next click', () => {
+      dom.keydownMediaTrackNext(true);
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+      expect(emitEventSpy).toHaveBeenCalledWith(
+        new PlaybackStateChangeRequest(
+          TraceType.SURFACE_FLINGER,
+          PlaybackState.FORWARDS,
+          0,
+        ),
+      );
+    });
+
+    it('changes playback direction to forwards on media track next click', () => {
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.BACKWARDS;
 
@@ -1265,6 +1296,13 @@ describe('TimelineComponent', () => {
           0,
         ),
       );
+    });
+
+    it('does not send event on media track next click if already playing backwards', () => {
+      dom.keydownMediaTrackNext(true);
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+      dom.keydownMediaTrackNext(true);
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
     });
 
     it('does not handle arrow key presses if playback is playing', () => {
@@ -1327,7 +1365,7 @@ describe('TimelineComponent', () => {
       expect(timelineComponent.playbackState).toEqual(event.state);
     });
 
-    it('emits PlaybackStateChangeRequest event on a playback button clicked', async () => {
+    it('emits PlaybackStateChangeRequest event on a playback button clicked', () => {
       const timelineComponent = assertDefined(component.timeline);
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);

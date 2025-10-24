@@ -53,6 +53,9 @@ describe('ShortcutsComponent', () => {
       ['Move slider right'],
       ['Previous state'],
       ['Next state'],
+      ['Play/pause'],
+      ['Play forwards'],
+      ['Play backwards'],
     ]);
   });
 
