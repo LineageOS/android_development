@@ -37,6 +37,8 @@ const JS_MEMORY_USAGE = 'js_memory_usage';
 const LOAD_FILES_TIME = 'load_files_time';
 const LOAD_VIEWERS_TIME = 'load_viewer_time';
 const NAVIGATION_ZOOM_EVENT = 'navigation_zoom';
+const PLAYBACK_START_REQUEST = 'playback_start_request';
+const PLAYBACK_ERROR = 'playback_error';
 const PROPERTIES_SETTINGS = 'properties_settings';
 const PROXY_ERROR = 'proxy_error';
 const PROXY_SERVER_NOT_FOUND = 'proxy_server_not_found';
@@ -77,6 +79,11 @@ export const Analytics = {
     },
     logFrameMapError(description: string) {
       analyticsLogEvent(FRAME_MAP_ERROR, {
+        description,
+      } as Gtag.CustomParams);
+    },
+    logPlaybackError(description: string) {
+      analyticsLogEvent(PLAYBACK_ERROR, {
         description,
       } as Gtag.CustomParams);
     },
@@ -264,6 +271,14 @@ export const Analytics = {
         component,
         type,
       } as Gtag.CustomParams);
+    },
+  },
+
+  Playback: {
+    logStartRequest(type: 'forwards' | 'backwards') {
+      analyticsLogEvent(PLAYBACK_START_REQUEST, {
+        type,
+      });
     },
   },
 

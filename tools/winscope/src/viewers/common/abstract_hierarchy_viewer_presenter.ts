@@ -277,7 +277,7 @@ export abstract class AbstractHierarchyViewerPresenter<
 
         switch (event.state) {
           case PlaybackState.PAUSED:
-            if (this.pausePlayback) {
+            if (this.playbackPresenter !== undefined) {
               await this.pausePlayback();
             }
             return;
@@ -289,7 +289,7 @@ export abstract class AbstractHierarchyViewerPresenter<
     await event.visit(
       WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE,
       async (event) => {
-        if (!this.trace || !this.playPlayback) {
+        if (!this.trace || !this.playbackPresenter) {
           return;
         }
         if (!this.screenRecordingTrace) {
@@ -583,6 +583,27 @@ export abstract class AbstractHierarchyViewerPresenter<
     );
   }
 
+  private async playPlayback(
+    currentPosition: number,
+    requestedState: PlaybackState,
+    traceGeometryData: TraceGeometryData,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
+  ) {
+    this.hierarchyPresenter.setShowDiffAvailability(false);
+    const playbackPresenter = assertDefined(this.playbackPresenter);
+    playbackPresenter.setTraceGeometryData(traceGeometryData);
+    playbackPresenter
+      .play(currentPosition, requestedState, screenRecordingTrace)
+      .catch((error) => {
+        Analytics.Error.logPlaybackError(error.message);
+      });
+  }
+
+  private async pausePlayback(): Promise<void> {
+    this.hierarchyPresenter.setShowDiffAvailability(true);
+    assertDefined(this.playbackPresenter).pause();
+  }
+
   abstract onHighlightedNodeChange(node: UiHierarchyTreeNode): Promise<void>;
   abstract onHighlightedIdChange(id: string): Promise<void>;
   protected abstract keepCalculated(tree: HierarchyTreeNode): boolean;
@@ -591,13 +612,6 @@ export abstract class AbstractHierarchyViewerPresenter<
   ): string | undefined;
   protected abstract refreshUIData(): void;
   protected initializeIfNeeded?(event: TracePositionUpdate): Promise<void>;
-  protected playPlayback?(
-    currentPosition: number,
-    requestedState: PlaybackState,
-    traceGeometryData: TraceGeometryData,
-    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
-  ): Promise<void>;
-  protected pausePlayback?(): Promise<void>;
   protected processDataAfterPositionUpdate?(
     event: TracePositionUpdate,
   ): Promise<void>;

@@ -254,7 +254,7 @@ export abstract class AbstractHierarchyViewerPresenterTest<
           const playbackPresenterSpy = spyOn(
             PlaybackPresenter.prototype,
             'play',
-          );
+          ).and.returnValue(Promise.resolve());
           const event = new PlaybackStateChangePropagate(
             PlaybackState.FORWARDS,
             0,

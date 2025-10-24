@@ -48,9 +48,6 @@ import {PropagateHashCodes} from './operations/propagate_hash_codes';
 import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {assertDefined} from 'common/assert';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -208,26 +205,6 @@ the default for its data type.`,
 
   protected override refreshUIData() {
     this.refreshHierarchyViewerUiData();
-  }
-
-  protected override async playPlayback(
-    currentPosition: number,
-    requestedState: PlaybackState,
-    traceGeometryData: TraceGeometryData,
-    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
-  ) {
-    this.hierarchyPresenter.setShowDiffAvailability(false);
-    this.playbackPresenter.setTraceGeometryData(traceGeometryData);
-    this.playbackPresenter.play(
-      currentPosition,
-      requestedState,
-      screenRecordingTrace,
-    );
-  }
-
-  protected override async pausePlayback(): Promise<void> {
-    this.hierarchyPresenter.setShowDiffAvailability(true);
-    this.playbackPresenter.pause();
   }
 
   private getDisplays(rects: UiRect[]): DisplayIdentifier[] {
