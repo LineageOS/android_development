@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimatableApi::class)
-
 package com.android.mechanics.demo.demos
 
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +31,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.android.compose.animation.scene.ElementKey
-import com.android.compose.animation.scene.mechanics.rememberGestureContext
 import com.android.compose.modifiers.thenIf
 import com.android.mechanics.compose.modifier.motionDriver
 import com.android.mechanics.compose.modifier.verticalFadeContentReveal
@@ -55,7 +50,6 @@ import com.android.mechanics.demo.tuneable.DemoWithConfig
 import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.LabelledCheckbox
 import com.android.mechanics.demo.util.ExpandableCard
-import com.android.mechanics.spec.builder.rememberMotionBuilderContext
 
 object Elements {
     val ExpandableContent = ElementKey("ExpandableContent")
@@ -70,8 +64,6 @@ object VerticalFadeContentRevealDemo :
     override fun DemoUi(config: Config, modifier: Modifier) {
         val colors = MaterialTheme.colorScheme
 
-        val motionContext = rememberMotionBuilderContext()
-
         Box(contentAlignment = Alignment.TopCenter, modifier = modifier.fillMaxSize()) {
             ExpandableCard(
                 modifier = Modifier,
@@ -82,7 +74,7 @@ object VerticalFadeContentRevealDemo :
                     modifier =
                         Modifier.fillMaxWidth()
                             .element(Elements.ExpandableContent)
-                            .motionDriver(rememberGestureContext())
+                            .motionDriver(contentScope = this)
                             .verticalScroll(rememberScrollState())
                             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 ) {
@@ -115,10 +107,9 @@ object VerticalFadeContentRevealDemo :
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun rememberDefaultConfig(): Config {
-        return remember() { Config(showItemBackground = false) }
+        return remember { Config(showItemBackground = false) }
     }
 
     @Composable
