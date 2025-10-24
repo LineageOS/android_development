@@ -30,6 +30,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TimelineData} from './timeline_data';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 describe('TimelineData', () => {
   let timelineData: TimelineData;
@@ -52,6 +53,9 @@ describe('TimelineData', () => {
   const traceSf = assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER));
   const traceWm = assertDefined(traces.getTrace(TraceType.WINDOW_MANAGER));
   const traceSr = assertDefined(traces.getTrace(TraceType.SCREEN_RECORDING));
+  const traceSr2 = new TraceBuilder<MediaBasedTraceEntry>()
+    .setEntries([])
+    .build();
 
   const position10 = TracePosition.fromTraceEntry(
     assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER)).getEntry(0),
@@ -65,11 +69,23 @@ describe('TimelineData', () => {
     timelineData = new TimelineData();
   });
 
-  it('can be initialized', () => {
+  it('can be initialized without screen recording', () => {
     expect(timelineData.getCurrentPosition()).toBeUndefined();
-
     timelineData.initialize(traces, undefined, UTC_CONVERTER);
     expect(timelineData.getCurrentPosition()).toBeDefined();
+    expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr);
+  });
+
+  it('initializes with screen recording', () => {
+    timelineData.initialize(traces, traceSr2, UTC_CONVERTER);
+    expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr2);
+  });
+
+  it('updates current screen recording', () => {
+    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr);
+    timelineData.updateCurrentScreenRecordingTrace(traceSr2);
+    expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr2);
   });
 
   describe('dumps', () => {

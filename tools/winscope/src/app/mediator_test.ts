@@ -69,6 +69,7 @@ import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
+  ScreenRecordingChange,
 } from 'messaging/winscope_event';
 
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
@@ -98,6 +99,7 @@ import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 describe('Mediator', () => {
   const TIMESTAMP_10 = makeRealTimestamp(10n);
@@ -986,6 +988,29 @@ describe('Mediator', () => {
     await mediator.onWinscopeEvent(event);
     expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(event);
     expect(mediator.getActiveSearchQueries()).toEqual(queries);
+  });
+
+  it('handles screen recording change', async () => {
+    await loadFiles();
+    await loadTraceView();
+    const timelineDataSpy = spyOn(
+      timelineData,
+      'updateCurrentScreenRecordingTrace',
+    );
+
+    const trace = new TraceBuilder<MediaBasedTraceEntry>()
+      .setEntries([])
+      .setType(TraceType.SCREEN_RECORDING)
+      .build();
+    const event = new ScreenRecordingChange(trace);
+    await mediator.onWinscopeEvent(event);
+
+    expect(timelineDataSpy).toHaveBeenCalledOnceWith(trace);
+    expect(timelineComponent.onWinscopeEvent).toHaveBeenCalledWith(event);
+
+    viewers.forEach((viewer) => {
+      expect(viewer.onWinscopeEvent).toHaveBeenCalledWith(event);
+    });
   });
 
   async function loadFiles(files = inputFiles) {

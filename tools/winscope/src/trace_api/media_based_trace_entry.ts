@@ -14,25 +14,84 @@
  * limitations under the License.
  */
 
+import {assertDefined} from 'common/assert';
+import {Size} from 'common/geometry/size';
+
 /**
  * Represents a single entry in a media-based trace, such as a video or image sequence.
- * Each entry contains media data (a video frame or an image) and the timestamp
- * within the video timeline. This is useful for synchronizing trace events with
- * visual media, allowing users to see what was happening on screen at a specific
- * point in the trace.
+ * Each entry contains media data for a video frame or an image.
  */
 export class MediaBasedTraceEntry {
   /**
-   * @param videoTimeSeconds The timestamp in seconds within the video timeline.
-   * @param videoData The raw media data as a Blob (e.g., a video frame or an image).
-   * @param isImage True if the media data is an image, false if it's part of a video.
+   * @param imgData The raw image data as a Blob (for images).
+   * @param videoFrame The decoded frame to be visualized (for videos).
+   * @param videoRotationAngle The rotation angle for the video frame if provided.
    */
   constructor(
-    /** The timestamp in seconds within the video timeline. */
-    public videoTimeSeconds: number,
-    /** The raw media data as a Blob (e.g., a video frame or an image). */
-    public videoData: Blob,
-    /** True if the media data is an image, false if it's part of a video. */
-    public isImage = false,
+    /**  Defined if the media data is an image. */
+    readonly imgData?: Blob,
+    /** Defined if the media data is a video. */
+    readonly videoFrame?: VideoFrame,
+    /** Gives rotation angle for video frame. */
+    private readonly videoRotationAngle = 0,
   ) {}
+
+  tryDrawOnCanvas(canvas: HTMLCanvasElement) {
+    if (!this.videoFrame) {
+      return;
+    }
+
+    const ctx = assertDefined(canvas.getContext('2d'));
+
+    const canvasDimensions = this.canvasDimensions(this.videoFrame);
+    canvas.width = canvasDimensions.width;
+    canvas.height = canvasDimensions.height;
+
+    ctx.rotate(this.rotationAngleRadians());
+
+    ctx.drawImage(
+      this.videoFrame,
+      this.xOffset(this.videoFrame),
+      this.yOffset(this.videoFrame),
+      this.videoFrame.codedWidth,
+      this.videoFrame.codedHeight,
+    );
+
+    ctx.resetTransform();
+  }
+
+  private canvasDimensions(videoFrame: VideoFrame): Size {
+    if (this.shouldFlipDimensions()) {
+      return {
+        width: videoFrame.codedHeight,
+        height: videoFrame.codedWidth,
+      };
+    }
+    return {
+      width: videoFrame.codedWidth,
+      height: videoFrame.codedHeight,
+    };
+  }
+
+  private shouldFlipDimensions(): boolean {
+    return this.videoRotationAngle % 180 !== 0;
+  }
+
+  private yOffset(videoFrame: VideoFrame): number {
+    if (this.videoRotationAngle === 90 || this.videoRotationAngle === 180) {
+      return -videoFrame.codedHeight;
+    }
+    return 0;
+  }
+
+  private xOffset(videoFrame: VideoFrame): number {
+    if (this.videoRotationAngle === 180 || this.videoRotationAngle === 270) {
+      return -videoFrame.codedWidth;
+    }
+    return 0;
+  }
+
+  private rotationAngleRadians() {
+    return (this.videoRotationAngle * Math.PI) / 180;
+  }
 }

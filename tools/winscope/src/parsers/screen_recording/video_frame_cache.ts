@@ -17,7 +17,7 @@
 import {WebCodecData} from './helpers';
 
 /**
- * Decodes and caches video frames for visualisation in the UI. Uses a
+ * Decodes and caches video frames for visualization in the UI. Uses a
  * single buffer cache storing all frames in the key-frame range associated
  * with the last requested index.
  */

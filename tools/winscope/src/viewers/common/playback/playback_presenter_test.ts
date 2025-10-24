@@ -52,11 +52,11 @@ describe('PlaybackPresenter', () => {
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new MediaBasedTraceEntry(0, new Blob()),
-      new MediaBasedTraceEntry(1, new Blob()),
-      new MediaBasedTraceEntry(2, new Blob()),
-      new MediaBasedTraceEntry(3, new Blob()),
-      new MediaBasedTraceEntry(4, new Blob()),
+      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -70,47 +70,12 @@ describe('PlaybackPresenter', () => {
   let emitEventSpy: jasmine.Spy<EmitEvent>;
   let postMessageSpy: jasmine.Spy;
 
-  beforeEach(() => {
-    emitEventSpy = jasmine.createSpy('emitWinscopeEvent');
-
-    trace = new TraceBuilder<HierarchyTreeNode>()
-      .setType(TraceType.SURFACE_FLINGER)
-      .setEntries([
-        new HierarchyTreeBuilder()
-          .setId('Test Trace')
-          .setName('entry1')
-          .build(),
-        new HierarchyTreeBuilder()
-          .setId('Test Trace2')
-          .setName('entry2')
-          .build(),
-        new HierarchyTreeBuilder()
-          .setId('Test Trace3')
-          .setName('entry3')
-          .build(),
-      ])
-      .setTimestamps([timestamp2, timestamp3, timestamp4])
-      .build();
-    setTraceSpies(trace);
-
-    presenter = new PlaybackPresenter(emitEventSpy, trace);
-    presenter.setTraceGeometryData(traceGeometryData);
-
-    postMessageSpy = spyOn(
-      presenter['playbackWorker'],
-      'postMessage',
-    ).and.callFake((message) => {
-      const mockTrees = makeTrees(message);
-      presenter['workerPromiseResolve']?.(mockTrees);
-    });
-  });
-
-  it('initializes in a paused state', () => {
-    expect(presenter.isPlaying()).toBeFalse();
-  });
-
   describe('play', () => {
     describe('with no SR trace', async () => {
+      beforeEach(() => {
+        setUpTestEnvironment();
+      });
+
       it('starts playback', async () => {
         await presenter.play(0, PlaybackState.FORWARDS, undefined);
         expect(presenter.isPlaying()).toBeTrue();
@@ -276,6 +241,10 @@ describe('PlaybackPresenter', () => {
     });
 
     describe('with SR trace', async () => {
+      beforeEach(() => {
+        setUpTestEnvironment();
+      });
+
       it('plays through all SR entries before/after trace', async () => {
         await checkAllSrEntriesBeforeAndAfterTrace(PlaybackState.FORWARDS);
       });
@@ -314,10 +283,7 @@ describe('PlaybackPresenter', () => {
       ) {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
-          .setEntries([
-            new MediaBasedTraceEntry(0, new Blob()),
-            new MediaBasedTraceEntry(1, new Blob()),
-          ])
+          .setEntries([new MediaBasedTraceEntry(), new MediaBasedTraceEntry()])
           .setTimestamps([timestamp2, timestamp3])
           .build();
         await presenter.play(0, stateToReflect, srTrace);
@@ -343,6 +309,7 @@ describe('PlaybackPresenter', () => {
       let largeTrace: Trace<HierarchyTreeNode>;
 
       beforeEach(() => {
+        setUpTestEnvironment();
         initializePresenterAndLargeTrace(320);
       });
 
@@ -427,6 +394,13 @@ describe('PlaybackPresenter', () => {
   });
 
   describe('pause', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
+    });
+
+    it('initializes in a paused state', () => {
+      expect(presenter.isPlaying()).toBeFalse();
+    });
     it('stops the playback loop and emits handled event', async () => {
       await presenter.play(0, PlaybackState.FORWARDS, undefined);
       expect(presenter.isPlaying()).toBeTrue();
@@ -476,6 +450,10 @@ describe('PlaybackPresenter', () => {
   });
 
   describe('speed change', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
+    });
+
     it('increases speed', async () => {
       const finish1 = await getExecutionTime();
       presenter.changeSpeed(2);
@@ -485,14 +463,14 @@ describe('PlaybackPresenter', () => {
 
     it('decreases speed', async () => {
       const finish1 = await getExecutionTime();
-      presenter.changeSpeed(0.5);
+      presenter.changeSpeed(0.25);
       const finish2 = await getExecutionTime();
       expect(finish2).toBeGreaterThan(finish1);
     });
 
     it('does not skip entries while playing through the trace', async () => {
-      await presenter.play(0, PlaybackState.FORWARDS, undefined);
       presenter.changeSpeed(2);
+      await presenter.play(0, PlaybackState.FORWARDS, undefined);
       await new Timer(1000).wait(() => !presenter.isPlaying());
       expect(emitEventSpy).toHaveBeenCalledTimes(6);
     });
@@ -500,7 +478,7 @@ describe('PlaybackPresenter', () => {
     async function getExecutionTime(): Promise<number> {
       const start = Date.now();
       await presenter.play(0, PlaybackState.FORWARDS, undefined);
-      await new Timer(1000).wait(() => !presenter.isPlaying());
+      await new Timer(1000, 20).wait(() => !presenter.isPlaying());
       return Date.now() - start;
     }
   });
@@ -576,13 +554,48 @@ describe('PlaybackPresenter', () => {
         .build(),
     );
   }
+
+  function setUpTestEnvironment() {
+    emitEventSpy = jasmine.createSpy('emitWinscopeEvent');
+
+    trace = new TraceBuilder<HierarchyTreeNode>()
+      .setType(TraceType.SURFACE_FLINGER)
+      .setEntries([
+        new HierarchyTreeBuilder()
+          .setId('Test Trace')
+          .setName('entry1')
+          .build(),
+        new HierarchyTreeBuilder()
+          .setId('Test Trace2')
+          .setName('entry2')
+          .build(),
+        new HierarchyTreeBuilder()
+          .setId('Test Trace3')
+          .setName('entry3')
+          .build(),
+      ])
+      .setTimestamps([timestamp2, timestamp3, timestamp4])
+      .build();
+    setTraceSpies(trace);
+
+    presenter = new PlaybackPresenter(emitEventSpy, trace);
+    presenter.setTraceGeometryData(traceGeometryData);
+
+    postMessageSpy = spyOn(
+      presenter['playbackWorker'],
+      'postMessage',
+    ).and.callFake((message) => {
+      const mockTrees = makeTrees(message);
+      presenter['workerPromiseResolve']?.(mockTrees);
+    });
+  }
 });
 
 interface WorkerMessage {
   start: number;
   end: number;
-  snapshotBatches: Array<Uint8Array<ArrayBufferLike>> | undefined;
-  nodeBatches: Array<Uint8Array<ArrayBufferLike>>;
+  snapshotBatches: Uint8Array[] | undefined;
+  nodeBatches: Uint8Array[];
   type: TraceType;
   traceGeometryData: TraceGeometryData;
   visibleRectsMap: RectsForTrace;

@@ -105,8 +105,7 @@ export abstract class AbstractParser<
   }
 
   getEntry(index: AbsoluteEntryIndex): Promise<T> {
-    const entry = this.processDecodedEntry(index, this.decodedEntries[index]);
-    return Promise.resolve(entry);
+    return this.processDecodedEntry(index, this.decodedEntries[index]);
   }
 
   customQuery<Q extends CustomQueryType>(
@@ -133,7 +132,10 @@ export abstract class AbstractParser<
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  protected processDecodedEntry(index: number, decodedEntry: U): T {
+  protected async processDecodedEntry(
+    index: number,
+    decodedEntry: U,
+  ): Promise<T> {
     // Legacy parsers that implement convertToPerfettoPackets should not
     // parser and provide individual trace entries, as they should be
     // converted to perfetto using LegacyToPerfettoConverter

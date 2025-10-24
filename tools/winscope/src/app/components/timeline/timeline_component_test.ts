@@ -74,6 +74,7 @@ import {SliderComponent} from './mini-timeline/slider_component';
 import {TimelineComponent} from './timeline_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {PlaybackControlsComponent} from './playback_component';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -1133,6 +1134,42 @@ describe('TimelineComponent', () => {
     expect(miniDrawSpy).toHaveBeenCalledTimes(1); // all on one canvas so spy called once
   });
 
+  it('does not show screen recording content in expanded timeline overlay', () => {
+    loadSfWmTraces();
+    openExpandedTimeline();
+    expect(dom.find('#video-content')).toBeUndefined();
+  });
+
+  it('shows screen recording placeholder in expanded timeline overlay', () => {
+    loadAllTraces();
+    openExpandedTimeline();
+    dom.get('.no-video-message').checkText('No screen recording frame to show');
+  });
+
+  it('shows screen recording canvas in expanded timeline overlay', async () => {
+    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
+      codedWidth: 4,
+      codedHeight: 10,
+    });
+    const entry = new MediaBasedTraceEntry(undefined, frame);
+    const drawSpy = spyOn(entry, 'tryDrawOnCanvas');
+
+    const trace = new TraceBuilder<MediaBasedTraceEntry>()
+      .setType(TraceType.SCREEN_RECORDING)
+      .setTimestamps([time110])
+      .setEntries([entry])
+      .build();
+
+    loadAllTraces(undefined, undefined, undefined, trace);
+    await dom.whenStable();
+
+    openExpandedTimeline();
+    await dom.whenStable();
+    await dom.whenRenderingDone();
+    expect(dom.get('#video-content canvas')).toBeDefined();
+    expect(drawSpy).toHaveBeenCalledTimes(1);
+  });
+
   describe('playback controls', async () => {
     let emitEventSpy: jasmine.Spy;
 
@@ -1326,8 +1363,9 @@ describe('TimelineComponent', () => {
     hostComponent = component,
     domHelper = dom,
     loadAllTraces = true,
+    srTrace?: Trace<MediaBasedTraceEntry>,
   ) {
-    const traces = new TracesBuilder()
+    const builder = new TracesBuilder()
       .setTimestamps(TraceType.SURFACE_FLINGER, [time100, time110])
       .setTimestamps(TraceType.WINDOW_MANAGER, [
         time90,
@@ -1335,18 +1373,25 @@ describe('TimelineComponent', () => {
         time110,
         time112,
       ])
-      .setTimestamps(
-        TraceType.SCREEN_RECORDING,
-        [time110],
-        ['mock_screen_recording'],
-      )
       .setTimestamps(TraceType.PROTO_LOG, [time100])
       .setTimestamps(
         TraceType.VIEW_CAPTURE,
         [time100],
         ['Test Window', 'mock_view_capture'],
-      )
-      .build();
+      );
+    if (srTrace === undefined) {
+      builder.setTimestamps(
+        TraceType.SCREEN_RECORDING,
+        [time110],
+        ['mock_screen_recording'],
+      );
+    }
+
+    const traces = builder.build();
+
+    if (srTrace !== undefined) {
+      traces.addTrace(srTrace);
+    }
 
     let timelineDataTraces: Traces | undefined;
     if (loadAllTraces) {

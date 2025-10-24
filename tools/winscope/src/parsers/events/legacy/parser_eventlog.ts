@@ -57,7 +57,10 @@ class ParserEventLog extends AbstractParser<PropertyTreeNode, Event> {
     );
   }
 
-  override processDecodedEntry(index: number, entry: Event): PropertyTreeNode {
+  override async processDecodedEntry(
+    index: number,
+    entry: Event,
+  ): Promise<PropertyTreeNode> {
     return new PropertyTreeBuilderFromProto()
       .setData(entry)
       .setRootId('EventLogTrace')

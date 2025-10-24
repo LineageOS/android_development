@@ -28,10 +28,23 @@ import {getFixtureFile} from 'test/unit/io_helpers';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
+import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {Parser} from 'trace_api/parser';
 
 describe('ViewerMediaBasedComponent', () => {
   let component: TestHostComponent;
   let dom: DOMTestHelper<TestHostComponent>;
+  let screenshotFile: File;
+  let screenRecordingParser: Parser<MediaBasedTraceEntry>;
+
+  beforeAll(async () => {
+    screenRecordingParser = await new LegacyParserProvider()
+      .addFile(
+        'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
+      )
+      .getParser<MediaBasedTraceEntry>();
+    screenshotFile = await getFixtureFile('traces/screenshot/screenshot_2.png');
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -106,30 +119,26 @@ describe('ViewerMediaBasedComponent', () => {
 
   it('shows video', async () => {
     const initialMaxWidth = getContainerMaxWidth();
-    const videoFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
-    );
-    component.currentTraceEntries = [new MediaBasedTraceEntry(1, videoFile)];
+    const firstFrame = await screenRecordingParser.getEntry(0);
+    const spy = spyOn(firstFrame, 'tryDrawOnCanvas').and.callThrough();
+    component.currentTraceEntries = [firstFrame];
     await dom.detectChangesAndWaitStable();
+
     const videoContainer = dom.get('.video-container');
-    expect(videoContainer.find('video')).toBeDefined();
+    expect(videoContainer.find('canvas')).toBeDefined();
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(videoContainer.find('img')).toBeUndefined();
     expect(getContainerMaxWidth()).not.toEqual(initialMaxWidth);
   });
 
   it('shows screenshot image', async () => {
     const initialMaxWidth = getContainerMaxWidth();
-    const screenshotFile = await getFixtureFile(
-      'traces/screenshot/screenshot_2.png',
-    );
-    component.currentTraceEntries = [
-      new MediaBasedTraceEntry(0, screenshotFile, true),
-    ];
+    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotFile)];
     await dom.detectChangesAndWaitStable();
 
     const videoContainer = dom.get('.video-container');
     expect(videoContainer.find('img')).toBeDefined();
-    expect(videoContainer.find('video')).toBeUndefined();
+    expect(videoContainer.find('canvas')).toBeUndefined();
     expect(getContainerMaxWidth()).not.toEqual(initialMaxWidth);
   });
 
@@ -137,10 +146,10 @@ describe('ViewerMediaBasedComponent', () => {
     dom.get('.video-container').checkTextExact('No frame to show.');
   });
 
-  it('selector changes entry shown', () => {
+  it('image updated on selector entry change', () => {
     component.currentTraceEntries = [
-      new MediaBasedTraceEntry(0, new Blob(), true),
-      new MediaBasedTraceEntry(0, new Blob(), true),
+      new MediaBasedTraceEntry(new Blob()),
+      new MediaBasedTraceEntry(new Blob()),
     ];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
@@ -166,31 +175,56 @@ describe('ViewerMediaBasedComponent', () => {
     expect(screenComponent.safeUrl).toEqual(url);
   });
 
-  it('video current time updated correctly on entry change', () => {
+  it('emits event on overlay trace change', () => {
+    let index: number | undefined;
+    dom.addEventListener(ViewerEvents.OverlayMediaBasedTraceChange, (event) => {
+      index = (event as CustomEvent).detail;
+    });
     component.currentTraceEntries = [
-      new MediaBasedTraceEntry(10, new Blob(), false),
-      new MediaBasedTraceEntry(15, new Blob(), false),
+      new MediaBasedTraceEntry(new Blob()),
+      new MediaBasedTraceEntry(new Blob()),
+    ];
+    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    dom.detectChanges();
+    dom.openMatSelect();
+    dom.getMatSelectPanel().findAndClickByIndex('mat-option', 1);
+    expect(index).toEqual(1);
+  });
+
+  it('video frame updated on selector entry change', async () => {
+    component.currentTraceEntries = [
+      await screenRecordingParser.getEntry(0),
+      await screenRecordingParser.getEntry(1),
     ];
     component.titles = ['Recording 1', 'Recording 2'];
     dom.detectChanges();
 
-    expect(
-      dom.get('video').getHTMLElement<HTMLVideoElement>().currentTime,
-    ).toBe(10);
+    const dataUrl = dom
+      .get('canvas')
+      .getHTMLElement<HTMLCanvasElement>()
+      .toDataURL();
 
     dom.openMatSelect();
     const options = dom.getMatSelectPanel().findAll('mat-option');
 
+    const spy = spyOn(
+      component.currentTraceEntries[1],
+      'tryDrawOnCanvas',
+    ).and.callThrough();
     options[1].click();
     expect(
-      dom.get('video').getHTMLElement<HTMLVideoElement>().currentTime,
-    ).toBe(15);
+      dom.get('canvas').getHTMLElement<HTMLCanvasElement>().toDataURL(),
+    ).not.toBe(dataUrl);
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    options[0].click();
+    expect(
+      dom.get('canvas').getHTMLElement<HTMLCanvasElement>().toDataURL(),
+    ).toBe(dataUrl);
   });
 
   it('does not update frame if trace entries do not change', () => {
-    component.currentTraceEntries = [
-      new MediaBasedTraceEntry(0, new Blob(), true),
-    ];
+    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotFile)];
     component.titles = ['Screenshot 1'];
     dom.detectChanges();
 
@@ -203,12 +237,7 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('updates max container size on window resize', async () => {
-    const screenshotFile = await getFixtureFile(
-      'traces/screenshot/screenshot.png',
-    );
-    component.currentTraceEntries = [
-      new MediaBasedTraceEntry(0, screenshotFile, true),
-    ];
+    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotFile)];
     await dom.detectChangesAndWaitStable();
 
     const initialMaxWidth = getContainerMaxWidth();

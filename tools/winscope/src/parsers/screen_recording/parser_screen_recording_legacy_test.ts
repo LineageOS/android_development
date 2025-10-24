@@ -65,12 +65,12 @@ describe('ParserScreenRecordingLegacy', () => {
     {
       const entry = await parser.getEntry(0);
       expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-      expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+      expect(entry.videoFrame?.timestamp).toBe(0);
     }
     {
       const entry = await parser.getEntry(parser.getLengthEntries() - 1);
       expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-      expect(Number(entry.videoTimeSeconds)).toBeCloseTo(2.37, 0.001);
+      expect(entry.videoFrame?.timestamp).toBe(2369200);
     }
   });
 });

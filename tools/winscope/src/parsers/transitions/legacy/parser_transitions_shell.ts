@@ -64,10 +64,10 @@ export class ParserTransitionsShell extends AbstractParser<
     return decodedProto.transitions ?? [];
   }
 
-  override processDecodedEntry(
+  override async processDecodedEntry(
     index: number,
     shellTransition: ShellTransition,
-  ): PerfettoTransition {
+  ): Promise<PerfettoTransition> {
     const perfettoTransition: PerfettoTransition = {
       id: shellTransition.id,
       dispatchTimeNs: nullifyIfDefaultValue(shellTransition.dispatchTimeNs),

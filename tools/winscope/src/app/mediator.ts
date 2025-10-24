@@ -350,6 +350,8 @@ export class Mediator {
       WinscopeEventType.SCREEN_RECORDING_CHANGE,
       async (event: ScreenRecordingChange) => {
         this.screenRecordingTrace = event.trace;
+        this.timelineData.updateCurrentScreenRecordingTrace(event.trace);
+        this.timelineComponent?.onWinscopeEvent(event);
         for (const viewer of this.viewers) {
           await viewer.onWinscopeEvent(event);
         }
@@ -710,7 +712,7 @@ export class Mediator {
     try {
       await this.timelineData.initialize(
         this.tracePipeline.getTraces(),
-        await this.tracePipeline.getScreenRecordingVideo(),
+        this.tracePipeline.getScreenRecordingTrace(),
         this.tracePipeline.getTimestampConverter(),
       );
     } catch {
@@ -778,6 +780,7 @@ export class Mediator {
         .getTraces()
         .getTrace(TraceType.SCREEN_RECORDING);
     }
+
     const eventTrace = this.tracePipeline.getTraces().getTrace(event.traceType);
     const traceGeometryData = this.tracePipeline.getTraceGeometryData();
     const trace = this.screenRecordingTrace ?? eventTrace;
@@ -872,7 +875,7 @@ export class Mediator {
     await this.appComponent.onWinscopeEvent(new ViewersUnloaded());
   }
 
-  private async propagateToOverlays(event: ExpandedTimelineToggled) {
+  private async propagateToOverlays(event: WinscopeEvent) {
     const overlayViewers = this.viewers.filter((viewer) =>
       viewer.getViews().some((view: View) => view.type === ViewType.OVERLAY),
     );

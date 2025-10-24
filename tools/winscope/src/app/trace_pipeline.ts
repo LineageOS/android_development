@@ -78,6 +78,7 @@ import {FilesSource} from './files_source';
 import {LoadedParsers} from './loaded_parsers';
 import {TraceFileFilter} from './trace_file_filter';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -250,15 +251,12 @@ export class TracePipeline
     return this.lostPerfettoPackets;
   }
 
-  async getScreenRecordingVideo(): Promise<undefined | Blob> {
-    const traces = this.getTraces();
-    const screenRecording =
-      traces.getTrace(TraceType.SCREEN_RECORDING) ??
-      traces.getTrace(TraceType.SCREENSHOT);
-    if (!screenRecording || screenRecording.lengthEntries === 0) {
+  getScreenRecordingTrace(): Trace<MediaBasedTraceEntry> | undefined {
+    const trace = this.getTraces().getTrace(TraceType.SCREEN_RECORDING);
+    if (!trace || trace.lengthEntries === 0) {
       return undefined;
     }
-    return (await screenRecording.getEntry(0).getValue()).videoData;
+    return trace;
   }
 
   async tryCreateSearchTrace(

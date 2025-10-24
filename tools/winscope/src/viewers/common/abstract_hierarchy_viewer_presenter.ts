@@ -289,7 +289,7 @@ export abstract class AbstractHierarchyViewerPresenter<
     await event.visit(
       WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE,
       async (event) => {
-        if (!this.trace) {
+        if (!this.trace || !this.playPlayback) {
           return;
         }
         if (!this.screenRecordingTrace) {
@@ -297,16 +297,14 @@ export abstract class AbstractHierarchyViewerPresenter<
             TraceType.SCREEN_RECORDING,
           );
         }
-        if (this.playPlayback) {
-          this.uiData.isPlaybackInitializing = true;
-          this.refreshHierarchyViewerUiData();
-          await this.playPlayback(
-            assertDefined(event.currentTraceIndex),
-            event.state,
-            event.traceGeometryData,
-            this.screenRecordingTrace,
-          );
-        }
+        this.uiData.isPlaybackInitializing = true;
+        this.refreshHierarchyViewerUiData();
+        await this.playPlayback(
+          assertDefined(event.currentTraceIndex),
+          event.state,
+          event.traceGeometryData,
+          this.screenRecordingTrace,
+        );
       },
     );
     await event.visit(

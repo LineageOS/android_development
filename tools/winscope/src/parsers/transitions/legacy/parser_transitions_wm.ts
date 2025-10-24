@@ -49,10 +49,10 @@ export class ParserTransitionsWm extends AbstractParser<
     return undefined;
   }
 
-  override processDecodedEntry(
+  override async processDecodedEntry(
     index: number,
     wmTransition: LegacyTransition,
-  ): PerfettoTransition {
+  ): Promise<PerfettoTransition> {
     const perfettoTransition: PerfettoTransition = {
       id: wmTransition.id,
       createTimeNs: nullifyIfDefaultValue(wmTransition.createTimeNs),
