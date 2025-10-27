@@ -14,6 +14,7 @@ rust_library_host {
     cargo_env_compat: true,
     cargo_pkg_version: "0.1.0",
     crate_root: "src/lib.rs",
+    srcs: ["**/*.txt"],
     edition: "2021",
     rustlibs: [
         "libglob",
@@ -31,6 +32,7 @@ rust_test_host {
     cargo_env_compat: true,
     cargo_pkg_version: "0.1.0",
     crate_root: "src/lib.rs",
+    srcs: ["**/*.txt"],
     test_suites: ["general-tests"],
     auto_gen_config: true,
     test_options: {
