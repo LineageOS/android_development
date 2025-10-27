@@ -19,7 +19,7 @@ import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
 import {CannotParseAllTransitions} from 'messaging/user_warnings';
 import {UserNotifier} from 'services/user_notifier';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording_utils';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TracePosition} from 'trace_api/trace_position';
@@ -39,7 +39,7 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
  */
 export class TimelineData {
   private traces = new Traces();
-  private screenRecordingVideo?: Blob;
+  private currentScreenRecordingTrace?: Trace<MediaBasedTraceEntry>;
   private firstEntry?: TraceEntry<object>;
   private lastEntry?: TraceEntry<object>;
   private explicitlySetPosition?: TracePosition;
@@ -58,7 +58,7 @@ export class TimelineData {
 
   async initialize(
     traces: Traces,
-    screenRecordingVideo: Blob | undefined,
+    screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
     timestampConverter: ComponentTimestampConverter,
   ) {
     this.clear();
@@ -71,7 +71,6 @@ export class TimelineData {
       if (trace.lengthEntries === 0 || trace.isDumpWithoutTimestamp()) {
         return;
       }
-
       this.traces.addTrace(trace);
     });
 
@@ -83,11 +82,12 @@ export class TimelineData {
       }
     }
 
-    this.screenRecordingVideo = screenRecordingVideo;
+    this.currentScreenRecordingTrace =
+      screenRecordingTrace ?? this.traces.getTrace(TraceType.SCREEN_RECORDING);
     this.firstEntry = this.findFirstEntry();
     this.lastEntry = this.findLastEntry();
 
-    const tracesSortedByDisplayOrder = traces
+    const tracesSortedByDisplayOrder = this.traces
       .mapTrace((trace) => trace)
       .filter((trace) => isTraceTypeWithViewer(trace.type))
       .sort((a, b) => {
@@ -251,36 +251,12 @@ export class TimelineData {
     return this.traces.hasTrace(trace);
   }
 
-  getScreenRecordingVideo(): Blob | undefined {
-    return this.screenRecordingVideo;
+  getCurrentScreenRecordingTrace(): Trace<MediaBasedTraceEntry> | undefined {
+    return this.currentScreenRecordingTrace;
   }
 
-  searchCorrespondingScreenRecordingTimeSeconds(
-    position: TracePosition,
-  ): number | undefined {
-    const trace = this.traces.getTrace(TraceType.SCREEN_RECORDING);
-    if (!trace) {
-      return undefined;
-    }
-
-    const firstTimestamp = trace.getEntry(0).getTimestamp();
-    let entry;
-    try {
-      entry = findCorrespondingEntry(trace, position);
-    } catch (e) {
-      console.warn(
-        `Could not find corresponding entry: ${(e as Error).message}`,
-      );
-      Analytics.Error.logFrameMapError((e as Error).message);
-    }
-    if (!entry) {
-      return undefined;
-    }
-
-    return timestampToVideoTimeSeconds(
-      firstTimestamp.getValueNs(),
-      entry.getTimestamp().getValueNs(),
-    );
+  updateCurrentScreenRecordingTrace(value: Trace<MediaBasedTraceEntry>) {
+    this.currentScreenRecordingTrace = value;
   }
 
   hasTimestamps(): boolean {
@@ -381,7 +357,7 @@ export class TimelineData {
     this.explicitlySetPosition = undefined;
     this.explicitlySetSelection = undefined;
     this.lastReturnedCurrentPosition = undefined;
-    this.screenRecordingVideo = undefined;
+    this.currentScreenRecordingTrace = undefined;
     this.lastReturnedFullTimeRange = undefined;
     this.lastReturnedCurrentEntries.clear();
     this.activeTrace = undefined;

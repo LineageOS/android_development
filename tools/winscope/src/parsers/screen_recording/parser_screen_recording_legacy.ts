@@ -18,15 +18,19 @@ import {searchSubarray} from 'common/typed_array';
 import {Timestamp} from 'common/time/time';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording_utils';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
-import {parseIntFromBuffer, parseLongFromBuffer} from './utils';
+import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
+import {VideoFrameCache} from './video_frame_cache';
+import {createVideoFrameCache} from './video_frame_cache_factory';
+import {assertDefined} from 'common/assert';
 
 export class ParserScreenRecordingLegacy extends AbstractParser<
   MediaBasedTraceEntry,
   bigint
 > {
+  private videoFrameCache: VideoFrameCache | undefined;
+
   override getTraceType(): TraceType {
     return TraceType.SCREEN_RECORDING;
   }
@@ -43,9 +47,10 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
     return undefined;
   }
 
-  override decodeTrace(videoData: Uint8Array): Array<bigint> {
+  override async decodeTrace(videoData: Uint8Array): Promise<Array<bigint>> {
     const posCount = this.searchMagicString(videoData);
     const [posTimestamps, count] = parseIntFromBuffer(videoData, posCount);
+    this.videoFrameCache = await createVideoFrameCache(videoData);
     return this.parseVideoData(videoData, posTimestamps, count);
   }
 
@@ -53,16 +58,13 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
     return this.timestampConverter.makeTimestampFromMonotonicNs(decodedEntry);
   }
 
-  override processDecodedEntry(
+  override async processDecodedEntry(
     index: number,
-    entry: bigint,
-  ): MediaBasedTraceEntry {
-    const videoTimeSeconds = timestampToVideoTimeSeconds(
-      this.decodedEntries[0],
-      entry,
-    );
-    const videoData = this.traceFile.file;
-    return new MediaBasedTraceEntry(videoTimeSeconds, videoData);
+  ): Promise<MediaBasedTraceEntry> {
+    const {frame, rotationAngle} = await assertDefined(
+      this.videoFrameCache,
+    ).get(index);
+    return new MediaBasedTraceEntry(undefined, frame, rotationAngle);
   }
 
   private searchMagicString(videoData: Uint8Array): number {

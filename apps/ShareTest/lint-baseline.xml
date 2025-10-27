@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha08" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha08">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession.StateListener`"
+        errorLine1="        object : ChooserSession.StateListener {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="83"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 36.1 (current min is 36): `android.service.chooser.ChooserManager`"
+        errorLine1="        val cm = getSystemService(ChooserManager::class.java)"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="103"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#endSession`"
+        errorLine1="                        prevSession?.endSession()"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="117"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#addStateListener`"
+        errorLine1="                        newSession?.addStateListener(mainExecutor, sessionStateListener)"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="118"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#getState`"
+        errorLine1='        Log.d(TAG, "onResume: session state: ${chooserSession.value?.state}")'
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="176"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#removeStateListener`"
+        errorLine1="        chooserSession.value?.removeStateListener(sessionStateListener)"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="195"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#setTargetsEnabled`"
+        errorLine1="        chooserSession.value?.setTargetsEnabled(isEnabled)"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="283"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserManager#startSession`"
+        errorLine1="            chooserManager.startSession(this, chooserIntent).also { chooserSession.value = it }"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="296"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#updateIntent`"
+        errorLine1="            session.updateIntent(chooserIntent)"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="298"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 36.1 (current min is 36): `android.service.chooser.ChooserSession#getState`"
+        errorLine1="    get() = state != ChooserSession.STATE_CLOSED"
+        errorLine2="            ~~~~~">
+        <location
+            file="development/apps/ShareTest/src/com/android/sharetest/InteractiveShareTestActivity.kt"
+            line="304"
+            column="13"/>
+    </issue>
+
+</issues>

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {toIntLittleEndian, toUintLittleEndian} from './utils';
+import {toIntLittleEndian, toUintLittleEndian} from './helpers';
 
-describe('utils_test', () => {
+describe('ParserScreenRecording helpers', () => {
   it('toUintLittleEndian', () => {
     expect(toUintLittleEndian(new Uint8Array([0xff, 0xff]), 0, -1)).toBe(0n);
     expect(toUintLittleEndian(new Uint8Array([0xff, 0xff]), 0, 0)).toBe(0n);

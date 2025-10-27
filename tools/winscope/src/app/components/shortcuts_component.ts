@@ -91,17 +91,41 @@ import {getRootUrl} from 'common/window';
             </div>
           </div>
         </div>
+      </div>
 
+      <div class="shortcuts-row">
         <div class="shortcuts-row-section">
           <div class="mat-headline-6"> Global </div>
           <div class="grouped-shortcuts">
             <div class="key-shortcut mat-body-1">
-              <div class="key"> <mat-icon class="material-symbols-outlined"> arrow_left_alt </mat-icon> </div>
-              <span class="action"> Previous state </span>
+              <div class="key">
+                <mat-icon class="material-symbols-outlined">arrow_left_alt</mat-icon>
+              </div>
+              <span class="action">Previous state</span>
             </div>
             <div class="key-shortcut mat-body-1">
-              <div class="key"> <mat-icon class="material-symbols-outlined"> arrow_right_alt </mat-icon> </div>
-              <span class="action"> Next state </span>
+              <div class="key">
+                <mat-icon class="material-symbols-outlined">arrow_right_alt</mat-icon>
+              </div>
+              <span class="action">Next state</span>
+            </div>
+            <div class="key-shortcut mat-body-1">
+              <div class="key">
+                <mat-icon class="material-symbols-outlined">space_bar</mat-icon>
+              </div>
+              <span class="action">Play/pause</span>
+            </div>
+            <div class="key-shortcut mat-body-1">
+              <div class="key">
+                <mat-icon class="material-symbols-outlined">fast_forward</mat-icon>
+              </div>
+              <span class="action">Play forwards</span>
+            </div>
+            <div class="key-shortcut mat-body-1">
+              <div class="key">
+                <mat-icon class="material-symbols-outlined">fast_rewind</mat-icon>
+              </div>
+              <span class="action">Play backwards</span>
             </div>
           </div>
         </div>

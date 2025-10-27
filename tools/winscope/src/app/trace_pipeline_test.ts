@@ -22,7 +22,6 @@ import {
   CorruptedArchive,
   InvalidPerfettoTrace,
   NoValidFiles,
-  TraceOverridden,
   UnsupportedFileFormat,
 } from 'messaging/user_warnings';
 import {BugreportFileSelected} from 'messaging/winscope_event';
@@ -463,36 +462,12 @@ describe('TracePipeline', () => {
     expect(sfTrace.getDescriptors().length).toBeGreaterThan(0);
   });
 
-  it('gets screenrecording data', async () => {
+  it('gets screenrecording trace', async () => {
     const files = [screenRecordingFile];
     await loadFiles(files);
     await expectLoadResult(1, []);
-
-    const video = await tracePipeline.getScreenRecordingVideo();
-    expect(video).toBeDefined();
-    expect(video?.size).toBeGreaterThan(0);
-  });
-
-  it('gets screenshot data', async () => {
-    const files = [screenshotFile];
-    await loadFiles(files);
-    await expectLoadResult(1, []);
-
-    const video = await tracePipeline.getScreenRecordingVideo();
-    expect(video).toBeDefined();
-    expect(video?.size).toBeGreaterThan(0);
-  });
-
-  it('prioritizes screenrecording over screenshot data', async () => {
-    const files = [screenshotFile, screenRecordingFile];
-    await loadFiles(files);
-    await expectLoadResult(1, [
-      new TraceOverridden('screenshot.png', TraceType.SCREEN_RECORDING),
-    ]);
-
-    const video = await tracePipeline.getScreenRecordingVideo();
-    expect(video).toBeDefined();
-    expect(video?.size).toBeGreaterThan(0);
+    const trace = tracePipeline.getScreenRecordingTrace();
+    expect(trace).toBeDefined();
   });
 
   it('creates traces with correct type', async () => {

@@ -69,6 +69,7 @@ import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
+  ScreenRecordingChange,
 } from 'messaging/winscope_event';
 
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
@@ -83,7 +84,7 @@ import {
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {Trace} from 'trace_api/trace';
+import {Trace, TraceEntryEager} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -98,6 +99,7 @@ import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 describe('Mediator', () => {
   const TIMESTAMP_10 = makeRealTimestamp(10n);
@@ -513,6 +515,31 @@ describe('Mediator', () => {
     expect(
       assertDefined(timelineData.getCurrentPosition()).timestamp.getValueNs(),
     ).toEqual(finalTimestampNs);
+  });
+
+  it('propagates trace position update including prefetchedEntry', async () => {
+    await loadFiles();
+    await loadTraceView();
+
+    // notify position
+    resetSpyCalls();
+    const finalTimestampNs = timelineData.getFullTimeRange().endNs;
+    const timestamp = makeRealTimestamp(finalTimestampNs);
+    const position = TracePosition.fromTimestamp(timestamp);
+    const prefetchedEntry = jasmine.createSpyObj<
+      TraceEntryEager<object, object>
+    >('prefetchedEntry', ['getValue']);
+
+    await mediator.onWinscopeEvent(
+      new TracePositionUpdate(position, true, prefetchedEntry),
+    );
+    checkTracePositionUpdateEvents(
+      [viewerStub0, viewerOverlay, timelineComponent, crossToolProtocol],
+      [],
+      position,
+      undefined,
+      prefetchedEntry,
+    );
   });
 
   it("initializes viewers' trace position also when loaded traces have no valid timestamps", async () => {
@@ -963,6 +990,29 @@ describe('Mediator', () => {
     expect(mediator.getActiveSearchQueries()).toEqual(queries);
   });
 
+  it('handles screen recording change', async () => {
+    await loadFiles();
+    await loadTraceView();
+    const timelineDataSpy = spyOn(
+      timelineData,
+      'updateCurrentScreenRecordingTrace',
+    );
+
+    const trace = new TraceBuilder<MediaBasedTraceEntry>()
+      .setEntries([])
+      .setType(TraceType.SCREEN_RECORDING)
+      .build();
+    const event = new ScreenRecordingChange(trace);
+    await mediator.onWinscopeEvent(event);
+
+    expect(timelineDataSpy).toHaveBeenCalledOnceWith(trace);
+    expect(timelineComponent.onWinscopeEvent).toHaveBeenCalledWith(event);
+
+    viewers.forEach((viewer) => {
+      expect(viewer.onWinscopeEvent).toHaveBeenCalledWith(event);
+    });
+  });
+
   async function loadFiles(files = inputFiles) {
     for (const file of files) {
       await mediator.onWinscopeEvent(new AppFilesUploaded([file]));
@@ -1044,9 +1094,10 @@ describe('Mediator', () => {
     userNotifications: UserWarning[],
     position?: TracePosition,
     crossToolProtocolPosition = position,
+    prefetchedEntry?: TraceEntryEager<object, object>,
   ) {
     userNotifierChecker.expectNotified(userNotifications);
-    const event = makeExpectedTracePositionUpdate(position);
+    const event = makeExpectedTracePositionUpdate(position, prefetchedEntry);
     const crossToolProtocolEvent =
       crossToolProtocolPosition !== position
         ? makeExpectedTracePositionUpdate(crossToolProtocolPosition)
@@ -1129,9 +1180,10 @@ describe('Mediator', () => {
 
   function makeExpectedTracePositionUpdate(
     tracePosition?: TracePosition,
+    prefetchedEntry?: TraceEntryEager<object, object>,
   ): WinscopeEvent {
     if (tracePosition !== undefined) {
-      return new TracePositionUpdate(tracePosition);
+      return new TracePositionUpdate(tracePosition, undefined, prefetchedEntry);
     }
     return {type: WinscopeEventType.TRACE_POSITION_UPDATE} as WinscopeEvent;
   }
@@ -1167,6 +1219,7 @@ describe('Mediator', () => {
       return false;
     }
     if (event.position.frame !== expectedEvent.position.frame) return false;
+    if (event.prefetchedEntry !== expectedEvent.prefetchedEntry) return false;
     return true;
   }
 });

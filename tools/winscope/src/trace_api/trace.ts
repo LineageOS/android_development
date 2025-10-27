@@ -18,7 +18,7 @@ import {
   binarySearchFirstGreater,
   binarySearchFirstGreaterOrEqual,
 } from 'common/typed_array';
-import {assertDefined} from 'common/assert';
+import {assertDefined, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {UserTimestamp} from 'common/time/user_timestamp';
@@ -233,6 +233,7 @@ export class Trace<T> {
     entriesRange: EntriesRange,
     values: T[],
   ): Array<TraceEntryEager<T, T>> {
+    assertTrue(entriesRange.end - entriesRange.start === values.length);
     const eagerEntries: Array<TraceEntryEager<T, T>> = values.map(
       (entryValue, i) => {
         const absoluteIndex = entriesRange.start + i;

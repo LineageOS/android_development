@@ -20,7 +20,7 @@ import {
   ParserResult,
   parseTimestampsFromMp4VideoTrack,
   ScreenRecordingParser,
-} from './utils';
+} from './helpers';
 
 export class ParserFilename implements ScreenRecordingParser {
   private filename: string;

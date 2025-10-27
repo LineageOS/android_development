@@ -20,7 +20,7 @@ import {
   setTimeouts,
   uploadFixture,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer ScreenRecording', () => {
   const viewerSelector = 'viewer-media-based';

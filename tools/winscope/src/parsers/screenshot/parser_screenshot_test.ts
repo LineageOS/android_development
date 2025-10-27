@@ -77,6 +77,7 @@ describe('ParserScreenshot', () => {
   it('retrieves entry', async () => {
     const entry = await parser.getEntry(0);
     expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-    expect(entry.isImage).toBeTrue();
+    expect(entry.imgData).toBeDefined();
+    expect(entry.videoFrame).toBeUndefined();
   });
 });

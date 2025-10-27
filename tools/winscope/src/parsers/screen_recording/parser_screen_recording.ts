@@ -20,7 +20,6 @@ import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {MonotonicScreenRecording} from 'messaging/user_warnings';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {UserNotifier} from 'services/user_notifier';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording_utils';
 import {TraceFile} from 'trace/trace_file';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
@@ -34,7 +33,10 @@ import {
   parseIntFromBuffer,
   ScreenRecordingParser,
   WINSCOPE_MAGIC_STRING,
-} from './utils';
+} from './helpers';
+import {VideoFrameCache} from './video_frame_cache';
+import {createVideoFrameCache} from './video_frame_cache_factory';
+import {assertDefined} from 'common/assert';
 
 export class ParserScreenRecording extends AbstractParser<
   MediaBasedTraceEntry,
@@ -42,6 +44,7 @@ export class ParserScreenRecording extends AbstractParser<
 > {
   private realToBootTimeOffsetNs: bigint | undefined;
   private makeTimestampFromExactValue = false;
+  private videoFrameCache: VideoFrameCache | undefined;
 
   constructor(
     trace: TraceFile,
@@ -88,6 +91,8 @@ export class ParserScreenRecording extends AbstractParser<
     if (result.realToBootTimeOffsetNs === 0n) {
       this.makeTimestampFromExactValue = true;
     }
+
+    this.videoFrameCache = await createVideoFrameCache(videoData);
     return result.timestamps;
   }
 
@@ -98,25 +103,21 @@ export class ParserScreenRecording extends AbstractParser<
     return this.timestampConverter.makeTimestampFromBootTimeNs(decodedEntry);
   }
 
-  override processDecodedEntry(
+  override async processDecodedEntry(
     index: number,
-    entry: bigint,
-  ): MediaBasedTraceEntry {
-    const videoTimeSeconds = timestampToVideoTimeSeconds(
-      this.decodedEntries[0],
-      entry,
-    );
-    const videoData = this.traceFile.file;
-    return new MediaBasedTraceEntry(videoTimeSeconds, videoData);
+  ): Promise<MediaBasedTraceEntry> {
+    const {frame, rotationAngle} = await assertDefined(
+      this.videoFrameCache,
+    ).get(index);
+    return new MediaBasedTraceEntry(undefined, frame, rotationAngle);
   }
 
   private searchMagicString(videoData: Uint8Array): number | undefined {
-    let pos = searchSubarray(videoData, WINSCOPE_MAGIC_STRING);
+    const pos = searchSubarray(videoData, WINSCOPE_MAGIC_STRING);
     if (pos === undefined) {
       return undefined;
     }
-    pos += WINSCOPE_MAGIC_STRING.length;
-    return pos;
+    return pos + WINSCOPE_MAGIC_STRING.length;
   }
 
   private getParserForEmbeddedMetadata(
