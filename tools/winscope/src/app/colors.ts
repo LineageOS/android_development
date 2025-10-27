@@ -28,5 +28,5 @@ export enum Color {
   GUIDE_BAR = '#9AA0A6',
   PINNED_ITEM_BORDER = '#FFC24B',
   TEXT_BLACK = 'rgba(0, 0, 0, 0.87)',
-  TEXT_GRAY = '#9b9b9b',
+  TEXT_GRAY = 'rgb(155, 155, 155)',
 }
