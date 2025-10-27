@@ -19,7 +19,6 @@ import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {com} from 'protos/windowmanager/udc/static';
 import Long from 'long';
-
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {perfetto} from 'protos/perfetto/trace/static';

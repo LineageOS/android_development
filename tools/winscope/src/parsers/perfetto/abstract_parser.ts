@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined, assertTrue} from 'common/assert';
+import {assertBigInt, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
@@ -36,6 +36,8 @@ import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {RectsForTrace} from 'parsers/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
+  protected readonly checkInvalidTs: boolean = false;
+
   protected traceProcessor: TraceProcessor;
   protected realToBootTimeOffsetNs?: bigint;
   protected timestampConverter: ParserTimestampConverter;
@@ -93,9 +95,11 @@ export abstract class AbstractParser<T> implements Parser<T> {
         break;
       }
     }
-    this.realToBootTimeOffsetNs = await this.queryRealToBootTimeOffset(
-      assertDefined(lastNonZeroTimestamp ?? INVALID_TIME_NS),
-    );
+
+    this.realToBootTimeOffsetNs =
+      lastNonZeroTimestamp !== undefined
+        ? await this.queryRealToBootTimeOffset(lastNonZeroTimestamp)
+        : INVALID_TIME_NS;
   }
 
   createTimestamps() {
@@ -177,12 +181,18 @@ export abstract class AbstractParser<T> implements Parser<T> {
     return entryIndexToRowId;
   }
 
-  private async queryRowBootTimeTimestamps(): Promise<Array<bigint>> {
-    const sql = `SELECT ts FROM ${this.getTableName()} ORDER BY id;`;
+  protected async queryRowBootTimeTimestamps(): Promise<Array<bigint>> {
+    const sql = this.checkInvalidTs
+      ? `SELECT ts, has_invalid_elapsed_ts FROM ${this.getTableName()} ORDER BY id;`
+      : `SELECT ts FROM ${this.getTableName()} ORDER BY id;`;
     const result = await this.traceProcessor.query(sql);
     const timestamps: Array<bigint> = [];
     for (const it = result.iter({}); it.valid(); it.next()) {
-      timestamps.push(assertBigInt(it.get('ts')));
+      const ts =
+        this.checkInvalidTs && Boolean(it.get('has_invalid_elapsed_ts'))
+          ? INVALID_TIME_NS
+          : assertBigInt(it.get('ts'));
+      timestamps.push(ts);
     }
     return timestamps;
   }

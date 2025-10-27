@@ -74,6 +74,31 @@ describe('LegacyToPerfettoConverter', () => {
     ]);
   });
 
+  it('adds legacy trace without timestamp to existing perfetto file', async () => {
+    const packetB0 = makePacketWithBoottimeTs(0);
+    const parser = makeParser([packetB0]);
+    expect(packetB0.timestamp).toEqual(Long.fromInt(0, true));
+
+    const existingPacket = perfetto.protos.TracePacket.create();
+    existingPacket.timestamp = Long.fromInt(50, true);
+    const fileWithPacket = makeExistingPerfettoFile(
+      perfettoSnapshot,
+      existingPacket,
+    );
+
+    const perfettoFile = assertDefined(
+      await convertToPerfetto([parser], fileWithPacket),
+    );
+    const trace = await checkAndDecodePerfettoFile(perfettoFile);
+
+    expect(trace.packet).toEqual([
+      perfettoSnapshot,
+      existingPacket,
+      packetB0,
+    ]);
+    expect(packetB0.timestamp).toEqual(Long.fromInt(50, true));
+  });
+
   it('ignores legacy file that cannot be converted to perfetto format', async () => {
     const parser1 = makeParser([]);
     expect(await convertToPerfetto([parser1])).toBeUndefined();
@@ -113,7 +138,7 @@ describe('LegacyToPerfettoConverter', () => {
     await testMonotonicParsers(packets);
   });
 
-  it('with boot-time and monotonically offset parsers loaded', async () => {
+  it('converts boot-time and monotonically offset parsers', async () => {
     const parserB = makeParser([packetB1]);
     spyOn(parserB, 'getRealToBootTimeOffsetNs').and.returnValue(2n);
     spyOn(parserB, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
