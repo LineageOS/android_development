@@ -20,12 +20,10 @@ import {utf8Decode} from 'common/string_helpers';
 import {TimezoneInfo} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  MissingPersistentTrace,
-  NoValidFiles,
-  TraceOverridden,
-  UnsupportedFileFormat,
-} from 'messaging/user_warnings';
+import {NoValidFiles} from 'app/warnings/no_valid_files';
+import {MissingPersistentTrace} from 'app/warnings/missing_persistent_trace';
+import {TraceOverridden} from 'app/warnings/trace_overridden';
+import {UnsupportedFileFormat} from 'app/warnings/unsupported_file_format';
 import {
   BugreportFileSelectionRequest,
   WinscopeEvent,

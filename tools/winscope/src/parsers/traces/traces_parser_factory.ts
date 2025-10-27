@@ -16,7 +16,7 @@
 
 import {assertTrue} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {FailedToCreateTracesParser} from 'messaging/user_warnings';
+import {FailedToCreateTracesParser} from './failed_to_create_trace_parsers';
 import {TracesParserCujs} from 'parsers/events/legacy/traces_parser_cujs';
 import {TracesParserInput} from 'parsers/input/perfetto/traces_parser_input';
 import {TracesParserTransitions} from 'parsers/transitions/legacy/traces_parser_transitions';

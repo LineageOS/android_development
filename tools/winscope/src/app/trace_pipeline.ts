@@ -33,13 +33,11 @@ import {
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  CorruptedArchive,
-  InvalidLegacyTrace,
-  InvalidPerfettoTrace,
-  NoValidFiles,
-  UnsupportedFileFormat,
-} from 'messaging/user_warnings';
+import {CorruptedArchive} from 'app/warnings/corrupted_archive';
+import {NoValidFiles} from 'app/warnings/no_valid_files';
+import {UnsupportedFileFormat} from 'app/warnings/unsupported_file_format';
+import {InvalidLegacyTrace} from 'parsers/warnings/invalid_legacy_trace';
+import {InvalidPerfettoTrace} from 'parsers/warnings/invalid_perfetto_trace';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {
   EmitEvent,

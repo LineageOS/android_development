@@ -22,7 +22,7 @@ import {
   assertStringOrUndefined,
   assertTrue,
 } from 'common/assert';
-import {MissingVsyncId} from 'messaging/user_warnings';
+import {MissingVsyncId} from 'parsers/warnings/missing_vsync_id';
 import {UserNotifier} from 'services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {TraceProcessor} from 'trace_processor/trace_processor';

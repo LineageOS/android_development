@@ -50,10 +50,8 @@ import {
 import {assertDefined} from 'common/assert';
 import {RequestData} from 'cross_tool/g3_proxy';
 import {DOWNLOAD_FILENAME_REGEX} from 'common/io';
-import {
-  FailedToInitializeTimelineData,
-  NoValidFiles,
-} from 'messaging/user_warnings';
+import {NoValidFiles} from 'app/warnings/no_valid_files';
+import {FailedToInitializeTimelineData} from 'app/warnings/failed_to_initialize_timeline_data';
 import {
   AppRefreshDumpsRequest,
   BookmarksChanged,

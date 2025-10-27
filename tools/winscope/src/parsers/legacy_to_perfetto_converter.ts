@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 // TODO(b/311642700): Not compatible with google3
 import Long from 'long';
-import {FailedToConvertLegacyTraces} from 'messaging/user_warnings';
+import {FailedToConvertLegacyTraces} from 'parsers/warnings/failed_to_convert_legacy_traces';
 import {UserNotifier} from 'services/user_notifier';
 // TODO(b/311642700): Not compatible with google3
 import {Writer} from 'protobufjs';

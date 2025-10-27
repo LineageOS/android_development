@@ -17,7 +17,7 @@
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
 import {utf8Decode} from 'common/string_helpers';
-import {ProxyTracingErrors} from 'messaging/user_warnings';
+import {ProxyTracingErrors} from 'trace_collection/warnings/proxy_tracing_errors';
 import {UserNotifier} from 'services/user_notifier';
 import {
   AdbDeviceConnection,

@@ -16,7 +16,7 @@
 import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {DuplicateLayerIds} from 'messaging/user_warnings';
+import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
 import {
   makeRealTimestamp,

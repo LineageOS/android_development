@@ -16,10 +16,8 @@
 
 import {ArrayBufferBuilder} from 'common/buffer';
 import {binaryEncode} from 'common/string_helpers';
-import {
-  ProxyTracingErrors,
-  ProxyTracingWarnings,
-} from 'messaging/user_warnings';
+import {ProxyTracingWarnings} from 'trace_collection/warnings/proxy_tracing_warnings';
+import {ProxyTracingErrors} from 'trace_collection/warnings/proxy_tracing_errors';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {
   makeFakeWebSocket,

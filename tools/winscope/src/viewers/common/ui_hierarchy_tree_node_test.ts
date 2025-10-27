@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {DuplicateLayerIds} from 'messaging/user_warnings';
+import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
 import {makeHierarchyNode} from 'test/unit/tree_node_test_helpers';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';

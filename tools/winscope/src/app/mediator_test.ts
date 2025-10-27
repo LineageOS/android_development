@@ -22,14 +22,12 @@ import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
 import {ProgressListener} from 'messaging/progress_listener';
 import {ProgressListenerStub} from 'messaging/progress_listener_stub';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  FailedToCreateTracesParser,
-  IncompleteFrameMapping,
-  InvalidLegacyTrace,
-  InvalidPerfettoTrace,
-  NoTraceTargetsSelected,
-  NoValidFiles,
-} from 'messaging/user_warnings';
+import {FailedToCreateTracesParser} from 'parsers/traces/failed_to_create_trace_parsers';
+import {NoValidFiles} from 'app/warnings/no_valid_files';
+import {InvalidLegacyTrace} from 'parsers/warnings/invalid_legacy_trace';
+import {InvalidPerfettoTrace} from 'parsers/warnings/invalid_perfetto_trace';
+import {IncompleteFrameMapping} from 'app/warnings/incomplete_frame_mapping';
+import {NoTraceTargetsSelected} from 'app/warnings/no_trace_targets_selected';
 import {
   ActiveSearchQueriesUpdate,
   ActiveTraceChanged,
@@ -48,7 +46,7 @@ import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
   InitializeTraceSearchRequest,
-  NoTraceTargetsSelected as NoTraceTargetsSelectedEvent,
+  NoTraceTargetsSelectedEvent,
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,

@@ -17,10 +17,8 @@
 import {ResizableBuffer} from 'common/buffer';
 import {binaryEncode, utf8Decode} from 'common/string_helpers';
 import {showPopupWindow} from 'common/window';
-import {
-  ProxyTracingErrors,
-  ProxyTracingWarnings,
-} from 'messaging/user_warnings';
+import {ProxyTracingWarnings} from 'trace_collection/warnings/proxy_tracing_warnings';
+import {ProxyTracingErrors} from 'trace_collection/warnings/proxy_tracing_errors';
 import {UserNotifier} from 'services/user_notifier';
 import {
   AdbDeviceConnection,

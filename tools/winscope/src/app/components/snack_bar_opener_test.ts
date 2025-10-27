@@ -19,10 +19,8 @@ import {Overlay} from '@angular/cdk/overlay';
 import {TestBed} from '@angular/core/testing';
 import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-  FailedToInitializeTimelineData,
-  NoValidFiles,
-} from 'messaging/user_warnings';
+import {NoValidFiles} from 'app/warnings/no_valid_files';
+import {FailedToInitializeTimelineData} from 'app/warnings/failed_to_initialize_timeline_data';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {SnackBarComponent} from './snack_bar_component';
 import {SnackBarOpener} from './snack_bar_opener';

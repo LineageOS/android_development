@@ -22,13 +22,11 @@ import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  CannotVisualizeTraceEntry,
-  FailedToInitializeTimelineData,
-  IncompleteFrameMapping,
-  NoTraceTargetsSelected,
-  NoValidFiles,
-} from 'messaging/user_warnings';
+import {NoValidFiles} from './warnings/no_valid_files';
+import {CannotVisualizeTraceEntry} from 'app/warnings/cannot_visualize_trace_entry';
+import {FailedToInitializeTimelineData} from 'app/warnings/failed_to_initialize_timeline_data';
+import {IncompleteFrameMapping} from 'app/warnings/incomplete_frame_mapping';
+import {NoTraceTargetsSelected} from 'app/warnings/no_trace_targets_selected';
 import {
   ActiveTraceChanged,
   AppTraceViewRequest,

@@ -18,11 +18,9 @@ import {assertDefined} from 'common/assert';
 import {unzipFile} from 'common/io';
 import {TimeRange} from 'common/time/time';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  TraceHasElapsedTimestamps,
-  TraceHasOldData,
-  TraceOverridden,
-} from 'messaging/user_warnings';
+import {TraceHasOldData} from 'app/warnings/trace_has_old_data';
+import {TraceOverridden} from 'app/warnings/trace_overridden';
+import {TraceHasElapsedTimestamps} from 'app/warnings/trace_has_elapsed_timestamps';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ParserBuilder} from 'test/unit/parser_builder';

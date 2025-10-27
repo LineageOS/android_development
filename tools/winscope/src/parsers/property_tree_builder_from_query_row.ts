@@ -25,8 +25,8 @@ import {AbstractPropertyTreeBuilder} from './abstract_property_tree_builder';
  */
 export class PropertyTreeBuilderFromQueryRow extends AbstractPropertyTreeBuilder<RowIterator> {
   private columns: string[] | undefined;
-  private booleanColumns: string[] = [];
-  private numberColumns: string[] = [];
+  private readonly booleanColumns: string[] = [];
+  private readonly numberColumns: string[] = [];
 
   setColumns(value: string[]): this {
     this.columns = value;

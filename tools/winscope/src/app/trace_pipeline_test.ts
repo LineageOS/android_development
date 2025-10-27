@@ -18,12 +18,10 @@ import {assertDefined} from 'common/assert';
 import {createZipArchive, DOWNLOAD_FILENAME_REGEX, unzipFile} from 'common/io';
 import {ProgressListenerStub} from 'messaging/progress_listener_stub';
 import {UserWarning} from 'messaging/user_warning';
-import {
-  CorruptedArchive,
-  InvalidPerfettoTrace,
-  NoValidFiles,
-  UnsupportedFileFormat,
-} from 'messaging/user_warnings';
+import {CorruptedArchive} from 'app/warnings/corrupted_archive';
+import {NoValidFiles} from 'app/warnings/no_valid_files';
+import {UnsupportedFileFormat} from 'app/warnings/unsupported_file_format';
+import {InvalidPerfettoTrace} from 'parsers/warnings/invalid_perfetto_trace';
 import {BugreportFileSelected} from 'messaging/winscope_event';
 import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
 import {getFixtureFile} from 'test/unit/io_helpers';

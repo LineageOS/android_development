@@ -24,11 +24,9 @@ import {
 } from 'common/io';
 import {INVALID_TIME_NS, TimeRange, Timestamp} from 'common/time/time';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {
-  TraceHasElapsedTimestamps,
-  TraceHasOldData,
-  TraceOverridden,
-} from 'messaging/user_warnings';
+import {TraceHasOldData} from 'app/warnings/trace_has_old_data';
+import {TraceOverridden} from 'app/warnings/trace_overridden';
+import {TraceHasElapsedTimestamps} from 'app/warnings/trace_has_elapsed_timestamps';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {

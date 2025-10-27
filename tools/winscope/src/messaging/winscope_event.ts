@@ -90,7 +90,7 @@ interface TypeMap {
   [WinscopeEventType.EXPANDED_TIMELINE_TOGGLED]: ExpandedTimelineToggled;
   [WinscopeEventType.ACTIVE_TRACE_CHANGED]: ActiveTraceChanged;
   [WinscopeEventType.DARK_MODE_TOGGLED]: DarkModeToggled;
-  [WinscopeEventType.NO_TRACE_TARGETS_SELECTED]: NoTraceTargetsSelected;
+  [WinscopeEventType.NO_TRACE_TARGETS_SELECTED]: NoTraceTargetsSelectedEvent;
   [WinscopeEventType.FILTER_PRESET_SAVE_REQUEST]: FilterPresetSaveRequest;
   [WinscopeEventType.FILTER_PRESET_APPLY_REQUEST]: FilterPresetApplyRequest;
   [WinscopeEventType.TRACE_SEARCH_REQUEST]: TraceSearchRequest;
@@ -367,7 +367,7 @@ export class DarkModeToggled extends WinscopeEvent {
 /**
  * An event for when no trace targets have been selected.
  */
-export class NoTraceTargetsSelected extends WinscopeEvent {
+export class NoTraceTargetsSelectedEvent extends WinscopeEvent {
   override readonly type = WinscopeEventType.NO_TRACE_TARGETS_SELECTED;
 }
 

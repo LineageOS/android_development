@@ -20,7 +20,7 @@ import {
   HttpRequestStatus,
   HttpResponse,
 } from 'common/http_request';
-import {ProxyTracingErrors} from 'messaging/user_warnings';
+import {ProxyTracingErrors} from 'trace_collection/warnings/proxy_tracing_errors';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {
   AdbDeviceConnectionListener,

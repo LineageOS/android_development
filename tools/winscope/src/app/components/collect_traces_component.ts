@@ -39,9 +39,9 @@ import {assertDefined, assertTrue, assertUnreachable} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
-import {ProxyTraceTimeout} from 'messaging/user_warnings';
+import {ProxyTraceTimeout} from 'app/warnings/proxy_trace_timeout';
 import {
-  NoTraceTargetsSelected,
+  NoTraceTargetsSelectedEvent,
   WinscopeEvent,
   WinscopeEventType,
 } from 'messaging/winscope_event';
@@ -726,7 +726,7 @@ export class CollectTracesComponent
   async dumpState() {
     const requestedDumps = this.getRequests(assertDefined(this.dumpConfig));
     if (requestedDumps.length === 0) {
-      this.emitEvent(new NoTraceTargetsSelected());
+      this.emitEvent(new NoTraceTargetsSelectedEvent());
       return;
     }
 
@@ -918,7 +918,7 @@ export class CollectTracesComponent
     );
 
     if (requestedTraces.length === 0) {
-      this.emitEvent(new NoTraceTargetsSelected());
+      this.emitEvent(new NoTraceTargetsSelectedEvent());
       return;
     }
 
