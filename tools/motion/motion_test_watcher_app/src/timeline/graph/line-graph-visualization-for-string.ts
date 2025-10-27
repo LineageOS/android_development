@@ -26,11 +26,11 @@ export class LineGraphVisualizationForString extends LineGraphVisualization impl
         if (typeof val === 'string') {
             return this.yScale(val) ?? this.valueOfUndefinedNumber;
         }
-        return this.yScale("undefined") ?? this.valueOfUndefinedNumber;
+        return this.yScale("unspecified") ?? this.valueOfUndefinedNumber;
     }
 
     protected createYScale = (data: ValueDataPoint[]): void => {
-        this.domain = new Set<string>(["undefined"]);
+        this.domain = new Set<string>(["unspecified"]);
 
         data.forEach(d => {
             if (d.actualValue !== undefined) {
