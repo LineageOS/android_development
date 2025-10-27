@@ -31,7 +31,7 @@
   </div>
 </div>
 
-<div class="flex h-screen p-2 2xl:p-4 bg-gray-100">
+<div class="flex h-screen p-2 2xl:p-4 bg-gray-100" #appContainer>
   <div class="flex flex-col py-4 justify-start w-10 bg-slate-200 mx-auto">
     <div (click)="toggleTestListVisibility()"
       class="p-2 mx-auto cursor-pointer rounded hover:bg-gray-400 transition-colors relative group">
@@ -66,21 +66,34 @@
       </span>
     </div>
   </div>
-  <div *ngIf="showTestList" [@sidebarMenuAnimation] class="w-1/4 bg-white rounded-r-md overflow-y-auto mr-2 2xl:mr-4">
-    <app-test-list [goldens]="goldens" [testMode]="testMode" (refreshRequest)="refreshGoldens($event)"
+  <div *ngIf="showTestList" [@sidebarMenuAnimation] (@sidebarMenuAnimation.done)="onAnimationDone($event)"
+    class="transition-all duration-75 h-full rounded-r-md overflow-y-auto" [style.width.px]="testListPanelWidth()"
+    #testListPanel>
+    <app-test-list [goldens]=" goldens" [testMode]="testMode" (refreshRequest)="refreshGoldens($event)"
       (selectedGoldenChange)="setSelectedGolden($event)" [presubmitTests]="presubmitTests"
       (selectedTestNameChange)="setSelectedPresubmitTest($event)" [(showCheckBoxes)]="showCheckBoxes"
       [isRefreshing]="isRefreshing"></app-test-list>
   </div>
 
-  <div class="flex flex-col flex-grow space-y-4" [ngStyle]="{ 'width': showTestList ? '75%' : '90%' }">
-    <div class="bg-white rounded-md shadow-md overflow-hidden h-1/3" *ngIf="showPreviewComponent && isVideoPresent"
-      [@collapseAnimation]>
+  <div *ngIf="showTestList" class="w-2 h-full rounded-md opacity-0 hover:opacity-100 shadow-md bg-gray-100
+    hover:bg-gray-400 cursor-ew-resize transition-colors duration-100" (mousedown)="onVerticalMouseDown($event)"></div>
+
+  <div class="flex flex-col flex-grow transition-all duration-75 h-full" [style.width.px]="testDisplayPanelWidth()"
+    #testDisplayPanelContainer>
+    <div class="bg-white rounded-md shadow-md overflow-hidden transition-all duration-75"
+      *ngIf="showPreviewComponent && isVideoPresent" [@collapseAnimation]
+      (@collapseAnimation.done)="onAnimationDone($event)" [style.height.px]=" videoPanelHeight()" #videoPanel>
       <app-preview [selectedGolden]="selectedGolden"></app-preview>
     </div>
-    <div class="bg-white rounded-md shadow-md p-4 overflow-y-auto no-scrollbar"
-      [@timelineHeightChange]="(showPreviewComponent && isVideoPresent)">
-      <app-timeline [selectedGolden]="selectedGolden" [showTestList]="showTestList" [testMode]="testMode"></app-timeline>
+
+    <div *ngIf="showPreviewComponent && isVideoPresent" class="h-2 bg-gray-100 opacity-0 hover:opacity-100 rounded-md
+     shadow-md hover:bg-gray-400 cursor-ns-resize transition-colors duration-100"
+      (mousedown)="onHorizontalMouseDown($event)"></div>
+
+    <div class="bg-white rounded-md shadow-md p-4 overflow-y-auto no-scrollbar transition-all duration-75"
+      [style.height.px]="graphPanelHeight()" [@timelineHeightChange]="(showPreviewComponent && isVideoPresent)">
+      <app-timeline [selectedGolden]="selectedGolden" [showTestList]="showTestList"
+        [testMode]="testMode"></app-timeline>
     </div>
   </div>
 </div>
