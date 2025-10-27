@@ -535,11 +535,16 @@ export class TracePipeline
       return trace.getParser();
     });
 
-    return await LegacyToPerfettoConverter.convertToSinglePerfettoFile(
-      legacyParsers,
-      allParsers,
-      this.loadedParsers.getPerfettoFile(),
-    );
+    const converter = new LegacyToPerfettoConverter()
+      .setLegacyParsers(legacyParsers)
+      .setAllParsers(allParsers);
+
+    const perfettoFile = this.loadedParsers.getPerfettoFile();
+    if (perfettoFile) {
+      converter.setPerfettoFile(perfettoFile);
+    }
+
+    return await converter.convert();
   }
 
   private makeDownloadArchiveFilename(

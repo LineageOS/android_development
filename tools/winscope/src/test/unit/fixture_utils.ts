@@ -159,12 +159,14 @@ export async function convertToPerfettoTrace(
   existingPerfettoFile?: TraceFile,
 ): Promise<FileAndParser[]> {
   const parsers = fileAndParsers.map((p) => p.parser);
-  const perfettoTrace =
-    await LegacyToPerfettoConverter.convertToSinglePerfettoFile(
-      parsers,
-      parsers,
-      existingPerfettoFile,
-    );
+  const converter = new LegacyToPerfettoConverter()
+    .setLegacyParsers(parsers)
+    .setAllParsers(parsers);
+  if (existingPerfettoFile) {
+    converter.setPerfettoFile(existingPerfettoFile);
+  }
+  const perfettoTrace = await converter.convert();
+
   if (perfettoTrace) {
     const processed = await new PerfettoParserFactory().processFile(
       perfettoTrace,
