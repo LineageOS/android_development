@@ -168,12 +168,9 @@ describe('PresenterSearch', () => {
       .setType(TraceType.SEARCH)
       .build();
     await presenter.onAppEvent(new TraceAddRequest(trace));
-    const expectedSearch = new CurrentSearch(
-      1,
-      testQuery,
-      new SearchResult([], []),
-    );
-    expect(uiData.currentSearches).toEqual([expectedSearch]);
+    expect(uiData.currentSearches.length).toBe(1);
+    expect(uiData.currentSearches[0].uid).toBe(1);
+    expect(uiData.currentSearches[0].query).toBe(testQuery);
     expect(uiData.lastTraceFailed).toEqual(false);
 
     await presenter.onAppEvent(

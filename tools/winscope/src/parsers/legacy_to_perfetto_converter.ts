@@ -86,7 +86,7 @@ export class LegacyToPerfettoConverter {
     // timestamp syncing. The packets for these traces will be parsed by
     // TP with the "has_invalid_elapsed_ts" column set to true.
     const nonZeroTs = trace.packet.find((packet) => {
-      return packet.timestamp && !packet.timestamp.isZero();;
+      return packet.timestamp && !packet.timestamp.isZero();
     })?.timestamp;
     legacyPackets.forEach((packet) => {
       if (nonZeroTs && packet.timestamp.isZero()) {

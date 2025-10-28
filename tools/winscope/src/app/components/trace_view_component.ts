@@ -46,8 +46,8 @@ import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
   TabbedViewSwitched,
+  TabbedViewSwitchRequest,
   WinscopeEvent,
-  WinscopeEventType,
 } from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -362,16 +362,22 @@ export class TraceViewComponent
     await this.showTab(tab, false);
   }
 
-  async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.TABBED_VIEW_SWITCH_REQUEST,
-      async (event) => {
-        const tab = this.tabs.find((tab) =>
-          tab.view.traces.some((trace) => trace === event.newActiveTrace),
-        );
-        await this.showTab(assertDefined(tab), false);
-      },
+  private async onTabbedViewSwitchRequest(event: TabbedViewSwitchRequest) {
+    const tab = this.tabs.find((tab) =>
+      tab.view.traces.some((trace) => trace === event.newActiveTrace),
     );
+    await this.showTab(assertDefined(tab), false);
+  }
+
+  async onWinscopeEvent(event: WinscopeEvent) {
+    switch (event.constructor) {
+      case TabbedViewSwitchRequest:
+        return await this.onTabbedViewSwitchRequest(
+          event as TabbedViewSwitchRequest,
+        );
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   setEmitEvent(callback: EmitEvent) {

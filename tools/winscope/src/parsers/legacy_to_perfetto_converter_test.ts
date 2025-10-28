@@ -91,11 +91,7 @@ describe('LegacyToPerfettoConverter', () => {
     );
     const trace = await checkAndDecodePerfettoFile(perfettoFile);
 
-    expect(trace.packet).toEqual([
-      perfettoSnapshot,
-      existingPacket,
-      packetB0,
-    ]);
+    expect(trace.packet).toEqual([perfettoSnapshot, existingPacket, packetB0]);
     expect(packetB0.timestamp).toEqual(Long.fromInt(50, true));
   });
 

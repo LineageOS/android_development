@@ -69,68 +69,11 @@ export enum WinscopeEventType {
   BOOKMARKS_CHANGED,
 }
 
-interface TypeMap {
-  [WinscopeEventType.APP_INITIALIZED]: AppInitialized;
-  [WinscopeEventType.APP_FILES_COLLECTED]: AppFilesCollected;
-  [WinscopeEventType.APP_FILES_UPLOADED]: AppFilesUploaded;
-  [WinscopeEventType.APP_RESET_REQUEST]: AppResetRequest;
-  [WinscopeEventType.APP_TRACE_VIEW_REQUEST]: AppTraceViewRequest;
-  [WinscopeEventType.APP_TRACE_VIEW_REQUEST_HANDLED]: AppTraceViewRequestHandled;
-  [WinscopeEventType.APP_REFRESH_DUMPS_REQUEST]: AppRefreshDumpsRequest;
-  [WinscopeEventType.BUGREPORT_FILE_SELECTED]: BugreportFileSelected;
-  [WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST]: BugreportFileSelectionRequest;
-  [WinscopeEventType.REMOTE_TOOL_DOWNLOAD_START]: RemoteToolDownloadStart;
-  [WinscopeEventType.REMOTE_TOOL_FILES_RECEIVED]: RemoteToolFilesReceived;
-  [WinscopeEventType.REMOTE_TOOL_TIMESTAMP_RECEIVED]: RemoteToolTimestampReceived;
-  [WinscopeEventType.TABBED_VIEW_SWITCHED]: TabbedViewSwitched;
-  [WinscopeEventType.TABBED_VIEW_SWITCH_REQUEST]: TabbedViewSwitchRequest;
-  [WinscopeEventType.TRACE_POSITION_UPDATE]: TracePositionUpdate;
-  [WinscopeEventType.VIEWERS_LOADED]: ViewersLoaded;
-  [WinscopeEventType.VIEWERS_UNLOADED]: ViewersUnloaded;
-  [WinscopeEventType.EXPANDED_TIMELINE_TOGGLED]: ExpandedTimelineToggled;
-  [WinscopeEventType.ACTIVE_TRACE_CHANGED]: ActiveTraceChanged;
-  [WinscopeEventType.DARK_MODE_TOGGLED]: DarkModeToggled;
-  [WinscopeEventType.NO_TRACE_TARGETS_SELECTED]: NoTraceTargetsSelectedEvent;
-  [WinscopeEventType.FILTER_PRESET_SAVE_REQUEST]: FilterPresetSaveRequest;
-  [WinscopeEventType.FILTER_PRESET_APPLY_REQUEST]: FilterPresetApplyRequest;
-  [WinscopeEventType.TRACE_SEARCH_REQUEST]: TraceSearchRequest;
-  [WinscopeEventType.TRACE_SEARCH_FAILED]: TraceSearchFailed;
-  [WinscopeEventType.TRACE_ADD_REQUEST]: TraceAddRequest;
-  [WinscopeEventType.TRACE_REMOVE_REQUEST]: TraceRemoveRequest;
-  [WinscopeEventType.INITIALIZE_TRACE_SEARCH_REQUEST]: InitializeTraceSearchRequest;
-  [WinscopeEventType.TRACE_SEARCH_INITIALIZED]: TraceSearchInitialized;
-  [WinscopeEventType.TRACE_SEARCH_COMPLETED]: TraceSearchCompleted;
-  [WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING]: ShowTraceUploadWarning;
-  [WinscopeEventType.PLAYBACK_STATE_CHANGE_REQUEST]: PlaybackStateChangeRequest;
-  [WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED]: PlaybackStateChangeHandled;
-  [WinscopeEventType.PLAYBACK_SPEED_CHANGE]: PlaybackSpeedChange;
-  [WinscopeEventType.SCREEN_RECORDING_CHANGE]: ScreenRecordingChange;
-  [WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE]: PlaybackStateChangePropagate;
-  [WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE]: ActiveSearchQueriesUpdate;
-  [WinscopeEventType.BOOKMARKS_CHANGED]: BookmarksChanged;
-}
-
 /**
  * An abstract class for Winscope events.
  */
 export abstract class WinscopeEvent {
   abstract readonly type: WinscopeEventType;
-
-  /**
-   * Visits the event if it is of the given type.
-   *
-   * @param type The type of the event to visit.
-   * @param callback The callback to execute if the event is of the given type.
-   */
-  async visit<T extends WinscopeEventType>(
-    type: T,
-    callback: (event: TypeMap[T]) => Promise<void>,
-  ) {
-    if (this.type === type) {
-      const event = this as unknown as TypeMap[T];
-      await callback(event);
-    }
-  }
 }
 
 /**

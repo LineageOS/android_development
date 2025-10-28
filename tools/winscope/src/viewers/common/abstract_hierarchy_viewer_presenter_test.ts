@@ -17,6 +17,7 @@
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
+
 import {
   TracePositionUpdate,
   PlaybackStateChangeRequest,

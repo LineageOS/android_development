@@ -19,9 +19,10 @@ import {isElementVisible, isInputTextField, KeyboardEventKey} from 'common/dom';
 import {Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {
+  ActiveTraceChanged,
+  DarkModeToggled,
   TracePositionUpdate,
   WinscopeEvent,
-  WinscopeEventType,
 } from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {CustomQueryType} from 'trace_api/custom_query';
@@ -139,42 +140,52 @@ export abstract class AbstractLogViewerPresenter<
     this.addViewerSpecificListeners(htmlElement);
   }
 
-  async onAppEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.TRACE_POSITION_UPDATE,
-      async (event) => {
-        if (this.uiData.isFetchingData) {
-          return;
-        }
-        if (!this.isInitialized) {
-          this.uiData.isFetchingData = true;
-          this.notifyViewChanged();
-          if (this.initializeTraceSpecificData) {
-            await this.initializeTraceSpecificData();
-          }
-          this.makeUiData().then(async () => {
-            await this.applyTracePositionUpdate(event);
-            this.uiData.isFetchingData = false;
-            this.notifyViewChanged();
-            this.isInitialized = true;
-          });
-        } else {
-          await this.applyTracePositionUpdate(event);
-        }
-      },
-    );
-    await event.visit(WinscopeEventType.DARK_MODE_TOGGLED, async (event) => {
-      this.uiData.isDarkMode = event.isDarkMode;
+  private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (this.uiData.isFetchingData) {
+      return;
+    }
+    if (!this.isInitialized) {
+      this.uiData.isFetchingData = true;
       this.notifyViewChanged();
-    });
-    await event.visit(WinscopeEventType.ACTIVE_TRACE_CHANGED, async (event) => {
-      this.activeTrace = event.trace;
-      if (this.activeTrace === this.trace) {
-        this.uiData.checkScrollViewport = true;
-        this.notifyViewChanged();
-        this.uiData.checkScrollViewport = false;
+      if (this.initializeTraceSpecificData) {
+        await this.initializeTraceSpecificData();
       }
-    });
+      this.makeUiData().then(async () => {
+        await this.applyTracePositionUpdate(event);
+        this.uiData.isFetchingData = false;
+        this.notifyViewChanged();
+        this.isInitialized = true;
+      });
+    } else {
+      await this.applyTracePositionUpdate(event);
+    }
+  }
+
+  private async onDarkModeToggled(event: DarkModeToggled) {
+    this.uiData.isDarkMode = event.isDarkMode;
+    this.notifyViewChanged();
+  }
+
+  private async onActiveTraceChanged(event: ActiveTraceChanged) {
+    this.activeTrace = event.trace;
+    if (this.activeTrace === this.trace) {
+      this.uiData.checkScrollViewport = true;
+      this.notifyViewChanged();
+      this.uiData.checkScrollViewport = false;
+    }
+  }
+
+  async onAppEvent(event: WinscopeEvent) {
+    switch (event.constructor) {
+      case TracePositionUpdate:
+        return await this.onTracePositionUpdate(event as TracePositionUpdate);
+      case DarkModeToggled:
+        return await this.onDarkModeToggled(event as DarkModeToggled);
+      case ActiveTraceChanged:
+        return await this.onActiveTraceChanged(event as ActiveTraceChanged);
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   async onSelectFilterChange(header: LogHeader, value: string[]) {

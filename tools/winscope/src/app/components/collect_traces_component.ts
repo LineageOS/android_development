@@ -41,9 +41,9 @@ import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {makeWarningProxyTraceTimeout} from 'app/warnings';
 import {
+  AppRefreshDumpsRequest,
   NoTraceTargetsSelectedEvent,
   WinscopeEvent,
-  WinscopeEventType,
 } from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -559,19 +559,23 @@ export class CollectTracesComponent
     device.tryAuthorize();
   }
 
-  async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.APP_REFRESH_DUMPS_REQUEST,
-      async (event) => {
-        this.targetTabIndex = 1;
-        this.dumpConfig = updateConfigsFromStore(
-          JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
-          assertDefined(this.storage),
-          this.storeKeyPrefixDumpConfig,
-        );
-        this.refreshDumps = true;
-      },
+  private async onAppRefreshDumpsRequest() {
+    this.targetTabIndex = 1;
+    this.dumpConfig = updateConfigsFromStore(
+      JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
+      assertDefined(this.storage),
+      this.storeKeyPrefixDumpConfig,
     );
+    this.refreshDumps = true;
+  }
+
+  async onWinscopeEvent(event: WinscopeEvent) {
+    switch (event.constructor) {
+      case AppRefreshDumpsRequest:
+        return await this.onAppRefreshDumpsRequest();
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   onProgressUpdate(message: string, progressPercentage: number | undefined) {

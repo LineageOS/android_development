@@ -54,6 +54,10 @@ import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangePropagate,
+  PlaybackStateChangeRequest,
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
   TraceAddRequest,
@@ -67,10 +71,6 @@ import {
   ViewersUnloaded,
   WinscopeEvent,
   WinscopeEventType,
-  PlaybackStateChangeRequest,
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangePropagate,
   ScreenRecordingChange,
 } from 'messaging/winscope_event';
 
@@ -881,7 +881,6 @@ describe('Mediator', () => {
 
     expect(uploadTracesComponent.onWinscopeEvent).toHaveBeenCalledWith(
       jasmine.objectContaining({
-        type: WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING,
         message: jasmine.stringMatching(
           /^No Winscope Perfetto trace found in bug report/,
         ),

@@ -27,9 +27,9 @@ import {
   makeWarningUnsupportedFileFormat,
 } from './warnings';
 import {
+  BugreportFileSelected,
   BugreportFileSelectionRequest,
   WinscopeEvent,
-  WinscopeEventType,
 } from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -42,7 +42,6 @@ import {ProcessedFiles} from 'parsers/legacy/parser_factory';
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {TraceMetadata} from 'trace_api/trace_metadata';
-import {BugreportFileSelected} from 'messaging/winscope_event';
 
 /**
  * The build type of the Android device that generated the bugreport.
@@ -138,13 +137,14 @@ export class TraceFileFilter
     this.emitEvent = callback;
   }
 
+  private async onBugreportFileSelected(event: BugreportFileSelected) {
+    this.selectedFile = event.filename;
+  }
+
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.BUGREPORT_FILE_SELECTED,
-      async (event: BugreportFileSelected) => {
-        this.selectedFile = event.filename;
-      },
-    );
+    if (event instanceof BugreportFileSelected) {
+      this.onBugreportFileSelected(event as BugreportFileSelected);
+    }
   }
 
   async filterAndParse(

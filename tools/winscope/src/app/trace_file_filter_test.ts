@@ -23,7 +23,8 @@ import {
 } from './warnings';
 import {
   BugreportFileSelected,
-  WinscopeEventType,
+  BugreportFileSelectionRequest,
+  WinscopeEvent,
 } from 'messaging/winscope_event';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
@@ -37,10 +38,6 @@ import {
   ParseLegacyFilesStrategy,
   TraceFileFilter,
 } from './trace_file_filter';
-import {
-  BugreportFileSelectionRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
 
 describe('TraceFileFilter', () => {
   const filter = new TraceFileFilter();
@@ -157,15 +154,12 @@ describe('TraceFileFilter', () => {
     it('sends request for file selection if multiple files in perfetto directory', async () => {
       let requested: string[] | undefined;
       filter.setEmitEvent(async (event: WinscopeEvent) => {
-        await event.visit(
-          WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
-          async (event: BugreportFileSelectionRequest) => {
-            requested = event.filenames;
-            await filter.onWinscopeEvent(
-              new BugreportFileSelected(event.filenames[1]),
-            );
-          },
-        );
+        if (event instanceof BugreportFileSelectionRequest) {
+          requested = event.filenames;
+          await filter.onWinscopeEvent(
+            new BugreportFileSelected(event.filenames[1]),
+          );
+        }
       });
 
       const perfettoTest = makeTraceFile(
