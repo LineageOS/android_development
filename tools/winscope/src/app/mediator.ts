@@ -309,6 +309,7 @@ export class Mediator {
       false,
       undefined,
       event.prefetchedEntry,
+      event.seekPos,
     );
     UserNotifier.notify();
     await this.appComponent.onWinscopeEvent(event);
@@ -561,12 +562,18 @@ export class Mediator {
     omitCrossToolProtocol: boolean,
     source?: FilesSource,
     prefetchedEntry?: TraceEntryEager<object, object>,
+    seekPos?: TracePosition,
   ) {
     if (!position) {
       return;
     }
 
-    const event = new TracePositionUpdate(position, undefined, prefetchedEntry);
+    const event = new TracePositionUpdate(
+      position,
+      undefined,
+      prefetchedEntry,
+      seekPos,
+    );
     const viewers: Viewer[] = [...this.viewers].filter((viewer) =>
       this.isViewerVisible(viewer),
     );
