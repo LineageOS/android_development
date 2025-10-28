@@ -34,15 +34,23 @@ export const logComponentStyles = `
     display: flex;
     flex-direction: row;
     overflow-wrap: anywhere;
-    padding: 4px;
+    padding: 0px 4px;
   }
 
   .filter {
     align-content: center;
   }
 
-  .header, .filter, .cell {
+  .header, .filter {
     padding: 4px;
+  }
+
+  .cell {
+    padding: 8px 4px;
+  }
+
+  .entry:not(.current):not(.selected) .cell.alt-background {
+    background-color: var(--card-title-background-color);
   }
 
   .time {
