@@ -110,7 +110,7 @@
   <div class="p-4 bg-white rounded-md">
     <mat-accordion class="mt-4" displayMode="flat">
       <mat-expansion-panel hideToggle="" *ngFor="let golden of presubmitTests" (opened)="presubmitTestOpened(golden)">
-        <mat-expansion-panel-header class="flex items-center">
+        <mat-expansion-panel-header class="flex items-center mt-2 mb-2">
           <mat-panel-title class="flex-1 min-w-0">
             <div class="flex items-center">
               <span>{{extractLastPart(golden.testname) }}</span>
