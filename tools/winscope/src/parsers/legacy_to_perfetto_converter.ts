@@ -81,6 +81,19 @@ export class LegacyToPerfettoConverter {
     }
     trace.packet.push(...legacyPackets);
 
+    // Packets with zero timestamps must be assigned a timestamp within
+    // the range of timestamps present in the trace to avoid issues with
+    // timestamp syncing. The packets for these traces will be parsed by
+    // TP with the "has_invalid_elapsed_ts" column set to true.
+    const nonZeroTs = trace.packet.find((packet) => {
+      return packet.timestamp && !packet.timestamp.isZero();;
+    })?.timestamp;
+    legacyPackets.forEach((packet) => {
+      if (nonZeroTs && packet.timestamp.isZero()) {
+        packet.timestamp = nonZeroTs;
+      }
+    });
+
     // To avoid out-of-memory crashes with larger traces, we add encoded
     // packets to size-limited chunks. TraceProcessor can load files in
     // arbitrary chunks so we don't need to worry about how/where the
@@ -306,6 +319,7 @@ export class LegacyToPerfettoConverter {
             trustedUid,
             trustedPid,
           );
+
           if (legacyPackets.length > 0) {
             legacyPackets[0].firstPacketOnSequence = true;
             packets.push(...legacyPackets);
