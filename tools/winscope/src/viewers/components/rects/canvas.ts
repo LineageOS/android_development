@@ -31,6 +31,7 @@ import {Camera} from './camera';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
 import {UiRect3D} from './ui_rect3d';
+import {Color} from 'app/colors';
 
 export function colorToCss(color: THREE.Color): string {
   return '#' + color.getHexString();
@@ -943,7 +944,7 @@ export class Canvas {
 
     div.style.marginTop = '5px';
     if (!label.isHighlighted) {
-      div.style.color = 'gray';
+      div.style.color = Color.TEXT_GRAY;
     }
     div.style.pointerEvents = 'auto';
     div.style.cursor = 'pointer';
@@ -992,7 +993,7 @@ export class Canvas {
       circle.material = lineMaterial;
       this.disposeMaterial(line);
       line.material = lineMaterial;
-      text.element.style.color = newLabel.isHighlighted ? '' : 'gray';
+      text.element.style.color = newLabel.isHighlighted ? '' : Color.TEXT_GRAY;
     }
 
     if (
