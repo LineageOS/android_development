@@ -1149,11 +1149,11 @@ describe('TimelineComponent', () => {
   });
 
   it('shows screen recording canvas in expanded timeline overlay', async () => {
-    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
-      codedWidth: 4,
-      codedHeight: 10,
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
     });
-    const entry = new MediaBasedTraceEntry(undefined, frame);
+    const entry = new MediaBasedTraceEntry(frame);
     const drawSpy = spyOn(entry, 'tryDrawOnCanvas');
 
     const trace = new TraceBuilder<MediaBasedTraceEntry>()

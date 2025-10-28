@@ -30,19 +30,12 @@ describe('MediaBasedTraceEntry', () => {
     canvas.getContext.withArgs('2d').and.returnValue(ctx);
   });
 
-  it('can be initialized with image data', () => {
-    const data = new Blob();
-    const entry = new MediaBasedTraceEntry(data);
-    expect(entry.imgData).toEqual(data);
-    expect(() => entry.tryDrawOnCanvas(canvas)).not.toThrow();
-  });
-
   it('draws video frame for rotation angle 0 degrees', () => {
-    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
-      codedWidth: 4,
-      codedHeight: 10,
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
     });
-    const entry = new MediaBasedTraceEntry(undefined, frame);
+    const entry = new MediaBasedTraceEntry(frame);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(0);
@@ -60,11 +53,11 @@ describe('MediaBasedTraceEntry', () => {
   });
 
   it('draws video frame for rotation angle 90 degrees', () => {
-    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
-      codedWidth: 4,
-      codedHeight: 10,
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
     });
-    const entry = new MediaBasedTraceEntry(undefined, frame, 90);
+    const entry = new MediaBasedTraceEntry(frame, 90);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(Math.PI / 2);
@@ -82,11 +75,11 @@ describe('MediaBasedTraceEntry', () => {
   });
 
   it('draws video frame for rotation angle 180 degrees', () => {
-    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
-      codedWidth: 4,
-      codedHeight: 10,
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
     });
-    const entry = new MediaBasedTraceEntry(undefined, frame, 180);
+    const entry = new MediaBasedTraceEntry(frame, 180);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(Math.PI);
@@ -104,11 +97,11 @@ describe('MediaBasedTraceEntry', () => {
   });
 
   it('draws video frame for rotation angle 270 degrees', () => {
-    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
-      codedWidth: 4,
-      codedHeight: 10,
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
     });
-    const entry = new MediaBasedTraceEntry(undefined, frame, 270);
+    const entry = new MediaBasedTraceEntry(frame, 270);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith((Math.PI * 3) / 2);

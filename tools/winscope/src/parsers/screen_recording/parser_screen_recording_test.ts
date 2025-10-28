@@ -60,16 +60,9 @@ describe('ParserScreenRecording', () => {
     });
 
     it('retrieves trace entry', async () => {
-      {
-        const entry = await parser.getEntry(0);
-        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(entry.videoFrame?.timestamp).toBe(0);
-      }
-      {
-        const entry = await parser.getEntry(parser.getLengthEntries() - 1);
-        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(entry.videoFrame?.timestamp).toBe(1371066);
-      }
+      const entry1 = await retrieveAndCheckEntry(0);
+      const entry2 = await retrieveAndCheckEntry(parser.getLengthEntries() - 1);
+      expect(entry1.image === entry2.image).toBeFalse();
     });
   });
 
@@ -105,16 +98,13 @@ describe('ParserScreenRecording', () => {
     });
 
     it('retrieves trace entry', async () => {
-      {
-        const entry = await parser.getEntry(0);
-        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(entry.videoFrame?.timestamp).toBe(0);
-      }
-      {
-        const entry = await parser.getEntry(parser.getLengthEntries() - 1);
-        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(entry.videoFrame?.timestamp).toBe(3251911);
-      }
+      const entry1 = await retrieveAndCheckEntry(0, 1280, 576);
+      const entry2 = await retrieveAndCheckEntry(
+        parser.getLengthEntries() - 1,
+        1280,
+        576,
+      );
+      expect(entry1.image === entry2.image).toBeFalse();
     });
   });
 
@@ -163,16 +153,9 @@ describe('ParserScreenRecording', () => {
     });
 
     it('retrieves trace entry', async () => {
-      {
-        const entry = await parser.getEntry(0);
-        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(entry.videoFrame?.timestamp).toBe(1136755);
-      }
-      {
-        const entry = await parser.getEntry(parser.getLengthEntries() - 1);
-        expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-        expect(entry.videoFrame?.timestamp).toBe(5912966);
-      }
+      const entry1 = await retrieveAndCheckEntry(0);
+      const entry2 = await retrieveAndCheckEntry(parser.getLengthEntries() - 1);
+      expect(entry1.image === entry2.image).toBeFalse();
     });
   });
 
@@ -267,16 +250,11 @@ describe('ParserScreenRecording', () => {
       });
 
       it('retrieves trace entry', async () => {
-        {
-          const entry = await parser.getEntry(0);
-          expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-          expect(entry.videoFrame?.timestamp).toBe(1136755);
-        }
-        {
-          const entry = await parser.getEntry(parser.getLengthEntries() - 1);
-          expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-          expect(entry.videoFrame?.timestamp).toBe(5912966);
-        }
+        const entry1 = await retrieveAndCheckEntry(0);
+        const entry2 = await retrieveAndCheckEntry(
+          parser.getLengthEntries() - 1,
+        );
+        expect(entry1.image === entry2.image).toBeFalse();
       });
     }
 
@@ -290,4 +268,12 @@ describe('ParserScreenRecording', () => {
       expect(parsers.length).toBe(0);
     }
   });
+
+  async function retrieveAndCheckEntry(index: number, w = 1080, h = 2400) {
+    const entry = await parser.getEntry(index);
+    expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
+    expect(entry.image.width).toBe(w);
+    expect(entry.image.height).toBe(h);
+    return entry as MediaBasedTraceEntry;
+  }
 });

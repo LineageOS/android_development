@@ -30,7 +30,6 @@ import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {assertDefined} from 'common/assert';
 import {Size} from 'common/geometry/size';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
@@ -102,13 +101,9 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         @if (hasVideoFrameToShow()) {
           <canvas id="videoCanvasElementOverlay"></canvas>
         } @else {
-          @if (hasImage()) {
-            <img [src]="safeUrl" />
-          } @else {
-            <div class="no-video">
-              <p class="mat-body-2">No frame to show.</p>
-            </div>
-          }
+          <div class="no-video">
+            <p class="mat-body-2">No frame to show.</p>
+          </div>
         }
     </div>
   `,
@@ -199,12 +194,10 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
   ],
 })
 export class ViewerMediaBasedComponent {
-  safeUrl: undefined | SafeUrl = undefined;
   shouldMinimize = false;
   index = 0;
 
   constructor(
-    @Inject(DomSanitizer) private sanitizer: DomSanitizer,
     @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(NgZone) private ngZone: NgZone,
@@ -229,10 +222,6 @@ export class ViewerMediaBasedComponent {
     }
 
     this.updateRenderedFrame();
-
-    if (this.safeUrl === undefined) {
-      this.updateSafeUrl();
-    }
   }
 
   ngAfterViewInit() {
@@ -259,11 +248,7 @@ export class ViewerMediaBasedComponent {
 
   hasVideoFrameToShow() {
     const curr = this.currentTraceEntries.at(this.index);
-    return curr && !curr.imgData && curr.videoFrame !== undefined;
-  }
-
-  hasImage() {
-    return this.currentTraceEntries.at(this.index)?.imgData !== undefined;
+    return curr !== undefined;
   }
 
   onSelectChange(event: MatSelectChange) {
@@ -293,8 +278,7 @@ export class ViewerMediaBasedComponent {
 
   private updateRenderedFrame() {
     const entry = this.currentTraceEntries.at(this.index);
-    if (!entry?.videoFrame) {
-      this.updateSafeUrl();
+    if (!entry) {
       return;
     }
     const canvas = assertDefined(
@@ -337,17 +321,6 @@ export class ViewerMediaBasedComponent {
       };
       this.clearFrameSizeWorker();
       this.updateMaxContainerSize();
-    }
-  }
-
-  private updateSafeUrl() {
-    const curr = this.currentTraceEntries.at(this.index);
-    if (curr?.imgData !== undefined) {
-      this.safeUrl = this.sanitizer.bypassSecurityTrustUrl(
-        URL.createObjectURL(curr.imgData),
-      );
-      this.changeDetectorRef.detectChanges();
-      this.resetFrameSizeWorker();
     }
   }
 

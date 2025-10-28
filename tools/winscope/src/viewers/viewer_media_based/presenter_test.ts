@@ -29,7 +29,14 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
 describe('PresenterMediaBased', () => {
-  const entries = [new MediaBasedTraceEntry(), new MediaBasedTraceEntry()];
+  const entries = [
+    new MediaBasedTraceEntry(
+      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+    ),
+    new MediaBasedTraceEntry(
+      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+    ),
+  ];
   const timestamps = [makeRealTimestamp(10n), makeRealTimestamp(15n)];
   const trace1 = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)

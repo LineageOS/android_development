@@ -50,11 +50,21 @@ describe('PlaybackPresenter', () => {
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -281,7 +291,14 @@ describe('PlaybackPresenter', () => {
       ) {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
-          .setEntries([new MediaBasedTraceEntry(), new MediaBasedTraceEntry()])
+          .setEntries([
+            new MediaBasedTraceEntry(
+              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            ),
+            new MediaBasedTraceEntry(
+              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            ),
+          ])
           .setTimestamps([timestamp2, timestamp3])
           .build();
         await presenter.play(0, stateToReflect, srTrace);

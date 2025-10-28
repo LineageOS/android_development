@@ -64,7 +64,7 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
     const {frame, rotationAngle} = await assertDefined(
       this.videoFrameCache,
     ).get(index);
-    return new MediaBasedTraceEntry(undefined, frame, rotationAngle);
+    return new MediaBasedTraceEntry(frame, rotationAngle);
   }
 
   private searchMagicString(videoData: Uint8Array): number {

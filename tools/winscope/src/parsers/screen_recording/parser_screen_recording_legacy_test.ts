@@ -62,15 +62,16 @@ describe('ParserScreenRecordingLegacy', () => {
   });
 
   it('retrieves trace entry', async () => {
-    {
-      const entry = await parser.getEntry(0);
-      expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-      expect(entry.videoFrame?.timestamp).toBe(0);
-    }
-    {
-      const entry = await parser.getEntry(parser.getLengthEntries() - 1);
-      expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-      expect(entry.videoFrame?.timestamp).toBe(2369200);
-    }
+    const entry1 = await retrieveAndCheckEntry(0);
+    const entry2 = await retrieveAndCheckEntry(parser.getLengthEntries() - 1);
+    expect(entry1.image === entry2.image).toBeFalse();
   });
+
+  async function retrieveAndCheckEntry(index: number) {
+    const entry = await parser.getEntry(index);
+    expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
+    expect(entry.image.width).toBe(1080);
+    expect(entry.image.height).toBe(2400);
+    return entry as MediaBasedTraceEntry;
+  }
 });
