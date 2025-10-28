@@ -24,9 +24,11 @@ import {
 } from 'common/io';
 import {INVALID_TIME_NS, TimeRange, Timestamp} from 'common/time/time';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {TraceHasOldData} from 'app/warnings/trace_has_old_data';
-import {TraceOverridden} from 'app/warnings/trace_overridden';
-import {TraceHasElapsedTimestamps} from 'app/warnings/trace_has_elapsed_timestamps';
+import {
+  makeWarningTraceHasOldData,
+  makeWarningTraceOverridden,
+  makeWarningTraceHasElapsedTimestamps,
+} from './warnings';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {
@@ -271,7 +273,7 @@ export class LoadedParsers {
           Math.abs(Number(monotonicOffset - latestMonotonicOffset)) >
           LoadedParsers.MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET;
         if (isOldData) {
-          UserNotifier.add(new TraceHasOldData(file.getDescriptor()));
+          UserNotifier.add(makeWarningTraceHasOldData(file.getDescriptor()));
           return false;
         }
       }
@@ -282,7 +284,7 @@ export class LoadedParsers {
           Math.abs(Number(bootTimeOffset - latestBootTimeOffset)) >
           LoadedParsers.MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET;
         if (isOldData) {
-          UserNotifier.add(new TraceHasOldData(file.getDescriptor()));
+          UserNotifier.add(makeWarningTraceHasOldData(file.getDescriptor()));
           return false;
         }
       }
@@ -327,7 +329,9 @@ export class LoadedParsers {
       const endTimestamp = timestamps[timestamps.length - 1];
       const isOldData = endTimestamp.getValueNs() <= timeGap.startNs;
       if (isOldData) {
-        UserNotifier.add(new TraceHasOldData(file.getDescriptor(), timeGap));
+        UserNotifier.add(
+          makeWarningTraceHasOldData(file.getDescriptor(), timeGap),
+        );
         return false;
       }
 
@@ -362,7 +366,7 @@ export class LoadedParsers {
 
     oldScreenshotParsers.forEach((fileAndParser) => {
       UserNotifier.add(
-        new TraceOverridden(
+        makeWarningTraceOverridden(
           fileAndParser.parser.getDescriptors().join(),
           TraceType.SCREEN_RECORDING,
         ),
@@ -372,7 +376,7 @@ export class LoadedParsers {
 
     newScreenshotParsers.forEach((newScreenshotParser) => {
       UserNotifier.add(
-        new TraceOverridden(
+        makeWarningTraceOverridden(
           newScreenshotParser.parser.getDescriptors().join(),
           TraceType.SCREEN_RECORDING,
         ),
@@ -439,7 +443,9 @@ export class LoadedParsers {
           parser.getRealToBootTimeOffsetNs() !== undefined;
         if (!hasOffset) {
           UserNotifier.add(
-            new TraceHasElapsedTimestamps(parser.getDescriptors().join()),
+            makeWarningTraceHasElapsedTimestamps(
+              parser.getDescriptors().join(),
+            ),
           );
         }
       });

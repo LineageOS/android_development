@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {FailedToConvertLegacyTraces} from 'parsers/warnings/failed_to_convert_legacy_traces';
+import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
@@ -164,7 +164,7 @@ describe('LegacyToPerfettoConverter', () => {
     const perfettoFile = await convertToPerfetto([parser], existingFile);
     expect(perfettoFile).toEqual(existingFile);
     userNotifierChecker.expectNotified([
-      new FailedToConvertLegacyTraces('decoding failed'),
+      makeWarningFailedToConvertLegacyTraces('decoding failed'),
     ]);
   });
 
@@ -182,7 +182,9 @@ describe('LegacyToPerfettoConverter', () => {
       .convert();
     expect(perfettoFile).toBeUndefined();
     userNotifierChecker.expectNotified([
-      new FailedToConvertLegacyTraces('no parsers or Perfetto file provided'),
+      makeWarningFailedToConvertLegacyTraces(
+        'no parsers or Perfetto file provided',
+      ),
     ]);
   });
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
+import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
 import {makeHierarchyNode} from 'test/unit/tree_node_test_helpers';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
@@ -69,7 +69,7 @@ describe('UiHierarchyTreeNode', () => {
 
   it('transfers warnings', () => {
     expect(UiHierarchyTreeNode.from(node).getWarnings()).toEqual([]);
-    const warning = new DuplicateLayerIds([]);
+    const warning = makeWarningDuplicateLayerIds([]);
     node.addWarning(warning);
     expect(UiHierarchyTreeNode.from(node).getWarnings()).toEqual([warning]);
   });

@@ -36,8 +36,8 @@ export class UserNotifier {
     if (UserNotifier.notifications.length === 0) return;
     UserNotifier.notifications.forEach((notif) => {
       Analytics.UserNotification.logUserWarning(
-        notif.getDescriptor(),
-        notif.getMessage(),
+        notif.descriptor,
+        notif.message,
       );
     });
     UserNotifier.snackBarOpener?.onNotifications(UserNotifier.notifications);

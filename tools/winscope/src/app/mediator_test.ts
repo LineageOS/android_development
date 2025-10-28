@@ -22,12 +22,16 @@ import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
 import {ProgressListener} from 'messaging/progress_listener';
 import {ProgressListenerStub} from 'messaging/progress_listener_stub';
 import {UserWarning} from 'messaging/user_warning';
-import {FailedToCreateTracesParser} from 'parsers/traces/failed_to_create_trace_parsers';
-import {NoValidFiles} from 'app/warnings/no_valid_files';
-import {InvalidLegacyTrace} from 'parsers/warnings/invalid_legacy_trace';
-import {InvalidPerfettoTrace} from 'parsers/warnings/invalid_perfetto_trace';
-import {IncompleteFrameMapping} from 'app/warnings/incomplete_frame_mapping';
-import {NoTraceTargetsSelected} from 'app/warnings/no_trace_targets_selected';
+import {
+  makeWarningFailedToCreateTracesParser,
+  makeWarningInvalidLegacyTrace,
+  makeWarningInvalidPerfettoTrace,
+} from 'parsers/warnings';
+import {
+  makeWarningNoValidFiles,
+  makeWarningIncompleteFrameMapping,
+  makeWarningNoTraceTargetsSelected,
+} from './warnings';
 import {
   ActiveSearchQueriesUpdate,
   ActiveTraceChanged,
@@ -304,7 +308,7 @@ describe('Mediator', () => {
     );
     expect(
       userNotifierChecker.expectNotified([
-        new InvalidPerfettoTrace('empty.pb', [
+        makeWarningInvalidPerfettoTrace('empty.pb', [
           'Perfetto trace has no Winscope trace entries',
         ]),
       ]),
@@ -325,7 +329,7 @@ describe('Mediator', () => {
     );
     expect(
       userNotifierChecker.expectNotified([
-        new InvalidLegacyTrace(
+        makeWarningInvalidLegacyTrace(
           'no_entries_InputMethodClients.pb',
           'Trace has no entries',
         ),
@@ -343,7 +347,7 @@ describe('Mediator', () => {
     );
     expect(
       userNotifierChecker.expectNotified([
-        new FailedToCreateTracesParser(
+        makeWarningFailedToCreateTracesParser(
           TraceType.CUJS,
           'eventlog_no_cujs.winscope has no relevant entries',
         ),
@@ -360,7 +364,7 @@ describe('Mediator', () => {
         collected: [],
       }),
     );
-    expect(userNotifierChecker.expectNotified([new NoValidFiles()]));
+    expect(userNotifierChecker.expectNotified([makeWarningNoValidFiles()]));
     expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
   });
 
@@ -382,7 +386,7 @@ describe('Mediator', () => {
     );
     expect(
       userNotifierChecker.expectNotified([
-        new NoValidFiles(['Uncollected Trace']),
+        makeWarningNoValidFiles(['Uncollected Trace']),
       ]),
     );
     expect(appComponent.onWinscopeEvent).toHaveBeenCalled();
@@ -568,7 +572,7 @@ describe('Mediator', () => {
     resetSpyCalls();
     await mediator.onWinscopeEvent(new AppTraceViewRequest());
     checkLoadTraceViewEvents(uploadTracesComponent, undefined, [
-      new IncompleteFrameMapping(errorMsg),
+      makeWarningIncompleteFrameMapping(errorMsg),
     ]);
   });
 
@@ -784,7 +788,7 @@ describe('Mediator', () => {
 
   it('notifies user of no trace targets selected', async () => {
     await mediator.onWinscopeEvent(new NoTraceTargetsSelectedEvent());
-    userNotifierChecker.expectNotified([new NoTraceTargetsSelected()]);
+    userNotifierChecker.expectNotified([makeWarningNoTraceTargetsSelected()]);
   });
 
   it('notifies correct viewer of filter preset requests', async () => {

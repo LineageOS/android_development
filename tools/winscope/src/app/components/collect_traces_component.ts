@@ -39,7 +39,7 @@ import {assertDefined, assertTrue, assertUnreachable} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
-import {ProxyTraceTimeout} from 'app/warnings/proxy_trace_timeout';
+import {makeWarningProxyTraceTimeout} from 'app/warnings';
 import {
   NoTraceTargetsSelectedEvent,
   WinscopeEvent,
@@ -1101,7 +1101,7 @@ export class CollectTracesComponent
 
     switch (newState) {
       case ConnectionState.TRACE_TIMEOUT:
-        UserNotifier.add(new ProxyTraceTimeout());
+        UserNotifier.add(makeWarningProxyTraceTimeout());
         await this.endTrace();
         return;
       case ConnectionState.NOT_FOUND:

@@ -17,7 +17,7 @@
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
 import {utf8Decode} from 'common/string_helpers';
-import {ProxyTracingErrors} from 'trace_collection/warnings/proxy_tracing_errors';
+import {makeWarningProxyTracingErrors} from 'trace_collection/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {
   AdbDeviceConnection,
@@ -150,7 +150,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
               );
             return processed;
           });
-          UserNotifier.add(new ProxyTracingErrors(processedErrors));
+          UserNotifier.add(makeWarningProxyTracingErrors(processedErrors));
         }
       },
       (newState, errorText) => this.setState(newState, errorText),

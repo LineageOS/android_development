@@ -33,11 +33,15 @@ import {
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
-import {CorruptedArchive} from 'app/warnings/corrupted_archive';
-import {NoValidFiles} from 'app/warnings/no_valid_files';
-import {UnsupportedFileFormat} from 'app/warnings/unsupported_file_format';
-import {InvalidLegacyTrace} from 'parsers/warnings/invalid_legacy_trace';
-import {InvalidPerfettoTrace} from 'parsers/warnings/invalid_perfetto_trace';
+import {
+  makeWarningCorruptedArchive,
+  makeWarningNoValidFiles,
+  makeWarningUnsupportedFileFormat,
+} from './warnings';
+import {
+  makeWarningInvalidLegacyTrace,
+  makeWarningInvalidPerfettoTrace,
+} from 'parsers/warnings';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -123,7 +127,7 @@ export class TracePipeline
     try {
       const unzippedFiles = await this.unzipFiles(files, progressListener);
       if (unzippedFiles.length === 0) {
-        UserNotifier.add(new NoValidFiles());
+        UserNotifier.add(makeWarningNoValidFiles());
         return [];
       }
 
@@ -156,7 +160,7 @@ export class TracePipeline
       singlePerfettoTrace,
       FilesSource.APP,
       undefined,
-      new InvalidPerfettoTrace(singlePerfettoTrace.getDescriptor(), [
+      makeWarningInvalidPerfettoTrace(singlePerfettoTrace.getDescriptor(), [
         'failed to convert legacy parsers into perfetto trace',
       ]),
     );
@@ -315,7 +319,7 @@ export class TracePipeline
         file,
         source,
         progressListener,
-        new UnsupportedFileFormat(file.getDescriptor()),
+        makeWarningUnsupportedFileFormat(file.getDescriptor()),
       );
     };
 
@@ -448,7 +452,7 @@ export class TracePipeline
         return true;
       } catch (e) {
         UserNotifier.add(
-          new InvalidLegacyTrace(
+          makeWarningInvalidLegacyTrace(
             fileAndParser.file.getDescriptor(),
             `Failed to create timestamps: ${(e as Error).message}`,
           ),
@@ -606,7 +610,7 @@ export class TracePipeline
           unzippedFiles.push(...subTraceFiles);
           onSubProgressUpdate(100);
         } catch {
-          UserNotifier.add(new CorruptedArchive(file));
+          UserNotifier.add(makeWarningCorruptedArchive(file));
         }
       } else {
         unzippedFiles.push(new TraceFile(file, undefined));

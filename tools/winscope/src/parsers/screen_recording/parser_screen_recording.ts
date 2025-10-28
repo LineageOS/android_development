@@ -17,7 +17,7 @@
 import {searchSubarray} from 'common/typed_array';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {MonotonicScreenRecording} from 'parsers/warnings/monotonic_screen_recording';
+import {makeWarningMonotonicScreenRecording} from 'parsers/warnings';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
@@ -149,7 +149,7 @@ export class ParserScreenRecording extends AbstractParser<
       // If no device suspensions are involved, SYSTEM_TIME_MONOTONIC should
       // indeed correspond to SYSTEM_TIME_BOOTTIME and things will work as
       // expected.
-      UserNotifier.add(new MonotonicScreenRecording());
+      UserNotifier.add(makeWarningMonotonicScreenRecording());
     }
     return new ParserMetadataV1Or2(posTimeOffset);
   }

@@ -69,12 +69,12 @@ export class SnackBarOpener {
       const countCropped = groupedWarnings.length - countUsed;
 
       groupedWarnings.slice(0, countUsed).forEach((warning) => {
-        messages.push(warning.getMessage());
+        messages.push(warning.message);
       });
 
       if (countCropped > 0) {
         messages.push(
-          `... (cropped ${countCropped} '${groupedWarnings[0].getDescriptor()}' message${
+          `... (cropped ${countCropped} '${groupedWarnings[0].descriptor}' message${
             countCropped > 1 ? 's' : ''
           })`,
         );
@@ -90,10 +90,10 @@ export class SnackBarOpener {
     const groups = new Map<string, UserNotification[]>();
 
     warnings.forEach((warning) => {
-      if (groups.get(warning.getDescriptor()) === undefined) {
-        groups.set(warning.getDescriptor(), []);
+      if (groups.get(warning.descriptor) === undefined) {
+        groups.set(warning.descriptor, []);
       }
-      assertDefined(groups.get(warning.getDescriptor())).push(warning);
+      assertDefined(groups.get(warning.descriptor)).push(warning);
     });
 
     return new Set(groups.values());

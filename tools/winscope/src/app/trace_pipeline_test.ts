@@ -18,10 +18,12 @@ import {assertDefined} from 'common/assert';
 import {createZipArchive, DOWNLOAD_FILENAME_REGEX, unzipFile} from 'common/io';
 import {ProgressListenerStub} from 'messaging/progress_listener_stub';
 import {UserWarning} from 'messaging/user_warning';
-import {CorruptedArchive} from 'app/warnings/corrupted_archive';
-import {NoValidFiles} from 'app/warnings/no_valid_files';
-import {UnsupportedFileFormat} from 'app/warnings/unsupported_file_format';
-import {InvalidPerfettoTrace} from 'parsers/warnings/invalid_perfetto_trace';
+import {
+  makeWarningCorruptedArchive,
+  makeWarningNoValidFiles,
+  makeWarningUnsupportedFileFormat,
+} from './warnings';
+import {makeWarningInvalidPerfettoTrace} from 'parsers/warnings';
 import {BugreportFileSelected} from 'messaging/winscope_event';
 import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
 import {getFixtureFile} from 'test/unit/io_helpers';
@@ -262,8 +264,8 @@ describe('TracePipeline', () => {
     );
     await loadFiles([corruptedArchive]);
     await expectLoadResult(0, [
-      new CorruptedArchive(corruptedArchive),
-      new NoValidFiles(),
+      makeWarningCorruptedArchive(corruptedArchive),
+      makeWarningNoValidFiles(),
     ]);
   });
 
@@ -271,14 +273,14 @@ describe('TracePipeline', () => {
     const invalidFiles = [jpgFile];
     await loadFiles(invalidFiles);
     await expectLoadResult(0, [
-      new UnsupportedFileFormat('winscope_homepage.jpg'),
+      makeWarningUnsupportedFileFormat('winscope_homepage.jpg'),
     ]);
   });
 
   it('notifies for unsupported file uploaded with file', async () => {
     await loadFiles([jpgFile, perfettoFileProtolog]);
     await expectLoadResult(1, [
-      new UnsupportedFileFormat('winscope_homepage.jpg'),
+      makeWarningUnsupportedFileFormat('winscope_homepage.jpg'),
     ]);
   });
 
@@ -286,7 +288,7 @@ describe('TracePipeline', () => {
     await loadFiles([jpgFile]);
     await loadFiles([perfettoFileProtolog]);
     await expectLoadResult(1, [
-      new UnsupportedFileFormat('winscope_homepage.jpg'),
+      makeWarningUnsupportedFileFormat('winscope_homepage.jpg'),
     ]);
   });
 
@@ -294,7 +296,7 @@ describe('TracePipeline', () => {
     await loadFiles([perfettoFileProtolog]);
     await loadFiles([jpgFile]);
     await expectLoadResult(1, [
-      new UnsupportedFileFormat('winscope_homepage.jpg'),
+      makeWarningUnsupportedFileFormat('winscope_homepage.jpg'),
     ]);
   });
 
@@ -304,7 +306,7 @@ describe('TracePipeline', () => {
     ];
     await loadFiles(invalidFiles);
     await expectLoadResult(0, [
-      new InvalidPerfettoTrace('invalid_protolog.perfetto-trace', [
+      makeWarningInvalidPerfettoTrace('invalid_protolog.perfetto-trace', [
         'Perfetto trace has no Winscope trace entries',
       ]),
     ]);
@@ -355,7 +357,7 @@ describe('TracePipeline', () => {
     await loadFiles(files);
 
     await expectLoadResult(1, [
-      new UnsupportedFileFormat('winscope_homepage.jpg'),
+      makeWarningUnsupportedFileFormat('winscope_homepage.jpg'),
     ]);
   });
 
@@ -605,7 +607,7 @@ describe('TracePipeline', () => {
       convertSpy.and.returnValue(Promise.resolve(new TraceFile(validSfFile)));
       await tracePipeline.convertLegacyTracesToPerfetto();
       userNotifierChecker.expectAdded([
-        new InvalidPerfettoTrace('SurfaceFlinger.pb', [
+        makeWarningInvalidPerfettoTrace('SurfaceFlinger.pb', [
           'failed to convert legacy parsers into perfetto trace',
         ]),
       ]);

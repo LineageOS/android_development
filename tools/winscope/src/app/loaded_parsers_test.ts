@@ -18,9 +18,11 @@ import {assertDefined} from 'common/assert';
 import {unzipFile} from 'common/io';
 import {TimeRange} from 'common/time/time';
 import {UserWarning} from 'messaging/user_warning';
-import {TraceHasOldData} from 'app/warnings/trace_has_old_data';
-import {TraceOverridden} from 'app/warnings/trace_overridden';
-import {TraceHasElapsedTimestamps} from 'app/warnings/trace_has_elapsed_timestamps';
+import {
+  makeWarningTraceHasOldData,
+  makeWarningTraceOverridden,
+  makeWarningTraceHasElapsedTimestamps,
+} from './warnings';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ParserBuilder} from 'test/unit/parser_builder';
@@ -186,7 +188,7 @@ describe('LoadedParsers', () => {
     loadParsers([parserSf_elapsed, parserSf0], []);
     expectLoadResult(
       [parserSf_elapsed, parserSf0],
-      [new TraceHasElapsedTimestamps('sf elapsed')],
+      [makeWarningTraceHasElapsedTimestamps('sf elapsed')],
     );
   });
 
@@ -209,12 +211,18 @@ describe('LoadedParsers', () => {
 
     it('taking into account other legacy parsers', () => {
       loadParsers([parserSf_longButOldData, parserWm0], []);
-      expectLoadResult([parserWm0], [new TraceHasOldData('sf old', timeGap)]);
+      expectLoadResult(
+        [parserWm0],
+        [makeWarningTraceHasOldData('sf old', timeGap)],
+      );
     });
 
     it('taking into account perfetto parsers', () => {
       loadParsers([parserSf_longButOldData], [parserWm0]);
-      expectLoadResult([parserWm0], [new TraceHasOldData('sf old', timeGap)]);
+      expectLoadResult(
+        [parserWm0],
+        [makeWarningTraceHasOldData('sf old', timeGap)],
+      );
     });
 
     it('taking into account already-loaded parsers', () => {
@@ -223,7 +231,10 @@ describe('LoadedParsers', () => {
       // Drop parser with old data, even if it provides
       // a longer trace than the already-loaded parser
       loadParsers([parserSf_longButOldData], []);
-      expectLoadResult([parserWm0], [new TraceHasOldData('sf old', timeGap)]);
+      expectLoadResult(
+        [parserWm0],
+        [makeWarningTraceHasOldData('sf old', timeGap)],
+      );
     });
 
     it('doesnt drop legacy parser with dump (zero timestamp)', () => {
@@ -380,7 +391,7 @@ describe('LoadedParsers', () => {
       .setTimestamps(timestamps)
       .setDescriptors(['screenshot.png'])
       .build();
-    const overrideError = new TraceOverridden(
+    const overrideError = makeWarningTraceOverridden(
       'screenshot.png',
       TraceType.SCREEN_RECORDING,
     );

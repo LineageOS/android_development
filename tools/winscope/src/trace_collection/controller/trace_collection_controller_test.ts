@@ -15,7 +15,7 @@
  */
 
 import {ProgressListener} from 'messaging/progress_listener';
-import {ProxyTracingWarnings} from 'trace_collection/warnings/proxy_tracing_warnings';
+import {makeWarningProxyTracingWarnings} from 'trace_collection/warnings';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {AdbDeviceState} from 'trace_collection/adb/adb_device_connection';
 import {AdbConnectionType} from 'trace_collection/adb_connection_type';
@@ -146,7 +146,7 @@ describe('TraceCollectionController', () => {
       expect(restartSpy).toHaveBeenCalledTimes(1);
       expect(startSpy).not.toHaveBeenCalled();
       userNotifierChecker.expectNotified([
-        new ProxyTracingWarnings([
+        makeWarningProxyTracingWarnings([
           'None of the requested targets are available on this device.',
         ]),
       ]);
@@ -243,7 +243,7 @@ describe('TraceCollectionController', () => {
       expect(restartSpy).toHaveBeenCalledTimes(1);
       expect(runShellCmdSpy).not.toHaveBeenCalled();
       userNotifierChecker.expectNotified([
-        new ProxyTracingWarnings([
+        makeWarningProxyTracingWarnings([
           'None of the requested targets are available on this device.',
         ]),
       ]);
