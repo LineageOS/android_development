@@ -39,8 +39,9 @@ import {
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {makeWarningProxyTraceTimeout} from 'app/warnings';
-import {AppRefreshDumpsRequest, WinscopeEvent} from 'messaging/winscope_event';
-import {NoTraceTargetsSelectedEvent} from 'messaging/winscope_event';
+import {AppRefreshDumpsRequest} from 'app/app_events';
+import {NoTraceTargetsSelectedEvent} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';

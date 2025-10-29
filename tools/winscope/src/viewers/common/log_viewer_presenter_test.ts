@@ -18,11 +18,8 @@ import {assertDefined} from 'common/assert';
 import {KeyboardEventKey} from 'common/dom';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Timer} from 'common/time/timer';
-import {
-  ActiveTraceChanged,
-  DarkModeToggled,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {DarkModeToggled} from 'app/misc_events';
+import {ActiveTraceChanged, TracePositionUpdate} from 'trace/trace_events';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {MockPresenter} from 'test/unit/mock_log_viewer_presenter';
 import {

@@ -29,8 +29,8 @@ import {
 import {
   BugreportFileSelected,
   BugreportFileSelectionRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {
   EmitEvent,
   WinscopeEventEmitter,
@@ -415,7 +415,7 @@ export class TraceFileFilter
       // emitEvent must be set to propagate event to mediator, which routes file selection
       // request to AppComponent. User is prompted by dialog to select which file to
       // process. Once dialog is closed, selected file is sent back to TraceFileFilter
-      // via BugreportFileSelected event and handled above in onWinscopeEvent, where
+      // via BugreportFileSelected event and handled above in onWinscopeEvent where
       // it is stored in selectedFile. Promise below only resolves after BugreportFileSelected
       // event has been handled.
       await this.emitEvent(

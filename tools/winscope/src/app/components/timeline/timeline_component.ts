@@ -47,6 +47,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer} from '@angular/platform-browser';
 import {TimelineData} from 'app/timeline_data';
 import {assertDefined} from 'common/assert';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {BookmarksChanged, DarkModeToggled} from 'app/misc_events';
 import {
   isInputTextField,
   KeyboardEventKey,
@@ -58,23 +60,22 @@ import {TimeRange, Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {
   ActiveTraceChanged,
-  BookmarksChanged,
-  DarkModeToggled,
-  ExpandedTimelineToggled,
-  InitializeTraceSearchRequest,
   ScreenRecordingChange,
-  TabbedViewSwitched,
-  TraceAddRequest,
   TracePositionUpdate,
+  TraceAddRequest,
   TraceRemoveRequest,
-  TraceSearchCompleted,
-  TraceSearchInitialized,
+  InitializeTraceSearchRequest,
   TraceSearchRequest,
+  TraceSearchInitialized,
+  TraceSearchCompleted,
+} from 'trace/trace_events';
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangeRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'app/components/timeline/playback_events';
+import {TabbedViewSwitched} from 'app/tabbed_view_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,

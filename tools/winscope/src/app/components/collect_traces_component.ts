@@ -40,15 +40,13 @@ import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {makeWarningProxyTraceTimeout} from 'app/warnings';
-import {
-  AppRefreshDumpsRequest,
-  NoTraceTargetsSelectedEvent,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+import {AppRefreshDumpsRequest} from 'app/app_events';
+import {NoTraceTargetsSelectedEvent} from 'app/misc_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
 import {

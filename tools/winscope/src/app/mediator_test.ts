@@ -33,8 +33,6 @@ import {
   makeWarningNoTraceTargetsSelected,
 } from './warnings';
 import {
-  ActiveSearchQueriesUpdate,
-  ActiveTraceChanged,
   AppFilesCollected,
   AppFilesUploaded,
   AppInitialized,
@@ -42,24 +40,39 @@ import {
   AppResetRequest,
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
-  BookmarksChanged,
-  BugreportFileSelected,
-  BugreportFileSelectionRequest,
-  DarkModeToggled,
-  ExpandedTimelineToggled,
-  FilterPresetApplyRequest,
-  FilterPresetSaveRequest,
-  InitializeTraceSearchRequest,
-  NoTraceTargetsSelectedEvent,
-  RemoteToolDownloadStart,
-  RemoteToolFilesReceived,
-  RemoteToolTimestampReceived,
+} from 'app/app_events';
+import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
+} from 'app/components/timeline/playback_events';
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+import {
+  ActiveSearchQueriesUpdate,
+  BookmarksChanged,
+  BugreportFileSelected,
+  BugreportFileSelectionRequest,
+  DarkModeToggled,
+  FilterPresetApplyRequest,
+  FilterPresetSaveRequest,
+  NoTraceTargetsSelectedEvent,
+} from 'app/misc_events';
+import {
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
+} from 'app/tabbed_view_events';
+import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+import {
+  RemoteToolDownloadStart,
+  RemoteToolFilesReceived,
+  RemoteToolTimestampReceived,
+} from 'cross_tool/remote_tool_events';
+import {WinscopeEvent, WinscopeEventType} from 'messaging/winscope_event';
+import {
+  ActiveTraceChanged,
+  InitializeTraceSearchRequest,
+  ScreenRecordingChange,
   TraceAddRequest,
   TracePositionUpdate,
   TraceRemoveRequest,
@@ -67,12 +80,7 @@ import {
   TraceSearchFailed,
   TraceSearchInitialized,
   TraceSearchRequest,
-  ViewersLoaded,
-  ViewersUnloaded,
-  WinscopeEvent,
-  WinscopeEventType,
-  ScreenRecordingChange,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
 
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
 import {WinscopeEventEmitterStub} from 'messaging/winscope_event_emitter_stub';

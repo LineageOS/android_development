@@ -24,8 +24,8 @@ import {
 import {
   BugreportFileSelected,
   BugreportFileSelectionRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ProcessedFiles} from 'parsers/legacy/parser_factory';

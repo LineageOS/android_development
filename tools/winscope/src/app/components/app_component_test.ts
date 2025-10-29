@@ -56,15 +56,17 @@ import {
 } from 'app/warnings';
 import {
   AppRefreshDumpsRequest,
+} from 'app/app_events';
+import {
   BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
+} from 'app/misc_events';
+import {
   TabbedViewSwitchRequest,
-  TracePositionUpdate,
-  TraceSearchRequest,
-  ViewersLoaded,
-  ViewersUnloaded,
-} from 'messaging/winscope_event';
+} from 'app/tabbed_view_events';
+import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+import {TracePositionUpdate, TraceSearchRequest} from 'trace/trace_events';
 import {TraceType} from 'trace_api/trace_type';
 import {View, Viewer, ViewType} from 'viewers/viewer';
 import {UserNotifier} from 'services/user_notifier';

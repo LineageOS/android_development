@@ -18,12 +18,9 @@ import {assertDefined} from 'common/assert';
 import {isElementVisible, isInputTextField, KeyboardEventKey} from 'common/dom';
 import {Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
-import {
-  ActiveTraceChanged,
-  DarkModeToggled,
-  TracePositionUpdate,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+import {DarkModeToggled} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {ActiveTraceChanged, TracePositionUpdate} from 'trace/trace_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace, TraceEntry} from 'trace_api/trace';

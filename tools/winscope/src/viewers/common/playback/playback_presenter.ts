@@ -17,10 +17,8 @@
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {
-  PlaybackStateChangeHandled,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {TracePosition} from 'trace_api/trace_position';
 import {Timer} from 'common/time/timer';
 import {TraceEntryEager} from 'trace_api/trace';

@@ -20,9 +20,9 @@ import {RemoteToolTimestampConverter} from 'common/time/timestamp_converter';
 import {
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
-  TracePositionUpdate,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'cross_tool/remote_tool_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,

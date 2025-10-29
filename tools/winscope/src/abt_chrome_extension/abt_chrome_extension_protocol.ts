@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
+import {AppInitialized} from 'app/app_events';
 import {
-  AppInitialized,
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'cross_tool/remote_tool_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {
   MessageType,

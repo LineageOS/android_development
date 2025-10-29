@@ -19,7 +19,6 @@ import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {
-  ActiveSearchQueriesUpdate,
   InitializeTraceSearchRequest,
   TraceAddRequest,
   TracePositionUpdate,
@@ -27,8 +26,9 @@ import {
   TraceSearchFailed,
   TraceSearchInitialized,
   TraceSearchRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
+import {ActiveSearchQueriesUpdate} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -208,7 +208,6 @@ export class Presenter {
   }
 
   private async showQueryResult(newTrace: Trace<QueryResult>) {
-    console.log('1.Here');
     const [traceQuery] = newTrace.getDescriptors();
     if (this.uiData.recentSearches.length >= 10) {
       this.uiData.recentSearches.pop();

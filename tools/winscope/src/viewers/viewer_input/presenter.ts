@@ -22,7 +22,7 @@ import {
 import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
-import {TabbedViewSwitchRequest} from 'messaging/winscope_event';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
 import {InputColumnType} from 'trace/input/input_column_type';
 import {InputEventType} from 'trace/input/input_event_type';
 import {CustomQueryType} from 'trace_api/custom_query';

@@ -17,10 +17,8 @@
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
-import {
-  TabbedViewSwitchRequest,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {getFixtureFile} from 'test/unit/io_helpers';
 import {getPerfettoParser, LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';

@@ -20,17 +20,18 @@ import {parseMap, stringifyMap} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {
-  DarkModeToggled,
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
+  DarkModeToggled,
+} from 'app/misc_events';
+import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
-  ScreenRecordingChange,
-  TracePositionUpdate,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'app/components/timeline/playback_events';
+import {ScreenRecordingChange, TracePositionUpdate} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';

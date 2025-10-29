@@ -32,12 +32,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TracePipeline} from 'app/trace_pipeline';
 import {Store} from 'common/store/store';
 import {ProgressListener} from 'messaging/progress_listener';
-import {
-  AppTraceViewRequest,
-  AppTraceViewRequestHandled,
-  ShowTraceUploadWarning,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
+import {ShowTraceUploadWarning} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';

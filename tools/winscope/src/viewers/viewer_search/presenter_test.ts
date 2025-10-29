@@ -23,7 +23,7 @@ import {
   TraceSearchFailed,
   TraceSearchInitialized,
   TraceSearchRequest,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_test_helpers';

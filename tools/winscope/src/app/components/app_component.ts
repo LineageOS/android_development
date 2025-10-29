@@ -55,25 +55,28 @@ import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {
-  ActiveTraceChanged,
   AppFilesCollected,
   AppFilesUploaded,
   AppInitialized,
   AppRefreshDumpsRequest,
   AppResetRequest,
   AppTraceViewRequest,
+} from 'app/app_events';
+import {
   ActiveSearchQueriesUpdate,
   BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
   DarkModeToggled,
-  TabbedViewSwitchRequest,
+} from 'app/misc_events';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
+import {
+  ActiveTraceChanged,
   TracePositionUpdate,
   TraceSearchRequest,
-  ViewersLoaded,
-  ViewersUnloaded,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
+import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
 import {AdbFiles} from 'trace_collection/adb_files';

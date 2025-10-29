@@ -45,14 +45,16 @@ import {Analytics} from 'logging/analytics';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
+} from 'app/misc_events';
+import {
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'app/tabbed_view_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';

@@ -16,11 +16,11 @@
 
 import {
   ActiveTraceChanged,
-  ExpandedTimelineToggled,
   ScreenRecordingChange,
   TracePositionUpdate,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';

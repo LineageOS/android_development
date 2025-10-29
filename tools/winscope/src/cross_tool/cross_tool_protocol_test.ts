@@ -17,10 +17,8 @@
 import {assertDefined} from 'common/assert';
 import {Timestamp, TimezoneInfo} from 'common/time/time';
 import {TimestampConverter} from 'common/time/timestamp_converter';
-import {
-  RemoteToolTimestampReceived,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {RemoteToolTimestampReceived} from './remote_tool_events';
 import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';
 

@@ -36,9 +36,11 @@ import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
+} from 'app/misc_events';
+import {
   TabbedViewSwitchRequest,
   TabbedViewSwitched,
-} from 'messaging/winscope_event';
+} from 'app/tabbed_view_events';
 import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {makeZeroTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';

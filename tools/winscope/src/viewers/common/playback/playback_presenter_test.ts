@@ -24,10 +24,8 @@ import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceType} from 'trace_api/trace_type';
 import {Timer} from 'common/time/timer';
 import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {
-  PlaybackStateChangeHandled,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {PlaybackState} from './playback_state';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';

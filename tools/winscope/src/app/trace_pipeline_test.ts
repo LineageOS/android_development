@@ -24,7 +24,7 @@ import {
   makeWarningUnsupportedFileFormat,
 } from './warnings';
 import {makeWarningInvalidPerfettoTrace} from 'parsers/warnings';
-import {BugreportFileSelected} from 'messaging/winscope_event';
+import {BugreportFileSelected} from 'app/misc_events';
 import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
 import {getFixtureFile} from 'test/unit/io_helpers';
 import {

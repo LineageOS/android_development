@@ -30,46 +30,55 @@ import {
   makeWarningNoTraceTargetsSelected,
 } from './warnings';
 import {
-  ActiveSearchQueriesUpdate,
-  ActiveTraceChanged,
   AppFilesCollected,
   AppFilesUploaded,
   AppInitialized,
-  AppTraceViewRequest,
-  AppTraceViewRequestHandled,
   AppRefreshDumpsRequest,
   AppResetRequest,
+  AppTraceViewRequest,
+  AppTraceViewRequestHandled,
+} from 'app/app_events';
+import {
+  ActiveSearchQueriesUpdate,
   BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
   DarkModeToggled,
-  ExpandedTimelineToggled,
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-  InitializeTraceSearchRequest,
   NoTraceTargetsSelectedEvent,
-  RemoteToolDownloadStart,
-  RemoteToolFilesReceived,
-  RemoteToolTimestampReceived,
-  ScreenRecordingChange,
-  TabbedViewSwitched,
-  TabbedViewSwitchRequest,
-  TraceRemoveRequest,
-  TraceSearchRequest,
+} from 'app/misc_events';
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
-  ShowTraceUploadWarning,
+} from 'app/components/timeline/playback_events';
+import {
+  ActiveTraceChanged,
+  InitializeTraceSearchRequest,
+  ScreenRecordingChange,
   TraceAddRequest,
   TracePositionUpdate,
+  TraceRemoveRequest,
   TraceSearchCompleted,
   TraceSearchFailed,
   TraceSearchInitialized,
-  ViewersLoaded,
-  ViewersUnloaded,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+  TraceSearchRequest,
+  ShowTraceUploadWarning,
+} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {
+  RemoteToolDownloadStart,
+  RemoteToolFilesReceived,
+  RemoteToolTimestampReceived,
+} from 'cross_tool/remote_tool_events';
+import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+import {
+  TabbedViewSwitched,
+  TabbedViewSwitchRequest,
+} from 'app/tabbed_view_events';
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';

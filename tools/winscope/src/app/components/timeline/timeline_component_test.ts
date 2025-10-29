@@ -36,22 +36,24 @@ import {TimelineData} from 'app/timeline_data';
 import {assertDefined} from 'common/assert';
 import {PersistentStore} from 'common/store/persistent_store';
 import {TimeRange} from 'common/time/time';
+import {BookmarksChanged} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {
   ActiveTraceChanged,
-  BookmarksChanged,
-  ExpandedTimelineToggled,
   InitializeTraceSearchRequest,
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangeRequest,
   TraceAddRequest,
   TracePositionUpdate,
   TraceRemoveRequest,
   TraceSearchCompleted,
   TraceSearchInitialized,
   TraceSearchRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
+import {
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangeRequest,
+} from './playback_events';
+import {ExpandedTimelineToggled} from './timeline_events';
 import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
