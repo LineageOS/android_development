@@ -509,7 +509,9 @@ describe('PlaybackPresenter', () => {
 
     for (let i = 1; i < eagerUpdates.length + 1; i++) {
       const {event, entry, exp} = checkTracePositionEntry(i - 1, i);
-      expect(entry).toBeInstanceOf(TraceEntryEager);
+      expect(entry).toBeInstanceOf(
+        exp.srIndex !== undefined ? TraceEntryLazy : TraceEntryEager,
+      );
       expect(event.prefetchedEntry).toBeDefined();
       expect(event.prefetchedEntry?.getIndex()).toEqual(exp.traceIndex);
       expect(event.prefetchedEntry?.getFullTrace()).toEqual(trace);

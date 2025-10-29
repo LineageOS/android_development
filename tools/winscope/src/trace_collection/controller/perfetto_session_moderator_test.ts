@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ProxyTracingWarnings} from 'trace_collection/warnings/proxy_tracing_warnings';
+import {makeWarningProxyTracingWarnings} from 'trace_collection/warnings';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {AdbDeviceState} from 'trace_collection/adb/adb_device_connection';
 import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
@@ -147,7 +147,7 @@ describe('PerfettoSessionModerator', () => {
     async function checkTooManySessions() {
       expect(await moderator.isTooManySessions()).toBeTrue();
       userNotifierChecker.expectNotified([
-        new ProxyTracingWarnings([
+        makeWarningProxyTracingWarnings([
           'Limit of 5 Perfetto sessions reached on device. Will attempt to collect legacy traces.',
         ]),
       ]);

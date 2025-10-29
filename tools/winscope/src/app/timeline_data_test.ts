@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import {TimeRange} from 'common/time/time';
-import {CannotParseAllTransitions} from 'app/warnings/cannot_parse_all_transitions';
+import {makeWarningCannotParseAllTransitions} from './warnings';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
@@ -351,7 +351,7 @@ describe('TimelineData', () => {
     traces.addTrace(trace as Trace<{}>);
 
     await timelineData.initialize(traces, undefined, UTC_CONVERTER);
-    userNotifierChecker.expectAdded([new CannotParseAllTransitions()]);
+    userNotifierChecker.expectAdded([makeWarningCannotParseAllTransitions()]);
     expect(timelineData.getTransitionEntries()).toEqual([
       transition,
       undefined,

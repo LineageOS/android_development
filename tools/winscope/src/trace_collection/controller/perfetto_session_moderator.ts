@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ProxyTracingWarnings} from 'trace_collection/warnings/proxy_tracing_warnings';
+import {makeWarningProxyTracingWarnings} from 'trace_collection/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {AdbDeviceConnection} from 'trace_collection/adb/adb_device_connection';
 import {AdbFileIdentifier, TraceTarget} from 'trace_collection/trace_target';
@@ -72,7 +72,7 @@ export class PerfettoSessionModerator {
     if (tooManyPerfettoSessions) {
       const warning =
         'Limit of 5 Perfetto sessions reached on device. Will attempt to collect legacy traces.';
-      UserNotifier.add(new ProxyTracingWarnings([warning])).notify();
+      UserNotifier.add(makeWarningProxyTracingWarnings([warning])).notify();
     }
     return tooManyPerfettoSessions;
   }

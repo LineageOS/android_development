@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {TraceSearchQueryFailed} from 'parsers/warnings/trace_search_query_failed';
+import {makeWarningTraceSearchQueryFailed} from 'parsers/warnings';
 import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
@@ -157,7 +157,7 @@ describe('ParserSearch', () => {
       parser = await createFailingParser();
     } catch (e) {
       userNotifierChecker.expectNotified([
-        new TraceSearchQueryFailed((e as Error).message),
+        makeWarningTraceSearchQueryFailed((e as Error).message),
       ]);
     }
   });

@@ -23,5 +23,5 @@ export declare interface Warning {
    *
    * @return The warning message.
    */
-  getMessage(): string;
+  message: string;
 }

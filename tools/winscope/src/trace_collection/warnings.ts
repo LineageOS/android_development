@@ -17,14 +17,21 @@
 import {UserWarning} from 'messaging/user_warning';
 
 /**
- * A warning for when timeline data fails to initialize.
+ * A warning for proxy tracing errors.
  */
-export class FailedToInitializeTimelineData extends UserWarning {
-  getDescriptor(): string {
-    return 'failed to initialize timeline data';
-  }
+export function makeWarningProxyTracingErrors(errorMessages: string[]) {
+  return new UserWarning(
+    'proxy tracing errors',
+    `Trace collection errors: ${errorMessages.join(', ')}`,
+  );
+}
 
-  getMessage(): string {
-    return 'Cannot visualize all traces: Failed to initialize timeline data.\nTry removing some traces.';
-  }
+/**
+ * A warning for proxy tracing warnings.
+ */
+export function makeWarningProxyTracingWarnings(warnings: string[]) {
+  return new UserWarning(
+    'proxy tracing warnings',
+    `Trace collection warning: ${warnings.join(', ')}`,
+  );
 }

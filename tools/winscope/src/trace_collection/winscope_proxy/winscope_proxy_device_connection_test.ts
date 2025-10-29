@@ -20,7 +20,7 @@ import {
   HttpRequestStatus,
   HttpResponse,
 } from 'common/http_request';
-import {ProxyTracingErrors} from 'trace_collection/warnings/proxy_tracing_errors';
+import {makeWarningProxyTracingErrors} from 'trace_collection/warnings';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {
   AdbDeviceConnectionListener,
@@ -296,7 +296,7 @@ describe('WinscopeProxyDeviceConnection', () => {
       });
       checkTraceEnded();
       userNotifierChecker.expectAdded([
-        new ProxyTracingErrors([
+        makeWarningProxyTracingErrors([
           'please check your display state (must be on at start of trace)',
           "'unknown error'",
         ]),

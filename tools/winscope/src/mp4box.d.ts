@@ -33,6 +33,7 @@ declare module 'mp4box' {
   }
 
   export interface Sample {
+    number: number;
     duration: number;
     timescale: number;
     data: Uint8Array;

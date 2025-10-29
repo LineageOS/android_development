@@ -22,11 +22,13 @@ import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
-import {NoValidFiles} from './warnings/no_valid_files';
-import {CannotVisualizeTraceEntry} from 'app/warnings/cannot_visualize_trace_entry';
-import {FailedToInitializeTimelineData} from 'app/warnings/failed_to_initialize_timeline_data';
-import {IncompleteFrameMapping} from 'app/warnings/incomplete_frame_mapping';
-import {NoTraceTargetsSelected} from 'app/warnings/no_trace_targets_selected';
+import {
+  makeWarningNoValidFiles,
+  makeWarningCannotVisualizeTraceEntry,
+  makeWarningFailedToInitializeTimelineData,
+  makeWarningIncompleteFrameMapping,
+  makeWarningNoTraceTargetsSelected,
+} from './warnings';
 import {
   ActiveTraceChanged,
   AppTraceViewRequest,
@@ -213,7 +215,7 @@ export class Mediator {
               }
             });
             if (failedTraces.length > 0) {
-              UserNotifier.add(new NoValidFiles(failedTraces));
+              UserNotifier.add(makeWarningNoValidFiles(failedTraces));
             }
             await this.uploadTracesComponent?.onWinscopeEvent(
               new AppTraceViewRequest(),
@@ -226,7 +228,7 @@ export class Mediator {
             this.currentProgressListener?.onOperationFinished(false);
           }
         } else {
-          UserNotifier.add(new NoValidFiles());
+          UserNotifier.add(makeWarningNoValidFiles());
           this.currentProgressListener?.onOperationFinished(false);
         }
         UserNotifier.notify();
@@ -380,7 +382,7 @@ export class Mediator {
     );
 
     await event.visit(WinscopeEventType.NO_TRACE_TARGETS_SELECTED, async () => {
-      UserNotifier.add(new NoTraceTargetsSelected()).notify();
+      UserNotifier.add(makeWarningNoTraceTargetsSelected()).notify();
     });
 
     await event.visit(
@@ -534,7 +536,7 @@ export class Mediator {
 
     for (const warning of warnings) {
       await this.uploadTracesComponent?.onWinscopeEvent(
-        new ShowTraceUploadWarning(warning.getMessage()),
+        new ShowTraceUploadWarning(warning.message),
       );
     }
   }
@@ -577,7 +579,7 @@ export class Mediator {
       } catch (e) {
         console.error(e);
         warnings.push(
-          new CannotVisualizeTraceEntry(
+          makeWarningCannotVisualizeTraceEntry(
             `Cannot parse entry for ${traceType} trace: Trace may be corrupted.`,
           ),
         );
@@ -694,7 +696,7 @@ export class Mediator {
       Analytics.Memory.logUsage('frame_map_built');
       this.currentProgressListener?.onOperationFinished(true);
     } catch (e) {
-      UserNotifier.add(new IncompleteFrameMapping((e as Error).message));
+      UserNotifier.add(makeWarningIncompleteFrameMapping((e as Error).message));
       this.currentProgressListener?.onOperationFinished(false);
     }
 
@@ -715,7 +717,7 @@ export class Mediator {
       );
     } catch {
       this.currentProgressListener?.onOperationFinished(false);
-      UserNotifier.add(new FailedToInitializeTimelineData());
+      UserNotifier.add(makeWarningFailedToInitializeTimelineData());
       return;
     }
 

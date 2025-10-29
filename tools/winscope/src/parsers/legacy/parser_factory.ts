@@ -16,7 +16,7 @@
 import {assertTrue} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {ProgressListener} from 'messaging/progress_listener';
-import {InvalidLegacyTrace} from 'parsers/warnings/invalid_legacy_trace';
+import {makeWarningInvalidLegacyTrace} from 'parsers/warnings';
 import {ParserEventLog} from 'parsers/events/legacy/parser_eventlog';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {ParserInputMethodClients} from 'parsers/input_method/legacy/parser_input_method_clients';
@@ -101,7 +101,7 @@ export class ParserFactory {
         } catch (error) {
           if (hasFoundParser) {
             UserNotifier.add(
-              new InvalidLegacyTrace(
+              makeWarningInvalidLegacyTrace(
                 traceFile.getDescriptor(),
                 (error as Error).message,
               ),

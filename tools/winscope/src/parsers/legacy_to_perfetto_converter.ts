@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 // TODO(b/311642700): Not compatible with google3
 import Long from 'long';
-import {FailedToConvertLegacyTraces} from 'parsers/warnings/failed_to_convert_legacy_traces';
+import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 import {UserNotifier} from 'services/user_notifier';
 // TODO(b/311642700): Not compatible with google3
 import {Writer} from 'protobufjs';
@@ -70,7 +70,7 @@ export class LegacyToPerfettoConverter {
     } catch (e) {
       console.error(e);
       UserNotifier.add(
-        new FailedToConvertLegacyTraces((e as Error).message),
+        makeWarningFailedToConvertLegacyTraces((e as Error).message),
       ).notify();
       return this.perfettoFile;
     }

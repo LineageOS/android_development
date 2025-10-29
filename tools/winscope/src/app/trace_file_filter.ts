@@ -20,10 +20,12 @@ import {utf8Decode} from 'common/string_helpers';
 import {TimezoneInfo} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {UserWarning} from 'messaging/user_warning';
-import {NoValidFiles} from 'app/warnings/no_valid_files';
-import {MissingPersistentTrace} from 'app/warnings/missing_persistent_trace';
-import {TraceOverridden} from 'app/warnings/trace_overridden';
-import {UnsupportedFileFormat} from 'app/warnings/unsupported_file_format';
+import {
+  makeWarningNoValidFiles,
+  makeWarningMissingPersistentTrace,
+  makeWarningTraceOverridden,
+  makeWarningUnsupportedFileFormat,
+} from './warnings';
 import {
   BugreportFileSelectionRequest,
   WinscopeEvent,
@@ -167,7 +169,7 @@ export class TraceFileFilter
     }
 
     if (result.perfetto.length === 0 && result.legacy.length === 0) {
-      UserNotifier.add(new NoValidFiles());
+      UserNotifier.add(makeWarningNoValidFiles());
       return {
         perfetto: undefined,
         legacy: [],
@@ -188,7 +190,9 @@ export class TraceFileFilter
     if (largestPerfettoFile) {
       perfettoParsers = await tryParsePerfetto(largestPerfettoFile);
       unsupportedFiles.forEach((file: TraceFile) => {
-        UserNotifier.add(new UnsupportedFileFormat(file.getDescriptor()));
+        UserNotifier.add(
+          makeWarningUnsupportedFileFormat(file.getDescriptor()),
+        );
       });
     } else {
       unsupportedFiles.sort(
@@ -429,7 +433,7 @@ export class TraceFileFilter
 
     const criticalWarnings: UserWarning[] = [];
     if (!perfettoFile && bugreportData) {
-      criticalWarnings.push(new MissingPersistentTrace(bugreportData));
+      criticalWarnings.push(makeWarningMissingPersistentTrace(bugreportData));
     }
 
     return {
@@ -489,7 +493,7 @@ export class TraceFileFilter
         largestSoFar.file.size > file.file.size
           ? [largestSoFar, file]
           : [file, largestSoFar];
-      UserNotifier.add(new TraceOverridden(overridden.getDescriptor()));
+      UserNotifier.add(makeWarningTraceOverridden(overridden.getDescriptor()));
       return largest;
     });
   }

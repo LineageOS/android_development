@@ -28,6 +28,6 @@ export enum NotificationType {
  */
 export declare interface UserNotification {
   getNotificationType(): NotificationType;
-  getDescriptor(): string;
-  getMessage(): string;
+  descriptor: string;
+  message: string;
 }

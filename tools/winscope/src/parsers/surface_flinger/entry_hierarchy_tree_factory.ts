@@ -21,9 +21,11 @@ import {
   assertString,
 } from 'common/assert';
 import {UserWarning} from 'messaging/user_warning';
-import {MissingLayerIds} from 'parsers/warnings/missing_layer_ids';
-import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
-import {RecursiveLayerIds} from 'parsers/warnings/recursive_layer_ids';
+import {
+  makeWarningMissingLayerIds,
+  makeWarningDuplicateLayerIds,
+  makeWarningRecursiveLayerIds,
+} from 'parsers/warnings';
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
@@ -248,16 +250,16 @@ function makeLayersAndNonvisibleRects(
 
   const warnings = [];
   if (missingLayerIds) {
-    warnings.push(new MissingLayerIds());
+    warnings.push(makeWarningMissingLayerIds());
   }
   const duplicateIds = Array.from(processedLayerIdCounts.keys()).filter(
     (layerId) => assertDefined(processedLayerIdCounts.get(layerId)) > 1,
   );
   if (duplicateIds.length > 0) {
-    warnings.push(new DuplicateLayerIds(duplicateIds));
+    warnings.push(makeWarningDuplicateLayerIds(duplicateIds));
   }
   if (recursiveIds.length > 0) {
-    warnings.push(new RecursiveLayerIds(recursiveIds));
+    warnings.push(makeWarningRecursiveLayerIds(recursiveIds));
   }
 
   const displayRects = visibleRects.get(-1n);

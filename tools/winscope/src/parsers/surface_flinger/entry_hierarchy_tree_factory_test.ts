@@ -17,9 +17,11 @@
 import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {MissingLayerIds} from 'parsers/warnings/missing_layer_ids';
-import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
-import {RecursiveLayerIds} from 'parsers/warnings/recursive_layer_ids';
+import {
+  makeWarningMissingLayerIds,
+  makeWarningDuplicateLayerIds,
+  makeWarningRecursiveLayerIds,
+} from 'parsers/warnings';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {
   ColumnType,
@@ -270,7 +272,7 @@ describe('EntryHierarchyTreeFactory', () => {
       expect(tree.getAllChildren().length).toBe(1);
       expect(tree.getChildByName('LayerWithMissingId')).toBeUndefined();
       expect(tree.getChildByName(layerName1)).toBeDefined();
-      expect(tree.getWarnings()).toEqual([new MissingLayerIds()]);
+      expect(tree.getWarnings()).toEqual([makeWarningMissingLayerIds()]);
     });
 
     it('handles duplicate layer ids', () => {
@@ -290,7 +292,7 @@ describe('EntryHierarchyTreeFactory', () => {
       expect(tree.getAllChildren().length).toBe(2);
       expect(tree.getChildByName(layerName1)).toBeDefined();
       expect(tree.getChildByName(layerName1 + ' duplicate(1)')).toBeDefined();
-      expect(tree.getWarnings()).toEqual([new DuplicateLayerIds([1])]);
+      expect(tree.getWarnings()).toEqual([makeWarningDuplicateLayerIds([1])]);
     });
 
     it('handles recursive layer ids', () => {
@@ -321,7 +323,9 @@ describe('EntryHierarchyTreeFactory', () => {
           c.getEagerPropertyByName('parent')?.getValue(),
         ),
       ).toEqual([1n, 7n]);
-      expect(tree.getWarnings()).toEqual([new RecursiveLayerIds([1, 7])]);
+      expect(tree.getWarnings()).toEqual([
+        makeWarningRecursiveLayerIds([1, 7]),
+      ]);
     });
   });
 

@@ -28,8 +28,10 @@ import {assertDefined} from 'common/assert';
 import {FilterFlag} from 'common/filter_flag';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {PersistentStore} from 'common/store/persistent_store';
-import {MissingLayerIds} from 'parsers/warnings/missing_layer_ids';
-import {DuplicateLayerIds} from 'parsers/warnings/duplicate_layer_ids';
+import {
+  makeWarningMissingLayerIds,
+  makeWarningDuplicateLayerIds,
+} from 'parsers/warnings';
 import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TRACE_INFO} from 'trace_api/trace_info';
@@ -221,19 +223,19 @@ describe('HierarchyComponent', () => {
       ),
     ];
     dom.detectChanges();
-    const warning1 = new DuplicateLayerIds([123]);
+    const warning1 = makeWarningDuplicateLayerIds([123]);
     component.trees[0].addWarning(warning1);
-    const warning2 = new MissingLayerIds();
+    const warning2 = makeWarningMissingLayerIds();
     component.trees[1].addWarning(warning2);
     dom.detectChanges();
     const warnings = dom.findAll('.warning');
     expect(warnings.length).toBe(2);
-    warnings[0].checkTextExact('warning ' + warning1.getMessage());
-    warnings[1].checkTextExact('warning ' + warning2.getMessage());
+    warnings[0].checkTextExact('warning ' + warning1.message);
+    warnings[1].checkTextExact('warning ' + warning2.message);
   });
 
   it('shows warning tooltip if text overflowing', () => {
-    const warning = new DuplicateLayerIds([123]);
+    const warning = makeWarningDuplicateLayerIds([123]);
     component.trees[0].addWarning(warning);
     dom.detectChanges();
 
@@ -247,7 +249,7 @@ describe('HierarchyComponent', () => {
 
     spy.and.returnValue(msgEl.clientWidth + 1);
     dom.detectChanges();
-    checkTooltips([warningEl], [warning.getMessage()]);
+    checkTooltips([warningEl], [warning.message]);
   });
 
   it('handles arrow down key press', () => {
