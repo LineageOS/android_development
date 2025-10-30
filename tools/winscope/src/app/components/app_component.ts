@@ -971,7 +971,8 @@ export class AppComponent implements WinscopeEventListener {
       this.isSupportedReportedParentOrigin(parentOrigin)
     ) {
       // Send message to the parent window
-      window.parent.postMessage({winscopeAction: 'openSettings'}, parentOrigin);
+      const data = {winscopeAction: 'openSettings'};
+      window.parent.postMessage(data, parentOrigin);
     } else {
       console.warn(
         'Not inside an iframe...',
