@@ -46,7 +46,15 @@ class RecorderDemoActivity :
 
     private var audioManager: AudioManager? = null
 
-    private val recorders = List(NUMBER_OF_RECORDERS) { AudioRecorder(it) }
+    private val recorders =
+        List(NUMBER_OF_RECORDERS) {
+            AudioRecorder(
+                it,
+                // some fancy coloring based on the hash of the recorded audio data
+                // to have a visual (colorful) UI representation of it
+                { color -> buttons[it].setBackgroundColor(color) },
+            )
+        }
 
     private lateinit var buttons: List<Button>
     private lateinit var recorderStatusTextViews: List<TextView>
@@ -123,7 +131,7 @@ class RecorderDemoActivity :
                 } else {
                     R.string.start_record
                 }
-            val backgroundColor =
+            val textColor =
                 if (isRecording) {
                     Color.RED
                 } else {
@@ -131,7 +139,7 @@ class RecorderDemoActivity :
                 }
 
             buttons[index].setText(buttonText)
-            buttons[index].setBackgroundColor(backgroundColor)
+            buttons[index].setTextColor(textColor)
             recorderStatusTextViews[index].text = getRecorderStatus()
         }
     }
@@ -159,10 +167,13 @@ class RecorderDemoActivity :
         }
 
     /**
-     * Utility class managing creation and reading from an AudioRecord. Doesn't do anything with the
-     * recorded audio data.
+     * Utility class managing creation and reading from an AudioRecord. Sends a hash of the recorded
+     * audio data in onDataReceived for UI feedback.
      */
-    private inner class AudioRecorder(private val index: Int) {
+    private inner class AudioRecorder(
+        private val index: Int,
+        private val onDataReceived: (Int) -> Unit,
+    ) {
         private var isRunning: AtomicBoolean = atomic(false)
         private var audioRecord: AudioRecord? = null
 
@@ -199,7 +210,8 @@ class RecorderDemoActivity :
                         )
                         break
                     }
-                    // no use for the audio data
+                    // send a hash of the recorded audio data for some UI representation
+                    onDataReceived(buffer.contentHashCode())
                 }
 
                 // No longer running, recording should stop and be released,
