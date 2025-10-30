@@ -971,7 +971,7 @@ export class AppComponent implements WinscopeEventListener {
       this.isSupportedReportedParentOrigin(parentOrigin)
     ) {
       // Send message to the parent window
-      const data = {winscopeAction: 'openSettings'};
+      const data = JSON.stringify({action: 'openSettings'});
       window.parent.postMessage(data, parentOrigin);
     } else {
       console.warn(

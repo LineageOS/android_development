@@ -521,7 +521,7 @@ describe('AppComponent', () => {
       > = spyOn(window.parent, 'postMessage');
       dom.findAndClick('.iframe-settings');
       expect(postMessageSpy).toHaveBeenCalledOnceWith(
-        {winscopeAction: 'openSettings'},
+        JSON.stringify({action: 'openSettings'}),
         parentOrigin,
       );
     });
