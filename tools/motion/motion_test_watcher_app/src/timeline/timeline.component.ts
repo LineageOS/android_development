@@ -65,7 +65,7 @@ export class TimelineComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedGolden']) {
       this.receivedSelectedOptions = [];
-      if(this.selectedGolden?.dataSource === DataSource.GERRIT){
+      if (this.selectedGolden?.dataSource === DataSource.GERRIT) {
         this.updatePageFromData(
           this.selectedGolden.actualData,
           this.selectedGolden.expectedData
@@ -107,7 +107,7 @@ export class TimelineComponent implements OnChanges {
     });
   }
 
-  updatePageFromData(actualData: MotionGoldenData, expectedData: MotionGoldenData){
+  updatePageFromData(actualData: MotionGoldenData, expectedData: MotionGoldenData) {
     this.expectedData = expectedData
     this.actualData = actualData
     this.preivewService.updateFrames(this.actualData.frame_ids)
@@ -117,14 +117,14 @@ export class TimelineComponent implements OnChanges {
 
   buildUi() {
     if (!this.selectedGolden) return;
-    if(this.actualData
+    if (this.actualData
       && Object.keys(this.actualData).length > 0) {
-        this.processData(this.actualData)
-      }
-    if(this.expectedData
+      this.processData(this.actualData)
+    }
+    if (this.expectedData
       && Object.keys(this.expectedData).length > 0) {
-        this.processData(this.expectedData)
-      }
+      this.processData(this.expectedData)
+    }
     this.featureCount = this.actualData?.features.length ?? this.expectedData?.features?.length ?? 0
   }
 
@@ -262,7 +262,7 @@ export class TimelineComponent implements OnChanges {
       this.actualData.features.forEach((feature) => {
         const featureName = feature.name;
         const expectedDataPoints = this.expectedData?.features.find(
-         (f) => f.name === featureName
+          (f) => f.name === featureName
         )?.data_points;
         const actualDataPoints = feature.data_points;
         const isFeaturePassing = this.areArraysEqual(actualDataPoints, expectedDataPoints);
@@ -294,7 +294,6 @@ export class TimelineComponent implements OnChanges {
   }
 
   get showUpdateButton(): boolean {
-    return this.testMode != TestModes.PRESUBMIT
-      && this.testMode != TestModes.GERRIT;
+    return this.testMode != TestModes.GERRIT;
   }
 }
