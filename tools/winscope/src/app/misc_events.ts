@@ -1,18 +1,30 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Timestamp} from 'common/time/time';
 import {TraceType} from 'trace_api/trace_type';
-import {WinscopeEvent, WinscopeEventType} from 'messaging/winscope_event';
+import {WinscopeEvent} from 'messaging/winscope_event';
 
 export class DarkModeToggled implements WinscopeEvent {
-  readonly type = WinscopeEventType.DARK_MODE_TOGGLED;
   constructor(readonly isDarkMode: boolean) {}
 }
 
-export class NoTraceTargetsSelectedEvent implements WinscopeEvent {
-  readonly type = WinscopeEventType.NO_TRACE_TARGETS_SELECTED;
-}
+export class NoTraceTargetsSelectedEvent implements WinscopeEvent {}
 
 export class FilterPresetSaveRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.FILTER_PRESET_SAVE_REQUEST;
   constructor(
     readonly name: string,
     readonly traceType: TraceType,
@@ -20,7 +32,6 @@ export class FilterPresetSaveRequest implements WinscopeEvent {
 }
 
 export class FilterPresetApplyRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.FILTER_PRESET_APPLY_REQUEST;
   constructor(
     readonly name: string,
     readonly traceType: TraceType,
@@ -28,21 +39,17 @@ export class FilterPresetApplyRequest implements WinscopeEvent {
 }
 
 export class BugreportFileSelected implements WinscopeEvent {
-  readonly type = WinscopeEventType.BUGREPORT_FILE_SELECTED;
   constructor(readonly filename: string | undefined) {}
 }
 
 export class BugreportFileSelectionRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST;
   constructor(readonly filenames: string[]) {}
 }
 
 export class ActiveSearchQueriesUpdate implements WinscopeEvent {
-  readonly type = WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE;
   constructor(readonly queries: string[]) {}
 }
 
 export class BookmarksChanged implements WinscopeEvent {
-  readonly type = WinscopeEventType.BOOKMARKS_CHANGED;
   constructor(readonly bookmarks: Timestamp[]) {}
 }

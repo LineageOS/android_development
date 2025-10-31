@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * An enum for Winscope event types.
  */
@@ -62,6 +61,4 @@ export enum WinscopeEventType {
 /**
  * An abstract class for Winscope events.
  */
-export interface WinscopeEvent {
-  readonly type: WinscopeEventType;
-}
+export interface WinscopeEvent {}

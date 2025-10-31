@@ -68,7 +68,6 @@ import {
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
 } from 'cross_tool/remote_tool_events';
-import {WinscopeEvent, WinscopeEventType} from 'messaging/winscope_event';
 import {
   ActiveTraceChanged,
   InitializeTraceSearchRequest,
@@ -112,6 +111,7 @@ import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 describe('Mediator', () => {
+  const TIMESTAMP_INVALID = makeRealTimestamp(-1n);
   const TIMESTAMP_10 = makeRealTimestamp(10n);
   const TIMESTAMP_11 = makeRealTimestamp(11n);
 
@@ -1188,13 +1188,12 @@ describe('Mediator', () => {
   }
 
   function makeExpectedTracePositionUpdate(
-    tracePosition?: TracePosition,
+    tracePosition: TracePosition = TracePosition.fromTimestamp(
+      TIMESTAMP_INVALID,
+    ),
     prefetchedEntry?: TraceEntryEager<object, object>,
-  ): WinscopeEvent {
-    if (tracePosition !== undefined) {
-      return new TracePositionUpdate(tracePosition, undefined, prefetchedEntry);
-    }
-    return {type: WinscopeEventType.TRACE_POSITION_UPDATE} as WinscopeEvent;
+  ): TracePositionUpdate {
+    return new TracePositionUpdate(tracePosition, undefined, prefetchedEntry);
   }
 
   function tracePositionUpdateEqualityTester(
@@ -1207,12 +1206,6 @@ describe('Mediator', () => {
     ) {
       return testTracePositionUpdates(first, second);
     }
-    if (
-      first instanceof TracePositionUpdate &&
-      second.type === WinscopeEventType.TRACE_POSITION_UPDATE
-    ) {
-      return first.type === second.type;
-    }
     return undefined;
   }
 
@@ -1220,7 +1213,10 @@ describe('Mediator', () => {
     event: TracePositionUpdate,
     expectedEvent: TracePositionUpdate,
   ): boolean {
-    if (event.type !== expectedEvent.type) return false;
+    if (expectedEvent.position.timestamp === TIMESTAMP_INVALID) {
+      return true;
+    }
+
     if (
       event.position.timestamp.getValueNs() !==
       expectedEvent.position.timestamp.getValueNs()

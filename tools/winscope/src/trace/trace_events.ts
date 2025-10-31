@@ -1,11 +1,26 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Timestamp} from 'common/time/time';
 import {Trace, TraceEntry, TraceEntryEager} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
-import {WinscopeEvent, WinscopeEventType} from 'messaging/winscope_event';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 export class TracePositionUpdate implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_POSITION_UPDATE;
   constructor(
     readonly position: TracePosition,
     readonly updateTimeline = false,
@@ -30,48 +45,35 @@ export class TracePositionUpdate implements WinscopeEvent {
 }
 
 export class TraceSearchRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_SEARCH_REQUEST;
   constructor(readonly query: string) {}
 }
 
-export class TraceSearchFailed implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_SEARCH_FAILED;
-}
+export class TraceSearchFailed implements WinscopeEvent {}
 
 export class TraceAddRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_ADD_REQUEST;
   constructor(readonly trace: Trace<object>) {}
 }
 
 export class TraceRemoveRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_REMOVE_REQUEST;
   constructor(readonly trace: Trace<object>) {}
 }
 
-export class InitializeTraceSearchRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.INITIALIZE_TRACE_SEARCH_REQUEST;
-}
+export class InitializeTraceSearchRequest implements WinscopeEvent {}
 
 export class TraceSearchInitialized implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_SEARCH_INITIALIZED;
   constructor(readonly views: string[]) {}
 }
 
-export class TraceSearchCompleted implements WinscopeEvent {
-  readonly type = WinscopeEventType.TRACE_SEARCH_COMPLETED;
-}
+export class TraceSearchCompleted implements WinscopeEvent {}
 
 export class ShowTraceUploadWarning implements WinscopeEvent {
-  readonly type = WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING;
   constructor(readonly message: string) {}
 }
 
 export class ActiveTraceChanged implements WinscopeEvent {
-  readonly type = WinscopeEventType.ACTIVE_TRACE_CHANGED;
   constructor(readonly trace: Trace<object>) {}
 }
 
 export class ScreenRecordingChange implements WinscopeEvent {
-  readonly type = WinscopeEventType.SCREEN_RECORDING_CHANGE;
   constructor(readonly trace: Trace<MediaBasedTraceEntry>) {}
 }

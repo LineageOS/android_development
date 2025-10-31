@@ -54,17 +54,13 @@ import {
   makeWarningNoValidFiles,
   makeWarningFailedToInitializeTimelineData,
 } from 'app/warnings';
-import {
-  AppRefreshDumpsRequest,
-} from 'app/app_events';
+import {AppRefreshDumpsRequest} from 'app/app_events';
 import {
   BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
 } from 'app/misc_events';
-import {
-  TabbedViewSwitchRequest,
-} from 'app/tabbed_view_events';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
 import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
 import {TracePositionUpdate, TraceSearchRequest} from 'trace/trace_events';
 import {TraceType} from 'trace_api/trace_type';

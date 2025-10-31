@@ -15,35 +15,24 @@
  */
 
 import {AdbFiles} from 'trace_collection/adb_files';
-import {WinscopeEvent, WinscopeEventType} from 'messaging/winscope_event';
+import {WinscopeEvent} from 'messaging/winscope_event';
 
-export class AppInitialized implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_INITIALIZED;
-}
+export class AppInitialized implements WinscopeEvent {}
 
 export class AppFilesCollected implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_FILES_COLLECTED;
   constructor(readonly files: AdbFiles) {}
 }
 
 export class AppFilesUploaded implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_FILES_UPLOADED;
   constructor(readonly files: File[]) {}
 }
 
-export class AppResetRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_RESET_REQUEST;
-}
+export class AppResetRequest implements WinscopeEvent {}
 
 export class AppTraceViewRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_TRACE_VIEW_REQUEST;
   constructor(readonly discardLegacyTraces = false) {}
 }
 
-export class AppTraceViewRequestHandled implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_TRACE_VIEW_REQUEST_HANDLED;
-}
+export class AppTraceViewRequestHandled implements WinscopeEvent {}
 
-export class AppRefreshDumpsRequest implements WinscopeEvent {
-  readonly type = WinscopeEventType.APP_REFRESH_DUMPS_REQUEST;
-}
+export class AppRefreshDumpsRequest implements WinscopeEvent {}
