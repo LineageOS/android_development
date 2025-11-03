@@ -61,17 +61,22 @@ import {
   AppRefreshDumpsRequest,
   AppResetRequest,
   AppTraceViewRequest,
-  BugreportFileSelected,
-  BugreportFileSelectionRequest,
-  ViewersLoaded,
-  DarkModeToggled,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+} from 'app/app_events';
 import {
   ActiveSearchQueriesUpdate,
   BookmarksChanged,
-} from 'messaging/winscope_event';
+  BugreportFileSelected,
+  BugreportFileSelectionRequest,
+  DarkModeToggled,
+} from 'app/misc_events';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
+import {
+  ActiveTraceChanged,
+  TracePositionUpdate,
+  TraceSearchRequest,
+} from 'trace/trace_events';
+import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
 import {AdbFiles} from 'trace_collection/adb_files';
@@ -110,12 +115,6 @@ import {MatMenuModule} from '@angular/material/menu';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
 import {RequestData} from 'cross_tool/g3_proxy';
-import {
-  ActiveTraceChanged,
-  TabbedViewSwitchRequest,
-  TracePositionUpdate,
-  TraceSearchRequest,
-} from 'messaging/winscope_event';
 import {Trace} from 'trace_api/trace';
 
 /**
@@ -817,77 +816,60 @@ export class AppComponent implements WinscopeEventListener {
     });
   }
 
+  private async onViewersLoaded(event: ViewersLoaded) {
+    this.viewers = event.viewers;
+    this.filenameFormControl.setValue(
+      this.tracePipeline.getDownloadArchiveFilename(),
+    );
+    this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
+    this.isEditingFilename = false;
+
+    // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
+    this.dataLoaded = true;
+    this.changeDetectorRef.detectChanges();
+
+    // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
+    // therefore toolbar elements controlled by a different boolean
+    this.ngZone.run(() => {
+      this.showDataLoadedElements = true;
+    });
+    this.updateShareState();
+
+    await this.processRequestData();
+  }
+
+  private async onViewersUnloaded(event: ViewersUnloaded) {
+    this.dataLoaded = false;
+    this.showDataLoadedElements = false;
+    this.pageTitle.setTitle('Winscope');
+    this.changeDetectorRef.detectChanges();
+    this.updateShareState();
+  }
+
+  private async onBugreportFileSelectionRequest(
+    event: BugreportFileSelectionRequest,
+  ) {
+    await this.showFileSelectionDialog(event.filenames);
+  }
+
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.VIEWERS_LOADED,
-      async (event: ViewersLoaded) => {
-        this.viewers = event.viewers;
-        this.filenameFormControl.setValue(
-          this.tracePipeline.getDownloadArchiveFilename(),
+    switch (event.constructor) {
+      case ViewersLoaded:
+        return await this.onViewersLoaded(event as ViewersLoaded);
+      case ViewersUnloaded:
+        return await this.onViewersUnloaded(event as ViewersUnloaded);
+      case BugreportFileSelectionRequest:
+        return await this.onBugreportFileSelectionRequest(
+          event as BugreportFileSelectionRequest,
         );
-        this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
-        this.isEditingFilename = false;
-
-        // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
-        this.dataLoaded = true;
-        this.changeDetectorRef.detectChanges();
-
-        // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
-        // therefore toolbar elements controlled by a different boolean
-        this.ngZone.run(() => {
-          this.showDataLoadedElements = true;
-        });
-        this.updateShareState();
-
-        await this.processRequestData();
-      },
-    );
-
-    await event.visit(
-      WinscopeEventType.VIEWERS_UNLOADED,
-      async (event: WinscopeEvent) => {
-        this.dataLoaded = false;
-        this.showDataLoadedElements = false;
-        this.pageTitle.setTitle('Winscope');
-        this.changeDetectorRef.detectChanges();
-        this.updateShareState();
-      },
-    );
-
-    await event.visit(
-      WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
-      async (event: BugreportFileSelectionRequest) => {
-        await this.showFileSelectionDialog(event.filenames);
-      },
-    );
-
-    await event.visit(
-      WinscopeEventType.BOOKMARKS_CHANGED,
-      async (event: BookmarksChanged) => {
-        this.updateShareState();
-      },
-    );
-
-    await event.visit(
-      WinscopeEventType.ACTIVE_SEARCH_QUERIES_UPDATE,
-      async (event: ActiveSearchQueriesUpdate) => {
-        this.updateShareState();
-      },
-    );
-
-    await event.visit(
-      WinscopeEventType.TRACE_POSITION_UPDATE,
-      async (event: TracePositionUpdate) => {
-        this.updateShareState();
-      },
-    );
-
-    await event.visit(
-      WinscopeEventType.ACTIVE_TRACE_CHANGED,
-      async (event: ActiveTraceChanged) => {
-        this.updateShareState();
-      },
-    );
+      case ActiveSearchQueriesUpdate:
+      case ActiveTraceChanged:
+      case BookmarksChanged:
+      case TracePositionUpdate:
+        return this.updateShareState();
+      default:
+      // no-op
+    }
   }
 
   openShortcutsPanel() {
@@ -971,7 +953,8 @@ export class AppComponent implements WinscopeEventListener {
       this.isSupportedReportedParentOrigin(parentOrigin)
     ) {
       // Send message to the parent window
-      window.parent.postMessage({winscopeAction: 'openSettings'}, parentOrigin);
+      const data = JSON.stringify({action: 'openSettings'});
+      window.parent.postMessage(data, parentOrigin);
     } else {
       console.warn(
         'Not inside an iframe...',

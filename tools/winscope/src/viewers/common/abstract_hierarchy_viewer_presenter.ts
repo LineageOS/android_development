@@ -20,10 +20,18 @@ import {parseMap, stringifyMap} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {
-  TracePositionUpdate,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+  FilterPresetApplyRequest,
+  FilterPresetSaveRequest,
+  DarkModeToggled,
+} from 'app/misc_events';
+import {
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangePropagate,
+  PlaybackStateChangeRequest,
+} from 'app/components/timeline/playback_events';
+import {ScreenRecordingChange, TracePositionUpdate} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
@@ -233,107 +241,133 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.copyUiDataAndNotifyView();
   }
 
+  private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (this.initializeIfNeeded) await this.initializeIfNeeded(event);
+    await this.applyTracePositionUpdate(event);
+    if (this.processDataAfterPositionUpdate) {
+      await this.processDataAfterPositionUpdate(event);
+    }
+    this.refreshUIData();
+  }
+
+  private async onFilterPresetSaveRequest(event: FilterPresetSaveRequest) {
+    this.saveConfigAsPreset(event.name);
+  }
+
+  private async onDarkModeToggled(event: DarkModeToggled) {
+    this.uiData.isDarkMode = event.isDarkMode;
+    this.copyUiDataAndNotifyView();
+  }
+
+  private async onFilterPresetApplyRequest(event: FilterPresetApplyRequest) {
+    const filterPresetName = event.name;
+    await this.applyPresetConfig(filterPresetName);
+    this.refreshUIData();
+  }
+
+  private async onPlaybackStateChangeRequest(
+    event: PlaybackStateChangeRequest,
+  ) {
+    if (!this.trace) {
+      return;
+    }
+    if (!this.screenRecordingTrace) {
+      this.screenRecordingTrace = this.traces.getTrace(
+        TraceType.SCREEN_RECORDING,
+      );
+    }
+
+    switch (event.state) {
+      case PlaybackState.PAUSED:
+        if (this.playbackPresenter !== undefined) {
+          await this.pausePlayback();
+        }
+        return;
+      default:
+        return;
+    }
+  }
+
+  private async onPlaybackStateChangePropagate(
+    event: PlaybackStateChangePropagate,
+  ) {
+    if (!this.trace || !this.playbackPresenter) {
+      return;
+    }
+    if (!this.screenRecordingTrace) {
+      this.screenRecordingTrace = this.traces.getTrace(
+        TraceType.SCREEN_RECORDING,
+      );
+    }
+    this.uiData.isPlaybackInitializing = true;
+    this.refreshHierarchyViewerUiData();
+    await this.playPlayback(
+      assertDefined(event.currentTraceIndex),
+      event.state,
+      event.traceGeometryData,
+      this.screenRecordingTrace,
+    );
+  }
+
+  private async onPlaybackStateChangeHandled(
+    event: PlaybackStateChangeHandled,
+  ) {
+    if (event.stateToReflect === PlaybackState.PAUSED) {
+      this.uiData.isPlaybackPlaying = false;
+    } else {
+      this.uiData.isPlaybackPlaying = true;
+    }
+    this.uiData.isPlaybackInitializing = false;
+
+    this.refreshHierarchyViewerUiData();
+  }
+
+  private async onPlaybackSpeedChange(event: PlaybackSpeedChange) {
+    if (this.playbackPresenter && this.trace) {
+      this.playbackPresenter.changeSpeed(event.speedValue);
+    }
+  }
+
+  private async onScreenRecordingChange(event: ScreenRecordingChange) {
+    this.screenRecordingTrace = event.trace;
+  }
+
   async onAppEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.TRACE_POSITION_UPDATE,
-      async (event) => {
-        if (this.initializeIfNeeded) await this.initializeIfNeeded(event);
-        await this.applyTracePositionUpdate(event);
-        if (this.processDataAfterPositionUpdate) {
-          await this.processDataAfterPositionUpdate(event);
-        }
-        this.refreshUIData();
-      },
-    );
-    await event.visit(
-      WinscopeEventType.FILTER_PRESET_SAVE_REQUEST,
-      async (event) => {
-        this.saveConfigAsPreset(event.name);
-      },
-    );
-    await event.visit(WinscopeEventType.DARK_MODE_TOGGLED, async (event) => {
-      this.uiData.isDarkMode = event.isDarkMode;
-      this.copyUiDataAndNotifyView();
-    });
-    await event.visit(
-      WinscopeEventType.FILTER_PRESET_APPLY_REQUEST,
-      async (event) => {
-        const filterPresetName = event.name;
-        await this.applyPresetConfig(filterPresetName);
-        this.refreshUIData();
-      },
-    );
-    await event.visit(
-      WinscopeEventType.PLAYBACK_STATE_CHANGE_REQUEST,
-      async (event) => {
-        if (!this.trace) {
-          return;
-        }
-        if (!this.screenRecordingTrace) {
-          this.screenRecordingTrace = this.traces.getTrace(
-            TraceType.SCREEN_RECORDING,
-          );
-        }
-
-        switch (event.state) {
-          case PlaybackState.PAUSED:
-            if (this.playbackPresenter !== undefined) {
-              await this.pausePlayback();
-            }
-            return;
-          default:
-            return;
-        }
-      },
-    );
-    await event.visit(
-      WinscopeEventType.PLAYBACK_STATE_CHANGE_PROPAGATE,
-      async (event) => {
-        if (!this.trace || !this.playbackPresenter) {
-          return;
-        }
-        if (!this.screenRecordingTrace) {
-          this.screenRecordingTrace = this.traces.getTrace(
-            TraceType.SCREEN_RECORDING,
-          );
-        }
-        this.uiData.isPlaybackInitializing = true;
-        this.refreshHierarchyViewerUiData();
-        await this.playPlayback(
-          assertDefined(event.currentTraceIndex),
-          event.state,
-          event.traceGeometryData,
-          this.screenRecordingTrace,
+    switch (event.constructor) {
+      case TracePositionUpdate:
+        return await this.onTracePositionUpdate(event as TracePositionUpdate);
+      case FilterPresetSaveRequest:
+        return await this.onFilterPresetSaveRequest(
+          event as FilterPresetSaveRequest,
         );
-      },
-    );
-    await event.visit(
-      WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
-      async (event) => {
-        if (event.stateToReflect === PlaybackState.PAUSED) {
-          this.uiData.isPlaybackPlaying = false;
-        } else {
-          this.uiData.isPlaybackPlaying = true;
-        }
-        this.uiData.isPlaybackInitializing = false;
+      case DarkModeToggled:
+        return await this.onDarkModeToggled(event as DarkModeToggled);
+      case FilterPresetApplyRequest:
+        return await this.onFilterPresetApplyRequest(
+          event as FilterPresetApplyRequest,
+        );
+      case PlaybackStateChangeRequest:
+        return await this.onPlaybackStateChangeRequest(
+          event as PlaybackStateChangeRequest,
+        );
+      case PlaybackStateChangePropagate:
+        return await this.onPlaybackStateChangePropagate(
+          event as PlaybackStateChangePropagate,
+        );
+      case PlaybackStateChangeHandled:
+        return await this.onPlaybackStateChangeHandled(
+          event as PlaybackStateChangeHandled,
+        );
+      case PlaybackSpeedChange:
+        return await this.onPlaybackSpeedChange(event as PlaybackSpeedChange);
+      case ScreenRecordingChange:
+        return await this.onScreenRecordingChange(
+          event as ScreenRecordingChange,
+        );
+      default:
+        console.log('Not processing event ' + event);
+    }
 
-        this.refreshHierarchyViewerUiData();
-      },
-    );
-    await event.visit(
-      WinscopeEventType.PLAYBACK_SPEED_CHANGE,
-      async (event) => {
-        if (this.playbackPresenter && this.trace) {
-          this.playbackPresenter.changeSpeed(event.speedValue);
-        }
-      },
-    );
-    await event.visit(
-      WinscopeEventType.SCREEN_RECORDING_CHANGE,
-      async (event) => {
-        this.screenRecordingTrace = event.trace;
-      },
-    );
     await this.onViewerSpecificWinscopeEvent(event);
   }
 

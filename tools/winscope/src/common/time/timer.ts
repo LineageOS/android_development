@@ -41,7 +41,7 @@ export class Timer {
    * Waits for a condition to be met.
    * @param condition The condition to wait for.
    */
-  async wait(condition: () => boolean) {
+  async wait(condition: () => boolean, errorMsg?: () => string) {
     const startTimeMs = Date.now();
     while (Date.now() - startTimeMs < this.timeoutMs) {
       if (condition()) {
@@ -49,6 +49,6 @@ export class Timer {
       }
       await this.sleepMs();
     }
-    throw new Error('Timed out waiting for condition');
+    throw new Error(errorMsg?.() ?? 'Timed out waiting for condition');
   }
 }

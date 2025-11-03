@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {FailedToConvertLegacyTraces} from 'messaging/user_warnings';
+import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
@@ -74,6 +74,27 @@ describe('LegacyToPerfettoConverter', () => {
     ]);
   });
 
+  it('adds legacy trace without timestamp to existing perfetto file', async () => {
+    const packetB0 = makePacketWithBoottimeTs(0);
+    const parser = makeParser([packetB0]);
+    expect(packetB0.timestamp).toEqual(Long.fromInt(0, true));
+
+    const existingPacket = perfetto.protos.TracePacket.create();
+    existingPacket.timestamp = Long.fromInt(50, true);
+    const fileWithPacket = makeExistingPerfettoFile(
+      perfettoSnapshot,
+      existingPacket,
+    );
+
+    const perfettoFile = assertDefined(
+      await convertToPerfetto([parser], fileWithPacket),
+    );
+    const trace = await checkAndDecodePerfettoFile(perfettoFile);
+
+    expect(trace.packet).toEqual([perfettoSnapshot, existingPacket, packetB0]);
+    expect(packetB0.timestamp).toEqual(Long.fromInt(50, true));
+  });
+
   it('ignores legacy file that cannot be converted to perfetto format', async () => {
     const parser1 = makeParser([]);
     expect(await convertToPerfetto([parser1])).toBeUndefined();
@@ -113,7 +134,7 @@ describe('LegacyToPerfettoConverter', () => {
     await testMonotonicParsers(packets);
   });
 
-  it('with boot-time and monotonically offset parsers loaded', async () => {
+  it('converts boot-time and monotonically offset parsers', async () => {
     const parserB = makeParser([packetB1]);
     spyOn(parserB, 'getRealToBootTimeOffsetNs').and.returnValue(2n);
     spyOn(parserB, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
@@ -122,11 +143,10 @@ describe('LegacyToPerfettoConverter', () => {
     spyOn(parserM, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
     spyOn(parserM, 'getRealToMonotonicTimeOffsetNs').and.returnValue(3n);
 
-    const perfettoFile =
-      await LegacyToPerfettoConverter.convertToSinglePerfettoFile(
-        [parserM],
-        [parserM, parserB],
-      );
+    const perfettoFile = await new LegacyToPerfettoConverter()
+      .setLegacyParsers([parserM])
+      .setAllParsers([parserM, parserB])
+      .convert();
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(trace.packet).toEqual([
       makeExpectedClockSnapshot({
@@ -165,7 +185,7 @@ describe('LegacyToPerfettoConverter', () => {
     const perfettoFile = await convertToPerfetto([parser], existingFile);
     expect(perfettoFile).toEqual(existingFile);
     userNotifierChecker.expectNotified([
-      new FailedToConvertLegacyTraces('decoding failed'),
+      makeWarningFailedToConvertLegacyTraces('decoding failed'),
     ]);
   });
 
@@ -177,11 +197,15 @@ describe('LegacyToPerfettoConverter', () => {
   it('robust to errors if allParsers empty and no Perfetto file provided', async () => {
     const userNotifierChecker = new UserNotifierChecker();
     const parser = makeParser([], true);
-    const perfettoFile =
-      await LegacyToPerfettoConverter.convertToSinglePerfettoFile([parser], []);
+    const perfettoFile = await new LegacyToPerfettoConverter()
+      .setLegacyParsers([parser])
+      .setAllParsers([])
+      .convert();
     expect(perfettoFile).toBeUndefined();
     userNotifierChecker.expectNotified([
-      new FailedToConvertLegacyTraces('no parsers or Perfetto file provided'),
+      makeWarningFailedToConvertLegacyTraces(
+        'no parsers or Perfetto file provided',
+      ),
     ]);
   });
 
@@ -207,11 +231,13 @@ describe('LegacyToPerfettoConverter', () => {
     parsers: Array<Parser<{}>>,
     perfettoFile?: TraceFile,
   ) {
-    return await LegacyToPerfettoConverter.convertToSinglePerfettoFile(
-      parsers,
-      parsers,
-      perfettoFile,
-    );
+    const converter = new LegacyToPerfettoConverter()
+      .setLegacyParsers(parsers)
+      .setAllParsers(parsers);
+    if (perfettoFile) {
+      converter.setPerfettoFile(perfettoFile);
+    }
+    return await converter.convert();
   }
 
   async function testElapsedParsers(packets: TracePacket[]) {

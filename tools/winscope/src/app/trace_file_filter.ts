@@ -21,16 +21,16 @@ import {TimezoneInfo} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {UserWarning} from 'messaging/user_warning';
 import {
-  MissingPersistentTrace,
-  NoValidFiles,
-  TraceOverridden,
-  UnsupportedFileFormat,
-} from 'messaging/user_warnings';
+  makeWarningNoValidFiles,
+  makeWarningMissingPersistentTrace,
+  makeWarningTraceOverridden,
+  makeWarningUnsupportedFileFormat,
+} from './warnings';
 import {
+  BugreportFileSelected,
   BugreportFileSelectionRequest,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {
   EmitEvent,
   WinscopeEventEmitter,
@@ -42,7 +42,6 @@ import {ProcessedFiles} from 'parsers/legacy/parser_factory';
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {TraceMetadata} from 'trace_api/trace_metadata';
-import {BugreportFileSelected} from 'messaging/winscope_event';
 
 /**
  * The build type of the Android device that generated the bugreport.
@@ -138,13 +137,14 @@ export class TraceFileFilter
     this.emitEvent = callback;
   }
 
+  private async onBugreportFileSelected(event: BugreportFileSelected) {
+    this.selectedFile = event.filename;
+  }
+
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.BUGREPORT_FILE_SELECTED,
-      async (event: BugreportFileSelected) => {
-        this.selectedFile = event.filename;
-      },
-    );
+    if (event instanceof BugreportFileSelected) {
+      this.onBugreportFileSelected(event as BugreportFileSelected);
+    }
   }
 
   async filterAndParse(
@@ -169,7 +169,7 @@ export class TraceFileFilter
     }
 
     if (result.perfetto.length === 0 && result.legacy.length === 0) {
-      UserNotifier.add(new NoValidFiles());
+      UserNotifier.add(makeWarningNoValidFiles());
       return {
         perfetto: undefined,
         legacy: [],
@@ -190,7 +190,9 @@ export class TraceFileFilter
     if (largestPerfettoFile) {
       perfettoParsers = await tryParsePerfetto(largestPerfettoFile);
       unsupportedFiles.forEach((file: TraceFile) => {
-        UserNotifier.add(new UnsupportedFileFormat(file.getDescriptor()));
+        UserNotifier.add(
+          makeWarningUnsupportedFileFormat(file.getDescriptor()),
+        );
       });
     } else {
       unsupportedFiles.sort(
@@ -413,7 +415,7 @@ export class TraceFileFilter
       // emitEvent must be set to propagate event to mediator, which routes file selection
       // request to AppComponent. User is prompted by dialog to select which file to
       // process. Once dialog is closed, selected file is sent back to TraceFileFilter
-      // via BugreportFileSelected event and handled above in onWinscopeEvent, where
+      // via BugreportFileSelected event and handled above in onWinscopeEvent where
       // it is stored in selectedFile. Promise below only resolves after BugreportFileSelected
       // event has been handled.
       await this.emitEvent(
@@ -431,7 +433,7 @@ export class TraceFileFilter
 
     const criticalWarnings: UserWarning[] = [];
     if (!perfettoFile && bugreportData) {
-      criticalWarnings.push(new MissingPersistentTrace(bugreportData));
+      criticalWarnings.push(makeWarningMissingPersistentTrace(bugreportData));
     }
 
     return {
@@ -491,7 +493,7 @@ export class TraceFileFilter
         largestSoFar.file.size > file.file.size
           ? [largestSoFar, file]
           : [file, largestSoFar];
-      UserNotifier.add(new TraceOverridden(overridden.getDescriptor()));
+      UserNotifier.add(makeWarningTraceOverridden(overridden.getDescriptor()));
       return largest;
     });
   }

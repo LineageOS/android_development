@@ -39,16 +39,14 @@ import {assertDefined, assertTrue, assertUnreachable} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
-import {ProxyTraceTimeout} from 'messaging/user_warnings';
-import {
-  NoTraceTargetsSelected,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+import {makeWarningProxyTraceTimeout} from 'app/warnings';
+import {AppRefreshDumpsRequest} from 'app/app_events';
+import {NoTraceTargetsSelectedEvent} from 'app/misc_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
 import {
@@ -559,19 +557,23 @@ export class CollectTracesComponent
     device.tryAuthorize();
   }
 
-  async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.APP_REFRESH_DUMPS_REQUEST,
-      async (event) => {
-        this.targetTabIndex = 1;
-        this.dumpConfig = updateConfigsFromStore(
-          JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
-          assertDefined(this.storage),
-          this.storeKeyPrefixDumpConfig,
-        );
-        this.refreshDumps = true;
-      },
+  private async onAppRefreshDumpsRequest() {
+    this.targetTabIndex = 1;
+    this.dumpConfig = updateConfigsFromStore(
+      JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
+      assertDefined(this.storage),
+      this.storeKeyPrefixDumpConfig,
     );
+    this.refreshDumps = true;
+  }
+
+  async onWinscopeEvent(event: WinscopeEvent) {
+    switch (event.constructor) {
+      case AppRefreshDumpsRequest:
+        return await this.onAppRefreshDumpsRequest();
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   onProgressUpdate(message: string, progressPercentage: number | undefined) {
@@ -726,7 +728,7 @@ export class CollectTracesComponent
   async dumpState() {
     const requestedDumps = this.getRequests(assertDefined(this.dumpConfig));
     if (requestedDumps.length === 0) {
-      this.emitEvent(new NoTraceTargetsSelected());
+      this.emitEvent(new NoTraceTargetsSelectedEvent());
       return;
     }
 
@@ -918,7 +920,7 @@ export class CollectTracesComponent
     );
 
     if (requestedTraces.length === 0) {
-      this.emitEvent(new NoTraceTargetsSelected());
+      this.emitEvent(new NoTraceTargetsSelectedEvent());
       return;
     }
 
@@ -1101,7 +1103,7 @@ export class CollectTracesComponent
 
     switch (newState) {
       case ConnectionState.TRACE_TIMEOUT:
-        UserNotifier.add(new ProxyTraceTimeout());
+        UserNotifier.add(makeWarningProxyTraceTimeout());
         await this.endTrace();
         return;
       case ConnectionState.NOT_FOUND:

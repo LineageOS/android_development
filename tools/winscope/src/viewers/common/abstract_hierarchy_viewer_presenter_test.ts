@@ -17,13 +17,14 @@
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
+
 import {
-  TracePositionUpdate,
-  PlaybackStateChangeRequest,
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
-} from 'messaging/winscope_event';
+  PlaybackStateChangeRequest,
+} from 'app/components/timeline/playback_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {PropertySource} from 'tree_node/property_tree_node';

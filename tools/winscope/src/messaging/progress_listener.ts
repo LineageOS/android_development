@@ -17,7 +17,7 @@
 /**
  * An interface for listening to progress updates.
  */
-export interface ProgressListener {
+export declare interface ProgressListener {
   /**
    * Called when the progress of an operation has been updated.
    *

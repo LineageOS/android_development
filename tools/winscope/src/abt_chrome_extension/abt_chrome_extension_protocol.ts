@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
+import {AppInitialized} from 'app/app_events';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+} from 'cross_tool/remote_tool_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {
   MessageType,
@@ -49,24 +49,28 @@ export class AbtChromeExtensionProtocol
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(WinscopeEventType.APP_INITIALIZED, async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('source') !== 'openFromExtension' || !chrome) {
-        return;
-      }
+    if (event instanceof AppInitialized) {
+      return await this.onAppInitialized();
+    }
+  }
 
-      await this.emitEvent(new RemoteToolDownloadStart());
+  private async onAppInitialized() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('source') !== 'openFromExtension' || !chrome) {
+      return;
+    }
 
-      const openRequestMessage: OpenRequest = {
-        action: MessageType.OPEN_REQUEST,
-      };
+    await this.emitEvent(new RemoteToolDownloadStart());
 
-      chrome.runtime.sendMessage(
-        AbtChromeExtensionProtocol.ABT_EXTENSION_ID,
-        openRequestMessage,
-        async (message) => await this.onMessageReceived(message),
-      );
-    });
+    const openRequestMessage: OpenRequest = {
+      action: MessageType.OPEN_REQUEST,
+    };
+
+    chrome.runtime.sendMessage(
+      AbtChromeExtensionProtocol.ABT_EXTENSION_ID,
+      openRequestMessage,
+      async (message) => await this.onMessageReceived(message),
+    );
   }
 
   private async onMessageReceived(message: WebCommandMessage) {

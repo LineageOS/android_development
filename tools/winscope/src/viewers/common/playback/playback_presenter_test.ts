@@ -24,10 +24,8 @@ import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceType} from 'trace_api/trace_type';
 import {Timer} from 'common/time/timer';
 import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {
-  PlaybackStateChangeHandled,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {PlaybackState} from './playback_state';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
@@ -509,7 +507,9 @@ describe('PlaybackPresenter', () => {
 
     for (let i = 1; i < eagerUpdates.length + 1; i++) {
       const {event, entry, exp} = checkTracePositionEntry(i - 1, i);
-      expect(entry).toBeInstanceOf(TraceEntryEager);
+      expect(entry).toBeInstanceOf(
+        exp.srIndex !== undefined ? TraceEntryLazy : TraceEntryEager,
+      );
       expect(event.prefetchedEntry).toBeDefined();
       expect(event.prefetchedEntry?.getIndex()).toEqual(exp.traceIndex);
       expect(event.prefetchedEntry?.getFullTrace()).toEqual(trace);

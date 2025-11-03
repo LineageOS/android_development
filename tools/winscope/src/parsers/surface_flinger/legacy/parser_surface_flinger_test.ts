@@ -15,7 +15,7 @@
  */
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {DuplicateLayerIds} from 'messaging/user_warnings';
+import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
@@ -162,7 +162,7 @@ describe('ParserSurfaceFlinger', () => {
           .getParser<HierarchyTreeNode>();
         const entry = await parser.getEntry(0);
         expect(entry.getWarnings()).toEqual([
-          new DuplicateLayerIds([-2147483595]),
+          makeWarningDuplicateLayerIds([-2147483595]),
         ]);
 
         const layer = assertDefined(

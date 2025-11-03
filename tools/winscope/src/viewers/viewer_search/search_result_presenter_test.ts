@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {TracePositionUpdate} from 'messaging/winscope_event';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {
   makeRealTimestamp,
   makeZeroTimestamp,

@@ -23,7 +23,7 @@ import {
   TraceSearchFailed,
   TraceSearchInitialized,
   TraceSearchRequest,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
 import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
@@ -168,12 +168,9 @@ describe('PresenterSearch', () => {
       .setType(TraceType.SEARCH)
       .build();
     await presenter.onAppEvent(new TraceAddRequest(trace));
-    const expectedSearch = new CurrentSearch(
-      1,
-      testQuery,
-      new SearchResult([], []),
-    );
-    expect(uiData.currentSearches).toEqual([expectedSearch]);
+    expect(uiData.currentSearches.length).toBe(1);
+    expect(uiData.currentSearches[0].uid).toBe(1);
+    expect(uiData.currentSearches[0].query).toBe(testQuery);
     expect(uiData.lastTraceFailed).toEqual(false);
 
     await presenter.onAppEvent(

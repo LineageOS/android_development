@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
 import {
   ActiveTraceChanged,
-  ExpandedTimelineToggled,
   ScreenRecordingChange,
   TracePositionUpdate,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';

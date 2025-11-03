@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TracePositionUpdate} from 'messaging/winscope_event';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {
   makeRealTimestamp,

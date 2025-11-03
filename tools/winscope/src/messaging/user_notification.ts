@@ -26,8 +26,8 @@ export enum NotificationType {
 /**
  * A notification to be displayed to the user.
  */
-export interface UserNotification {
+export declare interface UserNotification {
   getNotificationType(): NotificationType;
-  getDescriptor(): string;
-  getMessage(): string;
+  descriptor: string;
+  message: string;
 }

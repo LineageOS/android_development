@@ -47,6 +47,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer} from '@angular/platform-browser';
 import {TimelineData} from 'app/timeline_data';
 import {assertDefined} from 'common/assert';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {BookmarksChanged, DarkModeToggled} from 'app/misc_events';
 import {
   isInputTextField,
   KeyboardEventKey,
@@ -58,16 +60,22 @@ import {TimeRange, Timestamp} from 'common/time/time';
 import {Analytics} from 'logging/analytics';
 import {
   ActiveTraceChanged,
-  ExpandedTimelineToggled,
-  TracePositionUpdate,
-  WinscopeEvent,
-  WinscopeEventType,
-  TabbedViewSwitched,
-  PlaybackStateChangeRequest,
-  PlaybackSpeedChange,
-  BookmarksChanged,
   ScreenRecordingChange,
-} from 'messaging/winscope_event';
+  TracePositionUpdate,
+  TraceAddRequest,
+  TraceRemoveRequest,
+  InitializeTraceSearchRequest,
+  TraceSearchRequest,
+  TraceSearchInitialized,
+  TraceSearchCompleted,
+} from 'trace/trace_events';
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+import {
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangeRequest,
+} from 'app/components/timeline/playback_events';
+import {TabbedViewSwitched} from 'app/tabbed_view_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
@@ -690,79 +698,103 @@ export class TimelineComponent
       : sortedSelectedTraces.slice(0, 8);
   }
 
-  async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(WinscopeEventType.TRACE_POSITION_UPDATE, async () => {
-      this.updateTimeInputValuesToCurrentTimestamp();
-      this.updateScreenRecordingVisualization();
-    });
-    await event.visit(WinscopeEventType.ACTIVE_TRACE_CHANGED, async (event) => {
-      await this.miniTimeline?.drawer?.draw();
-      this.updateSelectedTraces(event.trace);
-    });
-    await event.visit(WinscopeEventType.DARK_MODE_TOGGLED, async (event) => {
-      const activeTrace = this.timelineData?.getActiveTrace();
-      if (activeTrace === undefined) {
-        return;
-      }
-      await this.miniTimeline?.drawer?.draw();
-    });
-    await event.visit(WinscopeEventType.TRACE_ADD_REQUEST, async (event) => {
-      this.sortedTraces.unshift(event.trace);
-      this.sortedTraces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
-      const newSelection = [event.trace].concat(
-        this.selectedTracesFormControl.value ?? [],
-      );
-      this.selectedTracesFormControl.setValue(newSelection);
-      this.applyNewTraceSelection(event.trace);
-      await this.miniTimeline?.drawer?.draw();
-    });
-    await event.visit(WinscopeEventType.TRACE_REMOVE_REQUEST, async (event) => {
-      this.sortedTraces = this.sortedTraces.filter(
+  private async onTracePositionUpdate() {
+    this.updateTimeInputValuesToCurrentTimestamp();
+    this.updateScreenRecordingVisualization();
+  }
+
+  private async onActiveTraceChanged(event: ActiveTraceChanged) {
+    await this.miniTimeline?.drawer?.draw();
+    this.updateSelectedTraces(event.trace);
+  }
+
+  private async onDarkModeToggled(event: DarkModeToggled) {
+    const activeTrace = this.timelineData?.getActiveTrace();
+    if (activeTrace === undefined) {
+      return;
+    }
+    await this.miniTimeline?.drawer?.draw();
+  }
+
+  private async onTraceAddRequest(event: TraceAddRequest) {
+    this.sortedTraces.unshift(event.trace);
+    this.sortedTraces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
+    const newSelection = [event.trace].concat(
+      this.selectedTracesFormControl.value ?? [],
+    );
+    this.selectedTracesFormControl.setValue(newSelection);
+    this.applyNewTraceSelection(event.trace);
+    await this.miniTimeline?.drawer?.draw();
+  }
+
+  private async onTraceRemoveRequest(event: TraceRemoveRequest) {
+    this.sortedTraces = this.sortedTraces.filter(
+      (trace) => trace !== event.trace,
+    );
+    this.selectedTracesFormControl.setValue(
+      this.selectedTracesFormControl.value?.filter(
         (trace) => trace !== event.trace,
-      );
-      this.selectedTracesFormControl.setValue(
-        this.selectedTracesFormControl.value?.filter(
-          (trace) => trace !== event.trace,
-        ) ?? [],
-      );
-      this.applyNewTraceSelection(event.trace);
-      await this.miniTimeline?.drawer?.draw();
-    });
-    await event.visit(
-      WinscopeEventType.INITIALIZE_TRACE_SEARCH_REQUEST,
-      async () => this.setIsDisabled(true),
+      ) ?? [],
     );
-    await event.visit(WinscopeEventType.TRACE_SEARCH_REQUEST, async () =>
-      this.setIsDisabled(true),
-    );
-    await event.visit(WinscopeEventType.TRACE_SEARCH_INITIALIZED, async () =>
-      this.setIsDisabled(false),
-    );
-    await event.visit(WinscopeEventType.TRACE_SEARCH_COMPLETED, async () =>
-      this.setIsDisabled(false),
-    );
-    await event.visit(
-      WinscopeEventType.PLAYBACK_STATE_CHANGE_HANDLED,
-      async (event) => {
-        this.setPlaybackState(event.stateToReflect);
-        this.setIsDisabled(false);
-        this.disabledMessage = 'Timeline disabled due to ongoing search query';
-      },
-    );
-    await event.visit(
-      WinscopeEventType.TABBED_VIEW_SWITCHED,
-      async (event: TabbedViewSwitched) => {
-        await this.onPlaybackStateChange(PlaybackState.PAUSED);
-        this.currentTabTraceType = event.newFocusedView.traces[0]?.type;
-        this.changeDetectorRef.detectChanges();
-      },
-    );
-    await event.visit(
-      WinscopeEventType.SCREEN_RECORDING_CHANGE,
-      async (event: ScreenRecordingChange) => {
-        this.updateScreenRecordingVisualization();
-      },
-    );
+    this.applyNewTraceSelection(event.trace);
+    await this.miniTimeline?.drawer?.draw();
+  }
+
+  private async onInitializeTraceSearchRequest() {
+    this.setIsDisabled(true);
+  }
+
+  private async onTraceSearch() {
+    this.setIsDisabled(true);
+  }
+
+  private async onPlaybackStateChangeHandled(
+    event: PlaybackStateChangeHandled,
+  ) {
+    this.setPlaybackState(event.stateToReflect);
+    this.setIsDisabled(false);
+    this.disabledMessage = 'Timeline disabled due to ongoing search query';
+  }
+
+  private async onTabbedViewSwitched(event: TabbedViewSwitched) {
+    await this.onPlaybackStateChange(PlaybackState.PAUSED);
+    this.currentTabTraceType = event.newFocusedView.traces[0]?.type;
+    this.changeDetectorRef.detectChanges();
+  }
+
+  private async onScreenRecordingChange() {
+    this.updateScreenRecordingVisualization();
+  }
+
+  async onWinscopeEvent(event: WinscopeEvent) {
+    switch (event.constructor) {
+      case TracePositionUpdate:
+        return await this.onTracePositionUpdate();
+      case ActiveTraceChanged:
+        return await this.onActiveTraceChanged(event as ActiveTraceChanged);
+      case DarkModeToggled:
+        return await this.onDarkModeToggled(event as DarkModeToggled);
+      case TraceAddRequest:
+        return await this.onTraceAddRequest(event as TraceAddRequest);
+      case TraceRemoveRequest:
+        return await this.onTraceRemoveRequest(event as TraceRemoveRequest);
+      case InitializeTraceSearchRequest:
+        return await this.onInitializeTraceSearchRequest();
+      case TraceSearchRequest:
+      case TraceSearchInitialized:
+      case TraceSearchCompleted:
+        return await this.onTraceSearch();
+      case PlaybackStateChangeHandled:
+        return await this.onPlaybackStateChangeHandled(
+          event as PlaybackStateChangeHandled,
+        );
+      case TabbedViewSwitched:
+        return await this.onTabbedViewSwitched(event as TabbedViewSwitched);
+      case ScreenRecordingChange:
+        return await this.onScreenRecordingChange();
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   async toggleExpand() {

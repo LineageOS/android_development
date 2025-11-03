@@ -15,7 +15,14 @@
  */
 
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {createFile, FileInfo, MP4ArrayBuffer, MP4File, Sample} from 'mp4box';
+import {
+  createFile,
+  FileInfo,
+  MP4ArrayBuffer,
+  MP4File,
+  Sample,
+  Track,
+} from 'mp4box';
 
 /**
  * Callback to parse an MP4 and retrieve timestamps.
@@ -83,41 +90,44 @@ export async function parseTimestampsFromMp4VideoTrack(
   videoData: Uint8Array,
   elapsedRealTimeNanos: bigint,
 ): Promise<Array<bigint>> {
-  const onReady: MP4FileOnReadyTimestamps = (
-    info,
-    mp4File,
-    timestamps,
-    resolve,
-  ) => {
-    mp4File.onSamples = (id, user, samples) => {
-      let curr = elapsedRealTimeNanos;
-      samples.forEach((sample: Sample) => {
-        const timeSeconds = sample.duration / sample.timescale;
-        const timeNs = BigInt(Math.floor(TIME_UNIT_TO_NANO.s * timeSeconds));
-        curr += timeNs;
-        timestamps.push(curr);
-      });
-      resolve();
-    };
-    mp4File.setExtractionOptions(info.tracks[0].id);
-  };
-  return parseTimestampsFromMp4Track(videoData, onReady);
+  const samples = await extractSamplesFromMp4Track(videoData, (info) => {
+    return info.videoTracks[0];
+  });
+  const timestamps: Array<bigint> = [];
+  let curr = elapsedRealTimeNanos;
+  samples.forEach((sample: Sample) => {
+    const timeSeconds = sample.duration / sample.timescale;
+    const timeNs = BigInt(Math.floor(TIME_UNIT_TO_NANO.s * timeSeconds));
+    curr += timeNs;
+    timestamps.push(curr);
+  });
+  return timestamps;
 }
 
 /**
- * Populates timestamps based on onReady callback from an arbitrary track.
+ * Retrieves sorted samples from track.
  * @param videoData File data
- * @param onReady Callback for populating timestamps
+ * @param chooseTrack Strategy to choose which track to extract samples from
  */
-export async function parseTimestampsFromMp4Track(
+export async function extractSamplesFromMp4Track(
   videoData: Uint8Array,
-  onReady: MP4FileOnReadyTimestamps,
-): Promise<Array<bigint>> {
-  const timestamps: Array<bigint> = [];
-  await parseMp4(videoData, (info, mp4File, resolve) => {
-    onReady(info, mp4File, timestamps, resolve);
-  });
-  return timestamps;
+  chooseTrack: (info: FileInfo) => Track,
+): Promise<Sample[]> {
+  const allSamples: Sample[] = [];
+  const onReady: MP4FileOnReady = (info, mp4File, resolve) => {
+    const track = chooseTrack(info);
+    mp4File.onSamples = (id, user, samples) => {
+      allSamples.push(...samples);
+      const lastIndex = samples.at(samples.length - 1)?.number ?? -1;
+      if (lastIndex === track.nb_samples - 1) {
+        resolve();
+      }
+    };
+    mp4File.setExtractionOptions(track.id);
+  };
+  await parseMp4(videoData, onReady);
+  allSamples.sort((s) => s.number);
+  return allSamples;
 }
 
 /**

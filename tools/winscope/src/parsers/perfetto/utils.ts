@@ -22,7 +22,7 @@ import {
   assertStringOrUndefined,
   assertTrue,
 } from 'common/assert';
-import {MissingVsyncId} from 'messaging/user_warnings';
+import {makeWarningMissingVsyncId} from 'parsers/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {TraceProcessor} from 'trace_processor/trace_processor';
@@ -140,7 +140,7 @@ export async function queryVsyncId(
   }
 
   if (vsyncIdOrderedByRow.length !== numEntries) {
-    UserNotifier.add(new MissingVsyncId(tableName));
+    UserNotifier.add(makeWarningMissingVsyncId(tableName));
   }
 
   const vsyncIdOrderedByEntry: Array<bigint> = [];

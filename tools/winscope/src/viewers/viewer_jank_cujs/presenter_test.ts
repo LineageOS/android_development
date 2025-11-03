@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TracePositionUpdate} from 'messaging/winscope_event';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {getTracesParser} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_test_helpers';

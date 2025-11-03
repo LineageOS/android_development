@@ -19,7 +19,7 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
-import {TraceSearchQueryFailed} from 'messaging/user_warnings';
+import {makeWarningTraceSearchQueryFailed} from 'parsers/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {
@@ -133,7 +133,7 @@ export class ParserSearch implements Parser<QueryResult> {
     } catch (e) {
       Analytics.TraceSearch.logQueryFailure();
       UserNotifier.add(
-        new TraceSearchQueryFailed((e as Error).message),
+        makeWarningTraceSearchQueryFailed((e as Error).message),
       ).notify();
       throw e;
     }

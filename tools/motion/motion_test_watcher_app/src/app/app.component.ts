@@ -1,6 +1,9 @@
 import { ProgressTracker } from './../util/progress';
 import { GoldensService } from './../service/goldens.service';
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit, ChangeDetectionStrategy, Component, computed, DoCheck,
+  ElementRef, HostListener, OnDestroy, OnInit, signal, ViewChild
+} from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TestListComponent } from '../test-list/test-list.component';
 import { PreviewComponent } from '../preview/preview.component';
@@ -14,7 +17,8 @@ import {
   state,
   style,
   animate,
-  transition
+  transition,
+  AnimationEvent
 } from '@angular/animations';
 
 import { DialogContentComponent } from '../dialog/dialog.component';
@@ -28,6 +32,9 @@ import { PreviewService } from '../service/preview.service';
 import { ErrorService } from '../service/error.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TestModes } from '../model/test_mode';
+import { DIVIDER_HEIGHT, MIN_PANEL_HEIGHT, MIN_PANEL_WIDTH } from '../model/constants';
+import { AnimationEventPhasename, AnimationEventTime } from '../model/constants';
+import { TestListPanelDimensionsFactor, VideoPanelDimensionsFactor } from '../model/constants';
 @Component({
   selector: 'app-root',
   imports: [
@@ -55,7 +62,7 @@ import { TestModes } from '../model/test_mode';
       })),
       transition(':enter', [
         style({ width: '0', opacity: 0 }),
-        animate('300ms ease-out', style({ width: '*', opacity: 1 }))
+        animate(`${AnimationEventTime.ENTRY_TIME}ms ease-out`, style({ width: '*', opacity: 1 }))
       ]),
       transition(':leave', [
         style({ width: '*', opacity: 1 }),
@@ -77,7 +84,7 @@ import { TestModes } from '../model/test_mode';
       })),
 
       transition(':enter', [
-        animate('300ms ease-out')
+        animate(`${AnimationEventTime.ENTRY_TIME}ms ease-out`)
       ]),
 
       transition(':leave', [
@@ -91,7 +98,8 @@ import { TestModes } from '../model/test_mode';
         animate('300ms ease-in-out')
       ])
     ])
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements DoCheck, OnInit, OnDestroy {
   constructor(
@@ -104,6 +112,54 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
   ) { }
 
   private errorSubscription!: Subscription;
+
+  @ViewChild('appContainer') appContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('testDisplayPanelContainer') testDisplayPanelContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('testListPanel') testListPanel!: ElementRef<HTMLDivElement>;
+  @ViewChild('videoPanel') videoPanel!: ElementRef<HTMLDivElement>;
+
+  onAnimationDone(event: AnimationEvent) {
+    if (event.phaseName === AnimationEventPhasename.DONE
+      && event.totalTime === AnimationEventTime.ENTRY_TIME) { // when the animation ended
+      if (this.testListPanel && this.testListPanel.nativeElement) { // for entry animation
+        const containerWidth = this.appContainer.nativeElement.offsetWidth;
+        this.testListPanelWidth.set(
+          containerWidth * TestListPanelDimensionsFactor.DEFAULT_WIDTH
+        );
+      }
+      if (this.videoPanel && this.videoPanel.nativeElement) { // for entry animation
+        const containerHeight = this.testDisplayPanelContainer.nativeElement.offsetHeight;
+        this.videoPanelHeight.set(
+          containerHeight * VideoPanelDimensionsFactor.DEFAULT_HEIGHT
+        );
+      }
+    }
+  }
+
+  // State for Horizontal Resizing
+  private initialMouseX = signal(0);
+  private initialTestListPanelWidth = signal(0);
+  private isVerticalResizing = signal(false);
+  private testListContainer = signal(0);
+  public testListPanelWidth = signal(0); // reactive state variable to set initial width.
+
+  //State for Vertical Resizing
+  private initialMouseY = signal(0);
+  private initialVideoPanelHeight = signal(0);
+  private isHorizontalResizing = signal(false);
+  private videoPanelContainer = signal(0);
+  public videoPanelHeight = signal(0); // reactive state variable to set initial height.
+
+  graphPanelHeight(): number {
+    const totalHeight = this.testDisplayPanelContainer?.nativeElement?.offsetHeight || 0;
+    const remainingHeight = totalHeight - this.videoPanelHeight() - DIVIDER_HEIGHT;
+    return Math.max(remainingHeight, MIN_PANEL_HEIGHT);
+  };
+
+  testDisplayPanelWidth(): number {
+    const containerWidth = this.appContainer?.nativeElement.offsetWidth || 0;
+    return Math.max(containerWidth - this.testListPanelWidth(), MIN_PANEL_WIDTH);
+  }
 
   isNullOrEmpty(obj: any): Boolean {
     return (obj == null || obj.length == 0)
@@ -254,6 +310,53 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     })
   }
 
+  onVerticalMouseDown(event: MouseEvent) {
+    this.isVerticalResizing.set(true);
+    this.initialMouseX.set(event.clientX);
+    this.initialTestListPanelWidth.set(this.testListPanelWidth());
+    const containerRect = this.appContainer.nativeElement.getBoundingClientRect();
+    this.testListContainer.set(containerRect.left);
+    event.preventDefault();
+  }
+
+  onHorizontalMouseDown(event: MouseEvent) {
+    this.isHorizontalResizing.set(true);
+    this.initialMouseY.set(event.clientY);
+    this.initialVideoPanelHeight.set(this.videoPanelHeight());
+    const containerRect = this.testDisplayPanelContainer.nativeElement.getBoundingClientRect();
+    this.videoPanelContainer.set(containerRect.top);
+    event.preventDefault();
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.isVerticalResizing()) {
+      const deltaX = event.clientX - this.initialMouseX();
+      const newWidth = this.initialTestListPanelWidth() + deltaX;
+      const minW = this.appContainer
+        .nativeElement.offsetWidth * TestListPanelDimensionsFactor.MIN_WIDTH;
+      const maxW = this.appContainer
+        .nativeElement.offsetWidth * TestListPanelDimensionsFactor.MAX_WIDTH;
+      const constrainedWidth = Math.min(Math.max(newWidth, minW), maxW);
+      this.testListPanelWidth.set(constrainedWidth);
+    } else if (this.isHorizontalResizing()) {
+      const deltaY = event.clientY - this.initialMouseY();
+      const newHeight = this.initialVideoPanelHeight() + deltaY;
+      const minH = this.testDisplayPanelContainer
+        .nativeElement.offsetHeight * VideoPanelDimensionsFactor.MIN_HEIGHT;
+      const maxH = this.testDisplayPanelContainer
+        .nativeElement.offsetHeight * VideoPanelDimensionsFactor.MAX_HEIGHT;
+      const constrainedHeight = Math.min(Math.max(newHeight, minH), maxH);
+      this.videoPanelHeight.set(constrainedHeight);
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    this.isVerticalResizing.set(false);
+    this.isHorizontalResizing.set(false);
+  }
+
   private addGerritMainChangelistDataListener() {
     window.addEventListener("message", (event) => {
       if (event.origin !== window.location.origin) {
@@ -270,13 +373,13 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     });
   }
 
-  fetchMultipleJsonsFromGerrit(linkPairs :GerritLinkPair[]) {
+  fetchMultipleJsonsFromGerrit(linkPairs: GerritLinkPair[]) {
     this.testMode = TestModes.GERRIT
     this.goldens = []
     this.showLoaderBar()
     this.goldenService.getMultipleJsonsFromGerritLinks(linkPairs)
-    .pipe(finalize(() => this.hideLoaderBar()))
-    .subscribe((goldens) => {
+      .pipe(finalize(() => this.hideLoaderBar()))
+      .subscribe((goldens) => {
         this.goldens = goldens as MotionGolden[]
       })
     this.testModes.push(TestModes.GERRIT)

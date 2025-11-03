@@ -36,6 +36,7 @@ import {RectsForTrace} from 'parsers/rect_extractor_result';
 import {makeEntryHierarchyTrees} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
 
 export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
+  protected override readonly checkInvalidTs = true;
   private visibleAndDisplayRects: RectsForTrace | undefined;
   private allVisibleRects: QueryResult | undefined;
   private allSnapshots: QueryResult | undefined;

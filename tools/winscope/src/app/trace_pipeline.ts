@@ -34,12 +34,14 @@ import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
 import {
-  CorruptedArchive,
-  InvalidLegacyTrace,
-  InvalidPerfettoTrace,
-  NoValidFiles,
-  UnsupportedFileFormat,
-} from 'messaging/user_warnings';
+  makeWarningCorruptedArchive,
+  makeWarningNoValidFiles,
+  makeWarningUnsupportedFileFormat,
+} from './warnings';
+import {
+  makeWarningInvalidLegacyTrace,
+  makeWarningInvalidPerfettoTrace,
+} from 'parsers/warnings';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {
   EmitEvent,
@@ -125,7 +127,7 @@ export class TracePipeline
     try {
       const unzippedFiles = await this.unzipFiles(files, progressListener);
       if (unzippedFiles.length === 0) {
-        UserNotifier.add(new NoValidFiles());
+        UserNotifier.add(makeWarningNoValidFiles());
         return [];
       }
 
@@ -158,7 +160,7 @@ export class TracePipeline
       singlePerfettoTrace,
       FilesSource.APP,
       undefined,
-      new InvalidPerfettoTrace(singlePerfettoTrace.getDescriptor(), [
+      makeWarningInvalidPerfettoTrace(singlePerfettoTrace.getDescriptor(), [
         'failed to convert legacy parsers into perfetto trace',
       ]),
     );
@@ -317,7 +319,7 @@ export class TracePipeline
         file,
         source,
         progressListener,
-        new UnsupportedFileFormat(file.getDescriptor()),
+        makeWarningUnsupportedFileFormat(file.getDescriptor()),
       );
     };
 
@@ -450,7 +452,7 @@ export class TracePipeline
         return true;
       } catch (e) {
         UserNotifier.add(
-          new InvalidLegacyTrace(
+          makeWarningInvalidLegacyTrace(
             fileAndParser.file.getDescriptor(),
             `Failed to create timestamps: ${(e as Error).message}`,
           ),
@@ -535,11 +537,16 @@ export class TracePipeline
       return trace.getParser();
     });
 
-    return await LegacyToPerfettoConverter.convertToSinglePerfettoFile(
-      legacyParsers,
-      allParsers,
-      this.loadedParsers.getPerfettoFile(),
-    );
+    const converter = new LegacyToPerfettoConverter()
+      .setLegacyParsers(legacyParsers)
+      .setAllParsers(allParsers);
+
+    const perfettoFile = this.loadedParsers.getPerfettoFile();
+    if (perfettoFile) {
+      converter.setPerfettoFile(perfettoFile);
+    }
+
+    return await converter.convert();
   }
 
   private makeDownloadArchiveFilename(
@@ -603,7 +610,7 @@ export class TracePipeline
           unzippedFiles.push(...subTraceFiles);
           onSubProgressUpdate(100);
         } catch {
-          UserNotifier.add(new CorruptedArchive(file));
+          UserNotifier.add(makeWarningCorruptedArchive(file));
         }
       } else {
         unzippedFiles.push(new TraceFile(file, undefined));

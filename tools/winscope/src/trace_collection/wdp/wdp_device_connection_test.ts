@@ -17,9 +17,9 @@
 import {ArrayBufferBuilder} from 'common/buffer';
 import {binaryEncode} from 'common/string_helpers';
 import {
-  ProxyTracingErrors,
-  ProxyTracingWarnings,
-} from 'messaging/user_warnings';
+  makeWarningProxyTracingWarnings,
+  makeWarningProxyTracingErrors,
+} from 'trace_collection/warnings';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {
   makeFakeWebSocket,
@@ -289,7 +289,7 @@ describe('WdpDeviceConnection', () => {
       await connection.startTrace(mockTarget);
       expect(runShellCmdSpy).toHaveBeenCalledWith(startCmd);
       userNotifierChecker.expectNotified([
-        new ProxyTracingWarnings(['Error starting trace.']),
+        makeWarningProxyTracingWarnings(['Error starting trace.']),
       ]);
       userNotifierChecker.reset();
     });
@@ -302,7 +302,7 @@ describe('WdpDeviceConnection', () => {
       await connection.startTrace(mockTarget);
       expect(runShellCmdSpy).toHaveBeenCalledWith(startCmd);
       userNotifierChecker.expectNotified([
-        new ProxyTracingWarnings(['Error starting trace.']),
+        makeWarningProxyTracingWarnings(['Error starting trace.']),
       ]);
       userNotifierChecker.reset();
     });
@@ -381,7 +381,7 @@ describe('WdpDeviceConnection', () => {
       expect(openStream?.isOpen()).toBeFalse();
       expect(runShellCmdSpy).toHaveBeenCalledWith(stopCmd);
       userNotifierChecker.expectNotified([
-        new ProxyTracingErrors([
+        makeWarningProxyTracingErrors([
           'Error ending screen recording on device: ' +
             'ERROR: please check your display state (must be on at start of trace)',
         ]),

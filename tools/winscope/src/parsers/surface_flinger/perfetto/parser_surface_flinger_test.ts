@@ -16,7 +16,7 @@
 import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
-import {DuplicateLayerIds} from 'messaging/user_warnings';
+import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
 import {
   makeRealTimestamp,
@@ -220,7 +220,7 @@ describe('PerfettoParserSurfaceFlinger', () => {
       );
       const entry = await parser.getEntry(0);
       expect(entry.getWarnings()).toEqual([
-        new DuplicateLayerIds([-2147483595]),
+        makeWarningDuplicateLayerIds([-2147483595]),
       ]);
 
       const layer = assertDefined(

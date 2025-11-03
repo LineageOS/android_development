@@ -20,9 +20,9 @@ import {RemoteToolTimestampConverter} from 'common/time/timestamp_converter';
 import {
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+} from 'cross_tool/remote_tool_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
@@ -76,34 +76,38 @@ export class CrossToolProtocol
     this.emitEvent = callback;
   }
 
-  async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.TRACE_POSITION_UPDATE,
-      async (event) => {
-        if (
-          !this.remoteTool ||
-          !this.remoteTool.timestampType ||
-          !this.isAllowedTimestampSync() ||
-          !this.allowTimestampSync
-        ) {
-          return;
-        }
+  private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (
+      !this.remoteTool ||
+      !this.remoteTool.timestampType ||
+      !this.isAllowedTimestampSync() ||
+      !this.allowTimestampSync
+    ) {
+      return;
+    }
 
-        const timestampNs = this.getTimestampNsForRemoteTool(
-          event.position.timestamp,
-        );
-        if (timestampNs === undefined) {
-          return;
-        }
-
-        const message = new MessageTimestamp(
-          timestampNs,
-          this.remoteTool.timestampType,
-        );
-        this.remoteTool.window.postMessage(message, this.remoteTool.origin);
-        console.log('Cross-tool protocol sent timestamp message:', message);
-      },
+    const timestampNs = this.getTimestampNsForRemoteTool(
+      event.position.timestamp,
     );
+    if (timestampNs === undefined) {
+      return;
+    }
+
+    const message = new MessageTimestamp(
+      timestampNs,
+      this.remoteTool.timestampType,
+    );
+    this.remoteTool.window.postMessage(message, this.remoteTool.origin);
+    console.log('Cross-tool protocol sent timestamp message:', message);
+  }
+
+  async onWinscopeEvent(event: WinscopeEvent) {
+    switch (event.constructor) {
+      case TracePositionUpdate:
+        return await this.onTracePositionUpdate(event as TracePositionUpdate);
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   isAllowedTimestampSync() {

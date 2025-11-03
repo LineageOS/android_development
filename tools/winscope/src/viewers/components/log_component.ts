@@ -245,7 +245,8 @@ import {UserTimestamp} from 'common/time/user_timestamp';
           }
 
           @for (field of entry.fields; track $index) {
-            <div [class]="field.spec.cssClass + ' cell'">
+            @let fieldClass = getFieldClass(field, $index);
+            <div [class]="fieldClass">
               @if (!showFieldButton(entry, field) && !isClickableArray(field.value)) {
                 <span class="mat-body-1">{{ field.value }}</span>
               }
@@ -380,6 +381,12 @@ export class LogComponent {
     return (
       this.entries.at(0)?.traceEntry.getFullTrace().spansMultipleDates() ??
       false
+    );
+  }
+
+  getFieldClass(field: LogField, index: number): string {
+    return (
+      field.spec.cssClass + ' cell' + (index % 2 === 0 ? ' alt-background' : '')
     );
   }
 

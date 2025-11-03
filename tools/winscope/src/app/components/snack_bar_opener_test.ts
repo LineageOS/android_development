@@ -20,9 +20,9 @@ import {TestBed} from '@angular/core/testing';
 import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
-  FailedToInitializeTimelineData,
-  NoValidFiles,
-} from 'messaging/user_warnings';
+  makeWarningNoValidFiles,
+  makeWarningFailedToInitializeTimelineData,
+} from 'app/warnings';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {SnackBarComponent} from './snack_bar_component';
 import {SnackBarOpener} from './snack_bar_opener';
@@ -31,11 +31,11 @@ describe('SnackBarOpener', () => {
   let snackBarOpener: SnackBarOpener;
   let snackBar: MatSnackBar;
   let openSpy: jasmine.Spy<jasmine.Func>;
-  const filesNotif = new NoValidFiles();
-  const filesMessage = filesNotif.getMessage();
+  const filesNotif = makeWarningNoValidFiles();
+  const filesMessage = filesNotif.message;
 
-  const timelineNotif = new FailedToInitializeTimelineData();
-  const timelineMessage = timelineNotif.getMessage();
+  const timelineNotif = makeWarningFailedToInitializeTimelineData();
+  const timelineMessage = timelineNotif.message;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

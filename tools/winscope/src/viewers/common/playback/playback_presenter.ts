@@ -15,12 +15,10 @@
  */
 
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Trace} from 'trace_api/trace';
+import {Trace, TraceEntry} from 'trace_api/trace';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {
-  PlaybackStateChangeHandled,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {TracePosition} from 'trace_api/trace_position';
 import {Timer} from 'common/time/timer';
 import {TraceEntryEager} from 'trace_api/trace';
@@ -38,7 +36,7 @@ import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {assertDefined, assertTrue} from 'common/assert';
 import {EntriesRange} from 'trace_api/index_types';
 
-type EagerTraceEntry<T = HierarchyTreeNode> = TraceEntryEager<T, T>;
+type EagerTraceEntry = TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode>;
 type WorkerResolve = (value: HierarchyTreeNode[]) => void;
 type WorkerReject = ((reason?: any) => void) | undefined;
 
@@ -53,14 +51,11 @@ export class PlaybackPresenter {
   private currState: PlaybackState = PlaybackState.PAUSED;
   private traceGeometryData: TraceGeometryData | undefined;
   private lastEntryUpdated:
-    | EagerTraceEntry<HierarchyTreeNode>
-    | EagerTraceEntry<MediaBasedTraceEntry>
+    | EagerTraceEntry
+    | TraceEntry<MediaBasedTraceEntry>
     | undefined;
 
   private currentSr: Trace<MediaBasedTraceEntry> | undefined;
-  private allScreenRecordingEntries:
-    | Array<EagerTraceEntry<MediaBasedTraceEntry>>
-    | undefined;
 
   private activeBuffer: CorrespondingEntries[] = [];
   private pendingBuffer: CorrespondingEntries[] = [];
@@ -182,10 +177,6 @@ export class PlaybackPresenter {
     srTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
     this.currentSr = srTrace;
-    this.allScreenRecordingEntries = await this.currentSr?.getRangeEntryValues({
-      start: 0,
-      end: this.currentSr.lengthEntries,
-    });
   }
 
   private async tryPlayFromTargetEntry(
@@ -377,7 +368,7 @@ export class PlaybackPresenter {
         TracePosition.fromTraceEntry(traceEntry),
       );
 
-      if (!correspondingSrEntry || !this.allScreenRecordingEntries) {
+      if (!correspondingSrEntry) {
         bufferEntries.push({
           screenRecording: undefined,
           trace: traceEntry,
@@ -395,13 +386,13 @@ export class PlaybackPresenter {
       if (lastSrIndex !== undefined || traceEntry.getIndex() === 0) {
         for (let j = (lastSrIndex ?? -1) + 1; j < newSrIndex; j++) {
           bufferEntries.push({
-            screenRecording: this.allScreenRecordingEntries[j],
+            screenRecording: this.currentSr.getEntry(j),
             trace: traceEntry,
           });
         }
       }
 
-      const screenRecordingEntry = this.allScreenRecordingEntries[newSrIndex];
+      const screenRecordingEntry = this.currentSr.getEntry(newSrIndex);
       bufferEntries.push({
         screenRecording: screenRecordingEntry,
         trace: traceEntry,
@@ -413,14 +404,14 @@ export class PlaybackPresenter {
     const lastSrEntry = lastEntries?.screenRecording;
     if (
       traceRange.end === this.trace.lengthEntries &&
-      this.allScreenRecordingEntries !== undefined &&
+      this.currentSr !== undefined &&
       lastSrEntry !== undefined &&
-      lastSrEntry.getIndex() < this.allScreenRecordingEntries.length - 1
+      lastSrEntry.getIndex() < this.currentSr.lengthEntries - 1
     ) {
       const start = lastSrEntry.getIndex() + 1;
-      for (let j = start; j < this.allScreenRecordingEntries.length; j++) {
+      for (let j = start; j < this.currentSr.lengthEntries; j++) {
         bufferEntries.push({
-          screenRecording: this.allScreenRecordingEntries[j],
+          screenRecording: this.currentSr.getEntry(j),
           trace: lastEntries?.trace,
         });
       }
@@ -446,7 +437,9 @@ export class PlaybackPresenter {
       node.propertiesProvider,
       PropertiesProvider.prototype,
     );
+
     Object.setPrototypeOf(node, HierarchyTreeNode.prototype);
+
     node.rects?.forEach((rect: TraceRect) => {
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
       if (rect?.cornerRadii) {
@@ -460,8 +453,13 @@ export class PlaybackPresenter {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
       }
     });
+
     node
       .getAllChildren()
+      .forEach((child: any) => this.assignNodePrototypes(child));
+
+    node
+      .getRelativeChildren()
       .forEach((child: any) => this.assignNodePrototypes(child));
   }
 

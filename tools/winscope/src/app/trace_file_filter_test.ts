@@ -17,14 +17,15 @@
 import {assertDefined} from 'common/assert';
 import {TimezoneInfo} from 'common/time/time';
 import {
-  MissingPersistentTrace,
-  NoValidFiles,
-  TraceOverridden,
-} from 'messaging/user_warnings';
+  makeWarningNoValidFiles,
+  makeWarningMissingPersistentTrace,
+  makeWarningTraceOverridden,
+} from './warnings';
 import {
   BugreportFileSelected,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+  BugreportFileSelectionRequest,
+} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ProcessedFiles} from 'parsers/legacy/parser_factory';
@@ -37,10 +38,6 @@ import {
   ParseLegacyFilesStrategy,
   TraceFileFilter,
 } from './trace_file_filter';
-import {
-  BugreportFileSelectionRequest,
-  WinscopeEvent,
-} from 'messaging/winscope_event';
 
 describe('TraceFileFilter', () => {
   const filter = new TraceFileFilter();
@@ -157,15 +154,12 @@ describe('TraceFileFilter', () => {
     it('sends request for file selection if multiple files in perfetto directory', async () => {
       let requested: string[] | undefined;
       filter.setEmitEvent(async (event: WinscopeEvent) => {
-        await event.visit(
-          WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
-          async (event: BugreportFileSelectionRequest) => {
-            requested = event.filenames;
-            await filter.onWinscopeEvent(
-              new BugreportFileSelected(event.filenames[1]),
-            );
-          },
-        );
+        if (event instanceof BugreportFileSelectionRequest) {
+          requested = event.filenames;
+          await filter.onWinscopeEvent(
+            new BugreportFileSelected(event.filenames[1]),
+          );
+        }
       });
 
       const perfettoTest = makeTraceFile(
@@ -203,7 +197,7 @@ describe('TraceFileFilter', () => {
       );
       expect(result.perfetto).toBeUndefined();
       expect(result.legacy).toEqual([]);
-      userNotifierChecker.expectAdded([new NoValidFiles()]);
+      userNotifierChecker.expectAdded([makeWarningNoValidFiles()]);
     });
 
     it('identifies timezone information from bugreport codename file', async () => {
@@ -264,41 +258,46 @@ describe('TraceFileFilter', () => {
     });
 
     it('warns about missing trace on user build', async () => {
-      await checkMissingPerfettoTraceWarning(BuildType.USER, undefined, [
+      await checkMissingPerfettoTraceWarning(BuildType.USER, undefined, false, [
         "'user' builds",
         'expected',
       ]);
     });
 
     it('warns about missing trace on userdebug build with persistent flag disabled', async () => {
-      await checkMissingPerfettoTraceWarning(BuildType.USERDEBUG, '0', [
+      await checkMissingPerfettoTraceWarning(BuildType.USERDEBUG, '0', false, [
         'seems to be disabled',
         'adb shell setprop',
       ]);
     });
 
     it('warns about missing trace on userdebug build with persistent flag enabled', async () => {
-      await checkMissingPerfettoTraceWarning(BuildType.USERDEBUG, '1', [
+      await checkMissingPerfettoTraceWarning(BuildType.USERDEBUG, '1', true, [
         'No Winscope Perfetto trace found in bug report. Ensure the bugreport comes from a device where persistent tracing is enabled',
       ]);
     });
 
     it('warns about missing trace on userdebug build with persistent flag unknown', async () => {
-      await checkMissingPerfettoTraceWarning(BuildType.USERDEBUG, undefined, [
-        'No Winscope Perfetto trace found in bug report.',
-        "The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled",
-      ]);
+      await checkMissingPerfettoTraceWarning(
+        BuildType.USERDEBUG,
+        undefined,
+        false,
+        [
+          'No Winscope Perfetto trace found in bug report.',
+          "The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled",
+        ],
+      );
     });
 
     it('warns about missing trace on eng build with persistent flag disabled', async () => {
-      await checkMissingPerfettoTraceWarning(BuildType.ENG, '0', [
+      await checkMissingPerfettoTraceWarning(BuildType.ENG, '0', false, [
         'No Winscope Perfetto trace found in bug report.',
         "The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled",
       ]);
     });
 
     it('warns about missing trace on eng build with persistent flag enabled', async () => {
-      await checkMissingPerfettoTraceWarning(BuildType.ENG, '1', [
+      await checkMissingPerfettoTraceWarning(BuildType.ENG, '1', true, [
         'No Winscope Perfetto trace found in bug report. Ensure the bugreport comes from a device where persistent tracing is enabled',
       ]);
     });
@@ -391,8 +390,8 @@ describe('TraceFileFilter', () => {
       expect(result.perfetto?.file).toEqual(large);
       expect(result.legacy).toEqual([]);
       userNotifierChecker.expectAdded([
-        new TraceOverridden(small.getDescriptor()),
-        new TraceOverridden(medium.getDescriptor()),
+        makeWarningTraceOverridden(small.getDescriptor()),
+        makeWarningTraceOverridden(medium.getDescriptor()),
       ]);
     });
 
@@ -460,6 +459,7 @@ describe('TraceFileFilter', () => {
   async function checkMissingPerfettoTraceWarning(
     buildType: BuildType,
     persistentFlag: string | undefined,
+    isPersistentTracingEnabled: boolean,
     expectedMessageSubstrings: string[],
   ) {
     const mainBugreportFilename = `bugreport-${buildType}-build${
@@ -489,17 +489,19 @@ describe('TraceFileFilter', () => {
     expect(result.perfetto).toBeUndefined();
     expect(result.criticalWarnings).toBeDefined();
     expect(result.criticalWarnings?.length).toBe(1);
-    const warning = assertDefined(
-      result.criticalWarnings,
-    )[0] as MissingPersistentTrace;
-    expect(warning).toBeInstanceOf(MissingPersistentTrace);
+    const warning = assertDefined(result.criticalWarnings)[0];
+    expect(warning).toEqual(
+      makeWarningMissingPersistentTrace({
+        buildType,
+        isPersistentTracingEnabled,
+      }),
+    );
 
-    const actualMessage = warning.getMessage();
     expectedMessageSubstrings.forEach((substring) => {
-      expect(actualMessage).toContain(substring);
+      expect(warning.message).toContain(substring);
     });
 
-    userNotifierChecker.expectAdded([new NoValidFiles()]);
+    userNotifierChecker.expectAdded([makeWarningNoValidFiles()]);
   }
 
   function makeTraceFile(

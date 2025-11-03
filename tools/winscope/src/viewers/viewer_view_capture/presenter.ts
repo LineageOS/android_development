@@ -17,10 +17,8 @@
 import {assertDefined, assertTrue} from 'common/assert';
 import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
-import {
-  TabbedViewSwitchRequest,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';

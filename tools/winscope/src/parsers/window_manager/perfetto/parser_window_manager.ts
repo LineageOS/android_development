@@ -45,6 +45,7 @@ import {RectsForTrace} from 'parsers/rect_extractor_result';
  * Parser for WindowManager Perfetto traces.
  */
 export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
+  protected override readonly checkInvalidTs = true;
   private visibleAndDisplayRects: RectsForTrace | undefined;
 
   override async getRectsMap() {
@@ -102,14 +103,6 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
     };
   }
 
-  protected override getTableName(): string {
-    return 'android_windowmanager';
-  }
-
-  protected override getStdLibModuleName(): string {
-    return 'android.winscope.windowmanager';
-  }
-
   override customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,
@@ -130,6 +123,14 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
         return result;
       })
       .getResult();
+  }
+
+  protected override getTableName(): string {
+    return 'android_windowmanager';
+  }
+
+  protected override getStdLibModuleName(): string {
+    return 'android.winscope.windowmanager';
   }
 
   private async fetchAllVisibleAndDisplayRects(): Promise<RectsForTrace> {

@@ -32,11 +32,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TracePipeline} from 'app/trace_pipeline';
 import {Store} from 'common/store/store';
 import {ProgressListener} from 'messaging/progress_listener';
-import {
-  ShowTraceUploadWarning,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
+import {ShowTraceUploadWarning} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
@@ -412,25 +410,34 @@ export class UploadTracesComponent
     this.warningMessages = [];
   }
 
+  private async onAppTraceViewRequest() {
+    this.viewersLoading = true;
+  }
+
+  private async onAppTraceViewRequestHandled() {
+    this.viewersLoading = false;
+  }
+
+  private async onShowTraceUploadWarning(event: ShowTraceUploadWarning) {
+    if (event.message && !this.warningMessages.includes(event.message)) {
+      this.warningMessages.push(event.message);
+    }
+    this.changeDetectorRef.detectChanges();
+  }
+
   async onWinscopeEvent(event: WinscopeEvent) {
-    await event.visit(WinscopeEventType.APP_TRACE_VIEW_REQUEST, async () => {
-      this.viewersLoading = true;
-    });
-    await event.visit(
-      WinscopeEventType.APP_TRACE_VIEW_REQUEST_HANDLED,
-      async () => {
-        this.viewersLoading = false;
-      },
-    );
-    await event.visit(
-      WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING,
-      async (e: ShowTraceUploadWarning) => {
-        if (e.message && !this.warningMessages.includes(e.message)) {
-          this.warningMessages.push(e.message);
-        }
-        this.changeDetectorRef.detectChanges();
-      },
-    );
+    switch (event.constructor) {
+      case AppTraceViewRequest:
+        return await this.onAppTraceViewRequest();
+      case AppTraceViewRequestHandled:
+        return await this.onAppTraceViewRequestHandled();
+      case ShowTraceUploadWarning:
+        return await this.onShowTraceUploadWarning(
+          event as ShowTraceUploadWarning,
+        );
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   onProgressUpdate(

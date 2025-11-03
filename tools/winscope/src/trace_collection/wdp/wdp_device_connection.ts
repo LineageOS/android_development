@@ -18,9 +18,9 @@ import {ResizableBuffer} from 'common/buffer';
 import {binaryEncode, utf8Decode} from 'common/string_helpers';
 import {showPopupWindow} from 'common/window';
 import {
-  ProxyTracingErrors,
-  ProxyTracingWarnings,
-} from 'messaging/user_warnings';
+  makeWarningProxyTracingWarnings,
+  makeWarningProxyTracingErrors,
+} from 'trace_collection/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {
   AdbDeviceConnection,
@@ -96,7 +96,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
         warning = msg.length > 0 ? msg.trim() : undefined;
       }
       if (warning) {
-        UserNotifier.add(new ProxyTracingWarnings([warning])).notify();
+        UserNotifier.add(makeWarningProxyTracingWarnings([warning])).notify();
       }
     }
     console.debug(`Started trace for ${target.traceName} on ${this.id}`);
@@ -174,7 +174,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
         'please check your display state',
         'please check your display state (must be on at start of trace)',
       );
-      UserNotifier.add(new ProxyTracingErrors([output])).notify();
+      UserNotifier.add(makeWarningProxyTracingErrors([output])).notify();
     });
     await stream.connect();
     await stream.write(binaryEncode(target.startCmd));

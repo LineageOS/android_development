@@ -20,12 +20,15 @@ import {Store} from 'common/store/store';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {
   InitializeTraceSearchRequest,
+  TraceAddRequest,
   TracePositionUpdate,
   TraceRemoveRequest,
+  TraceSearchFailed,
+  TraceSearchInitialized,
   TraceSearchRequest,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+} from 'trace/trace_events';
+import {ActiveSearchQueriesUpdate} from 'app/misc_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
@@ -41,7 +44,6 @@ import {
 } from 'viewers/common/viewer_events';
 import {SearchResultPresenter} from './search_result_presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
-import {ActiveSearchQueriesUpdate} from 'messaging/winscope_event';
 
 interface ActiveSearch {
   search: CurrentSearch;
@@ -118,23 +120,32 @@ export class Presenter {
     );
   }
 
+  private async onTraceSearchInitialized(event: TraceSearchInitialized) {
+    this.uiData.searchViews = event.views;
+    this.uiData.initialized = true;
+    this.copyUiDataAndNotifyView();
+  }
+
+  private async onTraceAddRequest(event: TraceAddRequest) {
+    if (event.trace.type === TraceType.SEARCH) {
+      return this.showQueryResult(event.trace as Trace<QueryResult>);
+    }
+  }
+
   async onAppEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.TRACE_SEARCH_INITIALIZED,
-      async (event) => {
-        this.uiData.searchViews = event.views;
-        this.uiData.initialized = true;
-        this.copyUiDataAndNotifyView();
-      },
-    );
-    await event.visit(WinscopeEventType.TRACE_ADD_REQUEST, async (event) => {
-      if (event.trace.type === TraceType.SEARCH) {
-        this.showQueryResult(event.trace as Trace<QueryResult>);
-      }
-    });
-    await event.visit(WinscopeEventType.TRACE_SEARCH_FAILED, async (event) => {
-      this.onTraceSearchFailed();
-    });
+    switch (event.constructor) {
+      case TraceSearchInitialized:
+        return await this.onTraceSearchInitialized(
+          event as TraceSearchInitialized,
+        );
+      case TraceAddRequest:
+        return await this.onTraceAddRequest(event as TraceAddRequest);
+      case TraceSearchFailed:
+        return await this.onTraceSearchFailed();
+      default:
+        console.log('Not processing event ' + event.constructor);
+    }
+
     for (const activeSearch of this.activeSearches.values()) {
       await activeSearch.resultPresenter?.onAppEvent(event);
     }
@@ -207,9 +218,9 @@ export class Presenter {
       this.activeSearches.find((a) => a.search.uid === this.runningSearch?.uid),
     );
     this.resetActiveSearch(activeSearch, traceQuery);
-    this.initializeResultPresenter(activeSearch, newTrace);
     this.runningSearch = undefined;
     this.copyUiDataAndNotifyView();
+    this.initializeResultPresenter(activeSearch, newTrace);
   }
 
   private updateCurrentSearches() {
@@ -265,6 +276,9 @@ export class Presenter {
     activeSearch.resultPresenter = presenter;
 
     if (firstEntry) {
+      await presenter.onAppEvent(
+        TracePositionUpdate.fromTraceEntry(firstEntry),
+      );
       await this.emitWinscopeEvent(
         TracePositionUpdate.fromTraceEntry(firstEntry),
       );

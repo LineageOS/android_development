@@ -36,10 +36,11 @@ import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
+} from 'app/misc_events';
+import {
   TabbedViewSwitchRequest,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+  TabbedViewSwitched,
+} from 'app/tabbed_view_events';
 import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {makeZeroTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
@@ -156,19 +157,11 @@ describe('TraceViewComponent', () => {
 
     tabs[1].click();
     expect(emitAppEvent).toHaveBeenCalledTimes(1);
-    expect(emitAppEvent).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        type: WinscopeEventType.TABBED_VIEW_SWITCHED,
-      } as WinscopeEvent),
-    );
+    expect(emitAppEvent).toHaveBeenCalledWith(jasmine.any(TabbedViewSwitched));
 
     tabs[0].click();
     expect(emitAppEvent).toHaveBeenCalledTimes(2);
-    expect(emitAppEvent).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        type: WinscopeEventType.TABBED_VIEW_SWITCHED,
-      } as WinscopeEvent),
-    );
+    expect(emitAppEvent).toHaveBeenCalledWith(jasmine.any(TabbedViewSwitched));
   });
 
   it("handles 'view switch' requests", async () => {
@@ -209,11 +202,7 @@ describe('TraceViewComponent', () => {
     dom.detectChanges();
 
     expect(emitAppEvent).toHaveBeenCalledTimes(1);
-    expect(emitAppEvent).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        type: WinscopeEventType.TABBED_VIEW_SWITCHED,
-      } as WinscopeEvent),
-    );
+    expect(emitAppEvent).toHaveBeenCalledWith(jasmine.any(TabbedViewSwitched));
   });
 
   it('disables filter presets button for viewers without presets', () => {

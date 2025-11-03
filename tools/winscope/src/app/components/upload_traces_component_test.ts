@@ -27,11 +27,8 @@ import {FilesSource} from 'app/files_source';
 import {TracePipeline} from 'app/trace_pipeline';
 import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {
-  AppTraceViewRequest,
-  AppTraceViewRequestHandled,
-  ShowTraceUploadWarning,
-} from 'messaging/winscope_event';
+import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
+import {ShowTraceUploadWarning} from 'trace/trace_events';
 import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {getFixtureFile} from 'test/unit/io_helpers';
 import {makeZeroTimestamp} from 'test/unit/time_test_helpers';

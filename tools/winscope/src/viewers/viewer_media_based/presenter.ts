@@ -17,9 +17,10 @@
 import {
   ActiveTraceChanged,
   ScreenRecordingChange,
-  WinscopeEvent,
-  WinscopeEventType,
-} from 'messaging/winscope_event';
+  TracePositionUpdate,
+} from 'trace/trace_events';
+import {WinscopeEvent} from 'messaging/winscope_event';
+import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
@@ -68,32 +69,37 @@ export class Presenter {
       },
     );
   }
+  private async onTracePositionUpdate(event: TracePositionUpdate) {
+    const traceEntries = this.traces
+      .map((trace) => findCorrespondingEntry(trace, event.position))
+      .filter((entry) => entry !== undefined) as Array<
+      TraceEntry<MediaBasedTraceEntry>
+    >;
+    const entries: MediaBasedTraceEntry[] = await Promise.all(
+      traceEntries.map((entry) => {
+        return entry.getValue();
+      }),
+    );
+    this.uiData.currentTraceEntries = entries;
+    this.notifyViewCallback(this.uiData);
+  }
+
+  private async onExpandedTimelineToggled(event: ExpandedTimelineToggled) {
+    this.uiData.forceMinimize = event.isTimelineExpanded;
+    this.notifyViewCallback(this.uiData);
+  }
 
   async onAppEvent(event: WinscopeEvent) {
-    await event.visit(
-      WinscopeEventType.TRACE_POSITION_UPDATE,
-      async (event) => {
-        const traceEntries = this.traces
-          .map((trace) => findCorrespondingEntry(trace, event.position))
-          .filter((entry) => entry !== undefined) as Array<
-          TraceEntry<MediaBasedTraceEntry>
-        >;
-        const entries: MediaBasedTraceEntry[] = await Promise.all(
-          traceEntries.map((entry) => {
-            return entry.getValue();
-          }),
+    switch (event.constructor) {
+      case TracePositionUpdate:
+        return await this.onTracePositionUpdate(event as TracePositionUpdate);
+      case ExpandedTimelineToggled:
+        return await this.onExpandedTimelineToggled(
+          event as ExpandedTimelineToggled,
         );
-        this.uiData.currentTraceEntries = entries;
-        this.notifyViewCallback(this.uiData);
-      },
-    );
-    await event.visit(
-      WinscopeEventType.EXPANDED_TIMELINE_TOGGLED,
-      async (event) => {
-        this.uiData.forceMinimize = event.isTimelineExpanded;
-        this.notifyViewCallback(this.uiData);
-      },
-    );
+      default:
+        console.log('Not processing event ' + event);
+    }
   }
 
   async onOverlayDblClick(index: number) {

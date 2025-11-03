@@ -86,15 +86,16 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
         [traceType]="dependencies[0]"
         [logCallback]="Analytics.Navigation.logHierarchySettingsChanged">
       </user-options>
-      @if (getWarnings().length > 0) {
+      @let treeWarnings = getWarnings();
+      @if (treeWarnings.length > 0) {
         <div>
-          @for (warning of getWarnings(); track $index) {
+          @for (warning of treeWarnings; track $index) {
             <span
               class="mat-body-1 warning"
-              [matTooltip]="warning.getMessage()"
+              [matTooltip]="warning.message"
               [matTooltipDisabled]="disableTooltip(warningEl)">
               <mat-icon class="warning-icon icon-small"> warning </mat-icon>
-              <span class="warning-message text-no-overflow" #warningEl>{{warning.getMessage()}}</span>
+              <span class="warning-message text-no-overflow" #warningEl>{{warning.message}}</span>
             </span>
           }
         </div>

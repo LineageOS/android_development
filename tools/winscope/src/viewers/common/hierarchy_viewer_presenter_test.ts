@@ -21,8 +21,8 @@ import {
   DarkModeToggled,
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+} from 'app/misc_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {MockPresenter} from 'test/unit/mock_hierarchy_viewer_presenter';
 import {

@@ -17,7 +17,7 @@
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
-import {InvalidPerfettoTrace} from 'messaging/user_warnings';
+import {makeWarningInvalidPerfettoTrace} from 'parsers/warnings';
 import {ParserCujs} from 'parsers/events/perfetto/parser_cujs';
 import {ParserKeyEvent} from 'parsers/input/perfetto/parser_key_event';
 import {ParserMotionEvent} from 'parsers/input/perfetto/parser_motion_event';
@@ -130,7 +130,7 @@ export class ParserFactory {
     }
     if (errors.length > 0) {
       UserNotifier.add(
-        new InvalidPerfettoTrace(traceFile.getDescriptor(), errors),
+        makeWarningInvalidPerfettoTrace(traceFile.getDescriptor(), errors),
       );
     }
     return {parsers, isPerfettoTrace: true, traceGeometryData};

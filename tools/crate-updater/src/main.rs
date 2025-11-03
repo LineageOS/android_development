@@ -237,7 +237,7 @@ fn try_update(
         .args([
             "-c",
             format!(
-                "source {}/build/envsetup.sh && lunch aosp_cf_x86_64_phone-trunk_staging-eng && mm && m rust",
+                "source {}/build/envsetup.sh && lunch aosp_cf_x86_64_phone-trunk_staging-eng && mm",
                 android_root.display()
             )
             .as_str(),

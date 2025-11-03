@@ -18,10 +18,8 @@ import {assertDefined} from 'common/assert';
 import {Transform} from 'common/geometry/transform';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Timer} from 'common/time/timer';
-import {
-  TabbedViewSwitchRequest,
-  TracePositionUpdate,
-} from 'messaging/winscope_event';
+import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
+import {TracePositionUpdate} from 'trace/trace_events';
 import {getTracesParser} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
