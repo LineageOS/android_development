@@ -378,7 +378,7 @@ export class TraceViewComponent
           event as TabbedViewSwitchRequest,
         );
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 

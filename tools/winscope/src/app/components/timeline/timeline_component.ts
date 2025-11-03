@@ -370,7 +370,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
         position: absolute;
         top: -41px;
         right: 0px;
-        z-index: 1000;
+        z-index: 11;
         border: 1px solid #3333;
         border-bottom: 0px;
         border-right: 0px;
@@ -549,7 +549,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
         width: 100%;
       }
       .disabled-message {
-        z-index: 100;
+        z-index: 10;
         position: absolute;
         top: 10%;
         left: 50%;
@@ -725,7 +725,7 @@ export class TimelineComponent
       case ScreenRecordingChange:
         return await this.onScreenRecordingChange();
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 
@@ -743,6 +743,16 @@ export class TimelineComponent
   async updatePosition(position: TracePosition) {
     assertDefined(this.timelineData).setPosition(position);
     this.updateScreenRecordingVisualization();
+    if (this.playbackState !== PlaybackState.PAUSED) {
+      this.emitEvent(
+        new PlaybackStateChangeRequest(
+          assertDefined(this.currentTabTraceType),
+          this.playbackState,
+          this.getPlaybackStartingPosition(),
+        ),
+      );
+      return;
+    }
     await this.emitEvent(new TracePositionUpdate(position));
   }
 

@@ -572,7 +572,7 @@ export class CollectTracesComponent
       case AppRefreshDumpsRequest:
         return await this.onAppRefreshDumpsRequest();
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 

@@ -224,7 +224,9 @@ export class MiniTimelineComponent {
     this.drawer = new MiniTimelineDrawerImpl(
       this.getCanvas(),
       () => this.getMiniCanvasDrawerInput(),
-      (position) => this.onSeekTimestampUpdate.emit(position),
+      (position) => {
+        this.onSeekTimestampUpdate.emit(position);
+      },
       updateTimestampCallback,
       onClickCallback,
     );

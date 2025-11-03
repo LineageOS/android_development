@@ -369,7 +369,7 @@ export abstract class AbstractHierarchyViewerPresenter<
           event as ScreenRecordingChange,
         );
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
 
     await this.onViewerSpecificWinscopeEvent(event);
