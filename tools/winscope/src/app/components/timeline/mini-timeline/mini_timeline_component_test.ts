@@ -58,11 +58,11 @@ describe('MiniTimelineComponent', () => {
   const timestamp20 = makeRealTimestamp(20n);
   const timestamp700 = makeRealTimestamp(700n);
   const timestamp810 = makeRealTimestamp(810n);
-  const timestamp1000 = makeRealTimestamp(1000n);
-  const timestamp1750 = makeRealTimestamp(1750n);
-  const timestamp2000 = makeRealTimestamp(2000n);
-  const timestamp3000 = makeRealTimestamp(3000n);
-  const timestamp4000 = makeRealTimestamp(4000n);
+  const timestamp1000 = makeRealTimestamp(10000000n);
+  const timestamp1750 = makeRealTimestamp(17500000n);
+  const timestamp2000 = makeRealTimestamp(20000000n);
+  const timestamp3000 = makeRealTimestamp(30000000n);
+  const timestamp4000 = makeRealTimestamp(40000000n);
 
   const position800 = TracePosition.fromTimestamp(makeRealTimestamp(800n));
 
@@ -462,22 +462,11 @@ describe('MiniTimelineComponent', () => {
     component.initialZoom = initialZoom;
     component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
     dom.detectChanges();
-
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    const canvas = miniTimelineComponent.getCanvas();
-    const drawer = assertDefined(miniTimelineComponent.drawer);
+    const drawer = assertDefined(component.miniTimelineComponent?.drawer);
     const usableRange = drawer.getUsableRange();
-
-    const mouseMoveEvent = new MouseEvent('mousemove');
-    Object.defineProperty(mouseMoveEvent, 'target', {value: canvas});
-    Object.defineProperty(mouseMoveEvent, 'offsetX', {
-      value:
-        (usableRange.to - usableRange.from) * 0.25 + drawer.getPadding().left,
-    });
-    canvas.dispatchEvent(mouseMoveEvent);
-    dom.detectChanges();
+    dispatchMouseMoveToCanvas(
+      (usableRange.to - usableRange.from) * 0.25 + drawer.getPadding().left,
+    );
 
     const fullRangeQuarterTimestamp = timestamp1750;
     checkZoomOnTimestamp(
@@ -539,19 +528,10 @@ describe('MiniTimelineComponent', () => {
     const miniTimelineComponent = assertDefined(
       component.miniTimelineComponent,
     );
-    const canvas = miniTimelineComponent.getCanvas();
     const drawer = assertDefined(miniTimelineComponent.drawer);
     const usableRange = drawer.getUsableRange();
-
-    const mouseMoveEvent = new MouseEvent('mousemove');
-    Object.defineProperty(mouseMoveEvent, 'target', {value: canvas});
-    Object.defineProperty(mouseMoveEvent, 'offsetX', {
-      value: (usableRange.to - usableRange.from) * 0.5,
-    });
-    canvas.dispatchEvent(mouseMoveEvent);
-    dom.detectChanges();
-    canvas.dispatchEvent(new MouseEvent('mouseleave'));
-    dom.detectChanges();
+    dispatchMouseMoveToCanvas((usableRange.to - usableRange.from) * 0.5);
+    dispatchMouseLeaveToCanvas();
 
     const fullRangeQuarterTimestamp = timestamp1750;
     checkZoomOnTimestamp(
@@ -633,6 +613,7 @@ describe('MiniTimelineComponent', () => {
       4n,
       zoomInByKeyW,
       zoomOutByKeyS,
+      10,
     );
 
     setCanvasZeroXOffset();
@@ -642,7 +623,50 @@ describe('MiniTimelineComponent', () => {
       4n,
       zoomInByScrollWheel,
       zoomOutByScrollWheel,
+      10,
     );
+  });
+
+  it('draws hover timestamp for mouse position from expanded timeline', () => {
+    initializeTracesForWASDZoom();
+    const initialZoom = new TimeRange(timestamp1000, timestamp4000);
+    component.initialZoom = initialZoom;
+    component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
+    dom.detectChanges();
+
+    const drawer = assertDefined(component.miniTimelineComponent?.drawer);
+    const spy = spyOn(drawer, 'updateHover');
+    const ratio = 0.25;
+    component.expandedTimelineMouseXRatio = ratio;
+    dom.detectChanges();
+    expect(spy).toHaveBeenCalledOnceWith({x: ratio * drawer.getWidth(), y: 0});
+  });
+
+  it('emits hover position update', () => {
+    initializeTracesForWASDZoom();
+    const initialZoom = new TimeRange(timestamp1000, timestamp4000);
+    component.initialZoom = initialZoom;
+    component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
+    dom.detectChanges();
+
+    const miniTimelineComponent = assertDefined(
+      component.miniTimelineComponent,
+    );
+    const offsetLeft = assertDefined(
+      miniTimelineComponent.outerWrapper?.nativeElement.offsetLeft,
+    );
+    const spy = spyOn(miniTimelineComponent.onHoverPositionUpdate, 'emit');
+
+    const offsetX = 5;
+    dispatchMouseMoveToCanvas(offsetX);
+    expect(spy).toHaveBeenCalledOnceWith({
+      posX: offsetX + offsetLeft,
+      tsValue: '00:00:00.010',
+    });
+
+    spy.calls.reset();
+    dispatchMouseLeaveToCanvas();
+    expect(spy).toHaveBeenCalledOnceWith(undefined);
   });
 
   function initializeTraces() {
@@ -731,6 +755,7 @@ describe('MiniTimelineComponent', () => {
     ratioDenom: bigint,
     zoomInAction: () => void,
     zoomOutAction: () => void,
+    scaleFactor = 1,
   ) {
     let currentZoom = timelineData.getZoomRange();
     for (let i = 0; i < 5; i++) {
@@ -746,7 +771,7 @@ describe('MiniTimelineComponent', () => {
       );
       expect(
         Math.abs(Number(zoomedInTimestamp.minus(zoomOnTimestamp))),
-      ).toBeLessThanOrEqual(5);
+      ).toBeLessThanOrEqual(5000 * scaleFactor);
     }
     for (let i = 0; i < 4; i++) {
       zoomOutAction();
@@ -761,7 +786,7 @@ describe('MiniTimelineComponent', () => {
       );
       expect(
         Math.abs(Number(zoomedOutTimestamp.minus(zoomOnTimestamp))),
-      ).toBeLessThanOrEqual(5);
+      ).toBeLessThanOrEqual(5000 * scaleFactor);
     }
   }
 
@@ -773,8 +798,31 @@ describe('MiniTimelineComponent', () => {
   }
 
   function setCanvasZeroXOffset() {
-    const canvas = assertDefined(component.miniTimelineComponent).getCanvas();
+    const canvas = getCanvas();
     spyOnProperty(canvas, 'offsetLeft').and.returnValue(0);
+  }
+
+  function dispatchMouseMoveToCanvas(offsetX: number) {
+    const canvas = getCanvas();
+    const mouseMoveEvent = new MouseEvent('mousemove');
+    Object.defineProperty(mouseMoveEvent, 'target', {value: canvas});
+    Object.defineProperty(mouseMoveEvent, 'offsetX', {
+      value: offsetX,
+    });
+    canvas.dispatchEvent(mouseMoveEvent);
+    dom.detectChanges();
+  }
+
+  function dispatchMouseLeaveToCanvas() {
+    getCanvas().dispatchEvent(new MouseEvent('mouseleave'));
+    dom.detectChanges();
+  }
+
+  function getCanvas() {
+    const miniTimelineComponent = assertDefined(
+      component.miniTimelineComponent,
+    );
+    return miniTimelineComponent.getCanvas();
   }
 
   @Component({

@@ -1172,6 +1172,19 @@ describe('TimelineComponent', () => {
     expect(drawSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('shows hover timestamp', () => {
+    loadSfWmTraces();
+    expect(dom.find('.hover-timestamp')).toBeUndefined();
+
+    const tsValue = '01:23:45.789';
+    const miniTimeline = assertDefined(component.timeline?.miniTimeline);
+    miniTimeline.onHoverPositionUpdate.emit({posX: 10, tsValue});
+    dom.detectChanges();
+
+    const hoverTs = dom.get('.hover-timestamp');
+    hoverTs.checkTextExact(tsValue);
+  });
+
   describe('playback controls', () => {
     let emitEventSpy: jasmine.Spy;
 

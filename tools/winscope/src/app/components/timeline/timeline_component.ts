@@ -93,7 +93,10 @@ import {
 import {Traces} from 'trace_api/traces';
 import {multlineTooltip} from 'viewers/components/styles/tooltip.styles';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
-import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
+import {
+  HoverPositionUpdate,
+  MiniTimelineComponent,
+} from './mini-timeline/mini_timeline_component';
 import {UserTimestamp} from 'common/time/user_timestamp';
 import {PlaybackControlsComponent} from './playback_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
@@ -167,7 +170,13 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
             id="expanded-timeline"></expanded-timeline>
         </div>
       }
-      <div class="navbar-toggle">
+      @if (hoverPosition !== undefined) {
+        <div
+          class="hover-timestamp mat-body-1"
+          [style]="getHoverTimestampStyle(navbarWrapper, hoverTimestamp)"
+          #hoverTimestamp>{{hoverPosition.tsValue}}</div>
+      }
+      <div class="navbar-wrapper" #navbarWrapper>
         <div class="navbar" #collapsedTimeline>
           @if (timelineData.hasTimestamps()) {
             <div id="time-selector" class="small-icon-container">
@@ -334,6 +343,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
                 (onRemoveAllBookmarks)="removeAllBookmarks()"
                 (onToggleBookmark)="toggleBookmarkRange($event.range, $event.rangeContainsBookmark)"
                 (onTraceClicked)="onMiniTimelineTraceClicked($event)"
+                (onHoverPositionUpdate)="hoverPositionUpdate($event)"
                 id="mini-timeline"
                 #miniTimeline></mini-timeline>
             }
@@ -357,7 +367,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
   `,
   styles: [
     `
-      .navbar-toggle {
+      .navbar-wrapper {
         display: flex;
         flex-direction: column;
         align-items: end;
@@ -555,6 +565,16 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
         left: 50%;
         opacity: 1;
       }
+      .hover-timestamp {
+        border-radius: 4px;
+        color: var(--mdc-plain-tooltip-supporting-text-color);
+        background-color: var(--mdc-plain-tooltip-container-color);
+        position: fixed;
+        z-index: 12;
+        pointer-events: none;
+        padding: 4px 8px;
+        transform: translateX(-50%);
+      }
     `,
     multlineTooltip,
   ],
@@ -609,6 +629,7 @@ export class TimelineComponent
   private currentTabTraceType: TraceType | undefined;
   private lastPlayState: PlaybackState | undefined;
   private screenRecordingEntry: MediaBasedTraceEntry | undefined;
+  private hoverPosition: HoverPositionUpdate | undefined;
 
   constructor(
     @Inject(DomSanitizer) private sanitizer: DomSanitizer,
@@ -1112,6 +1133,21 @@ export class TimelineComponent
       tooltip += ' ' + trace.getDescriptors()[0];
     }
     return tooltip;
+  }
+
+  hoverPositionUpdate(update: {posX: number; tsValue: string} | undefined) {
+    this.hoverPosition = update;
+    this.changeDetectorRef.detectChanges();
+  }
+
+  getHoverTimestampStyle(
+    navbarWrapper: HTMLElement,
+    hoverTimestamp: HTMLElement,
+  ) {
+    return {
+      bottom: navbarWrapper.clientHeight + 4 + 'px',
+      left: `min(${this.hoverPosition?.posX}px, calc(100vw - ${hoverTimestamp.clientWidth + 4}px))`,
+    };
   }
 
   private traceSupportsPlayback() {
