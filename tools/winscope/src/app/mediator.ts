@@ -884,6 +884,9 @@ export class Mediator {
   private async resetAppToInitialState() {
     this.tracePipeline.clear();
     this.timelineData.clear();
+    this.viewers.forEach((viewer) => {
+      viewer.onDestroy();
+    });
     this.viewers = [];
     this.areViewersLoaded = false;
     this.lastRemoteToolDeferredTimestampReceived = undefined;

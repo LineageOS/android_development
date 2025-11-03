@@ -1353,4 +1353,15 @@ describe('Trace', () => {
       .build();
     expect(traceNoValidTimestamps.spansMultipleDates()).toBeFalse();
   });
+
+  it('onDestroy()', () => {
+    const trace = new TraceBuilder<string>()
+      .setEntries(['entry-0'])
+      .setTimestamps([time10])
+      .build();
+    const parser = trace.getParser();
+    parser.onDestroy = jasmine.createSpy();
+    trace.onDestroy();
+    expect(parser.onDestroy).toHaveBeenCalledTimes(1);
+  });
 });

@@ -363,13 +363,12 @@ describe('PlaybackPresenter', () => {
         setTraceSpies(largeTrace);
         presenterLargeTrace = new PlaybackPresenter(emitEventSpy, largeTrace);
         presenterLargeTrace.setTraceGeometryData(traceGeometryData);
-        spyOn(
-          presenterLargeTrace['playbackWorker'],
-          'postMessage',
-        ).and.callFake((message) => {
-          const mockTrees = makeTrees(message);
-          presenterLargeTrace['workerPromiseResolve']?.(mockTrees);
-        });
+        spyOn(presenterLargeTrace['worker'], 'postMessage').and.callFake(
+          (message) => {
+            const mockTrees = makeTrees(message);
+            presenterLargeTrace['workerPromiseResolve']?.(mockTrees);
+          },
+        );
       }
 
       async function handlesBufferBoundary(
@@ -598,13 +597,12 @@ describe('PlaybackPresenter', () => {
     presenter = new PlaybackPresenter(emitEventSpy, trace);
     presenter.setTraceGeometryData(traceGeometryData);
 
-    postMessageSpy = spyOn(
-      presenter['playbackWorker'],
-      'postMessage',
-    ).and.callFake((message) => {
-      const mockTrees = makeTrees(message);
-      presenter['workerPromiseResolve']?.(mockTrees);
-    });
+    postMessageSpy = spyOn(presenter['worker'], 'postMessage').and.callFake(
+      (message) => {
+        const mockTrees = makeTrees(message);
+        presenter['workerPromiseResolve']?.(mockTrees);
+      },
+    );
   }
 });
 

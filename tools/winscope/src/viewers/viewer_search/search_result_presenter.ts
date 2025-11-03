@@ -48,8 +48,8 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
     super(trace, notifyViewCallback, new SearchResult([], []));
   }
 
-  onDestroy() {
-    // until presenter is garbage collected it may still receive events
+  override onDestroy() {
+    // Until Presenter is garbage collected it may still receive events
     // so we must make sure it can no longer affect ui data
     this.notifyViewChanged = () => {};
   }

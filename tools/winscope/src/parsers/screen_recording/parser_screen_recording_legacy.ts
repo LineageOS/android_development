@@ -54,10 +54,6 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
     return this.parseVideoData(videoData, posTimestamps, count);
   }
 
-  protected override getTimestamp(decodedEntry: bigint): Timestamp {
-    return this.timestampConverter.makeTimestampFromMonotonicNs(decodedEntry);
-  }
-
   override async processDecodedEntry(
     index: number,
   ): Promise<MediaBasedTraceEntry> {
@@ -65,6 +61,14 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
       this.videoFrameCache,
     ).get(index);
     return new MediaBasedTraceEntry(frame, rotationAngle);
+  }
+
+  onDestroy() {
+    this.videoFrameCache?.onDestroy();
+  }
+
+  protected override getTimestamp(decodedEntry: bigint): Timestamp {
+    return this.timestampConverter.makeTimestampFromMonotonicNs(decodedEntry);
   }
 
   private searchMagicString(videoData: Uint8Array): number {

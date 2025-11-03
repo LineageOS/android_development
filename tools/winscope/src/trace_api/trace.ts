@@ -581,6 +581,10 @@ export class Trace<T> {
     return false;
   }
 
+  onDestroy() {
+    this.parser.onDestroy?.();
+  }
+
   private getEntryInternal<
     EntryType extends TraceEntryLazy<T> | TraceEntryEager<T, unknown>,
   >(

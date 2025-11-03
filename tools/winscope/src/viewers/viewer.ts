@@ -42,4 +42,5 @@ export interface Viewer extends WinscopeEventListener, WinscopeEventEmitter {
   setEmitEvent(callback: EmitEvent): void;
   getViews(): View[];
   getTraces(): Array<Trace<object>>;
+  onDestroy(): void;
 }

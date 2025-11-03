@@ -53,6 +53,10 @@ export class Presenter {
     this.emitWinscopeEvent = callback;
   }
 
+  onDestroy() {
+    // do nothing
+  }
+
   addEventListeners(htmlElement: HTMLElement) {
     htmlElement.addEventListener(
       ViewerEvents.OverlayDblClick,

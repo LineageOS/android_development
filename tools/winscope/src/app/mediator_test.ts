@@ -402,10 +402,16 @@ describe('Mediator', () => {
   });
 
   it('handles app reset request', async () => {
-    await mediator.onWinscopeEvent(new AppFilesUploaded(inputFiles));
+    await mediator.onWinscopeEvent(
+      new AppFilesUploaded(inputFiles.slice(0, 2)),
+    );
+    await loadTraceView();
     const clearSpies = [
       spyOn(tracePipeline, 'clear'),
       spyOn(timelineData, 'clear'),
+      ...viewers.map((v) => {
+        return spyOn(v, 'onDestroy');
+      }),
     ];
     await mediator.onWinscopeEvent(new AppResetRequest());
     clearSpies.forEach((spy) => expect(spy).toHaveBeenCalled());

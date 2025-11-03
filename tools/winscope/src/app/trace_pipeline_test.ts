@@ -495,7 +495,11 @@ describe('TracePipeline', () => {
     await loadFiles([validSfFile, validWmFile]);
     await expectLoadResult(2, []);
 
+    const spies = tracePipeline.getTraces().mapTrace((trace) => {
+      return spyOn(trace, 'onDestroy');
+    });
     tracePipeline.clear();
+    spies.forEach((spy) => expect(spy).toHaveBeenCalled());
     expect(tracePipeline.getTraces().getSize()).toBe(0);
   });
 

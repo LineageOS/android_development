@@ -156,7 +156,7 @@ export class VideoFrameCache {
     };
 
     worker.onerror = (error) => {
-      throw error;
+      throw new Error(error.message);
     };
 
     return worker;
