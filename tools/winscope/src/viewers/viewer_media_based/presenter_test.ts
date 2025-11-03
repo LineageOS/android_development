@@ -101,7 +101,10 @@ describe('PresenterMediaBased', () => {
 
   it('processes trace position updates', async () => {
     const positionUpdate1 = TracePositionUpdate.fromTimestamp(timestamps[1]);
-    await presenter.onAppEvent(positionUpdate1);
+    const promise = presenter.onAppEvent(positionUpdate1);
+    expect(uiData.isFetchingEntries).toBeTrue();
+    await promise;
+    expect(uiData.isFetchingEntries).toBeFalse();
     expect(uiData.currentTraceEntries).toEqual([entries[1], entries[1]]);
 
     const positionUpdate0 = TracePositionUpdate.fromTimestamp(timestamps[0]);

@@ -73,17 +73,21 @@ export class Presenter {
       },
     );
   }
+
   private async onTracePositionUpdate(event: TracePositionUpdate) {
     const traceEntries = this.traces
       .map((trace) => findCorrespondingEntry(trace, event.position))
       .filter((entry) => entry !== undefined) as Array<
       TraceEntry<MediaBasedTraceEntry>
     >;
+    this.uiData.isFetchingEntries = true;
+    this.notifyViewCallback(this.uiData);
     const entries: MediaBasedTraceEntry[] = await Promise.all(
       traceEntries.map((entry) => {
         return entry.getValue();
       }),
     );
+    this.uiData.isFetchingEntries = false;
     this.uiData.currentTraceEntries = entries;
     this.notifyViewCallback(this.uiData);
   }

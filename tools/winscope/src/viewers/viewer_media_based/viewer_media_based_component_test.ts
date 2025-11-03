@@ -30,6 +30,7 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {Parser} from 'trace_api/parser';
+import {Timer} from 'common/time/timer';
 
 describe('ViewerMediaBasedComponent', () => {
   let component: TestHostComponent;
@@ -269,6 +270,28 @@ describe('ViewerMediaBasedComponent', () => {
     expect(index).toBe(0);
   });
 
+  it('shows loading message', async () => {
+    component.isFetchingEntries = true;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    await new Timer(500).sleepMs();
+    expect(dom.find('.fetching-entries-message')).toBeDefined();
+    component.isFetchingEntries = false;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+  });
+
+  it('does not show loading message if update is too fast', async () => {
+    component.isFetchingEntries = true;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    component.isFetchingEntries = false;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    await new Timer(500).sleepMs();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+  });
+
   function getContainerMaxWidth(): number {
     const container = dom.get('.container').getHTMLElement();
     return Number(container.style.maxWidth.slice(0, -2));
@@ -290,13 +313,15 @@ describe('ViewerMediaBasedComponent', () => {
       <viewer-media-based
         [currentTraceEntries]="currentTraceEntries"
         [titles]="titles"
-        [forceMinimize]="forceMinimize"></viewer-media-based>
+        [forceMinimize]="forceMinimize"
+        [isFetchingEntries]="isFetchingEntries"></viewer-media-based>
     `,
   })
   class TestHostComponent {
     currentTraceEntries: MediaBasedTraceEntry[] = [];
     titles: string[] = [];
     forceMinimize = false;
+    isFetchingEntries = false;
 
     @ViewChild(ViewerMediaBasedComponent)
     screenComponent: ViewerMediaBasedComponent | undefined;

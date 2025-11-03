@@ -32,6 +32,7 @@ import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from 'common/assert';
 import {Size} from 'common/geometry/size';
+import {Timer} from 'common/time/timer';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 
@@ -48,63 +49,84 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
     MatTooltipModule,
   ],
   template: `
-  <div class="overlay">
-    <mat-card class="container" cdkDrag cdkDragBoundary=".overlay" (dblclick)="onOverlayDblClick()">
-      <mat-card-title class="header">
-        <button mat-button class="button-drag draggable" cdkDragHandle>
-          <mat-icon class="drag-icon">drag_indicator</mat-icon>
-        </button>
-        @if (titles.length <= 1) {
-          <span
-            #titleText
-            cdkDragHandle
-            class="mat-body-2 overlay-title text-no-overflow draggable"
-            [matTooltip]="titles.at(index)"
-            matTooltipPosition="above"
-            [matTooltipShowDelay]="300"
-            >{{ titles.at(0)?.split(".")[0].split(" ")[0] ?? 'Screen recording'}}</span>
-        } @else {
-          <mat-select
-            class="overlay-title text-no-overflow select-title"
-            [matTooltip]="titles.at(index)"
-            matTooltipPosition="above"
-            [matTooltipShowDelay]="300"
-            (selectionChange)="onSelectChange($event)"
-            [value]="index">
-            @for (title of titles; track $index; let i = $index) {
-              <mat-option
-                [value]="i">
-                {{ titles[i].split(".")[0] }}
-              </mat-option>
-            }
-          </mat-select>
-        }
-
-        <span class="header-end">
-          @if (enableDoubleClick) {
-            <mat-icon
-              class="info-icon material-symbols-outlined"
-              matTooltip="Double click overlay to change active trace to this screen recording"
-              matTooltipPosition="above">
-              info
-            </mat-icon>
+    <div class="overlay">
+      <mat-card
+        class="container"
+        cdkDrag
+        cdkDragBoundary=".overlay"
+        (dblclick)="onOverlayDblClick()">
+        <mat-card-title class="header">
+          <button mat-button class="button-drag draggable" cdkDragHandle>
+            <mat-icon class="drag-icon">drag_indicator</mat-icon>
+          </button>
+          @if (titles.length <= 1) {
+            <span
+              #titleText
+              cdkDragHandle
+              class="mat-body-2 overlay-title text-no-overflow draggable"
+              [matTooltip]="titles.at(index)"
+              matTooltipPosition="above"
+              [matTooltipShowDelay]="300">
+              {{ titles.at(0)?.split(".")[0].split(" ")[0] ?? 'Screen recording'}}
+            </span>
+          } @else {
+            <mat-select
+              class="overlay-title text-no-overflow select-title"
+              [matTooltip]="titles.at(index)"
+              matTooltipPosition="above"
+              [matTooltipShowDelay]="300"
+              (selectionChange)="onSelectChange($event)"
+              [value]="index">
+              @for (title of titles; track $index; let i = $index) {
+                <mat-option
+                  [value]="i">
+                  {{ titles[i].split(".")[0] }}
+                </mat-option>
+              }
+            </mat-select>
           }
 
-          <button mat-button class="button-minimize" [disabled]="forceMinimize" (click)="onMinimizeButtonClick()">
-            <mat-icon>
-              {{ isMinimized() ? 'maximize' : 'minimize' }}
-            </mat-icon>
-          </button>
-        </span>
-      </mat-card-title>
-      <div class="video-container" cdkDragHandle [style.height]="isMinimized() ? '0px' : ''">
-        @if (hasVideoFrameToShow()) {
-          <canvas id="videoCanvasElementOverlay"></canvas>
-        } @else {
-          <div class="no-video">
-            <p class="mat-body-2">No frame to show.</p>
-          </div>
-        }
+          <span class="header-end">
+            @if (enableDoubleClick) {
+              <mat-icon
+                class="info-icon material-symbols-outlined"
+                matTooltip="Double click overlay to change active trace to this screen recording"
+                matTooltipPosition="above">
+                info
+              </mat-icon>
+            }
+
+            <button
+              mat-button
+              class="button-minimize"
+              [disabled]="forceMinimize"
+              (click)="onMinimizeButtonClick()">
+              <mat-icon>
+                {{ isMinimized() ? 'maximize' : 'minimize' }}
+              </mat-icon>
+            </button>
+          </span>
+        </mat-card-title>
+        <div
+          class="video-container"
+          cdkDragHandle
+          [style.height]="isMinimized() ? '0px' : ''">
+          @if (showFetchingEntriesMessage) {
+            <div class="mat-body-1 fetching-entries-message user-notification">
+              Loading queued frame...
+            </div>
+          }
+          @if (hasVideoFrameToShow()) {
+            <canvas
+              id="videoCanvasElementOverlay"
+              [class.reduce-opacity]="showFetchingEntriesMessage"></canvas>
+          } @else {
+            <div class="no-video">
+              <p class="mat-body-2">No frame to show.</p>
+            </div>
+          }
+        </div>
+      </mat-card>
     </div>
   `,
   styles: [
@@ -190,10 +212,22 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         padding: 1rem;
         text-align: center;
       }
+
+      .fetching-entries-message {
+        text-align: center;
+        position: absolute;
+        z-index: 100;
+        width: calc(100% - 52px);
+      }
+
+      .reduce-opacity {
+        opacity: 90%;
+      }
     `,
   ],
 })
 export class ViewerMediaBasedComponent {
+  showFetchingEntriesMessage = false;
   shouldMinimize = false;
   index = 0;
 
@@ -207,12 +241,31 @@ export class ViewerMediaBasedComponent {
   @Input() titles: string[] = [];
   @Input() forceMinimize = false;
   @Input() enableDoubleClick = false;
+  @Input() isFetchingEntries = false;
 
   private frameSize: Size = {width: 720, height: 1280}; // default for Flicker
   private frameSizeWorker: number | undefined;
 
   ngOnChanges(changes: SimpleChanges) {
     this.changeDetectorRef.detectChanges();
+
+    if (changes['isFetchingEntries']?.currentValue) {
+      this.ngZone.run(() => {
+        new Timer(500).sleepMs().then(() => {
+          if (!this.isFetchingEntries) {
+            return;
+          }
+          this.showFetchingEntriesMessage = true;
+          this.changeDetectorRef.detectChanges();
+        });
+      });
+    }
+
+    if (!this.isFetchingEntries) {
+      this.showFetchingEntriesMessage = false;
+      this.changeDetectorRef.detectChanges();
+    }
+
     if (this.currentTraceEntries.length === 0) {
       return;
     }

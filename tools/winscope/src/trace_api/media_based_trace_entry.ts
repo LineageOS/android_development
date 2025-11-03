@@ -34,14 +34,12 @@ export class MediaBasedTraceEntry {
   ) {}
 
   tryDrawOnCanvas(canvas: HTMLCanvasElement) {
-    const ctx = assertDefined(canvas.getContext('2d'));
-
     const canvasDimensions = this.canvasDimensions(this.image);
     canvas.width = canvasDimensions.width;
     canvas.height = canvasDimensions.height;
 
+    const ctx = assertDefined(canvas.getContext('2d'));
     ctx.rotate(this.rotationAngleRadians());
-
     ctx.drawImage(
       this.image,
       this.xOffset(this.image),
@@ -49,7 +47,6 @@ export class MediaBasedTraceEntry {
       this.image.width,
       this.image.height,
     );
-
     ctx.resetTransform();
   }
 
