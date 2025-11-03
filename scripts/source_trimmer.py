@@ -23,19 +23,40 @@ checkouts from a full repo manifest.
 """
 
 import argparse
+import enum
 import errno
 import logging
 from pathlib import Path
 import re
 import shutil
 import sys
-from typing import Optional, Union
+from typing import Optional, TypedDict
 import xml.etree.ElementTree as ET
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-# Type alias for a project dictionary.
-ProjectType = dict[str, Union[str, list[str]]]
+
+class OperationType(enum.Enum):
+    """Represents the type of file operation."""
+    LINKFILE = "linkfile"
+    COPYFILE = "copyfile"
+
+
+class FileOperation(TypedDict):
+    """Represents a single <linkfile> or <copyfile> operation."""
+
+    type: OperationType
+    src: str
+    dest: str
+
+
+class Project(TypedDict):
+    """Represents the parsed information for a single project."""
+
+    name: str
+    path: str
+    groups: list[str]
+    operations: list[FileOperation]
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -90,7 +111,7 @@ def process_groups_to_keep(raw_groups: list[str]) -> list[str]:
     return processed_groups
 
 
-def get_projects_from_manifest(manifest_content: str) -> Optional[list[ProjectType]]:
+def get_projects_from_manifest(manifest_content: str) -> Optional[list[Project]]:
     """Parses the manifest XML string and returns a list of project details."""
     try:
         root = ET.fromstring(manifest_content)
@@ -102,19 +123,38 @@ def get_projects_from_manifest(manifest_content: str) -> Optional[list[ProjectTy
     for project_elem in root.findall("project"):
         name = project_elem.get("name")
         groups = project_elem.get("groups", "")
+
+        operations = []
+        for elem in project_elem.findall("linkfile"):
+            src = elem.get("src")
+            dest = elem.get("dest")
+            if src and dest:
+                operations.append(
+                    FileOperation(type=OperationType.LINKFILE, src=src, dest=dest)
+                )
+        for elem in project_elem.findall("copyfile"):
+            src = elem.get("src")
+            dest = elem.get("dest")
+            if src and dest:
+                operations.append(
+                    FileOperation(type=OperationType.COPYFILE, src=src, dest=dest)
+                )
+
         projects.append(
-            {
-                "name": name,
-                "path": project_elem.get("path", name),
-                "groups": [g.strip() for g in groups.split(",") if g.strip()],
-            }
+            Project(
+                name=name,
+                path=project_elem.get("path", name),
+                groups=[g.strip() for g in groups.split(",") if g.strip()],
+                operations=operations,
+            )
         )
+
     return projects
 
 
 def find_projects_to_remove(
-    all_projects: list[ProjectType], groups_to_keep: list[str]
-) -> list[ProjectType]:
+    all_projects: list[Project], groups_to_keep: list[str]
+) -> list[Project]:
     """Determines which projects to remove based on group membership."""
     projects_to_remove = []
     keep_groups_set = set(groups_to_keep)
@@ -138,8 +178,52 @@ def find_projects_to_remove(
     return projects_to_remove
 
 
+def undo_project_file_operations(
+    project: Project,
+    checkout_root: Path,
+    dry_run: bool = False,
+) -> None:
+    """Removes files/symlinks created by linkfile/copyfile for a project."""
+    operations = project.get("operations", [])
+    if not operations:
+        return
+
+    log_prefix = "[DRY RUN] Would remove" if dry_run else "Removing"
+    logging.debug(
+        "Undoing %d file operations for project %s", len(operations), project["path"]
+    )
+
+    for op in operations:
+        dest_str = op["dest"]
+        op_type = op["type"]
+
+        dest_path = checkout_root / dest_str
+
+        base_dest_path = dest_path.parent.resolve()
+        final_dest_path = base_dest_path / dest_path.name
+
+        logging.info(
+            "%s %s: %s",
+            log_prefix,
+            op_type,
+            dest_str,
+        )
+        if not dry_run:
+            try:
+                final_dest_path.unlink()
+            except FileNotFoundError:
+                logging.debug(
+                    "Destination not found, skipping %s removal: %s",
+                    op_type,
+                    dest_str,
+                )
+            except OSError as e:
+                if e.errno != errno.ENOENT:
+                    logging.warning("Unable to remove %s %s: %s", op_type, dest_str, e)
+
+
 def remove_project_directories(
-    projects_to_remove: list[ProjectType],
+    projects_to_remove: list[Project],
     checkout_root: Path,
     dry_run: bool = False,
 ) -> None:
@@ -154,6 +238,9 @@ def remove_project_directories(
         if not project_path:
             logging.warning("Skipping project with empty path: %s", project["name"])
             continue
+
+        # Undo linkfile/copyfile operations linked to this project.
+        undo_project_file_operations(project, checkout_root, dry_run)
 
         abs_path = checkout_root / project_path
 
