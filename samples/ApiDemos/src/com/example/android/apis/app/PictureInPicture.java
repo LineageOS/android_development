@@ -26,12 +26,14 @@ import android.app.PictureInPictureParams;
 import android.app.PictureInPictureUiState;
 import android.app.RemoteAction;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -49,8 +51,11 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.window.OnBackInvokedDispatcher;
 
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
+
 import com.example.android.apis.R;
-import com.example.android.apis.view.FixedAspectRatioImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +93,6 @@ public class PictureInPicture extends Activity {
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             // Container activity for content-pip has stopped, replace the placeholder
             // with actual content in this host activity.
-            mImageView.setImageResource(R.drawable.sample_1);
         }
     };
 
@@ -104,7 +108,7 @@ public class PictureInPicture extends Activity {
             (v, id) -> updateContentPosition(id);
 
     private LinearLayout mContainer;
-    private FixedAspectRatioImageView mImageView;
+    private PlayerView mPlayerView;
     private View mControlGroup;
     private Switch mAutoPipToggle;
     private Switch mSourceRectHintToggle;
@@ -117,6 +121,8 @@ public class PictureInPicture extends Activity {
     private RemoteAction mCloseAction;
     private RemoteAction mMoveToBackAction;
 
+    private ExoPlayer mPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,7 +130,7 @@ public class PictureInPicture extends Activity {
 
         // Find views
         mContainer = findViewById(R.id.container);
-        mImageView = findViewById(R.id.image);
+        mPlayerView = findViewById(R.id.player_view);
         mControlGroup = findViewById(R.id.control_group);
         mAutoPipToggle = findViewById(R.id.auto_pip_toggle);
         mSourceRectHintToggle = findViewById(R.id.source_rect_hint_toggle);
@@ -141,7 +147,7 @@ public class PictureInPicture extends Activity {
         mAspectRatioSpinner.setAdapter(adapter);
 
         // Attach listeners
-        mImageView.addOnLayoutChangeListener(mOnLayoutChangeListener);
+        mPlayerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
         mAutoPipToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
         mSourceRectHintToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
         mSeamlessResizeToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
@@ -164,8 +170,7 @@ public class PictureInPicture extends Activity {
                 final String textToParse = rawText.substring(
                         rawText.indexOf('(') + 1,
                         rawText.indexOf(')'));
-                mImageView.addOnLayoutChangeListener(mOnLayoutChangeListener);
-                mImageView.setAspectRatio(Rational.parseRational(textToParse));
+                mPlayerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
             }
 
             @Override
@@ -197,16 +202,40 @@ public class PictureInPicture extends Activity {
         updateLayout(getResources().getConfiguration());
     }
 
+    private void initializePlayer() {
+        if (mPlayer == null) {
+            mPlayer = new ExoPlayer.Builder(this).build();
+            mPlayerView.setPlayer(mPlayer);
+
+            Uri rawResourceUri = new Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                    .authority(getPackageName())
+                    // Use the generated R.raw ID for your video file
+                    .appendPath(String.valueOf(R.raw.videoviewdemo))
+                    .build();
+
+            mPlayer.setMediaItem(MediaItem.fromUri(rawResourceUri));
+            mPlayer.prepare();
+            mPlayer.setRepeatMode(ExoPlayer.REPEAT_MODE_ONE);
+            mPlayer.setPlayWhenReady(true);
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
         setupPipActions();
+        initializePlayer();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         findViewById(R.id.text_to_hide).setVisibility(View.VISIBLE);
+        // Re-initialize if the player was released (e.g., if onStop was called)
+        if (mPlayer == null) {
+            initializePlayer();
+        }
     }
 
     @Override
@@ -246,6 +275,14 @@ public class PictureInPicture extends Activity {
     protected void onStop() {
         super.onStop();
         unregisterReceiver(mRemoteActionReceiver);
+        releasePlayer();
+    }
+
+    private void releasePlayer() {
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer = null;
+        }
     }
 
     /**
@@ -258,19 +295,18 @@ public class PictureInPicture extends Activity {
         final Intent intent = new Intent(this, ContentPictureInPicture.class);
         intent.putExtra(KEY_ON_STOP_RECEIVER, mOnStopReceiver);
         final Rect bounds = new Rect();
-        mImageView.getGlobalVisibleRect(bounds);
+        mPlayerView.getGlobalVisibleRect(bounds);
         final PictureInPictureParams params = new PictureInPictureParams.Builder()
                 .setSourceRectHint(bounds)
                 .setAspectRatio(new Rational(bounds.width(), bounds.height()))
                 .build();
         final ActivityOptions opts = ActivityOptions.makeLaunchIntoPip(params);
         startActivity(intent, opts.toBundle());
-        // Swap the mImageView to placeholder content.
-        mImageView.setImageResource(R.drawable.black_box);
+        // Swap the mPlayerView to placeholder content.
     }
 
     private void updateLayout(Configuration configuration) {
-        mImageView.addOnLayoutChangeListener(mOnLayoutChangeListener);
+        mPlayerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
         final boolean isTablet = configuration.smallestScreenWidthDp >= TABLET_BREAK_POINT_DP;
         final boolean isLandscape =
                 (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE);
@@ -319,7 +355,7 @@ public class PictureInPicture extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         imageLp.gravity = Gravity.NO_GRAVITY;
-        mImageView.setLayoutParams(imageLp);
+        mPlayerView.setLayoutParams(imageLp);
     }
 
     private void setupTabletLandscapeLayout() {
@@ -366,7 +402,7 @@ public class PictureInPicture extends Activity {
         mControlGroup.setLayoutParams(controlLp);
 
         imageLp.weight = 0;
-        mImageView.setLayoutParams(imageLp);
+        mPlayerView.setLayoutParams(imageLp);
     }
 
     private void enterTwoPaneMode(LinearLayout.LayoutParams imageLp) {
@@ -382,7 +418,7 @@ public class PictureInPicture extends Activity {
         imageLp.width = 0;
         imageLp.height = LinearLayout.LayoutParams.WRAP_CONTENT;
         imageLp.weight = 1;
-        mImageView.setLayoutParams(imageLp);
+        mPlayerView.setLayoutParams(imageLp);
     }
 
     private void enterFullScreenMode() {
@@ -406,11 +442,11 @@ public class PictureInPicture extends Activity {
     }
 
     private void updatePictureInPictureParams() {
-        mImageView.removeOnLayoutChangeListener(mOnLayoutChangeListener);
+        mPlayerView.removeOnLayoutChangeListener(mOnLayoutChangeListener);
         // do not bother PictureInPictureParams update when it's already in pip mode.
         if (isInPictureInPictureMode()) return;
         final Rect imageViewRect = new Rect();
-        mImageView.getGlobalVisibleRect(imageViewRect);
+        mPlayerView.getGlobalVisibleRect(imageViewRect);
         // bail early if mImageView has not been measured yet
         if (imageViewRect.isEmpty()) return;
         final PictureInPictureParams.Builder builder = new PictureInPictureParams.Builder()
@@ -426,13 +462,13 @@ public class PictureInPicture extends Activity {
 
     private void updateContentPosition(int checkedId) {
         mContainer.removeAllViews();
-        mImageView.addOnLayoutChangeListener(mOnLayoutChangeListener);
+        mPlayerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
         if (checkedId == R.id.radio_current_start) {
-            mContainer.addView(mImageView, 0);
+            mContainer.addView(mPlayerView, 0);
             mContainer.addView(mControlGroup, 1);
         } else {
             mContainer.addView(mControlGroup, 0);
-            mContainer.addView(mImageView, 1);
+            mContainer.addView(mPlayerView, 1);
         }
     }
 }
