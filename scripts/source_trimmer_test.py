@@ -134,6 +134,18 @@ class SourceTrimmerTest(unittest.TestCase):
         ]
         self.assertEqual(projects, expected_projects)
 
+    def test_get_projects_from_manifest_with_glob_src(self):
+        """Test the manifest is not parsed if the src of linkfile is a glob pattern."""
+        manifest_content_linkfile = """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project groups="pdk" name="platform/bionic" path="bionic">
+    <linkfile src="**/*.txt" dest="BIONIC_INSTRUCTIONS"/>
+  </project>
+</manifest>
+"""
+        projects = source_trimmer.get_projects_from_manifest(manifest_content_linkfile)
+        self.assertIsNone(projects)
+
     def test_find_projects_to_remove(self):
         """Test that the projects to remove are identified correctly."""
         all_projects = source_trimmer.get_projects_from_manifest(self.manifest_content)

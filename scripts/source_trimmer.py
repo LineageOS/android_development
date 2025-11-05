@@ -25,6 +25,7 @@ checkouts from a full repo manifest.
 import argparse
 import enum
 import errno
+import glob
 import logging
 from pathlib import Path
 import re
@@ -38,6 +39,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 
 class OperationType(enum.Enum):
     """Represents the type of file operation."""
+
     LINKFILE = "linkfile"
     COPYFILE = "copyfile"
 
@@ -129,6 +131,12 @@ def get_projects_from_manifest(manifest_content: str) -> Optional[list[Project]]
             src = elem.get("src")
             dest = elem.get("dest")
             if src and dest:
+                if glob.has_magic(src):
+                    logging.error(
+                        "Globs in linkfile.src in project '%s' are currently not supported.",
+                        name,
+                    )
+                    return None
                 operations.append(
                     FileOperation(type=OperationType.LINKFILE, src=src, dest=dest)
                 )
@@ -280,12 +288,12 @@ def remove_project_directories(
             current_parent = resolved_abs_path.parent
             while current_parent != resolved_checkout_root:
                 try:
+                    current_parent.rmdir()
                     logging.info(
                         "%s empty parent directory: %s",
                         log_prefix,
                         current_parent.relative_to(resolved_checkout_root),
                     )
-                    current_parent.rmdir()
                     current_parent = current_parent.parent
                 except OSError as e:
                     if e.errno != errno.ENOTEMPTY:
