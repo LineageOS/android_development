@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Logger} from 'compat/logging';
 import {ConnectionState} from 'trace_collection/connection_state';
 import {TraceTarget} from 'trace_collection/trace_target';
 import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
@@ -38,6 +39,7 @@ export abstract class AdbDeviceConnection {
   constructor(
     readonly id: string,
     protected listener: AdbDeviceConnectionListener,
+    protected logger: Logger,
   ) {}
 
   getState() {
@@ -136,7 +138,7 @@ export abstract class AdbDeviceConnection {
         }
       } catch (e) {
         // swallow
-        console.error(e);
+        this.logger.debug((e as Error).message);
       }
     }
     this.multiDisplayScreenRecording =

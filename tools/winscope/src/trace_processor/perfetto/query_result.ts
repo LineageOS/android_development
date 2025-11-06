@@ -50,6 +50,7 @@
 import protobuf from 'protobufjs/minimal';
 import {defer, Deferred} from './deferred';
 import {assertExists, assertFalse, assertTrue} from './logging';
+import { getLogger, Logger } from "compat/logging";
 import {utf8Decode} from './string_utils';
 import {duration, Time, time} from './time';
 
@@ -169,7 +170,7 @@ export interface RowIteratorBase {
   // Example usage:
   // for (const it = queryResult.iter({}); it.valid(); it.next()) {
   //   for (const columnName : queryResult.columns()) {
-  //      console.log(it.get(columnName));
+  //      this.logger.debug(it.get(columnName));
   get(columnName: string): ColumnType | null;
 }
 
@@ -179,7 +180,7 @@ export interface RowIteratorBase {
 // const result = await engine.query("select name, surname, id from people;");
 // const iter = queryResult.iter({name: STR, surname: STR, id: NUM});
 // for (; iter.valid(); iter.next())
-//  console.log(iter.name, iter.surname);
+//  this.logger.debug(iter.name, iter.surname);
 export type RowIterator<T extends Row> = RowIteratorBase & T;
 
 function columnTypeToString(t: ColumnType | null): string {
@@ -353,7 +354,10 @@ class QueryResultImpl implements QueryResult, WritableQueryResult {
   private _statementWithOutputCount = 0;
   private _lastStatementSql = '';
 
-  constructor(errorInfo: QueryErrorInfo) {
+  constructor(
+    errorInfo: QueryErrorInfo,
+    private readonly logger: Logger = getLogger('QueryResultImpl'),
+  ) {
     this._errorInfo = errorInfo;
   }
 
@@ -520,7 +524,7 @@ class QueryResultImpl implements QueryResult, WritableQueryResult {
           break;
 
         default:
-          console.warn(`Unexpected QueryResult field ${tag >>> 3}`);
+          this.logger.warn(`Unexpected QueryResult field ${tag >>> 3}`);
           reader.skipType(tag & 7);
           break;
       } // switch (tag)
@@ -579,7 +583,10 @@ class ResultBatch {
   readonly stringCells: string[] = [];
 
   // batchBytes is a trace_processor.QueryResult.CellsBatch proto.
-  constructor(batchBytes: Uint8Array) {
+  constructor(
+    batchBytes: Uint8Array,
+    private readonly logger: Logger = getLogger('ResultBatch'),
+  ) {
     this.batchBytes = batchBytes;
     const reader = protobuf.Reader.create(batchBytes);
     assertTrue(reader.pos === 0);
@@ -669,7 +676,7 @@ class ResultBatch {
           break;
 
         default:
-          console.warn(`Unexpected QueryResult.CellsBatch field ${tag >>> 3}`);
+          this.logger.warn(`Unexpected QueryResult.CellsBatch field ${tag >>> 3}`);
           reader.skipType(tag & 7);
           break;
       } // switch(tag)

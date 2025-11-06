@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {AdbDeviceConnection} from 'trace_collection/adb/adb_device_connection';
 import {TraceTarget} from 'trace_collection/trace_target';
 import {WINSCOPE_BACKUP_DIR} from './winscope_backup_dir';
@@ -21,7 +22,10 @@ import {WINSCOPE_BACKUP_DIR} from './winscope_backup_dir';
 export class TracingSession {
   private isTracing = false;
 
-  constructor(private target: TraceTarget) {}
+  constructor(
+    private target: TraceTarget,
+    private readonly logger: Logger = getLogger('TracingSession'),
+  ) {}
 
   async start(device: AdbDeviceConnection) {
     await this.setup(device);
@@ -39,9 +43,9 @@ export class TracingSession {
 
   async dump(device: AdbDeviceConnection) {
     await this.setup(device);
-    console.debug(`Starting dump for ${this.target.traceName}`);
+    this.logger.debug(`Starting dump for ${this.target.traceName}`);
     const output = await device.runShellCommand(this.target.startCmd);
-    console.debug(
+    this.logger.debug(
       `Completed dump for ${this.target.traceName}. Output: ${output}`,
     );
   }
@@ -54,7 +58,7 @@ export class TracingSession {
       const filepaths = await device.findFiles(file.path, file.matchers);
 
       for (const filepath of filepaths) {
-        console.debug(
+        this.logger.debug(
           `Attempting to move file ${filepath} to ${WINSCOPE_BACKUP_DIR}${file.destName} on device`,
         );
         try {
@@ -66,12 +70,12 @@ export class TracingSession {
               maybeRootParam +
               `rm -f ${filepath}`,
           );
-          console.debug(
+          this.logger.debug(
             `Moved ${filepath} to ${WINSCOPE_BACKUP_DIR}${file.destName} on device.` +
               ` Output: ${output}`,
           );
         } catch (e) {
-          console.warn(
+          this.logger.warn(
             `Unable to move file ${filepath}: ${(e as Error).message}`,
           );
         }
@@ -86,7 +90,7 @@ export class TracingSession {
   private async setup(device: AdbDeviceConnection) {
     for (const cmd of this.target.setupCmds) {
       const output = await device.runShellCommand(cmd);
-      console.log(`Ran ${cmd}. Output: ${output}`);
+      this.logger.info(`Ran ${cmd}. Output: ${output}`);
     }
   }
 }

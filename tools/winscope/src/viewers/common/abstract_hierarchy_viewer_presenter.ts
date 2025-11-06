@@ -33,6 +33,7 @@ import {
 import {ScreenRecordingChange, TracePositionUpdate} from 'trace/trace_events';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
+import {getLogger, Logger} from 'compat/logging';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TRACE_INFO} from 'trace_api/trace_info';
@@ -74,6 +75,7 @@ export abstract class AbstractHierarchyViewerPresenter<
   protected abstract readonly multiTraceType?: TraceType;
   private highlightedItem = '';
   private screenRecordingTrace?: Trace<MediaBasedTraceEntry>;
+  protected readonly logger: Logger;
 
   constructor(
     private readonly trace: Trace<HierarchyTreeNode> | undefined,
@@ -82,6 +84,7 @@ export abstract class AbstractHierarchyViewerPresenter<
     private readonly notifyViewCallback: NotifyHierarchyViewCallbackType<UiData>,
     protected readonly uiData: UiData,
   ) {
+    this.logger = getLogger('AbstractHierarchyViewerPresenter');
     uiData.isDarkMode = storage.get('dark-mode') === 'true';
     this.copyUiDataAndNotifyView();
   }
@@ -373,7 +376,7 @@ export abstract class AbstractHierarchyViewerPresenter<
           event as ScreenRecordingChange,
         );
       default:
-      // do nothing
+        this.logger.trace('Not processing event ' + event.constructor.name);
     }
 
     await this.onViewerSpecificWinscopeEvent(event);

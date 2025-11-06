@@ -76,6 +76,7 @@ import {
   PlaybackStateChangeRequest,
 } from 'app/components/timeline/playback_events';
 import {TabbedViewSwitched} from 'app/tabbed_view_events';
+import {getLogger} from 'compat/logging';
 import {
   EmitEvent,
   WinscopeEventEmitter,
@@ -772,7 +773,9 @@ export class TimelineComponent
       case ScreenRecordingChange:
         return await this.onScreenRecordingChange();
       default:
-      // do nothing
+        getLogger('TimelineComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

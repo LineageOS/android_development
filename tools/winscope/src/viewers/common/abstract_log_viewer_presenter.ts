@@ -22,6 +22,7 @@ import {DarkModeToggled} from 'app/misc_events';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {ActiveTraceChanged, TracePositionUpdate} from 'trace/trace_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
+import {getLogger, Logger} from 'compat/logging';
 import {CustomQueryType} from 'trace_api/custom_query';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
@@ -58,12 +59,14 @@ export abstract class AbstractLogViewerPresenter<
   } = {};
   private activeTrace?: Trace<object>;
   private isInitialized = false;
+  protected readonly logger: Logger;
 
   protected constructor(
     protected readonly trace: Trace<TraceEntryType>,
     private readonly notifyViewCallback: NotifyLogViewCallbackType<UiData>,
     protected readonly uiData: UiData,
   ) {
+    this.logger = getLogger('AbstractLogViewerPresenter');
     this.notifyViewChanged();
   }
 
@@ -185,7 +188,7 @@ export abstract class AbstractLogViewerPresenter<
       case ActiveTraceChanged:
         return await this.onActiveTraceChanged(event as ActiveTraceChanged);
       default:
-      // do nothing
+        this.logger.trace('Not processing event ' + event.constructor.name);
     }
   }
 

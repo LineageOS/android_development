@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {showPopupWindow} from 'common/window';
 import {AdbHostConnection} from 'trace_collection/adb/adb_host_connection';
 import {AdbConnectionType} from 'trace_collection/adb_connection_type';
@@ -37,6 +38,7 @@ export class WdpHostConnection extends AdbHostConnection<WdpDeviceConnection> {
   constructor(
     listener: ConnectionStateListener,
     private showWindow: (url: string) => boolean = showPopupWindow,
+    private readonly logger: Logger = getLogger('WdpHostConnection'),
   ) {
     super(listener);
   }
@@ -85,7 +87,7 @@ export class WdpHostConnection extends AdbHostConnection<WdpDeviceConnection> {
       this.setState(ConnectionState.UNAUTH);
       return;
     } else if (resp.error !== undefined) {
-      console.error(
+      this.logger.error(
         `Invalid WebDeviceProxy response ${data} : ${JSON.stringify(
           resp.error,
         )}`,

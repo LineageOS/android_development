@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger} from 'compat/logging';
 import {analyticsLogEvent} from 'common/analytics';
 
 import {Trace, TraceEntry} from './trace';
@@ -54,7 +55,9 @@ export function findCorrespondingEntry<T>(
       }
     } catch (e) {
       const message = (e as Error).message;
-      console.warn(`Could not retrieve frame: ${message}`);
+      getLogger('trace_entry_finder').warn(
+        `Could not retrieve frame: ${message}`,
+      );
       analyticsLogEvent('frame_map_error', {
         message,
       });

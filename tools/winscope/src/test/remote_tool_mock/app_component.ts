@@ -27,6 +27,7 @@ import {
   MessageType,
   TimestampType,
 } from 'cross_tool/messages';
+import {getLogger, Logger} from 'compat/logging';
 
 @Component({
   selector: 'app-root',
@@ -90,6 +91,7 @@ export class AppComponent {
   private winscope: Window | null = null;
   private isWinscopeUp = false;
   private onMessagePongReceived: () => void = () => {};
+  private readonly logger: Logger = getLogger('AppComponent');
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
@@ -210,7 +212,7 @@ export class AppComponent {
   private onMessageReceived(event: MessageEvent) {
     const message = event.data as Message;
     if (!message.type) {
-      console.log(
+      this.logger.warn(
         'Cross-tool protocol received unrecognized message:',
         message,
       );
@@ -219,7 +221,7 @@ export class AppComponent {
 
     switch (message.type) {
       case MessageType.PING:
-        console.log(
+        this.logger.warn(
           'Cross-tool protocol received unexpected ping message:',
           message,
         );
@@ -228,23 +230,26 @@ export class AppComponent {
         this.onMessagePongReceived();
         break;
       case MessageType.BUGREPORT:
-        console.log(
+        this.logger.warn(
           'Cross-tool protocol received unexpected bugreport message:',
           message,
         );
         break;
       case MessageType.TIMESTAMP:
-        console.log('Cross-tool protocol received timestamp message:', message);
+        this.logger.info(
+          'Cross-tool protocol received timestamp message:',
+          message,
+        );
         this.onMessageTimestampReceived(message as MessageTimestamp);
         break;
       case MessageType.FILES:
-        console.log(
+        this.logger.warn(
           'Cross-tool protocol received unexpected files message:',
           message,
         );
         break;
       default:
-        console.log(
+        this.logger.warn(
           'Cross-tool protocol received unrecognized message:',
           message,
         );
@@ -280,7 +285,7 @@ export class AppComponent {
   }
 
   private printStatus(status: string) {
-    console.log('STATUS: ' + status);
+    this.logger.info('STATUS: ' + status);
   }
 
   private async readInputFile(event: Event): Promise<File> {

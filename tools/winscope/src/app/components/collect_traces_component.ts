@@ -48,6 +48,7 @@ import {
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger} from 'compat/logging';
 import {UserNotifier} from 'services/user_notifier';
 import {
   AdbDeviceConnection,
@@ -572,7 +573,9 @@ export class CollectTracesComponent
       case AppRefreshDumpsRequest:
         return await this.onAppRefreshDumpsRequest();
       default:
-      // do nothing
+        getLogger('CollectTracesComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

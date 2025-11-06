@@ -25,6 +25,8 @@ import {
 } from '@protobufjs/utf8';
 import {assertTrue} from './logging';
 
+import { getLogger } from "compat/logging";
+
 // TextDecoder/Decoder requires the full DOM and isn't available in all types
 // of tests. Use fallback implementation from protbufjs.
 let Utf8Decoder: {decode: (buf: Uint8Array) => string};
@@ -35,7 +37,7 @@ try {
 } catch (_) {
   if (typeof process === 'undefined') {
     // Silence the warning when we know we are running under NodeJS.
-    console.warn(
+    getLogger('string_utils').warn(
       'Using fallback UTF8 Encoder/Decoder, This should happen only in ' +
         'tests and NodeJS-based environments, not in browsers.',
     );

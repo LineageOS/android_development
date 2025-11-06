@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {assertBigInt, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
@@ -55,6 +56,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
     traceGeometryData?: TraceGeometryData,
+    protected logger: Logger = getLogger('AbstractParser'),
   ) {
     this.traceFile = traceFile;
     this.traceProcessor = traceProcessor;

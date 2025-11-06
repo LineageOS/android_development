@@ -36,6 +36,7 @@ import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
 import {ShowTraceUploadWarning} from 'trace/trace_events';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger} from 'compat/logging';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {
@@ -436,7 +437,9 @@ export class UploadTracesComponent
           event as ShowTraceUploadWarning,
         );
       default:
-      // do nothing
+        getLogger('UploadTracesComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

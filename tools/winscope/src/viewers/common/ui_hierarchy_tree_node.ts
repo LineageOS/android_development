@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Chip} from './chip';
 import {DiffNode} from './diff_node';
@@ -27,6 +28,15 @@ export class UiHierarchyTreeNode extends HierarchyTreeNode implements DiffNode {
   private showHeading = true;
   private nextNodeDfs: this | undefined;
   private prevNodeDfs: this | undefined;
+
+  constructor(
+    id: string,
+    name: string,
+    propertiesProvider: any,
+    private readonly logger: Logger = getLogger('UiHierarchyTreeNode'),
+  ) {
+    super(id, name, propertiesProvider);
+  }
 
   static from(
     node: HierarchyTreeNode,
@@ -112,7 +122,7 @@ export class UiHierarchyTreeNode extends HierarchyTreeNode implements DiffNode {
 
   assignDfsOrder() {
     if (!this.isRoot()) {
-      console.warn('Attempted to assign DFS order from non-root node.');
+      this.logger.warn('Attempted to assign DFS order from non-root node.');
       return;
     }
 

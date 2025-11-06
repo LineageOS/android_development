@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {
   AdbDeviceConnection,
   AdbDeviceConnectionListener,
@@ -35,8 +36,9 @@ export class MockAdbDeviceConnection extends AdbDeviceConnection {
     displays: string[] = [],
     multiDisplayScreenRecording = false,
     protologGroups: string[] = [],
+    logger: Logger = getLogger('MockAdbDeviceConnection'),
   ) {
-    super(id, listener);
+    super(id, listener, logger);
     this.state = state;
     this.model = model;
     this.displays = displays;

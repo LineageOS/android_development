@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
 import {utf8Decode} from 'common/string_helpers';
@@ -43,8 +44,9 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     id: string,
     listener: AdbDeviceConnectionListener,
     private securityHeader: HttpRequestHeaderType,
+    logger: Logger = getLogger('WinscopeProxyDeviceConnection'),
   ) {
-    super(id, listener);
+    super(id, listener, logger);
     this.encodedId = encodeURIComponent(id);
   }
 
@@ -116,7 +118,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
 
   override async startTrace(target: TraceTarget) {
     this.isTracing = true;
-    console.debug(`Starting trace for ${target.traceName} on ${this.id}`);
+    this.logger.debug(`Starting trace for ${target.traceName} on ${this.id}`);
     await postToProxy(
       `${Endpoint.START_TRACE}${this.encodedId}/`,
       this.securityHeader,
@@ -130,12 +132,12 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
         stopCmd: target.stopCmd,
       },
     );
-    console.debug(`Started trace for ${target.traceName} on ${this.id}`);
+    this.logger.debug(`Started trace for ${target.traceName} on ${this.id}`);
   }
 
   override async endTrace(target: TraceTarget) {
     this.isTracing = false;
-    console.debug(`Ending trace for ${target.traceName} on ${this.id}`);
+    this.logger.debug(`Ending trace for ${target.traceName} on ${this.id}`);
     await postToProxy(
       `${Endpoint.END_TRACE}${this.encodedId}/`,
       this.securityHeader,
@@ -158,7 +160,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
       (newState, errorText) => this.setState(newState, errorText),
       {targetId: target.traceName},
     );
-    console.debug(`Ended trace for ${target.traceName}.`);
+    this.logger.debug(`Ended trace for ${target.traceName}.`);
   }
 
   protected override async updatePropertiesFromResponse(
@@ -194,7 +196,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
       async (request: HttpResponse) => {
         if (request.text !== 'True') {
           this.clearTraceAliveWorker(targetName);
-          console.warn(targetName + ' timed out');
+          this.logger.warn(targetName + ' timed out');
           await this.listener.onConnectionStateChange(
             ConnectionState.TRACE_TIMEOUT,
           );

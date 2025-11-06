@@ -17,6 +17,8 @@ import {
   VERSION,
 } from '../../../deps_build/trace_processor/ui/tsc/gen/perfetto_version';
 
+import { getLogger } from "compat/logging";
+
 export type ErrorHandler = (err: string) => void;
 
 let errorHandler: ErrorHandler = (_: string) => {};
@@ -64,7 +66,7 @@ export function reportError(err: ErrorEvent | PromiseRejectionEvent | {}) {
   errLog += `${VERSION} ${SCM_REVISION}\n`;
   errLog += `UA: ${navigator.userAgent}\n`;
 
-  console.error(errLog, err);
+  getLogger('logging').error(errLog, err);
   errorHandler(errLog);
 }
 

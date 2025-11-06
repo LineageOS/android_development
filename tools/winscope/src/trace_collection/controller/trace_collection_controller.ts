@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {removeDirFromFileName} from 'common/io';
 import {Timer} from 'common/time/timer';
 import {ProgressListener} from 'messaging/progress_listener';
@@ -39,6 +40,7 @@ export class TraceCollectionController {
   constructor(
     connectionType: string,
     private listener: ConnectionStateListener & ProgressListener,
+    private readonly logger: Logger = getLogger('TraceCollectionController'),
   ) {
     if (connectionType === AdbConnectionType.WDP) {
       this.host = new WdpHostConnection(listener);
@@ -137,7 +139,7 @@ export class TraceCollectionController {
     const adbData: File[] = [];
     const paths = await device.findFiles(`${WINSCOPE_BACKUP_DIR}*`, []);
     for (const [index, filepath] of paths.entries()) {
-      console.debug(`Fetching file ${filepath} from device`);
+      this.logger.debug(`Fetching file ${filepath} from device`);
       const data = await device.pullFile(filepath);
       const filename = removeDirFromFileName(filepath);
       adbData.push(new File([data], filename));
@@ -145,7 +147,7 @@ export class TraceCollectionController {
         'Fetching files...',
         (100 * index) / paths.length,
       );
-      console.debug(`Fetched ${filepath}`);
+      this.logger.debug(`Fetched ${filepath}`);
     }
     this.listener.onOperationFinished(true);
     return adbData;
@@ -178,13 +180,13 @@ export class TraceCollectionController {
   ) {
     await perfettoModerator.tryStopCurrentPerfettoSession();
     await perfettoModerator.clearPreviousConfigFiles();
-    console.debug('Clearing previous tracing session files from device');
+    this.logger.debug('Clearing previous tracing session files from device');
     let output = await device.runShellCommand(`rm -rf ${WINSCOPE_BACKUP_DIR}`);
-    console.debug(
+    this.logger.debug(
       `Cleared previous tracing session files from device. Output: ${output}`,
     );
     output = await device.runShellCommand(`mkdir ${WINSCOPE_BACKUP_DIR}`);
-    console.debug(`Created new backup dir on device. Output: ${output}`);
+    this.logger.debug(`Created new backup dir on device. Output: ${output}`);
   }
 
   private async moveFiles(

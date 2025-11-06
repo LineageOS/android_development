@@ -41,6 +41,7 @@ import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ProcessedFiles} from 'parsers/legacy/parser_factory';
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
+import {getLogger, Logger} from 'compat/logging';
 import {TraceMetadata} from 'trace_api/trace_metadata';
 
 /**
@@ -132,6 +133,7 @@ export class TraceFileFilter
 
   private emitEvent: EmitEvent = () => Promise.resolve();
   private selectedFile: string | undefined;
+  constructor(private readonly logger: Logger = getLogger('TraceFileFilter')) {}
 
   setEmitEvent(callback: EmitEvent) {
     this.emitEvent = callback;
@@ -304,7 +306,9 @@ export class TraceFileFilter
     if (Object.values(BuildType).includes(lowerCaseBuildType as BuildType)) {
       return lowerCaseBuildType as BuildType;
     }
-    console.warn(`Unknown build type found in bugreport: ${buildTypeString}`);
+    this.logger.warn(
+      `Unknown build type found in bugreport: ${buildTypeString}`,
+    );
     return undefined;
   }
 

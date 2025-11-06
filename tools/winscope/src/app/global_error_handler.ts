@@ -17,6 +17,8 @@
 import {ErrorHandler} from '@angular/core';
 import {Analytics} from 'logging/analytics';
 
+import {getLogger, Logger} from 'compat/logging';
+
 /**
  * A global error handler for the application.
  *
@@ -24,8 +26,12 @@ import {Analytics} from 'logging/analytics';
  *       Such errors must be handled via a dedicated `.catch(...)` block.
  */
 export class GlobalErrorHandler implements ErrorHandler {
+  constructor(
+    private readonly logger: Logger = getLogger('GlobalErrorHandler'),
+  ) {}
+
   handleError(error: Error) {
     Analytics.Error.logGlobalException(error.message);
-    console.error(error);
+    this.logger.error(error.message);
   }
 }

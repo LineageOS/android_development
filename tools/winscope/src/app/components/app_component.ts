@@ -114,6 +114,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
 import {RequestData} from 'cross_tool/g3_proxy';
+import {getLogger} from 'compat/logging';
 import {Trace} from 'trace_api/trace';
 
 /**
@@ -799,9 +800,10 @@ export class AppComponent implements WinscopeEventListener {
 
   openSettings() {
     const parentOrigin = this.getReportedParentOrigin();
+    const logger = getLogger('AppComponent');
 
     if (parentOrigin == null) {
-      console.warn(
+      logger.warn(
         "Provided 'parentOrigin' is null cannot send request to open settings menu",
       );
       return;
@@ -816,7 +818,7 @@ export class AppComponent implements WinscopeEventListener {
       const data = JSON.stringify({action: 'openSettings'});
       window.parent.postMessage(data, parentOrigin);
     } else {
-      console.warn(
+      logger.warn(
         'Not inside an iframe...',
         window.self.origin,
         window.top?.origin,

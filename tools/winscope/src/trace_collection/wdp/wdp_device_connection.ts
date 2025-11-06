@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {ResizableBuffer} from 'common/buffer';
 import {binaryEncode, utf8Decode} from 'common/string_helpers';
 import {showPopupWindow} from 'common/window';
@@ -44,8 +45,9 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
     listener: AdbDeviceConnectionListener,
     private approveUrl?: string,
     private showWindow: (url: string) => boolean = showPopupWindow,
+    logger: Logger = getLogger('WdpDeviceConnection'),
   ) {
-    super(id, listener);
+    super(id, listener, logger);
   }
 
   override onDestroy() {
@@ -81,7 +83,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
   }
 
   override async startTrace(target: TraceTarget): Promise<void> {
-    console.debug(`Starting trace for ${target.traceName} on ${this.id}`);
+    this.logger.debug(`Starting trace for ${target.traceName} on ${this.id}`);
     if (target.isScreenRecording) {
       await this.startScreenRecording(target);
     } else {
@@ -99,7 +101,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
         UserNotifier.add(makeWarningProxyTracingWarnings([warning])).notify();
       }
     }
-    console.debug(`Started trace for ${target.traceName} on ${this.id}`);
+    this.logger.debug(`Started trace for ${target.traceName} on ${this.id}`);
   }
 
   override async endTrace(target: TraceTarget) {
@@ -109,9 +111,9 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
       stream?.close();
       this.screenRecordingStreams.delete(target.traceName);
     }
-    console.debug(`Ending trace for ${target.traceName}.`);
+    this.logger.debug(`Ending trace for ${target.traceName}.`);
     const output = await this.runShellCommand(target.stopCmd);
-    console.debug(`Ended trace for ${target.traceName}. Output: ${output}`);
+    this.logger.debug(`Ended trace for ${target.traceName}. Output: ${output}`);
   }
 
   protected override async updatePropertiesFromResponse(
@@ -145,7 +147,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
       this.id,
       sock,
       async (msg: string) => {
-        console.error(msg);
+        this.logger.error(msg);
         await this.listener.onError(msg);
       },
     );
@@ -191,7 +193,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
       sock,
       dataListener,
       async (msg: string) => {
-        console.error(msg);
+        this.logger.error(msg);
         errorListener(msg);
       },
     );

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
@@ -54,6 +55,7 @@ export abstract class AbstractParser<
     trace: TraceFile,
     timestampConverter: ParserTimestampConverter,
     metadata?: TraceMetadata,
+    protected logger: Logger = getLogger('AbstractParser'),
   ) {
     this.traceFile = trace;
     this.timestampConverter = timestampConverter;

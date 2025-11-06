@@ -16,17 +16,14 @@
 
 import {searchSubarray} from 'common/typed_array';
 import {Timestamp} from 'common/time/time';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {makeWarningMonotonicScreenRecording} from 'parsers/warnings';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {UserNotifier} from 'services/user_notifier';
-import {TraceFile} from 'trace/trace_file';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
 } from 'trace_api/media_based_trace_entry';
-import {TraceMetadata} from 'trace_api/trace_metadata';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserExternalMetadata} from './parser_external_metadata';
 import {ParserFilename} from './parser_filename';
@@ -45,14 +42,6 @@ export class ParserScreenRecording extends AbstractParser<
 > {
   private realToBootTimeOffsetNs: bigint | undefined;
   private makeTimestampFromExactValue = false;
-
-  constructor(
-    trace: TraceFile,
-    timestampConverter: ParserTimestampConverter,
-    metadata: TraceMetadata,
-  ) {
-    super(trace, timestampConverter, metadata);
-  }
 
   override getTraceType(): TraceType {
     return TraceType.SCREEN_RECORDING;

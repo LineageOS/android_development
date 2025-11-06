@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {AdbWebSocketStream, DataListener} from './adb_websocket_stream';
 import {ErrorListener} from './websocket_stream';
 
@@ -30,8 +31,9 @@ export class ShellStream extends AdbWebSocketStream {
     deviceSerialNumber: string,
     stdoutListener: DataListener,
     errorListener: ErrorListener,
+    logger: Logger = getLogger('ShellStream'),
   ) {
-    super(sock, deviceSerialNumber, 'shell', errorListener);
+    super(sock, deviceSerialNumber, 'shell', errorListener, logger);
     this.onData = stdoutListener;
     this.onClose = () => {
       if (this.completeResolve) {

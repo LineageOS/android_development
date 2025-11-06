@@ -56,6 +56,7 @@ import {
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger} from 'compat/logging';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
 import {inlineButtonStyle} from 'viewers/components/styles/clickable_property.styles';
@@ -378,7 +379,9 @@ export class TraceViewComponent
           event as TabbedViewSwitchRequest,
         );
       default:
-      // do nothing
+        getLogger('TraceViewComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

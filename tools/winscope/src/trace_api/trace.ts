@@ -22,6 +22,7 @@ import {
   binarySearchFirstGreater,
   binarySearchFirstGreaterOrEqual,
 } from 'common/typed_array';
+import {getLogger, Logger} from 'compat/logging';
 
 import {
   CustomQueryParamTypeMap,
@@ -201,6 +202,7 @@ export class Trace<T> {
     descriptors: string[],
     fullTrace: Trace<T> | undefined,
     entriesRange: EntriesRange | undefined,
+    private readonly logger: Logger = getLogger('Trace'),
   ) {
     this.type = type;
     this.parser = parser;
@@ -272,7 +274,7 @@ export class Trace<T> {
       return await this.parser.getAllEntries();
     } catch (e) {
       if (e !== NOT_IMPLEMENTED_ERROR) {
-        console.error(e);
+        this.logger.error((e as Error).message);
       }
       return await Promise.all(this.mapEntry((entry) => entry.getValue()));
     }

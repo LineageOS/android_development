@@ -15,6 +15,7 @@
  */
 
 import {AppInitialized} from 'app/app_events';
+import {getLogger, Logger} from 'compat/logging';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
@@ -43,6 +44,10 @@ export class AbtChromeExtensionProtocol
   static readonly ABT_EXTENSION_ID = 'mbbaofdfoekifkfpgehgffcpagbbjkmj';
 
   private emitEvent: EmitEvent = () => Promise.resolve();
+
+  constructor(
+    private readonly logger: Logger = getLogger('AbtChromeExtensionProtocol'),
+  ) {}
 
   setEmitEvent(callback: EmitEvent) {
     this.emitEvent = callback;
@@ -77,7 +82,7 @@ export class AbtChromeExtensionProtocol
     if (this.isOpenFromBuganizerResponseMessage(message)) {
       await this.onOpenFromBuganizerResponseMessageReceived(message);
     } else {
-      console.warn(
+      this.logger.warn(
         'ABT chrome extension protocol received unexpected message:',
         message,
       );
@@ -87,13 +92,13 @@ export class AbtChromeExtensionProtocol
   private async onOpenFromBuganizerResponseMessageReceived(
     message: OpenBuganizerResponse,
   ) {
-    console.log(
+    this.logger.info(
       'ABT chrome extension protocol received OpenBuganizerResponse message:',
       message,
     );
 
     if (message.attachments.length === 0) {
-      console.warn('ABT chrome extension protocol received no attachments');
+      this.logger.warn('ABT chrome extension protocol received no attachments');
     }
 
     const filesBlobPromises = message.attachments.map(async (attachment) => {

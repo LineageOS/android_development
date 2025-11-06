@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {makeWarningProxyTracingWarnings} from 'trace_collection/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {AdbDeviceConnection} from 'trace_collection/adb/adb_device_connection';
@@ -48,6 +49,7 @@ export class PerfettoSessionModerator {
   constructor(
     private device: AdbDeviceConnection,
     private isDump: boolean,
+    private readonly logger: Logger = getLogger('PerfettoSessionModerator'),
   ) {
     this.configFilepath = isDump
       ? PERFETTO_DUMP_CONFIG_FILE
@@ -55,11 +57,13 @@ export class PerfettoSessionModerator {
   }
 
   async clearPreviousConfigFiles() {
-    console.debug('Clearing perfetto config file for previous tracing session');
+    this.logger.debug(
+      'Clearing perfetto config file for previous tracing session',
+    );
     const output = await this.device.runShellCommand(
       `rm -f ${this.configFilepath}`,
     );
-    console.debug(
+    this.logger.debug(
       `Cleared perfetto config file for previous tracing session. Output: ${output}`,
     );
   }
@@ -84,12 +88,12 @@ export class PerfettoSessionModerator {
     if (!this.prevSessionActive) {
       return;
     }
-    console.debug('Stopping already-running winscope perfetto session.');
+    this.logger.debug('Stopping already-running winscope perfetto session.');
     const output = await this.device?.runShellCommand(
       'perfetto --attach=WINSCOPE-PROXY-TRACING-SESSION --stop',
     );
     this.prevSessionActive = false;
-    console.debug(
+    this.logger.debug(
       `Stopped already-running winscope perfetto session. Output: ${output}`,
     );
   }
@@ -189,7 +193,7 @@ echo 'Perfetto trace stopped.'`,
     let numberOfConcurrentSessions = 0;
     if (startIndex !== -1) {
       let concurrentSessions = queryRes.slice(startIndex);
-      console.debug(`Concurrent sessions:\n${concurrentSessions}`);
+      this.logger.debug(`Concurrent sessions:\n${concurrentSessions}`);
       concurrentSessions = concurrentSessions.slice(
         PERFETTO_TRACING_SESSIONS_START.length,
       );

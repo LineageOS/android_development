@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {assertDefined} from 'common/assert';
 import {TreeNode} from 'tree_node/tree_node';
 import {DiffNode} from 'viewers/common/diff_node';
@@ -29,6 +30,7 @@ export abstract class AddDiffs<T extends DiffNode> {
   constructor(
     private isModified: IsModifiedCallbackType,
     private denylistProperties: string[],
+    private readonly logger: Logger = getLogger('AddDiffs'),
   ) {}
 
   async executeInPlace(newRoot: T, oldRoot?: T): Promise<void> {
@@ -54,7 +56,7 @@ export abstract class AddDiffs<T extends DiffNode> {
     oldNodeSiblingIds: string[],
   ): Promise<T[]> {
     if (newNode === undefined && oldNode === undefined) {
-      console.error('both new and old trees undefined');
+      this.logger.error('both new and old trees undefined');
       return [];
     }
 

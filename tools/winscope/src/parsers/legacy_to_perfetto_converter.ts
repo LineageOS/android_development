@@ -29,6 +29,7 @@ import {
   ClockSnapshot as PerfettoClockSnapshot,
 } from 'compat/perfetto';
 import {TraceFile} from 'trace/trace_file';
+import {getLogger, Logger} from 'compat/logging';
 import {Parser} from 'trace_api/parser';
 import {
   getParserWithLatestRealToBootTimeOffset,
@@ -51,6 +52,9 @@ export class LegacyToPerfettoConverter {
   private legacyParsers: Array<Parser<object>> = [];
   private allParsers: Array<Parser<object>> = [];
   private perfettoFile: TraceFile | undefined;
+  constructor(
+    private readonly logger: Logger = getLogger('LegacyToPerfettoConverter'),
+  ) {}
 
   setLegacyParsers(value: Array<Parser<object>>): this {
     this.legacyParsers = value;
@@ -72,7 +76,7 @@ export class LegacyToPerfettoConverter {
     try {
       trace = await this.makePerfettoTrace();
     } catch (e) {
-      console.error(e);
+      this.logger.error((e as Error).message);
       UserNotifier.add(
         makeWarningFailedToConvertLegacyTraces((e as Error).message),
       ).notify();
@@ -331,7 +335,7 @@ export class LegacyToPerfettoConverter {
         } catch (e) {
           // swallow
           if (e !== NOT_IMPLEMENTED_ERROR) {
-            console.error(e);
+            this.logger.error((e as Error).message);
           }
         }
       }

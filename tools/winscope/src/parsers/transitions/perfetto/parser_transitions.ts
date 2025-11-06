@@ -43,10 +43,14 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Operation} from 'tree_node/operation';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
+import {TraceFile} from 'trace/trace_file';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 import {
   PropertyFormatter,
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {getLogger, Logger} from 'compat/logging';
 import {SetFormatters} from 'parsers/set_formatters';
 import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
@@ -98,6 +102,21 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   );
 
   private handlerIdToName: {[id: number]: string} | undefined = undefined;
+  constructor(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData?: TraceGeometryData,
+    logger: Logger = getLogger('ParserTransitions'),
+  ) {
+    super(
+      traceFile,
+      traceProcessor,
+      timestampConverter,
+      traceGeometryData,
+      logger,
+    );
+  }
 
   override getTraceType(): TraceType {
     return TraceType.TRANSITION;
@@ -183,7 +202,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
         .setChildren([])
         .build();
     } catch (e) {
-      console.error(e);
+      this.logger.error((e as Error).message);
       return undefined;
     }
   }
