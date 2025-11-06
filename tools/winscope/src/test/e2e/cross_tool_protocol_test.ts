@@ -24,7 +24,7 @@ import {
   getFixturePath,
   REMOTE_TOOL_MOCK_URL,
   setTimeouts,
-} from './utils';
+} from './helpers';
 
 describe('Cross-Tool Protocol', () => {
   const DEFAULT_TIMEOUT_MS = 40000;

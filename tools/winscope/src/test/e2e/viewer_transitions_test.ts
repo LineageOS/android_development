@@ -20,7 +20,7 @@ import {
   setTimeouts,
   uploadFixture,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer Transitions', () => {
   beforeEach(async () => {

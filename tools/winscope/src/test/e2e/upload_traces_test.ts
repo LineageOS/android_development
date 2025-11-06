@@ -24,7 +24,7 @@ import {
   setTimeouts,
   uploadFixture,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Upload traces', () => {
   const DEFAULT_TIMEOUT_MS = 40000;

@@ -22,7 +22,7 @@ import {
   setTimeouts,
   uploadFixture,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Trace navigation', () => {
   const DEFAULT_TIMEOUT_MS = 1000;

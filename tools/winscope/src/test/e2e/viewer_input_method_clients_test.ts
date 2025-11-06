@@ -27,7 +27,7 @@ import {
   selectItemInHierarchy,
   setTimeouts,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer Input Method Clients', () => {
   const viewerSelector = 'viewer-input-method';
