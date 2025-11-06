@@ -39,6 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.DelegatableNode
@@ -58,6 +60,11 @@ class DemoActivity : ComponentActivity() {
         const val DISABLE_RIPPLE_EXTRA = "disable_ripple"
         const val NOTIFICATIONS_IN_SHADE = "notifications_in_shade"
         const val OVERLAYS_EXTRA = "overlays"
+    }
+
+    init {
+        @OptIn(ExperimentalComposeUiApi::class)
+        ComposeUiFlags.areWindowInsetsRulersEnabled = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
