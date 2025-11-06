@@ -50,11 +50,21 @@ describe('PlaybackPresenter', () => {
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -281,7 +291,14 @@ describe('PlaybackPresenter', () => {
       ) {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
-          .setEntries([new MediaBasedTraceEntry(), new MediaBasedTraceEntry()])
+          .setEntries([
+            new MediaBasedTraceEntry(
+              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            ),
+            new MediaBasedTraceEntry(
+              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            ),
+          ])
           .setTimestamps([timestamp2, timestamp3])
           .build();
         await presenter.play(0, stateToReflect, srTrace);
@@ -346,13 +363,12 @@ describe('PlaybackPresenter', () => {
         setTraceSpies(largeTrace);
         presenterLargeTrace = new PlaybackPresenter(emitEventSpy, largeTrace);
         presenterLargeTrace.setTraceGeometryData(traceGeometryData);
-        spyOn(
-          presenterLargeTrace['playbackWorker'],
-          'postMessage',
-        ).and.callFake((message) => {
-          const mockTrees = makeTrees(message);
-          presenterLargeTrace['workerPromiseResolve']?.(mockTrees);
-        });
+        spyOn(presenterLargeTrace['worker'], 'postMessage').and.callFake(
+          (message) => {
+            const mockTrees = makeTrees(message);
+            presenterLargeTrace['workerPromiseResolve']?.(mockTrees);
+          },
+        );
       }
 
       async function handlesBufferBoundary(
@@ -581,13 +597,12 @@ describe('PlaybackPresenter', () => {
     presenter = new PlaybackPresenter(emitEventSpy, trace);
     presenter.setTraceGeometryData(traceGeometryData);
 
-    postMessageSpy = spyOn(
-      presenter['playbackWorker'],
-      'postMessage',
-    ).and.callFake((message) => {
-      const mockTrees = makeTrees(message);
-      presenter['workerPromiseResolve']?.(mockTrees);
-    });
+    postMessageSpy = spyOn(presenter['worker'], 'postMessage').and.callFake(
+      (message) => {
+        const mockTrees = makeTrees(message);
+        presenter['workerPromiseResolve']?.(mockTrees);
+      },
+    );
   }
 });
 

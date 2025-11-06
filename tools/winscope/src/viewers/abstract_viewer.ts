@@ -30,6 +30,7 @@ interface Presenter {
   onAppEvent(event: WinscopeEvent): Promise<void>;
   setEmitEvent(callback: EmitEvent): void;
   addEventListeners(htmlElement: HTMLElement): void;
+  onDestroy(): void;
 }
 
 export abstract class AbstractViewer<T extends object> implements Viewer {
@@ -77,6 +78,10 @@ export abstract class AbstractViewer<T extends object> implements Viewer {
 
   getTraces(): Array<Trace<object>> {
     return [assertDefined(this.trace)];
+  }
+
+  onDestroy() {
+    this.presenter.onDestroy();
   }
 
   protected getTraceTypeForViewTitle(): TraceType {

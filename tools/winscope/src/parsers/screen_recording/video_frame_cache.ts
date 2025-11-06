@@ -14,82 +14,154 @@
  * limitations under the License.
  */
 
-import {WebCodecData} from './helpers';
+import {Timer} from 'common/time/timer';
+import {WebCodecData} from 'parsers/screen_recording/helpers';
+import {UserNotifier} from 'services/user_notifier';
+import {makeWarningVideoFrameCacheStall} from 'parsers/warnings';
+import {assertDefined} from 'common/assert';
+import {getVideoFrameCacheWorkerUrl} from 'compat/video_frame_cache_worker_url';
 
 /**
- * Decodes and caches video frames for visualization in the UI. Uses a
- * single buffer cache storing all frames in the key-frame range associated
- * with the last requested index.
+ * Decodes and caches video frames for visualization in the UI. Uses a single
+ * buffer to store all frames. This implementation aims to optimize the latency
+ * of entry retrieval, at the expense of initial loading time, as the key-frame
+ * range for the first requested index must be cached in its entirety before
+ * the remaining key-frame ranges are decoded. Frame decoding is offloaded to a
+ * WebWorker to avoid stalling the UI after the initial load.
  */
 export class VideoFrameCache {
   private readonly webCodecData: WebCodecData;
-  private readonly cache: Map<number, VideoFrame> = new Map();
+  private readonly keyFrameIndices: Readonly<number[]>;
+  private readonly cache: FrameCache = new Map();
+  private readonly worker: Worker;
+
+  private firstRequest = true;
+  private notifiedCacheStall = false;
 
   constructor(webCodecData: WebCodecData) {
     this.webCodecData = webCodecData;
+
+    const keyFrameIndices: number[] = [];
+    for (const [i, chunk] of webCodecData.chunks.entries()) {
+      if (chunk.type === KEY_FRAME_TYPE) {
+        keyFrameIndices.push(i);
+      }
+    }
+    this.keyFrameIndices = keyFrameIndices;
+
+    this.worker = this.createWorker();
+  }
+
+  onDestroy() {
+    this.worker.terminate();
   }
 
   async get(
     index: number,
-  ): Promise<{frame: VideoFrame; rotationAngle: number}> {
-    let frame = this.cache.get(index);
-    if (frame) {
-      return {frame, rotationAngle: this.webCodecData.rotationAngle};
+  ): Promise<{frame: ImageBitmap; rotationAngle: number}> {
+    if (index < 0 || index >= this.webCodecData.chunks.length) {
+      throw new Error(`index ${index} out of bounds`);
     }
-    await this.updateCache(index);
+    if (this.firstRequest) {
+      this.firstRequest = false;
+      await this.updateCache(index);
+    }
 
-    frame = this.cache.get(index);
-    if (!frame) {
-      throw new Error('index out of bounds');
-    }
-    return {
-      frame,
-      rotationAngle: this.webCodecData.rotationAngle,
-    };
+    await new Timer(30000, 100).wait(
+      () => {
+        return this.cache.has(index);
+      },
+      () => `Timed out waiting for SR frame ${index} to be decoded.`,
+    );
+
+    const frame = assertDefined(this.cache.get(index));
+    return {frame, rotationAngle: this.webCodecData.rotationAngle};
   }
 
   private async updateCache(target: number) {
-    this.cache.clear();
-
-    let prevKeyFrameIndex = 0;
-    for (let i = target; i >= 0; i--) {
-      if (this.webCodecData.chunks[i].type === KEY_FRAME_TYPE) {
-        prevKeyFrameIndex = i;
-        break;
-      }
+    if (target < 0 || target >= this.webCodecData.chunks.length) {
+      return;
     }
 
-    let frameIndex = prevKeyFrameIndex;
-    const onOutput = (frame: VideoFrame) => {
-      this.cache.set(frameIndex, frame);
-      frameIndex++;
-    };
-    const frameDecoder = this.createFrameDecoder(onOutput);
+    let prevKeyFrameIndex = 0;
+    let nextKeyFrameIndex = this.webCodecData.chunks.length;
+    for (const keyFrameIndex of this.keyFrameIndices) {
+      if (keyFrameIndex > target) {
+        nextKeyFrameIndex = keyFrameIndex;
+        break;
+      }
+      prevKeyFrameIndex = keyFrameIndex;
+    }
 
-    let i = prevKeyFrameIndex;
-    do {
-      frameDecoder.decode(this.webCodecData.chunks[i]);
-      i++;
-    } while (
-      i < this.webCodecData.chunks.length &&
-      this.webCodecData.chunks[i].type !== KEY_FRAME_TYPE
+    this.decodeChunk(prevKeyFrameIndex, nextKeyFrameIndex);
+    await new Timer(30000, 100).wait(
+      () => {
+        return this.cache.has(nextKeyFrameIndex - 1);
+      },
+      () =>
+        `Timed out waiting for first SR chunk` +
+        ` ${prevKeyFrameIndex}-${nextKeyFrameIndex - 1} to be decoded.`,
     );
 
-    await frameDecoder.flush();
+    this.keyFrameIndices.forEach((keyFrame, j) => {
+      if (keyFrame === prevKeyFrameIndex) {
+        return;
+      }
+      const nextKeyFrameIndex =
+        this.keyFrameIndices.at(j + 1) ?? this.webCodecData.chunks.length;
+      this.decodeChunk(keyFrame, nextKeyFrameIndex);
+    });
   }
 
-  private createFrameDecoder(
-    onOutput: (frame: VideoFrame) => void,
-  ): VideoDecoder {
-    const decoder = new VideoDecoder({
-      output: onOutput,
-      error: (e) => {
-        console.error('VideoDecoder Error:', e);
-      },
+  private decodeChunk(prevKeyFrameIndex: number, nextKeyFrameIndex: number) {
+    this.worker.postMessage({
+      prevKeyFrameIndex,
+      nextKeyFrameIndex,
+      config: this.webCodecData.config,
+      chunks: this.webCodecData.chunks.slice(
+        prevKeyFrameIndex,
+        nextKeyFrameIndex,
+      ),
     });
-    decoder.configure(this.webCodecData.config);
-    return decoder;
+  }
+
+  private tryNotifyCacheStall() {
+    if (this.notifiedCacheStall) {
+      return;
+    }
+    UserNotifier.add(makeWarningVideoFrameCacheStall()).notify();
+    this.notifiedCacheStall = true;
+  }
+
+  private createWorker(): Worker {
+    const workerUrl = getVideoFrameCacheWorkerUrl();
+    const worker = new Worker(workerUrl);
+
+    worker.onmessage = (event: MessageEvent) => {
+      if (event.data.log) {
+        console.log(event.data.log);
+      }
+      if (event.data.cacheStalled) {
+        this.tryNotifyCacheStall();
+      }
+      if (event.data.error) {
+        throw event.data.error;
+      }
+      if (event.data.imageIndex !== undefined) {
+        this.cache.set(event.data.imageIndex, event.data.image);
+      }
+      if (!event.data.cacheComplete) {
+        return;
+      }
+    };
+
+    worker.onerror = (error) => {
+      throw new Error(error.message);
+    };
+
+    return worker;
   }
 }
 
 export const KEY_FRAME_TYPE = 'key';
+type FrameCache = Map<number, ImageBitmap>;

@@ -276,6 +276,9 @@ export class TracePipeline
   }
 
   clear() {
+    this.traces.forEachTrace((trace) => {
+      trace.onDestroy();
+    });
     this.loadedParsers.clear();
     this.traces = new Traces();
     this.timestampConverter.clear();

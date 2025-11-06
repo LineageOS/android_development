@@ -67,5 +67,5 @@ module.exports = defineConfig([
       ],
     },
   },
-  globalIgnores(['src/trace_processor/perfetto/', '**/webpack.config.js']),
+  globalIgnores(['src/trace_processor/perfetto/', '**/webpack.config.js', '**/*worker.js']),
 ]);

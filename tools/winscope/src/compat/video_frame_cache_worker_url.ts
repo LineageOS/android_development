@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {globalConfig} from 'common/global_config';
+import {getRootUrl} from 'common/window';
 
-export class UiData {
-  readonly titles: string[];
-  currentTraceEntries: MediaBasedTraceEntry[] = [];
-  forceMinimize = false;
-  isFetchingEntries = false;
-
-  constructor(titles: string[]) {
-    this.titles = titles;
-  }
+export function getVideoFrameCacheWorkerUrl(): string {
+  const root =
+    globalConfig.MODE === 'KARMA_TEST'
+      ? getRootUrl() + 'base/src/parsers/screen_recording/'
+      : getRootUrl();
+  return root + 'video_frame_cache_worker.js';
 }

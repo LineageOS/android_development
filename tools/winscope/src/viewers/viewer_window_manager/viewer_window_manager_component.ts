@@ -78,9 +78,8 @@ import {UiData} from './ui_data';
         [class.disabled-component]="inputData?.isPlaybackPlaying
         || inputData?.isPlaybackInitializing">
         @if (inputData?.isPlaybackPlaying) {
-          <div
-          class="disabled-message user-notification mat-body-1">
-          Properties disabled due to playback
+          <div class="disabled-message user-notification mat-body-1">
+            Properties disabled due to playback
           </div>
         }
         <properties-view
