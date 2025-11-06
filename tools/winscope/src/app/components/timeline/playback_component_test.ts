@@ -56,7 +56,7 @@ describe('PlaybackControlsComponent', () => {
   it('should emit PlaybackState.FORWARDS when play forwards button is clicked', () => {
     hostComponent.currentState = PlaybackState.PAUSED;
     dom.detectChanges();
-    dom.findAndClick('#play_playback_button');
+    dom.findAndClick('#play-playback-button');
     expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
       PlaybackState.FORWARDS,
     );
@@ -65,7 +65,7 @@ describe('PlaybackControlsComponent', () => {
   it('should emit PlaybackState.BACKWARDS when play backwards button is clicked', () => {
     hostComponent.currentState = PlaybackState.PAUSED;
     dom.detectChanges();
-    dom.findAndClick('#play_reverse_playback_button');
+    dom.findAndClick('#play-reverse-playback-button');
     expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
       PlaybackState.BACKWARDS,
     );
@@ -75,7 +75,7 @@ describe('PlaybackControlsComponent', () => {
     hostComponent.currentState = PlaybackState.FORWARDS;
     dom.detectChanges();
 
-    const pauseButton = dom.get('#pause_playback_button');
+    const pauseButton = dom.get('#pause-playback-button');
     pauseButton.checkDisabled(false);
     pauseButton.click();
     expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
@@ -86,14 +86,14 @@ describe('PlaybackControlsComponent', () => {
   it('should disable pause button when currentState is PAUSED', () => {
     hostComponent.currentState = PlaybackState.PAUSED;
     dom.detectChanges();
-    const pauseButton = dom.get('#pause_playback_button');
+    const pauseButton = dom.get('#pause-playback-button');
     pauseButton.checkDisabled(true);
   });
 
   it('should enable pause button when currentState is not PAUSED', () => {
     hostComponent.currentState = PlaybackState.FORWARDS;
     dom.detectChanges();
-    const pauseButton = dom.get('#pause_playback_button');
+    const pauseButton = dom.get('#pause-playback-button');
     pauseButton.checkDisabled(false);
 
     hostComponent.currentState = PlaybackState.BACKWARDS;

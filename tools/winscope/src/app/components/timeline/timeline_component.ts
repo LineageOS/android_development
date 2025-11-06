@@ -701,7 +701,7 @@ export class TimelineComponent
   async onWinscopeEvent(event: WinscopeEvent) {
     switch (event.constructor) {
       case TracePositionUpdate:
-        return await this.onTracePositionUpdate();
+        return await this.onTracePositionUpdate(event as TracePositionUpdate);
       case ActiveTraceChanged:
         return await this.onActiveTraceChanged(event as ActiveTraceChanged);
       case DarkModeToggled:
@@ -1168,9 +1168,11 @@ export class TimelineComponent
       return undefined;
     }
 
-    return this.timelineData
-      ?.findCurrentEntryFor(currentTrace as Trace<object>)
-      ?.getIndex();
+    return (
+      this.timelineData
+        ?.findCurrentEntryFor(currentTrace as Trace<object>)
+        ?.getIndex() ?? 0
+    );
   }
 
   private updateTimeInputValuesToCurrentTimestamp() {
@@ -1280,7 +1282,10 @@ export class TimelineComponent
     entry.tryDrawOnCanvas(canvas);
   }
 
-  private async onTracePositionUpdate() {
+  private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (event.seekPos) {
+      this.seekTracePosition = event.seekPos;
+    }
     this.updateTimeInputValuesToCurrentTimestamp();
     this.updateScreenRecordingVisualization();
   }

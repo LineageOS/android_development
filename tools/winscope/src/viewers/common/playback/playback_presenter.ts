@@ -279,6 +279,7 @@ export class PlaybackPresenter {
           TracePosition.fromTraceEntry(entryForPosition),
           true,
           bufferEntry.trace,
+          TracePosition.fromTimestamp(bufferEntry.seek),
         ),
       );
 
@@ -363,6 +364,7 @@ export class PlaybackPresenter {
         bufferEntries.push({
           screenRecording: undefined,
           trace: traceEntry,
+          seek: traceEntry.getTimestamp(),
         });
         continue;
       }
@@ -376,6 +378,7 @@ export class PlaybackPresenter {
         bufferEntries.push({
           screenRecording: undefined,
           trace: traceEntry,
+          seek: traceEntry.getTimestamp(),
         });
         continue;
       }
@@ -389,9 +392,11 @@ export class PlaybackPresenter {
 
       if (lastSrIndex !== undefined || traceEntry.getIndex() === 0) {
         for (let j = (lastSrIndex ?? -1) + 1; j < newSrIndex; j++) {
+          const srEntry = this.currentSr.getEntry(j);
           bufferEntries.push({
-            screenRecording: this.currentSr.getEntry(j),
-            trace: traceEntry,
+            screenRecording: srEntry,
+            trace: traceEntry.getIndex() === 0 ? undefined : traceEntry,
+            seek: srEntry.getTimestamp(),
           });
         }
       }
@@ -400,6 +405,7 @@ export class PlaybackPresenter {
       bufferEntries.push({
         screenRecording: screenRecordingEntry,
         trace: traceEntry,
+        seek: traceEntry.getTimestamp(),
       });
     }
 
@@ -414,9 +420,11 @@ export class PlaybackPresenter {
     ) {
       const start = lastSrEntry.getIndex() + 1;
       for (let j = start; j < this.currentSr.lengthEntries; j++) {
+        const srEntry = this.currentSr.getEntry(j);
         bufferEntries.push({
-          screenRecording: this.currentSr.getEntry(j),
+          screenRecording: srEntry,
           trace: lastEntries?.trace,
+          seek: srEntry.getTimestamp(),
         });
       }
     }
