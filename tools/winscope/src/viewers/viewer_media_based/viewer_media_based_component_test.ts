@@ -25,7 +25,11 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from 'common/assert';
 import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {getFixtureFile} from 'test/unit/io_helpers';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+  VideoEntry,
+} from 'trace_api/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
@@ -124,13 +128,11 @@ describe('ViewerMediaBasedComponent', () => {
   it('shows video', async () => {
     const initialMaxWidth = getContainerMaxWidth();
     const firstFrame = await screenRecordingParser.getEntry(0);
-    const spy = spyOn(firstFrame, 'tryDrawOnCanvas').and.callThrough();
     component.currentTraceEntries = [firstFrame];
     await dom.detectChangesAndWaitStable();
 
     const videoContainer = dom.get('.video-container');
-    expect(videoContainer.find('canvas')).toBeDefined();
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(videoContainer.find('video')).toBeDefined();
     expect(getContainerMaxWidth()).not.toEqual(initialMaxWidth);
   });
 
@@ -139,9 +141,9 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('image updated on selector entry change', () => {
-    const entry0 = new MediaBasedTraceEntry(makeSpyImage());
+    const entry0 = new CanvasEntry(makeSpyImage());
     const spy0 = spyOn(entry0, 'tryDrawOnCanvas');
-    const entry1 = new MediaBasedTraceEntry(makeSpyImage());
+    const entry1 = new CanvasEntry(makeSpyImage());
     const spy1 = spyOn(entry1, 'tryDrawOnCanvas');
     component.currentTraceEntries = [entry0, entry1];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
@@ -174,9 +176,9 @@ describe('ViewerMediaBasedComponent', () => {
     dom.addEventListener(ViewerEvents.OverlayMediaBasedTraceChange, (event) => {
       index = (event as CustomEvent).detail;
     });
-    const entry0 = new MediaBasedTraceEntry(makeSpyImage());
+    const entry0 = new CanvasEntry(makeSpyImage());
     const spy0 = spyOn(entry0, 'tryDrawOnCanvas');
-    const entry1 = new MediaBasedTraceEntry(makeSpyImage());
+    const entry1 = new CanvasEntry(makeSpyImage());
     const spy1 = spyOn(entry1, 'tryDrawOnCanvas');
     component.currentTraceEntries = [entry0, entry1];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
@@ -193,38 +195,35 @@ describe('ViewerMediaBasedComponent', () => {
 
   it('video frame updated on selector entry change', async () => {
     component.currentTraceEntries = [
-      await screenRecordingParser.getEntry(0),
-      await screenRecordingParser.getEntry(1),
+      new VideoEntry(new Blob(), 0),
+      new VideoEntry(new Blob(), 0),
     ];
-    component.titles = ['Recording 1', 'Recording 2'];
+    component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
 
-    const dataUrl = dom
-      .get('canvas')
-      .getHTMLElement<HTMLCanvasElement>()
-      .toDataURL();
+    const screenComponent = assertDefined(component.screenComponent);
+    let url = screenComponent.safeUrl;
 
     dom.openMatSelect();
     const options = dom.getMatSelectPanel().findAll('mat-option');
 
-    const spy = spyOn(
-      component.currentTraceEntries[1],
-      'tryDrawOnCanvas',
-    ).and.callThrough();
     options[1].click();
-    expect(
-      dom.get('canvas').getHTMLElement<HTMLCanvasElement>().toDataURL(),
-    ).not.toBe(dataUrl);
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(screenComponent.safeUrl).not.toEqual(url);
+    url = screenComponent.safeUrl;
+
+    options[1].click();
+    expect(screenComponent.safeUrl).toEqual(url);
 
     options[0].click();
-    expect(
-      dom.get('canvas').getHTMLElement<HTMLCanvasElement>().toDataURL(),
-    ).toBe(dataUrl);
+    expect(screenComponent.safeUrl).not.toEqual(url);
+    url = screenComponent.safeUrl;
+
+    options[0].click();
+    expect(screenComponent.safeUrl).toEqual(url);
   });
 
   it('does not update frame if trace entries do not change', async () => {
-    const entry = new MediaBasedTraceEntry(screenshotImage);
+    const entry = new CanvasEntry(screenshotImage);
     const spy = spyOn(entry, 'tryDrawOnCanvas');
     component.currentTraceEntries = [entry];
     component.titles = ['Screenshot 1'];
@@ -237,7 +236,7 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('updates max container size on window resize', async () => {
-    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotImage)];
+    component.currentTraceEntries = [new CanvasEntry(screenshotImage)];
     await dom.detectChangesAndWaitStable();
 
     const initialMaxWidth = getContainerMaxWidth();

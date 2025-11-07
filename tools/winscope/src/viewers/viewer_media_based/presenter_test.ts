@@ -22,7 +22,10 @@ import {
 } from 'trace/trace_events';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+} from 'trace_api/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {Presenter} from './presenter';
@@ -30,12 +33,8 @@ import {UiData} from './ui_data';
 
 describe('PresenterMediaBased', () => {
   const entries = [
-    new MediaBasedTraceEntry(
-      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-    ),
-    new MediaBasedTraceEntry(
-      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-    ),
+    new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
+    new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
   ];
   const timestamps = [makeRealTimestamp(10n), makeRealTimestamp(15n)];
   const trace1 = new TraceBuilder<MediaBasedTraceEntry>()

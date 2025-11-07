@@ -33,7 +33,10 @@ import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {Parser} from 'trace_api/parser';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+} from 'trace_api/media_based_trace_entry';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {CornerRadii} from 'common/geometry/corner_radii';
@@ -50,21 +53,11 @@ describe('PlaybackPresenter', () => {
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
+      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
+      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
+      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
+      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
+      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -292,10 +285,10 @@ describe('PlaybackPresenter', () => {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
           .setEntries([
-            new MediaBasedTraceEntry(
+            new CanvasEntry(
               jasmine.createSpyObj<ImageBitmap>('image', ['close']),
             ),
-            new MediaBasedTraceEntry(
+            new CanvasEntry(
               jasmine.createSpyObj<ImageBitmap>('image', ['close']),
             ),
           ])

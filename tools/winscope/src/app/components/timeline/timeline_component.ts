@@ -44,7 +44,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DomSanitizer} from '@angular/platform-browser';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {TimelineData} from 'app/timeline_data';
 import {assertDefined} from 'common/assert';
 import {WinscopeEvent} from 'messaging/winscope_event';
@@ -153,6 +153,11 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
             <div id="video-content">
               @if (screenRecordingEntry !== undefined) {
                 <canvas id="videoCanvasElementTimeline"></canvas>
+              } @else if (videoUrl !== undefined && getVideoCurrentTime() !== undefined) {
+                <video
+                  id="video"
+                  [currentTime]="getVideoCurrentTime()"
+                  [src]="videoUrl"></video>
               } @else {
                 <div class="no-video-message">
                   <p>No screen recording frame to show.</p>
@@ -479,7 +484,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
         display: flex;
         align-items: center;
       }
-      #videoCanvasElementTimeline {
+      #videoCanvasElementTimeline, #video {
         max-width: 100%;
         max-height: calc(60vh - 4px);
       }
@@ -599,6 +604,8 @@ export class TimelineComponent
 
   @ViewChild('miniTimeline') miniTimeline: MiniTimelineComponent | undefined;
 
+  currentScreenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined;
+  videoUrl: SafeUrl | undefined;
   initialZoom: TimeRange | undefined = undefined;
   selectedTraces: Array<Trace<object>> = [];
   sortedTraces: Array<Trace<object>> = [];
@@ -695,6 +702,15 @@ export class TimelineComponent
 
   setEmitEvent(callback: EmitEvent) {
     this.emitEvent = callback;
+  }
+
+  getVideoCurrentTime(): number | undefined {
+    const videoCurrTime = assertDefined(
+      this.timelineData,
+    ).searchCorrespondingScreenRecordingTimeSeconds(
+      this.getCurrentTracePosition(),
+    );
+    return videoCurrTime;
   }
 
   getCurrentTracePosition(): TracePosition {
@@ -1299,13 +1315,31 @@ export class TimelineComponent
   }
 
   private async updateScreenRecordingVisualization() {
-    const trace = this.timelineData?.getCurrentScreenRecordingTrace();
-    if (!trace) {
+    const lastTrace = this.currentScreenRecordingTrace;
+    this.currentScreenRecordingTrace =
+      this.timelineData?.getCurrentScreenRecordingTrace();
+    if (!this.currentScreenRecordingTrace) {
       this.screenRecordingEntry = undefined;
       return;
     }
+
+    const srChanged = this.currentScreenRecordingTrace !== lastTrace;
+
+    const video = await this.currentScreenRecordingTrace
+      .getEntry(0)
+      ?.getValue();
+    if (video !== undefined && video.frameData !== undefined) {
+      if (srChanged) {
+        this.videoUrl = this.sanitizer.bypassSecurityTrustUrl(
+          URL.createObjectURL(video.frameData),
+        );
+      }
+      this.screenRecordingEntry = undefined;
+      return;
+    }
+
     const entry = (await this.timelineData
-      ?.findCurrentEntryFor(trace)
+      ?.findCurrentEntryFor(this.currentScreenRecordingTrace)
       ?.getValue()) as MediaBasedTraceEntry;
     if (!entry) {
       this.screenRecordingEntry = undefined;
@@ -1316,10 +1350,11 @@ export class TimelineComponent
   }
 
   private renderFrame(entry: MediaBasedTraceEntry) {
+    this.changeDetectorRef.detectChanges();
     const canvas = document.querySelector<HTMLCanvasElement>(
       '#videoCanvasElementTimeline',
     );
-    if (!canvas) {
+    if (!canvas || entry.image === undefined) {
       return;
     }
     const container = assertDefined(canvas.parentElement);

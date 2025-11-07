@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MediaBasedTraceEntry} from './media_based_trace_entry';
+import {CanvasEntry, VideoEntry} from './media_based_trace_entry';
 
 describe('MediaBasedTraceEntry', () => {
   let canvas: jasmine.SpyObj<HTMLCanvasElement>;
@@ -30,12 +30,17 @@ describe('MediaBasedTraceEntry', () => {
     canvas.getContext.withArgs('2d').and.returnValue(ctx);
   });
 
+  it('VideoEntry throws error on tryDrawOnCanvas', () => {
+    const entry = new VideoEntry(new Blob(), 0);
+    expect(() => entry.tryDrawOnCanvas(canvas)).toThrow();
+  });
+
   it('draws video frame for rotation angle 0 degrees', () => {
     const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
       width: 4,
       height: 10,
     });
-    const entry = new MediaBasedTraceEntry(frame);
+    const entry = new CanvasEntry(frame);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(0);
@@ -57,7 +62,7 @@ describe('MediaBasedTraceEntry', () => {
       width: 4,
       height: 10,
     });
-    const entry = new MediaBasedTraceEntry(frame, 90);
+    const entry = new CanvasEntry(frame, 90);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(Math.PI / 2);
@@ -79,7 +84,7 @@ describe('MediaBasedTraceEntry', () => {
       width: 4,
       height: 10,
     });
-    const entry = new MediaBasedTraceEntry(frame, 180);
+    const entry = new CanvasEntry(frame, 180);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(Math.PI);
@@ -101,7 +106,7 @@ describe('MediaBasedTraceEntry', () => {
       width: 4,
       height: 10,
     });
-    const entry = new MediaBasedTraceEntry(frame, 270);
+    const entry = new CanvasEntry(frame, 270);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith((Math.PI * 3) / 2);

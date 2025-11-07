@@ -17,7 +17,10 @@
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {CoarseVersion} from 'trace_api/coarse_version';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+} from 'trace_api/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 
 export class ParserScreenshot extends AbstractParser<
@@ -65,6 +68,6 @@ export class ParserScreenshot extends AbstractParser<
     if (!this.imageBitmap) {
       this.imageBitmap = await createImageBitmap(this.traceFile.file);
     }
-    return new MediaBasedTraceEntry(this.imageBitmap);
+    return new CanvasEntry(this.imageBitmap);
   }
 }
