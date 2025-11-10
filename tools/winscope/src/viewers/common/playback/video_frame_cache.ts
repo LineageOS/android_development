@@ -15,7 +15,7 @@
  */
 
 import {Timer} from 'common/time/timer';
-import {WebCodecData} from 'parsers/screen_recording/helpers';
+import {WebCodecData} from 'trace/screen_recording/helpers';
 import {UserNotifier} from 'services/user_notifier';
 import {makeWarningVideoFrameCacheStall} from 'parsers/warnings';
 import {assertDefined} from 'common/assert';

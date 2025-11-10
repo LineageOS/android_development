@@ -30,7 +30,7 @@ import {
 } from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {timestampToVideoTimeSeconds} from 'parsers/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
 
 /**
  * A container of all the timeline-related data.

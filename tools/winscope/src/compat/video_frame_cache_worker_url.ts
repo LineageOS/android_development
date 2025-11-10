@@ -20,7 +20,7 @@ import {getRootUrl} from 'common/window';
 export function getVideoFrameCacheWorkerUrl(): string {
   const root =
     globalConfig.MODE === 'KARMA_TEST'
-      ? getRootUrl() + 'base/src/parsers/screen_recording/'
+      ? getRootUrl() + 'base/src/viewers/common/playback/'
       : getRootUrl();
   return root + 'video_frame_cache_worker.js';
 }

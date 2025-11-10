@@ -23,11 +23,8 @@ import {
   VideoEntry,
 } from 'trace_api/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
-import {
-  parseIntFromBuffer,
-  parseLongFromBuffer,
-  timestampToVideoTimeSeconds,
-} from './helpers';
+import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
+import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
 
 export class ParserScreenRecordingLegacy extends AbstractParser<
   MediaBasedTraceEntry,

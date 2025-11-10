@@ -35,9 +35,9 @@ import {ParserMetadataV3} from './parser_metadata_v3';
 import {
   parseIntFromBuffer,
   ScreenRecordingParser,
-  timestampToVideoTimeSeconds,
   WINSCOPE_MAGIC_STRING,
 } from './helpers';
+import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
 
 export class ParserScreenRecording extends AbstractParser<
   MediaBasedTraceEntry,
