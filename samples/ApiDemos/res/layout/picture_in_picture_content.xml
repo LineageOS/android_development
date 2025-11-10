@@ -14,13 +14,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!-- Note that app:aspectRatio can be changed dynamically. -->
-<com.example.android.apis.view.FixedAspectRatioImageView
+<androidx.media3.ui.PlayerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/image"
+    android:id="@+id/player_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scaleType="fitXY"
-    android:src="@drawable/sample_1"
-    app:aspectRatio="16/9" />
+    app:resize_mode="fit" />

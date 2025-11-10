@@ -16,6 +16,10 @@ android_test {
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
         "androidx.legacy_legacy-support-v4",
+        // For media3 and exoplayer
+        "androidx.media3.media3-common",
+        "androidx.media3.media3-exoplayer",
+        "androidx.media3.media3-ui",
     ],
     sdk_version: "current",
     dex_preopt: {

@@ -62,11 +62,12 @@ export interface Parser<T> {
   getRealToBootTimeOffsetNs(): bigint | undefined;
   createTimestamps(): void;
   canConvertToPerfetto(): boolean;
+  isPerfetto(): boolean;
   getRectsMap?(): Promise<RectsForTrace | undefined>;
   convertToPerfettoPackets?(
     sequenceId: number,
     trustedUid?: number,
     trustedPid?: number,
   ): TracePacket[];
-  isPerfetto(): boolean;
+  onDestroy?(): void;
 }

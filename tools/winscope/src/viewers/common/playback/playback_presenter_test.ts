@@ -50,11 +50,21 @@ describe('PlaybackPresenter', () => {
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
-      new MediaBasedTraceEntry(),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
+      new MediaBasedTraceEntry(
+        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+      ),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -230,9 +240,9 @@ describe('PlaybackPresenter', () => {
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = emitEventSpy.calls.all();
         const eagerUpdates = [
-          {traceIndex: 0, srIndex: undefined},
-          {traceIndex: 1, srIndex: undefined},
-          {traceIndex: 2, srIndex: undefined},
+          {traceIndex: 0, srIndex: undefined, seekTrace: true},
+          {traceIndex: 1, srIndex: undefined, seekTrace: true},
+          {traceIndex: 2, srIndex: undefined, seekTrace: true},
         ];
         checkAllEntriesPlayed(allUpdates, stateToReflect, eagerUpdates);
       }
@@ -266,12 +276,12 @@ describe('PlaybackPresenter', () => {
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = emitEventSpy.calls.all();
         const eagerUpdates = [
-          {srIndex: 0, traceIndex: 0},
-          {srIndex: 1, traceIndex: 0},
-          {srIndex: 2, traceIndex: 0},
-          {srIndex: 3, traceIndex: 1},
-          {srIndex: 3, traceIndex: 2},
-          {srIndex: 4, traceIndex: 2},
+          {srIndex: 0, traceIndex: undefined, seekTrace: false},
+          {srIndex: 1, traceIndex: undefined, seekTrace: false},
+          {srIndex: 2, traceIndex: 0, seekTrace: true},
+          {srIndex: 3, traceIndex: 1, seekTrace: true},
+          {srIndex: 3, traceIndex: 2, seekTrace: true},
+          {srIndex: 4, traceIndex: 2, seekTrace: false},
         ];
         checkAllEntriesPlayed(allUpdates, stateToReflect, eagerUpdates);
       }
@@ -281,17 +291,24 @@ describe('PlaybackPresenter', () => {
       ) {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
-          .setEntries([new MediaBasedTraceEntry(), new MediaBasedTraceEntry()])
+          .setEntries([
+            new MediaBasedTraceEntry(
+              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            ),
+            new MediaBasedTraceEntry(
+              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            ),
+          ])
           .setTimestamps([timestamp2, timestamp3])
           .build();
         await presenter.play(0, stateToReflect, srTrace);
         await new Timer(1000).wait(() => !presenter.isPlaying());
         const allUpdates = emitEventSpy.calls.all();
         const eagerUpdates = [
-          {srIndex: 0, traceIndex: 0},
-          {srIndex: 1, traceIndex: 0},
-          {srIndex: 1, traceIndex: 1},
-          {srIndex: undefined, traceIndex: 2},
+          {srIndex: 0, traceIndex: undefined, seekTrace: false},
+          {srIndex: 1, traceIndex: 0, seekTrace: true},
+          {srIndex: 1, traceIndex: 1, seekTrace: true},
+          {srIndex: undefined, traceIndex: 2, seekTrace: true},
         ];
         checkAllEntriesPlayed(
           allUpdates,
@@ -346,13 +363,12 @@ describe('PlaybackPresenter', () => {
         setTraceSpies(largeTrace);
         presenterLargeTrace = new PlaybackPresenter(emitEventSpy, largeTrace);
         presenterLargeTrace.setTraceGeometryData(traceGeometryData);
-        spyOn(
-          presenterLargeTrace['playbackWorker'],
-          'postMessage',
-        ).and.callFake((message) => {
-          const mockTrees = makeTrees(message);
-          presenterLargeTrace['workerPromiseResolve']?.(mockTrees);
-        });
+        spyOn(presenterLargeTrace['worker'], 'postMessage').and.callFake(
+          (message) => {
+            const mockTrees = makeTrees(message);
+            presenterLargeTrace['workerPromiseResolve']?.(mockTrees);
+          },
+        );
       }
 
       async function handlesBufferBoundary(
@@ -484,7 +500,7 @@ describe('PlaybackPresenter', () => {
   function checkAllEntriesPlayed(
     allUpdates: ReadonlyArray<jasmine.CallInfo<EmitEvent>>,
     stateToReflect: PlaybackState,
-    eagerUpdates: Array<{srIndex?: number; traceIndex?: number}>,
+    eagerUpdates: ExpectedEagerUpdate[],
     srTrace = screenRecordingTrace,
   ) {
     const startEvent = allUpdates[0].args[0] as PlaybackStateChangeHandled;
@@ -505,14 +521,47 @@ describe('PlaybackPresenter', () => {
       return {event, entry, exp};
     };
 
+    const checkPrefetchedEntry = (
+      event: TracePositionUpdate,
+      exp: ExpectedEagerUpdate,
+    ) => {
+      expect(event.prefetchedEntry === undefined).toEqual(
+        exp.traceIndex === undefined,
+      );
+      if (event.prefetchedEntry && exp.traceIndex !== undefined) {
+        expect(event.prefetchedEntry.getIndex()).toEqual(exp.traceIndex);
+        expect(event.prefetchedEntry.getFullTrace()).toEqual(trace);
+      }
+    };
+
+    const checkSeekPos = (
+      event: TracePositionUpdate,
+      exp: ExpectedEagerUpdate,
+    ) => {
+      if (exp.seekTrace) {
+        if (exp.traceIndex === undefined) {
+          expect(event.seekPos).toBeUndefined();
+        } else {
+          const ts = trace.getEntry(exp.traceIndex).getTimestamp();
+          expect(event.seekPos).toEqual(TracePosition.fromTimestamp(ts));
+        }
+      } else {
+        if (exp.srIndex === undefined) {
+          expect(event.seekPos).toBeUndefined();
+        } else {
+          const ts = srTrace.getEntry(exp.srIndex).getTimestamp();
+          expect(event.seekPos).toEqual(TracePosition.fromTimestamp(ts));
+        }
+      }
+    };
+
     for (let i = 1; i < eagerUpdates.length + 1; i++) {
       const {event, entry, exp} = checkTracePositionEntry(i - 1, i);
       expect(entry).toBeInstanceOf(
         exp.srIndex !== undefined ? TraceEntryLazy : TraceEntryEager,
       );
-      expect(event.prefetchedEntry).toBeDefined();
-      expect(event.prefetchedEntry?.getIndex()).toEqual(exp.traceIndex);
-      expect(event.prefetchedEntry?.getFullTrace()).toEqual(trace);
+      checkPrefetchedEntry(event, exp);
+      checkSeekPos(event, exp);
     }
 
     const pauseEvent = allUpdates[allUpdates.length - 2]
@@ -581,13 +630,12 @@ describe('PlaybackPresenter', () => {
     presenter = new PlaybackPresenter(emitEventSpy, trace);
     presenter.setTraceGeometryData(traceGeometryData);
 
-    postMessageSpy = spyOn(
-      presenter['playbackWorker'],
-      'postMessage',
-    ).and.callFake((message) => {
-      const mockTrees = makeTrees(message);
-      presenter['workerPromiseResolve']?.(mockTrees);
-    });
+    postMessageSpy = spyOn(presenter['worker'], 'postMessage').and.callFake(
+      (message) => {
+        const mockTrees = makeTrees(message);
+        presenter['workerPromiseResolve']?.(mockTrees);
+      },
+    );
   }
 });
 
@@ -599,4 +647,10 @@ interface WorkerMessage {
   type: TraceType;
   traceGeometryData: TraceGeometryData;
   visibleRectsMap: RectsForTrace;
+}
+
+interface ExpectedEagerUpdate {
+  srIndex?: number;
+  traceIndex?: number;
+  seekTrace: boolean;
 }

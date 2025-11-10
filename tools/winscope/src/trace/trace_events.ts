@@ -25,6 +25,7 @@ export class TracePositionUpdate implements WinscopeEvent {
     readonly position: TracePosition,
     readonly updateTimeline = false,
     readonly prefetchedEntry?: TraceEntryEager<object, object>,
+    readonly seekPos?: TracePosition,
   ) {}
 
   static fromTimestamp(

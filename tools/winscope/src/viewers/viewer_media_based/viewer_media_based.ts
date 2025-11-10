@@ -51,6 +51,7 @@ export abstract class ViewerMediaBased extends AbstractViewer<MediaBasedTraceEnt
       component.titles = uiData.titles;
       component.currentTraceEntries = uiData.currentTraceEntries;
       component.forceMinimize = uiData.forceMinimize;
+      component.isFetchingEntries = uiData.isFetchingEntries;
     };
     return new Presenter(this.traces, notifyViewCallback);
   }

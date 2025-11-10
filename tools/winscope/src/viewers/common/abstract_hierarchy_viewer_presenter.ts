@@ -82,6 +82,10 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.copyUiDataAndNotifyView();
   }
 
+  onDestroy() {
+    this.playbackPresenter?.onDestroy();
+  }
+
   setEmitEvent(callback: EmitEvent) {
     this.emitWinscopeEvent = callback;
   }

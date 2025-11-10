@@ -309,6 +309,7 @@ export class Mediator {
       false,
       undefined,
       event.prefetchedEntry,
+      event.seekPos,
     );
     UserNotifier.notify();
     await this.appComponent.onWinscopeEvent(event);
@@ -561,12 +562,18 @@ export class Mediator {
     omitCrossToolProtocol: boolean,
     source?: FilesSource,
     prefetchedEntry?: TraceEntryEager<object, object>,
+    seekPos?: TracePosition,
   ) {
     if (!position) {
       return;
     }
 
-    const event = new TracePositionUpdate(position, undefined, prefetchedEntry);
+    const event = new TracePositionUpdate(
+      position,
+      undefined,
+      prefetchedEntry,
+      seekPos,
+    );
     const viewers: Viewer[] = [...this.viewers].filter((viewer) =>
       this.isViewerVisible(viewer),
     );
@@ -790,13 +797,12 @@ export class Mediator {
       return;
     }
 
+    const traces = this.tracePipeline.getTraces();
     if (!this.screenRecordingTrace) {
-      this.screenRecordingTrace = this.tracePipeline
-        .getTraces()
-        .getTrace(TraceType.SCREEN_RECORDING);
+      this.screenRecordingTrace = traces.getTrace(TraceType.SCREEN_RECORDING);
     }
 
-    const eventTrace = this.tracePipeline.getTraces().getTrace(event.traceType);
+    const eventTrace = traces.getTrace(event.traceType);
     const traceGeometryData = this.tracePipeline.getTraceGeometryData();
     const trace = this.screenRecordingTrace ?? eventTrace;
 
@@ -805,6 +811,13 @@ export class Mediator {
     }
     if (trace === undefined) {
       return;
+    }
+
+    // The Screen Recording parsers decode and cache video frames using a background
+    // worker to avoid latency in other UI interactions. This must complete operations
+    // before playback can start.
+    for (const srTrace of traces.getTraces(TraceType.SCREEN_RECORDING)) {
+      await srTrace.getAllEntryValues();
     }
 
     const playbackStatePropagate = new PlaybackStateChangePropagate(
@@ -884,6 +897,9 @@ export class Mediator {
   private async resetAppToInitialState() {
     this.tracePipeline.clear();
     this.timelineData.clear();
+    this.viewers.forEach((viewer) => {
+      viewer.onDestroy();
+    });
     this.viewers = [];
     this.areViewersLoaded = false;
     this.lastRemoteToolDeferredTimestampReceived = undefined;

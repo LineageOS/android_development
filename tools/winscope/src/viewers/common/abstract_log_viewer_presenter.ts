@@ -67,6 +67,10 @@ export abstract class AbstractLogViewerPresenter<
     this.notifyViewChanged();
   }
 
+  onDestroy() {
+    // do nothing
+  }
+
   setEmitEvent(callback: EmitEvent) {
     this.emitAppEvent = callback;
   }

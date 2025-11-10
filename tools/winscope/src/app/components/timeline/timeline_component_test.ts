@@ -1149,11 +1149,11 @@ describe('TimelineComponent', () => {
   });
 
   it('shows screen recording canvas in expanded timeline overlay', async () => {
-    const frame = jasmine.createSpyObj<VideoFrame>('frame', [], {
-      codedWidth: 4,
-      codedHeight: 10,
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
     });
-    const entry = new MediaBasedTraceEntry(undefined, frame);
+    const entry = new MediaBasedTraceEntry(frame);
     const drawSpy = spyOn(entry, 'tryDrawOnCanvas');
 
     const trace = new TraceBuilder<MediaBasedTraceEntry>()
@@ -1358,7 +1358,7 @@ describe('TimelineComponent', () => {
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);
 
-      dom.findAndClick('playback-controls #play_playback_button');
+      dom.findAndClick('playback-controls #play-playback-button');
       const event = emitEventSpy.calls.mostRecent().args[0];
       expect(event.state).toEqual(PlaybackState.FORWARDS);
       await timelineComponent.onWinscopeEvent(
@@ -1372,12 +1372,46 @@ describe('TimelineComponent', () => {
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);
 
-      dom.findAndClick('playback-controls #play_playback_button');
+      dom.findAndClick('playback-controls #play-playback-button');
       expect(emitEventSpy).toHaveBeenCalledTimes(1);
       const event = emitEventSpy.calls.mostRecent().args[0];
       expect(event).toBeInstanceOf(PlaybackStateChangeRequest);
       expect(event.state).toEqual(PlaybackState.FORWARDS);
       expect(event.traceType).toEqual(TraceType.SURFACE_FLINGER);
+    });
+
+    it('emits PlaybackStateChangeRequest event with current index of trace', () => {
+      const timelineComponent = assertDefined(component.timeline);
+      const emitEventSpy = jasmine.createSpy('emitEvent');
+      timelineComponent.setEmitEvent(emitEventSpy);
+
+      const trace = assertDefined(
+        component.allTraces.getTrace(TraceType.SURFACE_FLINGER),
+      );
+      spyOn(component.timelineData, 'findCurrentEntryFor')
+        .withArgs(trace)
+        .and.returnValue(trace.getEntry(1));
+
+      dom.findAndClick('playback-controls #play-playback-button');
+      const event = emitEventSpy.calls.mostRecent().args[0];
+      expect(event.currentTraceIndex).toEqual(1);
+    });
+
+    it('emits PlaybackStateChangeRequest event with first index of trace if no current entry found', () => {
+      const timelineComponent = assertDefined(component.timeline);
+      const emitEventSpy = jasmine.createSpy('emitEvent');
+      timelineComponent.setEmitEvent(emitEventSpy);
+
+      const trace = assertDefined(
+        component.allTraces.getTrace(TraceType.SURFACE_FLINGER),
+      );
+      spyOn(component.timelineData, 'findCurrentEntryFor')
+        .withArgs(trace)
+        .and.returnValue(undefined);
+
+      dom.findAndClick('playback-controls #play-playback-button');
+      const event = emitEventSpy.calls.mostRecent().args[0];
+      expect(event.currentTraceIndex).toEqual(0);
     });
   });
 

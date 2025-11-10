@@ -29,7 +29,14 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
 describe('PresenterMediaBased', () => {
-  const entries = [new MediaBasedTraceEntry(), new MediaBasedTraceEntry()];
+  const entries = [
+    new MediaBasedTraceEntry(
+      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+    ),
+    new MediaBasedTraceEntry(
+      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+    ),
+  ];
   const timestamps = [makeRealTimestamp(10n), makeRealTimestamp(15n)];
   const trace1 = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
@@ -94,7 +101,10 @@ describe('PresenterMediaBased', () => {
 
   it('processes trace position updates', async () => {
     const positionUpdate1 = TracePositionUpdate.fromTimestamp(timestamps[1]);
-    await presenter.onAppEvent(positionUpdate1);
+    const promise = presenter.onAppEvent(positionUpdate1);
+    expect(uiData.isFetchingEntries).toBeTrue();
+    await promise;
+    expect(uiData.isFetchingEntries).toBeFalse();
     expect(uiData.currentTraceEntries).toEqual([entries[1], entries[1]]);
 
     const positionUpdate0 = TracePositionUpdate.fromTimestamp(timestamps[0]);

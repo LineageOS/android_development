@@ -30,11 +30,12 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {Parser} from 'trace_api/parser';
+import {Timer} from 'common/time/timer';
 
 describe('ViewerMediaBasedComponent', () => {
   let component: TestHostComponent;
   let dom: DOMTestHelper<TestHostComponent>;
-  let screenshotFile: File;
+  let screenshotImage: ImageBitmap;
   let screenRecordingParser: Parser<MediaBasedTraceEntry>;
 
   beforeAll(async () => {
@@ -43,7 +44,10 @@ describe('ViewerMediaBasedComponent', () => {
         'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
       )
       .getParser<MediaBasedTraceEntry>();
-    screenshotFile = await getFixtureFile('traces/screenshot/screenshot_2.png');
+    const screenshotFile = await getFixtureFile(
+      'traces/screenshot/screenshot_2.png',
+    );
+    screenshotImage = await createImageBitmap(screenshotFile);
   });
 
   beforeEach(async () => {
@@ -127,18 +131,6 @@ describe('ViewerMediaBasedComponent', () => {
     const videoContainer = dom.get('.video-container');
     expect(videoContainer.find('canvas')).toBeDefined();
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(videoContainer.find('img')).toBeUndefined();
-    expect(getContainerMaxWidth()).not.toEqual(initialMaxWidth);
-  });
-
-  it('shows screenshot image', async () => {
-    const initialMaxWidth = getContainerMaxWidth();
-    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotFile)];
-    await dom.detectChangesAndWaitStable();
-
-    const videoContainer = dom.get('.video-container');
-    expect(videoContainer.find('img')).toBeDefined();
-    expect(videoContainer.find('canvas')).toBeUndefined();
     expect(getContainerMaxWidth()).not.toEqual(initialMaxWidth);
   });
 
@@ -147,32 +139,34 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('image updated on selector entry change', () => {
-    component.currentTraceEntries = [
-      new MediaBasedTraceEntry(new Blob()),
-      new MediaBasedTraceEntry(new Blob()),
-    ];
+    const entry0 = new MediaBasedTraceEntry(makeSpyImage());
+    const spy0 = spyOn(entry0, 'tryDrawOnCanvas');
+    const entry1 = new MediaBasedTraceEntry(makeSpyImage());
+    const spy1 = spyOn(entry1, 'tryDrawOnCanvas');
+    component.currentTraceEntries = [entry0, entry1];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
-
-    const screenComponent = assertDefined(component.screenComponent);
-    let url = screenComponent.safeUrl;
+    expect(spy0).toHaveBeenCalledTimes(1);
+    expect(spy1).not.toHaveBeenCalled();
 
     dom.openMatSelect();
     const options = dom.getMatSelectPanel().findAll('mat-option');
 
     options[1].click();
-    expect(screenComponent.safeUrl).not.toEqual(url);
-    url = screenComponent.safeUrl;
+    expect(spy0).toHaveBeenCalledTimes(1);
+    expect(spy1).toHaveBeenCalledTimes(1);
 
     options[1].click();
-    expect(screenComponent.safeUrl).toEqual(url);
+    expect(spy0).toHaveBeenCalledTimes(1);
+    expect(spy1).toHaveBeenCalledTimes(1);
 
     options[0].click();
-    expect(screenComponent.safeUrl).not.toEqual(url);
-    url = screenComponent.safeUrl;
+    expect(spy0).toHaveBeenCalledTimes(2);
+    expect(spy1).toHaveBeenCalledTimes(1);
 
     options[0].click();
-    expect(screenComponent.safeUrl).toEqual(url);
+    expect(spy0).toHaveBeenCalledTimes(2);
+    expect(spy1).toHaveBeenCalledTimes(1);
   });
 
   it('emits event on overlay trace change', () => {
@@ -180,15 +174,21 @@ describe('ViewerMediaBasedComponent', () => {
     dom.addEventListener(ViewerEvents.OverlayMediaBasedTraceChange, (event) => {
       index = (event as CustomEvent).detail;
     });
-    component.currentTraceEntries = [
-      new MediaBasedTraceEntry(new Blob()),
-      new MediaBasedTraceEntry(new Blob()),
-    ];
+    const entry0 = new MediaBasedTraceEntry(makeSpyImage());
+    const spy0 = spyOn(entry0, 'tryDrawOnCanvas');
+    const entry1 = new MediaBasedTraceEntry(makeSpyImage());
+    const spy1 = spyOn(entry1, 'tryDrawOnCanvas');
+    component.currentTraceEntries = [entry0, entry1];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
+    expect(spy0).toHaveBeenCalledTimes(1);
+    expect(spy1).not.toHaveBeenCalled();
+
     dom.openMatSelect();
     dom.getMatSelectPanel().findAndClickByIndex('mat-option', 1);
     expect(index).toEqual(1);
+    expect(spy0).toHaveBeenCalledTimes(1);
+    expect(spy1).toHaveBeenCalledTimes(1);
   });
 
   it('video frame updated on selector entry change', async () => {
@@ -223,21 +223,21 @@ describe('ViewerMediaBasedComponent', () => {
     ).toBe(dataUrl);
   });
 
-  it('does not update frame if trace entries do not change', () => {
-    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotFile)];
+  it('does not update frame if trace entries do not change', async () => {
+    const entry = new MediaBasedTraceEntry(screenshotImage);
+    const spy = spyOn(entry, 'tryDrawOnCanvas');
+    component.currentTraceEntries = [entry];
     component.titles = ['Screenshot 1'];
     dom.detectChanges();
-
-    const screenComponent = assertDefined(component.screenComponent);
-    const url = screenComponent.safeUrl;
+    expect(spy).toHaveBeenCalledTimes(1);
 
     component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
-    expect(screenComponent.safeUrl).toEqual(url);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('updates max container size on window resize', async () => {
-    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotFile)];
+    component.currentTraceEntries = [new MediaBasedTraceEntry(screenshotImage)];
     await dom.detectChangesAndWaitStable();
 
     const initialMaxWidth = getContainerMaxWidth();
@@ -270,6 +270,28 @@ describe('ViewerMediaBasedComponent', () => {
     expect(index).toBe(0);
   });
 
+  it('shows loading message', async () => {
+    component.isFetchingEntries = true;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    await new Timer(500).sleepMs();
+    expect(dom.find('.fetching-entries-message')).toBeDefined();
+    component.isFetchingEntries = false;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+  });
+
+  it('does not show loading message if update is too fast', async () => {
+    component.isFetchingEntries = true;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    component.isFetchingEntries = false;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    await new Timer(500).sleepMs();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+  });
+
   function getContainerMaxWidth(): number {
     const container = dom.get('.container').getHTMLElement();
     return Number(container.style.maxWidth.slice(0, -2));
@@ -280,6 +302,10 @@ describe('ViewerMediaBasedComponent', () => {
     await dom.detectChangesAndWaitStable();
   }
 
+  function makeSpyImage(): jasmine.SpyObj<ImageBitmap> {
+    return jasmine.createSpyObj<ImageBitmap>('image', ['close']);
+  }
+
   @Component({
     imports: [ViewerMediaBasedComponent],
     selector: 'host-component',
@@ -287,13 +313,15 @@ describe('ViewerMediaBasedComponent', () => {
       <viewer-media-based
         [currentTraceEntries]="currentTraceEntries"
         [titles]="titles"
-        [forceMinimize]="forceMinimize"></viewer-media-based>
+        [forceMinimize]="forceMinimize"
+        [isFetchingEntries]="isFetchingEntries"></viewer-media-based>
     `,
   })
   class TestHostComponent {
     currentTraceEntries: MediaBasedTraceEntry[] = [];
     titles: string[] = [];
     forceMinimize = false;
+    isFetchingEntries = false;
 
     @ViewChild(ViewerMediaBasedComponent)
     screenComponent: ViewerMediaBasedComponent | undefined;

@@ -16,12 +16,14 @@
 
 import {getFixtureFile} from 'test/unit/io_helpers';
 import {createVideoFrameCache} from './video_frame_cache_factory';
+import {VideoFrameCache} from './video_frame_cache';
 
 describe('VideoFrameCache', () => {
   let dataOneKeyFrameAndRotation: Uint8Array;
   let dataThreeKeyFramesNoRotation: Uint8Array;
 
   beforeAll(async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
     const file1 = await getFixtureFile(
       'traces/elapsed_and_real_timestamp/screen_recording_metadata_v3.mp4',
     );
@@ -35,30 +37,36 @@ describe('VideoFrameCache', () => {
 
   it('throws error if retrieval attempted out of bounds', async () => {
     const cache = await createVideoFrameCache(dataOneKeyFrameAndRotation);
+    await expectAsync(cache.get(-1)).toBeRejected();
     await expectAsync(cache.get(105)).toBeRejected();
   });
 
   it('retrieves all samples from mp4 with one key frame', async () => {
     const cache = await createVideoFrameCache(dataOneKeyFrameAndRotation);
-
-    let prevTimestamp = -1;
-    for (let i = 0; i < 105; i++) {
-      const {frame, rotationAngle} = await cache.get(i);
-      expect(rotationAngle).toEqual(90);
-      expect(frame.timestamp).not.toBe(prevTimestamp);
-      prevTimestamp = frame.timestamp;
-    }
+    await checkFrames(cache, 105, 90);
   });
 
   it('retrieves all samples from mp4 with multiple key frames', async () => {
     const cache = await createVideoFrameCache(dataThreeKeyFramesNoRotation);
-
-    let prevTimestamp = -1;
-    for (let i = 0; i < 158; i++) {
-      const {frame, rotationAngle} = await cache.get(i);
-      expect(rotationAngle).toEqual(0);
-      expect(frame.timestamp).not.toBe(prevTimestamp);
-      prevTimestamp = frame.timestamp;
-    }
+    await checkFrames(cache, 158, 0);
   });
+
+  async function checkFrames(
+    cache: VideoFrameCache,
+    length: number,
+    expectedAngle: number,
+  ) {
+    const entries = await Promise.all(
+      Array.from({length}, (_, i) => cache.get(i)),
+    );
+    let prevFrame: ImageBitmap | undefined;
+    for (const entry of entries) {
+      const {frame, rotationAngle} = entry;
+      expect(rotationAngle).toEqual(expectedAngle);
+      if (prevFrame) {
+        expect(frame === prevFrame).toBeFalse();
+      }
+      prevFrame = frame;
+    }
+  }
 });

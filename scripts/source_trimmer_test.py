@@ -31,35 +31,120 @@ class SourceTrimmerTest(unittest.TestCase):
   <project groups="group1,group2" name="platform/lib/bar" remote="ohd" />
 </manifest>
 """
+        self.manifest_with_ops = """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project groups="pdk" name="platform/bionic" path="bionic">
+    <copyfile src="INSTRUCTIONS" dest="BIONIC_INSTRUCTIONS"/>
+  </project>
+  <project groups="group1" name="platform/vendor/foo" path="vendor/foo">
+    <linkfile src="common/Android.bp" dest="vendor/foo/Android.bp"/>
+    <copyfile src="data/file.txt" dest="data/foo/file.txt"/>
+  </project>
+  <project groups="group2" name="platform/vendor/bar" path="vendor/bar">
+    <linkfile src="this/points/nowhere" dest="dangling_link"/>
+  </project>
+</manifest>
+"""
 
     def test_get_projects_from_manifest(self):
         """Test that the manifest is parsed correctly."""
         projects = source_trimmer.get_projects_from_manifest(self.manifest_content)
         expected_projects = [
-            {"name": "platform/bionic", "path": "bionic", "groups": ["pdk"]},
-            {
-                "name": "platform/bootable/recovery",
-                "path": "bootable/recovery",
-                "groups": ["pdk-fs", "pdk"],
-            },
-            {
-                "name": "platform/build",
-                "path": "build/make",
-                "groups": ["pdk-desktop"],
-            },
-            {"name": "platform/system/core", "path": "system/core", "groups": []},
-            {
-                "name": "platform/lib/foo",
-                "path": "external/foo",
-                "groups": ["group1"],
-            },
-            {
-                "name": "platform/lib/bar",
-                "path": "platform/lib/bar",
-                "groups": ["group1", "group2"],
-            },
+            source_trimmer.Project(
+                name="platform/bionic", path="bionic", groups=["pdk"], operations=[]
+            ),
+            source_trimmer.Project(
+                name="platform/bootable/recovery",
+                path="bootable/recovery",
+                groups=["pdk-fs", "pdk"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/build",
+                path="build/make",
+                groups=["pdk-desktop"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/system/core",
+                path="system/core",
+                groups=[],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/foo",
+                path="external/foo",
+                groups=["group1"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/bar",
+                path="platform/lib/bar",
+                groups=["group1", "group2"],
+                operations=[],
+            ),
         ]
         self.assertEqual(projects, expected_projects)
+
+    def test_get_projects_from_manifest_with_operations(self):
+        """Test parsing linkfile/copyfile operations."""
+        projects = source_trimmer.get_projects_from_manifest(self.manifest_with_ops)
+        expected_projects = [
+            source_trimmer.Project(
+                name="platform/bionic",
+                path="bionic",
+                groups=["pdk"],
+                operations=[
+                    source_trimmer.FileOperation(
+                        type=source_trimmer.OperationType.COPYFILE,
+                        src="INSTRUCTIONS",
+                        dest="BIONIC_INSTRUCTIONS",
+                    )
+                ],
+            ),
+            source_trimmer.Project(
+                name="platform/vendor/foo",
+                path="vendor/foo",
+                groups=["group1"],
+                operations=[
+                    source_trimmer.FileOperation(
+                        type=source_trimmer.OperationType.LINKFILE,
+                        src="common/Android.bp",
+                        dest="vendor/foo/Android.bp",
+                    ),
+                    source_trimmer.FileOperation(
+                        type=source_trimmer.OperationType.COPYFILE,
+                        src="data/file.txt",
+                        dest="data/foo/file.txt",
+                    ),
+                ],
+            ),
+            source_trimmer.Project(
+                name="platform/vendor/bar",
+                path="vendor/bar",
+                groups=["group2"],
+                operations=[
+                    source_trimmer.FileOperation(
+                        type=source_trimmer.OperationType.LINKFILE,
+                        src="this/points/nowhere",
+                        dest="dangling_link",
+                    )
+                ],
+            ),
+        ]
+        self.assertEqual(projects, expected_projects)
+
+    def test_get_projects_from_manifest_with_glob_src(self):
+        """Test the manifest is not parsed if the src of linkfile is a glob pattern."""
+        manifest_content_linkfile = """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project groups="pdk" name="platform/bionic" path="bionic">
+    <linkfile src="**/*.txt" dest="BIONIC_INSTRUCTIONS"/>
+  </project>
+</manifest>
+"""
+        projects = source_trimmer.get_projects_from_manifest(manifest_content_linkfile)
+        self.assertIsNone(projects)
 
     def test_find_projects_to_remove(self):
         """Test that the projects to remove are identified correctly."""
@@ -70,22 +155,30 @@ class SourceTrimmerTest(unittest.TestCase):
         )
         # platform/bionic and platform/bootable/recovery should be kept.
         expected_to_remove = [
-            {
-                "name": "platform/build",
-                "path": "build/make",
-                "groups": ["pdk-desktop"],
-            },
-            {"name": "platform/system/core", "path": "system/core", "groups": []},
-            {
-                "name": "platform/lib/foo",
-                "path": "external/foo",
-                "groups": ["group1"],
-            },
-            {
-                "name": "platform/lib/bar",
-                "path": "platform/lib/bar",
-                "groups": ["group1", "group2"],
-            },
+            source_trimmer.Project(
+                name="platform/build",
+                path="build/make",
+                groups=["pdk-desktop"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/system/core",
+                path="system/core",
+                groups=[],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/foo",
+                path="external/foo",
+                groups=["group1"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/bar",
+                path="platform/lib/bar",
+                groups=["group1", "group2"],
+                operations=[],
+            ),
         ]
         self.assertEqual(projects_to_remove, expected_to_remove)
 
@@ -98,29 +191,42 @@ class SourceTrimmerTest(unittest.TestCase):
         )
         # platform/bionic, platform/bootable/recovery and platform/build should be kept.
         expected_to_remove = [
-            {"name": "platform/system/core", "path": "system/core", "groups": []},
-            {
-                "name": "platform/lib/foo",
-                "path": "external/foo",
-                "groups": ["group1"],
-            },
-            {
-                "name": "platform/lib/bar",
-                "path": "platform/lib/bar",
-                "groups": ["group1", "group2"],
-            },
+            source_trimmer.Project(
+                name="platform/system/core",
+                path="system/core",
+                groups=[],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/foo",
+                path="external/foo",
+                groups=["group1"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/bar",
+                path="platform/lib/bar",
+                groups=["group1", "group2"],
+                operations=[],
+            ),
         ]
         self.assertEqual(projects_to_remove, expected_to_remove)
 
     def test_remove_project_directories(self):
         """Test that the project directories are removed correctly."""
         projects_to_remove = [
-            {
-                "name": "platform/build",
-                "path": "build/make",
-                "groups": ["pdk-desktop"],
-            },
-            {"name": "platform/system/core", "path": "system/core", "groups": []},
+            source_trimmer.Project(
+                name="platform/build",
+                path="build/make",
+                groups=["pdk-desktop"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/system/core",
+                path="system/core",
+                groups=[],
+                operations=[],
+            ),
         ]
         with tempfile.TemporaryDirectory() as tmpdir:
             checkout_root = pathlib.Path(tmpdir)
@@ -140,11 +246,12 @@ class SourceTrimmerTest(unittest.TestCase):
     def test_remove_project_directories_dry_run(self):
         """Test that the project directories are not removed in dry run mode."""
         projects_to_remove = [
-            {
-                "name": "platform/build",
-                "path": "build/make",
-                "groups": ["pdk-desktop"],
-            },
+            source_trimmer.Project(
+                name="platform/build",
+                path="build/make",
+                groups=["pdk-desktop"],
+                operations=[],
+            ),
         ]
         with tempfile.TemporaryDirectory() as tmpdir:
             checkout_root = pathlib.Path(tmpdir)
@@ -157,21 +264,107 @@ class SourceTrimmerTest(unittest.TestCase):
             self.assertTrue((checkout_root / "build/make").exists())
             self.assertTrue((checkout_root / "build").exists())
 
+    def test_undo_project_file_operations(self):
+        """Test removal of files from linkfile/copyfile operations."""
+        project = source_trimmer.Project(
+            name="test-project",
+            path="vendor/test",
+            groups=["test"],
+            operations=[
+                source_trimmer.FileOperation(
+                    type="copyfile", src="a.txt", dest="top_level.txt"
+                ),
+                source_trimmer.FileOperation(
+                    type="linkfile", src="b.txt", dest="link_b.txt"
+                ),
+                source_trimmer.FileOperation(
+                    type="copyfile", src="c.txt", dest="subdir/c.txt"
+                ),
+                source_trimmer.FileOperation(
+                    type="linkfile", src="d.txt", dest="nonexistent.txt"
+                ),
+                source_trimmer.FileOperation(
+                    type="copyfile", src="e.txt", dest="dir_dest"
+                ),
+            ],
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checkout_root = pathlib.Path(tmpdir)
+
+            # Setup dummy files and links.
+            (checkout_root / "top_level.txt").write_text("a")
+            (checkout_root / "link_b.txt").symlink_to("vendor/test/b.txt")
+            (checkout_root / "subdir").mkdir()
+            (checkout_root / "subdir/c.txt").write_text("c")
+            (checkout_root / "dir_dest").mkdir()
+
+            # Files that should remain.
+            (checkout_root / "other_file.txt").write_text("keep")
+
+            source_trimmer.undo_project_file_operations(
+                project, checkout_root, dry_run=False
+            )
+
+            self.assertFalse((checkout_root / "top_level.txt").exists())
+            self.assertFalse((checkout_root / "link_b.txt").exists())
+            self.assertFalse((checkout_root / "link_b.txt").is_symlink())
+            self.assertFalse((checkout_root / "subdir/c.txt").exists())
+            self.assertTrue((checkout_root / "subdir").exists())
+            self.assertFalse((checkout_root / "nonexistent.txt").exists())
+            self.assertTrue((checkout_root / "dir_dest").exists())
+            self.assertTrue((checkout_root / "other_file.txt").exists())
+
+    def test_undo_project_file_operations_dry_run(self):
+        """Test dry run for undoing file operations."""
+        project = source_trimmer.Project(
+            name="test-project",
+            path="vendor/test",
+            groups=["test"],
+            operations=[
+                source_trimmer.FileOperation(
+                    type="copyfile", src="a.txt", dest="top_level.txt"
+                ),
+                source_trimmer.FileOperation(
+                    type="linkfile", src="b.txt", dest="link_b.txt"
+                ),
+            ],
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checkout_root = pathlib.Path(tmpdir)
+            (checkout_root / "top_level.txt").write_text("a")
+            (checkout_root / "link_b.txt").symlink_to("vendor/test/b.txt")
+
+            source_trimmer.undo_project_file_operations(
+                project, checkout_root, dry_run=True
+            )
+
+            self.assertTrue((checkout_root / "top_level.txt").exists())
+            self.assertTrue((checkout_root / "link_b.txt").is_symlink())
+
     def test_keep_projects_overrides_removal(self):
         """Test that projects to keep are not removed, even if they would be marked for removal."""
         # These projects would be marked for removal by find_projects_to_remove.
         projects_to_remove = [
-            {
-                "name": "platform/build",
-                "path": "build/make",
-                "groups": ["pdk-desktop"],
-            },
-            {"name": "platform/system/core", "path": "system/core", "groups": []},
-            {
-                "name": "platform/lib/foo",
-                "path": "external/foo",
-                "groups": ["another-group"],
-            },
+            source_trimmer.Project(
+                name="platform/build",
+                path="build/make",
+                groups=["pdk-desktop"],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/system/core",
+                path="system/core",
+                groups=[],
+                operations=[],
+            ),
+            source_trimmer.Project(
+                name="platform/lib/foo",
+                path="external/foo",
+                groups=["another-group"],
+                operations=[],
+            ),
         ]
         keep_project_names = set(["platform/system/core", "platform/lib/foo"])
 

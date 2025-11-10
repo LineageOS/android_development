@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-import {TraceEntry, TraceEntryEager} from 'trace_api/trace';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Timestamp} from 'common/time/time';
+import {globalConfig} from 'common/global_config';
+import {getRootUrl} from 'common/window';
 
-/**
- * Interface that associates screen recording entry to other trace entry
- */
-export declare interface CorrespondingEntries {
-  screenRecording: TraceEntry<MediaBasedTraceEntry> | undefined;
-  trace: TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode> | undefined;
-  seek: Timestamp;
+export function getVideoFrameCacheWorkerUrl(): string {
+  const root =
+    globalConfig.MODE === 'KARMA_TEST'
+      ? getRootUrl() + 'base/src/parsers/screen_recording/'
+      : getRootUrl();
+  return root + 'video_frame_cache_worker.js';
 }

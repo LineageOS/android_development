@@ -23,53 +23,43 @@ import {Size} from 'common/geometry/size';
  */
 export class MediaBasedTraceEntry {
   /**
-   * @param imgData The raw image data as a Blob (for images).
-   * @param videoFrame The decoded frame to be visualized (for videos).
+   * @param image The image bitmap to be visualized.
    * @param videoRotationAngle The rotation angle for the video frame if provided.
    */
   constructor(
-    /**  Defined if the media data is an image. */
-    readonly imgData?: Blob,
     /** Defined if the media data is a video. */
-    readonly videoFrame?: VideoFrame,
+    readonly image: ImageBitmap,
     /** Gives rotation angle for video frame. */
     private readonly videoRotationAngle = 0,
   ) {}
 
   tryDrawOnCanvas(canvas: HTMLCanvasElement) {
-    if (!this.videoFrame) {
-      return;
-    }
-
-    const ctx = assertDefined(canvas.getContext('2d'));
-
-    const canvasDimensions = this.canvasDimensions(this.videoFrame);
+    const canvasDimensions = this.canvasDimensions(this.image);
     canvas.width = canvasDimensions.width;
     canvas.height = canvasDimensions.height;
 
+    const ctx = assertDefined(canvas.getContext('2d'));
     ctx.rotate(this.rotationAngleRadians());
-
     ctx.drawImage(
-      this.videoFrame,
-      this.xOffset(this.videoFrame),
-      this.yOffset(this.videoFrame),
-      this.videoFrame.codedWidth,
-      this.videoFrame.codedHeight,
+      this.image,
+      this.xOffset(this.image),
+      this.yOffset(this.image),
+      this.image.width,
+      this.image.height,
     );
-
     ctx.resetTransform();
   }
 
-  private canvasDimensions(videoFrame: VideoFrame): Size {
+  private canvasDimensions(image: ImageBitmap): Size {
     if (this.shouldFlipDimensions()) {
       return {
-        width: videoFrame.codedHeight,
-        height: videoFrame.codedWidth,
+        width: image.height,
+        height: image.width,
       };
     }
     return {
-      width: videoFrame.codedWidth,
-      height: videoFrame.codedHeight,
+      width: image.width,
+      height: image.height,
     };
   }
 
@@ -77,16 +67,16 @@ export class MediaBasedTraceEntry {
     return this.videoRotationAngle % 180 !== 0;
   }
 
-  private yOffset(videoFrame: VideoFrame): number {
+  private yOffset(image: ImageBitmap): number {
     if (this.videoRotationAngle === 90 || this.videoRotationAngle === 180) {
-      return -videoFrame.codedHeight;
+      return -image.height;
     }
     return 0;
   }
 
-  private xOffset(videoFrame: VideoFrame): number {
+  private xOffset(image: ImageBitmap): number {
     if (this.videoRotationAngle === 180 || this.videoRotationAngle === 270) {
-      return -videoFrame.codedWidth;
+      return -image.width;
     }
     return 0;
   }

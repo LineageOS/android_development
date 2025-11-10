@@ -25,7 +25,7 @@
     "lib": [
       "es2022",
       "es2020",
-      "dom"
+      "dom",
     ],
     "resolveJsonModule": true
   },

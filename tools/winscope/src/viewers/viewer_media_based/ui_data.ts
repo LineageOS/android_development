@@ -20,6 +20,7 @@ export class UiData {
   readonly titles: string[];
   currentTraceEntries: MediaBasedTraceEntry[] = [];
   forceMinimize = false;
+  isFetchingEntries = false;
 
   constructor(titles: string[]) {
     this.titles = titles;

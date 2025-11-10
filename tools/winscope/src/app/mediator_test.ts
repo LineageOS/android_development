@@ -402,10 +402,16 @@ describe('Mediator', () => {
   });
 
   it('handles app reset request', async () => {
-    await mediator.onWinscopeEvent(new AppFilesUploaded(inputFiles));
+    await mediator.onWinscopeEvent(
+      new AppFilesUploaded(inputFiles.slice(0, 2)),
+    );
+    await loadTraceView();
     const clearSpies = [
       spyOn(tracePipeline, 'clear'),
       spyOn(timelineData, 'clear'),
+      ...viewers.map((v) => {
+        return spyOn(v, 'onDestroy');
+      }),
     ];
     await mediator.onWinscopeEvent(new AppResetRequest());
     clearSpies.forEach((spy) => expect(spy).toHaveBeenCalled());
@@ -540,16 +546,38 @@ describe('Mediator', () => {
       TraceEntryEager<object, object>
     >('prefetchedEntry', ['getValue']);
 
-    await mediator.onWinscopeEvent(
-      new TracePositionUpdate(position, true, prefetchedEntry),
+    const event = new TracePositionUpdate(position, undefined, prefetchedEntry);
+    await mediator.onWinscopeEvent(event);
+    userNotifierChecker.expectNone();
+    [viewerStub0, viewerOverlay, timelineComponent].forEach((listener) => {
+      expect(listener.onWinscopeEvent).toHaveBeenCalledOnceWith(event);
+    });
+  });
+
+  it('propagates trace position update including seekPos', async () => {
+    await loadFiles();
+    await loadTraceView();
+
+    // notify position
+    resetSpyCalls();
+    const timelineRange = timelineData.getFullTimeRange();
+    const positionTs = makeRealTimestamp(timelineRange.endNs);
+    const position = TracePosition.fromTimestamp(positionTs);
+    const seekPos = TracePosition.fromTimestamp(
+      makeRealTimestamp(timelineRange.startNs),
     );
-    checkTracePositionUpdateEvents(
-      [viewerStub0, viewerOverlay, timelineComponent, crossToolProtocol],
-      [],
+
+    const event = new TracePositionUpdate(
       position,
       undefined,
-      prefetchedEntry,
+      undefined,
+      seekPos,
     );
+    await mediator.onWinscopeEvent(event);
+    userNotifierChecker.expectNone();
+    [viewerStub0, viewerOverlay, timelineComponent].forEach((listener) => {
+      expect(listener.onWinscopeEvent).toHaveBeenCalledOnceWith(event);
+    });
   });
 
   it("initializes viewers' trace position also when loaded traces have no valid timestamps", async () => {
@@ -1103,10 +1131,9 @@ describe('Mediator', () => {
     userNotifications: UserWarning[],
     position?: TracePosition,
     crossToolProtocolPosition = position,
-    prefetchedEntry?: TraceEntryEager<object, object>,
   ) {
     userNotifierChecker.expectNotified(userNotifications);
-    const event = makeExpectedTracePositionUpdate(position, prefetchedEntry);
+    const event = makeExpectedTracePositionUpdate(position);
     const crossToolProtocolEvent =
       crossToolProtocolPosition !== position
         ? makeExpectedTracePositionUpdate(crossToolProtocolPosition)
@@ -1191,9 +1218,8 @@ describe('Mediator', () => {
     tracePosition: TracePosition = TracePosition.fromTimestamp(
       TIMESTAMP_INVALID,
     ),
-    prefetchedEntry?: TraceEntryEager<object, object>,
   ): TracePositionUpdate {
-    return new TracePositionUpdate(tracePosition, undefined, prefetchedEntry);
+    return new TracePositionUpdate(tracePosition, undefined);
   }
 
   function tracePositionUpdateEqualityTester(
@@ -1225,6 +1251,7 @@ describe('Mediator', () => {
     }
     if (event.position.frame !== expectedEvent.position.frame) return false;
     if (event.prefetchedEntry !== expectedEvent.prefetchedEntry) return false;
+    if (event.seekPos !== expectedEvent.seekPos) return false;
     return true;
   }
 });
