@@ -78,7 +78,8 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
               matTooltipPosition="above"
               [matTooltipShowDelay]="300"
               (selectionChange)="onSelectChange($event)"
-              [value]="index">
+              [value]="index"
+              [disabled]="isInPlaybackMode">
               @for (title of titles; track $index; let i = $index) {
                 <mat-option
                   [value]="i">
@@ -92,7 +93,7 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
             @if (enableDoubleClick) {
               <mat-icon
                 class="info-icon material-symbols-outlined"
-                matTooltip="Double click overlay to change active trace to this screen recording"
+                matTooltip="Double click overlay when not in playback mode to change active trace to this screen recording"
                 matTooltipPosition="above">
                 info
               </mat-icon>
@@ -261,17 +262,22 @@ export class ViewerMediaBasedComponent {
   @Input() forceMinimize = false;
   @Input() enableDoubleClick = false;
   @Input() isFetchingEntries = false;
+  @Input() isInPlaybackMode = false;
 
   private frameSize: Size = {width: 720, height: 1280}; // default for Flicker
   private frameSizeWorker: number | undefined;
 
+  private calls = 0;
+
   ngOnChanges(changes: SimpleChanges) {
     this.changeDetectorRef.detectChanges();
+    this.calls++;
+    const currCall = this.calls;
 
     if (changes['isFetchingEntries']?.currentValue) {
       this.ngZone.run(() => {
-        new Timer(500).sleepMs().then(() => {
-          if (!this.isFetchingEntries) {
+        new Timer(1000).sleepMs().then(() => {
+          if (!this.isFetchingEntries || currCall !== this.calls) {
             return;
           }
           this.showFetchingEntriesMessage = true;
@@ -348,7 +354,7 @@ export class ViewerMediaBasedComponent {
   }
 
   onOverlayDblClick() {
-    if (this.enableDoubleClick) {
+    if (this.enableDoubleClick && !this.isInPlaybackMode) {
       const event = new CustomEvent(ViewerEvents.OverlayDblClick, {
         detail: this.index,
         bubbles: true,
@@ -430,8 +436,9 @@ export class ViewerMediaBasedComponent {
       );
       this.changeDetectorRef.detectChanges();
       const video = this.videoElement?.nativeElement;
-      if (video) {
-        video.currentTime = this.getCurrentTime() ?? 0;
+      const currTime = this.getCurrentTime();
+      if (video && currTime !== undefined) {
+        video.currentTime = currTime;
       }
       this.resetFrameSizeWorker();
     }

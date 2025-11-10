@@ -101,6 +101,7 @@ import {UserTimestamp} from 'common/time/user_timestamp';
 import {PlaybackControlsComponent} from './playback_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 /**
  * A component for displaying the timeline view.
@@ -122,12 +123,15 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
     ClipboardModule,
     MatSelectModule,
     MatRippleModule,
+    MatProgressSpinnerModule,
     PlaybackControlsComponent,
   ],
   template: `
     @if (isDisabled) {
-      <div
-        class="disabled-message user-notification mat-body-1"> {{ disabledMessage }} </div>
+      <div class="disabled-message user-notification mat-body-1">
+        <div>{{ disabledMessage }}</div>
+        <mat-spinner [diameter]="20"></mat-spinner>
+      </div>
     }
     <div [class.disabled-component]="isDisabled">
       @if (timelineData.hasMoreThanOneDistinctTimestamp()) {
@@ -569,6 +573,7 @@ import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
         top: 10%;
         left: 50%;
         opacity: 1;
+        justify-items: center;
       }
       .hover-timestamp {
         border-radius: 4px;

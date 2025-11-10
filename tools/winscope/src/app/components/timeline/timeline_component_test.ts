@@ -81,6 +81,7 @@ import {
   MediaBasedTraceEntry,
   VideoEntry,
 } from 'trace_api/media_based_trace_entry';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -123,6 +124,7 @@ describe('TimelineComponent', () => {
         DragDropModule,
         ClipboardModule,
         CdkMenuModule,
+        MatProgressSpinnerModule,
         ExpandedTimelineComponent,
         DefaultTimelineRowComponent,
         MatDrawer,

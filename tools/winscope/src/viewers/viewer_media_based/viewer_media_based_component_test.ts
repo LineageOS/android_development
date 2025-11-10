@@ -269,11 +269,24 @@ describe('ViewerMediaBasedComponent', () => {
     expect(index).toBe(0);
   });
 
+  it('does not emit event on double click if in playback mode', () => {
+    let index: number | undefined;
+    dom.addEventListener(ViewerEvents.OverlayDblClick, (event) => {
+      index = (event as CustomEvent).detail;
+    });
+    assertDefined(component.screenComponent).enableDoubleClick = true;
+    assertDefined(component.screenComponent).isInPlaybackMode = true;
+    dom.detectChanges();
+    const container = dom.get('.container');
+    container.doubleClick();
+    expect(index).toBeUndefined();
+  });
+
   it('shows loading message', async () => {
     component.isFetchingEntries = true;
     dom.detectChanges();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
-    await new Timer(500).sleepMs();
+    await new Timer(1000).sleepMs();
     expect(dom.find('.fetching-entries-message')).toBeDefined();
     component.isFetchingEntries = false;
     dom.detectChanges();
@@ -289,6 +302,28 @@ describe('ViewerMediaBasedComponent', () => {
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
     await new Timer(500).sleepMs();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
+  });
+
+  it('does not show loading message if update is not sequential', async () => {
+    component.isFetchingEntries = true;
+    dom.detectChanges();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+    component.isInPlaybackMode = true;
+    dom.detectChanges();
+    await new Timer(1000).sleepMs();
+    expect(dom.find('.fetching-entries-message')).toBeUndefined();
+  });
+
+  it('disables select if in playback mode', () => {
+    component.currentTraceEntries = [
+      new VideoEntry(new Blob(), 0),
+      new VideoEntry(new Blob(), 0),
+    ];
+    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    component.isInPlaybackMode = true;
+    dom.detectChanges();
+    dom.openMatSelect();
+    expect(dom.isMatSelectOpen()).toBeFalse();
   });
 
   function getContainerMaxWidth(): number {
@@ -313,7 +348,8 @@ describe('ViewerMediaBasedComponent', () => {
         [currentTraceEntries]="currentTraceEntries"
         [titles]="titles"
         [forceMinimize]="forceMinimize"
-        [isFetchingEntries]="isFetchingEntries"></viewer-media-based>
+        [isFetchingEntries]="isFetchingEntries"
+        [isInPlaybackMode]="isInPlaybackMode"></viewer-media-based>
     `,
   })
   class TestHostComponent {
@@ -321,6 +357,7 @@ describe('ViewerMediaBasedComponent', () => {
     titles: string[] = [];
     forceMinimize = false;
     isFetchingEntries = false;
+    isInPlaybackMode = false;
 
     @ViewChild(ViewerMediaBasedComponent)
     screenComponent: ViewerMediaBasedComponent | undefined;
