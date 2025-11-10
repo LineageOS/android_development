@@ -106,7 +106,7 @@ export class Presenter {
           event as ExpandedTimelineToggled,
         );
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 

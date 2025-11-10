@@ -106,7 +106,7 @@ export class CrossToolProtocol
       case TracePositionUpdate:
         return await this.onTracePositionUpdate(event as TracePositionUpdate);
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 

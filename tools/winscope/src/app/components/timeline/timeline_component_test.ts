@@ -1172,6 +1172,19 @@ describe('TimelineComponent', () => {
     expect(drawSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('shows hover timestamp', () => {
+    loadSfWmTraces();
+    expect(dom.find('.hover-timestamp')).toBeUndefined();
+
+    const tsValue = '01:23:45.789';
+    const miniTimeline = assertDefined(component.timeline?.miniTimeline);
+    miniTimeline.onHoverPositionUpdate.emit({posX: 10, tsValue});
+    dom.detectChanges();
+
+    const hoverTs = dom.get('.hover-timestamp');
+    hoverTs.checkTextExact(tsValue);
+  });
+
   describe('playback controls', () => {
     let emitEventSpy: jasmine.Spy;
 
@@ -1380,24 +1393,38 @@ describe('TimelineComponent', () => {
       expect(event.traceType).toEqual(TraceType.SURFACE_FLINGER);
     });
 
-    it('emits PlaybackStateChangeRequest event with current index of trace', () => {
+    it('emits PlaybackStateChangeRequest on position update during playback', async () => {
       const timelineComponent = assertDefined(component.timeline);
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);
 
-      const trace = assertDefined(
-        component.allTraces.getTrace(TraceType.SURFACE_FLINGER),
+      await timelineComponent.onWinscopeEvent(
+        new PlaybackStateChangeHandled(PlaybackState.BACKWARDS),
       );
-      spyOn(component.timelineData, 'findCurrentEntryFor')
-        .withArgs(trace)
-        .and.returnValue(trace.getEntry(1));
+      await timelineComponent.updatePosition(
+        TracePosition.fromTimestamp(time110),
+      );
+      expect(emitEventSpy).toHaveBeenCalledOnceWith(
+        new PlaybackStateChangeRequest(
+          TraceType.SURFACE_FLINGER,
+          PlaybackState.BACKWARDS,
+          1,
+        ),
+      );
+    });
 
-      dom.findAndClick('playback-controls #play-playback-button');
-      const event = emitEventSpy.calls.mostRecent().args[0];
-      expect(event.currentTraceIndex).toEqual(1);
+    it('emits PlaybackStateChangeRequest event with current index of trace', () => {
+      checkIndexOfStateChangeRequest(1, 1);
     });
 
     it('emits PlaybackStateChangeRequest event with first index of trace if no current entry found', () => {
+      checkIndexOfStateChangeRequest(undefined, 0);
+    });
+
+    function checkIndexOfStateChangeRequest(
+      currentIndex: number | undefined,
+      expectedIndex: number,
+    ) {
       const timelineComponent = assertDefined(component.timeline);
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);
@@ -1407,12 +1434,14 @@ describe('TimelineComponent', () => {
       );
       spyOn(component.timelineData, 'findCurrentEntryFor')
         .withArgs(trace)
-        .and.returnValue(undefined);
+        .and.returnValue(
+          currentIndex !== undefined ? trace.getEntry(currentIndex) : undefined,
+        );
 
       dom.findAndClick('playback-controls #play-playback-button');
       const event = emitEventSpy.calls.mostRecent().args[0];
-      expect(event.currentTraceIndex).toEqual(0);
-    });
+      expect(event.currentTraceIndex).toEqual(expectedIndex);
+    }
   });
 
   function loadSfWmTraces(hostComponent = component, domHelper = dom) {

@@ -185,7 +185,7 @@ export abstract class AbstractLogViewerPresenter<
       case ActiveTraceChanged:
         return await this.onActiveTraceChanged(event as ActiveTraceChanged);
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 

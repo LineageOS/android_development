@@ -93,10 +93,6 @@ import {TransitionTimelineComponent} from './transition_timeline_component';
               class="single-timeline">
             </single-timeline>
           }
-
-          <div class="icon-wrapper">
-            <mat-icon class="icon placeholder-icon"></mat-icon>
-          </div>
         </div>
       }
     </div>
