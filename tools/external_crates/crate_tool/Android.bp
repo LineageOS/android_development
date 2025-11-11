@@ -58,6 +58,14 @@ rust_test_host {
     test_options: {
         unit_test: true,
     },
+    srcs: [
+        "src/testdata/ahash.footer",
+        "src/testdata/ahash.header",
+        "src/testdata/ahash.patch",
+        "src/testdata/crossbeam-utils.patch",
+        "src/testdata/mls_rs_core.header",
+        "src/testdata/mls_rs_core.patch",
+    ],
     edition: "2021",
     rustlibs: [
         "libanyhow",
