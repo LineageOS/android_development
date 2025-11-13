@@ -1,14 +1,28 @@
 <mat-toolbar class="bg-blue-500 text-white">
   <span class="font-medium text-lg">Motion Test Watcher</span>
+    <span class="flex-auto"></span>
+
+  <div class = "font-medium text-lg justify-end">
+      <button mat-button color="primary" (click)="openDialog()">
+        Get Presubmit Artifacts
+      </button>
+    </div>
 </mat-toolbar>
 
 <div class="flex h-screen p-4 bg-gray-100">
-  <div class="w-1/4 bg-white rounded-md shadow-md overflow-y-auto mr-4">
-    <app-test-list
-      [goldens]="goldens"
-      (refreshRequest)="refreshGoldens($event)"
-      (selectedGoldenChange)="setSelectedGolden($event)"
-    ></app-test-list>
+  <div class="nav-bar flex items-start justify-center w-10 bg-slate-200 overflow-y-auto">
+    <button (click)="toggleTestListVisibility()" class="pt-4">
+    <span class="google-symbols">menu</span>
+    </button>
+  </div>
+  <div *ngIf="showTestList" [@sidebarMenuAnimation] class="w-1/4 bg-white rounded-r-md  overflow-y-auto mr-4">
+      <app-test-list
+        [goldens]="goldens"
+        (refreshRequest)="refreshGoldens($event)"
+        (selectedGoldenChange)="setSelectedGolden($event)"
+        [testNames]="testNames"
+        (selectedTestNameChange)="setSelectedTest($event)"
+      ></app-test-list>
   </div>
 
   <div class="flex flex-col flex-grow space-y-4">
@@ -19,6 +33,11 @@
       <app-timeline [selectedGolden]="selectedGolden"></app-timeline>
     </div>
   </div>
+</div>
+
+<div *ngIf="showLoader"
+class="fixed top-0 left-0 w-screen h-screen bg-black/60 flex flex-col justify-center items-center z-50 text-white">
+  <mat-spinner diameter="50"></mat-spinner> <p>Loading data...</p>
 </div>
 
 <div

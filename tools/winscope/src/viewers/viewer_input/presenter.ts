@@ -48,7 +48,7 @@ import {
   convertRectIdToLayerorDisplayName,
   makeDisplayIdentifiers,
 } from 'viewers/viewer_surface_flinger/presenter';
-import {DispatchEntryFormatter} from './operations/dispatch_entry_formatter';
+import {FormatDispatchEntry} from './operations/format_dispatch_entry';
 import {InputCoordinatePropagator} from './operations/input_coordinate_propagator';
 import {InputEntry, UiData} from './ui_data';
 
@@ -111,10 +111,11 @@ export class Presenter extends AbstractLogViewerPresenter<
     {},
     new TextFilter(),
     Presenter.DENYLIST_DISPATCH_PROPERTIES,
-    [new DispatchEntryFormatter(this.layerIdToName)],
+    [new FormatDispatchEntry(this.layerIdToName)],
   );
   protected override keepCalculated = true;
   private readonly currentTargetWindowIds = new Set<string>();
+  private currDispatchProperties: PropertyTreeNode | undefined;
 
   private readonly rectsPresenter = new RectsPresenter(
     PersistentStoreProxy.new<UserOptions>(
@@ -133,10 +134,13 @@ export class Presenter extends AbstractLogViewerPresenter<
       },
       this.storage,
     ),
-    (tree: HierarchyTreeNode) =>
-      UI_RECT_FACTORY.makeInputRects(tree, (id) =>
-        this.currentTargetWindowIds.has(id.split(' ')[0]),
-      ),
+    (tree: HierarchyTreeNode) => {
+      return UI_RECT_FACTORY.makeInputRects(
+        tree,
+        (id) => this.currentTargetWindowIds.has(id.split(' ')[0]),
+        this.currDispatchProperties,
+      );
+    },
     makeDisplayIdentifiers,
     convertRectIdToLayerorDisplayName,
   );
@@ -238,7 +242,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     return uniqueFieldValues;
   }
 
-  protected override updateFiltersInHeaders(
+  protected override async updateFiltersInHeaders(
     headers: LogHeader[],
     entries: LogEntry[],
   ) {
@@ -313,9 +317,7 @@ export class Presenter extends AbstractLogViewerPresenter<
         },
         {
           spec: Presenter.COLUMNS.action,
-          value: assertDefined(eventTree.getChildByName('action'))
-            .formattedValue()
-            .replace('ACTION_', ''),
+          value: Presenter.getInputAction(eventTree),
         },
         {
           spec: Presenter.COLUMNS.deviceId,
@@ -347,10 +349,25 @@ export class Presenter extends AbstractLogViewerPresenter<
             .join(', '),
         },
       ],
-      eventTree,
-      dispatchTree,
+      async () => assertDefined(eventTree),
+      async () => dispatchTree,
       sfEntry,
     );
+  }
+
+  private static getInputAction(eventTree: PropertyTreeNode): string {
+    const actionNode = assertDefined(eventTree.getChildByName('action'));
+    const action = actionNode.getValue();
+    const actionMasked = action & 0xff;
+    const pointerIndex = action >> 8;
+    switch (actionMasked) {
+      case 5:
+        return `POINTER_DOWN(${pointerIndex})`;
+      case 6:
+        return `POINTER_UP(${pointerIndex})`;
+      default:
+        return actionNode.formattedValue().replace('ACTION_', '');
+    }
   }
 
   private getLayerDisplayName(layerId: number): string {
@@ -367,10 +384,10 @@ export class Presenter extends AbstractLogViewerPresenter<
   ): string {
     const keyDetails =
       'Keycode: ' +
-        eventTree
-          .getChildByName('keyCode')
-          ?.formattedValue()
-          ?.replace(/^KEYCODE_/, '') ?? '<?>';
+      (eventTree
+        .getChildByName('keyCode')
+        ?.formattedValue()
+        ?.replace(/^KEYCODE_/, '') ?? '<?>');
     return keyDetails + ' ' + Presenter.extractDispatchDetails(dispatchTree);
   }
 
@@ -400,7 +417,9 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   private async updateDispatchPropertiesTree() {
     const inputEntry = this.getCurrentEntry();
-    const tree = inputEntry?.dispatchPropertiesTree;
+    const tree = inputEntry?.getDispatchPropertiesTree
+      ? await inputEntry.getDispatchPropertiesTree()
+      : undefined;
     this.dispatchPropertiesPresenter.setPropertiesTree(tree);
     await this.dispatchPropertiesPresenter.formatPropertiesTree(
       undefined,
@@ -419,18 +438,22 @@ export class Presenter extends AbstractLogViewerPresenter<
     const inputEntry = this.getCurrentEntry();
 
     this.currentTargetWindowIds.clear();
-    inputEntry?.dispatchPropertiesTree
-      ?.getAllChildren()
-      ?.forEach((dispatchEntry) => {
+    this.currDispatchProperties = undefined;
+
+    const dispatchProperties = await inputEntry?.getDispatchPropertiesTree?.();
+    if (dispatchProperties) {
+      dispatchProperties.getAllChildren()?.forEach((dispatchEntry) => {
         const windowId = dispatchEntry.getChildByName('windowId');
         if (windowId !== undefined) {
           this.currentTargetWindowIds.add(`${Number(windowId.getValue())}`);
         }
       });
+    }
 
     if (inputEntry?.surfaceFlingerEntry !== undefined) {
       const startTimeMs = Date.now();
       const node = await inputEntry.surfaceFlingerEntry.getValue();
+      this.currDispatchProperties = dispatchProperties;
       this.rectsPresenter.applyHierarchyTreesChange([
         {trace: this.surfaceFlingerTrace, trees: [node]},
       ]);

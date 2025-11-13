@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import {UserNotifier} from 'common/user_notifier';
-import {ProxyTracingWarnings} from 'messaging/user_warnings';
 import {ConnectionState} from 'trace_collection/connection_state';
 import {TraceTarget} from 'trace_collection/trace_target';
 import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
@@ -68,16 +66,7 @@ export abstract class AdbDeviceConnection {
 
   async checkRoot(): Promise<boolean> {
     const root = await this.runShellCommand('su root id -u');
-    const isRoot = Number(root) === 0;
-    if (!isRoot) {
-      UserNotifier.add(
-        new ProxyTracingWarnings([
-          'Unable to acquire root privileges on the device - ' +
-            `check the output of 'adb -s ${this.id} shell su root id'`,
-        ]),
-      ).notify();
-    }
-    return isRoot;
+    return root === '0';
   }
 
   async updateAvailableTraces() {
@@ -97,22 +86,25 @@ export abstract class AdbDeviceConnection {
   }
 
   async findFiles(path: string, matchers: string[]): Promise<string[]> {
+    const errors = ['No such file', 'Permission denied'];
     if (matchers.length === 0) {
       matchers.push('');
     }
+    const isRoot = await this.checkRoot();
     for (const matcher of matchers) {
-      let matchingFiles: string;
+      let findCmd = `find ${path}`;
       if (matcher.length > 0) {
-        matchingFiles = await this.runShellCommand(
-          `su root find ${path} -name ${matcher}`,
-        );
-      } else {
-        matchingFiles = await this.runShellCommand(`su root find ${path}`);
+        findCmd += ` -name ${matcher}`;
       }
+      if (isRoot) {
+        findCmd = 'su root ' + findCmd;
+      }
+      const matchingFiles = await this.runShellCommand(findCmd);
       const files = matchingFiles
         .split('\n')
         .filter(
-          (file) => !file.includes('No such file') && file.trim().length > 0,
+          (maybeFile) =>
+            !errors.includes(maybeFile) && maybeFile.trim().length > 0,
         );
       if (files.length > 0) {
         return files;
@@ -147,7 +139,7 @@ export abstract class AdbDeviceConnection {
 
     if (this.state === AdbDeviceState.AVAILABLE) {
       const output = await this.runShellCommand(
-        'su root dumpsys SurfaceFlinger --display-id',
+        'dumpsys SurfaceFlinger --display-id',
       );
       if (!output.includes('Display')) {
         this.displays = [];

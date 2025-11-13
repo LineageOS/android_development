@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "bp_util",
     "checksum",
     "crate_config",
     "crate_tool",
@@ -9,6 +10,7 @@ members = [
     "name_and_version",
     "repo_config",
     "rooted_path",
+    "success_or_error",
     "test_mapping",
 ]
 resolver = "2"

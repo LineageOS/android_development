@@ -30,6 +30,7 @@ use license_checker::{find_licenses, LicenseState};
 use name_and_version::NamedAndVersioned;
 use rooted_path::RootedPath;
 use semver::Version;
+use success_or_error::SuccessOrError;
 use test_mapping::TestMapping;
 
 use crate::{
@@ -37,10 +38,8 @@ use crate::{
     copy_dir,
     crate_type::Crate,
     ensure_exists_and_empty,
-    license::{most_restrictive_type, update_module_license_files},
     patch::Patch,
     pseudo_crate::{CargoVendorClean, PseudoCrate},
-    SuccessOrError,
 };
 
 #[derive(Debug)]
@@ -94,7 +93,7 @@ impl<State: ManagedCrateState> ManagedCrate<State> {
     pub fn android_version(&self) -> &Version {
         self.android_crate.version()
     }
-    fn android_crate_path(&self) -> &RootedPath {
+    pub fn android_crate_path(&self) -> &RootedPath {
         self.android_crate.path()
     }
     pub fn config(&self) -> &CrateConfig {
@@ -341,7 +340,7 @@ impl ManagedCrate<Vendored> {
         let licenses = find_licenses(
             self.temporary_build_directory(),
             self.name(),
-            self.android_crate.license(),
+            Crate::from(self.temporary_build_directory())?.license(),
         )?;
         let regenerated = self.into_copied_and_patched(licenses)?;
         regenerated.regenerate(run_cargo_embargo)?;
@@ -450,7 +449,7 @@ impl ManagedCrate<CopiedAndPatched> {
             )?;
         }
 
-        update_module_license_files(&self.temporary_build_directory(), &self.extra.licenses)?;
+        self.extra.licenses.update_module_license_files(&self.temporary_build_directory())?;
         Ok(())
     }
     /// Runs cargo_embargo on the crate in the temporary build directory.
@@ -486,7 +485,7 @@ impl ManagedCrate<CopiedAndPatched> {
             self.name(),
             self.extra.vendored_crate.version().to_string(),
             self.extra.vendored_crate.description(),
-            most_restrictive_type(&self.extra.licenses),
+            self.extra.licenses.most_restrictive_type(),
         );
         metadata.write()?;
 

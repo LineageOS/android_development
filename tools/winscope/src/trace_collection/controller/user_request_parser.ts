@@ -41,6 +41,7 @@ export class UserRequestParser {
     [UiTraceTarget.VIEW_CAPTURE, 'android.viewcapture'],
     [UiTraceTarget.INPUT, 'android.input.inputevent'],
     [UiTraceTarget.SURFACE_FLINGER_DUMP, 'android.surfaceflinger.layers'],
+    [UiTraceTarget.WINDOW_MANAGER_DUMP, 'android.windowmanager'],
   ]);
 
   private perfettoModerator: PerfettoSessionModerator | undefined;
@@ -58,7 +59,7 @@ export class UserRequestParser {
 
   async parse(): Promise<TracingSession[]> {
     const traceTargets: TraceTarget[] = [];
-    const perfettoSetup: string[] = [];
+    const perfettoConfigDataSources: string[] = [];
     const perfettoModerator = assertDefined(this.perfettoModerator);
 
     for (const req of assertDefined(this.requests)) {
@@ -70,9 +71,9 @@ export class UserRequestParser {
         !(await perfettoModerator.isTooManySessions()) && dataSourceAvailable;
 
       if (isPerfetto) {
-        const cmd = this.getPerfettoSetupCommand(req);
-        if (cmd) {
-          perfettoSetup.push(cmd);
+        const configFileDs = this.getPerfettoDataSourceConfig(req);
+        if (configFileDs) {
+          perfettoConfigDataSources.push(configFileDs);
         }
       } else {
         const targets = this.getNonPerfettoTargets(req);
@@ -85,32 +86,36 @@ export class UserRequestParser {
     const sessions = traceTargets.map((target) => {
       return new TracingSession(target);
     });
-    if (perfettoSetup.length > 0) {
-      sessions.push(perfettoModerator.createTracingSession(perfettoSetup));
+    if (perfettoConfigDataSources.length > 0) {
+      sessions.push(
+        perfettoModerator.createTracingSession(perfettoConfigDataSources),
+      );
     }
     return sessions;
   }
 
-  private getPerfettoSetupCommand(req: UserRequest): string | undefined {
+  private getPerfettoDataSourceConfig(req: UserRequest): string | undefined {
     switch (req.target) {
       case UiTraceTarget.SURFACE_FLINGER_TRACE:
-        return this.getSfTracePerfettoSetupCommand(req);
+        return this.getSfTracePerfettoConfigDataSource(req);
       case UiTraceTarget.WINDOW_MANAGER_TRACE:
-        return this.getWmTracePerfettoSetupCommand(req);
+        return this.getWmTracePerfettoConfigDataSource(req);
       case UiTraceTarget.VIEW_CAPTURE:
-        return this.getVcPerfettoSetupCommand();
+        return this.getVcPerfettoConfigDataSource();
       case UiTraceTarget.TRANSACTIONS:
-        return this.getTransactionsPerfettoSetupCommand();
+        return this.getTransactionsPerfettoConfigDataSource();
       case UiTraceTarget.PROTO_LOG:
-        return this.getProtologPerfettoSetupCommand();
+        return this.getProtologPerfettoConfigDataSource();
       case UiTraceTarget.IME:
-        return this.getImePerfettoSetupCommand();
+        return this.getImePerfettoConfigDataSource();
       case UiTraceTarget.TRANSITIONS:
-        return this.getTransitionsPerfettoSetupCommand();
+        return this.getTransitionsPerfettoConfigDataSource();
       case UiTraceTarget.INPUT:
-        return this.getInputPerfettoSetupCommand();
+        return this.getInputPerfettoConfigDataSource();
       case UiTraceTarget.SURFACE_FLINGER_DUMP:
-        return this.getSfDumpPerfettoSetupCommand();
+        return this.getSfDumpPerfettoConfigDataSource();
+      case UiTraceTarget.WINDOW_MANAGER_DUMP:
+        return this.getWmDumpPerfettoConfigDataSource();
       default:
         return undefined;
     }
@@ -149,7 +154,7 @@ export class UserRequestParser {
     }
   }
 
-  private getSfTracePerfettoSetupCommand(req: UserRequest) {
+  private getSfTracePerfettoConfigDataSource(req: UserRequest) {
     const flagsMap: {[key: string]: string} = {
       'input': 'TRACE_FLAG_INPUT',
       'composition': 'TRACE_FLAG_COMPOSITION',
@@ -166,7 +171,7 @@ export class UserRequestParser {
         return `trace_flags: ${flagsMap[flag]}`;
       })
       .join(spacer);
-    return this.perfettoModerator?.createSetupCommand(
+    return this.perfettoModerator?.makeConfigDataSource(
       'android.surfaceflinger.layers',
       `surfaceflinger_layers_config: {
       mode: MODE_ACTIVE${flagsCmd.length === 0 ? '' : spacer + flagsCmd}
@@ -212,7 +217,7 @@ export class UserRequestParser {
     );
   }
 
-  private getWmTracePerfettoSetupCommand(req: UserRequest) {
+  private getWmTracePerfettoConfigDataSource(req: UserRequest) {
     const selectedConfigs = new WmRequestConfigParser().parse(req.config);
 
     const logLevelMap: {[key: string]: string} = {
@@ -228,7 +233,7 @@ export class UserRequestParser {
 
     const logLevel = logLevelMap[selectedConfigs['tracinglevel']];
     const logFrequency = frequencyMap[selectedConfigs['tracingtype']];
-    return this.perfettoModerator?.createSetupCommand(
+    return this.perfettoModerator?.makeConfigDataSource(
       'android.windowmanager',
       `windowmanager_config: {
       log_level: ${logLevel}
@@ -262,8 +267,8 @@ export class UserRequestParser {
     );
   }
 
-  private getVcPerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand('android.viewcapture');
+  private getVcPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource('android.viewcapture');
   }
 
   private getVcLegacyTarget() {
@@ -285,8 +290,8 @@ export class UserRequestParser {
     );
   }
 
-  private getTransactionsPerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand(
+  private getTransactionsPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource(
       'android.surfaceflinger.transactions',
       `surfaceflinger_transactions_config: {
       mode: MODE_ACTIVE
@@ -312,8 +317,8 @@ export class UserRequestParser {
     );
   }
 
-  private getProtologPerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand(
+  private getProtologPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource(
       'android.protolog',
       `protolog_config: {
       tracing_mode: ENABLE_ALL
@@ -339,8 +344,8 @@ export class UserRequestParser {
     );
   }
 
-  private getImePerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand('android.inputmethod');
+  private getImePerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource('android.inputmethod');
   }
 
   private getImeLegacyTarget() {
@@ -369,8 +374,8 @@ export class UserRequestParser {
     );
   }
 
-  private getTransitionsPerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand(
+  private getTransitionsPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource(
       'com.android.wm.shell.transition',
     );
   }
@@ -400,8 +405,8 @@ export class UserRequestParser {
     );
   }
 
-  private getInputPerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand(
+  private getInputPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource(
       'android.input.inputevent',
       `android_input_event_config {
       mode: TRACE_MODE_TRACE_ALL
@@ -494,8 +499,8 @@ export class UserRequestParser {
     );
   }
 
-  private getSfDumpPerfettoSetupCommand() {
-    return this.perfettoModerator?.createSetupCommand(
+  private getSfDumpPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource(
       'android.surfaceflinger.layers',
       `surfaceflinger_layers_config: {
       mode: MODE_DUMP
@@ -521,6 +526,16 @@ export class UserRequestParser {
           'layers_dump',
         ),
       ],
+    );
+  }
+
+  private getWmDumpPerfettoConfigDataSource() {
+    return this.perfettoModerator?.makeConfigDataSource(
+      'android.windowmanager',
+      `windowmanager_config: {
+      log_level: LOG_LEVEL_VERBOSE
+      log_frequency: LOG_FREQUENCY_SINGLE_DUMP
+    }`,
     );
   }
 

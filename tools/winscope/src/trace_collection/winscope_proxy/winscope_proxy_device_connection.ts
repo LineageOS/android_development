@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {byteArrayToString} from 'common/buffer_utils';
+import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {FunctionUtils} from 'common/function_utils';
 import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
+import {utf8Decode} from 'common/string_utils';
 import {UserNotifier} from 'common/user_notifier';
 import {ProxyTracingErrors} from 'messaging/user_warnings';
 import {
@@ -50,7 +51,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
   }
 
   override async tryAuthorize() {
-    throw new Error('not implemented');
+    throw NOT_IMPLEMENTED_ERROR;
   }
 
   override async runShellCommand(cmd: string): Promise<string> {
@@ -93,7 +94,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     filepath: string,
   ) => {
     try {
-      const resp = byteArrayToString(httpResponse.body);
+      const resp = utf8Decode(httpResponse.body);
       const fileToPath = JSON.parse(resp);
       const encodedFileBuffer = fileToPath[filepath];
       return Uint8Array.from(window.atob(encodedFileBuffer), (c) =>

@@ -27,7 +27,7 @@ import {
 } from '@angular/core';
 import {MatSelectChange} from '@angular/material/select';
 
-import {DOMUtils} from 'common/dom_utils';
+import {isElementVisible, KeyboardEventKey} from 'common/dom_utils';
 import {Timestamp, TimestampFormatType} from 'common/time/time';
 import {TimeUtils} from 'common/time/time_utils';
 import {TraceType} from 'trace/trace_type';
@@ -60,21 +60,6 @@ import {
             class="log-title"
             [title]="title"
             (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
-
-        <div class="filters" *ngIf="showFiltersInTitle && getHeadersWithFilters().length > 0">
-          <div class="filter" *ngFor="let header of getHeadersWithFilters()"
-               [class]="header.spec.cssClass">
-            <select-with-filter
-                *ngIf="(header.filter.options?.length ?? 0) > 0"
-                [label]="header.spec.name"
-                [options]="header.filter.options"
-                [outerFilterWidth]="header.filter.outerFilterWidthCss"
-                [innerFilterWidth]="header.filter.innerFilterWidthCss"
-                formFieldClass="no-border-top-field"
-                (selectChange)="onFilterChange($event, header)">
-            </select-with-filter>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -140,31 +125,10 @@ import {
       </div>
 
       <cdk-virtual-scroll-viewport
-          *ngIf="isTransactions()"
-          transactionsVirtualScroll
+          *ngIf="!isFixedSizeScrollViewport()"
+          variableHeightScroll
           class="scroll"
-          [scrollItems]="entries">
-        <ng-container
-            *cdkVirtualFor="let entry of entries; let i = index"
-            [ngTemplateOutlet]="content"
-            [ngTemplateOutletContext]="{entry: entry, i: i}"> </ng-container>
-      </cdk-virtual-scroll-viewport>
-
-      <cdk-virtual-scroll-viewport
-          *ngIf="isProtolog()"
-          protologVirtualScroll
-          class="scroll"
-          [scrollItems]="entries">
-        <ng-container
-            *cdkVirtualFor="let entry of entries; let i = index"
-            [ngTemplateOutlet]="content"
-            [ngTemplateOutletContext]="{entry: entry, i: i}"> </ng-container>
-      </cdk-virtual-scroll-viewport>
-
-      <cdk-virtual-scroll-viewport
-          *ngIf="isTransitions()"
-          transitionsVirtualScroll
-          class="scroll"
+          [traceType]="traceType"
           [scrollItems]="entries">
         <ng-container
             *cdkVirtualFor="let entry of entries; let i = index"
@@ -202,7 +166,7 @@ import {
             </button>
           </div>
 
-          <div [class]="field.spec.cssClass" *ngFor="let field of entry.fields; index as i">
+          <div [class]="field.spec.cssClass + ' cell'" *ngFor="let field of entry.fields; index as i">
             <span class="mat-body-1" *ngIf="!showFieldButton(entry, field)">{{ field.value }}</span>
             <button
                 *ngIf="showFieldButton(entry, field)"
@@ -216,6 +180,13 @@ import {
                 *ngIf="field.icon"
                 aria-hidden="false"
                 [style]="{color: field.iconColor}"> {{field.icon}} </mat-icon>
+            <button
+                mat-icon-button
+                *ngIf="field.spec.canCopy"
+                class="copy-button"
+                [cdkCopyToClipboard]="field.value.toString()">
+              <mat-icon>content_copy</mat-icon>
+            </button>
           </div>
         </div>
       </ng-template>
@@ -257,7 +228,6 @@ export class LogComponent {
   @Input() showCurrentTimeButton = true;
   @Input() traceType: TraceType | undefined;
   @Input() showTraceEntryTimes = true;
-  @Input() showFiltersInTitle = false;
   @Input() padEntries = true;
   @Input() isFetchingData = false;
 
@@ -368,18 +338,28 @@ export class LogComponent {
 
   @HostListener('document:keydown', ['$event'])
   async handleKeyboardEvent(event: KeyboardEvent) {
-    const logComponentVisible = DOMUtils.isElementVisible(
-      this.elementRef.nativeElement,
-    );
-    if (event.key === 'ArrowDown' && logComponentVisible) {
+    const logComponentVisible = isElementVisible(this.elementRef.nativeElement);
+    if (event.key === KeyboardEventKey.ARROW_DOWN && logComponentVisible) {
       event.stopPropagation();
       event.preventDefault();
       this.emitEvent(ViewerEvents.ArrowDownPress);
     }
-    if (event.key === 'ArrowUp' && logComponentVisible) {
+    if (event.key === KeyboardEventKey.ARROW_UP && logComponentVisible) {
       event.stopPropagation();
       event.preventDefault();
       this.emitEvent(ViewerEvents.ArrowUpPress);
+    }
+    if (
+      event.key === KeyboardEventKey.ENTER &&
+      logComponentVisible &&
+      this.selectedIndex !== undefined
+    ) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.emitEvent(
+        ViewerEvents.TimestampClick,
+        new TimestampClickDetail(this.entries[this.selectedIndex].traceEntry),
+      );
     }
   }
 
@@ -391,23 +371,9 @@ export class LogComponent {
     return index === this.selectedIndex;
   }
 
-  isTransactions() {
-    return this.traceType === TraceType.TRANSACTIONS;
-  }
-
-  isProtolog() {
-    return this.traceType === TraceType.PROTO_LOG;
-  }
-
-  isTransitions() {
-    return this.traceType === TraceType.TRANSITION;
-  }
-
   isFixedSizeScrollViewport() {
-    return !(
-      this.isTransactions() ||
-      this.isProtolog() ||
-      this.isTransitions()
+    return (
+      this.traceType === TraceType.CUJS || this.traceType === TraceType.SEARCH
     );
   }
 

@@ -15,24 +15,55 @@
  */
 
 import {assertDefined} from 'common/assert_utils';
-import {byteArrayToString} from 'common/buffer_utils';
 import {FileUtils} from 'common/file_utils';
+import {FunctionUtils} from 'common/function_utils';
+import {utf8Decode} from 'common/string_utils';
 import {TimezoneInfo} from 'common/time/time';
 import {UserNotifier} from 'common/user_notifier';
-import {TraceOverridden} from 'messaging/user_warnings';
+import {UserWarning} from 'messaging/user_warning';
+import {MissingPersistentTrace, TraceOverridden} from 'messaging/user_warnings';
+import {
+  BugreportFileSelectionRequest,
+  WinscopeEvent,
+  WinscopeEventType,
+} from 'messaging/winscope_event';
+import {
+  EmitEvent,
+  WinscopeEventEmitter,
+} from 'messaging/winscope_event_emitter';
+import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {TraceFile} from 'trace/trace_file';
 import {TraceMetadata} from 'trace/trace_metadata';
+
+export enum BuildType {
+  USER = 'user',
+  USERDEBUG = 'userdebug',
+  ENG = 'eng',
+}
+
+export interface BugreportData {
+  timezoneInfo?: TimezoneInfo;
+  buildType?: BuildType;
+  isPersistentTracingEnabled: boolean;
+}
 
 export interface FilterResult {
   legacy: TraceFile[];
   metadata: TraceMetadata;
   perfetto?: TraceFile;
   timezoneInfo?: TimezoneInfo;
+  criticalWarnings?: UserWarning[];
 }
 
-export class TraceFileFilter {
-  private static readonly BUGREPORT_SYSTRACE_PATH =
-    'FS/data/misc/perfetto-traces/bugreport/systrace.pftrace';
+export class TraceFileFilter
+  implements WinscopeEventListener, WinscopeEventEmitter
+{
+  private static readonly BUGREPORT_PERFETTO_TRACE_DIR =
+    'FS/data/misc/perfetto-traces/bugreport';
+  private static readonly BUGREPORT_PERFETTO_TRACE_ORDER = [
+    TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR + '/systrace.pftrace',
+    TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR + '/sysui.pftrace',
+  ];
   private static readonly BUGREPORT_LEGACY_FILES_ALLOWLIST = [
     'FS/data/misc/wmtrace/',
     'FS/data/misc/perfetto-traces/',
@@ -46,6 +77,22 @@ export class TraceFileFilter {
     '.perfetto',
   ];
 
+  private emitEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private selectedFile: string | undefined;
+
+  setEmitEvent(callback: EmitEvent) {
+    this.emitEvent = callback;
+  }
+
+  async onWinscopeEvent(event: WinscopeEvent) {
+    await event.visit(
+      WinscopeEventType.BUGREPORT_FILE_SELECTED,
+      async (event) => {
+        this.selectedFile = event.filename;
+      },
+    );
+  }
+
   async filter(files: TraceFile[]): Promise<FilterResult> {
     const bugreportMainEntry = files.find((file) =>
       file.file.name.endsWith('main_entry.txt'),
@@ -57,7 +104,12 @@ export class TraceFileFilter {
       (file) => !this.isPerfettoFile(file) && !mFiles.includes(file),
     );
 
-    if (!(await this.isBugreport(bugreportMainEntry, files))) {
+    const isBugReportArchive = await this.isBugreport(
+      bugreportMainEntry,
+      files,
+    );
+
+    if (!isBugReportArchive) {
       const perfettoFile = this.pickLargestFile(perfettoFiles);
       return {
         perfetto: perfettoFile,
@@ -66,7 +118,7 @@ export class TraceFileFilter {
       };
     }
 
-    const timezoneInfo = await this.processRawBugReport(
+    const bugreportData = await this.getBugreportData(
       assertDefined(bugreportMainEntry),
       files,
     );
@@ -76,33 +128,73 @@ export class TraceFileFilter {
       perfettoFiles,
       legacyFiles,
       metadata,
-      timezoneInfo,
+      bugreportData,
     );
   }
 
-  private async processRawBugReport(
+  private async getBugreportData(
     bugreportMainEntry: TraceFile,
     files: TraceFile[],
-  ): Promise<TimezoneInfo | undefined> {
+  ): Promise<BugreportData | undefined> {
     const bugreportName = (await bugreportMainEntry.file.text()).trim();
-    const rawBugReport = files.find((file) => file.file.name === bugreportName);
-    if (!rawBugReport) {
-      return undefined;
-    }
-
-    const traceBuffer = new Uint8Array(await rawBugReport.file.arrayBuffer());
-    const fileData = byteArrayToString(traceBuffer);
-
-    const timezoneStartIndex = fileData.indexOf('[persist.sys.timezone]');
-    if (timezoneStartIndex === -1) {
-      return undefined;
-    }
-    const timezone = this.extractValueFromRawBugReport(
-      fileData,
-      timezoneStartIndex,
+    const mainBugreportFile = files.find(
+      (file) => file.file.name === bugreportName,
     );
+    if (!mainBugreportFile) {
+      return undefined;
+    }
 
-    return {timezone, locale: 'en-US'};
+    const traceBuffer = new Uint8Array(
+      await mainBugreportFile.file.arrayBuffer(),
+    );
+    const fileData = utf8Decode(traceBuffer);
+
+    const timezone = this.extractBugreportProperty(
+      fileData,
+      'persist.sys.timezone',
+    );
+    const timezoneInfo = timezone ? {timezone, locale: 'en-US'} : undefined;
+    const buildTypeString = this.extractBugreportProperty(
+      fileData,
+      'ro.build.type',
+    );
+    const persistentTracingFlag = this.extractBugreportProperty(
+      fileData,
+      'persist.debug.perfetto.persistent_sysui_tracing_for_bugreport',
+    );
+    const isPersistentTracingEnabled = persistentTracingFlag === '1';
+
+    return {
+      timezoneInfo,
+      buildType: this.parseBuildType(buildTypeString),
+      isPersistentTracingEnabled,
+    };
+  }
+
+  private parseBuildType(
+    buildTypeString: string | undefined,
+  ): BuildType | undefined {
+    if (!buildTypeString) {
+      return undefined;
+    }
+    const lowerCaseBuildType = buildTypeString.toLowerCase();
+    if (Object.values(BuildType).includes(lowerCaseBuildType as BuildType)) {
+      return lowerCaseBuildType as BuildType;
+    }
+    console.warn(`Unknown build type found in bugreport: ${buildTypeString}`);
+    return undefined;
+  }
+
+  private extractBugreportProperty(
+    fileData: string,
+    propertyKey: string,
+  ): string | undefined {
+    const keyWithBrackets = `[${propertyKey}]`;
+    const startIndex = fileData.indexOf(keyWithBrackets);
+    if (startIndex === -1) {
+      return undefined;
+    }
+    return this.extractValueFromRawBugReport(fileData, startIndex);
   }
 
   private extractValueFromRawBugReport(
@@ -126,14 +218,12 @@ export class TraceFileFilter {
       return false;
     }
     const bugreportName = (await bugreportMainEntry.file.text()).trim();
-    return (
-      files.find((file) => {
-        return (
-          file.parentArchive === bugreportMainEntry.parentArchive &&
-          file.file.name === bugreportName
-        );
-      }) !== undefined
-    );
+    return files.some((file) => {
+      return (
+        file.parentArchive === bugreportMainEntry.parentArchive &&
+        file.file.name === bugreportName
+      );
+    });
   }
 
   private async filterBugreport(
@@ -141,7 +231,7 @@ export class TraceFileFilter {
     perfettoFiles: TraceFile[],
     legacyFiles: TraceFile[],
     metadata: TraceMetadata,
-    timezoneInfo?: TimezoneInfo,
+    bugreportData?: BugreportData,
   ): Promise<FilterResult> {
     const isFileAllowlisted = (file: TraceFile) => {
       for (const traceDir of TraceFileFilter.BUGREPORT_LEGACY_FILES_ALLOWLIST) {
@@ -176,14 +266,59 @@ export class TraceFileFilter {
         unzippedLegacyFiles.push(file);
       }
     }
-    const perfettoFile = perfettoFiles.find(
-      (file) => file.file.name === TraceFileFilter.BUGREPORT_SYSTRACE_PATH,
+    const brPerfettoFiles = perfettoFiles.filter(
+      (file) =>
+        FileUtils.getFileDirectory(file.file.name) ===
+        TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR,
     );
+
+    const getIndex = (fileName: string) => {
+      return TraceFileFilter.BUGREPORT_PERFETTO_TRACE_ORDER.findIndex(
+        (name) => name === fileName,
+      );
+    };
+    let perfettoFile = brPerfettoFiles
+      .filter((file) =>
+        TraceFileFilter.BUGREPORT_PERFETTO_TRACE_ORDER.includes(file.file.name),
+      )
+      .sort((f1, f2) => getIndex(f1.file.name) - getIndex(f2.file.name))
+      .at(0);
+
+    if (!perfettoFile && brPerfettoFiles.length === 1) {
+      perfettoFile = brPerfettoFiles[0];
+    }
+
+    if (!perfettoFile && brPerfettoFiles.length > 1) {
+      // emitEvent must be set to propagate event to mediator, which routes file selection
+      // request to AppComponent. User is prompted by dialog to select which file to
+      // process. Once dialog is closed, selected file is sent back to TraceFileFilter
+      // via BugreportFileSelected event and handled above in onWinscopeEvent, where
+      // it is stored in selectedFile. Promise below only resolves after BugreportFileSelected
+      // event has been handled.
+      await this.emitEvent(
+        new BugreportFileSelectionRequest(
+          brPerfettoFiles.map((file) => file.file.name),
+        ),
+      );
+      if (this.selectedFile) {
+        perfettoFile = brPerfettoFiles.find(
+          (file) => file.file.name === this.selectedFile,
+        );
+        this.selectedFile = undefined;
+      }
+    }
+
+    const criticalWarnings: UserWarning[] = [];
+    if (!perfettoFile && bugreportData) {
+      criticalWarnings.push(new MissingPersistentTrace(bugreportData));
+    }
+
     return {
       perfetto: perfettoFile,
       legacy: unzippedLegacyFiles,
       metadata,
-      timezoneInfo,
+      timezoneInfo: bugreportData?.timezoneInfo,
+      criticalWarnings,
     };
   }
 
@@ -203,7 +338,7 @@ export class TraceFileFilter {
     const metadata: TraceMetadata = {};
     for (const file of files) {
       const buffer = new Uint8Array(await file.file.arrayBuffer());
-      const text = byteArrayToString(buffer);
+      const text = utf8Decode(buffer);
       try {
         const data = JSON.parse(text);
         if (

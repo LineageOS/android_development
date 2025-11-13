@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+import {assertDefined} from 'common/assert_utils';
 import {
+  getTimestampConverter,
   TimestampConverterUtils,
   timestampEqualityTester,
 } from 'common/time/test_utils';
+import Long from 'long';
+import {perfetto} from 'protos/perfetto/trace/static';
+import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {UnitTestUtils} from 'test/unit/utils';
 import {CoarseVersion} from 'trace/coarse_version';
 import {Parser} from 'trace/parser';
 import {TraceType} from 'trace/trace_type';
@@ -37,9 +41,9 @@ describe('ParserSurfaceFlingerDump', () => {
     let parser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
-      parser = (await UnitTestUtils.getParser(
-        'traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb',
-      )) as Parser<HierarchyTreeNode>;
+      parser = await new LegacyParserProvider()
+        .addFilename('traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb')
+        .getParser<HierarchyTreeNode>();
     });
 
     afterEach(() => {
@@ -61,18 +65,37 @@ describe('ParserSurfaceFlingerDump', () => {
     });
 
     it('does not apply timezone info', async () => {
-      const parserWithTimezoneInfo = (await UnitTestUtils.getParser(
-        'traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb',
-        UnitTestUtils.getTimestampConverter(true),
-      )) as Parser<HierarchyTreeNode>;
+      const parserWithTimezoneInfo = await new LegacyParserProvider()
+        .addFilename('traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb')
+        .setTimestampConverter(getTimestampConverter(true))
+        .getParser<HierarchyTreeNode>();
 
       const expected = [TimestampConverterUtils.makeElapsedTimestamp(0n)];
       expect(parserWithTimezoneInfo.getTimestamps()).toEqual(expected);
     });
 
-    it('retrieves trace entry', async () => {
-      const entry = await parser.getEntry(0);
-      expect(entry).toBeTruthy();
+    it('does not provide entry', () => {
+      expect(parser.getEntry).toThrow();
+    });
+
+    it('converts to valid perfetto packets', async () => {
+      const packets = parser.convertToPerfettoPackets!(10);
+      expect(packets.length).toEqual(1);
+      expect(packets[0].timestamp).toEqual(Long.fromInt(0));
+      expect(packets[0].timestampClockId).toEqual(
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
+      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(
+        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+      ).toEqual(94);
+    });
+
+    it('converts to valid perfetto trace', async () => {
+      await checkValidPerfettoTraceConversion(
+        'traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb',
+        95,
+      );
     });
   });
 
@@ -80,9 +103,9 @@ describe('ParserSurfaceFlingerDump', () => {
     let parser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
-      parser = (await UnitTestUtils.getParser(
-        'traces/elapsed_timestamp/dump_SurfaceFlinger.pb',
-      )) as Parser<HierarchyTreeNode>;
+      parser = await new LegacyParserProvider()
+        .addFilename('traces/elapsed_timestamp/dump_SurfaceFlinger.pb')
+        .getParser<HierarchyTreeNode>();
     });
 
     it('has expected trace type', () => {
@@ -97,5 +120,45 @@ describe('ParserSurfaceFlingerDump', () => {
       const expected = [TimestampConverterUtils.makeElapsedTimestamp(0n)];
       expect(parser.getTimestamps()).toEqual(expected);
     });
+
+    it('converts to valid perfetto packets', async () => {
+      const packets = parser.convertToPerfettoPackets!(10);
+      expect(packets.length).toEqual(1);
+      expect(packets[0].timestamp).toEqual(Long.fromInt(0));
+      expect(packets[0].timestampClockId).toEqual(
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
+      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(
+        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+      ).toEqual(91);
+    });
+
+    it('does not provide entry', () => {
+      expect(parser.getEntry).toThrow();
+    });
+
+    it('converts to valid perfetto trace', async () => {
+      await checkValidPerfettoTraceConversion(
+        'traces/elapsed_timestamp/dump_SurfaceFlinger.pb',
+        92,
+      );
+    });
   });
+
+  async function checkValidPerfettoTraceConversion(
+    filename: string,
+    nodeCount: number,
+  ) {
+    const perfettoParser = await new LegacyParserProvider()
+      .addFilename(filename)
+      .setConvertToPerfetto(true)
+      .getParser<HierarchyTreeNode>();
+    const expected = [TimestampConverterUtils.makeZeroTimestamp()];
+    expect(assertDefined(perfettoParser.getTimestamps())).toEqual(expected);
+    const entry = await perfettoParser.getEntry(0);
+    let count = 0;
+    entry.forEachNodeDfs(() => count++);
+    expect(count).toEqual(nodeCount);
+  }
 });

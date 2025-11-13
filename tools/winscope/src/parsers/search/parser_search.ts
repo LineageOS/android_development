@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertBigInt, assertDefined} from 'common/assert_utils';
+import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {UserNotifier} from 'common/user_notifier';
@@ -69,7 +70,7 @@ export class ParserSearch implements Parser<QueryResult> {
     type: Q,
     entriesRange: EntriesRange,
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    throw new Error('not implemented');
+    throw NOT_IMPLEMENTED_ERROR;
   }
 
   getDescriptors(): string[] {
@@ -85,16 +86,20 @@ export class ParserSearch implements Parser<QueryResult> {
   }
 
   createTimestamps(): void {
-    throw new Error('not implemented');
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  canConvertToPerfetto(): boolean {
+    return false;
   }
 
   async parse() {
-    const tp = await TraceProcessorFactory.getSingleInstance();
+    const tp = TraceProcessorFactory.getSingleInstance();
     try {
-      this.queryResult = await tp.queryAllRows(this.query);
+      this.queryResult = await tp.query(this.query);
       if (this.hasTimestamps() && this.queryResult.numRows() > 0) {
         for (const it = this.queryResult.iter({}); it.valid(); it.next()) {
-          const ns = it.get('ts') as bigint;
+          const ns = assertBigInt(it.get('ts'));
           if (ns === INVALID_TIME_NS) {
             this.timestamps.push(this.timestampConverter.makeZeroTimestamp());
           } else {

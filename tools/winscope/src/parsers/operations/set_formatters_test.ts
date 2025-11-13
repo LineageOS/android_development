@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from 'common/assert_utils';
-import {TransformTypeFlags} from 'parsers/surface_flinger/transform_utils';
+import {TimestampConverterUtils} from 'common/time/test_utils';
 import {
   TamperedMessageType,
   TamperedProtoField,
@@ -23,6 +23,7 @@ import {
 import root from 'protos/test/fake_proto/json';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {TransformTypeFlags} from 'trace/surface_flinger/transform_utils';
 import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from 'trace/tree_node/formatters';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 import {SetFormatters} from './set_formatters';
@@ -268,5 +269,18 @@ describe('SetFormatters', () => {
     expect(
       assertDefined(propertyRoot.getChildByName('layerId')).formattedValue(),
     ).toEqual('none');
+  });
+
+  it('adds correct formatter for timestamp node', () => {
+    propertyRoot = new PropertyTreeBuilder()
+      .setIsRoot(true)
+      .setRootId('test')
+      .setName('node')
+      .setChildren([
+        {name: 'ts', value: TimestampConverterUtils.makeElapsedTimestamp(10n)},
+      ])
+      .build();
+    operation.apply(propertyRoot);
+    expect(propertyRoot.getChildByName('ts')?.formattedValue()).toEqual('10ns');
   });
 });

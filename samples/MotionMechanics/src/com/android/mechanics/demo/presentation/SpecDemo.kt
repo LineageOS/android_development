@@ -18,8 +18,6 @@
 
 package com.android.mechanics.demo.presentation
 
-import android.util.Log
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,18 +48,19 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.android.compose.animation.Easings
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.staging.defaultSpatialSpring
 import com.android.mechanics.demo.staging.rememberDistanceGestureContext
 import com.android.mechanics.demo.staging.rememberMotionValue
 import com.android.mechanics.demo.tuneable.Demo
 import com.android.mechanics.demo.tuneable.Dropdown
+import com.android.mechanics.demo.tuneable.LabelledCheckbox
+import com.android.mechanics.spec.DirectionalMotionSpec
+import com.android.mechanics.spec.Guarantee
 import com.android.mechanics.spec.Mapping
 import com.android.mechanics.spec.MotionSpec
-import com.android.mechanics.spec.builder
-import com.android.mechanics.spring.SpringParameters
+import com.android.mechanics.spec.builder.rememberMotionBuilderContext
+import com.android.mechanics.spec.builder.spatialDirectionalMotionSpec
 
 object SpecDemo : Demo<SpecDemo.Config> {
     enum class Scenario(val label: String) {
@@ -69,10 +68,9 @@ object SpecDemo : Demo<SpecDemo.Config> {
         Toggle("Toggle"),
         Steps("Discrete Steps"),
         TrackNSnap("Track and Snap"),
-        EasingComparison("Easing Comparison"),
     }
 
-    data class Config(val defaultSpring: SpringParameters)
+    data class Config(val stepGuarantee: Boolean)
 
     var inputRange by mutableStateOf(0f..0f)
 
@@ -83,7 +81,7 @@ object SpecDemo : Demo<SpecDemo.Config> {
 
         // Also using GestureContext.dragOffset as input.
         val gestureContext = rememberDistanceGestureContext()
-        val spec = rememberSpec(activeScenario, inputOutputRange = inputRange, config)
+        val spec = rememberSpec(activeScenario, config, inputOutputRange = inputRange)
         val motionValue = rememberMotionValue(gestureContext::dragOffset, { spec }, gestureContext)
 
         Column(
@@ -157,116 +155,91 @@ object SpecDemo : Demo<SpecDemo.Config> {
     @Composable
     fun rememberSpec(
         scenario: Scenario,
-        inputOutputRange: ClosedFloatingPointRange<Float>,
         config: Config,
+        inputOutputRange: ClosedFloatingPointRange<Float>,
     ): MotionSpec {
 
-        return remember(scenario, inputOutputRange, config) {
-            when (scenario) {
-                Scenario.Empty -> MotionSpec.Empty
-                Scenario.Toggle -> {
-                    MotionSpec.builder(
-                            config.defaultSpring,
-                            initialMapping = Mapping.Fixed(inputOutputRange.start),
-                        )
-                        .toBreakpoint((inputOutputRange.start + inputOutputRange.endInclusive) / 2f)
-                        .completeWith(Mapping.Fixed(inputOutputRange.endInclusive))
-                }
+        val builderContext = rememberMotionBuilderContext()
 
-                Scenario.Steps -> {
-                    val steps = 8
-                    val stepSize = (inputOutputRange.start + inputOutputRange.endInclusive) / steps
-
-                    var underConstruction =
-                        MotionSpec.builder(
-                            config.defaultSpring,
-                            initialMapping = Mapping.Fixed(inputOutputRange.start),
-                        )
-                    repeat(steps - 1) { step ->
-                        underConstruction =
-                            underConstruction
-                                .toBreakpoint((step + 1) * stepSize)
-                                .continueWith(Mapping.Fixed((step + 1) * stepSize))
-                    }
-                    underConstruction.complete()
-                }
-
-                Scenario.TrackNSnap -> {
-                    val third = (inputOutputRange.start + inputOutputRange.endInclusive) / 3
-
-                    MotionSpec.builder(
-                            config.defaultSpring,
-                            initialMapping = Mapping.Fixed(inputOutputRange.start),
-                        )
-                        .toBreakpoint(third)
-                        .jumpTo(third)
-                        .continueWithTargetValue(2 * third)
-                        .toBreakpoint(2 * third)
-                        .completeWith(Mapping.Fixed(inputOutputRange.endInclusive))
-                }
-
-                Scenario.EasingComparison -> {
-                    val dOut = inputOutputRange.start + inputOutputRange.endInclusive
-
-                    val segmentSizes = buildList {
-                        val fourth = (dOut) / 4
-                        val sixth = (dOut) / 6
-                        repeat(2) {
-                            add(
-                                (inputOutputRange.start + (it * fourth))..(inputOutputRange.start +
-                                        (it + 1) * fourth)
+        return remember(scenario, inputOutputRange, config, builderContext) {
+            MotionSpec(
+                when (scenario) {
+                    Scenario.Empty -> DirectionalMotionSpec.Empty
+                    Scenario.Toggle ->
+                        builderContext.spatialDirectionalMotionSpec(
+                            Mapping.Fixed(inputOutputRange.start)
+                        ) {
+                            fixedValue(
+                                breakpoint =
+                                    (inputOutputRange.start + inputOutputRange.endInclusive) / 2f,
+                                value = inputOutputRange.endInclusive,
                             )
                         }
 
-                        repeat(3) {
-                            add(
-                                (inputOutputRange.start +
-                                    (it * sixth) +
-                                    dOut / 2)..(inputOutputRange.start +
-                                        (it + 1) * sixth +
-                                        dOut / 2)
+                    Scenario.Steps ->
+                        builderContext.spatialDirectionalMotionSpec(
+                            Mapping.Fixed(inputOutputRange.start)
+                        ) {
+                            val steps = 8
+                            val stepSize =
+                                (inputOutputRange.start + inputOutputRange.endInclusive) / steps
+
+                            val guarantee =
+                                if (config.stepGuarantee) Guarantee.InputDelta(stepSize)
+                                else Guarantee.None
+
+                            val outDiff =
+                                (inputOutputRange.start + inputOutputRange.endInclusive) /
+                                    (steps - 1)
+                            repeat(steps - 2) { step ->
+                                fixedValue(
+                                    breakpoint = (step + 1) * stepSize,
+                                    value = (step + 1) * outDiff,
+                                    guarantee = guarantee,
+                                )
+                            }
+
+                            fixedValue(
+                                breakpoint = inputOutputRange.endInclusive - stepSize,
+                                value = inputOutputRange.endInclusive,
+                                guarantee = guarantee,
                             )
                         }
-                    }
 
-                    Log.d("MIKES", "rememberSpec() called $segmentSizes")
+                    Scenario.TrackNSnap ->
+                        builderContext.spatialDirectionalMotionSpec(
+                            Mapping.Fixed(inputOutputRange.start)
+                        ) {
+                            val third = (inputOutputRange.start + inputOutputRange.endInclusive) / 3
 
-                    fun easingMapping(easing: Easing, range: ClosedFloatingPointRange<Float>) =
-                        Mapping {
-                            val d = range.endInclusive - range.start
-                            easing.transform((it - range.start) / d) * (dOut) +
-                                inputOutputRange.start
+                            target(third, from = third, to = 2 * third)
+                            fixedValue(
+                                breakpoint = 2 * third,
+                                value = inputOutputRange.endInclusive,
+                            )
                         }
-
-                    MotionSpec.builder(config.defaultSpring, initialMapping = Mapping.Zero)
-                        .toBreakpoint(segmentSizes[0].start)
-                        .continueWith(easingMapping(Easings.Emphasized, segmentSizes[0]))
-                        .toBreakpoint(segmentSizes[1].start)
-                        .continueWith(
-                            easingMapping({ Easings.Emphasized.transform(1 - it) }, segmentSizes[1])
-                        )
-                        .toBreakpoint(segmentSizes[2].start)
-                        .continueWith(Mapping.Fixed(inputOutputRange.start))
-                        .toBreakpoint(segmentSizes[3].start)
-                        .continueWith(Mapping.Fixed(inputOutputRange.endInclusive))
-                        .toBreakpoint(segmentSizes[4].start)
-                        .completeWith(Mapping.Fixed(inputOutputRange.start))
                 }
-            }
+            )
         }
     }
 
     @Composable
     override fun rememberDefaultConfig(): Config {
-        val defaultSpring = defaultSpatialSpring()
-        return remember(defaultSpring) { Config(defaultSpring) }
+        return remember { Config(stepGuarantee = false) }
     }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
         get() = inputRange
 
     @Composable
-    override fun ColumnScope.ConfigUi(config: Config, onConfigChanged: (Config) -> Unit) {}
+    override fun ColumnScope.ConfigUi(config: Config, onConfigChanged: (Config) -> Unit) {
+        Text("Steps")
+        LabelledCheckbox(
+            "Use Guarantee",
+            config.stepGuarantee,
+            { onConfigChanged(config.copy(stepGuarantee = it)) },
+        )
+    }
 
     override val identifier: String = "SpecDemo"
 }

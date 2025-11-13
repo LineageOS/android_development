@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert_utils';
+import {assertBigInt, assertDefined, assertTrue} from 'common/assert_utils';
+import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {CoarseVersion} from 'trace/coarse_version';
@@ -82,7 +83,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
       }
     }
     this.realToBootTimeOffsetNs = await this.queryRealToBootTimeOffset(
-      assertDefined(lastNonZeroTimestamp),
+      assertDefined(lastNonZeroTimestamp ?? INVALID_TIME_NS),
     );
   }
 
@@ -112,7 +113,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
     entriesRange: EntriesRange,
     param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    throw new Error('Not implemented');
+    throw NOT_IMPLEMENTED_ERROR;
   }
 
   getDescriptors(): string[] {
@@ -127,16 +128,20 @@ export abstract class AbstractParser<T> implements Parser<T> {
     return this.realToBootTimeOffsetNs;
   }
 
+  canConvertToPerfetto(): boolean {
+    return false;
+  }
+
   protected async buildEntryIndexToRowIdMap(): Promise<AbsoluteEntryIndex[]> {
     const sqlRowIdAndTimestamp = `
      SELECT DISTINCT tbl.id AS id, tbl.ts
      FROM ${this.getTableName()} AS tbl
      ORDER BY tbl.ts;
    `;
-    const result = await this.traceProcessor.queryAllRows(sqlRowIdAndTimestamp);
+    const result = await this.traceProcessor.query(sqlRowIdAndTimestamp);
     const entryIndexToRowId: AbsoluteEntryIndex[] = [];
     for (const it = result.iter({}); it.valid(); it.next()) {
-      const rowId = Number(it.get('id') as bigint);
+      const rowId = Number(it.get('id'));
       entryIndexToRowId.push(rowId);
     }
     return entryIndexToRowId;
@@ -144,10 +149,10 @@ export abstract class AbstractParser<T> implements Parser<T> {
 
   private async queryRowBootTimeTimestamps(): Promise<Array<bigint>> {
     const sql = `SELECT ts FROM ${this.getTableName()} ORDER BY id;`;
-    const result = await this.traceProcessor.queryAllRows(sql);
+    const result = await this.traceProcessor.query(sql);
     const timestamps: Array<bigint> = [];
     for (const it = result.iter({}); it.valid(); it.next()) {
-      timestamps.push(it.get('ts') as bigint);
+      timestamps.push(assertBigInt(it.get('ts')));
     }
     return timestamps;
   }
@@ -161,13 +166,13 @@ export abstract class AbstractParser<T> implements Parser<T> {
       SELECT TO_REALTIME(${bootTimeNs}) as realtime;
     `;
 
-    const result = await this.traceProcessor.queryAllRows(sql);
+    const result = await this.traceProcessor.query(sql);
     assertTrue(
       result.numRows() === 1,
       () => 'Failed to query realtime timestamp',
     );
 
-    const real = result.iter({}).get('realtime') as bigint;
+    const real = assertBigInt(result.iter({}).get('realtime'));
     return real - bootTimeNs;
   }
 

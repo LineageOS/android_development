@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+import {base64Encode} from 'common/string_utils';
 import {TimeUtils} from 'common/time/time_utils';
-import {UnitTestUtils} from 'test/unit/utils';
+import {
+  makeFakeWebSocket,
+  makeFakeWebSocketMessage,
+} from 'test/unit/web_socket_utils';
 import {ShellStream} from './shell_stream';
 
 describe('ShellStream', () => {
@@ -26,7 +30,7 @@ describe('ShellStream', () => {
   let webSocket: jasmine.SpyObj<WebSocket>;
 
   beforeEach(() => {
-    webSocket = UnitTestUtils.makeFakeWebSocket();
+    webSocket = makeFakeWebSocket();
     errorListener.calls.reset();
     stream = new ShellStream(
       webSocket,
@@ -66,18 +70,26 @@ describe('ShellStream', () => {
 
   it('calls data listener on array buffer message', async () => {
     const data = new ArrayBuffer(0);
-    const message = UnitTestUtils.makeFakeWebSocketMessage(data);
+    const message = makeFakeWebSocketMessage(data);
     webSocket.onmessage!(message);
     expect(dataListener).toHaveBeenCalledWith(new Uint8Array(data));
   });
 
   it('calls data listener on blob message', async () => {
     const data = new Blob();
-    const message = UnitTestUtils.makeFakeWebSocketMessage(data);
+    const message = makeFakeWebSocketMessage(data);
     webSocket.onmessage!(message);
     expect(dataListener).toHaveBeenCalledWith(
       new Uint8Array(await data.arrayBuffer()),
     );
+  });
+
+  it('calls data listener on AdbResponse json message with response', async () => {
+    const data = Uint8Array.from([]);
+    const messageData = JSON.stringify({response: base64Encode(data)});
+    const message = makeFakeWebSocketMessage(messageData);
+    webSocket.onmessage!(message);
+    expect(dataListener).toHaveBeenCalledWith(data);
   });
 
   it('resolves complete promise on close', async () => {
@@ -87,34 +99,34 @@ describe('ShellStream', () => {
     });
     await stream.connect();
     expect(completed).toBeFalse();
-    webSocket.onclose!(new CloseEvent(''));
+    webSocket.onclose!(new CloseEvent('close'));
     await TimeUtils.wait(() => completed);
   });
 
-  it('calls error listener if unexpected message type received - AdbResponse json', async () => {
+  it('calls error listener if unexpected message type received - AdbResponse json without response', async () => {
     const data = JSON.stringify({error: {type: '', message: 'failed'}});
-    const message = UnitTestUtils.makeFakeWebSocketMessage(data);
+    const message = makeFakeWebSocketMessage(data);
     webSocket.onmessage!(message);
     expect(errorListener).toHaveBeenCalledOnceWith(
       `Could not parse data:\nReceived: {"error":{"type":"","message":"failed"}}` +
-        `\nError: Expected message data to be ArrayBuffer or Blob.` +
+        `\nError: Received empty ADB response.` +
         `\nADB Error: failed`,
     );
     errorListener.calls.reset();
   });
 
   it('calls error listener if unexpected message type received - unknown string', async () => {
-    const message = UnitTestUtils.makeFakeWebSocketMessage('unknown error');
+    const message = makeFakeWebSocketMessage('unknown error');
     webSocket.onmessage!(message);
     expect(errorListener).toHaveBeenCalledOnceWith(
       `Could not parse data:\nReceived: unknown error` +
-        `\nError: Expected message data to be ArrayBuffer or Blob.`,
+        `\nError: Failed to decode ADB JSON response.`,
     );
     errorListener.calls.reset();
   });
 
   it('calls error listener if unexpected message type received - unknown code', async () => {
-    const message = UnitTestUtils.makeFakeWebSocketMessage(200);
+    const message = makeFakeWebSocketMessage(200);
     webSocket.onmessage!(message);
     expect(errorListener).toHaveBeenCalledOnceWith(
       `Could not parse data:\nReceived: 200` +

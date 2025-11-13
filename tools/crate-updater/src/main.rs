@@ -28,7 +28,7 @@ use serde::Deserialize;
 
 #[derive(Parser)]
 struct Cli {
-    /// Absolute path to a repo checkout of aosp-main.
+    /// Absolute path to a repo checkout of main-without-vendor.
     /// It is strongly recommended that you use a source tree dedicated to
     /// running this updater.
     android_root: PathBuf,
@@ -96,7 +96,7 @@ fn cleanup_and_sync_monorepo(monorepo_path: &Path) -> Result<()> {
         .run_and_stream_output()?;
 
     Command::new("git")
-        .args(["checkout", "aosp/main"])
+        .args(["checkout", "goog/main"])
         .current_dir(monorepo_path)
         .run_and_stream_output()?;
 
@@ -132,7 +132,7 @@ fn sync_to_green(monorepo_path: &Path) -> Result<()> {
     let output = Command::new("/google/data/ro/projects/android/ab")
         .args([
             "lkgb",
-            "--branch=aosp-main",
+            "--branch=git_main-without-vendor",
             "--target=aosp_arm64-trunk_staging-userdebug",
             "--raw",
             "--custom_raw_format={o[buildId]}",
@@ -209,7 +209,7 @@ fn try_update(
         .args([
             "-c",
             format!(
-                "source {}/build/envsetup.sh && lunch aosp_husky-trunk_staging-eng && mm && m rust",
+                "source {}/build/envsetup.sh && lunch aosp_cf_x86_64_phone-trunk_staging-eng && mm && m rust",
                 android_root.display()
             )
             .as_str(),
@@ -283,7 +283,7 @@ fn main() -> Result<()> {
     Command::new("/usr/bin/bash")
         .args([
             "-c",
-            "source build/envsetup.sh && lunch aosp_husky-trunk_staging-eng && m cargo_embargo",
+            "source build/envsetup.sh && lunch aosp_cf_x86_64_phone-trunk_staging-eng && m cargo_embargo",
         ])
         .env_remove("OUT_DIR")
         .current_dir(&args.android_root)

@@ -17,6 +17,7 @@ rust_library_host {
     edition: "2021",
     rustlibs: [
         "libandroid_bp",
+        "libbp_util",
         "libjson_strip_comments",
         "librooted_path",
         "libserde",
@@ -39,6 +40,7 @@ rust_test_host {
     edition: "2021",
     rustlibs: [
         "libandroid_bp",
+        "libbp_util",
         "libjson_strip_comments",
         "librooted_path",
         "libserde",

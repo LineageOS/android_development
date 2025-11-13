@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {com} from 'protos/transitions/udc/static';
 import {QueryResult} from 'trace_processor/query_result';
 import {MediaBasedTraceEntry} from './media_based_trace_entry';
 import {HierarchyTreeNode} from './tree_node/hierarchy_tree_node';
@@ -57,7 +58,7 @@ export interface TraceEntryTypeMap {
   [TraceType.SCREEN_RECORDING]: MediaBasedTraceEntry;
   [TraceType.SCREENSHOT]: MediaBasedTraceEntry;
   [TraceType.SYSTEM_UI]: object;
-  [TraceType.TRANSACTIONS]: PropertyTreeNode;
+  [TraceType.TRANSACTIONS]: HierarchyTreeNode;
   [TraceType.WAYLAND]: object;
   [TraceType.WAYLAND_DUMP]: object;
   [TraceType.WINDOW_MANAGER]: HierarchyTreeNode;
@@ -65,9 +66,9 @@ export interface TraceEntryTypeMap {
   [TraceType.INPUT_METHOD_MANAGER_SERVICE]: HierarchyTreeNode;
   [TraceType.INPUT_METHOD_SERVICE]: HierarchyTreeNode;
   [TraceType.EVENT_LOG]: PropertyTreeNode;
-  [TraceType.WM_TRANSITION]: PropertyTreeNode;
-  [TraceType.SHELL_TRANSITION]: PropertyTreeNode;
-  [TraceType.TRANSITION]: PropertyTreeNode;
+  [TraceType.WM_TRANSITION]: com.android.server.wm.shell.ITransition;
+  [TraceType.SHELL_TRANSITION]: com.android.wm.shell.ITransition;
+  [TraceType.TRANSITION]: HierarchyTreeNode;
   [TraceType.CUJS]: PropertyTreeNode;
   [TraceType.TEST_TRACE_STRING]: string;
   [TraceType.TEST_TRACE_NUMBER]: number;
@@ -112,7 +113,7 @@ export class TraceTypeUtils {
     return TraceTypeUtils.TRACES_WITH_VIEWERS_DISPLAY_ORDER.includes(t);
   }
 
-  static compareByUiPipelineOrder(t: TraceType, u: TraceType) {
+  static compareByUiPipelineOrder(t: TraceType, u: TraceType): boolean {
     const tIndex = TraceTypeUtils.findIndexInOrder(
       t,
       TraceTypeUtils.UI_PIPELINE_ORDER,
@@ -124,7 +125,7 @@ export class TraceTypeUtils {
     return tIndex >= 0 && uIndex >= 0 && tIndex < uIndex;
   }
 
-  static compareByDisplayOrder(t: TraceType, u: TraceType) {
+  static compareByDisplayOrder(t: TraceType, u: TraceType): number {
     const tIndex = TraceTypeUtils.findIndexInOrder(
       t,
       TraceTypeUtils.TRACES_WITH_VIEWERS_DISPLAY_ORDER,

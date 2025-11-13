@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ArrayUtils} from 'common/array_utils';
+
+import {equal} from 'common/array_utils';
 import {assertDefined, assertUnreachable} from 'common/assert_utils';
 import {Box3D} from 'common/geometry/box3d';
 import {Point3D} from 'common/geometry/point3d';
@@ -71,6 +72,9 @@ export class Canvas {
     fillRegion: 'graphics_fill_region',
     line: 'graphics_line',
     text: 'graphics_text',
+    pointerCircle: 'pointer_circle',
+    pointerCrosshairs: 'pointer_crosshairs',
+    ray: 'ray',
   };
   private static readonly RECT_EDGE_BOLD_WIDTH = 10;
 
@@ -161,8 +165,8 @@ export class Canvas {
     this.camera.top = cameraHeight / 2;
     this.camera.bottom = -cameraHeight / 2;
     const cPos = new THREE.Vector3(0, 0, Canvas.TARGET_SCENE_DIAGONAL)
-      .applyAxisAngle(new THREE.Vector3(1, 0, 0), -camera.rotationAngleX)
-      .applyAxisAngle(new THREE.Vector3(0, 1, 0), camera.rotationAngleY);
+      .applyAxisAngle(new THREE.Vector3(0, 1, 0), camera.rotationAngleY) // y axis rotation
+      .applyAxisAngle(new THREE.Vector3(1, 0, 0), -camera.rotationAngleX); // x axis rotation
     this.camera.position.set(cPos.x, cPos.y, cPos.z);
     this.camera.lookAt(0, 0, 0);
     this.camera.updateProjectionMatrix();
@@ -175,6 +179,7 @@ export class Canvas {
     for (const key of this.lastScene.rectIdToRectGraphics.keys()) {
       if (!rects.some((rect) => rect.id === key)) {
         this.lastScene.rectIdToRectGraphics.delete(key);
+        this.removeRays(key); // rays are added directly to the scene
         this.scene.remove(assertDefined(this.scene.getObjectByName(key)));
       }
     }
@@ -263,6 +268,9 @@ export class Canvas {
       this.addFillRegionMesh(rect, fillMaterial, mesh);
     }
     this.addRectBorders(rect, mesh);
+
+    this.addPointersToRect(rect, mesh);
+    this.addRaysToScene(rect);
 
     mesh.position.x = 0;
     mesh.position.y = 0;
@@ -401,9 +409,7 @@ export class Canvas {
     if (rect.cornerRadius) {
       color = Canvas.RECT_EDGE_COLOR_ROUNDED;
     } else {
-      color = this.isDarkMode()
-        ? Canvas.RECT_EDGE_COLOR_DARK_MODE
-        : Canvas.RECT_EDGE_COLOR_LIGHT_MODE;
+      color = this.getRectEdgeColor();
     }
     const edgeMaterial = new THREE.LineBasicMaterial({color});
     const lineSegments = new THREE.LineSegments(edgeGeo, edgeMaterial);
@@ -576,12 +582,135 @@ export class Canvas {
     mesh.add(fillMesh);
   }
 
+  private addPointersToRect(rect: UiRect3D, mesh: THREE.Mesh) {
+    for (const loc of rect.pointerLocationsInRect) {
+      const circle = this.makePointerCircle(loc);
+      circle.position.z = 2; // Prevent z-fighting with the parent mesh
+      circle.name = rect.id + Canvas.GRAPHICS_NAMES.pointerCircle;
+      mesh.add(circle);
+
+      const crosshairs = this.makePointerCrosshairs(rect, loc);
+      crosshairs.position.z = 3; // Prevent z-fighting with the parent or circle mesh
+      crosshairs.name = rect.id + Canvas.GRAPHICS_NAMES.pointerCrosshairs;
+      mesh.add(crosshairs);
+    }
+  }
+
+  private makePointerCircle(center: Point3D): THREE.Mesh {
+    const geometry = new THREE.CircleGeometry(10, 20);
+    const material = this.makeLineMaterialFromRectEdgeColor();
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(center.x, center.y, 0);
+    return mesh;
+  }
+
+  private makePointerCrosshairs(rect: UiRect3D, center: Point3D): THREE.Mesh {
+    const t = this.isRectHighlighted(rect) ? 6 : 2;
+    const geometry = new THREE.ShapeGeometry(
+      new THREE.Shape()
+        .moveTo(-40, -t + 0.5)
+        .lineTo(-40, t - 0.5)
+        .quadraticCurveTo(-39.75, t - 0.25, -39.5, t)
+        .lineTo(-t - 0.5, t)
+        .quadraticCurveTo(-t - 0.25, t + 0.25, -t, t + 0.5)
+        .lineTo(-t, 39.5)
+        .quadraticCurveTo(-t + 0.25, 39.75, -t + 0.5, 40)
+        .lineTo(t - 0.5, 40)
+        .quadraticCurveTo(t - 0.25, 39.75, t, 39.5)
+        .lineTo(t, t + 0.5)
+        .quadraticCurveTo(t + 0.25, t + 0.25, t + 0.5, t)
+        .lineTo(39.5, t)
+        .quadraticCurveTo(39.75, t - 0.25, 40, t - 0.5)
+        .lineTo(40, -t + 0.5)
+        .quadraticCurveTo(39.75, -t + 0.25, 39.5, -t)
+        .lineTo(t + 0.5, -t)
+        .quadraticCurveTo(t + 0.25, -t - 0.25, t, -t - 0.5)
+        .lineTo(t, -39.5)
+        .quadraticCurveTo(t - 0.25, -39.75, t - 0.5, -40)
+        .lineTo(-t + 0.5, -40)
+        .quadraticCurveTo(-t + 0.25, -39.75, -t, -39.5)
+        .lineTo(-t, -t - 0.5)
+        .quadraticCurveTo(-t - 0.25, -t - 0.25, -t - 0.5, -t)
+        .lineTo(-39.5, -t)
+        .quadraticCurveTo(-39.75, -t + 0.25, -40, -t + 0.5),
+    );
+
+    const material = this.makeLineMaterialFromRectEdgeColor();
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(center.x, center.y, 0);
+    return mesh;
+  }
+
+  private addRaysToScene(rect: UiRect3D) {
+    for (const loc of rect.rayLocationsInScene) {
+      const ray = this.makeRay(loc);
+      ray.name = rect.id + Canvas.GRAPHICS_NAMES.ray;
+      this.scene.add(ray);
+    }
+  }
+
+  private makeRay(center: Point3D): THREE.Line {
+    const geometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 0, 1500),
+    ]);
+    const material = this.makeLineMaterialFromRectEdgeColor();
+    const line = new THREE.Line(geometry, material);
+    line.position.set(center.x, center.y, center.z);
+    return line;
+  }
+
+  private updateRectMeshPointers(
+    newRect: UiRect3D,
+    existingRect: UiRect3D,
+    existingMesh: THREE.Mesh,
+  ) {
+    if (
+      this.pointsEqual(
+        newRect.pointerLocationsInRect,
+        existingRect.pointerLocationsInRect,
+      ) &&
+      newRect.colorType === existingRect.colorType
+    ) {
+      return;
+    }
+    this.removeAllByName(
+      existingMesh,
+      existingRect.id + Canvas.GRAPHICS_NAMES.pointerCircle,
+    );
+    this.removeAllByName(
+      existingMesh,
+      existingRect.id + Canvas.GRAPHICS_NAMES.pointerCrosshairs,
+    );
+    this.addPointersToRect(newRect, existingMesh);
+  }
+
+  private updateRays(newRect: UiRect3D, existingRect: UiRect3D) {
+    if (
+      this.pointsEqual(
+        newRect.rayLocationsInScene,
+        existingRect.rayLocationsInScene,
+      ) &&
+      newRect.colorType === existingRect.colorType
+    ) {
+      return;
+    }
+    this.removeRays(existingRect.id);
+    this.addRaysToScene(newRect);
+  }
+
+  private removeRays(rectId: string) {
+    this.removeAllByName(this.scene, rectId + Canvas.GRAPHICS_NAMES.ray);
+  }
+
   private updateExistingRectMesh(
     newRect: UiRect3D,
     existingRect: UiRect3D,
     existingMesh: THREE.Mesh,
   ): THREE.Mesh {
     this.updateRectMeshFillMaterial(newRect, existingRect, existingMesh);
+    this.updateRectMeshPointers(newRect, existingRect, existingMesh);
+    this.updateRays(newRect, existingRect);
     this.updateRectMeshGeometry(newRect, existingRect, existingMesh);
     return existingMesh;
   }
@@ -611,7 +740,7 @@ export class Canvas {
       existingMesh.material = Canvas.TRANSPARENT_MATERIAL;
       this.addFillRegionMesh(newRect, fillMaterial, existingMesh);
     } else if (newRect.fillRegion && existingRect.fillRegion) {
-      const fillRegionChanged = !ArrayUtils.equal(
+      const fillRegionChanged = !equal(
         newRect.fillRegion,
         existingRect.fillRegion,
         (a, b) => {
@@ -745,9 +874,7 @@ export class Canvas {
   private makeLabelMaterial(label: RectLabel): THREE.LineBasicMaterial {
     return new THREE.LineBasicMaterial({
       color: label.isHighlighted
-        ? this.isDarkMode()
-          ? Canvas.RECT_EDGE_COLOR_DARK_MODE
-          : Canvas.RECT_EDGE_COLOR_LIGHT_MODE
+        ? this.getRectEdgeColor()
         : Canvas.LABEL_LINE_COLOR,
     });
   }
@@ -825,7 +952,7 @@ export class Canvas {
     }
 
     if (
-      !ArrayUtils.equal(newLabel.linePoints, existingLabel.linePoints, (a, b) =>
+      !equal(newLabel.linePoints, existingLabel.linePoints, (a, b) =>
         (a as Point3D).isEqual(b as Point3D),
       )
     ) {
@@ -867,6 +994,39 @@ export class Canvas {
         this.lastScene.rectIdToLabelGraphics.delete(rectId);
       }
     }
+  }
+
+  private removeAllByName(root: THREE.Object3D, name: string) {
+    let existingObj = root.getObjectByName(name);
+    while (existingObj) {
+      root.remove(existingObj);
+      existingObj = root.getObjectByName(name);
+    }
+  }
+
+  private pointsEqual(a: Point3D[], b: Point3D[]): boolean {
+    return equal(a, b, (a, b) => {
+      return a instanceof Point3D && b instanceof Point3D && a.isEqual(b);
+    });
+  }
+
+  private isRectHighlighted(rect: UiRect3D): boolean {
+    return (
+      rect.colorType === ColorType.HIGHLIGHTED ||
+      rect.colorType === ColorType.HIGHLIGHTED_WITH_OPACITY
+    );
+  }
+
+  private makeLineMaterialFromRectEdgeColor(): THREE.LineBasicMaterial {
+    return new THREE.LineBasicMaterial({
+      color: this.getRectEdgeColor(),
+    });
+  }
+
+  private getRectEdgeColor(): number {
+    return this.isDarkMode()
+      ? Canvas.RECT_EDGE_COLOR_DARK_MODE
+      : Canvas.RECT_EDGE_COLOR_LIGHT_MODE;
   }
 }
 

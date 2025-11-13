@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::collections::BTreeMap;
-
-use crates_index::Dependency;
-use semver::VersionReq;
+//! Crate for fetching and interacting with crates.io data. Built on top
+//! of crates_index, with Android-specific helpers for dealing with features,
+//! dependencies, etc.
 
 mod android_target;
-pub use android_target::AndroidTarget;
+pub use android_target::{AndroidTarget, RequiredAndroidDeps};
+
+mod dependency;
+pub use dependency::{ParsedVersionReq, SameDep};
 
 mod dependency_diff;
 pub use dependency_diff::DependencyDiffer;
@@ -35,17 +37,8 @@ pub use feature_resolver::FeatureResolver;
 mod index;
 pub use index::CratesIoIndex;
 
-type DepSet<'a> = BTreeMap<&'a str, &'a Dependency>;
-
-pub trait ParsedVersionReq {
-    fn parsed_version_req(&self) -> Result<VersionReq, semver::Error>;
-}
-
-impl ParsedVersionReq for Dependency {
-    fn parsed_version_req(&self) -> Result<VersionReq, semver::Error> {
-        VersionReq::parse(self.requirement())
-    }
-}
+mod versions;
+pub use versions::{GetVersion, IsSafe, ParsedVersion, SafeVersions};
 
 /// Error types for the 'crates_io_util' crate.
 #[derive(thiserror::Error, Debug)]
@@ -54,15 +47,26 @@ pub enum Error {
     #[error("Crate {0} not found in crates.io")]
     CrateNotFound(String),
     /// Feature not found for crate
-    #[error("Feature {0} not found for crate {1}")]
-    FeatureNotFound(String, String),
+    #[error("Feature {feature_name} not found for crate {crate_name}")]
+    FeatureNotFound {
+        /// The name of the crate.
+        crate_name: String,
+        /// The name of the feature.
+        feature_name: String,
+    },
     /// Dependency not found for crate
-    #[error("Dependency {0} not found for crate {1}")]
-    DepNotFound(String, String),
+    #[error("Dependency {dep_name} not found for crate {crate_name}")]
+    DepNotFound {
+        /// The name of the crate.
+        crate_name: String,
+        /// The name of the dependency.
+        dep_name: String,
+    },
     /// Failed to get HTTP headers
     #[error("Failed to get HTTP headers")]
     HttpHeader,
     /// Error fetching HTTP data
+    #[cfg(feature = "ureq")]
     #[error(transparent)]
     HttpFetch(#[from] ureq::Error),
     /// Propagated crates_index::Error
@@ -71,4 +75,10 @@ pub enum Error {
     /// Propagated crates_index::http::Error
     #[error(transparent)]
     CratesIndexHttp(#[from] crates_index::http::Error),
+    /// Propagated io::Error
+    #[error(transparent)]
+    IoError(#[from] std::io::Error),
+    /// Error running cargo
+    #[error(transparent)]
+    CargoError(#[from] success_or_error::Error),
 }

@@ -50,6 +50,7 @@ import {
   AppRefreshDumpsRequest,
   AppResetRequest,
   AppTraceViewRequest,
+  BugreportFileSelected,
   DarkModeToggled,
   WinscopeEvent,
   WinscopeEventType,
@@ -75,19 +76,26 @@ import {SnackBarOpener} from './snack_bar_opener';
 import {TimelineComponent} from './timeline/timeline_component';
 import {TraceViewComponent} from './trace_view_component';
 import {UploadTracesComponent} from './upload_traces_component';
+import {
+  WarningDialogComponent,
+  WarningDialogData,
+  WarningDialogResult,
+} from './warning_dialog_component';
 
 @Component({
   selector: 'app-root',
   encapsulation: ViewEncapsulation.None,
   template: `
     <mat-toolbar class="toolbar">
-      <div class="horizontal-align vertical-align">
-        <img class="app-title fixed" [src]="getLogoUrl()"/>
+      <div class="horizontal-align vertical-align fixed">
+        <img class="app-title" [src]="getLogoUrl()"/>
       </div>
 
       <div class="horizontal-align vertical-align">
         <div *ngIf="showDataLoadedElements" class="download-files-section">
-          <div class="file-descriptor vertical-align">
+          <div
+            class="file-descriptor vertical-align"
+            [class.file-warning]="packetLossWarning() !== undefined">
             <button
               mat-icon-button
               *ngIf="showCrossToolSyncButton()"
@@ -97,6 +105,10 @@ import {UploadTracesComponent} from './upload_traces_component';
               [color]="getCrossToolSyncButtonColor()">
               <mat-icon class="material-symbols-outlined">cloud_sync</mat-icon>
             </button>
+            <mat-icon
+              *ngIf="packetLossWarning()"
+              [matTooltip]="packetLossWarning()"
+              class="warning-icon fixed">warning</mat-icon>
             <span *ngIf="!isEditingFilename" class="download-file-info mat-body-2">
               {{ filenameFormControl.value }}
             </span>
@@ -205,7 +217,7 @@ import {UploadTracesComponent} from './upload_traces_component';
     <mat-drawer-container autosize disableClose autoFocus>
       <mat-drawer-content>
         <ng-container *ngIf="dataLoaded; else noLoadedTracesBlock">
-          <trace-view class="viewers" [viewers]="viewers" [store]="store"></trace-view>
+          <trace-view class="viewers" [viewers]="viewers" [store]="persistentStore"></trace-view>
 
           <mat-divider></mat-divider>
         </ng-container>
@@ -216,7 +228,7 @@ import {UploadTracesComponent} from './upload_traces_component';
           *ngIf="dataLoaded"
           [allTraces]="tracePipeline.getTraces()"
           [timelineData]="timelineData"
-          [store]="store"
+          [store]="persistentStore"
           (collapsedTimelineSizeChanged)="onCollapsedTimelineSizeChanged($event)"></timeline>
       </mat-drawer>
     </mat-drawer-container>
@@ -231,15 +243,16 @@ import {UploadTracesComponent} from './upload_traces_component';
           <div class="card-grid landing-grid">
             <collect-traces
               class="collect-traces-card homepage-card"
-              [storage]="traceCollectionStorage"
+              [storage]="appStorage"
               (filesCollected)="onFilesCollected($event)"></collect-traces>
 
             <upload-traces
               #uploadTraces
               class="upload-traces-card homepage-card"
               [tracePipeline]="tracePipeline"
+              [storage]="appStorage"
               (filesUploaded)="onFilesUploaded($event)"
-              (viewTracesButtonClick)="onViewTracesButtonClick()"
+              (viewTracesButtonClick)="onViewTracesButtonClick($event)"
               (downloadTracesClick)="onDownloadTracesButtonClick(uploadTraces)"></upload-traces>
           </div>
         </div>
@@ -285,7 +298,14 @@ import {UploadTracesComponent} from './upload_traces_component';
       .file-descriptor {
         font-size: 14px;
         padding-left: 10px;
-        max-width: 700px;
+        max-width: 750px;
+      }
+      .file-warning  {
+        border: solid 2px var(--warning-color);
+        background: var(--warning-background-color);
+      }
+      .file-descriptor .warning-icon {
+        padding-inline-end: 4px;
       }
       .download-file-info {
         text-overflow: ellipsis;
@@ -345,7 +365,7 @@ export class AppComponent implements WinscopeEventListener {
   showDataLoadedElements = false;
   collapsedTimelineHeight = 0;
   isEditingFilename = false;
-  store = new PersistentStore();
+  persistentStore = new PersistentStore();
   viewers: Viewer[] = [];
 
   isDarkModeOn = false;
@@ -361,7 +381,7 @@ export class AppComponent implements WinscopeEventListener {
     ]),
   );
 
-  traceCollectionStorage: Store;
+  appStorage: Store;
   downloadProgress: number | undefined;
 
   @ViewChild(UploadTracesComponent)
@@ -394,7 +414,7 @@ export class AppComponent implements WinscopeEventListener {
       new PersistentStore(),
     );
 
-    const storeDarkMode = this.store.get('dark-mode');
+    const storeDarkMode = this.persistentStore.get('dark-mode');
     const prefersDarkQuery = window.matchMedia?.(
       '(prefers-color-scheme: dark)',
     );
@@ -469,7 +489,7 @@ export class AppComponent implements WinscopeEventListener {
       );
     }
 
-    this.traceCollectionStorage =
+    this.appStorage =
       globalConfig.MODE === 'PROD'
         ? new PersistentStore()
         : new InMemoryStorage();
@@ -504,7 +524,7 @@ export class AppComponent implements WinscopeEventListener {
 
   async setDarkMode(enabled: boolean) {
     document.body.classList.toggle('dark-mode', enabled);
-    this.store.add('dark-mode', `${enabled}`);
+    this.persistentStore.add('dark-mode', `${enabled}`);
     this.isDarkModeOn = enabled;
     await this.mediator.onWinscopeEvent(new DarkModeToggled(enabled));
   }
@@ -555,11 +575,13 @@ export class AppComponent implements WinscopeEventListener {
 
   async onUploadNewButtonClick() {
     await this.mediator.onWinscopeEvent(new AppResetRequest());
-    this.store.clear('treeView');
+    this.persistentStore.clear('treeView');
   }
 
-  async onViewTracesButtonClick() {
-    await this.mediator.onWinscopeEvent(new AppTraceViewRequest());
+  async onViewTracesButtonClick(discardLegacyTraces: boolean) {
+    await this.mediator.onWinscopeEvent(
+      new AppTraceViewRequest(discardLegacyTraces),
+    );
   }
 
   onProgressUpdate(message: string, progressPercentage: number | undefined) {
@@ -600,6 +622,13 @@ export class AppComponent implements WinscopeEventListener {
       this.pageTitle.setTitle('Winscope');
       this.changeDetectorRef.detectChanges();
     });
+
+    await event.visit(
+      WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
+      async (event) => {
+        await this.showFileSelectionDialog(event.filenames);
+      },
+    );
   }
 
   openShortcutsPanel() {
@@ -628,15 +657,15 @@ export class AppComponent implements WinscopeEventListener {
     this.setDarkMode(!this.isDarkModeOn);
   }
 
-  dumpsUploaded() {
+  dumpsUploaded(): boolean {
     return !this.timelineData.hasMoreThanOneDistinctTimestamp();
   }
 
-  showCrossToolSyncButton() {
+  showCrossToolSyncButton(): boolean {
     return this.crossToolProtocol.isConnected();
   }
 
-  getCrossToolSyncTooltip() {
+  getCrossToolSyncTooltip(): string {
     const currStatus = this.crossToolProtocol.getAllowTimestampSync();
 
     return `Cross Tool Sync ${this.translateStatus(
@@ -653,10 +682,46 @@ export class AppComponent implements WinscopeEventListener {
     );
   }
 
-  getCrossToolSyncButtonColor() {
+  getCrossToolSyncButtonColor(): string {
     return this.crossToolProtocol.getAllowTimestampSync()
       ? 'primary'
       : 'accent';
+  }
+
+  packetLossWarning(): string | undefined {
+    const lostPackets = this.tracePipeline.lostPackets();
+    if (lostPackets === 0) {
+      return undefined;
+    }
+    return `${lostPackets} Perfetto packet${
+      lostPackets > 1 ? 's' : ''
+    } lost during tracing - data may be incomplete`;
+  }
+
+  async showFileSelectionDialog(filenames: string[]) {
+    await new Promise<void>((resolve) => {
+      this.ngZone.run(() => {
+        const data: WarningDialogData = {
+          message: `Multiple Perfetto traces found. Select one to process:`,
+          actions: [],
+          options: filenames,
+          closeText: 'Process selected trace',
+          singleSelection: true,
+        };
+        const dialogRef = this.dialog.open(WarningDialogComponent, {
+          data,
+          disableClose: true,
+        });
+        dialogRef
+          .beforeClosed()
+          .subscribe(async (result: WarningDialogResult | undefined) => {
+            await this.mediator.onWinscopeEvent(
+              new BugreportFileSelected(result?.selectedOptions[0]),
+            );
+            resolve();
+          });
+      });
+    });
   }
 
   private goToLink(url: string) {

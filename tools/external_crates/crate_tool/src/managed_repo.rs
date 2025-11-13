@@ -22,27 +22,29 @@ use std::{
 
 use anyhow::{anyhow, bail, Context, Result};
 use crates_index::DependencyKind;
-use crates_io_util::CratesIoIndex;
+use crates_io_util::{
+    CratesIoIndex, DependencyDiffer, FeatureResolver, GetVersion, ParsedVersion, ParsedVersionReq,
+    SafeVersions,
+};
 use google_metadata::GoogleMetadata;
 use itertools::Itertools;
 use license_checker::find_licenses;
+use log::debug;
 use name_and_version::{NameAndVersion, NameAndVersionRef, NamedAndVersioned};
 use repo_config::RepoConfig;
 use rooted_path::RootedPath;
 use semver::{Version, VersionReq};
 use serde::Serialize;
+use success_or_error::SuccessOrError;
 
 use crate::{
     android_bp::cargo_embargo_autoconfig,
     copy_dir,
     crate_collection::CrateCollection,
     crate_type::Crate,
-    crates_io::{AndroidDependencies, DependencyChanges, SafeVersions},
-    license::{most_restrictive_type, update_module_license_files},
     managed_crate::ManagedCrate,
     pseudo_crate::{CargoVendorDirty, PseudoCrate},
     upgradable::{IsUpgradableTo, MatchesWithCompatibilityRule, SemverCompatibilityRule},
-    SuccessOrError,
 };
 
 #[derive(Serialize, Default, Debug)]
@@ -58,6 +60,7 @@ struct UpdateSuggestion {
     version: String,
 }
 
+/// A struct for interacting with a managed repository of 3rd party crates.
 pub struct ManagedRepo {
     path: RootedPath,
     config: OnceCell<RepoConfig>,
@@ -65,14 +68,20 @@ pub struct ManagedRepo {
 }
 
 impl ManagedRepo {
+    /// Constructs a ManagedRepo at the specified path.
+    /// If `offline` is true, no requests are made to crates.io.
     pub fn new(path: RootedPath, offline: bool) -> Result<ManagedRepo> {
         Ok(ManagedRepo {
             path,
             config: OnceCell::new(),
-            crates_io: if offline { CratesIoIndex::new_offline()? } else { CratesIoIndex::new()? },
+            crates_io: if offline {
+                CratesIoIndex::new_offline()?
+            } else {
+                CratesIoIndex::new_cargo()?
+            },
         })
     }
-    pub fn config(&self) -> &RepoConfig {
+    fn config(&self) -> &RepoConfig {
         self.config.get_or_init(|| {
             RepoConfig::read(self.path.abs()).unwrap_or_else(|e| {
                 panic!(
@@ -125,12 +134,14 @@ impl ManagedRepo {
     fn new_cc(&self) -> CrateCollection {
         CrateCollection::new(self.path.root())
     }
-    fn managed_crate_for(
+    /// Returns the managed crate for the specified crate name.
+    pub fn managed_crate_for(
         &self,
         crate_name: &str,
     ) -> Result<ManagedCrate<crate::managed_crate::New>> {
         Ok(ManagedCrate::new(Crate::from(self.managed_dir_for(crate_name))?))
     }
+    /// Returns the names of all crates in the managed repo.
     pub fn all_crate_names(&self) -> Result<BTreeSet<String>> {
         let mut managed_dirs = BTreeSet::new();
         if self.managed_dir().abs().exists() {
@@ -145,6 +156,7 @@ impl ManagedRepo {
         }
         Ok(managed_dirs)
     }
+    /// Analyzes a new crate we would like to import, and reports on any problems.
     pub fn analyze_import(&self, crate_name: &str) -> Result<()> {
         if self.contains(crate_name) {
             println!("Crate already imported at {}", self.managed_dir_for(crate_name));
@@ -169,8 +181,10 @@ impl ManagedRepo {
 
         for version in cio_crate.safe_versions() {
             println!("Version {}", version.version());
+            let resolver = FeatureResolver::new(version);
             let mut found_problems = false;
-            for (dep, req) in version.android_deps_with_version_reqs() {
+            for dep in resolver.resolve(None as Option<Box<dyn Iterator<Item = &str>>>)? {
+                let req = dep.parsed_version_req()?;
                 let cc = if managed_crates.contains_crate(dep.crate_name()) {
                     &managed_crates
                 } else {
@@ -235,6 +249,7 @@ impl ManagedRepo {
         }
         Ok(())
     }
+    /// Imports a new crate to the managed repo.
     pub fn import(&self, crate_name: &str, version: &str, autoconfig: bool) -> Result<()> {
         if self.contains(crate_name) {
             bail!("Crate already imported at {}", self.managed_dir_for(crate_name));
@@ -265,7 +280,7 @@ impl ManagedRepo {
         println!("  Finding license files");
         let licenses = find_licenses(krate.path().abs(), krate.name(), krate.license())?;
 
-        update_module_license_files(&krate.path().abs(), &licenses)?;
+        licenses.update_module_license_files(&krate.path().abs())?;
 
         println!("  Creating METADATA");
         let metadata = GoogleMetadata::init(
@@ -273,7 +288,7 @@ impl ManagedRepo {
             krate.name(),
             krate.version().to_string(),
             krate.description(),
-            most_restrictive_type(&licenses),
+            licenses.most_restrictive_type(),
         )?;
         metadata.write()?;
 
@@ -328,6 +343,8 @@ We apologize for the inconvenience."#,
 
         Ok(())
     }
+    /// Regenerates the data for a list of crates.
+    /// If `run_cargo_embargo` is false, the Android.bp is not updated, but all other metadata is.
     pub fn regenerate<T: AsRef<str>>(
         &self,
         crates: impl Iterator<Item = T>,
@@ -345,6 +362,7 @@ We apologize for the inconvenience."#,
 
         Ok(())
     }
+    /// Runs a preupload check on a set of changed files and reports problems.
     pub fn preupload_check(&self, files: &[String]) -> Result<()> {
         let pseudo_crate = self.pseudo_crate().vendor()?;
         let deps = pseudo_crate.deps().keys().cloned().collect::<BTreeSet<_>>();
@@ -396,6 +414,7 @@ We apologize for the inconvenience."#,
         }
         Ok(())
     }
+    /// Updates the context of the patch files for a crate to match the current contents.
     pub fn recontextualize_patches<T: AsRef<str>>(
         &self,
         crates: impl Iterator<Item = T>,
@@ -406,14 +425,17 @@ We apologize for the inconvenience."#,
         }
         Ok(())
     }
+    /// Prints a list of crates that have newer versions available on crates.io.
     pub fn updatable_crates(&self) -> Result<()> {
         let mut cc = self.new_cc();
         cc.add_from(self.managed_dir().rel())?;
 
         for krate in cc.values() {
             let cio_crate = self.crates_io.get_crate(krate.name())?;
-            let upgrades =
-                cio_crate.versions_gt(krate.version()).map(|v| v.version()).collect::<Vec<_>>();
+            let upgrades = cio_crate
+                .safe_versions_gt(krate.version())
+                .map(|v| v.version())
+                .collect::<Vec<_>>();
             if !upgrades.is_empty() {
                 println!(
                     "{} v{}:\n  {}",
@@ -430,6 +452,7 @@ We apologize for the inconvenience."#,
         }
         Ok(())
     }
+    /// Analyze a crate to see if it can be updated to a newer version.
     pub fn analyze_updates(&self, crate_name: impl AsRef<str>) -> Result<()> {
         let mut managed_crates = self.new_cc();
         managed_crates.add_from(self.managed_dir().rel())?;
@@ -455,16 +478,17 @@ We apologize for the inconvenience."#,
             krate.name(),
             krate.android_version()
         ))?;
-        let base_deps = base_version.android_version_reqs_by_name();
+        let dep_differ = DependencyDiffer::new(base_version);
 
-        let mut newer_versions = cio_crate.versions_gt(krate.android_version()).peekable();
+        let mut newer_versions = cio_crate.safe_versions_gt(krate.android_version()).peekable();
         if newer_versions.peek().is_none() {
             println!("There are no newer versions of this crate.");
         }
         for version in newer_versions {
             println!("Version {}", version.version());
             let mut found_problems = false;
-            let parsed_version = semver::Version::parse(version.version())?;
+            let parsed_version = version.parsed_version()?;
+            let resolver = FeatureResolver::new(version);
             if !krate
                 .android_version()
                 .is_upgradable_to(&parsed_version, SemverCompatibilityRule::Strict)
@@ -479,12 +503,13 @@ We apologize for the inconvenience."#,
                     println!("  Semver-compatible, but only by relaxed standards since major version is 0");
                 }
             }
+            let diff = dep_differ.diff(version);
             // Check to see if the update has any missing dependencies.
             // We try to be a little clever about this in the following ways:
             // * Only consider deps that are likely to be relevant to Android. For example, ignore Windows-only deps.
             // * If a dep is missing, but the same dep exists for the current version of the crate, it's probably not actually necessary.
             // * Use relaxed version requirements, treating 0.x and 0.y as compatible, even though they aren't according to semver rules.
-            for (dep, req) in version.android_deps_with_version_reqs() {
+            for dep in resolver.resolve(None as Option<Box<dyn Iterator<Item = &str>>>)? {
                 let cc = if managed_crates.contains_crate(dep.crate_name()) {
                     &managed_crates
                 } else {
@@ -497,14 +522,14 @@ We apologize for the inconvenience."#,
                         dep.crate_name(),
                         dep.requirement()
                     );
-                    if !dep.is_new_dep(&base_deps) {
+                    if !diff.is_added(dep) {
                         println!("    But the current version has the same dependency, and it seems to work");
                     } else {
                         continue;
                     }
                 }
                 for (_, dep_crate) in cc.get_versions(dep.crate_name()) {
-                    if !req.matches_with_compatibility_rule(
+                    if !dep.parsed_version_req()?.matches_with_compatibility_rule(
                         dep_crate.version(),
                         SemverCompatibilityRule::Loose,
                     ) {
@@ -516,7 +541,7 @@ We apologize for the inconvenience."#,
                             dep_crate.version(),
                             dep_crate.path()
                         );
-                        if !dep.is_changed_dep(&base_deps) {
+                        if !diff.is_changed(dep) {
                             println!("    But the current version has the same dependency and it seems to work.")
                         }
                     }
@@ -529,6 +554,8 @@ We apologize for the inconvenience."#,
 
         Ok(())
     }
+    /// Checks all crates to see if newer versions are available, and reports
+    /// specific updates that seem likely to succeed.
     pub fn suggest_updates(
         &self,
         consider_patched_crates: bool,
@@ -541,6 +568,7 @@ We apologize for the inconvenience."#,
         let legacy_crates = self.legacy_crates()?;
 
         for krate in managed_crates.values() {
+            debug!("Checking for updates to {}", krate.name());
             let cio_crate = self.crates_io.get_crate(krate.name())?;
 
             let base_version = cio_crate.get_version(krate.version());
@@ -555,7 +583,7 @@ We apologize for the inconvenience."#,
                 continue;
             }
             let base_version = base_version.unwrap();
-            let base_deps = base_version.android_version_reqs_by_name();
+            let dep_differ = DependencyDiffer::new(base_version);
 
             let patch_dir = krate.path().join("patches").unwrap();
             if patch_dir.abs().exists() && !consider_patched_crates {
@@ -569,19 +597,24 @@ We apologize for the inconvenience."#,
                 continue;
             }
 
-            for version in cio_crate.versions_gt(krate.version()).rev() {
+            for version in cio_crate.safe_versions_gt(krate.version()).rev() {
                 let parsed_version = semver::Version::parse(version.version())?;
                 if !krate.version().is_upgradable_to(&parsed_version, semver_compatibility) {
                     continue;
                 }
-                if !version.android_deps_with_version_reqs().any(|(dep, req)| {
-                    if !dep.is_changed_dep(&base_deps) {
+                let resolver = FeatureResolver::new(version);
+                if !resolver.resolve(None as Option<Box<dyn Iterator<Item = &str>>>)?.any(|dep| {
+                    let diff = dep_differ.diff(version);
+                    if !diff.is_changed(dep) {
                         return false;
                     }
                     let cc = if managed_crates.contains_crate(dep.crate_name()) {
                         &managed_crates
                     } else {
                         &legacy_crates
+                    };
+                    let Ok(req) = dep.parsed_version_req() else {
+                        return false;
                     };
                     for (_, dep_crate) in cc.get_versions(dep.crate_name()) {
                         if req.matches_with_compatibility_rule(
@@ -616,6 +649,7 @@ We apologize for the inconvenience."#,
 
         Ok(())
     }
+    /// Update a crate to a newer version.
     pub fn update(&self, crate_name: impl AsRef<str>, version: impl AsRef<str>) -> Result<()> {
         let crate_name = crate_name.as_ref();
         let version = Version::parse(version.as_ref())?;
@@ -668,6 +702,8 @@ We apologize for the inconvenience."#,
         self.regenerate(crate_updates.iter().map(|nv| nv.name()), true)?;
         Ok(())
     }
+    /// Initialize a new managed repository by creating the necessary directories,
+    /// data files, etc.
     pub fn init(&self) -> Result<()> {
         if self.path.abs().exists() {
             return Err(anyhow!("{} already exists", self.path));
@@ -678,6 +714,7 @@ We apologize for the inconvenience."#,
         self.pseudo_crate().init()?;
         Ok(())
     }
+    /// Verifies the checksum file for a crate.
     pub fn verify_checksums<T: AsRef<str>>(&self, crates: impl Iterator<Item = T>) -> Result<()> {
         for krate in crates {
             println!("Verifying checksums for {}", krate.as_ref());

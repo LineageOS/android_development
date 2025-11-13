@@ -23,8 +23,13 @@ import {
   Output,
 } from '@angular/core';
 import {TracePipeline} from 'app/trace_pipeline';
+import {Store} from 'common/store/store';
 import {ProgressListener} from 'messaging/progress_listener';
-import {WinscopeEvent, WinscopeEventType} from 'messaging/winscope_event';
+import {
+  ShowTraceUploadWarning,
+  WinscopeEvent,
+  WinscopeEventType,
+} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {Trace} from 'trace/trace';
 import {TRACE_INFO} from 'trace/trace_info';
@@ -40,42 +45,64 @@ import {LoadProgressComponent} from './load_progress_component';
         <div
           *ngIf="!isLoadingFiles && tracePipeline.getTraces().getSize() > 0"
           class="trace-actions-container">
-          <button
-            color="primary"
-            mat-raised-button
-            class="load-btn"
-            matTooltip="Upload trace with an associated viewer to visualize"
-            [matTooltipDisabled]="hasLoadedFilesWithViewers()"
-            [disabled]="isViewTracesButtonDisabled()"
-            (click)="onViewTracesButtonClick()">
-            View traces
-          </button>
+          <div class="trace-action-buttons">
+            <button
+              class="clear-all-btn"
+              color="primary"
+              mat-stroked-button
+              [disabled]="viewersLoading"
+              (click)="onClearButtonClick()">
+              Clear all
+            </button>
 
-          <button
-            class="download-btn"
-            color="primary"
-            mat-stroked-button
-            (click)="downloadTracesClick.emit()">Download all</button>
+            <button
+              class="download-btn"
+              color="primary"
+              mat-stroked-button
+              (click)="downloadTracesClick.emit()">Download all</button>
 
-          <button
-            class="upload-btn"
-            color="primary"
-            mat-stroked-button
-            for="fileDropRef"
-            [disabled]="viewersLoading"
-            (click)="fileDropRef.click()">
-            Upload another file
-          </button>
-
-          <button
-            class="clear-all-btn"
-            color="primary"
-            mat-stroked-button
-            [disabled]="viewersLoading"
-            (click)="onClearButtonClick()">
-            Clear all
-          </button>
+            <button
+              class="upload-btn"
+              color="primary"
+              mat-stroked-button
+              for="fileDropRef"
+              [disabled]="viewersLoading"
+              (click)="fileDropRef.click()">
+              Upload another file
+            </button>
+          </div>
+          <div class="trace-action-buttons">
+            <button
+              color="primary"
+              mat-raised-button
+              class="load-btn"
+              matTooltip="Upload trace with an associated viewer to visualize"
+              [matTooltipDisabled]="hasLoadedFilesWithViewers()"
+              [disabled]="isViewTracesButtonDisabled()"
+              (click)="onViewTracesButtonClick()">
+              View traces
+            </button>
+            <mat-checkbox
+              class="discard-legacy-traces wrapped-checkbox"
+              color="primary"
+              [checked]="!isDiscardLegacyTracesBoxDisabled() && discardLegacyTraces"
+              [disabled]="isDiscardLegacyTracesBoxDisabled()"
+              matTooltip="Discard legacy traces instead of converting to Perfetto to reduce loading time"
+              (change)="updateDiscardLegacyTraces()">
+              Discard legacy traces
+            </mat-checkbox>
+          </div>
         </div>
+      </div>
+
+      <div *ngFor="let message of warningMessages; let i = index" class="warning-banner mat-elevation-z2">
+        <div class="warning-content">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          <span class="warn-message">{{ message }}</span>
+        </div>
+         <button mat-icon-button (click)="clearWarning(i)" [attr.aria-label]="'Dismiss warning: ' + message">
+            <mat-icon>close</mat-icon>
+        </button>
       </div>
 
       <mat-card-content
@@ -156,17 +183,21 @@ import {LoadProgressComponent} from './load_progress_component';
       }
       .card-header {
         justify-content: space-between;
-        align-items: center;
+        align-items: start;
         display: flex;
         flex-direction: row;
       }
       .title {
         padding-top: 16px;
-        text-align: center;
+        text-align: start;
       }
       .trace-actions-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+      }
+      .trace-action-buttons {
+        display: flex;
+        flex-direction: row-reverse;
         flex-wrap: wrap;
         gap: 10px;
         padding: 4px 0px;
@@ -226,8 +257,36 @@ import {LoadProgressComponent} from './load_progress_component';
       .trace-error {
         background-color: var(--error-background-color);
       }
-      .warning-icon, .error-icon {
-        flex-shrink: 0;
+      .warning-banner {
+        background-color: var(--warning-background-color);
+        padding: 8px 8px 8px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .warning-banner .warning-content {
+         display: flex;
+         align-items: center;
+         gap: 8px;
+         flex-grow: 1;
+         text-align: left;
+      }
+      .warning-banner .warning-icon {
+         flex-shrink: 0;
+      }
+      .warning-banner .warn-message {
+        padding: 0;
+        margin: 0;
+        white-space: pre-line;
+      }
+      .discard-legacy-traces {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: end;
       }
     `,
   ],
@@ -241,11 +300,16 @@ export class UploadTracesComponent
   progressPercentage?: number;
   lastUiProgressUpdateTimeMs?: number;
   viewersLoading = false;
+  warningMessages: string[] = [];
+  discardLegacyTraces = false;
 
   @Input() tracePipeline: TracePipeline | undefined;
+  @Input() storage: Store | undefined;
   @Output() filesUploaded = new EventEmitter<File[]>();
-  @Output() viewTracesButtonClick = new EventEmitter<void>();
+  @Output() viewTracesButtonClick = new EventEmitter<boolean>();
   @Output() downloadTracesClick = new EventEmitter<void>();
+
+  private readonly discardLegacyStoreKey = 'discardLegacyTraces';
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
@@ -253,7 +317,25 @@ export class UploadTracesComponent
   ) {}
 
   ngOnInit() {
+    if (this.storage) {
+      const storedValue = this.storage.get(this.discardLegacyStoreKey);
+      this.discardLegacyTraces =
+        storedValue === 'true' || storedValue === undefined;
+    }
     this.tracePipeline?.clear();
+    this.clearAllWarnings();
+  }
+
+  updateDiscardLegacyTraces() {
+    this.discardLegacyTraces = !this.discardLegacyTraces;
+    this.storage?.add(
+      this.discardLegacyStoreKey,
+      this.discardLegacyTraces.toString(),
+    );
+  }
+
+  clearAllWarnings() {
+    this.warningMessages = [];
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -264,6 +346,15 @@ export class UploadTracesComponent
       WinscopeEventType.APP_TRACE_VIEW_REQUEST_HANDLED,
       async () => {
         this.viewersLoading = false;
+      },
+    );
+    await event.visit(
+      WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING,
+      async (e: ShowTraceUploadWarning) => {
+        if (e.message && !this.warningMessages.includes(e.message)) {
+          this.warningMessages.push(e.message);
+        }
+        this.changeDetectorRef.detectChanges();
       },
     );
   }
@@ -300,11 +391,12 @@ export class UploadTracesComponent
   }
 
   onViewTracesButtonClick() {
-    this.viewTracesButtonClick.emit();
+    this.viewTracesButtonClick.emit(this.discardLegacyTraces);
   }
 
   onClearButtonClick() {
     this.tracePipeline?.clear();
+    this.clearAllWarnings();
     this.onOperationFinished();
   }
 
@@ -352,6 +444,13 @@ export class UploadTracesComponent
     });
   }
 
+  isDiscardLegacyTracesBoxDisabled(): boolean {
+    if (this.isViewTracesButtonDisabled()) {
+      return true;
+    }
+    return !this.tracePipeline?.hasConvertibleLegacyTraces();
+  }
+
   isViewTracesButtonDisabled(): boolean {
     return this.viewersLoading || !this.hasLoadedFilesWithViewers();
   }
@@ -367,6 +466,11 @@ export class UploadTracesComponent
   traceErrorTooltip(trace: Trace<object>): string {
     const reason = trace.getCorruptedReason() ?? 'Trace is corrupted.';
     return 'Cannot visualize trace. ' + reason;
+  }
+
+  clearWarning(index: number) {
+    this.warningMessages.splice(index, 1);
+    this.changeDetectorRef.detectChanges(); // Trigger UI update
   }
 
   private getInputFiles(event: Event): File[] {

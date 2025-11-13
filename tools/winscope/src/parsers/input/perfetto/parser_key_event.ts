@@ -20,17 +20,17 @@ import {AbstractInputEventParser} from 'parsers/input/perfetto/abstract_input_ev
 import {SetFormatters} from 'parsers/operations/set_formatters';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {Utils} from 'parsers/perfetto/utils';
-import {perfetto} from 'protos/input/latest/static';
+import {queryEntry} from 'parsers/perfetto/utils';
+import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
+import {perfetto} from 'protos/perfetto/trace/static';
 import {TraceFile} from 'trace/trace_file';
 import {TraceType} from 'trace/trace_type';
-import {PropertyTreeBuilderFromProto} from 'trace/tree_node/property_tree_builder_from_proto';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 
 export class ParserKeyEvent extends AbstractInputEventParser {
   private static readonly KeyEventField =
-    AbstractInputEventParser.WrapperProto.fields['keyEvent'];
+    AbstractInputEventParser.WrapperProto.fields['dispatcherKeyEvent'];
 
   private static readonly KEY_EVENT_OPS = [
     new SetFormatters(ParserKeyEvent.KeyEventField),
@@ -57,17 +57,14 @@ export class ParserKeyEvent extends AbstractInputEventParser {
 
   override async getEntry(index: number): Promise<PropertyTreeNode> {
     const keyEvent = await this.getKeyEventProto(index);
-    const events = perfetto.protos.InputEventWrapper.create({
-      keyEvent,
-      windowDispatchEvents: await this.getDispatchEvents(keyEvent.eventId),
-    });
-    return this.makeKeyPropertiesTree(events);
+    const windowDispatchEvents = await this.getDispatchEvents(keyEvent.eventId);
+    return this.makeKeyPropertiesTree(keyEvent, windowDispatchEvents);
   }
 
   private async getKeyEventProto(
     index: number,
   ): Promise<perfetto.protos.AndroidKeyEvent> {
-    let keyEventProto = await Utils.queryEntry(
+    let keyEventProto = await queryEntry(
       this.traceProcessor,
       this.getTableName(),
       this.entryIndexToRowIdMap,
@@ -87,10 +84,12 @@ export class ParserKeyEvent extends AbstractInputEventParser {
   }
 
   private makeKeyPropertiesTree(
-    entryProto: perfetto.protos.InputEventWrapper,
+    keyEvent: perfetto.protos.AndroidKeyEvent,
+    windowDispatchEvents: perfetto.protos.AndroidWindowInputDispatchEvent[],
   ): PropertyTreeNode {
+    const entry = {keyEvent, windowDispatchEvents};
     const tree = new PropertyTreeBuilderFromProto()
-      .setData(entryProto)
+      .setData(entry)
       .setRootId('AndroidKeyEvent')
       .setRootName('entry')
       .build();

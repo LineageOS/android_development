@@ -19,14 +19,15 @@ import {
   TimestampConverterUtils,
   timestampEqualityTester,
 } from 'common/time/test_utils';
+import {getTracesParser} from 'test/unit/fixture_utils';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {UnitTestUtils} from 'test/unit/utils';
 import {CoarseVersion} from 'trace/coarse_version';
 import {Parser} from 'trace/parser';
 import {TraceType} from 'trace/trace_type';
 import {
   CUJ_TYPE_FORMATTER,
   DEFAULT_PROPERTY_FORMATTER,
+  TIMESTAMP_NODE_FORMATTER,
 } from 'trace/tree_node/formatters';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 
@@ -35,9 +36,11 @@ describe('TracesParserCujs', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = (await UnitTestUtils.getTracesParser([
-      'traces/eventlog.winscope',
-    ])) as Parser<PropertyTreeNode>;
+    parser = (
+      await getTracesParser([
+        'traces/elapsed_and_real_timestamp/eventlog.winscope',
+      ])
+    ).tracesParser as Parser<PropertyTreeNode>;
   });
 
   it('has expected trace type', () => {
@@ -83,7 +86,7 @@ describe('TracesParserCujs', () => {
             TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(
               1681207048025580000n,
             ),
-          formatter: DEFAULT_PROPERTY_FORMATTER,
+          formatter: TIMESTAMP_NODE_FORMATTER,
         },
         {
           name: 'endTimestamp',
@@ -91,7 +94,7 @@ describe('TracesParserCujs', () => {
             TimestampConverterUtils.TIMESTAMP_CONVERTER.makeTimestampFromNs(
               1681207048643085000n,
             ),
-          formatter: DEFAULT_PROPERTY_FORMATTER,
+          formatter: TIMESTAMP_NODE_FORMATTER,
         },
         {name: 'canceled', value: true, formatter: DEFAULT_PROPERTY_FORMATTER},
       ])

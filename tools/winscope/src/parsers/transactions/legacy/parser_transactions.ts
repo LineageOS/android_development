@@ -17,25 +17,15 @@
 import {assertDefined} from 'common/assert_utils';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {AddDefaults} from 'parsers/operations/add_defaults';
-import {SetFormatters} from 'parsers/operations/set_formatters';
-import {TamperedMessageType} from 'parsers/tampered_message_type';
-import {TranslateChanges} from 'parsers/transactions/operations/translate_changes';
+import {perfetto} from 'protos/perfetto/trace/static';
 import root from 'protos/transactions/udc/json';
 import {android} from 'protos/transactions/udc/static';
-import {
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-  VisitableParserCustomQuery,
-} from 'trace/custom_query';
-import {EntriesRange} from 'trace/trace';
 import {TraceType} from 'trace/trace_type';
-import {PropertyTreeBuilderFromProto} from 'trace/tree_node/property_tree_builder_from_proto';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 
 type TraceEntryProto = android.surfaceflinger.proto.ITransactionTraceEntry;
 
-class ParserTransactions extends AbstractParser<
+export class ParserTransactions extends AbstractParser<
   PropertyTreeNode,
   TraceEntryProto
 > {
@@ -43,18 +33,9 @@ class ParserTransactions extends AbstractParser<
     0x09, 0x54, 0x4e, 0x58, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .TNXTRACE
 
-  private static readonly TransactionsTraceFileProto =
-    TamperedMessageType.tamper(
-      root.lookupType('android.surfaceflinger.TransactionTraceFile'),
-    );
-  private static readonly TransactionsTraceEntryField =
-    ParserTransactions.TransactionsTraceFileProto.fields['entry'];
-
-  private static readonly OPERATIONS = [
-    new AddDefaults(ParserTransactions.TransactionsTraceEntryField),
-    new SetFormatters(ParserTransactions.TransactionsTraceEntryField),
-    new TranslateChanges(),
-  ];
+  private static readonly TransactionsTraceFileProto = root.lookupType(
+    'android.surfaceflinger.TransactionTraceFile',
+  );
 
   private realToMonotonicTimeOffsetNs: bigint | undefined;
 
@@ -88,46 +69,30 @@ class ParserTransactions extends AbstractParser<
     return decodedProto.entry ?? [];
   }
 
+  override canConvertToPerfetto(): boolean {
+    return true;
+  }
+
+  override convertToPerfettoPackets(
+    sequenceId: number,
+  ): perfetto.protos.TracePacket[] {
+    const packets = [];
+    for (const entry of this.decodedEntries) {
+      const packet = perfetto.protos.TracePacket.create();
+      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
+      packet.timestampClockId =
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
+      packet.trustedPacketSequenceId = sequenceId;
+      packet.surfaceflingerTransactions =
+        perfetto.protos.TransactionTraceEntry.fromObject(entry);
+      packets.push(packet);
+    }
+    return packets;
+  }
+
   protected override getTimestamp(entryProto: TraceEntryProto): Timestamp {
     return this.timestampConverter.makeTimestampFromMonotonicNs(
       BigInt(assertDefined(entryProto.elapsedRealtimeNanos).toString()),
     );
   }
-
-  override processDecodedEntry(
-    index: number,
-    entryProto: TraceEntryProto,
-  ): PropertyTreeNode {
-    return this.makePropertiesTree(entryProto);
-  }
-
-  override customQuery<Q extends CustomQueryType>(
-    type: Q,
-    entriesRange: EntriesRange,
-  ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    return new VisitableParserCustomQuery(type)
-      .visit(CustomQueryType.VSYNCID, async () => {
-        return this.decodedEntries
-          .slice(entriesRange.start, entriesRange.end)
-          .map((entry) => {
-            return BigInt(assertDefined(entry.vsyncId?.toString())); // convert Long to bigint
-          });
-      })
-      .getResult();
-  }
-
-  private makePropertiesTree(entryProto: TraceEntryProto): PropertyTreeNode {
-    const tree = new PropertyTreeBuilderFromProto()
-      .setData(entryProto)
-      .setRootId('TransactionsTraceEntry')
-      .setRootName('entry')
-      .build();
-
-    ParserTransactions.OPERATIONS.forEach((operation) => {
-      operation.apply(tree);
-    });
-    return tree;
-  }
 }
-
-export {ParserTransactions};

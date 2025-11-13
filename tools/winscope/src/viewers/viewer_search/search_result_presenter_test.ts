@@ -18,10 +18,11 @@ import {assertDefined} from 'common/assert_utils';
 import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {UnitTestUtils} from 'test/unit/utils';
+import {makeEmptyTrace} from 'test/unit/trace_utils';
 import {Trace} from 'trace/trace';
 import {TraceType} from 'trace/trace_type';
 import {QueryResult, Row, RowIterator} from 'trace_processor/query_result';
+import {makeSearchTraceSpies} from 'trace_processor/test_utils';
 import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
 import {LogHeader} from 'viewers/common/ui_data_log';
@@ -55,10 +56,7 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
 
   override async setUpTestEnvironment(): Promise<void> {
     const time100 = TimestampConverterUtils.makeRealTimestamp(100n);
-    const [spyQueryResult, spyIter] = UnitTestUtils.makeSearchTraceSpies(
-      time100,
-      123,
-    );
+    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, 123);
     this.spyIter = spyIter;
     this.trace = new TraceBuilder<QueryResult>()
       .setEntries([spyQueryResult])
@@ -78,12 +76,9 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
     callback: NotifyLogViewCallbackType<SearchResult>,
   ): Promise<SearchResultPresenter> {
     const time100 = TimestampConverterUtils.makeRealTimestamp(100n);
-    const [spyQueryResult, spyIter] = UnitTestUtils.makeSearchTraceSpies(
-      time100,
-      123,
-    );
+    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, 123);
     this.spyIter = spyIter;
-    const trace = UnitTestUtils.makeEmptyTrace(TraceType.SEARCH);
+    const trace = makeEmptyTrace(TraceType.SEARCH);
     return new SearchResultPresenter(
       trace,
       callback,
@@ -126,7 +121,7 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
           {spec: this.expectedHeaders[1].header.spec, value: 'test_property'},
           {spec: this.expectedHeaders[2].header.spec, value: 123},
         ],
-        propertiesTree: undefined,
+        getPropertiesTree: undefined,
       },
     ]);
   }
@@ -137,8 +132,7 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
 
       it("does not convert 'ts' column value to timestamp if entry timestamp is not valid", async () => {
         const time0 = TimestampConverterUtils.makeZeroTimestamp();
-        const [spyQueryResult, spyIter] =
-          UnitTestUtils.makeSearchTraceSpies(time0);
+        const [spyQueryResult, spyIter] = makeSearchTraceSpies(time0);
         const trace = new TraceBuilder<QueryResult>()
           .setEntries([spyQueryResult])
           .setTimestamps([time0])

@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {UnitTestUtils} from 'test/unit/utils';
+import {getPerfettoParser, getPerfettoParsers} from 'test/unit/fixture_utils';
 import {TraceType} from 'trace/trace_type';
 
-describe('Perfetto AbstractParser', () => {
-  it('fails parsing if there are no trace entries', async () => {
-    const parsers = await UnitTestUtils.getPerfettoParsers(
-      'traces/perfetto/no_winscope_traces.perfetto-trace',
+describe('PerfettoAbstractParser', () => {
+  it('robust to perfetto trace with no trace entries', async () => {
+    const parsers = await getPerfettoParsers(
+      'invalid_files/no_winscope_traces.perfetto-trace',
+    );
+    expect(parsers.length).toEqual(0);
+  });
+
+  it('robust to non-perfetto file', async () => {
+    const parsers = await getPerfettoParsers(
+      'traces/screenshot/screenshot.png',
+      false,
+      false,
     );
     expect(parsers.length).toEqual(0);
   });
 
   it('has expected descriptors', async () => {
-    const parser = await UnitTestUtils.getPerfettoParser(
+    const parser = await getPerfettoParser(
       TraceType.SURFACE_FLINGER,
       'traces/perfetto/layers_trace.perfetto-trace',
     );

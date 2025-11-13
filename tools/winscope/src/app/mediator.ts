@@ -35,6 +35,7 @@ import {
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
   ExpandedTimelineToggled,
+  ShowTraceUploadWarning,
   TraceAddRequest,
   TracePositionUpdate,
   TraceSearchCompleted,
@@ -95,6 +96,10 @@ export class Mediator {
     this.appComponent = appComponent;
     this.storage = storage;
 
+    this.tracePipeline.setEmitEvent(async (event) => {
+      await this.onWinscopeEvent(event);
+    });
+
     this.crossToolProtocol.setEmitEvent(async (event) => {
       await this.onWinscopeEvent(event);
     });
@@ -147,6 +152,7 @@ export class Mediator {
     await event.visit(WinscopeEventType.APP_FILES_UPLOADED, async (event) => {
       this.currentProgressListener = this.uploadTracesComponent;
       await this.loadFiles(event.files, FilesSource.UPLOADED);
+
       UserNotifier.notify();
     });
 
@@ -170,7 +176,7 @@ export class Mediator {
           await this.uploadTracesComponent?.onWinscopeEvent(
             new AppTraceViewRequest(),
           );
-          await this.loadViewers(FilesSource.COLLECTED);
+          await this.loadViewers(FilesSource.COLLECTED, false);
           await this.uploadTracesComponent?.onWinscopeEvent(
             new AppTraceViewRequestHandled(),
           );
@@ -196,10 +202,13 @@ export class Mediator {
       },
     );
 
-    await event.visit(WinscopeEventType.APP_TRACE_VIEW_REQUEST, async () => {
-      await this.loadViewers(FilesSource.UPLOADED);
-      UserNotifier.notify();
-    });
+    await event.visit(
+      WinscopeEventType.APP_TRACE_VIEW_REQUEST,
+      async (event) => {
+        await this.loadViewers(FilesSource.UPLOADED, event.discardLegacyTraces);
+        UserNotifier.notify();
+      },
+    );
 
     await event.visit(
       WinscopeEventType.REMOTE_TOOL_DOWNLOAD_START,
@@ -360,16 +369,36 @@ export class Mediator {
         await this.timelineComponent?.onWinscopeEvent(initializedEvent);
       },
     );
+
+    await event.visit(
+      WinscopeEventType.BUGREPORT_FILE_SELECTED,
+      async (event) => {
+        await this.tracePipeline.onWinscopeEvent(event);
+      },
+    );
+
+    await event.visit(
+      WinscopeEventType.BUGREPORT_FILE_SELECTION_REQUEST,
+      async (event) => {
+        await this.appComponent.onWinscopeEvent(event);
+      },
+    );
   }
 
   private async loadFiles(files: File[], source: FilesSource) {
     const startTimeMs = Date.now();
-    await this.tracePipeline.loadFiles(
+    const warnings = await this.tracePipeline.loadFiles(
       files,
       source,
       this.currentProgressListener,
     );
     Analytics.Loading.logLoadFilesTime(Date.now() - startTimeMs, source);
+
+    for (const warning of warnings) {
+      await this.uploadTracesComponent?.onWinscopeEvent(
+        new ShowTraceUploadWarning(warning.getMessage()),
+      );
+    }
   }
 
   private async propagateTracePosition(
@@ -490,16 +519,27 @@ export class Mediator {
     UserNotifier.notify();
   }
 
-  private async loadViewers(source: FilesSource) {
+  private async loadViewers(source: FilesSource, discardLegacyTraces: boolean) {
     const e2eStartTimeMs = Date.now();
+
+    if (discardLegacyTraces) {
+      this.tracePipeline.discardLegacyTraces();
+    } else {
+      this.currentProgressListener?.onProgressUpdate(
+        'Converting legacy traces to perfetto...',
+        undefined,
+      );
+      await TimeUtils.sleepMs(10); // allow the UI to update before making the main thread very busy
+      await this.tracePipeline.convertLegacyTracesToPerfetto();
+      this.currentProgressListener?.onOperationFinished(true);
+    }
+
     this.currentProgressListener?.onProgressUpdate(
       'Computing frame mapping...',
       undefined,
     );
 
-    // TODO: move this into the ProgressListener
-    // allow the UI to update before making the main thread very busy
-    await TimeUtils.sleepMs(10);
+    await TimeUtils.sleepMs(10); // allow the UI to update before making the main thread very busy
 
     this.tracePipeline.filterTracesWithoutVisualization();
     if (this.tracePipeline.getTraces().getSize() === 0) {

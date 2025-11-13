@@ -19,13 +19,12 @@ import {getRootUrl} from 'common/url_utils';
 import {TraceProcessor} from './trace_processor';
 import {
   initWasm,
-  resetEngineWorker,
 } from './wasm_engine_proxy';
 
 export class TraceProcessorFactory {
   private static tp?: TraceProcessor;
 
-  static async getSingleInstance(): Promise<TraceProcessor> {
+  static getSingleInstance(): TraceProcessor {
     if (!TraceProcessorFactory.tp) {
       const traceProcessorRootUrl =
         globalConfig.MODE === 'KARMA_TEST'
@@ -34,10 +33,8 @@ export class TraceProcessorFactory {
           : getRootUrl();
       initWasm(traceProcessorRootUrl);
       const engineId = 'random-id';
-      const enginePort = resetEngineWorker();
-      TraceProcessorFactory.tp = new TraceProcessor(engineId, enginePort);
+      TraceProcessorFactory.tp = new TraceProcessor(engineId);
     }
-
     return TraceProcessorFactory.tp;
   }
 }

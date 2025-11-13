@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
+import {
+  assertBigIntOrUndefined,
+  assertStringOrUndefined,
+} from 'common/assert_utils';
+import {MakeTimestampStrategyType} from 'common/time/time';
+import {SetFormatters} from 'parsers/operations/set_formatters';
+import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
+import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {LogMessage} from 'parsers/protolog/log_message';
-import {ParserProtologUtils} from 'parsers/protolog/parser_protolog_utils';
 import {TraceType} from 'trace/trace_type';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 
@@ -28,11 +35,11 @@ class PerfettoLogMessageTableRow {
   timestamp: bigint = 0n;
 
   constructor(
-    timestamp: bigint,
-    tag: string,
-    level: string,
-    message: string,
-    location: string,
+    timestamp: bigint | undefined,
+    tag: string | undefined,
+    level: string | undefined,
+    message: string | undefined,
+    location: string | undefined,
   ) {
     this.timestamp = timestamp ?? this.timestamp;
     this.tag = tag ?? this.tag;
@@ -57,11 +64,7 @@ export class ParserProtolog extends AbstractParser<PropertyTreeNode> {
       timestamp: protologEntry.timestamp,
     };
 
-    return ParserProtologUtils.makeMessagePropertiesTree(
-      logMessage,
-      this.timestampConverter,
-      false,
-    );
+    return this.makeMessagePropertiesTree(logMessage);
   }
 
   protected override getTableName(): string {
@@ -76,7 +79,7 @@ export class ParserProtolog extends AbstractParser<PropertyTreeNode> {
         protolog
       WHERE protolog.id = ${this.entryIndexToRowIdMap[index]};
     `;
-    const result = await this.traceProcessor.queryAllRows(sql);
+    const result = await this.traceProcessor.query(sql);
 
     if (result.numRows() !== 1) {
       throw new Error(
@@ -87,11 +90,27 @@ export class ParserProtolog extends AbstractParser<PropertyTreeNode> {
     const entry = result.iter({});
 
     return new PerfettoLogMessageTableRow(
-      entry.get('ts') as bigint,
-      entry.get('tag') as string,
-      entry.get('level') as string,
-      entry.get('message') as string,
-      entry.get('location') as string,
+      assertBigIntOrUndefined(entry.get('ts')),
+      assertStringOrUndefined(entry.get('tag')),
+      assertStringOrUndefined(entry.get('level')),
+      assertStringOrUndefined(entry.get('message')),
+      assertStringOrUndefined(entry.get('location')),
     );
+  }
+
+  private makeMessagePropertiesTree(logMessage: LogMessage): PropertyTreeNode {
+    const tree = new PropertyTreeBuilderFromProto()
+      .setData(logMessage)
+      .setRootId('ProtoLogTrace')
+      .setRootName('entry')
+      .build();
+
+    const strategy: MakeTimestampStrategyType = (valueNs: bigint) => {
+      return this.timestampConverter.makeTimestampFromBootTimeNs(valueNs);
+    };
+
+    new TransformToTimestamp(['timestamp'], strategy).apply(tree);
+    new SetFormatters().apply(tree);
+    return tree;
   }
 }

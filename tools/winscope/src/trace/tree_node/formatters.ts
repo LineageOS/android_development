@@ -17,8 +17,8 @@
 import {Timestamp} from 'common/time/time';
 import {TimeDuration} from 'common/time/time_duration';
 import {RawDataUtils} from 'parsers/raw_data_utils';
-import {TransformType} from 'parsers/surface_flinger/transform_utils';
-import {CujType} from 'trace/cuj_type';
+import {CujType} from 'trace/cujs/cuj_type';
+import {TransformType} from 'trace/surface_flinger/transform_utils';
 import {PropertyTreeNode} from './property_tree_node';
 
 const EMPTY_OBJ_STRING = '{empty}';
@@ -260,6 +260,13 @@ class HexFormatter implements PropertyFormatter {
 }
 const HEX_FORMATTER = new HexFormatter();
 
+class UpperCaseFormatter implements PropertyFormatter {
+  format(node: PropertyTreeNode): string {
+    return node.getValue()?.toString().toUpperCase() ?? '';
+  }
+}
+const UPPER_CASE_FORMATTER = new UpperCaseFormatter();
+
 export {
   EMPTY_OBJ_STRING,
   EMPTY_ARRAY_STRING,
@@ -280,4 +287,5 @@ export {
   MATRIX_FORMATTER,
   CUJ_TYPE_FORMATTER,
   HEX_FORMATTER,
+  UPPER_CASE_FORMATTER,
 };

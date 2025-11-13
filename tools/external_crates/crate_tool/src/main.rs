@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! A command-line tool for managing repositories of 3rd party crates
+//! such as external/rust/android-crates-io.
+
 use std::{collections::BTreeSet, path::PathBuf};
 
 use anyhow::{bail, Result};
@@ -152,6 +155,8 @@ impl CrateList {
 }
 
 fn main() -> Result<()> {
+    env_logger::init();
+
     let args = Cli::parse();
 
     maybe_build_cargo_embargo(&args.android_root, args.rebuild_cargo_embargo)?;

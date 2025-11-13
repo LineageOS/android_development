@@ -21,12 +21,18 @@ import {
   TabbedViewSwitchRequest,
   TracePositionUpdate,
 } from 'messaging/winscope_event';
+import {
+  getFixtureFile,
+  getPerfettoParser,
+  LegacyParserProvider,
+} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {UnitTestUtils} from 'test/unit/utils';
+import {makeEmptyTrace} from 'test/unit/trace_utils';
 import {CustomQueryType} from 'trace/custom_query';
 import {Parser} from 'trace/parser';
 import {Trace} from 'trace/trace';
 import {Traces} from 'trace/traces';
+import {TraceFile} from 'trace/trace_file';
 import {TRACE_INFO} from 'trace/trace_info';
 import {TraceType} from 'trace/trace_type';
 import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
@@ -50,7 +56,7 @@ class PresenterViewCaptureTest extends AbstractHierarchyViewerPresenterTest<UiDa
   override readonly shouldExecuteRectTests = true;
   override readonly shouldExecuteSimplifyNamesTest = true;
   override readonly keepCalculatedPropertiesInChild = false;
-  override readonly keepCalculatedPropertiesInRoot = true;
+  override readonly keepCalculatedPropertiesInRoot = false;
   override readonly expectedHierarchyOpts = {
     showDiff: {
       name: 'Show diff',
@@ -94,6 +100,7 @@ the default for its data type.`,
     },
   };
 
+  override readonly rectIndex = 9;
   override readonly expectedInitialRectSpec = {
     type: TraceRectType.VIEWS,
     icon: TRACE_INFO[TraceType.VIEW_CAPTURE].icon,
@@ -121,45 +128,39 @@ the default for its data type.`,
     ],
   };
   override readonly treeNodeLongName =
-    'com.android.launcher3.taskbar.TaskbarView@80213537';
-  override readonly treeNodeShortName = 'TaskbarView@80213537';
+    'com.google.android.apps.nexuslauncher.allapps.SearchContainerView@53568094';
+  override readonly treeNodeShortName = 'SearchContainerView@53568094';
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parsers = (await UnitTestUtils.getParsers(
-      'traces/elapsed_and_real_timestamp/com.google.android.apps.nexuslauncher_0.vc',
-    )) as Array<Parser<HierarchyTreeNode>>;
+    const parser = (await getPerfettoParser(
+      TraceType.VIEW_CAPTURE,
+      'traces/perfetto/viewcapture.perfetto-trace',
+    )) as Parser<HierarchyTreeNode>;
 
+    const trace = Trace.fromParser(parser);
     this.traces = new Traces();
-    for (const parser of parsers) {
-      this.traces.addTrace(Trace.fromParser(parser));
-    }
+    this.traces.addTrace(trace);
 
-    const traceTaskbar = assertDefined(
-      this.traces.getTraces(TraceType.VIEW_CAPTURE)[0],
-    );
-    const firstEntry = traceTaskbar.getEntry(0);
+    const firstEntry = trace.getEntry(0);
     this.positionUpdate = TracePositionUpdate.fromTraceEntry(firstEntry);
 
-    const traceLauncherActivity = assertDefined(
-      this.traces.getTraces(TraceType.VIEW_CAPTURE)[1],
-    );
-    const firstEntryLauncherActivity = traceLauncherActivity.getEntry(0);
     this.secondPositionUpdate = TracePositionUpdate.fromTraceEntry(
-      firstEntryLauncherActivity,
+      trace.getEntry(1),
     );
 
     const firstEntryDataTree = await firstEntry.getValue();
+
     this.selectedTree = UiHierarchyTreeNode.from(
       assertDefined(
         firstEntryDataTree
           .findDfs(
             UiTreeUtils.makeIdMatchFilter(
-              'ViewNode com.android.launcher3.taskbar.TaskbarView@80213537',
+              'ViewNode44 ' + this.treeNodeLongName,
             ),
           )
           ?.getParent(),
       ),
-    ).getChildByName('com.android.launcher3.taskbar.TaskbarView@80213537');
+    ).getChildByName(this.treeNodeLongName);
   }
 
   override createPresenterWithEmptyTrace(
@@ -207,24 +208,30 @@ the default for its data type.`,
       assertDefined(
         propertiesTree.getChildByName('translationY'),
       ).formattedValue(),
-    ).toEqual('-0.633');
+    ).toEqual('786.506');
+    expect(propertiesTree.getChildByName('translationX')).toBeUndefined();
     expect(uiData.displays).toEqual([
-      {displayId: 0, groupId: 0, name: 'Taskbar', isActive: true},
-      {displayId: 1, groupId: 1, name: 'PhoneWindow@25063d9', isActive: true},
+      {displayId: 0, groupId: 0, name: 'PhoneWindow@4f9be60', isActive: true},
     ]);
-    expect(
-      assertDefined((uiData as UiData).curatedProperties).translationY,
-    ).toEqual('-0.633');
+    const curatedProperties = assertDefined(
+      (uiData as UiData).curatedProperties,
+    );
+    expect(curatedProperties.translationY).toEqual('786.506');
+    expect(curatedProperties.translationX).toEqual('0');
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(
     uiData: UiDataHierarchy,
   ) {
     const propertiesTree = assertDefined(uiData.propertiesTree);
-    expect(propertiesTree.getChildByName('translationY')).toBeUndefined();
+    expect(
+      assertDefined(
+        propertiesTree.getChildByName('translationY'),
+      ).formattedValue(),
+    ).toEqual('785.500');
     expect(
       assertDefined((uiData as UiData).curatedProperties).translationY,
-    ).toEqual('0');
+    ).toEqual('785.500');
   }
 
   override executeSpecializedChecksForPropertiesFromRect(
@@ -233,10 +240,10 @@ the default for its data type.`,
     const curatedProperties = assertDefined(
       (uiData as UiData).curatedProperties,
     );
-    expect(curatedProperties.translationX).toEqual('233.075');
-    expect(curatedProperties.translationY).toEqual('81');
-    expect(curatedProperties.alpha).toEqual('1');
-    expect(curatedProperties.willNotDraw).toEqual('false');
+    expect(curatedProperties.translationX).toEqual('-9.800');
+    expect(curatedProperties.translationY).toEqual('210.700');
+    expect(curatedProperties.alpha).toEqual('0');
+    expect(curatedProperties.willNotDraw).toEqual('true');
   }
 
   override executeSpecializedTests() {
@@ -269,8 +276,8 @@ the default for its data type.`,
       it('exposes all VC traces', () => {
         const traces = new Traces();
         const vcTraces = [
-          UnitTestUtils.makeEmptyTrace(TraceType.VIEW_CAPTURE),
-          UnitTestUtils.makeEmptyTrace(TraceType.VIEW_CAPTURE),
+          makeEmptyTrace(TraceType.VIEW_CAPTURE),
+          makeEmptyTrace(TraceType.VIEW_CAPTURE),
         ];
         vcTraces.forEach((trace) => traces.addTrace(trace));
         const notifyViewCallback = (newData: UiData) => {
@@ -285,28 +292,36 @@ the default for its data type.`,
       });
 
       it('extracts rects from SF trace', async () => {
-        const sfTrace = new TraceBuilder<HierarchyTreeNode>()
-          .setType(TraceType.SURFACE_FLINGER)
-          .setEntries([await UnitTestUtils.getLayerTraceEntry(0)])
-          .build();
-        const presenter = createPresenterWithSfTrace(
+        const perfettoFile = new TraceFile(
+          await getFixtureFile('traces/perfetto/viewcapture.perfetto-trace'),
+        );
+        const sfTrace = Trace.fromParser(
+          await new LegacyParserProvider()
+            .addFilename('traces/elapsed_timestamp/SurfaceFlinger.pb')
+            .setExistingPerfettoFile(perfettoFile)
+            .setConvertToPerfetto(true)
+            .getParser<HierarchyTreeNode>(),
+        );
+        const presenterWithSfTrace = createPresenterWithSfTrace(
           assertDefined(this.traces),
           sfTrace,
         );
-        await presenter.onAppEvent(assertDefined(this.positionUpdate));
+        await presenterWithSfTrace.onAppEvent(
+          assertDefined(this.positionUpdate),
+        );
         expect(assertDefined(uiData.sfRects).length).toBeGreaterThan(0);
       });
 
       it('handles double click if SF trace present', async () => {
-        const sfTrace = UnitTestUtils.makeEmptyTrace(TraceType.SURFACE_FLINGER);
-        const presenter = createPresenterWithSfTrace(
+        const sfTrace = makeEmptyTrace(TraceType.SURFACE_FLINGER);
+        const presenterWithSfTrace = createPresenterWithSfTrace(
           assertDefined(this.traces),
           sfTrace,
         );
         const spy = jasmine.createSpy();
-        presenter.setEmitEvent(spy);
+        presenterWithSfTrace.setEmitEvent(spy);
 
-        await presenter.onMiniRectsDoubleClick();
+        await presenterWithSfTrace.onMiniRectsDoubleClick();
         expect(spy).toHaveBeenCalledOnceWith(
           new TabbedViewSwitchRequest(sfTrace),
         );
@@ -320,13 +335,14 @@ the default for its data type.`,
       });
 
       it('clears curated properties on position update if no properties tree found', async () => {
-        await presenter.onAppEvent(assertDefined(this.secondPositionUpdate));
-        const nodeName = 'com.android.internal.policy.DecorView@220010144';
+        await presenter.onAppEvent(assertDefined(this.positionUpdate));
+        const nodeName =
+          'com.android.launcher3.allapps.AllAppsRecyclerView@188184411';
         await presenter.onHighlightedIdChange(nodeName);
         expect(uiData.propertiesTree).toBeDefined();
         expect(uiData.curatedProperties).toBeDefined();
 
-        await presenter.onAppEvent(assertDefined(this.positionUpdate));
+        await presenter.onAppEvent(assertDefined(this.secondPositionUpdate));
         expect(uiData.propertiesTree).toBeUndefined();
         expect(uiData.curatedProperties).toBeUndefined();
       });

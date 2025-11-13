@@ -53,7 +53,7 @@ export class PerfettoSessionModerator {
 
   async clearPreviousConfigFiles() {
     console.debug('Clearing perfetto config file for previous tracing session');
-    await this.device.runShellCommand(`su root rm -f ${this.configFilepath}`);
+    await this.device.runShellCommand(`rm -f ${this.configFilepath}`);
     console.debug('Cleared perfetto config file for previous tracing session');
   }
 
@@ -90,30 +90,31 @@ export class PerfettoSessionModerator {
     return queryResult.includes(ds);
   }
 
-  createTracingSession(setupCommands: string[]): TracingSession {
+  createTracingSession(dataSourceConfigs: string[]): TracingSession {
     if (this.isDump) {
-      return new TracingSession(this.makePerfettoDumpTarget(setupCommands));
+      return new TracingSession(this.makePerfettoDumpTarget(dataSourceConfigs));
     } else {
-      return new TracingSession(this.makePerfettoTraceTarget(setupCommands));
+      return new TracingSession(
+        this.makePerfettoTraceTarget(dataSourceConfigs),
+      );
     }
   }
 
-  createSetupCommand(ds: string, config?: string): string {
+  makeConfigDataSource(datasourceName: string, config?: string): string {
     const spacer = '\n    ';
-    return `cat << EOF >> ${this.configFilepath}
-data_sources: {
+    return `data_sources: {
   config {
-    name: "${ds}"${config ? spacer + config : ''}
+    name: "${datasourceName}"${config ? spacer + config : ''}
   }
-}
-EOF`;
+}`;
   }
 
-  private makePerfettoDumpTarget(setupCommands: string[]) {
+  private makePerfettoDumpTarget(dataSourceConfigs: string[]) {
     return new TraceTarget(
       'PerfettoDump',
-      setupCommands,
-      `cat << EOF >> ${PERFETTO_DUMP_CONFIG_FILE}
+      [],
+      `cat << EOF > ${PERFETTO_DUMP_CONFIG_FILE}
+${dataSourceConfigs.join('\n')}
 buffers: {
   size_kb: 500000
   fill_policy: RING_BUFFER
@@ -128,11 +129,33 @@ echo 'Dumped perfetto'`,
     );
   }
 
-  private makePerfettoTraceTarget(setupCommands: string[]) {
+  private makePerfettoTraceTarget(dataSourceConfigs: string[]) {
     return new TraceTarget(
       'PerfettoTrace',
-      setupCommands,
-      `cat << EOF >> ${PERFETTO_TRACE_CONFIG_FILE}
+      [],
+      `cat << EOF > ${PERFETTO_TRACE_CONFIG_FILE}
+${dataSourceConfigs.join('\n')}
+data_sources {
+  config {
+    name: "linux.process_stats"
+    target_buffer: 0
+    process_stats_config {
+      scan_all_processes_on_start: true
+    }
+  }
+}
+data_sources: {
+  config {
+    name: "linux.ftrace"
+    ftrace_config {
+      ftrace_events: "ftrace/print"
+      ftrace_events: "task/task_newtask"
+      ftrace_events: "task/task_rename"
+      atrace_categories: "ss"
+      atrace_categories: "wm"
+    }
+  }
+}
 buffers: {
   size_kb: 500000
   fill_policy: RING_BUFFER

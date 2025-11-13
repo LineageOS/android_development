@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {BugreportData, BuildType} from 'app/trace_file_filter';
 import {TimeRange} from 'common/time/time';
 import {TimeDuration} from 'common/time/time_duration';
 import {TRACE_INFO} from 'trace/trace_info';
@@ -47,6 +48,31 @@ export class NoValidFiles extends UserWarning {
       'No valid trace files found' +
       (this.traces ? ` for ${this.traces.join(', ')}` : '')
     );
+  }
+}
+
+export class MissingPersistentTrace extends UserWarning {
+  constructor(private bugreportData: BugreportData) {
+    super();
+  }
+
+  override getDescriptor(): string {
+    return 'missing persistent trace';
+  }
+
+  override getMessage(): string {
+    const baseMessage = 'No Winscope Perfetto trace found in bug report.';
+
+    if (this.bugreportData.buildType === BuildType.USER) {
+      return `${baseMessage} This is expected on 'user' builds. Persistent tracing usually requires a 'userdebug' or 'eng' build, or root access.`;
+    }
+
+    if (!this.bugreportData.isPersistentTracingEnabled) {
+      return `${baseMessage} The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled. You can try enabling it via:\n'adb shell setprop persist.debug.perfetto.persistent 1 && adb reboot'\nThen, reproduce the issue and capture a new bug report.`;
+    }
+
+    // Unknown issue
+    return `${baseMessage} Ensure the bugreport comes from a device where persistent tracing is enabled (e.g., dogfood devices or using 'adb shell setprop persist.debug.perfetto.persistent 1').`;
   }
 }
 
@@ -325,18 +351,16 @@ export class TraceSearchQueryFailed extends UserWarning {
   }
 }
 
-export class PerfettoPacketLoss extends UserWarning {
-  constructor(private descriptor: string, private totalPacketLoss: number) {
+export class FailedToConvertLegacyTraces extends UserWarning {
+  constructor(private readonly errorMessage: string) {
     super();
   }
 
   getDescriptor(): string {
-    return 'perfetto packet loss';
+    return 'failed to convert legacy trace';
   }
 
   getMessage(): string {
-    return `${this.descriptor}: ${this.totalPacketLoss} packet${
-      this.totalPacketLoss > 1 ? 's' : ''
-    } lost during tracing - data may be incomplete`;
+    return `Legacy to perfetto conversion failed: ${this.errorMessage}\nDiscarding legacy traces.`;
   }
 }

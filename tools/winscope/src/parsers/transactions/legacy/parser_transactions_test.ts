@@ -18,23 +18,25 @@ import {
   TimestampConverterUtils,
   timestampEqualityTester,
 } from 'common/time/test_utils';
+import Long from 'long';
+import {perfetto} from 'protos/perfetto/trace/static';
+import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {UnitTestUtils} from 'test/unit/utils';
 import {CoarseVersion} from 'trace/coarse_version';
 import {CustomQueryType} from 'trace/custom_query';
 import {Parser} from 'trace/parser';
 import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
 
 describe('ParserTransactions', () => {
   describe('trace with real timestamps', () => {
-    let parser: Parser<PropertyTreeNode>;
+    let parser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = (await UnitTestUtils.getParser(
-        'traces/elapsed_and_real_timestamp/Transactions.pb',
-      )) as Parser<PropertyTreeNode>;
+      parser = await new LegacyParserProvider()
+        .addFilename('traces/elapsed_and_real_timestamp/Transactions.pb')
+        .getParser<HierarchyTreeNode>();
     });
 
     it('has expected trace type', () => {
@@ -58,75 +60,98 @@ describe('ParserTransactions', () => {
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
 
-    it('retrieves trace entry from timestamp', async () => {
-      const entry = await parser.getEntry(1);
-      expect(entry.id).toEqual('TransactionsTraceEntry entry');
+    it('does not provide entry', () => {
+      expect(parser.getEntry).toThrow();
     });
 
-    it("decodes 'what' field in proto", async () => {
-      {
-        const entry = await parser.getEntry(0);
-        const transactions = assertDefined(
-          entry.getChildByName('transactions'),
-        );
-
-        expect(
-          transactions
-            .getChildByName('0')
-            ?.getChildByName('layerChanges')
-            ?.getChildByName('0')
-            ?.getChildByName('what')
-            ?.formattedValue(),
-        ).toEqual('eLayerChanged');
-
-        expect(
-          transactions
-            .getChildByName('1')
-            ?.getChildByName('layerChanges')
-            ?.getChildByName('0')
-            ?.getChildByName('what')
-            ?.formattedValue(),
-        ).toEqual('eFlagsChanged | eDestinationFrameChanged');
-      }
-      {
-        const entry = await parser.getEntry(222);
-        const transactions = assertDefined(
-          entry.getChildByName('transactions'),
-        );
-
-        expect(
-          transactions
-            .getChildByName('1')
-            ?.getChildByName('displayChanges')
-            ?.getChildByName('0')
-            ?.getChildByName('what')
-            ?.formattedValue(),
-        ).toEqual(
-          'eLayerStackChanged | eDisplayProjectionChanged | eFlagsChanged',
-        );
-      }
+    it('converts to valid perfetto packets', async () => {
+      const packets = parser.convertToPerfettoPackets!(10);
+      expect(packets.length).toEqual(712);
+      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(
+        packets[0].surfaceflingerTransactions?.transactions?.length,
+      ).toEqual(2);
+      expect(packets[0].timestamp).toEqual(
+        Long.fromString(BigInt(2450981445).toString()),
+      );
+      expect(packets[0].timestampClockId).toEqual(
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
     });
 
-    it('supports VSYNCID custom query', async () => {
-      const trace = new TraceBuilder()
-        .setType(TraceType.TRANSACTIONS)
-        .setParser(parser)
-        .build();
-      const entries = await trace
-        .sliceEntries(0, 3)
-        .customQuery(CustomQueryType.VSYNCID);
-      const values = entries.map((entry) => entry.getValue());
-      expect(values).toEqual([1n, 2n, 3n]);
+    describe('converts to valid perfetto trace', () => {
+      let perfettoParser: Parser<HierarchyTreeNode>;
+
+      beforeAll(async () => {
+        perfettoParser = await new LegacyParserProvider()
+          .addFilename('traces/elapsed_and_real_timestamp/Transactions.pb')
+          .setConvertToPerfetto(true)
+          .getParser<HierarchyTreeNode>();
+      });
+
+      it('provides timestamps', () => {
+        const timestamps = assertDefined(perfettoParser.getTimestamps());
+
+        expect(timestamps.length).toEqual(712);
+
+        const expected = [
+          TimestampConverterUtils.makeRealTimestamp(1659507541051480997n),
+          TimestampConverterUtils.makeRealTimestamp(1659507541118452067n),
+          TimestampConverterUtils.makeRealTimestamp(1659507542621651001n),
+        ];
+        expect(timestamps.slice(0, 3)).toEqual(expected);
+      });
+
+      it("decodes 'what' field in proto", async () => {
+        {
+          const entry = await perfettoParser.getEntry(0);
+          const [transaction0, transaction1] = await Promise.all(
+            entry
+              .getAllChildren()
+              .slice(0, 2)
+              .map((child) => child.getAllProperties()),
+          );
+          expect(transaction0.getChildByName('what')?.formattedValue()).toEqual(
+            'eLayerChanged',
+          );
+
+          expect(
+            transaction1?.getChildByName('what')?.formattedValue(),
+          ).toEqual('eFlagsChanged | eDestinationFrameChanged');
+        }
+        {
+          // translates upper and lower bits
+          const entry = await perfettoParser.getEntry(222);
+          const transaction = await entry
+            .getAllChildren()[42]
+            .getAllProperties();
+          expect(transaction.getChildByName('what')?.formattedValue()).toEqual(
+            'eLayerStackChanged | eDisplayProjectionChanged | eFlagsChanged',
+          );
+        }
+      });
+
+      it('supports VSYNCID custom query', async () => {
+        const trace = new TraceBuilder()
+          .setType(TraceType.TRANSACTIONS)
+          .setParser(perfettoParser)
+          .build();
+        const entries = await trace
+          .sliceEntries(0, 3)
+          .customQuery(CustomQueryType.VSYNCID);
+        const values = entries.map((entry) => entry.getValue());
+        expect(values).toEqual([1n, 2n, 3n]);
+      });
     });
   });
 
   describe('trace with only elapsed timestamps', () => {
-    let parser: Parser<PropertyTreeNode>;
+    let parser: Parser<HierarchyTreeNode>;
 
     beforeAll(async () => {
-      parser = (await UnitTestUtils.getParser(
-        'traces/elapsed_timestamp/Transactions.pb',
-      )) as Parser<PropertyTreeNode>;
+      parser = await new LegacyParserProvider()
+        .addFilename('traces/elapsed_timestamp/Transactions.pb')
+        .getParser<HierarchyTreeNode>();
     });
 
     it('has expected trace type', () => {
@@ -144,6 +169,21 @@ describe('ParserTransactions', () => {
         TimestampConverterUtils.makeElapsedTimestamp(14884850511n),
       ];
       expect(timestamps.slice(0, 3)).toEqual(expected);
+    });
+
+    it('converts to valid perfetto packets', async () => {
+      const packets = parser.convertToPerfettoPackets!(10);
+      expect(packets.length).toEqual(4997);
+      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(
+        packets[0].surfaceflingerTransactions?.transactions?.length,
+      ).toEqual(1);
+      expect(packets[0].timestamp).toEqual(
+        Long.fromString(BigInt(14862317023).toString()),
+      );
+      expect(packets[0].timestampClockId).toEqual(
+        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
     });
   });
 });

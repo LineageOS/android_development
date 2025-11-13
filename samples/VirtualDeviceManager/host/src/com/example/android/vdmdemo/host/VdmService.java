@@ -330,6 +330,7 @@ public final class VdmService extends Hilt_VdmService {
 
         mKeyguardManager = getSystemService(KeyguardManager.class);
         mDisplayManager = getSystemService(DisplayManager.class);
+
         Objects.requireNonNull(mDisplayManager).registerDisplayListener(mDisplayListener, null);
 
         mPreferenceController.addPreferenceObserver(this, mPreferenceObservers);
@@ -621,7 +622,9 @@ public final class VdmService extends Hilt_VdmService {
             virtualDeviceBuilder.setDevicePolicy(POLICY_TYPE_SENSORS, DEVICE_POLICY_CUSTOM);
         }
 
-        if (mPreferenceController.getBoolean(R.string.pref_enable_client_camera)) {
+        final String cameraPolicy = mPreferenceController.getString(R.string.pref_camera_policy);
+        if (cameraPolicy.equals(getString(R.string.no_cameras)) || cameraPolicy.equals(
+                getString(R.string.client_cameras))) {
             virtualDeviceBuilder.setDevicePolicy(POLICY_TYPE_CAMERA, DEVICE_POLICY_CUSTOM);
         }
 
@@ -646,12 +649,15 @@ public final class VdmService extends Hilt_VdmService {
                 new RunningVdmUidsTracker(getApplicationContext(), mPreferenceController,
                         mAudioStreamer, mAudioInjector));
 
-        if (mPreferenceController.getBoolean(R.string.pref_enable_client_camera)) {
+        if (!cameraPolicy.equals(getString(R.string.no_cameras))) {
             if (mRemoteCameraManager != null) {
                 mRemoteCameraManager.close();
             }
             mRemoteCameraManager = new RemoteCameraManager(mVirtualDevice, mRemoteIo);
-            mRemoteCameraManager.createCameras(mDeviceCapabilities.getCameraCapabilitiesList());
+            mRemoteCameraManager.createCameras(mDeviceCapabilities.getCameraCapabilitiesList(),
+                    cameraPolicy.equals(getString(R.string.client_cameras)),
+                    mPreferenceController.getBoolean(R.string.pref_duplicate_front_camera),
+                    mPreferenceController.getBoolean(R.string.pref_duplicate_back_camera));
         }
 
         handleAudioCapabilities();
@@ -701,6 +707,10 @@ public final class VdmService extends Hilt_VdmService {
         startStreaming(null, RemoteDisplay.DISPLAY_TYPE_MIRROR);
     }
 
+    void startDesktop() {
+        startStreaming(null, RemoteDisplay.DISPLAY_TYPE_DESKTOP);
+    }
+
     void startStreaming(Intent intent) {
         startStreaming(intent, RemoteDisplay.DISPLAY_TYPE_APP);
     }
@@ -722,8 +732,7 @@ public final class VdmService extends Hilt_VdmService {
             return;
         }
 
-        boolean homeEnabled = mPendingDisplayType == RemoteDisplay.DISPLAY_TYPE_HOME
-                || mPendingDisplayType == RemoteDisplay.DISPLAY_TYPE_MIRROR;
+        boolean homeEnabled = mPendingDisplayType != RemoteDisplay.DISPLAY_TYPE_APP;
         mRemoteIo.sendMessage(RemoteEvent.newBuilder()
                 .setStartStreaming(StartStreaming.newBuilder()
                         .setHomeEnabled(homeEnabled)
@@ -809,7 +818,14 @@ public final class VdmService extends Hilt_VdmService {
                                 displayId -> mVirtualDevice.setDisplayImePolicy(displayId, policy));
                     }
                 });
-        observers.put(R.string.pref_enable_client_camera, v -> recreateVirtualDevice());
+        observers.put(R.string.pref_camera_policy, s -> {
+            // reset the state of the camera preferences dependencies
+            if (s.equals(getString(R.string.no_cameras))) {
+                mPreferenceController.setBoolean(R.string.pref_duplicate_front_camera, false);
+                mPreferenceController.setBoolean(R.string.pref_duplicate_back_camera, false);
+            }
+            recreateVirtualDevice();
+        });
         observers.put(R.string.pref_enable_client_sensors, v -> recreateVirtualDevice());
         observers.put(R.string.pref_device_profile, v -> recreateVirtualDevice());
         observers.put(R.string.pref_always_unlocked_device, v -> recreateVirtualDevice());
@@ -817,6 +833,8 @@ public final class VdmService extends Hilt_VdmService {
         observers.put(R.string.pref_enable_custom_home, v -> recreateVirtualDevice());
         observers.put(R.string.pref_display_timeout, v -> recreateVirtualDevice());
         observers.put(R.string.pref_enable_display_category, v -> recreateVirtualDevice());
+        observers.put(R.string.pref_duplicate_front_camera, v -> recreateVirtualDevice());
+        observers.put(R.string.pref_duplicate_back_camera, v -> recreateVirtualDevice());
         observers.put(R.string.pref_network_channel, s -> {
             if (!mPreferenceController.getBoolean(R.string.pref_standalone_host_demo)) {
                 mConnectionManager.disconnect();

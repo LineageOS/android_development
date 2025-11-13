@@ -76,7 +76,7 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_custom_activity_policy, BAKLAVA,
                     Flags::activityControlApi),
 
-            new BoolRule(R.string.pref_enable_client_camera, VANILLA_ICE_CREAM),
+            new StringRule(R.string.pref_camera_policy, VANILLA_ICE_CREAM),
 
             new BoolRule(R.string.pref_enable_client_sensors, UPSIDE_DOWN_CAKE),
 
@@ -123,6 +123,12 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_update_audio_policy_mixes, VANILLA_ICE_CREAM)
                     .withDefaultValue(true),
 
+            new BoolRule(R.string.pref_duplicate_front_camera, BAKLAVA,
+                    Flags::externalVirtualCameras),
+
+            new BoolRule(R.string.pref_duplicate_back_camera, BAKLAVA,
+                    Flags::externalVirtualCameras),
+
             // Internal-only switches not exposed in the settings page.
             // All of these are booleans acting as switches, while the above ones may be any type.
 
@@ -131,6 +137,9 @@ final class PreferenceController {
 
             new InternalBoolRule(R.string.internal_pref_mirror_displays_supported,
                     VANILLA_ICE_CREAM),
+
+            new InternalBoolRule(R.string.internal_pref_desktop_displays_supported,  BAKLAVA)
+                    .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
 
             new InternalBoolRule(R.string.internal_pref_virtual_stylus_supported,
                     VANILLA_ICE_CREAM),
@@ -199,6 +208,10 @@ final class PreferenceController {
 
     boolean getBoolean(@StringRes int resId) {
         return mSharedPreferences.getBoolean(mContext.getString(resId), false);
+    }
+
+    boolean setBoolean(@StringRes int resId, boolean b) {
+        return mSharedPreferences.edit().putBoolean(mContext.getString(resId), b).commit();
     }
 
     String getString(@StringRes int resId) {

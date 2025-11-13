@@ -25,12 +25,14 @@ import android.content.Intent
 import android.content.Intent.EXTRA_CHOOSER_RESULT_INTENT_SENDER
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Bundle
 import android.provider.MediaStore
 import android.service.chooser.ChooserSession
 import android.service.chooser.ChooserSession.ChooserController
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -58,13 +60,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.android.sharetest.ui.ColorSchemeSelector
 import com.android.sharetest.ui.theme.ActivityTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,16 +76,15 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-private const val KEY_SESSION = "chooser-session"
-private const val EXTRA_CHOOSER_INTERACTIVE_CALLBACK =
-    "com.android.extra.EXTRA_CHOOSER_INTERACTIVE_CALLBACK"
-
 @AndroidEntryPoint(value = FragmentActivity::class)
 class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     private val TAG = "ShareTest/$hashId"
     private var chooserWindowTopOffset = MutableStateFlow(-1)
     private val isInMultiWindowMode = MutableStateFlow<Boolean>(false)
-    private val chooserSession = MutableStateFlow<ChooserSession?>(null)
+    private val viewModel: InteractiveShareTestViewModel by viewModels()
+    private val chooserSession: MutableStateFlow<ChooserSession?>
+        get() = viewModel.chooserSession
+
     private val useRefinementFlow = MutableStateFlow<Boolean>(false)
     private val refinementReceiver =
         object : BroadcastReceiver() {
@@ -98,25 +99,19 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
 
     private val sessionStateListener =
-        object : ChooserSession.ChooserSessionUpdateListener {
-            override fun onChooserConnected(
-                session: ChooserSession?,
-                chooserController: ChooserController?,
-            ) {
+        object : ChooserSession.UpdateListener {
+            override fun onChooserConnected(chooserController: ChooserController) {
                 Log.d(TAG, "onChooserConnected")
             }
 
-            override fun onChooserDisconnected(session: ChooserSession?) {
-                Log.d(TAG, "onChooserDisconnected")
-            }
-
-            override fun onSessionClosed(session: ChooserSession?) {
+            override fun onClosed() {
                 Log.d(TAG, "onSessionClosed")
-                chooserSession.update { oldValue -> if (oldValue === session) null else oldValue }
+                chooserSession.value = null
             }
 
-            override fun onDrawerVerticalOffsetChanged(session: ChooserSession, offset: Int) {
-                chooserWindowTopOffset.value = offset
+            override fun onSizeChanged(size: Rect) {
+                Log.d(TAG, "onSizeChanged")
+                chooserWindowTopOffset.value = size.top
             }
         }
 
@@ -125,18 +120,13 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         super.onCreate(savedInstanceState)
 
         isInMultiWindowMode.value = isInMultiWindowMode()
-        chooserSession.value =
-            savedInstanceState?.getParcelable(KEY_SESSION, ChooserSession::class.java)?.apply {
-                setChooserStateListener(sessionStateListener)
-            }
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 chooserSession
                     .scan<ChooserSession?, ChooserSession?>(null) { prevSession, newSession ->
-                        prevSession?.setChooserStateListener(null)
-                        prevSession?.cancel()
-                        newSession?.setChooserStateListener(sessionStateListener)
+                        prevSession?.close()
+                        newSession?.addUpdateListener(mainExecutor, sessionStateListener)
                         newSession
                     }
                     .collect {}
@@ -151,25 +141,28 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
 
         setContent {
+            val spacing = 5.dp
+            val padding = 15.dp
             var sharedText by remember { mutableStateOf("A text to share") }
             val previewWindowBottom by chooserWindowTopOffset.collectAsStateWithLifecycle(-1)
             val showLaunchInSplitScreen by
                 isInMultiWindowMode.map { !it }.collectAsStateWithLifecycle(true)
-            val spacing = 5.dp
             val brush = SolidColor(Color.Red)
-            // val isChooserRunning by chooserSessionManager.activeSession.map { it != null }
-            //     .collectAsStateWithLifecycle(false)
             val isChooserRunning by
                 chooserSession.map { it?.isActive == true }.collectAsStateWithLifecycle(false)
             val userRefinement by useRefinementFlow.collectAsStateWithLifecycle(false)
+            val colorSchemes = mapOf(0 to "System Default", 1 to "Light", 2 to "Dark")
+            var selectedColorSchemeIdx by remember { mutableStateOf(0) }
             ActivityTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier.padding(innerPadding).padding(horizontal = padding),
                         verticalArrangement = Arrangement.spacedBy(spacing),
                     ) {
                         Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
-                            Button(onClick = { startCameraApp() }) { Text("Pick Camera App") }
+                            Button(onClick = { startCameraApp(selectedColorSchemeIdx) }) {
+                                Text("Pick Camera App")
+                            }
                             Button(onClick = { launchActivity() }) { Text("Launch Activity") }
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
@@ -189,15 +182,23 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
                                 modifier = Modifier.weight(1f),
                                 onValueChange = { sharedText = it },
                             )
-                            Button(onClick = { shareText(sharedText) }) { Text("Share Text") }
+                            Button(onClick = { shareText(sharedText, selectedColorSchemeIdx) }) {
+                                Text("Share Text")
+                            }
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
                             if (previews.isNotEmpty()) {
-                                Button(onClick = { shareImages(previews, 1) }) {
+                                Button(
+                                    onClick = { shareImages(previews, 1, selectedColorSchemeIdx) }
+                                ) {
                                     Text("Share One Image")
                                 }
                                 if (previews.size > 1) {
-                                    Button(onClick = { shareImages(previews, 2) }) {
+                                    Button(
+                                        onClick = {
+                                            shareImages(previews, 2, selectedColorSchemeIdx)
+                                        }
+                                    ) {
                                         Text("Share Two Images")
                                     }
                                 }
@@ -217,6 +218,13 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
                                 modifier = Modifier.align(Alignment.CenterVertically),
                             )
                         }
+                        Text(text = "Chooser Color Scheme")
+                        ColorSchemeSelector(
+                            values = colorSchemes,
+                            selected = selectedColorSchemeIdx,
+                            spacing = spacing,
+                            onValueSelected = { selectedColorSchemeIdx = it },
+                        )
                         if (isChooserRunning) {
                             Button(onClick = { closeChooser() }) { Text("Close Chooser") }
                         }
@@ -271,13 +279,8 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         if (useRefinementFlow.value) {
             unregisterReceiver(refinementReceiver)
         }
+        chooserSession.value?.removeUpdateListener(sessionStateListener)
         super.onDestroy()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        Log.d(TAG, "onSaveInstanceState")
-        super.onSaveInstanceState(outState)
-        chooserSession.value?.let { outState.putParcelable(KEY_SESSION, it) }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -300,9 +303,11 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
     }
 
-    private fun startCameraApp() {
+    private fun startCameraApp(colorScheme: Int) {
         val targetIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startOrUpdate(Intent.createChooser(targetIntent, null))
+        startOrUpdate(
+            Intent.createChooser(targetIntent, null).apply { setColorScheme(colorScheme) }
+        )
     }
 
     private fun launchActivity() {
@@ -322,17 +327,18 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         )
     }
 
-    private fun shareText(text: String) {
+    private fun shareText(text: String, colorScheme: Int) {
         val targetIntent =
             Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_TEXT, text)
                 setType("text/plain")
             }
-        val chooserIntent = Intent.createChooser(targetIntent, null)
+        val chooserIntent =
+            Intent.createChooser(targetIntent, null).apply { setColorScheme(colorScheme) }
         startOrUpdate(chooserIntent)
     }
 
-    private fun shareImages(previews: List<Preview>, count: Int) {
+    private fun shareImages(previews: List<Preview>, count: Int, colorScheme: Int) {
         require(count > 0) { "Unexpected count argument value: $count" }
         val targetIntent =
             Intent(if (count == 1) Intent.ACTION_SEND else Intent.ACTION_SEND_MULTIPLE).apply {
@@ -355,12 +361,13 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 setType("image/*")
             }
-        val chooserIntent = Intent.createChooser(targetIntent, null)
+        val chooserIntent =
+            Intent.createChooser(targetIntent, null).apply { setColorScheme(colorScheme) }
         startOrUpdate(chooserIntent)
     }
 
     private fun closeChooser() {
-        chooserSession.value?.cancel()
+        chooserSession.value?.close()
         chooserSession.value = null
         chooserWindowTopOffset.value = -1
     }
@@ -375,17 +382,15 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
         chooserIntent.putExtra(EXTRA_CHOOSER_RESULT_INTENT_SENDER, createResultIntentSender(this))
         if (chooserController == null) {
-            val session = ChooserSession()
-            chooserSession.value = session
-            startActivity(
-                Intent(chooserIntent).apply {
-                    putExtras(bundleOf(EXTRA_CHOOSER_INTERACTIVE_CALLBACK to session))
-                }
-            )
+            ChooserSession().also { chooserSession.value = it }.start(this, chooserIntent)
         } else {
             chooserController.updateIntent(chooserIntent)
         }
     }
+}
+
+private fun Intent.setColorScheme(colorScheme: Int) {
+    putExtra("com.android.extra.CHOOSER_COLOR_SCHEME", colorScheme)
 }
 
 class TestDialog : DialogFragment() {

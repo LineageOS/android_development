@@ -26,12 +26,13 @@ import {
   TraceSearchRequest,
 } from 'messaging/winscope_event';
 import {TraceBuilder} from 'test/unit/trace_builder';
+import {makeEmptyTrace} from 'test/unit/trace_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {UnitTestUtils} from 'test/unit/utils';
 import {Trace} from 'trace/trace';
 import {Traces} from 'trace/traces';
 import {TraceType} from 'trace/trace_type';
 import {QueryResult} from 'trace_processor/query_result';
+import {makeSearchTraceSpies} from 'trace_processor/test_utils';
 import {
   ClearQueryClickDetail,
   DeleteSavedQueryClickDetail,
@@ -142,7 +143,7 @@ describe('PresenterSearch', () => {
     const query = 'successful empty query';
     await runSearchWithNoRowsAndCheckUiData(
       query,
-      UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [query, '1']),
+      makeEmptyTrace(TraceType.SEARCH, [query, '1']),
     );
   });
 
@@ -154,10 +155,7 @@ describe('PresenterSearch', () => {
     );
 
     const time100 = TimestampConverterUtils.makeRealTimestamp(100n);
-    const [spyQueryResult, spyIter] = UnitTestUtils.makeSearchTraceSpies(
-      time100,
-      '123',
-    );
+    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, '123');
     spyIter.get.withArgs('property').and.returnValue('test_time_ns');
     const spyTimestamp = spyOn(
       TimestampConverterUtils.TIMESTAMP_CONVERTER,
@@ -205,13 +203,13 @@ describe('PresenterSearch', () => {
     const query = 'successful query';
     await runSearchWithNoRowsAndCheckUiData(
       query,
-      UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [query]),
+      makeEmptyTrace(TraceType.SEARCH, [query]),
     );
     emitEventSpy.calls.reset();
     presenter.addSearch();
     await runSearchWithNoRowsAndCheckUiData(
       query,
-      UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [query]),
+      makeEmptyTrace(TraceType.SEARCH, [query]),
       2,
       [
         new CurrentSearch(1, query, new SearchResult([], [])),
@@ -222,7 +220,7 @@ describe('PresenterSearch', () => {
 
   it('handles non-search trace added event', async () => {
     const currData = uiData;
-    const trace = UnitTestUtils.makeEmptyTrace(TraceType.SURFACE_FLINGER);
+    const trace = makeEmptyTrace(TraceType.SURFACE_FLINGER);
     await presenter.onAppEvent(new TraceAddRequest(trace));
     expect(uiData).toEqual(currData);
   });
@@ -238,7 +236,7 @@ describe('PresenterSearch', () => {
 
   it('clears current search result when query run again, keeping both in recent searches', async () => {
     const testQuery = 'query to be overwritten';
-    const trace = UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [testQuery]);
+    const trace = makeEmptyTrace(TraceType.SEARCH, [testQuery]);
     await runSearchWithNoRowsAndCheckUiData(testQuery, trace);
     emitEventSpy.calls.reset();
 
@@ -256,7 +254,7 @@ describe('PresenterSearch', () => {
     emitEventSpy.calls.reset();
 
     const newQuery = 'new query';
-    const newTrace = UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [newQuery]);
+    const newTrace = makeEmptyTrace(TraceType.SEARCH, [newQuery]);
     await runSearchWithNoRowsAndCheckUiData(newQuery, newTrace);
     emitEventSpy.calls.reset();
 
@@ -304,10 +302,7 @@ describe('PresenterSearch', () => {
 
   it('handles clear query click', async () => {
     const testQuery = 'clear query';
-    const trace = UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [
-      testQuery,
-      '1',
-    ]);
+    const trace = makeEmptyTrace(TraceType.SEARCH, [testQuery, '1']);
     await runSearchWithNoRowsAndCheckUiData(testQuery, trace);
 
     await presenter.onClearQueryClick(0);
@@ -319,10 +314,7 @@ describe('PresenterSearch', () => {
   it('retains at most 10 recent searches', async () => {
     for (let i = 0; i < 12; i++) {
       const testQuery = 'recent query';
-      const trace = UnitTestUtils.makeEmptyTrace(TraceType.SEARCH, [
-        testQuery,
-        '1',
-      ]);
+      const trace = makeEmptyTrace(TraceType.SEARCH, [testQuery, '1']);
       await presenter.onSearchQueryClick(testQuery, 1);
       await presenter.onAppEvent(new TraceAddRequest(trace));
     }

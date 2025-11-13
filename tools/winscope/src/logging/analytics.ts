@@ -295,10 +295,8 @@ export class Analytics {
   };
 
   static TraceProcessor = class {
-    static logQueryExecutionTime(ms: number, waitAllRows: boolean) {
-      Analytics.logTimeMs(Analytics.TP_GENERAL_QUERY_TIME, ms, {
-        waitAllRows,
-      });
+    static logQueryExecutionTime(ms: number) {
+      Analytics.logTimeMs(Analytics.TP_GENERAL_QUERY_TIME, ms);
     }
   };
 
@@ -332,18 +330,23 @@ export class Analytics {
       } as Gtag.CustomParams);
     }
 
-    static logCollectDumps(requestedDumps: string[]) {
+    static logCollectDumps(requestedDumps: string[], connectionType?: string) {
       requestedDumps.forEach((dumpType) => {
         Analytics.doLogEvent(Analytics.TRACING_COLLECT_DUMP, {
           type: dumpType,
+          connectionType,
         } as Gtag.CustomParams);
       });
     }
 
-    static logCollectTraces(requestedTraces: string[]) {
+    static logCollectTraces(
+      requestedTraces: string[],
+      connectionType?: string,
+    ) {
       requestedTraces.forEach((traceType) => {
         Analytics.doLogEvent(Analytics.TRACING_COLLECT_TRACE, {
           type: traceType,
+          connectionType,
         } as Gtag.CustomParams);
       });
     }

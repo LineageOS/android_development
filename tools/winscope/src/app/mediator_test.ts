@@ -28,9 +28,9 @@ import {
   FailedToCreateTracesParser,
   IncompleteFrameMapping,
   InvalidLegacyTrace,
+  InvalidPerfettoTrace,
   NoTraceTargetsSelected,
   NoValidFiles,
-  UnsupportedFileFormat,
 } from 'messaging/user_warnings';
 import {
   ActiveTraceChanged,
@@ -41,6 +41,8 @@ import {
   AppResetRequest,
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
+  BugreportFileSelected,
+  BugreportFileSelectionRequest,
   DarkModeToggled,
   ExpandedTimelineToggled,
   FilterPresetApplyRequest,
@@ -107,6 +109,7 @@ describe('Mediator', () => {
   let inputFiles: File[];
   let eventLogFile: File;
   let perfettoFile: File;
+  let wmDumpFile: File;
   let tracePipeline: TracePipeline;
   let timelineData: TimelineData;
   let abtChromeExtensionProtocol: WinscopeEventEmitter & WinscopeEventListener;
@@ -150,7 +153,12 @@ describe('Mediator', () => {
     perfettoFile = await getFixtureFile(
       'traces/perfetto/layers_trace.perfetto-trace',
     );
-    eventLogFile = await getFixtureFile('traces/eventlog_no_cujs.winscope');
+    eventLogFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/eventlog_no_cujs.winscope',
+    );
+    wmDumpFile = await getFixtureFile(
+      'traces/elapsed_timestamp/dump_WindowManager.pb',
+    );
     userNotifierChecker = new UserNotifierChecker();
   });
 
@@ -219,6 +227,9 @@ describe('Mediator', () => {
       spyOn(crossToolProtocol, 'onWinscopeEvent'),
       spyOn(timelineComponent, 'onWinscopeEvent'),
       spyOn(timelineData, 'initialize').and.callThrough(),
+      spyOn(tracePipeline, 'onWinscopeEvent'),
+      spyOn(tracePipeline, 'convertLegacyTracesToPerfetto'),
+      spyOn(tracePipeline, 'discardLegacyTraces'),
       spyOn(traceViewComponent, 'onWinscopeEvent'),
       spyOn(uploadTracesComponent, 'onWinscopeEvent'),
       spyOn(uploadTracesComponent, 'onProgressUpdate'),
@@ -254,6 +265,14 @@ describe('Mediator', () => {
     userNotifierChecker.expectNotified([]);
   });
 
+  it('handles uploaded traces discarding legacy traces with conversion option', async () => {
+    await mediator.onWinscopeEvent(new AppFilesUploaded(inputFiles));
+    resetSpyCalls();
+    await mediator.onWinscopeEvent(new AppTraceViewRequest(true));
+    checkLoadTraceViewEvents(uploadTracesComponent, undefined, undefined, true);
+    userNotifierChecker.expectNotified([]);
+  });
+
   it('handles collected traces from Winscope', async () => {
     await mediator.onWinscopeEvent(
       new AppFilesCollected({
@@ -270,12 +289,14 @@ describe('Mediator', () => {
     await mediator.onWinscopeEvent(
       new AppFilesCollected({
         requested: [],
-        collected: [await getFixtureFile('traces/empty.pb')],
+        collected: [await getFixtureFile('invalid_files/empty.pb')],
       }),
     );
     expect(
       userNotifierChecker.expectNotified([
-        new UnsupportedFileFormat('empty.pb'),
+        new InvalidPerfettoTrace('empty.pb', [
+          'Perfetto trace has no Winscope trace entries',
+        ]),
       ]),
     );
     expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
@@ -286,7 +307,9 @@ describe('Mediator', () => {
       new AppFilesCollected({
         requested: [],
         collected: [
-          await getFixtureFile('traces/no_entries_InputMethodClients.pb'),
+          await getFixtureFile(
+            'invalid_files/no_entries_InputMethodClients.pb',
+          ),
         ],
       }),
     );
@@ -374,7 +397,7 @@ describe('Mediator', () => {
       await getFixtureFile(
         'traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb',
       ),
-      await getFixtureFile('traces/dump_WindowManager.pb'),
+      wmDumpFile,
     ];
     await loadFiles(dumpFiles);
     await mediator.onWinscopeEvent(new AppTraceViewRequest());
@@ -484,8 +507,7 @@ describe('Mediator', () => {
   });
 
   it("initializes viewers' trace position also when loaded traces have no valid timestamps", async () => {
-    const dumpFile = await getFixtureFile('traces/dump_WindowManager.pb');
-    await mediator.onWinscopeEvent(new AppFilesUploaded([dumpFile]));
+    await mediator.onWinscopeEvent(new AppFilesUploaded([wmDumpFile]));
 
     resetSpyCalls();
     await mediator.onWinscopeEvent(new AppTraceViewRequest());
@@ -507,8 +529,7 @@ describe('Mediator', () => {
   it('warns user if frame mapping fails', async () => {
     const errorMsg = 'frame mapping failed';
     spyOn(tracePipeline, 'buildTraces').and.throwError(errorMsg);
-    const dumpFile = await getFixtureFile('traces/dump_WindowManager.pb');
-    await mediator.onWinscopeEvent(new AppFilesUploaded([dumpFile]));
+    await mediator.onWinscopeEvent(new AppFilesUploaded([wmDumpFile]));
 
     resetSpyCalls();
     await mediator.onWinscopeEvent(new AppTraceViewRequest());
@@ -806,17 +827,35 @@ describe('Mediator', () => {
     removeSearchTraceAndCheckPropagation(false);
   });
 
-  async function loadFiles(
-    files = inputFiles,
-    viewersToReassignTraces = [viewerStub0, viewerStub1],
-  ) {
+  it('handles BR file selection requests', async () => {
+    const request = new BugreportFileSelectionRequest(['f1']);
+    await mediator.onWinscopeEvent(request);
+    expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(request);
+
+    const selection = new BugreportFileSelected('f1');
+    await mediator.onWinscopeEvent(selection);
+    expect(tracePipeline.onWinscopeEvent).toHaveBeenCalledOnceWith(selection);
+  });
+
+  it('sends warning banner event on file upload warning', async () => {
+    const bugreport = await getFixtureFile('bugreports/bugreport_no_trace.zip');
+    await mediator.onWinscopeEvent(new AppFilesUploaded([bugreport]));
+
+    expect(uploadTracesComponent.onWinscopeEvent).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        type: WinscopeEventType.SHOW_TRACE_UPLOAD_WARNING,
+        message: jasmine.stringMatching(
+          /^No Winscope Perfetto trace found in bug report/,
+        ),
+      }),
+    );
+  });
+
+  async function loadFiles(files = inputFiles) {
     for (const file of files) {
       await mediator.onWinscopeEvent(new AppFilesUploaded([file]));
     }
     userNotifierChecker.expectNone();
-    viewersToReassignTraces.forEach((viewer) =>
-      reassignViewerStubTrace(viewer),
-    );
   }
 
   function reassignViewerStubTrace(viewerStub: ViewerStub) {
@@ -826,12 +865,18 @@ describe('Mediator', () => {
       .getTrace(viewerStubTraces[0].type) as Trace<object>;
   }
 
-  async function loadTraceView(expectedViewers = viewers) {
+  async function loadTraceView(
+    expectedViewers = viewers,
+    viewersToReassignTraces = [viewerStub0, viewerStub1],
+  ) {
     // Simulate "View traces" button click
     resetSpyCalls();
     await mediator.onWinscopeEvent(new AppTraceViewRequest());
 
     checkLoadTraceViewEvents(uploadTracesComponent, expectedViewers);
+    viewersToReassignTraces.forEach((viewer) =>
+      reassignViewerStubTrace(viewer),
+    );
 
     // Simulate notification of TraceViewComponent about initially selected/focused tab
     resetSpyCalls();
@@ -850,9 +895,16 @@ describe('Mediator', () => {
     progressListener: ProgressListener,
     expectedViewers = viewers,
     notifications: UserWarning[] = [],
+    discardLegacyTraces = false,
   ) {
     expect(progressListener.onProgressUpdate).toHaveBeenCalled();
     expect(progressListener.onOperationFinished).toHaveBeenCalled();
+    expect(tracePipeline.discardLegacyTraces).toHaveBeenCalledTimes(
+      discardLegacyTraces ? 1 : 0,
+    );
+    expect(tracePipeline.convertLegacyTracesToPerfetto).toHaveBeenCalledTimes(
+      discardLegacyTraces ? 0 : 1,
+    );
     expect(timelineData.initialize).toHaveBeenCalledTimes(1);
     expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(
       new ViewersLoaded(expectedViewers),
@@ -907,7 +959,7 @@ describe('Mediator', () => {
   }
 
   async function loadPerfettoFilesAndReturnSearchViewer(): Promise<ViewerStub> {
-    await loadFiles([perfettoFile], [viewerStub0]);
+    await loadFiles([perfettoFile]);
     const searchViewer = new ViewerStub(
       'search',
       undefined,
@@ -917,7 +969,7 @@ describe('Mediator', () => {
     spyOn(searchViewer, 'onWinscopeEvent');
     const expectedViewers = [viewerStub0, searchViewer];
     createViewersSpy.and.returnValue(expectedViewers);
-    await loadTraceView(expectedViewers);
+    await loadTraceView(expectedViewers, [viewerStub0]);
     resetSpyCalls();
     return searchViewer;
   }

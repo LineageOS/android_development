@@ -781,6 +781,7 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         // Variations on "Zlib OR MIT OR Apache-2.0"
         "Zlib OR Apache-2.0 OR MIT" => vec!["Apache-2.0"],
         "MIT OR Apache-2.0 OR Zlib" => vec!["Apache-2.0"],
+        "MIT OR Zlib OR Apache-2.0" => vec!["Apache-2.0"],
 
         // Variations on "Apache-2.0 OR *"
         "Apache-2.0 OR BSL-1.0" => vec!["Apache-2.0"],
@@ -1082,8 +1083,15 @@ fn crate_to_bp_modules(
         }
         m.props.set("name", module_name.clone());
 
-        if let Some(defaults) = &cfg.global_defaults {
-            m.props.set("defaults", vec![defaults.clone()]);
+        let mut defaults = Vec::<String>::new();
+        if package_cfg.no_std {
+            defaults.push("rust_baremetal_defaults".to_string());
+        }
+        if let Some(global_defaults) = &cfg.global_defaults {
+            defaults.push(global_defaults.clone());
+        }
+        if !defaults.is_empty() {
+            m.props.set("defaults", defaults);
         }
 
         if package_cfg.host_supported

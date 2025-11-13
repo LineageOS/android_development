@@ -33,7 +33,7 @@ import androidx.core.os.BuildCompat;
 public class VdmCompat {
 
     // Hidden DisplayManager.VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS.
-    private static final int VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS = 1 << 9;
+    static final int VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS = 1 << 9;
 
     private VdmCompat() {}
 
@@ -70,9 +70,6 @@ public class VdmCompat {
     static boolean isMirrorDisplaySupported(Context context,
             PreferenceController preferenceController) {
         if (!preferenceController.getBoolean(R.string.internal_pref_mirror_displays_supported)) {
-            return false;
-        }
-        if (preferenceController.getBoolean(R.string.pref_standalone_host_demo)) {
             return false;
         }
         if (isAtLeastB() && Flags.enableLimitedVdmRole()) {

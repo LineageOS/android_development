@@ -123,6 +123,7 @@ available devices, build the APKs and install them.
 1.  Start both the Client and the Host apps on each respective device.
 
 1.  They should find each other and connect automatically. On the first launch
+
     the Host app will ask to create a CDM association: allow it.
 
     WARNING: If there are other devices in the vicinity with one of these apps
@@ -160,6 +161,10 @@ show a launcher-like list of installed apps on the host device.
 -   The Host app has a **CREATE MIRROR DISPLAY** button, clicking it will create
     a new virtual display, mirror the default host display there and start
     streaming the display contents to the client.
+
+-   [WIP] The Host app has a **CREATE DESKTOP DISPLAY** button, clicking it will
+    create a new virtual display in desktop mode and start streaming the display
+    contents to the client.
 
 ### Settings
 
@@ -214,22 +219,10 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     adb shell aflags enable android.companion.virtual.flags.activity_control_api && adb reboot
     ```
 
-#### Client capabilities
-
 -   **Enable client Sensors**: Enables sensor injection from the client device
     into the host device. Any context that is associated with the virtual device
     will access the virtual sensors by default. \
     *Changing this will recreate the virtual device.*
-
--   **Enable client Camera**: Enables front & back camera injection from the
-    client device into the host device. (WIP: Any context that is associated
-    with the virtual device will the virtual cameras by default). \
-    *Changing this will recreate the virtual device.*
-
--   **Enable client Audio**: Enables audio output on the client device. Any
-    context that is associated with the virtual device will play audio on the
-    client by default. \
-    *This can be changed dynamically.*
 
 #### Displays
 
@@ -290,7 +283,45 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     adb shell aflags enable android.companion.virtual.flags.device_aware_display_power && adb reboot
     ```
 
+#### Camera
+
+-   **Camera policy**: Choose the cameras to be used on the virtual device:
+    -   *No cameras* - No cameras are exposed on the virtual device.
+    -   *Default device cameras* - The front and back cameras of the host device
+        are exposed as such on the virtual device. Any external camera from the
+        client device is exposed globally on the host device.
+    -   *Client cameras* - All the cameras from the client are exposed only in
+        the virtual device.
+
+    *Changing this will recreate the virtual device.*
+
+    Note: External cameras already present on the client are mapped as virtual
+    external cameras on the host virtual device when the policy is different
+    than *No cameras*. Test cameras can be created on the client device with
+    Android 15 or newer (SDK level 35) with:
+
+    ```shell
+    adb shell start virtual_camera
+    adb shell cmd virtual_camera enable_test_camera
+    ```
+
+    The front and back cameras of the client can be also mapped as virtual
+    external cameras on the virtual device for testing.
+
+-   **Duplicate front camera**: Creates an additional external camera
+    (if external virtual cameras are supported) that duplicates the **front** camera
+    stream of the remote device (if exists).
+
+-   **Duplicate back camera**: Creates an additional external camera
+    (if external virtual cameras are supported) that duplicates the **back** camera
+    stream of the remote device (if exists).
+
 #### Audio
+
+-   **Enable client Audio**: Enables audio output on the client device. Any
+    context that is associated with the virtual device will play audio on the
+    client by default. \
+    *This can be changed dynamically.*
 
 -   **Use AudioPolicy.updateMixingRules**: Updates the dynamic AudiPolicy mixing rules
     instead of unregistering and re-registering the AudioPolicy.
@@ -316,7 +347,7 @@ you likely need to enable this in the host Settings. On a Pixel device: System
     The contents of the virtual displays are rendered locally in a separate
     activity.
 
-- **Record encoder output**: Enables recording the output of the encoder on
+-   **Record encoder output**: Enables recording the output of the encoder on
     the host device to a local file on the device. This can be helpful with
     debugging Encoding related issues. To download and play the file locally:
 
@@ -397,6 +428,9 @@ adb shell aflags enable android.companion.virtual.flags.device_aware_display_pow
     accelerometer events, which allows for selecting which device's sensor to
     use. By default, will use the sensors of the device it's shown on.
 
+-   **Picture in Picture**: A simple activity with PiP support showing the
+    behavior of pinned windowing mode on the virtual display.
+
 -   **Display Power**: A simple activity showcasing the behavior of proximity
     locks, screen brightness override and requesting the screen to be kept on
     or turned on.
@@ -442,6 +476,8 @@ which showcases implicit intent handling.
 ### Beyond Android 16
 
 -   Added support for virtual sensor additional info.
+
+-   Added support for virtual external cameras.
 
 ### Android 16 / Baklava / SDK level 36
 

@@ -62,3 +62,99 @@ export function assertTrue(value: boolean, lazyErrorMessage?: () => string) {
 export function assertUnreachable(x: never): never {
   throw new Error('This line should never execute');
 }
+
+/**
+ * Asserts that the given value is a string.
+ *
+ * @param value The value to assert.
+ * @param lazyErrorMessage A function that returns a message to be included in the error if the assertion fails.
+ * @throws {Error} If the value is not a string.
+ * @return The value, asserted to be a string.
+ */
+export function assertString<A>(
+  value: A | null | undefined,
+  lazyErrorMessage?: () => string,
+): string {
+  if (typeof value !== 'string') {
+    throw new Error(
+      lazyErrorMessage
+        ? lazyErrorMessage()
+        : `Expected string, but found ${value}`,
+    );
+  }
+  return value;
+}
+
+export function assertStringOrUndefined<A>(
+  value: A | null | undefined,
+  lazyErrorMessage?: () => string,
+): string | undefined {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+  return assertString(value, lazyErrorMessage);
+}
+
+/**
+ * Asserts that the given value is a number.
+ *
+ * @param value The value to assert.
+ * @param lazyErrorMessage A function that returns a message to be included in the error if the assertion fails.
+ * @throws {Error} If the value is not a number.
+ * @return The value, asserted to be a number.
+ */
+export function assertNumber<A>(
+  value: A | null | undefined,
+  lazyErrorMessage?: () => string,
+): number {
+  if (typeof value !== 'number') {
+    throw new Error(
+      lazyErrorMessage
+        ? lazyErrorMessage()
+        : `Expected number, but found ${value}`,
+    );
+  }
+  return value;
+}
+
+export function assertNumberOrUndefined<A>(
+  value: A | null | undefined,
+  lazyErrorMessage?: () => string,
+): number | undefined {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+  return assertNumber(value, lazyErrorMessage);
+}
+
+/**
+ * Asserts that the given value is a bigint.
+ *
+ * @param value The value to assert.
+ * @param lazyErrorMessage A function that returns a message to be included in the error if the assertion fails.
+ * @throws {Error} If the value is not a bigint.
+ * @return The value, asserted to be a bigint.
+ */
+export function assertBigInt<A>(
+  value: A | null | undefined,
+  lazyErrorMessage?: () => string,
+): bigint {
+  if (typeof value !== 'bigint') {
+    throw new Error(
+      lazyErrorMessage
+        ? lazyErrorMessage()
+        : `Expected bigint, but found ${value}`,
+    );
+  }
+  return value;
+}
+
+export function assertBigIntOrUndefined<A>(
+  value: A | null | undefined,
+  lazyErrorMessage?: () => string,
+): bigint | undefined {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+  return assertBigInt(value, lazyErrorMessage);
+}

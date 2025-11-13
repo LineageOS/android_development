@@ -15,17 +15,17 @@
  */
 
 import {assertDefined} from 'common/assert_utils';
-import {perfetto} from 'protos/windowmanager/latest/static';
+import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
+import {perfetto} from 'protos/perfetto/trace/static';
 import {com} from 'protos/windowmanager/udc/static';
 import {
   LazyPropertiesStrategyType,
   PropertiesProvider,
 } from 'trace/tree_node/properties_provider';
 import {PropertiesProviderBuilder} from 'trace/tree_node/properties_provider_builder';
-import {PropertyTreeBuilderFromProto} from 'trace/tree_node/property_tree_builder_from_proto';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'trace/tree_node/property_tree_node_factory';
-import {WindowTypePrefix} from 'trace/window_type';
+import {WindowTypePrefix} from 'trace/window_manager/window_type';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {EAGER_PROPERTIES} from './eager_properties';
 import {OperationLists, WmOperationLists} from './operations/operation_lists';

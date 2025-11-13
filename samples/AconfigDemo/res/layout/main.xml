@@ -19,15 +19,21 @@
     android:padding="4dip"
     android:gravity="center_horizontal"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <TextView
-        android:id="@+id/simpleTextView"
-        android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_marginTop="100dip">
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#444444"
-        android:textSize="25sp"
-        android:autoText="true"
-        android:capitalize="sentences"
-        android:scrollbars="vertical"
-        android:textStyle="bold|italic"/>
+        android:layout_margin="16dp"/>
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"/>
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"/>
 </LinearLayout>

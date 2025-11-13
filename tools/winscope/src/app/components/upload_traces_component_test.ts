@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ClipboardModule} from '@angular/cdk/clipboard';
+import {TestBed} from '@angular/core/testing';
 import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {By} from '@angular/platform-browser';
 import {FilesSource} from 'app/files_source';
 import {TracePipeline} from 'app/trace_pipeline';
 import {assertDefined} from 'common/assert_utils';
+import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {TimestampConverterUtils} from 'common/time/test_utils';
 import {
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
+  ShowTraceUploadWarning,
 } from 'messaging/winscope_event';
+import {DOMTestHelper} from 'test/unit/dom_test_utils';
 import {getFixtureFile} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {Traces} from 'trace/traces';
@@ -40,9 +44,13 @@ describe('UploadTracesComponent', () => {
   const clearAllSelector = '.clear-all-btn';
   const viewTracesSelector = '.load-btn';
   const removeTraceSelector = '.uploaded-files button';
-  let fixture: ComponentFixture<UploadTracesComponent>;
+  const warningBannerSelector = '.warning-banner';
+  const warningMessageSelector = '.warn-message';
+  const warningCloseButtonSelector = '.warning-banner button';
+  const discardLegacySelector = '.discard-legacy-traces input';
+
   let component: UploadTracesComponent;
-  let htmlElement: HTMLElement;
+  let dom: DOMTestHelper<UploadTracesComponent>;
   let validSfFile: File;
   let validWmFile: File;
 
@@ -55,13 +63,15 @@ describe('UploadTracesComponent', () => {
         MatIconModule,
         MatProgressBarModule,
         MatTooltipModule,
+        MatCheckboxModule,
+        ClipboardModule,
       ],
       providers: [MatSnackBar],
       declarations: [UploadTracesComponent, LoadProgressComponent],
     }).compileComponents();
-    fixture = TestBed.createComponent(UploadTracesComponent);
+    const fixture = TestBed.createComponent(UploadTracesComponent);
     component = fixture.componentInstance;
-    htmlElement = fixture.nativeElement;
+    dom = new DOMTestHelper(fixture, fixture.nativeElement);
     component.tracePipeline = new TracePipeline();
     validSfFile = await getFixtureFile(
       'traces/elapsed_and_real_timestamp/SurfaceFlinger.pb',
@@ -69,7 +79,8 @@ describe('UploadTracesComponent', () => {
     validWmFile = await getFixtureFile(
       'traces/elapsed_and_real_timestamp/WindowManager.pb',
     );
-    fixture.detectChanges();
+    component.storage = new InMemoryStorage();
+    dom.detectChanges();
   });
 
   it('can be created', () => {
@@ -77,9 +88,7 @@ describe('UploadTracesComponent', () => {
   });
 
   it('renders the expected card title', () => {
-    expect(htmlElement.querySelector('.title')?.innerHTML).toContain(
-      'Upload Traces',
-    );
+    dom.get('.title').checkText('Upload Traces');
   });
 
   it('handles file upload via drag and drop', () => {
@@ -101,100 +110,143 @@ describe('UploadTracesComponent', () => {
 
   it('displays only load progress bar on progress update (no existing files)', () => {
     component.onProgressUpdate(undefined, undefined);
-    fixture.detectChanges();
+    dom.detectChanges();
     checkOnlyProgressBarShowing();
 
     component.onOperationFinished();
-    fixture.detectChanges();
-    expect(htmlElement.querySelector('load-progress')).toBeNull();
-    assertDefined(htmlElement.querySelector('.drop-info'));
+    dom.detectChanges();
+    expect(dom.find('load-progress')).toBeUndefined();
+    expect(dom.find('.drop-info')).toBeDefined();
   });
 
   it('displays only load progress bar on progress update (existing files)', async () => {
     await loadFiles([validSfFile]);
     component.onProgressUpdate(undefined, undefined);
-    fixture.detectChanges();
+    dom.detectChanges();
     checkOnlyProgressBarShowing();
 
     component.onOperationFinished();
-    fixture.detectChanges();
-    expect(htmlElement.querySelector('load-progress')).toBeNull();
-    assertDefined(htmlElement.querySelector('.trace-actions-container'));
-    assertDefined(htmlElement.querySelector('.uploaded-files'));
+    dom.detectChanges();
+    expect(dom.find('load-progress')).toBeUndefined();
+    expect(dom.find('.trace-actions-container')).toBeDefined();
+    expect(dom.find('.uploaded-files')).toBeDefined();
   });
 
   it('shows progress bar with custom message', () => {
     component.onProgressUpdate('Updating', undefined);
-    fixture.detectChanges();
+    dom.detectChanges();
     checkOnlyProgressBarShowing('Updating');
   });
 
   it('updates progress bar percentage only if sufficient time has passed', () => {
     component.onProgressUpdate(undefined, 10);
-    fixture.detectChanges();
-    const progressBar = fixture.debugElement.query(
-      By.directive(LoadProgressComponent),
-    ).componentInstance as LoadProgressComponent;
+    dom.detectChanges();
+    const progressBar = assertDefined(
+      dom.findByDirective(LoadProgressComponent),
+    );
     expect(progressBar.progressPercentage).toEqual(10);
 
     component.onProgressUpdate(undefined, 20);
-    fixture.detectChanges();
+    dom.detectChanges();
     expect(progressBar.progressPercentage).toEqual(10);
 
     const now = Date.now();
     spyOn(Date, 'now').and.returnValue(now + 500);
     component.onProgressUpdate(undefined, 20);
-    fixture.detectChanges();
+    dom.detectChanges();
     expect(progressBar.progressPercentage).toEqual(20);
   });
 
   it('can display uploaded traces', async () => {
     await loadFiles([validSfFile]);
-    assertDefined(htmlElement.querySelector('.uploaded-files'));
-    assertDefined(htmlElement.querySelector('.trace-actions-container'));
+    expect(dom.find('.uploaded-files')).toBeDefined();
+    expect(dom.find('.trace-actions-container')).toBeDefined();
   });
 
   it('can remove one of two uploaded traces', async () => {
     await loadFiles([validSfFile, validWmFile]);
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
+    expect(component.tracePipeline?.getTraces().getSize()).toEqual(2);
 
     const spy = spyOn(component, 'onOperationFinished');
-    removeTrace();
-    assertDefined(htmlElement.querySelector('.uploaded-files'));
+    dom.findAndClick(removeTraceSelector);
+    expect(dom.find('.uploaded-files')).toBeDefined();
     expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(1);
+    expect(component.tracePipeline?.getTraces().getSize()).toEqual(1);
   });
 
   it('handles removal of the only uploaded trace', async () => {
     await loadFiles([validSfFile]);
 
     const spy = spyOn(component, 'onOperationFinished');
-    removeTrace();
-    assertDefined(htmlElement.querySelector('.drop-info'));
+    dom.findAndClick(removeTraceSelector);
+    expect(dom.find('.drop-info')).toBeDefined();
     expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
+    expect(component.tracePipeline?.getTraces().getSize()).toEqual(0);
   });
 
   it('can remove all uploaded traces', async () => {
     await loadFiles([validSfFile, validWmFile]);
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
+    expect(component.tracePipeline?.getTraces().getSize()).toEqual(2);
 
     const spy = spyOn(component, 'onOperationFinished');
-    const clearAllButton = getButton(clearAllSelector);
-    clearAllButton.click();
-    fixture.detectChanges();
-    assertDefined(htmlElement.querySelector('.drop-info'));
+    dom.findAndClick(clearAllSelector);
+    expect(dom.find('.drop-info')).toBeDefined();
     expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
+    expect(component.tracePipeline?.getTraces().getSize()).toEqual(0);
   });
 
   it('can emit view traces event', async () => {
     await loadFiles([validSfFile]);
-
     const spy = spyOn(component.viewTracesButtonClick, 'emit');
-    getButton(viewTracesSelector).click();
-    fixture.detectChanges();
-    expect(spy).toHaveBeenCalled();
+    dom.findAndClick(viewTracesSelector);
+    expect(spy).toHaveBeenCalledWith(true);
+  });
+
+  it('can emit view traces event discarding legacy traces', async () => {
+    await loadFiles([validSfFile]);
+    dom.findAndClick(discardLegacySelector);
+    const spy = spyOn(component.viewTracesButtonClick, 'emit');
+    dom.findAndClick(viewTracesSelector);
+    expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('disables checkbox to discard legacy traces', async () => {
+    await loadFiles([validSfFile]);
+    spyOn(
+      assertDefined(component.tracePipeline),
+      'hasConvertibleLegacyTraces',
+    ).and.returnValue(false);
+    dom.detectChanges();
+    const box = dom.get(discardLegacySelector);
+    box.checkDisabled(true);
+    expect(box.getHTMLElement<HTMLInputElement>().checked).toBeFalse();
+  });
+
+  it('updates discard legacy traces box from storage', async () => {
+    await loadFiles([validSfFile]);
+    dom.findAndClick(discardLegacySelector);
+
+    const fixture = TestBed.createComponent(UploadTracesComponent);
+    const newComponent = fixture.componentInstance;
+    const newDom = new DOMTestHelper(fixture, fixture.nativeElement);
+    newComponent.storage = component.storage;
+    newComponent.tracePipeline = new TracePipeline();
+    newDom.detectChanges();
+
+    await newComponent.tracePipeline.loadFiles(
+      [validSfFile],
+      FilesSource.TEST,
+      undefined,
+    );
+    newDom.detectChanges();
+
+    expect(
+      newDom.get(discardLegacySelector).getHTMLElement<HTMLInputElement>()
+        .checked,
+    ).toBeFalse();
+    const spy = spyOn(newComponent.viewTracesButtonClick, 'emit');
+    newDom.findAndClick(viewTracesSelector);
+    expect(spy).toHaveBeenCalledWith(false);
   });
 
   it('shows warning elements for traces without visualization', async () => {
@@ -202,9 +254,9 @@ describe('UploadTracesComponent', () => {
       'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
     );
     await loadFiles([shellTransitionFile]);
-
-    expect(htmlElement.querySelector('.warning-icon')).toBeTruthy();
-    expect(getButton(viewTracesSelector).disabled).toBeTrue();
+    expect(dom.find('.warning-icon')).toBeDefined();
+    dom.get(viewTracesSelector).checkDisabled(true);
+    dom.get(discardLegacySelector).checkDisabled(true);
   });
 
   it('shows error elements for corrupted traces', async () => {
@@ -218,50 +270,42 @@ describe('UploadTracesComponent', () => {
     spyOn(assertDefined(component.tracePipeline), 'getTraces').and.returnValue(
       traces,
     );
-    fixture.detectChanges();
-
-    expect(htmlElement.querySelector('.error-icon')).toBeTruthy();
-    expect(getButton(viewTracesSelector).disabled).toBeTrue();
+    dom.detectChanges();
+    expect(dom.find('.error-icon')).toBeDefined();
+    dom.get(viewTracesSelector).checkDisabled(true);
   });
 
   it('emits download traces event', async () => {
     await loadFiles([validSfFile]);
-
     const spy = spyOn(component.downloadTracesClick, 'emit');
-    const downloadTracesButton = assertDefined(
-      htmlElement.querySelector<HTMLElement>('.download-btn'),
-    );
-    downloadTracesButton.click();
-    fixture.detectChanges();
+    dom.findAndClick('.download-btn');
     expect(spy).toHaveBeenCalled();
   });
 
   it('disables edit/view traces functionality on trace view request events', async () => {
     await loadFiles([validSfFile]);
     const buttons = [
-      getButton(viewTracesSelector),
-      getButton(removeTraceSelector),
-      getButton(clearAllSelector),
-      getButton(uploadSelector),
+      dom.get(viewTracesSelector),
+      dom.get(removeTraceSelector),
+      dom.get(clearAllSelector),
+      dom.get(uploadSelector),
     ];
-    const dropBox = assertDefined(
-      htmlElement.querySelector<HTMLElement>('.drop-box'),
-    );
+    const dropBox = dom.get('.drop-box');
     const spy = spyOn(component.filesUploaded, 'emit');
 
     await component.onWinscopeEvent(new AppTraceViewRequest());
-    fixture.detectChanges();
+    dom.detectChanges();
     buttons.forEach((button) => {
-      expect(button.disabled).toBeTrue();
+      button.checkDisabled(true);
     });
     dropFileAndGetTransferredFiles();
     addFileByClickAndGetTransferredFiles(true, dropBox);
     expect(spy).not.toHaveBeenCalled();
 
     await component.onWinscopeEvent(new AppTraceViewRequestHandled());
-    fixture.detectChanges();
+    dom.detectChanges();
     buttons.forEach((button) => {
-      expect(button.disabled).toBeFalse();
+      button.checkDisabled(false);
     });
     const files = dropFileAndGetTransferredFiles();
     expect(spy).toHaveBeenCalledOnceWith(files);
@@ -270,65 +314,173 @@ describe('UploadTracesComponent', () => {
     expect(spy).toHaveBeenCalledOnceWith(files);
   });
 
+  it('displays warning banners when ShowTraceUploadWarning events received', async () => {
+    const warningMessage1 = 'This is the first warning!';
+    const warningMessage2 = 'This is the second warning!';
+    const warningEvent1 = new ShowTraceUploadWarning(warningMessage1);
+    const warningEvent2 = new ShowTraceUploadWarning(warningMessage2);
+
+    // Initially, no banners should be visible
+    expect(component.warningMessages.length).toEqual(0);
+    expect(dom.findAll(warningBannerSelector).length).toEqual(0);
+
+    // Simulate receiving the first event
+    await component.onWinscopeEvent(warningEvent1);
+    dom.detectChanges();
+
+    // Assert first banner visibility and message content
+    expect(component.warningMessages).toEqual([warningMessage1]);
+    let bannerElements = dom.findAll(warningBannerSelector);
+    expect(bannerElements.length).toEqual(1);
+    bannerElements[0]
+      .get(warningMessageSelector)
+      .checkTextExact(warningMessage1);
+
+    // Simulate receiving the second event
+    await component.onWinscopeEvent(warningEvent2);
+    dom.detectChanges();
+
+    // Assert both banners are visible with correct messages
+    expect(component.warningMessages).toEqual([
+      warningMessage1,
+      warningMessage2,
+    ]);
+    bannerElements = dom.findAll(warningBannerSelector);
+    expect(bannerElements.length).toEqual(2);
+    bannerElements[0]
+      .get(warningMessageSelector)
+      .checkTextExact(warningMessage1);
+    bannerElements[1]
+      .get(warningMessageSelector)
+      .checkTextExact(warningMessage2);
+
+    // Simulate receiving the first event again (should not add duplicate)
+    await component.onWinscopeEvent(warningEvent1);
+    dom.detectChanges();
+    expect(component.warningMessages).toEqual([
+      warningMessage1,
+      warningMessage2,
+    ]);
+    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+  });
+
+  it('clears specific warning banner when its close button is clicked', async () => {
+    const warningMessage1 = 'Warning 1 to dismiss';
+    const warningMessage2 = 'Warning 2 to keep';
+    const warningEvent1 = new ShowTraceUploadWarning(warningMessage1);
+    const warningEvent2 = new ShowTraceUploadWarning(warningMessage2);
+
+    // Show the banners first
+    await component.onWinscopeEvent(warningEvent1);
+    await component.onWinscopeEvent(warningEvent2);
+    dom.detectChanges();
+    let warningBanners = dom.findAll(warningBannerSelector);
+    expect(warningBanners.length).toEqual(2);
+    warningBanners[0]
+      .get(warningMessageSelector)
+      .checkTextExact(warningMessage1);
+    warningBanners[1]
+      .get(warningMessageSelector)
+      .checkTextExact(warningMessage2);
+
+    const firstBannerCloseButton = warningBanners[0].find(
+      warningCloseButtonSelector,
+    );
+    firstBannerCloseButton!!.click();
+    dom.detectChanges();
+
+    // Assert only the first banner is removed
+    warningBanners = dom.findAll(warningBannerSelector);
+    expect(warningBanners.length).toEqual(1);
+    warningBanners[0]
+      .get(warningMessageSelector)
+      .checkTextExact(warningMessage2);
+  });
+
+  it('clears all warning banners when clear all button is clicked', async () => {
+    const warningMessage1 = 'Warning before clear all 1!';
+    const warningMessage2 = 'Warning before clear all 2!';
+    const warningEvent1 = new ShowTraceUploadWarning(warningMessage1);
+    const warningEvent2 = new ShowTraceUploadWarning(warningMessage2);
+    await loadFiles([validSfFile]); // Need a file to enable clear all
+
+    // Show the banners first
+    await component.onWinscopeEvent(warningEvent1);
+    await component.onWinscopeEvent(warningEvent2);
+    dom.detectChanges();
+    expect(component.warningMessages.length).toEqual(2);
+    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+
+    // Click clear all
+    dom.findAndClick(clearAllSelector);
+
+    // Assert banners are hidden
+    expect(component.warningMessages.length).toEqual(0);
+    expect(dom.findAll(warningBannerSelector).length).toEqual(0);
+  });
+
+  it('warning banners are not cleared when new files are uploaded', async () => {
+    const warningMessage1 = 'Warning before new load 1!';
+    const warningMessage2 = 'Warning before new load 2!';
+    const warningEvent1 = new ShowTraceUploadWarning(warningMessage1);
+    const warningEvent2 = new ShowTraceUploadWarning(warningMessage2);
+
+    // Show the banners first
+    await component.onWinscopeEvent(warningEvent1);
+    await component.onWinscopeEvent(warningEvent2);
+    dom.detectChanges();
+    expect(component.warningMessages.length).toEqual(2);
+    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+
+    // Start a new progress update
+    component.onProgressUpdate('Loading new files...', 0);
+    dom.detectChanges();
+
+    // Assert banners are hidden
+    expect(component.warningMessages.length).toEqual(2);
+    expect(dom.findAll(warningBannerSelector).length).toEqual(2);
+  });
+
   async function loadFiles(files: File[]) {
     const tracePipeline = assertDefined(component.tracePipeline);
     tracePipeline.clear();
     await tracePipeline.loadFiles(files, FilesSource.TEST, undefined);
-    fixture.detectChanges();
+    dom.detectChanges();
   }
 
   function dropFileAndGetTransferredFiles(withFile = true): File[] {
-    const dropbox = assertDefined(htmlElement.querySelector('.drop-box'));
     let dataTransfer: DataTransfer | undefined;
     if (withFile) {
       dataTransfer = new DataTransfer();
       dataTransfer.items.add(validSfFile);
     }
-    dropbox.dispatchEvent(new DragEvent('drop', {dataTransfer}));
-    fixture.detectChanges();
+    const dropBox = dom.get('.drop-box');
+    dropBox.dispatchEvent(new DragEvent('drop', {dataTransfer}));
     return Array.from(dataTransfer?.files ?? []);
   }
 
   function addFileByClickAndGetTransferredFiles(
     withFile = true,
-    clickEl: HTMLElement = getButton(uploadSelector),
+    clickEl = dom.get(uploadSelector),
   ): File[] {
     const dataTransfer = new DataTransfer();
     if (withFile) dataTransfer.items.add(validSfFile);
     const fileList = dataTransfer.files;
 
-    const fileInput = assertDefined(
-      htmlElement.querySelector<HTMLInputElement>('.drop-box input'),
-    );
+    const fileInput = dom.get('.drop-box input');
+    const fileInputEl = fileInput.getHTMLElement<HTMLInputElement>();
     clickEl.addEventListener('click', () => {
-      fileInput.files = fileList;
+      fileInputEl.files = fileList;
     });
-
     clickEl.click();
-    fixture.detectChanges();
     fileInput.dispatchEvent(new Event('change'));
-    fixture.detectChanges();
     return Array.from(fileList);
   }
 
-  function removeTrace() {
-    getButton(removeTraceSelector).click();
-    fixture.detectChanges();
-  }
-
-  function getButton(selector: string): HTMLButtonElement {
-    return assertDefined(
-      htmlElement.querySelector<HTMLButtonElement>(selector),
-    );
-  }
-
   function checkOnlyProgressBarShowing(expectedMessage = 'Loading...') {
-    const progressBar = assertDefined(
-      htmlElement.querySelector('load-progress'),
-    );
-    expect(progressBar.textContent).toEqual(expectedMessage);
-    expect(htmlElement.querySelector('.trace-actions-container')).toBeNull();
-    expect(htmlElement.querySelector('.uploaded-files')).toBeNull();
-    expect(htmlElement.querySelector('.drop-info')).toBeNull();
+    dom.get('load-progress').checkTextExact(expectedMessage);
+    expect(dom.find('.trace-actions-container')).toBeUndefined();
+    expect(dom.find('.uploaded-files')).toBeUndefined();
+    expect(dom.find('.drop-info')).toBeUndefined();
   }
 });

@@ -15,9 +15,9 @@
  */
 
 import {assertDefined} from 'common/assert_utils';
-import {StringUtils} from 'common/string_utils';
+import {isNumeric} from 'common/string_utils';
 import {EventTag} from 'parsers/events/event_tag';
-import {CujType} from 'trace/cuj_type';
+import {CujType} from 'trace/cujs/cuj_type';
 import {AddOperation} from 'trace/tree_node/operations/add_operation';
 import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'trace/tree_node/property_tree_node_factory';
@@ -73,10 +73,10 @@ export class AddCujProperties extends AddOperation<PropertyTreeNode> {
     }
 
     if (
-      !StringUtils.isNumeric(cujType) ||
-      !StringUtils.isNumeric(unixNs) ||
-      !StringUtils.isNumeric(elapsedNs) ||
-      !StringUtils.isNumeric(uptimeNs)
+      !isNumeric(cujType) ||
+      !isNumeric(unixNs) ||
+      !isNumeric(elapsedNs) ||
+      !isNumeric(uptimeNs)
     ) {
       throw new Error(`CUJ Data ${data} didn't match expected format`);
     }

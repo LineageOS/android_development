@@ -104,7 +104,7 @@ const sfTraceCheckboxConfigs: CheckboxConfiguration[] = [
     enabled: true,
   },
   {
-    name: 'metadata',
+    name: 'metadata (with offscreen layers)',
     key: 'metadata',
     enabled: false,
   },
@@ -155,7 +155,7 @@ export function makeScreenRecordingSelectionConfigs(
       options,
       value: initialValue,
       optional: true,
-      desc: 'Leave empty to capture active display',
+      desc: 'Leave empty to track and capture display that is on',
       wideField: true,
     },
   ];
