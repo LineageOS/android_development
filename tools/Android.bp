@@ -15,3 +15,31 @@ license {
 }
 
 subdirs = ["*"]
+
+// For packaging sdk-repo-platforms*.zip
+genrule {
+    name: "sdk_platforms_emulator_skins",
+    tools: ["soong_zip"],
+    srcs: [
+        "emulator/skins/**/*",
+    ],
+    out: [
+        "sdk_platforms_emulator_skins.zip",
+    ],
+    cmd: "mkdir -p $(genDir)/out/skins/ && " +
+        "cp -r development/tools/emulator/skins/* $(genDir)/out/skins/ && " +
+        "rm -f $(genDir)/out/skins/NOTICE.txt && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+}
+
+genrule {
+    name: "sdk_platforms_templates",
+    tools: ["soong_zip"],
+    srcs: [
+        "templates/**/*",
+    ],
+    out: [
+        "sdk_platforms_templates.zip",
+    ],
+    cmd: "$(location soong_zip) -o $(out) -C development/tools -D development/tools/templates",
+}

@@ -47,3 +47,55 @@ genrule {
     srcs: ["build_tools_source.prop_template"],
     out: ["source.properties"],
 }
+
+genrule {
+    name: "sdk_platforms_notice",
+    tools: ["soong_zip"],
+    srcs: ["sdk_files_NOTICE.txt"],
+    out: ["sdk_platforms_notice.zip"],
+    cmd: "mkdir -p $(genDir)/out/{templates,data,skins} && " +
+        "cp $(in) $(genDir)/out/templates/NOTICE.txt && " +
+        "cp $(in) $(genDir)/out/data/NOTICE.txt && " +
+        "cp $(in) $(genDir)/out/skins/NOTICE.txt && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+}
+
+genrule {
+    name: "sdk_platform_sources_properties_intermediate",
+    srcs: ["platform_source.prop_template"],
+    out: ["source.properties"],
+    cmd: select((
+        soong_config_variable("sdk", "PLATFORM_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_SDK_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_SDK_EXTENSION_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_IS_BASE_SDK"),
+        soong_config_variable("sdk", "PLATFORM_VERSION_CODENAME"),
+        soong_config_variable("sdk", "PLATFORM_PREVIEW_SDK_VERSION"),
+    ), {
+        (any @ platform_version, any @ platform_sdk_version, any @ platform_sdk_ext_version, any @ is_base_sdk, any @ platform_version_codename, any @ platform_preview_sdk_version): "sed" +
+            " -e 's/$${PLATFORM_VERSION}/" + platform_version + "/'" +
+            " -e 's/$${PLATFORM_SDK_VERSION}/" + platform_sdk_version + "/'" +
+            " -e 's/$${PLATFORM_SDK_EXTENSION_VERSION}/" + platform_sdk_ext_version + "/'" +
+            " -e 's/$${PLATFORM_IS_BASE_SDK}/" + is_base_sdk + "/'" +
+            " -e 's/$${PLATFORM_VERSION_CODENAME}/" + platform_version_codename + "/'" +
+            " -e 's/$${PLATFORM_PREVIEW_SDK_VERSION}/" + platform_preview_sdk_version + "/'" +
+            " $(in) > $(out)",
+        (default, default, default, default, default, default): "echo error: select expansion failed >&2; false",
+    }),
+}
+
+// BETA_SDK_VERSION may not set if the SDK is finalized.
+genrule {
+    name: "sdk_platform_sources_properties",
+    srcs: [":sdk_platform_sources_properties_intermediate"],
+    out: ["source.properties"],
+    cmd: select(soong_config_variable("sdk", "BETA_SDK_VERSION"), {
+        any @ beta_sdk_version: "sed -e 's/$${BETA_SDK_VERSION}/" + beta_sdk_version + "/' $(in) > $(out)",
+        default: "sed -e 's/$${BETA_SDK_VERSION}//' $(in) > $(out)",
+    }),
+}
+
+filegroup {
+    name: "sdk_properties",
+    srcs: ["sdk.properties"],
+}

@@ -253,3 +253,89 @@ android_sdk_repo_host {
         },
     },
 }
+
+// For sdk-repo-platforms*.zip
+genrule {
+    name: "sdk_build_prop",
+    device_common_srcs: [":system-build.prop"],
+    out: ["build.prop"],
+    cmd: "sdk_build_prop_remove='ro.build.user= ro.build.host= ro.product.brand= ro.product.manufacturer= ro.product.device= ro.build.product=' && " +
+        "grep -v '$$(subst $$(space),\\|,$$(strip $${sdk_build_prop_remove}))' $(in) > sdk-build.prop.tmp && " +
+        "for x in $${sdk_build_prop_remove}; do echo \"$${x}generic\" >> sdk-build.prop.tmp; done && " +
+        "cp sdk-build.prop.tmp $(out)",
+}
+
+genrule {
+    name: "sdk_platforms_jars_zip",
+    tools: ["soong_zip"],
+    srcs: [
+        "optional.json",
+    ],
+    device_common_srcs: [
+        ":android_stubs_current_exportable{.jar}",
+        ":frameworks-base-api-current.srcjar",
+        ":core-current-stubs-for-system-modules-exportable",
+        ":org.apache.http.legacy.stubs",
+        ":android_uiautomator",
+        ":android.car-stubs",
+        ":android.test.mock.stubs{.jar}",
+        ":android.test.base.stubs{.jar}",
+        ":android.test.runner.stubs{.jar}",
+        ":sdk-annotations.zip",
+        ":api_versions_public{.api_versions.xml}",
+        ":framework-doc-stubs{.metadata.zip}",
+
+    ],
+    out: ["sdk_platforms_jars.zip"],
+    cmd: "mkdir -p $(genDir)/out/data/ && " +
+        "mkdir -p $(genDir)/out/optional/ && " +
+        "cp $(location :sdk-annotations.zip) $(genDir)/out/data/annotations.zip && " +
+        "cp $(location :api_versions_public{.api_versions.xml}) $(genDir)/out/data/api-versions.xml && " +
+        "unzip $(location :framework-doc-stubs{.metadata.zip}) -d $(genDir)/out/data/ && " +
+        "cp $(location optional.json) $(genDir)/out/optional/optional.json && " +
+        "cp $(location :android_stubs_current_exportable{.jar}) $(genDir)/out/android.jar && " +
+        "cp $(location :frameworks-base-api-current.srcjar) $(genDir)/out/android-stubs-src.jar && " +
+        "cp $(location :core-current-stubs-for-system-modules-exportable) $(genDir)/out/core-for-system-modules.jar && " +
+        "cp $(location :org.apache.http.legacy.stubs) $(genDir)/out/optional/org.apache.http.legacy.jar && " +
+        "cp $(location :android_uiautomator) $(genDir)/out/uiautomator.jar && " +
+        "cp $(location :android.car-stubs) $(genDir)/out/optional/android.car.jar && " +
+        "cp $(location :android.test.mock.stubs{.jar}) $(genDir)/out/optional/android.test.mock.jar && " +
+        "cp $(location :android.test.base.stubs{.jar}) $(genDir)/out/optional/android.test.base.jar && " +
+        "cp $(location :android.test.runner.stubs{.jar}) $(genDir)/out/optional/android.test.runner.jar && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+}
+
+genrule {
+    name: "wear_sdk_zip",
+    tools: ["soong_zip"],
+    srcs: [":wear-sdk-public-jar"],
+    out: ["wear_sdk_jar.zip"],
+    cmd: "mkdir -p $(genDir)/out/optional/ && " +
+        "cp $(in) $(genDir)/out/optional/wear-sdk.jar && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+
+}
+
+android_sdk_repo_host {
+    name: "platforms-soong",
+    product_variables: {
+        platform_version_name: {
+            base_dir: "android-%s",
+        },
+    },
+    srcs: [
+        ":sdk_platform_sources_properties",
+        ":sdk_build_prop",
+        ":sdk_properties",
+    ],
+    merge_zips: [
+        ":sdk_platforms_jars_zip",
+        ":libbinder_ndk_include",
+        ":sdk_platforms_emulator_skins",
+        ":sdk_platforms_templates",
+        ":sdk_platforms_notice",
+        ":sdk_platforms_data_res",
+        ":wear_sdk_zip",
+    ],
+    pack_framework_aidl: true,
+}
