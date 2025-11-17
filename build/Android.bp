@@ -339,3 +339,22 @@ android_sdk_repo_host {
     ],
     pack_framework_aidl: true,
 }
+
+// For sdk-repo-samples*.zip
+sh_binary_host {
+    name: "sdk_clean",
+    src: "tools/sdk_clean.sh",
+}
+
+android_sdk_repo_host {
+    name: "samples-soong",
+    product_variables: {
+        platform_version_name: {
+            base_dir: "android-%s",
+        },
+    },
+    merge_zips: [
+        ":sdk_repo_sample_legacy_zip",
+        ":sdk_repo_sample_new_zip",
+    ],
+}
