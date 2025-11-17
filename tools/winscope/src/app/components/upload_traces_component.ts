@@ -436,7 +436,7 @@ export class UploadTracesComponent
           event as ShowTraceUploadWarning,
         );
       default:
-        console.log('Not processing event ' + event);
+      // do nothing
     }
   }
 

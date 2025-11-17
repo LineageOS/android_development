@@ -59,7 +59,7 @@ import {Transformer} from './transformer';
     SliderComponent,
   ],
   template: `
-    <div class="mini-timeline-outer-wrapper">
+    <div class="mini-timeline-outer-wrapper" #outerWrapper>
       <div class="zoom-buttons">
         <button mat-icon-button id="zoom-in-btn" (click)="onZoomInButtonClick()">
           <mat-icon>zoom_in</mat-icon>
@@ -156,7 +156,12 @@ export class MiniTimelineComponent {
   @Output() readonly onTraceClicked = new EventEmitter<
     [Trace<object>, Timestamp]
   >();
+  @Output() readonly onHoverPositionUpdate = new EventEmitter<
+    HoverPositionUpdate | undefined
+  >();
 
+  @ViewChild('outerWrapper', {static: false})
+  outerWrapper: ElementRef<HTMLElement> | undefined;
   @ViewChild('miniTimelineWrapper', {static: false})
   miniTimelineWrapper: ElementRef<HTMLElement> | undefined;
   @ViewChild('canvas', {static: false}) canvasRef:
@@ -224,7 +229,9 @@ export class MiniTimelineComponent {
     this.drawer = new MiniTimelineDrawerImpl(
       this.getCanvas(),
       () => this.getMiniCanvasDrawerInput(),
-      (position) => this.onSeekTimestampUpdate.emit(position),
+      (position) => {
+        this.onSeekTimestampUpdate.emit(position);
+      },
       updateTimestampCallback,
       onClickCallback,
     );
@@ -249,6 +256,9 @@ export class MiniTimelineComponent {
         : undefined;
       this.updateHoverTimestamp();
       if (singleChange) {
+        this.drawer.updateHover(
+          this.lastMousePosX ? {x: this.lastMousePosX, y: 0} : undefined,
+        );
         return;
       }
     }
@@ -291,19 +301,6 @@ export class MiniTimelineComponent {
   onMouseLeave(event: MouseEvent) {
     this.lastMousePosX = undefined;
     this.updateHoverTimestamp();
-  }
-
-  updateHoverTimestamp() {
-    if (!this.lastMousePosX) {
-      this.hoverTimestamp = undefined;
-      return;
-    }
-    const timelineData = assertDefined(this.timelineData);
-    this.hoverTimestamp = new Transformer(
-      timelineData.getZoomRange(),
-      assertDefined(this.drawer).getUsableRange(),
-      assertDefined(timelineData.getTimestampConverter()),
-    ).untransform(this.lastMousePosX);
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -594,4 +591,29 @@ export class MiniTimelineComponent {
 
     this.onZoomChanged(new TimeRange(newFrom, newTo));
   }
+
+  private updateHoverTimestamp() {
+    if (!this.lastMousePosX) {
+      this.hoverTimestamp = undefined;
+      this.onHoverPositionUpdate.emit(undefined);
+      return;
+    }
+    const timelineData = assertDefined(this.timelineData);
+    this.hoverTimestamp = new Transformer(
+      timelineData.getZoomRange(),
+      assertDefined(this.drawer).getUsableRange(),
+      assertDefined(timelineData.getTimestampConverter()),
+    ).untransform(this.lastMousePosX);
+    this.onHoverPositionUpdate.emit({
+      posX:
+        (this.miniTimelineWrapper?.nativeElement.offsetLeft ?? 0) +
+        this.lastMousePosX,
+      tsValue: assertDefined(this.hoverTimestamp.format().split(' ').at(-1)),
+    });
+  }
+}
+
+export interface HoverPositionUpdate {
+  posX: number;
+  tsValue: string;
 }
