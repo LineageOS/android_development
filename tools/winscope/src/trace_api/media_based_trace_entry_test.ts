@@ -40,7 +40,7 @@ describe('MediaBasedTraceEntry', () => {
       width: 4,
       height: 10,
     });
-    const entry = new CanvasEntry(frame);
+    const entry = new CanvasEntry(frame, 0);
 
     entry.tryDrawOnCanvas(canvas);
     expect(ctx.rotate).toHaveBeenCalledOnceWith(0);

@@ -79,12 +79,11 @@ export class VideoFrameCache {
       throw new Error(`index ${index} out of bounds`);
     }
 
-    const rangeIndex = this.cachedRanges.findIndex(
+    const range = this.cachedRanges.find(
       (r) => index >= r.decodedStart && index < r.end,
     );
-    const range = this.cachedRanges.at(rangeIndex);
 
-    if (!playbackStateChanged && rangeIndex !== -1 && range !== undefined) {
+    if (!playbackStateChanged && range !== undefined) {
       const indexQueuedForwards =
         this.currPlaybackState === PlaybackState.FORWARDS &&
         this.cache.has(Math.max(index - 10, range.decodedStart));
@@ -232,7 +231,7 @@ export class VideoFrameCache {
   private async waitForTargetInCache(
     target: number,
     range: KeyFrameRange,
-    isRetry = false
+    isRetry = false,
   ): Promise<{frame: ImageBitmap; rotationAngle: number}> {
     try {
       await new Timer(10000, 100).wait(
