@@ -39,14 +39,15 @@ import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {Parser} from 'trace_api/parser';
 import {
-  CanvasEntry,
   MediaBasedTraceEntry,
+  VideoEntry,
 } from 'trace_api/media_based_trace_entry';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {assertDefined} from 'common/assert';
 import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {VideoFrameCache} from './video_frame_cache';
 
 describe('PlaybackPresenter', () => {
   const timestamp0 = makeElapsedTimestamp(0n);
@@ -55,14 +56,15 @@ describe('PlaybackPresenter', () => {
   const timestamp4 = makeElapsedTimestamp(4n);
   const timestamp5 = makeElapsedTimestamp(5n);
   const timestamp6 = makeElapsedTimestamp(6n);
+  const blob = new Blob();
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
-      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
-      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
-      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
-      new CanvasEntry(jasmine.createSpyObj<ImageBitmap>('image', ['close'])),
+      new VideoEntry(blob, 0),
+      new VideoEntry(blob, 1),
+      new VideoEntry(blob, 2),
+      new VideoEntry(blob, 3),
+      new VideoEntry(blob, 4),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -75,6 +77,7 @@ describe('PlaybackPresenter', () => {
   let presenter: PlaybackPresenter;
   let emitEventSpy: jasmine.Spy<EmitEvent>;
   let postMessageSpy: jasmine.Spy;
+  let cache: jasmine.SpyObj<VideoFrameCache>;
 
   describe('play', () => {
     describe('with no SR trace', async () => {
@@ -249,6 +252,12 @@ describe('PlaybackPresenter', () => {
     describe('with SR trace', async () => {
       beforeEach(() => {
         setUpTestEnvironment();
+        cache.get.and.returnValue(
+          Promise.resolve({
+            frame: jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            rotationAngle: 0,
+          }),
+        );
       });
 
       it('plays through all SR entries before/after trace', async () => {
@@ -289,14 +298,7 @@ describe('PlaybackPresenter', () => {
       ) {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
-          .setEntries([
-            new CanvasEntry(
-              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-            ),
-            new CanvasEntry(
-              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-            ),
-          ])
+          .setEntries([new VideoEntry(blob, 0), new VideoEntry(blob, 1)])
           .setTimestamps([timestamp2, timestamp3])
           .build();
         await presenter.play(0, stateToReflect, srTrace);
@@ -359,7 +361,13 @@ describe('PlaybackPresenter', () => {
           )
           .build();
         setTraceSpies(largeTrace);
-        presenterLargeTrace = new PlaybackPresenter(emitEventSpy, largeTrace);
+        presenterLargeTrace = new PlaybackPresenter(
+          emitEventSpy,
+          largeTrace,
+          async (data) => {
+            return cache;
+          },
+        );
         presenterLargeTrace.setTraceGeometryData(traceGeometryData);
         spyOn(presenterLargeTrace['worker'], 'postMessage').and.callFake(
           (message) => {
@@ -627,7 +635,10 @@ describe('PlaybackPresenter', () => {
       .build();
     setTraceSpies(trace);
 
-    presenter = new PlaybackPresenter(emitEventSpy, trace);
+    cache = jasmine.createSpyObj('cache', ['get', 'onDestroy']);
+    presenter = new PlaybackPresenter(emitEventSpy, trace, async (data) => {
+      return cache;
+    });
     presenter.setTraceGeometryData(traceGeometryData);
 
     postMessageSpy = spyOn(presenter['worker'], 'postMessage').and.callFake(
