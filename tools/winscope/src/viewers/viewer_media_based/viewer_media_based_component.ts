@@ -35,10 +35,7 @@ import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {assertDefined} from 'common/assert';
 import {Size} from 'common/geometry/size';
 import {Timer} from 'common/time/timer';
-import {
-  CanvasEntry,
-  MediaBasedTraceEntry,
-} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 
 @Component({

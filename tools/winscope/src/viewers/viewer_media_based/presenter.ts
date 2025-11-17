@@ -103,6 +103,9 @@ export class Presenter {
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (this.uiData.forceMinimize) {
+      return;
+    }
     const traceEntries = this.traces
       .map((trace) => {
         if (
