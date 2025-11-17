@@ -14,85 +14,187 @@
  * limitations under the License.
  */
 
+// must be initialized before any chunk decoding is requested
+let videoDecoderConfig;
+let initialBatchSize = 32;
+let pendingBatchSize = 16;
+
 let decodingQueue = Promise.resolve();
+let cancelQueue = Promise.resolve();
+
+// For forwards playback, decoders are stored by absolute key frame start index
+// for the chunk they are decoding, and tracked by an interface with the
+// following fields:
+// - chunks: array of EncodedVideoChunks for a single key frame chunk
+// - absoluteDecodedFrameIndex: absolute index of frame next to be decoded
+// - lastQueuedChunkIndex: last index in chunks that was queued
+// - frameDecoder?: VideoDecoder
+
+const trackers = new Map();
 
 self.onmessage = async (event) => {
-  decodingQueue.then(async () => {
-    await decodeChunk(event.data);
-    self.postMessage({cacheComplete: true});
-  });
+  if (event.data.videoDecoderConfig) {
+    return onVideoDecoderConfig(event.data);
+  }
+
+  if (event.data.initialBatchSize !== undefined) {
+    return onInitialBatchSize(event.data);
+  }
+
+  if (event.data.pendingBatchSize !== undefined) {
+    return onPendingBatchSize(event.data);
+  }
+
+  if (event.data.cancelFetch) {
+    return onCancelFetch(event.data);
+  }
+
+  if (event.data.fetchNextBatch) {
+    return onFetchNextBatch(event.data);
+  }
+
+  if (event.data.chunks) {
+    return onChunks(event.data);
+  }
 };
 
-async function decodeChunk(data) {
-  const {prevKeyFrameIndex, config, chunks} = data;
+function onVideoDecoderConfig(data) {
+  videoDecoderConfig = data.videoDecoderConfig;
+}
 
-  let decodedFrameIndex = prevKeyFrameIndex;
-  const onOutput = (frame) => {
-    const imageIndex = decodedFrameIndex;
-    createImageBitmap(frame).then((bitmap) => {
-      self.postMessage({imageIndex, image: bitmap}, [bitmap]);
-      frame.close();
+function onInitialBatchSize(data) {
+  initialBatchSize = data.initialBatchSize;
+}
+
+function onPendingBatchSize(data) {
+  pendingBatchSize = data.pendingBatchSize;
+}
+
+function onCancelFetch(data) {
+  cancelQueue = cancelQueue.then(async () => {
+    trackers.get(data.keyFrameIndex)?.frameDecoder?.close();
+    trackers.delete(data.keyFrameIndex);
+  });
+}
+
+function onFetchNextBatch(data) {
+  const startKeyFrameIndex = data.startKeyFrameIndex;
+
+  decodingQueue = decodingQueue
+    .then(async () => {
+      const tracker = trackers.get(startKeyFrameIndex);
+      if (!tracker?.frameDecoder) {
+        return;
+      }
+
+      let i;
+      const start = tracker.lastQueuedChunkIndex + 1;
+      const end = start + pendingBatchSize;
+      const lim = Math.min(end, tracker.chunks.length);
+
+      for (i = start; i < lim; i++) {
+        if (tracker.frameDecoder.state === 'closed') {
+          break;
+        }
+        tracker.frameDecoder.decode(tracker.chunks[i]);
+        tracker.lastQueuedChunkIndex++;
+      }
+
+      if (lim === tracker.chunks.length) {
+        tracker.frameDecoder.flush();
+      }
+
+      if (end > tracker.chunks.length) {
+        self.postMessage({
+          fetchPendingChunk: true,
+          target: startKeyFrameIndex + tracker.chunks.length,
+        });
+      }
+    })
+    .catch((e) => {
+      self.postMessage({log: e});
     });
-    decodedFrameIndex++;
+}
+
+function onChunks(data) {
+  const startKeyFrameIndex = data.startKeyFrameIndex;
+  const target = data.target;
+  const chunks = data.chunks;
+
+  const decode = async () => {
+    await cancelQueue;
+    await startDecodingChunks(startKeyFrameIndex, target, chunks);
+  };
+  decodingQueue = decodingQueue.then(decode);
+  decodingQueue.catch((e) => {
+    self.postMessage({error: e});
+  });
+}
+
+async function startDecodingChunks(startKeyFrameIndex, target, chunks) {
+  // frameDecoder lazily set so tracker can be referenced in onOutput
+  const tracker = {
+    frameDecoder: undefined,
+    chunks,
+    absoluteDecodedFrameIndex: startKeyFrameIndex,
+    lastQueuedChunkIndex: -1,
   };
 
-  const frameDecoder = createFrameDecoder(onOutput, config);
-  for (const chunk of chunks) {
-    frameDecoder.decode(chunk);
-  }
-
-  try {
-    let flushed = false;
-    frameDecoder.flush().then(() => {
-      flushed = true;
-    });
-    await wait(
-      () => flushed,
-      () => {
-        return (
-          `Timed out waiting for flush.` +
-          ` ${prevKeyFrameIndex} to ${decodedFrameIndex} frames decoded.`
-        );
-      },
-    );
-  } catch (error) {
-    frameDecoder.close();
-    if (decodedFrameIndex - prevKeyFrameIndex < 50) {
-      self.postMessage({cacheStalled: true, error});
+  const onOutput = (frame) => {
+    if (tracker.frameDecoder?.state === 'closed') {
+      frame.close();
+      return false;
     }
+
+    const imageIndex = tracker.absoluteDecodedFrameIndex;
+    if (imageIndex >= target) {
+      createImageBitmap(frame).then((buffer) => {
+        frame.close();
+        self.postMessage({imageIndex, image: buffer}, [buffer]);
+      });
+    } else {
+      frame.close();
+    }
+
+    if (imageIndex === startKeyFrameIndex + tracker.chunks.length) {
+      tracker.frameDecoder?.close();
+      trackers.delete(startKeyFrameIndex);
+    }
+
+    tracker.absoluteDecodedFrameIndex++;
+    return true;
+  };
+
+  tracker.frameDecoder = createFrameDecoder(onOutput);
+  trackers.set(startKeyFrameIndex, tracker);
+
+  let i;
+  const batchEnd = target - startKeyFrameIndex + initialBatchSize + 1;
+  for (i = 0; i < Math.min(batchEnd, tracker.chunks.length); i++) {
+    if (tracker.frameDecoder.state === 'closed') {
+      break;
+    }
+    tracker.frameDecoder.decode(tracker.chunks[i]);
+    tracker.lastQueuedChunkIndex++;
   }
 
-  await wait(
-    () => decodedFrameIndex === prevKeyFrameIndex + chunks.length,
-    () => {
-      return (
-        `Timed out waiting for decoded frames to be sent to main thread.` +
-        ` ${prevKeyFrameIndex} to ${decodedFrameIndex} frames sent.`
-      );
-    },
-  );
+  if (tracker.lastQueuedChunkIndex === tracker.chunks.length - 1) {
+    await tracker.frameDecoder.flush();
+  }
 }
 
-function createFrameDecoder(onOutput, config) {
+function createFrameDecoder(onOutput) {
   const decoder = new VideoDecoder({
-    output: onOutput,
+    output: (frame) => {
+      const success = onOutput(frame);
+      if (!success) {
+        decoder.close();
+      }
+    },
     error: (e) => {
-      console.error('VideoDecoder Error:', e);
+      self.postMessage({error: e});
     },
   });
-  decoder.configure(config);
+  decoder.configure(videoDecoderConfig);
   return decoder;
-}
-
-async function wait(condition, errorMsg) {
-  const startTimeMs = Date.now();
-  while (Date.now() - startTimeMs < 30000) {
-    if (condition()) {
-      return;
-    }
-    await new Promise((resolve) => {
-      setTimeout(resolve, 50);
-    });
-  }
-  throw new Error(errorMsg());
 }
