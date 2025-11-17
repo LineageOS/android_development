@@ -1364,8 +1364,10 @@ export class TimelineComponent
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {
-    if (event.seekPos) {
-      this.seekTracePosition = event.seekPos;
+    if (event.prefetchedEntries?.seek !== undefined) {
+      this.seekTracePosition = TracePosition.fromTimestamp(
+        event.prefetchedEntries.seek,
+      );
     }
     this.updateTimeInputValuesToCurrentTimestamp();
     this.updateScreenRecordingVisualization();

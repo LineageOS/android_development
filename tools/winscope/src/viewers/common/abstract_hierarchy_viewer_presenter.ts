@@ -45,7 +45,11 @@ import {RectsPresenter} from 'viewers/common/rects_presenter';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UserOption, UserOptions} from 'viewers/common/user_options';
-import {HierarchyPresenter, SelectedTree} from './hierarchy_presenter';
+import {
+  HierarchyPresenter,
+  HierarchyTraceEntry,
+  SelectedTree,
+} from './hierarchy_presenter';
 import {PresetHierarchy, TextFilterValues} from './preset_hierarchy';
 import {RectShowState} from './rect_show_state';
 import {UiDataHierarchy} from './ui_data_hierarchy';
@@ -439,9 +443,9 @@ export abstract class AbstractHierarchyViewerPresenter<
   protected async applyTracePositionUpdate(event: TracePositionUpdate) {
     const hierarchyStartTime = Date.now();
 
-    let entries: Array<TraceEntry<HierarchyTreeNode>> = [];
-    if (event.prefetchedEntry) {
-      entries = [event.prefetchedEntry as TraceEntry<HierarchyTreeNode>];
+    let entries: HierarchyTraceEntry[] = [];
+    if (event.prefetchedEntries?.trace) {
+      entries = [event.prefetchedEntries.trace];
     } else if (this.multiTraceType !== undefined) {
       entries = this.traces
         .getTraces(this.multiTraceType)
@@ -450,9 +454,7 @@ export abstract class AbstractHierarchyViewerPresenter<
             | TraceEntry<HierarchyTreeNode>
             | undefined;
         })
-        .filter((entry) => entry !== undefined) as Array<
-        TraceEntry<HierarchyTreeNode>
-      >;
+        .filter((entry) => entry !== undefined);
     } else {
       const entry = findCorrespondingEntry(
         assertDefined(this.trace),
@@ -590,9 +592,7 @@ export abstract class AbstractHierarchyViewerPresenter<
     return this.highlightedItem;
   }
 
-  protected getEntryFormattedTimestamp(
-    entry: TraceEntry<HierarchyTreeNode>,
-  ): string {
+  protected getEntryFormattedTimestamp(entry: HierarchyTraceEntry): string {
     if (entry.getFullTrace().isDumpWithoutTimestamp()) {
       return 'Dump';
     }

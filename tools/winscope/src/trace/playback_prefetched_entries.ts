@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-import {TraceEntry, TraceEntryEager} from 'trace_api/trace';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceEntry} from 'trace_api/trace';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+} from 'trace_api/media_based_trace_entry';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Timestamp} from 'common/time/time';
 
 /**
- * Interface that associates screen recording entry to other trace entry
+ * Interface that associates the prefetched trace and screen recording entries
+ * to be rendered during playback mode.
  */
-export declare interface CorrespondingEntries {
-  screenRecording: TraceEntry<MediaBasedTraceEntry> | undefined;
-  trace: TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode> | undefined;
+export declare interface PlaybackPrefetchedEntries {
+  screenRecording:
+    | TraceEntry<MediaBasedTraceEntry, Promise<CanvasEntry>>
+    | undefined;
+  trace: TraceEntry<HierarchyTreeNode, HierarchyTreeNode> | undefined;
   seek: Timestamp;
 }

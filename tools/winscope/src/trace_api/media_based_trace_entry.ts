@@ -20,7 +20,7 @@ import {Size} from 'common/geometry/size';
 
 /**
  * Represents a single entry in a media-based trace, such as a video or a screenshot.
- * Each entry contains media data for a video frame or an image.
+ * Contains data for rendering a frame either in HTMLVideoElement or HTMLCanvasElement.
  */
 export interface MediaBasedTraceEntry {
   frameData: Blob | undefined;

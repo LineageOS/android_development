@@ -16,7 +16,12 @@
 
 import {PlaybackPresenter} from './playback_presenter';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {Trace, TraceEntryEager, TraceEntryLazy} from 'trace_api/trace';
+import {
+  CustomTraceEntryLazy,
+  Trace,
+  TraceEntryEager,
+  TraceEntryLazy,
+} from 'trace_api/trace';
 import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -203,13 +208,13 @@ describe('PlaybackPresenter', () => {
           .filter(
             (c) =>
               c.args[0] instanceof TracePositionUpdate &&
-              c.args[0].prefetchedEntry !== undefined,
+              c.args[0].prefetchedEntries?.trace !== undefined,
           )
           .map((c) => {
             return assertDefined(
-              (c.args[0] as TracePositionUpdate).prefetchedEntry,
+              (c.args[0] as TracePositionUpdate).prefetchedEntries?.trace,
             );
-          }) as Array<TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode>>;
+          });
 
         const firstTree = positionUpdates[0].getValue();
         assertDefined(firstTree.getRects())
@@ -518,12 +523,13 @@ describe('PlaybackPresenter', () => {
       event: TracePositionUpdate,
       exp: ExpectedEagerUpdate,
     ) => {
-      expect(event.prefetchedEntry === undefined).toEqual(
+      const prefetchedEntry = event.prefetchedEntries?.trace;
+      expect(prefetchedEntry === undefined).toEqual(
         exp.traceIndex === undefined,
       );
-      if (event.prefetchedEntry && exp.traceIndex !== undefined) {
-        expect(event.prefetchedEntry.getIndex()).toEqual(exp.traceIndex);
-        expect(event.prefetchedEntry.getFullTrace()).toEqual(trace);
+      if (prefetchedEntry && exp.traceIndex !== undefined) {
+        expect(prefetchedEntry.getIndex()).toEqual(exp.traceIndex);
+        expect(prefetchedEntry.getFullTrace()).toEqual(trace);
       }
     };
 
@@ -531,19 +537,20 @@ describe('PlaybackPresenter', () => {
       event: TracePositionUpdate,
       exp: ExpectedEagerUpdate,
     ) => {
+      const seekPos = event.prefetchedEntries?.seek;
       if (exp.seekTrace) {
         if (exp.traceIndex === undefined) {
-          expect(event.seekPos).toBeUndefined();
+          expect(seekPos).toBeUndefined();
         } else {
           const ts = trace.getEntry(exp.traceIndex).getTimestamp();
-          expect(event.seekPos).toEqual(TracePosition.fromTimestamp(ts));
+          expect(seekPos).toEqual(ts);
         }
       } else {
         if (exp.srIndex === undefined) {
-          expect(event.seekPos).toBeUndefined();
+          expect(seekPos).toBeUndefined();
         } else {
           const ts = srTrace.getEntry(exp.srIndex).getTimestamp();
-          expect(event.seekPos).toEqual(TracePosition.fromTimestamp(ts));
+          expect(seekPos).toEqual(ts);
         }
       }
     };
@@ -551,7 +558,7 @@ describe('PlaybackPresenter', () => {
     for (let i = 1; i < eagerUpdates.length + 1; i++) {
       const {event, entry, exp} = checkTracePositionEntry(i - 1, i);
       expect(entry).toBeInstanceOf(
-        exp.srIndex !== undefined ? TraceEntryLazy : TraceEntryEager,
+        exp.srIndex !== undefined ? CustomTraceEntryLazy : TraceEntryEager,
       );
       checkPrefetchedEntry(event, exp);
       checkSeekPos(event, exp);
@@ -566,7 +573,7 @@ describe('PlaybackPresenter', () => {
       allUpdates.length - 1,
     );
     expect(entry).toBeInstanceOf(TraceEntryLazy);
-    expect(event.prefetchedEntry).toBeUndefined();
+    expect(event.prefetchedEntries).toBeUndefined();
   }
 
   function setTraceSpies(traceToSpy: Trace<HierarchyTreeNode>) {
