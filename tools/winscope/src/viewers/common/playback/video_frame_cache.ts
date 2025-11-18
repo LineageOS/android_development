@@ -24,12 +24,13 @@ import {PlaybackState} from './playback_state';
 
 /**
  * Decodes and caches video frames for visualization in the UI. Uses an LRU cache
- * to store key-frame chunks, limited by a max cache size. Frame decoding is offloaded
+ * to store frames, limited by a max cache size. Frame decoding is offloaded
  * to a Worker to avoid stalling the UI after the cache is initially populated.
  *
  * This cache is intended for use with playback, i.e. sequential video frame updates.
- * If a target index is requested that is not within the cached ranges, the cache is
- * cleared and decoding is restarted from the range including the target.
+ * If a target index is requested that is not within the cached key-frame ranges, or
+ * if playback direction is reversed, the cache is cleared and decoding is restarted
+ * from the key-frame range that includes the target.
  */
 export class VideoFrameCache {
   private static readonly MAX_BITMAPS_PER_CACHE = 100;
@@ -132,7 +133,7 @@ export class VideoFrameCache {
       return;
     }
     this.updatingCache = true;
-    this.decodeChunk(range, target);
+    this.decodeRange(range, target);
     this.updatingCache = false;
   }
 
@@ -174,15 +175,14 @@ export class VideoFrameCache {
     }
   }
 
-  private decodeChunk(
-    chunkRange: KeyFrameRange,
+  private decodeRange(
+    keyFrameRange: KeyFrameRange,
     target: number,
     editCachedRange = false,
   ) {
-    let range = chunkRange;
-    if (editCachedRange) {
-      range = this.getCachedRange(chunkRange);
-    }
+    const range = editCachedRange
+      ? this.getCachedRange(keyFrameRange)
+      : keyFrameRange;
 
     const fetchFromEnd = this.currPlaybackState === PlaybackState.BACKWARDS;
 
@@ -295,7 +295,7 @@ export class VideoFrameCache {
   private fetchPrevBatch(range: KeyFrameRange) {
     const target = range.lastBatchStart - 1;
     if (target >= range.start) {
-      this.decodeChunk(range, target, true);
+      this.decodeRange(range, target, true);
     }
     if (
       range.lastBatchStart - VideoFrameCache.PENDING_BATCH_SIZE <
@@ -304,7 +304,7 @@ export class VideoFrameCache {
       const remTarget = range.start - 1;
       const remRange = this.getKeyFrameRangeForTarget(remTarget);
       if (remRange) {
-        this.decodeChunk(remRange, remTarget);
+        this.decodeRange(remRange, remTarget);
       }
     }
   }
@@ -363,10 +363,10 @@ export class VideoFrameCache {
         }
       }
 
-      if (event.data.fetchPendingChunk && event.data.target !== undefined) {
+      if (event.data.fetchingPendingRange && event.data.target !== undefined) {
         const range = this.getKeyFrameRangeForTarget(event.data.target);
         if (range) {
-          this.decodeChunk(range, range.start);
+          this.decodeRange(range, range.start);
         }
       }
     };
@@ -402,6 +402,6 @@ interface WorkerMessageData {
   error?: Error;
   imageIndex?: number;
   image?: ImageBitmap;
-  fetchPendingChunk?: boolean;
+  fetchingPendingRange?: boolean;
   target?: number;
 }
