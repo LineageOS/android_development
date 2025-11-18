@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
@@ -47,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.android.sharetest.ui.InteractiveShareTestComposable
+import com.android.sharetest.ui.OffsetInfo
 import com.android.sharetest.ui.theme.ActivityTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,7 +61,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint(value = FragmentActivity::class)
 class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     private val TAG = "ShareTest/$hashId"
-    private var chooserWindowTopOffset = MutableStateFlow(-1)
+    private var chooserWindowTopOffset = MutableStateFlow(OffsetInfo(-1, Color.Red))
     private val isInMultiWindowMode = MutableStateFlow<Boolean>(false)
     private val viewModel: InteractiveShareTestViewModel by viewModels()
     private lateinit var chooserManager: ChooserManager
@@ -90,9 +92,18 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
                 }
             }
 
-            override fun onBoundsChanged(size: Rect) {
-                Log.d(TAG, "onSizeChanged")
-                chooserWindowTopOffset.value = size.top
+            override fun onBoundsChanged(bounds: Rect) {
+                Log.d(TAG, "onBoundsChanged: $bounds")
+                val defaultBounds = chooserSession.value?.defaultLaunchBounds
+                chooserWindowTopOffset.value =
+                    OffsetInfo(
+                        bounds.top,
+                        when {
+                            (defaultBounds == null) || (bounds.top > defaultBounds.top) -> Color.Red
+                            bounds.top < defaultBounds.top -> Color.Blue
+                            else -> Color.Green
+                        },
+                    )
             }
         }
 
@@ -117,7 +128,7 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
                         prevSession?.endSession()
                         newSession?.addStateListener(mainExecutor, sessionStateListener)
                         if (newSession == null || !newSession.isActive) {
-                            chooserWindowTopOffset.value = -1
+                            chooserWindowTopOffset.value = OffsetInfo(-1, Color.Red)
                         }
                         newSession
                     }
