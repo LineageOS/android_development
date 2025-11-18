@@ -317,7 +317,7 @@ genrule {
 }
 
 android_sdk_repo_host {
-    name: "platforms-soong",
+    name: "platforms",
     product_variables: {
         platform_version_name: {
             base_dir: "android-%s",
@@ -347,7 +347,7 @@ sh_binary_host {
 }
 
 android_sdk_repo_host {
-    name: "samples-soong",
+    name: "samples",
     product_variables: {
         platform_version_name: {
             base_dir: "android-%s",
@@ -371,7 +371,7 @@ genrule {
 }
 
 android_sdk_repo_host {
-    name: "soong-sources",
+    name: "sources",
     base_dir: "src",
     srcs: [
         ":sdk_sources_source_properties",
@@ -398,7 +398,7 @@ genrule {
 }
 
 android_sdk_repo_host {
-    name: "soong-docs",
+    name: "docs",
     base_dir: "docs",
     srcs: [
         ":sdk_docs_source_properties",
