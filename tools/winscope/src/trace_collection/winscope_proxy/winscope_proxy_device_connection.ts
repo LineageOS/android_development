@@ -35,6 +35,7 @@ interface TraceWorker {
 }
 
 export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
+  private readonly encodedId: string;
   private isTracing = true;
   private keepTraceAliveWorkers: TraceWorker[] = [];
 
@@ -44,6 +45,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     private securityHeader: HttpRequestHeaderType,
   ) {
     super(id, listener);
+    this.encodedId = encodeURIComponent(id);
   }
 
   override onDestroy() {
@@ -60,7 +62,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
 
   override async runShellCommand(cmd: string): Promise<string> {
     return await postToProxy(
-      `${Endpoint.RUN_ADB_CMD}${this.id}/`,
+      `${Endpoint.RUN_ADB_CMD}${this.encodedId}/`,
       this.securityHeader,
       () => {}, // onSuccess - no-op
       (newState, errorText) => this.setState(newState, errorText),
@@ -71,7 +73,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
   override async pullFile(filepath: string): Promise<Uint8Array> {
     return await new Promise<Uint8Array>((resolve) => {
       getFromProxy(
-        `${Endpoint.FETCH}${this.id}/${filepath}`,
+        `${Endpoint.FETCH}${this.encodedId}/${filepath}`,
         this.securityHeader,
         (response) => {
           resolve(this.onSuccessFetchFile(response, filepath));
@@ -116,7 +118,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     this.isTracing = true;
     console.debug(`Starting trace for ${target.traceName} on ${this.id}`);
     await postToProxy(
-      `${Endpoint.START_TRACE}${this.id}/`,
+      `${Endpoint.START_TRACE}${this.encodedId}/`,
       this.securityHeader,
       (response: HttpResponse) => {
         this.keepTraceAlive(target.traceName);
@@ -135,7 +137,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     this.isTracing = false;
     console.debug(`Ending trace for ${target.traceName} on ${this.id}`);
     await postToProxy(
-      `${Endpoint.END_TRACE}${this.id}/`,
+      `${Endpoint.END_TRACE}${this.encodedId}/`,
       this.securityHeader,
       (response: HttpResponse) => {
         const errors = JSON.parse(response.body);
@@ -187,7 +189,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     }
 
     await getFromProxy(
-      `${Endpoint.STATUS}${this.id}/${targetName}`,
+      `${Endpoint.STATUS}${this.encodedId}/${targetName}`,
       this.securityHeader,
       async (request: HttpResponse) => {
         if (request.text !== 'True') {
