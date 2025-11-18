@@ -317,6 +317,18 @@
                     "screenSize|smallestScreenSize|screenLayout|orientation">
         </activity>
 
+        <activity android:name=".app.RequestFullscreenMode"
+            android:label="@string/activity_request_fullscreen_mode"
+            android:resizeableActivity="true"
+            android:theme="@style/Theme.NoActionBar"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.MaxAspectRatio$Square"
                   android:label="@string/activity_max_aspect_ratio_square"
                   android:resizeableActivity="false"
