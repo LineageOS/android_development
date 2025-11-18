@@ -1,0 +1,200 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// must be initialized before any chunk decoding is requested
+let videoDecoderConfig;
+let initialBatchSize = 32;
+let pendingBatchSize = 16;
+
+let decodingQueue = Promise.resolve();
+let cancelQueue = Promise.resolve();
+
+// For forwards playback, decoders are stored by absolute key frame start index
+// for the chunk they are decoding, and tracked by an interface with the
+// following fields:
+// - chunks: array of EncodedVideoChunks for a single key frame chunk
+// - absoluteDecodedFrameIndex: absolute index of frame next to be decoded
+// - lastQueuedChunkIndex: last index in chunks that was queued
+// - frameDecoder?: VideoDecoder
+
+const trackers = new Map();
+
+self.onmessage = async (event) => {
+  if (event.data.videoDecoderConfig) {
+    return onVideoDecoderConfig(event.data);
+  }
+
+  if (event.data.initialBatchSize !== undefined) {
+    return onInitialBatchSize(event.data);
+  }
+
+  if (event.data.pendingBatchSize !== undefined) {
+    return onPendingBatchSize(event.data);
+  }
+
+  if (event.data.cancelFetch) {
+    return onCancelFetch(event.data);
+  }
+
+  if (event.data.fetchNextBatch) {
+    return onFetchNextBatch(event.data);
+  }
+
+  if (event.data.chunks) {
+    return onChunks(event.data);
+  }
+};
+
+function onVideoDecoderConfig(data) {
+  videoDecoderConfig = data.videoDecoderConfig;
+}
+
+function onInitialBatchSize(data) {
+  initialBatchSize = data.initialBatchSize;
+}
+
+function onPendingBatchSize(data) {
+  pendingBatchSize = data.pendingBatchSize;
+}
+
+function onCancelFetch(data) {
+  cancelQueue = cancelQueue.then(async () => {
+    trackers.get(data.keyFrameIndex)?.frameDecoder?.close();
+    trackers.delete(data.keyFrameIndex);
+  });
+}
+
+function onFetchNextBatch(data) {
+  const startKeyFrameIndex = data.startKeyFrameIndex;
+
+  decodingQueue = decodingQueue
+    .then(async () => {
+      const tracker = trackers.get(startKeyFrameIndex);
+      if (!tracker?.frameDecoder) {
+        return;
+      }
+
+      let i;
+      const start = tracker.lastQueuedChunkIndex + 1;
+      const end = start + pendingBatchSize;
+      const lim = Math.min(end, tracker.chunks.length);
+
+      for (i = start; i < lim; i++) {
+        if (tracker.frameDecoder.state === 'closed') {
+          break;
+        }
+        tracker.frameDecoder.decode(tracker.chunks[i]);
+        tracker.lastQueuedChunkIndex++;
+      }
+
+      if (lim === tracker.chunks.length) {
+        tracker.frameDecoder.flush();
+      }
+
+      if (end > tracker.chunks.length) {
+        self.postMessage({
+          fetchPendingChunk: true,
+          target: startKeyFrameIndex + tracker.chunks.length,
+        });
+      }
+    })
+    .catch((e) => {
+      self.postMessage({log: e});
+    });
+}
+
+function onChunks(data) {
+  const startKeyFrameIndex = data.startKeyFrameIndex;
+  const target = data.target;
+  const chunks = data.chunks;
+
+  const decode = async () => {
+    await cancelQueue;
+    await startDecodingChunks(startKeyFrameIndex, target, chunks);
+  };
+  decodingQueue = decodingQueue.then(decode);
+  decodingQueue.catch((e) => {
+    self.postMessage({error: e});
+  });
+}
+
+async function startDecodingChunks(startKeyFrameIndex, target, chunks) {
+  // frameDecoder lazily set so tracker can be referenced in onOutput
+  const tracker = {
+    frameDecoder: undefined,
+    chunks,
+    absoluteDecodedFrameIndex: startKeyFrameIndex,
+    lastQueuedChunkIndex: -1,
+  };
+
+  const onOutput = (frame) => {
+    if (tracker.frameDecoder?.state === 'closed') {
+      frame.close();
+      return false;
+    }
+
+    const imageIndex = tracker.absoluteDecodedFrameIndex;
+    if (imageIndex >= target) {
+      createImageBitmap(frame).then((buffer) => {
+        frame.close();
+        self.postMessage({imageIndex, image: buffer}, [buffer]);
+      });
+    } else {
+      frame.close();
+    }
+
+    if (imageIndex === startKeyFrameIndex + tracker.chunks.length) {
+      tracker.frameDecoder?.close();
+      trackers.delete(startKeyFrameIndex);
+    }
+
+    tracker.absoluteDecodedFrameIndex++;
+    return true;
+  };
+
+  tracker.frameDecoder = createFrameDecoder(onOutput);
+  trackers.set(startKeyFrameIndex, tracker);
+
+  let i;
+  const batchEnd = target - startKeyFrameIndex + initialBatchSize + 1;
+  for (i = 0; i < Math.min(batchEnd, tracker.chunks.length); i++) {
+    if (tracker.frameDecoder.state === 'closed') {
+      break;
+    }
+    tracker.frameDecoder.decode(tracker.chunks[i]);
+    tracker.lastQueuedChunkIndex++;
+  }
+
+  if (tracker.lastQueuedChunkIndex === tracker.chunks.length - 1) {
+    await tracker.frameDecoder.flush();
+  }
+}
+
+function createFrameDecoder(onOutput) {
+  const decoder = new VideoDecoder({
+    output: (frame) => {
+      const success = onOutput(frame);
+      if (!success) {
+        decoder.close();
+      }
+    },
+    error: (e) => {
+      self.postMessage({error: e});
+    },
+  });
+  decoder.configure(videoDecoderConfig);
+  return decoder;
+}

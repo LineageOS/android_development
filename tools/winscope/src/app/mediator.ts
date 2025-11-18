@@ -82,7 +82,7 @@ import {
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
-import {Trace, TraceEntryEager} from 'trace_api/trace';
+import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
@@ -95,6 +95,7 @@ import {TracePipeline} from './trace_pipeline';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
 
 /**
  * Mediator class for communication between components
@@ -308,8 +309,7 @@ export class Mediator {
       event.position,
       false,
       undefined,
-      event.prefetchedEntry,
-      event.seekPos,
+      event.prefetchedEntries,
     );
     UserNotifier.notify();
     await this.appComponent.onWinscopeEvent(event);
@@ -561,8 +561,7 @@ export class Mediator {
     position: TracePosition | undefined,
     omitCrossToolProtocol: boolean,
     source?: FilesSource,
-    prefetchedEntry?: TraceEntryEager<object, object>,
-    seekPos?: TracePosition,
+    prefetchedEntries?: PlaybackPrefetchedEntries,
   ) {
     if (!position) {
       return;
@@ -571,8 +570,7 @@ export class Mediator {
     const event = new TracePositionUpdate(
       position,
       undefined,
-      prefetchedEntry,
-      seekPos,
+      prefetchedEntries,
     );
     const viewers: Viewer[] = [...this.viewers].filter((viewer) =>
       this.isViewerVisible(viewer),
@@ -846,6 +844,7 @@ export class Mediator {
       }
       viewer.onWinscopeEvent(event);
     }
+    this.propagateToOverlays(event);
     return this.timelineComponent?.onWinscopeEvent(event);
   }
 

@@ -15,7 +15,11 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {MP4FileOnReady, parseMp4, WebCodecData} from './helpers';
+import {
+  MP4FileOnReady,
+  parseMp4,
+  WebCodecData,
+} from 'trace/screen_recording/helpers';
 import {AvcCBox, Sample} from 'mp4box';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {VideoFrameCache, KEY_FRAME_TYPE} from './video_frame_cache';

@@ -15,25 +15,48 @@
  */
 
 import {assertDefined} from 'common/assert';
+import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Size} from 'common/geometry/size';
 
 /**
- * Represents a single entry in a media-based trace, such as a video or image sequence.
- * Each entry contains media data for a video frame or an image.
+ * Represents a single entry in a media-based trace, such as a video or a screenshot.
+ * Contains data for rendering a frame either in HTMLVideoElement or HTMLCanvasElement.
  */
-export class MediaBasedTraceEntry {
-  /**
-   * @param image The image bitmap to be visualized.
-   * @param videoRotationAngle The rotation angle for the video frame if provided.
-   */
+export interface MediaBasedTraceEntry {
+  frameData: Blob | undefined;
+  videoTimeSeconds: number;
+  image: ImageBitmap | undefined;
+  rotationAngle: number;
+  tryDrawOnCanvas(canvas: HTMLCanvasElement): void;
+}
+
+export class VideoEntry implements MediaBasedTraceEntry {
+  readonly rotationAngle = 0;
+  readonly image = undefined;
+
   constructor(
-    /** Defined if the media data is a video. */
-    readonly image: ImageBitmap,
-    /** Gives rotation angle for video frame. */
-    private readonly videoRotationAngle = 0,
+    readonly frameData: Blob,
+    readonly videoTimeSeconds: number,
   ) {}
 
   tryDrawOnCanvas(canvas: HTMLCanvasElement) {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+}
+
+export class CanvasEntry implements MediaBasedTraceEntry {
+  readonly videoTimeSeconds = 0;
+  readonly frameData = undefined;
+
+  constructor(
+    readonly image: ImageBitmap,
+    readonly rotationAngle = 0,
+  ) {}
+
+  tryDrawOnCanvas(canvas: HTMLCanvasElement) {
+    if (!this.image) {
+      return;
+    }
     const canvasDimensions = this.canvasDimensions(this.image);
     canvas.width = canvasDimensions.width;
     canvas.height = canvasDimensions.height;
@@ -64,24 +87,24 @@ export class MediaBasedTraceEntry {
   }
 
   private shouldFlipDimensions(): boolean {
-    return this.videoRotationAngle % 180 !== 0;
+    return this.rotationAngle % 180 !== 0;
   }
 
   private yOffset(image: ImageBitmap): number {
-    if (this.videoRotationAngle === 90 || this.videoRotationAngle === 180) {
+    if (this.rotationAngle === 90 || this.rotationAngle === 180) {
       return -image.height;
     }
     return 0;
   }
 
   private xOffset(image: ImageBitmap): number {
-    if (this.videoRotationAngle === 180 || this.videoRotationAngle === 270) {
+    if (this.rotationAngle === 180 || this.rotationAngle === 270) {
       return -image.width;
     }
     return 0;
   }
 
   private rotationAngleRadians() {
-    return (this.videoRotationAngle * Math.PI) / 180;
+    return (this.rotationAngle * Math.PI) / 180;
   }
 }

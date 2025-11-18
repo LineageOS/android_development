@@ -40,7 +40,7 @@ import {
   NotifyHierarchyViewCallbackType,
 } from './abstract_hierarchy_viewer_presenter';
 import {VISIBLE_CHIP} from './chip';
-import {HierarchyPresenter} from './hierarchy_presenter';
+import {HierarchyPresenter, HierarchyTraceEntry} from './hierarchy_presenter';
 import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_display_names';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
@@ -49,7 +49,7 @@ import {ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {
   protected getHierarchyTreeNameStrategy = (
-    entry: TraceEntry<HierarchyTreeNode>,
+    entry: HierarchyTraceEntry,
     tree: HierarchyTreeNode,
   ) => {
     const where = tree.getEagerPropertyByName('where')?.formattedValue();
@@ -294,7 +294,7 @@ the default for its data type.`,
   }
 
   private findSfWmTraceEntries(
-    imeEntry: TraceEntry<HierarchyTreeNode> | undefined,
+    imeEntry: HierarchyTraceEntry | undefined,
   ): [
     TraceEntry<HierarchyTreeNode> | undefined,
     TraceEntry<HierarchyTreeNode> | undefined,

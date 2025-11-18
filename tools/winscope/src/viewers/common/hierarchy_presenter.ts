@@ -44,8 +44,13 @@ import {SimplifyNames} from './operations/simplify_names';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiTreeFormatter} from './ui_tree_formatter';
 
+export type HierarchyTraceEntry = TraceEntry<
+  HierarchyTreeNode,
+  HierarchyTreeNode | Promise<HierarchyTreeNode>
+>;
+
 export type GetHierarchyTreeNameType = (
-  entry: TraceEntry<HierarchyTreeNode>,
+  entry: HierarchyTraceEntry,
   tree: HierarchyTreeNode,
 ) => string;
 
@@ -60,7 +65,7 @@ export interface SelectedTree {
 export interface TraceAndTrees {
   trace: Trace<HierarchyTreeNode>;
   trees: HierarchyTreeNode[];
-  entry?: TraceEntry<HierarchyTreeNode>;
+  entry?: HierarchyTraceEntry;
   formattedTrees?: UiHierarchyTreeNode[];
   displayNames?: string[];
 }
@@ -95,7 +100,7 @@ export class HierarchyPresenter {
 
   getCurrentEntryForTrace(
     trace: Trace<HierarchyTreeNode>,
-  ): TraceEntry<HierarchyTreeNode> | undefined {
+  ): HierarchyTraceEntry | undefined {
     return this.getCurrentTreesByTrace(trace)?.entry;
   }
 
@@ -243,7 +248,7 @@ export class HierarchyPresenter {
   }
 
   async applyTracePositionUpdate(
-    entries: Array<TraceEntry<HierarchyTreeNode>>,
+    entries: HierarchyTraceEntry[],
     highlightedItem: string | undefined,
   ): Promise<void> {
     const currTrees: TraceAndTrees[] = [];

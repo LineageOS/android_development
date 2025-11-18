@@ -21,6 +21,7 @@ export class UiData {
   currentTraceEntries: MediaBasedTraceEntry[] = [];
   forceMinimize = false;
   isFetchingEntries = false;
+  isInPlaybackMode = false;
 
   constructor(titles: string[]) {
     this.titles = titles;

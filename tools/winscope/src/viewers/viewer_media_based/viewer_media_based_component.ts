@@ -24,12 +24,14 @@ import {
   Input,
   NgZone,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {assertDefined} from 'common/assert';
 import {Size} from 'common/geometry/size';
 import {Timer} from 'common/time/timer';
@@ -76,7 +78,8 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
               matTooltipPosition="above"
               [matTooltipShowDelay]="300"
               (selectionChange)="onSelectChange($event)"
-              [value]="index">
+              [value]="index"
+              [disabled]="isInPlaybackMode">
               @for (title of titles; track $index; let i = $index) {
                 <mat-option
                   [value]="i">
@@ -90,7 +93,7 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
             @if (enableDoubleClick) {
               <mat-icon
                 class="info-icon material-symbols-outlined"
-                matTooltip="Double click overlay to change active trace to this screen recording"
+                matTooltip="Double click overlay when not in playback mode to change active trace to this screen recording"
                 matTooltipPosition="above">
                 info
               </mat-icon>
@@ -116,10 +119,17 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
               Loading queued frame...
             </div>
           }
-          @if (hasVideoFrameToShow()) {
+          @if (hasImageToShow()) {
             <canvas
-              id="videoCanvasElementOverlay"
-              [class.reduce-opacity]="showFetchingEntriesMessage"></canvas>
+              id="frameCanvasElementOverlay"
+              [class.reduce-opacity]="showFetchingEntriesMessage"
+              #frameCanvasElementOverlay></canvas>
+          } @else if (safeUrl !== undefined && getCurrentTime() !== undefined) {
+            <video
+              [currentTime]="getCurrentTime()"
+              [src]="safeUrl"
+              preload="auto"
+              #videoElement></video>
           } @else {
             <div class="no-video">
               <p class="mat-body-2">No frame to show.</p>
@@ -200,7 +210,7 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
         min-width: 24px;
       }
 
-      .video-container, canvas, img {
+      .video-container, canvas, video {
         border: 1px solid var(--default-border);
         width: 100%;
         height: auto;
@@ -227,11 +237,21 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
   ],
 })
 export class ViewerMediaBasedComponent {
+  safeUrl: SafeUrl | undefined = undefined;
   showFetchingEntriesMessage = false;
   shouldMinimize = false;
   index = 0;
 
+  @ViewChild('videoElement') private videoElement:
+    | ElementRef<HTMLVideoElement>
+    | undefined;
+
+  @ViewChild('frameCanvasElementOverlay') private canvasElement:
+    | ElementRef<HTMLCanvasElement>
+    | undefined;
+
   constructor(
+    @Inject(DomSanitizer) private sanitizer: DomSanitizer,
     @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(NgZone) private ngZone: NgZone,
@@ -242,17 +262,22 @@ export class ViewerMediaBasedComponent {
   @Input() forceMinimize = false;
   @Input() enableDoubleClick = false;
   @Input() isFetchingEntries = false;
+  @Input() isInPlaybackMode = false;
 
   private frameSize: Size = {width: 720, height: 1280}; // default for Flicker
   private frameSizeWorker: number | undefined;
 
+  private calls = 0;
+
   ngOnChanges(changes: SimpleChanges) {
     this.changeDetectorRef.detectChanges();
+    this.calls++;
+    const currCall = this.calls;
 
     if (changes['isFetchingEntries']?.currentValue) {
       this.ngZone.run(() => {
-        new Timer(500).sleepMs().then(() => {
-          if (!this.isFetchingEntries) {
+        new Timer(1000).sleepMs().then(() => {
+          if (!this.isFetchingEntries || currCall !== this.calls) {
             return;
           }
           this.showFetchingEntriesMessage = true;
@@ -274,7 +299,11 @@ export class ViewerMediaBasedComponent {
       return;
     }
 
-    this.updateRenderedFrame();
+    if (this.safeUrl === undefined) {
+      this.tryUpdateSafeUrl();
+    }
+
+    this.tryUpdateRenderedFrame();
   }
 
   ngAfterViewInit() {
@@ -299,14 +328,19 @@ export class ViewerMediaBasedComponent {
     return this.forceMinimize || this.shouldMinimize;
   }
 
-  hasVideoFrameToShow() {
+  hasImageToShow() {
     const curr = this.currentTraceEntries.at(this.index);
-    return curr !== undefined;
+    return curr !== undefined && curr.image !== undefined;
+  }
+
+  getCurrentTime(): number | undefined {
+    return this.currentTraceEntries.at(this.index)?.videoTimeSeconds;
   }
 
   onSelectChange(event: MatSelectChange) {
     this.index = event.value;
-    this.updateRenderedFrame();
+    this.tryUpdateSafeUrl();
+    this.tryUpdateRenderedFrame();
     this.updateFrameSize();
     event.source.close();
     const screenIndexChangeEvent = new CustomEvent(
@@ -320,7 +354,7 @@ export class ViewerMediaBasedComponent {
   }
 
   onOverlayDblClick() {
-    if (this.enableDoubleClick) {
+    if (this.enableDoubleClick && !this.isInPlaybackMode) {
       const event = new CustomEvent(ViewerEvents.OverlayDblClick, {
         detail: this.index,
         bubbles: true,
@@ -329,16 +363,12 @@ export class ViewerMediaBasedComponent {
     }
   }
 
-  private updateRenderedFrame() {
+  private tryUpdateRenderedFrame() {
     const entry = this.currentTraceEntries.at(this.index);
-    if (!entry) {
+    if (!entry?.image) {
       return;
     }
-    const canvas = assertDefined(
-      this.elementRef.nativeElement.querySelector<HTMLCanvasElement>(
-        '#videoCanvasElementOverlay',
-      ),
-    );
+    const canvas = assertDefined(this.canvasElement?.nativeElement);
     entry.tryDrawOnCanvas(canvas);
   }
 
@@ -352,10 +382,17 @@ export class ViewerMediaBasedComponent {
   }
 
   private updateFrameSize() {
-    const canvas =
-      this.elementRef.nativeElement.querySelector<HTMLCanvasElement>(
-        '#videoCanvasElementOverlay',
-      );
+    const video = this.videoElement?.nativeElement;
+    if (video && video.readyState > 0) {
+      this.frameSize = {
+        width: video.videoWidth,
+        height: video.videoHeight,
+      };
+      this.clearFrameSizeWorker();
+      this.updateMaxContainerSize();
+      return;
+    }
+    const canvas = this.canvasElement?.nativeElement;
     if (canvas) {
       this.frameSize = {
         width: canvas.width,
@@ -364,16 +401,6 @@ export class ViewerMediaBasedComponent {
       this.clearFrameSizeWorker();
       this.updateMaxContainerSize();
       return;
-    }
-    const image =
-      this.elementRef.nativeElement.querySelector<HTMLImageElement>('img');
-    if (image) {
-      this.frameSize = {
-        width: image.width,
-        height: image.height,
-      };
-      this.clearFrameSizeWorker();
-      this.updateMaxContainerSize();
     }
   }
 
@@ -399,5 +426,21 @@ export class ViewerMediaBasedComponent {
   private clearFrameSizeWorker() {
     window.clearInterval(this.frameSizeWorker);
     this.frameSizeWorker = undefined;
+  }
+
+  private tryUpdateSafeUrl() {
+    const curr = this.currentTraceEntries.at(this.index);
+    if (curr !== undefined && curr.frameData !== undefined) {
+      this.safeUrl = this.sanitizer.bypassSecurityTrustUrl(
+        URL.createObjectURL(curr.frameData),
+      );
+      this.changeDetectorRef.detectChanges();
+      const video = this.videoElement?.nativeElement;
+      const currTime = this.getCurrentTime();
+      if (video && currTime !== undefined) {
+        video.currentTime = currTime;
+      }
+      this.resetFrameSizeWorker();
+    }
   }
 }

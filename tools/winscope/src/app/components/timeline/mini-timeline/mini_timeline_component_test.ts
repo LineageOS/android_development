@@ -653,7 +653,7 @@ describe('MiniTimelineComponent', () => {
       component.miniTimelineComponent,
     );
     const offsetLeft = assertDefined(
-      miniTimelineComponent.outerWrapper?.nativeElement.offsetLeft,
+      miniTimelineComponent.miniTimelineWrapper?.nativeElement.offsetLeft,
     );
     const spy = spyOn(miniTimelineComponent.onHoverPositionUpdate, 'emit');
 
