@@ -380,3 +380,30 @@ android_sdk_repo_host {
         ":sdk_repo_sources_zip",
     ],
 }
+
+// For sdk-repo-docs*.zip
+genrule {
+    name: "sdk_repo_docs_zip",
+    tools: ["soong_zip"],
+    srcs: [
+        ":docs_samples_redirect",
+    ],
+    device_common_srcs: [":offline-sdk-docs"],
+    out: ["sdk_repo_docs.zip"],
+    cmd: "mkdir -p $(genDir)/out/ && " +
+        "unzip -qd $(genDir)/out $(location :offline-sdk-docs) && " +
+        "mkdir -p $(genDir)/out/samples/ && " +
+        "cp $(locations :docs_samples_redirect) $(genDir)/out/samples/index.html && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out/ -D $(genDir)/out/",
+}
+
+android_sdk_repo_host {
+    name: "soong-docs",
+    base_dir: "docs",
+    srcs: [
+        ":sdk_docs_source_properties",
+    ],
+    merge_zips: [
+        ":sdk_repo_docs_zip",
+    ],
+}
