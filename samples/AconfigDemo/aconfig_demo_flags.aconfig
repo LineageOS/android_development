@@ -230,3 +230,9 @@ flag {
     bug: "413977839"
     is_fixed_read_only: false
 }
+flag {
+    name: "test_voyager_sync_hook"
+    namespace: "gantry"
+    description: "A test flag to test new voyager sync hooks and flags db"
+    bug: "462193366"
+}
