@@ -172,3 +172,23 @@ genrule {
         (default, default, default, default): "echo error: select expansion failed >&2; false",
     }),
 }
+
+genrule {
+    name: "sdk_docs_source_properties",
+    srcs: ["sdk/doc_source.prop_template"],
+    out: ["source.properties"],
+    cmd: select((
+        soong_config_variable("sdk", "PLATFORM_SDK_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_VERSION_CODENAME"),
+        soong_config_variable("sdk", "PLATFORM_SDK_EXTENSION_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_IS_BASE_SDK"),
+    ), {
+        (any @ platform_sdk_version, any @ platform_version_codename, any @ platform_sdk_ext_version, any @ is_base_sdk): "sed" +
+            " -e 's/$${PLATFORM_SDK_VERSION}/" + platform_sdk_version + "/'" +
+            " -e 's/$${PLATFORM_VERSION_CODENAME}/" + platform_version_codename + "/'" +
+            " -e 's/$${PLATFORM_SDK_EXTENSION_VERSION}/" + platform_sdk_ext_version + "/'" +
+            " -e 's/$${PLATFORM_IS_BASE_SDK}/" + is_base_sdk + "/'" +
+            " $(in) > $(out)",
+        (default, default, default, default): "echo error: select expansion failed >&2; false",
+    }),
+}
