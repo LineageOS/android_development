@@ -94,13 +94,13 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
 
             override fun onBoundsChanged(bounds: Rect) {
                 Log.d(TAG, "onBoundsChanged: $bounds")
-                val defaultBounds = chooserSession.value?.defaultLaunchBounds
+                val restingBounds = chooserSession.value?.initialRestingBounds
                 chooserWindowTopOffset.value =
                     OffsetInfo(
                         bounds.top,
                         when {
-                            (defaultBounds == null) || (bounds.top > defaultBounds.top) -> Color.Red
-                            bounds.top < defaultBounds.top -> Color.Blue
+                            (restingBounds == null) || (bounds.top > restingBounds.top) -> Color.Red
+                            bounds.top < restingBounds.top -> Color.Blue
                             else -> Color.Green
                         },
                     )
