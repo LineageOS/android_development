@@ -4,11 +4,10 @@ package {
 
 android_sdk_repo_host {
     name: "build-tools",
-    product_variables: {
-        platform_version_name: {
-            base_dir: "android-%s",
-        },
-    },
+    base_dir: select(soong_config_variable("sdk", "sdk_platform_dir_name"), {
+        any @ sdk_platform_dir_name: sdk_platform_dir_name,
+        default: "android",
+    }),
 
     srcs: [
         ":build_tools_source_properties",
@@ -318,11 +317,10 @@ genrule {
 
 android_sdk_repo_host {
     name: "platforms",
-    product_variables: {
-        platform_version_name: {
-            base_dir: "android-%s",
-        },
-    },
+    base_dir: select(soong_config_variable("sdk", "sdk_platform_dir_name"), {
+        any @ sdk_platform_dir_name: sdk_platform_dir_name,
+        default: "android",
+    }),
     srcs: [
         ":sdk_platform_sources_properties",
         ":sdk_build_prop",
@@ -348,11 +346,10 @@ sh_binary_host {
 
 android_sdk_repo_host {
     name: "samples",
-    product_variables: {
-        platform_version_name: {
-            base_dir: "android-%s",
-        },
-    },
+    base_dir: select(soong_config_variable("sdk", "sdk_platform_dir_name"), {
+        any @ sdk_platform_dir_name: sdk_platform_dir_name,
+        default: "android",
+    }),
     merge_zips: [
         ":sdk_repo_sample_legacy_zip",
         ":sdk_repo_sample_new_zip",
