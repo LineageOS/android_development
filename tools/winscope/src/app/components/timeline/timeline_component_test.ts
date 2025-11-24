@@ -76,7 +76,12 @@ import {SliderComponent} from './mini-timeline/slider_component';
 import {TimelineComponent} from './timeline_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {PlaybackControlsComponent} from './playback_component';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+  VideoEntry,
+} from 'trace_api/media_based_trace_entry';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -119,6 +124,7 @@ describe('TimelineComponent', () => {
         DragDropModule,
         ClipboardModule,
         CdkMenuModule,
+        MatProgressSpinnerModule,
         ExpandedTimelineComponent,
         DefaultTimelineRowComponent,
         MatDrawer,
@@ -1148,28 +1154,36 @@ describe('TimelineComponent', () => {
     dom.get('.no-video-message').checkText('No screen recording frame to show');
   });
 
-  it('shows screen recording canvas in expanded timeline overlay', async () => {
-    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
-      width: 4,
-      height: 10,
-    });
-    const entry = new MediaBasedTraceEntry(frame);
-    const drawSpy = spyOn(entry, 'tryDrawOnCanvas');
-
-    const trace = new TraceBuilder<MediaBasedTraceEntry>()
-      .setType(TraceType.SCREEN_RECORDING)
-      .setTimestamps([time110])
-      .setEntries([entry])
-      .build();
-
-    loadAllTraces(undefined, undefined, undefined, trace);
+  it('shows screen recording video in expanded timeline overlay', async () => {
+    loadAllTraces();
     await dom.whenStable();
 
     openExpandedTimeline();
     await dom.whenStable();
     await dom.whenRenderingDone();
+    expect(dom.find('#video-content #video')).toBeDefined();
+  });
+
+  it('shows screen recording canvas in expanded timeline overlay', async () => {
+    const frame = jasmine.createSpyObj<ImageBitmap>('frame', [], {
+      width: 4,
+      height: 10,
+    });
+    const entry = new CanvasEntry(frame);
+    const trace = new TraceBuilder<MediaBasedTraceEntry>()
+      .setType(TraceType.SCREEN_RECORDING)
+      .setTimestamps([time110])
+      .setEntries([entry])
+      .build();
+    loadAllTraces(undefined, undefined, undefined, trace);
+    await dom.whenStable();
+
+    const drawSpy = spyOn(entry, 'tryDrawOnCanvas');
+    openExpandedTimeline();
+    await dom.whenStable();
+    await dom.whenRenderingDone();
     expect(dom.get('#video-content canvas')).toBeDefined();
-    expect(drawSpy).toHaveBeenCalledTimes(1);
+    expect(drawSpy).toHaveBeenCalled();
   });
 
   it('shows hover timestamp', () => {
@@ -1483,11 +1497,15 @@ describe('TimelineComponent', () => {
         ['Test Window', 'mock_view_capture'],
       );
     if (srTrace === undefined) {
-      builder.setTimestamps(
-        TraceType.SCREEN_RECORDING,
-        [time110],
-        ['mock_screen_recording'],
-      );
+      builder
+        .setTimestamps(
+          TraceType.SCREEN_RECORDING,
+          [time110],
+          ['mock_screen_recording'],
+        )
+        .setEntries(TraceType.SCREEN_RECORDING, [
+          new VideoEntry(new Blob(), 0),
+        ]);
     }
 
     const traces = builder.build();

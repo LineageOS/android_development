@@ -16,7 +16,12 @@
 
 import {PlaybackPresenter} from './playback_presenter';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {Trace, TraceEntryEager, TraceEntryLazy} from 'trace_api/trace';
+import {
+  CustomTraceEntryLazy,
+  Trace,
+  TraceEntryEager,
+  TraceEntryLazy,
+} from 'trace_api/trace';
 import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -33,12 +38,16 @@ import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {Parser} from 'trace_api/parser';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  MediaBasedTraceEntry,
+  VideoEntry,
+} from 'trace_api/media_based_trace_entry';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {assertDefined} from 'common/assert';
 import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {VideoFrameCache} from './video_frame_cache';
 
 describe('PlaybackPresenter', () => {
   const timestamp0 = makeElapsedTimestamp(0n);
@@ -47,24 +56,15 @@ describe('PlaybackPresenter', () => {
   const timestamp4 = makeElapsedTimestamp(4n);
   const timestamp5 = makeElapsedTimestamp(5n);
   const timestamp6 = makeElapsedTimestamp(6n);
+  const blob = new Blob();
   const screenRecordingTrace = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setEntries([
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
-      new MediaBasedTraceEntry(
-        jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-      ),
+      new VideoEntry(blob, 0),
+      new VideoEntry(blob, 1),
+      new VideoEntry(blob, 2),
+      new VideoEntry(blob, 3),
+      new VideoEntry(blob, 4),
     ])
     .setTimestamps([timestamp0, timestamp2, timestamp3, timestamp5, timestamp6])
     .build();
@@ -77,6 +77,7 @@ describe('PlaybackPresenter', () => {
   let presenter: PlaybackPresenter;
   let emitEventSpy: jasmine.Spy<EmitEvent>;
   let postMessageSpy: jasmine.Spy;
+  let cache: jasmine.SpyObj<VideoFrameCache>;
 
   describe('play', () => {
     describe('with no SR trace', async () => {
@@ -210,13 +211,13 @@ describe('PlaybackPresenter', () => {
           .filter(
             (c) =>
               c.args[0] instanceof TracePositionUpdate &&
-              c.args[0].prefetchedEntry !== undefined,
+              c.args[0].prefetchedEntries?.trace !== undefined,
           )
           .map((c) => {
             return assertDefined(
-              (c.args[0] as TracePositionUpdate).prefetchedEntry,
+              (c.args[0] as TracePositionUpdate).prefetchedEntries?.trace,
             );
-          }) as Array<TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode>>;
+          });
 
         const firstTree = positionUpdates[0].getValue();
         assertDefined(firstTree.getRects())
@@ -251,6 +252,12 @@ describe('PlaybackPresenter', () => {
     describe('with SR trace', async () => {
       beforeEach(() => {
         setUpTestEnvironment();
+        cache.get.and.returnValue(
+          Promise.resolve({
+            frame: jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+            rotationAngle: 0,
+          }),
+        );
       });
 
       it('plays through all SR entries before/after trace', async () => {
@@ -291,14 +298,7 @@ describe('PlaybackPresenter', () => {
       ) {
         const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
           .setType(TraceType.SCREEN_RECORDING)
-          .setEntries([
-            new MediaBasedTraceEntry(
-              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-            ),
-            new MediaBasedTraceEntry(
-              jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-            ),
-          ])
+          .setEntries([new VideoEntry(blob, 0), new VideoEntry(blob, 1)])
           .setTimestamps([timestamp2, timestamp3])
           .build();
         await presenter.play(0, stateToReflect, srTrace);
@@ -361,7 +361,13 @@ describe('PlaybackPresenter', () => {
           )
           .build();
         setTraceSpies(largeTrace);
-        presenterLargeTrace = new PlaybackPresenter(emitEventSpy, largeTrace);
+        presenterLargeTrace = new PlaybackPresenter(
+          emitEventSpy,
+          largeTrace,
+          async (data) => {
+            return cache;
+          },
+        );
         presenterLargeTrace.setTraceGeometryData(traceGeometryData);
         spyOn(presenterLargeTrace['worker'], 'postMessage').and.callFake(
           (message) => {
@@ -525,12 +531,13 @@ describe('PlaybackPresenter', () => {
       event: TracePositionUpdate,
       exp: ExpectedEagerUpdate,
     ) => {
-      expect(event.prefetchedEntry === undefined).toEqual(
+      const prefetchedEntry = event.prefetchedEntries?.trace;
+      expect(prefetchedEntry === undefined).toEqual(
         exp.traceIndex === undefined,
       );
-      if (event.prefetchedEntry && exp.traceIndex !== undefined) {
-        expect(event.prefetchedEntry.getIndex()).toEqual(exp.traceIndex);
-        expect(event.prefetchedEntry.getFullTrace()).toEqual(trace);
+      if (prefetchedEntry && exp.traceIndex !== undefined) {
+        expect(prefetchedEntry.getIndex()).toEqual(exp.traceIndex);
+        expect(prefetchedEntry.getFullTrace()).toEqual(trace);
       }
     };
 
@@ -538,19 +545,20 @@ describe('PlaybackPresenter', () => {
       event: TracePositionUpdate,
       exp: ExpectedEagerUpdate,
     ) => {
+      const seekPos = event.prefetchedEntries?.seek;
       if (exp.seekTrace) {
         if (exp.traceIndex === undefined) {
-          expect(event.seekPos).toBeUndefined();
+          expect(seekPos).toBeUndefined();
         } else {
           const ts = trace.getEntry(exp.traceIndex).getTimestamp();
-          expect(event.seekPos).toEqual(TracePosition.fromTimestamp(ts));
+          expect(seekPos).toEqual(ts);
         }
       } else {
         if (exp.srIndex === undefined) {
-          expect(event.seekPos).toBeUndefined();
+          expect(seekPos).toBeUndefined();
         } else {
           const ts = srTrace.getEntry(exp.srIndex).getTimestamp();
-          expect(event.seekPos).toEqual(TracePosition.fromTimestamp(ts));
+          expect(seekPos).toEqual(ts);
         }
       }
     };
@@ -558,7 +566,7 @@ describe('PlaybackPresenter', () => {
     for (let i = 1; i < eagerUpdates.length + 1; i++) {
       const {event, entry, exp} = checkTracePositionEntry(i - 1, i);
       expect(entry).toBeInstanceOf(
-        exp.srIndex !== undefined ? TraceEntryLazy : TraceEntryEager,
+        exp.srIndex !== undefined ? CustomTraceEntryLazy : TraceEntryEager,
       );
       checkPrefetchedEntry(event, exp);
       checkSeekPos(event, exp);
@@ -573,7 +581,7 @@ describe('PlaybackPresenter', () => {
       allUpdates.length - 1,
     );
     expect(entry).toBeInstanceOf(TraceEntryLazy);
-    expect(event.prefetchedEntry).toBeUndefined();
+    expect(event.prefetchedEntries).toBeUndefined();
   }
 
   function setTraceSpies(traceToSpy: Trace<HierarchyTreeNode>) {
@@ -627,7 +635,10 @@ describe('PlaybackPresenter', () => {
       .build();
     setTraceSpies(trace);
 
-    presenter = new PlaybackPresenter(emitEventSpy, trace);
+    cache = jasmine.createSpyObj('cache', ['get', 'onDestroy']);
+    presenter = new PlaybackPresenter(emitEventSpy, trace, async (data) => {
+      return cache;
+    });
     presenter.setTraceGeometryData(traceGeometryData);
 
     postMessageSpy = spyOn(presenter['worker'], 'postMessage').and.callFake(

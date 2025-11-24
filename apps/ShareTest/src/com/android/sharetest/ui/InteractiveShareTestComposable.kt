@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun InteractiveShareTestComposable(
-    chooserWindowTopOffset: Flow<Int>,
+    chooserWindowTopOffset: Flow<OffsetInfo>,
     previewCount: Int,
     isChooserRunning: Boolean,
     useRefinement: Boolean,
@@ -67,8 +67,9 @@ fun InteractiveShareTestComposable(
     closeChooser: () -> Unit,
     setTargetsEnabled: (Boolean) -> Unit,
 ) {
-    val previewWindowBottom by chooserWindowTopOffset.collectAsStateWithLifecycle(-1)
-    val brush = remember { SolidColor(Color.Red) }
+    val previewWindowBottom by
+        chooserWindowTopOffset.collectAsStateWithLifecycle(OffsetInfo(-1, Color.Red))
+    var brush = remember { SolidColor(Color.Red) }
 
     CompositionLocalProvider(
         LocalSpacing provides Spacing(rowSpacing = 5.dp, columnSpacing = 5.dp)
@@ -122,8 +123,11 @@ fun InteractiveShareTestComposable(
                         windowTop = coords.localToWindow(Offset.Zero).y
                     }
                     .drawBehind {
-                        if (previewWindowBottom >= 0 && isChooserRunning) {
-                            val top = previewWindowBottom.toFloat() - windowTop
+                        if (previewWindowBottom.offset >= 0 && isChooserRunning) {
+                            val top = previewWindowBottom.offset.toFloat() - windowTop
+                            if (brush.value != previewWindowBottom.color) {
+                                brush = SolidColor(previewWindowBottom.color)
+                            }
                             drawLine(
                                 brush = brush,
                                 start = Offset(0f, top),

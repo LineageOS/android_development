@@ -93,7 +93,7 @@ import {
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {Trace, TraceEntryEager} from 'trace_api/trace';
+import {Trace, TraceEntry} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -543,10 +543,14 @@ describe('Mediator', () => {
     const timestamp = makeRealTimestamp(finalTimestampNs);
     const position = TracePosition.fromTimestamp(timestamp);
     const prefetchedEntry = jasmine.createSpyObj<
-      TraceEntryEager<object, object>
+      TraceEntry<HierarchyTreeNode, HierarchyTreeNode>
     >('prefetchedEntry', ['getValue']);
 
-    const event = new TracePositionUpdate(position, undefined, prefetchedEntry);
+    const event = new TracePositionUpdate(position, undefined, {
+      trace: prefetchedEntry,
+      screenRecording: undefined,
+      seek: timestamp,
+    });
     await mediator.onWinscopeEvent(event);
     userNotifierChecker.expectNone();
     [viewerStub0, viewerOverlay, timelineComponent].forEach((listener) => {
@@ -563,16 +567,12 @@ describe('Mediator', () => {
     const timelineRange = timelineData.getFullTimeRange();
     const positionTs = makeRealTimestamp(timelineRange.endNs);
     const position = TracePosition.fromTimestamp(positionTs);
-    const seekPos = TracePosition.fromTimestamp(
-      makeRealTimestamp(timelineRange.startNs),
-    );
 
-    const event = new TracePositionUpdate(
-      position,
-      undefined,
-      undefined,
-      seekPos,
-    );
+    const event = new TracePositionUpdate(position, undefined, {
+      trace: undefined,
+      screenRecording: undefined,
+      seek: makeRealTimestamp(timelineRange.startNs),
+    });
     await mediator.onWinscopeEvent(event);
     userNotifierChecker.expectNone();
     [viewerStub0, viewerOverlay, timelineComponent].forEach((listener) => {
@@ -981,10 +981,11 @@ describe('Mediator', () => {
       expect(viewerStub1.onWinscopeEvent).not.toHaveBeenCalled();
     });
 
-    it('once handled propagates to the timeline component', async () => {
+    it('once handled propagates to the timeline component and overlays', async () => {
       const event = new PlaybackStateChangeHandled(PlaybackState.FORWARDS);
       await mediator.onWinscopeEvent(event);
       expect(timelineComponent.onWinscopeEvent).toHaveBeenCalledWith(event);
+      expect(viewerOverlay.onWinscopeEvent).toHaveBeenCalledWith(event);
     });
   });
 
@@ -1242,7 +1243,6 @@ describe('Mediator', () => {
     if (expectedEvent.position.timestamp === TIMESTAMP_INVALID) {
       return true;
     }
-
     if (
       event.position.timestamp.getValueNs() !==
       expectedEvent.position.timestamp.getValueNs()
@@ -1250,8 +1250,22 @@ describe('Mediator', () => {
       return false;
     }
     if (event.position.frame !== expectedEvent.position.frame) return false;
-    if (event.prefetchedEntry !== expectedEvent.prefetchedEntry) return false;
-    if (event.seekPos !== expectedEvent.seekPos) return false;
+    if (
+      event.prefetchedEntries?.trace !== expectedEvent.prefetchedEntries?.trace
+    ) {
+      return false;
+    }
+    if (
+      event.prefetchedEntries?.screenRecording !==
+      expectedEvent.prefetchedEntries?.screenRecording
+    ) {
+      return false;
+    }
+    if (
+      event.prefetchedEntries?.seek !== expectedEvent.prefetchedEntries?.seek
+    ) {
+      return false;
+    }
     return true;
   }
 });

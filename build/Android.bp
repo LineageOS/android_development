@@ -317,7 +317,7 @@ genrule {
 }
 
 android_sdk_repo_host {
-    name: "platforms-soong",
+    name: "platforms",
     product_variables: {
         platform_version_name: {
             base_dir: "android-%s",
@@ -338,4 +338,72 @@ android_sdk_repo_host {
         ":wear_sdk_zip",
     ],
     pack_framework_aidl: true,
+}
+
+// For sdk-repo-samples*.zip
+sh_binary_host {
+    name: "sdk_clean",
+    src: "tools/sdk_clean.sh",
+}
+
+android_sdk_repo_host {
+    name: "samples",
+    product_variables: {
+        platform_version_name: {
+            base_dir: "android-%s",
+        },
+    },
+    merge_zips: [
+        ":sdk_repo_sample_legacy_zip",
+        ":sdk_repo_sample_new_zip",
+    ],
+}
+
+// For sdk-repo-sources*.zip
+genrule {
+    name: "sdk_repo_sources_zip",
+    tools: ["soong_zip"],
+    device_common_srcs: [":platform-bootclasspath.srcjar"],
+    out: ["sdk_repo_sources.zip"],
+    cmd: "mkdir -p $(genDir)/out/ && " +
+        "unzip -qd $(genDir)/out $(location :platform-bootclasspath.srcjar) && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out/ -D $(genDir)/out/",
+}
+
+android_sdk_repo_host {
+    name: "sources",
+    base_dir: "src",
+    srcs: [
+        ":sdk_sources_source_properties",
+    ],
+    merge_zips: [
+        ":sdk_repo_sources_zip",
+    ],
+}
+
+// For sdk-repo-docs*.zip
+genrule {
+    name: "sdk_repo_docs_zip",
+    tools: ["soong_zip"],
+    srcs: [
+        ":docs_samples_redirect",
+    ],
+    device_common_srcs: [":offline-sdk-docs"],
+    out: ["sdk_repo_docs.zip"],
+    cmd: "mkdir -p $(genDir)/out/ && " +
+        "unzip -qd $(genDir)/out $(location :offline-sdk-docs) && " +
+        "mkdir -p $(genDir)/out/samples/ && " +
+        "cp $(locations :docs_samples_redirect) $(genDir)/out/samples/index.html && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out/ -D $(genDir)/out/",
+}
+
+android_sdk_repo_host {
+    name: "docs",
+    base_dir: "docs",
+    srcs: [
+        ":sdk_docs_source_properties",
+    ],
+    merge_zips: [
+        ":sdk_repo_docs_zip",
+    ],
 }

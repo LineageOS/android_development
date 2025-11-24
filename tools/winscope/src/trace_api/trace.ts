@@ -117,6 +117,29 @@ export class TraceEntryLazy<T> extends TraceEntry<T> {
 }
 
 /**
+ * Represents a trace entry whose value is loaded lazily when requested.
+ * Used when the type of the entry does not match the full trace's value.
+ * @template T The type of the full trace entry's value.
+ * @template U The type of this specific lazy trace entry's value.
+ */
+export class CustomTraceEntryLazy<T, U> extends TraceEntry<T, Promise<U>> {
+  constructor(
+    fullTrace: Trace<T>,
+    parser: Parser<T>,
+    index: AbsoluteEntryIndex,
+    timestamp: Timestamp,
+    framesRange: FramesRange | undefined,
+    private readonly getCustomValue: () => Promise<U>,
+  ) {
+    super(fullTrace, parser, index, timestamp, framesRange);
+  }
+
+  override async getValue(): Promise<U> {
+    return this.getCustomValue();
+  }
+}
+
+/**
  * Represents a trace entry whose value is loaded eagerly upon creation.
  * The value is available immediately without requiring an asynchronous operation.
  * @template T The type of the full trace entry's value.

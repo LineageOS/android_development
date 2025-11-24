@@ -24,3 +24,171 @@ filegroup {
     ],
     srcs: ["docs/**/*"],
 }
+
+genrule {
+    name: "sdk_samples_source_properties",
+    srcs: ["samples/samples_source.prop_template"],
+    out: ["source.properties"],
+    cmd: select((
+        soong_config_variable("sdk", "PLATFORM_SDK_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_VERSION_CODENAME"),
+        soong_config_variable("sdk", "PLATFORM_SDK_EXTENSION_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_IS_BASE_SDK"),
+    ), {
+        (any @ platform_sdk_version, any @ platform_version_codename, any @ platform_sdk_ext_version, any @ is_base_sdk): "sed" +
+            " -e 's/$${PLATFORM_SDK_VERSION}/" + platform_sdk_version + "/'" +
+            " -e 's/$${PLATFORM_VERSION_CODENAME}/" + platform_version_codename + "/'" +
+            " -e 's/$${PLATFORM_SDK_EXTENSION_VERSION}/" + platform_sdk_ext_version + "/'" +
+            " -e 's/$${PLATFORM_IS_BASE_SDK}/" + is_base_sdk + "/'" +
+            " $(in) > $(out)",
+        (default, default, default, default): "echo error: select expansion failed >&2; false",
+    }),
+}
+
+genrule {
+    name: "sdk_repo_sample_legacy_zip",
+    tools: [
+        "sdk_clean",
+        "soong_zip",
+    ],
+    out: ["sdk_repo_sample_legacy.zip"],
+    srcs: [
+        ":sdk_samples_source_properties",
+        "sdk/sdk_files_NOTICE.txt",
+        "apps/GestureBuilder/**/*",
+        "samples/AccelerometerPlay/**/*",
+        "samples/ApiDemos/**/*",
+        "samples/AppNavigation/**/*",
+        "samples/BackupRestore/**/*",
+        "samples/BasicGLSurfaceView/**/*",
+        "samples/ContactManager/**/*",
+        "samples/CrossCompatibility/**/*",
+        "samples/CubeLiveWallpaper/**/*",
+        "samples/HelloEffects/**/*",
+        "samples/Home/**/*",
+        "samples/HoneycombGallery/**/*",
+        "samples/JetBoy/**/*",
+        "samples/KeyChainDemo/**/*",
+        "samples/LceDemo/**/*",
+        "samples/LunarLander/**/*",
+        "samples/MultiResolution/**/*",
+        "samples/NotePad/**/*",
+        "samples/SpellChecker/SampleSpellCheckerService/**/*",
+        "samples/SpellChecker/HelloSpellChecker/**/*",
+        "samples/SampleSyncAdapter/**/*",
+        "samples/SearchableDictionary/**/*",
+        "samples/SipDemo/**/*",
+        "samples/SkeletonApp/**/*",
+        "samples/Snake/**/*",
+        "samples/SoftKeyboard/**/*",
+        "samples/Spinner/**/*",
+        "samples/SpinnerTest/**/*",
+        "samples/TicTacToeLib/**/*",
+        "samples/TicTacToeMain/**/*",
+        "samples/TtsEngine/**/*",
+        "samples/ToyVpn/**/*",
+        "samples/UiAutomator/**/*",
+        "samples/USB/MissileLauncher/**/*",
+        "samples/USB/AdbTest/**/*",
+        "samples/VoiceRecognitionService/**/*",
+        "samples/VoicemailProviderDemo/**/*",
+        "samples/WeatherListWidget/**/*",
+        "apps/WidgetPreview/**/*",
+        "samples/WiFiDirectDemo/**/*",
+        "samples/WiFiDirectServiceDiscovery/**/*",
+        "samples/Wiktionary/**/*",
+        "samples/WiktionarySimple/**/*",
+        "samples/XmlAdapters/**/*",
+    ],
+    cmd: "mkdir -p $(genDir)/out/legacy/ && " +
+        "cp $(location :sdk_samples_source_properties) $(genDir)/out/source.properties && " +
+        "cp development/sdk/sdk_files_NOTICE.txt $(genDir)/out/NOTICE.txt && " +
+        "cp -r development/apps/GestureBuilder/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/AccelerometerPlay/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/ApiDemos/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/AppNavigation/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/BackupRestore/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/BasicGLSurfaceView/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/ContactManager/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/CrossCompatibility/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/CubeLiveWallpaper/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/HelloEffects/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/Home/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/HoneycombGallery/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/JetBoy/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/KeyChainDemo/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/LceDemo/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/LunarLander/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/MultiResolution/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/NotePad/ $(genDir)/out/legacy/ && " +
+        "mkdir -p $(genDir)/out/legacy/SpellChecker/ && " +
+        "cp -r development/samples/SpellChecker/SampleSpellCheckerService/ $(genDir)/out/legacy/SpellChecker/ &&" +
+        "cp -r development/samples/SpellChecker/HelloSpellChecker/ $(genDir)/out/legacy/SpellChecker/ && " +
+        "cp -r development/samples/SampleSyncAdapter/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/SearchableDictionary/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/SipDemo/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/SkeletonApp/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/Snake/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/SoftKeyboard/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/Spinner/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/SpinnerTest/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/TicTacToeLib/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/TicTacToeMain/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/TtsEngine/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/ToyVpn/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/UiAutomator/ $(genDir)/out/legacy/ && " +
+        "mkdir -p $(genDir)/out/legacy/USB/ && " +
+        "cp -r development/samples/USB/MissileLauncher/ $(genDir)/out/legacy/USB/ && " +
+        "cp -r development/samples/USB/AdbTest/ $(genDir)/out/legacy/USB/ && " +
+        "cp -r development/samples/VoiceRecognitionService/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/VoicemailProviderDemo/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/WeatherListWidget/ $(genDir)/out/legacy/ && " +
+        "cp -r development/apps/WidgetPreview/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/WiFiDirectDemo/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/WiFiDirectServiceDiscovery/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/Wiktionary/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/WiktionarySimple/ $(genDir)/out/legacy/ && " +
+        "cp -r development/samples/XmlAdapters/ $(genDir)/out/legacy/ && " +
+        "$(location sdk_clean) $(genDir)/out/ && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+}
+
+genrule {
+    name: "sdk_sources_source_properties",
+    srcs: ["sdk/source_source.prop_template"],
+    out: ["source.properties"],
+    cmd: select((
+        soong_config_variable("sdk", "PLATFORM_SDK_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_VERSION_CODENAME"),
+        soong_config_variable("sdk", "PLATFORM_SDK_EXTENSION_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_IS_BASE_SDK"),
+    ), {
+        (any @ platform_sdk_version, any @ platform_version_codename, any @ platform_sdk_ext_version, any @ is_base_sdk): "sed" +
+            " -e 's/$${PLATFORM_SDK_VERSION}/" + platform_sdk_version + "/'" +
+            " -e 's/$${PLATFORM_VERSION_CODENAME}/" + platform_version_codename + "/'" +
+            " -e 's/$${PLATFORM_SDK_EXTENSION_VERSION}/" + platform_sdk_ext_version + "/'" +
+            " -e 's/$${PLATFORM_IS_BASE_SDK}/" + is_base_sdk + "/'" +
+            " $(in) > $(out)",
+        (default, default, default, default): "echo error: select expansion failed >&2; false",
+    }),
+}
+
+genrule {
+    name: "sdk_docs_source_properties",
+    srcs: ["sdk/doc_source.prop_template"],
+    out: ["source.properties"],
+    cmd: select((
+        soong_config_variable("sdk", "PLATFORM_SDK_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_VERSION_CODENAME"),
+        soong_config_variable("sdk", "PLATFORM_SDK_EXTENSION_VERSION"),
+        soong_config_variable("sdk", "PLATFORM_IS_BASE_SDK"),
+    ), {
+        (any @ platform_sdk_version, any @ platform_version_codename, any @ platform_sdk_ext_version, any @ is_base_sdk): "sed" +
+            " -e 's/$${PLATFORM_SDK_VERSION}/" + platform_sdk_version + "/'" +
+            " -e 's/$${PLATFORM_VERSION_CODENAME}/" + platform_version_codename + "/'" +
+            " -e 's/$${PLATFORM_SDK_EXTENSION_VERSION}/" + platform_sdk_ext_version + "/'" +
+            " -e 's/$${PLATFORM_IS_BASE_SDK}/" + is_base_sdk + "/'" +
+            " $(in) > $(out)",
+        (default, default, default, default): "echo error: select expansion failed >&2; false",
+    }),
+}

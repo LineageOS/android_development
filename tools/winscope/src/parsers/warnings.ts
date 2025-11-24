@@ -148,6 +148,6 @@ export function makeWarningTraceSearchQueryFailed(errorMessage: string) {
 export function makeWarningVideoFrameCacheStall() {
   return new UserWarning(
     'video frame cache stall',
-    'Failed to fully load screen recording due to browser constraints.',
+    'Failed to fully load screen recording due to browser constraints. Trying again.',
   );
 }

@@ -18,7 +18,10 @@ import {assertDefined} from 'common/assert';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {CoarseVersion} from 'trace_api/coarse_version';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  MediaBasedTraceEntry,
+  VideoEntry,
+} from 'trace_api/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 
@@ -62,16 +65,15 @@ describe('ParserScreenRecordingLegacy', () => {
   });
 
   it('retrieves trace entry', async () => {
-    const entry1 = await retrieveAndCheckEntry(0);
-    const entry2 = await retrieveAndCheckEntry(parser.getLengthEntries() - 1);
-    expect(entry1.image === entry2.image).toBeFalse();
+    {
+      const entry = await parser.getEntry(0);
+      expect(entry).toBeInstanceOf(VideoEntry);
+      expect(Number(entry.videoTimeSeconds)).toBeCloseTo(0);
+    }
+    {
+      const entry = await parser.getEntry(parser.getLengthEntries() - 1);
+      expect(entry).toBeInstanceOf(VideoEntry);
+      expect(Number(entry.videoTimeSeconds)).toBeCloseTo(2.37, 0.001);
+    }
   });
-
-  async function retrieveAndCheckEntry(index: number) {
-    const entry = await parser.getEntry(index);
-    expect(entry).toBeInstanceOf(MediaBasedTraceEntry);
-    expect(entry.image.width).toBe(1080);
-    expect(entry.image.height).toBe(2400);
-    return entry as MediaBasedTraceEntry;
-  }
 });

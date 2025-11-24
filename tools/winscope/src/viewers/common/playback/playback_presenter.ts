@@ -15,17 +15,19 @@
  */
 
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {CustomTraceEntryLazy, Trace, TraceEntry} from 'trace_api/trace';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
 import {TracePositionUpdate} from 'trace/trace_events';
 import {TracePosition} from 'trace_api/trace_position';
 import {Timer} from 'common/time/timer';
-import {TraceEntryEager} from 'trace_api/trace';
 import {PlaybackState} from './playback_state';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {
+  CanvasEntry,
+  MediaBasedTraceEntry,
+} from 'trace_api/media_based_trace_entry';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
-import {CorrespondingEntries} from './corresponding_entries';
+import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {PropertiesProvider} from 'tree_node/properties_provider';
 import {TraceRect} from 'tree_node/trace_rect';
@@ -35,40 +37,50 @@ import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {assertDefined, assertTrue} from 'common/assert';
 import {EntriesRange} from 'trace_api/index_types';
+import {createVideoFrameCache} from './video_frame_cache_factory';
+import {VideoFrameCache} from './video_frame_cache';
 
-type EagerTraceEntry = TraceEntryEager<HierarchyTreeNode, HierarchyTreeNode>;
 type WorkerResolve = (value: HierarchyTreeNode[]) => void;
 type WorkerReject = ((reason?: any) => void) | undefined;
+type CreateVideoFrameCacheStrategy = (
+  videoData: Uint8Array,
+) => Promise<VideoFrameCache>;
 
 export class PlaybackPresenter {
-  private readonly traceChunkSize = 150;
+  private readonly traceChunkSize = 50;
   private readonly baseTime = 50;
   private readonly emitWinscopeEvent: EmitEvent;
   private readonly trace: Trace<HierarchyTreeNode>;
   private readonly worker: Worker;
+  private readonly createVideoFrameCacheStrategy: CreateVideoFrameCacheStrategy;
 
   private entrySleepTime = 50;
   private currState: PlaybackState = PlaybackState.PAUSED;
   private traceGeometryData: TraceGeometryData | undefined;
   private lastEntryUpdated:
-    | EagerTraceEntry
-    | TraceEntry<MediaBasedTraceEntry>
+    | TraceEntry<HierarchyTreeNode, HierarchyTreeNode>
+    | TraceEntry<MediaBasedTraceEntry, Promise<CanvasEntry>>
     | undefined;
-
   private currentSr: Trace<MediaBasedTraceEntry> | undefined;
+  private videoFrameCache: VideoFrameCache | undefined;
 
-  private activeBuffer: CorrespondingEntries[] = [];
-  private pendingBuffer: CorrespondingEntries[] = [];
+  private activeBuffer: PlaybackPrefetchedEntries[] = [];
+  private pendingBuffer: PlaybackPrefetchedEntries[] = [];
   private workerPromiseResolve: WorkerResolve | undefined;
   private workerPromiseReject: WorkerReject | undefined;
   private fetchPendingBufferPromise: Promise<void> | undefined;
   private pendingBufferFirstEntry: number | undefined;
   private activeBufferFirstEntry: number | undefined;
 
-  constructor(emitWinscopeEvent: EmitEvent, trace: Trace<HierarchyTreeNode>) {
+  constructor(
+    emitWinscopeEvent: EmitEvent,
+    trace: Trace<HierarchyTreeNode>,
+    createVideoFrameCacheStrategy: CreateVideoFrameCacheStrategy = createVideoFrameCache,
+  ) {
     this.emitWinscopeEvent = emitWinscopeEvent;
     this.trace = trace;
     this.worker = this.createWorker();
+    this.createVideoFrameCacheStrategy = createVideoFrameCacheStrategy;
   }
 
   setTraceGeometryData(traceGeometryData: TraceGeometryData) {
@@ -81,6 +93,7 @@ export class PlaybackPresenter {
 
   onDestroy() {
     this.worker.terminate();
+    this.videoFrameCache?.onDestroy();
   }
 
   async play(
@@ -181,6 +194,16 @@ export class PlaybackPresenter {
     srTrace: Trace<MediaBasedTraceEntry> | undefined,
   ) {
     this.currentSr = srTrace;
+    this.videoFrameCache?.onDestroy();
+    if (!srTrace) {
+      this.videoFrameCache = undefined;
+      return;
+    }
+    const blob = assertDefined(
+      (await srTrace.getEntry(0).getValue())?.frameData,
+    );
+    const videoData = new Uint8Array(await blob.arrayBuffer());
+    this.videoFrameCache = await this.createVideoFrameCacheStrategy(videoData);
   }
 
   private async tryPlayFromTargetEntry(
@@ -278,8 +301,7 @@ export class PlaybackPresenter {
         new TracePositionUpdate(
           TracePosition.fromTraceEntry(entryForPosition),
           true,
-          bufferEntry.trace,
-          TracePosition.fromTimestamp(bufferEntry.seek),
+          bufferEntry,
         ),
       );
 
@@ -343,11 +365,12 @@ export class PlaybackPresenter {
 
   private async processTraceChunk(
     traceRange: EntriesRange,
-  ): Promise<CorrespondingEntries[]> {
+  ): Promise<PlaybackPrefetchedEntries[]> {
     if (traceRange.start >= traceRange.end) {
       return [];
     }
 
+    // fetch trace entry values for this chunk
     const trees = await this.fetchTreesFromWorker(traceRange);
     if (trees.length !== traceRange.end - traceRange.start) {
       return [];
@@ -357,7 +380,7 @@ export class PlaybackPresenter {
       trees,
     );
 
-    const bufferEntries: CorrespondingEntries[] = [];
+    const bufferEntries: PlaybackPrefetchedEntries[] = [];
 
     for (const traceEntry of chunkEagerTraceEntries) {
       if (!this.currentSr) {
@@ -386,24 +409,43 @@ export class PlaybackPresenter {
       // add the screen recording entries in between the last SF frame and
       // current SF frame
       const newSrIndex = correspondingSrEntry.getIndex();
-      const lastSrIndex = bufferEntries
+      let lastSrIndex = bufferEntries
         .at(bufferEntries.length - 1)
         ?.screenRecording?.getIndex();
 
-      if (lastSrIndex !== undefined || traceEntry.getIndex() === 0) {
-        for (let j = (lastSrIndex ?? -1) + 1; j < newSrIndex; j++) {
-          const srEntry = this.currentSr.getEntry(j);
-          bufferEntries.push({
-            screenRecording: srEntry,
-            trace: traceEntry.getIndex() === 0 ? undefined : traceEntry,
-            seek: srEntry.getTimestamp(),
-          });
+      if (
+        lastSrIndex !== undefined ||
+        traceEntry.getIndex() === traceRange.start
+      ) {
+        if (lastSrIndex === undefined && traceEntry.getIndex() !== 0) {
+          // find the last sr index from the previous buffer
+          lastSrIndex = findCorrespondingEntry(
+            this.currentSr,
+            TracePosition.fromTraceEntry(
+              this.trace.getEntry(traceRange.start - 1),
+            ),
+          )?.getIndex();
+        } else if (traceEntry.getIndex() === 0) {
+          // if there has been no previous sr index, add all from the start
+          lastSrIndex = lastSrIndex ?? -1;
+        }
+
+        if (lastSrIndex !== undefined) {
+          for (let j = lastSrIndex + 1; j < newSrIndex; j++) {
+            const srEntry = this.makeSrEntry(j);
+
+            bufferEntries.push({
+              screenRecording: srEntry,
+              trace: traceEntry.getIndex() === 0 ? undefined : traceEntry,
+              seek: srEntry.getTimestamp(),
+            });
+          }
         }
       }
 
-      const screenRecordingEntry = this.currentSr.getEntry(newSrIndex);
+      const srEntry = this.makeSrEntry(newSrIndex);
       bufferEntries.push({
-        screenRecording: screenRecordingEntry,
+        screenRecording: srEntry,
         trace: traceEntry,
         seek: traceEntry.getTimestamp(),
       });
@@ -420,7 +462,7 @@ export class PlaybackPresenter {
     ) {
       const start = lastSrEntry.getIndex() + 1;
       for (let j = start; j < this.currentSr.lengthEntries; j++) {
-        const srEntry = this.currentSr.getEntry(j);
+        const srEntry = this.makeSrEntry(j);
         bufferEntries.push({
           screenRecording: srEntry,
           trace: lastEntries?.trace,
@@ -430,6 +472,27 @@ export class PlaybackPresenter {
     }
 
     return bufferEntries;
+  }
+
+  private makeSrEntry(
+    index: number,
+  ): CustomTraceEntryLazy<MediaBasedTraceEntry, CanvasEntry> {
+    const getValue = async () => {
+      const {frame, rotationAngle} = assertDefined(
+        await this.videoFrameCache?.get(index, this.currState),
+      );
+      return new CanvasEntry(frame, rotationAngle);
+    };
+    const trace = assertDefined(this.currentSr);
+    const fullEntry = trace.getEntry(index);
+    return new CustomTraceEntryLazy(
+      trace,
+      trace.getParser(),
+      index,
+      fullEntry.getTimestamp(),
+      trace.hasFrameInfo() ? fullEntry.getFramesRange() : undefined,
+      getValue,
+    );
   }
 
   private assignPropertyTreeNodePrototype(node: PropertyTreeNode) {

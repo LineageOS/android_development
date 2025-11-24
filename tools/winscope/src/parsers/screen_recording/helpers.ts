@@ -15,14 +15,8 @@
  */
 
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {
-  createFile,
-  FileInfo,
-  MP4ArrayBuffer,
-  MP4File,
-  Sample,
-  Track,
-} from 'mp4box';
+import {FileInfo, MP4File, Sample, Track} from 'mp4box';
+import {MP4FileOnReady, parseMp4} from 'trace/screen_recording/helpers';
 
 /**
  * Callback to parse an MP4 and retrieve timestamps.
@@ -39,18 +33,6 @@ export type MP4FileOnReadyTimestamps = (
 ) => void;
 
 /**
- * Callback to parse an MP4 for an arbitrary purpose.
- * @param info File info parsed by mp4box
- * @param mp4File MP4File parsed by mp4box
- * @param resolve To be called when all timestamps are retrieved
- */
-export type MP4FileOnReady = (
-  info: FileInfo,
-  mp4File: MP4File,
-  resolve: (value: void | PromiseLike<void>) => void,
-) => void;
-
-/**
  * Implemented by different parsers depending on which version
  * of metadata they are designed for.
  */
@@ -61,16 +43,6 @@ export interface ScreenRecordingParser {
 export interface ParserResult {
   timestamps: Array<bigint>;
   realToBootTimeOffsetNs: bigint;
-}
-
-/**
- * Data required for WebCodecs manipulation.
- */
-export interface WebCodecData {
-  chunks: EncodedVideoChunk[];
-  config: VideoDecoderConfig;
-  duration: number;
-  rotationAngle: number;
 }
 
 /**
@@ -128,31 +100,6 @@ export async function extractSamplesFromMp4Track(
   await parseMp4(videoData, onReady);
   allSamples.sort((s) => s.number);
   return allSamples;
-}
-
-/**
- * Parses an MP4 file using mp4box.
- * @param videoData File data
- * @param onReady Callback to parse data
- */
-export async function parseMp4(videoData: Uint8Array, onReady: MP4FileOnReady) {
-  const arrayBuffer = videoData.buffer.slice(
-    videoData.byteOffset,
-    videoData.byteLength + videoData.byteOffset,
-  );
-  // There's an export issue with the createFile alias for TypeScript (1.5.0 - Jun 2025)
-  // It fails with the error below, use this as a bypass until the library is fixed.
-  // ERROR in src/parsers/screen_recording/parser_screen_recording.ts:288:48
-  // - error TS2554: Expected 0 arguments, but got 2.
-  const createFileAny = createFile as any;
-  const mp4File: MP4File = createFileAny(true, undefined);
-  await new Promise<void>((resolve) => {
-    mp4File.onReady = (info) => onReady(info, mp4File, resolve);
-    const buffer = arrayBuffer as MP4ArrayBuffer;
-    buffer.fileStart = 0;
-    mp4File.appendBuffer(buffer);
-    mp4File.start();
-  });
 }
 
 /**
