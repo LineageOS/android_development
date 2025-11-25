@@ -15,12 +15,13 @@
  */
 
 import {assertDefined} from 'common/assert';
+import {getDefaultValue} from 'trace/proto_utils/field_value_helpers';
 import {
   TamperedMessageType,
   TamperedProtoField,
 } from 'trace/proto_utils/tampered_message_type';
 import {AddOperation} from 'tree_node/add_operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 
 export class AddDefaults extends AddOperation<PropertyTreeNode> {
@@ -56,53 +57,7 @@ export class AddDefaults extends AddOperation<PropertyTreeNode> {
 
       const field = this.protoType.fields[fieldName];
       let existingNode = value.getChildByName(fieldName);
-      let defaultValue: any = field.repeated ? [] : field.defaultValue;
-
-      if (!field.repeated && defaultValue === null) {
-        switch (field.type) {
-          case 'double':
-            defaultValue = 0;
-            break;
-          case 'float':
-            defaultValue = 0;
-            break;
-          case 'int32':
-            defaultValue = 0;
-            break;
-          case 'uint32':
-            defaultValue = 0;
-            break;
-          case 'sint32':
-            defaultValue = 0;
-            break;
-          case 'fixed32':
-            defaultValue = 0;
-            break;
-          case 'sfixed32':
-            defaultValue = 0;
-            break;
-          case 'int64':
-            defaultValue = BigInt(0);
-            break;
-          case 'uint64':
-            defaultValue = BigInt(0);
-            break;
-          case 'sint64':
-            defaultValue = BigInt(0);
-            break;
-          case 'fixed64':
-            defaultValue = BigInt(0);
-            break;
-          case 'sfixed64':
-            defaultValue = BigInt(0);
-            break;
-          case 'bool':
-            defaultValue = Boolean(defaultValue);
-            break;
-          default:
-          //do nothing
-        }
-      }
+      const defaultValue = getDefaultValue(field);
 
       if (
         !existingNode ||
@@ -110,6 +65,9 @@ export class AddDefaults extends AddOperation<PropertyTreeNode> {
         (existingNode.getValue() === undefined &&
           existingNode.getAllChildren().length === 0)
       ) {
+        if (existingNode?.source === PropertySource.DEFAULT) {
+          continue;
+        }
         existingNode = DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeDefaultProperty(
           value.id,
           fieldName,
