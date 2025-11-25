@@ -29,7 +29,7 @@ import {
   getDistinctValues,
   queryArgs,
   queryVsyncId,
-} from 'parsers/perfetto/utils';
+} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {perfetto} from 'protos/perfetto/trace/static';

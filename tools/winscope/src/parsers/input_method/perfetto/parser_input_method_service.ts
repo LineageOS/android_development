@@ -19,7 +19,7 @@ import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeServiceFactory} from 'parsers/input_method/hierarchy_tree_service_factory';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryEntry} from 'parsers/perfetto/utils';
+import {queryEntry} from 'parsers/perfetto/query_helpers';
 import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
 import {TraceFile} from 'trace/trace_file';
 import {TraceType} from 'trace_api/trace_type';

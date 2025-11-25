@@ -28,7 +28,7 @@ import {QueryResult, RowIterator} from 'trace_processor/query_result';
 import {extractRect} from './rect_extractor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRect} from 'tree_node/trace_rect';
-import {queryArgs} from 'parsers/perfetto/utils';
+import {queryArgs} from 'parsers/perfetto/query_helpers';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';

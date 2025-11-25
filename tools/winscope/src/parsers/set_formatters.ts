@@ -65,8 +65,9 @@ export class SetFormatters implements Operation<PropertyTreeNode> {
     }
 
     const formatter = this.getFormatter(value, enumType?.valuesById);
-
-    if (formatter) value.setFormatter(formatter);
+    if (formatter) {
+      value.setFormatter(formatter);
+    }
 
     value.getAllChildren().forEach((value) => {
       this.apply(value, field);

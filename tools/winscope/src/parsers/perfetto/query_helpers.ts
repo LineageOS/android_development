@@ -17,21 +17,19 @@
 import {
   assertBigInt,
   assertBigIntOrUndefined,
-  assertNumberOrUndefined,
   assertString,
-  assertStringOrUndefined,
   assertTrue,
 } from 'common/assert';
 import {makeWarningMissingVsyncId} from 'parsers/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {TraceProcessor} from 'trace_processor/trace_processor';
-import {FakeProto, FakeProtoBuilder} from './fake_proto_builder';
+import {QueryResult} from 'trace_processor/query_result';
 
 export async function queryArgs(
   traceProcessor: TraceProcessor,
   argSetId: number,
-): Promise<FakeProto> {
+): Promise<QueryResult> {
   const sql = `
       SELECT
           key,
@@ -41,19 +39,18 @@ export async function queryArgs(
           real_value
       FROM args WHERE args.arg_set_id = ${argSetId};
     `;
-  return getAndConvertArgsToProto(traceProcessor, sql);
+  return await traceProcessor.query(sql);
 }
 
-export async function queryEntry(
+export async function queryArgsForEntry(
   traceProcessor: TraceProcessor,
   tableName: string,
   entryIndexToRowIdMap: number[],
   entryIndex: AbsoluteEntryIndex,
-): Promise<FakeProto> {
+): Promise<QueryResult> {
   const rowId = entryIndexToRowIdMap[entryIndex];
   const sql = `
       SELECT
-          tbl.id,
           args.key,
           args.value_type,
           args.int_value,
@@ -63,25 +60,7 @@ export async function queryEntry(
       INNER JOIN args ON tbl.arg_set_id = args.arg_set_id
       WHERE tbl.id = ${rowId};
     `;
-  return getAndConvertArgsToProto(traceProcessor, sql);
-}
-
-export async function getAndConvertArgsToProto(
-  traceProcessor: TraceProcessor,
-  sql: string,
-): Promise<FakeProto> {
-  const result = await traceProcessor.query(sql);
-  const builder = new FakeProtoBuilder();
-  for (const it = result.iter({}); it.valid(); it.next()) {
-    builder.addArg(
-      assertString(it.get('key')),
-      assertString(it.get('value_type')),
-      assertBigIntOrUndefined(it.get('int_value')),
-      assertNumberOrUndefined(it.get('real_value')),
-      assertStringOrUndefined(it.get('string_value')),
-    );
-  }
-  return builder.build();
+  return await traceProcessor.query(sql);
 }
 
 export async function queryVsyncId(

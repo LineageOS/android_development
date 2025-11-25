@@ -29,7 +29,7 @@ import {
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryArgs} from 'parsers/perfetto/utils';
+import {queryArgs} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
