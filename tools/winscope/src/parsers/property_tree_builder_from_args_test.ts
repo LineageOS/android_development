@@ -134,7 +134,7 @@ describe('PropertyTreeBuilderFromArgs', () => {
 
     it('builds new root using provided root node id', () => {
       const iter = makeSpyRowForNullProperty();
-      const expectedTree = makeExpTree([{name: 'testProp', value: null}]);
+      const expectedTree = makeExpTree([{name: 'testProp', value: undefined}]);
       const tree = getBuilder()
         .setRootId('1 rootName')
         .setData(iter)
@@ -402,11 +402,11 @@ describe('PropertyTreeBuilderFromArgs', () => {
 
     function checkDefaultValueReceived(
       iter: RowIterator,
-      exp: PropertyValue,
+      exp: PropertyValue | null,
       prop: string,
     ) {
       const expectedTree = makeExpTree([
-        {name: prop, value: exp, source: PropertySource.DEFAULT},
+        {name: prop, value: exp ?? undefined, source: PropertySource.DEFAULT},
       ]);
       const tree = getBuilder().setData(iter).build();
       expect(tree).toEqual(expectedTree);
@@ -425,10 +425,10 @@ describe('PropertyTreeBuilderFromArgs', () => {
 
   function checkValueReceived(
     iter: RowIterator,
-    exp: PropertyValue,
+    exp: PropertyValue | null,
     prop = 'testProp',
   ) {
-    const expectedTree = makeExpTree([{name: prop, value: exp}]);
+    const expectedTree = makeExpTree([{name: prop, value: exp ?? undefined}]);
     const tree = getBuilder().setData(iter).build();
     expect(tree).toEqual(expectedTree);
   }

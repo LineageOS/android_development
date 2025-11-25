@@ -33,8 +33,7 @@ export type PropertyValue =
   | Array<bigint>
   | number[]
   | boolean[]
-  | object[]
-  | null;
+  | object[];
 
 /**
  * A node in a property tree.

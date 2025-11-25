@@ -23,8 +23,10 @@ import {TamperedProtoField} from './tampered_message_type';
  * @param field proto message field.
  * @return default value for this property field.
  */
-export function getDefaultValue(field: TamperedProtoField): LeafValue {
-  let defaultValue: LeafValue = field.repeated ? [] : field.defaultValue;
+export function getDefaultValue(
+  field: TamperedProtoField,
+): LeafValue | undefined {
+  let defaultValue = field.repeated ? [] : field.defaultValue;
   if (!field.repeated && defaultValue === null) {
     switch (field.type) {
       case 'double':
@@ -53,7 +55,7 @@ export function getDefaultValue(field: TamperedProtoField): LeafValue {
       }
     }
   }
-  return defaultValue;
+  return defaultValue ?? undefined;
 }
 
-export type LeafValue = string | bigint | number | boolean | null;
+export type LeafValue = string | bigint | number | boolean | unknown[];

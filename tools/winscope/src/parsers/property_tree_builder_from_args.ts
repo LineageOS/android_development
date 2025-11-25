@@ -181,10 +181,10 @@ export class PropertyTreeBuilderFromArgs extends AbstractPropertyTreeBuilder<Row
   }
 
   private transformValueFromField(
-    value: LeafValue,
+    value: LeafValue | undefined,
     field: TamperedProtoField,
-  ): PropertyValue {
-    if (!field.repeated) {
+  ): PropertyValue | undefined {
+    if (!field.repeated && !Array.isArray(value)) {
       switch (field.type) {
         case 'double':
         case 'float':
@@ -215,14 +215,14 @@ export class PropertyTreeBuilderFromArgs extends AbstractPropertyTreeBuilder<Row
         return enumId;
       }
     }
-    if (field.repeated && (value === null || value === undefined)) {
+    if (field.repeated && value === undefined) {
       return [];
     }
     return value;
   }
 
-  private tryGetEnumId(value: LeafValue): number | undefined {
-    if (value === null || value === undefined) {
+  private tryGetEnumId(value: LeafValue | undefined): number | undefined {
+    if (value === undefined) {
       return 0;
     }
     switch (typeof value) {
@@ -240,19 +240,19 @@ export class PropertyTreeBuilderFromArgs extends AbstractPropertyTreeBuilder<Row
     intValue: bigint | undefined,
     realValue: number | undefined,
     stringValue: string | undefined,
-  ): LeafValue {
+  ): LeafValue | undefined {
     switch (valueType) {
       case 'bool':
         return Boolean(intValue);
       case 'int':
       case 'uint':
-        return intValue ?? null;
+        return intValue ?? undefined;
       case 'null':
-        return null;
+        return undefined;
       case 'real':
-        return realValue ?? null;
+        return realValue ?? undefined;
       case 'string':
-        return stringValue ?? null;
+        return stringValue ?? undefined;
       default:
         throw new Error(`Unsupported type ${valueType}`);
     }

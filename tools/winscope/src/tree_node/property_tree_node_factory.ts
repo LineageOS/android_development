@@ -16,7 +16,11 @@
 
 import {Timestamp} from 'common/time/time';
 import {TimeDuration} from 'common/time/time_duration';
-import {PropertySource, PropertyTreeNode} from './property_tree_node';
+import {
+  PropertySource,
+  PropertyTreeNode,
+  PropertyValue,
+} from './property_tree_node';
 
 /**
  * A factory for creating property tree nodes.
@@ -28,7 +32,7 @@ export class PropertyTreeNodeFactory {
     rootId: string,
     rootName: string,
     source: PropertySource,
-    value: any,
+    value: PropertyValue | undefined,
   ): PropertyTreeNode {
     return new PropertyTreeNode(rootId, rootName, source, value);
   }
@@ -36,7 +40,7 @@ export class PropertyTreeNodeFactory {
   makeProtoProperty(
     rootId: string,
     name: string,
-    value: any,
+    value: PropertyValue | undefined,
   ): PropertyTreeNode {
     return this.makeProperty(rootId, name, PropertySource.PROTO, value);
   }
@@ -44,7 +48,7 @@ export class PropertyTreeNodeFactory {
   makeDefaultProperty(
     rootId: string,
     name: string,
-    defaultValue: any,
+    defaultValue: PropertyValue | undefined,
   ): PropertyTreeNode {
     return this.makeSimpleChildProperty(
       rootId,
@@ -57,7 +61,7 @@ export class PropertyTreeNodeFactory {
   makeCalculatedProperty(
     rootId: string,
     propertyName: string,
-    value: any,
+    value: PropertyValue | undefined,
   ): PropertyTreeNode {
     return this.makeProperty(
       rootId,
@@ -67,7 +71,11 @@ export class PropertyTreeNodeFactory {
     );
   }
 
-  makeTpProperty(rootId: string, name: string, value: any): PropertyTreeNode {
+  makeTpProperty(
+    rootId: string,
+    name: string,
+    value: PropertyValue | undefined,
+  ): PropertyTreeNode {
     return this.makeProperty(rootId, name, PropertySource.TP, value);
   }
 
@@ -75,10 +83,10 @@ export class PropertyTreeNodeFactory {
     rootId: string,
     name: string,
     source: PropertySource,
-    value: any,
+    value: PropertyValue | undefined,
   ): PropertyTreeNode {
     if (this.hasInnerProperties(value)) {
-      return this.makeNestedProperty(rootId, name, source, value);
+      return this.makeNestedProperty(rootId, name, source, value as object);
     } else {
       return this.makeSimpleChildProperty(rootId, name, value, source);
     }
@@ -88,7 +96,7 @@ export class PropertyTreeNodeFactory {
     rootId: string,
     name: string,
     source: PropertySource,
-    value: object | any[],
+    value: object,
   ): PropertyTreeNode {
     const {nodeId, nodeName} = this.makeNodeIdAndName(rootId, name);
     const innerRoot = this.makePropertyRoot(
@@ -104,7 +112,7 @@ export class PropertyTreeNodeFactory {
   private makeSimpleChildProperty(
     rootId: string,
     name: string,
-    value: any,
+    value: PropertyValue | undefined,
     source: PropertySource,
   ): PropertyTreeNode {
     const {nodeId, nodeName} = this.makeNodeIdAndName(rootId, name);
@@ -119,7 +127,7 @@ export class PropertyTreeNodeFactory {
     return {nodeId, nodeName};
   }
 
-  private hasInnerProperties(value: any): boolean {
+  private hasInnerProperties(value: PropertyValue | undefined): boolean {
     if (!value) return false;
     if (Array.isArray(value)) return value.length > 0;
     if (this.isLongType(value)) return false;
@@ -128,15 +136,15 @@ export class PropertyTreeNodeFactory {
     return typeof value === 'object' && Object.keys(value).length > 0;
   }
 
-  private isLongType(value: any): boolean {
-    const typeOfVal = value.$type?.name ?? value.constructor?.name;
+  private isLongType(value: PropertyValue | undefined): boolean {
+    const typeOfVal = (value as any)?.$type?.name ?? value?.constructor?.name;
     if (typeOfVal === 'Long' || typeOfVal === 'BigInt') return true;
     return false;
   }
 
   private addInnerProperties(
     root: PropertyTreeNode,
-    value: object | any[],
+    value: PropertyValue,
     source: PropertySource,
   ): void {
     if (Array.isArray(value)) {
@@ -148,7 +156,7 @@ export class PropertyTreeNodeFactory {
 
   private addArrayProperties(
     root: PropertyTreeNode,
-    value: any[],
+    value: PropertyValue,
     source: PropertySource,
   ) {
     for (const [key, val] of Object.entries(value)) {

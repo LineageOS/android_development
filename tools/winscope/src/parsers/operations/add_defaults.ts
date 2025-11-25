@@ -55,14 +55,15 @@ export class AddDefaults extends AddOperation<PropertyTreeNode> {
         continue;
       }
 
-      const field = this.protoType.fields[fieldName];
       let existingNode = value.getChildByName(fieldName);
+      const existingValue = existingNode?.getValue();
+      const field = this.protoType.fields[fieldName];
       const defaultValue = getDefaultValue(field);
 
       if (
         !existingNode ||
-        existingNode.getValue() === defaultValue ||
-        (existingNode.getValue() === undefined &&
+        (existingValue !== undefined && existingValue === defaultValue) ||
+        (existingValue === undefined &&
           existingNode.getAllChildren().length === 0)
       ) {
         if (existingNode?.source === PropertySource.DEFAULT) {
@@ -71,7 +72,7 @@ export class AddDefaults extends AddOperation<PropertyTreeNode> {
         existingNode = DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeDefaultProperty(
           value.id,
           fieldName,
-          defaultValue,
+          defaultValue ?? undefined,
         );
         defaultPropertyNodes.push(existingNode);
         continue;
