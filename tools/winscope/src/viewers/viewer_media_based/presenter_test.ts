@@ -54,6 +54,27 @@ describe('PresenterMediaBased', () => {
     .setEntries(entries)
     .setTimestamps(timestamps)
     .build();
+  const canvasEntry = new CanvasEntry(
+    jasmine.createSpyObj<ImageBitmap>('image', ['close']),
+  );
+  const prefetchedSrEntry = new CustomTraceEntryLazy(
+    trace1,
+    trace1.getParser(),
+    0,
+    timestamps[0],
+    undefined,
+    async () => canvasEntry,
+  );
+  const positionUpdateWithPrefetchedEntry = new TracePositionUpdate(
+    TracePosition.fromTimestamp(timestamps[0]),
+    undefined,
+    {
+      screenRecording: prefetchedSrEntry,
+      trace: undefined,
+      seek: prefetchedSrEntry.getTimestamp(),
+    },
+  );
+  const positionUpdate1 = TracePositionUpdate.fromTimestamp(timestamps[1]);
 
   const traces = [trace1, trace2];
 
@@ -104,7 +125,6 @@ describe('PresenterMediaBased', () => {
   });
 
   it('processes trace position updates without prefetched entry', async () => {
-    const positionUpdate1 = TracePositionUpdate.fromTimestamp(timestamps[1]);
     const promise = presenter.onAppEvent(positionUpdate1);
     expect(uiData.isFetchingEntries).toBeTrue();
     await promise;
@@ -117,27 +137,7 @@ describe('PresenterMediaBased', () => {
   });
 
   it('processes trace position updates with prefetched entry', async () => {
-    const canvasEntry = new CanvasEntry(
-      jasmine.createSpyObj<ImageBitmap>('image', ['close']),
-    );
-    const prefetchedSrEntry = new CustomTraceEntryLazy(
-      trace1,
-      trace1.getParser(),
-      0,
-      timestamps[0],
-      undefined,
-      async () => canvasEntry,
-    );
-    const positionUpdate = new TracePositionUpdate(
-      TracePosition.fromTimestamp(timestamps[0]),
-      undefined,
-      {
-        screenRecording: prefetchedSrEntry,
-        trace: undefined,
-        seek: prefetchedSrEntry.getTimestamp(),
-      },
-    );
-    await presenter.onAppEvent(positionUpdate);
+    await presenter.onAppEvent(positionUpdateWithPrefetchedEntry);
     expect(uiData.currentTraceEntries).toEqual([canvasEntry, entries[0]]);
   });
 
@@ -163,6 +163,34 @@ describe('PresenterMediaBased', () => {
     expect(uiData.forceMinimize).toBeTrue();
     await presenter.onAppEvent(new ExpandedTimelineToggled(false));
     expect(uiData.forceMinimize).toBeFalse();
+  });
+
+  it('does not process trace position update if force minimize set', async () => {
+    await presenter.onAppEvent(new ExpandedTimelineToggled(true));
+    await presenter.onAppEvent(positionUpdate1);
+    expect(uiData.currentTraceEntries).toEqual([]);
+  });
+
+  it('does not update uiData entries in playback mode if no CanvasEntries present', async () => {
+    await presenter.onAppEvent(
+      new PlaybackStateChangeHandled(PlaybackState.FORWARDS),
+    );
+    await presenter.onAppEvent(positionUpdate1);
+    expect(uiData.currentTraceEntries).toEqual([]);
+  });
+
+  it('updates uiData entries in playback mode if no entries at all present', async () => {
+    await presenter.onAppEvent(
+      new PlaybackStateChangeHandled(PlaybackState.FORWARDS),
+    );
+    await presenter.onAppEvent(positionUpdateWithPrefetchedEntry);
+    expect(uiData.currentTraceEntries.length).toEqual(2);
+    await presenter.onAppEvent(
+      new TracePositionUpdate(
+        TracePosition.fromTimestamp(makeRealTimestamp(5n)),
+      ),
+    );
+    expect(uiData.currentTraceEntries).toEqual([]);
   });
 
   it('handles overlay double click', () => {

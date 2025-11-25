@@ -102,6 +102,7 @@ import {PlaybackControlsComponent} from './playback_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
 
 /**
  * A component for displaying the timeline view.
@@ -155,8 +156,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
           @let screenRecording = timelineData.getCurrentScreenRecordingTrace();
           @if (screenRecording !== undefined) {
             <div id="video-content">
-              @if (screenRecordingEntry !== undefined) {
-                <canvas id="videoCanvasElementTimeline"></canvas>
+              @if (frameCanvasEntry !== undefined) {
+                <canvas id="frameCanvasElementTimeline" #frameCanvasElementTimeline></canvas>
               } @else if (videoUrl !== undefined && getVideoCurrentTime() !== undefined) {
                 <video
                   id="video"
@@ -488,7 +489,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         display: flex;
         align-items: center;
       }
-      #videoCanvasElementTimeline, #video {
+      #frameCanvasElementTimeline, #video {
         max-width: 100%;
         max-height: calc(60vh - 4px);
       }
@@ -609,6 +610,10 @@ export class TimelineComponent
 
   @ViewChild('miniTimeline') miniTimeline: MiniTimelineComponent | undefined;
 
+  @ViewChild('frameCanvasElementTimeline') private canvasElement:
+    | ElementRef<HTMLCanvasElement>
+    | undefined;
+
   currentScreenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined;
   videoUrl: SafeUrl | undefined;
   initialZoom: TimeRange | undefined = undefined;
@@ -640,7 +645,7 @@ export class TimelineComponent
   private isProcessingKeyPress = false;
   private currentTabTraceType: TraceType | undefined;
   private lastPlayState: PlaybackState | undefined;
-  private screenRecordingEntry: MediaBasedTraceEntry | undefined;
+  private frameCanvasEntry: MediaBasedTraceEntry | undefined;
   private hoverPosition: HoverPositionUpdate | undefined;
 
   constructor(
@@ -784,7 +789,7 @@ export class TimelineComponent
 
   async updatePosition(position: TracePosition) {
     assertDefined(this.timelineData).setPosition(position);
-    this.updateScreenRecordingVisualization();
+    await this.updateScreenRecordingVisualization();
     if (this.playbackState !== PlaybackState.PAUSED) {
       this.emitEvent(
         new PlaybackStateChangeRequest(
@@ -845,8 +850,8 @@ export class TimelineComponent
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    if (this.screenRecordingEntry) {
-      this.renderFrame(this.screenRecordingEntry);
+    if (this.frameCanvasEntry) {
+      this.renderFrame(this.frameCanvasEntry);
     }
   }
 
@@ -1319,53 +1324,52 @@ export class TimelineComponent
     this.playbackState = stateToReflect;
   }
 
-  private async updateScreenRecordingVisualization() {
+  private async updateScreenRecordingVisualization(
+    prefetched?: PlaybackPrefetchedEntries,
+  ) {
+    if (prefetched?.screenRecording) {
+      this.videoUrl = undefined;
+      this.frameCanvasEntry = await prefetched.screenRecording.getValue();
+      this.renderFrame(this.frameCanvasEntry);
+      return;
+    }
+
+    this.frameCanvasEntry = undefined;
+
     const lastTrace = this.currentScreenRecordingTrace;
     this.currentScreenRecordingTrace =
       this.timelineData?.getCurrentScreenRecordingTrace();
     if (!this.currentScreenRecordingTrace) {
-      this.screenRecordingEntry = undefined;
       return;
     }
 
     const srChanged = this.currentScreenRecordingTrace !== lastTrace;
 
-    const video = await this.currentScreenRecordingTrace
-      .getEntry(0)
-      ?.getValue();
-    if (video !== undefined && video.frameData !== undefined) {
-      if (srChanged) {
+    if (srChanged || !this.videoUrl) {
+      const video = await this.currentScreenRecordingTrace
+        .getEntry(0)
+        .getValue();
+      if (video.frameData !== undefined) {
         this.videoUrl = this.sanitizer.bypassSecurityTrustUrl(
           URL.createObjectURL(video.frameData),
         );
+        this.changeDetectorRef.detectChanges();
       }
-      this.screenRecordingEntry = undefined;
       return;
     }
-
-    const entry = (await this.timelineData
-      ?.findCurrentEntryFor(this.currentScreenRecordingTrace)
-      ?.getValue()) as MediaBasedTraceEntry;
-    if (!entry) {
-      this.screenRecordingEntry = undefined;
-      return;
-    }
-    this.screenRecordingEntry = entry;
-    this.renderFrame(entry);
   }
 
   private renderFrame(entry: MediaBasedTraceEntry) {
     this.changeDetectorRef.detectChanges();
-    const canvas = document.querySelector<HTMLCanvasElement>(
-      '#videoCanvasElementTimeline',
-    );
-    if (!canvas || entry.image === undefined) {
+    if (!this.canvasElement || entry.image === undefined) {
       return;
     }
-    const container = assertDefined(canvas.parentElement);
+    const container = assertDefined(
+      this.canvasElement.nativeElement.parentElement,
+    );
     const scaledWidth = entry.image.width / entry.image.height;
     container.style.minWidth = `min(320px, (calc(${scaledWidth} * 60vh))`;
-    entry.tryDrawOnCanvas(canvas);
+    entry.tryDrawOnCanvas(this.canvasElement.nativeElement);
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {
@@ -1375,7 +1379,7 @@ export class TimelineComponent
       );
     }
     this.updateTimeInputValuesToCurrentTimestamp();
-    this.updateScreenRecordingVisualization();
+    await this.updateScreenRecordingVisualization(event.prefetchedEntries);
   }
 
   private async onActiveTraceChanged(event: ActiveTraceChanged) {
@@ -1438,6 +1442,6 @@ export class TimelineComponent
   }
 
   private async onScreenRecordingChange() {
-    this.updateScreenRecordingVisualization();
+    await this.updateScreenRecordingVisualization();
   }
 }

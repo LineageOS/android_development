@@ -103,6 +103,9 @@ export class Presenter {
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (this.uiData.forceMinimize) {
+      return;
+    }
     const traceEntries = this.traces
       .map((trace) => {
         if (
@@ -123,7 +126,10 @@ export class Presenter {
       }),
     );
     this.uiData.isFetchingEntries = false;
-    this.uiData.currentTraceEntries = entries;
+
+    if (this.shouldUpdateTraceEntries(entries)) {
+      this.uiData.currentTraceEntries = entries;
+    }
     this.notifyViewCallback(this.uiData);
   }
 
@@ -136,5 +142,16 @@ export class Presenter {
     this.uiData.isInPlaybackMode =
       event.stateToReflect !== PlaybackState.PAUSED;
     this.notifyViewCallback(this.uiData);
+  }
+
+  private shouldUpdateTraceEntries(entries: MediaBasedTraceEntry[]): boolean {
+    if (!this.uiData.isInPlaybackMode) {
+      return true;
+    }
+    // In playback mode, we should only update trace entries if there are no entries
+    // (playback trace has no corresponding SR entries for its current position) or if
+    // there are prefetched CanvasEntry entries present. This condition does not hold
+    // when the user changes the direction or position of playback whilst already running.
+    return entries.length === 0 || entries.some((e) => e.image !== undefined);
   }
 }
