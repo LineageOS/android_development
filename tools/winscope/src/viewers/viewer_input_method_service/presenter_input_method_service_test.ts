@@ -28,7 +28,7 @@ class PresenterInputMethodServiceTest extends AbstractPresenterInputMethodTest {
 
   override getSelectedNode(): HierarchyTreeNode {
     return new HierarchyTreeBuilder()
-      .setId('InputMethodService')
+      .setId('InputMethodServiceTraceProto')
       .setName('entry')
       .setProperties({where: 'location', elapsedNanos: 0})
       .addChildProperty({

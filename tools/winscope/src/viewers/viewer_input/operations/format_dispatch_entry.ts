@@ -42,7 +42,6 @@ export class FormatDispatchEntry implements Operation<UiPropertyTreeNode> {
     );
   }
 
-
   private formatDispatchedPointers(dispatchEntry: UiPropertyTreeNode) {
     const dispatchedPointersNode =
       dispatchEntry.getChildByName('dispatchedPointer');
