@@ -192,7 +192,7 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         await presenter.onLogEntryClick(10);
         expect(
           assertDefined(uiData.propertiesTree).getAllChildren().length,
-        ).toBe(10);
+        ).toBe(8);
         expect(
           uiData.propertiesTree?.getChildByName('transformToDisplayInverse'),
         ).toBeDefined();

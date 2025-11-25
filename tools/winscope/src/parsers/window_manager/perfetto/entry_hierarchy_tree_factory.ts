@@ -15,7 +15,6 @@
  */
 
 import {assertBigInt, assertDefined, assertString} from 'common/assert';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {
   LazyPropertiesStrategyType,
   PropertiesProvider,
@@ -34,9 +33,9 @@ import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {WM_OPERATION_LISTS} from './operations/operation_lists';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
 import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 /**
  * Creates HierarchyTreeNode objects for a WM trace.
@@ -153,12 +152,14 @@ function makeEntryLazyPropertiesStrategy(
   traceProcessor: TraceProcessor,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(traceProcessor, argSetId);
-    return new PropertyTreeBuilderFromProto()
-      .setData(ENTRY_TRANSFORMER.transform(data))
+    const argsData = await queryArgs(traceProcessor, argSetId);
+
+    return new PropertyTreeBuilderFromArgs()
+      .setData(argsData.iter({}))
       .setRootId('WindowManager')
       .setRootName('root')
       .setDenyList(DENYLIST_PROPERTIES)
+      .setRootMessageType(ENTRY_TYPE)
       .build();
   };
 }
@@ -246,12 +247,13 @@ function makeContainerLazyPropertiesStrategy(
   traceProcessor: TraceProcessor,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(traceProcessor, argSetId);
-    return new PropertyTreeBuilderFromProto()
-      .setData(CONTAINER_TRANSFORMER.transform(data))
+    const argsData = await queryArgs(traceProcessor, argSetId);
+    return new PropertyTreeBuilderFromArgs()
+      .setData(argsData.iter({}))
       .setRootId(rootId)
       .setRootName(rootName)
       .setDenyList(DENYLIST_PROPERTIES)
+      .setRootMessageType(CONTAINER_TYPE)
       .build();
   };
 }
@@ -280,12 +282,10 @@ function buildHierarchyTree(
   return tree;
 }
 
-const CONTAINER_TRANSFORMER = new FakeProtoTransformer(
-  assertDefined(
-    TAMPERED_PROTOS_LATEST.windowContainerChildField.tamperedMessageType,
-  ),
+const CONTAINER_TYPE = assertDefined(
+  TAMPERED_PROTOS_LATEST.windowContainerChildField.tamperedMessageType,
 );
 
-const ENTRY_TRANSFORMER = new FakeProtoTransformer(
-  assertDefined(TAMPERED_PROTOS_LATEST.entryField.tamperedMessageType),
+const ENTRY_TYPE = assertDefined(
+  TAMPERED_PROTOS_LATEST.entryField.tamperedMessageType,
 );
