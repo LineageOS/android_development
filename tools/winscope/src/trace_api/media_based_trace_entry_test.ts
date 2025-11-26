@@ -27,7 +27,7 @@ describe('MediaBasedTraceEntry', () => {
       'resetTransform',
     ]);
     canvas = jasmine.createSpyObj<HTMLCanvasElement>('canvas', ['getContext']);
-    canvas.getContext.withArgs('2d').and.returnValue(ctx);
+    (canvas.getContext as any).withArgs('2d').and.returnValue(ctx);
   });
 
   it('VideoEntry throws error on tryDrawOnCanvas', () => {
