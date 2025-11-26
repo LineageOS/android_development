@@ -29,7 +29,7 @@ import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'media_based_trace_entry/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';

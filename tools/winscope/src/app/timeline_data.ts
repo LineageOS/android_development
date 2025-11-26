@@ -19,7 +19,7 @@ import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
 import {makeWarningCannotParseAllTransitions} from './warnings';
 import {UserNotifier} from 'services/user_notifier';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TracePosition} from 'trace_api/trace_position';

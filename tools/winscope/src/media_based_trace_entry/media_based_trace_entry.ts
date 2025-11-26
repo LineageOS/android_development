@@ -17,6 +17,7 @@
 import {assertDefined} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Size} from 'common/geometry/size';
+import {Thumbnail} from './thumbnail';
 
 /**
  * Represents a single entry in a media-based trace, such as a video or a
@@ -24,6 +25,7 @@ import {Size} from 'common/geometry/size';
  * HTMLCanvasElement.
  */
 export interface MediaBasedTraceEntry {
+  thumbnail: Thumbnail | undefined;
   frameData: Blob | undefined;
   videoTimeSeconds: number;
   image: ImageBitmap | undefined;
@@ -38,6 +40,7 @@ export class VideoEntry implements MediaBasedTraceEntry {
   constructor(
     readonly frameData: Blob,
     readonly videoTimeSeconds: number,
+    readonly thumbnail: Thumbnail | undefined = undefined,
   ) {}
 
   tryDrawOnCanvas(canvas: HTMLCanvasElement) {
@@ -48,6 +51,7 @@ export class VideoEntry implements MediaBasedTraceEntry {
 export class CanvasEntry implements MediaBasedTraceEntry {
   readonly videoTimeSeconds = 0;
   readonly frameData = undefined;
+  readonly thumbnail = undefined;
 
   constructor(
     readonly image: ImageBitmap,

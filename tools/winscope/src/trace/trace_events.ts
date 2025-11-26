@@ -18,7 +18,7 @@ import {Timestamp} from 'common/time/time';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {WinscopeEvent} from 'messaging/winscope_event';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
 import {PlaybackPrefetchedEntries} from './playback_prefetched_entries';
 
 export class TracePositionUpdate implements WinscopeEvent {

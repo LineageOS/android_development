@@ -23,7 +23,7 @@ import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {CustomQueryType} from './custom_query';
 import {FrameMapper} from './frame_mapper';
 import {AbsoluteFrameIndex} from './index_types';
-import {MediaBasedTraceEntry} from './media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
 import {Trace} from './trace';
 import {TraceType} from './trace_type';
 import {Traces} from './traces';

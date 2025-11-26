@@ -23,7 +23,7 @@ import {WinscopeEvent} from 'messaging/winscope_event';
 import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {getLogger, Logger} from 'compat/logging';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {ViewerEvents} from 'viewers/common/viewer_events';

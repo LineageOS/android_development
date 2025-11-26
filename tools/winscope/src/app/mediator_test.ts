@@ -108,7 +108,7 @@ import {PlaybackState} from 'viewers/common/playback/playback_state';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {Rect} from 'common/geometry/rect';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
 
 describe('Mediator', () => {
   const TIMESTAMP_INVALID = makeRealTimestamp(-1n);

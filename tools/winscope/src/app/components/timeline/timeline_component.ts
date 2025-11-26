@@ -100,7 +100,7 @@ import {
 import {UserTimestamp} from 'common/time/user_timestamp';
 import {PlaybackControlsComponent} from './playback_component';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
 

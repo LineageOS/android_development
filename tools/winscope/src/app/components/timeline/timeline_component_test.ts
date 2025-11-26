@@ -80,7 +80,7 @@ import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'media_based_trace_entry/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 describe('TimelineComponent', () => {

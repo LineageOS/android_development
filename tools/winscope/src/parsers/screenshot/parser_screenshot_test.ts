@@ -27,7 +27,7 @@ import {
 } from 'test/unit/time_test_helpers';
 import {TraceFile} from 'trace/trace_file';
 import {CoarseVersion} from 'trace_api/coarse_version';
-import {CanvasEntry} from 'trace_api/media_based_trace_entry';
+import {CanvasEntry} from 'media_based_trace_entry/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserScreenshot} from './parser_screenshot';
 
