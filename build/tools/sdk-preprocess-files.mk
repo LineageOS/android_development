@@ -114,6 +114,15 @@ ALL_SDK_FILES += $(TARGET_OUT_COMMON_INTERMEDIATES)/JAVA_LIBRARIES/android.test.
 ALL_SDK_FILES += $(TARGET_OUT_COMMON_INTERMEDIATES)/JAVA_LIBRARIES/android.test.base.stubs_intermediates/classes.jar
 ALL_SDK_FILES += $(TARGET_OUT_COMMON_INTERMEDIATES)/JAVA_LIBRARIES/android.test.runner.stubs_intermediates/classes.jar
 
+# ======= Lint API XML (complete API) ===========
+full_target := $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/api_versions_public_generated-api-versions.xml
+ALL_SDK_FILES += $(full_target)
+
+# ======= Lint Annotations zip (complete API) ===========
+full_target := $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/sdk-annotations.zip
+$(eval $(call copy-one-file,$(call intermediates-dir-for,ETC,sdk-annotations.zip)/sdk-annotations.zip,$(full_target)))
+ALL_SDK_FILES += $(full_target)
+
 # ============ SDK AIDL ============
 $(eval $(call copy-one-file,$(FRAMEWORK_AIDL),$(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/framework.aidl))
 ALL_SDK_FILES += $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/framework.aidl
