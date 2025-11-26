@@ -1150,15 +1150,15 @@ export class TimelineComponent
 
   private renderFrame(entry: MediaBasedTraceEntry) {
     this.changeDetectorRef.detectChanges();
-    if (!this.canvasElement || entry.image === undefined) {
+    if (!this.canvasElement || !entry.frame) {
       return;
     }
     const container = assertDefined(
       this.canvasElement.nativeElement.parentElement,
     );
-    const scaledWidth = entry.image.width / entry.image.height;
+    const scaledWidth = entry.frame.size.width / entry.frame.size.height;
     container.style.minWidth = `min(320px, (calc(${scaledWidth} * 60vh))`;
-    entry.tryDrawOnCanvas(this.canvasElement.nativeElement);
+    entry.frame.tryDrawOnCanvas(this.canvasElement.nativeElement);
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {

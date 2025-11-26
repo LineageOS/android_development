@@ -77,7 +77,7 @@ describe('ParserScreenshot', () => {
   it('retrieves entry', async () => {
     const entry = await parser.getEntry(0);
     expect(entry).toBeInstanceOf(CanvasEntry);
-    expect(entry.image?.width).toEqual(1080);
-    expect(entry.image?.height).toEqual(2400);
+    expect(entry.frame).toBeDefined();
+    expect(entry.frame?.size).toEqual({width: 1080, height: 2400});
   });
 });

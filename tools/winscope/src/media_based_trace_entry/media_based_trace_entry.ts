@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {Size} from 'common/geometry/size';
 import {Thumbnail} from './thumbnail';
+import {MediaBasedFrame} from 'media_based_trace_entry/media_based_frame';
 
 /**
  * Represents a single entry in a media-based trace, such as a video or a
@@ -28,24 +26,17 @@ export interface MediaBasedTraceEntry {
   thumbnail: Thumbnail | undefined;
   frameData: Blob | undefined;
   videoTimeSeconds: number;
-  image: ImageBitmap | undefined;
-  rotationAngle: number;
-  tryDrawOnCanvas(canvas: HTMLCanvasElement): void;
+  frame: MediaBasedFrame<ImageBitmap> | undefined;
 }
 
 export class VideoEntry implements MediaBasedTraceEntry {
-  readonly rotationAngle = 0;
-  readonly image = undefined;
+  readonly frame = undefined;
 
   constructor(
     readonly frameData: Blob,
     readonly videoTimeSeconds: number,
     readonly thumbnail: Thumbnail | undefined = undefined,
   ) {}
-
-  tryDrawOnCanvas(canvas: HTMLCanvasElement) {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
 }
 
 export class CanvasEntry implements MediaBasedTraceEntry {
@@ -53,63 +44,9 @@ export class CanvasEntry implements MediaBasedTraceEntry {
   readonly frameData = undefined;
   readonly thumbnail = undefined;
 
-  constructor(
-    readonly image: ImageBitmap,
-    readonly rotationAngle = 0,
-  ) {}
+  readonly frame: MediaBasedFrame<ImageBitmap>;
 
-  tryDrawOnCanvas(canvas: HTMLCanvasElement) {
-    if (!this.image) {
-      return;
-    }
-    const canvasDimensions = this.canvasDimensions(this.image);
-    canvas.width = canvasDimensions.width;
-    canvas.height = canvasDimensions.height;
-
-    const ctx = assertDefined(canvas.getContext('2d'));
-    ctx.rotate(this.rotationAngleRadians());
-    ctx.drawImage(
-      this.image,
-      this.xOffset(this.image),
-      this.yOffset(this.image),
-      this.image.width,
-      this.image.height,
-    );
-    ctx.resetTransform();
-  }
-
-  private canvasDimensions(image: ImageBitmap): Size {
-    if (this.shouldFlipDimensions()) {
-      return {
-        width: image.height,
-        height: image.width,
-      };
-    }
-    return {
-      width: image.width,
-      height: image.height,
-    };
-  }
-
-  private shouldFlipDimensions(): boolean {
-    return this.rotationAngle % 180 !== 0;
-  }
-
-  private yOffset(image: ImageBitmap): number {
-    if (this.rotationAngle === 90 || this.rotationAngle === 180) {
-      return -image.height;
-    }
-    return 0;
-  }
-
-  private xOffset(image: ImageBitmap): number {
-    if (this.rotationAngle === 180 || this.rotationAngle === 270) {
-      return -image.width;
-    }
-    return 0;
-  }
-
-  private rotationAngleRadians() {
-    return (this.rotationAngle * Math.PI) / 180;
+  constructor(image: ImageBitmap, rotationAngle = 0) {
+    this.frame = new MediaBasedFrame<ImageBitmap>(image, rotationAngle);
   }
 }

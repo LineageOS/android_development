@@ -1180,7 +1180,7 @@ describe('TimelineComponent', () => {
       height: 10,
     });
     const canvasEntry = new CanvasEntry(frame);
-    const drawSpy = spyOn(canvasEntry, 'tryDrawOnCanvas');
+    const drawSpy = spyOn(canvasEntry.frame, 'tryDrawOnCanvas');
     const mockSrEntry = jasmine.createSpyObj<
       TraceEntry<MediaBasedTraceEntry, Promise<CanvasEntry>>
     >('entry', ['getValue']);

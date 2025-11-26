@@ -154,6 +154,6 @@ export class Presenter {
     // (playback trace has no corresponding SR entries for its current position) or if
     // there are prefetched CanvasEntry entries present. This condition does not hold
     // when the user changes the direction or position of playback whilst already running.
-    return entries.length === 0 || entries.some((e) => e.image !== undefined);
+    return entries.length === 0 || entries.some((e) => e.frame !== undefined);
   }
 }
