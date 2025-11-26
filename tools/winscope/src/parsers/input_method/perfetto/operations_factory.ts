@@ -27,9 +27,9 @@ export function makeOperations(
   childEagerProperties: string[],
 ): OperationLists {
   return {
-    EntryEager: [new AddDefaults(entryField, CHILD_DENYLIST_PROPERTIES)],
-    EntryCommon: [new SetFormatters(entryField)],
-    EntryLazy: [
+    entryEager: [new AddDefaults(entryField, CHILD_DENYLIST_PROPERTIES)],
+    entryCommon: [new SetFormatters(entryField)],
+    entryLazy: [
       new AddDefaults(
         entryField,
         undefined,
@@ -37,11 +37,11 @@ export function makeOperations(
       ),
     ],
 
-    ChildEager: [new AddDefaults(childField, childEagerProperties)],
-    ChildCommon: [
+    childEager: [new AddDefaults(childField, childEagerProperties)],
+    childCommon: [
       new SetFormatters(childField),
       new TranslateIntDef(childField),
     ],
-    ChildLazy: [new AddDefaults(childField, undefined, childEagerProperties)],
+    childLazy: [new AddDefaults(childField, undefined, childEagerProperties)],
   };
 }

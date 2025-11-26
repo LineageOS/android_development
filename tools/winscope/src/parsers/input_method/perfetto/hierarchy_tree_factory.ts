@@ -39,9 +39,9 @@ export class HierarchyTreeFactory {
     const entry = new PropertiesProviderBuilder()
       .setEagerProperties(entryProps)
       .setLazyPropertiesStrategy(async () => entryProps)
-      .setEagerOperations(this.operations.EntryEager)
-      .setCommonOperations(this.operations.EntryCommon)
-      .setLazyOperations(this.operations.EntryLazy)
+      .setEagerOperations(this.operations.entryEager)
+      .setCommonOperations(this.operations.entryCommon)
+      .setLazyOperations(this.operations.entryLazy)
       .build();
 
     const childProps = this.makeChildPropertiesTree(argsData, rootId);
@@ -50,9 +50,9 @@ export class HierarchyTreeFactory {
       ? new PropertiesProviderBuilder()
           .setEagerProperties(assertDefined(childProps))
           .setLazyPropertiesStrategy(async () => assertDefined(childProps))
-          .setEagerOperations(this.operations.ChildEager)
-          .setCommonOperations(this.operations.ChildCommon)
-          .setLazyOperations(this.operations.ChildLazy)
+          .setEagerOperations(this.operations.childEager)
+          .setCommonOperations(this.operations.childCommon)
+          .setLazyOperations(this.operations.childLazy)
           .build()
       : undefined;
 

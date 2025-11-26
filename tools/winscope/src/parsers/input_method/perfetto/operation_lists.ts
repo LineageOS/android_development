@@ -18,10 +18,10 @@ import {Operation} from 'tree_node/operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
 export interface OperationLists {
-  EntryEager: Array<Operation<PropertyTreeNode>>;
-  EntryCommon: Array<Operation<PropertyTreeNode>>;
-  EntryLazy: Array<Operation<PropertyTreeNode>>;
-  ChildEager: Array<Operation<PropertyTreeNode>>;
-  ChildCommon: Array<Operation<PropertyTreeNode>>;
-  ChildLazy: Array<Operation<PropertyTreeNode>>;
+  entryEager: Array<Operation<PropertyTreeNode>>;
+  entryCommon: Array<Operation<PropertyTreeNode>>;
+  entryLazy: Array<Operation<PropertyTreeNode>>;
+  childEager: Array<Operation<PropertyTreeNode>>;
+  childCommon: Array<Operation<PropertyTreeNode>>;
+  childLazy: Array<Operation<PropertyTreeNode>>;
 }
