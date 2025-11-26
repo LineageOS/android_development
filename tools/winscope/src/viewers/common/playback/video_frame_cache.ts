@@ -15,7 +15,7 @@
  */
 
 import {Timer} from 'common/time/timer';
-import {WebCodecData} from 'trace/screen_recording/helpers';
+import {KEY_FRAME_TYPE, WebCodecData} from 'trace/screen_recording/helpers';
 import {UserNotifier} from 'services/user_notifier';
 import {makeWarningVideoFrameCacheStall} from 'parsers/warnings';
 import {assertDefined} from 'common/assert';
@@ -383,8 +383,6 @@ export class VideoFrameCache {
     return worker;
   }
 }
-
-export const KEY_FRAME_TYPE = 'key';
 
 type FrameCache = Map<number, ImageBitmap>;
 
