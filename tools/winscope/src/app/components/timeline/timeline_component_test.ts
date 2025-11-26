@@ -1206,15 +1206,17 @@ describe('TimelineComponent', () => {
 
   it('shows hover timestamp', () => {
     loadSfWmTraces();
-    expect(dom.find('.hover-timestamp')).toBeUndefined();
+    const hoverPreview = dom.get('.hover-preview').getHTMLElement();
+    expect(hoverPreview.style.display).toBe('none');
 
-    const tsValue = '01:23:45.789';
+    const ts = makeRealTimestamp(5025789000000n);
     const miniTimeline = assertDefined(component.timeline?.miniTimeline);
-    miniTimeline.onHoverPositionUpdate.emit({posX: 10, tsValue});
+    miniTimeline.onHoverPositionUpdate.emit({posX: 10, ts, xRatio: 0.1});
     dom.detectChanges();
 
+    expect(hoverPreview.style.display).not.toBe('none');
     const hoverTs = dom.get('.hover-timestamp');
-    hoverTs.checkTextExact(tsValue);
+    hoverTs.checkTextExact('01:23:45.789');
   });
 
   describe('playback controls', () => {

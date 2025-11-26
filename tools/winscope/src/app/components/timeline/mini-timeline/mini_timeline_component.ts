@@ -572,16 +572,22 @@ export class MiniTimelineComponent {
       assertDefined(this.drawer).getUsableRange(),
       assertDefined(timelineData.getTimestampConverter()),
     ).untransform(this.lastMousePosX);
+    const posX =
+      (this.miniTimelineWrapper?.nativeElement.offsetLeft ?? 0) +
+      this.lastMousePosX;
     this.onHoverPositionUpdate.emit({
-      posX:
-        (this.miniTimelineWrapper?.nativeElement.offsetLeft ?? 0) +
-        this.lastMousePosX,
-      tsValue: assertDefined(this.hoverTimestamp.format().split(' ').at(-1)),
+      posX,
+      xRatio:
+        this.lastMousePosX /
+        (this.miniTimelineWrapper?.nativeElement.clientWidth ??
+          this.lastMousePosX),
+      ts: this.hoverTimestamp,
     });
   }
 }
 
 export interface HoverPositionUpdate {
   posX: number;
-  tsValue: string;
+  xRatio: number;
+  ts: Timestamp;
 }

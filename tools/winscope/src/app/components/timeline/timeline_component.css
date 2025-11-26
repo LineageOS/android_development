@@ -212,7 +212,7 @@
 .no-video-message {
   padding: 1rem;
   font-family: 'Roboto', sans-serif;
-  width: 230px;
+  width: 100%;
 }
 
 .no-timeline-msg {
@@ -232,15 +232,35 @@
   justify-items: center;
 }
 
+.hover-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: fixed;
+  z-index: 12;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
 .hover-timestamp {
   border-radius: 4px;
   color: var(--mdc-plain-tooltip-supporting-text-color);
   background-color: var(--mdc-plain-tooltip-container-color);
-  position: fixed;
-  z-index: 12;
-  pointer-events: none;
   padding: 4px 8px;
-  transform: translateX(-50%);
+}
+
+.thumbnail-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.thumbnail {
+  max-width: calc(100% - 2px);
+  max-height: calc(100% - 2px);
+  border: 1px solid var(--default-text-color);
 }
 
 .multline-tooltip {
