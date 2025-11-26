@@ -140,7 +140,7 @@ export class TraceCollectionController {
       console.debug(`Fetching file ${filepath} from device`);
       const data = await device.pullFile(filepath);
       const filename = removeDirFromFileName(filepath);
-      adbData.push(new File([data as BlobPart], filename));
+      adbData.push(new File([data], filename));
       this.listener.onProgressUpdate(
         'Fetching files...',
         (100 * index) / paths.length,

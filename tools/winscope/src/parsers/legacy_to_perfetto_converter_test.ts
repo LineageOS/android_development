@@ -313,7 +313,7 @@ describe('LegacyToPerfettoConverter', () => {
     });
     return new TraceFile(
       new File(
-        [perfetto.protos.Trace.encode(existingTrace).finish() as BlobPart],
+        [perfetto.protos.Trace.encode(existingTrace).finish()],
         'existing_trace',
       ),
     );

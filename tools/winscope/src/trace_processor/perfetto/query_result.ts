@@ -626,7 +626,7 @@ class ResultBatch {
           const f64Off = batchBytes.byteOffset + reader.pos;
           if (f64Off % 8 === 0) {
             this.float64Cells = new Float64Array(
-              batchBytes.buffer as ArrayBuffer,
+              batchBytes.buffer,
               f64Off,
               f64Words,
             );
@@ -635,7 +635,7 @@ class ResultBatch {
             // float64 should be 8-bytes aligned. The slow-path case is only for
             // tests.
             const slice = batchBytes.buffer.slice(f64Off, f64Off + f64Len);
-            this.float64Cells = new Float64Array(slice as ArrayBuffer);
+            this.float64Cells = new Float64Array(slice);
           }
           reader.pos += f64Len;
           break;
@@ -701,7 +701,7 @@ class RowIteratorImpl implements RowIteratorBase {
   // this.resultObj.batch[this.batchIdx].float64Cells.
   // These are re-set every time tryMoveToNextBatch() is called (and succeeds).
   private batchIdx = -1; // The batch index within |result.batches[]|.
-  private batchBytes: Uint8Array = new Uint8Array();
+  private batchBytes = new Uint8Array();
   private columnNames: string[] = [];
   private numColumns = 0;
   private cellTypesEnd = -1; // -1 so the 1st next() hits tryMoveToNextBatch().
