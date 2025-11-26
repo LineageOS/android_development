@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilderInputMethod} from 'parsers/input_method/hierarchy_tree_builder_input_method';
+import {HierarchyTreeBuilderInputMethod} from './hierarchy_tree_builder_input_method';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';

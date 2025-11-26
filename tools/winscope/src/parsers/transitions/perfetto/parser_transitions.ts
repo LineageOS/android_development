@@ -26,8 +26,7 @@ import {AddDefaults} from 'parsers/operations/add_defaults';
 import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryArgs} from 'parsers/perfetto/utils';
+import {queryArgs} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {TransformDuration} from 'parsers/transitions/operations/transform_duration';
@@ -49,6 +48,7 @@ import {
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
 import {SetFormatters} from 'parsers/set_formatters';
+import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 /**
  * Parser for Transitions Perfetto traces.
@@ -56,9 +56,6 @@ import {SetFormatters} from 'parsers/set_formatters';
 export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TRANSITION_FIELD =
     TAMPERED_TRACE_PACKET.fields['shellTransition'];
-  private static readonly PROTO_TRANSFORMER = new FakeProtoTransformer(
-    assertDefined(ParserTransitions.TRANSITION_FIELD.tamperedMessageType),
-  );
   private static readonly EAGER_COLUMNS = [
     'transition_id',
     'arg_set_id',
@@ -308,11 +305,15 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
 
   private makeLazyPropertiesStrategy(argSetId: ColumnType | null) {
     return async () => {
-      const data = await queryArgs(this.traceProcessor, Number(argSetId));
-      return new PropertyTreeBuilderFromProto()
-        .setData(ParserTransitions.PROTO_TRANSFORMER.transform(data))
+      const argsData = await queryArgs(this.traceProcessor, Number(argSetId));
+
+      return new PropertyTreeBuilderFromArgs()
+        .setData(argsData.iter({}))
         .setRootId('TransitionTraceEntry')
         .setRootName('Transition')
+        .setRootMessageType(
+          assertDefined(ParserTransitions.TRANSITION_FIELD.tamperedMessageType),
+        )
         .build();
     };
   }

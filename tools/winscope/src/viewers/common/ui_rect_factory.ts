@@ -168,9 +168,7 @@ class UiRectFactory {
           let pointerX: number | undefined;
           let pointerY: number | undefined;
           axes?.forEach((axisValue) => {
-            const axis = Number(
-              axisValue.getChildByName('axis')?.getValue<number>(),
-            );
+            const axis = axisValue.getChildByName('axis')?.getValue<number>();
             if (axis === DispatchedPointerAxis.X) {
               pointerX = axisValue.getChildByName('value')?.getValue<number>();
             } else if (axis === DispatchedPointerAxis.Y) {

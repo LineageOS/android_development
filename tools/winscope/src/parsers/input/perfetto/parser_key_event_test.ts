@@ -129,13 +129,13 @@ describe('PerfettoParserKeyEvent', () => {
         ?.getChildByName('0')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(212n);
+    ).toBe(212);
     expect(
       windowDispatchEvents
         ?.getChildByName('1')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(0n);
+    ).toBe(0);
   });
 
   it('supports VSYNCID custom query', async () => {

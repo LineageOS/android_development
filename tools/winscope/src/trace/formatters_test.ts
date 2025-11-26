@@ -95,7 +95,7 @@ describe('Formatters', () => {
         DEFAULT_PROPERTY_FORMATTER.format(
           new PropertyTreeNode('', '', PropertySource.PROTO, undefined),
         ),
-      ).toBe('undefined');
+      ).toBe('null');
     });
   });
 

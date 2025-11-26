@@ -23,6 +23,7 @@ import {
 } from 'trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {AddDefaults} from './add_defaults';
+import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 
 describe('AddDefaults', () => {
   let propertyRoot: PropertyTreeNode;
@@ -53,7 +54,7 @@ describe('AddDefaults', () => {
   it('adds all defaults from prototype definition in absence of allowlist', () => {
     operation = new AddDefaults(rootField);
     operation.apply(propertyRoot);
-    expect(propertyRoot.getAllChildren().length).toBe(11);
+    expect(propertyRoot.getAllChildren().length).toBe(25);
     checkAllNodesAreDefault(propertyRoot);
     expect(
       assertDefined(propertyRoot.getChildByName('array')).getValue(),
@@ -76,7 +77,7 @@ describe('AddDefaults', () => {
     ]);
     operation.apply(propertyRoot);
 
-    expect(propertyRoot.getAllChildren().length).toBe(9);
+    expect(propertyRoot.getAllChildren().length).toBe(23);
     checkAllNodesAreDefault(propertyRoot);
     expect(propertyRoot.getChildByName('number_32bit')).toBeUndefined();
     expect(propertyRoot.getChildByName('number_64bit')).toBeUndefined();
@@ -98,6 +99,20 @@ describe('AddDefaults', () => {
     );
     expect(defaultNode.getValue()).toBe(0);
     checkAllNodesAreDefault(propertyRoot);
+  });
+
+  it('does not replace node that is already default', () => {
+    operation = new AddDefaults(rootField);
+    operation.apply(propertyRoot);
+    const existingChildren = [...propertyRoot.getAllChildren()];
+    existingChildren.forEach((c) => c.setFormatter(DEFAULT_PROPERTY_FORMATTER));
+
+    operation.apply(propertyRoot);
+    const newChildren = [...propertyRoot.getAllChildren()];
+    expect(newChildren.length).toBe(existingChildren.length);
+    newChildren.forEach((c, i) => {
+      expect(c === existingChildren[i]).toBeTrue();
+    });
   });
 
   function checkAllNodesAreDefault(root: PropertyTreeNode) {

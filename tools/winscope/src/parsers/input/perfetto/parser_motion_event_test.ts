@@ -112,8 +112,12 @@ describe('PerfettoParserMotionEvent', () => {
     expect(motionEvent.getChildByName('classification')?.formattedValue()).toBe(
       'CLASSIFICATION_NONE',
     );
-    expect(motionEvent.getChildByName('cursorPositionX')).toBeUndefined();
-    expect(motionEvent.getChildByName('cursorPositionY')).toBeUndefined();
+    expect(
+      motionEvent.getChildByName('cursorPositionX')?.formattedValue(),
+    ).toBe('0');
+    expect(
+      motionEvent.getChildByName('cursorPositionY')?.formattedValue(),
+    ).toBe('0');
     expect(motionEvent.getChildByName('metaState')?.formattedValue()).toBe(
       '0x0',
     );
@@ -175,31 +179,31 @@ describe('PerfettoParserMotionEvent', () => {
         ?.getChildByName('0')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(212n);
+    ).toBe(212);
     expect(
       windowDispatchEvents
         ?.getChildByName('1')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(64n);
+    ).toBe(64);
     expect(
       windowDispatchEvents
         ?.getChildByName('2')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(82n);
+    ).toBe(82);
     expect(
       windowDispatchEvents
         ?.getChildByName('3')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(75n);
+    ).toBe(75);
     expect(
       windowDispatchEvents
         ?.getChildByName('4')
         ?.getChildByName('windowId')
         ?.getValue(),
-    ).toBe(0n);
+    ).toBe(0);
   });
 
   it('supports VSYNCID custom query', async () => {

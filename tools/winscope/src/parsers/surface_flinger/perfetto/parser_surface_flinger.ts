@@ -20,7 +20,7 @@ import {
   assertStringOrUndefined,
 } from 'common/assert';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {queryVsyncId} from 'parsers/perfetto/utils';
+import {queryVsyncId} from 'parsers/perfetto/query_helpers';
 import {RectExtractor} from 'parsers/surface_flinger/rect_extractor';
 import {
   CustomQueryParserResultTypeMap,

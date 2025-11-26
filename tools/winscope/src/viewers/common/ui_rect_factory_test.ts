@@ -323,9 +323,7 @@ describe('UI_RECT_FACTORY', () => {
             {name: 'yInDisplay', value: 10.5},
             {
               name: 'axisValueInWindow',
-              children: [
-                {name: 'axis2', children: [{name: 'axis', value: 1n}]},
-              ],
+              children: [{name: 'axis2', children: [{name: 'axis', value: 1}]}],
             },
           ],
         },
@@ -366,7 +364,7 @@ describe('UI_RECT_FACTORY', () => {
                 {
                   name: 'axis2',
                   children: [
-                    {name: 'axis', value: 1n},
+                    {name: 'axis', value: 1},
                     {name: 'value', value: 321.321},
                   ],
                 },
@@ -390,7 +388,7 @@ describe('UI_RECT_FACTORY', () => {
                 {
                   name: 'axis1',
                   children: [
-                    {name: 'axis', value: 0n},
+                    {name: 'axis', value: 0},
                     {name: 'value', value: 321},
                   ],
                 },
@@ -425,7 +423,7 @@ describe('UI_RECT_FACTORY', () => {
         },
         {
           name: 'window3',
-          children: [{name: 'windowId', value: 3n}, dispatchedPointer3],
+          children: [{name: 'windowId', value: 3}, dispatchedPointer3],
         },
       ])
       .build();

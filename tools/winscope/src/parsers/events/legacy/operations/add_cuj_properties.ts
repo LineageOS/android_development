@@ -111,7 +111,7 @@ export class AddCujProperties extends AddOperation<PropertyTreeNode> {
   private getCujTagFromData(
     dataEntries: string[],
     tag: EventTag,
-  ): string | null {
-    return tag === EventTag.JANK_CUJ_BEGIN_TAG ? dataEntries[4] : null;
+  ): string | undefined {
+    return tag === EventTag.JANK_CUJ_BEGIN_TAG ? dataEntries[4] : undefined;
   }
 }

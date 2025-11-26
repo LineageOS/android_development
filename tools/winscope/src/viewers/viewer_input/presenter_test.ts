@@ -499,7 +499,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
             .getChildByName('0')
             ?.getChildByName('windowId')
             ?.getValue(),
-        ).toBe(98n);
+        ).toBe(98);
       });
 
       it('finds entry by time', async () => {
@@ -914,7 +914,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
             presenterTrace,
             layerIdToName,
           );
-        const windowId = BigInt(layerIdToName[1].id);
+        const windowId = layerIdToName[1].id;
         const windowName = layerIdToName[1].name;
         const dispatchTree = assertDefined(uiData.dispatchPropertiesTree);
 
@@ -930,7 +930,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         );
 
         expect(uiData.highlightedProperty).toEqual(assertDefined(''));
-        presenter.onTargetWindowClicked(windowId, windowName);
+        presenter.onTargetWindowClicked(BigInt(windowId), windowName);
         await presenter.onLogEntryClick(testLogId);
 
         return {presenter, testLogId, expectedPropertyId};

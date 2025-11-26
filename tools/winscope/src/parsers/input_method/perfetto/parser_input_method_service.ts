@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {HierarchyTreeServiceFactory} from 'parsers/input_method/hierarchy_tree_service_factory';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryEntry} from 'parsers/perfetto/utils';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
-import {TraceFile} from 'trace/trace_file';
+import {queryArgsForEntry} from 'parsers/perfetto/query_helpers';
 import {TraceType} from 'trace_api/trace_type';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from 'common/assert';
+import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
+import {HierarchyTreeFactory} from './hierarchy_tree_factory';
+import {makeOperations} from './operations_factory';
 
 export class ParserInputMethodService extends AbstractParser<HierarchyTreeNode> {
   private static readonly ENTRY_FIELD = assertDefined(
@@ -35,40 +32,29 @@ export class ParserInputMethodService extends AbstractParser<HierarchyTreeNode> 
   private static readonly SERVICE_FIELD = assertDefined(
     ParserInputMethodService.ENTRY_FIELD.tamperedMessageType,
   ).fields['inputMethodService'];
-  private static readonly HIERARCHY_TREE_FACTORY =
-    new HierarchyTreeServiceFactory(
+  private static readonly HIERARCHY_TREE_FACTORY = new HierarchyTreeFactory(
+    ParserInputMethodService.ENTRY_FIELD,
+    ParserInputMethodService.SERVICE_FIELD,
+    makeOperations(
       ParserInputMethodService.ENTRY_FIELD,
       ParserInputMethodService.SERVICE_FIELD,
-    );
-
-  private protoTransformer: FakeProtoTransformer;
-
-  constructor(
-    traceFile: TraceFile,
-    traceProcessor: TraceProcessor,
-    timestampConverter: ParserTimestampConverter,
-  ) {
-    super(traceFile, traceProcessor, timestampConverter);
-
-    this.protoTransformer = new FakeProtoTransformer(
-      assertDefined(ParserInputMethodService.ENTRY_FIELD.tamperedMessageType),
-    );
-  }
+      ['windowVisible', 'decorViewVisible', 'inputEditorInfo'],
+    ),
+  );
 
   override getTraceType(): TraceType {
     return TraceType.INPUT_METHOD_SERVICE;
   }
 
   override async getEntry(index: number): Promise<HierarchyTreeNode> {
-    let entryProto = await queryEntry(
+    const argsData = await queryArgsForEntry(
       this.traceProcessor,
       this.getTableName(),
       this.entryIndexToRowIdMap,
       index,
     );
-    entryProto = this.protoTransformer.transform(entryProto);
     return ParserInputMethodService.HIERARCHY_TREE_FACTORY.makeHierarchyTree(
-      entryProto,
+      argsData,
     );
   }
 

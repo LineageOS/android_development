@@ -112,12 +112,22 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   protected override logPresenter = new LogPresenter<InputEntry>();
   protected override propertiesPresenter = new PropertiesPresenter(
-    {},
+    {
+      showDefaults: {
+        name: 'Show defaults',
+        enabled: true,
+      },
+    },
     new TextFilter(),
     [],
   );
   protected dispatchPropertiesPresenter = new PropertiesPresenter(
-    {},
+    {
+      showDefaults: {
+        name: 'Show defaults',
+        enabled: true,
+      },
+    },
     new TextFilter(),
     Presenter.DENYLIST_DISPATCH_PROPERTIES,
     [new FormatDispatchEntry(this.layerIdToName)],
@@ -389,7 +399,10 @@ export class Presenter extends AbstractLogViewerPresenter<
       let foundMatch = false;
       for (const dispatchEntry of dispatchProperties.getAllChildren()) {
         const winId = dispatchEntry.getChildByName('windowId');
-        if (winId?.getValue() === this.lastClickedId && winId !== undefined) {
+        if (
+          winId !== undefined &&
+          winId.getValue<number>() === Number(this.lastClickedId)
+        ) {
           foundMatch = true;
           this.onHighlightedPropertyChange(winId.id);
           break;
@@ -425,7 +438,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     const windows = assertDefined(wrapperTree.getEagerPropertyByName('windows'))
       .getAllChildren()
       .map((window) => {
-        const windowId = Number(window?.getValue() ?? -1);
+        const windowId = Number(window?.getValue<bigint>() ?? -1);
         this.allInputLayerIds.add(windowId);
         return windowId;
       });
@@ -530,7 +543,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       dispatchProperties.getAllChildren()?.forEach((dispatchEntry) => {
         const windowId = dispatchEntry.getChildByName('windowId');
         if (windowId !== undefined) {
-          this.currentTargetWindowIds.add(`${Number(windowId.getValue())}`);
+          this.currentTargetWindowIds.add(`${windowId.getValue<number>()}`);
         }
       });
     }
@@ -637,7 +650,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     return windows
       .filter((window) => window.formattedValue() !== '0')
       .map((window) => {
-        const windowId = assertBigInt(window.getValue());
+        const windowId = assertBigInt(window.getValue<bigint>());
         return {
           propertyValue: windowId.toString(),
           tooltip: displayNameGetter(Number(windowId)),

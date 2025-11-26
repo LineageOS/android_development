@@ -38,7 +38,7 @@ export class UpdateCornerRadii implements Operation<PropertyTreeNode> {
         DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeDefaultProperty(
           rootNode.id,
           radiiNodeName,
-          null,
+          undefined,
         );
       rootNode.addOrReplaceChild(strippedRadiiNode);
     }
