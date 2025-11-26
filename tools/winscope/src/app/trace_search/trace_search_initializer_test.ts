@@ -119,6 +119,20 @@ describe('TraceSearchInitializer', () => {
     expect(queryResult.numRows()).toBe(28);
   });
 
+  it('initializes window manager', async () => {
+    const parser = await getPerfettoParser(
+      TraceType.WINDOW_MANAGER,
+      'traces/perfetto/windowmanager.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, ['wm_search']);
+    const queryResult = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM wm_search
+        WHERE title LIKE '%LauncherActivity'
+        AND is_visible = 1
+    `);
+    expect(queryResult.numRows()).toBe(17);
+  });
+
   async function createViewsAndTestExamples(
     parser: Parser<object>,
     expectedViews: string[],

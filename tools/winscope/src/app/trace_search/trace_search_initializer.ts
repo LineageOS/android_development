@@ -23,6 +23,7 @@ import {SearchViewFactorySf} from './search_view_factory_sf';
 import {SearchViewFactoryTransactions} from './search_view_factory_transactions';
 import {SearchViewFactoryTransitions} from './search_view_factory_transitions';
 import {SearchViewFactoryVc} from './search_view_factory_vc';
+import {SearchViewFactoryWm} from './search_view_factory_wm';
 
 /**
  * A class for initializing trace search views.
@@ -34,6 +35,7 @@ export class TraceSearchInitializer {
     SearchViewFactoryTransitions,
     SearchViewFactoryVc,
     SearchViewFactoryProtoLog,
+    SearchViewFactoryWm,
   ];
 
   static async createSearchViews(traces: Traces): Promise<string[]> {

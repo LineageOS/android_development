@@ -344,7 +344,7 @@ describe('ViewerSearchComponent', () => {
 
   it('can open SQL view descriptors in how to section', () => {
     const accordionItems = dom.findAll('.how-to-search .accordion-item');
-    expect(accordionItems.length).toBe(6);
+    expect(accordionItems.length).toBe(SEARCH_VIEWS.length);
     accordionItems.forEach((item) => checkAccordionItemCollapsed(item));
 
     accordionItems[0].get(accordionItemSelector).click();
@@ -362,7 +362,7 @@ describe('ViewerSearchComponent', () => {
 
   it('can open documentation for each SQL view', async () => {
     const links = dom.findAll('.how-to-search .accordion-item-header a');
-    expect(links.length).toBe(6);
+    expect(links.length).toBe(SEARCH_VIEWS.length);
     for (const [i, link] of links.entries()) {
       await checkDocsLink(link, i);
     }
