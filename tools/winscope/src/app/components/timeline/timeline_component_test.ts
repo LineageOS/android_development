@@ -82,6 +82,7 @@ import {
   VideoEntry,
 } from 'media_based_trace_entry/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {Thumbnail} from 'media_based_trace_entry/thumbnail';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -1217,6 +1218,39 @@ describe('TimelineComponent', () => {
     expect(hoverPreview.style.display).not.toBe('none');
     const hoverTs = dom.get('.hover-timestamp');
     hoverTs.checkTextExact('01:23:45.789');
+    expect(dom.find('#thumbnail-video')).toBeUndefined();
+  });
+
+  it('shows hover video thumbnail', async () => {
+    const thumbnail = new Thumbnail(10, 2, 4, new Blob(), 2, 40);
+    const entry = new VideoEntry(new Blob(), 0, thumbnail);
+    const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
+      .setType(TraceType.SCREEN_RECORDING)
+      .setDescriptors(['mock_screen_recording'])
+      .setTimestamps([time100, time105, time110])
+      .setEntries([entry, entry, entry])
+      .build();
+    loadAllTraces(undefined, undefined, undefined, srTrace);
+    await dom.whenStable();
+    const hoverPreview = dom.get('.hover-preview').getHTMLElement();
+    expect(hoverPreview.style.display).toBe('none');
+
+    const miniTimeline = assertDefined(component.timeline?.miniTimeline);
+    miniTimeline.onHoverPositionUpdate.emit({
+      posX: 10,
+      ts: time105,
+      xRatio: 0.5,
+    });
+    dom.detectChanges();
+
+    expect(hoverPreview.style.display).not.toBe('none');
+    const thumbnailVideo = dom.get('#thumbnail-video').getHTMLElement();
+    expect(thumbnailVideo.style.backgroundImage).toMatch(/url\("blob:.*"\)/);
+    expect(thumbnailVideo.style.backgroundSize).toEqual('1500px 75px');
+    expect(thumbnailVideo.style.backgroundPosition).toEqual('-450px 0px');
+
+    openExpandedTimeline();
+    expect(dom.find('#thumbnail-video')).toBeUndefined();
   });
 
   describe('playback controls', () => {

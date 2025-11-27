@@ -185,7 +185,7 @@ import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
       <div
         class="hover-preview"
         [style]="getHoverPreviewStyle(navbarWrapper, hoverPreview)" #hoverPreview>
-        @let hasVideo = hasScreenRecording();
+        @let hasVideo = hasVideoThumbnail();
         @if (!expanded && hasVideo) {
           <div class="thumbnail-content">
             <div class="thumbnail-wrapper">
@@ -952,7 +952,7 @@ export class TimelineComponent
     this.changeDetectorRef.detectChanges();
   }
 
-  getTraceTooltip(trace: Trace<object>) {
+  getTraceTooltip(trace: Trace<object>): string {
     let tooltip = TRACE_INFO[trace.type].name;
     if (trace.type === TraceType.SCREEN_RECORDING) {
       tooltip += ' ' + trace.getDescriptors()[0].split('.')[0];
@@ -974,7 +974,10 @@ export class TimelineComponent
     }
   }
 
-  getHoverPreviewStyle(navbarWrapper: HTMLElement, hoverPreview: HTMLElement) {
+  getHoverPreviewStyle(
+    navbarWrapper: HTMLElement,
+    hoverPreview: HTMLElement,
+  ): object {
     const hasHover = this.hoverPosition !== undefined;
     return {
       bottom: navbarWrapper.clientHeight + 4 + 'px',
@@ -985,7 +988,7 @@ export class TimelineComponent
     };
   }
 
-  getThumbnailVideoStyle() {
+  getThumbnailVideoStyle(): object {
     const size = this.thumbnail?.getBackgroundSize();
     return {
       width: (this.thumbnail?.getThumbWidth() ?? 0) + 'px',
@@ -998,8 +1001,8 @@ export class TimelineComponent
     };
   }
 
-  hasScreenRecording(): boolean {
-    return this.timelineData?.getCurrentScreenRecordingTrace() !== undefined;
+  hasVideoThumbnail(): boolean {
+    return this.thumbnail !== undefined;
   }
 
   makeHoverTsValue(): string {
