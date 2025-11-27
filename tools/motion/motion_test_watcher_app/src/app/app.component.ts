@@ -408,6 +408,7 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
         finalize(() => {
           this.isRefreshing = false;
           this.progressTracker.endProgress();
+          this.selectedGolden = null;
           this.cdr.detectChanges();
         })
       )
