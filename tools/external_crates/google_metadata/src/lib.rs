@@ -117,7 +117,6 @@ impl GoogleMetadata {
         license_type: LicenseType,
     ) {
         self.migrate_homepage();
-        self.migrate_archive();
         self.remove_deprecated_url();
 
         let name = name.as_ref();
@@ -137,8 +136,8 @@ impl GoogleMetadata {
         self.third_party().set_version(version.clone());
 
         let mut identifier = Identifier::new();
-        identifier.set_type("Archive".to_string());
-        identifier.set_value(crate_archive_url(name, &version));
+        identifier.set_type("crates.io".to_string());
+        identifier.set_value(name.to_string());
         identifier.set_version(version);
         self.third_party().identifier.clear();
         self.third_party().identifier.push(identifier);
@@ -159,17 +158,6 @@ impl GoogleMetadata {
         self.third_party().homepage = homepage.1.value;
         true
     }
-    /// Normalize case of 'Archive' identifiers.
-    fn migrate_archive(&mut self) -> bool {
-        let mut updated = false;
-        for identifier in self.third_party().identifier.iter_mut() {
-            if identifier.type_ == Some("ARCHIVE".to_string()) {
-                identifier.type_ = Some("Archive".to_string());
-                updated = true;
-            }
-        }
-        updated
-    }
     /// Remove deprecate URL fields.
     fn remove_deprecated_url(&mut self) -> bool {
         let updated = !self.metadata.third_party.url.is_empty();
@@ -178,14 +166,6 @@ impl GoogleMetadata {
     }
 }
 
-fn crate_archive_url(name: impl AsRef<str>, version: impl AsRef<str>) -> String {
-    format!(
-        "https://static.crates.io/crates/{}/{}-{}.crate",
-        name.as_ref(),
-        name.as_ref(),
-        version.as_ref()
-    )
-}
 fn crates_io_homepage(name: impl AsRef<str>) -> String {
     format!("https://crates.io/crates/{}", name.as_ref())
 }
