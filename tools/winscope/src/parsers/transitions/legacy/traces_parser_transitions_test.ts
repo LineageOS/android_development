@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {ClockSnapshot} from 'compat/perfetto_version';
+import {ClockSnapshot} from 'compat/perfetto';
 import {com} from 'protos/transitions/udc/static';
 import {convertToPerfettoTrace, getTracesParser} from 'test/unit/fixture_utils';
 import {

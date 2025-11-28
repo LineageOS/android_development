@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
-import {InternedString, TracePacket} from 'compat/perfetto_version';
+import {InternedString, TracePacket} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
   makeRealTimestamp,

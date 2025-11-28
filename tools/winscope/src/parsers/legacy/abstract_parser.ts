@@ -17,7 +17,7 @@
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {TracePacket} from 'compat/perfetto_version';
+import {TracePacket} from 'compat/perfetto';
 import {TraceFile} from 'trace/trace_file';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {

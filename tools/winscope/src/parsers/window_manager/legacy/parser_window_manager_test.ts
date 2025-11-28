@@ -28,7 +28,7 @@ import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import Long from 'long';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {ClockSnapshot} from 'compat/perfetto_version';
+import {ClockSnapshot} from 'compat/perfetto';
 
 describe('ParserWindowManager', () => {
   describe('trace with real timestamps', () => {

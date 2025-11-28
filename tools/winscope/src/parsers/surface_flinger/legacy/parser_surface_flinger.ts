@@ -19,7 +19,7 @@ import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto_version';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import root from 'protos/surfaceflinger/udc/json';
 import {android} from 'protos/surfaceflinger/udc/static';
 import {TraceType} from 'trace_api/trace_type';

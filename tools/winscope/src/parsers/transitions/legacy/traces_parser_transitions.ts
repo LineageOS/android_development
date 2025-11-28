@@ -20,7 +20,7 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import Long from 'long';
 import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto_version';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';

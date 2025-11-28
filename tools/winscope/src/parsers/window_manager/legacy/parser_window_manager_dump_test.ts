@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ClockSnapshot} from 'compat/perfetto_version';
+import {ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
   getTimestampConverter,

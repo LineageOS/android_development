@@ -26,7 +26,7 @@ import {
   InternedData,
   InternedString,
   TracePacket,
-} from 'compat/perfetto_version';
+} from 'compat/perfetto';
 import {com} from 'protos/viewcapture/udc/static';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {

@@ -15,7 +15,7 @@
  */
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {ClockSnapshot} from 'compat/perfetto_version';
+import {ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {

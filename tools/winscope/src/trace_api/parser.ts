@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {TracePacket} from 'compat/perfetto_version';
+import {TracePacket} from 'compat/perfetto';
 import {CoarseVersion} from './coarse_version';
 import {
   CustomQueryParamTypeMap,

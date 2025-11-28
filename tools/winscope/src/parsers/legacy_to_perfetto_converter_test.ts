@@ -21,7 +21,7 @@ import {
   ClockSnapshot as PerfettoClockSnapshot,
   Trace,
   TracePacket,
-} from 'compat/perfetto_version';
+} from 'compat/perfetto';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';

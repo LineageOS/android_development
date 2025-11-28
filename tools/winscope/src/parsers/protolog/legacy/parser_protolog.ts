@@ -25,7 +25,7 @@ import {
   InternedData,
   InternedString,
   TracePacket,
-} from 'compat/perfetto_version';
+} from 'compat/perfetto';
 import root from 'protos/protolog/udc/json';
 import {com} from 'protos/protolog/udc/static';
 import {TraceType} from 'trace_api/trace_type';

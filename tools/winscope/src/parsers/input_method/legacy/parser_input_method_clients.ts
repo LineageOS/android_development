@@ -20,7 +20,7 @@ import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import root from 'protos/ime/udc/json';
 import {android} from 'protos/ime/udc/static';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto_version';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 

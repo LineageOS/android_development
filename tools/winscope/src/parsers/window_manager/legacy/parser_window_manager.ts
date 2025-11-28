@@ -22,7 +22,7 @@ import {com} from 'protos/windowmanager/udc/static';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto_version';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
 
 type WindowManagerProto = com.android.server.wm.IWindowManagerTraceProto;

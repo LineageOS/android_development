@@ -27,7 +27,7 @@ import {
   TracePacket,
   ITracePacket,
   ClockSnapshot as PerfettoClockSnapshot,
-} from 'compat/perfetto_version';
+} from 'compat/perfetto';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {
