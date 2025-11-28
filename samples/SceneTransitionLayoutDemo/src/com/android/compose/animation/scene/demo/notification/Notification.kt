@@ -117,6 +117,7 @@ internal fun ContentScope.Notification(
                             }
                         }
                         .background(backgroundColor),
+                    debugName = "Notification-$key",
                 ) {
                     scene(
                         Notification.Scenes.Collapsed,

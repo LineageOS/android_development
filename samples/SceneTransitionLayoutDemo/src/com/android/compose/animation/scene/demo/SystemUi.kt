@@ -563,6 +563,7 @@ fun SystemUi(
                                 DefaultEdgeDetector
                             },
                         implicitTestTags = true,
+                        debugName = "SystemUI-Demo",
                     ) {
                         scene(Scenes.Launcher, Launcher.userActions(shadeScene, configuration)) {
                             FirstCompositionDelay(configuration)
