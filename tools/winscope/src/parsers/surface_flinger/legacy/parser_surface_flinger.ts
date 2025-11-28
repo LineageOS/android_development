@@ -19,6 +19,7 @@ import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto_version';
 import root from 'protos/surfaceflinger/udc/json';
 import {android} from 'protos/surfaceflinger/udc/static';
 import {TraceType} from 'trace_api/trace_type';
@@ -80,17 +81,14 @@ export class ParserSurfaceFlinger extends AbstractParser<
     return true;
   }
 
-  override convertToPerfettoPackets(
-    sequenceId: number,
-  ): perfetto.protos.TracePacket[] {
+  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
     for (const entry of this.decodedEntries) {
-      const packet = perfetto.protos.TracePacket.create();
+      const packet = TracePacket.create();
       packet.timestamp = this.isDump
         ? Long.fromInt(0)
         : assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
       packet.trustedPacketSequenceId = sequenceId;
       packet.surfaceflingerLayersSnapshot =
         perfetto.protos.LayersSnapshotProto.fromObject(entry);

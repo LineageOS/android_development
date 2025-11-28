@@ -20,6 +20,7 @@ import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import root from 'protos/ime/udc/json';
 import {android} from 'protos/ime/udc/static';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto_version';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
@@ -70,16 +71,13 @@ export class ParserInputMethodService extends AbstractParser<
     return true;
   }
 
-  override convertToPerfettoPackets(
-    sequenceId: number,
-  ): perfetto.protos.TracePacket[] {
+  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
 
     for (const entry of this.decodedEntries) {
-      const packet = perfetto.protos.TracePacket.create();
+      const packet = TracePacket.create();
       packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedPacketSequenceId = sequenceId;
       packet.winscopeExtensions = {
         '.perfetto.protos.WinscopeExtensionsImpl.inputmethodService':

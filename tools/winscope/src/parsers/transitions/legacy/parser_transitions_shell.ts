@@ -17,6 +17,7 @@
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket} from 'compat/perfetto_version';
 import root from 'protos/transitions/udc/json';
 import {com} from 'protos/transitions/udc/static';
 import {TraceType} from 'trace_api/trace_type';
@@ -82,8 +83,8 @@ export class ParserTransitionsShell extends AbstractParser<
     return perfettoTransition;
   }
 
-  createHandlerMappingPacket(sequenceId: number): perfetto.protos.TracePacket {
-    const packet = perfetto.protos.TracePacket.create();
+  createHandlerMappingPacket(sequenceId: number): TracePacket {
+    const packet = TracePacket.create();
     packet.trustedPacketSequenceId = sequenceId;
     packet.shellHandlerMappings =
       perfetto.protos.ShellHandlerMappings.fromObject({

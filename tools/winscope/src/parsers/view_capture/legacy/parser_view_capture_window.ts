@@ -21,6 +21,12 @@ import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import Long from 'long';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {
+  ClockSnapshot,
+  InternedData,
+  InternedString,
+  TracePacket,
+} from 'compat/perfetto_version';
 import {com} from 'protos/viewcapture/udc/static';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {
@@ -111,23 +117,19 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     sequenceId: number,
     trustedUid = 1,
     trustedPid = 1,
-  ): perfetto.protos.TracePacket[] {
+  ): TracePacket[] {
     if (this.frameData.length === 0) {
       return [];
     }
     const packets = this.frameData.map((frame, index) => {
-      const packet = perfetto.protos.TracePacket.create();
+      const packet = TracePacket.create();
       packet.trustedPacketSequenceId = sequenceId;
       packet.timestamp = assertDefined(frame.timestamp);
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedUid = trustedUid;
       packet.trustedPid = trustedPid;
       packet.sequenceFlags =
-        index === 0
-          ? 3
-          : perfetto.protos.TracePacket.SequenceFlags
-              .SEQ_NEEDS_INCREMENTAL_STATE;
+        index === 0 ? 3 : TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE;
       packet.winscopeExtensions = {
         '.perfetto.protos.WinscopeExtensionsImpl.viewcapture':
           this.convertToPerfettoViewCapture(frame),
@@ -211,40 +213,41 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     });
   }
 
-  private makeInternedData() {
-    const internedWindowNames: perfetto.protos.InternedString[] = [
-      perfetto.protos.InternedString.fromObject({
+  private makeInternedData(): InternedData {
+    const internedWindowNames: InternedString[] = [
+      InternedString.fromObject({
         iid: Long.fromNumber(ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
         str: utf8Encode(this.windowName),
       }),
     ];
 
-    const internedClassNames: perfetto.protos.InternedString[] =
-      this.classNames.map((className, index) => {
-        return perfetto.protos.InternedString.fromObject({
+    const internedClassNames: InternedString[] = this.classNames.map(
+      (className, index) => {
+        return InternedString.fromObject({
           iid: Long.fromNumber(index),
           str: utf8Encode(className),
         });
-      });
+      },
+    );
 
-    const internedPackageNames: perfetto.protos.InternedString[] = [
-      perfetto.protos.InternedString.fromObject({
+    const internedPackageNames: InternedString[] = [
+      InternedString.fromObject({
         iid: Long.fromNumber(ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
         str: utf8Encode(this.packageName),
       }),
     ];
 
-    const internedViewIds: perfetto.protos.InternedString[] = [];
+    const internedViewIds: InternedString[] = [];
     assertDefined(this.viewIdToIid).forEach((iid, viewId) => {
       internedViewIds.push(
-        perfetto.protos.InternedString.fromObject({
+        InternedString.fromObject({
           iid: Long.fromNumber(iid),
           str: utf8Encode(viewId),
         }),
       );
     });
 
-    return perfetto.protos.InternedData.fromObject({
+    return InternedData.fromObject({
       viewcaptureWindowName: internedWindowNames,
       viewcaptureClassName: internedClassNames,
       viewcapturePackageName: internedPackageNames,

@@ -18,6 +18,7 @@ import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {ClockSnapshot} from 'compat/perfetto_version';
 import {com} from 'protos/transitions/udc/static';
 import {convertToPerfettoTrace, getTracesParser} from 'test/unit/fixture_utils';
 import {
@@ -145,7 +146,7 @@ describe('TracesParserTransitions', () => {
     const dispatchTime6 = Long.fromString('57649649922341');
     expect(transition6Packet.timestamp).toEqual(dispatchTime6);
     expect(transition6Packet.timestampClockId).toEqual(
-      perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(transition6.createTimeNs).toEqual(Long.fromString('57649586217344'));
     expect(transition6.sendTimeNs).toEqual(Long.fromString('57649646973488'));
@@ -168,7 +169,7 @@ describe('TracesParserTransitions', () => {
     const sendTime7 = Long.fromString('57649828043313');
     expect(transition7Packet.timestamp).toEqual(sendTime7);
     expect(transition7Packet.timestampClockId).toEqual(
-      perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(transition7.sendTimeNs).toEqual(sendTime7);
     expect(transition7.dispatchTimeNs).toBeUndefined();
