@@ -20,7 +20,7 @@ import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ViewCapture} from 'compat/winscope_protos';
 import {
   ClockSnapshot,
   InternedData,
@@ -166,13 +166,13 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
   private convertToPerfettoView(
     node: ViewNode,
     parentId: number,
-    perfettoViews: PerfettoView[],
+    perfettoViews: ViewCapture.IView[],
   ) {
     if (node.id && !this.viewIdToIid.has(node.id)) {
       this.viewIdToIid.set(node.id, this.viewIdToIid.size + 1);
     }
     const nodeId = perfettoViews.length;
-    const perfettoView: perfetto.protos.ViewCapture.IView = {
+    const perfettoView: ViewCapture.IView = {
       id: nodeId,
       parentId,
       hashcode: node.hashcode,
@@ -201,12 +201,10 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     });
   }
 
-  private convertToPerfettoViewCapture(
-    frame: FrameData,
-  ): perfetto.protos.ViewCapture {
-    const perfettoViews: PerfettoView[] = [];
+  private convertToPerfettoViewCapture(frame: FrameData): ViewCapture {
+    const perfettoViews: ViewCapture.IView[] = [];
     this.convertToPerfettoView(assertDefined(frame.node), -1, perfettoViews);
-    return perfetto.protos.ViewCapture.fromObject({
+    return ViewCapture.fromObject({
       packageNameIid: ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
       windowNameIid: ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
       views: perfettoViews,
@@ -258,4 +256,3 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
 
 type FrameData = com.android.app.viewcapture.data.IFrameData;
 type ViewNode = com.android.app.viewcapture.data.IViewNode;
-type PerfettoView = perfetto.protos.ViewCapture.IView;

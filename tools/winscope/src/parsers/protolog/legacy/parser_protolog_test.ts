@@ -29,6 +29,7 @@ import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {IProtoLogViewerConfig} from 'compat/winscope_protos';
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 interface ExpectedInternedData {
@@ -60,7 +61,7 @@ abstract class ParserProtologTest {
   abstract readonly traceFile: string;
   abstract readonly timestampCount: number;
   abstract readonly first3ExpectedRealTimestamps: Timestamp[];
-  abstract readonly expectedConfig: perfetto.protos.IProtoLogViewerConfig;
+  abstract readonly expectedConfig: IProtoLogViewerConfig;
   abstract readonly internedData1: ExpectedInternedData;
   abstract readonly internedData2: ExpectedInternedData;
   abstract readonly messagePacketWithInternedStrings: ExpectedMessagePacket;

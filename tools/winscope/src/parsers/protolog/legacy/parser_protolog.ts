@@ -19,7 +19,7 @@ import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ProtoLogMessage as PerfettoProtoLogMessage} from 'compat/winscope_protos';
 import {
   ClockSnapshot,
   InternedData,
@@ -169,7 +169,7 @@ export class ParserProtoLog extends AbstractParser<
           TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE;
       }
 
-      packet.protologMessage = perfetto.protos.ProtoLogMessage.create({
+      packet.protologMessage = PerfettoProtoLogMessage.create({
         messageId,
         strParamIids,
         sint64Params: entry.sint64Params,

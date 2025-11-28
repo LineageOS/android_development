@@ -19,7 +19,7 @@ import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import root from 'protos/ime/udc/json';
 import {android} from 'protos/ime/udc/static';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {InputMethodManagerServiceTraceProto} from 'compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -83,7 +83,7 @@ export class ParserInputMethodManagerService extends AbstractParser<
       packet.trustedPacketSequenceId = sequenceId;
       packet.winscopeExtensions = {
         '.perfetto.protos.WinscopeExtensionsImpl.inputmethodManagerService':
-          perfetto.protos.InputMethodManagerServiceTraceProto.fromObject(entry),
+          InputMethodManagerServiceTraceProto.fromObject(entry),
       };
       packets.push(packet);
     }

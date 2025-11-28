@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {perfetto} from 'protos/perfetto/trace/static';
+import {HwcCompositionType} from 'compat/winscope_protos';
 import {LayerCompositionType} from 'trace/surface_flinger/layer_composition_type';
 import {AddOperation} from 'tree_node/add_operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
@@ -54,20 +54,14 @@ export class AddCompositionType extends AddOperation<PropertyTreeNode> {
   }
 
   private readonly gpuLayerCompositionTypes = [
-    perfetto.protos.HwcCompositionType.HWC_TYPE_CLIENT,
-    perfetto.protos.HwcCompositionType[
-      perfetto.protos.HwcCompositionType.HWC_TYPE_CLIENT
-    ],
+    HwcCompositionType.HWC_TYPE_CLIENT,
+    HwcCompositionType[HwcCompositionType.HWC_TYPE_CLIENT],
   ];
 
   private readonly hwcLayerCompositionTypes = [
-    perfetto.protos.HwcCompositionType.HWC_TYPE_DEVICE,
-    perfetto.protos.HwcCompositionType[
-      perfetto.protos.HwcCompositionType.HWC_TYPE_DEVICE
-    ],
-    perfetto.protos.HwcCompositionType.HWC_TYPE_SOLID_COLOR,
-    perfetto.protos.HwcCompositionType[
-      perfetto.protos.HwcCompositionType.HWC_TYPE_SOLID_COLOR
-    ],
+    HwcCompositionType.HWC_TYPE_DEVICE,
+    HwcCompositionType[HwcCompositionType.HWC_TYPE_DEVICE],
+    HwcCompositionType.HWC_TYPE_SOLID_COLOR,
+    HwcCompositionType[HwcCompositionType.HWC_TYPE_SOLID_COLOR],
   ];
 }

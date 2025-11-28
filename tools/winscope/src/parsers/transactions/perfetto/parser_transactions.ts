@@ -31,7 +31,7 @@ import {
 } from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {LayerState} from 'compat/winscope_protos';
 import {EnumFormatter, FixedStringFormatter} from 'trace/formatters';
 import {
   TAMPERED_TRACE_PACKET,
@@ -393,7 +393,7 @@ LEFT JOIN ranked_process_matches AS rpm
 
     if (argSetId !== undefined && field !== undefined) {
       const customFormatters = new Map<string, PropertyFormatter>([
-        ['flags', new EnumFormatter(perfetto.protos.LayerState.Flags)],
+        ['flags', new EnumFormatter(LayerState.Flags)],
       ]);
       const flagsId = eagerProperties.getChildByName('flagsId');
       if (flagsId !== undefined) {

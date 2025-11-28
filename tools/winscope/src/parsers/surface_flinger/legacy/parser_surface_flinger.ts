@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {LayersSnapshotProto} from 'compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import root from 'protos/surfaceflinger/udc/json';
 import {android} from 'protos/surfaceflinger/udc/static';
@@ -91,7 +91,7 @@ export class ParserSurfaceFlinger extends AbstractParser<
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
       packet.trustedPacketSequenceId = sequenceId;
       packet.surfaceflingerLayersSnapshot =
-        perfetto.protos.LayersSnapshotProto.fromObject(entry);
+        LayersSnapshotProto.fromObject(entry);
       packets.push(packet);
     }
     return packets;

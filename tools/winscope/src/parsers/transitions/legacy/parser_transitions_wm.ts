@@ -19,17 +19,15 @@ import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import root from 'protos/transitions/udc/json';
 import {com} from 'protos/transitions/udc/static';
 import {TraceType} from 'trace_api/trace_type';
-import {
-  nullifyIfDefaultValue,
-  PerfettoTransition,
-} from './perfetto_conversion_helpers';
+import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
+import {IShellTransition} from 'compat/winscope_protos';
 
 /**
  * Parser for WM Transition trace files.
  */
 export class ParserTransitionsWm extends AbstractParser<
   LegacyTransition,
-  PerfettoTransition
+  IShellTransition
 > {
   private static readonly TransitionTraceProto = root.lookupType(
     'com.android.server.wm.shell.TransitionTraceProto',
@@ -52,8 +50,8 @@ export class ParserTransitionsWm extends AbstractParser<
   override async processDecodedEntry(
     index: number,
     wmTransition: LegacyTransition,
-  ): Promise<PerfettoTransition> {
-    const perfettoTransition: PerfettoTransition = {
+  ): Promise<IShellTransition> {
+    const perfettoTransition: IShellTransition = {
       id: wmTransition.id,
       createTimeNs: nullifyIfDefaultValue(wmTransition.createTimeNs),
       sendTimeNs: nullifyIfDefaultValue(wmTransition.sendTimeNs),
@@ -75,7 +73,7 @@ export class ParserTransitionsWm extends AbstractParser<
     return perfettoTransition;
   }
 
-  override decodeTrace(buffer: Uint8Array): PerfettoTransition[] {
+  override decodeTrace(buffer: Uint8Array): IShellTransition[] {
     const decodedProto = ParserTransitionsWm.TransitionTraceProto.decode(
       buffer,
     ) as unknown as com.android.server.wm.shell.ITransitionTraceProto;

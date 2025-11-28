@@ -31,7 +31,7 @@ import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {queryArgs} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {HwcCompositionType} from 'compat/winscope_protos';
 import {EnumFormatter, LAYER_ID_FORMATTER} from 'trace/formatters';
 import {TAMPERED_TRACE_PACKET} from 'trace/proto_utils/tampered_message_type';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';
@@ -406,7 +406,7 @@ const LAYER_FIELD = assertDefined(
 const CUSTOM_FORMATTERS = new Map([
   ['cropLayerId', LAYER_ID_FORMATTER],
   ['zOrderRelativeOf', LAYER_ID_FORMATTER],
-  ['hwcCompositionType', new EnumFormatter(perfetto.protos.HwcCompositionType)],
+  ['hwcCompositionType', new EnumFormatter(HwcCompositionType)],
 ]);
 
 const Operations = {

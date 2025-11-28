@@ -21,7 +21,7 @@ import {com} from 'protos/windowmanager/udc/static';
 
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {WindowManagerTraceEntry} from 'compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
 
@@ -86,7 +86,7 @@ export class ParserWindowManager extends AbstractParser<
       packet.trustedPacketSequenceId = sequenceId;
       packet.winscopeExtensions = {
         '.perfetto.protos.WinscopeExtensionsImpl.windowmanager':
-          perfetto.protos.WindowManagerTraceEntry.fromObject(entry),
+          WindowManagerTraceEntry.fromObject(entry),
       };
       packets.push(packet);
     }

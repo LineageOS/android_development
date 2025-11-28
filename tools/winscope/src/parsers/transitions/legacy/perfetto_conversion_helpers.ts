@@ -15,11 +15,14 @@
  */
 
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ShellTransition} from 'compat/winscope_protos';
 
-export type PerfettoTransition = perfetto.protos.IShellTransition;
-type TransitionProperty = number | Long | TransitionTarget[] | null | undefined;
-type TransitionTarget = perfetto.protos.ShellTransition.ITarget;
+type TransitionProperty =
+  | number
+  | Long
+  | ShellTransition.ITarget[]
+  | null
+  | undefined;
 
 export function nullifyIfDefaultValue<T extends TransitionProperty>(
   value: T,

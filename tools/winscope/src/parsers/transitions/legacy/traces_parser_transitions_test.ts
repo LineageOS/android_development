@@ -17,7 +17,7 @@
 import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {FileAndParser} from 'parsers/file_and_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ShellHandlerMappings} from 'compat/winscope_protos';
 import {ClockSnapshot} from 'compat/perfetto';
 import {com} from 'protos/transitions/udc/static';
 import {convertToPerfettoTrace, getTracesParser} from 'test/unit/fixture_utils';
@@ -126,16 +126,15 @@ describe('TracesParserTransitions', () => {
 
     const handlerMappingPacket = packets[0];
 
-    const shellHandlerMappings =
-      perfetto.protos.ShellHandlerMappings.fromObject({
-        mapping: [
-          {id: 2, name: 'com.android.wm.shell.transition.DefaultMixedHandler'},
-          {
-            id: 3,
-            name: 'com.android.wm.shell.recents.RecentsTransitionHandler',
-          },
-        ],
-      });
+    const shellHandlerMappings = ShellHandlerMappings.fromObject({
+      mapping: [
+        {id: 2, name: 'com.android.wm.shell.transition.DefaultMixedHandler'},
+        {
+          id: 3,
+          name: 'com.android.wm.shell.recents.RecentsTransitionHandler',
+        },
+      ],
+    });
     expect(handlerMappingPacket.shellHandlerMappings).toEqual(
       shellHandlerMappings,
     );

@@ -27,7 +27,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {ParserTransitionsShell} from './parser_transitions_shell';
-import {PerfettoTransition} from './perfetto_conversion_helpers';
+import {IShellTransition as PerfettoTransition} from 'compat/winscope_protos';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.

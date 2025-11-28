@@ -15,7 +15,7 @@
  */
 
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ProtoLogLevel, ProtoLogViewerConfig} from 'compat/winscope_protos';
 import configJson32 from '../../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
 import configJson64 from '../../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 
@@ -33,13 +33,13 @@ interface LegacyConfig {
 
 function makeProtologViewerConfig(
   configJson: LegacyConfig,
-): perfetto.protos.ProtoLogViewerConfig {
+): ProtoLogViewerConfig {
   const groupNameToId = new Map<string, number>();
 
-  const groups: perfetto.protos.ProtoLogViewerConfig.Group[] = Object.entries(
+  const groups: ProtoLogViewerConfig.Group[] = Object.entries(
     configJson.groups,
   ).map(([name, {tag}], index) => {
-    const group = perfetto.protos.ProtoLogViewerConfig.Group.fromObject({
+    const group = ProtoLogViewerConfig.Group.fromObject({
       id: index + 1,
       name,
       tag,
@@ -48,44 +48,41 @@ function makeProtologViewerConfig(
     return group;
   });
 
-  const messages: perfetto.protos.ProtoLogViewerConfig.MessageData[] =
-    Object.entries(configJson.messages).map(
-      ([id, {message, level, group, at}]) => {
-        let protologLevel: perfetto.protos.ProtoLogLevel;
-        switch (level) {
-          case 'DEBUG':
-            protologLevel = perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
-            break;
-          case 'VERBOSE':
-            protologLevel =
-              perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_VERBOSE;
-            break;
-          case 'INFO':
-            protologLevel = perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_INFO;
-            break;
-          case 'WARN':
-            protologLevel = perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_WARN;
-            break;
-          case 'ERROR':
-            protologLevel = perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_ERROR;
-            break;
-          case 'WTF':
-            protologLevel = perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_WTF;
-            break;
-          default:
-            protologLevel =
-              perfetto.protos.ProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
-        }
-        return perfetto.protos.ProtoLogViewerConfig.MessageData.fromObject({
-          messageId: Long.fromString(id),
-          message,
-          level: protologLevel,
-          groupId: groupNameToId.get(group),
-          location: at,
-        });
-      },
-    );
-  return perfetto.protos.ProtoLogViewerConfig.fromObject({
+  const messages: ProtoLogViewerConfig.MessageData[] = Object.entries(
+    configJson.messages,
+  ).map(([id, {message, level, group, at}]) => {
+    let protologLevel: ProtoLogLevel;
+    switch (level) {
+      case 'DEBUG':
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
+        break;
+      case 'VERBOSE':
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_VERBOSE;
+        break;
+      case 'INFO':
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_INFO;
+        break;
+      case 'WARN':
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_WARN;
+        break;
+      case 'ERROR':
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_ERROR;
+        break;
+      case 'WTF':
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_WTF;
+        break;
+      default:
+        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
+    }
+    return ProtoLogViewerConfig.MessageData.fromObject({
+      messageId: Long.fromString(id),
+      message,
+      level: protologLevel,
+      groupId: groupNameToId.get(group),
+      location: at,
+    });
+  });
+  return ProtoLogViewerConfig.fromObject({
     messages,
     groups,
   });
