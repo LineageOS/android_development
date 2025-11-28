@@ -37,7 +37,7 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRect} from 'tree_node/trace_rect';
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from './entry_hierarchy_tree_factory';
 import {RectExtractor} from './rect_extractor';
-import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
+import {RectsForTrace, SnapshotRects} from 'tree_node/rect_extractor_result';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 
 describe('EntryHierarchyTreeFactory', () => {

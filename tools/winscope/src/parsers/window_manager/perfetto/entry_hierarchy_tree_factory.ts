@@ -34,7 +34,7 @@ import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_fro
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {WM_OPERATION_LISTS} from './operations/operation_lists';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 /**

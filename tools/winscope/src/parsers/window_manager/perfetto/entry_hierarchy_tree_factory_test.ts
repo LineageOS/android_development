@@ -34,7 +34,7 @@ import {
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
-import {SnapshotRects, RectsForTrace} from 'parsers/rect_extractor_result';
+import {SnapshotRects, RectsForTrace} from 'tree_node/rect_extractor_result';
 import {TraceRect} from 'tree_node/trace_rect';
 
 describe('EntryHierarchyTreeFactory', () => {

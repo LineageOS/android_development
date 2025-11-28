@@ -57,7 +57,7 @@ import {
   SnapshotRects,
   RectsForTrace,
   NodeRects,
-} from 'parsers/rect_extractor_result';
+} from 'tree_node/rect_extractor_result';
 import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 export function makeEntryHierarchyTrees(

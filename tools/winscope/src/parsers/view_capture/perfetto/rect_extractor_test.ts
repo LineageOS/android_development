@@ -23,7 +23,7 @@ import {
 } from 'trace_processor/test_utils';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {extractAllRects, extractRect} from './rect_extractor';
-import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
+import {RectsForTrace, SnapshotRects} from 'tree_node/rect_extractor_result';
 
 describe('ViewCapture RectExtractor', () => {
   it('extracts rect', () => {

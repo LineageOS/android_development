@@ -24,7 +24,7 @@ import {
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {extractAllRects, extractRect} from './rect_extractor';
 import {ContainerType} from './container_type';
-import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
+import {RectsForTrace, SnapshotRects} from 'tree_node/rect_extractor_result';
 
 describe('WindowManager RectExtractor', () => {
   it('handles row without rect id', () => {

@@ -24,7 +24,7 @@ import {TraceRectBuilderFromQueryRow} from 'parsers/trace_rect_builder_from_quer
 import {RowIterator} from 'trace_processor/query_result';
 import {TraceRect} from 'tree_node/trace_rect';
 import {ContainerType} from './container_type';
-import {SnapshotRects, RectsForTrace} from 'parsers/rect_extractor_result';
+import {SnapshotRects, RectsForTrace} from 'tree_node/rect_extractor_result';
 
 /**
  * Extracts a WM rect from a trace processor query result row.

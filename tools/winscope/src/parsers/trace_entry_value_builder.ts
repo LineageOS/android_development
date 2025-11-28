@@ -19,7 +19,7 @@ import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {assertDefined} from 'common/assert';
 import {QueryResult} from 'trace_processor/query_result';
-import {RectsForTrace} from './rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from './window_manager/perfetto/entry_hierarchy_tree_factory';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTree} from './view_capture/perfetto/entry_hierarchy_tree_factory';

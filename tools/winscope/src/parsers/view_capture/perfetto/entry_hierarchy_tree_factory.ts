@@ -34,7 +34,7 @@ import {extractRect} from './rect_extractor';
 import {UINT32_MAX} from 'common/math';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
 import {SetFormatters} from 'parsers/set_formatters';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 /**
