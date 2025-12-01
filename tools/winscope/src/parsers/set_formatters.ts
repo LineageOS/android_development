@@ -19,8 +19,7 @@ import {
   TamperedMessageType,
   TamperedProtoField,
 } from 'trace/proto_utils/tampered_message_type';
-// TODO(b/311642700) Not compatible with google3 migration
-import * as protobuf from 'protobufjs';
+import {ProtobufEnum} from 'compat/protobuf';
 import {
   BUFFER_FORMATTER,
   COLOR_FORMATTER,
@@ -50,7 +49,7 @@ export class SetFormatters implements Operation<PropertyTreeNode> {
 
   apply(value: PropertyTreeNode, parentField = this.rootField): void {
     let field: TamperedProtoField | undefined;
-    let enumType: protobuf.Enum | undefined;
+    let enumType: ProtobufEnum | undefined;
 
     if (parentField) {
       const protoType: TamperedMessageType | undefined =
