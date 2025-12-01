@@ -368,7 +368,7 @@ export class UploadTracesComponent
     this.filesUploaded.emit(Array.from(droppedFiles));
   }
 
-  onRemoveTrace(event: MouseEvent, trace: Trace<object>) {
+  onRemoveTrace(event: MouseEvent, trace: Trace<unknown>) {
     event.preventDefault();
     event.stopPropagation();
     this.tracePipeline?.removeTrace(trace);
@@ -399,19 +399,19 @@ export class UploadTracesComponent
     return this.viewersLoading || !this.hasLoadedFilesWithViewers();
   }
 
-  canVisualizeTrace(trace: Trace<object>): boolean {
+  canVisualizeTrace(trace: Trace<unknown>): boolean {
     return isTraceTypeWithViewer(trace.type);
   }
 
-  isLegacyTrace(trace: Trace<object>): boolean {
+  isLegacyTrace(trace: Trace<unknown>): boolean {
     return !trace.isPerfetto() && trace.getParser().canConvertToPerfetto();
   }
 
-  cannotVisualizeTraceTooltip(trace: Trace<object>): string {
+  cannotVisualizeTraceTooltip(trace: Trace<unknown>): string {
     return getReasonForNoTraceVisualization(trace.type);
   }
 
-  traceErrorTooltip(trace: Trace<object>): string {
+  traceErrorTooltip(trace: Trace<unknown>): string {
     const reason = trace.getCorruptedReason() ?? 'Trace is corrupted.';
     return 'Cannot visualize trace. ' + reason;
   }

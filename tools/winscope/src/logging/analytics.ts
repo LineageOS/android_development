@@ -334,7 +334,7 @@ export const Analytics = {
   },
 
   Tracing: {
-    logTraceLoaded(parser: Parser<object>) {
+    logTraceLoaded(parser: Parser<unknown>) {
       analyticsLogEvent(TRACING_LOADED_EVENT, {
         type: TraceType[parser.getTraceType()],
         coarse_version: CoarseVersion[parser.getCoarseVersion()],

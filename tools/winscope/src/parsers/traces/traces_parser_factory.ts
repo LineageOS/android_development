@@ -37,8 +37,8 @@ export class TracesParserFactory {
   async createParsers(
     traces: Traces,
     timestampConverter: ParserTimestampConverter,
-  ): Promise<Array<Parser<object>>> {
-    const parsers: Array<Parser<object>> = [];
+  ): Promise<Array<Parser<unknown>>> {
+    const parsers: Array<Parser<unknown>> = [];
 
     for (const ParserType of TracesParserFactory.PARSERS) {
       let hasFoundParser = false;

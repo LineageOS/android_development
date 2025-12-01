@@ -849,7 +849,7 @@ describe('MiniTimelineComponent', () => {
   class TestHostComponent {
     timelineData = new TimelineData();
     currentTracePosition: TracePosition | undefined;
-    selectedTraces: Array<Trace<object>> = [];
+    selectedTraces: Array<Trace<unknown>> = [];
     initialZoom: TimeRange | undefined;
     expandedTimelineScrollEvent: WheelEvent | undefined;
     expandedTimelineMouseXRatio: number | undefined;

@@ -41,8 +41,10 @@ export class TracesParserTransitions extends AbstractTracesParser<PropertyTreeNo
 
   constructor(traces: Traces, timestampConverter: ParserTimestampConverter) {
     super(timestampConverter);
-    const wmTransitionTrace = traces.getTrace(TraceType.WM_TRANSITION);
-    const shellTransitionTrace = traces.getTrace(TraceType.SHELL_TRANSITION);
+    const wmTransitionTrace = traces.getTrace<object>(TraceType.WM_TRANSITION);
+    const shellTransitionTrace = traces.getTrace<object>(
+      TraceType.SHELL_TRANSITION,
+    );
     if (wmTransitionTrace && shellTransitionTrace) {
       this.wmTransitionTrace = wmTransitionTrace;
       this.shellTransitionTrace = shellTransitionTrace;

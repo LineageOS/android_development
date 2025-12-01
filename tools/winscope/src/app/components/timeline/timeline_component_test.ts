@@ -83,6 +83,7 @@ import {
 } from 'media_based_trace_entry/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {Thumbnail} from 'media_based_trace_entry/thumbnail';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -1018,7 +1019,7 @@ describe('TimelineComponent', () => {
     const timelineComponent = assertDefined(component.timeline);
 
     let firstEvent: WinscopeEvent | undefined;
-    let activeTrace: Trace<object> | undefined;
+    let activeTrace: Trace<unknown> | undefined;
     let position: TracePosition | undefined;
     timelineComponent.setEmitEvent(async (event: WinscopeEvent) => {
       if (!firstEvent) {
@@ -1032,7 +1033,9 @@ describe('TimelineComponent', () => {
     });
     const miniTimelineComponent = assertDefined(timelineComponent.miniTimeline);
     const trace = assertDefined(
-      component.timelineData.getTraces().getTrace(TraceType.WINDOW_MANAGER),
+      component.timelineData
+        .getTraces()
+        .getTrace<HierarchyTreeNode>(TraceType.WINDOW_MANAGER),
     );
     spyOn(
       assertDefined(miniTimelineComponent.drawer),
@@ -1060,7 +1063,7 @@ describe('TimelineComponent', () => {
       assertDefined(timelineComponent.miniTimeline?.drawer),
       'draw',
     );
-    const trace = makeEmptyTrace(TraceType.SEARCH);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.SEARCH);
 
     await timelineComponent.onWinscopeEvent(new TraceAddRequest(trace));
     expect(spy).toHaveBeenCalledTimes(1);
@@ -1498,7 +1501,9 @@ describe('TimelineComponent', () => {
       timelineComponent.setEmitEvent(emitEventSpy);
 
       const trace = assertDefined(
-        component.allTraces.getTrace(TraceType.SURFACE_FLINGER),
+        component.allTraces.getTrace<HierarchyTreeNode>(
+          TraceType.SURFACE_FLINGER,
+        ),
       );
       spyOn(component.timelineData, 'findCurrentEntryFor')
         .withArgs(trace)
@@ -1612,12 +1617,9 @@ describe('TimelineComponent', () => {
     dom.detectChanges();
   }
 
-  function getLoadedTrace(type: TraceType): Trace<object> {
+  function getLoadedTrace(type: TraceType): Trace<unknown> {
     const timelineData = assertDefined(component.timelineData);
-    const trace = assertDefined(
-      timelineData.getTraces().getTrace(type),
-    ) as Trace<object>;
-    return trace;
+    return assertDefined(timelineData.getTraces().getTrace(type));
   }
 
   async function loadTracesWithOneTimestamp(

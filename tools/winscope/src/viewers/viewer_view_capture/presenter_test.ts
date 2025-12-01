@@ -305,7 +305,9 @@ the default for its data type.`,
       });
 
       it('handles double click if SF trace present', async () => {
-        const sfTrace = makeEmptyTrace(TraceType.SURFACE_FLINGER);
+        const sfTrace = makeEmptyTrace<HierarchyTreeNode>(
+          TraceType.SURFACE_FLINGER,
+        );
         const presenterWithSfTrace = createPresenterWithSfTrace(
           assertDefined(this.traces),
           sfTrace,

@@ -115,7 +115,6 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
 import {RequestData} from 'cross_tool/g3_proxy';
 import {getLogger} from 'compat/logging';
-import {Trace} from 'trace_api/trace';
 
 /**
  * The root component of the Winscope app.
@@ -877,9 +876,7 @@ export class AppComponent implements WinscopeEventListener {
     }
 
     if (request.traceType) {
-      const trace = this.tracePipeline
-        .getTraces()
-        .getTrace(request.traceType) as Trace<object>;
+      const trace = this.tracePipeline.getTraces().getTrace(request.traceType);
       if (trace) {
         await this.mediator.onWinscopeEvent(new TabbedViewSwitchRequest(trace));
       }

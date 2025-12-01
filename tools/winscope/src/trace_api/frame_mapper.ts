@@ -119,8 +119,8 @@ export class FrameMapper {
   }
 
   private async propagateFromScreenRecordingToSurfaceFlinger(
-    screenRecording: Trace<object>,
-    surfaceFlinger: Trace<object>,
+    screenRecording: Trace<unknown>,
+    surfaceFlinger: Trace<unknown>,
     frameMapBuilder: FrameMapBuilder,
   ) {
     screenRecording.forEachEntry((srcEntry) => {
@@ -140,8 +140,8 @@ export class FrameMapper {
   }
 
   private async propagateFromSurfaceFlingerToTraceWithVsyncIds(
-    surfaceFlinger: Trace<object>,
-    traceWithVsyncIds: Trace<object>,
+    surfaceFlinger: Trace<unknown>,
+    traceWithVsyncIds: Trace<unknown>,
     frameMapBuilder: FrameMapBuilder,
   ) {
     const entries = await traceWithVsyncIds.customQuery(
@@ -180,8 +180,8 @@ export class FrameMapper {
   }
 
   private async propagateFromSurfaceFlingerToViewCapture(
-    surfaceFlinger: Trace<object>,
-    viewCapture: Trace<object>,
+    surfaceFlinger: Trace<unknown>,
+    viewCapture: Trace<unknown>,
     frameMapBuilder: FrameMapBuilder,
   ) {
     surfaceFlinger.forEachEntry((srcEntry) => {
@@ -194,11 +194,11 @@ export class FrameMapper {
   }
 
   private async propagateFromTransactionsToWindowManager(
-    transactions: Trace<object>,
-    windowManager: Trace<object>,
+    transactions: Trace<unknown>,
+    windowManager: Trace<unknown>,
     frameMapBuilder: FrameMapBuilder,
   ) {
-    let prevWindowManagerEntry: TraceEntry<object> | undefined;
+    let prevWindowManagerEntry: TraceEntry<unknown> | undefined;
     windowManager.forEachEntry((windowManagerEntry) => {
       if (prevWindowManagerEntry) {
         const matches = transactions.sliceTime(
@@ -228,8 +228,8 @@ export class FrameMapper {
   }
 
   private async propagateFromWindowManagerToProtoLog(
-    windowManager: Trace<object>,
-    protoLog: Trace<object>,
+    windowManager: Trace<unknown>,
+    protoLog: Trace<unknown>,
     frameMapBuilder: FrameMapBuilder,
   ) {
     windowManager.forEachEntry((prevSrcEntry) => {
@@ -269,8 +269,8 @@ export class FrameMapper {
   }
 
   private async propagateFromWindowManagerToIme(
-    windowManager: Trace<object>,
-    ime: Trace<object>,
+    windowManager: Trace<unknown>,
+    ime: Trace<unknown>,
     frameMapBuilder: FrameMapBuilder,
   ) {
     // Value used to narrow time-based searches of corresponding WindowManager entries
@@ -298,8 +298,8 @@ export class FrameMapper {
     srcTraceType: TraceType,
     dstTraceType: TraceType,
     mappingLogic: (
-      srcTrace: Trace<{}>,
-      dstTrace: Trace<{}>,
+      srcTrace: Trace<unknown>,
+      dstTrace: Trace<unknown>,
       frameMapBuilder: FrameMapBuilder,
     ) => Promise<void>,
   ) {

@@ -240,7 +240,7 @@ the default for its data type.`,
   override createPresenterWithEmptyTrace(
     callback: NotifyHierarchyViewCallbackType<UiData>,
   ): Presenter {
-    const trace = makeEmptyTrace(TraceType.SURFACE_FLINGER);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER);
     const traces = new Traces();
     traces.addTrace(trace);
     return new Presenter(trace, traces, new InMemoryStorage(), callback);

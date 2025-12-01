@@ -228,7 +228,7 @@ describe('LegacyToPerfettoConverter', () => {
   }
 
   async function convertToPerfetto(
-    parsers: Array<Parser<{}>>,
+    parsers: Array<Parser<unknown>>,
     perfettoFile?: TraceFile,
   ) {
     const converter = new LegacyToPerfettoConverter()
@@ -280,7 +280,7 @@ describe('LegacyToPerfettoConverter', () => {
   }
 
   async function testConversion(
-    parser: Parser<{}>,
+    parser: Parser<unknown>,
     packets: TracePacket[],
     isMonotonic: boolean,
   ) {
@@ -319,7 +319,7 @@ describe('LegacyToPerfettoConverter', () => {
   function makeParser(
     testPackets: TracePacket[],
     conversionError = false,
-  ): Parser<{}> {
+  ): Parser<unknown> {
     const ts =
       testPackets.length === 0
         ? [makeRealTimestamp(0n)]

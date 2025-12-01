@@ -203,7 +203,7 @@ the default for its data type.`,
       return;
     }
     const newActiveTrace = assertDefined(
-      this.traces.getTrace(TraceType.VIEW_CAPTURE),
+      this.traces.getTrace<HierarchyTreeNode>(TraceType.VIEW_CAPTURE),
     );
     await this.emitWinscopeEvent(new TabbedViewSwitchRequest(newActiveTrace));
   }

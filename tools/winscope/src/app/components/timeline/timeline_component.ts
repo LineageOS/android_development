@@ -420,9 +420,9 @@ export class TimelineComponent
   videoUrl: SafeUrl | undefined;
   thumbnail: Thumbnail | undefined;
   initialZoom: TimeRange | undefined = undefined;
-  selectedTraces: Array<Trace<object>> = [];
-  sortedTraces: Array<Trace<object>> = [];
-  selectedTracesFormControl = new FormControl<Array<Trace<object>>>([]);
+  selectedTraces: Array<Trace<unknown>> = [];
+  sortedTraces: Array<Trace<unknown>> = [];
+  selectedTracesFormControl = new FormControl<Array<Trace<unknown>>>([]);
   selectedTimeFormControl = new FormControl('undefined');
   selectedNsFormControl = new FormControl(
     'undefined',
@@ -488,7 +488,7 @@ export class TimelineComponent
           !timelineData.hasMoreThanOneDistinctTimestamp())
       );
     });
-    this.selectedTracesFormControl = new FormControl<Array<Trace<object>>>(
+    this.selectedTracesFormControl = new FormControl<Array<Trace<unknown>>>(
       this.selectedTraces,
     );
 
@@ -541,7 +541,7 @@ export class TimelineComponent
     return position;
   }
 
-  getSelectedTracesToShow(): Array<Trace<object>> {
+  getSelectedTracesToShow(): Array<Trace<unknown>> {
     const sortedSelectedTraces = this.getSelectedTracesSortedByDisplayOrder();
     return sortedSelectedTraces.length > 8
       ? sortedSelectedTraces.slice(0, 7)
@@ -619,7 +619,7 @@ export class TimelineComponent
     this.updateTimeInputValuesToCurrentTimestamp();
   }
 
-  isOptionDisabled(trace: Trace<object>) {
+  isOptionDisabled(trace: Trace<unknown>) {
     const timelineData = assertDefined(this.timelineData);
     return (
       !timelineData.hasTrace(trace) || timelineData.getActiveTrace() === trace
@@ -634,7 +634,7 @@ export class TimelineComponent
     return !this.hasNextEntry() || this.playbackState !== PlaybackState.PAUSED;
   }
 
-  applyNewTraceSelection(clickedTrace: Trace<object>) {
+  applyNewTraceSelection(clickedTrace: Trace<unknown>) {
     this.selectedTraces =
       this.selectedTracesFormControl.value ??
       this.sortedTraces.filter((trace) => {
@@ -643,7 +643,7 @@ export class TimelineComponent
     this.updateStoredDeselectedTraceTypes(clickedTrace);
   }
 
-  getTitle(trace: Trace<object>): string {
+  getTitle(trace: Trace<unknown>): string {
     if (
       trace.type === TraceType.VIEW_CAPTURE ||
       trace.type === TraceType.SEARCH
@@ -938,7 +938,7 @@ export class TimelineComponent
     this.emitEvent(new BookmarksChanged(this.bookmarks));
   }
 
-  async onMiniTimelineTraceClicked(eventData: [Trace<object>, Timestamp]) {
+  async onMiniTimelineTraceClicked(eventData: [Trace<unknown>, Timestamp]) {
     const [trace, timestamp] = eventData;
     await this.emitEvent(new ActiveTraceChanged(trace));
     await this.updatePosition(
@@ -947,12 +947,12 @@ export class TimelineComponent
     this.changeDetectorRef.detectChanges();
   }
 
-  async onExpandedTimelineTraceClicked(trace: Trace<object>) {
+  async onExpandedTimelineTraceClicked(trace: Trace<unknown>) {
     await this.emitEvent(new ActiveTraceChanged(trace));
     this.changeDetectorRef.detectChanges();
   }
 
-  getTraceTooltip(trace: Trace<object>): string {
+  getTraceTooltip(trace: Trace<unknown>): string {
     let tooltip = TRACE_INFO[trace.type].name;
     if (trace.type === TraceType.SCREEN_RECORDING) {
       tooltip += ' ' + trace.getDescriptors()[0].split('.')[0];
@@ -1025,7 +1025,7 @@ export class TimelineComponent
     return supportsPlayback(this.currentTabTraceType);
   }
 
-  private updateSelectedTraces(trace: Trace<object> | undefined) {
+  private updateSelectedTraces(trace: Trace<unknown> | undefined) {
     if (!trace) {
       return;
     }
@@ -1083,9 +1083,7 @@ export class TimelineComponent
     }
 
     return (
-      this.timelineData
-        ?.findCurrentEntryFor(currentTrace as Trace<object>)
-        ?.getIndex() ?? 0
+      this.timelineData?.findCurrentEntryFor(currentTrace)?.getIndex() ?? 0
     );
   }
 
@@ -1107,7 +1105,7 @@ export class TimelineComponent
     this.selectedNsFormControl.setValue(`${currentTimestampNs} ns`);
   }
 
-  private getSelectedTracesSortedByDisplayOrder(): Array<Trace<object>> {
+  private getSelectedTracesSortedByDisplayOrder(): Array<Trace<unknown>> {
     return this.selectedTraces
       .slice()
       .sort((a, b) => compareByDisplayOrder(a.type, b.type));
@@ -1120,7 +1118,7 @@ export class TimelineComponent
     return JSON.parse(storedDeselectedTraces ?? '[]');
   }
 
-  private updateStoredDeselectedTraceTypes(clickedTrace: Trace<object>) {
+  private updateStoredDeselectedTraceTypes(clickedTrace: Trace<unknown>) {
     if (!this.store) {
       return;
     }

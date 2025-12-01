@@ -52,7 +52,7 @@ export class LogHeader {
 }
 
 export interface LogEntry {
-  traceEntry: TraceEntry<object>;
+  traceEntry: TraceEntry<unknown>;
   fields: LogField[];
   getPropertiesTree: LazyPropertiesStrategyType | undefined;
 }

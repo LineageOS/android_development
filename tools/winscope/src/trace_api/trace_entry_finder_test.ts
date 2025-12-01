@@ -26,7 +26,7 @@ import {TracePosition} from './trace_position';
 import {TraceType} from './trace_type';
 
 describe('TraceEntryFinder', () => {
-  const emptyTrace = makeEmptyTrace(TraceType.TEST_TRACE_STRING);
+  const emptyTrace = makeEmptyTrace<string>(TraceType.TEST_TRACE_STRING);
   const ts10 = makeRealTimestamp(10n);
   const ts14 = makeRealTimestamp(14n);
   const ts16 = makeRealTimestamp(16n);

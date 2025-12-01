@@ -825,7 +825,7 @@ export class Mediator {
       assertDefined(event.currentTraceIndex),
       traceGeometryData,
     );
-    this.timelineData.trySetActiveTrace(trace as Trace<object>);
+    this.timelineData.trySetActiveTrace(trace);
     await viewer.onWinscopeEvent(playbackStatePropagate);
   }
 

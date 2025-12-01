@@ -93,7 +93,7 @@ import {
 } from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {TraceEntry} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
@@ -1060,9 +1060,9 @@ describe('Mediator', () => {
 
   function reassignViewerStubTrace(viewerStub: ViewerStub) {
     const viewerStubTraces = viewerStub.getViews()[0].traces;
-    viewerStubTraces[0] = tracePipeline
-      .getTraces()
-      .getTrace(viewerStubTraces[0].type) as Trace<object>;
+    viewerStubTraces[0] = assertDefined(
+      tracePipeline.getTraces().getTrace(viewerStubTraces[0].type),
+    );
   }
 
   async function loadTraceView(
