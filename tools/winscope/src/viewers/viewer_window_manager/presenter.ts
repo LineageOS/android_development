@@ -36,7 +36,6 @@ import {RectsPresenter} from 'viewers/common/rects_presenter';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UI_RECT_FACTORY} from 'viewers/common/ui_rect_factory';
 import {UserOptions} from 'viewers/common/user_options';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {
@@ -48,6 +47,7 @@ import {PropagateHashCodes} from './operations/propagate_hash_codes';
 import {UiData} from './ui_data';
 import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
 import {assertDefined} from 'common/assert';
+import {makeUiRects} from 'viewers/common/ui_rect_factory';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -105,7 +105,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
       },
       this.storage,
     ),
-    (tree: HierarchyTreeNode) => UI_RECT_FACTORY.makeUiRects(tree),
+    (tree: HierarchyTreeNode) => makeUiRects(tree),
     this.getDisplays,
     this.convertRectIdtoContainerName,
   );

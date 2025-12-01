@@ -39,7 +39,6 @@ import {PropertiesPresenter} from 'viewers/common/properties_presenter';
 import {RectsPresenter} from 'viewers/common/rects_presenter';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UI_RECT_FACTORY} from 'viewers/common/ui_rect_factory';
 import {UserOptions} from 'viewers/common/user_options';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {
@@ -48,6 +47,7 @@ import {
 } from 'viewers/components/rects/rect_spec';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UiData} from './ui_data';
+import {makeUiRects, makeVcUiRects} from 'viewers/common/ui_rect_factory';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = ['children', 'isComputedVisible'];
@@ -97,10 +97,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
       this.storage,
     ),
     (tree: HierarchyTreeNode, trace: Trace<HierarchyTreeNode>) =>
-      UI_RECT_FACTORY.makeVcUiRects(
-        tree,
-        this.getIdFromViewCaptureTrace(trace),
-      ),
+      makeVcUiRects(tree, this.getIdFromViewCaptureTrace(trace)),
     undefined,
   );
   protected override propertiesPresenter = new PropertiesPresenter(
@@ -197,7 +194,7 @@ the default for its data type.`,
         event.position,
       )?.getValue()) as HierarchyTreeNode;
       if (surfaceFlingerEntry) {
-        this.sfRects = UI_RECT_FACTORY.makeUiRects(
+        this.sfRects = makeUiRects(
           surfaceFlingerEntry,
           this.viewCapturePackageNames,
         );
