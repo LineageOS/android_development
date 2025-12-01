@@ -430,6 +430,7 @@ impl Crate {
                 _ if arg.starts_with("--warn=") => {}
                 _ if arg.starts_with("-D") => {}
                 _ if arg.starts_with("--deny=") => {}
+                _ if arg.starts_with("--forbid=") => {}
 
                 arg => bail!("unsupported rustc argument: {arg:?}"),
             }

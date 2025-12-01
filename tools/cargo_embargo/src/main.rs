@@ -826,6 +826,9 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         "0BSD OR MIT OR Apache-2.0" => vec!["Apache-2.0"],
 
         "LGPL-2.1-only OR BSD-2-Clause" => vec!["BSD-2-Clause"],
+
+        "ISC AND (Apache-2.0 OR ISC)" => vec!["ISC"],
+        "Apache-2.0 OR ISC OR MIT" => vec!["Apache-2.0"],
         _ => {
             // If there is whitespace, it is probably an SPDX expression.
             if license.contains(char::is_whitespace) {
