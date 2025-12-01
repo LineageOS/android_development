@@ -23,7 +23,7 @@ const configDev = {
   mode: 'development',
   entry: {
     polyfills: './src/polyfills.ts',
-    styles: ['./src/material-theme.scss', './src/styles.css'],
+    styles: ['./src/styles/material-theme.scss', './src/styles/styles.css'],
     app: './src/main_dev.ts',
   },
   devtool: 'source-map',
