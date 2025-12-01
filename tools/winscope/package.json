@@ -99,6 +99,7 @@
     "protobufjs-cli": "^1.1.2",
     "sass": "^1.56.1",
     "sass-loader": "^16.0.5",
+    "to-string-loader": "^1.2.0",
     "webpack": "^5.74.0"
   }
 }

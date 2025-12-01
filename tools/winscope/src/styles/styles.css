@@ -279,3 +279,8 @@ log-view .headers .mat-mdc-form-field-infix {
   height: 18px;
   line-height: 18px;
 }
+
+.icon-divider {
+  width: 1px;
+  background-color: #C4C0C0;
+}
