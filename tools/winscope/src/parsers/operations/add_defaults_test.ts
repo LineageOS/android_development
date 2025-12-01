@@ -54,7 +54,7 @@ describe('AddDefaults', () => {
   it('adds all defaults from prototype definition in absence of allowlist', () => {
     operation = new AddDefaults(rootField);
     operation.apply(propertyRoot);
-    expect(propertyRoot.getAllChildren().length).toBe(25);
+    expect(propertyRoot.getAllChildren().length).toBe(24);
     checkAllNodesAreDefault(propertyRoot);
     expect(
       assertDefined(propertyRoot.getChildByName('array')).getValue(),
@@ -76,8 +76,7 @@ describe('AddDefaults', () => {
       'number_64bit',
     ]);
     operation.apply(propertyRoot);
-
-    expect(propertyRoot.getAllChildren().length).toBe(23);
+    expect(propertyRoot.getAllChildren().length).toBe(22);
     checkAllNodesAreDefault(propertyRoot);
     expect(propertyRoot.getChildByName('number_32bit')).toBeUndefined();
     expect(propertyRoot.getChildByName('number_64bit')).toBeUndefined();
