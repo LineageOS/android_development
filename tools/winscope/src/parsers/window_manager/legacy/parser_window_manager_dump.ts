@@ -21,7 +21,8 @@ import {com} from 'protos/windowmanager/udc/static';
 import Long from 'long';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {WindowManagerTraceEntry} from 'compat/winscope_protos';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
 
 type DumpProto = com.android.server.wm.IWindowManagerServiceDumpProto;
@@ -85,19 +86,16 @@ export class ParserWindowManagerDump extends AbstractParser<
     return true;
   }
 
-  override convertToPerfettoPackets(
-    sequenceId: number,
-  ): perfetto.protos.TracePacket[] {
+  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
     for (const entry of this.decodedEntries) {
-      const packet = perfetto.protos.TracePacket.create();
+      const packet = TracePacket.create();
       packet.timestamp = Long.fromInt(0);
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedPacketSequenceId = sequenceId;
       packet.winscopeExtensions = {
         '.perfetto.protos.WinscopeExtensionsImpl.windowmanager':
-          perfetto.protos.WindowManagerTraceEntry.fromObject({
+          WindowManagerTraceEntry.fromObject({
             elapsedRealtimeNanos: 0,
             where: null,
             windowManagerService: entry,

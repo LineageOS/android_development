@@ -33,13 +33,12 @@ export class FormatDispatchEntry implements Operation<UiPropertyTreeNode> {
 
   private getWindowName(dispatchEntry: UiPropertyTreeNode): string {
     const windowIdNode = dispatchEntry.getChildByName('windowId');
-    const value = windowIdNode?.getValue();
+    const value = windowIdNode?.getValue<number>();
     if (value === undefined) {
       return '<Unknown Window ID>';
     }
     return (
-      this.layerIdToName.get(Number(value)) ??
-      `WindowId: ${value} - <Unknown Name>`
+      this.layerIdToName.get(value) ?? `WindowId: ${value} - <Unknown Name>`
     );
   }
 

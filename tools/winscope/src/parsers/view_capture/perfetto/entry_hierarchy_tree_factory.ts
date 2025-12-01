@@ -16,9 +16,7 @@
 
 import {assertBigInt, assertDefined, assertString} from 'common/assert';
 import {AddDefaults} from 'parsers/operations/add_defaults';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryArgs} from 'parsers/perfetto/utils';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
+import {queryArgs} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
@@ -36,7 +34,8 @@ import {extractRect} from './rect_extractor';
 import {UINT32_MAX} from 'common/math';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
 import {SetFormatters} from 'parsers/set_formatters';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
+import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 /**
  * Creates node id for a ViewCapture view. Used to construct nodes and rects
@@ -208,11 +207,16 @@ function makeViewLazyPropertiesStrategy(
   traceProcessor: TraceProcessor,
 ): LazyPropertiesStrategyType {
   return async () => {
-    const data = await queryArgs(traceProcessor, argSetId);
-    return new PropertyTreeBuilderFromProto()
-      .setData(VIEW_PROTO_TRANSFORMER.transform(data))
+    const argsData = await queryArgs(
+      assertDefined(traceProcessor),
+      Number(argSetId),
+    );
+
+    return new PropertyTreeBuilderFromArgs()
+      .setData(argsData.iter({}))
       .setRootId(rootId)
       .setRootName(rootName)
+      .setRootMessageType(assertDefined(PROTO_VIEW_FIELD.tamperedMessageType))
       .build();
   };
 }
@@ -226,6 +230,3 @@ const OPERATIONS = {
   AddDefaults: new AddDefaults(PROTO_VIEW_FIELD),
   SetFormatters: new SetFormatters(PROTO_VIEW_FIELD),
 };
-const VIEW_PROTO_TRANSFORMER = new FakeProtoTransformer(
-  assertDefined(PROTO_VIEW_FIELD.tamperedMessageType),
-);

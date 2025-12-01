@@ -35,7 +35,7 @@ import {
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
 import {UINT32_MAX} from 'common/math';
-import {RectsForTrace, SnapshotRects} from 'parsers/rect_extractor_result';
+import {RectsForTrace, SnapshotRects} from 'tree_node/rect_extractor_result';
 import {TraceRect} from 'tree_node/trace_rect';
 
 describe('EntryHierarchyTreeFactory', () => {

@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
 import {
@@ -84,7 +84,7 @@ describe('ParserSurfaceFlingerDump', () => {
       expect(packets.length).toBe(1);
       expect(packets[0].timestamp).toEqual(Long.fromInt(0));
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(
@@ -127,7 +127,7 @@ describe('ParserSurfaceFlingerDump', () => {
       expect(packets.length).toBe(1);
       expect(packets[0].timestamp).toEqual(Long.fromInt(0));
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(

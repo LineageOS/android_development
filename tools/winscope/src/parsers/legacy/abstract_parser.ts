@@ -17,7 +17,7 @@
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket} from 'compat/perfetto';
 import {TraceFile} from 'trace/trace_file';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {
@@ -32,7 +32,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 
 export abstract class AbstractParser<
   T extends object,
@@ -124,7 +124,7 @@ export abstract class AbstractParser<
     sequenceId: number,
     trustedPid: number,
     trustedUid: number,
-  ): perfetto.protos.TracePacket[] {
+  ): TracePacket[] {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// must be initialized before any chunk decoding is requested
+// must be initialized before any decoding is requested
 let videoDecoderConfig;
 let initialBatchSize = 32;
 let pendingBatchSize = 16;
@@ -23,9 +23,9 @@ let decodingQueue = Promise.resolve();
 let cancelQueue = Promise.resolve();
 
 // For forwards playback, decoders are stored by absolute key frame start index
-// for the chunk they are decoding, and tracked by an interface with the
+// for the key-frame range they are decoding, and tracked by an interface with the
 // following fields:
-// - chunks: array of EncodedVideoChunks for a single key frame chunk
+// - chunks: array of EncodedVideoChunks, where each entry corresponds to a video frame
 // - absoluteDecodedFrameIndex: absolute index of frame next to be decoded
 // - lastQueuedChunkIndex: last index in chunks that was queued
 // - frameDecoder?: VideoDecoder
@@ -106,7 +106,7 @@ function onFetchNextBatch(data) {
 
       if (end > tracker.chunks.length) {
         self.postMessage({
-          fetchPendingChunk: true,
+          fetchingPendingRange: true,
           target: startKeyFrameIndex + tracker.chunks.length,
         });
       }

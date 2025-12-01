@@ -28,7 +28,7 @@ import {
   loadTraceAndCheckViewer,
   setTimeouts,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer Transactions', () => {
   const viewerSelector = 'viewer-transactions';

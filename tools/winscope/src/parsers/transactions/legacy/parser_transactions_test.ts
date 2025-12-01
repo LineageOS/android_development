@@ -15,7 +15,7 @@
  */
 import {assertDefined} from 'common/assert';
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {
@@ -76,7 +76,7 @@ describe('ParserTransactions', () => {
         Long.fromString(BigInt(2450981445).toString()),
       );
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
 
@@ -183,7 +183,7 @@ describe('ParserTransactions', () => {
         Long.fromString(BigInt(14862317023).toString()),
       );
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
   });

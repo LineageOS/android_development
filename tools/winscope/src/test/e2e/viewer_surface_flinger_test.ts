@@ -26,7 +26,7 @@ import {
   selectItemInHierarchy,
   setTimeouts,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer Surface Flinger', () => {
   const viewerSelector = 'viewer-surface-flinger';

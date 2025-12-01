@@ -18,23 +18,20 @@ import {
   assertBigInt,
   assertBigIntOrUndefined,
   assertDefined,
-  assertNumberOrUndefined,
-  assertString,
-  assertStringOrUndefined,
 } from 'common/assert';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {InputCoordinatePropagator} from 'parsers/input/operations/input_coordinate_propagator';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {FakeProtoBuilder} from 'parsers/perfetto/fake_proto_builder';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryArgs, queryVsyncId} from 'parsers/perfetto/utils';
+import {queryArgs, queryVsyncId} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {perfetto} from 'protos/perfetto/trace/static';
 import {EnumFormatter} from 'trace/formatters';
 import {InputEventType} from 'trace/input/input_event_type';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
+import {
+  TAMPERED_WINSCOPE_EXTENSIONS,
+  TamperedMessageType,
+} from 'trace/proto_utils/tampered_message_type';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
@@ -50,6 +47,7 @@ import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 import {SetFormatters} from 'parsers/set_formatters';
+import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected static readonly WRAPPER_PROTO = assertDefined(
@@ -84,7 +82,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
     InputEventType,
   );
 
-  protected abstract readonly transformer: FakeProtoTransformer;
+  protected abstract readonly eventMessageType: TamperedMessageType;
   protected abstract readonly eventOps: Array<Operation<PropertyTreeNode>>;
   protected abstract readonly hierarchyTreeRootId: string;
   protected abstract readonly eventType: InputEventType;
@@ -130,43 +128,6 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
         );
       })
       .getResult();
-  }
-
-  protected async getDispatchEvents(
-    eventId: number,
-  ): Promise<perfetto.protos.AndroidWindowInputDispatchEvent[]> {
-    const sql = `
-        SELECT d.id,
-               args.key,
-               args.value_type,
-               args.int_value,
-               args.string_value,
-               args.real_value
-        FROM ${AbstractInputEventParser.DISPATCH_TABLE} AS d
-                 INNER JOIN args ON d.arg_set_id = args.arg_set_id
-        WHERE d.event_id = ${eventId}
-        ORDER BY d.id;
-    `;
-    const result = await this.traceProcessor.query(sql);
-
-    const dispatchEvents: perfetto.protos.AndroidWindowInputDispatchEvent[] =
-      [];
-    for (const it = result.iter({}); it.valid(); ) {
-      const builder = new FakeProtoBuilder();
-      const prevId = it.get('id');
-      while (it.valid() && it.get('id') === prevId) {
-        builder.addArg(
-          assertString(it.get('key')),
-          assertString(it.get('value_type')),
-          assertBigIntOrUndefined(it.get('int_value')),
-          assertNumberOrUndefined(it.get('real_value')),
-          assertStringOrUndefined(it.get('string_value')),
-        );
-        it.next();
-      }
-      dispatchEvents.push(builder.build());
-    }
-    return dispatchEvents;
   }
 
   protected override getStdLibModuleName(): string | undefined {
@@ -257,25 +218,84 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
       .build();
 
     const lazyPropertiesStrategy = async () => {
-      let event = await queryArgs(this.traceProcessor, Number(eventArgSetId));
-      event = this.transformer.transform(event);
-
-      const dispatchEvents = await this.getDispatchEvents(Number(eventId));
-
-      return new PropertyTreeBuilderFromProto()
-        .setData({event, dispatchEvents})
+      const props = new PropertyTreeBuilderFromProto()
+        .setData({event: null, dispatchEvents: []})
         .setRootId(this.hierarchyTreeRootId)
         .setRootName('entry')
         .build();
+      await this.updateInputEvent(Number(eventArgSetId), props);
+      await this.updateDispatchEvents(Number(eventId), props);
+      return props;
     };
 
-    const builder = new PropertiesProviderBuilder()
+    return new PropertiesProviderBuilder()
       .setEagerProperties(eagerProperties)
       .setCommonOperations(this.eventOps)
       .setLazyOperations(AbstractInputEventParser.DISPATCH_EVENT_OPS)
-      .setLazyPropertiesStrategy(lazyPropertiesStrategy);
+      .setLazyPropertiesStrategy(lazyPropertiesStrategy)
+      .build();
+  }
 
-    return builder.build();
+  private async updateInputEvent(argSetId: number, props: PropertyTreeNode) {
+    const event = assertDefined(props.getChildByName('event'));
+    const argsData = await queryArgs(this.traceProcessor, argSetId);
+    const inputEvent = new PropertyTreeBuilderFromArgs()
+      .setData(argsData.iter({}))
+      .setRootId(event.id)
+      .setRootName(event.name)
+      .setUseRootIdWithoutChange(true)
+      .setRootMessageType(this.eventMessageType)
+      .build();
+    props.addOrReplaceChild(inputEvent);
+  }
+
+  private async updateDispatchEvents(
+    eventId: number,
+    props: PropertyTreeNode,
+  ): Promise<void> {
+    const sql = `
+        SELECT d.id,
+               args.key,
+               args.value_type,
+               args.int_value,
+               args.string_value,
+               args.real_value
+        FROM ${AbstractInputEventParser.DISPATCH_TABLE} AS d
+                 INNER JOIN args ON d.arg_set_id = args.arg_set_id
+        WHERE d.event_id = ${eventId}
+        ORDER BY d.id;
+    `;
+    const result = await this.traceProcessor.query(sql);
+    const iter = result.iter({});
+
+    let prevId: bigint | undefined;
+    const rowValidityCheck = (row: RowIterator) => {
+      const rowId = assertBigInt(row.get('id'));
+      const isValid = prevId === undefined || rowId === prevId;
+      prevId = rowId;
+      return isValid;
+    };
+
+    const dispatchEvents = assertDefined(
+      props.getChildByName('dispatchEvents'),
+    );
+    while (iter.valid()) {
+      const existingChildren = dispatchEvents.getAllChildren().length;
+      const eventIndex = existingChildren.toString();
+      const dispatchEvent = new PropertyTreeBuilderFromArgs()
+        .setData(iter)
+        .setRootId(`${dispatchEvents.id}.${eventIndex}`)
+        .setRootName(eventIndex)
+        .setUseRootIdWithoutChange(true)
+        .setRootMessageType(
+          assertDefined(
+            AbstractInputEventParser.DISPATCH_EVENT_FIELD.tamperedMessageType,
+          ),
+        )
+        .setRowValidityCheck(rowValidityCheck)
+        .build();
+      dispatchEvents.addOrReplaceChild(dispatchEvent);
+    }
   }
 
   // Use a custom sql query to get the vsync_id of the first dispatch

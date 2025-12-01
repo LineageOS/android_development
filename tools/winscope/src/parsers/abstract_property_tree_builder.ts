@@ -21,8 +21,8 @@ import {PropertyTreeNode} from 'tree_node/property_tree_node';
  */
 export abstract class AbstractPropertyTreeBuilder<T> {
   protected data: T | undefined;
-  private rootId: string | number = 'UnknownRootId';
-  private rootName: string | undefined = 'UnknownRootName';
+  protected rootId: string | number = 'UnknownRootId';
+  protected rootName: string | undefined = 'UnknownRootName';
   private duplicateCount = 0;
 
   setData(value: T | undefined): this {

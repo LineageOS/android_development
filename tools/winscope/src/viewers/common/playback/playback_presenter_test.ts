@@ -46,7 +46,7 @@ import {TracePosition} from 'trace_api/trace_position';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {CornerRadii} from 'common/geometry/corner_radii';
 import {assertDefined} from 'common/assert';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 import {VideoFrameCache} from './video_frame_cache';
 
 describe('PlaybackPresenter', () => {

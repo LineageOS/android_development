@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {TracePacket} from 'compat/perfetto_version';
+import {TracePacket} from 'compat/perfetto';
 import {CoarseVersion} from './coarse_version';
 import {
   CustomQueryParamTypeMap,
@@ -26,7 +26,7 @@ import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {TraceType} from './trace_type';
 import {QueryResults, QueryResult} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 
 /**
  * Interface for a trace parser.

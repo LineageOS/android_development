@@ -28,12 +28,10 @@ import {
 } from 'parsers/warnings';
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryArgs} from 'parsers/perfetto/utils';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
+import {queryArgs} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {HwcCompositionType} from 'compat/winscope_protos';
 import {EnumFormatter, LAYER_ID_FORMATTER} from 'trace/formatters';
 import {TAMPERED_TRACE_PACKET} from 'trace/proto_utils/tampered_message_type';
 import {QueryResult, RowIterator} from 'trace_processor/query_result';
@@ -59,7 +57,8 @@ import {
   SnapshotRects,
   RectsForTrace,
   NodeRects,
-} from 'parsers/rect_extractor_result';
+} from 'tree_node/rect_extractor_result';
+import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 export function makeEntryHierarchyTrees(
   snapshotResults: QueryResult,
@@ -94,8 +93,9 @@ export function makeEntryHierarchyTrees(
       warnings,
       rects,
     );
-    // Since our query uses left joins there might be multiple rows for the same snapshotID
-    // We've already processed the unique information for the currentId, so we skip any remaining rows for this ID.
+    // Since the query uses left joins there might be multiple rows for the
+    // same snapshot ID. We've already processed the unique information for
+    // the currentId, so skip any remaining rows for this ID.
     while (
       currSnapshot.valid() &&
       assertBigInt(currSnapshot.get('id')) === currentId
@@ -365,31 +365,34 @@ function makeLayerLazyPropertiesStrategy(
   duplicateCount: number,
 ): LazyPropertiesStrategyType {
   return async (traceProcessor?: TraceProcessor, argSetId?: bigint) => {
-    const data = await queryArgs(
+    const argsData = await queryArgs(
       assertDefined(traceProcessor),
       Number(argSetId),
     );
-    return new PropertyTreeBuilderFromProto()
-      .setData(LAYER_TRANSFORMER.transform(data))
+
+    return new PropertyTreeBuilderFromArgs()
+      .setData(argsData.iter({}))
       .setRootId(layerId)
       .setRootName(layerName)
       .setDenyList(DENYLIST_PROPERTIES)
       .setDuplicateCount(duplicateCount)
+      .setRootMessageType(assertDefined(LAYER_FIELD.tamperedMessageType))
       .build();
   };
 }
 
 function makeEntryLazyPropertiesStrategy(): LazyPropertiesStrategyType {
   return async (traceProcessor?: TraceProcessor, argSetId?: bigint) => {
-    const data = await queryArgs(
+    const argsData = await queryArgs(
       assertDefined(traceProcessor),
       Number(argSetId),
     );
-    return new PropertyTreeBuilderFromProto()
-      .setData(SNAPSHOT_TRANSFORMER.transform(data))
+    return new PropertyTreeBuilderFromArgs()
+      .setData(argsData.iter({}))
       .setRootId('LayerTraceEntry')
       .setRootName('root')
       .setDenyList(DENYLIST_PROPERTIES)
+      .setRootMessageType(assertDefined(ENTRY_FIELD.tamperedMessageType))
       .build();
   };
 }
@@ -399,17 +402,11 @@ const ENTRY_FIELD =
 const LAYER_FIELD = assertDefined(
   ENTRY_FIELD.tamperedMessageType?.fields['layers'].tamperedMessageType,
 ).fields['layers'];
-const SNAPSHOT_TRANSFORMER = new FakeProtoTransformer(
-  assertDefined(ENTRY_FIELD.tamperedMessageType),
-);
-const LAYER_TRANSFORMER = new FakeProtoTransformer(
-  assertDefined(LAYER_FIELD.tamperedMessageType),
-);
 
 const CUSTOM_FORMATTERS = new Map([
   ['cropLayerId', LAYER_ID_FORMATTER],
   ['zOrderRelativeOf', LAYER_ID_FORMATTER],
-  ['hwcCompositionType', new EnumFormatter(perfetto.protos.HwcCompositionType)],
+  ['hwcCompositionType', new EnumFormatter(HwcCompositionType)],
 ]);
 
 const Operations = {

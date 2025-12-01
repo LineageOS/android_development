@@ -17,12 +17,12 @@
 import {globalConfig} from 'common/global_config';
 import {getRootUrl} from 'common/window';
 import {initWasm} from './perfetto/wasm_engine_proxy';
-import {TraceProcessorProxy} from './trace_processor';
+import {TraceProcessor, TraceProcessorProxy} from './trace_processor';
 
 export class TraceProcessorFactory {
-  private static tp?: TraceProcessorProxy;
+  private static tp?: TraceProcessor;
 
-  static getSingleInstance(): TraceProcessorProxy {
+  static getSingleInstance(): TraceProcessor {
     if (!TraceProcessorFactory.tp) {
       const traceProcessorRootUrl =
         globalConfig.MODE === 'KARMA_TEST'

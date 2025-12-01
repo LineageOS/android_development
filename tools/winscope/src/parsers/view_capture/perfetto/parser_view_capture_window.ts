@@ -39,7 +39,7 @@ import {
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
-import {RectsForTrace} from 'parsers/rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 
 /**
  * A parser for a single window in a Perfetto ViewCapture trace.

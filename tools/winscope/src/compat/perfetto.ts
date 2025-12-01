@@ -33,10 +33,54 @@ export const VERSION = BaseSCM_REVISION;
 export const SCM_REVISION = BaseVERSION;
 
 /**
+ * The Trace type from the Perfetto build.
+ *
+ * It is a compatibility alias for Google3.
+ */
+import Trace = perfetto.protos.Trace;
+
+/**
+ * The ITracePacket type from the Perfetto build.
+ *
+ * It is a compatibility alias for Google3.
+ */
+import ITracePacket = perfetto.protos.ITracePacket;
+
+/**
  * The TracePacket type from the Perfetto build.
  *
  * This type is used to represent the TracePacket type from the Perfetto build.
  * It is a compatibility alias for the PerfettoTracePacket type, which is the
  * actual type used in the Perfetto build.
  */
-export type TracePacket = perfetto.protos.TracePacket;
+import TracePacket = perfetto.protos.TracePacket;
+
+/**
+ * The ClockSnapshot clock type from the Perfetto build.
+ *
+ * It is a compatibility alias for Google3.
+ */
+import ClockSnapshot = perfetto.protos.ClockSnapshot;
+
+/**
+ * The InternedString clock type from the Perfetto build.
+ *
+ * It is a compatibility alias for Google3.
+ */
+import InternedString = perfetto.protos.InternedString;
+
+/**
+ * The InternedData clock type from the Perfetto build.
+ *
+ * It is a compatibility alias for Google3.
+ */
+import InternedData = perfetto.protos.InternedData;
+
+export {
+  ClockSnapshot,
+  InternedData,
+  InternedString,
+  ITracePacket,
+  Trace,
+  TracePacket,
+};

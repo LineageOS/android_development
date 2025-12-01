@@ -17,7 +17,11 @@
 import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {
+  ClockSnapshot as PerfettoClockSnapshot,
+  Trace,
+  TracePacket,
+} from 'compat/perfetto';
 import {ParserBuilder} from 'test/unit/parser_builder';
 import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
@@ -27,8 +31,6 @@ import {
   ClockSnapshot,
   LegacyToPerfettoConverter,
 } from './legacy_to_perfetto_converter';
-
-type TracePacket = perfetto.protos.TracePacket;
 
 describe('LegacyToPerfettoConverter', () => {
   const packetB1 = makePacketWithBoottimeTs(10);
@@ -40,7 +42,7 @@ describe('LegacyToPerfettoConverter', () => {
 
   const perfettoClock = {realtime: 50n, boottime: 30n, monotonic: 40n};
   const perfettoSnapshot = makeExpectedClockSnapshot(perfettoClock);
-  const emptyPacket = perfetto.protos.TracePacket.create();
+  const emptyPacket = TracePacket.create();
   const existingFile = makeExistingPerfettoFile(perfettoSnapshot, emptyPacket);
 
   it('converts multiple legacy files to new perfetto file', async () => {
@@ -79,7 +81,7 @@ describe('LegacyToPerfettoConverter', () => {
     const parser = makeParser([packetB0]);
     expect(packetB0.timestamp).toEqual(Long.fromInt(0, true));
 
-    const existingPacket = perfetto.protos.TracePacket.create();
+    const existingPacket = TracePacket.create();
     existingPacket.timestamp = Long.fromInt(50, true);
     const fileWithPacket = makeExistingPerfettoFile(
       perfettoSnapshot,
@@ -181,7 +183,7 @@ describe('LegacyToPerfettoConverter', () => {
   it('robust to errors in existing trace decoding', async () => {
     const userNotifierChecker = new UserNotifierChecker();
     const parser = makeParser([]);
-    spyOn(perfetto.protos.Trace, 'decode').and.throwError('decoding failed');
+    spyOn(Trace, 'decode').and.throwError('decoding failed');
     const perfettoFile = await convertToPerfetto([parser], existingFile);
     expect(perfettoFile).toEqual(existingFile);
     userNotifierChecker.expectNotified([
@@ -210,20 +212,18 @@ describe('LegacyToPerfettoConverter', () => {
   });
 
   function makePacketWithMonotonicTs(ts: number) {
-    return perfetto.protos.TracePacket.create({
+    return TracePacket.create({
       trustedPacketSequenceId: 1,
       timestamp: Long.fromInt(ts, true),
-      timestampClockId:
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      timestampClockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
     });
   }
 
   function makePacketWithBoottimeTs(ts: number) {
-    return perfetto.protos.TracePacket.create({
+    return TracePacket.create({
       trustedPacketSequenceId: 1,
       timestamp: Long.fromInt(ts, true),
-      timestampClockId:
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      timestampClockId: PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     });
   }
 
@@ -308,14 +308,11 @@ describe('LegacyToPerfettoConverter', () => {
     clockSnapshot20: TracePacket,
     emptyPacket: TracePacket,
   ) {
-    const existingTrace = perfetto.protos.Trace.fromObject({
+    const existingTrace = Trace.fromObject({
       packet: [clockSnapshot20, emptyPacket],
     });
     return new TraceFile(
-      new File(
-        [perfetto.protos.Trace.encode(existingTrace).finish()],
-        'existing_trace',
-      ),
+      new File([Trace.encode(existingTrace).finish()], 'existing_trace'),
     );
   }
 
@@ -350,11 +347,11 @@ describe('LegacyToPerfettoConverter', () => {
 
   async function checkAndDecodePerfettoFile(
     perfettoFile: TraceFile,
-  ): Promise<perfetto.protos.Trace> {
+  ): Promise<Trace> {
     const expectedPerfettoTraceName = 'combined_winscope_trace.perfetto-trace';
     expect(perfettoFile.getDescriptor()).toEqual(expectedPerfettoTraceName);
     const fileBuffer = new Uint8Array(await perfettoFile.file.arrayBuffer());
-    return perfetto.protos.Trace.decode(fileBuffer);
+    return Trace.decode(fileBuffer);
   }
 
   function makeExpectedClockSnapshot(
@@ -363,19 +360,18 @@ describe('LegacyToPerfettoConverter', () => {
     const realtime = Long.fromString(clockSnapshot.realtime.toString());
     const clocks = [
       {
-        clockId:
-          perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.REALTIME_COARSE,
+        clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME_COARSE,
         timestamp: realtime,
       },
       {
-        clockId: perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.REALTIME,
+        clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME,
         timestamp: realtime,
       },
     ];
 
     if (clockSnapshot.boottime !== undefined) {
       clocks.push({
-        clockId: perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+        clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
         timestamp: Long.fromString(clockSnapshot.boottime.toString()),
       });
     }
@@ -385,26 +381,22 @@ describe('LegacyToPerfettoConverter', () => {
       clocks.push(
         ...[
           {
-            clockId:
-              perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+            clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
             timestamp: monotonic,
           },
           {
-            clockId:
-              perfetto.protos.ClockSnapshot.Clock.BuiltinClocks
-                .MONOTONIC_COARSE,
+            clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_COARSE,
             timestamp: monotonic,
           },
           {
-            clockId:
-              perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC_RAW,
+            clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_RAW,
             timestamp: monotonic,
           },
         ],
       );
     }
 
-    return perfetto.protos.TracePacket.fromObject({
+    return TracePacket.fromObject({
       trustedPacketSequenceId: 1,
       clockSnapshot: {
         clocks,

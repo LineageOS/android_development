@@ -4,11 +4,10 @@ package {
 
 android_sdk_repo_host {
     name: "build-tools",
-    product_variables: {
-        platform_version_name: {
-            base_dir: "android-%s",
-        },
-    },
+    base_dir: select(soong_config_variable("sdk", "sdk_platform_dir_name"), {
+        any @ sdk_platform_dir_name: sdk_platform_dir_name,
+        default: "android",
+    }),
 
     srcs: [
         ":build_tools_source_properties",
@@ -318,11 +317,10 @@ genrule {
 
 android_sdk_repo_host {
     name: "platforms",
-    product_variables: {
-        platform_version_name: {
-            base_dir: "android-%s",
-        },
-    },
+    base_dir: select(soong_config_variable("sdk", "sdk_platform_dir_name"), {
+        any @ sdk_platform_dir_name: sdk_platform_dir_name,
+        default: "android",
+    }),
     srcs: [
         ":sdk_platform_sources_properties",
         ":sdk_build_prop",
@@ -348,11 +346,10 @@ sh_binary_host {
 
 android_sdk_repo_host {
     name: "samples",
-    product_variables: {
-        platform_version_name: {
-            base_dir: "android-%s",
-        },
-    },
+    base_dir: select(soong_config_variable("sdk", "sdk_platform_dir_name"), {
+        any @ sdk_platform_dir_name: sdk_platform_dir_name,
+        default: "android",
+    }),
     merge_zips: [
         ":sdk_repo_sample_legacy_zip",
         ":sdk_repo_sample_new_zip",
@@ -406,4 +403,85 @@ android_sdk_repo_host {
     merge_zips: [
         ":sdk_repo_docs_zip",
     ],
+}
+
+// Replacement for those sdk related target being disted, original defined under
+// development/build/tools/sdk-preprocess-files.mk
+// TODO(b/461970385): Move those dist targets to the srcs directly.
+genrule {
+    name: "sdk_data_dist",
+    device_common_srcs: [
+        ":sdk-annotations.zip",
+        ":api_versions_public{.api_versions.xml}",
+    ],
+    out: [
+        "annotations.zip",
+        "api-versions.xml",
+    ],
+    cmd: "cp $(location :sdk-annotations.zip) $(genDir)/annotations.zip && " +
+        "cp $(location :api_versions_public{.api_versions.xml}) $(genDir)/api-versions.xml",
+    dist: {
+        targets: ["sdk"],
+        dir: "data",
+    },
+}
+
+genrule {
+    name: "sdk_module_lib_data_dist",
+    device_common_srcs: [
+        ":sdk-annotations-module-lib.zip",
+        ":api_versions_module_lib_complete{.api_versions.xml}",
+        ":api_versions_module_lib{.api_versions.xml}",
+    ],
+    out: [
+        "annotations.zip",
+        "api-versions-complete.xml",
+        "api-versions.xml",
+    ],
+    cmd: "cp $(location :sdk-annotations-module-lib.zip) $(genDir)/annotations.zip && " +
+        "cp $(location :api_versions_module_lib_complete{.api_versions.xml}) $(genDir)/api-versions-complete.xml && " +
+        "cp $(location :api_versions_module_lib{.api_versions.xml}) $(genDir)/api-versions.xml",
+    dist: {
+        targets: ["sdk"],
+        dir: "module-lib-data",
+    },
+}
+
+genrule {
+    name: "sdk_system_data_dist",
+    device_common_srcs: [
+        ":sdk-annotations-system.zip",
+        ":api_versions_system{.api_versions.xml}",
+    ],
+    out: [
+        "annotations.zip",
+        "api-versions.xml",
+    ],
+    cmd: "cp $(location :sdk-annotations-system.zip) $(genDir)/annotations.zip && " +
+        "cp $(location :api_versions_system{.api_versions.xml}) $(genDir)/api-versions.xml",
+    dist: {
+        targets: ["sdk"],
+        dir: "system-data",
+    },
+}
+
+genrule {
+    name: "sdk_system_server_data_dist",
+    device_common_srcs: [
+        ":sdk-annotations-system-server.zip",
+        ":api_versions_system_server_complete{.api_versions.xml}",
+        ":api_versions_system_server{.api_versions.xml}",
+    ],
+    out: [
+        "annotations.zip",
+        "api-versions-complete.xml",
+        "api-versions.xml",
+    ],
+    cmd: "cp $(location :sdk-annotations-system-server.zip) $(genDir)/annotations.zip && " +
+        "cp $(location :api_versions_system_server_complete{.api_versions.xml}) $(genDir)/api-versions-complete.xml && " +
+        "cp $(location :api_versions_system_server{.api_versions.xml}) $(genDir)/api-versions.xml",
+    dist: {
+        targets: ["sdk"],
+        dir: "system-server-data",
+    },
 }

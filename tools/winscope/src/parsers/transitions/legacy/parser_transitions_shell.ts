@@ -16,14 +16,15 @@
 
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {
+  ShellHandlerMappings,
+  IShellTransition as PerfettoTransition,
+} from 'compat/winscope_protos';
+import {TracePacket} from 'compat/perfetto';
 import root from 'protos/transitions/udc/json';
 import {com} from 'protos/transitions/udc/static';
 import {TraceType} from 'trace_api/trace_type';
-import {
-  nullifyIfDefaultValue,
-  PerfettoTransition,
-} from './perfetto_conversion_helpers';
+import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
 
 /**
  * Parser for Shell Transition trace files.
@@ -82,13 +83,12 @@ export class ParserTransitionsShell extends AbstractParser<
     return perfettoTransition;
   }
 
-  createHandlerMappingPacket(sequenceId: number): perfetto.protos.TracePacket {
-    const packet = perfetto.protos.TracePacket.create();
+  createHandlerMappingPacket(sequenceId: number): TracePacket {
+    const packet = TracePacket.create();
     packet.trustedPacketSequenceId = sequenceId;
-    packet.shellHandlerMappings =
-      perfetto.protos.ShellHandlerMappings.fromObject({
-        mapping: this.handlerMapping,
-      });
+    packet.shellHandlerMappings = ShellHandlerMappings.fromObject({
+      mapping: this.handlerMapping,
+    });
     return packet;
   }
 

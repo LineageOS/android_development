@@ -119,14 +119,15 @@ import {ViewerEvents} from 'viewers/common/viewer_events';
               Loading queued frame...
             </div>
           }
+          @let currentTime = getCurrentTime();
           @if (hasImageToShow()) {
             <canvas
               id="frameCanvasElementOverlay"
               [class.reduce-opacity]="showFetchingEntriesMessage"
               #frameCanvasElementOverlay></canvas>
-          } @else if (safeUrl !== undefined && getCurrentTime() !== undefined) {
+          } @else if (safeUrl !== undefined && currentTime !== undefined) {
             <video
-              [currentTime]="getCurrentTime()"
+              [currentTime]="currentTime"
               [src]="safeUrl"
               preload="auto"
               #videoElement></video>
@@ -270,32 +271,37 @@ export class ViewerMediaBasedComponent {
   private calls = 0;
 
   ngOnChanges(changes: SimpleChanges) {
-    this.changeDetectorRef.detectChanges();
     this.calls++;
     const currCall = this.calls;
 
-    if (changes['isFetchingEntries']?.currentValue) {
-      this.ngZone.run(() => {
-        new Timer(1000).sleepMs().then(() => {
-          if (!this.isFetchingEntries || currCall !== this.calls) {
-            return;
-          }
-          this.showFetchingEntriesMessage = true;
-          this.changeDetectorRef.detectChanges();
+    if (changes['isFetchingEntries']) {
+      if (changes['isFetchingEntries'].currentValue) {
+        this.ngZone.run(() => {
+          new Timer(1000).sleepMs().then(() => {
+            if (!this.isFetchingEntries || currCall !== this.calls) {
+              return;
+            }
+            this.showFetchingEntriesMessage = true;
+            this.changeDetectorRef.detectChanges();
+          });
         });
-      });
+      } else {
+        this.showFetchingEntriesMessage = false;
+        this.changeDetectorRef.detectChanges();
+      }
+      if (Object.keys(changes).length === 1) {
+        // Do not trigger change detection if isFetchingEntries is the
+        // only input to have changed.
+        return;
+      }
     }
 
-    if (!this.isFetchingEntries) {
-      this.showFetchingEntriesMessage = false;
-      this.changeDetectorRef.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
 
-    if (this.currentTraceEntries.length === 0) {
-      return;
-    }
-
-    if (!changes['currentTraceEntries']) {
+    if (
+      !changes['currentTraceEntries'] ||
+      this.currentTraceEntries.length === 0
+    ) {
       return;
     }
 
@@ -435,11 +441,6 @@ export class ViewerMediaBasedComponent {
         URL.createObjectURL(curr.frameData),
       );
       this.changeDetectorRef.detectChanges();
-      const video = this.videoElement?.nativeElement;
-      const currTime = this.getCurrentTime();
-      if (video && currTime !== undefined) {
-        video.currentTime = currTime;
-      }
       this.resetFrameSizeWorker();
     }
   }

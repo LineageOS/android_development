@@ -39,6 +39,7 @@ import sys
 import tempfile
 import threading
 import time
+from urllib import parse
 
 
 INFO = logging.INFO
@@ -59,8 +60,8 @@ assert (
 log = logging.getLogger("Temp")
 secret_token: str = ""
 
-# Keep in sync with winscope_proxy_utils VERSION in Winscope
-VERSION = "6.0.1"
+# Keep in sync with VERSION in src/trace_collection/winscope_proxy/utils.ts
+VERSION = "6.0.2"
 
 WINSCOPE_VERSION_HEADER = "Winscope-Proxy-Version"
 WINSCOPE_TOKEN_HEADER = "Winscope-Token"
@@ -285,7 +286,7 @@ def call_adb(params: str, device: str | None = None):
 class ListDevicesEndpoint(RequestEndpoint):
   """Endpoint to list connected ADB devices."""
 
-  ADB_INFO_RE = re.compile("^([A-Za-z0-9._:\\-]+)\\s+(\\w+)(.*model:(\\w+))?")
+  ADB_INFO_RE = re.compile("^([A-Za-z0-9._:/\\-]+)\\s+(\\w+)(.*model:(\\w+))?")
 
   def process(self, http_server, path):
     """Processes the request to list connected ADB devices.
@@ -326,8 +327,10 @@ class DeviceRequestEndpoint(RequestEndpoint):
     Raises:
       BadRequestError: If the device ID is not specified or invalid.
     """
-    if path and re.fullmatch("[A-Za-z0-9._:\\-]+", path[0]):
-      self.process_with_device(http_server, path[1:], path[0])
+    encoded_device_id = path[0]
+    device_id = parse.unquote(encoded_device_id)
+    if path and re.fullmatch("[A-Za-z0-9._:/\\-]+", device_id):
+      self.process_with_device(http_server, path[1:], device_id)
     else:
       raise BadRequestError("Device id not specified")
 

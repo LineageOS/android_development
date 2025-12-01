@@ -16,7 +16,7 @@
 import {assertDefined} from 'common/assert';
 import {utf8Encode} from 'common/string_helpers';
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
   makeRealTimestamp,
@@ -76,13 +76,13 @@ describe('ParserViewCapture', () => {
       Long.fromString(BigInt(181114412436130).toString()),
     );
     expect(packets[0].timestampClockId).toEqual(
-      perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(packets[0].trustedUid).toBe(2);
     expect(packets[0].trustedPid).toBe(3);
     expect(packets[0].sequenceFlags).toBe(3);
     expect(packets[1].sequenceFlags).toEqual(
-      perfetto.protos.TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+      TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     );
 
     const vcData = assertDefined(

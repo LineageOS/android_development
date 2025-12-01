@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {EventTag} from 'parsers/events/legacy/event_tag';
-import {AddCujProperties} from 'parsers/events/legacy/operations/add_cuj_properties';
+import {AddCujProperties} from 'parsers/events/legacy/add_cuj_properties';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';

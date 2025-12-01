@@ -24,15 +24,14 @@ import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {
   getDistinctValues,
   queryArgs,
   queryVsyncId,
-} from 'parsers/perfetto/utils';
+} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {LayerState} from 'compat/winscope_protos';
 import {EnumFormatter, FixedStringFormatter} from 'trace/formatters';
 import {
   TAMPERED_TRACE_PACKET,
@@ -60,6 +59,7 @@ import {
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
 import {SetFormatters} from 'parsers/set_formatters';
+import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TransactionsTraceEntryField =
@@ -393,7 +393,7 @@ LEFT JOIN ranked_process_matches AS rpm
 
     if (argSetId !== undefined && field !== undefined) {
       const customFormatters = new Map<string, PropertyFormatter>([
-        ['flags', new EnumFormatter(perfetto.protos.LayerState.Flags)],
+        ['flags', new EnumFormatter(LayerState.Flags)],
       ]);
       const flagsId = eagerProperties.getChildByName('flagsId');
       if (flagsId !== undefined) {
@@ -406,16 +406,13 @@ LEFT JOIN ranked_process_matches AS rpm
       ];
 
       const lazyPropertiesStrategy = async () => {
-        let data = await queryArgs(this.traceProcessor, Number(argSetId));
-        const transformer = new FakeProtoTransformer(
-          assertDefined(field?.tamperedMessageType),
-        );
-        data = transformer.transform(data);
+        const argsData = await queryArgs(this.traceProcessor, Number(argSetId));
 
-        return new PropertyTreeBuilderFromProto()
-          .setData(data)
+        return new PropertyTreeBuilderFromArgs()
+          .setData(argsData.iter({}))
           .setRootId(index)
           .setRootName(assertDefined(field).name)
+          .setRootMessageType(assertDefined(field?.tamperedMessageType))
           .build();
       };
 

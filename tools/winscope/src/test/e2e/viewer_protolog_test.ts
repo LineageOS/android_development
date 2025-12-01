@@ -26,7 +26,7 @@ import {
   setTimeouts,
   updateInputField,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer Protolog', () => {
   const viewerSelector = 'viewer-protolog';

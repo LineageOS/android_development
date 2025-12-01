@@ -20,14 +20,14 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import Long from 'long';
 import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import {CoarseVersion} from 'trace_api/coarse_version';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {ParserTransitionsShell} from './parser_transitions_shell';
-import {PerfettoTransition} from './perfetto_conversion_helpers';
+import {IShellTransition as PerfettoTransition} from 'compat/winscope_protos';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.
@@ -137,7 +137,7 @@ export class TracesParserTransitions extends AbstractTracesParser<PropertyTreeNo
     return true;
   }
 
-  convertToPerfettoPackets?(sequenceId: number): perfetto.protos.TracePacket[] {
+  convertToPerfettoPackets?(sequenceId: number): TracePacket[] {
     const packets = [];
 
     const shellParser = assertDefined(this.shellTransitionTrace).getParser();
@@ -148,12 +148,11 @@ export class TracesParserTransitions extends AbstractTracesParser<PropertyTreeNo
     );
 
     for (const entry of assertDefined(this.decodedEntries)) {
-      const packet = perfetto.protos.TracePacket.create();
+      const packet = TracePacket.create();
       packet.trustedPacketSequenceId = sequenceId;
       const ns = this.getTimestampNsFromTransitionProperties(entry) ?? 0n;
       packet.timestamp = Long.fromString(ns.toString());
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.shellTransition = entry;
       packets.push(packet);
     }

@@ -28,7 +28,7 @@ import {
   selectItemInHierarchy,
   setTimeouts,
   WINSCOPE_URL,
-} from './utils';
+} from './helpers';
 
 describe('Viewer Window Manager', () => {
   const viewerSelector = 'viewer-window-manager';

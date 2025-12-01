@@ -28,7 +28,7 @@ import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
 import Long from 'long';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ClockSnapshot} from 'compat/perfetto';
 
 describe('ParserWindowManager', () => {
   describe('trace with real timestamps', () => {
@@ -77,7 +77,7 @@ describe('ParserWindowManager', () => {
       ts.unsigned = true;
       expect(packets[0].timestamp).toEqual(ts);
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+        ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
       );
     });
 
@@ -166,7 +166,7 @@ describe('ParserWindowManager', () => {
       ts.unsigned = true;
       expect(packets[0].timestamp).toEqual(ts);
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+        ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
       );
     });
   });

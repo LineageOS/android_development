@@ -15,7 +15,7 @@
  */
 
 /**
- * An itnerface representing a distance between two points.
+ * An interface representing a distance between two points.
  */
 export declare interface Distance {
   dx: number;

@@ -57,7 +57,7 @@ describe('PerfettoParserInputMethodClients', () => {
   it('retrieves trace entry', async () => {
     const entry = await parser.getEntry(1);
     expect(entry).toBeInstanceOf(HierarchyTreeNode);
-    expect(entry.id).toBe('InputMethodClients entry');
+    expect(entry.id).toBe('InputMethodClientsTraceProto entry');
   });
 
   it('translates intdefs', async () => {

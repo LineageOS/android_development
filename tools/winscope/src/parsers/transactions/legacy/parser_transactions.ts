@@ -17,7 +17,8 @@
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {TransactionTraceEntry} from 'compat/winscope_protos';
+import {TracePacket, ClockSnapshot} from 'compat/perfetto';
 import root from 'protos/transactions/udc/json';
 import {android} from 'protos/transactions/udc/static';
 import {TraceType} from 'trace_api/trace_type';
@@ -73,18 +74,15 @@ export class ParserTransactions extends AbstractParser<
     return true;
   }
 
-  override convertToPerfettoPackets(
-    sequenceId: number,
-  ): perfetto.protos.TracePacket[] {
+  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
     for (const entry of this.decodedEntries) {
-      const packet = perfetto.protos.TracePacket.create();
+      const packet = TracePacket.create();
       packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
       packet.trustedPacketSequenceId = sequenceId;
       packet.surfaceflingerTransactions =
-        perfetto.protos.TransactionTraceEntry.fromObject(entry);
+        TransactionTraceEntry.fromObject(entry);
       packets.push(packet);
     }
     return packets;

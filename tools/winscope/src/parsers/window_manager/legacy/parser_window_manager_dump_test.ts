@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
   getTimestampConverter,
@@ -82,7 +82,7 @@ describe('ParserWindowManagerDump', () => {
     ts.unsigned = true;
     expect(packets[0].timestamp).toEqual(ts);
     expect(packets[0].timestampClockId).toEqual(
-      perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
   });
 

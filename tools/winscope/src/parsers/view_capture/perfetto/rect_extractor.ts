@@ -23,7 +23,7 @@ import {
   RectsForTrace,
   NodeRects,
   SnapshotRects,
-} from 'parsers/rect_extractor_result';
+} from 'tree_node/rect_extractor_result';
 
 /**
  * Extracts VC rect from a trace processor query result row.

@@ -19,7 +19,13 @@ import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ProtoLogMessage as PerfettoProtoLogMessage} from 'compat/winscope_protos';
+import {
+  ClockSnapshot,
+  InternedData,
+  InternedString,
+  TracePacket,
+} from 'compat/perfetto';
 import root from 'protos/protolog/udc/json';
 import {com} from 'protos/protolog/udc/static';
 import {TraceType} from 'trace_api/trace_type';
@@ -119,11 +125,11 @@ export class ParserProtoLog extends AbstractParser<
     sequenceId: number,
     trustedUid = 1,
     trustedPid = 1,
-  ): perfetto.protos.TracePacket[] {
+  ): TracePacket[] {
     const packets = [];
     const firstPacket = this.createPacket(sequenceId, trustedUid, trustedPid);
     firstPacket.sequenceFlags =
-      perfetto.protos.TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED;
+      TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED;
     packets.push(firstPacket);
     packets.push(this.makeViewerConfigPacket(sequenceId, trustedUid));
 
@@ -133,8 +139,7 @@ export class ParserProtoLog extends AbstractParser<
     for (const entry of this.decodedEntries) {
       const packet = this.createPacket(sequenceId, trustedUid, trustedPid);
       packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId =
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
 
       let messageId: Long;
       if (this.is64BitVersion(entry)) {
@@ -161,10 +166,10 @@ export class ParserProtoLog extends AbstractParser<
 
       if (strParamIids.length > 0) {
         packet.sequenceFlags =
-          perfetto.protos.TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE;
+          TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE;
       }
 
-      packet.protologMessage = perfetto.protos.ProtoLogMessage.create({
+      packet.protologMessage = PerfettoProtoLogMessage.create({
         messageId,
         strParamIids,
         sint64Params: entry.sint64Params,
@@ -188,7 +193,7 @@ export class ParserProtoLog extends AbstractParser<
   private makeViewerConfigPacket(
     sequenceId: number,
     trustedUid: number,
-  ): perfetto.protos.TracePacket {
+  ): TracePacket {
     const packet = this.createPacket(sequenceId, trustedUid, undefined);
     if (this.is64BitVersion(this.decodedEntries[0])) {
       packet.protologViewerConfig = CONFIG_64;
@@ -199,15 +204,15 @@ export class ParserProtoLog extends AbstractParser<
   }
 
   private updateInternedDataPacket(
-    packet: perfetto.protos.TracePacket,
+    packet: TracePacket,
     str: string,
     iid: number,
-  ): perfetto.protos.TracePacket {
-    const internedString = perfetto.protos.InternedString.fromObject({
+  ): TracePacket {
+    const internedString = InternedString.fromObject({
       iid: Long.fromNumber(iid),
       str: utf8Encode(str),
     });
-    packet.internedData = perfetto.protos.InternedData.fromObject({
+    packet.internedData = InternedData.fromObject({
       protologStringArgs: [internedString],
     });
     return packet;
@@ -217,8 +222,8 @@ export class ParserProtoLog extends AbstractParser<
     sequenceId: number,
     trustedUid: number | undefined,
     trustedPid: number | undefined,
-  ): perfetto.protos.TracePacket {
-    const packet = perfetto.protos.TracePacket.create();
+  ): TracePacket {
+    const packet = TracePacket.create();
     packet.trustedPacketSequenceId = sequenceId;
     packet.trustedUid = trustedUid;
     if (trustedPid) {

@@ -44,7 +44,7 @@ export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
   }
 
   protected updateWindowId(windowId: PropertyTreeNode) {
-    const value = windowId.getValue<bigint>() ?? undefined;
+    const value = windowId.getValue<bigint | number>() ?? undefined;
     if (value === undefined) {
       return;
     }

@@ -1,7 +1,7 @@
 import { ProgressTracker } from './../util/progress';
 import { GoldensService } from './../service/goldens.service';
 import {
-  AfterViewInit, ChangeDetectionStrategy, Component, computed, DoCheck,
+  ChangeDetectionStrategy, ChangeDetectorRef, Component, DoCheck,
   ElementRef, HostListener, OnDestroy, OnInit, signal, ViewChild
 } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,8 +10,7 @@ import { PreviewComponent } from '../preview/preview.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { GerritLinkPair, MotionGolden, PresubmitTest } from '../model/golden';
 import { finalize, Subscription } from 'rxjs';
-import { NgFor } from '@angular/common';
-import { JsonPipe, NgIf, NgStyle } from '@angular/common';
+import { NgIf, NgStyle } from '@angular/common';
 import {
   trigger,
   state,
@@ -108,7 +107,8 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     public dialog: MatDialog,
     private errorService: ErrorService,
     private snackBar: MatSnackBar,
-    private previewService: PreviewService
+    private previewService: PreviewService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   private errorSubscription!: Subscription;
@@ -408,6 +408,8 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
         finalize(() => {
           this.isRefreshing = false;
           this.progressTracker.endProgress();
+          this.selectedGolden = null;
+          this.cdr.detectChanges();
         })
       )
       .subscribe({

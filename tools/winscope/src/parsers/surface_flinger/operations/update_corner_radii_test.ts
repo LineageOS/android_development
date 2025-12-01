@@ -78,7 +78,7 @@ describe('UpdateCornerRadii', () => {
     return DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeDefaultProperty(
       propertyRoot.id,
       radiiName,
-      null,
+      undefined,
     );
   }
 });

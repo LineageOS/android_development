@@ -16,7 +16,7 @@
 import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {ClockSnapshot} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
@@ -89,7 +89,7 @@ describe('ParserSurfaceFlinger', () => {
         Long.fromString(BigInt(14500282843).toString()),
       );
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
 
@@ -227,7 +227,7 @@ describe('ParserSurfaceFlinger', () => {
         Long.fromString(BigInt(850335483446).toString()),
       );
       expect(packets[0].timestampClockId).toEqual(
-        perfetto.protos.ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
   });

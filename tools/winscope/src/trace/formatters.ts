@@ -72,6 +72,10 @@ export function formatAsHex(
   return withPrefix ? '0x' + hexValue : hexValue;
 }
 
+function formatAsValueOrNull(value: unknown) {
+  return `${value ?? 'null'}`;
+}
+
 class BufferFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
     return `w: ${node.getChildByName('width')?.getValue() ?? 0}, h: ${
@@ -155,7 +159,7 @@ class DefaultPropertyFormatter implements PropertyFormatter {
 
     if (value?.toString) return value.toString();
 
-    return `${value}`;
+    return formatAsValueOrNull(value);
   }
 }
 
@@ -190,7 +194,7 @@ export class EnumFormatter implements PropertyFormatter {
     if (typeof value === 'bigint' && this.valuesById[Number(value)]) {
       return this.valuesById[Number(value)];
     }
-    return this.overrideValue ?? `${value}`;
+    return this.overrideValue ?? formatAsValueOrNull(value);
   }
 }
 
@@ -234,7 +238,7 @@ export const HEX_NO_PREFIX_FORMATTER = new HexNoPrefixFormatter();
 class LayerIdFormatter implements PropertyFormatter {
   format(node: PropertyTreeNode): string {
     const value = node.getValue();
-    return value === -1 || value === 0 ? 'none' : `${value}`;
+    return value === -1 || value === 0 ? 'none' : formatAsValueOrNull(value);
   }
 }
 /**

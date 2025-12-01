@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {perfetto} from 'protos/perfetto/trace/static';
+import {HwcCompositionType} from 'compat/winscope_protos';
 import {
   makeCalculatedPropertyNode,
   makePropertyNode,
@@ -48,7 +48,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      perfetto.protos.HwcCompositionType.HWC_TYPE_CLIENT,
+      HwcCompositionType.HWC_TYPE_CLIENT,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -68,9 +68,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      perfetto.protos.HwcCompositionType[
-        perfetto.protos.HwcCompositionType.HWC_TYPE_CLIENT
-      ],
+      HwcCompositionType[HwcCompositionType.HWC_TYPE_CLIENT],
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -90,7 +88,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      perfetto.protos.HwcCompositionType.HWC_TYPE_DEVICE,
+      HwcCompositionType.HWC_TYPE_DEVICE,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -110,9 +108,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      perfetto.protos.HwcCompositionType[
-        perfetto.protos.HwcCompositionType.HWC_TYPE_DEVICE
-      ],
+      HwcCompositionType[HwcCompositionType.HWC_TYPE_DEVICE],
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -132,7 +128,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      perfetto.protos.HwcCompositionType.HWC_TYPE_SOLID_COLOR,
+      HwcCompositionType.HWC_TYPE_SOLID_COLOR,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -152,9 +148,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      perfetto.protos.HwcCompositionType[
-        perfetto.protos.HwcCompositionType.HWC_TYPE_SOLID_COLOR
-      ],
+      HwcCompositionType[HwcCompositionType.HWC_TYPE_SOLID_COLOR],
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 

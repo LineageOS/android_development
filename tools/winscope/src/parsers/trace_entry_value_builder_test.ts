@@ -19,7 +19,7 @@ import {QueryResult} from 'trace_processor/query_result';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {makeEntryHierarchyTrees} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TraceType} from 'trace_api/trace_type';
-import {RectsForTrace} from './rect_extractor_result';
+import {RectsForTrace} from 'tree_node/rect_extractor_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,

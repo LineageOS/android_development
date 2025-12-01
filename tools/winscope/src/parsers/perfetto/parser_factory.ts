@@ -34,7 +34,7 @@ import {ParserWindowManager} from 'parsers/window_manager/perfetto/parser_window
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
-import {TraceProcessorProxy} from 'trace_processor/trace_processor';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
@@ -71,6 +71,7 @@ export class ParserFactory {
     const traceProcessor = await this.initializeTraceProcessor();
     try {
       await this.loadFileInTp(traceFile.file, traceProcessor, progressListener);
+      await traceProcessor.notifyEof();
     } catch (e) {
       console.error('Trace processor failed to parse data:', e);
       return {
@@ -79,7 +80,6 @@ export class ParserFactory {
         traceGeometryData: undefined,
       };
     }
-    await traceProcessor.notifyEof();
 
     progressListener?.onProgressUpdate(
       'Reading from trace processor...',
@@ -136,7 +136,7 @@ export class ParserFactory {
     return {parsers, isPerfettoTrace: true, traceGeometryData};
   }
 
-  private async initializeTraceProcessor(): Promise<TraceProcessorProxy> {
+  private async initializeTraceProcessor(): Promise<TraceProcessor> {
     const traceProcessor = TraceProcessorFactory.getSingleInstance();
 
     await traceProcessor.reset({
@@ -150,7 +150,7 @@ export class ParserFactory {
     return traceProcessor;
   }
 
-  private async processGeometryTables(traceProcessor: TraceProcessorProxy) {
+  private async processGeometryTables(traceProcessor: TraceProcessor) {
     await traceProcessor.query('INCLUDE PERFETTO MODULE android.winscope.rect');
     await traceProcessor.query(`CREATE PERFETTO TABLE winscope_rect AS
       SELECT
@@ -172,7 +172,7 @@ export class ParserFactory {
 
   private async loadFileInTp(
     file: File,
-    traceProcessor: TraceProcessorProxy,
+    traceProcessor: TraceProcessor,
     progressListener?: ProgressListener,
   ) {
     for (

@@ -49,10 +49,10 @@ export class TamperedMessageType extends protobuf.Type {
   }
 
   private static tamperFieldDfs(field: protobuf.Field) {
-    //TODO: lookupType/lookupEnum are expensive operations. To avoid calling them many times
+    // lookupType/lookupEnum are expensive operations. To avoid calling them many times
     // during TreeNode Operation loops (e.g. SetFormatters, TranslateIntDef, AddDefaults),
     // we tamper protobuf.Field and protobuf.Type to provide a path linking a Field with
-    // its corresponding Type, greatly improving latency in building a properties tree
+    // its corresponding Type, greatly improving latency in building a properties tree.
     if ((field as TamperedProtoField).tamperedMessageType) {
       return;
     }

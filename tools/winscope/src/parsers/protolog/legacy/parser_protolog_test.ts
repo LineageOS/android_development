@@ -18,7 +18,7 @@ import {assertDefined} from 'common/assert';
 import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
-import {perfetto} from 'protos/perfetto/trace/static';
+import {InternedString, TracePacket} from 'compat/perfetto';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
   makeRealTimestamp,
@@ -29,6 +29,7 @@ import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {IProtoLogViewerConfig} from 'compat/winscope_protos';
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 interface ExpectedInternedData {
@@ -39,7 +40,7 @@ interface ExpectedInternedData {
 
 interface ExpectedMessagePacket {
   packetIndex: number;
-  sequenceFlags: perfetto.protos.TracePacket.SequenceFlags;
+  sequenceFlags: TracePacket.SequenceFlags;
   timestamp: Long;
   messageId: Long;
   strParamIids: number[];
@@ -60,7 +61,7 @@ abstract class ParserProtologTest {
   abstract readonly traceFile: string;
   abstract readonly timestampCount: number;
   abstract readonly first3ExpectedRealTimestamps: Timestamp[];
-  abstract readonly expectedConfig: perfetto.protos.IProtoLogViewerConfig;
+  abstract readonly expectedConfig: IProtoLogViewerConfig;
   abstract readonly internedData1: ExpectedInternedData;
   abstract readonly internedData2: ExpectedInternedData;
   abstract readonly messagePacketWithInternedStrings: ExpectedMessagePacket;
@@ -117,8 +118,7 @@ abstract class ParserProtologTest {
         const firstPacket = packets[0];
         expect(firstPacket.trustedPacketSequenceId).toEqual(sequenceId);
         expect(firstPacket.sequenceFlags).toEqual(
-          perfetto.protos.TracePacket.SequenceFlags
-            .SEQ_INCREMENTAL_STATE_CLEARED,
+          TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED,
         );
         expect(firstPacket.trustedUid).toEqual(trustedUid);
         expect(firstPacket.trustedPid).toEqual(trustedPid);
@@ -129,7 +129,7 @@ abstract class ParserProtologTest {
         const viewerConfigPacket = packets[1];
         expect(viewerConfigPacket.trustedPacketSequenceId).toEqual(sequenceId);
         expect(viewerConfigPacket.sequenceFlags).toEqual(
-          perfetto.protos.TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+          TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
         );
         expect(viewerConfigPacket.protologViewerConfig).toEqual(
           this.expectedConfig,
@@ -182,7 +182,7 @@ abstract class ParserProtologTest {
       });
 
       function checkMessagePacket(
-        packets: perfetto.protos.TracePacket[],
+        packets: TracePacket[],
         expectedMsg: ExpectedMessagePacket,
       ) {
         const packet = packets[expectedMsg.packetIndex];
@@ -213,18 +213,18 @@ abstract class ParserProtologTest {
       }
 
       function checkInternedDataPacket(
-        packets: perfetto.protos.TracePacket[],
+        packets: TracePacket[],
         expectedData: ExpectedInternedData,
       ) {
         const packet = packets[expectedData.packetIndex];
         expect(packet.trustedPacketSequenceId).toEqual(sequenceId);
         expect(packet.sequenceFlags).toEqual(
-          perfetto.protos.TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+          TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
         );
         expect(packet.trustedUid).toEqual(trustedUid);
         expect(packet.trustedPid).toEqual(trustedPid);
         expect(packet.internedData?.protologStringArgs).toEqual([
-          perfetto.protos.InternedString.fromObject({
+          InternedString.fromObject({
             iid: Long.fromNumber(expectedData.iid),
             str: utf8Encode(expectedData.str),
           }),
@@ -258,7 +258,7 @@ class ParserProtolog32Test extends ParserProtologTest {
   };
   override readonly messagePacketNoInternedStrings: ExpectedMessagePacket = {
     packetIndex: 50,
-    sequenceFlags: perfetto.protos.TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+    sequenceFlags: TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
     timestamp: Long.fromNumber(850755642097),
     messageId: Long.fromNumber(1984782949),
     strParamIids: [],
@@ -268,8 +268,7 @@ class ParserProtolog32Test extends ParserProtologTest {
   };
   override readonly messagePacketWithInternedStrings: ExpectedMessagePacket = {
     packetIndex: 4,
-    sequenceFlags:
-      perfetto.protos.TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+    sequenceFlags: TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     timestamp: Long.fromNumber(850746266486),
     messageId: Long.fromNumber(2070726247),
     strParamIids: [1, 2, 2],
@@ -309,7 +308,7 @@ class ParserProtolog64Test extends ParserProtologTest {
   };
   override readonly messagePacketNoInternedStrings: ExpectedMessagePacket = {
     packetIndex: 2,
-    sequenceFlags: perfetto.protos.TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+    sequenceFlags: TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
     timestamp: Long.fromNumber(1315553529939),
     messageId: Long.fromString('1665699123574159131'),
     strParamIids: [],
@@ -319,8 +318,7 @@ class ParserProtolog64Test extends ParserProtologTest {
   };
   override readonly messagePacketWithInternedStrings: ExpectedMessagePacket = {
     packetIndex: 9,
-    sequenceFlags:
-      perfetto.protos.TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+    sequenceFlags: TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     timestamp: Long.fromNumber(1315574594310),
     messageId: Long.fromString('-6873410057142191118'),
     strParamIids: [1, 2, 3, 4],
@@ -359,7 +357,7 @@ class ParserProtologMissingConfigTest extends ParserProtologTest {
   };
   override readonly messagePacketNoInternedStrings: ExpectedMessagePacket = {
     packetIndex: 92,
-    sequenceFlags: perfetto.protos.TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+    sequenceFlags: TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
     timestamp: Long.fromNumber(24398203599667),
     messageId: Long.fromString('1381227466'),
     strParamIids: [],
@@ -369,8 +367,7 @@ class ParserProtologMissingConfigTest extends ParserProtologTest {
   };
   override readonly messagePacketWithInternedStrings: ExpectedMessagePacket = {
     packetIndex: 3,
-    sequenceFlags:
-      perfetto.protos.TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+    sequenceFlags: TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     timestamp: Long.fromNumber(24398190144978),
     messageId: Long.fromNumber(585096182),
     strParamIids: [1],

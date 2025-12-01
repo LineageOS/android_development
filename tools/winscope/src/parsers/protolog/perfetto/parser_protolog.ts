@@ -18,7 +18,7 @@ import {MakeTimestampStrategyType} from 'common/time/time';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {getDistinctValues} from 'parsers/perfetto/utils';
+import {getDistinctValues} from 'parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
 import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
 import {
