@@ -23,8 +23,8 @@ import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'media_based_trace_entry/media_based_trace_entry';
-import {Thumbnail} from 'media_based_trace_entry/thumbnail';
+} from 'trace/media_based/media_based_trace_entry';
+import {Thumbnail} from 'trace/media_based/thumbnail';
 import {generateThumbnail} from './thumbnail_generator';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserExternalMetadata} from './parser_external_metadata';
@@ -36,7 +36,7 @@ import {
   ScreenRecordingParser,
   WINSCOPE_MAGIC_STRING,
 } from './helpers';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
 
 export class ParserScreenRecording extends AbstractParser<
   MediaBasedTraceEntry,

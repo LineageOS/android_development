@@ -80,9 +80,9 @@ import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'media_based_trace_entry/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {Thumbnail} from 'media_based_trace_entry/thumbnail';
+import {Thumbnail} from 'trace/media_based/thumbnail';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 describe('TimelineComponent', () => {

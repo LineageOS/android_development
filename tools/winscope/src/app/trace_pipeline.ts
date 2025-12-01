@@ -76,7 +76,7 @@ import {LoadedParsers} from './loaded_parsers';
 import {TraceFileFilter} from './trace_file_filter';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {getLogger, Logger} from 'compat/logging';
-import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 
 /**
  * A pipeline that loads, parses and transforms traces.

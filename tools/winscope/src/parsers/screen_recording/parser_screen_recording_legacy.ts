@@ -21,12 +21,12 @@ import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'media_based_trace_entry/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
 import {generateThumbnail} from './thumbnail_generator';
-import {Thumbnail} from 'media_based_trace_entry/thumbnail';
+import {Thumbnail} from 'trace/media_based/thumbnail';
 
 export class ParserScreenRecordingLegacy extends AbstractParser<
   MediaBasedTraceEntry,

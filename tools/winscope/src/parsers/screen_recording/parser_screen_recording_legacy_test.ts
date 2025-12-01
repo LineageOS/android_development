@@ -21,7 +21,7 @@ import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'media_based_trace_entry/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 

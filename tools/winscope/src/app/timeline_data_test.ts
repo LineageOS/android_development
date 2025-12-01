@@ -29,7 +29,7 @@ import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TimelineData} from './timeline_data';
-import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 
 describe('TimelineData', () => {
   let timelineData: TimelineData;

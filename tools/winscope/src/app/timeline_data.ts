@@ -19,7 +19,7 @@ import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
 import {makeWarningCannotParseAllTransitions} from './warnings';
 import {UserNotifier} from 'services/user_notifier';
-import {MediaBasedTraceEntry} from 'media_based_trace_entry/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TracePosition} from 'trace_api/trace_position';
@@ -31,7 +31,7 @@ import {
 import {Traces} from 'trace_api/traces';
 import {getLogger, Logger} from 'compat/logging';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
 
 /**
  * A container of all the timeline-related data.

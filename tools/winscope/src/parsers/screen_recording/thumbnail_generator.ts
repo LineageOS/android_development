@@ -15,9 +15,9 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {MediaBasedFrame} from 'media_based_trace_entry/media_based_frame';
-import {Thumbnail} from 'media_based_trace_entry/thumbnail';
-import {parseWebCodecData} from 'trace/screen_recording/helpers';
+import {MediaBasedFrame} from 'trace/media_based/media_based_frame';
+import {Thumbnail} from 'trace/media_based/thumbnail';
+import {parseWebCodecData} from 'trace/media_based/helpers';
 
 class ThumbnailBuilder {
   private spriteSheet: Blob | undefined;
