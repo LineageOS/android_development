@@ -23,6 +23,7 @@ import {
   makeRectNode,
   makeSizeNode,
 } from 'test/unit/tree_node_test_helpers';
+
 import {
   PropertyFormatter,
   PropertySource,

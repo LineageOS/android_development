@@ -17,6 +17,7 @@
 import {QueryResult} from 'trace_processor/query_result';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
+
 import {MediaBasedTraceEntry} from './media_based_trace_entry';
 
 /**

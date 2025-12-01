@@ -16,6 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
+
 import {ColumnType, QueryResult, RowIterator} from './query_result';
 import {TraceProcessorFactory} from './trace_processor_factory';
 
@@ -83,7 +84,8 @@ function makeSpyQueryResult(): jasmine.SpyObj<QueryResult> {
 /**
  * Sets the number of rows returned by a `QueryResult` spy's `numRows` method.
  * @param rows The number of rows to return.
- * @param spyQueryResult Optional existing `QueryResult` spy. If not provided, a new one is created.
+ * @param spyQueryResult Optional existing `QueryResult` spy. If not provided, a
+ *     new one is created.
  * @return The `QueryResult` spy with `numRows` configured.
  */
 export function setNumRowsSpyQueryResult(
@@ -97,7 +99,8 @@ export function setNumRowsSpyQueryResult(
 
 /**
  * Creates a basic Jasmine spy object for `RowIterator`.
- * The iterator is initially valid and becomes invalid after the first call to `next`.
+ * The iterator is initially valid and becomes invalid after the first call to
+ * `next`.
  * @return A Jasmine spy object for `RowIterator`.
  */
 export function makeSpyRowIterator(): jasmine.SpyObj<RowIterator> {
@@ -112,9 +115,11 @@ export function makeSpyRowIterator(): jasmine.SpyObj<RowIterator> {
 }
 
 /**
- * Configures a `RowIterator` spy to simulate iterating through a provided array of row data.
+ * Configures a `RowIterator` spy to simulate iterating through a provided array
+ * of row data.
  * @param iter The `RowIterator` spy to configure.
- * @param rows An array of objects, where each object represents a row and keys are column names.
+ * @param rows An array of objects, where each object represents a row and keys
+ *     are column names.
  */
 export function setupMockIteratorWithRows(
   iter: jasmine.SpyObj<RowIterator>,

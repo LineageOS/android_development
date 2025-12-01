@@ -19,6 +19,7 @@ import {TraceBuilder} from 'test/unit/trace_builder';
 import {extractFrames} from 'test/unit/traces_test_helpers';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
+
 import {CustomQueryType} from './custom_query';
 import {FrameMapper} from './frame_mapper';
 import {AbsoluteFrameIndex} from './index_types';

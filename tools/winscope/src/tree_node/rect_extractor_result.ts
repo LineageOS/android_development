@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TraceRect} from 'tree_node/trace_rect';
+import {TraceRect} from './trace_rect';
 
 /*
  * Type to keep the primary and secondary rects

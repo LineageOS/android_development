@@ -21,6 +21,7 @@ import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {RowIterator} from 'trace_processor/query_result';
 import {makeSpyRowIterator} from 'trace_processor/test_utils';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
+
 import {TraceRectBuilderFromQueryRow} from './trace_rect_builder_from_query_row';
 
 describe('TraceRectBuilderFromQueryRow', () => {

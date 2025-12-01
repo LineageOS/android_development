@@ -23,8 +23,8 @@ import {
 import {makeWarningMissingVsyncId} from 'parsers/warnings';
 import {UserNotifier} from 'services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 import {QueryResult} from 'trace_processor/query_result';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 
 export async function queryArgs(
   traceProcessor: TraceProcessor,

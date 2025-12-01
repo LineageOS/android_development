@@ -178,7 +178,8 @@ export class TraceRectBuilderFromQueryRow {
       if (this.transformMatrix) {
         matrix = this.transformMatrix;
       } else {
-        //TODO(b/436835528): remove once consumers of TraceRectBuilderFromQueryRow are adapted to use TraceGeometryData
+        // TODO(b/436835528): remove once consumers of
+        // TraceRectBuilderFromQueryRow are adapted to use TraceGeometryData
         matrix = TransformMatrix.from({
           dsdx: assertNumber(this.row.get('dsdx')),
           dtdx: assertNumber(this.row.get('dtdx')),

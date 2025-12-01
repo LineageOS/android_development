@@ -15,10 +15,6 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {
-  TamperedMessageType,
-  TamperedProtoField,
-} from 'trace/proto_utils/tampered_message_type';
 import {ProtobufEnum} from 'compat/protobuf';
 import {
   BUFFER_FORMATTER,
@@ -33,6 +29,10 @@ import {
   TIMESTAMP_NODE_FORMATTER,
   TRANSFORM_FORMATTER,
 } from 'trace/formatters';
+import {
+  TamperedMessageType,
+  TamperedProtoField,
+} from 'trace/proto_utils/tampered_message_type';
 import {Operation} from 'tree_node/operation';
 import {
   PropertyFormatter,

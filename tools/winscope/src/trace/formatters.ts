@@ -21,6 +21,7 @@ import {
   PropertyFormatter,
   PropertyTreeNode,
 } from 'tree_node/property_tree_node';
+
 import {CUJ_TYPE} from './cuj_type';
 
 /**

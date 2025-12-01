@@ -16,6 +16,7 @@
 
 import {Timestamp} from 'common/time/time';
 import {TimeDuration} from 'common/time/time_duration';
+
 import {
   PropertySource,
   PropertyTreeNode,

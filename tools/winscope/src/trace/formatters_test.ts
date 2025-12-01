@@ -15,8 +15,8 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {TransformTypeFlags} from 'common/geometry/transform';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {
   makeBufferNode,
@@ -29,6 +29,7 @@ import {
   makeTransformNode,
 } from 'test/unit/tree_node_test_helpers';
 import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+
 import {
   BUFFER_FORMATTER,
   COLOR_FORMATTER,

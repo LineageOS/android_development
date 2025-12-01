@@ -22,6 +22,7 @@ import {
   setupMockIteratorWithRows,
 } from 'trace_processor/test_utils';
 import {TraceProcessor} from 'trace_processor/trace_processor';
+
 import {
   TraceGeometryData,
   TraceGeometryDataBuilder,

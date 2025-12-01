@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import {UserWarning} from 'messaging/user_warning';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
-import {UserWarning} from 'messaging/user_warning';
 
 /**
  * A warning for duplicate layer IDs.
@@ -30,7 +30,9 @@ export function makeWarningDuplicateLayerIds(layerIds: number[]) {
 
 function makeErrorMessageDuplicateLayerIds(layerIds: number[]) {
   const optionalPlural = layerIds.length > 1 ? 's' : '';
-  return `Duplicate SF layer id${optionalPlural} ${layerIds.join(', ')} found - adding as "Duplicate" to the hierarchy`;
+  return `Duplicate SF layer id${optionalPlural} ${layerIds.join(
+    ', ',
+  )} found - adding as "Duplicate" to the hierarchy`;
 }
 
 /**
@@ -127,7 +129,9 @@ export function makeWarningRecursiveLayerIds(layerIds: number[]) {
 function makeErrorMessageRecursiveLayerIds(layerIds: number[]) {
   const optionalPlural = layerIds.length > 1 ? 's' : '';
   return (
-    `Recursive SF layer${optionalPlural} ${layerIds.join(', ')} found - same value set for id and parent,` +
+    `Recursive SF layer${optionalPlural} ${layerIds.join(
+      ', ',
+    )} found - same value set for id and parent,` +
     ` so added to separate root in hierarchy.`
   );
 }

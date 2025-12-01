@@ -15,11 +15,12 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {AbstractInputEventParser} from 'parsers/input/perfetto/abstract_input_event_parser';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
+import {SetFormatters} from 'parsers/set_formatters';
 import {InputEventType} from 'trace/input/input_event_type';
 import {TraceType} from 'trace_api/trace_type';
-import {SetFormatters} from 'parsers/set_formatters';
+
+import {AbstractInputEventParser} from './abstract_input_event_parser';
 
 export class ParserKeyEvent extends AbstractInputEventParser {
   private static readonly KEY_EVENT_FIELD =
