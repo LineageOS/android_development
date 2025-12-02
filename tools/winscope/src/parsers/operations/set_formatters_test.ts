@@ -16,7 +16,7 @@
 
 import {assertDefined} from 'common/assert';
 import {TransformTypeFlags} from 'common/geometry/transform';
-import root from 'protos/test/fake_proto/json';
+import {SetFormatters} from 'parsers/set_formatters';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {
@@ -33,7 +33,7 @@ import {
   TamperedProtoField,
 } from 'trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'parsers/set_formatters';
+import root from 'protos/test/fake_proto/json';
 
 describe('SetFormatters', () => {
   let propertyRoot: PropertyTreeNode;

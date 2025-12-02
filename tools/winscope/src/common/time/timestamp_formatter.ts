@@ -15,6 +15,7 @@
  */
 
 import {divideAndRound} from 'common/bigint_math';
+
 import {TimestampFormatter} from './time';
 import {TIME_UNIT_TO_NANO, TIME_UNITS} from './time_units';
 import {UTCOffset} from './utc_offset';
@@ -61,10 +62,11 @@ export class RealTimestampFormatter implements TimestampFormatter {
 
 /**
  * Formats timestamps representing elapsed time since an arbitrary point.
- * This formatter converts a `Timestamp` value (in nanoseconds) into a human-readable string
- * by breaking it down into units like days, hours, minutes, seconds, milliseconds, and nanoseconds.
- * It's useful for displaying durations or timestamps from sources that don't provide real-world time,
- * such as timestamps from traces that only provide monotonic time.
+ * This formatter converts a `Timestamp` value (in nanoseconds) into a
+ * human-readable string by breaking it down into units like days, hours,
+ * minutes, seconds, milliseconds, and nanoseconds. It's useful for displaying
+ * durations or timestamps from sources that don't provide real-world time, such
+ * as timestamps from traces that only provide monotonic time.
  */
 export class ElapsedTimestampFormatter {
   format(timestampNs: bigint): string {
@@ -99,8 +101,9 @@ export const REAL_TIMESTAMP_FORMATTER_UTC = new RealTimestampFormatter(
 );
 /**
  * Formats timestamps representing elapsed time since an arbitrary point.
- * This formatter converts a `Timestamp` value (in nanoseconds) into a human-readable string
- * by breaking it down into units like days, hours, minutes, seconds, milliseconds, and nanoseconds.
- * It's useful for displaying durations or timestamps from sources that don't provide real-world time.
+ * This formatter converts a `Timestamp` value (in nanoseconds) into a
+ * human-readable string by breaking it down into units like days, hours,
+ * minutes, seconds, milliseconds, and nanoseconds. It's useful for displaying
+ * durations or timestamps from sources that don't provide real-world time.
  */
 export const ELAPSED_TIMESTAMP_FORMATTER = new ElapsedTimestampFormatter();

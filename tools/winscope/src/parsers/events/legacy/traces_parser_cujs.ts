@@ -17,10 +17,9 @@
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {EventTag} from 'parsers/events/legacy/event_tag';
-import {AddCujProperties} from 'parsers/events/legacy/add_cuj_properties';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
+import {SetFormatters} from 'parsers/set_formatters';
 import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
 import {CUJ_TYPE_FORMATTER} from 'trace/formatters';
 import {CoarseVersion} from 'trace_api/coarse_version';
@@ -30,7 +29,9 @@ import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'parsers/set_formatters';
+
+import {AddCujProperties} from './add_cuj_properties';
+import {EventTag} from './event_tag';
 
 export class TracesParserCujs extends AbstractTracesParser<HierarchyTreeNode> {
   private static readonly ADD_CUJ_PROPERTIES = new AddCujProperties();

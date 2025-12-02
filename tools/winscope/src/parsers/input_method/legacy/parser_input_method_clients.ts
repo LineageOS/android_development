@@ -16,13 +16,13 @@
 
 import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import root from 'protos/ime/udc/json';
-import {android} from 'protos/ime/udc/static';
+import {ClockSnapshot, TracePacket} from 'compat/perfetto';
 import {InputMethodClientsTraceProto} from 'compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto';
+import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {TraceType} from 'trace_api/trace_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import root from 'protos/ime/udc/json';
+import {android} from 'protos/ime/udc/static';
 
 type ImeProto = android.view.inputmethod.IInputMethodClientsTraceProto;
 

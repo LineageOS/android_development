@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import {
-  binarySearchFirstGreater,
-  binarySearchFirstGreaterOrEqual,
-} from 'common/typed_array';
 import {assertDefined, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {UserTimestamp} from 'common/time/user_timestamp';
+import {
+  binarySearchFirstGreater,
+  binarySearchFirstGreaterOrEqual,
+} from 'common/typed_array';
+
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,

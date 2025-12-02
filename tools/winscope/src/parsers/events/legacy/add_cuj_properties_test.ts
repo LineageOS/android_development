@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {EventTag} from 'parsers/events/legacy/event_tag';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+
 import {AddCujProperties} from './add_cuj_properties';
+import {EventTag} from './event_tag';
 
 describe('AddCujProperties', () => {
   let operation: AddCujProperties;

@@ -18,6 +18,7 @@ import {CornerRadii} from 'common/geometry/corner_radii';
 import {Rect} from 'common/geometry/rect';
 import {Region} from 'common/geometry/region';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
+
 import {Item} from './item';
 
 /**

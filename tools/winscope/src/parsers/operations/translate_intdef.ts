@@ -133,7 +133,8 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
     }
 
     if (leftOver) {
-      // If 0 is a valid flag value that isn't in the intDefMapping it will be ignored
+      // If 0 is a valid flag value that isn't in the intDefMapping it will be
+      // ignored
       flags.push(this.formatUnknownFlag(leftOver));
     }
 

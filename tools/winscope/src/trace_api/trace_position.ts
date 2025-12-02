@@ -15,6 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
+
 import {AbsoluteFrameIndex} from './index_types';
 import {TraceEntry} from './trace';
 

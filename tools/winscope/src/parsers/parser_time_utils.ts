@@ -21,7 +21,8 @@ import {Parser} from 'trace_api/parser';
  * Gets the parser with the latest real-to-boottime offset.
  *
  * @param parsers The parsers to search.
- * @return The parser with the latest real-to-boottime offset, or undefined if no such parser exists.
+ * @return The parser with the latest real-to-boottime offset, or undefined if
+ *     no such parser exists.
  */
 export function getParserWithLatestRealToBootTimeOffset(
   parsers: Array<Parser<object>>,
@@ -41,7 +42,8 @@ export function getParserWithLatestRealToBootTimeOffset(
  * Gets the parser with the latest real-to-monotonic offset.
  *
  * @param parsers The parsers to search.
- * @return The parser with the latest real-to-monotonic offset, or undefined if no such parser exists.
+ * @return The parser with the latest real-to-monotonic offset, or undefined if
+ *     no such parser exists.
  */
 export function getParserWithLatestRealToMonotonicTimeOffset(
   parsers: Array<Parser<object>>,

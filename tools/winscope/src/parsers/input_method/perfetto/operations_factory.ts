@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import {TamperedProtoField} from 'trace/proto_utils/tampered_message_type';
-import {OperationLists} from './operation_lists';
 import {AddDefaults} from 'parsers/operations/add_defaults';
-import {SetFormatters} from 'parsers/set_formatters';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
+import {SetFormatters} from 'parsers/set_formatters';
+import {TamperedProtoField} from 'trace/proto_utils/tampered_message_type';
+
 import {CHILD_DENYLIST_PROPERTIES} from './child_denylist_properties';
+import {OperationLists} from './operation_lists';
 
 export function makeOperations(
   entryField: TamperedProtoField,

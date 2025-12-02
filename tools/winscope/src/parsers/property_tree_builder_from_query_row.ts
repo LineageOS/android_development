@@ -18,6 +18,7 @@ import {convertSnakeToCamelCase} from 'common/string_helpers';
 import {ColumnType, RowIterator} from 'trace_processor/query_result';
 import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {PropertyTreeNodeFactory} from 'tree_node/property_tree_node_factory';
+
 import {AbstractPropertyTreeBuilder} from './abstract_property_tree_builder';
 
 /**

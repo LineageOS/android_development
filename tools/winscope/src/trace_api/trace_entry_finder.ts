@@ -15,6 +15,7 @@
  */
 
 import {analyticsLogEvent} from 'common/analytics';
+
 import {Trace, TraceEntry} from './trace';
 import {TracePosition} from './trace_position';
 import {compareByUiPipelineOrder} from './trace_type';
