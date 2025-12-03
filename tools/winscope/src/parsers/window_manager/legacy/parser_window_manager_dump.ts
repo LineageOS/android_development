@@ -89,7 +89,7 @@ export class ParserWindowManagerDump extends AbstractParser<
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
     for (const entry of this.decodedEntries) {
-      const packet = TracePacket.create();
+      const packet = new TracePacket();
       packet.timestamp = Long.fromInt(0);
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedPacketSequenceId = sequenceId;

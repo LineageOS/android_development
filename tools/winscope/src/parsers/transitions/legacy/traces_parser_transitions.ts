@@ -148,7 +148,7 @@ export class TracesParserTransitions extends AbstractTracesParser<PropertyTreeNo
     );
 
     for (const entry of assertDefined(this.decodedEntries)) {
-      const packet = TracePacket.create();
+      const packet = new TracePacket();
       packet.trustedPacketSequenceId = sequenceId;
       const ns = this.getTimestampNsFromTransitionProperties(entry) ?? 0n;
       packet.timestamp = Long.fromString(ns.toString());

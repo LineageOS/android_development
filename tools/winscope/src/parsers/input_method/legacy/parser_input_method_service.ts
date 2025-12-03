@@ -75,7 +75,7 @@ export class ParserInputMethodService extends AbstractParser<
     const packets = [];
 
     for (const entry of this.decodedEntries) {
-      const packet = TracePacket.create();
+      const packet = new TracePacket();
       packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedPacketSequenceId = sequenceId;
