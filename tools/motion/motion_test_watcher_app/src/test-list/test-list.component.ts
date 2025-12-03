@@ -56,24 +56,38 @@ export class TestListComponent implements OnChanges {
 
 
   filterStatus: 'all' | 'pass' | 'fail' = 'all';
+  searchTerm: string = '';
+  filteredPresubmitTests: PresubmitTest[] = [];
 
   totalTestCount = 0;
   passingTestCount = 0;
   failingTestCount = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
+    let shouldUpdateGoldens = false;
     if (changes['goldens']) {
       this.totalTestCount = this.goldens.length;
       this.failingTestCount = this.goldens.filter(
         (golden) => golden.result !== 'PASSED'
       ).length;
       this.passingTestCount = this.totalTestCount - this.failingTestCount;
-      this.updateAndGroupGoldens()
+      shouldUpdateGoldens = true;
+    }
+
+    if (shouldUpdateGoldens || changes['presubmitTests']) {
+      this.updateAndGroupGoldens();
+      this.filterPresubmitTests();
     }
   }
 
   onFilterStatusChange(): void {
     this.updateAndGroupGoldens();
+    this.filterPresubmitTests();;
+  }
+
+  onSearchTermChange(): void {
+    this.updateAndGroupGoldens();
+    this.filterPresubmitTests();
   }
 
   triggerRefresh(clear: boolean): void {
@@ -126,12 +140,21 @@ export class TestListComponent implements OnChanges {
     } else {
       filteredGoldens = this.goldens.filter((golden) => golden.result !== 'PASSED');
     }
+
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const lowerSearchTerm = this.searchTerm.toLowerCase();
+      filteredGoldens = filteredGoldens.filter(golden =>
+        golden.testMethodName.toLowerCase().includes(lowerSearchTerm) ||
+        golden.testClassName.toLowerCase().includes(lowerSearchTerm)
+      );
+    }
     this.sortGoldensBasedOnFetchTime(filteredGoldens)
     this.filteredGoldens = this.groupGoldensByTime(filteredGoldens);
   }
 
   ngOnInit(): void {
     this.updateAndGroupGoldens();
+    this.filterPresubmitTests();;
   }
 
   private sortGoldensBasedOnFetchTime(goldens: MotionGolden[]): void {
@@ -344,6 +367,17 @@ export class TestListComponent implements OnChanges {
   get shouldShowRefreshButton(): boolean {
     return this.testMode !== TestModes.GERRIT
       && this.testMode !== TestModes.PRESUBMIT;
+  }
+
+  filterPresubmitTests(): void {
+    if (!this.searchTerm) {
+      this.filteredPresubmitTests = [...this.presubmitTests];
+      return;
+    }
+    const lowerSearchTerm = this.searchTerm.toLowerCase();
+    this.filteredPresubmitTests = this.presubmitTests.filter(test =>
+      test.testname.toLowerCase().includes(lowerSearchTerm)
+    );
   }
 }
 
