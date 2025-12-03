@@ -42,7 +42,7 @@ describe('LegacyToPerfettoConverter', () => {
 
   const perfettoClock = {realtime: 50n, boottime: 30n, monotonic: 40n};
   const perfettoSnapshot = makeExpectedClockSnapshot(perfettoClock);
-  const emptyPacket = TracePacket.create();
+  const emptyPacket = new TracePacket();
   const existingFile = makeExistingPerfettoFile(perfettoSnapshot, emptyPacket);
 
   it('converts multiple legacy files to new perfetto file', async () => {
@@ -81,7 +81,7 @@ describe('LegacyToPerfettoConverter', () => {
     const parser = makeParser([packetB0]);
     expect(packetB0.timestamp).toEqual(Long.fromInt(0, true));
 
-    const existingPacket = TracePacket.create();
+    const existingPacket = new TracePacket();
     existingPacket.timestamp = Long.fromInt(50, true);
     const fileWithPacket = makeExistingPerfettoFile(
       perfettoSnapshot,

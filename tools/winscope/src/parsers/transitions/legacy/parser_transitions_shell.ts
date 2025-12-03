@@ -84,7 +84,7 @@ export class ParserTransitionsShell extends AbstractParser<
   }
 
   createHandlerMappingPacket(sequenceId: number): TracePacket {
-    const packet = TracePacket.create();
+    const packet = new TracePacket();
     packet.trustedPacketSequenceId = sequenceId;
     packet.shellHandlerMappings = ShellHandlerMappings.fromObject({
       mapping: this.handlerMapping,

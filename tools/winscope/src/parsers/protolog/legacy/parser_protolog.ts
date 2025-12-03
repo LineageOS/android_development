@@ -223,7 +223,7 @@ export class ParserProtoLog extends AbstractParser<
     trustedUid: number | undefined,
     trustedPid: number | undefined,
   ): TracePacket {
-    const packet = TracePacket.create();
+    const packet = new TracePacket();
     packet.trustedPacketSequenceId = sequenceId;
     packet.trustedUid = trustedUid;
     if (trustedPid) {
