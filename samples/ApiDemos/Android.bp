@@ -20,6 +20,7 @@ android_test {
         "androidx.media3.media3-common",
         "androidx.media3.media3-exoplayer",
         "androidx.media3.media3-ui",
+        "androidx.media3.media3-session",
     ],
     sdk_version: "current",
     dex_preopt: {
