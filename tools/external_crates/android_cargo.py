@@ -23,7 +23,7 @@ import platform
 def main() -> None:
   platform_dir = "linux-x86"
   if sys.platform == "darwin":
-      platform_dir = "darwin-x86"
+      platform_dir = "darwin"
 
   prebuilt_bin = (
       (
