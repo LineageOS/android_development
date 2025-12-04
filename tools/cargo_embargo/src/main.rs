@@ -1199,7 +1199,8 @@ fn crate_to_bp_modules(
                 ExternType::ProcMacro => proc_macro_libs.push(extern_dep.lib_name.clone()),
             }
             if extern_dep.name != extern_dep.lib_name {
-                aliases.push(format!("{}:{}", extern_dep.lib_name, extern_dep.name));
+                let crate_name = extern_dep.name.replace("-", "_");
+                aliases.push(format!("{}:{}", extern_dep.lib_name, crate_name));
             }
         }
 
