@@ -1,0 +1,33 @@
+.proxy-command-text {
+  user-select: all;
+  overflow: auto;
+}
+
+.icon-information {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.further-adb-info-text {
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: break-word;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.further-adb-info-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.adb-info {
+  margin-left: 5px;
+}
+
+.adb-icon {
+  min-width: fit-content;
+}
