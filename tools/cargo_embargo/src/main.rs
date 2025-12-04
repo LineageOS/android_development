@@ -269,7 +269,7 @@ fn find_android_rust_toolchain() -> Result<PathBuf> {
 
     let android_top = env::var("ANDROID_BUILD_TOP")
         .context("ANDROID_BUILD_TOP was not set. Did you forget to run envsetup.sh?")?;
-    let stable_rustfmt = [android_top.as_str(), "prebuilts", "rust", platform_rustfmt]
+    let stable_rustfmt = [android_top.as_str(), "prebuilts", "rust-toolchain", platform_rustfmt]
         .into_iter()
         .collect::<PathBuf>();
     let canonical_rustfmt = stable_rustfmt.canonicalize()?;
