@@ -28,7 +28,7 @@ def main() -> None:
   prebuilt_bin = (
       (
           Path(__file__).resolve().parents[3]
-          / f"prebuilts/rust/{platform_dir}/stable/rust-analyzer"
+          / f"prebuilts/rust-toolchain/{platform_dir}/stable/rust-analyzer"
       )
       .resolve()
       .parents[0]
