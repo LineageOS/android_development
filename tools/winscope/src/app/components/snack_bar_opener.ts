@@ -18,6 +18,7 @@ import {Inject, Injectable, NgZone} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {assertDefined} from 'common/assert';
 import {NotificationType, UserNotification} from 'messaging/user_notification';
+import {UserNotificationListener} from 'messaging/user_notification_listener';
 import {SnackBarComponent} from './snack_bar_component';
 
 type Messages = string[];
@@ -26,7 +27,7 @@ type Messages = string[];
  * A class to handle opening snack bars for user notifications.
  */
 @Injectable({providedIn: 'root'})
-export class SnackBarOpener {
+export class SnackBarOpener implements UserNotificationListener {
   private static CROP_THRESHOLD = 5;
   private isOpen = false;
   private queue: Messages[] = [];

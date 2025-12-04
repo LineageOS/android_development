@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-import {SnackBarOpener} from 'app/components/snack_bar_opener';
 import {Analytics} from 'logging/analytics';
 import {UserNotification} from 'messaging/user_notification';
+import {UserNotificationListener} from 'messaging/user_notification_listener';
 
 /**
  * A utility class to collect and display notifications to the user.
  * Notifications are displayed via a snack bar.
  */
-export class UserNotifier {
-  static setSnackBarOpener(snackBarOpener: SnackBarOpener) {
-    UserNotifier.snackBarOpener = snackBarOpener;
+class UserNotifierImpl {
+  private notifications: UserNotification[] = [];
+  private notificationListener: UserNotificationListener | undefined;
+
+  setNotificationListener(snackBarOpener: UserNotificationListener) {
+    this.notificationListener = snackBarOpener;
   }
 
-  static add(notification: UserNotification): typeof UserNotifier {
-    UserNotifier.notifications.push(notification);
-    return UserNotifier;
+  add(notification: UserNotification): this {
+    this.notifications.push(notification);
+    return this;
   }
 
-  static notify() {
+  notify() {
     if (UserNotifier.notifications.length === 0) return;
     UserNotifier.notifications.forEach((notif) => {
       Analytics.UserNotification.logUserWarning(
@@ -40,10 +43,12 @@ export class UserNotifier {
         notif.message,
       );
     });
-    UserNotifier.snackBarOpener?.onNotifications(UserNotifier.notifications);
-    UserNotifier.notifications = [];
+    this.notificationListener?.onNotifications(UserNotifier.notifications);
+    this.notifications = [];
   }
-
-  private static notifications: UserNotification[] = [];
-  private static snackBarOpener: SnackBarOpener | undefined;
 }
+
+/**
+ * A utility to collect and display notifications to the user.
+ */
+export const UserNotifier = new UserNotifierImpl();
