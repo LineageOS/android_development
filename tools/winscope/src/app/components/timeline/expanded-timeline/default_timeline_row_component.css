@@ -1,0 +1,9 @@
+.single-timeline {
+  height: 2rem;
+  padding: 1rem 0;
+}
+
+.single-timeline:hover {
+  background-color: var(--hover-element-color);
+  cursor: pointer;
+}

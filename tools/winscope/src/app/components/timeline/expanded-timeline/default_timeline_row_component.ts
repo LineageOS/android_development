@@ -39,18 +39,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
         (mouseleave)="onMouseLeave($event)" #canvas></canvas>
     </div>
   `,
-  styles: [
-    `
-      .single-timeline {
-        height: 2rem;
-        padding: 1rem 0;
-      }
-      .single-timeline:hover {
-        background-color: var(--hover-element-color);
-        cursor: pointer;
-      }
-    `,
-  ],
+  styleUrls: ['default_timeline_row_component.css'],
 })
 export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<{}> {
   @Input() selectedEntry: TraceEntry<{}> | undefined;
