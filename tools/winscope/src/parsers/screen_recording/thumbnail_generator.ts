@@ -18,6 +18,7 @@ import {assertDefined} from 'common/assert';
 import {MediaBasedFrame} from 'trace/media_based/media_based_frame';
 import {Thumbnail} from 'trace/media_based/thumbnail';
 import {parseWebCodecData} from 'trace/media_based/helpers';
+import {getLogger} from 'compat/logging';
 
 class ThumbnailBuilder {
   private spriteSheet: Blob | undefined;
@@ -72,6 +73,7 @@ class ThumbnailBuilder {
 export async function generateThumbnail(
   videoData: Uint8Array,
 ): Promise<Thumbnail | undefined> {
+  const logger = getLogger('ParserScreenRecording');
   try {
     const {chunks, config, rotationAngle} = await parseWebCodecData(videoData);
 
@@ -149,7 +151,7 @@ export async function generateThumbnail(
           onOutput(frame);
         },
         error: (e) => {
-          console.error(e);
+          logger.error(e.message);
         },
       });
       decoder.configure(config);
@@ -166,7 +168,7 @@ export async function generateThumbnail(
       await decodingQueue;
       decoder.close();
     } catch (e) {
-      console.error(e);
+      logger.error((e as Error).message);
     }
 
     const spriteSheetBlob = await canvas.convertToBlob();
@@ -179,7 +181,7 @@ export async function generateThumbnail(
       .setSheetWidth(canvas.width)
       .build();
   } catch (e) {
-    console.error(e);
+    logger.error((e as Error).message);
     return undefined;
   }
 }

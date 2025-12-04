@@ -273,11 +273,12 @@ export class TimelineData {
     }
 
     const firstTimestamp = trace.getEntry(0).getTimestamp();
+    const logger = getLogger('TimelineData');
     let entry;
     try {
       entry = findCorrespondingEntry(trace, position);
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Could not find corresponding entry: ${(e as Error).message}`,
       );
       Analytics.Error.logFrameMapError((e as Error).message);
