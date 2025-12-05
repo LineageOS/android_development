@@ -53,17 +53,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
         (mouseleave)="onMouseLeave($event)" #canvas></canvas>
     </div>
   `,
-  styles: [
-    `
-      .transition-timeline {
-        height: 4rem;
-      }
-      .transition-timeline:hover {
-        background-color: var(--hover-element-color);
-        cursor: pointer;
-      }
-    `,
-  ],
+  styleUrls: ['transition_timeline_component.css'],
 })
 export class TransitionTimelineComponent extends AbstractTimelineRowComponent<HierarchyTreeNode> {
   @Input() selectedEntry: TraceEntry<HierarchyTreeNode> | undefined;

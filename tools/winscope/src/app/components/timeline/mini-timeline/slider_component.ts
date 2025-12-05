@@ -32,7 +32,6 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import {Color} from 'app/colors';
 import {assertDefined} from 'common/assert';
 import {Point} from 'common/geometry/point';
 import {TimeRange, Timestamp} from 'common/time/time';
@@ -67,68 +66,7 @@ import {Transformer} from './transformer';
       <div class="cursor" [style]="{left: cursorOffset + 'px'}"></div>
     </div>
   `,
-  styles: [
-    `
-      #timeline-slider-box {
-        position: relative;
-        margin-bottom: 5px;
-      }
-
-      #timeline-slider-box,
-      .slider {
-        height: 10px;
-      }
-
-      .line {
-        height: 3px;
-        position: absolute;
-        margin: auto;
-        top: 0;
-        bottom: 0;
-        margin: auto 0;
-      }
-
-      .background.line {
-        width: 100%;
-        background: ${Color.GUIDE_BAR};
-      }
-
-      .selection.line {
-        background: var(--slider-border-color);
-      }
-
-      .slider {
-        display: flex;
-        justify-content: space-between;
-        cursor: grab;
-        position: absolute;
-      }
-
-      .handle {
-        flex-grow: 1;
-        background: var(--slider-background-color);
-        cursor: grab;
-      }
-
-      .cropper {
-        width: 5px;
-        background: var(--slider-border-color);
-      }
-
-      .cropper.left,
-      .cropper.right {
-        cursor: ew-resize;
-      }
-
-      .cursor {
-        width: 2px;
-        height: 100%;
-        position: absolute;
-        pointer-events: none;
-        background: ${Color.ACTIVE_POINTER};
-      }
-    `,
-  ],
+  styleUrls: ['slider_component.css'],
 })
 export class SliderComponent {
   @Input() fullRange: TimeRange | undefined;

@@ -38,7 +38,6 @@ import {
   MatSelectModule,
 } from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
 import {assertDefined} from 'common/assert';
 import {isElementOverflowing} from 'common/dom';
 import {globalConfig} from 'common/global_config';
@@ -51,7 +50,6 @@ import {
   updateConfigsFromStore,
 } from 'trace_collection/ui/ui_trace_configuration';
 import {AbstractSelectComponent} from 'viewers/components/abstract_select_component';
-import {userOptionStyle} from 'viewers/components/styles/user_option.styles';
 
 /**
  * A component for displaying and editing trace configurations.
@@ -223,66 +221,7 @@ import {userOptionStyle} from 'viewers/components/styles/user_option.styles';
       }
     </div>
   `,
-  styles: [
-    `
-      .checkboxes {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-      }
-      .config-section {
-        display: flex;
-        flex-direction: column;
-        width: 50vw;
-      }
-      .enable-config-opt,
-      .selection-config-opt {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      .selection-config-opt {
-        gap: 10px;
-      }
-      .wide-field {
-        width: 46vw;
-      }
-      .config-title {
-        margin: 15px 15px 0px 15px;
-      }
-      .overlay-panel-content {
-        margin-top: 0px;
-      }
-      .option-with-chip {
-        justify-content: space-between;
-        display: flex;
-        align-items: center;
-        width: 100%;
-      }
-      .option-with-chip .user-option {
-        margin-inline-end: 0px;
-      }
-      .hidden-option {
-        display: none;
-      }
-      .select-config-filter {
-        padding-left: 10px;
-        width: 80%;
-      }
-      .advanced-settings-button, .advanced-settings-button .mat-icon {
-        height: 16px;
-        width: 16px;
-        line-height: 16px;
-        font-size: 16px;
-        min-width: fit-content;
-      }
-      .advanced-settings-button {
-        padding: 0 4px;
-      }
-    `,
-    userOptionStyle,
-    overlayPanelStyles,
-  ],
+  styleUrls: ['trace_config_component.css'],
 })
 export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfiguration> {
   changeDetectionWorker: number | undefined;

@@ -1,0 +1,34 @@
+.mini-timeline-outer-wrapper {
+  display: inline-flex;
+  width: 100%;
+  min-height: 5em;
+  height: 100%;
+}
+
+.zoom-buttons {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--drawer-color);
+}
+
+.zoom-buttons button {
+  width: fit-content;
+}
+
+#mini-timeline-wrapper {
+  width: 100%;
+  min-height: 5em;
+  height: 100%;
+}
+
+.zoom-control {
+  padding-right: 15px;
+  margin-top: -10px;
+}
+
+.zoom-control slider {
+  flex-grow: 1;
+}

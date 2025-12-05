@@ -1,0 +1,8 @@
+.transition-timeline {
+  height: 4rem;
+}
+
+.transition-timeline:hover {
+  background-color: var(--hover-element-color);
+  cursor: pointer;
+}

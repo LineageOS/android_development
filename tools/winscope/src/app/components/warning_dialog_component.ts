@@ -58,35 +58,7 @@ import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
-      .warning-dialog-title {
-        display: flex;
-      }
-      .warning-content {
-        overflow: visible;
-      }
-      .warning-message {
-        white-space: pre-line;
-        font-size: 16px;
-        line-height: 16px;
-      }
-      .warning-actions {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: end;
-        margin-top: 8px;
-      }
-      .warning-action-boxes {
-        display: flex;
-        flex-direction: column;
-      }
-      .warning-actions .not-last {
-        margin-right: 8px;
-      }
-    `,
-  ],
+  styleUrls: ['warning_dialog_component.css'],
 })
 export class WarningDialogComponent {
   selectedOptions: string[] = [];
