@@ -815,7 +815,7 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         // inspection of the terms indicates the correct interpretation is "(MIT OR APACHE) AND NCSA".
         "MIT/Apache-2.0/NCSA" => vec!["Apache-2.0", "NCSA"],
         "(MIT OR Apache-2.0) AND Unicode-3.0" => vec!["Apache-2.0", "Unicode-3.0"],
-
+        "(MIT OR Apache-2.0) AND NCSA" => vec!["Apache-2.0", "NCSA"],
         // Variations on "Apache-2.0 AND BSD-*"
         "Apache-2.0 AND BSD-3-Clause" => vec!["Apache-2.0", "BSD-3-Clause"],
 
