@@ -479,7 +479,7 @@ export class AppComponent implements WinscopeEventListener {
     @Inject(MatDialog) private dialog: MatDialog,
   ) {
     this.changeDetectorRef = changeDetectorRef;
-    UserNotifier.setSnackBarOpener(snackbarOpener);
+    UserNotifier.setNotificationListener(snackbarOpener);
     this.tracePipeline = new TracePipeline();
     this.crossToolProtocol = new CrossToolProtocol(
       this.tracePipeline.getTimestampConverter(),
