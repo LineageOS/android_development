@@ -1,34 +1,52 @@
-<div class="flex justify-center items-center h-full p-4">
-  <div *ngIf="videoUrl" class="max-w-xl mx-auto">
-    <div class="relative aspect-video">
-      <video #videoPlayer [src]="videoUrl" class="object-contain w-full h-full">
+<div class="flex flex-col h-full bg-gray-50 p-4 overflow-hidden">
+  <div *ngIf="videoUrl"
+    class="flex flex-col h-full w-full max-w-6xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Video Container -->
+    <div class="flex-grow relative bg-black overflow-hidden w-full min-h-0">
+      <video #videoPlayer [src]="videoUrl" class="absolute inset-0 w-full h-full object-contain">
         Your browser does not support the video tag.
       </video>
     </div>
-    <div class="mt-4 flex justify-center space-x-2" [style.visibility]="videoUrl ? 'visible' : 'hidden'">
-      <button mat-icon-button (click)="goToStart()" class="mr-2">
-        <mat-icon>first_page</mat-icon>
-      </button>
-      <button mat-icon-button (click)="stepBackward()" class="mr-2">
-        <mat-icon>skip_previous</mat-icon>
-      </button>
-      <button mat-icon-button (click)="togglePlayPause()" class="mr-2">
-        <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
-      </button>
-      <select [(ngModel)]="playbackSpeed" (change)="setPlaybackSpeed()" class="mr-2 bg-white cursor-pointer">
-        <option value="0.25">0.25x</option>
-        <option value="0.5">0.5x</option>
-        <option value="1">1x</option>
-        <option value="1.5">1.5x</option>
-        <option value="2">2x</option>
-      </select>
-      <button mat-icon-button (click)="stepForward()" class="mr-2">
-        <mat-icon>skip_next</mat-icon>
-      </button>
-      <button mat-icon-button (click)="goToEnd()" class="mr-2">
-        <mat-icon>last_page</mat-icon>
-      </button>
+    <!-- Controls Container -->
+    <div class="flex-shrink-0 p-4 bg-white border-t border-gray-100 z-10">
+      <div class="flex justify-center items-center space-x-4" [style.visibility]="videoUrl ? 'visible' : 'hidden'">
+        <div class="flex items-center bg-gray-100 rounded-full px-4 py-2 space-x-2">
+          <button mat-icon-button (click)="goToStart()" matTooltip="Go to Start">
+            <mat-icon>first_page</mat-icon>
+          </button>
+          <button mat-icon-button (click)="stepBackward()" matTooltip="Step Backward">
+            <mat-icon>skip_previous</mat-icon>
+          </button>
+          <button mat-fab color="primary" (click)="togglePlayPause()" matTooltip="{{ isPlaying ? 'Pause' : 'Play' }}"
+            class="scale-90">
+            <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+          </button>
+          <button mat-icon-button (click)="stepForward()" matTooltip="Step Forward">
+            <mat-icon>skip_next</mat-icon>
+          </button>
+          <button mat-icon-button (click)="goToEnd()" matTooltip="Go to End">
+            <mat-icon>last_page</mat-icon>
+          </button>
+          </div>
+
+          <div class="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
+            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Speed</span>
+            <select [(ngModel)]="playbackSpeed" (change)="setPlaybackSpeed()"
+              class="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer py-1 pl-2 pr-8">
+              <option value="0.25">0.25x</option>
+              <option value="0.5">0.5x</option>
+              <option value="1">1x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+        </div>
+      </div>
     </div>
-  </div>
-  <p *ngIf="!videoUrl" class="text-center text-gray-500 mt-2">No test selected.</p>
+    </div>
+
+    <div *ngIf="!videoUrl" class="flex flex-col items-center justify-center h-full text-gray-400">
+      <mat-icon class="text-6xl mb-4 w-16 h-16">videocam_off</mat-icon>
+      <p class="text-lg font-medium">No video selected</p>
+      <p class="text-sm">Select a test to view its recording</p>
+    </div>
 </div>

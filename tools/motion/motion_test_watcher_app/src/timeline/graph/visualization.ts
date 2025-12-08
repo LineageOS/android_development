@@ -1,16 +1,16 @@
 export interface Visualization {
   render(
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-    data: ValueDataPoint[],
+    data: DataPoint[],
     width: number,
     height: number
   ): void;
 }
 
-export interface ValueDataPoint {
+export interface DataPoint {
   x: number;
-  actualValue?: number | string;
-  expectedValue?: number | string;
+  actualValue?: number;
+  expectedValue?: number;
 }
 
 

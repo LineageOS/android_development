@@ -3,5 +3,7 @@ export enum TestModes {
   ROBOLECTRIC = 'robolectric',
   ADB = 'adb',
   GERRIT = 'gerrit',
-  PRESUBMIT = 'presubmit'
+  PRESUBMIT = 'presubmit',
+  CODESEARCH = 'codesearch',
+  USER = 'user'
 }

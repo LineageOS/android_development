@@ -14,6 +14,7 @@ import { PreviewService } from '../service/preview.service';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-preview',
@@ -21,7 +22,8 @@ import { MatButtonModule } from '@angular/material/button';
     NgIf,
     FormsModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatTooltipModule
   ],
   templateUrl: './preview.component.html',
   styleUrl: './preview.component.css',
