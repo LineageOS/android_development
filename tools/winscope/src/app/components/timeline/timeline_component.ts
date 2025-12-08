@@ -76,6 +76,7 @@ import {
   PlaybackStateChangeRequest,
 } from 'app/components/timeline/playback_events';
 import {TabbedViewSwitched} from 'app/tabbed_view_events';
+import {getLogger} from 'compat/logging';
 import {
   EmitEvent,
   WinscopeEventEmitter,
@@ -91,7 +92,6 @@ import {
   supportsPlayback,
 } from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
-import {multlineTooltip} from 'viewers/components/styles/tooltip.styles';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
 import {
   HoverPositionUpdate,
@@ -375,220 +375,7 @@ import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
       </div>
     </div>
   `,
-  styles: [
-    `
-      .navbar-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: end;
-        position: relative;
-        max-height: 20vh;
-        overflow: auto;
-      }
-      #toggle {
-        width: fit-content;
-        position: absolute;
-        top: -41px;
-        right: 0px;
-        z-index: 11;
-        border: 1px solid #3333;
-        border-bottom: 0px;
-        border-right: 0px;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-        background-color: var(--drawer-color);
-      }
-      .navbar {
-        display: flex;
-        width: 100%;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-      }
-      #expanded-nav {
-        display: flex;
-        flex-direction: row;
-        border-bottom: 1px solid #3333;
-        border-top: 1px solid #3333;
-        max-height: 60vh;
-        overflow: hidden;
-      }
-      #time-selector {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        margin-left: 0.5rem;
-        height: 116px;
-        width: 282px;
-        background-color: var(--drawer-block-primary);
-      }
-      #time-selector .mat-mdc-text-field-wrapper {
-        width: 100%;
-      }
-      #time-selector .mat-mdc-form-field-infix {
-        padding: 0;
-      }
-      #time-selector .mat-mdc-form-field-flex, #time-selector .field-suffix {
-        border-radius: 0;
-        padding: 0;
-        display: flex;
-        align-items: center;
-      }
-      .bookmark-icon {
-        cursor: pointer;
-      }
-      .time-selector-form {
-        display: flex;
-        flex-direction: column;
-        height: 60px;
-        width: 90%;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-      }
-      .time-selector-form mat-form-field {
-        display: flex;
-        width: 100%;
-        font-size: 12px;
-      }
-      .time-selector-form input {
-        text-overflow: ellipsis;
-      }
-      .time-selector-form .time-difference {
-        padding-right: 2px;
-        white-space: nowrap;
-      }
-      #time-selector .time-controls {
-        border-radius: 10px;
-        margin: 0.5rem;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 90%;
-        background-color: var(--drawer-block-secondary);
-      }
-      .shown-selection .trace-icon {
-        padding-left: 4px;
-        padding-right: 4px;
-        padding-top: 2px;
-      }
-      #mini-timeline {
-        flex-grow: 1;
-        align-self: stretch;
-      }
-      #video-content {
-        position: relative;
-        min-width: 20rem;
-        max-width: 30vw;
-        height: calc(60vh - 4px);
-        align-self: stretch;
-        text-align: center;
-        border: 2px solid black;
-        display: flex;
-        align-items: center;
-      }
-      #frameCanvasElementTimeline, #video {
-        max-width: 100%;
-        max-height: calc(60vh - 4px);
-      }
-      #expanded-timeline {
-        flex-grow: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
-      #trace-selector .mat-mdc-form-field-infix {
-        width: 90px;
-        padding: 0 0 0 10px;
-      }
-      #trace-selector .shown-selection {
-        height: 116px;
-        border-radius: 10px;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        align-content: flex-start;
-        background-color: var(--drawer-block-primary);
-      }
-      #trace-selector .filter-header {
-        padding-top: 4px;
-        display: flex;
-        align-items: center;
-        gap: 2px;
-      }
-      .shown-selection .trace-icons {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        align-content: flex-start;
-        width: 70%;
-      }
-      #trace-selector .mat-mdc-select-trigger {
-        height: unset;
-        flex-direction: column-reverse;
-      }
-      #trace-selector .mat-mdc-select-arrow-wrapper {
-        display: none;
-      }
-      #trace-selector .mat-mdc-text-field-wrapper {
-        padding: 0;
-      }
-      :has(>.select-traces-panel) {
-        max-height: unset !important;
-        font-family: 'Roboto', sans-serif;
-        position: relative;
-        bottom: 120px;
-      }
-      .select-traces-panel {
-        max-height: 60vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
-      .tip {
-        padding: 16px;
-        font-weight: 300;
-      }
-      .actions {
-        width: 100%;
-        padding: 1.5rem;
-        float: right;
-        display: flex;
-        justify-content: flex-end;
-      }
-      .no-video-message {
-        padding: 1rem;
-        font-family: 'Roboto', sans-serif;
-        width: 230px;
-      }
-      .no-timeline-msg {
-        padding: 1rem;
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-      }
-      .disabled-message {
-        z-index: 10;
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        opacity: 1;
-        justify-items: center;
-      }
-      .hover-timestamp {
-        border-radius: 4px;
-        color: var(--mdc-plain-tooltip-supporting-text-color);
-        background-color: var(--mdc-plain-tooltip-container-color);
-        position: fixed;
-        z-index: 12;
-        pointer-events: none;
-        padding: 4px 8px;
-        transform: translateX(-50%);
-      }
-    `,
-    multlineTooltip,
-  ],
+  styleUrls: ['timeline_component.css'],
 })
 export class TimelineComponent
   implements WinscopeEventEmitter, WinscopeEventListener
@@ -772,7 +559,9 @@ export class TimelineComponent
       case ScreenRecordingChange:
         return await this.onScreenRecordingChange();
       default:
-      // do nothing
+        getLogger('TimelineComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

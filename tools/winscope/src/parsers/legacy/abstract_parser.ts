@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
@@ -29,10 +30,11 @@ import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TraceMetadata} from 'trace_api/trace_metadata';
 import {TraceType} from 'trace_api/trace_type';
-import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
 import {RectsForTrace} from 'tree_node/rect_extractor_result';
+
+import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
 
 export abstract class AbstractParser<
   T extends object,
@@ -53,6 +55,7 @@ export abstract class AbstractParser<
     trace: TraceFile,
     timestampConverter: ParserTimestampConverter,
     metadata?: TraceMetadata,
+    protected logger: Logger = getLogger('AbstractParser'),
   ) {
     this.traceFile = trace;
     this.timestampConverter = timestampConverter;

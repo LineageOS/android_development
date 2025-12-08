@@ -52,6 +52,12 @@ module.exports = {
       },
       {
         test: /\.css$/,
+        exclude: [path.resolve('src/styles')],
+        use: ['to-string-loader', 'css-loader'],
+      },
+      {
+        test: /\.css$/,
+        include: [path.resolve('src/styles')],
         use: ['style-loader', 'css-loader'],
       },
       {

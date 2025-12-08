@@ -15,6 +15,7 @@
 import {perfetto} from '../../../deps_build/trace_processor/ui/tsc/gen/protos';
 import {defer, Deferred} from './deferred';
 import {assertExists, assertTrue} from './logging';
+import { getLogger, Logger } from "compat/logging";
 import {ProtoRingBuffer} from './proto_ring_buffer';
 import {
   createQueryResult,
@@ -154,6 +155,7 @@ export abstract class EngineBase implements Engine {
   private _numRequestsPending = 0;
   private _failed: string | undefined = undefined;
   private _queryLog: Array<QueryLog> = [];
+  constructor(private readonly logger: Logger = getLogger('EngineBase')) {}
 
   get queryLog(): ReadonlyArray<QueryLog> {
     return this._queryLog;
@@ -322,7 +324,7 @@ export abstract class EngineBase implements Engine {
         this.pendingAnalyzeStructuredQueries = undefined;
         break;
       default:
-        console.log(
+        this.logger.warn(
           'Unexpected TraceProcessor response received: ',
           rpc.response,
         );
@@ -432,12 +434,12 @@ export abstract class EngineBase implements Engine {
   //
   // Example usage:
   // const res = engine.execute('SELECT foo, bar FROM table');
-  // console.log(res.numRows());  // Will print 0 because we didn't await.
+  // this.logger.debug(res.numRows());  // Will print 0 because we didn't await.
   // await(res.waitAllRows());
-  // console.log(res.numRows());  // Will print the total number of rows.
+  // this.logger.debug(res.numRows());  // Will print the total number of rows.
   //
   // for (const it = res.iter({foo: NUM, bar:STR}); it.valid(); it.next()) {
-  //   console.log(it.foo, it.bar);
+  //   this.logger.debug(it.foo, it.bar);
   // }
   //
   // Optional |tag| (usually a component name) can be provided to allow

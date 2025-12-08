@@ -46,35 +46,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
       <p class="mat-body-1 progress-message">{{ message }}</p>
     </div>
   `,
-  styles: [
-    `
-      .container-progress {
-        display: flex;
-        height: 100%;
-        flex-direction: column;
-        justify-content: center;
-        align-content: center;
-        align-items: center;
-      }
-      p {
-        opacity: 0.6;
-      }
-      mat-icon {
-        font-size: 3rem;
-        width: unset;
-        height: unset;
-      }
-      mat-progress-bar {
-        max-width: 250px;
-      }
-      mat-card-content {
-        flex-grow: 1;
-      }
-      .progress-message {
-        padding-top: 4px;
-      }
-    `,
-  ],
+  styleUrls: ['load_progress_component.css'],
 })
 export class LoadProgressComponent {
   @Input() progressPercentage?: number;

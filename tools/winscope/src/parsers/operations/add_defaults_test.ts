@@ -15,15 +15,16 @@
  */
 
 import {assertDefined} from 'common/assert';
-import root from 'protos/test/fake_proto/json';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 import {
   TamperedMessageType,
   TamperedProtoField,
 } from 'trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+import root from 'protos/test/fake_proto/json';
+
 import {AddDefaults} from './add_defaults';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 
 describe('AddDefaults', () => {
   let propertyRoot: PropertyTreeNode;
@@ -54,7 +55,7 @@ describe('AddDefaults', () => {
   it('adds all defaults from prototype definition in absence of allowlist', () => {
     operation = new AddDefaults(rootField);
     operation.apply(propertyRoot);
-    expect(propertyRoot.getAllChildren().length).toBe(25);
+    expect(propertyRoot.getAllChildren().length).toBe(24);
     checkAllNodesAreDefault(propertyRoot);
     expect(
       assertDefined(propertyRoot.getChildByName('array')).getValue(),
@@ -76,8 +77,7 @@ describe('AddDefaults', () => {
       'number_64bit',
     ]);
     operation.apply(propertyRoot);
-
-    expect(propertyRoot.getAllChildren().length).toBe(23);
+    expect(propertyRoot.getAllChildren().length).toBe(22);
     checkAllNodesAreDefault(propertyRoot);
     expect(propertyRoot.getChildByName('number_32bit')).toBeUndefined();
     expect(propertyRoot.getChildByName('number_64bit')).toBeUndefined();

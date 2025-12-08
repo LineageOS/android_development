@@ -1,0 +1,157 @@
+.change-btn,
+.retry-btn,
+.fetch-btn {
+  margin-left: 5px;
+}
+
+.selected-device {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mat-card.collect-card {
+  display: flex;
+}
+
+.collect-card {
+  height: 100%;
+  flex-direction: column;
+  overflow: auto;
+  margin: 10px;
+}
+
+.collect-card-content {
+  overflow: auto;
+}
+
+.selection {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trace-collection-config,
+.trace-section,
+.dump-section,
+.tracing-progress,
+trace-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trace-section,
+.dump-section,
+.tracing-progress {
+  height: 100%;
+}
+
+.winscope-proxy-setup-tab,
+.web-tab,
+.start-btn,
+.dump-btn,
+.end-btn {
+  align-self: flex-start;
+}
+
+.start-btn,
+.dump-btn,
+.end-btn {
+  margin: auto 0 0 0;
+  padding: 1rem 0 0 0;
+  height: 48px;
+}
+
+.error-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.error-icon {
+  margin-right: 5px;
+}
+
+.available-device {
+  cursor: pointer;
+}
+
+.no-device-detected {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.no-device-detected p,
+.device-selection p.instruction {
+  padding-top: 1rem;
+  opacity: 0.6;
+  font-size: 1.2rem;
+}
+
+.no-device-detected .icon {
+  font-size: 3rem;
+  margin: 0 0 0.2rem 0;
+}
+
+.device-info {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.device-info .mat-icon {
+  min-width: fit-content;
+}
+
+.device-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.device-actions .mdc-button {
+  min-height: fit-content;
+}
+
+mat-card-content {
+  flex-grow: 1;
+}
+
+.loading-info {
+  opacity: 0.8;
+  padding: 1rem 0;
+}
+
+.target-tabs {
+  flex-grow: 1;
+}
+
+.target-tabs .mat-mdc-tab-body-wrapper {
+  flex-grow: 1;
+}
+
+.tabbed-section {
+  height: 100%;
+}
+
+.progress-desc {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
+.progress-desc>* {
+  max-width: 250px;
+}
+
+load-progress {
+  height: 100%;
+}

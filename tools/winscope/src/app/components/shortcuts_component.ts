@@ -19,7 +19,6 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule, MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
-import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
 import {getRootUrl} from 'common/window';
 
 /**
@@ -132,77 +131,7 @@ import {getRootUrl} from 'common/window';
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
-      .dialog-title {
-        display: flex;
-        justify-content: space-between;
-      }
-      .shortcuts-title {
-        padding-top: 10px;
-      }
-      .shortcuts-row {
-        display: flex;
-        flex-direction: row;
-        width: 80%;
-        justify-content: space-between;
-      }
-      .grouped-shortcuts {
-        display: flex;
-        flex-wrap: wrap;
-        flex-direction: row;
-        justify-content: space-between;
-      }
-      .key-shortcut, .pointer-shortcut {
-        display: flex;
-        flex-direction: row;
-        padding: 12px 0px;
-      }
-      .key-shortcut {
-        align-items: center;
-      }
-      .key-shortcut.even-width {
-        min-width: 202px;
-      }
-      .pointer-shortcut:not(:has(.tall)) {
-        align-items: center;
-      }
-      .pointer-shortcut:has(.tall) {
-        align-items: end;
-      }
-      .key, .trackpad-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0px 4px;
-      }
-      .key {
-        border-radius: 8px;
-        width: 35px;
-        height: 35px;
-        background-color: var(--icon-accent-color);
-        border: 1px solid #7e7e7e;
-        font-size: 18px;
-      }
-      .trackpad-icon {
-        width: 40px;
-        height: 40px;
-      }
-      .enlarge {
-        height: 55px;
-        width: 55px;
-      }
-      .action {
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-      }
-      .italic-text {
-        font-style: italic;
-      }
-    `,
-    overlayPanelStyles,
-  ],
+  styleUrls: ['shortcuts_component.css'],
 })
 export class ShortcutsComponent {
   constructor(

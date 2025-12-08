@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-export const iconDividerStyle = `
-  .icon-divider {
-    width: 1px;
-    background-color: #C4C0C0;
-  }
-`;
+import {UserNotification} from 'messaging/user_notification';
+
+/**
+ * The type of notification.
+ */
+
+export declare interface UserNotificationListener {
+  onNotifications(notifications: UserNotification[]): void;
+}

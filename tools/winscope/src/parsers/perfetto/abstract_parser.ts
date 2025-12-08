@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger, Logger} from 'compat/logging';
 import {assertBigInt, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
@@ -30,9 +31,9 @@ import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {Parser} from 'trace_api/parser';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 import {QueryResult, QueryResults} from 'trace_processor/query_result';
 import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+import {TraceProcessor} from 'trace_processor/trace_processor';
 import {RectsForTrace} from 'tree_node/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
@@ -55,6 +56,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
     traceGeometryData?: TraceGeometryData,
+    protected logger: Logger = getLogger('AbstractParser'),
   ) {
     this.traceFile = traceFile;
     this.traceProcessor = traceProcessor;
@@ -199,8 +201,8 @@ export abstract class AbstractParser<T> implements Parser<T> {
 
   // Query the real-to-boot time offset at the specified time
   // (timestamp parameter).
-  // The timestamp parameter must be a non-zero timestamp queried/provided by TP,
-  // otherwise the TO_REALTIME() SQL function might return invalid values.
+  // The timestamp parameter must be a non-zero timestamp queried/provided by
+  // TP, otherwise the TO_REALTIME() SQL function might return invalid values.
   private async queryRealToBootTimeOffset(bootTimeNs: bigint): Promise<bigint> {
     const sql = `
       SELECT TO_REALTIME(${bootTimeNs}) as realtime;

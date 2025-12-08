@@ -16,12 +16,12 @@
 
 import {assertDefined} from 'common/assert';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
   UTC_CONVERTER,
 } from 'test/unit/time_test_helpers';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {
   DEFAULT_PROPERTY_FORMATTER,
   TIMESTAMP_NODE_FORMATTER,

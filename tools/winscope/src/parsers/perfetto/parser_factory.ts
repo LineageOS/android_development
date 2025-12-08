@@ -36,6 +36,7 @@ import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
+import {getLogger, Logger} from 'compat/logging';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 interface ProcessedFile {
@@ -62,6 +63,7 @@ export class ParserFactory {
   private static readonly CHUNK_SIZE_BYTES = 50 * 1024 * 1024;
   private static readonly NO_ENTRIES_ERROR_REGEX =
     /Perfetto trace has no \w+(\w|\s)* entries/;
+  constructor(private readonly logger: Logger = getLogger('ParserFactory')) {}
 
   async processFile(
     traceFile: TraceFile,
@@ -73,7 +75,7 @@ export class ParserFactory {
       await this.loadFileInTp(traceFile.file, traceProcessor, progressListener);
       await traceProcessor.notifyEof();
     } catch (e) {
-      console.error('Trace processor failed to parse data:', e);
+      this.logger.error('Trace processor failed to parse data:', e);
       return {
         parsers: [],
         isPerfettoTrace: false,

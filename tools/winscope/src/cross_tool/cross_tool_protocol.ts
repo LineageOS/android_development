@@ -28,6 +28,7 @@ import {
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger, Logger} from 'compat/logging';
 import {
   Message,
   MessageBugReport,
@@ -64,7 +65,10 @@ export class CrossToolProtocol
   private timestampConverter: RemoteToolTimestampConverter;
   private allowTimestampSync = false;
 
-  constructor(timestampConverter: RemoteToolTimestampConverter) {
+  constructor(
+    timestampConverter: RemoteToolTimestampConverter,
+    private readonly logger: Logger = getLogger('CrossToolProtocol'),
+  ) {
     this.timestampConverter = timestampConverter;
 
     window.addEventListener('message', async (event) => {
@@ -98,7 +102,7 @@ export class CrossToolProtocol
       this.remoteTool.timestampType,
     );
     this.remoteTool.window.postMessage(message, this.remoteTool.origin);
-    console.log('Cross-tool protocol sent timestamp message:', message);
+    this.logger.debug('Cross-tool protocol sent timestamp message:', message);
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -106,7 +110,7 @@ export class CrossToolProtocol
       case TracePositionUpdate:
         return await this.onTracePositionUpdate(event as TracePositionUpdate);
       default:
-      // do nothing
+        this.logger.trace('Not processing event ' + event.constructor.name);
     }
   }
 
@@ -128,7 +132,7 @@ export class CrossToolProtocol
   private async onMessageReceived(event: MessageEvent) {
     if (!isAllowed(event.origin)) {
       if (!isUnauthorizedOriginExpected(event.origin)) {
-        console.warn(
+        this.logger.warn(
           'Cross-tool protocol received message from unauthorized origin:',
           event.origin,
         );
@@ -148,51 +152,66 @@ export class CrossToolProtocol
 
     switch (message.type) {
       case MessageType.PING:
-        console.log('Cross-tool protocol received ping message:', message);
+        this.logger.debug(
+          'Cross-tool protocol received ping message:',
+          message,
+        );
         (event.source as Window).postMessage(new MessagePong(), event.origin);
         break;
       case MessageType.PONG:
-        console.log(
+        this.logger.warn(
           'Cross-tool protocol received unexpected pong message:',
           message,
         );
         break;
       case MessageType.BUGREPORT:
-        console.log('Cross-tool protocol received bugreport message:', message);
+        this.logger.debug(
+          'Cross-tool protocol received bugreport message:',
+          message,
+        );
         await this.onMessageBugreportReceived(message as MessageBugReport);
-        console.log(
+        this.logger.debug(
           'Cross-tool protocol processed bugreport message:',
           message,
         );
         break;
       case MessageType.TIMESTAMP:
-        console.log('Cross-tool protocol received timestamp message:', message);
+        this.logger.debug(
+          'Cross-tool protocol received timestamp message:',
+          message,
+        );
         await this.onMessageTimestampReceived(message as MessageTimestamp);
-        console.log(
+        this.logger.debug(
           'Cross-tool protocol processed timestamp message:',
           message,
         );
         break;
       case MessageType.FILES:
-        console.log('Cross-tool protocol received files message:', message);
+        this.logger.debug(
+          'Cross-tool protocol received files message:',
+          message,
+        );
         await this.onMessageFilesReceived(message as MessageFiles);
-        console.log('Cross-tool protocol processed files message:', message);
+        this.logger.debug(
+          'Cross-tool protocol processed files message:',
+          message,
+        );
         break;
       case MessageType.TEST_FAILURE_INFO:
-        console.log(
+        this.logger.debug(
           'Cross-tool protocol received debug info message:',
           message,
         );
         await this.onMessageDebugInfoReceived(
           message as MessageTestFailureInfo,
         );
-        console.log(
+        this.logger.debug(
           'Cross-tool protocol processed debug info message:',
           message,
         );
         break;
       default:
-        console.log(
+        this.logger.warn(
           'Cross-tool protocol received unsupported message type:',
           message,
         );

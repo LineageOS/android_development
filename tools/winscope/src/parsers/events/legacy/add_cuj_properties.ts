@@ -16,11 +16,12 @@
 
 import {assertDefined} from 'common/assert';
 import {isNumeric} from 'common/string_helpers';
-import {EventTag} from 'parsers/events/legacy/event_tag';
 import {CUJ_TYPE} from 'trace/cuj_type';
 import {AddOperation} from 'tree_node/add_operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+
+import {EventTag} from './event_tag';
 
 export class AddCujProperties extends AddOperation<PropertyTreeNode> {
   protected override makeProperties(
@@ -64,7 +65,8 @@ export class AddCujProperties extends AddOperation<PropertyTreeNode> {
   private getDataEntries(data: string, tag: EventTag): string[] {
     let [cujType, unixNs, elapsedNs, uptimeNs, _tag] = ['', '', '', '', '', ''];
     if (tag === EventTag.JANK_CUJ_BEGIN_TAG) {
-      // (CUJ Type|1|5),(Unix Time Ns|2|3),(Elapsed Time Ns|2|3),(Uptime Time Ns|2|3)
+      // (CUJ Type|1|5),(Unix Time Ns|2|3),(Elapsed Time Ns|2|3),(Uptime Time
+      // Ns|2|3)
       [cujType, unixNs, elapsedNs, uptimeNs, _tag] = data
         .replace('[', '')
         .replace(']', '')

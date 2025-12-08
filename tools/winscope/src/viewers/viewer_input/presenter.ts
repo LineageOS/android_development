@@ -48,7 +48,6 @@ import {
   LogEntry,
   LogHeader,
 } from 'viewers/common/ui_data_log';
-import {UI_RECT_FACTORY} from 'viewers/common/ui_rect_factory';
 import {UserOptions} from 'viewers/common/user_options';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {
@@ -61,6 +60,7 @@ import {
 } from 'viewers/viewer_surface_flinger/presenter';
 import {FormatDispatchEntry} from './operations/format_dispatch_entry';
 import {InputEntry, UiData} from './ui_data';
+import {makeInputRects} from 'viewers/common/ui_rect_factory';
 
 export class Presenter extends AbstractLogViewerPresenter<
   UiData,
@@ -180,7 +180,7 @@ export class Presenter extends AbstractLogViewerPresenter<
         this.storage,
       ),
       (tree: HierarchyTreeNode) => {
-        return UI_RECT_FACTORY.makeInputRects(
+        return makeInputRects(
           tree,
           (id) => this.currentTargetWindowIds.has(id.split(' ')[0]),
           this.currDispatchProperties,

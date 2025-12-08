@@ -15,14 +15,16 @@
  */
 
 import {Warning} from 'common/warning';
-import {PropertyTreeNode} from './property_tree_node';
-import {TraceRect} from './trace_rect';
-import {TreeNode} from './tree_node';
 import {TraceProcessor} from 'trace_processor/trace_processor';
+
 import {
   LazyPropertiesStrategyType,
   PropertiesProvider,
 } from './properties_provider';
+import {PropertyTreeNode} from './property_tree_node';
+import {TraceRect} from './trace_rect';
+import {TreeNode} from './tree_node';
+
 /**
  * A node in a hierarchy tree.
  */

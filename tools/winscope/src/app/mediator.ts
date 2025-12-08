@@ -81,6 +81,7 @@ import {
 } from 'app/tabbed_view_events';
 import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger, Logger} from 'compat/logging';
 import {UserNotifier} from 'services/user_notifier';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
@@ -131,6 +132,7 @@ export class Mediator {
     crossToolProtocol: CrossToolProtocol,
     appComponent: WinscopeEventListener,
     storage: Store,
+    private readonly logger: Logger = getLogger('Mediator'),
   ) {
     this.tracePipeline = tracePipeline;
     this.timelineData = timelineData;
@@ -258,11 +260,11 @@ export class Mediator {
       'Downloading files...',
       undefined,
     );
-    console.log('App reset for remote tool download.');
+    this.logger.info('App reset for remote tool download.');
   }
 
   private async onRemoveToolFilesReceived(event: RemoteToolFilesReceived) {
-    console.log('Remote tool files received.');
+    this.logger.info('Remote tool files received.');
     await this.processRemoteFilesReceived(event.files, FilesSource.REMOTE_TOOL);
     if (event.deferredTimestamp) {
       await this.processRemoteToolDeferredTimestampReceived(
@@ -597,7 +599,7 @@ export class Mediator {
           Date.now() - startTimeMs,
         );
       } catch (e) {
-        console.error(e);
+        this.logger.error((e as Error).message);
         warnings.push(
           makeWarningCannotVisualizeTraceEntry(
             `Cannot parse entry for ${traceType} trace: Trace may be corrupted.`,

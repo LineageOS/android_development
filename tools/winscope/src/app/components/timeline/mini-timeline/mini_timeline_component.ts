@@ -42,7 +42,7 @@ import {compareByDisplayOrder} from 'trace_api/trace_type';
 import {MiniTimelineDrawer} from './drawer/mini_timeline_drawer';
 import {MiniTimelineDrawerImpl} from './drawer/mini_timeline_drawer_impl';
 import {MiniTimelineDrawerInput} from './drawer/mini_timeline_drawer_input';
-import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';
+import {SliderComponent} from './slider_component';
 import {Transformer} from './transformer';
 
 /**
@@ -100,39 +100,7 @@ import {Transformer} from './transformer';
       </div>
     </ng-template>
   `,
-  styles: [
-    `
-      .mini-timeline-outer-wrapper {
-        display: inline-flex;
-        width: 100%;
-        min-height: 5em;
-        height: 100%;
-      }
-      .zoom-buttons {
-        width: fit-content;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--drawer-color);
-      }
-      .zoom-buttons button {
-        width: fit-content;
-      }
-      #mini-timeline-wrapper {
-        width: 100%;
-        min-height: 5em;
-        height: 100%;
-      }
-      .zoom-control {
-        padding-right: ${MIN_SLIDER_WIDTH / 2}px;
-        margin-top: -10px;
-      }
-      .zoom-control slider {
-        flex-grow: 1;
-      }
-    `,
-  ],
+  styleUrls: ['mini_timeline_component.css'],
 })
 export class MiniTimelineComponent {
   @Input() timelineData: TimelineData | undefined;

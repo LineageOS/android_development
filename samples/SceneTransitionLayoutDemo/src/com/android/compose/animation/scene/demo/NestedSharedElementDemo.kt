@@ -62,6 +62,7 @@ object ChildSTL {
 object Elements {
     val Shared = ElementKey("Shared")
     val NotShared = ElementKey("NotShared")
+    val NotShared2 = ElementKey("NotShared2")
 }
 
 object ValueKeys {
@@ -92,6 +93,9 @@ fun NestedSharedElementDemo(modifier: Modifier = Modifier) {
                         translate(Elements.NotShared, x = 100.dp)
                         fade(Elements.NotShared)
                         scaleSize(Elements.NotShared, 0.5f, 0.5f)
+
+                        translate(Elements.NotShared2, y = 100.dp)
+                        scaleSize(Elements.NotShared2, 1.5f, 1.5f)
                     }
                 },
             )
@@ -109,6 +113,7 @@ fun NestedSharedElementDemo(modifier: Modifier = Modifier) {
                     state.setTargetScene(targetScene, scope)
                 }
                 .padding(16.dp),
+            debugName = "Demo-ParentSTL",
         ) {
             scene(ParentSTL.Scenes.Start, mapOf(Swipe.End to ParentSTL.Scenes.End)) {
                 Box(Modifier.fillMaxSize()) {
@@ -143,6 +148,7 @@ private fun ContentScope.ChildSTL(
                 }
             state.setTargetScene(targetScene, scope)
         },
+        debugName = "Demo-ChildSTL",
     ) {
         scene(ChildSTL.Scenes.Top, mapOf(Swipe.Down to ChildSTL.Scenes.Bottom)) {
             Box(Modifier.fillMaxSize()) {
@@ -150,7 +156,13 @@ private fun ContentScope.ChildSTL(
                     Modifier.align(Alignment.TopEnd)
                         .element(Elements.NotShared)
                         .size(80.dp)
-                        .background(Color.Blue)
+                        .background(Color.Red)
+                )
+                Box(
+                    Modifier.align(Alignment.BottomEnd)
+                        .element(Elements.NotShared2)
+                        .size(80.dp)
+                        .background(Color.Gray)
                 )
                 SharedElement(Color.Green, Modifier.size(100.dp))
             }

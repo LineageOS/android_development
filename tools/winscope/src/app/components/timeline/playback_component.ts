@@ -96,40 +96,7 @@ import {Analytics} from 'logging/analytics';
       </div>
     </div>
   `,
-  styles: [
-    `
-      .playback-controls-container {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-      .controls {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-      .playback-select {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-left: 8px;
-      }
-      .speed-label {
-        margin-right: 4px;
-      }
-      .playback-speed-selector {
-        width: 45px;
-      }
-      .force-icon-flip {
-        transform: scaleX(-1);
-      }
-      mat-option {
-        padding-left: 10px;
-        height: 25px;
-        justify-content: left;
-      }
-  `,
-  ],
+  styleUrls: ['playback_component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlaybackControlsComponent {

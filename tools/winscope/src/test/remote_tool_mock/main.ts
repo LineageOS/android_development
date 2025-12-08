@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import {getLogger} from 'compat/logging';
 // organize-imports-ignore
 import '@angular/compiler';
 import {bootstrapApplication} from '@angular/platform-browser';
 import {AppComponent} from './app_component';
 
-bootstrapApplication(AppComponent).catch((e) => console.error(e));
+bootstrapApplication(AppComponent).catch((e) => getLogger('main').error(e));

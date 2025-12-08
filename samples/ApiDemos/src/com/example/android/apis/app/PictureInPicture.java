@@ -42,22 +42,21 @@ import android.util.Rational;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.window.OnBackInvokedDispatcher;
 
 import androidx.media3.common.MediaItem;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.session.MediaSession;
 import androidx.media3.ui.PlayerView;
 
 import com.example.android.apis.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PictureInPicture extends Activity {
@@ -114,9 +113,9 @@ public class PictureInPicture extends Activity {
     private Switch mSourceRectHintToggle;
     private Switch mSeamlessResizeToggle;
     private Switch mEnterPipOnBackToggle;
+    private Switch mMediaSessionActionsToggle;
     private Switch mShowWhenLockedToggle;
     private RadioGroup mCurrentPositionGroup;
-    private Spinner mAspectRatioSpinner;
     private List<RemoteAction> mPipActions;
     private RemoteAction mCloseAction;
     private RemoteAction mMoveToBackAction;
@@ -136,15 +135,9 @@ public class PictureInPicture extends Activity {
         mSourceRectHintToggle = findViewById(R.id.source_rect_hint_toggle);
         mSeamlessResizeToggle = findViewById(R.id.seamless_resize_toggle);
         mEnterPipOnBackToggle = findViewById(R.id.enter_pip_on_back);
+        mMediaSessionActionsToggle = findViewById(R.id.media_session_actions);
         mShowWhenLockedToggle = findViewById(R.id.show_when_locked);
         mCurrentPositionGroup = findViewById(R.id.current_position);
-        mAspectRatioSpinner = findViewById(R.id.aspect_ratio);
-
-        // Initiate views if applicable
-        final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.aspect_ratio_list, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mAspectRatioSpinner.setAdapter(adapter);
 
         // Attach listeners
         mPlayerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
@@ -152,6 +145,7 @@ public class PictureInPicture extends Activity {
         mSourceRectHintToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
         mSeamlessResizeToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
         mEnterPipOnBackToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
+        mMediaSessionActionsToggle.setOnCheckedChangeListener(mOnToggleChangedListener);
         mShowWhenLockedToggle.setOnCheckedChangeListener(
                 (v, isChecked) -> setShowWhenLocked(isChecked));
         getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
@@ -163,21 +157,6 @@ public class PictureInPicture extends Activity {
                     }
                 });
         mCurrentPositionGroup.setOnCheckedChangeListener(mOnPositionChangedListener);
-        mAspectRatioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                final String rawText = parent.getItemAtPosition(position).toString();
-                final String textToParse = rawText.substring(
-                        rawText.indexOf('(') + 1,
-                        rawText.indexOf(')'));
-                mPlayerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing.
-            }
-        });
         findViewById(R.id.enter_pip_button).setOnClickListener(v -> enterPictureInPictureMode());
         findViewById(R.id.enter_content_pip_button).setOnClickListener(v -> enterContentPip());
 
@@ -197,7 +176,6 @@ public class PictureInPicture extends Activity {
                 ? R.id.radio_current_end
                 : R.id.radio_current_start;
         mCurrentPositionGroup.check(positionId);
-        mAspectRatioSpinner.setSelection(1);
 
         updateLayout(getResources().getConfiguration());
     }
@@ -205,6 +183,7 @@ public class PictureInPicture extends Activity {
     private void initializePlayer() {
         if (mPlayer == null) {
             mPlayer = new ExoPlayer.Builder(this).build();
+            new MediaSession.Builder(this, mPlayer).build();
             mPlayerView.setPlayer(mPlayer);
 
             Uri rawResourceUri = new Uri.Builder()
@@ -231,7 +210,6 @@ public class PictureInPicture extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        findViewById(R.id.text_to_hide).setVisibility(View.VISIBLE);
         // Re-initialize if the player was released (e.g., if onStop was called)
         if (mPlayer == null) {
             initializePlayer();
@@ -267,7 +245,7 @@ public class PictureInPicture extends Activity {
     @Override
     public void onPictureInPictureUiStateChanged(PictureInPictureUiState pipState) {
         if (pipState.isTransitioningToPip()) {
-            findViewById(R.id.text_to_hide).setVisibility(View.INVISIBLE);
+            mPlayerView.hideController();
         }
     }
 
@@ -454,9 +432,13 @@ public class PictureInPicture extends Activity {
                 .setSourceRectHint(mSourceRectHintToggle.isChecked()
                         ? new Rect(imageViewRect) : null)
                 .setSeamlessResizeEnabled(mSeamlessResizeToggle.isChecked())
-                .setAspectRatio(new Rational(imageViewRect.width(), imageViewRect.height()))
-                .setActions(mPipActions)
-                .setCloseAction(mCloseAction);
+                .setAspectRatio(new Rational(imageViewRect.width(), imageViewRect.height()));
+        if (mMediaSessionActionsToggle.isChecked()) {
+            builder.setActions(Collections.emptyList());
+        } else {
+            builder.setActions(mPipActions)
+                    .setCloseAction(mCloseAction);
+        }
         setPictureInPictureParams(builder.build());
     }
 

@@ -20,7 +20,6 @@ import {
   assertDefined,
   assertString,
 } from 'common/assert';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {AddDefaults} from 'parsers/operations/add_defaults';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
@@ -37,7 +36,6 @@ import {
   TAMPERED_TRACE_PACKET,
   TamperedProtoField,
 } from 'trace/proto_utils/tampered_message_type';
-import {TraceFile} from 'trace/trace_file';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
 import {TransactionType} from 'trace/transactions/transaction_type';
 import {
@@ -49,7 +47,6 @@ import {
 import {EntriesRange} from 'trace_api/index_types';
 import {TraceType} from 'trace_api/trace_type';
 import {RowIterator} from 'trace_processor/query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Operation} from 'tree_node/operation';
 import {PropertiesProvider} from 'tree_node/properties_provider';
@@ -77,14 +74,6 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   ];
 
   private flags: {[key: number]: string} | undefined;
-
-  constructor(
-    traceFile: TraceFile,
-    traceProcessor: TraceProcessor,
-    timestampConverter: ParserTimestampConverter,
-  ) {
-    super(traceFile, traceProcessor, timestampConverter);
-  }
 
   override getTraceType(): TraceType {
     return TraceType.TRANSACTIONS;

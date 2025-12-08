@@ -45,6 +45,10 @@
         </div>
       </div>
     </div>
+    <div class="my-4">
+      <input type="text" placeholder="Search tests..." [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+    </div>
     <mat-accordion class="mt-4" displayMode="flat">
       <div *ngFor="let goldenEntry of filteredGoldens">
         <p class="mt-2 mb-2 font-medium text-gray-400">{{ goldenEntry.key }}</p>
@@ -108,12 +112,18 @@
 
 <div *ngIf="presubmitTests.length > 0">
   <div class="p-4 bg-white rounded-md">
+    <div class="my-4">
+      <input type="text" placeholder="Search presubmit tests..." [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+    </div>
     <mat-accordion class="mt-4" displayMode="flat">
-      <mat-expansion-panel hideToggle="" *ngFor="let golden of presubmitTests" (opened)="presubmitTestOpened(golden)">
-        <mat-expansion-panel-header class="flex items-center mt-6 mb-6">
+      <mat-expansion-panel hideToggle="" *ngFor="let golden of filteredPresubmitTests"
+        (opened)="presubmitTestOpened(golden)">
+        <mat-expansion-panel-header class="flex items-center h-10" [matTooltip]="golden.testname">
           <mat-panel-title class="flex-1 min-w-0">
             <div class="flex-grow items-center overflow-hidden text-ellipsis">
-              <span>{{extractLastPart(golden.testname) }}</span>
+              <span class="block overflow-hidden whitespace-nowrap text-ellipsis">{{extractLastPart(golden.testname)
+                }}</span>
             </div>
           </mat-panel-title>
         </mat-expansion-panel-header>

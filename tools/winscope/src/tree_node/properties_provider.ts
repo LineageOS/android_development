@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import {TraceProcessor} from 'trace_processor/trace_processor';
+
 import {OperationChain} from './operation_chain';
 import {PropertySource, PropertyTreeNode} from './property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from './property_tree_node_factory';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 
 /**
  * Type for a function that asynchronously provides a `PropertyTreeNode`.

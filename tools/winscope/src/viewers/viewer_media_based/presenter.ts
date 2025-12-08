@@ -22,6 +22,7 @@ import {
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
+import {getLogger, Logger} from 'compat/logging';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
@@ -42,6 +43,7 @@ export class Presenter {
   constructor(
     traces: Array<Trace<MediaBasedTraceEntry>>,
     notifyViewCallback: NotifyHierarchyViewCallbackType<UiData>,
+    private readonly logger: Logger = getLogger('Presenter'),
   ) {
     this.traces = traces;
     this.notifyViewCallback = notifyViewCallback;
@@ -84,7 +86,7 @@ export class Presenter {
           event as PlaybackStateChangeHandled,
         );
       default:
-      // do nothing
+        this.logger.trace('Not processing event ' + event.constructor.name);
     }
   }
 

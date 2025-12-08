@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+import {TraceFile} from 'trace/trace_file';
+import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {assertDefined} from 'common/assert';
 import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
+import {getLogger, Logger} from 'compat/logging';
+import {TraceMetadata} from 'trace_api/trace_metadata';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {ProtoLogMessage as PerfettoProtoLogMessage} from 'compat/winscope_protos';
@@ -51,6 +55,15 @@ export class ParserProtoLog extends AbstractParser<
 
   private realToBootTimeOffsetNs: bigint | undefined;
 
+  constructor(
+    traceFile: TraceFile,
+    timestampConverter: ParserTimestampConverter,
+    metadata?: TraceMetadata,
+    logger: Logger = getLogger('ParserProtoLog'),
+  ) {
+    super(traceFile, timestampConverter, metadata, logger);
+  }
+
   override getTraceType(): TraceType {
     return TraceType.PROTO_LOG;
   }
@@ -75,18 +88,18 @@ export class ParserProtoLog extends AbstractParser<
     if (this.is32BitVersion(fileProto.log?.at(0))) {
       if (configJson32.version !== ParserProtoLog.PROTOLOG_32_BIT_VERSION) {
         const message = `Unsupported ProtoLog JSON config version ${configJson32.version}. Expected ${ParserProtoLog.PROTOLOG_32_BIT_VERSION}`;
-        console.log(message);
+        this.logger.error(message);
         throw new TypeError(message);
       }
     } else if (this.is64BitVersion(fileProto.log?.at(0))) {
       if (configJson64.version !== ParserProtoLog.PROTOLOG_64_BIT_VERSION) {
         const message = `Unsupported ProtoLog JSON config version ${configJson64.version}. Expected ${ParserProtoLog.PROTOLOG_64_BIT_VERSION}`;
-        console.log(message);
+        this.logger.error(message);
         throw new TypeError(message);
       }
     } else {
       const message = 'Unsupported ProtoLog trace version';
-      console.log(message);
+      this.logger.error(message);
       throw new TypeError(message);
     }
 
@@ -223,7 +236,7 @@ export class ParserProtoLog extends AbstractParser<
     trustedUid: number | undefined,
     trustedPid: number | undefined,
   ): TracePacket {
-    const packet = TracePacket.create();
+    const packet = new TracePacket();
     packet.trustedPacketSequenceId = sequenceId;
     packet.trustedUid = trustedUid;
     if (trustedPid) {

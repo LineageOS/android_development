@@ -18,7 +18,7 @@ import {CommonModule} from '@angular/common';
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {proxySetupStyles} from 'app/styles/proxy_setup.styles';
+
 import {ConnectionState} from 'trace_collection/connection_state';
 
 /**
@@ -80,7 +80,7 @@ import {ConnectionState} from 'trace_collection/connection_state';
       }
     }
   `,
-  styles: [proxySetupStyles],
+  styleUrls: ['wdp_setup_component.css'],
 })
 export class WdpSetupComponent {
   @Input() state: ConnectionState | undefined;

@@ -15,14 +15,20 @@
  */
 
 import {assertDefined} from 'common/assert';
-import * as protobuf from 'protobufjs';
-import root from 'protos/perfetto/trace/json';
+import {
+  PERFETTO_TRACE_PACKET_ROOT,
+  ProtobufEnum,
+  ProtobufField,
+  ProtobufType,
+} from 'compat/protobuf';
 
-export class TamperedMessageType extends protobuf.Type {
+export class TamperedMessageType extends ProtobufType {
   override fields: {[k: string]: TamperedProtoField} = {};
 
   static tamperTracePacket(): TamperedMessageType {
-    const tracePacket = root.lookupType('perfetto.protos.TracePacket');
+    const tracePacket = PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      'perfetto.protos.TracePacket',
+    ) as ProtobufType;
     const allowList: string[] = [
       'surfaceflingerLayersSnapshot',
       'surfaceflingerTransactions',
@@ -34,12 +40,12 @@ export class TamperedMessageType extends protobuf.Type {
     return tracePacket as TamperedMessageType;
   }
 
-  static tamper(protoType: protobuf.Type): TamperedMessageType {
+  static tamper(protoType: ProtobufType): TamperedMessageType {
     TamperedMessageType.tamperTypeDfs(protoType);
     return protoType as TamperedMessageType;
   }
 
-  private static tamperTypeDfs(protoType: protobuf.Type, allowList?: string[]) {
+  private static tamperTypeDfs(protoType: ProtobufType, allowList?: string[]) {
     for (const fieldName of Object.keys(protoType.fields)) {
       if (!allowList || allowList.includes(fieldName)) {
         const field = protoType.fields[fieldName];
@@ -48,11 +54,12 @@ export class TamperedMessageType extends protobuf.Type {
     }
   }
 
-  private static tamperFieldDfs(field: protobuf.Field) {
-    // lookupType/lookupEnum are expensive operations. To avoid calling them many times
-    // during TreeNode Operation loops (e.g. SetFormatters, TranslateIntDef, AddDefaults),
-    // we tamper protobuf.Field and protobuf.Type to provide a path linking a Field with
-    // its corresponding Type, greatly improving latency in building a properties tree.
+  private static tamperFieldDfs(field: ProtobufField) {
+    // lookupType/lookupEnum are expensive operations. To avoid calling them
+    // many times during TreeNode Operation loops (e.g. SetFormatters,
+    // TranslateIntDef, AddDefaults), we tamper ProtobufField and ProtobufType
+    // to provide a path linking a Field with its corresponding Type, greatly
+    // improving latency in building a properties tree.
     if ((field as TamperedProtoField).tamperedMessageType) {
       return;
     }
@@ -82,9 +89,9 @@ export class TamperedMessageType extends protobuf.Type {
   }
 }
 
-export class TamperedProtoField extends protobuf.Field {
+export class TamperedProtoField extends ProtobufField {
   tamperedMessageType: TamperedMessageType | undefined;
-  tamperedEnumType: protobuf.Enum | undefined;
+  tamperedEnumType: ProtobufEnum | undefined;
 }
 
 export const TAMPERED_TRACE_PACKET = TamperedMessageType.tamperTracePacket();

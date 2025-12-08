@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogger} from 'compat/logging';
 // organize-imports-ignore
 import '@angular/compiler';
 import 'app/global_init';
@@ -37,4 +38,4 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptorsFromDi()),
     {provide: ErrorHandler, useClass: GlobalErrorHandler},
   ],
-}).catch((e) => console.error(e));
+}).catch((e) => getLogger('main').error(e));

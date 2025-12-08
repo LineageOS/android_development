@@ -38,7 +38,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
 import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
@@ -56,9 +55,9 @@ import {
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger} from 'compat/logging';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
-import {inlineButtonStyle} from 'viewers/components/styles/clickable_property.styles';
 import {View, Viewer, ViewType} from 'viewers/viewer';
 
 interface Tab {
@@ -191,96 +190,7 @@ interface Tab {
       <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
       <div class="trace-view-content"></div>
   `,
-  styles: [
-    `
-      .tab.active {
-        opacity: 100%;
-      }
-
-      .header-items-wrapper {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .trace-tabs-wrapper {
-        overflow-x: auto;
-      }
-
-      .tabs-navigation-bar {
-        height: 100%;
-        border-bottom: 0px;
-      }
-
-      .trace-view-content {
-        height: 100%;
-        overflow: auto;
-        background-color: var(--trace-view-background-color);
-      }
-
-      .tab:not(.last):after {
-        content: '';
-        position: absolute;
-        right: 0;
-        height: 60%;
-        width: 1px;
-        background-color: #C4C0C0;
-        align-self: center;
-      }
-
-      .filter-presets {
-        line-height: 24px;
-        padding: 0 10px;
-        margin-inline: 10px;
-        min-width: fit-content;
-        height: fit-content;
-      }
-
-      .filter-presets-label {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-
-      .filter-presets-label .mat-icon {
-        margin-inline-end: 5px;
-      }
-
-      .filter-presets-panel {
-        max-width: 440px;
-        max-height: 500px;
-        overflow-y: auto;
-        border-radius: 15px;
-      }
-
-      .filter-presets-panel .overlay-panel-title {
-        margin: 5px 5px 5px 15px;
-      }
-
-      .existing-preset {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      }
-
-      .existing-preset:hover {
-        background-color: var(--hover-element-color);
-      }
-
-      .existing-preset:not(:hover) .delete-button {
-        opacity: 0.5;
-      }
-
-      .save-section {
-        padding-bottom: 10px;
-      }
-    `,
-    overlayPanelStyles,
-    inlineButtonStyle,
-  ],
+  styleUrls: ['trace_view_component.css'],
 })
 export class TraceViewComponent
   implements WinscopeEventEmitter, WinscopeEventListener
@@ -378,7 +288,9 @@ export class TraceViewComponent
           event as TabbedViewSwitchRequest,
         );
       default:
-      // do nothing
+        getLogger('TraceViewComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

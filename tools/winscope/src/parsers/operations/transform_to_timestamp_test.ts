@@ -17,11 +17,12 @@
 import {assertDefined} from 'common/assert';
 import {MockLong} from 'test/unit/mock_long';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {
-  makeRealTimestamp,
   makeElapsedTimestamp,
+  makeRealTimestamp,
 } from 'test/unit/time_test_helpers';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+
 import {TransformToTimestamp} from './transform_to_timestamp';
 
 describe('TransformToTimestamp', () => {

@@ -15,6 +15,8 @@
  */
 
 import {assertDefined} from 'common/assert';
+import {TraceProcessor} from 'trace_processor/trace_processor';
+
 import {Operation} from './operation';
 import {OperationChain} from './operation_chain';
 import {
@@ -22,7 +24,6 @@ import {
   PropertiesProvider,
 } from './properties_provider';
 import {PropertyTreeNode} from './property_tree_node';
-import {TraceProcessor} from 'trace_processor/trace_processor';
 
 /**
  * A builder for a properties provider.

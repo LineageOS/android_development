@@ -23,7 +23,7 @@ const configProd = {
   mode: 'production',
   entry: {
     polyfills: './src/polyfills.ts',
-    styles: ['./src/material-theme.scss', './src/styles.css'],
+    styles: ['./src/styles/material-theme.scss', './src/styles/styles.css'],
     app: './src/main_prod.ts',
   },
   output: {
@@ -50,7 +50,6 @@ const configProd = {
         },
         styles: {
           test: /\.css$/,
-          name: 'styles',
           chunks: 'all',
           enforce: true,
         },

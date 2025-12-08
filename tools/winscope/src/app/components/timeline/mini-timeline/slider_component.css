@@ -1,0 +1,58 @@
+#timeline-slider-box {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+#timeline-slider-box,
+.slider {
+  height: 10px;
+}
+
+.line {
+  height: 3px;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+}
+
+.background.line {
+  width: 100%;
+  background: var(--guide-bar-color);
+}
+
+.selection.line {
+  background: var(--slider-border-color);
+}
+
+.slider {
+  display: flex;
+  justify-content: space-between;
+  cursor: grab;
+  position: absolute;
+}
+
+.handle {
+  flex-grow: 1;
+  background: var(--slider-background-color);
+  cursor: grab;
+}
+
+.cropper {
+  width: 5px;
+  background: var(--slider-border-color);
+}
+
+.cropper.left,
+.cropper.right {
+  cursor: ew-resize;
+}
+
+.cursor {
+  width: 2px;
+  height: 100%;
+  position: absolute;
+  pointer-events: none;
+  background: var(--active-pointer-color);
+}

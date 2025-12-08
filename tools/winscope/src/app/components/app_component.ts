@@ -80,7 +80,6 @@ import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {UserNotifier} from 'services/user_notifier';
 import {AdbFiles} from 'trace_collection/adb_files';
-import {iconDividerStyle} from 'viewers/components/styles/icon_divider.styles';
 import {ViewerInputMethodComponent} from 'viewers/components/viewer_input_method_component';
 import {Viewer} from 'viewers/viewer';
 import {ViewerInputComponent} from 'viewers/viewer_input/viewer_input_component';
@@ -115,6 +114,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
 import {RequestData} from 'cross_tool/g3_proxy';
+import {getLogger} from 'compat/logging';
 import {Trace} from 'trace_api/trace';
 
 /**
@@ -418,146 +418,7 @@ import {Trace} from 'trace_api/trace';
       </mat-drawer>
     </mat-drawer-container>
   `,
-  styles: [
-    `
-      .toolbar {
-        gap: 10px;
-        justify-content: space-between;
-      }
-      .logo {
-        height: 50%;
-      }
-      .app-title {
-        height: 100%;
-      }
-      .beta-tag {
-        font-size: 0.5rem;
-        margin-left: 0.1rem;
-        color: var(--logo-blue);
-        font-weight: 800;
-        line-height: normal;
-        height: 100%;
-      }
-      .welcome-info {
-        margin: 16px 0 6px 0;
-        text-align: center;
-      }
-      .homepage-card {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        overflow: auto;
-        height: 870px;
-      }
-      .horizontal-align {
-        justify-content: center;
-      }
-      .vertical-align {
-        text-align: center;
-        align-items: center;
-        overflow-x: hidden;
-        display: flex;
-      }
-      .fixed {
-        min-width: fit-content;
-      }
-      .icon-actions {
-        height: 100%;
-      }
-
-      .download-files-section {
-        overflow-x: hidden;
-      }
-      .file-descriptor {
-        font-size: 14px;
-        padding-left: 10px;
-        max-width: 750px;
-        height: 100%;
-      }
-      .file-warning  {
-        border: solid 2px var(--warning-color);
-        background: var(--warning-background-color);
-      }
-      .file-descriptor .warning-icon {
-        padding-inline-end: 4px;
-      }
-      .download-file-info {
-        padding-top: 3px;
-        max-width: 650px;
-      }
-      .download-file-ext {
-        padding-top: 3px;
-      }
-      .file-name-input-field .right-align {
-        text-align: right;
-      }
-      .file-name-input-field .mat-mdc-text-field-wrapper {
-        width: 600px;
-        max-width: 100%;
-      }
-      .toolbar-icon-divider {
-        margin-right: 6px;
-        margin-left: 6px;
-        height: 20px;
-      }
-      .viewers {
-        height: 0;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-      }
-      .center {
-        display: flex;
-        align-content: center;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        justify-items: center;
-        flex-grow: 1;
-        background-color: var(--background-color);
-      }
-      .landing-content {
-        width: 100%;
-      }
-      .landing-content .card-grid {
-        max-width: 1800px;
-        flex-grow: 1;
-        margin: auto;
-      }
-
-      .share-menu-content {
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-      }
-      .share-menu-content mat-checkbox {
-        margin-bottom: 8px;
-      }
-      .share-option {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-      }
-      .info-icon {
-        font-size: 18px;
-        height: 18px;
-        width: 18px;
-        color: var(--text-color-secondary);
-      }
-      .share-link-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      .share-link-field {
-        flex-grow: 1;
-      }
-    `,
-    iconDividerStyle,
-  ],
+  styleUrls: ['app_component.css'],
 })
 export class AppComponent implements WinscopeEventListener {
   title = 'winscope';
@@ -618,7 +479,7 @@ export class AppComponent implements WinscopeEventListener {
     @Inject(MatDialog) private dialog: MatDialog,
   ) {
     this.changeDetectorRef = changeDetectorRef;
-    UserNotifier.setSnackBarOpener(snackbarOpener);
+    UserNotifier.setNotificationListener(snackbarOpener);
     this.tracePipeline = new TracePipeline();
     this.crossToolProtocol = new CrossToolProtocol(
       this.tracePipeline.getTimestampConverter(),
@@ -939,9 +800,10 @@ export class AppComponent implements WinscopeEventListener {
 
   openSettings() {
     const parentOrigin = this.getReportedParentOrigin();
+    const logger = getLogger('AppComponent');
 
     if (parentOrigin == null) {
-      console.warn(
+      logger.warn(
         "Provided 'parentOrigin' is null cannot send request to open settings menu",
       );
       return;
@@ -956,7 +818,7 @@ export class AppComponent implements WinscopeEventListener {
       const data = JSON.stringify({action: 'openSettings'});
       window.parent.postMessage(data, parentOrigin);
     } else {
-      console.warn(
+      logger.warn(
         'Not inside an iframe...',
         window.self.origin,
         window.top?.origin,

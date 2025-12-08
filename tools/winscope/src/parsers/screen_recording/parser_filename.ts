@@ -16,6 +16,7 @@
 
 import {removeDirFromFileName, removeExtensionFromFilename} from 'common/io';
 import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
+import {getLogger, Logger} from 'compat/logging';
 import {
   ParserResult,
   parseTimestampsFromMp4VideoTrack,
@@ -23,11 +24,10 @@ import {
 } from './helpers';
 
 export class ParserFilename implements ScreenRecordingParser {
-  private filename: string;
-
-  constructor(filename: string) {
-    this.filename = filename;
-  }
+  constructor(
+    private filename: string,
+    private readonly logger: Logger = getLogger('ParserFilename'),
+  ) {}
 
   async parse(videoData: Uint8Array): Promise<ParserResult> {
     // try parse offset from filename
@@ -51,7 +51,7 @@ export class ParserFilename implements ScreenRecordingParser {
           realToBootTimeOffsetNs: 0n,
         };
       } catch (e) {
-        console.error(e);
+        this.logger.error((e as Error).message);
       }
     }
 

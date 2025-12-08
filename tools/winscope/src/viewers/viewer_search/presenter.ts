@@ -42,6 +42,7 @@ import {
   SearchQueryClickDetail,
   ViewerEvents,
 } from 'viewers/common/viewer_events';
+import {getLogger, Logger} from 'compat/logging';
 import {SearchResultPresenter} from './search_result_presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
 
@@ -65,6 +66,7 @@ export class Presenter {
     private storage: Store,
     private readonly notifyViewCallback: (uiData: UiData) => void,
     private readonly timestampConverter: TimestampConverter,
+    private readonly logger: Logger = getLogger('Presenter'),
   ) {
     this.savedSearches = createPersistentStoreProxy<{searches: ListedSearch[]}>(
       'savedSearches',
@@ -147,7 +149,7 @@ export class Presenter {
       case TraceSearchFailed:
         return this.onTraceSearchFailed();
       default:
-      // do nothing
+        this.logger.trace('Not processing event ' + event.constructor.name);
     }
 
     for (const activeSearch of this.activeSearches.values()) {

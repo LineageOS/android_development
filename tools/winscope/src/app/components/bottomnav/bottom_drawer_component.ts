@@ -87,20 +87,7 @@ const transformDrawer: AnimationTriggerMetadata =
       <ng-content></ng-content>
     </div>
   `,
-  styles: [
-    `
-      .mat-drawer.mat-drawer-bottom {
-        left: 0;
-        right: 0;
-        bottom: 0;
-        top: unset;
-        position: fixed;
-        z-index: 5;
-        background-color: var(--drawer-color);
-        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      }
-    `,
-  ],
+  styleUrls: ['bottom_drawer_component.css'],
   animations: [transformDrawer],
   host: {
     class: 'mat-drawer mat-drawer-bottom',

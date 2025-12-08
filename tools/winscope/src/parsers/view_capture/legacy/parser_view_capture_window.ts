@@ -122,7 +122,7 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
       return [];
     }
     const packets = this.frameData.map((frame, index) => {
-      const packet = TracePacket.create();
+      const packet = new TracePacket();
       packet.trustedPacketSequenceId = sequenceId;
       packet.timestamp = assertDefined(frame.timestamp);
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;

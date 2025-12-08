@@ -15,6 +15,7 @@
  */
 import {Timestamp, TimestampFormatter} from 'common/time/time';
 import {TraceBuilder} from 'test/unit/trace_builder';
+
 import {FramesRange} from './index_types';
 import {TraceEntry} from './trace';
 import {TracePosition} from './trace_position';

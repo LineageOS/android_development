@@ -80,6 +80,7 @@ import {FilesSource} from './files_source';
 import {LoadedParsers} from './loaded_parsers';
 import {TraceFileFilter} from './trace_file_filter';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {getLogger, Logger} from 'compat/logging';
 import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
 
 /**
@@ -101,6 +102,7 @@ export class TracePipeline
   private lostPerfettoPackets = 0;
   private timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO);
   private traceGeometryData: TraceGeometryData | undefined;
+  constructor(private readonly logger: Logger = getLogger('TracePipeline')) {}
 
   setEmitEvent(callback: EmitEvent) {
     this.traceFileFilter.setEmitEvent(callback);
@@ -574,7 +576,7 @@ export class TracePipeline
     if (DOWNLOAD_FILENAME_REGEX.test(archiveFilenameNoIllegalChars)) {
       return archiveFilenameNoIllegalChars;
     } else {
-      console.error(
+      this.logger.error(
         'Cannot convert uploaded archive filename to acceptable format for download. ' +
           "Defaulting download filename to 'winscope.zip'.",
       );

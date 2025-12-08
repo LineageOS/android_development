@@ -50,29 +50,7 @@ import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
       </div>
     </div>
   `,
-  styles: [
-    `
-      .snack-bar-container {
-        display: flex;
-        flex-direction: column;
-        white-space: pre-line;
-      }
-      .message-container {
-        display: flex;
-        flex-direction: column;
-        white-space: pre-line;
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      .message {
-        padding-block-end: 4px;
-      }
-      .snack-bar-actions {
-        display: flex;
-        justify-content: center;
-      }
-    `,
-  ],
+  styleUrls: ['snack_bar_component.css'],
 })
 export class SnackBarComponent {
   constructor(

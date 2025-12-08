@@ -84,7 +84,7 @@ export class ParserSurfaceFlinger extends AbstractParser<
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
     for (const entry of this.decodedEntries) {
-      const packet = TracePacket.create();
+      const packet = new TracePacket();
       packet.timestamp = this.isDump
         ? Long.fromInt(0)
         : assertDefined(entry.elapsedRealtimeNanos);

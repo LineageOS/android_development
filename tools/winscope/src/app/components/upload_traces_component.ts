@@ -36,6 +36,7 @@ import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
 import {ShowTraceUploadWarning} from 'trace/trace_events';
 import {WinscopeEvent} from 'messaging/winscope_event';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {getLogger} from 'compat/logging';
 import {Trace} from 'trace_api/trace';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {
@@ -219,144 +220,7 @@ import {LoadProgressComponent} from './load_progress_component';
       </mat-card-content>
     </mat-card>
   `,
-  styles: [
-    `
-      .upload-card {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-        margin: 10px;
-        padding-top: 0px;
-      }
-      .card-header {
-        justify-content: space-between;
-        align-items: start;
-        display: flex;
-        flex-direction: row;
-      }
-      .title {
-        padding-top: 16px;
-        text-align: start;
-      }
-      .trace-actions-container {
-        display: flex;
-        flex-direction: column;
-      }
-      .trace-action-buttons {
-        display: flex;
-        flex-direction: row-reverse;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .trace-action-buttons-top {
-        padding-bottom: 4px;
-      }
-      .trace-action-buttons-bottom {
-        padding: 4px 0;
-      }
-      .upload-card-content {
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-        padding-top: 10px;
-      }
-      .drop-box {
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-        border: 2px dashed var(--border-color);
-        cursor: pointer;
-        height: 100%;
-      }
-      .uploaded-files {
-        flex: 400px;
-        padding: 0;
-      }
-      .drop-info {
-        flex: 400px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        pointer-events: none;
-        text-align: center;
-      }
-      .drop-info p {
-        opacity: 0.6;
-      }
-      .drop-info .drop-info-text {
-        padding: 0 4px;
-      }
-      .drop-info .icon {
-        font-size: 48px;
-        margin: 0;
-      }
-      .div-progress {
-        display: flex;
-        height: 100%;
-        flex-direction: column;
-        justify-content: center;
-        align-content: center;
-        align-items: center;
-      }
-      .div-progress p {
-        opacity: 0.6;
-      }
-      .div-progress mat-icon {
-        font-size: 3rem;
-        width: unset;
-        height: unset;
-      }
-      .div-progress mat-progress-bar {
-        max-width: 250px;
-      }
-      mat-mdc-card-content {
-        flex-grow: 1;
-      }
-      .no-visualization {
-        background-color: var(--warning-background-color);
-      }
-      .trace-error {
-        background-color: var(--error-background-color);
-      }
-      .warning-banner {
-        background-color: var(--warning-background-color);
-        padding: 8px 8px 8px 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        margin: 10px 16px;
-        border-radius: 4px;
-        box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2),0px 2px 2px 0px rgba(0, 0, 0, 0.14),0px 1px 5px 0px rgba(0, 0, 0, 0.12);
-      }
-      .warning-banner .warning-content {
-         display: flex;
-         align-items: center;
-         gap: 8px;
-         flex-grow: 1;
-         text-align: left;
-      }
-      .warning-banner .warning-icon {
-         flex-shrink: 0;
-      }
-      .warning-banner .warn-message {
-        padding: 0;
-        margin: 0;
-        white-space: pre-line;
-      }
-      .clear-icon {
-        color: var(--default-text-color);
-      }
-      .discard-legacy-traces {
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: end;
-      }
-    `,
-  ],
+  styleUrls: ['upload_traces_component.css'],
 })
 export class UploadTracesComponent
   implements WinscopeEventListener, ProgressListener
@@ -436,7 +300,9 @@ export class UploadTracesComponent
           event as ShowTraceUploadWarning,
         );
       default:
-      // do nothing
+        getLogger('UploadTracesComponent').trace(
+          'Not processing event ' + event.constructor.name,
+        );
     }
   }
 

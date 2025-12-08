@@ -269,7 +269,7 @@ fn find_android_rust_toolchain() -> Result<PathBuf> {
 
     let android_top = env::var("ANDROID_BUILD_TOP")
         .context("ANDROID_BUILD_TOP was not set. Did you forget to run envsetup.sh?")?;
-    let stable_rustfmt = [android_top.as_str(), "prebuilts", "rust", platform_rustfmt]
+    let stable_rustfmt = [android_top.as_str(), "prebuilts", "rust-toolchain", platform_rustfmt]
         .into_iter()
         .collect::<PathBuf>();
     let canonical_rustfmt = stable_rustfmt.canonicalize()?;
@@ -814,6 +814,7 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         // Usually we interpret "/" as "OR", but in the case of libfuzzer-sys, closer
         // inspection of the terms indicates the correct interpretation is "(MIT OR APACHE) AND NCSA".
         "MIT/Apache-2.0/NCSA" => vec!["Apache-2.0", "NCSA"],
+        "(MIT OR Apache-2.0) AND Unicode-3.0" => vec!["Apache-2.0", "Unicode-3.0"],
 
         // Variations on "Apache-2.0 AND BSD-*"
         "Apache-2.0 AND BSD-3-Clause" => vec!["Apache-2.0", "BSD-3-Clause"],
@@ -826,6 +827,9 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         "0BSD OR MIT OR Apache-2.0" => vec!["Apache-2.0"],
 
         "LGPL-2.1-only OR BSD-2-Clause" => vec!["BSD-2-Clause"],
+
+        "ISC AND (Apache-2.0 OR ISC)" => vec!["ISC"],
+        "Apache-2.0 OR ISC OR MIT" => vec!["Apache-2.0"],
         _ => {
             // If there is whitespace, it is probably an SPDX expression.
             if license.contains(char::is_whitespace) {
@@ -1195,7 +1199,8 @@ fn crate_to_bp_modules(
                 ExternType::ProcMacro => proc_macro_libs.push(extern_dep.lib_name.clone()),
             }
             if extern_dep.name != extern_dep.lib_name {
-                aliases.push(format!("{}:{}", extern_dep.lib_name, extern_dep.name));
+                let crate_name = extern_dep.name.replace("-", "_");
+                aliases.push(format!("{}:{}", extern_dep.lib_name, crate_name));
             }
         }
 

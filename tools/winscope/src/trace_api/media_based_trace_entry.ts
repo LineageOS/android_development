@@ -19,8 +19,9 @@ import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {Size} from 'common/geometry/size';
 
 /**
- * Represents a single entry in a media-based trace, such as a video or a screenshot.
- * Contains data for rendering a frame either in HTMLVideoElement or HTMLCanvasElement.
+ * Represents a single entry in a media-based trace, such as a video or a
+ * screenshot. Contains data for rendering a frame either in HTMLVideoElement or
+ * HTMLCanvasElement.
  */
 export interface MediaBasedTraceEntry {
   frameData: Blob | undefined;

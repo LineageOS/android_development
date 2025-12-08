@@ -22,9 +22,9 @@ import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
-import {UI_RECT_FACTORY} from './ui_rect_factory';
+import {makeInputRects, makeUiRects, makeVcUiRects} from './ui_rect_factory';
 
-describe('UI_RECT_FACTORY', () => {
+describe('ui_rect_factory', () => {
   let hierarchyRoot: HierarchyTreeNode;
   let node1: HierarchyTreeNode;
   let node2: HierarchyTreeNode;
@@ -84,7 +84,7 @@ describe('UI_RECT_FACTORY', () => {
 
     const expectedRects: UiRect[] = [expectedUiRect1, expectedUiRect2];
 
-    expect(UI_RECT_FACTORY.makeUiRects(hierarchyRoot)).toEqual(expectedRects);
+    expect(makeUiRects(hierarchyRoot)).toEqual(expectedRects);
   });
 
   it('makes rects with data from trace rect', () => {
@@ -110,7 +110,7 @@ describe('UI_RECT_FACTORY', () => {
 
     const expectedRects: UiRect[] = [expectedUiRect2];
 
-    expect(UI_RECT_FACTORY.makeUiRects(hierarchyRoot)).toEqual(expectedRects);
+    expect(makeUiRects(hierarchyRoot)).toEqual(expectedRects);
   });
 
   it('handles depth order different to dfs order', () => {
@@ -154,7 +154,7 @@ describe('UI_RECT_FACTORY', () => {
       .build();
 
     const expectedRects: UiRect[] = [expectedUiRect1, expectedUiRect2];
-    expect(UI_RECT_FACTORY.makeUiRects(hierarchyRoot)).toEqual(expectedRects);
+    expect(makeUiRects(hierarchyRoot)).toEqual(expectedRects);
   });
 
   it('makes vc rects with groupId, content and empty label', () => {
@@ -200,9 +200,7 @@ describe('UI_RECT_FACTORY', () => {
       .build();
 
     const expectedRects: UiRect[] = [expectedVcUiRect1, expectedVcUiRect2];
-    expect(UI_RECT_FACTORY.makeVcUiRects(hierarchyRoot, GROUP_ID)).toEqual(
-      expectedRects,
-    );
+    expect(makeVcUiRects(hierarchyRoot, GROUP_ID)).toEqual(expectedRects);
   });
 
   it('discards vc trace rects with zero height or width', () => {
@@ -211,7 +209,7 @@ describe('UI_RECT_FACTORY', () => {
     buildRectAndSetToNode(node1, 1, 0, 1);
     buildRectAndSetToNode(node2, 0, 1, 0);
 
-    expect(UI_RECT_FACTORY.makeVcUiRects(hierarchyRoot, GROUP_ID)).toEqual([]);
+    expect(makeVcUiRects(hierarchyRoot, GROUP_ID)).toEqual([]);
   });
 
   it('makes input rects', () => {
@@ -281,9 +279,7 @@ describe('UI_RECT_FACTORY', () => {
       expectedInputRect1,
       expectedInputRect2,
     ];
-    expect(UI_RECT_FACTORY.makeInputRects(hierarchyRoot, hasContent)).toEqual(
-      expectedRects,
-    );
+    expect(makeInputRects(hierarchyRoot, hasContent)).toEqual(expectedRects);
   });
 
   it('adds pointer and ray locations for input rects', () => {
@@ -475,9 +471,9 @@ describe('UI_RECT_FACTORY', () => {
       .build();
 
     const expectedRects: UiRect[] = [expectedInputRect1, expectedInputRect2];
-    expect(
-      UI_RECT_FACTORY.makeInputRects(root, hasContent, dispatchProperties),
-    ).toEqual(expectedRects);
+    expect(makeInputRects(root, hasContent, dispatchProperties)).toEqual(
+      expectedRects,
+    );
   });
 
   function hasContent(id: string) {

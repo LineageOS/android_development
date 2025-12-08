@@ -19,6 +19,4 @@ import intDefMapping from 'common/intDefMapping.json';
 /*
  * Wrapper for IntDef json file for easier interop with google3
  */
-const INTDEF_MAPPING_JSON = intDefMapping;
-
-export {INTDEF_MAPPING_JSON};
+export const INTDEF_MAPPING_JSON = intDefMapping;

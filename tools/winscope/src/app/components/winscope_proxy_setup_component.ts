@@ -22,7 +22,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {proxySetupStyles} from 'app/styles/proxy_setup.styles';
 import {DownloadRequest, downloadFromUrl} from 'common/download';
 import {getRootUrl} from 'common/window';
 import {ConnectionState} from 'trace_collection/connection_state';
@@ -144,15 +143,7 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
       }
     }
   `,
-  styles: [
-    `
-      .proxy-command-text {
-        user-select: all;
-        overflow: auto;
-      }
-    `,
-    proxySetupStyles,
-  ],
+  styleUrls: ['winscope_proxy_setup_component.css'],
 })
 export class WinscopeProxySetupComponent {
   @Input() state: ConnectionState | undefined;

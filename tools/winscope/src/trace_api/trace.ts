@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  binarySearchFirstGreater,
-  binarySearchFirstGreaterOrEqual,
-} from 'common/typed_array';
 import {assertDefined, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {UserTimestamp} from 'common/time/user_timestamp';
+import {
+  binarySearchFirstGreater,
+  binarySearchFirstGreaterOrEqual,
+} from 'common/typed_array';
+import {getLogger, Logger} from 'compat/logging';
+
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
@@ -200,6 +202,7 @@ export class Trace<T> {
     descriptors: string[],
     fullTrace: Trace<T> | undefined,
     entriesRange: EntriesRange | undefined,
+    private readonly logger: Logger = getLogger('Trace'),
   ) {
     this.type = type;
     this.parser = parser;
@@ -271,7 +274,7 @@ export class Trace<T> {
       return await this.parser.getAllEntries();
     } catch (e) {
       if (e !== NOT_IMPLEMENTED_ERROR) {
-        console.error(e);
+        this.logger.error((e as Error).message);
       }
       return await Promise.all(this.mapEntry((entry) => entry.getValue()));
     }
