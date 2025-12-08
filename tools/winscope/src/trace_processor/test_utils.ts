@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined,} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
-import {
-  ColumnType,
-  QueryResult,
-  Row,
-  RowIterator,
-} from 'trace_processor/query_result';
-import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
+import {ColumnType, QueryResult, RowIterator} from './query_result';
+import {TraceProcessorFactory} from './trace_processor_factory';
 
 export function makeSearchTraceSpies(
-    ts?: Timestamp,
-    value?: ColumnType,
-  ): [jasmine.SpyObj<QueryResult>, jasmine.SpyObj<RowIterator<Row>>] {
+  ts?: Timestamp,
+  value?: ColumnType,
+): [jasmine.SpyObj<QueryResult>, jasmine.SpyObj<RowIterator>] {
   const spyQueryResult = jasmine.createSpyObj<QueryResult>('result', [
     'numRows',
     'columns',
@@ -35,18 +30,19 @@ export function makeSearchTraceSpies(
   ]);
   spyQueryResult.numRows.and.returnValue(1);
   const columns: string[] = [];
-  if (ts !== undefined) columns.push('ts');
+  if (ts !== undefined) columns.push('ts', 'ts_other');
   columns.push('property');
   if (value !== undefined) columns.push('value');
   spyQueryResult.columns.and.returnValue(columns);
 
-  const spyIter = jasmine.createSpyObj<RowIterator<Row>>('iter', [
+  const spyIter = jasmine.createSpyObj<RowIterator>('iter', [
     'valid',
     'next',
     'get',
   ]);
   if (ts !== undefined) {
     spyIter.get.withArgs('ts').and.returnValue(ts.getValueNs());
+    spyIter.get.withArgs('ts_other').and.returnValue(ts.getValueNs() + 100n);
   }
   spyIter.get.withArgs('property').and.returnValue('test_property');
   if (value !== undefined) {
@@ -61,16 +57,15 @@ export function makeSearchTraceSpies(
   return [spyQueryResult, spyIter];
 }
 
-export async function runQueryAndGetResult(query: string): Promise<QueryResult> {
+export async function runQueryAndGetResult(
+  query: string,
+): Promise<QueryResult> {
   const tp = TraceProcessorFactory.getSingleInstance();
   return tp.query(query);
 }
 
 function makeSpyQueryResult(): jasmine.SpyObj<QueryResult> {
-  return jasmine.createSpyObj<QueryResult>('result', [
-    'numRows',
-    'firstRow',
-  ]);
+  return jasmine.createSpyObj<QueryResult>('result', ['numRows']);
 }
 
 export function setNumRowsSpyQueryResult(
@@ -82,14 +77,13 @@ export function setNumRowsSpyQueryResult(
   return spy;
 }
 
-export function setFirstRowSpyQueryResult(
-  query: string,
-  tpSpy: jasmine.Spy,
-  result: Row,
-  spyQueryResult?: jasmine.SpyObj<QueryResult>,
-): jasmine.SpyObj<QueryResult> {
-  const spy = spyQueryResult ?? makeSpyQueryResult();
-  spy.firstRow.and.returnValue(result);
-  tpSpy.withArgs(query).and.returnValue(Promise.resolve(spy));
-  return spy;
+export function makeSpyRowIterator(): jasmine.SpyObj<RowIterator> {
+  const iter = jasmine.createSpyObj<RowIterator>('row', [
+    'get',
+    'valid',
+    'next',
+  ]);
+  iter.valid.and.returnValue(true);
+  iter.next.and.callFake(() => iter.valid.and.returnValue(false));
+  return iter;
 }

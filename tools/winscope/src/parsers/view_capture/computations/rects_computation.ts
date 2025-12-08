@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TraceRect} from 'trace/trace_rect';
-import {TraceRectBuilder} from 'trace/trace_rect_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {assertDefined} from 'common/assert';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {TraceRect} from 'tree_node/trace_rect';
+import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 
 class RectVcFactory {
   private static DEPTH_MAGNIFICATION = 4;
@@ -33,26 +33,27 @@ class RectVcFactory {
     depth: number,
   ): TraceRect {
     const nodeLeft = assertDefined(
-      node.getEagerPropertyByName('left'),
-    ).getValue();
+      node.getEagerPropertyByName('left')?.getValue<number>(),
+    );
     const nodeTranslationX = assertDefined(
-      node.getEagerPropertyByName('translationX'),
-    ).getValue();
+      node.getEagerPropertyByName('translationX')?.getValue<number>(),
+    );
     const nodeWidth = assertDefined(
-      node.getEagerPropertyByName('width'),
-    ).getValue();
+      node.getEagerPropertyByName('width')?.getValue<number>(),
+    );
 
     const nodeTop = assertDefined(
-      node.getEagerPropertyByName('top'),
-    ).getValue();
+      node.getEagerPropertyByName('top')?.getValue<number>(),
+    );
     const nodeTranslationY = assertDefined(
-      node.getEagerPropertyByName('translationY'),
-    ).getValue();
+      node.getEagerPropertyByName('translationY')?.getValue<number>(),
+    );
     const nodeHeight = assertDefined(
-      node.getEagerPropertyByName('height'),
-    ).getValue();
+      node.getEagerPropertyByName('height')?.getValue<number>(),
+    );
 
-    const nodeAlpha = node.getEagerPropertyByName('alpha')?.getValue() ?? 0;
+    const nodeAlpha =
+      node.getEagerPropertyByName('alpha')?.getValue<number>() ?? 0;
 
     const rectLeft =
       leftShift +
@@ -70,10 +71,10 @@ class RectVcFactory {
       .setHeight(nodeHeight * newScaleY)
       .setId(node.id)
       .setName(node.name)
-      .setCornerRadius(0)
       .setGroupId(0)
       .setIsVisible(
-        node.getEagerPropertyByName('isComputedVisible')?.getValue() ?? false,
+        node.getEagerPropertyByName('isComputedVisible')?.getValue<boolean>() ??
+          false,
       )
       .setIsDisplay(false)
       .setIsActiveDisplay(false)
@@ -85,8 +86,14 @@ class RectVcFactory {
     return rect;
   }
 }
+/**
+ * A factory for creating rects from a view capture hierarchy tree.
+ */
 export const rectsFactory = new RectVcFactory();
 
+/**
+ * A computation that adds rects to a view capture hierarchy tree.
+ */
 export class RectsComputation {
   private readonly rectsFactory = new RectVcFactory();
   private root: HierarchyTreeNode | undefined;
@@ -113,9 +120,11 @@ export class RectsComputation {
     depth: number,
   ) {
     const newScaleX =
-      scaleX * assertDefined(node.getEagerPropertyByName('scaleX')).getValue();
+      scaleX *
+      assertDefined(node.getEagerPropertyByName('scaleX')?.getValue<number>());
     const newScaleY =
-      scaleY * assertDefined(node.getEagerPropertyByName('scaleY')).getValue();
+      scaleY *
+      assertDefined(node.getEagerPropertyByName('scaleY')?.getValue<number>());
 
     const rect = this.rectsFactory.makeNodeRect(
       node,
@@ -133,9 +142,13 @@ export class RectsComputation {
       this.addRects(
         child,
         rect.x -
-          assertDefined(node.getEagerPropertyByName('scrollX')).getValue(),
+          assertDefined(
+            node.getEagerPropertyByName('scrollX')?.getValue<number>(),
+          ),
         rect.y -
-          assertDefined(node.getEagerPropertyByName('scrollY')).getValue(),
+          assertDefined(
+            node.getEagerPropertyByName('scrollY')?.getValue<number>(),
+          ),
         newScaleX,
         newScaleY,
         depth + 1,

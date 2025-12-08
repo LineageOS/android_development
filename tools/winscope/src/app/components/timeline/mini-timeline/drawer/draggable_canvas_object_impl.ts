@@ -19,11 +19,17 @@ import {MathUtils} from 'three/src/Three';
 import {DraggableCanvasObject} from './draggable_canvas_object';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';
 
+/**
+ * Configuration for drawing a draggable canvas object.
+ */
 export interface DrawConfig {
   fillStyle: string;
   fill: boolean;
 }
 
+/**
+ * A draggable object on a canvas.
+ */
 export class DraggableCanvasObjectImpl implements DraggableCanvasObject {
   private draggingPosition: number | undefined;
 

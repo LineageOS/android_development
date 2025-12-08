@@ -21,7 +21,6 @@ android_app {
     srcs: [
         "src/**/*.java",
         "src/**/*.kt",
-        "aidl/**/I*.aidl",
     ],
     asset_dirs: ["assets"],
     sdk_version: "current",
@@ -39,7 +38,4 @@ android_app {
         "kotlinx_coroutines",
         "kotlinx-coroutines-android",
     ],
-    aidl: {
-        local_include_dirs: ["aidl"],
-    },
 }

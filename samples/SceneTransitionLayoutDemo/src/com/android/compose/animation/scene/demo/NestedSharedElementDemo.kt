@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,13 +38,17 @@ import com.android.compose.animation.scene.ElementKey
 import com.android.compose.animation.scene.MutableSceneTransitionLayoutState
 import com.android.compose.animation.scene.SceneKey
 import com.android.compose.animation.scene.SceneTransitionLayout
+import com.android.compose.animation.scene.Swipe
+import com.android.compose.animation.scene.ValueKey
+import com.android.compose.animation.scene.animateContentColorAsState
 import com.android.compose.animation.scene.rememberMutableSceneTransitionLayoutState
 import com.android.compose.animation.scene.transitions
+import com.android.compose.modifiers.animatedBackground
 
 object ParentSTL {
     object Scenes {
-        val Left = SceneKey("Left")
-        val Right = SceneKey("Right")
+        val Start = SceneKey("Start")
+        val End = SceneKey("End")
     }
 }
 
@@ -59,14 +64,18 @@ object Elements {
     val NotShared = ElementKey("NotShared")
 }
 
+object ValueKeys {
+    val ColorContentKey = ValueKey("Color")
+}
+
 @Composable
 fun NestedSharedElementDemo(modifier: Modifier = Modifier) {
     Column(modifier) {
         val state =
             rememberMutableSceneTransitionLayoutState(
-                ParentSTL.Scenes.Left,
+                ParentSTL.Scenes.Start,
                 transitions {
-                    from(ParentSTL.Scenes.Left, to = ParentSTL.Scenes.Right) {
+                    from(ParentSTL.Scenes.Start, to = ParentSTL.Scenes.End) {
                         spec = tween(1500)
                         translate(Elements.NotShared, y = (-100).dp)
                         fade(Elements.NotShared)
@@ -91,17 +100,17 @@ fun NestedSharedElementDemo(modifier: Modifier = Modifier) {
             state,
             Modifier.padding(16.dp)
                 .border(3.dp, Color.Blue)
-                .clickable {
+                .clickable(null, null) {
                     val targetScene =
                         when (state.currentScene) {
-                            ParentSTL.Scenes.Left -> ParentSTL.Scenes.Right
-                            else -> ParentSTL.Scenes.Left
+                            ParentSTL.Scenes.Start -> ParentSTL.Scenes.End
+                            else -> ParentSTL.Scenes.Start
                         }
                     state.setTargetScene(targetScene, scope)
                 }
                 .padding(16.dp),
         ) {
-            scene(ParentSTL.Scenes.Left) {
+            scene(ParentSTL.Scenes.Start, mapOf(Swipe.End to ParentSTL.Scenes.End)) {
                 Box(Modifier.fillMaxSize()) {
                     ChildSTL(
                         childState,
@@ -109,9 +118,9 @@ fun NestedSharedElementDemo(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            scene(ParentSTL.Scenes.Right) {
+            scene(ParentSTL.Scenes.End, mapOf(Swipe.Start to ParentSTL.Scenes.Start)) {
                 Box(Modifier.fillMaxSize()) {
-                    SharedElement(Modifier.size(30.dp).align(Alignment.TopEnd))
+                    SharedElement(Color.Magenta, Modifier.size(30.dp).align(Alignment.TopEnd))
                 }
             }
         }
@@ -126,7 +135,7 @@ private fun ContentScope.ChildSTL(
     val scope = rememberCoroutineScope()
     NestedSceneTransitionLayout(
         state,
-        modifier.border(3.dp, Color.Red).clickable {
+        modifier.border(3.dp, Color.Red).clickable(null, null) {
             val targetScene =
                 when (state.currentScene) {
                     ChildSTL.Scenes.Top -> ChildSTL.Scenes.Bottom
@@ -135,7 +144,7 @@ private fun ContentScope.ChildSTL(
             state.setTargetScene(targetScene, scope)
         },
     ) {
-        scene(ChildSTL.Scenes.Top) {
+        scene(ChildSTL.Scenes.Top, mapOf(Swipe.Down to ChildSTL.Scenes.Bottom)) {
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier.align(Alignment.TopEnd)
@@ -143,18 +152,23 @@ private fun ContentScope.ChildSTL(
                         .size(80.dp)
                         .background(Color.Blue)
                 )
-                SharedElement(Modifier.size(100.dp))
+                SharedElement(Color.Green, Modifier.size(100.dp))
             }
         }
-        scene(ChildSTL.Scenes.Bottom) {
+        scene(ChildSTL.Scenes.Bottom, mapOf(Swipe.Up to ChildSTL.Scenes.Top)) {
             Box(Modifier.fillMaxSize()) {
-                SharedElement(Modifier.align(Alignment.BottomStart).size(60.dp))
+                SharedElement(Color.Yellow, Modifier.align(Alignment.BottomStart).size(60.dp))
             }
         }
     }
 }
 
 @Composable
-private fun ContentScope.SharedElement(modifier: Modifier = Modifier) {
-    Box(modifier.element(Elements.Shared).background(Color.Green, CircleShape))
+private fun ContentScope.SharedElement(color: Color, modifier: Modifier = Modifier) {
+    val color by animateContentColorAsState(color, ValueKeys.ColorContentKey)
+    Box(
+        modifier
+            .element(key = Elements.Shared)
+            .animatedBackground(color = { color }, shape = CircleShape)
+    )
 }

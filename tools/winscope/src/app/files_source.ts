@@ -14,10 +14,32 @@
  * limitations under the License.
  */
 
+/**
+ * The source of the files loaded into Winscope.
+ */
 export enum FilesSource {
+  /**
+   * Files loaded from a test.
+   */
   TEST = 'test',
+
+  /**
+   * Files collected via the "Collect traces" feature.
+   */
   COLLECTED = 'collected_traces',
+
+  /**
+   * Files uploaded by the user.
+   */
   UPLOADED = 'uploaded_traces',
+
+  /**
+   * Files loaded from a remote tool (e.g. Buganizer).
+   */
   REMOTE_TOOL = 'remote',
+
+  /**
+   * Files loaded from the app itself (e.g. legacy traces converted to Perfetto).
+   */
   APP = 'app',
 }

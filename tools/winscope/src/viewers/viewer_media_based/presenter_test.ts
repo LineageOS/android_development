@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {
   ActiveTraceChanged,
   ExpandedTimelineToggled,
   TracePositionUpdate,
 } from 'messaging/winscope_event';
+import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {MediaBasedTraceEntry} from 'trace/media_based_trace_entry';
-import {TraceType} from 'trace/trace_type';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceType} from 'trace_api/trace_type';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
@@ -32,10 +32,7 @@ describe('PresenterMediaBased', () => {
     new MediaBasedTraceEntry(10, new Blob(), false),
     new MediaBasedTraceEntry(15, new Blob(), false),
   ];
-  const timestamps = [
-    TimestampConverterUtils.makeRealTimestamp(10n),
-    TimestampConverterUtils.makeRealTimestamp(15n),
-  ];
+  const timestamps = [makeRealTimestamp(10n), makeRealTimestamp(15n)];
   const trace1 = new TraceBuilder<MediaBasedTraceEntry>()
     .setType(TraceType.SCREEN_RECORDING)
     .setDescriptors(['recording 1'])

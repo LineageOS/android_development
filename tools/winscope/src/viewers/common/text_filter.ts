@@ -15,7 +15,7 @@
  */
 
 import {FilterFlag} from 'common/filter_flag';
-import {isAlpha, isDigit} from 'common/string_utils';
+import {isAlpha, isDigit} from 'common/string_helpers';
 import {StringFilterPredicate} from 'viewers/common/string_filter_predicate';
 
 export class TextFilter {

@@ -14,109 +14,51 @@
  * limitations under the License.
  */
 
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {
+  makeUiHierarchyNode,
+  treeNodeEqualityTester,
+} from 'test/unit/ui_tree_node_utils';
+import {TreeNode} from 'tree_node/tree_node';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {AbstractAddDiffsTest} from './abstract_add_diffs_test';
+import {AddDiffs} from './add_diffs';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
-import {executeAddDiffsTests} from './add_diffs_test_utils';
 import {DiffType} from './diff_type';
 
-describe('AddDiffsHierarchyTree', () => {
-  let newRoot: UiHierarchyTreeNode;
-  let oldRoot: UiHierarchyTreeNode;
-  let expectedRoot: UiHierarchyTreeNode;
+class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode> {
+  override makeAddDiffsOperation(): AddDiffs<UiHierarchyTreeNode> {
+    const isModified = async (
+      newTree: TreeNode | undefined,
+      oldTree: TreeNode | undefined,
+    ) => {
+      return (
+        (newTree as UiHierarchyTreeNode)
+          .getEagerPropertyByName('exampleProperty')
+          ?.getValue() !==
+        (oldTree as UiHierarchyTreeNode)
+          .getEagerPropertyByName('exampleProperty')
+          ?.getValue()
+      );
+    };
+    return new AddDiffsHierarchyTree(isModified, []);
+  }
 
-  const isModified = async (
-    newTree: TreeNode | undefined,
-    oldTree: TreeNode | undefined,
-    denylistProperties: string[],
-  ) => {
-    return (
-      (newTree as UiHierarchyTreeNode)
-        .getEagerPropertyByName('exampleProperty')
-        ?.getValue() !==
-      (oldTree as UiHierarchyTreeNode)
-        .getEagerPropertyByName('exampleProperty')
-        ?.getValue()
-    );
-  };
-  const addDiffs = new AddDiffsHierarchyTree(isModified, []);
-
-  describe('AddDiffs tests', () => {
-    executeAddDiffsTests(
-      TreeNodeUtils.treeNodeEqualityTester,
-      makeRoot,
-      makeChildAndAddToRoot,
-      addDiffs,
-    );
-  });
-
-  describe('Hierarchy tree tests', () => {
-    beforeEach(() => {
-      jasmine.addCustomEqualityTester(TreeNodeUtils.treeNodeEqualityTester);
-      newRoot = makeRoot();
-      oldRoot = makeRoot();
-      expectedRoot = makeRoot();
-    });
-
-    it('does not add MODIFIED to hierarchy root', async () => {
-      oldRoot = makeRoot('oldValue');
-      await addDiffs.executeInPlace(newRoot, oldRoot);
-      expect(newRoot).toEqual(expectedRoot);
-    });
-
-    it('adds ADDED_MOVE and DELETED_MOVE', async () => {
-      const newParent = makeParentAndAddToRoot(newRoot);
-      makeChildAndAddToRoot(newParent);
-      makeParentAndAddToRoot(oldRoot);
-      makeChildAndAddToRoot(oldRoot);
-
-      const expectedParent = makeParentAndAddToRoot(expectedRoot);
-
-      const expectedNewChild = makeChildAndAddToRoot(expectedParent);
-      expectedNewChild.setDiff(DiffType.ADDED_MOVE);
-
-      const expectedOldChild = makeChildAndAddToRoot(expectedRoot);
-      expectedOldChild.setDiff(DiffType.DELETED_MOVE);
-
-      await addDiffs.executeInPlace(newRoot, oldRoot);
-      expect(newRoot).toEqual(expectedRoot);
-    });
-
-    it('adds ADDED, ADDED_MOVE and DELETED_MOVE', async () => {
-      const newParent = makeParentAndAddToRoot(newRoot);
-      makeChildAndAddToRoot(newParent);
-      makeChildAndAddToRoot(oldRoot);
-
-      const expectedOldChild = makeChildAndAddToRoot(expectedRoot);
-      expectedOldChild.setDiff(DiffType.DELETED_MOVE);
-
-      const expectedParent = makeParentAndAddToRoot(expectedRoot);
-      expectedParent.setDiff(DiffType.ADDED);
-
-      const expectedNewChild = makeChildAndAddToRoot(expectedParent);
-      expectedNewChild.setDiff(DiffType.ADDED_MOVE);
-
-      await addDiffs.executeInPlace(newRoot, oldRoot);
-      expect(newRoot).toEqual(expectedRoot);
-    });
-  });
-
-  function makeRoot(value = 'value'): UiHierarchyTreeNode {
-    return TreeNodeUtils.makeUiHierarchyNode({
+  override makeRoot(value = 'value'): UiHierarchyTreeNode {
+    return makeUiHierarchyNode({
       id: 'test',
       name: 'root',
       exampleProperty: value,
     });
   }
 
-  function makeChildAndAddToRoot(
+  override makeChildAndAddToRoot(
     rootNode: UiHierarchyTreeNode,
     value = 'value',
+    name = 'child',
   ): UiHierarchyTreeNode {
-    const child = TreeNodeUtils.makeUiHierarchyNode({
+    const child = makeUiHierarchyNode({
       id: 'test node',
-      name: 'child',
+      name,
       exampleProperty: value,
     });
     rootNode.addOrReplaceChild(child);
@@ -124,10 +66,66 @@ describe('AddDiffsHierarchyTree', () => {
     return child;
   }
 
-  function makeParentAndAddToRoot(
+  override executeSpecializedTests(): void {
+    describe('Specialized tests', () => {
+      let newRoot: UiHierarchyTreeNode;
+      let oldRoot: UiHierarchyTreeNode;
+      let expectedRoot: UiHierarchyTreeNode;
+      let addDiffs: AddDiffs<UiHierarchyTreeNode>;
+
+      beforeAll(() => {
+        addDiffs = this.makeAddDiffsOperation();
+      });
+
+      beforeEach(() => {
+        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
+        newRoot = this.makeRoot();
+        oldRoot = this.makeRoot();
+        expectedRoot = this.makeRoot();
+      });
+
+      it('adds ADDED_MOVE and DELETED_MOVE', async () => {
+        const newParent = this.makeParentAndAddToRoot(newRoot);
+        this.makeChildAndAddToRoot(newParent);
+        this.makeParentAndAddToRoot(oldRoot);
+        this.makeChildAndAddToRoot(oldRoot);
+
+        const expectedParent = this.makeParentAndAddToRoot(expectedRoot);
+
+        const expectedNewChild = this.makeChildAndAddToRoot(expectedParent);
+        expectedNewChild.setDiff(DiffType.ADDED_MOVE);
+
+        const expectedOldChild = this.makeChildAndAddToRoot(expectedRoot);
+        expectedOldChild.setDiff(DiffType.DELETED_MOVE);
+
+        await addDiffs.executeInPlace(newRoot, oldRoot);
+        expect(newRoot).toEqual(expectedRoot);
+      });
+
+      it('adds ADDED, ADDED_MOVE and DELETED_MOVE', async () => {
+        const newParent = this.makeParentAndAddToRoot(newRoot);
+        this.makeChildAndAddToRoot(newParent);
+        this.makeChildAndAddToRoot(oldRoot);
+
+        const expectedOldChild = this.makeChildAndAddToRoot(expectedRoot);
+        expectedOldChild.setDiff(DiffType.DELETED_MOVE);
+
+        const expectedParent = this.makeParentAndAddToRoot(expectedRoot);
+        expectedParent.setDiff(DiffType.ADDED);
+
+        const expectedNewChild = this.makeChildAndAddToRoot(expectedParent);
+        expectedNewChild.setDiff(DiffType.ADDED_MOVE);
+
+        await addDiffs.executeInPlace(newRoot, oldRoot);
+        expect(newRoot).toEqual(expectedRoot);
+      });
+    });
+  }
+
+  private makeParentAndAddToRoot(
     rootNode: UiHierarchyTreeNode,
   ): UiHierarchyTreeNode {
-    const parent = TreeNodeUtils.makeUiHierarchyNode({
+    const parent = makeUiHierarchyNode({
       id: 'test node',
       name: 'parent',
       exampleProperty: 'value',
@@ -136,4 +134,8 @@ describe('AddDiffsHierarchyTree', () => {
     parent.setParent(rootNode);
     return parent;
   }
+}
+
+describe('AddDiffsHierarchyTree', () => {
+  new AddDiffsHierarchyTreeTest().execute();
 });

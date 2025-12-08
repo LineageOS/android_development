@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
 import {AdbHostConnection} from 'trace_collection/adb/adb_host_connection';
 import {AdbConnectionType} from 'trace_collection/adb_connection_type';

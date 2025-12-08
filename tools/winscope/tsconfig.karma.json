@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.common.json",
+  "files": [
+    "src/main_unit_test.ts"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/test/e2e",
+    "src/test/remote_tool_mock",
+    "src/main_dev.ts",
+    "src/main_prod.ts",
+    "src/polyfills.ts",
+    "src/trace_processor/perfetto/bigint_math.ts",
+    "src/trace_processor/perfetto/protos.ts",
+    "src/zone-flags.ts"
+  ]
+}

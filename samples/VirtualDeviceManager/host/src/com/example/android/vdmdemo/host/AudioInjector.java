@@ -421,7 +421,9 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
         public void play() {
             stopSilenceThread();
             // empty any silence already written to the audio track
+            mAudioTrack.pause();
             mAudioTrack.flush();
+            mAudioTrack.play();
         }
 
         // Switch to write "silence" mode

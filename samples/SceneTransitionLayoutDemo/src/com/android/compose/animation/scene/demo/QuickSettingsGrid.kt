@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,6 +51,8 @@ import com.android.compose.animation.scene.ContentScope
 import com.android.compose.animation.scene.ElementKey
 import com.android.compose.animation.scene.ValueKey
 import com.android.compose.grid.VerticalGrid
+import com.android.mechanics.compose.modifier.verticalFadeContentReveal
+import com.android.mechanics.compose.modifier.verticalTactileSurfaceReveal
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -75,6 +78,7 @@ object QuickSettingsGrid {
     object Elements {
         val Tiles = ElementKey.withIdentity { it is QuickSettingsTileIdentity }
         val GridAnchor = ElementKey("QuickSettingsGridAnchor")
+        val GridContainer = ElementKey("QuickSettingsGridAnchor")
     }
 
     object Values {
@@ -116,6 +120,8 @@ object QuickSettingsGrid {
     }
 }
 
+class RevealEffectConfig(val deltaY: Float)
+
 /**
  * Display all [tiles] as a grid with [nColumns] columns. The tiles will be expanded if [isExpanded]
  * is true.
@@ -125,11 +131,20 @@ fun ContentScope.QuickSettingsGrid(
     tiles: List<QuickSettingsTileViewModel>,
     nColumns: Int,
     isExpanded: Boolean,
+    revealEffect: Boolean,
     expansionProgress: () -> Float,
     modifier: Modifier = Modifier,
     nRowsTarget: Int? = null,
 ) {
     val tileHeight = tileHeight(isExpanded)
+    val density = LocalDensity.current
+    val revealEffectConfig =
+        remember(revealEffect, density) {
+            if (!revealEffect) return@remember null
+            RevealEffectConfig(
+                deltaY = with(density) { QuickSettingsGrid.Dimensions.Spacing.toPx() }
+            )
+        }
 
     Column(modifier) {
         VerticalGrid(
@@ -138,7 +153,15 @@ fun ContentScope.QuickSettingsGrid(
             verticalSpacing = QuickSettingsGrid.Dimensions.Spacing,
         ) {
             tiles.forEachIndexed { i, tile ->
-                key(tile.key) { Tile(tile, tileHeight, expansionProgress) }
+                key(tile.key) {
+                    Tile(
+                        viewModel = tile,
+                        height = tileHeight,
+                        expansionProgress = expansionProgress,
+                        revealEffectConfig = revealEffectConfig,
+                        tileId = i,
+                    )
+                }
             }
         }
 
@@ -167,6 +190,8 @@ private fun ContentScope.Tile(
     viewModel: QuickSettingsTileViewModel,
     height: Dp,
     expansionProgress: () -> Float,
+    revealEffectConfig: RevealEffectConfig?,
+    tileId: Int,
     modifier: Modifier = Modifier,
 ) {
     val isActive = viewModel.isActive
@@ -188,6 +213,14 @@ private fun ContentScope.Tile(
         modifier =
             modifier
                 .element(viewModel.key)
+                .then(
+                    if (revealEffectConfig != null) {
+                        Modifier.verticalTactileSurfaceReveal(
+                            deltaY = revealEffectConfig.deltaY,
+                            label = "tile($tileId)",
+                        )
+                    } else Modifier
+                )
                 .fillMaxWidth()
                 // Note: This height modifier is what is setting the size of this tile when idle,
                 // but during transitions the height is actually interpolated and constrained by
@@ -195,7 +228,15 @@ private fun ContentScope.Tile(
                 .height(height)
                 .clip(QuickSettingsGrid.Shapes.Tile)
                 .clickable(onClick = viewModel.onClick)
-                .drawBehind { drawRect(backgroundColor.value) },
+                .drawBehind { drawRect(backgroundColor.value) }
+                .then(
+                    if (revealEffectConfig != null) {
+                        Modifier.verticalFadeContentReveal(
+                            deltaY = revealEffectConfig.deltaY,
+                            label = "tile($tileId)",
+                        )
+                    } else Modifier
+                ),
         contents =
             remember(icon, title, description, contentColor, showChevron, expansionProgress) {
                 tileContents(

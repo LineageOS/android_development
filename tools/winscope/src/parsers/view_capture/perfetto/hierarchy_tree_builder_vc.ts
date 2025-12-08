@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertNumber} from 'common/assert_utils';
+import {assertDefined, assertNumber} from 'common/assert';
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from 'tree_node/properties_provider';
 
+/**
+ * Builder for a VC hierarchy tree.
+ *
+ * The builder is not reusable, it should only be used to build one tree.
+ */
 export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
   protected override buildIdentifierToChildrenMap(
     views: PropertiesProvider[],
@@ -30,7 +35,9 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder {
         viewProperties.name,
         view,
       );
-      const id = assertDefined(viewProperties.getChildByName('id')).getValue();
+      const id = assertDefined(
+        viewProperties.getChildByName('id')?.getValue<string>(),
+      );
       map.set(id, [viewNode]);
       return map;
     }, new Map<string, HierarchyTreeNode[]>());

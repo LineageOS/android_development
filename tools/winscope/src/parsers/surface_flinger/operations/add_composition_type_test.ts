@@ -15,12 +15,12 @@
  */
 
 import {perfetto} from 'protos/perfetto/trace/static';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {LayerCompositionType} from 'trace/surface_flinger/layer_composition_type';
 import {
-  PropertySource,
-  PropertyTreeNode,
-} from 'trace/tree_node/property_tree_node';
+  makeCalculatedPropertyNode,
+  makePropertyNode,
+} from 'test/unit/tree_node_test_helpers';
+import {LayerCompositionType} from 'trace/surface_flinger/layer_composition_type';
+import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {AddCompositionType} from './add_composition_type';
 
 describe('AddCompositionType', () => {
@@ -45,14 +45,14 @@ describe('AddCompositionType', () => {
   });
 
   it('creates compositionType node with GPU value', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       perfetto.protos.HwcCompositionType.HWC_TYPE_CLIENT,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
-    const expectedCompositionType = TreeNodeUtils.makeCalculatedPropertyNode(
+    const expectedCompositionType = makeCalculatedPropertyNode(
       expectedRoot.id,
       'compositionType',
       LayerCompositionType.GPU,
@@ -65,7 +65,7 @@ describe('AddCompositionType', () => {
   });
 
   it('creates compositionType node with GPU value for received string', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       perfetto.protos.HwcCompositionType[
@@ -74,7 +74,7 @@ describe('AddCompositionType', () => {
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
-    const expectedCompositionType = TreeNodeUtils.makeCalculatedPropertyNode(
+    const expectedCompositionType = makeCalculatedPropertyNode(
       expectedRoot.id,
       'compositionType',
       LayerCompositionType.GPU,
@@ -87,14 +87,14 @@ describe('AddCompositionType', () => {
   });
 
   it('creates compositionType node with HWC value for HwcCompositionType.HWC_TYPE_DEVICE', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       perfetto.protos.HwcCompositionType.HWC_TYPE_DEVICE,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
-    const expectedCompositionType = TreeNodeUtils.makeCalculatedPropertyNode(
+    const expectedCompositionType = makeCalculatedPropertyNode(
       expectedRoot.id,
       'compositionType',
       LayerCompositionType.HWC,
@@ -107,7 +107,7 @@ describe('AddCompositionType', () => {
   });
 
   it('creates compositionType node with HWC value for string HwcCompositionType.HWC_TYPE_DEVICE', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       perfetto.protos.HwcCompositionType[
@@ -116,7 +116,7 @@ describe('AddCompositionType', () => {
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
-    const expectedCompositionType = TreeNodeUtils.makeCalculatedPropertyNode(
+    const expectedCompositionType = makeCalculatedPropertyNode(
       expectedRoot.id,
       'compositionType',
       LayerCompositionType.HWC,
@@ -129,14 +129,14 @@ describe('AddCompositionType', () => {
   });
 
   it('creates compositionType node with HWC value for HwcCompositionType.HWC_TYPE_SOLID_COLOR', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       perfetto.protos.HwcCompositionType.HWC_TYPE_SOLID_COLOR,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
-    const expectedCompositionType = TreeNodeUtils.makeCalculatedPropertyNode(
+    const expectedCompositionType = makeCalculatedPropertyNode(
       expectedRoot.id,
       'compositionType',
       LayerCompositionType.HWC,
@@ -149,7 +149,7 @@ describe('AddCompositionType', () => {
   });
 
   it('creates compositionType node with HWC value for string HwcCompositionType.HWC_TYPE_SOLID_COLOR', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       perfetto.protos.HwcCompositionType[
@@ -158,7 +158,7 @@ describe('AddCompositionType', () => {
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
-    const expectedCompositionType = TreeNodeUtils.makeCalculatedPropertyNode(
+    const expectedCompositionType = makeCalculatedPropertyNode(
       expectedRoot.id,
       'compositionType',
       LayerCompositionType.HWC,
@@ -171,7 +171,7 @@ describe('AddCompositionType', () => {
   });
 
   it('does not create compositionType node if hwcCompositionType does not match checks', () => {
-    const hwcCompositionType = TreeNodeUtils.makePropertyNode(
+    const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
       0,

@@ -51,7 +51,7 @@ fn parse_cargo_out_str(
     base_directory: impl AsRef<Path>,
 ) -> Result<Vec<Crate>> {
     let cargo_out = CargoOut::parse(cargo_out).context("failed to parse cargo.out")?;
-    debug!("Parsed cargo output: {:?}", cargo_out);
+    debug!("Parsed cargo output: {cargo_out:?}");
 
     assert!(cargo_out.cc_invocations.is_empty(), "cc not supported yet");
     assert!(cargo_out.ar_invocations.is_empty(), "ar not supported yet");
@@ -327,7 +327,7 @@ impl Crate {
                     // example: memoffset=/some/path/libmemoffset-2cfda327d156e680.rmeta
                     let arg = arg_iter.next().unwrap();
                     if let Some((name, path)) = arg.split_once('=') {
-                        let filename = path.split('/').last().unwrap();
+                        let filename = path.split('/').next_back().unwrap();
 
                         // Example filename: "libgetrandom-fd8800939535fc59.rmeta" or "libmls_rs_uniffi.rlib".
                         static REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -360,7 +360,7 @@ impl Crate {
                             extern_type,
                         });
                     } else if arg != "proc_macro" {
-                        panic!("No filename for {}", arg);
+                        panic!("No filename for {arg}");
                     }
                 }
                 _ if arg.starts_with("-C") => {
@@ -381,6 +381,7 @@ impl Crate {
                         && !arg.starts_with("extra-filename=")
                         && !arg.starts_with("incremental=")
                         && !arg.starts_with("metadata=")
+                        && !arg.starts_with("link-arg=")
                         && arg != "prefer-dynamic"
                     {
                         out.codegens.push(arg.to_string());
@@ -423,18 +424,12 @@ impl Crate {
                 _ if arg.starts_with("--emit=") => {}
                 _ if arg.starts_with("--edition=") => {}
                 _ if arg.starts_with("--json=") => {}
-                _ if arg.starts_with("-Aclippy") => {}
-                _ if arg.starts_with("--allow=clippy") => {}
-                _ if arg.starts_with("-Wclippy") => {}
-                _ if arg.starts_with("--warn=clippy") => {}
-                _ if arg.starts_with("-A=rustdoc") => {}
-                _ if arg.starts_with("--allow=rustdoc") => {}
-                _ if arg.starts_with("-D") => {}
-                _ if arg.starts_with("--deny=") => {}
+                _ if arg.starts_with("-A") => {}
+                _ if arg.starts_with("--allow=") => {}
                 _ if arg.starts_with("-W") => {}
                 _ if arg.starts_with("--warn=") => {}
-                _ if arg.starts_with("--allow=deprecated") => {}
-                _ if arg.starts_with("--allow=unexpected_cfgs") => {}
+                _ if arg.starts_with("-D") => {}
+                _ if arg.starts_with("--deny=") => {}
 
                 arg => bail!("unsupported rustc argument: {arg:?}"),
             }
@@ -507,7 +502,7 @@ fn split_src_path(src_path: &Path) -> Result<(PathBuf, PathBuf)> {
     //    directory to the android 3p directories).
     let src_path = src_path
         .canonicalize()
-        .unwrap_or_else(|e| panic!("failed to canonicalize {src_path:?}: {}", e));
+        .unwrap_or_else(|e| panic!("failed to canonicalize {src_path:?}: {e}"));
     let package_dir = find_cargo_toml(&src_path)?;
     let main_src = src_path.strip_prefix(&package_dir).unwrap().to_path_buf();
 

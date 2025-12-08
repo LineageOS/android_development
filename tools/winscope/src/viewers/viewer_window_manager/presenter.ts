@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {Trace} from 'trace_api/trace';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {
   AbstractHierarchyViewerPresenter,
   NotifyHierarchyViewCallbackType,
@@ -45,7 +45,6 @@ import {
 } from 'viewers/components/rects/rect_spec';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {PropagateHashCodes} from './operations/propagate_hash_codes';
-import {UpdateDisplayNames} from './operations/update_display_names';
 import {UiData} from './ui_data';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
@@ -57,7 +56,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   ];
 
   protected override hierarchyPresenter = new HierarchyPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'WmHierarchyOptions',
       {
         showDiff: {
@@ -86,10 +85,9 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     true,
     false,
     this.getEntryFormattedTimestamp,
-    [[TraceType.WINDOW_MANAGER, [new UpdateDisplayNames()]]],
   );
   protected override rectsPresenter = new RectsPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'WmRectsOptions',
       {
         ignoreRectShowState: {
@@ -110,7 +108,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     this.convertRectIdtoContainerName,
   );
   protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'WmPropertyOptions',
       {
         showDiff: {
@@ -153,7 +151,7 @@ the default for its data type.`,
     if (node.name !== 'hashCode') {
       return;
     }
-    const token = (node.getValue() ?? 0).toString(16);
+    const token = (node.getValue<number>() ?? 0).toString(16);
     const target = this.uiData.hierarchyTrees
       ?.at(0)
       ?.findDfs((node) => node.id.includes(token));

@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import {getTracesParser} from 'test/unit/fixture_utils';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {CoarseVersion} from 'trace/coarse_version';
-import {CustomQueryType} from 'trace/custom_query';
-import {Parser} from 'trace/parser';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {CoarseVersion} from 'trace_api/coarse_version';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Parser} from 'trace_api/parser';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
 describe('TracesParserInput', () => {
-  let parser: Parser<PropertyTreeNode>;
+  let parser: Parser<HierarchyTreeNode>;
   let userNotifierChecker: UserNotifierChecker;
 
   beforeAll(() => {
@@ -40,7 +41,7 @@ describe('TracesParserInput', () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
     parser = (
       await getTracesParser(['traces/perfetto/input-events.perfetto-trace'])
-    ).tracesParser as Parser<PropertyTreeNode>;
+    ).tracesParser as Parser<HierarchyTreeNode>;
     userNotifierChecker.reset();
   });
 
@@ -59,29 +60,39 @@ describe('TracesParserInput', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
     const expected = [
-      TimestampConverterUtils.makeRealTimestamp(1718386903800330430n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903800330430n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903821511338n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903827304592n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903836681382n),
-      TimestampConverterUtils.makeRealTimestamp(1718386903841727281n),
-      TimestampConverterUtils.makeRealTimestamp(1718386905115026232n),
-      TimestampConverterUtils.makeRealTimestamp(1718386905123057319n),
+      makeRealTimestamp(1718386903800330430n),
+      makeRealTimestamp(1718386903800330430n),
+      makeRealTimestamp(1718386903821511338n),
+      makeRealTimestamp(1718386903827304592n),
+      makeRealTimestamp(1718386903836681382n),
+      makeRealTimestamp(1718386903841727281n),
+      makeRealTimestamp(1718386905115026232n),
+      makeRealTimestamp(1718386905123057319n),
     ];
     expect(timestamps).toEqual(expected);
   });
 
-  it('provides correct entries from individual event traces', async () => {
-    const keyEntry = await parser.getEntry(6);
-    const keyEvent = assertDefined(keyEntry.getChildByName('keyEvent'));
-    expect(keyEvent?.getChildByName('eventId')?.getValue()).toEqual(759309047);
+  it('retrieves all entries', async () => {
+    const entries = await parser.getAllEntries();
+    expect(entries.length).toBe(8);
+    expect(entries.every((entry) => entry !== undefined)).toBeTrue();
+  });
 
-    const motionEntry = await parser.getEntry(0);
-    const motionEvent = assertDefined(
-      motionEntry.getChildByName('motionEvent'),
+  it('provides correct entries from individual event traces', async () => {
+    const keyEvent = await parser.getEntry(6);
+    expect(keyEvent.getEagerPropertyByName('eventId')?.getValue()).toEqual(
+      759309047n,
     );
-    expect(motionEvent?.getChildByName('eventId')?.getValue()).toEqual(
-      330184796,
+    expect(keyEvent.getEagerPropertyByName('type')?.formattedValue()).toEqual(
+      'KEY',
+    );
+
+    const motionEvent = await parser.getEntry(0);
+    expect(motionEvent.getEagerPropertyByName('eventId')?.getValue()).toEqual(
+      330184796n,
+    );
+    expect(motionEvent.getEagerPropertyByName('type')?.formattedValue()).toBe(
+      'MOTION',
     );
   });
 

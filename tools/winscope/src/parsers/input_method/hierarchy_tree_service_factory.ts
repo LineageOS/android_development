@@ -16,15 +16,15 @@
 
 import {HierarchyTreeBuilderInputMethod} from 'parsers/input_method/hierarchy_tree_builder_input_method';
 import {AddDefaults} from 'parsers/operations/add_defaults';
-import {SetFormatters} from 'parsers/operations/set_formatters';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {TamperedProtoField} from 'parsers/tampered_message_type';
 import {perfetto} from 'protos/perfetto/trace/static';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'trace/tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'trace/tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {TamperedProtoField} from 'trace/proto_utils/tampered_message_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
+import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 export class HierarchyTreeServiceFactory {
   private static readonly ENTRY_DENYLIST_PROPERTIES = ['inputMethodService'];
@@ -149,7 +149,6 @@ export class HierarchyTreeServiceFactory {
     serviceProto: perfetto.protos.IInputMethodServiceProto,
   ): PropertyTreeNode {
     const denyList: string[] = [];
-    let data: object = serviceProto;
     if (serviceProto) {
       Object.getOwnPropertyNames(serviceProto).forEach((it) => {
         if (
@@ -158,8 +157,6 @@ export class HierarchyTreeServiceFactory {
           denyList.push(it);
         }
       });
-    } else {
-      data = {inputMethodService: null};
     }
     return new PropertyTreeBuilderFromProto()
       .setData(serviceProto)

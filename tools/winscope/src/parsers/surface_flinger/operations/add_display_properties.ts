@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert_utils';
-import {DisplayLayerStack} from 'parsers/surface_flinger/operations/display_layer_stack';
-import {Operation} from 'trace/tree_node/operations/operation';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'trace/tree_node/property_tree_node_factory';
+import {assertDefined, assertTrue} from 'common/assert';
+import {Operation} from 'tree_node/operation';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 
 export class AddDisplayProperties implements Operation<PropertyTreeNode> {
   apply(value: PropertyTreeNode): void {
@@ -33,8 +32,10 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
       if (!(dpiX && dpiY)) continue;
 
       const size = assertDefined(display.getChildByName('size'));
-      const width = assertDefined(size.getChildByName('w')).getValue();
-      const height = assertDefined(size.getChildByName('h')).getValue();
+      const width = assertDefined(size.getChildByName('w')?.getValue<number>());
+      const height = assertDefined(
+        size.getChildByName('h')?.getValue<number>(),
+      );
       const smallestWidth = this.dpiFromPx(
         Math.min(width, height),
         Number(dpiX.getValue()),
@@ -48,12 +49,12 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
         ),
       );
 
-      const layerStack = assertDefined(
-        display.getChildByName('layerStack'),
-      ).getValue();
+      const layerStack = Number(
+        assertDefined(display.getChildByName('layerStack')).getValue(),
+      );
 
       assertTrue(
-        layerStack !== -1 && layerStack !== -1n,
+        layerStack !== -1,
         () =>
           'layerStack = -1; false assumption that layerStack is always unsigned',
       );
@@ -62,7 +63,7 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
         DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
           display.id,
           'isOn',
-          layerStack !== DisplayLayerStack.INVALID_LAYER_STACK,
+          layerStack !== UINT32_MAX,
         ),
       );
     }
@@ -76,3 +77,8 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
   private static readonly TABLET_MIN_DPS = 600;
   private static readonly DENSITY_DEFAULT = 160;
 }
+
+/**
+ * The maximum value of a 32-bit unsigned integer.
+ */
+const UINT32_MAX = 4294967295;

@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {Component, Input, ViewChild} from '@angular/core';
-import {TraceType} from 'trace/trace_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
+import {CollapsibleSections} from 'viewers/common/collapsible_sections';
 import {ViewerEvents} from 'viewers/common/viewer_events';
+import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
 import {LogComponent} from 'viewers/components/log_component';
+import {PropertiesComponent} from 'viewers/components/properties_component';
+import {RectsComponent} from 'viewers/components/rects/rects_component';
 import {ShadingMode} from 'viewers/components/rects/shading_mode';
 import {
   viewerCardInnerStyle,
@@ -30,6 +34,14 @@ import {UiData} from './ui_data';
 
 @Component({
   selector: 'viewer-input',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CollapsedSectionsComponent,
+    RectsComponent,
+    LogComponent,
+    PropertiesComponent,
+  ],
   template: `
     <div class="card-grid">
       <collapsed-sections
@@ -38,8 +50,8 @@ import {UiData} from './ui_data';
           (sectionChange)="sections.onCollapseStateChange($event, false)">
       </collapsed-sections>
 
-      <rects-view
-          *ngIf="inputData?.rectsToDraw"
+      @if (inputData?.rectsToDraw) {
+        <rects-view
           class="rects-view"
           [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
           [title]="rectsTitle"
@@ -54,6 +66,7 @@ import {UiData} from './ui_data';
           [isDarkMode]="inputData?.isDarkMode ?? false"
           [rectSpec]="inputData?.rectSpec"
           (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"></rects-view>
+      }
 
       <log-view
           class="log-view"
@@ -62,41 +75,44 @@ import {UiData} from './ui_data';
           [selectedIndex]="inputData?.selectedIndex"
           [scrollToIndex]="inputData?.scrollToIndex"
           [currentIndex]="inputData?.currentIndex"
-          [entries]="inputData?.entries"
-          [headers]="inputData?.headers"
+          [entries]="inputData?.entries ?? []"
+          [headers]="inputData?.headers ?? []"
           [traceType]="${TraceType.INPUT_EVENT_MERGED}"
           [showTraceEntryTimes]="false"
           [showCurrentTimeButton]="false"
           [isFetchingData]="inputData?.isFetchingData"
+          [checkScrollViewport]="inputData?.checkScrollViewport"
           (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.LOG, true)"></log-view>
 
-      <div class="properties" *ngIf="!arePropertiesCollapsed()">
-        <properties-view
-          class="properties-view event-properties"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-          [title]="eventPropertiesTitle"
-          [propertiesTree]="inputData?.propertiesTree"
-          [highlightedProperty]="inputData?.highlightedProperty"
-          [traceType]="${TraceType.INPUT_EVENT_MERGED}"
-          [store]="store"
-          [isProtoDump]="true"
-          [textFilter]="inputData?.propertiesFilter"
-          placeholderText="No selected entry."
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-        <properties-view
-          class="properties-view dispatch-properties"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)"
-          [title]="dispatchPropertiesTitle"
-          [propertiesTree]="inputData?.dispatchPropertiesTree"
-          [highlightedProperty]="inputData?.highlightedProperty"
-          [traceType]="${TraceType.INPUT_EVENT_MERGED}"
-          [store]="store"
-          [isProtoDump]="true"
-          [textFilter]="inputData?.dispatchPropertiesFilter"
-          [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
-          placeholderText="No selected entry."
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)"></properties-view>
-      </div>
+      @if (!arePropertiesCollapsed()) {
+        <div class="properties">
+          <properties-view
+            class="properties-view event-properties"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+            [title]="eventPropertiesTitle"
+            [propertiesTree]="inputData?.propertiesTree"
+            [highlightedProperty]="inputData?.highlightedProperty"
+            [traceType]="${TraceType.INPUT_EVENT_MERGED}"
+            [store]="store"
+            [isProtoDump]="true"
+            [textFilter]="inputData?.propertiesFilter"
+            placeholderText="No selected entry."
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
+          <properties-view
+            class="properties-view dispatch-properties"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)"
+            [title]="dispatchPropertiesTitle"
+            [propertiesTree]="inputData?.dispatchPropertiesTree"
+            [highlightedProperty]="inputData?.highlightedProperty"
+            [traceType]="${TraceType.INPUT_EVENT_MERGED}"
+            [store]="store"
+            [isProtoDump]="true"
+            [textFilter]="inputData?.dispatchPropertiesFilter"
+            [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
+            placeholderText="No selected entry."
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)"></properties-view>
+        </div>
+      }
     </div>
   `,
   styles: [

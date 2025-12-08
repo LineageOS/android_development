@@ -34,10 +34,27 @@
         <item>123000</item>
     </string-array>
 
-    <string-array translatable="false" name="camera_policy_options">
+    <string-array translatable="false" name="night_mode_labels">
+        <item>Device setting</item>
+        <item>OFF</item>
+        <item>ON</item>
+    </string-array>
+    <string-array translatable="false" name="night_modes">
+        <item>@string/night_mode_undefined</item>
+        <item>@string/night_mode_no</item>
+        <item>@string/night_mode_yes</item>
+    </string-array>
+
+    <string-array translatable="false" name="camera_policy_labels">
         <item>@string/no_cameras</item>
         <item>@string/default_cameras</item>
         <item>@string/client_cameras</item>
+    </string-array>
+
+    <string-array translatable="false" name="camera_policy_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
     </string-array>
 
 </resources>

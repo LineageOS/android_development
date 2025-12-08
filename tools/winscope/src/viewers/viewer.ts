@@ -20,7 +20,7 @@ import {
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {Trace} from 'trace/trace';
+import {Trace} from 'trace_api/trace';
 
 export enum ViewType {
   TRACE_TAB,

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {equal} from 'common/array_utils';
-import {assertDefined, assertUnreachable} from 'common/assert_utils';
+import {equal} from 'common/typed_array';
+import {assertDefined, assertUnreachable} from 'common/assert';
 import {Box3D} from 'common/geometry/box3d';
+import {CornerRadii} from 'common/geometry/corner_radii';
 import {Point3D} from 'common/geometry/point3d';
 import {Rect3D} from 'common/geometry/rect3d';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
@@ -43,16 +44,8 @@ export class Canvas {
   static readonly RECT_COLOR_HIGHLIGHTED_DARK_MODE = new THREE.Color(
     0x5f718a, // Keep in sync with .dark-mode --selected-element-color in material-theme.scss
   );
-  static readonly RECT_COLOR_VISIBLE = new THREE.Color(
-    200 / 255,
-    232 / 255,
-    183 / 255,
-  );
-  static readonly RECT_COLOR_NOT_VISIBLE = new THREE.Color(
-    220 / 255,
-    220 / 255,
-    220 / 255,
-  );
+  static readonly RECT_COLOR_VISIBLE = new THREE.Color(0xc8e8b7);
+  static readonly RECT_COLOR_NOT_VISIBLE = new THREE.Color(0xdcdcdc);
   static readonly RECT_COLOR_HAS_CONTENT = new THREE.Color(0xad42f5);
   static readonly RECT_EDGE_COLOR_LIGHT_MODE = 0x000000;
   static readonly RECT_EDGE_COLOR_DARK_MODE = 0xffffff;
@@ -78,11 +71,7 @@ export class Canvas {
   };
   private static readonly RECT_EDGE_BOLD_WIDTH = 10;
 
-  renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    canvas: this.canvasRects,
-    alpha: true,
-  });
+  renderer: THREE.WebGLRenderer;
   labelRenderer?: CSS2DRenderer;
 
   private camera = new THREE.OrthographicCamera(
@@ -97,21 +86,43 @@ export class Canvas {
   private pinnedIdToColorMap = new Map<string, THREE.Color>();
   private lastAssignedDefaultPinnedColor = false;
   private firstDraw = true;
-  private lastScene: SceneState = {
-    isDarkMode: this.isDarkMode(),
-    translatedPos: undefined,
-    rectIdToRectGraphics: new Map<string, RectGraphics>(),
-    rectIdToLabelGraphics: new Map<string, LabelGraphics>(),
-  };
+  private lastScene: SceneState;
 
   constructor(
     private canvasRects: HTMLElement,
     private canvasLabels?: HTMLElement,
     private isDarkMode = () => false,
   ) {
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      canvas: this.canvasRects,
+      alpha: true,
+    });
+    this.lastScene = {
+      isDarkMode: this.isDarkMode(),
+      translatedPos: undefined,
+      rectIdToRectGraphics: new Map<string, RectGraphics>(),
+      rectIdToLabelGraphics: new Map<string, LabelGraphics>(),
+    };
+
     if (this.canvasLabels) {
       this.labelRenderer = new CSS2DRenderer({element: this.canvasLabels});
     }
+  }
+
+  onDestroy() {
+    this.lastScene.rectIdToRectGraphics.forEach((graphics) => {
+      this.disposeMesh(graphics.mesh, graphics.rect.id);
+    });
+    this.lastScene.rectIdToLabelGraphics.forEach((graphics) => {
+      this.disposeObj(graphics.circle);
+      this.disposeObj(graphics.line);
+      this.disposeObj(graphics.text);
+    });
+    this.renderer.dispose();
+    this.renderer.info.programs?.forEach((program) => program.destroy());
+    this.renderer.renderLists.dispose();
+    this.renderer.forceContextLoss();
   }
 
   updateViewPosition(camera: Camera, bounds: Box3D, zDepth: number) {
@@ -177,11 +188,23 @@ export class Canvas {
 
   updateRects(rects: UiRect3D[]) {
     for (const key of this.lastScene.rectIdToRectGraphics.keys()) {
-      if (!rects.some((rect) => rect.id === key)) {
-        this.lastScene.rectIdToRectGraphics.delete(key);
-        this.removeRays(key); // rays are added directly to the scene
-        this.scene.remove(assertDefined(this.scene.getObjectByName(key)));
+      const lastObj = assertDefined(
+        this.lastScene.rectIdToRectGraphics.get(key),
+      );
+
+      // We cannot guarantee that the rect mesh matrix has not been changed
+      // under the hood. Applying the inverse of the last manually applied
+      // transform does not guarantee that the rect state will be reversed.
+      // When transforms change we should completely redraw the rect.
+      const newRect = rects.find((rect) => rect.id === key);
+      if (newRect?.transform.isEqual(lastObj.rect.transform)) {
+        continue;
       }
+
+      this.lastScene.rectIdToRectGraphics.delete(key);
+      this.scene.remove(assertDefined(this.scene.getObjectByName(key)));
+      this.removeRays(key); // rays are added directly to the scene
+      this.disposeMesh(lastObj.mesh, lastObj.rect.id);
     }
     rects.forEach((rect) => {
       const existingGraphics = this.lastScene.rectIdToRectGraphics.get(rect.id);
@@ -214,8 +237,8 @@ export class Canvas {
     return [this.scene, this.camera];
   }
 
-  getClickedRectId(x: number, y: number, z: number): undefined | string {
-    const clickPosition = new THREE.Vector3(x, y, z);
+  getClickedRectId(x: number, y: number): undefined | string {
+    const clickPosition = new THREE.Vector2(x, y);
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(clickPosition, assertDefined(this.camera));
     const intersected = raycaster.intersectObjects(
@@ -292,38 +315,38 @@ export class Canvas {
       rect.topLeft.y,
       rect.bottomRight.z,
     );
-    const cornerRadius = this.getAdjustedCornerRadius(rect);
+    const cornerRadii = this.getAdjustedCornerRadii(rect);
 
     // Create (rounded) rect shape
     const shape = new THREE.Shape()
-      .moveTo(rect.topLeft.x, rect.topLeft.y + cornerRadius)
-      .lineTo(bottomLeft.x, bottomLeft.y - cornerRadius)
+      .moveTo(rect.topLeft.x, rect.topLeft.y + cornerRadii.tl)
+      .lineTo(bottomLeft.x, bottomLeft.y - cornerRadii.bl)
       .quadraticCurveTo(
         bottomLeft.x,
         bottomLeft.y,
-        bottomLeft.x + cornerRadius,
+        bottomLeft.x + cornerRadii.bl,
         bottomLeft.y,
       )
-      .lineTo(rect.bottomRight.x - cornerRadius, rect.bottomRight.y)
+      .lineTo(rect.bottomRight.x - cornerRadii.br, rect.bottomRight.y)
       .quadraticCurveTo(
         rect.bottomRight.x,
         rect.bottomRight.y,
         rect.bottomRight.x,
-        rect.bottomRight.y - cornerRadius,
+        rect.bottomRight.y - cornerRadii.br,
       )
-      .lineTo(topRight.x, topRight.y + cornerRadius)
+      .lineTo(topRight.x, topRight.y + cornerRadii.tr)
       .quadraticCurveTo(
         topRight.x,
         topRight.y,
-        topRight.x - cornerRadius,
+        topRight.x - cornerRadii.tr,
         topRight.y,
       )
-      .lineTo(rect.topLeft.x + cornerRadius, rect.topLeft.y)
+      .lineTo(rect.topLeft.x + cornerRadii.tl, rect.topLeft.y)
       .quadraticCurveTo(
         rect.topLeft.x,
         rect.topLeft.y,
         rect.topLeft.x,
-        rect.topLeft.y + cornerRadius,
+        rect.topLeft.y + cornerRadii.tl,
       );
     return new THREE.ShapeGeometry(shape);
   }
@@ -401,12 +424,12 @@ export class Canvas {
 
   private makeRectBorders(
     rect: UiRect3D,
-    rectGeometry: THREE.ShapeGeometry,
+    rectGeometry: THREE.BufferGeometry,
   ): THREE.LineSegments {
     // create line edges for rect
     const edgeGeo = new THREE.EdgesGeometry(rectGeometry);
     let color: number;
-    if (rect.cornerRadius) {
+    if (rect.cornerRadii && !rect.cornerRadii.isEmpty()) {
       color = Canvas.RECT_EDGE_COLOR_ROUNDED;
     } else {
       color = this.getRectEdgeColor();
@@ -417,17 +440,27 @@ export class Canvas {
     return lineSegments;
   }
 
-  private getAdjustedCornerRadius(rect: UiRect3D): number {
-    // Limit corner radius if larger than height/2 (or width/2)
+  private getAdjustedCornerRadii(rect: UiRect3D): CornerRadii {
+    // Limit corner radius if larger than height/2 or width/2
     const height = rect.bottomRight.y - rect.topLeft.y;
     const width = rect.bottomRight.x - rect.topLeft.x;
-    const minEdge = Math.min(height, width);
-    const cornerRadius = Math.min(rect.cornerRadius, minEdge / 2);
+    const limit = Math.min(height, width) / 2;
+
+    return new CornerRadii(
+      this.adjustCornerRadius(rect.cornerRadii?.tl ?? 0, limit),
+      this.adjustCornerRadius(rect.cornerRadii?.tr ?? 0, limit),
+      this.adjustCornerRadius(rect.cornerRadii?.bl ?? 0, limit),
+      this.adjustCornerRadius(rect.cornerRadii?.br ?? 0, limit),
+    );
+  }
+
+  private adjustCornerRadius(radius: number, limit: number): number {
+    radius = Math.min(radius, limit);
 
     // Force radius > 0, because radius === 0 could result in weird triangular shapes
     // being drawn instead of rectangles. Seems like quadraticCurveTo() doesn't
     // always handle properly the case with radius === 0.
-    return Math.max(cornerRadius, 0.01);
+    return Math.max(radius, 0.01);
   }
 
   private makePinnedRectBorders(rect: UiRect3D): THREE.Mesh {
@@ -451,89 +484,89 @@ export class Canvas {
   }
 
   private createPinnedBorderRects(rect: UiRect3D): THREE.Shape[] {
-    const cornerRadius = this.getAdjustedCornerRadius(rect);
-    const xBoldWidth = Canvas.RECT_EDGE_BOLD_WIDTH / rect.transform.dsdx;
-    const yBorderWidth = Canvas.RECT_EDGE_BOLD_WIDTH / rect.transform.dsdy;
+    const cornerRadii = this.getAdjustedCornerRadii(rect);
+    const xBoldWidth = Canvas.RECT_EDGE_BOLD_WIDTH;
+    const yBorderWidth = Canvas.RECT_EDGE_BOLD_WIDTH;
     const borderRects = [
       // left and bottom borders
       new THREE.Shape()
-        .moveTo(rect.topLeft.x, rect.topLeft.y + cornerRadius)
-        .lineTo(rect.topLeft.x, rect.bottomRight.y - cornerRadius)
+        .moveTo(rect.topLeft.x, rect.topLeft.y + cornerRadii.tl)
+        .lineTo(rect.topLeft.x, rect.bottomRight.y - cornerRadii.bl)
         .quadraticCurveTo(
           rect.topLeft.x,
           rect.bottomRight.y,
-          rect.topLeft.x + cornerRadius,
+          rect.topLeft.x + cornerRadii.bl,
           rect.bottomRight.y,
         )
-        .lineTo(rect.bottomRight.x - cornerRadius, rect.bottomRight.y)
+        .lineTo(rect.bottomRight.x - cornerRadii.br, rect.bottomRight.y)
         .quadraticCurveTo(
           rect.bottomRight.x,
           rect.bottomRight.y,
           rect.bottomRight.x,
-          rect.bottomRight.y - cornerRadius,
+          rect.bottomRight.y - cornerRadii.br,
         )
         .lineTo(
           rect.bottomRight.x - xBoldWidth,
-          rect.bottomRight.y - cornerRadius,
+          rect.bottomRight.y - cornerRadii.br,
         )
         .quadraticCurveTo(
           rect.bottomRight.x - xBoldWidth,
           rect.bottomRight.y - yBorderWidth,
-          rect.bottomRight.x - cornerRadius,
+          rect.bottomRight.x - cornerRadii.br,
           rect.bottomRight.y - yBorderWidth,
         )
         .lineTo(
-          rect.topLeft.x + cornerRadius,
+          rect.topLeft.x + cornerRadii.bl,
           rect.bottomRight.y - yBorderWidth,
         )
         .quadraticCurveTo(
           rect.topLeft.x + xBoldWidth,
           rect.bottomRight.y - yBorderWidth,
           rect.topLeft.x + xBoldWidth,
-          rect.bottomRight.y - cornerRadius,
+          rect.bottomRight.y - cornerRadii.bl,
         )
-        .lineTo(rect.topLeft.x + xBoldWidth, rect.topLeft.y + cornerRadius)
-        .lineTo(rect.topLeft.x, rect.topLeft.y + cornerRadius),
+        .lineTo(rect.topLeft.x + xBoldWidth, rect.topLeft.y + cornerRadii.tl)
+        .lineTo(rect.topLeft.x, rect.topLeft.y + cornerRadii.tl),
 
       // right and top borders
       new THREE.Shape()
-        .moveTo(rect.bottomRight.x, rect.bottomRight.y - cornerRadius)
-        .lineTo(rect.bottomRight.x, rect.topLeft.y + cornerRadius)
+        .moveTo(rect.bottomRight.x, rect.bottomRight.y - cornerRadii.br)
+        .lineTo(rect.bottomRight.x, rect.topLeft.y + cornerRadii.tr)
         .quadraticCurveTo(
           rect.bottomRight.x,
           rect.topLeft.y,
-          rect.bottomRight.x - cornerRadius,
+          rect.bottomRight.x - cornerRadii.tr,
           rect.topLeft.y,
         )
-        .lineTo(rect.topLeft.x + cornerRadius, rect.topLeft.y)
+        .lineTo(rect.topLeft.x + cornerRadii.tl, rect.topLeft.y)
         .quadraticCurveTo(
           rect.topLeft.x,
           rect.topLeft.y,
           rect.topLeft.x,
-          rect.topLeft.y + cornerRadius,
+          rect.topLeft.y + cornerRadii.tl,
         )
-        .lineTo(rect.topLeft.x + xBoldWidth, rect.topLeft.y + cornerRadius)
+        .lineTo(rect.topLeft.x + xBoldWidth, rect.topLeft.y + cornerRadii.tl)
         .quadraticCurveTo(
           rect.topLeft.x + xBoldWidth,
           rect.topLeft.y + yBorderWidth,
-          rect.topLeft.x + cornerRadius,
+          rect.topLeft.x + cornerRadii.tl,
           rect.topLeft.y + yBorderWidth,
         )
         .lineTo(
-          rect.bottomRight.x - cornerRadius,
+          rect.bottomRight.x - cornerRadii.tr,
           rect.topLeft.y + yBorderWidth,
         )
         .quadraticCurveTo(
           rect.bottomRight.x - xBoldWidth,
           rect.topLeft.y + yBorderWidth,
           rect.bottomRight.x - xBoldWidth,
-          rect.topLeft.y + cornerRadius,
+          rect.topLeft.y + cornerRadii.tr,
         )
         .lineTo(
           rect.bottomRight.x - xBoldWidth,
-          rect.bottomRight.y - cornerRadius,
+          rect.bottomRight.y - cornerRadii.br,
         )
-        .lineTo(rect.bottomRight.x, rect.bottomRight.y - cornerRadius),
+        .lineTo(rect.bottomRight.x, rect.bottomRight.y - cornerRadii.br),
     ];
     return borderRects;
   }
@@ -729,13 +762,13 @@ export class Canvas {
 
     if (!newRect.fillRegion && existingRect.fillRegion) {
       existingMesh.material = fillMaterial;
-      existingMesh.remove(
-        assertDefined(
-          existingMesh.getObjectByName(
-            existingRect.id + Canvas.GRAPHICS_NAMES.fillRegion,
-          ),
+      const existingFillRegion = assertDefined(
+        existingMesh.getObjectByName(
+          existingRect.id + Canvas.GRAPHICS_NAMES.fillRegion,
         ),
       );
+      existingMesh.remove(existingFillRegion);
+      this.disposeObj(existingFillRegion);
     } else if (newRect.fillRegion && !existingRect.fillRegion) {
       existingMesh.material = Canvas.TRANSPARENT_MATERIAL;
       this.addFillRegionMesh(newRect, fillMaterial, existingMesh);
@@ -751,13 +784,13 @@ export class Canvas {
         },
       );
       if (fillRegionChanged) {
-        existingMesh.remove(
-          assertDefined(
-            existingMesh.getObjectByName(
-              existingRect.id + Canvas.GRAPHICS_NAMES.fillRegion,
-            ),
+        const existingFillRegion = assertDefined(
+          existingMesh.getObjectByName(
+            existingRect.id + Canvas.GRAPHICS_NAMES.fillRegion,
           ),
         );
+        existingMesh.remove(existingFillRegion);
+        this.disposeObj(existingFillRegion);
         this.addFillRegionMesh(newRect, fillMaterial, existingMesh);
       }
     }
@@ -784,9 +817,10 @@ export class Canvas {
     const isGeometryChanged =
       !newRect.bottomRight.isEqual(existingRect.bottomRight) ||
       !newRect.topLeft.isEqual(existingRect.topLeft) ||
-      newRect.cornerRadius !== existingRect.cornerRadius;
+      !this.cornerRadiiEqual(newRect, existingRect);
 
     if (isGeometryChanged) {
+      existingMesh.geometry.dispose();
       existingMesh.geometry = this.makeRoundedRectGeometry(newRect);
       existingMesh.position.z = newRect.topLeft.z;
     }
@@ -795,22 +829,28 @@ export class Canvas {
       this.isDarkMode() !== this.lastScene.isDarkMode ||
       newRect.isPinned !== existingRect.isPinned;
     if (isGeometryChanged || isColorChanged) {
-      existingMesh.remove(
-        assertDefined(
-          existingMesh.getObjectByName(
-            existingRect.id + Canvas.GRAPHICS_NAMES.border,
-          ),
+      const existingBorder = assertDefined(
+        existingMesh.getObjectByName(
+          existingRect.id + Canvas.GRAPHICS_NAMES.border,
         ),
       );
+      existingMesh.remove(existingBorder);
+      this.disposeObj(existingBorder);
       this.addRectBorders(newRect, existingMesh);
     }
+  }
 
-    if (!newRect.transform.isEqual(existingRect.transform)) {
-      existingMesh.applyMatrix4(
-        this.toMatrix4(existingRect.transform.inverse()),
-      );
-      existingMesh.applyMatrix4(this.toMatrix4(newRect.transform));
+  private cornerRadiiEqual(rect: UiRect3D, other: UiRect3D) {
+    if (rect.cornerRadii === undefined && other.cornerRadii === undefined) {
+      return true;
     }
+    if (rect.cornerRadii === undefined) {
+      return false;
+    }
+    if (other.cornerRadii === undefined) {
+      return false;
+    }
+    return rect.cornerRadii.isEqual(other.cornerRadii);
   }
 
   private addRectBorders(newRect: UiRect3D, mesh: THREE.Mesh) {
@@ -931,6 +971,7 @@ export class Canvas {
     );
 
     if (newLabel.circle.radius !== existingLabel.circle.radius) {
+      circle.geometry.dispose();
       circle.geometry = new THREE.CircleGeometry(newLabel.circle.radius, 20);
     }
     if (!newLabel.circle.center.isEqual(existingLabel.circle.center)) {
@@ -946,7 +987,9 @@ export class Canvas {
       this.isDarkMode() !== this.lastScene.isDarkMode
     ) {
       const lineMaterial = this.makeLabelMaterial(newLabel);
+      this.disposeMaterial(circle);
       circle.material = lineMaterial;
+      this.disposeMaterial(line);
       line.material = lineMaterial;
       text.element.style.color = newLabel.isHighlighted ? '' : 'gray';
     }
@@ -956,6 +999,7 @@ export class Canvas {
         (a as Point3D).isEqual(b as Point3D),
       )
     ) {
+      line.geometry.dispose();
       line.geometry = this.makeLabelLineGeometry(newLabel);
     }
 
@@ -992,6 +1036,9 @@ export class Canvas {
         this.scene.remove(graphics.line);
         this.scene.remove(graphics.text);
         this.lastScene.rectIdToLabelGraphics.delete(rectId);
+        this.disposeObj(graphics.circle);
+        this.disposeObj(graphics.line);
+        this.disposeObj(graphics.text);
       }
     }
   }
@@ -1000,6 +1047,7 @@ export class Canvas {
     let existingObj = root.getObjectByName(name);
     while (existingObj) {
       root.remove(existingObj);
+      this.disposeObj(existingObj);
       existingObj = root.getObjectByName(name);
     }
   }
@@ -1027,6 +1075,29 @@ export class Canvas {
     return this.isDarkMode()
       ? Canvas.RECT_EDGE_COLOR_DARK_MODE
       : Canvas.RECT_EDGE_COLOR_LIGHT_MODE;
+  }
+
+  private disposeMesh(obj: any, rectId: string) {
+    this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.fillRegion);
+    this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.pointerCircle);
+    this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.pointerCrosshairs);
+    this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.border);
+    this.disposeObj(obj);
+  }
+
+  private disposeObj(obj: any) {
+    if (obj.geometry) {
+      obj.geometry.dispose();
+    }
+    this.disposeMaterial(obj);
+  }
+
+  private disposeMaterial(obj: any) {
+    if (Array.isArray(obj.material)) {
+      obj.material.forEach((m: THREE.Material) => m.dispose());
+    } else if (obj.material) {
+      obj.material.dispose();
+    }
   }
 }
 

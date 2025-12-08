@@ -13,38 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {assertDefined} from 'common/assert';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
 
 @Component({
   selector: 'transform-matrix',
+  standalone: true,
+  imports: [CommonModule, MatTooltipModule],
   template: `
-    <div *ngIf="matrix" class="matrix">
-      <p class="mat-body-1">
-        {{ getVal('dsdx') }}
-      </p>
-      <p class="mat-body-1">
-        {{ getVal('dtdx') }}
-      </p>
-      <p class="mat-body-1" matTooltip="Translate x">
-        {{ getVal('tx') }}
-      </p>
+    @if (matrix) {
+      <div class="matrix">
+        <p class="mat-body-1">
+          {{ getVal('dsdx') }}
+        </p>
+        <p class="mat-body-1">
+          {{ getVal('dtdx') }}
+        </p>
+        <p class="mat-body-1" matTooltip="Translate x">
+          {{ getVal('tx') }}
+        </p>
 
-      <p class="mat-body-1">
-        {{ getVal('dtdy') }}
-      </p>
-      <p class="mat-body-1">
-        {{ getVal('dsdy') }}
-      </p>
-      <p class="mat-body-1" matTooltip="Translate y">
-        {{ getVal('ty') }}
-      </p>
+        <p class="mat-body-1">
+          {{ getVal('dtdy') }}
+        </p>
+        <p class="mat-body-1">
+          {{ getVal('dsdy') }}
+        </p>
+        <p class="mat-body-1" matTooltip="Translate y">
+          {{ getVal('ty') }}
+        </p>
 
-      <p class="mat-body-1">0</p>
-      <p class="mat-body-1">0</p>
-      <p class="mat-body-1">1</p>
-    </div>
+        <p class="mat-body-1">0</p>
+        <p class="mat-body-1">0</p>
+        <p class="mat-body-1">1</p>
+      </div>
+    }
   `,
   styles: [
     `

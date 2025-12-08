@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * Styles for overlay panels.
+ */
 export const overlayPanelStyles = `
-  .close-button {
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
-  }
-
   .overlay-panel {
     font-family: 'Roboto', sans-serif;
     background: var(--overlay-panel-background-color);
@@ -32,9 +29,9 @@ export const overlayPanelStyles = `
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin: 15px;
     font-size: 20px;
   }
+
   .overlay-panel-content {
     margin: 15px;
     display: flex;
@@ -42,11 +39,15 @@ export const overlayPanelStyles = `
   }
 
   .overlay-panel-section {
-    margin: 10px 0px;
+    margin-top: 10px;
   }
 
   .overlay-panel-section-title {
     display: block;
     width: 100%;
+  }
+
+  .overlay-panel-item {
+    padding: 8px 0px;
   }
 `;

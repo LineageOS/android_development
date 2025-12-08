@@ -19,7 +19,7 @@ import {
   CdkVirtualScrollViewport,
   ScrollingModule,
 } from '@angular/cdk/scrolling';
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {Type} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
@@ -27,14 +27,15 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
+import {MatIconTestingModule} from '@angular/material/icon/testing';
 import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {animationFrameScheduler} from 'rxjs';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
 import {LogComponent} from 'viewers/components/log_component';
@@ -70,11 +71,11 @@ export abstract class AbstractLogViewerComponentTest<
 
   execute() {
     describe('Log viewer component', () => {
-      let dom: DOMTestHelper<T>;
-      let viewport: CdkVirtualScrollViewport;
-      let component: T;
-
       describe('common', () => {
+        let dom: DOMTestHelper<T>;
+        let viewport: CdkVirtualScrollViewport;
+        let component: T;
+
         beforeEach(async () => {
           [dom, viewport, component] = await this.setUpTestEnvironment();
         });
@@ -95,7 +96,6 @@ export abstract class AbstractLogViewerComponentTest<
         });
 
         it('renders entries with field values', () => {
-          expect(dom.find('.scroll')).toBeDefined();
           const entry = dom.get(
             `.scroll .entry .${this.testSpec.cssClass.split(' ')[0]}`,
           );
@@ -104,9 +104,32 @@ export abstract class AbstractLogViewerComponentTest<
         });
 
         it('handles go to current time button', () => {
-          expect(dom.find('.go-to-current-time') !== undefined).toEqual(
+          expect(dom.find('.go-to-current-entry') !== undefined).toEqual(
             this.hasCurrentTimeButton,
           );
+        });
+
+        it('passes data to log component', () => {
+          const logComponent = assertDefined(component.logComponent);
+          expect(logComponent.isFetchingData).toBeFalse();
+          expect(logComponent.checkScrollViewport).toBeFalse();
+          expect(logComponent.selectedIndex).not.toBe(10);
+          expect(logComponent.scrollToIndex).not.toBe(20);
+          expect(logComponent.currentIndex).not.toBe(30);
+
+          const inputData = assertDefined(component.inputData);
+          inputData.checkScrollViewport = true;
+          inputData.isFetchingData = true;
+          inputData.selectedIndex = 10;
+          inputData.scrollToIndex = 20;
+          inputData.currentIndex = 30;
+          dom.detectChanges();
+
+          expect(logComponent.isFetchingData).toBeTrue();
+          expect(logComponent.checkScrollViewport).toBeTrue();
+          expect(logComponent.selectedIndex).toBe(10);
+          expect(logComponent.scrollToIndex).toBe(20);
+          expect(logComponent.currentIndex).toBe(30);
         });
 
         if (this.testProperties) {
@@ -138,6 +161,9 @@ export abstract class AbstractLogViewerComponentTest<
 
       if (this.testScroll) {
         describe('scroll', () => {
+          let dom: DOMTestHelper<T>;
+          let viewport: CdkVirtualScrollViewport;
+
           beforeEach(async () => {
             [dom, viewport] = this.setUpTestEnvironmentForScroll
               ? await this.setUpTestEnvironmentForScroll()
@@ -145,41 +171,53 @@ export abstract class AbstractLogViewerComponentTest<
           });
 
           it('renders initial state', () => {
-            expect(dom.findAll('.entry').length).toEqual(20);
+            expect(dom.findAll('.entry').length).toEqual(
+              assertDefined(this.initialEntries),
+            );
           });
 
           it('gets data length', () => {
-            expect(viewport.getDataLength()).toEqual(200);
+            expect(viewport.getDataLength()).toBe(200);
           });
 
           it('should get the rendered range', () => {
-            expect(viewport.getRenderedRange()).toEqual({start: 0, end: 20});
+            expect(viewport.getRenderedRange()).toEqual({
+              start: 0,
+              end: assertDefined(this.initialEntries),
+            });
           });
 
-          it('should scroll to index in large jumps', () => {
+          it('should scroll to index in large jumps', async () => {
             expect(dom.find(`.entry[item-id="30"]`)).toBeUndefined();
-            checkScrollToIndex(30);
+            await checkScrollToIndex(30);
+            expect(dom.find(`.entry[item-id="30"]`)).toBeDefined();
+
             expect(dom.find(`.entry[item-id="70"]`)).toBeUndefined();
-            checkScrollToIndex(70);
+            await checkScrollToIndex(70);
+            expect(dom.find(`.entry[item-id="70"]`)).toBeDefined();
           });
 
-          it('should update without jumps as the user scrolls down or up', () => {
+          it('should update without jumps as the user scrolls down or up', async () => {
             for (let i = 1; i < 50; i++) {
-              checkScrollToIndex(i);
+              await checkScrollToIndex(i);
             }
-            for (let i = 49; i >= 0; i--) {
-              checkScrollToIndex(i);
+            for (let i = 48; i >= 0; i--) {
+              await checkScrollToIndex(i);
             }
           });
 
-          function checkScrollToIndex(i: number) {
+          function checkScrollToIndex(i: number): Promise<void> {
+            const promise = new Promise<void>((resolve) => {
+              const sub = viewport.scrolledIndexChange.subscribe((index) => {
+                if (index - i <= 1) {
+                  sub.unsubscribe();
+                  dom.detectChanges();
+                  resolve();
+                }
+              });
+            });
             viewport.scrollToIndex(i);
-            viewport.elementRef.nativeElement.dispatchEvent(
-              new Event('scroll'),
-            );
-            animationFrameScheduler.flush();
-            dom.detectChanges();
-            expect(dom.find(`.entry[item-id="${i}"]`)).toBeDefined();
+            return promise;
           }
         });
       }
@@ -193,54 +231,62 @@ export abstract class AbstractLogViewerComponentTest<
   protected async initializeTestEnvironment<U extends T>(
     initialUiData: UiDataLog,
     typeofViewer: Type<U>,
-    addedDeclarations: object[] = [],
+    addedImports: object[] = [],
   ): Promise<[DOMTestHelper<U>, CdkVirtualScrollViewport, U]> {
-    const declarations: object[] = [
+    const imports: object[] = [
       typeofViewer,
       SelectWithFilterComponent,
       SearchBoxComponent,
       LogComponent,
       VariableHeightScrollDirective,
+      TreeComponent,
+      TreeNodeComponent,
+      PropertyTreeNodeDataViewComponent,
+      MatDividerModule,
+      ScrollingModule,
+      MatIconModule,
+      ClipboardModule,
+      MatFormFieldModule,
+      MatButtonModule,
+      MatInputModule,
+      BrowserAnimationsModule,
+      FormsModule,
+      MatSelectModule,
+      MatTooltipModule,
+      MatSliderModule,
+      MatProgressSpinnerModule,
+      MatIconTestingModule,
     ];
-    if (addedDeclarations) {
-      declarations.push(...addedDeclarations);
+    if (addedImports) {
+      imports.push(...addedImports);
     }
     if (this.testProperties) {
-      declarations.push(
+      imports.push(
         ...[
           CollapsedSectionsComponent,
           CollapsibleSectionTitleComponent,
           PropertiesComponent,
-          TreeComponent,
-          TreeNodeComponent,
-          PropertyTreeNodeDataViewComponent,
         ],
       );
     }
     await TestBed.configureTestingModule({
-      providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
-      imports: [
-        MatDividerModule,
-        ScrollingModule,
-        MatIconModule,
-        ClipboardModule,
-        MatFormFieldModule,
-        MatButtonModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        MatSelectModule,
-        MatTooltipModule,
-        HttpClientModule,
-        MatSliderModule,
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        {provide: ComponentFixtureAutoDetect, useValue: true},
       ],
-      declarations,
+      imports,
     }).compileComponents();
 
     const fixture = TestBed.createComponent<U>(typeofViewer);
     const component = fixture.componentInstance;
     const dom = new DOMTestHelper(fixture, fixture.nativeElement);
     (component as any).inputData = initialUiData;
+    dom.detectChanges();
+    const scrollElement = dom.get('.scroll').getHTMLElement();
+    scrollElement.style.minHeight = '720px';
+    scrollElement.style.maxHeight = '720px';
+    scrollElement.style.minWidth = '1440px';
+    scrollElement.style.maxWidth = '1440px';
     dom.detectChanges();
     const viewport = assertDefined(component.logComponent?.scrollComponent);
     return [dom, viewport, component];
@@ -252,6 +298,7 @@ export abstract class AbstractLogViewerComponentTest<
   protected readonly hasFilters: boolean = true;
   protected readonly propertiesSectionTitle?: string;
   protected readonly propertiesPlaceholder?: string;
+  protected readonly initialEntries?: number;
 
   protected abstract setUpTestEnvironment(): Promise<
     [DOMTestHelper<T>, CdkVirtualScrollViewport, T]

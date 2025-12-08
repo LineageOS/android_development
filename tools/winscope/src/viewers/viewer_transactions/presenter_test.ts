@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimeUtils} from 'common/time/time_utils';
+import {Timer} from 'common/time/timer';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {CustomQueryType} from 'trace/custom_query';
-import {Trace} from 'trace/trace';
-import {TraceType} from 'trace/trace_type';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
 import {LogSelectFilter} from 'viewers/common/log_filters';
@@ -188,11 +188,11 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
 
       it('keeps properties related to what has changed regardless of hide defaults', async () => {
         await presenter.onAppEvent(this.getPositionUpdate());
-        await TimeUtils.wait(() => !uiData.isFetchingData);
+        await new Timer().wait(() => !uiData.isFetchingData);
         await presenter.onLogEntryClick(10);
         expect(
           assertDefined(uiData.propertiesTree).getAllChildren().length,
-        ).toEqual(10);
+        ).toBe(10);
         expect(
           uiData.propertiesTree?.getChildByName('transformToDisplayInverse'),
         ).toBeDefined();
@@ -237,7 +237,7 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
 
   override async setUpTestEnvironment(): Promise<void> {
     const parser = await new LegacyParserProvider()
-      .addFilename('traces/elapsed_and_real_timestamp/Transactions.pb')
+      .addFile('traces/elapsed_and_real_timestamp/Transactions.pb')
       .setConvertToPerfetto(true)
       .getParser<HierarchyTreeNode>();
     this.trace = new TraceBuilder<HierarchyTreeNode>()

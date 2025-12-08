@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {AbstractSearchViewFactory} from './abstract_search_view_factory';
-import {SearchView} from './trace_search_initializer';
+import {SearchView} from './search_view';
 
+/**
+ * A factory for creating search views for Transactions traces.
+ */
 export class SearchViewFactoryTransactions extends AbstractSearchViewFactory {
   override readonly traceType = TraceType.TRANSACTIONS;
   private static readonly VIEW: SearchView = {
     name: 'transactions_search',
     dataType:
       'the Transactions trace, including transactions, added/destroyed layers and added/removed/changed displays',
+    docsUrl: AbstractSearchViewFactory.BASE_DOCS_URL + 'transactions-sql-view',
     columns: [
       {
         name: 'state_id',

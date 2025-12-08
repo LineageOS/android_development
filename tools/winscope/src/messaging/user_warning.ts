@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+import {Warning} from 'common/warning';
 import {NotificationType, UserNotification} from './user_notification';
 
 /**
  * A warning message to be displayed to the user.
  */
-export abstract class UserWarning implements UserNotification {
+export abstract class UserWarning implements UserNotification, Warning {
   getNotificationType(): NotificationType {
     return NotificationType.WARNING;
   }

@@ -17,6 +17,7 @@
 import {CdkAccordionModule} from '@angular/cdk/accordion';
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {CommonModule} from '@angular/common';
 import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -29,8 +30,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {SEARCH_VIEWS} from 'app/trace_search/trace_search_initializer';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {VariableHeightScrollDirective} from 'viewers/common/variable_height_scroll_directive';
 import {
   AddQueryClickDetail,
@@ -58,17 +60,9 @@ describe('ViewerSearchComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        TestHostComponent,
-        ViewerSearchComponent,
-        CollapsedSectionsComponent,
-        CollapsibleSectionTitleComponent,
-        ActiveSearchComponent,
-        SearchListComponent,
-        LogComponent,
-        VariableHeightScrollDirective,
-      ],
       imports: [
+        CommonModule,
+        TestHostComponent,
         MatFormFieldModule,
         MatInputModule,
         BrowserAnimationsModule,
@@ -83,6 +77,13 @@ describe('ViewerSearchComponent', () => {
         MatTooltipModule,
         CdkAccordionModule,
         MatDividerModule,
+        ViewerSearchComponent,
+        CollapsedSectionsComponent,
+        CollapsibleSectionTitleComponent,
+        ActiveSearchComponent,
+        SearchListComponent,
+        LogComponent,
+        VariableHeightScrollDirective,
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(TestHostComponent);
@@ -99,8 +100,9 @@ describe('ViewerSearchComponent', () => {
 
   it('creates global search section with tabs', () => {
     const globalSearch = dom.get('.global-search');
-    const [searchTab, savedTab, recentTab] =
-      globalSearch.findAll('.mat-tab-label');
+    const [searchTab, savedTab, recentTab] = globalSearch.findAll(
+      '.mdc-tab .mdc-tab__text-label',
+    );
     searchTab.checkTextExact('Search');
     savedTab.checkTextExact('Saved');
     recentTab.checkTextExact('Recent');
@@ -210,7 +212,7 @@ describe('ViewerSearchComponent', () => {
     updateInputDataAndDetectChanges(newData);
 
     const activeSections = dom.findAll('active-search');
-    expect(activeSections.length).toEqual(2);
+    expect(activeSections.length).toBe(2);
     expect(activeSections[0].find('.clear-button')).toBeDefined();
     expect(activeSections[1].find('.clear-button')).toBeDefined();
 
@@ -231,15 +233,15 @@ describe('ViewerSearchComponent', () => {
     data.currentSearches[0].result = new SearchResult([], []);
     updateInputDataAndDetectChanges(data);
     addCurrentSearchWithResult(testQuery, 2);
-    let resultTabs = dom.findAll('.result-tabs .mat-tab-label');
+    let resultTabs = dom.findAll('.result-tabs .mdc-tab__text-label');
     let activeSections = dom.findAll('active-search');
-    expect(activeSections.length).toEqual(2);
-    expect(resultTabs.length).toEqual(2);
+    expect(activeSections.length).toBe(2);
+    expect(resultTabs.length).toBe(2);
     resultTabs[0].checkTextExact('Query 1');
     resultTabs[1].checkTextExact('Query 2');
 
     dom.findAndClick('.clear-button');
-    expect(uid).toEqual(1);
+    expect(uid).toBe(1);
 
     const spy = spyOn(activeSections[1].getHTMLElement(), 'scrollIntoView');
 
@@ -248,11 +250,11 @@ describe('ViewerSearchComponent', () => {
     updateInputDataAndDetectChanges(newData);
     await dom.whenStable();
 
-    resultTabs = dom.findAll('.result-tabs .mat-tab-label');
+    resultTabs = dom.findAll('.result-tabs .mdc-tab__text-label');
     activeSections = dom.findAll('active-search');
-    expect(resultTabs.length).toEqual(1);
+    expect(resultTabs.length).toBe(1);
     resultTabs[0].checkTextExact('Query 2');
-    expect(activeSections.length).toEqual(1);
+    expect(activeSections.length).toBe(1);
     expect(spy).toHaveBeenCalled();
   });
 
@@ -342,7 +344,7 @@ describe('ViewerSearchComponent', () => {
 
   it('can open SQL view descriptors in how to section', () => {
     const accordionItems = dom.findAll('.how-to-search .accordion-item');
-    expect(accordionItems.length).toEqual(6);
+    expect(accordionItems.length).toBe(6);
     accordionItems.forEach((item) => checkAccordionItemCollapsed(item));
 
     accordionItems[0].get(accordionItemSelector).click();
@@ -356,6 +358,14 @@ describe('ViewerSearchComponent', () => {
     accordionItems[0].get(accordionItemSelector).click();
     checkAccordionItemCollapsed(accordionItems[0]);
     checkAccordionItemExpanded(accordionItems[1]);
+  });
+
+  it('can open documentation for each SQL view', async () => {
+    const links = dom.findAll('.how-to-search .accordion-item-header a');
+    expect(links.length).toBe(6);
+    for (const [i, link] of links.entries()) {
+      await checkDocsLink(link, i);
+    }
   });
 
   function clickGlobalSearchAndCheckMessage(
@@ -399,7 +409,7 @@ describe('ViewerSearchComponent', () => {
     expect(query).toEqual(testQuery);
     await changeTab(0);
     runSearchAndCheckHandled(addCurrentSearchWithResult);
-    expect(dom.findAll('active-search').length).toEqual(2);
+    expect(dom.findAll('active-search').length).toBe(2);
   }
 
   function runSearchAndCheckHandled(runSearch: () => void) {
@@ -440,9 +450,9 @@ describe('ViewerSearchComponent', () => {
     data.currentSearches.push(new CurrentSearch(2, testQuery));
     updateInputDataAndDetectChanges(data);
     await dom.detectChangesAndWaitStable();
-    expect(
-      component.searchComponent?.matTabGroups?.first.selectedIndex,
-    ).toEqual(0);
+    expect(component.searchComponent?.matTabGroups?.first.selectedIndex).toBe(
+      0,
+    );
     getTextInput(0).checkValue('');
     getTextInput(1).checkValue(testQuery);
   }
@@ -452,9 +462,9 @@ describe('ViewerSearchComponent', () => {
     const input = getTextInput();
     expect(input.checkValue(''));
     await changeTabAndClickEdit(tabIndex);
-    expect(
-      component.searchComponent?.matTabGroups?.first.selectedIndex,
-    ).toEqual(0);
+    expect(component.searchComponent?.matTabGroups?.first.selectedIndex).toBe(
+      0,
+    );
     expect(input.checkValue(testQuery));
   }
 
@@ -482,12 +492,23 @@ describe('ViewerSearchComponent', () => {
     expect(item.find('.accordion-item-body')).toBeDefined();
   }
 
+  async function checkDocsLink(
+    link: DOMTestHelper<TestHostComponent>,
+    index: number,
+  ) {
+    expect(link.getHTMLElement().getAttribute('href')).toEqual(
+      SEARCH_VIEWS[index].docsUrl,
+    );
+    await link.get('.open-docs-icon').checkTooltip('Open full documentation');
+  }
+
   function updateInputDataAndDetectChanges(data: UiData) {
     component.inputData = data;
     dom.detectChanges();
   }
 
   @Component({
+    imports: [ViewerSearchComponent],
     selector: 'host-component',
     template: `
       <viewer-search [inputData]="inputData"></viewer-search>

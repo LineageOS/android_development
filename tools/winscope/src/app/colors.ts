@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+/**
+ * Colors used in Winscope.
+ *
+ * Follows the Material Design color system.
+ * See https://m2.material.io/design/color/the-color-system.html.
+ */
 export enum Color {
   ACTIVE_BORDER = '#1967D2',
   ACTIVE_POINTER = ACTIVE_BORDER,

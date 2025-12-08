@@ -15,11 +15,10 @@
  */
 
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {FunctionUtils} from 'common/function_utils';
 import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
-import {utf8Decode} from 'common/string_utils';
-import {UserNotifier} from 'common/user_notifier';
+import {utf8Decode} from 'common/string_helpers';
 import {ProxyTracingErrors} from 'messaging/user_warnings';
+import {UserNotifier} from 'services/user_notifier';
 import {
   AdbDeviceConnection,
   AdbDeviceConnectionListener,
@@ -30,9 +29,14 @@ import {TraceTarget} from 'trace_collection/trace_target';
 import {Endpoint} from './endpoint';
 import {getFromProxy, postToProxy} from './utils';
 
+interface TraceWorker {
+  name: string;
+  worker: number;
+}
+
 export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
   private isTracing = true;
-  private keepTraceAliveWorkers: Array<{name: string; worker: number}> = [];
+  private keepTraceAliveWorkers: TraceWorker[] = [];
 
   constructor(
     id: string,
@@ -44,8 +48,8 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
 
   override onDestroy() {
     this.isTracing = false;
-    this.keepTraceAliveWorkers.forEach(({name, worker}) => {
-      window.clearInterval(worker);
+    this.keepTraceAliveWorkers.forEach((it) => {
+      window.clearInterval(it.worker);
     });
     this.keepTraceAliveWorkers = [];
   }
@@ -58,7 +62,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     return await postToProxy(
       `${Endpoint.RUN_ADB_CMD}${this.id}/`,
       this.securityHeader,
-      FunctionUtils.DO_NOTHING,
+      () => {}, // onSuccess - no-op
       (newState, errorText) => this.setState(newState, errorText),
       {cmd: 'shell ' + cmd},
     );

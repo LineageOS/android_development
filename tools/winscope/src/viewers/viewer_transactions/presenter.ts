@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {assertDefined} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
-import {Trace} from 'trace/trace';
+import {FLAG_SEPARATOR} from 'trace/formatters';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
 import {TransactionType} from 'trace/transactions/transaction_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'trace/tree_node/properties_provider';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {Trace} from 'trace_api/trace';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -84,25 +85,7 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   protected override keepCalculated = true;
   protected override logPresenter = new LogPresenter<TransactionsEntry>();
-  protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
-      'TransactionsPropertyOptions',
-      {
-        showDefaults: {
-          name: 'Show defaults',
-          enabled: false,
-          tooltip: `
-                If checked, shows the value of all properties.
-                Otherwise, hides all properties whose value is
-                the default for its data type.
-              `,
-        },
-      },
-      this.storage,
-    ),
-    new TextFilter(),
-    [],
-  );
+  protected override propertiesPresenter: PropertiesPresenter;
 
   constructor(
     trace: Trace<HierarchyTreeNode>,
@@ -110,6 +93,25 @@ export class Presenter extends AbstractLogViewerPresenter<
     notifyViewCallback: NotifyLogViewCallbackType<UiData>,
   ) {
     super(trace, notifyViewCallback, UiData.createEmpty());
+    this.propertiesPresenter = new PropertiesPresenter(
+      createPersistentStoreProxy<UserOptions>(
+        'TransactionsPropertyOptions',
+        {
+          showDefaults: {
+            name: 'Show defaults',
+            enabled: false,
+            tooltip: `
+                  If checked, shows the value of all properties.
+                  Otherwise, hides all properties whose value is
+                  the default for its data type.
+                `,
+          },
+        },
+        this.storage,
+      ),
+      new TextFilter(),
+      [],
+    );
   }
 
   protected override makeHeaders(): LogHeader[] {
@@ -150,7 +152,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     tree
       .getChildByName('what')
       ?.formattedValue()
-      .split(' | ')
+      .split(FLAG_SEPARATOR)
       .forEach((flag) => {
         const properties = layerChangeFlagToPropertiesMap.get(flag);
         if (properties !== undefined) {
@@ -167,12 +169,7 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   protected override async makeUiDataEntries(): Promise<TransactionsEntry[]> {
     const entries: TransactionsEntry[] = [];
-
-    const entryProtos = await Promise.all(
-      this.trace.mapEntry(async (entry) => {
-        return await entry.getValue();
-      }),
-    );
+    const entryNodes = await this.trace.getAllEntryValues();
 
     for (
       let traceIndex = 0;
@@ -180,8 +177,10 @@ export class Presenter extends AbstractLogViewerPresenter<
       ++traceIndex
     ) {
       const entry = this.trace.getEntry(traceIndex);
-      const entryNode = entryProtos[traceIndex];
-      const vsyncId = entryNode.getEagerPropertyByName('vsyncId')?.getValue();
+      const entryNode = assertDefined(entryNodes.at(traceIndex));
+      const vsyncId = entryNode
+        .getEagerPropertyByName('vsyncId')
+        ?.getValue<number>();
 
       for (const transactionNode of entryNode.getAllChildren()) {
         const transactionType = assertDefined(
@@ -228,7 +227,7 @@ export class Presenter extends AbstractLogViewerPresenter<
         const layerOrDisplayId =
           (layerId?.length ?? 0) > 0
             ? assertDefined(layerId)
-            : displayId ?? Presenter.VALUE_NA;
+            : (displayId ?? Presenter.VALUE_NA);
 
         const fields: LogField[] = [
           {
@@ -262,9 +261,9 @@ export class Presenter extends AbstractLogViewerPresenter<
   }
 
   protected override async updateFiltersInHeaders(headers: LogHeader[]) {
-    for (const header of headers) {
-      this.updateFilterByCustomQuery(header);
-    }
+    Promise.all(
+      headers.map((header) => this.updateFilterByCustomQuery(header)),
+    );
   }
 }
 

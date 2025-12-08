@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {Type} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
@@ -29,15 +29,8 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {SearchBoxComponent} from 'viewers/components/search_box_component';
-import {UserOptionsComponent} from 'viewers/components/user_options_component';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 
 export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
   execute() {
@@ -98,21 +91,11 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
     typeofViewer: Type<U>,
     addedDeclarations: object[] = [],
   ): Promise<[DOMTestHelper<U>, U]> {
-    const declarations: object[] = [
-      typeofViewer,
-      HierarchyComponent,
-      PropertiesComponent,
-      RectsComponent,
-      CollapsedSectionsComponent,
-      CollapsibleSectionTitleComponent,
-      UserOptionsComponent,
-      SearchBoxComponent,
-    ];
-    if (addedDeclarations) {
-      declarations.push(...addedDeclarations);
-    }
     await TestBed.configureTestingModule({
-      providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        {provide: ComponentFixtureAutoDetect, useValue: true},
+      ],
       imports: [
         CommonModule,
         MatIconModule,
@@ -126,9 +109,7 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
         MatTooltipModule,
         MatButtonModule,
         MatSelectModule,
-        HttpClientModule,
       ],
-      declarations,
     }).compileComponents();
 
     const fixture = TestBed.createComponent<U>(typeofViewer);

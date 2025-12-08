@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimatableApi::class)
-
 package com.android.mechanics.demo.presentation
 
-import androidx.compose.animation.core.ExperimentalAnimatableApi
+import android.content.Context
+import android.os.VibratorManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
@@ -47,31 +46,55 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.staging.rememberDistanceGestureContext
-import com.android.mechanics.demo.staging.rememberMotionValue
 import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
+import com.android.mechanics.demo.tuneable.LabelledCheckbox
 import com.android.mechanics.effects.MagneticDetach
-import com.android.mechanics.spec.builder.rememberMotionBuilderContext
+import com.android.mechanics.haptics.HapticsExperimentalApi
+import com.android.mechanics.haptics.SpringTensionHapticPlayer
+import com.android.mechanics.rememberDistanceGestureContext
+import com.android.mechanics.rememberMotionSpecAsState
+import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.builder.spatialMotionSpec
 
-object MagneticDetachDemo : Demo<Unit> {
+@OptIn(HapticsExperimentalApi::class)
+object MagneticDetachDemo : Demo<MagneticDetachDemo.Config>, HasMotionValueVisualization {
     var inputRange by mutableStateOf(0f..0f)
 
     @Composable
-    override fun DemoUi(config: Unit, modifier: Modifier) {
+    override fun DemoUi(config: Config, modifier: Modifier) {
         val colors = MaterialTheme.colorScheme
 
         val gestureContext = rememberDistanceGestureContext()
-        val motionBuilderContext = rememberMotionBuilderContext()
-        val spec =
-            remember(motionBuilderContext) {
-                motionBuilderContext.spatialMotionSpec { after(50.dp.toPx(), MagneticDetach()) }
+        val density = LocalDensity.current
+        val context = LocalContext.current
+        val hapticPlayer =
+            remember(density, context) {
+                val vibratorManager =
+                    context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                SpringTensionHapticPlayer(density, vibratorManager)
             }
-        val motionValue = rememberMotionValue(gestureContext::dragOffset, { spec }, gestureContext)
+        val motionValue =
+            rememberMotionValue(
+                input = { gestureContext.dragOffset },
+                gestureContext = gestureContext,
+                spec =
+                    rememberMotionSpecAsState {
+                        spatialMotionSpec {
+                            after(
+                                50.dp.toPx(),
+                                MagneticDetach(enableHaptics = config.enableHaptics),
+                            )
+                        }
+                    },
+                hapticPlayer = hapticPlayer,
+            )
 
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -132,12 +155,24 @@ object MagneticDetachDemo : Demo<Unit> {
         }
     }
 
-    @Composable override fun rememberDefaultConfig() {}
+    @Composable
+    override fun rememberDefaultConfig(): Config = remember { Config(enableHaptics = false) }
 
     override val visualizationInputRange: ClosedFloatingPointRange<Float>
         get() = inputRange
 
-    @Composable override fun ColumnScope.ConfigUi(config: Unit, onConfigChanged: (Unit) -> Unit) {}
+    @Composable
+    override fun ColumnScope.ConfigUi(config: Config, onConfigChanged: (Config) -> Unit) {
+
+        LabelledCheckbox(
+            "Haptics",
+            config.enableHaptics,
+            onCheckedChange = { onConfigChanged(config.copy(enableHaptics = it)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 
     override val identifier: String = "MagneticDetach"
+
+    data class Config(val enableHaptics: Boolean)
 }

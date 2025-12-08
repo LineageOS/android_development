@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {utf8Encode} from 'common/string_utils';
+import {assertDefined} from 'common/assert';
+import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {perfetto} from 'protos/perfetto/trace/static';
 import root from 'protos/protolog/udc/json';
 import {com} from 'protos/protolog/udc/static';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {TraceType} from 'trace_api/trace_type';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import configJson32 from '../../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
 import configJson64 from '../../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';

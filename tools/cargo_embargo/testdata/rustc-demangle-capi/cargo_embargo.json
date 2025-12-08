@@ -6,6 +6,7 @@
     "com.android.art"
   ],
   "min_sdk_version": "S",
+  "sdk_version": "29",
   "native_bridge_supported": true,
   "package": {
     "rustc-demangle-capi": {

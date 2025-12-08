@@ -232,7 +232,7 @@ describe('PropertyTreeBuilderFromProto', () => {
       .setData(proto)
       .setDenyList(['children', 'timestamp'])
       .build();
-    expect(tree.getAllChildren().length).toEqual(2);
+    expect(tree.getAllChildren().length).toBe(2);
 
     expect(tree.getChildByName('id')).toBeDefined();
     expect(tree.getChildByName('timestamp')).toBeUndefined();

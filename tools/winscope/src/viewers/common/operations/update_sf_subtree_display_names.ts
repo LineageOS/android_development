@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Operation} from 'trace/tree_node/operations/operation';
+import {Operation} from 'tree_node/operation';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 
 export class UpdateSfSubtreeDisplayNames

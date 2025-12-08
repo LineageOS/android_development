@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makeUiHierarchyNode} from 'test/unit/ui_tree_node_utils';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {SimplifyNames} from './simplify_names';
 
@@ -27,13 +27,13 @@ describe('SimplifyNames', () => {
   });
 
   it('shortens long names', () => {
-    hierarchyRoot = TreeNodeUtils.makeUiHierarchyNode({
+    hierarchyRoot = makeUiHierarchyNode({
       id: 'test',
       name: 'root',
     });
 
     for (let i = 0; i < 10; i++) {
-      const child = TreeNodeUtils.makeUiHierarchyNode({
+      const child = makeUiHierarchyNode({
         id: i,
         name: 'node' + '.child'.repeat(10),
       });
@@ -44,18 +44,18 @@ describe('SimplifyNames', () => {
     hierarchyRoot
       .getAllChildren()
       .forEach((child) =>
-        expect(child.getDisplayName()).toEqual('node.child.(...).child'),
+        expect(child.getDisplayName()).toBe('node.child.(...).child'),
       );
   });
 
   it('does not change already short names', () => {
-    hierarchyRoot = TreeNodeUtils.makeUiHierarchyNode({
+    hierarchyRoot = makeUiHierarchyNode({
       id: 'test',
       name: 'root',
     });
 
     for (let i = 0; i < 10; i++) {
-      const child = TreeNodeUtils.makeUiHierarchyNode({
+      const child = makeUiHierarchyNode({
         id: i,
         name: 'node.child',
       });
@@ -65,6 +65,6 @@ describe('SimplifyNames', () => {
     operation.apply(hierarchyRoot);
     hierarchyRoot
       .getAllChildren()
-      .forEach((child) => expect(child.getDisplayName()).toEqual('node.child'));
+      .forEach((child) => expect(child.getDisplayName()).toBe('node.child'));
   });
 });

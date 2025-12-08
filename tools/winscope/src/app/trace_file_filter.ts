@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FileUtils} from 'common/file_utils';
-import {FunctionUtils} from 'common/function_utils';
-import {utf8Decode} from 'common/string_utils';
+import {assertDefined} from 'common/assert';
+import {getFileDirectory, isZipFile, unzipFile} from 'common/io';
+import {utf8Decode} from 'common/string_helpers';
 import {TimezoneInfo} from 'common/time/time';
-import {UserNotifier} from 'common/user_notifier';
+import {Analytics} from 'logging/analytics';
 import {UserWarning} from 'messaging/user_warning';
-import {MissingPersistentTrace, TraceOverridden} from 'messaging/user_warnings';
+import {
+  MissingPersistentTrace,
+  NoValidFiles,
+  TraceOverridden,
+  UnsupportedFileFormat,
+} from 'messaging/user_warnings';
 import {
   BugreportFileSelectionRequest,
   WinscopeEvent,
@@ -32,29 +36,78 @@ import {
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+import {FileAndParser} from 'parsers/file_and_parser';
+import {FileAndParsers} from 'parsers/file_and_parsers';
+import {ProcessedFiles} from 'parsers/legacy/parser_factory';
+import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
-import {TraceMetadata} from 'trace/trace_metadata';
+import {TraceMetadata} from 'trace_api/trace_metadata';
 
+/**
+ * The build type of the Android device that generated the bugreport.
+ */
 export enum BuildType {
+  /**
+   * A user build of the Android device.
+   */
   USER = 'user',
+
+  /**
+   * A userdebug build of the Android device.
+   */
   USERDEBUG = 'userdebug',
+
+  /**
+   * An eng build of the Android device.
+   */
   ENG = 'eng',
 }
 
+/**
+ * Metadata extracted from a bugreport.
+ */
 export interface BugreportData {
   timezoneInfo?: TimezoneInfo;
   buildType?: BuildType;
   isPersistentTracingEnabled: boolean;
 }
 
-export interface FilterResult {
+/**
+ * The result of parsing a set of files.
+ */
+export interface ParsedFiles {
+  legacy: FileAndParser[];
+  perfetto: FileAndParsers | undefined;
+  criticalWarnings?: UserWarning[];
+}
+
+interface FilterResult {
   legacy: TraceFile[];
   metadata: TraceMetadata;
-  perfetto?: TraceFile;
+  perfetto: TraceFile[];
   timezoneInfo?: TimezoneInfo;
   criticalWarnings?: UserWarning[];
 }
 
+type ParsePerfettoFileStrategy = (
+  file: TraceFile,
+) => Promise<FileAndParsers | undefined>;
+
+/**
+ * A strategy for parsing legacy files.
+ */
+export type ParseLegacyFilesStrategy = (
+  files: TraceFile[],
+  metadata: TraceMetadata,
+  timezoneInfo?: TimezoneInfo,
+) => Promise<ProcessedFiles>;
+
+/**
+ * A filter for trace files.
+ *
+ * The filter identifies the type of each file and, if applicable, extracts metadata from it.
+ * The filter is also responsible for parsing the files and returning the corresponding parsers.
+ */
 export class TraceFileFilter
   implements WinscopeEventListener, WinscopeEventEmitter
 {
@@ -77,7 +130,7 @@ export class TraceFileFilter
     '.perfetto',
   ];
 
-  private emitEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitEvent: EmitEvent = () => Promise.resolve();
   private selectedFile: string | undefined;
 
   setEmitEvent(callback: EmitEvent) {
@@ -93,7 +146,71 @@ export class TraceFileFilter
     );
   }
 
-  async filter(files: TraceFile[]): Promise<FilterResult> {
+  async filterAndParse(
+    files: TraceFile[],
+    tryParseLegacy: ParseLegacyFilesStrategy,
+    tryParsePerfetto: ParsePerfettoFileStrategy,
+  ): Promise<ParsedFiles> {
+    const startTimeMs = Date.now();
+
+    const {result, isBugreport} = await this.filterWithoutParsing(files);
+
+    const size = result.legacy
+      .concat(result.perfetto)
+      .reduce((totalSize, f) => (totalSize += f.file.size), 0);
+
+    if (isBugreport) {
+      Analytics.Loading.logFileExtractionTime(
+        'bugreport',
+        Date.now() - startTimeMs,
+        size,
+      );
+    }
+
+    if (result.perfetto.length === 0 && result.legacy.length === 0) {
+      UserNotifier.add(new NoValidFiles());
+      return {
+        perfetto: undefined,
+        legacy: [],
+        criticalWarnings: result.criticalWarnings,
+      };
+    }
+
+    const {parsers: legacyParsers, unsupportedFiles} = await tryParseLegacy(
+      result.legacy,
+      result.metadata,
+      result.timezoneInfo,
+    );
+
+    let perfettoParsers: FileAndParsers | undefined;
+
+    const largestPerfettoFile = this.pickLargestFile(result.perfetto);
+
+    if (largestPerfettoFile) {
+      perfettoParsers = await tryParsePerfetto(largestPerfettoFile);
+      unsupportedFiles.forEach((file) => {
+        UserNotifier.add(new UnsupportedFileFormat(file.getDescriptor()));
+      });
+    } else {
+      unsupportedFiles.sort((a, b) => b.file.size - a.file.size);
+      for (const file of unsupportedFiles) {
+        perfettoParsers = await tryParsePerfetto(file);
+        if (perfettoParsers) {
+          break;
+        }
+      }
+    }
+
+    return {
+      legacy: legacyParsers,
+      perfetto: perfettoParsers,
+      criticalWarnings: result.criticalWarnings,
+    };
+  }
+
+  private async filterWithoutParsing(
+    files: TraceFile[],
+  ): Promise<{result: FilterResult; isBugreport: boolean}> {
     const bugreportMainEntry = files.find((file) =>
       file.file.name.endsWith('main_entry.txt'),
     );
@@ -110,12 +227,12 @@ export class TraceFileFilter
     );
 
     if (!isBugReportArchive) {
-      const perfettoFile = this.pickLargestFile(perfettoFiles);
-      return {
-        perfetto: perfettoFile,
+      const result = {
+        perfetto: perfettoFiles,
         legacy: legacyFiles,
         metadata,
       };
+      return {result, isBugreport: false};
     }
 
     const bugreportData = await this.getBugreportData(
@@ -123,13 +240,14 @@ export class TraceFileFilter
       files,
     );
 
-    return await this.filterBugreport(
+    const result = await this.filterBugreport(
       assertDefined(bugreportMainEntry),
       perfettoFiles,
       legacyFiles,
       metadata,
       bugreportData,
     );
+    return {result, isBugreport: true};
   }
 
   private async getBugreportData(
@@ -252,9 +370,9 @@ export class TraceFileFilter
     const unzippedLegacyFiles: TraceFile[] = [];
 
     for (const file of legacyFiles) {
-      if (await FileUtils.isZipFile(file.file)) {
+      if (await isZipFile(file.file)) {
         try {
-          const subFiles = await FileUtils.unzipFile(file.file);
+          const subFiles = await unzipFile(file.file);
           const subTraceFiles = subFiles.map((subFile) => {
             return new TraceFile(subFile, file.file);
           });
@@ -268,7 +386,7 @@ export class TraceFileFilter
     }
     const brPerfettoFiles = perfettoFiles.filter(
       (file) =>
-        FileUtils.getFileDirectory(file.file.name) ===
+        getFileDirectory(file.file.name) ===
         TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR,
     );
 
@@ -314,7 +432,7 @@ export class TraceFileFilter
     }
 
     return {
-      perfetto: perfettoFile,
+      perfetto: perfettoFile ? [perfettoFile] : [],
       legacy: unzippedLegacyFiles,
       metadata,
       timezoneInfo: bugreportData?.timezoneInfo,
@@ -354,7 +472,7 @@ export class TraceFileFilter
           mFiles.push(file);
           break;
         }
-      } catch (e) {
+      } catch {
         // swallow - looking for metadata json
       }
     }

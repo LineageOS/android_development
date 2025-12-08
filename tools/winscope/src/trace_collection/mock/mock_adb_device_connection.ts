@@ -34,12 +34,18 @@ export class MockAdbDeviceConnection extends AdbDeviceConnection {
     listener: AdbDeviceConnectionListener,
     displays: string[] = [],
     multiDisplayScreenRecording = false,
+    protologGroups: string[] = [],
   ) {
     super(id, listener);
     this.state = state;
     this.model = model;
     this.displays = displays;
     this.multiDisplayScreenRecording = multiDisplayScreenRecording;
+    this.protologGroups = protologGroups;
+  }
+
+  updateState(value: AdbDeviceState) {
+    this.state = value;
   }
 
   override async startTrace(target: TraceTarget) {}

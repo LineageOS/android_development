@@ -34,7 +34,7 @@ export class DialogContentComponent {
   }
 
   // invocationIdentifier could either be the invocation url or just the invocation id
-  getInvocationId(invocationIdentifier : String) : String {
+  getInvocationId(invocationIdentifier : string) : string {
     if (invocationIdentifier.startsWith("http")) {
     const parts: string[] = invocationIdentifier.split('/')
     const keyword = "invocation";

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {getTrace} from 'test/unit/fixture_utils';
-import {CustomQueryType} from 'trace/custom_query';
-import {TraceType} from 'trace/trace_type';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {TraceType} from 'trace_api/trace_type';
 
 describe('WmCustomQueryUtils', () =>
   (async () => {
@@ -28,7 +28,7 @@ describe('WmCustomQueryUtils', () =>
         .sliceEntries(0, 1)
         .customQuery(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE);
 
-      expect(tokenAndTitles.length).toEqual(69);
+      expect(tokenAndTitles.length).toBe(69);
 
       // RootWindowContainerProto
       expect(tokenAndTitles).toContain({

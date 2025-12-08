@@ -22,7 +22,7 @@ describe('CoordinatesTableComponent', () => {
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CoordinatesTableComponent],
+      imports: [CoordinatesTableComponent],
     }).compileComponents();
   });
 

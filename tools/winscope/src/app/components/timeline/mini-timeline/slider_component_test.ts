@@ -16,7 +16,7 @@
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ChangeDetectionStrategy} from '@angular/core';
-import {fakeAsync, TestBed} from '@angular/core/testing';
+import {TestBed, discardPeriodicTasks, fakeAsync} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -24,12 +24,15 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
+import {assertDefined} from 'common/assert';
 import {TimeRange} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {TracePosition} from 'trace/trace_position';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
+import {TracePosition} from 'trace_api/trace_position';
 import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';
 
 describe('SliderComponent', () => {
@@ -37,16 +40,17 @@ describe('SliderComponent', () => {
   let dom: DOMTestHelper<SliderComponent>;
   const leftCropperSelector = '.slider .cropper.left';
   const rightCropperSelector = '.slider .cropper.right';
-  const time100 = TimestampConverterUtils.makeRealTimestamp(100n);
-  const time125 = TimestampConverterUtils.makeRealTimestamp(125n);
-  const time126 = TimestampConverterUtils.makeRealTimestamp(126n);
-  const time150 = TimestampConverterUtils.makeRealTimestamp(150n);
-  const time175 = TimestampConverterUtils.makeRealTimestamp(175n);
-  const time200 = TimestampConverterUtils.makeRealTimestamp(200n);
+  const time100 = makeRealTimestamp(100n);
+  const time125 = makeRealTimestamp(125n);
+  const time126 = makeRealTimestamp(126n);
+  const time150 = makeRealTimestamp(150n);
+  const time175 = makeRealTimestamp(175n);
+  const time200 = makeRealTimestamp(200n);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        NoopAnimationsModule,
         FormsModule,
         MatButtonModule,
         MatFormFieldModule,
@@ -57,8 +61,8 @@ describe('SliderComponent', () => {
         ReactiveFormsModule,
         BrowserAnimationsModule,
         DragDropModule,
+        SliderComponent,
       ],
-      declarations: [SliderComponent],
     })
       .overrideComponent(SliderComponent, {
         set: {changeDetection: ChangeDetectionStrategy.Default},
@@ -70,7 +74,7 @@ describe('SliderComponent', () => {
     component.fullRange = new TimeRange(time100, time200);
     component.zoomRange = new TimeRange(time125, time175);
     component.currentPosition = TracePosition.fromTimestamp(time150);
-    component.timestampConverter = TimestampConverterUtils.TIMESTAMP_CONVERTER;
+    component.timestampConverter = UTC_CONVERTER;
     dom.detectChanges();
   });
 
@@ -90,12 +94,14 @@ describe('SliderComponent', () => {
     });
     dom.detectChanges();
 
-    const sliderWidth = component.sliderBox.nativeElement.offsetWidth;
+    const sliderWidth = assertDefined(component.sliderBox).nativeElement
+      .offsetWidth;
     expect(component.sliderWidth).toEqual(sliderWidth / 2);
     expect(component.dragPosition.x).toEqual(sliderWidth / 4);
   });
 
   it('has min width', () => {
+    dom.getHTMLElement().style.width = '1600px';
     component.fullRange = new TimeRange(time100, time200);
     component.zoomRange = new TimeRange(time125, time126);
 
@@ -110,7 +116,8 @@ describe('SliderComponent', () => {
     });
     dom.detectChanges();
 
-    const sliderWidth = component.sliderBox.nativeElement.offsetWidth;
+    const sliderWidth = assertDefined(component.sliderBox).nativeElement
+      .offsetWidth;
     expect(component.sliderWidth).toEqual(MIN_SLIDER_WIDTH);
     expect(component.dragPosition.x).toEqual(
       sliderWidth / 4 - MIN_SLIDER_WIDTH / 2,
@@ -124,12 +131,9 @@ describe('SliderComponent', () => {
     const initialSliderXPos = slider.getBoundingClientRect().left;
     const initialCursorXPos = cursor.getBoundingClientRect().left;
 
-    spyOnProperty(
-      component.sliderBox.nativeElement,
-      'offsetWidth',
-      'get',
-    ).and.returnValue(100);
-    expect(component.sliderBox.nativeElement.offsetWidth).toEqual(100);
+    const box = assertDefined(component.sliderBox);
+    spyOnProperty(box.nativeElement, 'offsetWidth', 'get').and.returnValue(100);
+    expect(box.nativeElement.offsetWidth).toBe(100);
 
     slider.style.width = '587px';
     window.dispatchEvent(new Event('resize'));
@@ -159,7 +163,7 @@ describe('SliderComponent', () => {
     );
   });
 
-  it('moving slider around updates zoom', fakeAsync(async () => {
+  it('moving slider around updates zoom', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
@@ -178,12 +182,12 @@ describe('SliderComponent', () => {
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
     expect(finalZoom.from).not.toEqual(initialZoom.from);
     expect(finalZoom.to).not.toEqual(initialZoom.to);
-    expect(
-      finalZoom.to.minus(finalZoom.from.getValueNs()).getValueNs(),
-    ).toEqual(initialZoom.to.minus(initialZoom.from.getValueNs()).getValueNs());
-  }));
+    expect(finalZoom.to.minus(finalZoom.from).getValueNs()).toEqual(
+      initialZoom.to.minus(initialZoom.from).getValueNs(),
+    );
+  });
 
-  it('moving slider left pointer around updates zoom', fakeAsync(async () => {
+  it('moving slider left pointer around updates zoom', fakeAsync(() => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
@@ -203,6 +207,7 @@ describe('SliderComponent', () => {
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
     expect(finalZoom.from).not.toBe(initialZoom.from);
     expect(finalZoom.to).toBe(initialZoom.to);
+    discardPeriodicTasks();
   }));
 
   it('moving slider right pointer around updates zoom', fakeAsync(async () => {
@@ -225,6 +230,7 @@ describe('SliderComponent', () => {
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
     expect(finalZoom.from).toBe(initialZoom.from);
     expect(finalZoom.to).not.toBe(initialZoom.to);
+    discardPeriodicTasks();
   }));
 
   it('cannot slide left cropper past edges', fakeAsync(() => {
@@ -246,8 +252,9 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
+    discardPeriodicTasks();
   }));
 
   it('cannot slide right cropper past edges', fakeAsync(() => {
@@ -269,8 +276,9 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
+    discardPeriodicTasks();
   }));
 
   it('cannot slide left cropper past right cropper', fakeAsync(() => {
@@ -292,8 +300,9 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
+    discardPeriodicTasks();
   }));
 
   it('cannot slide right cropper past left cropper', fakeAsync(() => {
@@ -315,11 +324,12 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
+    discardPeriodicTasks();
   }));
 
-  it('cannot move slider past edges', fakeAsync(() => {
+  it('cannot move slider past edges', () => {
     component.zoomRange = component.fullRange;
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
@@ -338,11 +348,11 @@ describe('SliderComponent', () => {
     expect(zoomChangedSpy).toHaveBeenCalled();
 
     const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
-  }));
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
+  });
 
   function checkVisible(element: HTMLElement) {
-    expect(window.getComputedStyle(element).visibility).toEqual('visible');
+    expect(window.getComputedStyle(element).visibility).toBe('visible');
   }
 });

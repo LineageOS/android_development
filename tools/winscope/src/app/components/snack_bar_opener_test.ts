@@ -40,8 +40,7 @@ describe('SnackBarOpener', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [SnackBarOpener, MatSnackBar, Overlay],
-      imports: [BrowserAnimationsModule, ClipboardModule],
-      declarations: [SnackBarComponent],
+      imports: [SnackBarComponent, BrowserAnimationsModule, ClipboardModule],
     });
     snackBarOpener = TestBed.inject(SnackBarOpener);
     snackBar = TestBed.inject(MatSnackBar);

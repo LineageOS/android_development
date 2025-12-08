@@ -21,9 +21,11 @@ import static android.Manifest.permission.ADD_TRUSTED_DISPLAY;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.companion.virtual.VirtualDeviceManager.VirtualDevice;
+import android.companion.virtualdevice.flags.Flags;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.hardware.display.DisplayManager;
@@ -89,13 +91,11 @@ class RemoteDisplay implements AutoCloseable {
     // Froce lower DPI on desktop displays to simulate large screen experience.
     private static final int MAX_DESKTOP_DPI = 180;
 
-    private static final int DEFAULT_VIRTUAL_DISPLAY_FLAGS =
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_TRUSTED
-                    | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC
-                    | DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY;
-
     private static final float DEFAULT_CLIENT_BRIGHTNESS = 0.3f;
     private static final float DIM_CLIENT_BRIGHTNESS = 0.15f;
+
+    private static final int NO_UI_MODE_OVERRIDE =
+             Configuration.UI_MODE_TYPE_UNDEFINED | Configuration.UI_MODE_NIGHT_UNDEFINED;
 
     static final int DISPLAY_TYPE_APP = 0;
     static final int DISPLAY_TYPE_HOME = 1;
@@ -177,12 +177,19 @@ class RemoteDisplay implements AutoCloseable {
 
         setCapabilities(width, height, dpi);
 
-        int flags = DEFAULT_VIRTUAL_DISPLAY_FLAGS;
+        int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_TRUSTED;
+        if (mPreferenceController.getBoolean(R.string.pref_public_displays)) {
+            flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC
+                    | DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY;
+        }
         if (mPreferenceController.getBoolean(R.string.pref_enable_display_rotation)) {
             flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_ROTATES_WITH_CONTENT;
         }
         if (mDisplayType == DISPLAY_TYPE_MIRROR) {
             flags &= ~DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY;
+            if (!mPreferenceController.getBoolean(R.string.pref_public_displays)) {
+                flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR;
+            }
         }
         if (mContext.checkCallingOrSelfPermission(ADD_TRUSTED_DISPLAY)
                 == PackageManager.PERMISSION_DENIED) {
@@ -231,6 +238,23 @@ class RemoteDisplay implements AutoCloseable {
                 mVirtualDevice,
                 getDisplayId(),
                 mPreferenceController.getInt(R.string.pref_display_ime_policy));
+
+        if (mDisplayType != DISPLAY_TYPE_MIRROR
+                && (flags & DisplayManager.VIRTUAL_DISPLAY_FLAG_TRUSTED) > 0
+                && Flags.deviceAwareUiMode()) {
+            int uiMode = NO_UI_MODE_OVERRIDE;
+            if (mPreferenceController.getBoolean(R.string.pref_custom_ui_mode)) {
+                uiMode |= (Configuration.UI_MODE_TYPE_MASK & Configuration.UI_MODE_TYPE_APPLIANCE);
+            }
+            int nightMode = Integer.decode(
+                    mPreferenceController.getString(R.string.pref_night_mode));
+            if (nightMode != Configuration.UI_MODE_NIGHT_UNDEFINED) {
+                uiMode |= (Configuration.UI_MODE_NIGHT_MASK & Configuration.UI_MODE_NIGHT_YES);
+            }
+            if (uiMode != NO_UI_MODE_OVERRIDE) {
+                virtualDevice.setDisplayUiMode(getDisplayId(), uiMode);
+            }
+        }
 
         mDpad =
                 virtualDevice.createVirtualDpad(

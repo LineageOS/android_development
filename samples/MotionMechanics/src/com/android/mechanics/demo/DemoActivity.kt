@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.android.compose.theme.PlatformTheme
 
 class DemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,11 +30,17 @@ class DemoActivity : ComponentActivity() {
         window.setDecorFitsSystemWindows(false)
 
         setContent {
-            PlatformTheme {
+            MaterialTheme {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    MechanicsDemo()
+                    MechanicsDemo(intent.getStringExtra(DEBUG_START_DESTINATION))
                 }
             }
         }
+    }
+
+    companion object {
+        // Launch flags:
+        // --es debug_start_destination "<DEMO_IDENTIFIER>"
+        const val DEBUG_START_DESTINATION = "debug_start_destination"
     }
 }

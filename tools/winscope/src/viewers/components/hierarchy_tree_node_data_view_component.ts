@@ -13,22 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {Chip} from 'viewers/common/chip';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {hierarchyTreeNodeDataViewStyles} from 'viewers/components/styles/tree_node_data_view.styles';
 
 @Component({
   selector: 'hierarchy-tree-node-data-view',
+  standalone: true,
+  imports: [CommonModule, MatTooltipModule],
   template: `
-    <span class="mat-body-1" *ngIf="node">
-      <span class="mat-body-2" *ngIf="node.heading()">{{ node.heading() }}</span>
-      <ng-container *ngIf="node.heading()">&ngsp;-&ngsp;</ng-container>
-      <span class="display-name" [matTooltip]="getNameTooltip()" [matTooltipShowDelay]="300">{{ node.getDisplayName() }}</span>
-      <div *ngFor="let chip of node.getChips()" [class]="chipClass(chip)" [matTooltip]="chip.long">
-        {{ chip.short }}
-      </div>
-    </span>
+    @if (node) {
+      <span class="mat-body-1">
+        @if (node.heading()) {
+          <span class="mat-body-2">{{ node.heading() }}</span>
+        }
+        @if (node.heading()) {
+          &ngsp;-&ngsp;
+        }
+        <span class="display-name" [matTooltip]="getNameTooltip()" [matTooltipShowDelay]="300">{{ node.getDisplayName() }}</span>
+        @for (chip of node.getChips(); track chip.short) {
+          <div [class]="chipClass(chip)" [matTooltip]="chip.long">
+            {{ chip.short }}
+          </div>
+        }
+      </span>
+    }
   `,
   styles: [hierarchyTreeNodeDataViewStyles],
 })

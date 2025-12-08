@@ -123,9 +123,7 @@ impl<State: ManagedCrateState> ManagedCrate<State> {
         let mut patches = Vec::new();
         let patch_dir = self.patch_dir();
         if patch_dir.abs().exists() {
-            for entry in
-                read_dir(&patch_dir).context(format!("Failed to read_dir {}", patch_dir))?
-            {
+            for entry in read_dir(&patch_dir).context(format!("Failed to read_dir {patch_dir}"))? {
                 let entry = entry?;
                 if entry.file_name() == "Android.bp.patch"
                     || entry.file_name() == "Android.bp.diff"
@@ -254,7 +252,7 @@ impl ManagedCrate<Vendored> {
     fn copy_to_temporary_build_directory(&self) -> Result<()> {
         let build_dir = self.temporary_build_directory();
         ensure_exists_and_empty(&build_dir)?;
-        remove_dir_all(&build_dir).context(format!("Failed to remove {}", build_dir))?;
+        remove_dir_all(&build_dir).context(format!("Failed to remove {build_dir}"))?;
         copy_dir(self.extra.vendored_crate.path(), &build_dir).context(format!(
             "Failed to copy {} to {}",
             self.extra.vendored_crate.path(),

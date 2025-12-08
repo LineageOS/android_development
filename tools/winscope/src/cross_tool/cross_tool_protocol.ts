@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertUnreachable} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {assertDefined, assertUnreachable} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {RemoteToolTimestampConverter} from 'common/time/timestamp_converter';
 import {
@@ -34,6 +33,7 @@ import {
   MessageBugReport,
   MessageFiles,
   MessagePong,
+  MessageTestFailureInfo,
   MessageTimestamp,
   MessageType,
   TimestampType,
@@ -43,14 +43,20 @@ import {OriginAllowList} from './origin_allow_list';
 class RemoteTool {
   timestampType?: TimestampType;
 
-  constructor(readonly window: Window, readonly origin: string) {}
+  constructor(
+    readonly window: Window,
+    readonly origin: string,
+  ) {}
 }
 
+/**
+ * A protocol for communication between Winscope and other tools.
+ */
 export class CrossToolProtocol
   implements WinscopeEventEmitter, WinscopeEventListener
 {
   private remoteTool?: RemoteTool;
-  private emitEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitEvent: EmitEvent = () => Promise.resolve();
   private timestampConverter: RemoteToolTimestampConverter;
   private allowTimestampSync = true;
 
@@ -109,6 +115,12 @@ export class CrossToolProtocol
 
   private async onMessageReceived(event: MessageEvent) {
     if (!OriginAllowList.isAllowed(event.origin)) {
+      if (!OriginAllowList.isUnauthorizedOriginExpected(event.origin)) {
+        console.warn(
+          'Cross-tool protocol received message from unauthorized origin:',
+          event.origin,
+        );
+      }
       return;
     }
 
@@ -152,8 +164,17 @@ export class CrossToolProtocol
         console.log('Cross-tool protocol received files message:', message);
         await this.onMessageFilesReceived(message as MessageFiles);
         console.log('Cross-tool protocol processed files message:', message);
+        break;
+      case MessageType.TEST_FAILURE_INFO:
         console.log(
-          'Cross-tool protocol received unexpected files message',
+          'Cross-tool protocol received debug info message:',
+          message,
+        );
+        await this.onMessageDebugInfoReceived(
+          message as MessageTestFailureInfo,
+        );
+        console.log(
+          'Cross-tool protocol processed debug info message:',
           message,
         );
         break;
@@ -199,6 +220,40 @@ export class CrossToolProtocol
     );
   }
 
+  private async onMessageDebugInfoReceived(message: MessageTestFailureInfo) {
+    if (message.stackTrace) {
+      const timestampNs = this.extractUnixTimestampFromStacktrace(
+        message.stackTrace,
+      );
+
+      if (timestampNs === undefined) {
+        return;
+      }
+
+      const deferredTimestamp = this.makeDeferredTimestampForWinscope(
+        timestampNs,
+        TimestampType.CLOCK_REALTIME,
+      );
+      await this.emitEvent(
+        new RemoteToolTimestampReceived(assertDefined(deferredTimestamp)),
+      );
+    }
+  }
+
+  private extractUnixTimestampFromStacktrace(
+    stackTrace: string,
+  ): bigint | undefined {
+    const whereMatch = stackTrace.match(/Where\?\r?\n?\s*(.*)/);
+    if (!whereMatch) {
+      return undefined;
+    }
+    const whereSection = whereMatch[1];
+    const timestampMatch = whereSection.match(
+      /Timestamp\(UNIX=\d+-\d+-\d+T\d+:\d+:\d+\.\d+\((\d+)ns\),/,
+    );
+    return timestampMatch ? BigInt(timestampMatch[1]) : undefined;
+  }
+
   private setRemoteToolTimestampTypeIfNeeded(type: TimestampType | undefined) {
     const remoteTool = assertDefined(this.remoteTool);
 
@@ -236,8 +291,10 @@ export class CrossToolProtocol
   // to instantiate timestamps.
   private makeDeferredTimestampForWinscope(
     timestampNs: bigint | undefined,
+    timestampType?: TimestampType | undefined,
   ): (() => Timestamp | undefined) | undefined {
-    const timestampType = assertDefined(this.remoteTool?.timestampType);
+    timestampType =
+      timestampType ?? assertDefined(this.remoteTool?.timestampType);
 
     if (timestampNs === undefined || timestampType === undefined) {
       return undefined;
@@ -252,7 +309,7 @@ export class CrossToolProtocol
             return this.timestampConverter.makeTimestampFromBootTimeNs(
               timestampNs,
             );
-          } catch (error) {
+          } catch {
             return undefined;
           }
         };
@@ -260,7 +317,7 @@ export class CrossToolProtocol
         return () => {
           try {
             return this.timestampConverter.makeTimestampFromRealNs(timestampNs);
-          } catch (error) {
+          } catch {
             return undefined;
           }
         };

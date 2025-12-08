@@ -22,6 +22,7 @@ export const userOptionStyle = `
     padding: 0 10px;
     margin-inline-end: 10px;
     min-width: fit-content;
+    height: 24px;
   }
   .user-option.not-enabled {
     background-color: var(--disabled-color);

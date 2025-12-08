@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {FunctionUtils} from 'common/function_utils';
 import {MakeTimestampStrategyType} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace/trace';
+import {Trace, TraceEntry} from 'trace_api/trace';
 import {
   ColumnType,
   QueryResult,
-  RowIteratorBase,
+  RowIterator,
 } from 'trace_processor/query_result';
 import {
   AbstractLogViewerPresenter,
@@ -52,7 +51,7 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
   onDestroy() {
     // until presenter is garbage collected it may still receive events
     // so we must make sure it can no longer affect ui data
-    this.notifyViewChanged = FunctionUtils.DO_NOTHING;
+    this.notifyViewChanged = () => {};
   }
 
   protected override makeHeaders(): LogHeader[] {
@@ -89,20 +88,17 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
 
   private makeLogEntry(
     headers: LogHeader[],
-    it: RowIteratorBase,
+    it: RowIterator,
     i: number,
     traceEntry: TraceEntry<QueryResult>,
   ): LogEntry {
     const fields: LogField[] = [];
     for (const header of headers) {
       const value = it.get(header.spec.name);
-      let fieldValue = this.tryMakeEntryTsFieldValue(header, i);
-      if (fieldValue === undefined) {
-        fieldValue = this.tryMakeTsFieldValue(headers, it, header, value);
-      }
-      if (fieldValue === undefined) {
-        fieldValue = this.convertToLogFieldValue(value);
-      }
+      const fieldValue =
+        this.tryMakeEntryTsFieldValue(header, i) ??
+        this.tryMakeTsFieldValue(headers, it, header, value) ??
+        this.convertToLogFieldValue(value);
       fields.push({
         spec: header.spec,
         value: fieldValue,
@@ -130,9 +126,9 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
 
   private tryMakeTsFieldValue(
     headers: LogHeader[],
-    it: RowIteratorBase,
+    it: RowIterator,
     header: LogHeader,
-    value: ColumnType | null,
+    value: ColumnType | undefined,
   ): LogFieldValue | undefined {
     if (
       header.spec.name === 'value' &&
@@ -147,20 +143,26 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
         }
       }
     }
+    if (
+      header.spec.name.startsWith('ts') &&
+      (typeof value === 'number' || typeof value === 'bigint') &&
+      value > 0
+    ) {
+      return this.makeTimestampStrategy(BigInt(value));
+    }
     return undefined;
   }
 
-  private convertToLogFieldValue(value: ColumnType | null): LogFieldValue {
-    let displayValue: LogFieldValue;
+  private convertToLogFieldValue(value: ColumnType): LogFieldValue {
     if (value === null) {
-      displayValue = 'NULL';
-    } else if (typeof value === 'bigint') {
-      displayValue = Number(value);
-    } else if (value instanceof Uint8Array) {
-      displayValue = '[]';
-    } else {
-      displayValue = value;
+      return 'NULL';
     }
-    return displayValue;
+    if (typeof value === 'bigint') {
+      return Number(value);
+    }
+    if (value instanceof Uint8Array) {
+      return '[]';
+    }
+    return value;
   }
 }

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const path = require('path');
+const {merge} = require('webpack-merge');
 const webpackConfig = require('./webpack.config.common');
-delete webpackConfig.entry;
-delete webpackConfig.output;
+const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 module.exports = (config) => {
   config.set({
@@ -29,6 +28,22 @@ module.exports = (config) => {
     ],
     files: [
       {pattern: 'src/main_unit_test.ts', watched: false},
+      {pattern: 'src/logo_light_mode.svg', included: false, served: true},
+      {
+        pattern: 'src/app/components/trackpad_right_click.svg',
+        included: false,
+        served: true,
+      },
+      {
+        pattern: 'src/app/components/trackpad_vertical_scroll.svg',
+        included: false,
+        served: true,
+      },
+      {
+        pattern: 'src/app/components/trackpad_horizontal_scroll.svg',
+        included: false,
+        served: true,
+      },
       {pattern: 'src/test/fixtures/**/*', included: false, served: true},
       {
         pattern: 'deps_build/trace_processor/to_be_served/engine_bundle.js',
@@ -48,10 +63,26 @@ module.exports = (config) => {
       },
     ],
     reporters: ['progress'],
+    proxies: {
+      '/logo_light_mode.svg': '/base/src/logo_light_mode.svg',
+      '/trackpad_right_click.svg':
+        '/base/src/app/components/trackpad_right_click.svg',
+      '/trackpad_vertical_scroll.svg':
+        '/base/src/app/components/trackpad_vertical_scroll.svg',
+      '/trackpad_horizontal_scroll.svg':
+        '/base/src/app/components/trackpad_horizontal_scroll.svg',
+    },
     preprocessors: {
       'src/main_unit_test.ts': ['webpack', 'sourcemap'],
     },
     verbose: true, // output config used by istanbul for debugging
-    webpack: webpackConfig,
+    webpack: merge(webpackConfig, {
+      plugins: [
+        new AngularWebpackPlugin({
+          tsconfig: 'tsconfig.karma.json',
+          jitMode: '@angular/compiler',
+        }),
+      ],
+    }),
   });
 };

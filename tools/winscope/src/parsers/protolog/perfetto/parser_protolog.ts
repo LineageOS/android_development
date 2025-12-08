@@ -14,103 +14,136 @@
  * limitations under the License.
  */
 
-import {
-  assertBigIntOrUndefined,
-  assertStringOrUndefined,
-} from 'common/assert_utils';
 import {MakeTimestampStrategyType} from 'common/time/time';
-import {SetFormatters} from 'parsers/operations/set_formatters';
+import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {LogMessage} from 'parsers/protolog/log_message';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {getDistinctValues} from 'parsers/perfetto/utils';
+import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
+import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
+import {
+  CustomQueryParamTypeMap,
+  CustomQueryParserResultTypeMap,
+  CustomQueryType,
+  VisitableParserCustomQuery,
+} from 'trace_api/custom_query';
+import {EntriesRange} from 'trace_api/index_types';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
-class PerfettoLogMessageTableRow {
-  message = '<NO_MESSAGE>';
-  tag = '<NO_TAG>';
-  level = '<NO_LEVEL>';
-  location = '<NO_LOC>';
-  timestamp: bigint = 0n;
-
-  constructor(
-    timestamp: bigint | undefined,
-    tag: string | undefined,
-    level: string | undefined,
-    message: string | undefined,
-    location: string | undefined,
-  ) {
-    this.timestamp = timestamp ?? this.timestamp;
-    this.tag = tag ?? this.tag;
-    this.level = level ?? this.level;
-    this.message = message ?? this.message;
-    this.location = location ?? this.location;
-  }
-}
-
-export class ParserProtolog extends AbstractParser<PropertyTreeNode> {
+export class ParserProtolog extends AbstractParser<HierarchyTreeNode> {
   override getTraceType(): TraceType {
     return TraceType.PROTO_LOG;
   }
 
-  override async getEntry(index: number): Promise<PropertyTreeNode> {
-    const protologEntry = await this.queryEntry(index);
-    const logMessage: LogMessage = {
-      text: protologEntry.message,
-      tag: protologEntry.tag,
-      level: protologEntry.level,
-      at: protologEntry.location,
-      timestamp: protologEntry.timestamp,
-    };
+  override async getEntry(index: number): Promise<HierarchyTreeNode> {
+    const sql = `SELECT
+        ${Object.values(ProtologColumnType).join(', ')}
+      FROM
+        ${this.getTableName()} AS tbl
+      WHERE tbl.id = ${this.entryIndexToRowIdMap[index]};`;
 
-    return this.makeMessagePropertiesTree(logMessage);
+    return this.makeHierarchyTrees(sql).then((trees) => trees[0]);
+  }
+
+  override async getAllEntries(): Promise<HierarchyTreeNode[]> {
+    const sql = `SELECT
+        ${Object.values(ProtologColumnType).join(', ')}
+      FROM
+        ${this.getTableName()} AS tbl
+      ORDER BY tbl.id`;
+
+    return this.makeHierarchyTrees(sql);
+  }
+
+  override async customQuery<Q extends CustomQueryType>(
+    type: Q,
+    entriesRange: EntriesRange,
+    param?: CustomQueryParamTypeMap[Q],
+  ): Promise<CustomQueryParserResultTypeMap[Q]> {
+    return new VisitableParserCustomQuery(type)
+      .visit(CustomQueryType.LOG_TABLE_FILTER_VALUES, async () => {
+        let column: string;
+        switch (param) {
+          case ProtologColumnType.TAG:
+            column = 'tag';
+            break;
+
+          case ProtologColumnType.LEVEL:
+            column = 'level';
+            break;
+
+          case ProtologColumnType.LOCATION:
+            column = 'location';
+            break;
+
+          default:
+            throw new Error('unexpected protolog column type requested');
+        }
+        const values = await getDistinctValues(
+          this.traceProcessor,
+          this.getTableName(),
+          [column],
+          param === ProtologColumnType.LOCATION ? '<NO_LOC>' : undefined,
+        );
+
+        if (param !== ProtologColumnType.LOCATION) {
+          return values;
+        }
+
+        return Array.from(
+          new Set(
+            values.map((value) => {
+              const startOfLineNumber = value.lastIndexOf(':');
+              return startOfLineNumber === -1
+                ? value
+                : value.slice(0, startOfLineNumber);
+            }),
+          ),
+        );
+      })
+      .getResult();
   }
 
   protected override getTableName(): string {
     return 'protolog';
   }
 
-  private async queryEntry(index: number): Promise<PerfettoLogMessageTableRow> {
-    const sql = `
-      SELECT
-        ts, tag, level, location, message
-      FROM
-        protolog
-      WHERE protolog.id = ${this.entryIndexToRowIdMap[index]};
-    `;
-    const result = await this.traceProcessor.query(sql);
+  private async makeHierarchyTrees(sql: string): Promise<HierarchyTreeNode[]> {
+    const queryResult = await this.traceProcessor.query(sql);
 
-    if (result.numRows() !== 1) {
-      throw new Error(
-        `Expected exactly 1 protolog message with id ${index} but got ${result.numRows()}`,
-      );
+    const trees: HierarchyTreeNode[] = [];
+
+    for (const it = queryResult.iter({}); it.valid(); it.next()) {
+      const properties = new PropertyTreeBuilderFromQueryRow()
+        .setData(it)
+        .setColumns(['ts', 'tag', 'level', 'location', 'message'])
+        .setRootId('ProtoLogTrace')
+        .setRootName('entry')
+        .build();
+
+      const strategy: MakeTimestampStrategyType = (valueNs: bigint) => {
+        return this.timestampConverter.makeTimestampFromBootTimeNs(valueNs);
+      };
+
+      const provider = new PropertiesProviderBuilder()
+        .setEagerProperties(properties)
+        .setEagerOperations([
+          new TransformToTimestamp(['ts'], strategy),
+          new SetFormatters(),
+        ])
+        .build();
+
+      const tree = new HierarchyTreeBuilderLog()
+        .setRoot(provider)
+        .setChildren([])
+        .build();
+
+      trees.push(tree);
     }
 
-    const entry = result.iter({});
-
-    return new PerfettoLogMessageTableRow(
-      assertBigIntOrUndefined(entry.get('ts')),
-      assertStringOrUndefined(entry.get('tag')),
-      assertStringOrUndefined(entry.get('level')),
-      assertStringOrUndefined(entry.get('message')),
-      assertStringOrUndefined(entry.get('location')),
-    );
-  }
-
-  private makeMessagePropertiesTree(logMessage: LogMessage): PropertyTreeNode {
-    const tree = new PropertyTreeBuilderFromProto()
-      .setData(logMessage)
-      .setRootId('ProtoLogTrace')
-      .setRootName('entry')
-      .build();
-
-    const strategy: MakeTimestampStrategyType = (valueNs: bigint) => {
-      return this.timestampConverter.makeTimestampFromBootTimeNs(valueNs);
-    };
-
-    new TransformToTimestamp(['timestamp'], strategy).apply(tree);
-    new SetFormatters().apply(tree);
-    return tree;
+    return trees;
   }
 }

@@ -47,7 +47,6 @@ describe('TracingSession', () => {
   let target: TraceTarget;
   let startTraceSpy: jasmine.Spy;
   let endTraceSpy: jasmine.Spy;
-  let moveFilesSpy: jasmine.Spy;
   let runShellCmdSpy: jasmine.Spy;
   let findFilesSpy: jasmine.Spy;
 
@@ -66,7 +65,6 @@ describe('TracingSession', () => {
     findFilesSpy = spyOn(mockDevice, 'findFiles').and.returnValue(
       Promise.resolve(['file']),
     );
-    moveFilesSpy = spyOn(session, 'moveFiles').and.callThrough();
   });
 
   it('starts traces', async () => {
@@ -110,10 +108,10 @@ describe('TracingSession', () => {
     expect(runShellCmdSpy.calls.allArgs()).toEqual([
       ['su root id -u'],
       [
-        `[ -f file ] && cp file ${WINSCOPE_BACKUP_DIR}saved_file_1 && rm -f file`,
+        `[ -f file ] && cp -p file ${WINSCOPE_BACKUP_DIR}saved_file_1 && rm -f file`,
       ],
       [
-        `[ -f file ] && cp file ${WINSCOPE_BACKUP_DIR}saved_file_2 && rm -f file`,
+        `[ -f file ] && cp -p file ${WINSCOPE_BACKUP_DIR}saved_file_2 && rm -f file`,
       ],
     ]);
   });
@@ -129,10 +127,10 @@ describe('TracingSession', () => {
     expect(runShellCmdSpy.calls.allArgs()).toEqual([
       ['su root id -u'],
       [
-        `su root [ -f file ] && su root cp file ${WINSCOPE_BACKUP_DIR}saved_file_1 && su root rm -f file`,
+        `su root [ -f file ] && su root cp -p file ${WINSCOPE_BACKUP_DIR}saved_file_1 && su root rm -f file`,
       ],
       [
-        `su root [ -f file ] && su root cp file ${WINSCOPE_BACKUP_DIR}saved_file_2 && su root rm -f file`,
+        `su root [ -f file ] && su root cp -p file ${WINSCOPE_BACKUP_DIR}saved_file_2 && su root rm -f file`,
       ],
     ]);
   });
@@ -141,12 +139,12 @@ describe('TracingSession', () => {
     runShellCmdSpy.and.returnValue(Promise.resolve(''));
     runShellCmdSpy
       .withArgs(
-        `[ -f file ] && cp file ${WINSCOPE_BACKUP_DIR}saved_file_1 && rm -f file`,
+        `[ -f file ] && cp -p file ${WINSCOPE_BACKUP_DIR}saved_file_1 && rm -f file`,
       )
       .and.throwError(new Error());
     runShellCmdSpy
       .withArgs(
-        `[ -f file ] && cp file ${WINSCOPE_BACKUP_DIR}saved_file_2 && rm -f file`,
+        `[ -f file ] && cp -p file ${WINSCOPE_BACKUP_DIR}saved_file_2 && rm -f file`,
       )
       .and.throwError(new Error());
     await expectAsync(session.moveFiles(mockDevice)).toBeResolved();
@@ -154,7 +152,6 @@ describe('TracingSession', () => {
 
   function checkTraceStopSpies(times: number, endArgs?: TraceTarget[]) {
     expect(endTraceSpy).toHaveBeenCalledTimes(times);
-    expect(moveFilesSpy).toHaveBeenCalledTimes(times);
     if (endArgs) {
       expect(endTraceSpy).toHaveBeenCalledWith(...endArgs);
     }

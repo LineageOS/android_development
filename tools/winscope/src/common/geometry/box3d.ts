@@ -19,7 +19,7 @@ import {Point3D} from './point3d';
 /**
  * A 3D box with width, height, depth, center, and diagonal.
  */
-export interface Box3D {
+export declare interface Box3D {
   width: number;
   height: number;
   depth: number;

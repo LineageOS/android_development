@@ -16,17 +16,23 @@
 
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LayerCompositionType} from 'trace/surface_flinger/layer_composition_type';
-import {AddOperation} from 'trace/tree_node/operations/add_operation';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'trace/tree_node/property_tree_node_factory';
+import {AddOperation} from 'tree_node/add_operation';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 
 export class AddCompositionType extends AddOperation<PropertyTreeNode> {
   protected override makeProperties(
     value: PropertyTreeNode,
   ): PropertyTreeNode[] {
-    const hwcCompositionType = value
+    let hwcCompositionType = value
       .getChildByName('hwcCompositionType')
-      ?.getValue();
+      ?.getValue<bigint | number>();
+    if (hwcCompositionType === undefined) {
+      return [];
+    }
+    if (typeof hwcCompositionType === 'bigint') {
+      hwcCompositionType = Number(hwcCompositionType);
+    }
     let compositionType: LayerCompositionType | undefined;
 
     // must check both enum and string values due to SF perfetto dumps giving translated proto values

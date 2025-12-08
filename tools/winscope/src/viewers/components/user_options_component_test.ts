@@ -17,9 +17,9 @@
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
-import {TraceType} from 'trace/trace_type';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {TraceType} from 'trace_api/trace_type';
 import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {UserOptions} from 'viewers/common/user_options';
 import {UserOptionsComponent} from './user_options_component';
@@ -31,8 +31,7 @@ describe('UserOptionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatButtonModule, MatIconModule],
-      declarations: [UserOptionsComponent],
+      imports: [UserOptionsComponent, MatButtonModule, MatIconModule],
     }).compileComponents();
     const fixture = TestBed.createComponent(UserOptionsComponent);
     component = fixture.componentInstance;
@@ -67,7 +66,7 @@ describe('UserOptionsComponent', () => {
 
   it('displays options', () => {
     const options = dom.findAll('.user-option');
-    expect(options.length).toEqual(3);
+    expect(options.length).toBe(3);
 
     options[0].checkText('option 1');
     expect(options[0].find('.user-option-chip')).toBeUndefined();

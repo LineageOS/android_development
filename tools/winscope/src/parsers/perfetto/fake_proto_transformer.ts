@@ -17,7 +17,7 @@
 import {
   TamperedMessageType,
   TamperedProtoField,
-} from 'parsers/tampered_message_type';
+} from 'trace/proto_utils/tampered_message_type';
 import {FakeProto} from './fake_proto_builder';
 
 export class FakeProtoTransformer {

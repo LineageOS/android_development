@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimatableApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
 package com.android.mechanics.demo.presentation
 
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,15 +44,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValueGraph
-import com.android.mechanics.demo.staging.rememberDistanceGestureContext
-import com.android.mechanics.demo.staging.rememberMotionValue
 import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
+import com.android.mechanics.rememberDistanceGestureContext
+import com.android.mechanics.rememberMotionSpecAsState
+import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.Guarantee
 import com.android.mechanics.spec.MotionSpec
 import com.android.mechanics.spec.builder.effectsDirectionalMotionSpec
-import com.android.mechanics.spec.builder.rememberMotionBuilderContext
 
-object GuaranteeFadeDemo : Demo<Unit> {
+object GuaranteeFadeDemo : Demo<Unit>, HasMotionValueVisualization {
 
     var inputRange by mutableStateOf(0f..200f)
 
@@ -67,15 +67,48 @@ object GuaranteeFadeDemo : Demo<Unit> {
 
         // Also using GestureContext.dragOffset as input.
         val gestureContext = rememberDistanceGestureContext()
-        val spec = rememberSpec(inputOutputRange = inputRange, { 0f })
-        val guaranteeSpec =
-            rememberSpec(inputOutputRange = inputRange, guaranteeDistance::floatValue)
 
         val withoutGuarantee =
-            rememberMotionValue(gestureContext::dragOffset, { spec }, gestureContext)
+            rememberMotionValue(
+                input = { gestureContext.dragOffset },
+                gestureContext = gestureContext,
+                spec =
+                    rememberMotionSpecAsState {
+                        MotionSpec(
+                            effectsDirectionalMotionSpec {
+                                fixedValue(
+                                    breakpoint = (inputRange.start + inputRange.endInclusive) / 2f,
+                                    value = 1f,
+                                    guarantee = Guarantee.None,
+                                )
+                            }
+                        )
+                    },
+            )
 
         val withGuarantee =
-            rememberMotionValue(gestureContext::dragOffset, { guaranteeSpec }, gestureContext)
+            rememberMotionValue(
+                input = { gestureContext.dragOffset },
+                gestureContext = gestureContext,
+                spec =
+                    rememberMotionSpecAsState {
+                        val distance = guaranteeDistance.floatValue
+                        MotionSpec(
+                            effectsDirectionalMotionSpec {
+                                fixedValue(
+                                    breakpoint = (inputRange.start + inputRange.endInclusive) / 2f,
+                                    value = 1f,
+                                    guarantee =
+                                        if (distance > 0) {
+                                            Guarantee.InputDelta(distance)
+                                        } else {
+                                            Guarantee.None
+                                        },
+                                )
+                            }
+                        )
+                    },
+            )
 
         val defaultValueColor = MaterialTheme.colorScheme.primary
         val guaranteeValueColor = MaterialTheme.colorScheme.secondary
@@ -133,31 +166,6 @@ object GuaranteeFadeDemo : Demo<Unit> {
                 onValueChange = { gestureContext.dragOffset = it },
                 modifier = Modifier.fillMaxWidth(),
             )
-        }
-    }
-
-    @Composable
-    fun rememberSpec(
-        inputOutputRange: ClosedFloatingPointRange<Float>,
-        guaranteeDistance: () -> Float,
-    ): MotionSpec {
-        val distance = guaranteeDistance()
-        val guarantee = if (distance > 0) Guarantee.InputDelta(distance) else Guarantee.None
-        val builderContext = rememberMotionBuilderContext()
-
-        return remember(guarantee, inputOutputRange, builderContext) {
-            with(builderContext) {
-                MotionSpec(
-                    effectsDirectionalMotionSpec {
-                        fixedValue(
-                            breakpoint =
-                                (inputOutputRange.start + inputOutputRange.endInclusive) / 2f,
-                            value = 1f,
-                            guarantee = guarantee,
-                        )
-                    }
-                )
-            }
         }
     }
 

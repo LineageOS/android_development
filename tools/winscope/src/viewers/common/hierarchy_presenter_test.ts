@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertySource} from 'trace/tree_node/property_tree_node';
+import {
+  makeUiHierarchyNode,
+  treeNodeEqualityTester,
+} from 'test/unit/ui_tree_node_utils';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {TextFilter} from 'viewers/common/text_filter';
 import {DiffType} from './diff_type';
 import {HierarchyPresenter} from './hierarchy_presenter';
@@ -30,8 +33,8 @@ import {SimplifyNames} from './operations/simplify_names';
 import {UserOptions} from './user_options';
 
 describe('HierarchyPresenter', () => {
-  const timestamp1 = TimestampConverterUtils.makeElapsedTimestamp(1n);
-  const timestamp2 = TimestampConverterUtils.makeElapsedTimestamp(2n);
+  const timestamp1 = makeElapsedTimestamp(1n);
+  const timestamp2 = makeElapsedTimestamp(2n);
   const tree1 = new HierarchyTreeBuilder()
     .setId('Test Trace')
     .setName('entry')
@@ -113,7 +116,7 @@ describe('HierarchyPresenter', () => {
   let presenter: HierarchyPresenter;
 
   beforeAll(async () => {
-    jasmine.addCustomEqualityTester(TreeNodeUtils.treeNodeEqualityTester);
+    jasmine.addCustomEqualityTester(treeNodeEqualityTester);
   });
 
   beforeEach(() => {
@@ -128,8 +131,8 @@ describe('HierarchyPresenter', () => {
   });
 
   it('updates current and previous entries for trace', async () => {
-    expect(presenter.getAllCurrentHierarchyTrees()?.length).toEqual(0);
-    expect(presenter.getAllFormattedTrees()?.length).toEqual(0);
+    expect(presenter.getAllCurrentHierarchyTrees()?.length).toBe(0);
+    expect(presenter.getAllFormattedTrees()?.length).toBe(0);
 
     await presenter.applyTracePositionUpdate(
       [trace.getEntry(1), secondTrace.getEntry(0)],
@@ -139,12 +142,10 @@ describe('HierarchyPresenter', () => {
     expect(presenter.getCurrentEntryForTrace(secondTrace)).toEqual(
       secondTrace.getEntry(0),
     );
-    expect(presenter.getCurrentHierarchyTreesForTrace(trace)?.length).toEqual(
-      1,
-    );
-    expect(presenter.getAllCurrentHierarchyTrees()?.length).toEqual(2);
-    expect(presenter.getAllFormattedTrees()?.length).toEqual(2);
-    expect(presenter.getFormattedTreesByTrace(trace)?.length).toEqual(1);
+    expect(presenter.getCurrentHierarchyTreesForTrace(trace)?.length).toBe(1);
+    expect(presenter.getAllCurrentHierarchyTrees()?.length).toBe(2);
+    expect(presenter.getAllFormattedTrees()?.length).toBe(2);
+    expect(presenter.getFormattedTreesByTrace(trace)?.length).toBe(1);
     expect(presenter.getPreviousHierarchyTreeForTrace(trace)).toBeUndefined();
     expect(
       presenter.getPreviousHierarchyTreeForTrace(secondTrace),
@@ -174,12 +175,10 @@ describe('HierarchyPresenter', () => {
       undefined,
     );
     expect(presenter.getCurrentEntryForTrace(trace)).toBeUndefined();
-    expect(presenter.getCurrentHierarchyTreesForTrace(trace)?.length).toEqual(
-      1,
-    );
-    expect(presenter.getAllCurrentHierarchyTrees()?.length).toEqual(1);
-    expect(presenter.getAllFormattedTrees()?.length).toEqual(1);
-    expect(presenter.getFormattedTreesByTrace(trace)?.length).toEqual(1);
+    expect(presenter.getCurrentHierarchyTreesForTrace(trace)?.length).toBe(1);
+    expect(presenter.getAllCurrentHierarchyTrees()?.length).toBe(1);
+    expect(presenter.getAllFormattedTrees()?.length).toBe(1);
+    expect(presenter.getFormattedTreesByTrace(trace)?.length).toBe(1);
 
     const entry = secondTrace.getEntry(0);
     await presenter.addCurrentHierarchyTrees(
@@ -196,9 +195,7 @@ describe('HierarchyPresenter', () => {
       {trace, trees: [tree2]},
       undefined,
     );
-    expect(presenter.getCurrentHierarchyTreesForTrace(trace)?.length).toEqual(
-      2,
-    );
+    expect(presenter.getCurrentHierarchyTreesForTrace(trace)?.length).toBe(2);
     const formattedTrees = assertDefined(presenter.getAllFormattedTrees());
     expect(presenter.getAllCurrentHierarchyTrees()).toEqual([
       {
@@ -214,8 +211,8 @@ describe('HierarchyPresenter', () => {
         entry,
       },
     ]);
-    expect(formattedTrees.length).toEqual(3);
-    expect(presenter.getFormattedTreesByTrace(trace)?.length).toEqual(2);
+    expect(formattedTrees.length).toBe(3);
+    expect(presenter.getFormattedTreesByTrace(trace)?.length).toBe(2);
   });
 
   it('updates previous hierarchy trees', async () => {
@@ -231,12 +228,18 @@ describe('HierarchyPresenter', () => {
 
   it('robust to empty trace position update', async () => {
     await applyTracePositionUpdate();
+    presenter.applyPinnedItemChange(
+      assertDefined(presenter.getAllFormattedTrees()?.at(0)),
+    );
+
     expect(presenter.getCurrentEntryForTrace(trace)).toEqual(trace.getEntry(0));
     expect(presenter.getCurrentHierarchyTreesForTrace(trace)).toEqual([tree1]);
+    expect(presenter.getPinnedItems().length).toBeGreaterThan(0);
 
     await presenter.applyTracePositionUpdate([], '');
     expect(presenter.getCurrentEntryForTrace(trace)).toBeUndefined();
     expect(presenter.getCurrentHierarchyTreesForTrace(trace)).toBeUndefined();
+    expect(presenter.getPinnedItems()).toEqual([]);
   });
 
   it('adds diffs to hierarchy tree based on user option', async () => {
@@ -316,22 +319,22 @@ describe('HierarchyPresenter', () => {
     expect(presenter.getCurrentHierarchyTreeNames(trace)).toBeUndefined();
     await applyTracePositionUpdate();
     const node = assertDefined(presenter.getAllFormattedTrees()?.at(0));
-    expect(node.name).toEqual('entry');
-    expect(node.getDisplayName()).toEqual(testName);
+    expect(node.name).toBe('entry');
+    expect(node.getDisplayName()).toBe(testName);
     expect(presenter.getCurrentHierarchyTreeNames(trace)).toEqual([testName]);
   });
 
   it('disables headings based on showHeading', async () => {
     await applyTracePositionUpdate();
     let node = assertDefined(presenter.getAllFormattedTrees()?.at(0));
-    expect(node.name).toEqual('entry');
+    expect(node.name).toBe('entry');
     expect(node.heading()).toBeUndefined();
 
     presenter = new HierarchyPresenter({}, new TextFilter(), [], true, false);
     await applyTracePositionUpdate();
     node = assertDefined(presenter.getAllFormattedTrees()?.at(0));
-    expect(node.name).toEqual('entry');
-    expect(node.heading()).toEqual('Test');
+    expect(node.name).toBe('entry');
+    expect(node.heading()).toBe('Test');
   });
 
   it('selects first node based on forceSelectFirstNode', async () => {
@@ -369,7 +372,7 @@ describe('HierarchyPresenter', () => {
 
   it('handles pinned item change', () => {
     expect(presenter.getPinnedItems()).toEqual([]);
-    const item = TreeNodeUtils.makeUiHierarchyNode({id: '', name: ''});
+    const item = makeUiHierarchyNode({id: '', name: ''});
     presenter.applyPinnedItemChange(item);
     expect(presenter.getPinnedItems()).toEqual([item]);
     presenter.applyPinnedItemChange(item);
@@ -378,11 +381,11 @@ describe('HierarchyPresenter', () => {
 
   it('flattens hierarchy tree based on user option', async () => {
     await applyTracePositionUpdate();
-    expect(getTotalHierarchyChildren()).toEqual(2);
+    expect(getTotalHierarchyChildren()).toBe(2);
     await presenter.applyHierarchyUserOptionsChange({
       flat: {name: '', enabled: true},
     });
-    expect(getTotalHierarchyChildren()).toEqual(3);
+    expect(getTotalHierarchyChildren()).toBe(3);
   });
 
   it('filters hierarchy tree by visibility based on user option', async () => {
@@ -392,7 +395,7 @@ describe('HierarchyPresenter', () => {
     };
     await presenter.applyHierarchyUserOptionsChange(userOptions);
     await applyTracePositionUpdate();
-    expect(getTotalHierarchyChildren()).toEqual(3);
+    expect(getTotalHierarchyChildren()).toBe(3);
 
     const nonVisibleNode = assertDefined(
       getFormattedTree()?.findDfs(
@@ -405,7 +408,7 @@ describe('HierarchyPresenter', () => {
 
     userOptions['showOnlyVisible'].enabled = true;
     await presenter.applyHierarchyUserOptionsChange(userOptions);
-    expect(getTotalHierarchyChildren()).toEqual(2);
+    expect(getTotalHierarchyChildren()).toBe(2);
     expect(presenter.getPinnedItems()).toEqual([nonVisibleNode]); // keeps pinned node
 
     presenter.clear(); // robust to no current entries
@@ -416,7 +419,7 @@ describe('HierarchyPresenter', () => {
     const userOptions: UserOptions = {flat: {name: '', enabled: true}};
     await presenter.applyHierarchyUserOptionsChange(userOptions);
     await applyTracePositionUpdate();
-    expect(getTotalHierarchyChildren()).toEqual(3);
+    expect(getTotalHierarchyChildren()).toBe(3);
 
     const filterString = 'Parent';
     const nonMatchNode = assertDefined(
@@ -429,7 +432,7 @@ describe('HierarchyPresenter', () => {
     const filter = new TextFilter(filterString);
     await presenter.applyHierarchyFilterChange(filter);
     expect(presenter.getTextFilter()).toEqual(filter);
-    expect(getTotalHierarchyChildren()).toEqual(2);
+    expect(getTotalHierarchyChildren()).toBe(2);
     expect(presenter.getPinnedItems()).toEqual([nonMatchNode]); // keeps pinned node
 
     presenter.clear(); // robust to no current entries
@@ -531,7 +534,7 @@ describe('HierarchyPresenter', () => {
 
     const storage = new InMemoryStorage();
     const adj = presenter.getAdjacentVisibleNode(storage, false);
-    expect(adj?.id).toEqual('3 Child3');
+    expect(adj?.id).toBe('3 Child3');
 
     // next node is hidden so recursively finds next visible node
     storage.add(p1.id + '.collapsedState', 'true');
@@ -543,7 +546,7 @@ describe('HierarchyPresenter', () => {
   it('gets next visible node as first root if no node selected', async () => {
     await applyTracePositionUpdate();
     const adj = presenter.getAdjacentVisibleNode(new InMemoryStorage(), false);
-    expect(adj?.id).toEqual('Test Trace entry');
+    expect(adj?.id).toBe('Test Trace entry');
   });
 
   it('gets next visible node if selected node is final node of tree', async () => {
@@ -602,7 +605,7 @@ describe('HierarchyPresenter', () => {
 
     const storage = new InMemoryStorage();
     const adj = presenter.getAdjacentVisibleNode(storage, true);
-    expect(adj?.id).toEqual('3 Child3');
+    expect(adj?.id).toBe('3 Child3');
 
     // prev node is hidden so recursively finds prev visible node
     storage.add(p2?.id + '.collapsedState', 'true');
@@ -614,7 +617,7 @@ describe('HierarchyPresenter', () => {
   it('gets prev visible node as first root if no node selected', async () => {
     await applyTracePositionUpdate();
     const adj = presenter.getAdjacentVisibleNode(new InMemoryStorage(), true);
-    expect(adj?.id).toEqual('Test Trace entry');
+    expect(adj?.id).toBe('Test Trace entry');
   });
 
   it('gets prev visible node if selected node is first node of tree', async () => {

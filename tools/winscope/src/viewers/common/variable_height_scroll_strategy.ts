@@ -18,17 +18,17 @@ import {
   CdkVirtualScrollViewport,
   VirtualScrollStrategy,
 } from '@angular/cdk/scrolling';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {InputHeightPredictor} from 'viewers/viewer_input/input_height_predictor';
 import {ProtologHeightPredictor} from 'viewers/viewer_protolog/protolog_height_predictor';
+import {SearchHeightPredictor} from 'viewers/viewer_search/search_height_predictor';
 import {TransactionsHeightPredictor} from 'viewers/viewer_transactions/transactions_height_predictor';
 import {TransitionsHeightPredictor} from 'viewers/viewer_transitions/transitions_height_predictor';
 import {ItemHeightPredictor} from './item_height_predictor';
 
 export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
-  static readonly HIDDEN_ELEMENTS_TO_RENDER = 20;
   private scrollItems: object[] = [];
   private itemHeightPredictor: ItemHeightPredictor | undefined;
   private itemHeightCache = new Map<number, ItemHeight>(); // indexed by scrollIndex
@@ -48,6 +48,7 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
   }
 
   detach() {
+    this.scrolledIndexChangeSubject.complete();
     this.viewport = undefined;
     this.wrapper = undefined;
   }
@@ -95,6 +96,9 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
       case TraceType.INPUT_EVENT_MERGED:
         this.itemHeightPredictor = new InputHeightPredictor();
         break;
+      case TraceType.SEARCH:
+        this.itemHeightPredictor = new SearchHeightPredictor();
+        break;
       default:
         throw new Error(
           'unexpected trace type received - no height predictor available',
@@ -106,51 +110,53 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
     if (!this.viewport) {
       return;
     }
-    // scroll previous index to top, so when previous index is partially rendered the target index is still fully rendered
-    const previousIndex = Math.max(0, index - 1);
-    const offset = this.getOffsetByItemIndex(previousIndex);
+    const offset = this.getOffsetByItemIndex(index);
     this.viewport.scrollToOffset(offset);
   }
 
   private updateRenderedRange() {
-    if (!this.viewport) {
-      return;
+    const viewport = assertDefined(this.viewport);
+    const scrollOffset = viewport.measureScrollOffset();
+    const viewportHeight = viewport.getViewportSize();
+    const dataLength = viewport.getDataLength();
+    const {start, end} = viewport.getRenderedRange();
+    const newRange = {start, end};
+
+    const firstVisibleIndex = this.calculateIndexFromOffset(scrollOffset);
+    const visibleOffset = viewportHeight + scrollOffset;
+    const startBuf = scrollOffset - this.getOffsetByItemIndex(start);
+    const endBuf =
+      this.getOffsetByItemIndex(end > 0 ? end - 1 : 0) - visibleOffset;
+
+    if ((startBuf <= 0 && start !== 0) || (endBuf <= 0 && end !== dataLength)) {
+      newRange.start = Math.max(0, this.calculateIndexFromOffset(scrollOffset));
+      newRange.end = Math.min(
+        dataLength,
+        this.calculateIndexFromOffset(visibleOffset) + 1,
+      );
     }
 
-    const scrollIndex = this.calculateIndexFromOffset(
-      this.viewport.measureScrollOffset(),
+    viewport.setRenderedRange(newRange);
+    viewport.setRenderedContentOffset(
+      this.getOffsetByItemIndex(newRange.start),
     );
-    const range = {
-      start: Math.max(0, scrollIndex - 5),
-      end: Math.min(
-        this.viewport.getDataLength(),
-        scrollIndex +
-          this.numberOfItemsInViewport(scrollIndex) +
-          VariableHeightScrollStrategy.HIDDEN_ELEMENTS_TO_RENDER,
-      ),
-    };
-    this.viewport.setRenderedRange(range);
-    this.viewport.setRenderedContentOffset(
-      this.getOffsetByItemIndex(range.start),
-    );
-    this.scrolledIndexChangeSubject.next(scrollIndex);
-    this.updateItemHeightCache();
+    this.scrolledIndexChangeSubject.next(firstVisibleIndex);
+    this.updateItemHeightCache(this.wrapper, viewport);
   }
 
-  private updateItemHeightCache() {
-    if (!this.wrapper || !this.viewport) {
-      return;
-    }
-
+  private updateItemHeightCache(
+    wrapper: any,
+    viewport: CdkVirtualScrollViewport,
+  ) {
     let cacheUpdated = false;
 
-    for (const node of this.wrapper.childNodes) {
+    for (const node of wrapper.childNodes) {
       if (node && node.nodeName === 'DIV') {
         const id = Number(node.getAttribute('item-id'));
         const cachedHeight = this.itemHeightCache.get(id);
 
         if (
-          cachedHeight?.source !== ItemHeightSource.PREDICTED ||
+          cachedHeight?.source !== ItemHeightSource.RENDERED ||
           cachedHeight.value !== node.clientHeight
         ) {
           this.itemHeightCache.set(id, {
@@ -163,7 +169,7 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
     }
 
     if (cacheUpdated) {
-      this.viewport.setTotalContentSize(this.getTotalItemsHeight());
+      viewport.setTotalContentSize(this.getTotalItemsHeight());
     }
   }
 
@@ -185,16 +191,6 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
     return this.calculateIndexOfFinalRenderedItem(0, offset) ?? 0;
   }
 
-  private numberOfItemsInViewport(start: number): number {
-    if (!this.viewport) {
-      return 0;
-    }
-
-    const viewportHeight = this.viewport.getViewportSize();
-    const i = this.calculateIndexOfFinalRenderedItem(start, viewportHeight);
-    return i ? i - start + 1 : 0;
-  }
-
   private calculateIndexOfFinalRenderedItem(
     start: number,
     viewportHeight: number,
@@ -205,6 +201,9 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
       totalItemHeight += this.getItemHeight(item, i);
 
       if (totalItemHeight >= viewportHeight) {
+        return i;
+      }
+      if (i === this.scrollItems.length - 1) {
         return i;
       }
     }

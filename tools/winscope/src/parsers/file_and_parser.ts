@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import {Parser} from 'trace/parser';
 import {TraceFile} from 'trace/trace_file';
+import {Parser} from 'trace_api/parser';
 
+/**
+ * A class that associates a file with a parser.
+ */
 export class FileAndParser {
-  constructor(readonly file: TraceFile, readonly parser: Parser<object>) {}
+  constructor(
+    readonly file: TraceFile,
+    readonly parser: Parser<object>,
+  ) {}
 }

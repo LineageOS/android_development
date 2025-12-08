@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {assertDefined} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {TimestampConverter} from 'common/time/timestamp_converter';
 import {
@@ -28,9 +27,9 @@ import {
   WinscopeEventType,
 } from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceType} from 'trace/trace_type';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
 import {QueryResult} from 'trace_processor/query_result';
 import {
   AddQueryClickDetail,
@@ -50,15 +49,11 @@ interface ActiveSearch {
 }
 
 export class Presenter {
-  private emitWinscopeEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitWinscopeEvent: EmitEvent = () => Promise.resolve();
   private uiData = UiData.createEmpty();
   private activeSearchUid = 0;
   private activeSearches: ActiveSearch[] = [];
-  private savedSearches = PersistentStoreProxy.new<{searches: ListedSearch[]}>(
-    'savedSearches',
-    {searches: []},
-    this.storage,
-  );
+  private savedSearches: {searches: ListedSearch[]};
   private viewerElement: HTMLElement | undefined;
   private runningSearch: CurrentSearch | undefined;
 
@@ -68,6 +63,11 @@ export class Presenter {
     private readonly notifyViewCallback: (uiData: UiData) => void,
     private readonly timestampConverter: TimestampConverter,
   ) {
+    this.savedSearches = createPersistentStoreProxy<{searches: ListedSearch[]}>(
+      'savedSearches',
+      {searches: []},
+      this.storage,
+    );
     this.uiData.savedSearches = Array.from(this.savedSearches.searches);
     this.addSearch();
   }

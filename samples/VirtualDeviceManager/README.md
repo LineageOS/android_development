@@ -241,6 +241,10 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     launched on that display. \
     *Changing this will recreate the virtual device.*
 
+-   **Public displays**: Whether to make the virtual displays public. \
+    *This can be changed dynamically but only applies to newly created
+    displays.*
+
 -   **Always unlocked**: Whether the virtual displays should remain unlocked and
     interactive when the host device is locked. Disabling this will result in a
     simple lock screen shown on these displays when the host device is locked. \
@@ -281,6 +285,22 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
 
     ```shell
     adb shell aflags enable android.companion.virtual.flags.device_aware_display_power && adb reboot
+    ```
+
+-   **Custom UI mode**: Whether to override the UI mode on all virtual displays.
+    Run the commands below to enable this functionality. \
+    *This can be changed dynamically.*
+
+    ```shell
+    adb shell aflags enable android.companion.virtual.flags.device_aware_ui_mode && adb reboot
+    ```
+
+-   **Night mode**: Whether to override the night mode on all virtual displays.
+    Run the commands below to enable this functionality. \
+    *This can be changed dynamically.*
+
+    ```shell
+    adb shell aflags enable android.companion.virtual.flags.device_aware_ui_mode && adb reboot
     ```
 
 #### Camera
@@ -325,6 +345,10 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
 
 -   **Use AudioPolicy.updateMixingRules**: Updates the dynamic AudiPolicy mixing rules
     instead of unregistering and re-registering the AudioPolicy.
+
+-   **Use legacy playback state**: Audio playback streaming to remote device is based on the
+    playback state changes of the apps running on the virtual device. When disabled,
+    the audio streaming to the remote client is based on silence detection (also the default).
 
 #### Input method
 
@@ -431,9 +455,12 @@ adb shell aflags enable android.companion.virtual.flags.device_aware_display_pow
 -   **Picture in Picture**: A simple activity with PiP support showing the
     behavior of pinned windowing mode on the virtual display.
 
+-   **UI mode**: A simple activity showing the UI mode type and night mode on
+    the display to showcase the dynamic UI mode override in VDM.
+
 -   **Display Power**: A simple activity showcasing the behavior of proximity
-    locks, screen brightness override and requesting the screen to be kept on
-    or turned on.
+    locks, screen brightness override and requesting the screen to be kept on or
+    turned on.
 
 -   **Rotation**: A simple activity that is in landscape by default and can send
     orientation change requests on demand. Showcases the display rotation on the
@@ -464,6 +491,8 @@ adb shell aflags enable android.companion.virtual.flags.device_aware_display_pow
 
 -   **Recorder**: A simple activity that can start multiple audio recorders.
     This helps test audio recording permissions and concurrent recordings.
+
+-   **Sound**: A simple activity that can play sounds from a SoundPool.
 
 The demo activity depends on whether the **Display Category** Host preference is
 enabled or not. If enabled, it becomes equivalent to the **Home** demo activity,

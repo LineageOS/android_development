@@ -52,6 +52,7 @@ fun ContentScope.QuickSettingsPager(
     nRows: Int,
     nColumns: Int,
     modifier: Modifier = Modifier,
+    revealEffect: Boolean = false,
 ) {
     val nTiles = tiles.size
     val nTilesPerPage = nRows * nColumns
@@ -86,6 +87,7 @@ fun ContentScope.QuickSettingsPager(
                     ),
                     nColumns,
                     isExpanded = true,
+                    revealEffect = revealEffect,
                     expansionProgress = { expansionProgress },
                     modifier = QuickSettings.Modifiers.HorizontalPadding,
                     nRowsTarget = nRowsTarget,

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import {assertNumberOrUndefined} from 'common/assert';
 import {LayerCompositionType} from 'trace/surface_flinger/layer_composition_type';
-import {Operation} from 'trace/tree_node/operations/operation';
+import {Operation} from 'tree_node/operation';
 import {
   DUPLICATE_CHIP,
   GPU_CHIP,
@@ -27,9 +28,10 @@ import {
   VISIBLE_CHIP,
 } from 'viewers/common/chip';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {isVisible} from 'viewers/common/ui_tree_utils';
 
 export class AddChips implements Operation<UiHierarchyTreeNode> {
-  private relZParentIds: string[] = [];
+  private relZParentIds: Array<bigint> = [];
 
   apply(node: UiHierarchyTreeNode): void {
     this.addAllChipsExceptRelZParent(node);
@@ -38,35 +40,39 @@ export class AddChips implements Operation<UiHierarchyTreeNode> {
 
   private addAllChipsExceptRelZParent(node: UiHierarchyTreeNode) {
     if (!node.isRoot()) {
-      const compositionType = node
-        .getEagerPropertyByName('compositionType')
-        ?.getValue();
+      const compositionType = assertNumberOrUndefined(
+        node.getEagerPropertyByName('compositionType')?.getValue<number>(),
+      );
       if (compositionType === LayerCompositionType.GPU) {
         node.addChip(GPU_CHIP);
       } else if (compositionType === LayerCompositionType.HWC) {
         node.addChip(HWC_CHIP);
       }
 
-      if (node.getEagerPropertyByName('isComputedVisible')?.getValue()) {
+      if (isVisible(node)) {
         node.addChip(VISIBLE_CHIP);
       }
 
-      if (node.getEagerPropertyByName('isDuplicate')?.getValue()) {
+      if (node.getEagerPropertyByName('isDuplicate')?.getValue<boolean>()) {
         node.addChip(DUPLICATE_CHIP);
       }
 
-      if (node.getEagerPropertyByName('isHiddenByPolicy')?.getValue()) {
+      if (
+        node.getEagerPropertyByName('isHiddenByPolicy')?.getValue<boolean>()
+      ) {
         node.addChip(HIDDEN_BY_POLICY_CHIP);
       }
 
-      const zOrderRelativeOfId = node
+      const zOrderRelativeOf = node
         .getEagerPropertyByName('zOrderRelativeOf')
-        ?.getValue();
-      if (zOrderRelativeOfId && zOrderRelativeOfId !== -1) {
+        ?.getValue<bigint>();
+      if (zOrderRelativeOf && Number(zOrderRelativeOf) !== -1) {
         node.addChip(RELATIVE_Z_CHIP);
-        this.relZParentIds.push(zOrderRelativeOfId);
+        this.relZParentIds.push(zOrderRelativeOf);
 
-        if (node.getEagerPropertyByName('isMissingZParent')?.getValue()) {
+        if (
+          node.getEagerPropertyByName('isMissingZParent')?.getValue<boolean>()
+        ) {
           node.addChip(MISSING_Z_PARENT_CHIP);
         }
       }
@@ -78,8 +84,10 @@ export class AddChips implements Operation<UiHierarchyTreeNode> {
   }
 
   private addRelZParentChips(node: UiHierarchyTreeNode) {
-    const treeLayerId = node.getEagerPropertyByName('id')?.getValue();
-    if (this.relZParentIds.includes(treeLayerId)) {
+    const treeLayerId = node
+      .getEagerPropertyByName('layerId')
+      ?.getValue<bigint>();
+    if (treeLayerId && this.relZParentIds.includes(treeLayerId)) {
       node.addChip(RELATIVE_Z_PARENT_CHIP);
     }
 

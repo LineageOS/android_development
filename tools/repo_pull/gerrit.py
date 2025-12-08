@@ -24,6 +24,7 @@ import argparse
 import base64
 import json
 import os
+import re
 import sys
 import xml.dom.minidom
 
@@ -349,7 +350,9 @@ def _decode_xssi_json(data):
     return json.loads(data)
 
 
-def _query_change_lists(url_opener, gerrit, query_string, start, count):
+def _query_change_lists(
+    url_opener, gerrit, query_string, start, count, all_revs
+):
     """Query change lists from the Gerrit server with a single request.
 
     This function performs a single query of the Gerrit server based on the
@@ -364,14 +367,15 @@ def _query_change_lists(url_opener, gerrit, query_string, start, count):
         query_string: Gerrit query string to select changes
         start: Number of changes to be skipped from the beginning
         count: Maximum number of changes to return
+        all_revs: Get all revisions of each changelist and their commits
 
     Returns:
         List of changes
     """
     data = [
         ('q', query_string),
-        ('o', 'CURRENT_REVISION'),
-        ('o', 'CURRENT_COMMIT'),
+        ('o', 'ALL_REVISIONS' if all_revs else 'CURRENT_REVISION'),
+        ('o', 'ALL_COMMITS' if all_revs else 'CURRENT_COMMIT'),
         ('start', str(start)),
         ('n', str(count)),
     ]
@@ -383,7 +387,30 @@ def _query_change_lists(url_opener, gerrit, query_string, start, count):
     finally:
         response_file.close()
 
-def query_change_lists(url_opener, gerrit, query_string, start, count):
+
+def _filter_exact_revision_by_commit(changes, query):
+    """Filter the exact revision of the commit specified in query."""
+    commits = re.findall(r'commit:([a-z0-9]*)', query)
+
+    # Theoretically, passing multiple commits in one query doesn't make sense
+    # because if those commits belong to different changes, the Gerrit request
+    # will not return any changes. (i.e., @changes must be an empty list.) If
+    # the commits belong to the same change, it must be the caller's fault as we
+    # cannot tell which exact commit they intended to fetch.
+    if len(commits) > 1:
+        raise ValueError('cannot filter revisions by multiple commits')
+
+    for change in changes:
+        change['revisions'] = {
+            rev: data
+            for rev, data in change['revisions'].items()
+            if any(rev.startswith(commit) for commit in commits)
+        }
+
+
+def query_change_lists(
+    url_opener, gerrit, query_string, start, count, exact_commit=False
+):
     """Query change lists from the Gerrit server.
 
     This function queries the Gerrit server based on the input parameters for a
@@ -396,6 +423,8 @@ def query_change_lists(url_opener, gerrit, query_string, start, count):
         query_string: Gerrit query string to select changes
         start: Number of changes to be skipped from the beginning
         count: Maximum number of changes to return
+        exact_commit: Use the exact commit revision specified in the query
+            string instead of the last one of its change
 
     Returns:
         List of changes
@@ -403,7 +432,8 @@ def query_change_lists(url_opener, gerrit, query_string, start, count):
     changes = []
     while len(changes) < count:
         chunk = _query_change_lists(url_opener, gerrit, query_string,
-                                    start + len(changes), count - len(changes))
+                                    start + len(changes), count - len(changes),
+                                    exact_commit)
         if not chunk:
             break
 
@@ -414,6 +444,9 @@ def query_change_lists(url_opener, gerrit, query_string, start, count):
         # limit.  Stop iteration if `_more_changes` attribute doesn't exist.
         if '_more_changes' not in chunk[-1]:
             break
+
+    if exact_commit:
+        _filter_exact_revision_by_commit(changes, query_string)
 
     return changes
 
@@ -602,6 +635,10 @@ def add_common_parse_args(parser):
     parser.add_argument(
         '--use-curl',
         help='Send requests with the specified curl command (e.g. `curl`)')
+    parser.add_argument(
+        '--exact-commit', action='store_true',
+        help='Fetch the exact commit revision specified by "commit:" query '
+             'instead of the last one of its change')
 
 def _parse_args():
     """Parse command line options."""
@@ -629,7 +666,8 @@ def main():
     # Query change lists
     url_opener = create_url_opener_from_args(args)
     change_lists = query_change_lists(
-        url_opener, args.gerrit, args.query, args.start, args.limits)
+        url_opener, args.gerrit, args.query, args.start, args.limits,
+        args.exact_commit)
 
     # Print the result
     if args.format == 'json':

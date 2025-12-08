@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Download} from './download';
+import {downloadFromUrl} from './download';
 
 describe('Download', () => {
   it('fromUrl', () => {
@@ -24,10 +24,10 @@ describe('Download', () => {
 
     spyOn(document, 'createElement').and.returnValue(testElement);
 
-    Download.fromUrl('test_url', 'test_file_name');
+    downloadFromUrl('test_url', 'test_file_name');
 
     expect(testElement.href.endsWith('test_url')).toBeTrue();
-    expect(testElement.download).toEqual('test_file_name');
+    expect(testElement.download).toBe('test_file_name');
     expect(clickSpy).toHaveBeenCalled();
 
     expect(document.querySelector('.test-download-link')).toBeNull();

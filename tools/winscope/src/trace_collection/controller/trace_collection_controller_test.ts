@@ -286,6 +286,7 @@ data_sources: {
       mode: MODE_DUMP
       trace_flags: TRACE_FLAG_INPUT
       trace_flags: TRACE_FLAG_COMPOSITION
+      trace_flags: TRACE_FLAG_EXTRA
       trace_flags: TRACE_FLAG_HWC
       trace_flags: TRACE_FLAG_BUFFERS
       trace_flags: TRACE_FLAG_VIRTUAL_DISPLAYS
@@ -336,18 +337,13 @@ echo 'Dumped perfetto'`,
     const data = Uint8Array.from([]);
     const devicePath = 'archive/test_path';
     const fetchedPath = 'test_path';
-    let findSpy: jasmine.Spy;
-    let pullSpy: jasmine.Spy;
-
     beforeEach(async () => {
-      findSpy = spyOn(
-        MockAdbDeviceConnection.prototype,
-        'findFiles',
-      ).and.returnValue(Promise.resolve([devicePath, devicePath]));
-      pullSpy = spyOn(
-        MockAdbDeviceConnection.prototype,
-        'pullFile',
-      ).and.returnValue(Promise.resolve(data));
+      spyOn(MockAdbDeviceConnection.prototype, 'findFiles').and.returnValue(
+        Promise.resolve([devicePath, devicePath]),
+      );
+      spyOn(MockAdbDeviceConnection.prototype, 'pullFile').and.returnValue(
+        Promise.resolve(data),
+      );
     });
 
     it('fetches last tracing session data', async () => {

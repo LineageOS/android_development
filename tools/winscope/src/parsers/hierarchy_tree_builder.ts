@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-import {Computation} from 'trace/tree_node/computation';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
+import {Computation} from 'tree_node/computation';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from 'tree_node/properties_provider';
 
+/**
+ * An abstract builder for creating a hierarchy tree.
+ */
 export abstract class HierarchyTreeBuilder {
   protected root: PropertiesProvider | undefined;
   protected children: PropertiesProvider[] | undefined;

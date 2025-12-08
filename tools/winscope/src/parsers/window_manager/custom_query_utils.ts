@@ -18,7 +18,7 @@ import {com} from 'protos/windowmanager/udc/static';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace/custom_query';
+} from 'trace_api/custom_query';
 
 type WindowsTokenAndTitle =
   CustomQueryParserResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE];
@@ -49,6 +49,10 @@ type WindowTokenProto =
   | com.android.server.wm.IWindowTokenProto
   | perfetto.protos.IWindowTokenProto;
 
+/**
+ * A parser for a custom query on the WM trace, which extracts all valid window
+ * tokens and their titles from the trace.
+ */
 export class WmCustomQueryUtils {
   private static readonly NA = 'n/a';
 

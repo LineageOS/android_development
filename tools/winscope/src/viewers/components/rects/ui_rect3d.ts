@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {CornerRadii} from 'common/geometry/corner_radii';
 import {Point3D} from 'common/geometry/point3d';
 import {Rect3D} from 'common/geometry/rect3d';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
@@ -23,7 +24,7 @@ export interface UiRect3D extends Rect3D {
   id: string;
   topLeft: Point3D;
   bottomRight: Point3D;
-  cornerRadius: number;
+  cornerRadii: CornerRadii | undefined;
   darkFactor: number;
   colorType: ColorType;
   isClickable: boolean;

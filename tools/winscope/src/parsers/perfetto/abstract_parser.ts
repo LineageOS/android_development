@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined, assertTrue} from 'common/assert_utils';
+import {assertBigInt, assertDefined, assertTrue} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
 import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {CoarseVersion} from 'trace/coarse_version';
+import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {TraceFile} from 'trace/trace_file';
+import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from 'trace/index_types';
-import {Parser} from 'trace/parser';
-import {TraceFile} from 'trace/trace_file';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
+} from 'trace_api/custom_query';
+import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
+import {Parser} from 'trace_api/parser';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 
 export abstract class AbstractParser<T> implements Parser<T> {
@@ -37,6 +38,7 @@ export abstract class AbstractParser<T> implements Parser<T> {
   protected timestampConverter: ParserTimestampConverter;
   protected entryIndexToRowIdMap: number[] = [];
   protected preProcessTrace?(): Promise<void>;
+  protected traceGeometryData?: TraceGeometryData;
 
   private lengthEntries = 0;
   private traceFile: TraceFile;
@@ -47,10 +49,16 @@ export abstract class AbstractParser<T> implements Parser<T> {
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
+    traceGeometryData?: TraceGeometryData,
   ) {
     this.traceFile = traceFile;
     this.traceProcessor = traceProcessor;
     this.timestampConverter = timestampConverter;
+    this.traceGeometryData = traceGeometryData;
+  }
+
+  isPerfetto(): boolean {
+    return true;
   }
 
   async parse() {
@@ -130,6 +138,14 @@ export abstract class AbstractParser<T> implements Parser<T> {
 
   canConvertToPerfetto(): boolean {
     return false;
+  }
+
+  getAllEntries(): Promise<Array<T | undefined>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<Array<T | undefined>> {
+    throw NOT_IMPLEMENTED_ERROR;
   }
 
   protected async buildEntryIndexToRowIdMap(): Promise<AbsoluteEntryIndex[]> {

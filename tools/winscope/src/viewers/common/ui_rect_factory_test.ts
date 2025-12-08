@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
+import {Transform} from 'common/geometry/transform';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {Transform} from 'trace/surface_flinger/transform_utils';
-import {TraceRectBuilder} from 'trace/trace_rect_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
 import {UI_RECT_FACTORY} from './ui_rect_factory';
@@ -53,7 +53,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('1 node1')
       .setLabel('node1')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -72,7 +71,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('2 node2')
       .setLabel('node2')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -99,7 +97,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(10)
       .setId('2 node2')
       .setLabel('node2')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -127,7 +124,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('1 node1')
       .setLabel('node1')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -146,7 +142,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('2 node2')
       .setLabel('node2')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -175,7 +170,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('1 node1')
       .setLabel('')
-      .setCornerRadius(0)
       .setGroupId(GROUP_ID)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -194,7 +188,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('2 node2')
       .setLabel('')
-      .setCornerRadius(0)
       .setGroupId(GROUP_ID)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -236,7 +229,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('TreeEntry root')
       .setLabel('root')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -255,7 +247,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('1 node1')
       .setLabel('node1')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -274,7 +265,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('2 node2')
       .setLabel('node2')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -447,7 +437,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('11 node11')
       .setLabel('node11')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -471,7 +460,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(1)
       .setId('3 node3')
       .setLabel('node3')
-      .setCornerRadius(0)
       .setGroupId(0)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
@@ -515,7 +503,6 @@ describe('UI_RECT_FACTORY', () => {
       .setHeight(height)
       .setId(node.id)
       .setName(node.name)
-      .setCornerRadius(0)
       .setTransform(Transform.EMPTY.matrix)
       .setDepth(depth)
       .setGroupId(0)
@@ -526,6 +513,10 @@ describe('UI_RECT_FACTORY', () => {
       .setIsSpy(isSpy)
       .build();
 
-    isPrimary ? node.setRects([rect]) : node.setSecondaryRects([rect]);
+    if (isPrimary) {
+      node.setRects([rect]);
+    } else {
+      node.setSecondaryRects([rect]);
+    }
   }
 });

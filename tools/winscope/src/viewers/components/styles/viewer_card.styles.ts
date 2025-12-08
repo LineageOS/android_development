@@ -69,6 +69,10 @@ export const viewerCardStyle = `
   .collapsed {
     display: none;
   }
+
+  .rects-view:not(.collapsed) {
+    overflow-y: hidden;
+  }
 `;
 
 export const viewerCardInnerStyle = `
@@ -78,7 +82,7 @@ export const viewerCardInnerStyle = `
     flex-wrap: wrap;
     justify-content: space-between;
     background-color: var(--card-title-background-color);
-    padding: 0px 12px 0px 12px;
+    padding: 0px 6px 0px 0px;
   }
 
   .view-controls {
@@ -107,19 +111,11 @@ export const viewerCardInnerStyle = `
   .warning-message {
     padding-inline-start: 2px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: flex;
     align-items: center;
     width: 100%;
   }
-  .warning-icon, .inline-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+  .warning-icon {
     padding-inline-end: 4px;
-  }
-  .inline-icon {
-    padding-inline-start: 4px;
   }
 `;

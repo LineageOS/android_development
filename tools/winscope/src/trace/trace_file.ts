@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-import {FileUtils} from 'common/file_utils';
+import {removeDirFromFileName} from 'common/io';
 
 export class TraceFile {
-  constructor(public file: File, public parentArchive?: File) {}
+  constructor(
+    public file: File,
+    public parentArchive?: File,
+  ) {}
 
   getDescriptor(): string {
-    let descriptor = FileUtils.removeDirFromFileName(this.file.name);
+    let descriptor = removeDirFromFileName(this.file.name);
     if (this.parentArchive?.name) {
       descriptor += ` (${this.parentArchive.name})`;
     }

@@ -15,13 +15,15 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {InputColumnType} from 'trace/input/input_column_type';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from 'viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from 'viewers/common/log_filters';
 import {LogHeader} from 'viewers/common/ui_data_log';
@@ -32,20 +34,25 @@ import {ViewerInputComponent} from './viewer_input_component';
 
 class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInputComponent> {
   protected override readonly testProperties = true;
-  protected override readonly testScroll = false;
+  protected override readonly testScroll = true;
+  protected override readonly initialEntries = 30;
   protected override readonly hasCurrentTimeButton = false;
   protected override readonly propertiesSectionTitle = 'EVENT DETAILS';
   protected override readonly propertiesPlaceholder = 'No selected entry.';
 
-  private tree = new PropertyTreeBuilder()
+  private hTree = new HierarchyTreeBuilder()
+    .setId('AndroidMotionEvent')
+    .setName('entry')
+    .build();
+  private pTree = new PropertyTreeBuilder()
     .setIsRoot(true)
     .setRootId('AndroidMotionEvent')
     .setName('entry')
     .build();
-  private trace = new TraceBuilder<PropertyTreeNode>()
+  private trace = new TraceBuilder<HierarchyTreeNode>()
     .setType(TraceType.INPUT_EVENT_MERGED)
-    .setEntries([this.tree])
-    .setTimestamps([TimestampConverterUtils.makeElapsedTimestamp(20n)])
+    .setEntries([this.hTree])
+    .setTimestamps([makeElapsedTimestamp(20n)])
     .build();
   private entry = this.trace.getEntry(0);
 
@@ -126,6 +133,23 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
     ]);
   }
 
+  protected override async setUpTestEnvironmentForScroll(): Promise<
+    [DOMTestHelper<ViewerInputComponent>, CdkVirtualScrollViewport]
+  > {
+    const uiData = UiData.createEmpty();
+    uiData.headers = [new LogHeader(this.testSpec, new LogSelectFilter([]))];
+    uiData.selectedIndex = 0;
+    uiData.rectsToDraw = [];
+    uiData.entries = Array.from({length: 200}, () => this.createInputEntry());
+
+    const [dom, viewport] = await this.initializeTestEnvironment(
+      uiData,
+      ViewerInputComponent,
+      [RectsComponent, UserOptionsComponent],
+    );
+    return [dom, viewport];
+  }
+
   private createInputEntry(): InputEntry {
     return new InputEntry(
       this.entry,
@@ -137,13 +161,20 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
         },
         this.testField,
         this.testField,
-        this.testField,
+        {
+          spec: {
+            name: 'Test Column Action',
+            cssClass: 'test-class-action',
+            columnType: InputColumnType.ACTION,
+          },
+          value: 'VALUE',
+        },
         this.testField,
         this.testField,
         this.testField,
       ],
-      async () => this.tree,
-      async () => this.tree,
+      async () => this.pTree,
+      async () => this.pTree,
       undefined,
     );
   }

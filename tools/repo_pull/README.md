@@ -107,6 +107,10 @@ These are common queries:
   * For example, `--pick pick --pick-args="--empty=drop"` maps to `git
     cherry-pick --allow-empty --empty=drop`
 
+* `--exact-commit` forces the script to pull the exact revision of the commit
+  hash specified by `commit:[commit_sha1]` query instead of the last one of its
+  change.
+
 
 ## Examples
 

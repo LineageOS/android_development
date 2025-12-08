@@ -24,35 +24,38 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
+import {assertDefined} from 'common/assert';
 import {Rect} from 'common/geometry/rect';
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TimeRange, Timestamp} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceType} from 'trace/trace_type';
 import {TransitionStatus} from 'trace/transitions/status';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TransitionTimelineComponent} from './transition_timeline_component';
 
 describe('TransitionTimelineComponent', () => {
   let component: TransitionTimelineComponent;
   let dom: DOMTestHelper<TransitionTimelineComponent>;
 
-  const time0 = TimestampConverterUtils.makeRealTimestamp(0n);
-  const time5 = TimestampConverterUtils.makeRealTimestamp(5n);
-  const time10 = TimestampConverterUtils.makeRealTimestamp(10n);
-  const time20 = TimestampConverterUtils.makeRealTimestamp(20n);
-  const time30 = TimestampConverterUtils.makeRealTimestamp(30n);
-  const time35 = TimestampConverterUtils.makeRealTimestamp(35n);
-  const time60 = TimestampConverterUtils.makeRealTimestamp(60n);
-  const time85 = TimestampConverterUtils.makeRealTimestamp(85n);
-  const time110 = TimestampConverterUtils.makeRealTimestamp(110n);
-  const time120 = TimestampConverterUtils.makeRealTimestamp(120n);
-  const time160 = TimestampConverterUtils.makeRealTimestamp(160n);
+  const time0 = makeRealTimestamp(0n);
+  const time5 = makeRealTimestamp(5n);
+  const time10 = makeRealTimestamp(10n);
+  const time20 = makeRealTimestamp(20n);
+  const time30 = makeRealTimestamp(30n);
+  const time35 = makeRealTimestamp(35n);
+  const time60 = makeRealTimestamp(60n);
+  const time85 = makeRealTimestamp(85n);
+  const time110 = makeRealTimestamp(110n);
+  const time120 = makeRealTimestamp(120n);
+  const time160 = makeRealTimestamp(160n);
 
   const range10to110 = new TimeRange(time10, time110);
   const range0to160 = new TimeRange(time0, time160);
@@ -60,6 +63,7 @@ describe('TransitionTimelineComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        NoopAnimationsModule,
         FormsModule,
         MatButtonModule,
         MatFormFieldModule,
@@ -70,8 +74,8 @@ describe('TransitionTimelineComponent', () => {
         ReactiveFormsModule,
         BrowserAnimationsModule,
         DragDropModule,
+        TransitionTimelineComponent,
       ],
-      declarations: [TransitionTimelineComponent],
     })
       .overrideComponent(TransitionTimelineComponent, {
         set: {changeDetection: ChangeDetectionStrategy.Default},
@@ -80,7 +84,7 @@ describe('TransitionTimelineComponent', () => {
     const fixture = TestBed.createComponent(TransitionTimelineComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.timestampConverter = TimestampConverterUtils.TIMESTAMP_CONVERTER;
+    component.timestampConverter = UTC_CONVERTER;
     component.fullRange = range0to160;
   });
 

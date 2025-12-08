@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {OverlayModule} from '@angular/cdk/overlay';
+import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
@@ -23,10 +25,21 @@ import {
   NgZone,
   SimpleChanges,
 } from '@angular/core';
-import {FormControl, ValidationErrors, Validators} from '@angular/forms';
+import {
+  FormControl,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
-import {assertDefined} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Analytics} from 'logging/analytics';
 import {
@@ -41,8 +54,8 @@ import {
   WinscopeEventEmitter,
 } from 'messaging/winscope_event_emitter';
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
 import {inlineButtonStyle} from 'viewers/components/styles/clickable_property.styles';
 import {View, Viewer, ViewType} from 'viewers/viewer';
 
@@ -52,16 +65,32 @@ interface Tab {
   isTooltipStable: boolean;
 }
 
+/**
+ * A component for displaying the trace view.
+ */
 @Component({
   selector: 'trace-view',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    MatTooltipModule,
+    MatIconModule,
+    OverlayModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatDividerModule,
+  ],
   template: `
       <div class="overlay-container">
       </div>
       <div class="header-items-wrapper">
         <div class="trace-tabs-wrapper header-items-wrapper">
-          <nav mat-tab-nav-bar class="tabs-navigation-bar">
-            <a
-                *ngFor="let tab of tabs; last as isLast"
+          <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="tabs-navigation-bar">
+            @for (tab of tabs; track tab; let isLast = $last) {
+              <a
                 mat-tab-link
                 [active]="isCurrentActiveTab(tab)"
                 [class.active]="isCurrentActiveTab(tab)"
@@ -73,16 +102,17 @@ interface Tab {
                 (focus)="$event.target.blur()"
                 (mouseenter)="onTabHover($event, tab)"
                 [class.last]="isLast"
-                class="tab">
-              <mat-icon
-                class="icon"
-                [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
-                  {{ getTabIcon(tab) }}
-              </mat-icon>
-              <span>
-                {{ getTitle(tab.view) }}
-              </span>
-            </a>
+                class="tab text-no-overflow">
+                <mat-icon
+                  class="icon"
+                  [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
+                    {{ getTabIcon(tab) }}
+                </mat-icon>
+                <span class="tab-title">
+                  {{ getTitle(tab.view) }}
+                </span>
+              </a>
+            }
           </nav>
         </div>
 
@@ -106,8 +136,7 @@ interface Tab {
           [cdkConnectedOverlayOpen]="isFilterPresetsPanelOpen"
           [cdkConnectedOverlayHasBackdrop]="true"
           cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-          (backdropClick)="onFilterPresetsClick()"
-        >
+          (backdropClick)="onFilterPresetsClick()">
           <div class="overlay-panel filter-presets-panel">
             <h2 class="overlay-panel-title">
               <span> FILTER PRESETS </span>
@@ -120,10 +149,12 @@ interface Tab {
 
               <div class="overlay-panel-section save-section">
                 <span class="mat-body-2 overlay-panel-section-title"> Preset Name </span>
-                <div class="save-field outline-field">
-                  <mat-form-field appearance="outline">
+                <div class="outline-field save-field">
+                  <mat-form-field subscriptSizing="dynamic" appearance="outline">
                     <input matInput [formControl]="filterPresetNameControl" (keydown.enter)="savePreset()"/>
-                    <mat-error *ngIf="filterPresetNameControl.invalid && filterPresetNameControl.value">Preset with that name already exists.</mat-error>
+                    @if (filterPresetNameControl.invalid && filterPresetNameControl.value) {
+                      <mat-error>Preset with that name already exists.</mat-error>
+                    }
                   </mat-form-field>
                   <button mat-flat-button color="primary" [disabled]="filterPresetNameControl.invalid" (click)="savePreset()"> Save </button>
                 </div>
@@ -133,24 +164,29 @@ interface Tab {
 
               <div class="overlay-panel-section existing-presets-section">
                 <span class="mat-body-2 overlay-panel-section-title"> Apply a preset </span>
-                <span class="mat-body-1" *ngIf="getCurrentFilterPresets().length === 0"> No existing presets found. </span>
-                <div *ngFor="let preset of getCurrentFilterPresets()" class="existing-preset inline">
-                  <button
-                      mat-button
-                      color="primary"
-                      (click)="onExistingPresetClick(preset)">
-                    {{ preset.split(".")[0] }}
-                  </button>
-                  <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
-                    <mat-icon class="material-symbols-outlined"> delete </mat-icon>
-                  </button>
-                </div>
+                @if (getCurrentFilterPresets().length === 0) {
+                  <span class="mat-body-1"> No existing presets found. </span>
+                }
+                @for (preset of getCurrentFilterPresets(); track preset) {
+                  <div class="existing-preset inline">
+                    <button
+                        mat-button
+                        color="primary"
+                        (click)="onExistingPresetClick(preset)">
+                      {{ preset.split(".")[0] }}
+                    </button>
+                    <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
+                      <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+                    </button>
+                  </div>
+                }
               </div>
             </div>
           </div>
         </ng-template>
       </div>
       <mat-divider></mat-divider>
+      <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
       <div class="trace-view-content"></div>
   `,
   styles: [
@@ -181,11 +217,6 @@ interface Tab {
         background-color: var(--trace-view-background-color);
       }
 
-      .tab {
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-      }
-
       .tab:not(.last):after {
         content: '';
         position: absolute;
@@ -193,6 +224,7 @@ interface Tab {
         height: 60%;
         width: 1px;
         background-color: #C4C0C0;
+        align-self: center;
       }
 
       .filter-presets {
@@ -200,7 +232,7 @@ interface Tab {
         padding: 0 10px;
         margin-inline: 10px;
         min-width: fit-content;
-        min-height: fit-content;
+        height: fit-content;
       }
 
       .filter-presets-label {
@@ -220,12 +252,16 @@ interface Tab {
         border-radius: 15px;
       }
 
+      .filter-presets-panel .overlay-panel-title {
+        margin: 5px 5px 5px 15px;
+      }
+
       .existing-preset {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        width: 100%:
+        width: 100%;
       }
 
       .existing-preset:hover {
@@ -234,6 +270,10 @@ interface Tab {
 
       .existing-preset:not(:hover) .delete-button {
         opacity: 0.5;
+      }
+
+      .save-section {
+        padding-bottom: 10px;
       }
     `,
     overlayPanelStyles,
@@ -269,7 +309,7 @@ export class TraceViewComponent
   );
 
   private currentActiveTab: undefined | Tab;
-  private emitAppEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  private emitAppEvent: EmitEvent = () => Promise.resolve();
   private filterPresetsStoreKey = 'filterPresets';
   private allFilterPresets: string[] = [];
 

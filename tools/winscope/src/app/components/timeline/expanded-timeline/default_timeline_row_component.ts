@@ -15,15 +15,19 @@
  */
 
 import {Component, Input} from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Point} from 'common/geometry/point';
 import {Rect} from 'common/geometry/rect';
 import {Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace/trace';
+import {Trace, TraceEntry} from 'trace_api/trace';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 
+/**
+ * A component for displaying a single timeline row with entries rendered as vertical bars.
+ */
 @Component({
   selector: 'single-timeline',
+  standalone: true,
   template: `
     <div
       class="single-timeline"
@@ -146,20 +150,20 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<{}
   }
 
   private getXPosOf(entry: Timestamp): number {
-    const start = assertDefined(this.selectionRange).from.getValueNs();
-    const end = assertDefined(this.selectionRange).to.getValueNs();
+    const start = assertDefined(this.selectionRange).startNs;
+    const end = assertDefined(this.selectionRange).endNs;
 
     return Number(
-      (BigInt(this.getAvailableWidth()) * (entry.getValueNs() - start)) /
-        (end - start),
+      (BigInt(this.getAvailableWidth()) * BigInt(entry.getValueNs() - start)) /
+        BigInt(end - start),
     );
   }
 
   private getTimestampOf(x: number): Timestamp {
-    const start = assertDefined(this.selectionRange).from.getValueNs();
-    const end = assertDefined(this.selectionRange).to.getValueNs();
+    const start = assertDefined(this.selectionRange).startNs;
+    const end = assertDefined(this.selectionRange).endNs;
     const ts =
-      (BigInt(Math.floor(x)) * (end - start)) /
+      (BigInt(Math.floor(x)) * BigInt(end - start)) /
         BigInt(this.getAvailableWidth()) +
       start;
     return assertDefined(this.timestampConverter).makeTimestampFromNs(ts);

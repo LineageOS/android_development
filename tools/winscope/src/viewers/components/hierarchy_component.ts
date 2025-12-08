@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -23,25 +24,48 @@ import {
   Input,
   Output,
 } from '@angular/core';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {Color} from 'app/colors';
-import {isElementOverflowing, KeyboardEventKey} from 'common/dom_utils';
+import {isElementOverflowing, KeyboardEventKey} from 'common/dom';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {PersistentStore} from 'common/store/persistent_store';
+import {Warning} from 'common/warning';
 import {Analytics} from 'logging/analytics';
-import {UserWarning} from 'messaging/user_warning';
-import {TraceType} from 'trace/trace_type';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
 import {RectShowState} from 'viewers/common/rect_show_state';
 import {TableProperties} from 'viewers/common/table_properties';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {isHighlighted} from 'viewers/common/ui_tree_utils';
 import {UserOptions} from 'viewers/common/user_options';
 import {ViewerEvents} from 'viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
+import {PropertiesTableComponent} from 'viewers/components/properties_table_component';
+import {SearchBoxComponent} from 'viewers/components/search_box_component';
 import {nodeStyles} from 'viewers/components/styles/node.styles';
+import {TreeComponent} from 'viewers/components/tree_component';
+import {TreeNodeComponent} from 'viewers/components/tree_node_component';
+import {UserOptionsComponent} from 'viewers/components/user_options_component';
 import {viewerCardInnerStyle} from './styles/viewer_card.styles';
 
 @Component({
   selector: 'hierarchy-view',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatTooltipModule,
+    CollapsibleSectionTitleComponent,
+    SearchBoxComponent,
+    UserOptionsComponent,
+    PropertiesTableComponent,
+    TreeComponent,
+    TreeNodeComponent,
+  ],
   template: `
     <div class="view-header">
       <div class="title-section">
@@ -50,7 +74,8 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
           title="HIERARCHY"
           (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
         <search-box
-          formFieldClass="applied-field"
+          formFieldClass="applied-field mat-form-field-appearance-none"
+          subscriptSizing="dynamic"
           [textFilter]="textFilter"
           (filterChange)="onFilterChange($event)"></search-box>
       </div>
@@ -61,56 +86,65 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
         [traceType]="dependencies[0]"
         [logCallback]="Analytics.Navigation.logHierarchySettingsChanged">
       </user-options>
-      <ng-container *ngIf="getWarnings().length > 0">
-        <span
-          *ngFor="let warning of getWarnings()"
-          class="mat-body-1 warning"
-          [matTooltip]="warning.getMessage()"
-          [matTooltipDisabled]="disableTooltip(warningEl)">
-          <mat-icon class="warning-icon"> warning </mat-icon>
-          <span class="warning-message" #warningEl>{{warning.getMessage()}}</span>
-        </span>
-      </ng-container>
-      <properties-table
-        *ngIf="tableProperties"
-        class="properties-table"
-        [properties]="tableProperties"></properties-table>
-      <div
-        *ngIf="pinnedItems.length > 0"
-        class="pinned-items"
-        [style.padding]="getPinnedItemsPadding()">
-        <tree-node
-          *ngFor="let pinnedItem of pinnedItems"
-          class="node full-opacity"
-          [class]="pinnedItem.getDiff()"
-          [class.selected]="isHighlighted(pinnedItem, highlightedItem)"
-          [class.clickable]="true"
-          [node]="pinnedItem"
-          [isPinned]="true"
-          [isInPinnedSection]="true"
-          [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
-          (pinNodeChange)="onPinnedItemChange($event)"
-          (click)="onPinnedNodeClick($event, pinnedItem)"></tree-node>
-      </div>
+      @if (getWarnings().length > 0) {
+        <div>
+          @for (warning of getWarnings(); track $index) {
+            <span
+              class="mat-body-1 warning"
+              [matTooltip]="warning.getMessage()"
+              [matTooltipDisabled]="disableTooltip(warningEl)">
+              <mat-icon class="warning-icon icon-small"> warning </mat-icon>
+              <span class="warning-message text-no-overflow" #warningEl>{{warning.getMessage()}}</span>
+            </span>
+          }
+        </div>
+      }
+      @if (tableProperties) {
+        <properties-table
+          class="properties-table"
+          [properties]="tableProperties"></properties-table>
+      }
+      @if (pinnedItems.length > 0) {
+        <div class="pinned-items">
+          @for (pinnedItem of pinnedItems; track pinnedItem.id) {
+            <tree-node
+              class="node full-opacity"
+              [class]="pinnedItem.getDiff()"
+              [class.selected]="isHighlighted(pinnedItem, highlightedItem)"
+              [class.clickable]="true"
+              [node]="pinnedItem"
+              [isPinned]="true"
+              [isInPinnedSection]="true"
+              [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
+              (pinNodeChange)="onPinnedItemChange($event)"
+              (click)="onPinnedNodeClick($event, pinnedItem)"></tree-node>
+          }
+        </div>
+      }
     </div>
     <mat-divider></mat-divider>
-    <span class="mat-body-1 placeholder-text" *ngIf="showPlaceholderText()"> {{ placeholderText + ' Try changing timeline position.' }} </span>
+    @if (showPlaceholderText()) {
+      <span
+        class="mat-body-1 placeholder-text"
+        >{{ getPlaceholderText() }}</span>
+    }
     <div class="hierarchy-content tree-wrapper">
       <div class="trees">
-        <tree-view
-          *ngFor="let tree of trees; trackBy: trackById"
-          class="tree"
-          [node]="tree"
-          [isFlattened]="isFlattened()"
-          [useStoredExpandedState]="true"
-          [highlightedItem]="highlightedItem"
-          [pinnedItems]="pinnedItems"
-          [itemsClickable]="true"
-          [rectIdToShowState]="rectIdToShowState"
-          [store]="treeStorage"
-          (highlightedChange)="onHighlightedItemChange($event)"
-          (pinnedItemChange)="onPinnedItemChange($event)"
-          (selectedTreeChange)="onSelectedTreeChange($event)"></tree-view>
+        @for (tree of trees; track tree.id) {
+          <tree-view
+            class="tree"
+            [node]="tree"
+            [isFlattened]="isFlattened()"
+            [useStoredExpandedState]="true"
+            [highlightedItem]="highlightedItem"
+            [pinnedItems]="pinnedItems"
+            [itemsClickable]="true"
+            [rectIdToShowState]="rectIdToShowState"
+            [store]="treeStorage"
+            (highlightedChange)="onHighlightedItemChange($event)"
+            (pinnedItemChange)="onPinnedItemChange($event)"
+            (selectedTreeChange)="onSelectedTreeChange($event)"></tree-view>
+        }
       </div>
     </div>
   `,
@@ -140,13 +174,17 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
       tree-view {
         overflow: auto;
       }
+
+      search-box {
+        margin-top: 8px;
+      }
     `,
     nodeStyles,
     viewerCardInnerStyle,
   ],
 })
 export class HierarchyComponent {
-  isHighlighted = UiTreeUtils.isHighlighted;
+  isHighlighted = isHighlighted;
   ViewerEvents = ViewerEvents;
   Analytics = Analytics;
   treeStorage = new InMemoryStorage();
@@ -180,7 +218,7 @@ export class HierarchyComponent {
     return this.trees.length === 0 && !!this.placeholderText;
   }
 
-  getWarnings(): UserWarning[] {
+  getWarnings(): Warning[] {
     return this.trees.flatMap((tree) => tree.getWarnings());
   }
 
@@ -216,13 +254,20 @@ export class HierarchyComponent {
     this.elementRef.nativeElement.dispatchEvent(event);
   }
 
-  disableTooltip(el: HTMLElement) {
+  disableTooltip(el: HTMLElement): boolean {
     return !isElementOverflowing(el);
   }
 
-  getPinnedItemsPadding() {
-    const addGutter = (this.rectIdToShowState?.size ?? 0) > 0;
-    return `0px 10.5px 0px ${addGutter ? 22.5 : 10.5}px`;
+  getPlaceholderText(): string {
+    return (
+      this.placeholderText +
+      ` There may be no ${
+        this.dependencies.length > 0
+          ? TRACE_INFO[this.dependencies[0]].name + ' state'
+          : 'state for this trace'
+      } associated with the current state in the active trace.` +
+      ' Try changing timeline position.'
+    );
   }
 
   @HostListener('document:keydown', ['$event'])

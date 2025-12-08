@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  NO_ERRORS_SCHEMA,
-  QueryList,
-  ViewChildren,
-} from '@angular/core';
+import {Component, QueryList, ViewChildren} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -36,8 +32,11 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabsModule} from '@angular/material/tabs';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {ProxyTraceTimeout} from 'messaging/user_warnings';
 import {
@@ -45,10 +44,10 @@ import {
   NoTraceTargetsSelected,
   WinscopeEvent,
 } from 'messaging/winscope_event';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {
   AdbDeviceConnection,
   AdbDeviceState,
@@ -56,6 +55,7 @@ import {
 import {AdbConnectionType} from 'trace_collection/adb_connection_type';
 import {ConnectionState} from 'trace_collection/connection_state';
 import {MockAdbDeviceConnection} from 'trace_collection/mock/mock_adb_device_connection';
+import {makeProtologGroupOptions} from 'trace_collection/ui/ui_trace_configuration';
 import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
 import {WdpDeviceConnection} from 'trace_collection/wdp/wdp_device_connection';
 import {WdpHostConnection} from 'trace_collection/wdp/wdp_host_connection';
@@ -82,6 +82,7 @@ describe('CollectTracesComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        NoopAnimationsModule,
         CommonModule,
         MatIconModule,
         MatCardModule,
@@ -99,9 +100,7 @@ describe('CollectTracesComponent', () => {
         MatFormFieldModule,
         MatInputModule,
         ClipboardModule,
-      ],
-      providers: [MatSnackBar],
-      declarations: [
+        OverlayModule,
         TestHostComponent,
         CollectTracesComponent,
         WinscopeProxySetupComponent,
@@ -110,7 +109,8 @@ describe('CollectTracesComponent', () => {
         LoadProgressComponent,
         WarningDialogComponent,
       ],
-      schemas: [NO_ERRORS_SCHEMA],
+      providers: [MatSnackBar],
+      schemas: [],
     }).compileComponents();
     const fixture = TestBed.createComponent(TestHostComponent);
     hostComponent = fixture.componentInstance;
@@ -583,6 +583,44 @@ describe('CollectTracesComponent', () => {
     checkMediaBasedConfigUpdates(true);
   });
 
+  it('updates options in protolog config on devices change from host', () => {
+    const groups = ['group1', 'group2'];
+
+    checkProtologConfig([]);
+    const device1 = new MockAdbDeviceConnection(
+      '35562',
+      'Pixel 6',
+      AdbDeviceState.AVAILABLE,
+      component,
+      undefined,
+      undefined,
+      groups,
+    );
+    // does not update if no selected device
+    component.onDevicesChange([device1]);
+    dom.detectChanges();
+    checkProtologConfig([]);
+
+    goToConfigSection();
+    // does not update if selected device not in new devices
+    const device2 = new MockAdbDeviceConnection(
+      '99',
+      'Pixel 6',
+      AdbDeviceState.AVAILABLE,
+      component,
+      undefined,
+      undefined,
+      groups,
+    );
+    component.onDevicesChange([device2]);
+    dom.detectChanges();
+    checkProtologConfig([]);
+
+    component.onDevicesChange([device1]);
+    dom.detectChanges();
+    checkProtologConfig(groups);
+  });
+
   it('changes host type on mat select change', async () => {
     await changeConnection(1);
     expect(component.controller?.getConnectionType()).toEqual(
@@ -869,35 +907,49 @@ describe('CollectTracesComponent', () => {
     const screenshotConfig = assertDefined(
       component.dumpConfig[UiTraceTarget.SCREENSHOT].config,
     ).selectionConfigs[0];
-    expect(screenRecordingConfig.options).toEqual(displays);
-    expect(screenshotConfig.options).toEqual(displays);
+    const displayOptions = displays.map((d) => {
+      return {value: d};
+    });
+    expect(screenRecordingConfig.options).toEqual(displayOptions);
+    expect(screenshotConfig.options).toEqual(displayOptions);
     expect(screenRecordingConfig.value).toEqual(
       multiDisplayScreenRecording ? [] : '',
     );
+  }
+
+  function checkProtologConfig(groups: string[]) {
+    const config = assertDefined(
+      component.traceConfig[UiTraceTarget.PROTO_LOG].config,
+    ).selectionConfigs[0];
+    expect(config.options).toEqual(makeProtologGroupOptions(groups));
+    expect(config.value).toEqual([]);
   }
 
   async function changeConnection(index: number) {
     await dom.openMatSelect();
     await dom.whenRenderingDone();
     const panel = dom.getMatSelectPanel();
-    panel.findAndClickByIndex('.mat-option', index);
+    panel.findAndClickByIndex('mat-option', index);
   }
 
   async function changeTab(index: number) {
-    const selector = '.target-tabs .mat-tab-label';
+    const selector = '.target-tabs .mdc-tab__text-label';
     await dom.clickByIndexAndWaitStable(selector, index);
   }
 
   @Component({
+    imports: [CollectTracesComponent, CommonModule],
     selector: 'host-component',
     template: `
-      <collect-traces
-        *ngIf="showFirstComponent"
-        [storage]="storage"></collect-traces>
+      @if (showFirstComponent) {
+        <collect-traces
+          [storage]="storage"></collect-traces>
+      }
 
-      <collect-traces
-        *ngIf="showSecondComponent"
-        [storage]="storage"></collect-traces>
+      @if (showSecondComponent) {
+        <collect-traces
+          [storage]="storage"></collect-traces>
+      }
     `,
   })
   class TestHostComponent {

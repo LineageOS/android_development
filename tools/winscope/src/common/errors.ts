@@ -14,4 +14,7 @@
  * limitations under the License.
  */
 
+/**
+ * An error to be thrown when a feature is not implemented.
+ */
 export const NOT_IMPLEMENTED_ERROR = new Error('Not implemented');

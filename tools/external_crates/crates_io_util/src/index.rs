@@ -31,7 +31,7 @@ impl CratesIoIndex {
     pub fn new_ureq() -> Result<CratesIoIndex, Error> {
         Ok(CratesIoIndex {
             fetcher: Box::new(UreqFetcher {
-                index: crates_index::SparseIndex::new_cargo_default()?,
+                index: CratesIoIndex::new_index()?,
                 agent: ureq::Agent::new_with_defaults(),
                 fetched: RefCell::new(HashSet::new()),
             }),
@@ -42,9 +42,7 @@ impl CratesIoIndex {
     /// is returned.
     pub fn new_offline() -> Result<CratesIoIndex, Error> {
         Ok(CratesIoIndex {
-            fetcher: Box::new(OfflineFetcher {
-                index: crates_index::SparseIndex::new_cargo_default()?,
-            }),
+            fetcher: Box::new(OfflineFetcher { index: CratesIoIndex::new_index()? }),
         })
     }
     /// Constructs a CratesIoIndex that uses cargo commands to fetch data
@@ -53,10 +51,16 @@ impl CratesIoIndex {
     pub fn new_cargo() -> Result<CratesIoIndex, Error> {
         Ok(CratesIoIndex {
             fetcher: Box::new(CargoFetcher {
-                index: crates_index::SparseIndex::new_cargo_default()?,
+                index: CratesIoIndex::new_index()?,
                 fetched: RefCell::new(HashSet::new()),
             }),
         })
+    }
+    fn new_index() -> Result<SparseIndex, Error> {
+        Ok(crates_index::SparseIndex::from_url_with_hash_kind(
+            crates_index::sparse::URL,
+            &crates_index::HashKind::Stable,
+        )?)
     }
     /// Fetches and returns the crates.io data on a crate.
     pub fn get_crate(&self, crate_name: impl AsRef<str>) -> Result<Crate, Error> {

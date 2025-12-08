@@ -1,0 +1,271 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+import "android.proto";
+import "graphics.proto";
+
+package android_common.view;
+
+option java_multiple_files = true;
+
+message DisplayProto {
+    enum ColorMode {
+        COLOR_MODE_INVALID = -1;
+        // The default or native gamut of the display.
+        COLOR_MODE_DEFAULT = 0;
+        COLOR_MODE_BT601_625 = 1;
+        COLOR_MODE_BT601_625_UNADJUSTED = 2;
+        COLOR_MODE_BT601_525 = 3;
+        COLOR_MODE_BT601_525_UNADJUSTED = 4;
+        COLOR_MODE_BT709 = 5;
+        COLOR_MODE_DCI_P3 = 6;
+        COLOR_MODE_SRGB = 7;
+        COLOR_MODE_ADOBE_RGB = 8;
+        COLOR_MODE_DISPLAY_P3 = 9;
+    }
+}
+
+message DisplayCutoutProto {
+    option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
+
+    optional .android_common.graphics.RectProto insets = 1;
+    reserved 2;
+    optional .android_common.graphics.RectProto bound_left = 3;
+    optional .android_common.graphics.RectProto bound_top = 4;
+    optional .android_common.graphics.RectProto bound_right = 5;
+    optional .android_common.graphics.RectProto bound_bottom = 6;
+    optional .android_common.graphics.RectProto waterfall_insets = 7;
+    repeated int32 side_overrides = 8;
+}
+
+// Represents DisplayInfo. Describes the characteristics of a particular
+// logical display.
+message DisplayInfoProto {
+    option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
+
+    optional int32 logical_width = 1;
+    optional int32 logical_height = 2;
+    optional int32 app_width = 3;
+    optional int32 app_height = 4;
+    // The human-readable name of the display.
+    // Eg: "Built-in Screen"
+    optional string name = 5;
+    optional int32 flags = 6;
+    optional DisplayCutoutProto cutout = 7;
+    optional int32 type = 8;
+}
+
+/**
+ * Represents a {@link android.view.ImeFocusController} object.
+ */
+message ImeFocusControllerProto {
+    optional bool has_ime_focus = 1;
+    optional string served_view = 2 [deprecated = true];
+    optional string next_served_view = 3 [deprecated = true];
+}
+
+/**
+ * Represents a {@link android.view.ImeInsetsSourceConsumer} object.
+ */
+message ImeInsetsSourceConsumerProto {
+    option deprecated = true;
+    optional InsetsSourceConsumerProto insets_source_consumer = 1;
+    reserved 2; // focused_editor = 2
+    optional bool is_requested_visible_awaiting_control = 3;
+    optional bool is_hide_animation_running = 4 [deprecated=true];
+    optional bool is_show_requested_during_hide_animation = 5 [deprecated=true];
+    optional bool has_pending_request = 6;
+}
+
+/**
+ * Represents a {@link android.view.InsetsAnimationControlImpl} object.
+ */
+message InsetsAnimationControlImplProto {
+    optional bool is_cancelled = 1;
+    optional bool is_finished = 2;
+    optional string tmp_matrix = 3;
+    optional string pending_insets = 4;
+    optional float pending_fraction = 5;
+    optional bool shown_on_finish = 6;
+    optional float current_alpha = 7;
+    optional float pending_alpha = 8;
+}
+
+/**
+ * Represents a {@link android.view.InsetsController} object.
+ */
+message InsetsControllerProto {
+    optional InsetsStateProto state = 1;
+    repeated InsetsAnimationControlImplProto control = 2;
+}
+
+/**
+ * Represents a {@link android.view.InsetsSource} object.
+ */
+message InsetsSourceProto {
+    optional string type = 1 [deprecated=true];
+    optional .android_common.graphics.RectProto frame = 2;
+    optional .android_common.graphics.RectProto visible_frame = 3;
+    optional bool visible = 4;
+    optional int32 type_number = 5;
+    optional .android_common.graphics.InsetsProto attached_insets = 6;
+}
+
+/**
+ * Represents a {@link android.view.InsetsSourceConsumer} object.
+ */
+message InsetsSourceConsumerProto {
+    optional string internal_insets_type = 1 [deprecated=true];
+    optional bool has_window_focus = 2;
+    optional bool is_requested_visible = 3;
+    optional InsetsSourceControlProto source_control = 4;
+    optional .android_common.graphics.RectProto pending_frame = 5;
+    optional .android_common.graphics.RectProto pending_visible_frame = 6;
+    optional int32 animation_state = 7;
+    optional int32 type_number = 8;
+}
+
+/**
+ * Represents a {@link android.view.InsetsSourceControl} object.
+ */
+message InsetsSourceControlProto {
+    optional string type = 1 [deprecated=true];
+    optional .android_common.graphics.PointProto position = 2;
+    optional SurfaceControlProto leash = 3;
+    optional int32 type_number = 4;
+}
+
+/**
+ * Represents a {@link android.view.InsetsState} object.
+ */
+message InsetsStateProto {
+    repeated InsetsSourceProto sources = 1;
+    optional .android_common.graphics.RectProto display_frame = 2;
+    optional DisplayCutoutProto display_cutout = 3;
+}
+
+message SurfaceProto {
+    enum Rotation {
+        ROTATION_0 = 0;
+        ROTATION_90 = 1;
+        ROTATION_180 = 2;
+        ROTATION_270 = 3;
+    }
+}
+
+/**
+ * Represents a {@link android.view.SurfaceControl} object.
+ */
+message SurfaceControlProto {
+    option (android.msg_privacy).dest = DEST_AUTOMATIC;
+
+    optional int32 hash_code = 1;
+    optional string name = 2 [ (android.privacy).dest = DEST_EXPLICIT ];
+    optional int32 layerId = 3;
+}
+
+/**
+ * Represents a {@link android.view.ViewRootImpl} object.
+ */
+message ViewRootImplProto {
+    optional string view = 1;
+    optional int32 display_id = 2;
+    optional bool app_visible = 3;
+    optional int32 width = 4;
+    optional int32 height = 5;
+    optional bool is_animating = 6;
+    optional .android_common.graphics.RectProto visible_rect = 7;
+    optional bool is_drawing = 8;
+    optional bool added = 9;
+    optional .android_common.graphics.RectProto win_frame = 10;
+    optional DisplayCutoutProto pending_display_cutout = 11 [deprecated=true];
+    optional string last_window_insets = 12;
+    optional string soft_input_mode = 13;
+    optional int32 scroll_y = 14;
+    optional int32 cur_scroll_y = 15;
+    optional bool removed = 16;
+    optional .android_common.view.WindowLayoutParamsProto window_attributes = 17;
+}
+
+/* represents WindowManager.LayoutParams */
+message WindowLayoutParamsProto {
+    option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
+
+    optional int32 type = 1 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.WindowType"];
+    optional int32 x = 2;
+    optional int32 y = 3;
+    optional int32 width = 4;
+    optional int32 height = 5;
+    optional float horizontal_margin = 6;
+    optional float vertical_margin = 7;
+    optional int32 gravity = 8 [(.android_common.typedef) = "android.view.Gravity.GravityFlags"];
+    optional int32 soft_input_mode = 9 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.SoftInputModeFlags"];
+    optional .android_common.graphics.PixelFormatProto.Format format = 10;
+    optional int32 window_animations = 11;
+    optional float alpha = 12;
+    optional float screen_brightness = 13;
+    optional float button_brightness = 14;
+
+    enum RotationAnimation {
+        ROTATION_ANIMATION_UNSPECIFIED = -1;
+        ROTATION_ANIMATION_CROSSFADE = 1;
+        ROTATION_ANIMATION_JUMPCUT = 2;
+        ROTATION_ANIMATION_SEAMLESS = 3;
+    }
+    optional RotationAnimation rotation_animation = 15;
+
+    optional float preferred_refresh_rate = 16;
+    optional int32 preferred_display_mode_id = 17;
+    optional bool has_system_ui_listeners = 18;
+    optional uint32 input_feature_flags = 19 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.InputFeatureFlags"];
+    optional int64 user_activity_timeout = 20;
+
+    optional DisplayProto.ColorMode color_mode = 23;
+    optional uint32 flags = 24 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.Flags"];
+    optional uint32 private_flags = 26 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.PrivateFlags"];
+    optional uint32 system_ui_visibility_flags = 27 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.SystemUiVisibilityFlags"];
+    optional uint32 subtree_system_ui_visibility_flags = 28 [(.android_common.typedef) = "android.view.WindowManager.LayoutParams.SystemUiVisibilityFlags"];
+    optional uint32 appearance = 29 [(.android_common.typedef) = "android.view.WindowInsetsController.Appearance"];
+    optional uint32 behavior = 30 [(.android_common.typedef) = "android.view.WindowInsetsController.Behavior"];
+    optional uint32 fit_insets_types = 31 [(.android_common.typedef) = "android.view.WindowInsets.Type.InsetsType"];
+    optional uint32 fit_insets_sides = 32 [(.android_common.typedef) = "android.view.WindowInsets.Side.InsetsSide"];
+    optional bool fit_ignore_visibility = 33;
+}
+
+/** Proto representation for android.view.RemoteAnimationTarget.java class. */
+message RemoteAnimationTargetProto {
+    option (android.msg_privacy).dest = DEST_AUTOMATIC;
+
+    optional int32 task_id = 1;
+    optional int32 mode = 2;
+    optional .android_common.view.SurfaceControlProto leash = 3;
+    optional bool is_translucent = 4;
+    optional .android_common.graphics.RectProto clip_rect = 5;
+    optional .android_common.graphics.RectProto content_insets = 6;
+    optional int32 prefix_order_index = 7;
+    // The source position of the app, in screen spaces coordinates. If the
+    // position of the leash is modified from the controlling app, any animation
+    // transform needs to be offset by this amount.
+    optional .android_common.graphics.PointProto position = 8;
+    optional .android_common.graphics.RectProto source_container_bounds = 9;
+    optional .android_common.app.WindowConfigurationProto window_configuration = 10;
+    optional .android_common.view.SurfaceControlProto start_leash = 11;
+    optional .android_common.graphics.RectProto start_bounds = 12;
+    optional .android_common.graphics.RectProto local_bounds = 13;
+    optional .android_common.graphics.RectProto screen_space_bounds = 14;
+}

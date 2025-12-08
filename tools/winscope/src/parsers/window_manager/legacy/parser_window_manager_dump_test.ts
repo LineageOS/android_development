@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
+import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
   getTimestampConverter,
-  TimestampConverterUtils,
+  makeElapsedTimestamp,
   timestampEqualityTester,
-} from 'common/time/test_utils';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {CoarseVersion} from 'trace/coarse_version';
-import {CustomQueryType} from 'trace/custom_query';
-import {Parser} from 'trace/parser';
-import {Trace} from 'trace/trace';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {CoarseVersion} from 'trace_api/coarse_version';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Parser} from 'trace_api/parser';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 describe('ParserWindowManagerDump', () => {
   let parser: Parser<HierarchyTreeNode>;
@@ -35,7 +35,7 @@ describe('ParserWindowManagerDump', () => {
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
     parser = await new LegacyParserProvider()
-      .addFilename('traces/elapsed_timestamp/dump_WindowManager.pb')
+      .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
       .getParser<HierarchyTreeNode>();
     trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.WINDOW_MANAGER)
@@ -52,28 +52,26 @@ describe('ParserWindowManagerDump', () => {
   });
 
   it('provides timestamp (always zero)', () => {
-    const expected = [TimestampConverterUtils.makeElapsedTimestamp(0n)];
+    const expected = [makeElapsedTimestamp(0n)];
     expect(parser.getTimestamps()).toEqual(expected);
   });
 
   it('does not apply timezone info', async () => {
     const parserWithTimezoneInfo = await new LegacyParserProvider()
-      .addFilename('traces/elapsed_timestamp/dump_WindowManager.pb')
+      .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
       .setTimestampConverter(getTimestampConverter(true))
       .getParser<HierarchyTreeNode>();
     expect(parserWithTimezoneInfo.getTraceType()).toEqual(
       TraceType.WINDOW_MANAGER,
     );
 
-    expect(parser.getTimestamps()).toEqual([
-      TimestampConverterUtils.makeElapsedTimestamp(0n),
-    ]);
+    expect(parser.getTimestamps()).toEqual([makeElapsedTimestamp(0n)]);
   });
 
   it('retrieves trace entry', async () => {
     const entry = await parser.getEntry(0);
     expect(entry).toBeInstanceOf(HierarchyTreeNode);
-    expect(entry.getEagerPropertyByName('focusedApp')?.getValue()).toEqual(
+    expect(entry.getEagerPropertyByName('focusedApp')?.getValue()).toBe(
       'com.google.android.apps.nexuslauncher/.NexusLauncherActivity',
     );
   });
@@ -82,7 +80,7 @@ describe('ParserWindowManagerDump', () => {
     const tokenAndTitles = await trace.customQuery(
       CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE,
     );
-    expect(tokenAndTitles.length).toEqual(73);
+    expect(tokenAndTitles.length).toBe(73);
     expect(tokenAndTitles).toContain({token: 'cab97a6', title: 'Leaf:36:36'});
   });
 });

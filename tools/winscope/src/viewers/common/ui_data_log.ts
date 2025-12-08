@@ -15,8 +15,8 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {TraceEntry} from 'trace/trace';
-import {LazyPropertiesStrategyType} from 'trace/tree_node/properties_provider';
+import {TraceEntry} from 'trace_api/trace';
+import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UserOptions} from 'viewers/common/user_options';
 import {LogFilter} from './log_filters';
@@ -28,6 +28,7 @@ export interface UiDataLog {
   scrollToIndex: undefined | number;
   currentIndex: undefined | number;
   isFetchingData: boolean;
+  checkScrollViewport: boolean;
 
   headers: LogHeader[];
   propertiesTree?: undefined | UiPropertyTreeNode;
@@ -44,7 +45,10 @@ export interface ColumnSpec {
 }
 
 export class LogHeader {
-  constructor(public spec: ColumnSpec, public filter?: LogFilter) {}
+  constructor(
+    public spec: ColumnSpec,
+    public filter?: LogFilter,
+  ) {}
 }
 
 export interface LogEntry {
@@ -61,4 +65,14 @@ export interface LogField {
   propagateEntryTimestamp?: boolean;
 }
 
-export type LogFieldValue = string | number | Timestamp;
+export type LogFieldValue =
+  | string
+  | number
+  | Timestamp
+  | Array<string | ClickableProperty>;
+
+export interface ClickableProperty {
+  propertyValue: string;
+  tooltip: string;
+  onClick: () => void;
+}

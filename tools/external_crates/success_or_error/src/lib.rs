@@ -91,7 +91,7 @@ impl RunAndExpectSuccess for Command {
 struct MaybeExitCode<'a>(&'a Option<i32>);
 impl Display for MaybeExitCode<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.map(|code| write!(f, "{}", code)).unwrap_or(f.write_str("(unknown)"))
+        self.0.map(|code| write!(f, "{code}")).unwrap_or(f.write_str("(unknown)"))
     }
 }
 impl<'a> From<&'a Option<i32>> for MaybeExitCode<'a> {

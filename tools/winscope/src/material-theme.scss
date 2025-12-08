@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 @use 'sass:map';
 @use '@angular/material' as mat;
 
@@ -20,106 +21,444 @@
 @import '//fonts.googleapis.com/css2?family=Google+Sans';
 @import 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0';
 
-$typography: mat.define-typography-config(
-    $font-family: 'Roboto, sans-serif'
+$typography: mat.m2-define-typography-config(
+  $font-family: 'Roboto, sans-serif',
+  $headline-1:
+    mat.m2-define-typography-level(
+      $font-size: 24px,
+      $letter-spacing: normal,
+      $font-weight: 400,
+    ),
+  $headline-2:
+    mat.m2-define-typography-level(
+      $font-size: 20px,
+      $letter-spacing: normal,
+      $font-weight: 500,
+    ),
+  $headline-6:
+    mat.m2-define-typography-level(
+      $font-size: 20px,
+      $letter-spacing: normal,
+      $font-weight: 500,
+    ),
+  $subtitle-1:
+    mat.m2-define-typography-level(
+      $font-size: 16px,
+      $line-height: 28px,
+      $letter-spacing: normal,
+      $font-weight: 400,
+    ),
+  $subtitle-2:
+    mat.m2-define-typography-level(
+      $font-size: 20px,
+      $letter-spacing: normal,
+      $font-weight: 400,
+    ),
+  $body-1:
+    mat.m2-define-typography-level(
+      $font-size: 14px,
+      $line-height: 20px,
+      $letter-spacing: normal,
+      $font-weight: 400,
+    ),
+  $body-2:
+    mat.m2-define-typography-level(
+      $font-size: 14px,
+      $line-height: 20px,
+      $letter-spacing: normal,
+      $font-weight: 500,
+    ),
+  $button:
+    mat.m2-define-typography-level(
+      $font-size: 14px,
+      $letter-spacing: normal,
+      $font-weight: 500,
+    ),
 );
 
-$light-primary: mat.define-palette(mat.$blue-palette, 700);
-$dark-primary: mat.define-palette(mat.$blue-palette, 400);
-$light-accent: mat.define-palette(mat.$grey-palette, 700);
-$dark-accent: mat.define-palette(mat.$grey-palette, 500);
-$warn: mat.define-palette(mat.$red-palette);
+$light-primary: mat.m2-define-palette(mat.$m2-blue-palette, 700);
+$dark-primary: mat.m2-define-palette(mat.$m2-blue-palette, 400);
+$light-accent: mat.m2-define-palette(mat.$m2-grey-palette, 700);
+$dark-accent: mat.m2-define-palette(mat.$m2-grey-palette, 500);
+$warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-$light-theme: mat.define-light-theme((
- color: (
-   primary: $light-primary,
-   accent: $light-accent,
-   warn: $warn,
- ),
- density: 0,
- typography: null, // Set typography on mat.core() only, to avoid duplicates.
-));
-
-$dark-theme: mat.define-dark-theme((
-  color: (
-    primary: $dark-primary,
-    accent: $dark-accent,
-    warn: $warn,
+$light-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $light-primary,
+      accent: $light-accent,
+      warn: $warn,
+    ),
+    density: 0,
+    typography: $typography,
   )
-));
+);
+
+$dark-theme: mat.m2-define-dark-theme(
+  (
+    color: (
+      primary: $dark-primary,
+      accent: $dark-accent,
+      warn: $warn,
+    ),
+    typography: $typography,
+  )
+);
 
 @mixin background-color($theme, $contrast-theme) {
-  $config: mat.get-color-config($theme);
+  $config: mat.m2-get-color-config($theme);
   $background: map.get($config, background);
-
-  $contrast-config: mat.get-color-config($contrast-theme);
+  $contrast-config: mat.m2-get-color-config($contrast-theme);
   $contrast-background: map.get($contrast-config, background);
   & {
-    --background-color: #{mat.get-color-from-palette($background, background)};
-    --contrast-background-color: #{mat.get-color-from-palette($contrast-background, background)};
+    --background-color: #{mat.m2-get-color-from-palette($background, background)};
+    --contrast-background-color: #{mat.m2-get-color-from-palette(
+        $contrast-background,
+        background
+      )};
   }
 }
 
 @mixin border-color($theme) {
-  $config: mat.get-color-config($theme);
+  $config: mat.m2-get-color-config($theme);
   $foreground: map.get($config, foreground);
 
   & {
-    --border-color: #{mat.get-color-from-palette($foreground, divider)};
+    --border-color: #{mat.m2-get-color-from-palette($foreground, divider)};
   }
 }
 
 @mixin drawer-color($theme) {
-  $config: mat.get-color-config($theme);
+  $config: mat.m2-get-color-config($theme);
   $background: map.get($config, background);
   & {
-    --drawer-color: #{mat.get-color-from-palette($background, dialog)};
+    --drawer-color: #{mat.m2-get-color-from-palette($background, dialog)};
   }
 }
 
-@include mat.core($typography);
-@include mat.all-component-themes($light-theme);
+@include mat.core();
+@include mat.typography-hierarchy($typography);
+
+@include mat.button-theme($light-theme);
+
+@include mat.button-toggle-theme($light-theme);
+@include mat.button-toggle-overrides(
+  (
+    legacy-shape: 4px,
+  )
+);
+
+@include mat.card-theme($light-theme);
+
+@include mat.checkbox-theme($light-theme);
+@include mat.checkbox-density(-1);
+@include mat.checkbox-overrides(
+  (
+    label-text-weight: 400,
+  )
+);
+
+@include mat.dialog-theme($light-theme);
+.shortcuts-panel {
+  @include mat.dialog-overrides(
+    (
+      container-shape: 20px,
+      headline-padding: 10px,
+    )
+  );
+}
+.warning-panel {
+  @include mat.dialog-overrides(
+    (
+      container-shape: 20px,
+      headline-padding: 20px 24px,
+    )
+  );
+}
+
+@include mat.divider-theme($light-theme);
+
+@include mat.form-field-theme($light-theme);
+.file-name-input-field {
+  @include mat.form-field-overrides(
+    (
+      container-height: 32px,
+      filled-with-label-container-padding-top: 8px,
+      filled-with-label-container-padding-bottom: 0px,
+      filled-container-shape: 0px,
+    )
+  );
+}
+#time-selector {
+  @include mat.form-field-overrides(
+    (
+      container-text-weight: 500,
+      container-height: 20px,
+      container-vertical-padding: 0px,
+      filled-with-label-container-padding-top: 0px,
+      filled-with-label-container-padding-bottom: 0px,
+    )
+  );
+}
+.save-field {
+  @include mat.form-field-overrides(
+    (
+      container-vertical-padding: 8px,
+      container-height: 20px,
+    )
+  );
+}
+.mat-form-field-appearance-none:not(.applied-field.highlighted) {
+  @include mat.form-field-overrides(
+    (
+      filled-container-color: transparent,
+    )
+  );
+}
+.displays-select {
+  @include mat.form-field-overrides(
+    (
+      outlined-outline-width: 0,
+      container-height: 28px,
+      container-vertical-padding: 2px,
+    )
+  );
+}
+.hierarchy-view .search-box,
+.properties-view .search-box {
+  @include mat.form-field-overrides(
+    (
+      container-height: 30px,
+      filled-with-label-container-padding-top: 8px,
+      filled-with-label-container-padding-bottom: 0px,
+      filled-container-shape: 0px,
+    )
+  );
+}
+.connection-type {
+  @include mat.form-field-overrides(
+    (
+      container-height: 52px,
+      filled-with-label-container-padding-bottom: 4px,
+    )
+  );
+}
+
+.select-config-filter,
+.select-filter {
+  @include mat.form-field-overrides(
+    (
+      container-height: 40px,
+      filled-with-label-container-padding-top: 16px,
+      filled-with-label-container-padding-bottom: 4px,
+    )
+  );
+}
+.log-select-filter,
+.log-view .search-box {
+  @include mat.form-field-overrides(
+    (
+      container-height: 38px,
+      filled-with-label-container-padding-bottom: 3px,
+    )
+  );
+  @include mat.select-overrides(
+    (
+      arrow-transform: translateY(-5px),
+    )
+  );
+}
+.log-select-filter {
+  @include mat.form-field-overrides(
+    (
+      filled-with-label-container-padding-top: 12px,
+    )
+  );
+}
+.log-view .search-box {
+  @include mat.form-field-overrides(
+    (
+      filled-with-label-container-padding-top: 14px,
+    )
+  );
+}
+.proxy-command {
+  @include mat.form-field-overrides(
+    (
+      container-height: 52px,
+    )
+  );
+}
+.proxy-token-input-field {
+  @include mat.form-field-overrides(
+    (
+      container-height: 32px,
+      container-vertical-padding: 8px,
+    )
+  );
+}
+
+@include mat.icon-button-theme($light-theme);
+@include mat.icon-button-density(-2);
+@include mat.icon-button-overrides(
+  (
+    touch-target-display: -1,
+  )
+);
+.toolbar {
+  @include mat.icon-button-density(-5);
+};
+.no-touch-target-button,
+.rect-legend,
+.search-box,
+.listed-search-option,
+.toolbar {
+  @include mat.icon-button-overrides(
+    (
+      touch-target-display: none,
+    )
+  );
+}
+
+@include mat.icon-theme($light-theme);
+@include mat.input-theme($light-theme);
+
+@include mat.list-theme($light-theme);
+
+@include mat.menu-theme($light-theme);
+@include mat.option-theme($light-theme);
+@include mat.progress-bar-theme($light-theme);
+@include mat.progress-spinner-theme($light-theme);
+
+@include mat.pseudo-checkbox-theme($light-theme);
+@include mat.pseudo-checkbox-density(-1);
+
+@include mat.ripple-theme($light-theme);
+@include mat.select-theme($light-theme);
+@include mat.sidenav-theme($light-theme);
+@include mat.slider-theme($light-theme);
+@include mat.snack-bar-theme($light-theme);
+@include mat.tabs-theme($light-theme);
+
+@include mat.toolbar-theme($light-theme);
+@include mat.toolbar-overrides(
+  (
+    standard-height: 32px,
+    mobile-height: 32px,
+  )
+);
+
+@include mat.tooltip-theme($light-theme);
+
+@mixin winscope-color-overrides() {
+  @include mat.button-toggle-overrides(
+    (
+      legacy-selected-state-background-color: var(--card-title-background-color),
+    )
+  );
+  @include mat.list-overrides(
+    (
+      list-item-leading-icon-color: var(--default-text-color),
+      list-item-hover-leading-icon-color: var(--default-text-color),
+      list-item-trailing-supporting-text-color: var(--default-text-color),
+    )
+  );
+  @include mat.slider-overrides(
+    (
+      handle-height: 10px,
+      handle-width: 10px,
+      active-track-height: 2px,
+      inactive-track-height: 2px,
+    )
+  );
+
+  .shortcuts-panel,
+  .warning-panel {
+    @include mat.dialog-overrides(
+      (
+        supporting-text-color: var(--default-text-color),
+      )
+    );
+  }
+
+  #time-selector {
+    @include mat.form-field-overrides(
+      (
+        filled-container-color: var(--drawer-block-tertiary),
+      )
+    );
+  }
+
+  .mat-form-field-appearance-none.displays-select {
+    @include mat.form-field-overrides(
+      (
+        filled-container-color: var(--disabled-color),
+      )
+    );
+  }
+  .applied-field.highlighted {
+    @include mat.form-field-overrides(
+      (
+        filled-container-color: var(--selected-element-color),
+      )
+    );
+  }
+}
+
+body {
+  background-color: var(
+    --mat-app-background-color,
+    var(--mat-sys-background, transparent)
+  );
+  color: var(--mat-app-text-color, var(--mat-sys-on-background, inherit));
+}
 
 body:not(.dark-mode) {
-  --added-element-color: #D8EAC5;
-  @include background-color($light-theme, $dark-theme);
-  --blue-text-color: #{map.get(mat.$indigo-palette, A200)};
-  @include border-color($light-theme);
+  --added-element-color: #d8eac5;
+  --blue-text-color: #{map.get(mat.$m2-indigo-palette, A200)};
   --card-title-background-color: #f1f1f1;
   --contrast-text-color: white;
   --current-element-color: #7b9ccc;
   --default-text-color: rgba(0, 0, 0, 0.87);
-  --deleted-element-color: #FFCFD0;
+  --deleted-element-color: #ffcfd0;
   --disabled-color: rgba(0, 0, 0, 0.12);
-  --drawer-block-primary: #EEEFF0;
-  --drawer-block-secondary: #DDDDDD;
-  --drawer-color: var(--background-color);
+  --drawer-block-primary: #eeeff0;
+  --drawer-block-secondary: #dddddd;
+  --drawer-block-tertiary: rgba(0, 0, 0, 0.04);
   --gray-text-color: #7f7f7f;
   --green-text-color: #4e9c00;
   --hover-element-color: #eaeaea;
+  --logo-blue: #063C8C;
   --modified-element-color: #b8eaea;
   --overlay-panel-background-color: white;
-  --primary: #{mat.get-color-from-palette(mat.$blue-palette, 700)};
+  --primary: #{mat.m2-get-color-from-palette(mat.$m2-blue-palette, 700)};
   --purple-text-color: #a357e9;
   --red-text-color: #b30000;
-  --selected-element-color: #E2ECFF;
-  --side-bar-color: #6E6E6E;
-  --slider-background-color: #E8F0FE;
-  --slider-border-color: #8AB4F8;
-  --trace-view-background-color: #E4E4E4;
+  --selected-element-color: #e2ecff;
+  --search-background-color: #f4ebbb;
+  --side-bar-color: #6e6e6e;
+  --slider-background-color: #e8f0fe;
+  --slider-border-color: #8ab4f8;
+  --trace-view-background-color: #e4e4e4;
   --warning-background-color: #ffe9bd;
   --warning-color: #e37400;
   --error-background-color: #ffdada;
   --error-color: #d93025;
   --icon-accent-color: #d9d9d9;
+
+  @include background-color($light-theme, $dark-theme);
+  @include border-color($light-theme);
+
+  & {
+    --drawer-color: var(--background-color);
+  }
+
+  @include winscope-color-overrides();
 }
 
 body.dark-mode {
-  @include mat.all-component-colors($dark-theme);
-  --added-element-color: #6D8358;
-  @include background-color($dark-theme, $light-theme);
+  --added-element-color: #6d8358;
   --blue-text-color: #b8e3fd;
-  @include border-color($dark-theme);
   --card-title-background-color: #343434;
   --contrast-text-color: rgba(0, 0, 0, 0.87);
   --current-element-color: #365179;
@@ -128,23 +467,31 @@ body.dark-mode {
   --disabled-color: rgba(255, 255, 255, 0.12);
   --drawer-block-primary: #696563;
   --drawer-block-secondary: #5e5b5a;
-  @include drawer-color($dark-theme);
+  --drawer-block-tertiary: rgba(255, 255, 255, 0.1);
   --gray-text-color: #aeaeae;
   --green-text-color: #6ad400;
   --hover-element-color: #656565;
+  --logo-blue: #3995D7;
   --modified-element-color: #619696;
   --overlay-panel-background-color: #424242;
-  --primary: #{mat.get-color-from-palette(mat.$blue-palette, 400)};
+  --primary: #{mat.m2-get-color-from-palette(mat.$m2-blue-palette, 400)};
   --purple-text-color: #dbb4ff;
   --red-text-color: #f85252;
   --selected-element-color: #546481;
   --side-bar-color: #dedcdc;
-  --slider-background-color: #8AB4F8;
-  --slider-border-color: #E8F0FE;
+  --slider-background-color: #8ab4f8;
+  --slider-border-color: #e8f0fe;
   --trace-view-background-color: #383838;
-  --warning-background-color: #FFE9BD80;
+  --warning-background-color: #ffe9bd80;
   --warning-color: #fbbc04;
-  --error-background-color: #FFDADA80;
+  --error-background-color: #ffdada80;
   --error-color: #f6aea9;
   --icon-accent-color: #969696;
+
+  @include mat.all-component-colors($dark-theme);
+  @include background-color($dark-theme, $light-theme);
+  @include border-color($dark-theme);
+  @include drawer-color($dark-theme);
+
+  @include winscope-color-overrides();
 }

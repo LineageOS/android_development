@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Operation} from 'trace/tree_node/operations/operation';
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {Operation} from 'tree_node/operation';
+import {TreeNode} from 'tree_node/tree_node';
 import {TreeNodeFilter} from 'viewers/common/ui_tree_utils';
 
 export class Filter<T extends TreeNode> implements Operation<T> {

@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from 'tree_node/properties_provider';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
+/**
+ * Builder for a WM hierarchy tree.
+ *
+ * The builder is not reusable, it should only be used to build one tree.
+ */
 export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder {
   protected override buildIdentifierToChildrenMap(
     containers: PropertiesProvider[],
@@ -32,8 +37,8 @@ export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder {
         container,
       );
       const token = assertDefined(
-        containerProperties.getChildByName('token'),
-      ).getValue();
+        containerProperties.getChildByName('token')?.getValue<string>(),
+      );
       map.set(token, [containerNode]);
       return map;
     }, new Map<string, HierarchyTreeNode[]>());
@@ -59,7 +64,8 @@ export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder {
         node.getEagerPropertyByName('children')?.getAllChildren() ?? [];
     }
     for (const childToken of childrenTokens) {
-      const child = identifierToChildren.get(childToken.getValue())?.at(0);
+      const tokenValue = assertDefined(childToken.getValue<string | number>());
+      const child = identifierToChildren.get(tokenValue)?.at(0);
       if (child) {
         this.setParentChildRelationship(node, child);
         this.assignParentChildRelationships(child, identifierToChildren);

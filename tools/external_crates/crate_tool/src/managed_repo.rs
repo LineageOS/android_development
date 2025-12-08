@@ -29,7 +29,7 @@ use crates_io_util::{
 use google_metadata::GoogleMetadata;
 use itertools::Itertools;
 use license_checker::find_licenses;
-use log::debug;
+use log::{debug, error};
 use name_and_version::{NameAndVersion, NameAndVersionRef, NamedAndVersioned};
 use repo_config::RepoConfig;
 use rooted_path::RootedPath;
@@ -123,7 +123,7 @@ impl ManagedRepo {
     }
     fn legacy_crates_for(&self, crate_name: &str) -> Result<CrateCollection> {
         let mut cc = self.new_cc();
-        cc.add_from(format!("external/rust/crates/{}", crate_name))?;
+        cc.add_from(format!("external/rust/crates/{crate_name}"))?;
         Ok(cc)
     }
     fn legacy_crates(&self) -> Result<CrateCollection> {
@@ -164,7 +164,7 @@ impl ManagedRepo {
         }
         let legacy_dir = self.legacy_dir_for(crate_name, None)?;
         if legacy_dir.abs().exists() {
-            println!("Legacy crate already imported at {}", legacy_dir);
+            println!("Legacy crate already imported at {legacy_dir}");
             return Ok(());
         }
 
@@ -270,10 +270,10 @@ impl ManagedRepo {
 
         let vendored_dir = pseudo_crate.vendored_dir_for(crate_name)?;
         let managed_dir = self.managed_dir_for(crate_name);
-        println!("Creating {} from vendored crate", managed_dir);
+        println!("Creating {managed_dir} from vendored crate");
         copy_dir(vendored_dir, &managed_dir)?;
 
-        println!("Sprinkling Android glitter on {}:", crate_name);
+        println!("Sprinkling Android glitter on {crate_name}:");
 
         let krate = Crate::from(managed_dir.clone())?;
 
@@ -409,7 +409,7 @@ We apologize for the inconvenience."#,
             .collect::<BTreeSet<_>>();
 
         for crate_name in changed_android_crates {
-            println!("Verifying checksums for {}", crate_name);
+            println!("Verifying checksums for {crate_name}");
             checksum::verify(self.managed_dir_for(&crate_name).abs())?;
         }
         Ok(())
@@ -569,7 +569,13 @@ We apologize for the inconvenience."#,
 
         for krate in managed_crates.values() {
             debug!("Checking for updates to {}", krate.name());
-            let cio_crate = self.crates_io.get_crate(krate.name())?;
+            let cio_crate = match self.crates_io.get_crate(krate.name()) {
+                Ok(k) => k,
+                Err(_) => {
+                    error!("Failed to fetch crates.io data for {}", krate.name());
+                    continue;
+                }
+            };
 
             let base_version = cio_crate.get_version(krate.version());
             if base_version.is_none() {
@@ -710,7 +716,7 @@ We apologize for the inconvenience."#,
         }
         create_dir_all(&self.path).context(format!("Failed to create {}", self.path))?;
         let crates_dir = self.path.join("crates")?;
-        create_dir_all(&crates_dir).context(format!("Failed to create {}", crates_dir))?;
+        create_dir_all(&crates_dir).context(format!("Failed to create {crates_dir}"))?;
         self.pseudo_crate().init()?;
         Ok(())
     }

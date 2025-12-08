@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {FileUtils} from 'common/file_utils';
-import {TimeUtils} from 'common/time/time_utils';
-import {UserNotifier} from 'common/user_notifier';
+import {removeDirFromFileName} from 'common/io';
+import {Timer} from 'common/time/timer';
 import {ProgressListener} from 'messaging/progress_listener';
 import {ProxyTracingWarnings} from 'messaging/user_warnings';
+import {UserNotifier} from 'services/user_notifier';
 import {AdbDeviceConnection} from 'trace_collection/adb/adb_device_connection';
 import {AdbHostConnection} from 'trace_collection/adb/adb_host_connection';
 import {AdbConnectionType} from 'trace_collection/adb_connection_type';
@@ -96,7 +96,7 @@ export class TraceCollectionController {
       this.activeTracingSessions.push(session);
     }
     // TODO(b/330118129): identify source of additional start latency that affects some traces
-    await TimeUtils.sleepMs(1000); // 1s timeout ensures SR fully started
+    await new Timer(1000).sleepMs(); // 1s timeout ensures SR fully started
   }
 
   async endTrace(device: AdbDeviceConnection) {
@@ -139,7 +139,7 @@ export class TraceCollectionController {
     for (const [index, filepath] of paths.entries()) {
       console.debug(`Fetching file ${filepath} from device`);
       const data = await device.pullFile(filepath);
-      const filename = FileUtils.removeDirFromFileName(filepath);
+      const filename = removeDirFromFileName(filepath);
       adbData.push(new File([data], filename));
       this.listener.onProgressUpdate(
         'Fetching files...',
@@ -179,9 +179,12 @@ export class TraceCollectionController {
     await perfettoModerator.tryStopCurrentPerfettoSession();
     await perfettoModerator.clearPreviousConfigFiles();
     console.debug('Clearing previous tracing session files from device');
-    await device.runShellCommand(`rm -rf ${WINSCOPE_BACKUP_DIR}`);
-    await device.runShellCommand(`mkdir ${WINSCOPE_BACKUP_DIR}`);
-    console.debug('Cleared previous tracing session files from device');
+    let output = await device.runShellCommand(`rm -rf ${WINSCOPE_BACKUP_DIR}`);
+    console.debug(
+      `Cleared previous tracing session files from device. Output: ${output}`,
+    );
+    output = await device.runShellCommand(`mkdir ${WINSCOPE_BACKUP_DIR}`);
+    console.debug(`Created new backup dir on device. Output: ${output}`);
   }
 
   private async moveFiles(

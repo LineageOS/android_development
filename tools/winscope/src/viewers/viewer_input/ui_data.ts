@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {TraceEntry} from 'trace/trace';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'trace/tree_node/properties_provider';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {TraceEntry} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
 import {DisplayIdentifier} from 'viewers/common/display_identifier';
 import {RectShowState} from 'viewers/common/rect_show_state';
 import {TextFilter} from 'viewers/common/text_filter';
@@ -44,6 +43,7 @@ export class UiData implements UiDataLog {
   ) {}
 
   isFetchingData = false;
+  checkScrollViewport = false;
 
   highlightedProperty: string = '';
   dispatchPropertiesTree: UiPropertyTreeNode | undefined;
@@ -67,7 +67,7 @@ export class UiData implements UiDataLog {
 
 export class InputEntry implements LogEntry {
   constructor(
-    public traceEntry: TraceEntry<PropertyTreeNode>,
+    public traceEntry: TraceEntry<HierarchyTreeNode>,
     public fields: LogField[],
     public getPropertiesTree: LazyPropertiesStrategyType | undefined,
     public getDispatchPropertiesTree: LazyPropertiesStrategyType | undefined,

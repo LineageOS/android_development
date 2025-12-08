@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, ViewChild} from '@angular/core';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {LogComponent} from 'viewers/components/log_component';
 import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
 import {ViewerComponent} from 'viewers/components/viewer_component';
@@ -22,6 +23,8 @@ import {UiData} from './ui_data';
 
 @Component({
   selector: 'viewer-protolog',
+  standalone: true,
+  imports: [CommonModule, LogComponent],
   template: `
     <div class="card-grid">
        <log-view
@@ -29,10 +32,11 @@ import {UiData} from './ui_data';
         [selectedIndex]="inputData?.selectedIndex"
         [scrollToIndex]="inputData?.scrollToIndex"
         [currentIndex]="inputData?.currentIndex"
-        [entries]="inputData?.entries"
-        [headers]="inputData?.headers"
+        [entries]="inputData?.entries ?? []"
+        [headers]="inputData?.headers ?? []"
         [traceType]="${TraceType.PROTO_LOG}"
-        [isFetchingData]="inputData?.isFetchingData">
+        [isFetchingData]="inputData?.isFetchingData"
+        [checkScrollViewport]="inputData?.checkScrollViewport">
       </log-view>
     </div>
   `,

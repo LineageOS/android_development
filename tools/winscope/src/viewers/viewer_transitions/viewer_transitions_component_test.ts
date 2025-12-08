@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceEntry} from 'trace/trace';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {TraceEntry} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from 'viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from 'viewers/common/log_filters';
 import {LogHeader} from 'viewers/common/ui_data_log';
@@ -32,6 +32,7 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
   protected override readonly testProperties = true;
   protected override readonly hasCurrentTimeButton = false;
   protected override readonly testScroll = true;
+  protected override readonly initialEntries = 6;
   protected override readonly propertiesSectionTitle = 'SELECTED TRANSITION';
   protected override readonly propertiesPlaceholder =
     'No current or selected transition.';
@@ -63,7 +64,7 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.TRANSITION)
       .setEntries([this.transitionTree])
-      .setTimestamps([TimestampConverterUtils.makeElapsedTimestamp(20n)])
+      .setTimestamps([makeElapsedTimestamp(20n)])
       .build();
     const entry = trace.getEntry(0);
 

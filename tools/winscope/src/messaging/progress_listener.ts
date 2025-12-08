@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
+/**
+ * An interface for listening to progress updates.
+ */
 export interface ProgressListener {
+  /**
+   * Called when the progress of an operation has been updated.
+   *
+   * @param message A message describing the current progress.
+   * @param progressPercentage The progress percentage, or undefined if the progress is indeterminate.
+   */
   onProgressUpdate(
     message: string,
     progressPercentage: number | undefined,
   ): void;
+
+  /**
+   * Called when an operation has finished.
+   *
+   * @param success True if the operation was successful, false otherwise.
+   */
   onOperationFinished(success: boolean): void;
 }

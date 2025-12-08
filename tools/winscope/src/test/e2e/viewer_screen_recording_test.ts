@@ -35,7 +35,7 @@ describe('Viewer ScreenRecording', () => {
       'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
     );
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
 
     const viewer = element(by.css(viewerSelector));
     expect(await viewer.isPresent()).toBeTruthy();
@@ -52,7 +52,7 @@ describe('Viewer ScreenRecording', () => {
       'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
     );
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
 
     const viewer = element(by.css(viewerSelector));
     expect(await viewer.isPresent()).toBeTruthy();
@@ -68,11 +68,11 @@ describe('Viewer ScreenRecording', () => {
     );
 
     const selectTrigger = element(
-      by.css(`${viewerSelector} .mat-select-trigger`),
+      by.css(`${viewerSelector} .mat-mdc-select-trigger`),
     );
     expect(await selectTrigger.isPresent()).toBeTruthy();
     await selectTrigger.click();
-    const option2 = element.all(by.css('.mat-option')).last();
+    const option2 = element.all(by.css('.mat-mdc-option')).last();
     await option2.click();
 
     expect(await video.isPresent()).toBeTruthy();

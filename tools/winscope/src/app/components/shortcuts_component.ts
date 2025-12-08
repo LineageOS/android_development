@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, Inject} from '@angular/core';
-import {MatIconRegistry} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatIconModule, MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
-import {getRootUrl} from 'common/url_utils';
+import {getRootUrl} from 'common/window';
 
+/**
+ * A component for displaying a list of essential keyboard shortcuts.
+ */
 @Component({
   selector: 'shortcuts-panel',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatIconModule, MatButtonModule],
   template: `
     <h2 class="dialog-title" mat-dialog-title>
-      <span> ESSENTIAL SHORTCUTS </span>
-      <button mat-dialog-close class="close-button" mat-icon-button>
+      <span class="shortcuts-title"> ESSENTIAL SHORTCUTS </span>
+      <button mat-dialog-close class="close" mat-icon-button>
         <mat-icon> close </mat-icon>
       </button>
     </h2>
     <mat-dialog-content>
-      <div class="mat-title"> Timeline </div>
+      <div class="mat-headline-6"> Timeline </div>
       <div class="grouped-shortcuts">
         <div class="key-shortcut even-width mat-body-1">
           <div class="key"> W </div>
@@ -62,7 +70,7 @@ import {getRootUrl} from 'common/url_utils';
           </span>
         </div>
         <div class="pointer-shortcut mat-body-1">
-          <mat-icon class="trackpad-icon tall enlarge" svgIcon="trackpad_horizontal_scroll"></mat-icon>
+          <mat-icon class="trackpad-icon tall" svgIcon="trackpad_horizontal_scroll"></mat-icon>
           <span class="action">
             <span class="italic-text"> Horizontal Scroll </span>
             <span> Move slider left/right </span>
@@ -72,7 +80,7 @@ import {getRootUrl} from 'common/url_utils';
 
       <div class="shortcuts-row">
         <div class="shortcuts-row-section">
-          <div class="mat-title"> 3D View </div>
+          <div class="mat-headline-6"> 3D View </div>
           <div class="grouped-shortcuts">
             <div class="pointer-shortcut mat-body-1">
               <mat-icon class="trackpad-icon enlarge" svgIcon="trackpad_vertical_scroll"></mat-icon>
@@ -85,7 +93,7 @@ import {getRootUrl} from 'common/url_utils';
         </div>
 
         <div class="shortcuts-row-section">
-          <div class="mat-title"> Global </div>
+          <div class="mat-headline-6"> Global </div>
           <div class="grouped-shortcuts">
             <div class="key-shortcut mat-body-1">
               <div class="key"> <mat-icon class="material-symbols-outlined"> arrow_left_alt </mat-icon> </div>
@@ -105,6 +113,9 @@ import {getRootUrl} from 'common/url_utils';
       .dialog-title {
         display: flex;
         justify-content: space-between;
+      }
+      .shortcuts-title {
+        padding-top: 10px;
       }
       .shortcuts-row {
         display: flex;

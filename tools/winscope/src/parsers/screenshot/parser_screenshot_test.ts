@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {
-  TimestampConverterUtils,
+  TimestampConverter,
+  UTC_TIMEZONE_INFO,
+} from 'common/time/timestamp_converter';
+import {getFixtureFile} from 'test/unit/io_helpers';
+import {
+  TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
+  makeElapsedTimestamp,
   timestampEqualityTester,
-} from 'common/time/test_utils';
-import {TimestampConverter} from 'common/time/timestamp_converter';
-import {getFixtureFile} from 'test/unit/fixture_utils';
-import {CoarseVersion} from 'trace/coarse_version';
-import {MediaBasedTraceEntry} from 'trace/media_based_trace_entry';
+} from 'test/unit/time_test_helpers';
 import {TraceFile} from 'trace/trace_file';
-import {TraceType} from 'trace/trace_type';
+import {CoarseVersion} from 'trace_api/coarse_version';
+import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {TraceType} from 'trace_api/trace_type';
 import {ParserScreenshot} from './parser_screenshot';
 
 describe('ParserScreenshot', () => {
@@ -36,7 +40,7 @@ describe('ParserScreenshot', () => {
     file = await getFixtureFile('traces/screenshot/screenshot.png');
     parser = new ParserScreenshot(
       new TraceFile(file),
-      new TimestampConverter(TimestampConverterUtils.UTC_TIMEZONE_INFO, 0n),
+      new TimestampConverter(UTC_TIMEZONE_INFO, 0n),
     );
     await parser.parse();
     parser.createTimestamps();
@@ -53,18 +57,18 @@ describe('ParserScreenshot', () => {
   it('provides timestamps', () => {
     const timestamps = assertDefined(parser.getTimestamps());
 
-    const expected = TimestampConverterUtils.makeElapsedTimestamp(0n);
+    const expected = makeElapsedTimestamp(0n);
     timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));
   });
 
   it('does not apply timezone info', async () => {
     const parserWithTimezoneInfo = new ParserScreenshot(
       new TraceFile(file),
-      TimestampConverterUtils.TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
+      TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
     );
     await parserWithTimezoneInfo.parse();
 
-    const expectedReal = TimestampConverterUtils.makeElapsedTimestamp(0n);
+    const expectedReal = makeElapsedTimestamp(0n);
     assertDefined(parser.getTimestamps()).forEach((timestamp) =>
       expect(timestamp).toEqual(expectedReal),
     );

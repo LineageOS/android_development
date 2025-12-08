@@ -21,7 +21,6 @@ import {ConnectionStateListener} from 'trace_collection/connection_state_listene
 import {MockAdbDeviceConnection} from 'trace_collection/mock/mock_adb_device_connection';
 import {AdbFileIdentifier, TraceTarget} from 'trace_collection/trace_target';
 import {
-  PerfettoSessionModerator,
   PERFETTO_DUMP_CONFIG_FILE,
   PERFETTO_DUMP_FILE,
   PERFETTO_TRACE_CONFIG_FILE,
@@ -29,6 +28,7 @@ import {
   PERFETTO_TRACING_SESSIONS_END,
   PERFETTO_TRACING_SESSIONS_START,
   PERFETTO_UNIQUE_SESSION_NAME,
+  PerfettoSessionModerator,
 } from './perfetto_session_moderator';
 import {TracingSession} from './tracing_session';
 

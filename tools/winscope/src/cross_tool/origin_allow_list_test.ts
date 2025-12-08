@@ -91,4 +91,69 @@ describe('OriginAllowList', () => {
       ).toBeFalse();
     });
   });
+
+  describe('isAllowedIframeParentOrigin', () => {
+    const PROD_MODE = 'PROD' as const;
+    const DEV_MODE = 'DEV' as const;
+
+    const PROD_ORIGINS = [
+      'https://winscope.corp.google.com',
+      'https://winscope-staging.corp.google.com',
+      'https://winscope-autopush.corp.google.com',
+    ];
+
+    const DEV_ORIGINS = [
+      'https://random.proxy.googlers.com',
+      'https://another123.proxy.googlers.com',
+    ];
+
+    const DENIED_ORIGINS = [
+      'https://google.com',
+      'http://localhost:8080',
+      'https://evil.com',
+    ];
+
+    it('allows prod origins in prod mode', () => {
+      for (const origin of PROD_ORIGINS) {
+        expect(OriginAllowList.isAllowedIframeParentOrigin(origin, PROD_MODE))
+          .withContext(origin)
+          .toBeTrue();
+      }
+    });
+
+    it('denies dev origins in prod mode', () => {
+      for (const origin of DEV_ORIGINS) {
+        expect(OriginAllowList.isAllowedIframeParentOrigin(origin, PROD_MODE))
+          .withContext(origin)
+          .toBeFalse();
+      }
+    });
+
+    it('allows dev origins in dev mode', () => {
+      for (const origin of DEV_ORIGINS) {
+        expect(OriginAllowList.isAllowedIframeParentOrigin(origin, DEV_MODE))
+          .withContext(origin)
+          .toBeTrue();
+      }
+    });
+
+    it('do not allows prod origins in dev mode', () => {
+      for (const origin of PROD_ORIGINS) {
+        expect(OriginAllowList.isAllowedIframeParentOrigin(origin, DEV_MODE))
+          .withContext(origin)
+          .toBeFalse();
+      }
+    });
+
+    it('denies random origins', () => {
+      for (const origin of DENIED_ORIGINS) {
+        expect(OriginAllowList.isAllowedIframeParentOrigin(origin, PROD_MODE))
+          .withContext(origin)
+          .toBeFalse();
+        expect(OriginAllowList.isAllowedIframeParentOrigin(origin, DEV_MODE))
+          .withContext(origin)
+          .toBeFalse();
+      }
+    });
+  });
 });

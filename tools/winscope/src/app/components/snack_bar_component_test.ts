@@ -17,8 +17,9 @@
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
-import {MatSnackBarRef, MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {SnackBarComponent} from './snack_bar_component';
 
 describe('SnackBarComponent', () => {
@@ -37,8 +38,12 @@ describe('SnackBarComponent', () => {
         {provide: MAT_SNACK_BAR_DATA, useValue: messages},
         {provide: Clipboard, useValue: {copy: mockCopyText}},
       ],
-      imports: [ClipboardModule, MatButtonModule],
-      declarations: [SnackBarComponent],
+      imports: [
+        NoopAnimationsModule,
+        ClipboardModule,
+        MatButtonModule,
+        SnackBarComponent,
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(SnackBarComponent);
     component = fixture.componentInstance;
@@ -48,7 +53,7 @@ describe('SnackBarComponent', () => {
 
   it('shows all messages', () => {
     const messageElements = dom.findAll('.message');
-    expect(messageElements.length).toEqual(2);
+    expect(messageElements.length).toBe(2);
     messageElements[0].checkTextExact(messages[0]);
     messageElements[1].checkTextExact(messages[1]);
   });

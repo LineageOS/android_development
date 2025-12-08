@@ -15,8 +15,8 @@
  */
 
 import {Store} from 'common/store/store';
-import {Traces} from 'trace/traces';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
 import {ViewerMediaBased} from './viewer_media_based';
 
 export class ViewerScreenRecording extends ViewerMediaBased {

@@ -17,7 +17,7 @@
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {ChangeDetectionStrategy, Component, ViewChild} from '@angular/core';
-import {fakeAsync, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -25,17 +25,20 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
 import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert_utils';
-import {KeyboardEventCode} from 'common/dom_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {KeyboardEventCode} from 'common/dom';
 import {TimeRange, Timestamp} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
-import {Trace} from 'trace/trace';
-import {TracePosition} from 'trace/trace_position';
-import {TraceType} from 'trace/trace_type';
+import {Trace} from 'trace_api/trace';
+import {TracePosition} from 'trace_api/trace_position';
+import {TraceType} from 'trace_api/trace_type';
 import {MiniTimelineComponent} from './mini_timeline_component';
 import {SliderComponent} from './slider_component';
 
@@ -49,21 +52,19 @@ describe('MiniTimelineComponent', () => {
   const zoomOutSelector = '#zoom-out-btn';
   const zoomControlSelector = '.zoom-control';
 
-  const timestamp10 = TimestampConverterUtils.makeRealTimestamp(10n);
-  const timestamp15 = TimestampConverterUtils.makeRealTimestamp(15n);
-  const timestamp16 = TimestampConverterUtils.makeRealTimestamp(16n);
-  const timestamp20 = TimestampConverterUtils.makeRealTimestamp(20n);
-  const timestamp700 = TimestampConverterUtils.makeRealTimestamp(700n);
-  const timestamp810 = TimestampConverterUtils.makeRealTimestamp(810n);
-  const timestamp1000 = TimestampConverterUtils.makeRealTimestamp(1000n);
-  const timestamp1750 = TimestampConverterUtils.makeRealTimestamp(1750n);
-  const timestamp2000 = TimestampConverterUtils.makeRealTimestamp(2000n);
-  const timestamp3000 = TimestampConverterUtils.makeRealTimestamp(3000n);
-  const timestamp4000 = TimestampConverterUtils.makeRealTimestamp(4000n);
+  const timestamp10 = makeRealTimestamp(10n);
+  const timestamp15 = makeRealTimestamp(15n);
+  const timestamp16 = makeRealTimestamp(16n);
+  const timestamp20 = makeRealTimestamp(20n);
+  const timestamp700 = makeRealTimestamp(700n);
+  const timestamp810 = makeRealTimestamp(810n);
+  const timestamp1000 = makeRealTimestamp(1000n);
+  const timestamp1750 = makeRealTimestamp(1750n);
+  const timestamp2000 = makeRealTimestamp(2000n);
+  const timestamp3000 = makeRealTimestamp(3000n);
+  const timestamp4000 = makeRealTimestamp(4000n);
 
-  const position800 = TracePosition.fromTimestamp(
-    TimestampConverterUtils.makeRealTimestamp(800n),
-  );
+  const position800 = TracePosition.fromTimestamp(makeRealTimestamp(800n));
 
   const traces = new TracesBuilder()
     .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
@@ -79,6 +80,7 @@ describe('MiniTimelineComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        NoopAnimationsModule,
         FormsModule,
         MatButtonModule,
         MatFormFieldModule,
@@ -90,8 +92,10 @@ describe('MiniTimelineComponent', () => {
         BrowserAnimationsModule,
         DragDropModule,
         CdkMenuModule,
+        MiniTimelineComponent,
+        SliderComponent,
+        TestHostComponent,
       ],
-      declarations: [TestHostComponent, MiniTimelineComponent, SliderComponent],
     })
       .overrideComponent(MiniTimelineComponent, {
         set: {changeDetection: ChangeDetectionStrategy.Default},
@@ -102,11 +106,7 @@ describe('MiniTimelineComponent', () => {
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
 
     timelineData = new TimelineData();
-    await timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
     component.timelineData = timelineData;
     expect(timelineData.getCurrentPosition()).toBeDefined();
     component.currentTracePosition = timelineData.getCurrentPosition()!;
@@ -165,7 +165,7 @@ describe('MiniTimelineComponent', () => {
       'visible',
     );
     const zoomButton = dom.get(resetButtonSelector).getHTMLElement();
-    expect(window.getComputedStyle(zoomButton).visibility).toEqual('visible');
+    expect(window.getComputedStyle(zoomButton).visibility).toBe('visible');
   });
 
   it('shows zoom controls when zoomed in', () => {
@@ -178,7 +178,7 @@ describe('MiniTimelineComponent', () => {
       'visible',
     );
     const zoomButton = dom.get(resetButtonSelector).getHTMLElement();
-    expect(window.getComputedStyle(zoomButton).visibility).toEqual('visible');
+    expect(window.getComputedStyle(zoomButton).visibility).toBe('visible');
   });
 
   it('loads with initial zoom', () => {
@@ -232,7 +232,7 @@ describe('MiniTimelineComponent', () => {
     ]);
   });
 
-  it('updates zoom when slider moved', fakeAsync(() => {
+  it('updates zoom when slider moved', () => {
     dom.detectChanges();
     const initialZoom = new TimeRange(timestamp15, timestamp16);
     assertDefined(component.miniTimelineComponent).onZoomChanged(initialZoom);
@@ -240,12 +240,12 @@ describe('MiniTimelineComponent', () => {
 
     const slider = dom.get('.slider .handle');
     const sliderEl = slider.getHTMLElement();
-    expect(window.getComputedStyle(sliderEl).visibility).toEqual('visible');
+    expect(window.getComputedStyle(sliderEl).visibility).toBe('visible');
 
     slider.dragElement(100, 8);
     const finalZoom = timelineData.getZoomRange();
     expect(finalZoom).not.toBe(initialZoom);
-  }));
+  });
 
   it('zooms in/out with buttons', () => {
     initializeTraces();
@@ -278,14 +278,14 @@ describe('MiniTimelineComponent', () => {
 
     dom.findAndClick(zoomOutSelector);
     let finalZoom = timelineData.getZoomRange();
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
 
     setCanvasZeroXOffset();
     zoomOutByScrollWheel();
     finalZoom = timelineData.getZoomRange();
-    expect(finalZoom.from.getValueNs()).toEqual(initialZoom.from.getValueNs());
-    expect(finalZoom.to.getValueNs()).toEqual(initialZoom.to.getValueNs());
+    expect(finalZoom.startNs).toEqual(initialZoom.startNs);
+    expect(finalZoom.endNs).toEqual(initialZoom.endNs);
   });
 
   it('zooms in/out with scroll wheel', () => {
@@ -338,13 +338,16 @@ describe('MiniTimelineComponent', () => {
 
     openContextMenu(assertDefined(component.miniTimelineComponent));
     const options = getContextMenuItems();
-    expect(options.length).toEqual(2);
+    expect(options.length).toBe(2);
   });
 
   it('adds bookmark', () => {
     dom.detectChanges();
     const miniTimelineComponent = assertDefined(
       component.miniTimelineComponent,
+    );
+    spyOnProperty(miniTimelineComponent.getCanvas(), 'width').and.returnValue(
+      1732,
     );
     const spy = spyOn(miniTimelineComponent.onToggleBookmark, 'emit');
 
@@ -364,6 +367,9 @@ describe('MiniTimelineComponent', () => {
     dom.detectChanges();
     const miniTimelineComponent = assertDefined(
       component.miniTimelineComponent,
+    );
+    spyOnProperty(miniTimelineComponent.getCanvas(), 'width').and.returnValue(
+      1732,
     );
     const spy = spyOn(miniTimelineComponent.onToggleBookmark, 'emit');
 
@@ -421,12 +427,9 @@ describe('MiniTimelineComponent', () => {
         new KeyboardEvent('keydown', {code: KeyboardEventCode.D}),
       );
       const zoomRange = timelineData.getZoomRange();
-      const increase =
-        zoomRange.from.getValueNs() - initialZoom.from.getValueNs();
+      const increase = zoomRange.startNs - initialZoom.startNs;
       expect(increase).toBeGreaterThan(0);
-      expect(zoomRange.to.getValueNs()).toEqual(
-        initialZoom.to.getValueNs() + increase,
-      );
+      expect(zoomRange.endNs).toEqual(initialZoom.endNs + increase);
     }
 
     // cannot move past end of trace
@@ -441,12 +444,9 @@ describe('MiniTimelineComponent', () => {
         new KeyboardEvent('keydown', {code: KeyboardEventCode.A}),
       );
       const zoomRange = timelineData.getZoomRange();
-      const decrease =
-        finalZoom.from.getValueNs() - zoomRange.from.getValueNs();
+      const decrease = finalZoom.startNs - zoomRange.startNs;
       expect(decrease).toBeGreaterThan(0);
-      expect(zoomRange.to.getValueNs()).toEqual(
-        finalZoom.to.getValueNs() - decrease,
-      );
+      expect(zoomRange.endNs).toEqual(finalZoom.endNs - decrease);
     }
 
     // cannot move before start of trace
@@ -652,11 +652,7 @@ describe('MiniTimelineComponent', () => {
       .setTimestamps(TraceType.WINDOW_MANAGER, [timestamp1000])
       .build();
 
-    timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    timelineData.initialize(traces, undefined, UTC_CONVERTER);
     dom.detectChanges();
   }
 
@@ -672,7 +668,7 @@ describe('MiniTimelineComponent', () => {
     assertDefined(component.timelineData).initialize(
       traces,
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
   }
 
@@ -681,12 +677,10 @@ describe('MiniTimelineComponent', () => {
     smallerRange: TimeRange,
   ) {
     expect(biggerRange).not.toBe(smallerRange);
-    expect(smallerRange.from.getValueNs()).toBeGreaterThanOrEqual(
-      Number(biggerRange.from.getValueNs()),
+    expect(smallerRange.startNs).toBeGreaterThanOrEqual(
+      Number(biggerRange.startNs),
     );
-    expect(smallerRange.to.getValueNs()).toBeLessThanOrEqual(
-      Number(biggerRange.to.getValueNs()),
-    );
+    expect(smallerRange.endNs).toBeLessThanOrEqual(Number(biggerRange.endNs));
   }
 
   function zoomInByKeyW() {
@@ -747,12 +741,11 @@ describe('MiniTimelineComponent', () => {
       currentZoom = zoomedIn;
 
       const zoomedInTimestamp = zoomedIn.from.add(
-        (zoomedIn.to.minus(zoomedIn.from.getValueNs()).getValueNs() *
-          ratioNom) /
+        (zoomedIn.to.minus(zoomedIn.startNs).getValueNs() * ratioNom) /
           ratioDenom,
       );
       expect(
-        Math.abs(Number(zoomedInTimestamp.minus(zoomOnTimestamp.getValueNs()))),
+        Math.abs(Number(zoomedInTimestamp.minus(zoomOnTimestamp))),
       ).toBeLessThanOrEqual(5);
     }
     for (let i = 0; i < 4; i++) {
@@ -763,14 +756,11 @@ describe('MiniTimelineComponent', () => {
       currentZoom = zoomedOut;
 
       const zoomedOutTimestamp = zoomedOut.from.add(
-        (zoomedOut.to.minus(zoomedOut.from.getValueNs()).getValueNs() *
-          ratioNom) /
+        (zoomedOut.to.minus(zoomedOut.startNs).getValueNs() * ratioNom) /
           ratioDenom,
       );
       expect(
-        Math.abs(
-          Number(zoomedOutTimestamp.minus(zoomOnTimestamp.getValueNs())),
-        ),
+        Math.abs(Number(zoomedOutTimestamp.minus(zoomOnTimestamp))),
       ).toBeLessThanOrEqual(5);
     }
   }
@@ -788,6 +778,7 @@ describe('MiniTimelineComponent', () => {
   }
 
   @Component({
+    imports: [MiniTimelineComponent],
     selector: 'host-component',
     template: `
       <mini-timeline

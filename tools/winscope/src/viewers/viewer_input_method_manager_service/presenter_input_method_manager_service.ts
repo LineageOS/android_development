@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {AbstractPresenterInputMethod} from 'viewers/common/abstract_presenter_input_method';
 import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
 import {ImeUtils} from 'viewers/common/ime_utils';
@@ -39,7 +39,7 @@ export class PresenterInputMethodManagerService extends AbstractPresenterInputMe
     const inputShown =
       inputMethodManagerService
         ?.getEagerPropertyByName('inputShown')
-        ?.getValue() ?? false;
+        ?.getValue<boolean>() ?? false;
 
     return {
       ...new ImManagerServiceTableProperties(

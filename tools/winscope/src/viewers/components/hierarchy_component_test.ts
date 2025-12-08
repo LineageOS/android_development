@@ -24,14 +24,15 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {FilterFlag} from 'common/filter_flag';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {PersistentStore} from 'common/store/persistent_store';
 import {DuplicateLayerIds, MissingLayerIds} from 'messaging/user_warnings';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_utils';
+import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {TraceType} from 'trace/trace_type';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {ViewerEvents} from 'viewers/common/viewer_events';
@@ -50,16 +51,14 @@ describe('HierarchyComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
-      declarations: [
+      imports: [
         HierarchyComponent,
-        TreeComponent,
-        TreeNodeComponent,
         HierarchyTreeNodeDataViewComponent,
         CollapsibleSectionTitleComponent,
         UserOptionsComponent,
         SearchBoxComponent,
-      ],
-      imports: [
+        TreeComponent,
+        TreeNodeComponent,
         CommonModule,
         MatButtonModule,
         MatDividerModule,
@@ -128,7 +127,7 @@ describe('HierarchyComponent', () => {
     ];
     dom.detectChanges();
     const trees = dom.findAll('.tree-wrapper .tree');
-    expect(trees.length).toEqual(2);
+    expect(trees.length).toBe(2);
     trees[1].checkText('subtree');
   });
 
@@ -143,9 +142,23 @@ describe('HierarchyComponent', () => {
     component.trees = [];
     component.placeholderText = 'Placeholder text.';
     dom.detectChanges();
-    dom
-      .get('.placeholder-text')
-      .checkTextExact('Placeholder text. Try changing timeline position.');
+
+    const placeholderText = dom.get('.placeholder-text');
+    placeholderText.checkTextExact(
+      'Placeholder text.' +
+        ` There may be no ${
+          TRACE_INFO[component.dependencies[0]].name
+        } state associated with the current state in the active trace.` +
+        ' Try changing timeline position.',
+    );
+
+    component.dependencies = [];
+    dom.detectChanges();
+    placeholderText.checkTextExact(
+      'Placeholder text.' +
+        ' There may be no state for this trace associated with the current state in the active trace.' +
+        ' Try changing timeline position.',
+    );
   });
 
   it('handles pinned node click', () => {
@@ -198,7 +211,13 @@ describe('HierarchyComponent', () => {
 
     component.trees = [
       component.trees[0],
-      UiHierarchyTreeNode.from(component.trees[0]),
+      UiHierarchyTreeNode.from(
+        new HierarchyTreeBuilder()
+          .setId('RootNode2')
+          .setName('Root node')
+          .setChildren([{id: 'Child2', name: 'Child node'}])
+          .build(),
+      ),
     ];
     dom.detectChanges();
     const warning1 = new DuplicateLayerIds([123]);
@@ -207,7 +226,7 @@ describe('HierarchyComponent', () => {
     component.trees[1].addWarning(warning2);
     dom.detectChanges();
     const warnings = dom.findAll('.warning');
-    expect(warnings.length).toEqual(2);
+    expect(warnings.length).toBe(2);
     warnings[0].checkTextExact('warning ' + warning1.getMessage());
     warnings[1].checkTextExact('warning ' + warning2.getMessage());
   });

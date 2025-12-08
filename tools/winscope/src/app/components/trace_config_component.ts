@@ -13,115 +13,215 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {OverlayModule} from '@angular/cdk/overlay';
+import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   Inject,
   Input,
   NgZone,
   Output,
 } from '@angular/core';
-import {MatSelect, MatSelectChange} from '@angular/material/select';
-import {assertDefined} from 'common/assert_utils';
+import {FormsModule} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatOption} from '@angular/material/core';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {
+  MatSelect,
+  MatSelectChange,
+  MatSelectModule,
+} from '@angular/material/select';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {overlayPanelStyles} from 'app/styles/overlay_panel.styles';
+import {assertDefined} from 'common/assert';
+import {isElementOverflowing} from 'common/dom';
 import {globalConfig} from 'common/global_config';
 import {Store} from 'common/store/store';
 import {
-  CheckboxConfiguration,
+  AdvancedConfiguration,
   SelectionConfiguration,
+  SelectionOption,
   TraceConfigurationMap,
   updateConfigsFromStore,
 } from 'trace_collection/ui/ui_trace_configuration';
+import {AbstractSelectComponent} from 'viewers/components/abstract_select_component';
 import {userOptionStyle} from 'viewers/components/styles/user_option.styles';
 
+/**
+ * A component for displaying and editing trace configurations.
+ */
 @Component({
   selector: 'trace-config',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCheckboxModule,
+    FormsModule,
+    MatButtonModule,
+    OverlayModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
+  ],
   template: `
-    <h3 class="mat-subheading-2">{{title}}</h3>
+    <h3 class="mat-subtitle-1">{{title}}</h3>
 
     <div class="checkboxes" [style.height]="getTraceCheckboxContainerHeight()">
-      <mat-checkbox
-        *ngFor="let traceKey of getSortedTraceKeys()"
-        color="primary"
-        class="trace-checkbox"
-        [disabled]="!this.traceConfig[traceKey].available"
-        [(ngModel)]="this.traceConfig[traceKey].config.enabled"
-        (ngModelChange)="onTraceConfigChange()"
-        >{{ this.traceConfig[traceKey].name }}</mat-checkbox>
-    </div>
-
-    <ng-container *ngFor="let traceKey of getSortedConfigKeys()">
-      <mat-divider></mat-divider>
-
-      <h3 class="config-heading mat-subheading-2">{{ this.traceConfig[traceKey].name }} configuration</h3>
-
-      <div
-        *ngIf="this.traceConfig[traceKey].config.checkboxConfigs.length > 0"
-        class="enable-config-opt">
+      @for (traceKey of getSortedTraceKeys(); track traceKey) {
         <mat-checkbox
-          *ngFor="let checkboxConfig of getSortedConfigs(this.traceConfig[traceKey].config.checkboxConfigs)"
           color="primary"
-          class="enable-config"
-          [disabled]="!this.traceConfig[traceKey].config.enabled"
-          [(ngModel)]="checkboxConfig.enabled"
-          (ngModelChange)="onTraceConfigChange()"
-          >{{ checkboxConfig.name }}</mat-checkbox
-        >
-      </div>
+          class="trace-checkbox"
+          [disabled]="!traceConfig[traceKey].available"
+          [(ngModel)]="traceConfig[traceKey].config.enabled"
+          (ngModelChange)="onTraceConfigChange()">
+            <span>{{ traceConfig[traceKey].name }}</span>
+            @if (hasAdvancedConfig(traceKey)) {
+<button
+              mat-icon-button
+              class="advanced-settings-button"
+              [disabled]="!traceConfig[traceKey].config.enabled"
+              cdkOverlayOrigin
+              #settingsTrigger="cdkOverlayOrigin"
+              (click)="onSettingsOverlayTriggerClick(traceKey, settingsTrigger)">
+                <mat-icon>settings</mat-icon>
+            </button>
+}
 
-      <div
-        *ngIf="this.traceConfig[traceKey].config.selectionConfigs.length > 0"
-        class="selection-config-opt">
-        <ng-container *ngFor="let selectionConfig of getSortedConfigs(this.traceConfig[traceKey].config.selectionConfigs)">
-          <div class="config-selection-with-desc" [class.wide-field]="selectionConfig.wideField">
-            <mat-form-field
-              class="config-selection"
-              [class.wide-field]="selectionConfig.wideField"
-              appearance="fill">
-              <mat-label>{{ selectionConfig.name }}</mat-label>
+            <ng-template
+              cdkConnectedOverlay
+              [cdkConnectedOverlayOrigin]="advancedSettingsTrigger"
+              [cdkConnectedOverlayOpen]="traceKey === advancedSettingsKey"
+              [cdkConnectedOverlayHasBackdrop]="true"
+              cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+              (backdropClick)="onSettingsOverlayTriggerClick(traceKey, advancedSettingsTrigger)">
+                <div class="config-section overlay-panel">
+                  <h3 class="mat-subtitle-1 config-title">{{ traceConfig[advancedSettingsKey].name }} configuration</h3>
 
-              <mat-select
-                #matSelect
-                [multiple]="isMultipleSelect(selectionConfig)"
-                disableOptionCentering
-                class="selected-value"
-                [attr.label]="traceKey + selectionConfig.name"
-                [value]="selectionConfig.value"
-                [disabled]="!this.traceConfig[traceKey].config.enabled || selectionConfig.options.length === 0"
-                (selectionChange)="onSelectChange($event, selectionConfig)">
-                <span class="mat-option" *ngIf="matSelect.multiple || selectionConfig.optional">
-                  <button
-                    *ngIf="matSelect.multiple"
-                    mat-flat-button
-                    class="user-option"
-                    [color]="matSelect.value.length === selectionConfig.options.length ? 'primary' : undefined"
-                    [class.not-enabled]="matSelect.value.length !== selectionConfig.options.length"
-                    (click)="onAllButtonClick(matSelect, selectionConfig)"> All </button>
-                  <button
-                    *ngIf="selectionConfig.optional && !matSelect.multiple"
-                    mat-flat-button
-                    class="user-option"
-                    [color]="matSelect.value.length === 0 ? 'primary' : undefined"
-                    [class.not-enabled]="matSelect.value.length > 0"
-                    (click)="onNoneButtonClick(matSelect, selectionConfig)"> None </button>
-                </span>
-                <mat-option
-                  *ngFor="let option of selectionConfig.options"
-                  (click)="onOptionClick(matSelect, option, traceKey + selectionConfig.name)"
-                  [value]="option"
-                  (mouseenter)="onSelectOptionHover($event, option)"
-                  [matTooltip]="option"
-                  [matTooltipDisabled]="disableOptionTooltip(option, optionEl)"
-                  matTooltipPosition="right">
-                    <span #optionEl> {{ option }} </span>
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <span class="config-desc" *ngIf="selectionConfig.desc"> {{selectionConfig.desc}} </span>
-          </div>
-        </ng-container>
-      </div>
-    </ng-container>
+                  <div class="overlay-panel-content">
+                    @if (traceConfig[advancedSettingsKey].config.checkboxConfigs.length > 0) {
+<div
+                      class="enable-config-opt overlay-panel-section mat-body-1">
+                      @for (checkboxConfig of getSortedConfigs(traceConfig[advancedSettingsKey].config.checkboxConfigs); track checkboxConfig.key) {
+<mat-checkbox
+                        color="primary"
+                        class="enable-config"
+                        [disabled]="checkboxConfig.disabled"
+                        [(ngModel)]="checkboxConfig.enabled"
+                        (ngModelChange)="onTraceConfigChange()">{{ checkboxConfig.name }}</mat-checkbox>
+}
+                    </div>
+}
+
+                    @if (traceConfig[advancedSettingsKey].config.selectionConfigs.length > 0) {
+<div
+                      class="selection-config-opt overlay-panel-section mat-body-1">
+                      @for (selectionConfig of getSortedConfigs(traceConfig[advancedSettingsKey].config.selectionConfigs); track selectionConfig.key) {
+                        <mat-form-field
+                          class="config-selection"
+                          subscriptSizing="dynamic"
+                          [class.wide-field]="selectionConfig.wideField"
+                          appearance="fill">
+                          <mat-label>{{ selectionConfig.name }}</mat-label>
+
+                          <mat-select
+                            #matSelect
+                            [multiple]="isMultipleSelect(selectionConfig)"
+                            disableOptionCentering
+                            class="selected-value"
+                            [attr.label]="advancedSettingsKey + selectionConfig.name"
+                            [value]="selectionConfig.value"
+                            [disabled]="selectionConfig.options.length === 0"
+                            (opened)="handleSelectOpened(matSelect, selectionConfig)"
+                            (selectionChange)="onSelectChange($event, selectionConfig)">
+
+                            <mat-select-trigger>{{ getSelectTriggerValue(matSelect) }}</mat-select-trigger>
+
+                            @if (selectionConfig.filterString !== undefined) {
+<mat-form-field
+                              class="select-config-filter mat-form-field-appearance-none"
+                              subscriptSizing="dynamic">
+                                <mat-label>Filter options</mat-label>
+                                <input matInput [(ngModel)]="selectionConfig.filterString" />
+                            </mat-form-field>
+}
+
+                            @if (matSelect.multiple || selectionConfig.optional) {
+<span class="mat-mdc-option">
+                              @if (matSelect.multiple) {
+<button
+                                mat-flat-button
+                                class="user-option"
+                                [color]="matSelect.value.length === selectionConfig.options.length ? 'primary' : undefined"
+                                [class.not-enabled]="matSelect.value.length !== selectionConfig.options.length"
+                                (click)="onAllButtonClick(matSelect, selectionConfig)">All</button>
+}
+
+                              @if (selectionConfig.optional && !matSelect.multiple) {
+<button
+                                mat-flat-button
+                                class="user-option"
+                                [color]="matSelect.value.length === 0 ? 'primary' : undefined"
+                                [class.not-enabled]="matSelect.value.length > 0"
+                                (click)="onNoneButtonClick(matSelect, selectionConfig)"> None </button>
+}
+                            </span>
+}
+
+                            @for (option of selectionConfig.options; track option; let i = $index) {
+<mat-option
+                              #matOption
+                              class="option"
+                              [class.hidden-option]="hideOption(option.value, selectionConfig.filterString ?? '')"
+                              (click)="onOptionClick($event, matSelect, matOption, i, selectionConfig)"
+                              [value]="option.value"
+                              matTooltipPosition="right"
+                              [matTooltip]="option.value"
+                              [matTooltipDisabled]="disableOptionTooltip(optionEl)">
+                                <span class="option-with-chip">
+                                  <span
+                                    class="option-value text-no-overflow"
+                                    #optionEl> {{ option.value }} </span>
+                                  @if (option.chip) {
+<button
+                                    mat-flat-button
+                                    class="user-option"
+                                    [disabled]="!selectionConfig.value.includes(option.value)"
+                                    [color]="option.chip.enabled ? 'primary' : undefined"
+                                    [class.not-enabled]="!option.chip.enabled"
+                                    (click)="onChipClick($event, option)">{{option.chip.name}}</button>
+}
+                                </span>
+                            </mat-option>
+}
+
+                          </mat-select>
+                        </mat-form-field>
+                      }
+                    </div>
+}
+
+                    @if (traceConfig[advancedSettingsKey].config.desc) {
+<span
+                      class="config-desc mat-body-1 overlay-panel-section">
+                        {{traceConfig[advancedSettingsKey].config.desc}}
+                    </span>
+}
+
+                  </div>
+                </div>
+
+            </ng-template>
+        </mat-checkbox>
+      }
+    </div>
   `,
   styles: [
     `
@@ -130,31 +230,64 @@ import {userOptionStyle} from 'viewers/components/styles/user_option.styles';
         flex-direction: column;
         flex-wrap: wrap;
       }
+      .config-section {
+        display: flex;
+        flex-direction: column;
+        width: 50vw;
+      }
       .enable-config-opt,
       .selection-config-opt {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+      }
+      .selection-config-opt {
         gap: 10px;
       }
-      .config-selection-with-desc {
-        display: flex;
-        flex-direction: column;
-      }
       .wide-field {
+        width: 46vw;
+      }
+      .config-title {
+        margin: 15px 15px 0px 15px;
+      }
+      .overlay-panel-content {
+        margin-top: 0px;
+      }
+      .option-with-chip {
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
         width: 100%;
       }
-      .config-panel {
-        position: absolute;
-        left: 0px;
-        top: 100px;
+      .option-with-chip .user-option {
+        margin-inline-end: 0px;
+      }
+      .hidden-option {
+        display: none;
+      }
+      .select-config-filter {
+        padding-left: 10px;
+        width: 80%;
+      }
+      .advanced-settings-button, .advanced-settings-button .mat-icon {
+        height: 16px;
+        width: 16px;
+        line-height: 16px;
+        font-size: 16px;
+        min-width: fit-content;
+      }
+      .advanced-settings-button {
+        padding: 0 4px;
       }
     `,
     userOptionStyle,
+    overlayPanelStyles,
   ],
 })
-export class TraceConfigComponent {
+export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfiguration> {
   changeDetectionWorker: number | undefined;
+  advancedSettingsTrigger: ElementRef | undefined;
+  advancedSettingsKey: string | undefined;
 
   @Input() title: string | undefined;
   @Input() traceConfigStoreKey: string | undefined;
@@ -163,12 +296,14 @@ export class TraceConfigComponent {
   @Output() readonly traceConfigChange =
     new EventEmitter<TraceConfigurationMap>();
 
-  private tooltipsWithStablePosition = new Set<string>();
+  private lastClickedIndex = new Map<string, number>();
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(NgZone) private ngZone: NgZone,
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.traceConfig = updateConfigsFromStore(
@@ -185,7 +320,7 @@ export class TraceConfigComponent {
         200,
       );
     }
-    this.traceConfigChange.emit(this.traceConfig);
+    this.onTraceConfigChange();
   }
 
   ngOnDestroy() {
@@ -194,7 +329,7 @@ export class TraceConfigComponent {
 
   getTraceCheckboxContainerHeight(): string {
     const config = assertDefined(this.traceConfig);
-    return Math.ceil(Object.keys(config).length / 3) * 24 + 'px';
+    return Math.ceil(Object.keys(config).length / 3) * 36 + 'px';
   }
 
   getSortedTraceKeys(): string[] {
@@ -204,43 +339,18 @@ export class TraceConfigComponent {
     });
   }
 
-  getSortedConfigKeys(): string[] {
-    const advancedConfigs: string[] = [];
-    Object.keys(assertDefined(this.traceConfig)).forEach((traceKey: string) => {
-      const c = assertDefined(this.traceConfig)[traceKey].config;
-      if (c.checkboxConfigs.length > 0 || c.selectionConfigs.length > 0) {
-        advancedConfigs.push(traceKey);
-      }
-    });
-    return advancedConfigs.sort();
-  }
-
-  getSortedConfigs(
-    configs: CheckboxConfiguration[] | SelectionConfiguration[],
-  ): CheckboxConfiguration[] | SelectionConfiguration[] {
+  getSortedConfigs(configs: AdvancedConfiguration[]): AdvancedConfiguration[] {
     return configs.sort((a, b) => {
       return a.name < b.name ? -1 : 1;
     });
   }
 
-  onSelectOptionHover(event: MouseEvent, option: string) {
-    if (this.tooltipsWithStablePosition.has(option)) {
-      return;
-    }
-    this.ngZone.run(() => {
-      (event.target as HTMLElement).dispatchEvent(new Event('mouseleave'));
-      this.tooltipsWithStablePosition.add(option);
-      this.changeDetectorRef.detectChanges();
-      (event.target as HTMLElement).dispatchEvent(new Event('mouseenter'));
-    });
+  getSelectTriggerValue(select: MatSelect) {
+    return select.multiple ? select.value?.join(', ') : select.value;
   }
 
-  disableOptionTooltip(option: string, optionText: HTMLElement): boolean {
-    const optionEl = assertDefined(optionText.parentElement);
-    return (
-      !this.tooltipsWithStablePosition.has(option) ||
-      optionEl.offsetWidth >= optionText.offsetWidth
-    );
+  disableOptionTooltip(optionText: HTMLElement): boolean {
+    return !isElementOverflowing(optionText);
   }
 
   onSelectChange(event: MatSelectChange, config: SelectionConfiguration) {
@@ -261,7 +371,7 @@ export class TraceConfigComponent {
 
   onAllButtonClick(select: MatSelect, config: SelectionConfiguration) {
     if (config.value.length !== config.options.length) {
-      config.value = config.options;
+      config.value = config.options.map((o) => o.value);
       select.value = config.options;
     } else {
       config.value = [];
@@ -270,15 +380,63 @@ export class TraceConfigComponent {
     this.onTraceConfigChange();
   }
 
-  onOptionClick(select: MatSelect, option: string, configName: string) {
-    if (select.value === option) {
-      const selectElement = assertDefined(
-        document.querySelector<HTMLElement>(
-          `mat-select[label="${configName}"]`,
-        ),
-      );
-      selectElement.blur();
+  onOptionClick(
+    event: MouseEvent,
+    select: MatSelect,
+    option: MatOption,
+    i: number,
+    selectionConfig: SelectionConfiguration,
+  ) {
+    if (!select.multiple) {
+      return;
     }
+    const selectLabel = this.advancedSettingsKey + selectionConfig.name;
+    const lastClickedIndex = this.lastClickedIndex.get(selectLabel);
+    const allOptions = selectionConfig.options.map((o) => o.value);
+
+    const selectValueChanged = this.handleOptionClick({
+      event,
+      i,
+      select,
+      option,
+      lastClickedIndex,
+      options: allOptions,
+      filterString: selectionConfig.filterString ?? '',
+    });
+    if (selectValueChanged) {
+      selectionConfig.value = select.value;
+      this.onTraceConfigChange();
+    }
+
+    this.lastClickedIndex.set(selectLabel, i);
+    this.blurSelectIfNotMultiple(select, option, selectLabel);
+  }
+
+  hasAdvancedConfig(traceKey: string): boolean {
+    const config = assertDefined(this.traceConfig?.[traceKey]?.config);
+    return (
+      config.checkboxConfigs.length > 0 || config.selectionConfigs.length > 0
+    );
+  }
+
+  onChipClick(event: MouseEvent, option: SelectionOption) {
+    event.stopPropagation();
+    const chip = assertDefined(option.chip);
+    chip.enabled = !chip.enabled;
+    this.onTraceConfigChange();
+  }
+
+  onSettingsOverlayTriggerClick(traceKey: string, trigger: ElementRef) {
+    this.ngZone.run(() => {
+      if (this.advancedSettingsKey === traceKey) {
+        this.advancedSettingsTrigger = undefined;
+        this.advancedSettingsKey = undefined;
+      } else {
+        this.advancedSettingsTrigger = trigger;
+        this.advancedSettingsKey = traceKey;
+      }
+      this.changeDetectorRef.detectChanges();
+    });
   }
 
   onTraceConfigChange() {
@@ -287,5 +445,38 @@ export class TraceConfigComponent {
 
   isMultipleSelect(config: SelectionConfiguration): boolean {
     return Array.isArray(config.value);
+  }
+
+  protected override onKeydownCtrlA(
+    select: MatSelect,
+    selectionConfig: SelectionConfiguration,
+  ) {
+    const allOpts = selectionConfig.options.map((o) => {
+      return o.value;
+    });
+
+    this.handleKeydownCtrlA(
+      select,
+      allOpts,
+      selectionConfig.filterString ?? '',
+    );
+
+    selectionConfig.value = select.value;
+    this.onTraceConfigChange();
+  }
+
+  private blurSelectIfNotMultiple(
+    select: MatSelect,
+    option: MatOption,
+    selectLabel: string,
+  ) {
+    if (select.value === option.value) {
+      const selectElement = assertDefined(
+        document.querySelector<HTMLElement>(
+          `mat-select[label="${selectLabel}"]`,
+        ),
+      );
+      selectElement.blur();
+    }
   }
 }

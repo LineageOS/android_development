@@ -48,14 +48,14 @@ describe('UpdateTransitionParticipants', () => {
         ?.getEagerPropertyByName('layers')
         ?.getChildByName('0')
         ?.formattedValue(),
-    ).toEqual('2 (testLayer)');
+    ).toBe('2 (testLayer)');
 
     expect(
       transition
         ?.getEagerPropertyByName('windows')
         ?.getChildByName('0')
         ?.formattedValue(),
-    ).toEqual('0x97b5518 (testTitle)');
+    ).toBe('0x97b5518 (testTitle)');
   });
 
   it('updates only windowId display name if neither layer id nor token in maps', () => {
@@ -74,13 +74,13 @@ describe('UpdateTransitionParticipants', () => {
         ?.getEagerPropertyByName('layers')
         ?.getChildByName('0')
         ?.formattedValue(),
-    ).toEqual('1');
+    ).toBe('1');
 
     expect(
       transition
         ?.getEagerPropertyByName('windows')
         ?.getChildByName('0')
         ?.formattedValue(),
-    ).toEqual('0xb887160');
+    ).toBe('0xb887160');
   });
 });

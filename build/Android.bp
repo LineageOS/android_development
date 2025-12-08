@@ -161,10 +161,12 @@ genrule {
 java_device_for_host {
     name: "build-tools_core-lambda-stubs-device",
     visibility: ["//visibility:private"],
-    // Use the prebuilt of the stubs irrespective of whether prebuilts are enabled
-    // in this build configuration. This ensures that this non-host specific library
-    // is treated consistently on all hosts.
-    libs: ["prebuilt_core-lambda-stubs"],
+    // Use core-lambda-stubs-src instead of core-lambda-stubs to ensure the
+    // copy built from source used and not the prebuilts from the ART module
+    // SDK, otherwise Linux builds use the prebuilts and mac builds use
+    // source, causing mismatches between build tools for mac and Linux
+    // (see b/237299698).
+    libs: ["core-lambda-stubs-src"],
     target: {
         windows: {
             enabled: true,

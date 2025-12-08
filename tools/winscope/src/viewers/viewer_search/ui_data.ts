@@ -42,13 +42,20 @@ export class SearchResult {
   scrollToIndex: undefined | number;
   currentIndex: undefined | number;
   isFetchingData = false;
+  checkScrollViewport = false;
 
-  constructor(readonly headers: LogHeader[], readonly entries: LogEntry[]) {}
+  constructor(
+    readonly headers: LogHeader[],
+    readonly entries: LogEntry[],
+  ) {}
 }
 
 export class ListedSearch {
   readonly timeMs: number;
-  constructor(readonly query: string, readonly name = query) {
+  constructor(
+    readonly query: string,
+    readonly name = query,
+  ) {
     this.timeMs = Date.now();
   }
 }

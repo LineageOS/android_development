@@ -33,6 +33,7 @@ static LICENSE_GLOBS: &[&str] = &[
     "COPYING",
     "license",
     "license.*",
+    "license-*",
     "third-party/chromium/LICENSE",
     "docs/LICENSE*",
 ];

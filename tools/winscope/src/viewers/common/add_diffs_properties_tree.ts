@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {FLAG_SEPARATOR} from 'trace/formatters';
+import {
+  DiffValuePart,
+  UiPropertyTreeNode,
+} from 'viewers/common/ui_property_tree_node';
 import {AddDiffs} from './add_diffs';
 import {DiffType} from './diff_type';
 
@@ -30,8 +34,61 @@ export class AddDiffsPropertiesTree extends AddDiffs<UiPropertyTreeNode> {
     oldNode: UiPropertyTreeNode,
   ): void {
     newNode.setDiff(DiffType.MODIFIED);
-    newNode.setOldValue(
-      oldNode.formattedValue() !== '' ? oldNode.formattedValue() : 'null',
-    );
+    const oldValue = oldNode.formattedValue();
+    const newValue = newNode.formattedValue();
+    if (
+      oldValue.includes(FLAG_SEPARATOR) ||
+      newValue.includes(FLAG_SEPARATOR)
+    ) {
+      const parts = this.processModifiedFlags(oldValue, newValue);
+      newNode.setDiffValueParts(parts);
+      return;
+    }
+    newNode.setOldValue(oldValue !== '' ? oldValue : 'null');
+  }
+
+  private processModifiedFlags(
+    oldValue: string,
+    newValue: string,
+  ): DiffValuePart[] {
+    const oldFlags = this.getFlags(oldValue);
+    const newFlags = this.getFlags(newValue);
+
+    const parts: DiffValuePart[] = [];
+
+    let j = 0;
+    for (const newFlag of newFlags) {
+      const oldFlag = oldFlags[j];
+      if (oldFlag === newFlag) {
+        parts.push({isOld: false, isNew: false, value: newFlag});
+        j++;
+      } else {
+        const indexOfNewFlagInOldFlags = oldFlags.indexOf(newFlag, j);
+
+        if (indexOfNewFlagInOldFlags === -1) {
+          parts.push({isOld: false, isNew: true, value: newFlag});
+        } else {
+          for (let i = j; i < indexOfNewFlagInOldFlags; i++) {
+            parts.push({isOld: true, isNew: false, value: oldFlags[i]});
+          }
+          parts.push({isOld: false, isNew: false, value: newFlag});
+          j = indexOfNewFlagInOldFlags + 1;
+        }
+      }
+    }
+    for (let i = j; i < oldFlags.length; i++) {
+      parts.push({isOld: true, isNew: false, value: oldFlags[i]});
+    }
+
+    return parts;
+  }
+
+  private getFlags(value: string): string[] {
+    const rawValueStart = value.lastIndexOf(' (');
+    if (rawValueStart !== -1) {
+      // flags in format "f1 | f2 (<raw_value>)"
+      value = value.slice(0, rawValueStart);
+    }
+    return value.split(FLAG_SEPARATOR);
   }
 }

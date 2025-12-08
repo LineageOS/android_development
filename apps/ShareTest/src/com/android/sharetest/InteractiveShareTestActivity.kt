@@ -28,37 +28,17 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
 import android.provider.MediaStore
+import android.service.chooser.ChooserManager
 import android.service.chooser.ChooserSession
-import android.service.chooser.ChooserSession.ChooserController
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
@@ -66,7 +46,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.android.sharetest.ui.ColorSchemeSelector
+import com.android.sharetest.ui.InteractiveShareTestComposable
 import com.android.sharetest.ui.theme.ActivityTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -82,6 +62,7 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     private var chooserWindowTopOffset = MutableStateFlow(-1)
     private val isInMultiWindowMode = MutableStateFlow<Boolean>(false)
     private val viewModel: InteractiveShareTestViewModel by viewModels()
+    private lateinit var chooserManager: ChooserManager
     private val chooserSession: MutableStateFlow<ChooserSession?>
         get() = viewModel.chooserSession
 
@@ -99,17 +80,17 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
 
     private val sessionStateListener =
-        object : ChooserSession.UpdateListener {
-            override fun onChooserConnected(chooserController: ChooserController) {
-                Log.d(TAG, "onChooserConnected")
+        object : ChooserSession.StateListener {
+            override fun onStateChanged(state: Int) {
+                if (state == ChooserSession.STATE_STARTED) {
+                    Log.d(TAG, "onChooserConnected")
+                } else if (state == ChooserSession.STATE_CLOSED) {
+                    Log.d(TAG, "onSessionClosed")
+                    chooserSession.value = null
+                }
             }
 
-            override fun onClosed() {
-                Log.d(TAG, "onSessionClosed")
-                chooserSession.value = null
-            }
-
-            override fun onSizeChanged(size: Rect) {
+            override fun onBoundsChanged(size: Rect) {
                 Log.d(TAG, "onSizeChanged")
                 chooserWindowTopOffset.value = size.top
             }
@@ -119,14 +100,25 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val cm = getSystemService(ChooserManager::class.java)
+        if (cm == null) {
+            Toast.makeText(this, "ChooserManager is not available", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+        chooserManager = cm
+
         isInMultiWindowMode.value = isInMultiWindowMode()
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 chooserSession
                     .scan<ChooserSession?, ChooserSession?>(null) { prevSession, newSession ->
-                        prevSession?.close()
-                        newSession?.addUpdateListener(mainExecutor, sessionStateListener)
+                        prevSession?.endSession()
+                        newSession?.addStateListener(mainExecutor, sessionStateListener)
+                        if (newSession == null || !newSession.isActive) {
+                            chooserWindowTopOffset.value = -1
+                        }
                         newSession
                     }
                     .collect {}
@@ -141,113 +133,34 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
 
         setContent {
-            val spacing = 5.dp
             val padding = 15.dp
-            var sharedText by remember { mutableStateOf("A text to share") }
-            val previewWindowBottom by chooserWindowTopOffset.collectAsStateWithLifecycle(-1)
             val showLaunchInSplitScreen by
                 isInMultiWindowMode.map { !it }.collectAsStateWithLifecycle(true)
-            val brush = SolidColor(Color.Red)
             val isChooserRunning by
                 chooserSession.map { it?.isActive == true }.collectAsStateWithLifecycle(false)
-            val userRefinement by useRefinementFlow.collectAsStateWithLifecycle(false)
-            val colorSchemes = mapOf(0 to "System Default", 1 to "Light", 2 to "Dark")
-            var selectedColorSchemeIdx by remember { mutableStateOf(0) }
+            val useRefinement by useRefinementFlow.collectAsStateWithLifecycle(false)
             ActivityTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
+                    InteractiveShareTestComposable(
+                        chooserWindowTopOffset = chooserWindowTopOffset,
+                        previewCount = previews.size,
+                        isChooserRunning = isChooserRunning,
+                        useRefinement = useRefinement,
                         modifier = Modifier.padding(innerPadding).padding(horizontal = padding),
-                        verticalArrangement = Arrangement.spacedBy(spacing),
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
-                            Button(onClick = { startCameraApp(selectedColorSchemeIdx) }) {
-                                Text("Pick Camera App")
-                            }
-                            Button(onClick = { launchActivity() }) { Text("Launch Activity") }
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                        startCameraApp = ::startCameraApp,
+                        launchActivity = ::launchActivity,
+                        launchSelfInSplitScreen =
                             if (showLaunchInSplitScreen) {
-                                Button(onClick = { launchSelfInSplitScreen() }) {
-                                    Text("Launch Self in Split-Screen")
-                                }
-                            }
-                            Button(onClick = { launchDialog() }) { Text("Launch Dialog") }
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                            horizontalArrangement = Arrangement.spacedBy(spacing),
-                        ) {
-                            TextField(
-                                value = sharedText,
-                                modifier = Modifier.weight(1f),
-                                onValueChange = { sharedText = it },
-                            )
-                            Button(onClick = { shareText(sharedText, selectedColorSchemeIdx) }) {
-                                Text("Share Text")
-                            }
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
-                            if (previews.isNotEmpty()) {
-                                Button(
-                                    onClick = { shareImages(previews, 1, selectedColorSchemeIdx) }
-                                ) {
-                                    Text("Share One Image")
-                                }
-                                if (previews.size > 1) {
-                                    Button(
-                                        onClick = {
-                                            shareImages(previews, 2, selectedColorSchemeIdx)
-                                        }
-                                    ) {
-                                        Text("Share Two Images")
-                                    }
-                                }
-                            }
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(spacing),
-                            modifier = Modifier.clickable { updateRefinement() },
-                        ) {
-                            Checkbox(
-                                checked = userRefinement,
-                                onCheckedChange = {},
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                            )
-                            Text(
-                                "Use Refinement",
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                            )
-                        }
-                        Text(text = "Chooser Color Scheme")
-                        ColorSchemeSelector(
-                            values = colorSchemes,
-                            selected = selectedColorSchemeIdx,
-                            spacing = spacing,
-                            onValueSelected = { selectedColorSchemeIdx = it },
-                        )
-                        if (isChooserRunning) {
-                            Button(onClick = { closeChooser() }) { Text("Close Chooser") }
-                        }
-                    }
-
-                    var windowTop by remember { mutableFloatStateOf(0f) }
-                    Spacer(
-                        modifier =
-                            Modifier.fillMaxSize()
-                                .onGloballyPositioned { coords ->
-                                    windowTop = coords.localToWindow(Offset.Zero).y
-                                }
-                                .drawBehind {
-                                    if (previewWindowBottom >= 0 && isChooserRunning) {
-                                        val top = previewWindowBottom.toFloat() - windowTop
-                                        drawLine(
-                                            brush = brush,
-                                            start = Offset(0f, top),
-                                            end = Offset(size.width, top),
-                                            strokeWidth = 2.dp.toPx(),
-                                        )
-                                    }
-                                }
+                                ::launchSelfInSplitScreen
+                            } else {
+                                null
+                            },
+                        launchDialog = ::launchDialog,
+                        shareText = ::shareText,
+                        shareImages = { shareImages(previews, it) },
+                        updateRefinement = ::updateRefinement,
+                        closeChooser = ::closeChooser,
+                        setTargetsEnabled = ::setTargetsEnabled,
                     )
                 }
             }
@@ -260,7 +173,7 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     }
 
     override fun onResume() {
-        Log.d(TAG, "onResume")
+        Log.d(TAG, "onResume: session state: ${chooserSession.value?.state}")
         super.onResume()
     }
 
@@ -279,7 +192,7 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         if (useRefinementFlow.value) {
             unregisterReceiver(refinementReceiver)
         }
-        chooserSession.value?.removeUpdateListener(sessionStateListener)
+        chooserSession.value?.removeStateListener(sessionStateListener)
         super.onDestroy()
     }
 
@@ -303,11 +216,9 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         }
     }
 
-    private fun startCameraApp(colorScheme: Int) {
+    private fun startCameraApp() {
         val targetIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startOrUpdate(
-            Intent.createChooser(targetIntent, null).apply { setColorScheme(colorScheme) }
-        )
+        startOrUpdate(Intent.createChooser(targetIntent, null))
     }
 
     private fun launchActivity() {
@@ -327,18 +238,17 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
         )
     }
 
-    private fun shareText(text: String, colorScheme: Int) {
+    private fun shareText(text: String) {
         val targetIntent =
             Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_TEXT, text)
                 setType("text/plain")
             }
-        val chooserIntent =
-            Intent.createChooser(targetIntent, null).apply { setColorScheme(colorScheme) }
+        val chooserIntent = Intent.createChooser(targetIntent, null)
         startOrUpdate(chooserIntent)
     }
 
-    private fun shareImages(previews: List<Preview>, count: Int, colorScheme: Int) {
+    private fun shareImages(previews: List<Preview>, count: Int) {
         require(count > 0) { "Unexpected count argument value: $count" }
         val targetIntent =
             Intent(if (count == 1) Intent.ACTION_SEND else Intent.ACTION_SEND_MULTIPLE).apply {
@@ -361,19 +271,20 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 setType("image/*")
             }
-        val chooserIntent =
-            Intent.createChooser(targetIntent, null).apply { setColorScheme(colorScheme) }
+        val chooserIntent = Intent.createChooser(targetIntent, null)
         startOrUpdate(chooserIntent)
     }
 
     private fun closeChooser() {
-        chooserSession.value?.close()
         chooserSession.value = null
-        chooserWindowTopOffset.value = -1
+    }
+
+    private fun setTargetsEnabled(isEnabled: Boolean) {
+        chooserSession.value?.setTargetsEnabled(isEnabled)
     }
 
     private fun startOrUpdate(chooserIntent: Intent) {
-        val chooserController = chooserSession.value?.takeIf { it.isActive }?.chooserController
+        val session = chooserSession.value?.takeIf { it.isActive }
         if (useRefinementFlow.value) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER,
@@ -381,17 +292,16 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
             )
         }
         chooserIntent.putExtra(EXTRA_CHOOSER_RESULT_INTENT_SENDER, createResultIntentSender(this))
-        if (chooserController == null) {
-            ChooserSession().also { chooserSession.value = it }.start(this, chooserIntent)
+        if (session == null) {
+            chooserManager.startSession(this, chooserIntent).also { chooserSession.value = it }
         } else {
-            chooserController.updateIntent(chooserIntent)
+            session.updateIntent(chooserIntent)
         }
     }
 }
 
-private fun Intent.setColorScheme(colorScheme: Int) {
-    putExtra("com.android.extra.CHOOSER_COLOR_SCHEME", colorScheme)
-}
+private val ChooserSession.isActive: Boolean
+    get() = state != ChooserSession.STATE_CLOSED
 
 class TestDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

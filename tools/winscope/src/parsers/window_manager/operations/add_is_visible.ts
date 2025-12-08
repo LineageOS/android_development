@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-import {AddOperation} from 'trace/tree_node/operations/add_operation';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'trace/tree_node/property_tree_node_factory';
+import {AddOperation} from 'tree_node/add_operation';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
 
+/**
+ * Adds a calculated `isComputedVisible` property to a PropertyTreeNode representing a
+ * WindowState or ActivityRecord proto.
+ */
 export class AddIsVisible extends AddOperation<PropertyTreeNode> {
   protected override makeProperties(
     value: PropertyTreeNode,
   ): PropertyTreeNode[] {
     // ActivityRecordProto
-    const visible = value.getChildByName('visible')?.getValue();
+    const visible = value.getChildByName('visible')?.getValue<boolean>();
     if (visible !== undefined) {
       return [
         DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
@@ -39,7 +43,7 @@ export class AddIsVisible extends AddOperation<PropertyTreeNode> {
     const alpha = value
       .getChildByName('attributes')
       ?.getChildByName('alpha')
-      ?.getValue();
+      ?.getValue<number>();
     if (alpha !== undefined) {
       return [
         DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(

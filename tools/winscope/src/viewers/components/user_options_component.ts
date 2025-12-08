@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {Component, ElementRef, Inject, Input} from '@angular/core';
-import {FunctionUtils} from 'common/function_utils';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
 import {UserOption, UserOptions} from 'viewers/common/user_options';
 import {userOptionStyle} from './styles/user_option.styles';
 
@@ -25,22 +27,29 @@ type LogCallback = (key: string, state: boolean, name: string) => void;
 
 @Component({
   selector: 'user-options',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   template: `
-      <button
-        *ngFor="let option of objectKeys(userOptions)"
-        mat-flat-button
-        [color]="getUserOptionButtonColor(userOptions[option])"
-        [disabled]="userOptions[option].isUnavailable"
-        [class.not-enabled]="!userOptions[option].enabled"
-        class="user-option"
-        [style.cursor]="'pointer'"
-        (click)="onUserOptionChange(userOptions[option])">
-        <span class="user-option-label" [class.with-chip]="!!userOptions[option].chip">
-          <span> {{userOptions[option].name}} </span>
-          <div *ngIf="userOptions[option].chip" class="user-option-chip"> {{userOptions[option].chip.short}} </div>
-          <mat-icon  class="material-symbols-outlined" *ngIf="userOptions[option].icon"> {{userOptions[option].icon}} </mat-icon>
-        </span>
-      </button>
+      @for (option of objectKeys(userOptions); track option) {
+        <button
+          mat-flat-button
+          [color]="getUserOptionButtonColor(userOptions[option])"
+          [disabled]="userOptions[option].isUnavailable"
+          [class.not-enabled]="!userOptions[option].enabled"
+          class="user-option"
+          [style.cursor]="'pointer'"
+          (click)="onUserOptionChange(userOptions[option])">
+          <span class="user-option-label" [class.with-chip]="!!userOptions[option].chip">
+            <span> {{userOptions[option].name}} </span>
+            @if (userOptions[option].chip) {
+              <div class="user-option-chip"> {{userOptions[option].chip.short}} </div>
+            }
+            @if (userOptions[option].icon) {
+              <mat-icon class="material-symbols-outlined"> {{userOptions[option].icon}} </mat-icon>
+            }
+          </span>
+        </button>
+      }
     `,
   styles: [userOptionStyle],
 })
@@ -50,7 +59,7 @@ export class UserOptionsComponent {
   @Input() userOptions: UserOptions = {};
   @Input() eventType = '';
   @Input() traceType: TraceType | undefined;
-  @Input() logCallback: LogCallback = FunctionUtils.DO_NOTHING;
+  @Input() logCallback: LogCallback = () => {};
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 

@@ -30,6 +30,10 @@ describe('AdbDeviceConnection', () => {
 
   const testId = '35562';
   const testModel = 'Pixel';
+  const srVersionCmd = 'screenrecord --version';
+  const srHelpCmd = 'screenrecord --help';
+  const dumpsysCmd = 'dumpsys SurfaceFlinger --display-id';
+  const protologCmd = 'cmd protolog_configuration groups list';
   let connection: MockAdbDeviceConnection;
   let runShellCmdSpy: jasmine.Spy;
   let userNotifierChecker: UserNotifierChecker;
@@ -63,7 +67,7 @@ describe('AdbDeviceConnection', () => {
       AdbDeviceState.OFFLINE,
       listener,
     );
-    expect(connection.getFormattedName()).toEqual('offline Pixel (35562)');
+    expect(connection.getFormattedName()).toBe('offline Pixel (35562)');
   });
 
   it('formats name for unauthorized device', () => {
@@ -73,11 +77,11 @@ describe('AdbDeviceConnection', () => {
       AdbDeviceState.UNAUTHORIZED,
       listener,
     );
-    expect(connection.getFormattedName()).toEqual('unauthorized Pixel (35562)');
+    expect(connection.getFormattedName()).toBe('unauthorized Pixel (35562)');
   });
 
   it('formats name for idle device', () => {
-    expect(connection.getFormattedName()).toEqual('Pixel (35562)');
+    expect(connection.getFormattedName()).toBe('Pixel (35562)');
   });
 
   it('updates availability of wayland trace if available', async () => {
@@ -100,38 +104,38 @@ describe('AdbDeviceConnection', () => {
   });
 
   it('updates hasMultiDisplayScreenRecording via screenrecord --version - old version', async () => {
-    runShellCmdSpy.withArgs('screenrecord --version').and.returnValue('1.3');
+    runShellCmdSpy.withArgs(srVersionCmd).and.returnValue('1.3');
     await connection.updateProperties({});
     expect(connection.hasMultiDisplayScreenRecording()).toBeFalse();
   });
 
   it('updates hasMultiDisplayScreenRecording via screenrecord --version - compatible version', async () => {
-    runShellCmdSpy.withArgs('screenrecord --version').and.returnValue('1.4');
+    runShellCmdSpy.withArgs(srVersionCmd).and.returnValue('1.4');
     await connection.updateProperties({});
     expect(connection.hasMultiDisplayScreenRecording()).toBeTrue();
   });
 
   it('updates hasMultiDisplayScreenRecording via screenrecord --help - old version', async () => {
     runShellCmdSpy
-      .withArgs('screenrecord --version')
+      .withArgs(srVersionCmd)
       .and.returnValue('unrecognized option');
-    runShellCmdSpy.withArgs('screenrecord --help').and.returnValue('v1.3');
+    runShellCmdSpy.withArgs(srHelpCmd).and.returnValue('v1.3');
     await connection.updateProperties({});
     expect(connection.hasMultiDisplayScreenRecording()).toBeFalse();
   });
 
   it('updates hasMultiDisplayScreenRecording via screenrecord --help - compatible version', async () => {
     runShellCmdSpy
-      .withArgs('screenrecord --version')
+      .withArgs(srVersionCmd)
       .and.returnValue('unrecognized option');
-    runShellCmdSpy.withArgs('screenrecord --help').and.returnValue('v1.4');
+    runShellCmdSpy.withArgs(srHelpCmd).and.returnValue('v1.4');
     await connection.updateProperties({});
     expect(connection.hasMultiDisplayScreenRecording()).toBeTrue();
   });
 
   it('handles error in screen recording command', async () => {
     runShellCmdSpy
-      .withArgs('screenrecord --version')
+      .withArgs(srVersionCmd)
       .and.throwError(new Error('test error'));
     await expectAsync(connection.updateProperties({})).toBeResolved();
     expect(connection.hasMultiDisplayScreenRecording()).toBeFalse();
@@ -139,7 +143,7 @@ describe('AdbDeviceConnection', () => {
 
   it('adds display', async () => {
     runShellCmdSpy
-      .withArgs('dumpsys SurfaceFlinger --display-id')
+      .withArgs(dumpsysCmd)
       .and.returnValue('Display 12345 Extra Info displayName="Test Display"');
     await connection.updateProperties({});
     expect(connection.getDisplays()).toEqual([
@@ -149,7 +153,7 @@ describe('AdbDeviceConnection', () => {
 
   it('adds display with missing displayName', async () => {
     runShellCmdSpy
-      .withArgs('dumpsys SurfaceFlinger --display-id')
+      .withArgs(dumpsysCmd)
       .and.returnValue('Display 12345 Extra Info');
     await connection.updateProperties({});
     expect(connection.getDisplays()).toEqual(['12345 Extra Info']);
@@ -157,15 +161,13 @@ describe('AdbDeviceConnection', () => {
 
   it('clears display', async () => {
     runShellCmdSpy
-      .withArgs('dumpsys SurfaceFlinger --display-id')
+      .withArgs(dumpsysCmd)
       .and.returnValue('Display 12345 Extra Info');
     await connection.updateProperties({});
-    expect(connection.getDisplays().length).toEqual(1);
-    runShellCmdSpy
-      .withArgs('dumpsys SurfaceFlinger --display-id')
-      .and.returnValue('');
+    expect(connection.getDisplays().length).toBe(1);
+    runShellCmdSpy.withArgs(dumpsysCmd).and.returnValue('');
     await connection.updateProperties({});
-    expect(connection.getDisplays().length).toEqual(0);
+    expect(connection.getDisplays().length).toBe(0);
   });
 
   it('finds files via exact filepath', async () => {
@@ -238,6 +240,20 @@ describe('AdbDeviceConnection', () => {
   it('checks root and returns false for non "0" output', async () => {
     setDeviceAsRoot();
     expect(await connection.checkRoot()).toBeTrue();
+  });
+
+  it('updates protolog groups depending on device state change', async () => {
+    runShellCmdSpy
+      .withArgs(protologCmd)
+      .and.returnValue(
+        'ProtoLog groups registered with service' + '\n- GROUP_1',
+      );
+    await connection.updateProperties({});
+    expect(connection.getProtologGroups()).toEqual(['GROUP_1']);
+
+    connection.updateState(AdbDeviceState.UNAUTHORIZED);
+    await connection.updateProperties({});
+    expect(connection.getProtologGroups()).toEqual([]);
   });
 
   function setDeviceAsRoot() {

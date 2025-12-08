@@ -99,6 +99,12 @@
             android:label="@string/secure_window_demo" />
 
         <activity
+            android:name=".UiModeDemoActivity"
+            android:exported="true"
+            android:configChanges="uiMode"
+            android:label="@string/ui_mode_demo" />
+
+        <activity
             android:name=".PipDemoActivity"
             android:exported="false"
             android:supportsPictureInPicture="true"
@@ -147,6 +153,11 @@
             android:name=".RecorderDemoActivity"
             android:exported="true"
             android:label="@string/recorder_demo" />
+
+        <activity
+            android:name=".SoundDemoActivity"
+            android:exported="true"
+            android:label="@string/sound_demo" />
 
     </application>
     <!-- LINT.ThenChange(/samples/VirtualDeviceManager/README.md:demos) -->

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TraceRect} from 'trace/trace_rect';
-import {TraceRectBuilder} from 'trace/trace_rect_builder';
-import {Computation} from 'trace/tree_node/computation';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {assertDefined} from 'common/assert';
+import {Computation} from 'tree_node/computation';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {TraceRect} from 'tree_node/trace_rect';
+import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 
 class RectWmFactory {
   makeDisplayRect(
@@ -28,13 +28,13 @@ class RectWmFactory {
   ): TraceRect {
     const displayInfo = display.getEagerPropertyByName('displayInfo');
     const displayRectWidth =
-      displayInfo?.getChildByName('logicalWidth')?.getValue() ?? 0;
+      displayInfo?.getChildByName('logicalWidth')?.getValue<number>() ?? 0;
     const displayRectHeight =
-      displayInfo?.getChildByName('logicalHeight')?.getValue() ?? 0;
+      displayInfo?.getChildByName('logicalHeight')?.getValue<number>() ?? 0;
 
     const displayFocusedApp = display
       .getEagerPropertyByName('focusedApp')
-      ?.getValue();
+      ?.getValue<string>();
 
     return new TraceRectBuilder()
       .setX(0)
@@ -43,9 +43,8 @@ class RectWmFactory {
       .setHeight(displayRectHeight)
       .setId(display.id)
       .setName(`Display - ${display.name}`)
-      .setCornerRadius(0)
       .setGroupId(
-        assertDefined(display.getEagerPropertyByName('id')).getValue(),
+        assertDefined(display.getEagerPropertyByName('id')?.getValue<number>()),
       )
       .setIsVisible(false)
       .setIsDisplay(true)
@@ -59,20 +58,23 @@ class RectWmFactory {
     container: HierarchyTreeNode,
     absoluteZ: number,
   ): TraceRect | undefined {
-    const displayId = container.getEagerPropertyByName('displayId')?.getValue();
+    const displayId = container
+      .getEagerPropertyByName('displayId')
+      ?.getValue<number>();
     if (displayId === undefined) {
       return undefined;
     }
 
     const isVisible =
-      container.getEagerPropertyByName('isComputedVisible')?.getValue() ??
-      false;
+      container
+        .getEagerPropertyByName('isComputedVisible')
+        ?.getValue<boolean>() ?? false;
 
     const alpha =
       container
         .getEagerPropertyByName('attributes')
         ?.getChildByName('alpha')
-        ?.getValue() ?? 1;
+        ?.getValue<number>() ?? 1;
 
     const frame = container
       .getEagerPropertyByName('windowFrames')
@@ -81,10 +83,18 @@ class RectWmFactory {
       return undefined;
     }
 
-    const rectLeft = assertDefined(frame.getChildByName('left')).getValue();
-    const rectTop = assertDefined(frame.getChildByName('top')).getValue();
-    const rectRight = assertDefined(frame.getChildByName('right')).getValue();
-    const rectBottom = assertDefined(frame.getChildByName('bottom')).getValue();
+    const rectLeft = assertDefined(
+      frame.getChildByName('left')?.getValue<number>(),
+    );
+    const rectTop = assertDefined(
+      frame.getChildByName('top')?.getValue<number>(),
+    );
+    const rectRight = assertDefined(
+      frame.getChildByName('right')?.getValue<number>(),
+    );
+    const rectBottom = assertDefined(
+      frame.getChildByName('bottom')?.getValue<number>(),
+    );
 
     return new TraceRectBuilder()
       .setX(rectLeft)
@@ -93,7 +103,6 @@ class RectWmFactory {
       .setHeight(rectBottom - rectTop)
       .setId(container.id)
       .setName(container.name)
-      .setCornerRadius(0)
       .setGroupId(displayId)
       .setIsVisible(isVisible)
       .setIsDisplay(false)
@@ -104,6 +113,9 @@ class RectWmFactory {
   }
 }
 
+/**
+ * A computation that adds rects to a window manager hierarchy tree.
+ */
 export class RectsComputation implements Computation {
   private root: HierarchyTreeNode | undefined;
   private readonly rectsFactory = new RectWmFactory();
@@ -118,9 +130,9 @@ export class RectsComputation implements Computation {
       throw new Error('root not set in WM rects computation');
     }
 
-    const focusedApp = this.root
-      .getEagerPropertyByName('focusedApp')
-      ?.getValue();
+    const focusedApp = assertDefined(
+      this.root.getEagerPropertyByName('focusedApp')?.getValue<string>(),
+    );
 
     this.root.getAllChildren().forEach((displayContent) => {
       const displayRect = this.rectsFactory.makeDisplayRect(

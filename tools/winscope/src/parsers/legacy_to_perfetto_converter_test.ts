@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {FailedToConvertLegacyTraces} from 'messaging/user_warnings';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {ParserBuilder} from 'test/unit/parser_builder';
+import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {Parser} from 'trace/parser';
 import {TraceFile} from 'trace/trace_file';
+import {Parser} from 'trace_api/parser';
 import {
   ClockSnapshot,
   LegacyToPerfettoConverter,
@@ -299,13 +299,13 @@ describe('LegacyToPerfettoConverter', () => {
   ): Parser<{}> {
     const ts =
       testPackets.length === 0
-        ? [TimestampConverterUtils.makeRealTimestamp(0n)]
+        ? [makeRealTimestamp(0n)]
         : testPackets.map((testPacket) => {
             const ns = BigInt(testPacket?.timestamp.toString() ?? 0n);
-            return TimestampConverterUtils.makeRealTimestamp(ns);
+            return makeRealTimestamp(ns);
           });
     const parser = new ParserBuilder<string>()
-      .setEntries(ts.length === 0 ? [''] : ts.map((t) => ''))
+      .setEntries(ts.length === 0 ? [''] : ts.map(() => ''))
       .setTimestamps(ts)
       .build();
 

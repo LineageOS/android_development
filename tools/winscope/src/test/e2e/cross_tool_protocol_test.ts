@@ -27,10 +27,11 @@ import {
 } from './utils';
 
 describe('Cross-Tool Protocol', () => {
-  const DEFAULT_TIMEOUT_MS = 80000;
+  const DEFAULT_TIMEOUT_MS = 40000;
 
   beforeEach(async () => {
     await browser.restart();
+    browser.waitForAngularEnabled(false);
     await browser.manage().timeouts().setScriptTimeout(DEFAULT_TIMEOUT_MS);
     await setTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
     await checkServerIsUp('Remote tool mock', REMOTE_TOOL_MOCK_URL);
@@ -58,7 +59,7 @@ describe('Cross-Tool Protocol', () => {
     await checkWinscopeRendersUploadView();
     await closeWinscopeSnackBar();
 
-    await clickWinscopeViewTracesButton();
+    await clickWinscopeViewTracesButton(true);
     await checkWinscopeRenderedSurfaceFlingerView();
     await checkWinscopeRenderedAllViewTabs();
     await checkWinscopeTimestamp(INITIAL_TRACE_TIMESTAMP);
@@ -84,7 +85,7 @@ describe('Cross-Tool Protocol', () => {
     await sendFilesToWinscope();
     await checkWinscopeRendersUploadView();
 
-    await clickWinscopeViewTracesButton();
+    await clickWinscopeViewTracesButton(false);
     await checkWinscopeRenderedSurfaceFlingerView();
     await checkWinscopeTimestamp(TIMESTAMP_IN_FILES_MESSAGE_REALTIME);
 
@@ -106,7 +107,7 @@ describe('Cross-Tool Protocol', () => {
     await sendFilesToWinscope();
     await checkWinscopeRendersUploadView();
 
-    await clickWinscopeViewTracesButton();
+    await clickWinscopeViewTracesButton(false);
     await checkWinscopeRenderedSurfaceFlingerView();
 
     await clickCrossToolSyncButton();
@@ -148,9 +149,9 @@ describe('Cross-Tool Protocol', () => {
     expect(isPresent).toBeTruthy();
   }
 
-  async function clickWinscopeViewTracesButton() {
+  async function clickWinscopeViewTracesButton(forceKeepLegacy: boolean) {
     await browser.switchTo().window(await getWindowHandleWinscope());
-    await clickViewTracesButton();
+    await clickViewTracesButton(forceKeepLegacy);
   }
 
   async function closeWinscopeSnackBar() {
@@ -181,7 +182,7 @@ describe('Cross-Tool Protocol', () => {
 
   async function checkWinscopeRenderedAllViewTabs() {
     const tabParagraphs = await element.all(
-      by.css('.tabs-navigation-bar a span'),
+      by.css('.tabs-navigation-bar .tab-title'),
     );
 
     const actualTabParagraphs = await Promise.all(
@@ -253,7 +254,7 @@ describe('Cross-Tool Protocol', () => {
 
   async function getWindowHandleWinscope(): Promise<string> {
     const handles = await browser.getAllWindowHandles();
-    expect(handles.length).toEqual(2);
+    expect(handles.length).toBe(2);
     return handles[1];
   }
 

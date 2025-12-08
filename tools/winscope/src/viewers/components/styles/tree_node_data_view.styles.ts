@@ -48,10 +48,20 @@ export const propertyTreeNodeDataViewStyles = `
     }
     .old-value {
         color: var(--gray-text-color);
+    }
+    .property-value .old-value {
         display: flex;
     }
-    .new {
+    .property-value .new-value {
         display: flex;
+    }
+    .diff-value-parts {
+        display: block;
+    }
+    .diff-value-parts .old-value,
+    .diff-value-parts .new-value,
+    .diff-value-parts .unchanged-value {
+        display: inline;
     }
     .value.null {
         color: var(--gray-text-color);

@@ -19,10 +19,10 @@ import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makeUiPropertyNode} from 'test/unit/ui_tree_node_utils';
 import {RectShowState} from 'viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
@@ -41,14 +41,16 @@ describe('TreeComponent', () => {
     mockCopyText = jasmine.createSpy();
     await TestBed.configureTestingModule({
       providers: [{provide: Clipboard, useValue: {copy: mockCopyText}}],
-      declarations: [
+      imports: [
+        MatTooltipModule,
+        MatIconModule,
+        ClipboardModule,
+        TreeNodeComponent,
         TreeComponent,
         TestHostComponent,
-        TreeNodeComponent,
         HierarchyTreeNodeDataViewComponent,
         PropertyTreeNodeDataViewComponent,
       ],
-      imports: [MatTooltipModule, MatIconModule, ClipboardModule],
     }).compileComponents();
     const fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
@@ -228,7 +230,7 @@ describe('TreeComponent', () => {
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeDefined();
 
-    component.tree = TreeNodeUtils.makeUiPropertyNode(
+    component.tree = makeUiPropertyNode(
       component.tree.id,
       component.tree.name,
       0,
@@ -251,7 +253,7 @@ describe('TreeComponent', () => {
 
   it('copies text via copy button without selecting node', () => {
     dom.detectChanges();
-    component.tree = TreeNodeUtils.makeUiPropertyNode(
+    component.tree = makeUiPropertyNode(
       component.tree.id,
       component.tree.name,
       0,
@@ -303,6 +305,7 @@ describe('TreeComponent', () => {
   }
 
   @Component({
+    imports: [TreeComponent],
     selector: 'host-component',
     template: `
     <div class="tree-wrapper">

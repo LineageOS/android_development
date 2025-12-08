@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {
+  assertBigInt,
+  assertDefined,
+  assertNumberOrUndefined,
+  assertString,
+} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {
   TabbedViewSwitchRequest,
   TracePositionUpdate,
 } from 'messaging/winscope_event';
-import {CustomQueryType} from 'trace/custom_query';
+import {EMPTY_OBJ_STRING, FixedStringFormatter} from 'trace/formatters';
 import {LayerFlag} from 'trace/surface_flinger/layer_flag';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceEntryFinder} from 'trace/trace_entry_finder';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
-import {
-  EMPTY_OBJ_STRING,
-  FixedStringFormatter,
-} from 'trace/tree_node/formatters';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Trace} from 'trace_api/trace';
+import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
 import {
   AbstractHierarchyViewerPresenter,
   NotifyHierarchyViewCallbackType,
@@ -63,6 +65,8 @@ import {
 } from 'viewers/components/rects/rect_spec';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UiData} from './ui_data';
+import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [
@@ -73,7 +77,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   ];
 
   protected override hierarchyPresenter = new HierarchyPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'SfHierarchyOptions',
       {
         showDiff: {
@@ -104,7 +108,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     this.getEntryFormattedTimestamp,
   );
   protected override rectsPresenter = new RectsPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'SfRectsOptions',
       {
         ignoreRectShowState: {
@@ -131,7 +135,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     convertRectIdToLayerorDisplayName,
   );
   protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'SfPropertyOptions',
       {
         showDiff: {
@@ -154,6 +158,10 @@ the default for its data type.`,
     undefined,
     ['a', 'type'],
   );
+  protected override playbackPresenter = new PlaybackPresenter((event) => {
+    this.hierarchyPresenter.setShowDiffAvailability(true);
+    return this.emitWinscopeEvent(event);
+  });
   protected override multiTraceType = undefined;
 
   private viewCapturePackageNames: string[] | undefined;
@@ -251,8 +259,26 @@ the default for its data type.`,
     await this.setInitialWmActiveDisplay(event);
   }
 
+  protected override async playPlayback(
+    trace: Trace<HierarchyTreeNode>,
+    currentPosition: number,
+    requestedState: PlaybackState,
+  ) {
+    this.hierarchyPresenter.setShowDiffAvailability(false);
+    this.playbackPresenter.play(trace, currentPosition, requestedState);
+  }
+
+  protected override async pausePlayback(): Promise<void> {
+    this.hierarchyPresenter.setShowDiffAvailability(true);
+    this.playbackPresenter.pause();
+  }
+
   protected override async processDataAfterPositionUpdate(): Promise<void> {
-    this.updateCuratedProperties();
+    if (this.playbackPresenter.isPlaying()) {
+      this.hierarchyPresenter.setShowDiffAvailability(false);
+    } else {
+      this.updateCuratedProperties();
+    }
   }
 
   protected override refreshUIData() {
@@ -277,12 +303,17 @@ the default for its data type.`,
     const propertiesTree = this.propertiesPresenter.getPropertiesTree();
 
     if (selectedHierarchyTree && propertiesTree) {
-      if (selectedHierarchyTree.tree.isRoot()) {
+      if (
+        selectedHierarchyTree.tree.isRoot() ||
+        selectedHierarchyTree.tree.name === 'WinscopeRecursiveLayerRoot'
+      ) {
         this.curatedProperties = undefined;
       } else {
+        const layerIdToNodeId = this.makeLayerIdToNodeIdMap();
         this.curatedProperties = this.getCuratedProperties(
           selectedHierarchyTree.tree,
           propertiesTree,
+          layerIdToNodeId,
         );
       }
     } else {
@@ -290,9 +321,26 @@ the default for its data type.`,
     }
   }
 
+  private makeLayerIdToNodeIdMap() {
+    const layerIdToNodeId = new Map<bigint, string>();
+    const tree =
+      this.hierarchyPresenter.getAllCurrentHierarchyTrees()?.[0].trees[0];
+    tree?.forEachNodeDfs((node) => {
+      if (node.isRoot()) {
+        return;
+      }
+      layerIdToNodeId.set(
+        assertBigInt(node.getEagerPropertyByName('layerId')?.getValue()),
+        node.id,
+      );
+    });
+    return layerIdToNodeId;
+  }
+
   private getCuratedProperties(
     hTree: HierarchyTreeNode,
     pTree: PropertyTreeNode,
+    layerIdToNodeId: Map<bigint, string>,
   ): SfCuratedProperties {
     const inputWindowInfo = pTree.getChildByName('inputWindowInfo');
     const hasInputChannel =
@@ -305,12 +353,7 @@ the default for its data type.`,
         ).formattedValue()
       : '-1';
 
-    const verboseFlags = pTree.getChildByName('verboseFlags')?.formattedValue();
     const flags = assertDefined(pTree.getChildByName('flags'));
-    const curatedFlags =
-      verboseFlags !== '' && verboseFlags !== undefined
-        ? verboseFlags
-        : flags.formattedValue();
 
     const bufferTransform = pTree.getChildByName('bufferTransform');
     const bufferTransformTypeFlags =
@@ -332,10 +375,10 @@ the default for its data type.`,
     }
 
     const curated: SfCuratedProperties = {
-      summary: this.getSummaryOfVisibility(pTree),
-      flags: curatedFlags,
+      summary: this.getSummaryOfVisibility(layerIdToNodeId, pTree),
+      flags: flags.formattedValue(),
       calcTransform: pTree.getChildByName('transform'),
-      calcCrop: this.getCropPropertyValue(pTree, 'bounds'),
+      calcCrop: this.getRectPropertyValue(pTree, 'bounds'),
       finalBounds: assertDefined(
         pTree.getChildByName('screenBounds'),
       ).formattedValue(),
@@ -357,8 +400,12 @@ the default for its data type.`,
         .map((c) => this.getLayerSummary(c.id)),
       calcColor: this.getColorPropertyValue(pTree, 'color'),
       calcShadowRadius: this.getPixelPropertyValue(pTree, 'shadowRadius'),
-      calcCornerRadius: this.getPixelPropertyValue(pTree, 'cornerRadius'),
-      calcCornerRadiusCrop: this.getCropPropertyValue(
+      calcCornerRadii: this.getCornerRadiiValue(
+        pTree,
+        'cornerRadii',
+        'cornerRadius',
+      ),
+      calcCornerRadiusCrop: this.getRectPropertyValue(
         pTree,
         'cornerRadiusCrop',
       ),
@@ -367,10 +414,12 @@ the default for its data type.`,
         'backgroundBlurRadius',
       ),
       reqColor: this.getColorPropertyValue(pTree, 'requestedColor'),
-      reqCornerRadius: this.getPixelPropertyValue(
+      reqCornerRadii: this.getCornerRadiiValue(
         pTree,
+        'requestedCornerRadii',
         'requestedCornerRadius',
       ),
+      reqCrop: this.getRectPropertyValue(pTree, 'crop'),
       inputTransform: inputWindowInfo?.getChildByName('transform'),
       inputRegion: inputWindowInfo
         ?.getChildByName('touchableRegion')
@@ -382,24 +431,28 @@ the default for its data type.`,
         : 'null',
       cropTouchRegionWithItem: cropLayerId,
       replaceTouchRegionWithCrop: hasInputChannel
-        ? inputWindowInfo
+        ? (inputWindowInfo
             .getChildByName('replaceTouchableRegionWithCrop')
-            ?.formattedValue() ?? 'false'
+            ?.formattedValue() ?? 'false')
         : 'false',
       inputConfig:
         inputWindowInfo?.getChildByName('inputConfig')?.formattedValue() ??
         'null',
       ignoreDestinationFrame:
-        (flags.getValue() & LayerFlag.IGNORE_DESTINATION_FRAME) ===
+        ((flags.getValue<number>() ?? 0) &
+          LayerFlag.IGNORE_DESTINATION_FRAME) ===
         LayerFlag.IGNORE_DESTINATION_FRAME,
       hasInputChannel,
     };
     return curated;
   }
 
-  private getSummaryOfVisibility(tree: PropertyTreeNode): SfSummaryProperty[] {
+  private getSummaryOfVisibility(
+    layerIdToNodeId: Map<bigint, string>,
+    pTree: PropertyTreeNode,
+  ): SfSummaryProperty[] {
     const summary: SfSummaryProperty[] = [];
-    const visibilityReason = tree.getChildByName('visibilityReason');
+    const visibilityReason = pTree.getChildByName('visibilityReason');
     if (visibilityReason && visibilityReason.getAllChildren().length > 0) {
       const reason = this.mapNodeArrayToString(
         visibilityReason.getAllChildren(),
@@ -407,37 +460,40 @@ the default for its data type.`,
       summary.push({key: 'Invisible due to', simpleValue: reason});
     }
 
-    const occludedBy = tree.getChildByName('occludedBy')?.getAllChildren();
+    const occludedBy = pTree.getChildByName('occludedBy')?.getAllChildren();
     if (occludedBy && occludedBy.length > 0) {
       summary.push({
         key: 'Occluded by',
-        layerValues: occludedBy.map((layer) =>
-          this.getLayerSummary(layer.formattedValue()),
-        ),
+        layerValues: occludedBy.map((layer) => {
+          const nodeId = layerIdToNodeId.get(assertBigInt(layer.getValue()));
+          return this.getLayerSummary(assertString(nodeId));
+        }),
         desc: 'Fully occluded by these opaque layers',
       });
     }
 
-    const partiallyOccludedBy = tree
+    const partiallyOccludedBy = pTree
       .getChildByName('partiallyOccludedBy')
       ?.getAllChildren();
     if (partiallyOccludedBy && partiallyOccludedBy.length > 0) {
       summary.push({
         key: 'Partially occluded by',
-        layerValues: partiallyOccludedBy.map((layer) =>
-          this.getLayerSummary(layer.formattedValue()),
-        ),
+        layerValues: partiallyOccludedBy.map((layer) => {
+          const nodeId = layerIdToNodeId.get(assertBigInt(layer.getValue()));
+          return this.getLayerSummary(assertString(nodeId));
+        }),
         desc: 'Partially occluded by these opaque layers',
       });
     }
 
-    const coveredBy = tree.getChildByName('coveredBy')?.getAllChildren();
+    const coveredBy = pTree.getChildByName('coveredBy')?.getAllChildren();
     if (coveredBy && coveredBy.length > 0) {
       summary.push({
         key: 'Covered by',
-        layerValues: coveredBy.map((layer) =>
-          this.getLayerSummary(layer.formattedValue()),
-        ),
+        layerValues: coveredBy.map((layer) => {
+          const nodeId = layerIdToNodeId.get(assertBigInt(layer.getValue()));
+          return this.getLayerSummary(assertString(nodeId));
+        }),
         desc: 'Partially or fully covered by these likely translucent layers',
       });
     }
@@ -462,7 +518,7 @@ the default for its data type.`,
     return propVal !== 'null' ? `${propVal} px` : '0 px';
   }
 
-  private getCropPropertyValue(tree: PropertyTreeNode, label: string): string {
+  private getRectPropertyValue(tree: PropertyTreeNode, label: string): string {
     const propVal = assertDefined(tree.getChildByName(label)).formattedValue();
     return propVal !== 'null' ? propVal : EMPTY_OBJ_STRING;
   }
@@ -470,6 +526,50 @@ the default for its data type.`,
   private getColorPropertyValue(tree: PropertyTreeNode, label: string): string {
     const propVal = assertDefined(tree.getChildByName(label)).formattedValue();
     return propVal !== 'null' ? propVal : 'no color found';
+  }
+
+  private getCornerRadiiValue(
+    tree: PropertyTreeNode,
+    cornerRadiiLabel: string,
+    cornerRadiusLabel: string,
+  ): string {
+    let [tl, tr, bl, br] = ['0', '0', '0', '0'];
+    const radiiNode = assertDefined(tree.getChildByName(cornerRadiiLabel));
+    const radii = radiiNode.getAllChildren();
+    if (
+      radii.length > 0 &&
+      radii.every((r) => r.source !== PropertySource.DEFAULT)
+    ) {
+      radii.forEach((r) => {
+        const value = r.formattedValue();
+        switch (r.name) {
+          case 'tl':
+            tl = value;
+            return;
+          case 'tr':
+            tr = value;
+            return;
+          case 'bl':
+            bl = value;
+            return;
+          case 'br':
+            br = value;
+            return;
+          default:
+            throw new Error(
+              `Encountered unexpected corner radius node: ${r.name}`,
+            );
+        }
+      });
+    } else {
+      const rNode = tree.getChildByName(cornerRadiusLabel);
+      const r = assertNumberOrUndefined(rNode?.getValue());
+      if (r !== undefined && r > 0) {
+        const rString = assertDefined(rNode).formattedValue();
+        [tl, tr, bl, br] = [rString, rString, rString, rString];
+      }
+    }
+    return `(${tl}, ${tr}, ${bl}, ${br})`;
   }
 
   private async setInitialWmActiveDisplay(event: TracePositionUpdate) {

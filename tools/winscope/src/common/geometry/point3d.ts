@@ -20,7 +20,11 @@ import {Point} from './point';
  * A 3D point.
  */
 export class Point3D implements Point {
-  constructor(public x: number, public y: number, public z: number) {}
+  constructor(
+    public x: number,
+    public y: number,
+    public z: number,
+  ) {}
 
   isEqual(other: Point3D): boolean {
     return this.x === other.x && this.y === other.y && this.z === other.z;

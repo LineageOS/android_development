@@ -17,9 +17,29 @@ import {
 import { Inject, Injectable, Optional } from '@angular/core';
 import { UrlSerializer } from '@angular/router';
 
-const urlParams = new URLSearchParams(window.location.search);
-const token = urlParams.get('token');
-const port = urlParams.get('port');
+function getToken(): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  let token = urlParams.get('token');
+
+  if (token === null) {
+    token = localStorage.getItem("token");
+  } else {
+    localStorage.setItem("token", token);
+  }
+  return token;
+}
+
+function getPort(): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  let port = urlParams.get('port');
+
+  if (port === null) {
+    port = localStorage.getItem("port");
+  } else {
+    localStorage.setItem("port", port ?? "");
+  }
+  return port;
+}
 
 @Injectable()
 export class PreserveQueryParamsPathLocationStrategy extends PathLocationStrategy {
@@ -58,8 +78,8 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     ProgressTracker,
     Preferences,
-    { provide: ACCESS_TOKEN, useValue: token },
-    { provide: SERVICE_PORT, useValue: port },
+    { provide: ACCESS_TOKEN, useFactory: getToken },
+    { provide: SERVICE_PORT, useFactory: getPort },
     {
       provide: LocationStrategy,
       useClass: PreserveQueryParamsPathLocationStrategy,

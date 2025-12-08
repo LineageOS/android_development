@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
-import {AppModule} from './app_module';
 
-platformBrowserDynamic()
-  .bootstrapModule(AppModule)
-  .catch((err) => console.error(err));
+// organize-imports-ignore
+import '@angular/compiler';
+import {bootstrapApplication} from '@angular/platform-browser';
+import {AppComponent} from './app_component';
+
+bootstrapApplication(AppComponent).catch((e) => console.error(e));

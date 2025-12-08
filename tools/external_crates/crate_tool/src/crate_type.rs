@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use cargo_toml::Manifest;
 use name_and_version::{NameAndVersionRef, NamedAndVersioned};
 use rooted_path::RootedPath;
@@ -45,7 +45,9 @@ impl Crate {
         Crate { manifest, path, version }
     }
     pub fn from(manifest_dir: RootedPath) -> Result<Crate> {
-        let manifest = Manifest::from_path(manifest_dir.abs().join("Cargo.toml"))?;
+        let manifest_path = manifest_dir.abs().join("Cargo.toml");
+        let manifest = Manifest::from_path(&manifest_path)
+            .with_context(|| format!("Failed to read {}", manifest_path.display()))?;
         if manifest.package.is_none() {
             bail!(CrateError::VirtualCrate(manifest_dir.as_ref().to_path_buf()));
         }

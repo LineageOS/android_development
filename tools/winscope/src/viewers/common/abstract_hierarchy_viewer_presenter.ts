@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FunctionUtils} from 'common/function_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {parseMap, stringifyMap} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
@@ -26,13 +25,13 @@ import {
   WinscopeEventType,
 } from 'messaging/winscope_event';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {Trace, TraceEntry} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceEntryFinder} from 'trace/trace_entry_finder';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {Trace, TraceEntry} from 'trace_api/trace';
+import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {PropertiesPresenter} from 'viewers/common/properties_presenter';
 import {RectsPresenter} from 'viewers/common/rects_presenter';
 import {TextFilter} from 'viewers/common/text_filter';
@@ -43,15 +42,18 @@ import {PresetHierarchy, TextFilterValues} from './preset_hierarchy';
 import {RectShowState} from './rect_show_state';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {ViewerEvents} from './viewer_events';
+import {PlaybackPresenter} from './playback/playback_presenter';
+import {PlaybackState} from './playback/playback_state';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 
 export abstract class AbstractHierarchyViewerPresenter<
   UiData extends UiDataHierarchy,
 > {
-  protected emitWinscopeEvent: EmitEvent = FunctionUtils.DO_NOTHING_ASYNC;
+  protected emitWinscopeEvent: EmitEvent = () => Promise.resolve();
   protected overridePropertiesTree: PropertyTreeNode | undefined;
   protected overridePropertiesTreeName: string | undefined;
+  protected playbackPresenter?: PlaybackPresenter;
   protected rectsPresenter?: RectsPresenter;
   protected abstract hierarchyPresenter: HierarchyPresenter;
   protected abstract propertiesPresenter: PropertiesPresenter;
@@ -258,6 +260,42 @@ export abstract class AbstractHierarchyViewerPresenter<
         this.refreshUIData();
       },
     );
+    await event.visit(
+      WinscopeEventType.PLAYBACK_STATE_CHANGE_REQUEST,
+      async (event) => {
+        if (!this.trace) {
+          return;
+        }
+        switch (event.state) {
+          case PlaybackState.FORWARDS:
+          case PlaybackState.BACKWARDS:
+            if (this.playPlayback) {
+              await this.playPlayback(
+                this.trace,
+                assertDefined(event.currentTraceIndex),
+                event.state,
+              );
+            }
+            return;
+
+          case PlaybackState.PAUSED:
+            if (this.pausePlayback) {
+              await this.pausePlayback();
+            }
+            return;
+          default:
+            return;
+        }
+      },
+    );
+    await event.visit(
+      WinscopeEventType.PLAYBACK_SPEED_CHANGE,
+      async (event) => {
+        if (this.playbackPresenter && this.trace) {
+          this.playbackPresenter.changeSpeed(event.speedValue);
+        }
+      },
+    );
     await this.onViewerSpecificWinscopeEvent(event);
   }
 
@@ -369,11 +407,12 @@ export abstract class AbstractHierarchyViewerPresenter<
 
     const currentHierarchyTrees =
       this.hierarchyPresenter.getAllCurrentHierarchyTrees();
-    if (currentHierarchyTrees) {
-      const rectStartTime = Date.now();
-      this.rectsPresenter?.applyHierarchyTreesChange(currentHierarchyTrees);
-      this.logFetchComponentData(rectStartTime, 'rects');
 
+    const rectStartTime = Date.now();
+    this.rectsPresenter?.applyHierarchyTreesChange(currentHierarchyTrees ?? []);
+    this.logFetchComponentData(rectStartTime, 'rects');
+
+    if (!this.playbackPresenter || !this.playbackPresenter.isPlaying()) {
       await this.updatePropertiesTree();
     }
   }
@@ -507,6 +546,12 @@ export abstract class AbstractHierarchyViewerPresenter<
   ): string | undefined;
   protected abstract refreshUIData(): void;
   protected initializeIfNeeded?(event: TracePositionUpdate): Promise<void>;
+  protected playPlayback?(
+    trace: Trace<HierarchyTreeNode>,
+    currentPosition: number,
+    requestedState: PlaybackState,
+  ): Promise<void>;
+  protected pausePlayback?(): Promise<void>;
   protected processDataAfterPositionUpdate?(
     event: TracePositionUpdate,
   ): Promise<void>;

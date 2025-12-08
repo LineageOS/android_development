@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {assertDefined} from 'common/assert';
+import {makePropertyNode} from 'test/unit/tree_node_test_helpers';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {AddDisplayProperties} from './add_display_properties';
 
 describe('AddDisplayProperties', () => {
@@ -25,26 +25,18 @@ describe('AddDisplayProperties', () => {
 
   beforeEach(() => {
     operation = new AddDisplayProperties();
-    propertyRoot = TreeNodeUtils.makePropertyNode(
-      'LayerTraceEntry',
-      'root',
-      null,
-    );
+    propertyRoot = makePropertyNode('LayerTraceEntry', 'root', undefined);
   });
 
   it('adds isLargeScreen true', () => {
-    const displays = TreeNodeUtils.makePropertyNode(
-      propertyRoot.id,
-      'displays',
-      [
-        {
-          dpiX: 0,
-          dpiY: 0,
-          size: {w: 1080, h: 2340},
-          layerStack: 0,
-        },
-      ],
-    );
+    const displays = makePropertyNode(propertyRoot.id, 'displays', [
+      {
+        dpiX: 0,
+        dpiY: 0,
+        size: {w: 1080, h: 2340},
+        layerStack: 0,
+      },
+    ]);
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
@@ -57,18 +49,14 @@ describe('AddDisplayProperties', () => {
   });
 
   it('adds isLargeScreen false', () => {
-    const displays = TreeNodeUtils.makePropertyNode(
-      propertyRoot.id,
-      'displays',
-      [
-        {
-          dpiX: 0,
-          dpiY: 0,
-          size: {w: 0, h: 0},
-          layerStack: 0,
-        },
-      ],
-    );
+    const displays = makePropertyNode(propertyRoot.id, 'displays', [
+      {
+        dpiX: 0,
+        dpiY: 0,
+        size: {w: 0, h: 0},
+        layerStack: 0,
+      },
+    ]);
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
@@ -81,18 +69,14 @@ describe('AddDisplayProperties', () => {
   });
 
   it('adds isOn true', () => {
-    const displays = TreeNodeUtils.makePropertyNode(
-      propertyRoot.id,
-      'displays',
-      [
-        {
-          dpiX: 0,
-          dpiY: 0,
-          size: {w: 1080, h: 2340},
-          layerStack: 0,
-        },
-      ],
-    );
+    const displays = makePropertyNode(propertyRoot.id, 'displays', [
+      {
+        dpiX: 0,
+        dpiY: 0,
+        size: {w: 1080, h: 2340},
+        layerStack: 0,
+      },
+    ]);
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
@@ -105,18 +89,14 @@ describe('AddDisplayProperties', () => {
   });
 
   it('adds isOn false', () => {
-    const displays = TreeNodeUtils.makePropertyNode(
-      propertyRoot.id,
-      'displays',
-      [
-        {
-          dpiX: 0,
-          dpiY: 0,
-          size: {w: 1080, h: 2340},
-          layerStack: 4294967295,
-        },
-      ],
-    );
+    const displays = makePropertyNode(propertyRoot.id, 'displays', [
+      {
+        dpiX: 0,
+        dpiY: 0,
+        size: {w: 1080, h: 2340},
+        layerStack: 4294967295,
+      },
+    ]);
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
@@ -126,5 +106,26 @@ describe('AddDisplayProperties', () => {
     expect(displayWithProperties.getChildByName('isOn')?.getValue()).toEqual(
       false,
     );
+  });
+
+  it('handles missing properties', () => {
+    expect(() => operation.apply(propertyRoot)).not.toThrowError();
+
+    const displays = makePropertyNode(propertyRoot.id, 'displays', [
+      {
+        dpiX: 0,
+        size: {w: 1080, h: 2340},
+        layerStack: 4294967295,
+      },
+      {
+        dpiY: 0,
+        size: {w: 1080, h: 2340},
+        layerStack: 4294967295,
+      },
+    ]);
+    propertyRoot.addOrReplaceChild(displays);
+
+    operation.apply(propertyRoot);
+    expect(() => operation.apply(propertyRoot)).not.toThrowError();
   });
 });

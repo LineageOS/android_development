@@ -41,7 +41,7 @@ describe('SimplifyNames', () => {
 
     operation.apply(hierarchyRoot);
     hierarchyRoot.forEachNodeDfs((node) =>
-      expect(node.getDisplayName()).toEqual('name@123456789'),
+      expect(node.getDisplayName()).toBe('name@123456789'),
     );
   });
 });

@@ -74,7 +74,7 @@ impl DependencyMetadata {
             }
         }
         let name = self.rename.as_ref().unwrap_or(&self.name);
-        !self.optional || features.contains(&format!("dep:{}", name))
+        !self.optional || features.contains(&format!("dep:{name}"))
     }
 }
 
@@ -750,7 +750,7 @@ mod tests {
                 .map(|variant_cfg| {
                     parse_cargo_metadata_str(
                         &read_to_string(&cargo_metadata_path)
-                            .with_context(|| format!("Failed to open {:?}", cargo_metadata_path))
+                            .with_context(|| format!("Failed to open {cargo_metadata_path:?}"))
                             .unwrap(),
                         variant_cfg,
                     )

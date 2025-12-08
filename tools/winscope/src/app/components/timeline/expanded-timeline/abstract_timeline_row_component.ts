@@ -15,6 +15,7 @@
  */
 
 import {
+  Directive,
   ElementRef,
   EventEmitter,
   HostListener,
@@ -22,14 +23,19 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Point} from 'common/geometry/point';
 import {TimeRange} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
-import {Trace, TraceEntry} from 'trace/trace';
-import {TracePosition} from 'trace/trace_position';
+import {Trace, TraceEntry} from 'trace_api/trace';
+import {TracePosition} from 'trace_api/trace_position';
+import {TraceType} from 'trace_api/trace_type';
 import {CanvasDrawer} from './canvas_drawer';
 
+/**
+ * An abstract component for a single row in the expanded timeline view.
+ */
+@Directive()
 export abstract class AbstractTimelineRowComponent<T extends {}> {
   abstract selectedEntry: TraceEntry<T> | undefined;
   abstract trace: Trace<{}> | undefined;
@@ -57,8 +63,14 @@ export abstract class AbstractTimelineRowComponent<T extends {}> {
     return this.canvasRef?.nativeElement;
   }
 
-  getBackgroundColor() {
-    return this.isActive ? 'var(--selected-element-color)' : undefined;
+  getBackgroundColor(): string | undefined {
+    if (this.isActive) {
+      return 'var(--selected-element-color)';
+    }
+    if (this.trace?.type === TraceType.SEARCH) {
+      return 'var(--search-background-color)';
+    }
+    return undefined;
   }
 
   ngAfterViewInit() {

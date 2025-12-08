@@ -17,13 +17,18 @@
 import os
 from pathlib import Path
 import sys
+import platform
 
 
 def main() -> None:
+  platform_dir = "linux-x86"
+  if sys.platform == "darwin":
+      platform_dir = "darwin-x86"
+
   prebuilt_bin = (
       (
           Path(__file__).resolve().parents[3]
-          / "prebuilts/rust/linux-x86/stable/rust-analyzer"
+          / f"prebuilts/rust/{platform_dir}/stable/rust-analyzer"
       )
       .resolve()
       .parents[0]

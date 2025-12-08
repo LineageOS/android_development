@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-export class ScreenRecordingUtils {
-  // Video time correction epsilon. Without correction, we could display the previous frame.
-  // This correction was already present in the legacy Winscope.
-  private static readonly EPSILON_SECONDS = 0.00001;
+// Video time correction epsilon. Without correction, we could display the previous frame.
+// This correction was already present in the legacy Winscope.
+const EPSILON_SECONDS = 0.00001;
 
-  static timestampToVideoTimeSeconds(
-    firstTimestampNs: bigint,
-    currentTimestampNs: bigint,
-  ) {
-    const videoTimeSeconds =
-      Number(currentTimestampNs - firstTimestampNs) / 1000000000 +
-      ScreenRecordingUtils.EPSILON_SECONDS;
-    return videoTimeSeconds;
-  }
+export function timestampToVideoTimeSeconds(
+  firstTimestampNs: bigint,
+  currentTimestampNs: bigint,
+) {
+  const videoTimeSeconds =
+    Number(currentTimestampNs - firstTimestampNs) / 1000000000 +
+    EPSILON_SECONDS;
+  return videoTimeSeconds;
 }

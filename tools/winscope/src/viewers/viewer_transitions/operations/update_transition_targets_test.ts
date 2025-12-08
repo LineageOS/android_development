@@ -15,6 +15,7 @@
  */
 
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {UpdateTransitionTargets} from './update_transition_targets';
 
 describe('UpdateTransitionTargets', () => {
@@ -25,51 +26,35 @@ describe('UpdateTransitionTargets', () => {
     const windowTokenToTitle = new Map<string, string>([
       ['97b5518', 'testTitle'],
     ]);
-
     operation = new UpdateTransitionTargets(layerIdToName, windowTokenToTitle);
   });
 
   it('updates layerId and windowToken display names if in maps', () => {
-    const propertyRoot = new PropertyTreeBuilder()
-      .setIsRoot(true)
-      .setRootId('TransitionsTraceEntry')
-      .setName('transition')
-      .setChildren([
-        {
-          name: 'targets',
-          children: [
-            {
-              name: '0',
-              children: [
-                {name: 'layerId', value: 2},
-                {name: 'windowId', value: 159077656n},
-              ],
-            },
-          ],
-        },
-      ])
-      .build();
-
+    const propertyRoot = makeRoot(2, 159077656n);
     operation.apply(propertyRoot);
-    expect(
-      propertyRoot
-        ?.getChildByName('targets')
-        ?.getChildByName('0')
-        ?.getChildByName('layerId')
-        ?.formattedValue(),
-    ).toEqual('2 (testLayer)');
-
-    expect(
-      propertyRoot
-        ?.getChildByName('targets')
-        ?.getChildByName('0')
-        ?.getChildByName('windowId')
-        ?.formattedValue(),
-    ).toEqual('0x97b5518 (testTitle)');
+    checkLayerId(propertyRoot, '2 (testLayer)');
+    checkWindowId(propertyRoot, '0x97b5518 (testTitle)');
   });
 
   it('updates only windowId display name if neither layer id nor token in maps', () => {
-    const propertyRoot = new PropertyTreeBuilder()
+    const propertyRoot = makeRoot(1, 193491296n);
+    operation.apply(propertyRoot);
+    checkLayerId(propertyRoot, '');
+    checkWindowId(propertyRoot, '0xb887160');
+  });
+
+  it('handles null id values', () => {
+    const propertyRoot = makeRoot(undefined, undefined);
+    operation.apply(propertyRoot);
+    checkLayerId(propertyRoot, '');
+    checkWindowId(propertyRoot, '');
+  });
+
+  function makeRoot(
+    layer: number | undefined,
+    window: bigint | undefined,
+  ): PropertyTreeNode {
+    return new PropertyTreeBuilder()
       .setIsRoot(true)
       .setRootId('TransitionsTraceEntry')
       .setName('transition')
@@ -80,30 +65,33 @@ describe('UpdateTransitionTargets', () => {
             {
               name: '0',
               children: [
-                {name: 'layerId', value: 1},
-                {name: 'windowId', value: 193491296n},
+                {name: 'layerId', value: layer},
+                {name: 'windowId', value: window},
               ],
             },
           ],
         },
       ])
       .build();
+  }
 
-    operation.apply(propertyRoot);
+  function checkLayerId(root: PropertyTreeNode, value: string) {
     expect(
-      propertyRoot
+      root
         ?.getChildByName('targets')
         ?.getChildByName('0')
         ?.getChildByName('layerId')
         ?.formattedValue(),
-    ).toEqual('');
+    ).toEqual(value);
+  }
 
+  function checkWindowId(root: PropertyTreeNode, value: string) {
     expect(
-      propertyRoot
+      root
         ?.getChildByName('targets')
         ?.getChildByName('0')
         ?.getChildByName('windowId')
         ?.formattedValue(),
-    ).toEqual('0xb887160');
-  });
+    ).toEqual(value);
+  }
 });

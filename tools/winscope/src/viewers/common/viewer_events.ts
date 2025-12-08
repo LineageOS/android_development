@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from 'common/time/time';
-import {TraceEntry} from 'trace/trace';
+import {TraceEntry} from 'trace_api/trace';
 import {TextFilter} from 'viewers/common/text_filter';
 import {ListedSearch} from 'viewers/viewer_search/ui_data';
 import {LogHeader} from './ui_data_log';
@@ -71,15 +71,24 @@ export class TimestampClickDetail {
 }
 
 export class LogFilterChangeDetail {
-  constructor(public header: LogHeader, public value: string[]) {}
+  constructor(
+    public header: LogHeader,
+    public value: string[],
+  ) {}
 }
 
 export class LogTextFilterChangeDetail {
-  constructor(public header: LogHeader, public filter: TextFilter) {}
+  constructor(
+    public header: LogHeader,
+    public filter: TextFilter,
+  ) {}
 }
 
 export class SearchQueryClickDetail {
-  constructor(public query: string, public uid: number) {}
+  constructor(
+    public query: string,
+    public uid: number,
+  ) {}
 }
 
 export class AddQueryClickDetail {
@@ -91,7 +100,10 @@ export class ClearQueryClickDetail {
 }
 
 export class SaveQueryClickDetail {
-  constructor(public query: string, public name: string) {}
+  constructor(
+    public query: string,
+    public name: string,
+  ) {}
 }
 
 export class DeleteSavedQueryClickDetail {

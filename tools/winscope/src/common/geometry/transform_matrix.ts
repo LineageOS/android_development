@@ -16,8 +16,6 @@
 
 import {Point} from './point';
 import {Point3D} from './point3d';
-import {Rect} from './rect';
-import {Region} from './region';
 
 /**
  * These values correspond to the values from the gui::Transform class in the
@@ -38,6 +36,15 @@ export class TransformMatrix {
     readonly ty: number,
   ) {}
 
+  static readonly IDENTITY: TransformMatrix = new TransformMatrix(
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+  );
+
   static from(
     m: {
       dsdx?: number;
@@ -47,7 +54,7 @@ export class TransformMatrix {
       dsdy?: number;
       ty?: number;
     } = {},
-    fallback: TransformMatrix = IDENTITY_MATRIX,
+    fallback: TransformMatrix = TransformMatrix.IDENTITY,
   ): TransformMatrix {
     return new TransformMatrix(
       m.dsdx ?? fallback.dsdx,
@@ -57,10 +64,6 @@ export class TransformMatrix {
       m.dsdy ?? fallback.dsdy,
       m.ty ?? fallback.ty,
     );
-  }
-
-  isValid(): boolean {
-    return this.dsdx * this.dsdy !== this.dtdx * this.dtdy;
   }
 
   transformPoint(point: Point): Point {
@@ -73,23 +76,6 @@ export class TransformMatrix {
   transformPoint3D(point: Point3D): Point3D {
     const p = this.transformPoint(point);
     return new Point3D(p.x, p.y, point.z);
-  }
-
-  transformRect(r: Rect): Rect {
-    const ltPrime = this.transformPoint({x: r.x, y: r.y});
-    const rbPrime = this.transformPoint({x: r.x + r.w, y: r.y + r.h});
-    const x = Math.min(ltPrime.x, rbPrime.x);
-    const y = Math.min(ltPrime.y, rbPrime.y);
-    return new Rect(
-      x,
-      y,
-      Math.max(ltPrime.x, rbPrime.x) - x,
-      Math.max(ltPrime.y, rbPrime.y) - y,
-    );
-  }
-
-  transformRegion(region: Region): Region {
-    return new Region(region.rects.map((rect) => this.transformRect(rect)));
   }
 
   inverse(): TransformMatrix {
@@ -137,8 +123,3 @@ export class TransformMatrix {
     return this.dsdx * this.dsdy - this.dtdx * this.dtdy;
   }
 }
-
-/**
- * The identity matrix, which has no effect on any point or rect.
- */
-export const IDENTITY_MATRIX = new TransformMatrix(1, 0, 0, 0, 1, 0);

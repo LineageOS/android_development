@@ -25,8 +25,8 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {
   SearchQueryClickDetail,
   ViewerEvents,
@@ -40,7 +40,6 @@ describe('ActiveSearchComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ActiveSearchComponent, TestHostComponent],
       imports: [
         MatFormFieldModule,
         MatInputModule,
@@ -53,6 +52,8 @@ describe('ActiveSearchComponent', () => {
         MatTooltipModule,
         CommonModule,
         NgTemplateOutlet,
+        ActiveSearchComponent,
+        TestHostComponent,
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(ActiveSearchComponent);
@@ -72,16 +73,16 @@ describe('ActiveSearchComponent', () => {
     runSearchAndCheckHandled(runSearchByQueryButton);
   });
 
-  it('handles search via enter key', () => {
+  it('handles search via enter key + ctrl key', () => {
     const runSearch = () => {
       const textInput = getTextInput();
       textInput.dispatchInput(testQuery);
-      textInput.keydownEnter();
+      textInput.keydownEnter({ctrlKey: true});
     };
     runSearchAndCheckHandled(runSearch);
   });
 
-  it('does not handle search on enter key + shift key', () => {
+  it('does not handle search on enter key without ctrl key', () => {
     let query: string | undefined;
     dom.addEventListener(ViewerEvents.SearchQueryClick, (event) => {
       const detail: SearchQueryClickDetail = (event as CustomEvent).detail;
@@ -89,7 +90,7 @@ describe('ActiveSearchComponent', () => {
     });
     const textInput = getTextInput();
     textInput.dispatchInput(testQuery);
-    textInput.keydownEnter(true);
+    textInput.keydownEnter();
     expect(query).toBeUndefined();
   });
 
@@ -182,10 +183,10 @@ describe('ActiveSearchComponent', () => {
     );
     expect(
       currentSearch.querySelector('.test-query')?.textContent?.trim(),
-    ).toEqual('test query');
+    ).toBe('test query');
     expect(
       currentSearch.querySelector('.test-control-value')?.textContent?.trim(),
-    ).toEqual('test name');
+    ).toBe('test name');
   });
 
   function getTextInput(): DOMTestHelper<ActiveSearchComponent> {
@@ -214,6 +215,7 @@ describe('ActiveSearchComponent', () => {
   }
 
   @Component({
+    imports: [ActiveSearchComponent],
     selector: 'test-component',
     template: `
       <active-search [saveQueryField]="testTemplate" [executedQuery]=executedQuery [saveQueryNameControl]="control"></active-search>

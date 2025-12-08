@@ -49,7 +49,7 @@ impl CrateType {
             "cdylib" => CrateType::CDyLib,
             "staticlib" => CrateType::StaticLib,
             "proc-macro" => CrateType::ProcMacro,
-            _ => panic!("unexpected --crate-type: {}", s),
+            _ => panic!("unexpected --crate-type: {s}"),
         }
     }
 }

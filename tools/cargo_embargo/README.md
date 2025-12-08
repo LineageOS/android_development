@@ -79,6 +79,7 @@ These options may all be specified at the top level of the config file, or overr
 | `vendor_available`         | boolean                   | `true`                                                      | Value to use for every generated library module's `vendor_available` field.                                                                                                 |
 | `vendor_ramdisk_available` | boolean                   | `false`                                                     | Value to use for every generated library module's `vendor_ramdisk_available` field.                                                                                         |
 | `min_sdk_version`          | string                    | -                                                           | Minimum SDK version for generated modules' `min_sdk_version` field.                                                                                                         |
+| `sdk_version`              | string                    | -                                                           | SDK version for generated modules' `sdk_version` field.                                                                                                                     |
 | `module_name_overrides`    | string => string          | `{}`                                                        | Map of renames for modules. For example, if a "libfoo" would be generated and there is an entry ("libfoo", "libbar"), the generated module will be called "libbar" instead. |
 | `cfg_blocklist`            | list of strings           | `[]`                                                        | `cfg` flags in this list will not be included.                                                                                                                              |
 | `extra_cfg`                | list of strings           | `[]`                                                        | Extra `cfg` flags to enable in output modules.                                                                                                                              |
@@ -115,8 +116,10 @@ specified outside of a package.
 | `no_std`                | boolean                   | `false` | yes         | Don't link against `std`, only `core`.                                                                             |
 | `copy_out`              | boolean                   | `false` | yes         | Copy `build.rs` output to `./out/*` and add a genrule to copy `./out/*` to genrule output.                         |
 | `test_data`             | string => list of strings | `{}`    | yes         | Add the given files to the given tests' `data` property. The key is the test source filename relative to the crate |
+| `target_windows`        | boolean                   | `false` | yes         | Add a `target: { windows: { enabled: true } }` property to modules.
 | `whole_static_libs`     | list of strings           | `[]`    | yes         | Static libraries in this list will instead be added as whole_static_libs.                                          |
 | `exported_c_header_dir` | list of paths             | `[]`    | yes         | Directories with headers to export for C usage.                                                                    |
+| `extra_srcs`            | list of paths             | `[]`    | yes         | Additional sources that should be listed as inputs in `srcs`.                                                      |
 
 ## Auto-config
 

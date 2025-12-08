@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import {equal} from 'common/array_utils';
-import {assertDefined} from 'common/assert_utils';
+import {equal} from 'common/typed_array';
+import {assertDefined} from 'common/assert';
 import {Box3D} from 'common/geometry/box3d';
-import {Distance} from 'common/geometry/distance';
+import {CornerRadii} from 'common/geometry/corner_radii';
 import {Point3D} from 'common/geometry/point3d';
-import {IDENTITY_MATRIX} from 'common/geometry/transform_matrix';
+import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {
+  getDefaultTransform,
+  TransformTypeFlags,
+} from 'common/geometry/transform';
 import * as THREE from 'three';
 import {CSS2DObject} from 'three/examples/jsm/renderers/CSS2DRenderer';
-import {
-  TransformType,
-  TransformTypeFlags,
-} from 'trace/surface_flinger/transform_utils';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {Camera} from './camera';
 import {Canvas} from './canvas';
@@ -77,7 +77,7 @@ describe('Canvas', () => {
     });
 
     it('changes camera lrtb and maintains scene translated position based on canvas aspect ratio', () => {
-      camera.panScreenDistance = new Distance(2, 2);
+      camera.panScreenDistance = {dx: 2, dy: 2};
 
       canvas.updateViewPosition(camera, boundingBox, boundingBox.depth);
       const [l, r, t, b] = [
@@ -113,7 +113,7 @@ describe('Canvas', () => {
       const prevPosition = graphicsScene.position.clone();
       const prevScale = graphicsScene.scale.clone();
 
-      camera.panScreenDistance = new Distance(2, 2);
+      camera.panScreenDistance = {dx: 2, dy: 2};
       canvas.updateViewPosition(camera, boundingBox, boundingBox.depth);
 
       expect(graphicsScene.position.x).toBeGreaterThan(prevPosition.x);
@@ -247,12 +247,12 @@ describe('Canvas', () => {
       const rect = makeUiRect3D(rectId);
       canvas.updateRects([rect]);
       const rectMesh = getRectMesh(rectId);
-      expect(rectMesh.position.z).toEqual(0);
+      expect(rectMesh.position.z).toBe(0);
 
       const newRect = makeUiRect3D(rectId);
       newRect.topLeft = new Point3D(0, 0, 1);
       canvas.updateRects([newRect]);
-      expect(rectMesh.position.z).toEqual(1);
+      expect(rectMesh.position.z).toBe(1);
       expect(getRectMesh('rect1')).toEqual(rectMesh);
     });
 
@@ -262,7 +262,7 @@ describe('Canvas', () => {
       rect.bottomRight = new Point3D(2, 2, 5);
       canvas.updateRects([rect]);
       const rectMesh = getRectMesh(rectId);
-      expect(rectMesh.position.z).toEqual(5);
+      expect(rectMesh.position.z).toBe(5);
       checkBorderColor(rectId, Canvas.RECT_EDGE_COLOR_LIGHT_MODE);
 
       isDarkMode = true;
@@ -274,11 +274,7 @@ describe('Canvas', () => {
       const rect = makeUiRect3D(rectId);
       canvas.updateRects([rect]);
       const rectMesh = getRectMesh(rectId);
-      const defaultVisibleRectColor = new THREE.Color(
-        200 / 255,
-        232 / 255,
-        183 / 255,
-      );
+      const defaultVisibleRectColor = new THREE.Color(0xc8e8b7);
       checkMaterialColorAndOpacity(
         rectMesh,
         defaultVisibleRectColor,
@@ -290,14 +286,14 @@ describe('Canvas', () => {
       canvas.updateRects([visibleWithOpacity]);
       const material = rectMesh.material as THREE.MeshBasicMaterial;
       expect(material.color).not.toEqual(defaultVisibleRectColor);
-      expect(material.opacity).toEqual(1);
+      expect(material.opacity).toBe(1);
 
       const nonVisible = makeUiRect3D(rectId);
       nonVisible.colorType = ColorType.NOT_VISIBLE;
       canvas.updateRects([nonVisible]);
       checkMaterialColorAndOpacity(
         rectMesh,
-        new THREE.Color(220 / 255, 220 / 255, 220 / 255),
+        new THREE.Color(0xdcdcdc),
         Canvas.OPACITY_REGULAR,
       );
 
@@ -373,7 +369,7 @@ describe('Canvas', () => {
       expect(rectMesh.material).toEqual(Canvas.TRANSPARENT_MATERIAL);
 
       const fillRegionMesh = getFillRegionMesh(rectId);
-      expect(fillRegionMesh.position.z).toEqual(1);
+      expect(fillRegionMesh.position.z).toBe(1);
       checkMaterialColorAndOpacity(
         fillRegionMesh,
         Canvas.RECT_COLOR_HAS_CONTENT,
@@ -409,12 +405,17 @@ describe('Canvas', () => {
 
       // geometry object replaced
       const roundRect = makeUiRect3D(rectId);
-      roundRect.cornerRadius = 5;
+      roundRect.cornerRadii = new CornerRadii(0, 0.4, 0.3, 0.2);
       updateRectsAndCheckGeometryId(roundRect, rectMesh, rectGeometryId);
       rectGeometryId = rectMesh.geometry.id;
 
+      const diffRadii = makeUiRect3D(rectId);
+      diffRadii.cornerRadii = new CornerRadii(0.5, 0.4, 0.3, 0.2);
+      updateRectsAndCheckGeometryId(diffRadii, rectMesh, rectGeometryId);
+      rectGeometryId = rectMesh.geometry.id;
+
       const bottomRightChanged = makeUiRect3D(rectId);
-      bottomRightChanged.cornerRadius = 5;
+      bottomRightChanged.cornerRadii = new CornerRadii(0.5, 0.4, 0.3, 0.2);
       bottomRightChanged.bottomRight = new Point3D(5, 5, 5);
       updateRectsAndCheckGeometryId(
         bottomRightChanged,
@@ -424,25 +425,28 @@ describe('Canvas', () => {
       rectGeometryId = rectMesh.geometry.id;
 
       const topLeftChanged = makeUiRect3D(rectId);
-      topLeftChanged.cornerRadius = 5;
+      topLeftChanged.cornerRadii = new CornerRadii(0.5, 0.4, 0.3, 0.2);
       topLeftChanged.bottomRight = new Point3D(5, 5, 5);
       topLeftChanged.topLeft = new Point3D(0, 0, 5);
       updateRectsAndCheckGeometryId(topLeftChanged, rectMesh, rectGeometryId);
       rectGeometryId = rectMesh.geometry.id;
 
+      const noRadii = makeUiRect3D(rectId);
+      noRadii.bottomRight = new Point3D(5, 5, 5);
+      noRadii.topLeft = new Point3D(0, 0, 5);
+      updateRectsAndCheckGeometryId(noRadii, rectMesh, rectGeometryId);
+
+      const prevRectMeshId = rectMesh.id;
       const rotated = makeUiRect3D(rectId);
-      rotated.cornerRadius = 5;
       rotated.bottomRight = new Point3D(5, 5, 5);
       rotated.topLeft = new Point3D(0, 0, 5);
-      rotated.transform = TransformType.getDefaultTransform(
+      rotated.transform = getDefaultTransform(
         TransformTypeFlags.ROT_90_VAL,
         2,
         2,
       ).matrix;
-      const prevRotation = rectMesh.rotation.clone();
       canvas.updateRects([rotated]);
-      expect(rectMesh.geometry.id).toEqual(rectGeometryId);
-      expect(rectMesh.rotation.equals(prevRotation)).toBeFalse();
+      expect(getRectMesh(rectId).id).not.toEqual(prevRectMeshId);
     });
 
     it('handles changes in fill region', () => {
@@ -454,7 +458,7 @@ describe('Canvas', () => {
       ).toBeUndefined();
       expect(
         (rectMesh.material as THREE.MeshBasicMaterial).color.getHex(),
-      ).toEqual(13166775);
+      ).toBe(13166775);
 
       const emptyFillRegion = makeUiRect3D(rectId);
       emptyFillRegion.fillRegion = [];
@@ -463,7 +467,7 @@ describe('Canvas', () => {
       expect(rectMesh.material).toEqual(Canvas.TRANSPARENT_MATERIAL);
       expect(
         (fillRegionMesh.material as THREE.MeshBasicMaterial).color.getHex(),
-      ).toEqual(13166775);
+      ).toBe(13166775);
       let fillRegionGeometryId = fillRegionMesh.geometry.id;
 
       const emptyFillRegionWithContent = makeUiRect3D(rectId);
@@ -547,9 +551,9 @@ describe('Canvas', () => {
       const rect2 = makeUiRect3D(rectId);
       rect2.pointerLocationsInRect = [new Point3D(2, 2, 2)];
       canvas.updateRects([rect2]);
-      expect(getPointerCircle(rectId).id).toEqual(circleId);
-      expect(getPointerCrosshairs(rectId).id).toEqual(crosshairsId);
-      expect(countPointers(rectId)).toEqual(1);
+      expect(getPointerCircle(rectId).id).toBe(circleId);
+      expect(getPointerCrosshairs(rectId).id).toBe(crosshairsId);
+      expect(countPointers(rectId)).toBe(1);
 
       const rect3 = makeUiRect3D(rectId);
       rect3.pointerLocationsInRect = [
@@ -557,17 +561,17 @@ describe('Canvas', () => {
         new Point3D(1, 2, 2),
       ];
       canvas.updateRects([rect3]);
-      expect(getPointerCircle(rectId).id).not.toEqual(circleId);
-      expect(getPointerCrosshairs(rectId).id).not.toEqual(crosshairsId);
-      expect(countPointers(rectId)).toEqual(2);
+      expect(getPointerCircle(rectId).id).not.toBe(circleId);
+      expect(getPointerCrosshairs(rectId).id).not.toBe(crosshairsId);
+      expect(countPointers(rectId)).toBe(2);
 
       const rect4 = makeUiRect3D(rectId);
       rect4.pointerLocationsInRect = [new Point3D(1, 2, 2)];
       canvas.updateRects([rect4]);
       const newCircle = getPointerCircle(rectId);
-      expect(newCircle.id).not.toEqual(circleId);
-      expect(getPointerCrosshairs(rectId).id).not.toEqual(crosshairsId);
-      expect(countPointers(rectId)).toEqual(1);
+      expect(newCircle.id).not.toBe(circleId);
+      expect(getPointerCrosshairs(rectId).id).not.toBe(crosshairsId);
+      expect(countPointers(rectId)).toBe(1);
       checkVectorEqualToPoint(newCircle.position, new Point3D(1, 2, 2));
     });
 
@@ -611,21 +615,21 @@ describe('Canvas', () => {
       const rect2 = makeUiRect3D(rectId);
       rect2.rayLocationsInScene = [new Point3D(2, 3, 4)];
       canvas.updateRects([rect2]);
-      expect(getRayLine(rectId).id).toEqual(rayId);
-      expect(countObject(rayName, graphicsScene)).toEqual(1);
+      expect(getRayLine(rectId).id).toBe(rayId);
+      expect(countObject(rayName, graphicsScene)).toBe(1);
 
       const rect3 = makeUiRect3D(rectId);
       rect3.rayLocationsInScene = [new Point3D(2, 3, 4), new Point3D(4, 4, 4)];
       canvas.updateRects([rect3]);
-      expect(getRayLine(rectId).id).not.toEqual(rayId);
-      expect(countObject(rayName, graphicsScene)).toEqual(2);
+      expect(getRayLine(rectId).id).not.toBe(rayId);
+      expect(countObject(rayName, graphicsScene)).toBe(2);
 
       const rect4 = makeUiRect3D(rectId);
       rect4.rayLocationsInScene = [new Point3D(4, 4, 4)];
       canvas.updateRects([rect4]);
       const newRay = getRayLine(rectId);
-      expect(newRay.id).not.toEqual(rayId);
-      expect(countObject(rayName, graphicsScene)).toEqual(1);
+      expect(newRay.id).not.toBe(rayId);
+      expect(countObject(rayName, graphicsScene)).toBe(1);
       checkVectorEqualToPoint(newRay.position, rect4.rayLocationsInScene[0]);
     });
 
@@ -684,9 +688,9 @@ describe('Canvas', () => {
       const expectedColor = Canvas.RECT_EDGE_COLOR_LIGHT_MODE;
 
       const circle = getPointerCircle(rectId);
-      expect(
-        (circle.geometry as THREE.CircleGeometry).parameters.radius,
-      ).toEqual(10);
+      expect((circle.geometry as THREE.CircleGeometry).parameters.radius).toBe(
+        10,
+      );
       checkVectorEqualToPoint(circle.position, expCircle);
       checkMaterialColorAndOpacity(circle, expectedColor, 1);
 
@@ -846,7 +850,7 @@ describe('Canvas', () => {
       canvas.updateLabels([newLabel]);
       expect(
         (circleMesh.geometry as THREE.CircleGeometry).parameters.radius,
-      ).toEqual(2);
+      ).toBe(2);
     });
 
     it('handles change in circle center', () => {
@@ -872,7 +876,7 @@ describe('Canvas', () => {
       expect((line.material as THREE.LineBasicMaterial).color.getHex()).toEqual(
         Canvas.LABEL_LINE_COLOR,
       );
-      expect(text.element.style.color).toEqual('gray');
+      expect(text.element.style.color).toBe('gray');
 
       const highlighted = makeRectLabel(rectId);
       highlighted.isHighlighted = true;
@@ -883,7 +887,7 @@ describe('Canvas', () => {
       expect((line.material as THREE.LineBasicMaterial).color.getHex()).toEqual(
         Canvas.RECT_EDGE_COLOR_LIGHT_MODE,
       );
-      expect(text.element.style.color).toEqual('');
+      expect(text.element.style.color).toBe('');
 
       isDarkMode = true;
       canvas.updateLabels([highlighted]);
@@ -893,7 +897,7 @@ describe('Canvas', () => {
       expect((line.material as THREE.LineBasicMaterial).color.getHex()).toEqual(
         Canvas.RECT_EDGE_COLOR_DARK_MODE,
       );
-      expect(text.element.style.color).toEqual('');
+      expect(text.element.style.color).toBe('');
 
       canvas.updateLabels([label]);
       expect(
@@ -902,7 +906,7 @@ describe('Canvas', () => {
       expect((line.material as THREE.LineBasicMaterial).color.getHex()).toEqual(
         Canvas.LABEL_LINE_COLOR,
       );
-      expect(text.element.style.color).toEqual('gray');
+      expect(text.element.style.color).toBe('gray');
     });
 
     it('handles change in line points', () => {
@@ -1026,8 +1030,8 @@ describe('Canvas', () => {
       canvas.updateRects([rect]);
       canvas.renderView();
 
-      const id = canvas.getClickedRectId(0.1, 0.1, 0);
-      expect(id).toEqual('rect1');
+      const id = canvas.getClickedRectId(0.1, 0.1);
+      expect(id).toBe('rect1');
     });
 
     it('identifies clicked rect from fill region', () => {
@@ -1039,21 +1043,21 @@ describe('Canvas', () => {
       canvas.updateRects([rect]);
       canvas.renderView();
 
-      const id = canvas.getClickedRectId(0.1, 0.1, 0);
-      expect(id).toEqual('rect1');
+      const id = canvas.getClickedRectId(0.1, 0.1);
+      expect(id).toBe('rect1');
     });
 
     it('does not identify rect if not clickable', () => {
       const rect = makeUiRect3D(rectId);
       canvas.updateRects([rect]);
-      expect(canvas.getClickedRectId(0.1, 0.1, 0)).toBeUndefined();
+      expect(canvas.getClickedRectId(0.1, 0.1)).toBeUndefined();
     });
 
     it('does not identify rect out of click area', () => {
       const rect = makeUiRect3D(rectId);
       rect.isClickable = true;
       canvas.updateRects([rect]);
-      expect(canvas.getClickedRectId(2, 2, 0)).toBeUndefined();
+      expect(canvas.getClickedRectId(2, 2)).toBeUndefined();
     });
   });
 
@@ -1062,7 +1066,7 @@ describe('Canvas', () => {
       rotationAngleX: 0,
       rotationAngleY: 0,
       zoomFactor: 1,
-      panScreenDistance: new Distance(0, 0),
+      panScreenDistance: {dx: 0, dy: 0},
     };
   }
 
@@ -1081,11 +1085,11 @@ describe('Canvas', () => {
       id,
       topLeft: new Point3D(0, 0, 0),
       bottomRight: new Point3D(1, 1, 0),
-      cornerRadius: 0,
+      cornerRadii: undefined,
       darkFactor: 1,
       colorType: ColorType.VISIBLE,
       isClickable: false,
-      transform: IDENTITY_MATRIX,
+      transform: TransformMatrix.IDENTITY,
       isOversized: false,
       fillRegion: undefined,
       isPinned: false,

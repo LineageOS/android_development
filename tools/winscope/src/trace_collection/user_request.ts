@@ -24,4 +24,5 @@ export interface UserRequest {
 export interface UserRequestConfig {
   key: string;
   value?: string | string[];
+  subRequests?: UserRequestConfig[];
 }

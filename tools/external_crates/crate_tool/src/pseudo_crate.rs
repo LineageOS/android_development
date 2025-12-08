@@ -98,7 +98,7 @@ impl PseudoCrate<CargoVendorClean> {
             for line in from_utf8(&output.stdout).unwrap().lines().skip(1) {
                 let words = line.split(' ').collect::<Vec<_>>();
                 if words.len() < 2 {
-                    panic!("Failed to parse crate name and version from cargo tree: {}", line);
+                    panic!("Failed to parse crate name and version from cargo tree: {line}");
                 }
                 let version = words[1]
                     .strip_prefix('v')
@@ -206,7 +206,7 @@ license = "Apache-2.0"
             .run_quiet_and_expect_success()
         {
             self.remove(crate_name).with_context(|| {
-                format!("Failed to remove {} after failing to add it: {}", crate_name, e)
+                format!("Failed to remove {crate_name} after failing to add it: {e}")
             })?;
             return Err(e.into());
         }

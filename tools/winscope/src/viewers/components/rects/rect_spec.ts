@@ -98,7 +98,11 @@ export class RectLegendFactory {
       legend.push(
         RectLegendFactory.makeOptWithFill(
           RectLegendFactory.HAS_CONTENT,
-          'Has input',
+          'Visible and has input',
+        ),
+        RectLegendFactory.makeOptWithFillNoBorder(
+          RectLegendFactory.HAS_CONTENT,
+          'Not visible and has input',
         ),
       );
     }
@@ -145,6 +149,14 @@ export class RectLegendFactory {
 
   private static makeOptWithFill(fill: string, desc: string): RectLegendOption {
     const border = RectLegendFactory.DEFAULT_BORDER;
+    return {fill, desc, border, showInWireFrameMode: false};
+  }
+
+  private static makeOptWithFillNoBorder(
+    fill: string,
+    desc: string,
+  ): RectLegendOption {
+    const border = RectLegendFactory.NOT_VISIBLE;
     return {fill, desc, border, showInWireFrameMode: false};
   }
 }

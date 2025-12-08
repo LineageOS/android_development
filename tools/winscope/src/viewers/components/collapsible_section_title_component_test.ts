@@ -17,7 +17,7 @@
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 
 describe('CollapsibleSectionTitleComponent', () => {
@@ -26,8 +26,11 @@ describe('CollapsibleSectionTitleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatButtonModule, MatIconModule],
-      declarations: [CollapsibleSectionTitleComponent],
+      imports: [
+        CollapsibleSectionTitleComponent,
+        MatButtonModule,
+        MatIconModule,
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(CollapsibleSectionTitleComponent);
     component = fixture.componentInstance;
@@ -42,7 +45,7 @@ describe('CollapsibleSectionTitleComponent', () => {
 
   it('displays button and title', () => {
     expect(dom.find('button')).toBeDefined();
-    dom.get('.mat-title').checkText('COLLAPSIBLE SECTION');
+    dom.get('.section-title').checkText('COLLAPSIBLE SECTION');
   });
 
   it('emits collapseButtonClicked event', () => {

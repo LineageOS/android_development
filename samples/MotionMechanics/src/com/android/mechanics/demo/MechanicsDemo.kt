@@ -30,6 +30,7 @@ import com.android.mechanics.demo.presentation.GuaranteeFadeDemo
 import com.android.mechanics.demo.presentation.MagneticDetachDemo
 import com.android.mechanics.demo.presentation.MagneticDetachWithOverdragDemo
 import com.android.mechanics.demo.presentation.SpecDemo
+import com.android.mechanics.demo.wallpaper.experiment0.CustomizationMechanicsDemo
 
 object DemoScreens {
 
@@ -44,18 +45,19 @@ object DemoScreens {
                 "Guaranteed Size" to DemoScreen(GuaranteeBoxDemo),
                 "Magnetic detach" to DemoScreen(MagneticDetachDemo),
                 "Magnetic detach with Overdrag" to DemoScreen(MagneticDetachWithOverdragDemo),
+                "Customization Picker Mechanics" to DemoScreen(CustomizationMechanicsDemo),
             ),
         )
 }
 
 @Composable
-fun MechanicsDemo() {
+fun MechanicsDemo(startDestination: String?) {
     val rootScreen = DemoScreens.Home
 
     Box(Modifier.fillMaxSize().systemBarsPadding()) {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = rootScreen.identifier) {
-            screen(rootScreen, navController)
+            screen(rootScreen, navController, startDestination ?: "")
         }
     }
 }

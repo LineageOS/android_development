@@ -14,18 +14,33 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {Component, Input, SimpleChanges} from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
-import {TraceType} from 'trace/trace_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {assertDefined} from 'common/assert';
+import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
+import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from 'viewers/components/hierarchy_component';
+import {PropertiesComponent} from 'viewers/components/properties_component';
+import {RectsComponent} from 'viewers/components/rects/rects_component';
 import {ShadingMode} from 'viewers/components/rects/shading_mode';
 import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
+import {SurfaceFlingerPropertyGroupsComponent} from 'viewers/components/surface_flinger_property_groups_component';
 import {ViewerComponent} from 'viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({
   selector: 'viewer-surface-flinger',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CollapsedSectionsComponent,
+    RectsComponent,
+    HierarchyComponent,
+    PropertiesComponent,
+    SurfaceFlingerPropertyGroupsComponent,
+  ],
   template: `
     <div class="card-grid">
       <collapsed-sections
@@ -37,7 +52,7 @@ import {UiData} from './ui_data';
       <rects-view
         class="rects-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [title]="rectsTitle"
+        [title]="getRectsTitle()"
         [store]="store"
         [isStackBased]="true"
         [rects]="inputData?.rectsToDraw ?? []"
@@ -65,28 +80,30 @@ import {UiData} from './ui_data';
         [rectIdToShowState]="inputData?.rectIdToShowState"
         (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
 
-      <div class="properties" *ngIf="!arePropertiesCollapsed()">
-        <surface-flinger-property-groups
-          class="property-groups"
-          [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
-          [properties]="inputData?.curatedProperties"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)"></surface-flinger-property-groups>
+      @if (!arePropertiesCollapsed()) {
+        <div class="properties">
+          <surface-flinger-property-groups
+            class="property-groups"
+            [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
+            [properties]="inputData?.curatedProperties"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)"></surface-flinger-property-groups>
 
-        <properties-view
-          class="properties-view"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-          [title]="propertiesTitle"
-          [userOptions]="inputData?.propertiesUserOptions ?? {}"
-          [propertiesTree]="inputData?.propertiesTree"
-          [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-          [traceType]="${TraceType.SURFACE_FLINGER}"
-          [store]="store"
-          [isProtoDump]="true"
-          placeholderText="No selected entry or layer."
-          [textFilter]="inputData?.propertiesFilter"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-      </div>
+          <properties-view
+            class="properties-view"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+            [title]="propertiesTitle"
+            [userOptions]="inputData?.propertiesUserOptions ?? {}"
+            [propertiesTree]="inputData?.propertiesTree"
+            [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+            [traceType]="${TraceType.SURFACE_FLINGER}"
+            [store]="store"
+            [isProtoDump]="true"
+            placeholderText="No selected entry or layer."
+            [textFilter]="inputData?.propertiesFilter"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -106,12 +123,11 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
 
-  rectsTitle = 'LAYERS';
   propertiesTitle = 'PROTO DUMP';
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.RECTS,
-      label: this.rectsTitle,
+      label: 'LAYERS',
       isCollapsed: false,
     },
     {
@@ -148,12 +164,17 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
   ngOnChanges(simpleChanges: SimpleChanges) {
     const data = simpleChanges['inputData'];
     if (data?.currentValue?.rectSpec !== data?.previousValue?.rectSpec) {
-      this.rectsTitle = assertDefined(
+      const rectsSection = assertDefined(
+        this.sections.getSection(CollapsibleSectionType.RECTS),
+      );
+      rectsSection.label = assertDefined(
         this.inputData?.rectSpec,
       ).type.toUpperCase();
-      assertDefined(
-        this.sections.getSection(CollapsibleSectionType.RECTS),
-      ).label = this.rectsTitle;
     }
+  }
+
+  getRectsTitle(): string {
+    return assertDefined(this.sections.getSection(CollapsibleSectionType.RECTS))
+      .label;
   }
 }

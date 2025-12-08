@@ -15,19 +15,18 @@
  */
 
 import {DuplicateLayerIds} from 'messaging/user_warnings';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {TraceRectBuilder} from 'trace/trace_rect_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {makeHierarchyNode} from 'test/unit/tree_node_test_helpers';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 describe('UiHierarchyTreeNode', () => {
   let node: HierarchyTreeNode;
 
   beforeEach(() => {
-    node = TreeNodeUtils.makeHierarchyNode(
-      {id: '1', name: 'node1', prop: true},
-      [{id: '2', name: 'node2'}],
-    );
+    node = makeHierarchyNode({id: '1', name: 'node1', prop: true}, [
+      {id: '2', name: 'node2'},
+    ]);
   });
 
   it('transfers id, name and properties', () => {
@@ -39,7 +38,7 @@ describe('UiHierarchyTreeNode', () => {
 
   it('transfers rects', () => {
     const nodeNoRects = UiHierarchyTreeNode.from(node);
-    expect(nodeNoRects.getRects()).toEqual(undefined);
+    expect(nodeNoRects.getRects()).toBeUndefined();
     const rects = [
       new TraceRectBuilder()
         .setX(0)
@@ -48,7 +47,6 @@ describe('UiHierarchyTreeNode', () => {
         .setHeight(10)
         .setId('1')
         .setName('rect1')
-        .setCornerRadius(0)
         .setDepth(1)
         .setGroupId(0)
         .setIsVisible(false)
@@ -78,7 +76,7 @@ describe('UiHierarchyTreeNode', () => {
 
   it('formats id as heading', () => {
     const uiNode = UiHierarchyTreeNode.from(node);
-    expect(uiNode.heading()).toEqual('1');
+    expect(uiNode.heading()).toBe('1');
     uiNode.setShowHeading(false);
     expect(uiNode.heading()).toBeUndefined();
   });

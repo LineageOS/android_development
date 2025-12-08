@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
 import {UiTraceTarget} from './ui_trace_target';
 
 /**
@@ -48,46 +48,81 @@ export interface ConfigurationOptions {
   enabled: boolean;
   checkboxConfigs: CheckboxConfiguration[];
   selectionConfigs: SelectionConfiguration[];
+  desc?: string;
 }
 
-interface AdvancedConfiguration {
+export interface AdvancedConfiguration {
   name: string;
   key: string;
 }
 
 export interface CheckboxConfiguration extends AdvancedConfiguration {
   enabled: boolean;
+  disabled?: boolean;
 }
 
+type ChipConfiguration = CheckboxConfiguration;
+
 export interface SelectionConfiguration extends AdvancedConfiguration {
-  options: string[];
+  options: SelectionOption[];
   value: string | string[];
-  desc?: string;
   optional?: boolean;
   wideField?: boolean;
+  filterString?: string;
+}
+
+export interface SelectionOption {
+  value: string;
+  chip?: ChipConfiguration;
 }
 
 export interface ConfigMap {
   [key: string]: string[] | string;
 }
 
+const protologSelectionConfigs: SelectionConfiguration[] = [
+  {
+    name: 'groups',
+    key: 'groups',
+    options: [],
+    value: [],
+    optional: true,
+    filterString: '',
+    wideField: true,
+  },
+];
+
+export function makeProtologGroupOptions(groups: string[]): SelectionOption[] {
+  return groups.map((groupName) => {
+    return {
+      value: groupName,
+      chip: {name: 'collect stacktrace', key: 'stacktrace', enabled: false},
+    };
+  });
+}
+
 const wmTraceSelectionConfigs: SelectionConfiguration[] = [
   {
     key: 'wmbuffersize',
     name: 'buffer size (KB)',
-    options: ['4000', '8000', '16000', '32000'],
+    options: [
+      {value: '4000'},
+      {value: '8000'},
+      {value: '16000'},
+      {value: '32000'},
+    ],
     value: '32000',
   },
   {
     key: 'tracingtype',
     name: 'tracing type',
-    options: ['frame', 'transaction'],
+    options: [{value: 'frame'}, {value: 'transaction'}],
     value: 'frame',
   },
   {
     key: 'tracinglevel',
     name: 'tracing level',
-    options: ['verbose', 'debug', 'critical'],
+    options: [{value: 'verbose'}, {value: 'debug'}, {value: 'critical'}],
     value: 'verbose',
   },
 ];
@@ -125,11 +160,55 @@ const sfTraceCheckboxConfigs: CheckboxConfiguration[] = [
   },
 ];
 
+const sfDumpConfigs: CheckboxConfiguration[] = [
+  {
+    name: 'input',
+    key: 'input',
+    enabled: true,
+    disabled: true,
+  },
+  {
+    name: 'composition',
+    key: 'composition',
+    enabled: true,
+    disabled: true,
+  },
+  {
+    name: 'metadata (with offscreen layers)',
+    key: 'metadata',
+    enabled: true,
+    disabled: true,
+  },
+  {
+    name: 'hwc',
+    key: 'hwc',
+    enabled: true,
+    disabled: true,
+  },
+  {
+    name: 'trace buffers',
+    key: 'tracebuffers',
+    enabled: true,
+    disabled: true,
+  },
+  {
+    name: 'virtual displays',
+    key: 'virtualdisplays',
+    enabled: true,
+    disabled: true,
+  },
+];
+
 const sfTraceSelectionConfigs: SelectionConfiguration[] = [
   {
     key: 'sfbuffersize',
     name: 'buffer size (KB)',
-    options: ['4000', '8000', '16000', '32000'],
+    options: [
+      {value: '4000'},
+      {value: '8000'},
+      {value: '16000'},
+      {value: '32000'},
+    ],
     value: '32000',
   },
 ];
@@ -139,13 +218,12 @@ const screenshotConfigs: SelectionConfiguration[] = [
     name: 'displays',
     options: [],
     value: [],
-    desc: 'Leave empty to capture active display',
     wideField: true,
   },
 ];
 
 export function makeScreenRecordingSelectionConfigs(
-  options: string[],
+  options: SelectionOption[],
   initialValue: string | string[],
 ): SelectionConfiguration[] {
   return [
@@ -155,13 +233,12 @@ export function makeScreenRecordingSelectionConfigs(
       options,
       value: initialValue,
       optional: true,
-      desc: 'Leave empty to track and capture display that is on',
       wideField: true,
     },
   ];
 }
 
-const traceDefaultConfig = new Map([
+const traceDefaultConfig = new Map<UiTraceTarget, TraceConfiguration>([
   [
     UiTraceTarget.SURFACE_FLINGER_TRACE,
     {
@@ -202,6 +279,7 @@ const traceDefaultConfig = new Map([
           },
         ],
         selectionConfigs: makeScreenRecordingSelectionConfigs([], ''),
+        desc: 'Leave empty to track and capture display that is on',
       },
       available: true,
       types: [TraceType.SCREEN_RECORDING],
@@ -244,7 +322,8 @@ const traceDefaultConfig = new Map([
       config: {
         enabled: false,
         checkboxConfigs: [],
-        selectionConfigs: [],
+        selectionConfigs: protologSelectionConfigs,
+        desc: 'Leave empty to capture all log groups without stacktrace',
       },
       available: true,
       types: [TraceType.PROTO_LOG],
@@ -353,8 +432,9 @@ const dumpDefaultConfig = new Map([
       name: 'Surface Flinger',
       config: {
         enabled: true,
-        checkboxConfigs: [],
+        checkboxConfigs: sfDumpConfigs,
         selectionConfigs: [],
+        desc: 'All flags enabled - minimal performance implications',
       },
       available: true,
       types: [TraceType.SURFACE_FLINGER],
@@ -368,6 +448,7 @@ const dumpDefaultConfig = new Map([
         enabled: true,
         checkboxConfigs: [],
         selectionConfigs: screenshotConfigs,
+        desc: 'Leave empty to capture active display',
       },
       available: true,
       types: [TraceType.SCREENSHOT],
@@ -396,7 +477,7 @@ export function updateConfigsFromStore(
   storeKeyPrefix: string,
 ) {
   for (const [key, target] of Object.entries(configMap)) {
-    const stored = PersistentStoreProxy.new(
+    const stored = createPersistentStoreProxy(
       storeKeyPrefix + key,
       target.config,
       storage,
@@ -421,7 +502,7 @@ export function updateConfigsFromStore(
         // liveConfig contains all currently available config options - stored
         // values are valid if their config option is still available, and only
         // if valid should be used to update the values in liveConfig
-        const availableOptions = liveConfig.options;
+        const availableOptions = liveConfig.options.map((o) => o.value);
         const validArr =
           Array.isArray(storedConfig.value) &&
           storedConfig.value.every((v) => availableOptions.includes(v));

@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Motion Redirect",
+  "version": "0.1",
+  "description": "Redirects from gerrit to motion",
+  "icons": {
+    "48": "icon.png"
+  },
+  "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "tabs"
+    ],
+  "action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+        "matches": ["https://googleplex-android-review.git.corp.google.com/*"],
+        "js": ["content.js"]
+    }
+  ]
+}

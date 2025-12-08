@@ -19,11 +19,11 @@ import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/tree_node/formatters';
+import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 import {DiffType} from 'viewers/common/diff_type';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
@@ -52,13 +52,15 @@ describe('TreeNodeComponent', () => {
     mockCopyText = jasmine.createSpy();
     await TestBed.configureTestingModule({
       providers: [{provide: Clipboard, useValue: {copy: mockCopyText}}],
-      declarations: [
+      imports: [
+        MatIconModule,
+        MatTooltipModule,
+        ClipboardModule,
         TreeNodeComponent,
+        TestHostComponent,
         HierarchyTreeNodeDataViewComponent,
         PropertyTreeNodeDataViewComponent,
-        TestHostComponent,
       ],
-      imports: [MatIconModule, MatTooltipModule, ClipboardModule],
     }).compileComponents();
     const fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
@@ -119,9 +121,39 @@ describe('TreeNodeComponent', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  it('can collapse a tree if node is selected', () => {
+    const treeNodeComponent = assertDefined(component.treeNodeComponent);
+    treeNodeComponent.showChevron = jasmine.createSpy().and.returnValue(true);
+    dom.detectChanges();
+    component.isSelected = false;
+    dom.detectChanges();
+    component.isSelected = true;
+    dom.detectChanges();
+    const spy = spyOn(treeNodeComponent.toggleTreeChange, 'emit');
+    dom.findAndClick('.toggle-tree-btn');
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('can expand a tree only once on change', () => {
+    const spy = spyOn(
+      assertDefined(component.treeNodeComponent).expandTreeChange,
+      'emit',
+    );
+    component.isSelected = false;
+    component.isExpanded = true;
+    dom.detectChanges();
+    component.isSelected = true;
+    dom.detectChanges();
+    component.isExpanded = false;
+    dom.detectChanges();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
   it('assigns diff css classes to expand tree button', () => {
     const expandButton = dom.get('.expand-tree-btn');
-    expandButton.checkClassNameExact('icon-button expand-tree-btn');
+    expandButton.checkClassName('icon-button expand-tree-btn');
+    expandButton.checkClassName('added', false);
+    expandButton.checkClassName('modified', false);
     component.node = UiHierarchyTreeNode.from(
       new HierarchyTreeBuilder()
         .setId('LayerTraceEntry')
@@ -133,7 +165,8 @@ describe('TreeNodeComponent', () => {
     );
     component.node.getChildByName('Child 1')?.setDiff(DiffType.ADDED);
     dom.detectChanges();
-    expandButton.checkClassNameExact('icon-button expand-tree-btn added');
+    expandButton.checkClassName('added');
+    expandButton.checkClassName('modified', false);
 
     component.node = UiHierarchyTreeNode.from(
       new HierarchyTreeBuilder()
@@ -148,7 +181,8 @@ describe('TreeNodeComponent', () => {
     child1.setDiff(DiffType.ADDED);
     child1.getChildByName('Child 2')?.setDiff(DiffType.DELETED);
     dom.detectChanges();
-    expandButton.checkClassNameExact('icon-button expand-tree-btn modified');
+    expandButton.checkClassName('added', false);
+    expandButton.checkClassName('modified');
   });
 
   it('pins node on click', () => {
@@ -199,6 +233,7 @@ describe('TreeNodeComponent', () => {
   });
 
   @Component({
+    imports: [TreeNodeComponent],
     selector: 'host-component',
     template: `
       <tree-node

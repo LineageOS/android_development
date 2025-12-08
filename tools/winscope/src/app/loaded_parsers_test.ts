@@ -14,44 +14,47 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {FileUtils} from 'common/file_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {unzipFile} from 'common/io';
 import {TimeRange} from 'common/time/time';
 import {UserWarning} from 'messaging/user_warning';
 import {TraceHasOldData, TraceOverridden} from 'messaging/user_warnings';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
 import {ParserBuilder} from 'test/unit/parser_builder';
+import {
+  makeRealTimestamp,
+  makeElapsedTimestamp,
+} from 'test/unit/time_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {Parser} from 'trace/parser';
 import {TraceFile} from 'trace/trace_file';
-import {TraceType} from 'trace/trace_type';
+import {Parser} from 'trace_api/parser';
+import {TraceType} from 'trace_api/trace_type';
 import {LoadedParsers} from './loaded_parsers';
 
 describe('LoadedParsers', () => {
-  const realZeroTimestamp = TimestampConverterUtils.makeRealTimestamp(0n);
-  const elapsedZeroTimestamp = TimestampConverterUtils.makeElapsedTimestamp(0n);
+  const realZeroTimestamp = makeRealTimestamp(0n);
+  const elapsedZeroTimestamp = makeElapsedTimestamp(0n);
   const oldTimestamps = [
     realZeroTimestamp,
-    TimestampConverterUtils.makeRealTimestamp(1n),
-    TimestampConverterUtils.makeRealTimestamp(2n),
-    TimestampConverterUtils.makeRealTimestamp(3n),
-    TimestampConverterUtils.makeRealTimestamp(4n),
+    makeRealTimestamp(1n),
+    makeRealTimestamp(2n),
+    makeRealTimestamp(3n),
+    makeRealTimestamp(4n),
   ];
 
   const elapsedTimestamps = [
     elapsedZeroTimestamp,
-    TimestampConverterUtils.makeElapsedTimestamp(1n),
-    TimestampConverterUtils.makeElapsedTimestamp(2n),
-    TimestampConverterUtils.makeElapsedTimestamp(3n),
-    TimestampConverterUtils.makeElapsedTimestamp(4n),
+    makeElapsedTimestamp(1n),
+    makeElapsedTimestamp(2n),
+    makeElapsedTimestamp(3n),
+    makeElapsedTimestamp(4n),
   ];
 
   const timestamps = [
-    TimestampConverterUtils.makeRealTimestamp(5n * 60n * 1000000000n + 10n), // 5m10ns
-    TimestampConverterUtils.makeRealTimestamp(5n * 60n * 1000000000n + 11n), // 5m11ns
-    TimestampConverterUtils.makeRealTimestamp(5n * 60n * 1000000000n + 12n), // 5m12ns
+    makeRealTimestamp(5n * 60n * 1000000000n + 10n), // 5m10ns
+    makeRealTimestamp(5n * 60n * 1000000000n + 11n), // 5m11ns
+    makeRealTimestamp(5n * 60n * 1000000000n + 12n), // 5m12ns
   ];
 
   const parserSf0 = new ParserBuilder<object>()
@@ -142,7 +145,7 @@ describe('LoadedParsers', () => {
 
   beforeEach(() => {
     loadedParsers = new LoadedParsers();
-    expect(loadedParsers.getParsers().length).toEqual(0);
+    expect(loadedParsers.getParsers().length).toBe(0);
     userNotifierChecker.reset();
   });
 
@@ -417,6 +420,21 @@ describe('LoadedParsers', () => {
     });
   });
 
+  it('filters eventlog parsers if perfetto cuj uploaded', () => {
+    loadParsers([parserEventlog], []);
+    expectLoadResult([parserEventlog], []);
+
+    const parserCuj = new ParserBuilder<object>()
+      .setType(TraceType.CUJS)
+      .setTimestamps(timestamps)
+      .setDescriptors(['cujs'])
+      .setNoOffsets(true)
+      .build();
+
+    loadParsers([parserEventlog], [parserCuj]);
+    expectLoadResult([parserCuj], []);
+  });
+
   it('can remove parsers', () => {
     loadParsers([parserSf0], [parserWm0]);
     expectLoadResult([parserSf0, parserWm0], []);
@@ -556,7 +574,7 @@ describe('LoadedParsers', () => {
 
   async function expectDownloadResult(expectedArchiveContents: string[]) {
     const zipArchive = await loadedParsers.makeZipArchive();
-    const actualArchiveContents = (await FileUtils.unzipFile(zipArchive))
+    const actualArchiveContents = (await unzipFile(zipArchive))
       .map((file) => file.name)
       .sort();
     expect(actualArchiveContents).toEqual(expectedArchiveContents);

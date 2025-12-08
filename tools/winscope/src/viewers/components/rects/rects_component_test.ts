@@ -27,25 +27,25 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Box3D} from 'common/geometry/box3d';
 import {TransformMatrix} from 'common/geometry/transform_matrix';
 import {PersistentStore} from 'common/store/persistent_store';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_utils';
+import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {waitToBeCalled} from 'test/unit/spy_utils';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {DisplayIdentifier} from 'viewers/common/display_identifier';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {RectDblClickDetail, ViewerEvents} from 'viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
 import {
   RectLegendOption,
   RectSpec,
   TraceRectType,
 } from 'viewers/components/rects/rect_spec';
+import {RectsComponent} from 'viewers/components/rects/rects_component';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {UserOptionsComponent} from 'viewers/components/user_options_component';
 import {Camera} from './camera';
@@ -93,8 +93,6 @@ describe('RectsComponent', () => {
         BrowserAnimationsModule,
         MatFormFieldModule,
         MatButtonToggleModule,
-      ],
-      declarations: [
         TestHostComponent,
         RectsComponent,
         CollapsibleSectionTitleComponent,
@@ -112,18 +110,22 @@ describe('RectsComponent', () => {
   });
 
   it('can be created', () => {
+    dom.detectChanges();
     expect(component).toBeTruthy();
   });
 
   it('renders rotation slider', () => {
+    dom.detectChanges();
     expect(dom.find('mat-slider.slider-rotation')).toBeDefined();
   });
 
   it('renders separation slider', () => {
+    dom.detectChanges();
     expect(dom.find('mat-slider.slider-spacing')).toBeDefined();
   });
 
   it('renders canvas', () => {
+    dom.detectChanges();
     expect(dom.find(largeRectsCanvasSelector)).toBeDefined();
   });
 
@@ -151,10 +153,11 @@ describe('RectsComponent', () => {
   it('draws scene when rotation slider changes', () => {
     dom.detectChanges();
     resetSpies();
-    const slider = dom.get('.slider-rotation');
+    const sliderInput = dom.get('.slider-rotation input');
+    sliderInput.updateValue('0.5');
 
     checkAllSpiesCalled(0);
-    slider.dispatchEvent(new MouseEvent('mousedown'));
+    sliderInput.dispatchEvent(new Event('input'));
     expect(updateViewPositionSpy).toHaveBeenCalledTimes(1);
     expect(updateRectsSpy).toHaveBeenCalledTimes(0);
     expect(updateLabelsSpy).toHaveBeenCalledTimes(1);
@@ -164,17 +167,18 @@ describe('RectsComponent', () => {
   it('draws scene when spacing slider changes', () => {
     dom.detectChanges();
     resetSpies();
-    const slider = dom.get('.slider-spacing');
+    const sliderInput = dom.get('.slider-spacing input');
+    sliderInput.updateValue('0.5');
 
     checkAllSpiesCalled(0);
-    slider.dispatchEvent(new MouseEvent('mousedown'));
+    sliderInput.dispatchEvent(new Event('input'));
     checkAllSpiesCalled(1);
   });
 
   it('unfocuses spacing slider on click', () => {
     dom.detectChanges();
     const spacingSlider = dom.get('.slider-spacing');
-    checkSliderUnfocusesOnClick(spacingSlider, 0.02);
+    checkSliderUnfocusesOnClick(spacingSlider, 1);
   });
 
   it('unfocuses rotation slider on click', () => {
@@ -232,7 +236,7 @@ describe('RectsComponent', () => {
     dom.openMatSelect();
     const [display0, display1] = dom
       .getMatSelectPanel()
-      .findAll('.mat-option .option-only-button');
+      .findAll('mat-option .option-only-button');
 
     // no change
     display0.click();
@@ -275,8 +279,8 @@ describe('RectsComponent', () => {
     const rectsBefore = assertDefined(updateRectsSpy.calls.first().args[0]);
     const rectsAfter = assertDefined(updateRectsSpy.calls.mostRecent().args[0]);
 
-    expect(rectsBefore[0].topLeft.z).toEqual(200);
-    expect(rectsAfter[0].topLeft.z).toEqual(12);
+    expect(rectsBefore[0].topLeft.z).toBe(200);
+    expect(rectsAfter[0].topLeft.z).toBe(12);
   });
 
   it('updates scene on rotation slider change', () => {
@@ -331,13 +335,13 @@ describe('RectsComponent', () => {
     );
 
     expect(rectsGradient[0].colorType).toEqual(ColorType.VISIBLE);
-    expect(rectsGradient[0].darkFactor).toEqual(1);
+    expect(rectsGradient[0].darkFactor).toBe(1);
 
     expect(rectsWireFrame[0].colorType).toEqual(ColorType.EMPTY);
-    expect(rectsWireFrame[0].darkFactor).toEqual(1);
+    expect(rectsWireFrame[0].darkFactor).toBe(1);
 
     expect(rectsOpacity[0].colorType).toEqual(ColorType.VISIBLE_WITH_OPACITY);
-    expect(rectsOpacity[0].darkFactor).toEqual(0.5);
+    expect(rectsOpacity[0].darkFactor).toBe(0.5);
 
     updateShadingMode(ShadingMode.OPACITY, ShadingMode.GRADIENT); // cycles back to original
   });
@@ -353,7 +357,7 @@ describe('RectsComponent', () => {
     const newRectsComponent = assertDefined(
       newFixture.componentInstance.rectsComponent,
     );
-    expect(newRectsComponent.getZSpacingFactor()).toEqual(0.06);
+    expect(newRectsComponent.getZSpacingFactor()).toBe(0.06);
     expect(newRectsComponent.getShadingMode()).toEqual(ShadingMode.WIRE_FRAME);
   });
 
@@ -467,7 +471,7 @@ describe('RectsComponent', () => {
     expect(
       updateRectsSpy.calls
         .all()
-        .forEach((call) => expect(call.args[0].length).toEqual(1)),
+        .forEach((call) => expect(call.args[0].length).toBe(1)),
     );
   });
 
@@ -506,8 +510,8 @@ describe('RectsComponent', () => {
     expect(largeRects[0].colorType).toEqual(ColorType.EMPTY);
     expect(miniRects[0].colorType).toEqual(ColorType.VISIBLE);
 
-    expect(largeRects[0].topLeft.z).toEqual(12);
-    expect(miniRects[0].topLeft.z).toEqual(200);
+    expect(largeRects[0].topLeft.z).toBe(12);
+    expect(miniRects[0].topLeft.z).toBe(200);
   });
 
   it('redraws mini rects on change', () => {
@@ -572,8 +576,8 @@ describe('RectsComponent', () => {
     component.rects = [rectGroup0];
     dom.detectChanges();
     const cameraBefore = updateViewPositionSpy.calls.mostRecent().args[0];
-    expect(cameraBefore.panScreenDistance.dx).toEqual(0);
-    expect(cameraBefore.panScreenDistance.dy).toEqual(0);
+    expect(cameraBefore.panScreenDistance.dx).toBe(0);
+    expect(cameraBefore.panScreenDistance.dy).toBe(0);
     const boundingBoxBefore = updateViewPositionSpy.calls.mostRecent().args[1];
     resetSpies();
 
@@ -592,15 +596,15 @@ describe('RectsComponent', () => {
 
     const [cameraAfter, boundingBoxAfter] =
       updateViewPositionSpy.calls.mostRecent().args;
-    expect(cameraAfter.panScreenDistance.dx).toEqual(5);
-    expect(cameraAfter.panScreenDistance.dy).toEqual(10);
+    expect(cameraAfter.panScreenDistance.dx).toBe(5);
+    expect(cameraAfter.panScreenDistance.dy).toBe(10);
     expect(boundingBoxAfter).toEqual(boundingBoxBefore);
 
     dom.findAndClick(largeRectsCanvasSelector);
     expect(id).toBeUndefined();
 
     dom.findAndClick(largeRectsCanvasSelector);
-    expect(id).toEqual(testString);
+    expect(id).toBe(testString);
   });
 
   it('handles window resize', async () => {
@@ -772,16 +776,16 @@ describe('RectsComponent', () => {
   it('does not render more that selected label if over 30 rects', () => {
     component.rects = Array.from({length: 30}, () => rectGroup0);
     dom.detectChanges();
-    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toEqual(30);
+    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(30);
 
     const newRect = makeRectWithGroupId(0, true, 'new rect');
     component.rects = component.rects.concat([newRect]);
     dom.detectChanges();
-    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toEqual(0);
+    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(0);
 
     component.highlightedItem = newRect.id;
     dom.detectChanges();
-    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toEqual(1);
+    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(1);
   });
 
   it('does not render more that selected label if multiple group ids', async () => {
@@ -792,7 +796,7 @@ describe('RectsComponent', () => {
     ];
     dom.detectChanges();
     await checkSelectedDisplay([0], [0]);
-    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toEqual(1);
+    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(1);
 
     component.rects = component.rects.concat([rectGroup1]);
     dom.detectChanges();
@@ -800,11 +804,11 @@ describe('RectsComponent', () => {
     getDisplayOptions()[1].click();
     await checkSelectedDisplay([0, 1], [0, 1], true);
 
-    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toEqual(0);
+    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(0);
 
     component.highlightedItem = rectGroup0.id;
     dom.detectChanges();
-    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toEqual(1);
+    expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(1);
   });
 
   it('handles rect type button click', async () => {
@@ -906,17 +910,17 @@ describe('RectsComponent', () => {
     optionsWrapper.checkClassName('force-show-all', false);
 
     let options = optionsWrapper.findAll('.shading-opt');
-    expect(options.length).toEqual(3);
+    expect(options.length).toBe(3);
     options.forEach((option, i) => checkShadingOpt(option, i, legend));
 
     updateShadingMode(ShadingMode.GRADIENT, ShadingMode.WIRE_FRAME);
     options = optionsWrapper.findAll('.shading-opt');
-    expect(options.length).toEqual(2);
+    expect(options.length).toBe(2);
     options.forEach((option, i) => checkShadingOpt(option, i + 1, legend));
 
     const wrapperEl = optionsWrapper.getHTMLElement();
     wrapperEl.style.width = wrapperEl.clientWidth / 2 + 'px';
-    dom.detectChanges(); // halve wrapper width so options no longer all fit
+    dom.detectChanges(); // halve wrapper width so options no longer all it
     const expandButton = legendEl.get('.rect-legend-expand-button');
     expandButton.checkTextExact('more_horiz');
     expandButton.click();
@@ -979,19 +983,19 @@ describe('RectsComponent', () => {
     const rectsComponent = assertDefined(component.rectsComponent);
     slider.dispatchEvent(new MouseEvent('mousedown'));
     slider.dispatchEvent(new MouseEvent('mouseup'));
-    expect(rectsComponent.getZSpacingFactor()).toEqual(expectedValue);
+    expect(rectsComponent.getZSpacingFactor()).toBe(expectedValue);
     dom.keydownArrowRight();
-    expect(rectsComponent.getZSpacingFactor()).toEqual(expectedValue);
+    expect(rectsComponent.getZSpacingFactor()).toBe(expectedValue);
     dom.keydownArrowLeft();
-    expect(rectsComponent.getZSpacingFactor()).toEqual(expectedValue);
+    expect(rectsComponent.getZSpacingFactor()).toBe(expectedValue);
   }
 
   function updateSeparationSlider() {
     const rectsComponent = assertDefined(component.rectsComponent);
-    expect(rectsComponent.getZSpacingFactor()).toEqual(1);
+    expect(rectsComponent.getZSpacingFactor()).toBe(1);
     rectsComponent.onSeparationSliderChange(0.06);
     dom.detectChanges();
-    expect(rectsComponent.getZSpacingFactor()).toEqual(0.06);
+    expect(rectsComponent.getZSpacingFactor()).toBe(0.06);
   }
 
   function updateRotationSlider() {
@@ -1034,7 +1038,6 @@ describe('RectsComponent', () => {
       .setId(id ?? 'test-id ' + groupId)
       .setGroupId(groupId)
       .setIsClickable(true)
-      .setCornerRadius(0)
       .setDepth(0)
       .setOpacity(0.5)
       .build();
@@ -1071,7 +1074,7 @@ describe('RectsComponent', () => {
   }
 
   function getDisplayOptions() {
-    return dom.getMatSelectPanel().findAll('.mat-option');
+    return dom.getMatSelectPanel().findAll('mat-option');
   }
 
   function checkAllSpiesCalled(times: number) {
@@ -1097,6 +1100,7 @@ describe('RectsComponent', () => {
   }
 
   @Component({
+    imports: [RectsComponent],
     selector: 'host-component',
     template: `
       <rects-view

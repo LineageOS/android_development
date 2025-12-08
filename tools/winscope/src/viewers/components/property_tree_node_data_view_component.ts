@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, ElementRef, Inject, Input} from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {MatButtonModule} from '@angular/material/button';
+import {assertDefined} from 'common/assert';
 import {Timestamp} from 'common/time/time';
 import {DiffType} from 'viewers/common/diff_type';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
@@ -27,30 +29,64 @@ import {
 
 @Component({
   selector: 'property-tree-node-data-view',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
   template: `
-    <div class="node-property" *ngIf="node">
-      <span class=" mat-body-1 property-key"> {{ getKey(node) }} </span>
-      <div *ngIf="node?.formattedValue()" class="property-value" [class]="[timeClass()]">
-        <button
-          *ngIf="isTimestamp()"
-          class="time-button"
-          mat-button
-          color="primary"
-          (click)="onTimestampClicked(node)">
-          {{ node.formattedValue() }}
-        </button>
-        <div *ngIf="!isTimestamp() && node?.canPropagate()" class="inline">
-          <button
-            mat-button
-            color="primary"
-            (click)="onPropagateButtonClicked(node)">
-            {{ node.formattedValue() }}
-          </button>
-        </div>
-        <a *ngIf="!isTimestamp() && !node?.canPropagate()" [class]="[valueClass()]" class="mat-body-2 value new">{{ node.formattedValue() }}</a>
-        <s *ngIf="isModified()" class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
+    @if (node) {
+      <div class="node-property">
+        <span class=" mat-body-1 property-key"> {{ getKey(node) }} </span>
+        @if (node.formattedValue()) {
+          <div class="property-value" [class]="[timeClass()]">
+            @if (isTimestamp()) {
+              <button
+                class="time-button"
+                mat-button
+                color="primary"
+                (click)="onTimestampClicked(node)">
+                {{ node.formattedValue() }}
+              </button>
+            } @else if (!isTimestamp() && !node.hasDiffValueParts()) {
+              @if (node.canPropagate()) {
+                <div class="inline">
+                  <button
+                    mat-button
+                    color="primary"
+                    (click)="onPropagateButtonClicked(node)">
+                    {{ node.formattedValue() }}
+                  </button>
+                </div>
+              } @else {
+                <span
+                  [class]="valueClass()"
+                  class="mat-body-2 value new-value">{{ node.formattedValue() }}</span>
+              }
+              @if (isModified()) {
+                <s class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
+              }
+            } @else if (node.hasDiffValueParts()) {
+              <span
+                class="value diff-value-parts">
+                @for (part of node.getDiffValueParts(); track $index; let i = $index) {
+                  @if (i > 0) {
+                    <span>&ngsp; | &ngsp;</span>
+                  }
+                  @if (part.isNew) {
+                    <span
+                      class="mat-body-2 new-value">{{ part.value }}</span>
+                  } @else if (part.isOld) {
+                    <s
+                      class="mat-body-2 old-value">{{ part.value }}</s>
+                  } @else if (!part.isNew && !part.isOld) {
+                    <span
+                      class="mat-body-1 unchanged-value">{{ part.value }}</span>
+                  }
+                }
+              </span>
+            }
+          </div>
+        }
       </div>
-    </div>
+    }
   `,
   styles: [
     `
@@ -80,7 +116,9 @@ export class PropertyTreeNodeDataViewComponent {
   }
 
   onTimestampClicked(timestampNode: UiPropertyTreeNode) {
-    const timestamp: Timestamp = timestampNode.getValue();
+    const timestamp: Timestamp = assertDefined(
+      timestampNode.getValue<Timestamp>(),
+    );
     const customEvent = new CustomEvent(ViewerEvents.TimestampClick, {
       bubbles: true,
       detail: new TimestampClickDetail(undefined, timestamp),
@@ -96,36 +134,27 @@ export class PropertyTreeNodeDataViewComponent {
     this.elementRef.nativeElement.dispatchEvent(event);
   }
 
-  valueClass() {
+  valueClass(): string | undefined {
     const property = assertDefined(this.node).formattedValue();
-    if (!property) {
-      return null;
-    }
-
     if (property === 'null') {
-      return 'null';
+      return property;
     }
-
     if (property === 'true') {
-      return 'true';
+      return property;
     }
-
     if (property === 'false') {
-      return 'false';
+      return property;
     }
-
     if (!isNaN(Number(property))) {
       return 'number';
     }
-
-    return null;
+    return undefined;
   }
 
   timeClass() {
     if (this.isTimestamp()) {
       return 'time';
     }
-
     return null;
   }
 

@@ -14,92 +14,35 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
+import {assertDefined} from 'common/assert';
 import {AbstractInputEventParser} from 'parsers/input/perfetto/abstract_input_event_parser';
-import {SetFormatters} from 'parsers/operations/set_formatters';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
-import {queryEntry} from 'parsers/perfetto/utils';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {perfetto} from 'protos/perfetto/trace/static';
-import {TraceFile} from 'trace/trace_file';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {InputEventType} from 'trace/input/input_event_type';
+import {TraceType} from 'trace_api/trace_type';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 export class ParserKeyEvent extends AbstractInputEventParser {
-  private static readonly KeyEventField =
-    AbstractInputEventParser.WrapperProto.fields['dispatcherKeyEvent'];
+  private static readonly KEY_EVENT_FIELD =
+    AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherKeyEvent'];
 
-  private static readonly KEY_EVENT_OPS = [
-    new SetFormatters(ParserKeyEvent.KeyEventField),
-    new TranslateIntDef(ParserKeyEvent.KeyEventField),
+  protected override readonly transformer = new FakeProtoTransformer(
+    assertDefined(ParserKeyEvent.KEY_EVENT_FIELD.tamperedMessageType),
+  );
+  protected override readonly eventOps = [
+    new SetFormatters(ParserKeyEvent.KEY_EVENT_FIELD),
+    new TranslateIntDef(ParserKeyEvent.KEY_EVENT_FIELD),
   ];
-
-  private keyEventTransformer: FakeProtoTransformer;
-
-  constructor(
-    traceFile: TraceFile,
-    traceProcessor: TraceProcessor,
-    timestampConverter: ParserTimestampConverter,
-  ) {
-    super(traceFile, traceProcessor, timestampConverter);
-
-    this.keyEventTransformer = new FakeProtoTransformer(
-      assertDefined(ParserKeyEvent.KeyEventField.tamperedMessageType),
-    );
-  }
+  protected override readonly hierarchyTreeRootId = 'AndroidKeyEvent';
+  protected override readonly eventType = InputEventType.KEY;
+  protected override readonly eventTableColumns =
+    AbstractInputEventParser.COMMON_EVENT_COLUMNS.concat(['key_code']);
 
   override getTraceType(): TraceType {
     return TraceType.INPUT_KEY_EVENT;
   }
 
-  override async getEntry(index: number): Promise<PropertyTreeNode> {
-    const keyEvent = await this.getKeyEventProto(index);
-    const windowDispatchEvents = await this.getDispatchEvents(keyEvent.eventId);
-    return this.makeKeyPropertiesTree(keyEvent, windowDispatchEvents);
-  }
-
-  private async getKeyEventProto(
-    index: number,
-  ): Promise<perfetto.protos.AndroidKeyEvent> {
-    let keyEventProto = await queryEntry(
-      this.traceProcessor,
-      this.getTableName(),
-      this.entryIndexToRowIdMap,
-      index,
-    );
-
-    keyEventProto = this.keyEventTransformer.transform(keyEventProto);
-    return keyEventProto;
-  }
-
   protected override getTableName(): string {
-    return 'android_key_events';
-  }
-
-  protected override getStdLibModuleName(): string | undefined {
-    return 'android.input';
-  }
-
-  private makeKeyPropertiesTree(
-    keyEvent: perfetto.protos.AndroidKeyEvent,
-    windowDispatchEvents: perfetto.protos.AndroidWindowInputDispatchEvent[],
-  ): PropertyTreeNode {
-    const entry = {keyEvent, windowDispatchEvents};
-    const tree = new PropertyTreeBuilderFromProto()
-      .setData(entry)
-      .setRootId('AndroidKeyEvent')
-      .setRootName('entry')
-      .build();
-
-    ParserKeyEvent.KEY_EVENT_OPS.forEach((operation) => {
-      operation.apply(assertDefined(tree.getChildByName('keyEvent')));
-    });
-    this.processDispatchEventsTree(
-      assertDefined(tree.getChildByName('windowDispatchEvents')),
-    );
-    return tree;
+    return AbstractInputEventParser.KEY_EVENT_TABLE;
   }
 }

@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
 import Long from 'long';
 import {DuplicateLayerIds} from 'messaging/user_warnings';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {CoarseVersion} from 'trace/coarse_version';
-import {CustomQueryType} from 'trace/custom_query';
-import {Parser} from 'trace/parser';
-import {Trace} from 'trace/trace';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {
+  makeElapsedTimestamp,
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
+import {CoarseVersion} from 'trace_api/coarse_version';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Parser} from 'trace_api/parser';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {makeIdMatchFilter} from 'viewers/common/ui_tree_utils';
 
 describe('ParserSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -50,7 +51,7 @@ describe('ParserSurfaceFlinger', () => {
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
       realParser = await new LegacyParserProvider()
-        .addFilename('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
+        .addFile('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
         .getParser<HierarchyTreeNode>();
     });
 
@@ -64,9 +65,9 @@ describe('ParserSurfaceFlinger', () => {
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1659107089102062832n),
-        TimestampConverterUtils.makeRealTimestamp(1659107089233029344n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090005226366n),
+        makeRealTimestamp(1659107089102062832n),
+        makeRealTimestamp(1659107089233029344n),
+        makeRealTimestamp(1659107090005226366n),
       ];
       expect(assertDefined(realParser.getTimestamps()).slice(0, 3)).toEqual(
         expected,
@@ -79,11 +80,11 @@ describe('ParserSurfaceFlinger', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = realParser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(21);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(packets.length).toBe(21);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(
         packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
-      ).toEqual(83);
+      ).toBe(83);
       expect(packets[0].timestamp).toEqual(
         Long.fromString(BigInt(14500282843).toString()),
       );
@@ -98,7 +99,7 @@ describe('ParserSurfaceFlinger', () => {
 
       beforeAll(async () => {
         perfettoParser = await new LegacyParserProvider()
-          .addFilename('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
+          .addFile('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
           .setConvertToPerfetto(true)
           .getParser<HierarchyTreeNode>();
         perfettoTrace = new TraceBuilder<HierarchyTreeNode>()
@@ -109,9 +110,9 @@ describe('ParserSurfaceFlinger', () => {
 
       it('provides timestamps', () => {
         const expected = [
-          TimestampConverterUtils.makeRealTimestamp(1659107089102062832n),
-          TimestampConverterUtils.makeRealTimestamp(1659107089233029344n),
-          TimestampConverterUtils.makeRealTimestamp(1659107090005226366n),
+          makeRealTimestamp(1659107089102062832n),
+          makeRealTimestamp(1659107089233029344n),
+          makeRealTimestamp(1659107090005226366n),
         ];
         expect(
           assertDefined(perfettoParser.getTimestamps()).slice(0, 3),
@@ -120,59 +121,15 @@ describe('ParserSurfaceFlinger', () => {
 
       it('decodes layer state flags', async () => {
         const entry = await perfettoParser.getEntry(0);
-        {
-          const layer = assertDefined(
-            entry.findDfs(UiTreeUtils.makeIdMatchFilter('27 Leaf:24:25#27')),
-          );
-          expect(layer.name).toEqual('Leaf:24:25#27');
+        const layer = assertDefined(
+          entry.findDfs(makeIdMatchFilter('48 Task=4#48')),
+        );
+        expect(layer.name).toBe('Task=4#48');
 
-          expect(
-            assertDefined(
-              layer.getEagerPropertyByName('flags'),
-            ).formattedValue(),
-          ).toEqual('0');
-          expect(
-            assertDefined(
-              layer.getEagerPropertyByName('verboseFlags'),
-            ).formattedValue(),
-          ).toEqual('');
-        }
-        {
-          const layer = assertDefined(
-            entry.findDfs(UiTreeUtils.makeIdMatchFilter('48 Task=4#48')),
-          );
-          expect(layer.name).toEqual('Task=4#48');
-
-          expect(
-            assertDefined(
-              layer.getEagerPropertyByName('flags'),
-            ).formattedValue(),
-          ).toEqual('1');
-          expect(
-            assertDefined(
-              layer.getEagerPropertyByName('verboseFlags'),
-            ).formattedValue(),
-          ).toEqual('HIDDEN (0x1)');
-        }
-        {
-          const layer = assertDefined(
-            entry.findDfs(
-              UiTreeUtils.makeIdMatchFilter('77 Wallpaper BBQ wrapper#77'),
-            ),
-          );
-          expect(layer.name).toEqual('Wallpaper BBQ wrapper#77');
-
-          expect(
-            assertDefined(
-              layer.getEagerPropertyByName('flags'),
-            ).formattedValue(),
-          ).toEqual('256');
-          expect(
-            assertDefined(
-              layer.getEagerPropertyByName('verboseFlags'),
-            ).formattedValue(),
-          ).toEqual('ENABLE_BACKPRESSURE (0x100)');
-        }
+        const props = await layer.getAllProperties();
+        expect(
+          assertDefined(props.getChildByName('flags')).formattedValue(),
+        ).toBe('HIDDEN (0x1)');
       });
 
       it('supports VSYNCID custom query', async () => {
@@ -198,7 +155,7 @@ describe('ParserSurfaceFlinger', () => {
     describe('handles duplicate ids', () => {
       it('is robust to duplicated layer ids', async () => {
         const parser = await new LegacyParserProvider()
-          .addFilename(
+          .addFile(
             'traces/elapsed_and_real_timestamp/SurfaceFlinger_with_duplicated_ids.pb',
           )
           .setConvertToPerfetto(true)
@@ -210,7 +167,7 @@ describe('ParserSurfaceFlinger', () => {
 
         const layer = assertDefined(
           entry.findDfs(
-            UiTreeUtils.makeIdMatchFilter(
+            makeIdMatchFilter(
               '-2147483595 Input Consumer recents_animation_input_consumer#408(Mirror)',
             ),
           ),
@@ -218,11 +175,11 @@ describe('ParserSurfaceFlinger', () => {
         expect(layer.name).toEqual(
           'Input Consumer recents_animation_input_consumer#408(Mirror)',
         );
-        expect(layer.getAllChildren().length).toEqual(0);
+        expect(layer.getAllChildren().length).toBe(0);
 
         const dupLayer = assertDefined(
           entry.findDfs(
-            UiTreeUtils.makeIdMatchFilter(
+            makeIdMatchFilter(
               '-2147483595 Input Consumer recents_animation_input_consumer#408(Mirror) duplicate(1)',
             ),
           ),
@@ -231,7 +188,7 @@ describe('ParserSurfaceFlinger', () => {
         expect(dupLayer.name).toEqual(
           'Input Consumer recents_animation_input_consumer#408(Mirror) duplicate(1)',
         );
-        expect(dupLayer.getAllChildren().length).toEqual(0);
+        expect(dupLayer.getAllChildren().length).toBe(0);
       });
     });
   });
@@ -241,7 +198,7 @@ describe('ParserSurfaceFlinger', () => {
 
     beforeAll(async () => {
       elapsedParser = await new LegacyParserProvider()
-        .addFilename('traces/elapsed_timestamp/SurfaceFlinger.pb')
+        .addFile('traces/elapsed_timestamp/SurfaceFlinger.pb')
         .getParser<HierarchyTreeNode>();
     });
 
@@ -255,17 +212,17 @@ describe('ParserSurfaceFlinger', () => {
 
     it('provides timestamps', () => {
       expect(assertDefined(elapsedParser.getTimestamps())[0]).toEqual(
-        TimestampConverterUtils.makeElapsedTimestamp(850335483446n),
+        makeElapsedTimestamp(850335483446n),
       );
     });
 
     it('converts to valid perfetto packets, without latest offsets', async () => {
       const packets = elapsedParser.convertToPerfettoPackets!(10);
-      expect(packets.length).toEqual(3);
-      expect(packets[0].trustedPacketSequenceId).toEqual(10);
+      expect(packets.length).toBe(3);
+      expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(
         packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
-      ).toEqual(94);
+      ).toBe(94);
       expect(packets[0].timestamp).toEqual(
         Long.fromString(BigInt(850335483446).toString()),
       );

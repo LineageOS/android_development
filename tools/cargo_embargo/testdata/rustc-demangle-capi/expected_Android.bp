@@ -22,7 +22,7 @@ cargo_pkg_version: "0.1.0",
 crate_root: "src/lib.rs",
 edition: "2015",
 rustlibs: ["librustc_demangle"],
-include_dirs: ["include"],
+export_include_dirs: ["include"],
 apex_available: ["//apex_available:platform", "com.android.runtime", "com.android.art.debug", "com.android.art"],
 native_bridge_supported: true,
 product_available: true,
@@ -31,6 +31,7 @@ vendor_available: true,
 vendor_ramdisk_available: true,
 ramdisk_available: true,
 min_sdk_version: "S",
+sdk_version: "29",
 }
 
 rust_test {

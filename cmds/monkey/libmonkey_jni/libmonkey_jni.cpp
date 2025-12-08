@@ -29,7 +29,7 @@ constexpr int32_t PRODUCT_ID = 0x0001;
 android::base::unique_fd openUinputTouchscreen(int width, int height) {
   return openUinput("Monkey touch", GOOGLE_VENDOR_ID, PRODUCT_ID,
                     /*phys=*/"monkeydevice", android::DeviceType::TOUCHSCREEN,
-                    height, width);
+                    android::ui::Size(width, height));
 }
 } // namespace
 

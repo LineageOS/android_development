@@ -319,8 +319,8 @@ describe('WinscopeProxyHostConnection', () => {
     }
 
     function checkDeviceProperties(devices: AdbDeviceConnection[]) {
-      expect(devices.length).toEqual(1);
-      expect(devices[0].getFormattedName()).toEqual('Pixel 6 (35562)');
+      expect(devices.length).toBe(1);
+      expect(devices[0].getFormattedName()).toBe('Pixel 6 (35562)');
       expect(devices[0].getState()).toEqual(AdbDeviceState.AVAILABLE);
     }
   });

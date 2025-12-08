@@ -14,13 +14,4 @@
  * limitations under the License.
  */
 
-export const DENYLIST_PROPERTIES = [
-  'length',
-  'prototype',
-  'ref',
-  'parent',
-  'timestamp',
-  'layers',
-  'children',
-  'name',
-];
+export const DENYLIST_PROPERTIES = ['timestamp', 'layers', 'children', 'name'];

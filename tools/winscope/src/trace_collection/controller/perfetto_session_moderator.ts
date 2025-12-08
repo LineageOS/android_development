@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {UserNotifier} from 'common/user_notifier';
 import {ProxyTracingWarnings} from 'messaging/user_warnings';
+import {UserNotifier} from 'services/user_notifier';
 import {AdbDeviceConnection} from 'trace_collection/adb/adb_device_connection';
 import {AdbFileIdentifier, TraceTarget} from 'trace_collection/trace_target';
 import {TracingSession} from './tracing_session';
@@ -45,7 +45,10 @@ export class PerfettoSessionModerator {
   private concurrentSessions: number | undefined;
   private configFilepath: string;
 
-  constructor(private device: AdbDeviceConnection, private isDump: boolean) {
+  constructor(
+    private device: AdbDeviceConnection,
+    private isDump: boolean,
+  ) {
     this.configFilepath = isDump
       ? PERFETTO_DUMP_CONFIG_FILE
       : PERFETTO_TRACE_CONFIG_FILE;
@@ -53,8 +56,12 @@ export class PerfettoSessionModerator {
 
   async clearPreviousConfigFiles() {
     console.debug('Clearing perfetto config file for previous tracing session');
-    await this.device.runShellCommand(`rm -f ${this.configFilepath}`);
-    console.debug('Cleared perfetto config file for previous tracing session');
+    const output = await this.device.runShellCommand(
+      `rm -f ${this.configFilepath}`,
+    );
+    console.debug(
+      `Cleared perfetto config file for previous tracing session. Output: ${output}`,
+    );
   }
 
   async isTooManySessions() {
@@ -78,11 +85,13 @@ export class PerfettoSessionModerator {
       return;
     }
     console.debug('Stopping already-running winscope perfetto session.');
-    await this.device?.runShellCommand(
+    const output = await this.device?.runShellCommand(
       'perfetto --attach=WINSCOPE-PROXY-TRACING-SESSION --stop',
     );
     this.prevSessionActive = false;
-    console.debug('Stopped already-running winscope perfetto session.');
+    console.debug(
+      `Stopped already-running winscope perfetto session. Output: ${output}`,
+    );
   }
 
   async isDataSourceAvailable(ds: string): Promise<boolean> {

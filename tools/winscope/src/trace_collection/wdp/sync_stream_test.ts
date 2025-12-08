@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {ArrayBufferBuilder} from 'common/buffer_utils';
-import {base64Encode, binaryEncode, utf8Decode} from 'common/string_utils';
+import {ArrayBufferBuilder} from 'common/buffer';
+import {base64Encode, binaryEncode, utf8Decode} from 'common/string_helpers';
 import {
   makeFakeWebSocket,
   makeFakeWebSocketMessage,
@@ -242,7 +242,7 @@ describe('SyncStream', () => {
       .build();
     setMessageResponses([messageData1, messageData2]);
     const receivedData = await stream.pullFile(testFilepath);
-    expect(utf8Decode(receivedData)).toEqual('tes');
+    expect(utf8Decode(receivedData)).toBe('tes');
   });
 
   it('pulls file data from blob', async () => {

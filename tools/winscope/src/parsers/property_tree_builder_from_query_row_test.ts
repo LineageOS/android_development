@@ -15,12 +15,15 @@
  */
 
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {PropertySource} from 'trace/tree_node/property_tree_node';
-import {RowIteratorBase} from 'trace_processor/query_result';
+import {makeSpyRowIterator} from 'trace_processor/test_utils';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {PropertyTreeBuilderFromQueryRow} from './property_tree_builder_from_query_row';
 
 describe('PropertyTreeBuilderFromQueryRow', () => {
   const columns = ['test_prop', 'other_prop'];
+  const spyRow = makeSpyRowIterator();
+  spyRow.get.withArgs(columns[0]).and.returnValue(1);
+  spyRow.get.withArgs(columns[1]).and.returnValue('test_value');
   let builder: PropertyTreeBuilderFromQueryRow;
 
   beforeEach(() => {
@@ -30,14 +33,10 @@ describe('PropertyTreeBuilderFromQueryRow', () => {
   });
 
   it('throws error if columns not set', () => {
-    expect(builder.setData(getSpyRow()).build).toThrowError();
+    expect(builder.setData(makeSpyRowIterator()).build).toThrowError();
   });
 
   it('converts column name from snake to camel case', () => {
-    const spyRow = getSpyRow();
-    spyRow.get.withArgs(columns[0]).and.returnValue(1);
-    spyRow.get.withArgs(columns[1]).and.returnValue('test_value');
-
     const expectedRoot = new PropertyTreeBuilder()
       .setRootId('1')
       .setName('rootName')
@@ -53,7 +52,23 @@ describe('PropertyTreeBuilderFromQueryRow', () => {
     expect(tree).toEqual(expectedRoot);
   });
 
-  function getSpyRow() {
-    return jasmine.createSpyObj<RowIteratorBase>('row', ['get']);
-  }
+  it('converts column to boolean value', () => {
+    const expectedRoot = new PropertyTreeBuilder()
+      .setRootId('1')
+      .setName('rootName')
+      .setIsRoot(true)
+      .setSource(PropertySource.TP)
+      .setChildren([
+        {name: 'testProp', value: true},
+        {name: 'otherProp', value: 'test_value'},
+      ])
+      .build();
+
+    const tree = builder
+      .setColumns(columns)
+      .setConvertColumnToBoolean(columns[0])
+      .setData(spyRow)
+      .build();
+    expect(tree).toEqual(expectedRoot);
+  });
 });

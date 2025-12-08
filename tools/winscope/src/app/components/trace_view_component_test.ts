@@ -16,7 +16,7 @@
 
 import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {Component, CUSTOM_ELEMENTS_SCHEMA, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -27,10 +27,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert_utils';
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
@@ -38,10 +40,11 @@ import {
   WinscopeEvent,
   WinscopeEventType,
 } from 'messaging/winscope_event';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_utils';
+import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeZeroTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {Viewer, ViewType} from 'viewers/viewer';
 import {ViewerStub} from 'viewers/viewer_stub';
 import {TraceViewComponent} from './trace_view_component';
@@ -51,7 +54,7 @@ describe('TraceViewComponent', () => {
   const traceWm = new TraceBuilder<object>()
     .setType(TraceType.WINDOW_MANAGER)
     .setEntries([{}])
-    .setTimestamps([TimestampConverterUtils.makeZeroTimestamp()])
+    .setTimestamps([makeZeroTimestamp()])
     .setDescriptors(['file_1', 'file_1'])
     .build();
   const traceSr = makeEmptyTrace(TraceType.SCREEN_RECORDING);
@@ -62,8 +65,9 @@ describe('TraceViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TestHostComponent, TraceViewComponent],
       imports: [
+        NoopAnimationsModule,
+        TestHostComponent,
         CommonModule,
         MatCardModule,
         MatDividerModule,
@@ -76,8 +80,9 @@ describe('TraceViewComponent', () => {
         BrowserAnimationsModule,
         MatInputModule,
         ReactiveFormsModule,
+        TraceViewComponent,
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [],
     }).compileComponents();
     const fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
@@ -97,7 +102,7 @@ describe('TraceViewComponent', () => {
 
   it('creates viewer tabs', () => {
     const tabs = getTabs();
-    expect(tabs.length).toEqual(3);
+    expect(tabs.length).toBe(3);
     tabs[0].checkText('Title0');
     tabs[1].checkText('Title1 Dump');
   });
@@ -124,21 +129,21 @@ describe('TraceViewComponent', () => {
     // Initially tab 0
     dom.detectChanges();
     let visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content0');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content0');
 
     // Switch to tab 1
     tabs[1].click();
     visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content1');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content1');
 
     // Switch to tab 0
     tabs[1].click();
     tabs[0].click();
     visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content0');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content0');
   });
 
   it("emits 'view switched' events", () => {
@@ -171,8 +176,8 @@ describe('TraceViewComponent', () => {
 
     // Initially tab 0
     let visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content0');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content0');
 
     // Switch to tab 1
     await traceViewComponent.onWinscopeEvent(
@@ -180,8 +185,8 @@ describe('TraceViewComponent', () => {
     );
     dom.detectChanges();
     visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content1');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content1');
 
     // Switch to tab 0
     await traceViewComponent.onWinscopeEvent(
@@ -189,8 +194,8 @@ describe('TraceViewComponent', () => {
     );
     dom.detectChanges();
     visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content0');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content0');
   });
 
   it('emits TabbedViewSwitched event on viewer changes', () => {
@@ -297,7 +302,7 @@ describe('TraceViewComponent', () => {
 
   it('does not show presets for different trace', () => {
     savePresetByButton('Test Preset');
-    dom.findAndClickInDocument('.cdk-overlay-backdrop');
+    dom.clickBackdrop();
     const tabs = getTabs();
     tabs[1].click();
 
@@ -327,8 +332,8 @@ describe('TraceViewComponent', () => {
     ];
     dom.detectChanges();
     const visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toEqual(1);
-    expect(visibleTabContents[0].innerHTML).toEqual('Content1');
+    expect(visibleTabContents.length).toBe(1);
+    expect(visibleTabContents[0].innerHTML).toBe('Content1');
   });
 
   it('shows tooltips for tabs with trace descriptors', async () => {
@@ -368,17 +373,20 @@ describe('TraceViewComponent', () => {
   }
 
   @Component({
+    imports: [TraceViewComponent, CommonModule],
     selector: 'host-component',
     template: `
-      <trace-view
-        *ngIf="!showSecondComponent"
-        [viewers]="viewers"
-        [store]="store"></trace-view>
+      @if (!showSecondComponent) {
+        <trace-view
+          [viewers]="viewers"
+          [store]="store"></trace-view>
+      }
 
-      <trace-view
-        *ngIf="showSecondComponent"
-        [viewers]="viewers"
-        [store]="store"></trace-view>
+      @if (showSecondComponent) {
+        <trace-view
+          [viewers]="viewers"
+          [store]="store"></trace-view>
+      }
     `,
   })
   class TestHostComponent {

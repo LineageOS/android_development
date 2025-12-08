@@ -18,12 +18,11 @@ import {
   assertBigIntOrUndefined,
   assertDefined,
   assertString,
-} from 'common/assert_utils';
+} from 'common/assert';
 import {MakeTimestampStrategyType} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {AddDefaults} from 'parsers/operations/add_defaults';
-import {SetFormatters} from 'parsers/operations/set_formatters';
 import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
 import {TranslateIntDef} from 'parsers/operations/translate_intdef';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
@@ -31,27 +30,29 @@ import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {queryArgs} from 'parsers/perfetto/utils';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {TAMPERED_TRACE_PACKET} from 'parsers/tampered_message_type';
 import {TransformDuration} from 'parsers/transitions/operations/transform_duration';
 import {TransitionType} from 'parsers/transitions/transition_type';
-import {TraceType} from 'trace/trace_type';
 import {
   EnumFormatter,
-  PropertyFormatter,
   TIMESTAMP_NODE_FORMATTER,
   UPPER_CASE_FORMATTER,
-} from 'trace/tree_node/formatters';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {Operation} from 'trace/tree_node/operations/operation';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'trace/tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+} from 'trace/formatters';
+import {TAMPERED_TRACE_PACKET} from 'trace/proto_utils/tampered_message_type';
+import {TraceType} from 'trace_api/trace_type';
+import {ColumnType, RowIterator} from 'trace_processor/query_result';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {Operation} from 'tree_node/operation';
+import {PropertiesProvider} from 'tree_node/properties_provider';
+import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
 import {
-  QueryResult,
-  RowIteratorBase,
-  SqlValue,
-} from 'trace_processor/query_result';
+  PropertyFormatter,
+  PropertyTreeNode,
+} from 'tree_node/property_tree_node';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
+/**
+ * Parser for Transitions Perfetto traces.
+ */
 export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TRANSITION_FIELD =
     TAMPERED_TRACE_PACKET.fields['shellTransition'];
@@ -112,16 +113,19 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     const sql =
       `SELECT ${columns} FROM ${this.getTableName()} as transitions` +
       ` WHERE transitions.id = ${this.entryIndexToRowIdMap[index]};`;
-    const queryResult = await this.traceProcessor.query(sql);
+    return this.makeHierarchyTrees(sql).then((trees) =>
+      assertDefined(trees[0]),
+    );
+  }
 
-    if (this.handlerIdToName === undefined) {
-      const handlers = await this.queryHandlers();
-      this.handlerIdToName = {};
-      handlers.forEach(
-        (it) => (assertDefined(this.handlerIdToName)[it.id] = it.name),
-      );
-    }
-    return this.makeHierarchyTree(queryResult);
+  override async getAllEntries(): Promise<
+    Array<HierarchyTreeNode | undefined>
+  > {
+    const columns = ParserTransitions.EAGER_COLUMNS.map(
+      (column) => `transitions.${column}`,
+    ).join(', ');
+    const sql = `SELECT ${columns} FROM ${this.getTableName()} as transitions ORDER BY transitions.ts;`;
+    return this.makeHierarchyTrees(sql);
   }
 
   protected override getTableName(): string {
@@ -130,6 +134,28 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
 
   protected override getStdLibModuleName(): string {
     return 'android.winscope.transitions';
+  }
+
+  private async makeHierarchyTrees(
+    sql: string,
+  ): Promise<Array<HierarchyTreeNode | undefined>> {
+    if (this.handlerIdToName === undefined) {
+      await this.updateHandlers();
+    }
+    const queryResult = await this.traceProcessor.query(sql);
+    const trees = [];
+    for (const it = queryResult.iter({}); it.valid(); it.next()) {
+      trees.push(await this.makeHierarchyTree(it));
+    }
+    return trees;
+  }
+
+  private async updateHandlers() {
+    const handlers = await this.queryHandlers();
+    this.handlerIdToName = {};
+    handlers.forEach(
+      (it) => (assertDefined(this.handlerIdToName)[it.id] = it.name),
+    );
   }
 
   private async queryHandlers(): Promise<TransitionHandler[]> {
@@ -151,20 +177,22 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   }
 
   private async makeHierarchyTree(
-    result: QueryResult,
-  ): Promise<HierarchyTreeNode> {
-    const transitionRow = result.iter({});
-    const transition = await this.makeTransitionsPropertiesProvider(
-      transitionRow,
-    );
-    return new HierarchyTreeBuilderLog()
-      .setRoot(transition)
-      .setChildren([])
-      .build();
+    row: RowIterator,
+  ): Promise<HierarchyTreeNode | undefined> {
+    try {
+      const transition = await this.makeTransitionsPropertiesProvider(row);
+      return new HierarchyTreeBuilderLog()
+        .setRoot(transition)
+        .setChildren([])
+        .build();
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
   }
 
   private async makeTransitionsPropertiesProvider(
-    transitionRow: RowIteratorBase,
+    transitionRow: RowIterator,
   ): Promise<PropertiesProvider> {
     const eagerProperties = await this.makeEagerPropertiesTree(transitionRow);
 
@@ -183,7 +211,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   }
 
   private async makeEagerPropertiesTree(
-    transitionRow: RowIteratorBase,
+    transitionRow: RowIterator,
   ): Promise<PropertyTreeNode> {
     const eagerProperties = new PropertyTreeBuilderFromQueryRow()
       .setData(transitionRow)
@@ -203,7 +231,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   }
 
   private async makeParticipants(
-    transitionRow: RowIteratorBase,
+    transitionRow: RowIterator,
   ): Promise<PropertyTreeNode> {
     const transitionId = assertDefined(
       transitionRow.get('transition_id'),
@@ -278,7 +306,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     ];
   }
 
-  private makeLazyPropertiesStrategy(argSetId: SqlValue) {
+  private makeLazyPropertiesStrategy(argSetId: ColumnType) {
     return async () => {
       const data = await queryArgs(this.traceProcessor, Number(argSetId));
       return new PropertyTreeBuilderFromProto()

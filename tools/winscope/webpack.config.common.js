@@ -36,15 +36,15 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.[jt]sx?$/,
+        loader: '@ngtools/webpack',
+      },
+      {
         test: /^((?!test).)*\.ts$/,
         include: [path.resolve('src')],
         loader: '@ephesoft/webpack.istanbul.loader', // Must be first loader
         options: {esModules: true},
         enforce: 'post',
-      },
-      {
-        test: /\.ts$/,
-        use: ['ts-loader', 'angular2-template-loader'],
       },
       {
         test: /\.html$/,
@@ -56,14 +56,35 @@ module.exports = {
       },
       {
         test: /\.s[ac]ss$/i,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                silenceDeprecations: [
+                  'mixed-decls',
+                  'color-functions',
+                  'global-builtin',
+                  'import',
+                  'legacy-js-api',
+                ],
+                quietDeps: true,
+              },
+            },
+          },
+        ],
       },
     ],
   },
 
   optimization: {
+    minimize: true,
     minimizer: [
       new TerserPlugin({
+        minify: TerserPlugin.swcMinify,
+        parallel: true,
         terserOptions: {
           keep_fnames: true,
         },

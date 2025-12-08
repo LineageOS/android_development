@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-import {TamperedProtoField} from 'parsers/tampered_message_type';
+import {TamperedProtoField} from 'trace/proto_utils/tampered_message_type';
 
-export interface TamperedProtos {
+/**
+ * A collection of tampered proto fields used by the WM parser.
+ */
+export declare interface TamperedProtos {
   entryField: TamperedProtoField;
   windowManagerServiceField: TamperedProtoField;
   rootWindowContainerField: TamperedProtoField;

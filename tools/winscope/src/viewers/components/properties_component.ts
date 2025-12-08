@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -22,21 +23,36 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import {MatDividerModule} from '@angular/material/divider';
 import {PersistentStore} from 'common/store/persistent_store';
 import {Analytics} from 'logging/analytics';
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
 import {CuratedProperties} from 'viewers/common/curated_properties';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
 import {UserOptions} from 'viewers/common/user_options';
 import {ViewerEvents} from 'viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
 import {nodeStyles} from 'viewers/components/styles/node.styles';
+import {TreeComponent} from 'viewers/components/tree_component';
+import {UserOptionsComponent} from 'viewers/components/user_options_component';
+import {ViewCapturePropertyGroupsComponent} from 'viewers/components/view_capture_property_groups_component';
 import {SearchBoxComponent} from './search_box_component';
 import {viewerCardInnerStyle} from './styles/viewer_card.styles';
 
 @Component({
   selector: 'properties-view',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDividerModule,
+    CollapsibleSectionTitleComponent,
+    SearchBoxComponent,
+    UserOptionsComponent,
+    ViewCapturePropertyGroupsComponent,
+    TreeComponent,
+  ],
   template: `
     <div class="view-header">
       <div class="title-section">
@@ -46,43 +62,54 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
           [title]="title"
           (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
         <search-box
-          formFieldClass="applied-field"
+          formFieldClass="applied-field mat-form-field-appearance-none"
           [textFilter]="textFilter"
           (filterChange)="onFilterChange($event)"></search-box>
       </div>
 
-      <user-options
-        *ngIf="hasUserOptions()"
-        class="view-controls"
-        [userOptions]="userOptions"
-        [eventType]="ViewerEvents.PropertiesUserOptionsChange"
-        [traceType]="traceType"
-        [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged">
-      </user-options>
+      @if (hasUserOptions()) {
+        <user-options
+          class="view-controls"
+          [userOptions]="userOptions"
+          [eventType]="ViewerEvents.PropertiesUserOptionsChange"
+          [traceType]="traceType"
+          [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged">
+        </user-options>
+      }
     </div>
 
-    <mat-divider *ngIf="hasUserOptions()"></mat-divider>
+    @if (hasUserOptions()) {
+      <mat-divider></mat-divider>
+    }
 
-    <ng-container *ngIf="showViewCaptureFormat()">
-      <view-capture-property-groups
-        class="property-groups"
-        [properties]="curatedProperties"></view-capture-property-groups>
+    @if (showViewCaptureFormat()) {
+      <ng-container>
+        <view-capture-property-groups
+          class="property-groups"
+          [properties]="curatedProperties"></view-capture-property-groups>
 
-      <mat-divider *ngIf="showPropertiesTree()"></mat-divider>
-    </ng-container>
+        @if (showPropertiesTree()) {
+          <mat-divider></mat-divider>
+        }
+      </ng-container>
+    }
 
-    <div *ngIf="showPropertiesTree()" class="properties-content">
-      <div class="tree-wrapper">
-        <tree-view
-          [node]="propertiesTree"
-          [useStoredExpandedState]="!!store"
-          [itemsClickable]="true"
-          [highlightedItem]="highlightedProperty"
-          (highlightedChange)="onHighlightedPropertyChange($event)"></tree-view>
+    @if (showPropertiesTree()) {
+      <div class="properties-content">
+        <div class="tree-wrapper">
+          <tree-view
+            [node]="propertiesTree"
+            [useStoredExpandedState]="!!store"
+            [itemsClickable]="true"
+            [highlightedItem]="highlightedProperty"
+            (highlightedChange)="onHighlightedPropertyChange($event)"></tree-view>
+        </div>
       </div>
-    </div>
+    }
 
-    <span class="mat-body-1 placeholder-text" *ngIf="showPlaceholderText()"> {{ placeholderText }} </span>
+    @if (showPlaceholderText()) {
+      <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
+    }
   `,
   styles: [
     `
@@ -101,6 +128,10 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
         flex-direction: column;
         overflow-y: auto;
         padding: 0px 12px;
+      }
+
+      search-box {
+        margin-top: 8px;
       }
     `,
     nodeStyles,

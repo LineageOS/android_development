@@ -16,16 +16,23 @@
 
 import {TimeRange, Timestamp} from 'common/time/time';
 import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
-import {UserNotifier} from 'common/user_notifier';
+import {Analytics} from 'logging/analytics';
 import {CannotParseAllTransitions} from 'messaging/user_warnings';
-import {ScreenRecordingUtils} from 'trace/screen_recording_utils';
-import {Trace, TraceEntry} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceEntryFinder} from 'trace/trace_entry_finder';
-import {TracePosition} from 'trace/trace_position';
-import {TraceType, TraceTypeUtils} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {UserNotifier} from 'services/user_notifier';
+import {timestampToVideoTimeSeconds} from 'trace/screen_recording_utils';
+import {Trace, TraceEntry} from 'trace_api/trace';
+import {TraceEntryFinder} from 'trace_api/trace_entry_finder';
+import {TracePosition} from 'trace_api/trace_position';
+import {TraceType, TraceTypeUtils} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
+/**
+ * A container of all the timeline-related data.
+ *
+ * The timeline data is composed of the traces, plus a set of properties (e.g. the current
+ * position) that are used to render the timeline UI.
+ */
 export class TimelineData {
   private traces = new Traces();
   private screenRecordingVideo?: Blob;
@@ -55,7 +62,7 @@ export class TimelineData {
     this.timestampConverter = timestampConverter;
 
     this.traces = new Traces();
-    traces.forEachTrace((trace, type) => {
+    traces.forEachTrace((trace) => {
       // Filter out empty traces or dumps with invalid timestamp (would mess up the timeline)
       if (trace.lengthEntries === 0 || trace.isDumpWithoutTimestamp()) {
         return;
@@ -66,19 +73,8 @@ export class TimelineData {
 
     const transitionTrace = this.traces.getTrace(TraceType.TRANSITION);
     if (transitionTrace) {
-      let someCorrupted = false;
-      await Promise.all(
-        transitionTrace.mapEntry(async (entry) => {
-          let transition: HierarchyTreeNode | undefined;
-          try {
-            transition = await entry.getValue();
-          } catch (e) {
-            someCorrupted = true;
-          }
-          this.transitionEntries.push(transition);
-        }),
-      );
-      if (someCorrupted) {
+      this.transitionEntries = await transitionTrace.getAllEntryValues();
+      if (this.transitionEntries.includes(undefined)) {
         UserNotifier.add(new CannotParseAllTransitions());
       }
     }
@@ -210,10 +206,8 @@ export class TimelineData {
 
     if (
       this.lastReturnedFullTimeRange === undefined ||
-      this.lastReturnedFullTimeRange.from.getValueNs() !==
-        fullTimeRange.from.getValueNs() ||
-      this.lastReturnedFullTimeRange.to.getValueNs() !==
-        fullTimeRange.to.getValueNs()
+      this.lastReturnedFullTimeRange.startNs !== fullTimeRange.startNs ||
+      this.lastReturnedFullTimeRange.endNs !== fullTimeRange.endNs
     ) {
       this.lastReturnedFullTimeRange = fullTimeRange;
     }
@@ -266,12 +260,20 @@ export class TimelineData {
     }
 
     const firstTimestamp = trace.getEntry(0).getTimestamp();
-    const entry = TraceEntryFinder.findCorrespondingEntry(trace, position);
+    let entry;
+    try {
+      entry = TraceEntryFinder.findCorrespondingEntry(trace, position);
+    } catch (e) {
+      console.warn(
+        `Could not find corresponding entry: ${(e as Error).message}`,
+      );
+      Analytics.Error.logFrameMapError((e as Error).message);
+    }
     if (!entry) {
       return undefined;
     }
 
-    return ScreenRecordingUtils.timestampToVideoTimeSeconds(
+    return timestampToVideoTimeSeconds(
       firstTimestamp.getValueNs(),
       entry.getTimestamp().getValueNs(),
     );
@@ -294,7 +296,11 @@ export class TimelineData {
       return undefined;
     }
 
-    const currentIndex = this.findCurrentEntryFor(trace)?.getIndex();
+    const entry = this.findCurrentEntryFor(trace);
+    if (!entry) {
+      return undefined;
+    }
+    const currentIndex = entry.getIndex();
     if (currentIndex === undefined || currentIndex === 0) {
       return undefined;
     }
@@ -307,7 +313,11 @@ export class TimelineData {
       return undefined;
     }
 
-    const currentIndex = this.findCurrentEntryFor(trace)?.getIndex();
+    const entry = this.findCurrentEntryFor(trace);
+    if (!entry) {
+      return trace.getEntry(0);
+    }
+    const currentIndex = entry.getIndex();
     if (currentIndex === undefined) {
       return trace.getEntry(0);
     }
@@ -325,7 +335,15 @@ export class TimelineData {
       return undefined;
     }
 
-    const entry = TraceEntryFinder.findCorrespondingEntry(trace, position);
+    let entry;
+    try {
+      entry = TraceEntryFinder.findCorrespondingEntry(trace, position);
+    } catch (e) {
+      console.warn(
+        `Could not find corresponding entry: ${(e as Error).message}`,
+      );
+      Analytics.Error.logFrameMapError((e as Error).message);
+    }
 
     if (
       this.lastReturnedCurrentEntries.get(trace)?.getIndex() !==

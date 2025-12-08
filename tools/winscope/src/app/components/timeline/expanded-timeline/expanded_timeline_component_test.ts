@@ -24,15 +24,18 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {
+  BrowserAnimationsModule,
+  NoopAnimationsModule,
+} from '@angular/platform-browser/animations';
 import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert_utils';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {assertDefined} from 'common/assert';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TracesBuilder} from 'test/unit/traces_builder';
-import {TracePosition} from 'trace/trace_position';
-import {TraceType} from 'trace/trace_type';
+import {TracePosition} from 'trace_api/trace_position';
+import {TraceType} from 'trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {ExpandedTimelineComponent} from './expanded_timeline_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';
@@ -41,16 +44,17 @@ describe('ExpandedTimelineComponent', () => {
   let component: ExpandedTimelineComponent;
   let dom: DOMTestHelper<ExpandedTimelineComponent>;
   let timelineData: TimelineData;
-  const time10 = TimestampConverterUtils.makeRealTimestamp(10n);
-  const time11 = TimestampConverterUtils.makeRealTimestamp(11n);
-  const time12 = TimestampConverterUtils.makeRealTimestamp(12n);
-  const time30 = TimestampConverterUtils.makeRealTimestamp(30n);
-  const time60 = TimestampConverterUtils.makeRealTimestamp(60n);
-  const time110 = TimestampConverterUtils.makeRealTimestamp(110n);
+  const time10 = makeRealTimestamp(10n);
+  const time11 = makeRealTimestamp(11n);
+  const time12 = makeRealTimestamp(12n);
+  const time30 = makeRealTimestamp(30n);
+  const time60 = makeRealTimestamp(60n);
+  const time110 = makeRealTimestamp(110n);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        NoopAnimationsModule,
         FormsModule,
         MatButtonModule,
         MatFormFieldModule,
@@ -61,8 +65,6 @@ describe('ExpandedTimelineComponent', () => {
         ReactiveFormsModule,
         BrowserAnimationsModule,
         DragDropModule,
-      ],
-      declarations: [
         ExpandedTimelineComponent,
         TransitionTimelineComponent,
         DefaultTimelineRowComponent,
@@ -77,12 +79,12 @@ describe('ExpandedTimelineComponent', () => {
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     timelineData = new TimelineData();
     const traces = new TracesBuilder()
-      .setEntries(TraceType.SURFACE_FLINGER, [{}])
-      .setTimestamps(TraceType.SURFACE_FLINGER, [time10])
-      .setEntries(TraceType.WINDOW_MANAGER, [{}])
-      .setTimestamps(TraceType.WINDOW_MANAGER, [time11])
-      .setEntries(TraceType.TRANSACTIONS, [{}])
-      .setTimestamps(TraceType.TRANSACTIONS, [time12])
+      .setEntries(TraceType.SURFACE_FLINGER, [{}, {}])
+      .setTimestamps(TraceType.SURFACE_FLINGER, [time10, time10])
+      .setEntries(TraceType.WINDOW_MANAGER, [{}, {}])
+      .setTimestamps(TraceType.WINDOW_MANAGER, [time11, time11])
+      .setEntries(TraceType.TRANSACTIONS, [{}, {}])
+      .setTimestamps(TraceType.TRANSACTIONS, [time12, time12])
       .setEntries(TraceType.TRANSITION, [
         new HierarchyTreeBuilder()
           .setId('TransitionsTraceEntry')
@@ -102,13 +104,9 @@ describe('ExpandedTimelineComponent', () => {
           .build(),
       ])
       .setTimestamps(TraceType.TRANSITION, [time10, time60])
-      .setTimestamps(TraceType.PROTO_LOG, [time12])
+      .setTimestamps(TraceType.PROTO_LOG, [time12, time12])
       .build();
-    await timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
     component.timelineData = timelineData;
   });
 
@@ -120,10 +118,10 @@ describe('ExpandedTimelineComponent', () => {
     dom.detectChanges();
 
     const timelineElements = dom.findAll('.timeline.row single-timeline');
-    expect(timelineElements.length).toEqual(4);
+    expect(timelineElements.length).toBe(4);
 
     const transitionElement = dom.findAll('.timeline.row transition-timeline');
-    expect(transitionElement.length).toEqual(1);
+    expect(transitionElement.length).toBe(1);
   });
 
   it('passes initial selectedEntry of correct type into each timeline', () => {
@@ -136,7 +134,7 @@ describe('ExpandedTimelineComponent', () => {
     singleTimelines.forEach((timeline) => {
       if (assertDefined(timeline.trace).type === TraceType.SURFACE_FLINGER) {
         const entry = assertDefined(timeline.selectedEntry);
-        expect(entry.getFullTrace().type).toBe(TraceType.SURFACE_FLINGER);
+        expect(entry.getFullTrace().type).toEqual(TraceType.SURFACE_FLINGER);
       } else {
         expect(timeline.selectedEntry).toBeUndefined();
       }

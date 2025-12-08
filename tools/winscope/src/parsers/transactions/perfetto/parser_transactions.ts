@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined, assertString} from 'common/assert_utils';
+import {
+  assertBigInt,
+  assertBigIntOrUndefined,
+  assertDefined,
+  assertString,
+} from 'common/assert';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
 import {AddDefaults} from 'parsers/operations/add_defaults';
-import {SetFormatters} from 'parsers/operations/set_formatters';
 import {AbstractParser} from 'parsers/perfetto/abstract_parser';
 import {FakeProtoTransformer} from 'parsers/perfetto/fake_proto_transformer';
 import {
@@ -28,38 +32,49 @@ import {
 } from 'parsers/perfetto/utils';
 import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {
-  TamperedProtoField,
-  TAMPERED_TRACE_PACKET,
-} from 'parsers/tampered_message_type';
 import {perfetto} from 'protos/perfetto/trace/static';
+import {EnumFormatter, FixedStringFormatter} from 'trace/formatters';
+import {
+  TAMPERED_TRACE_PACKET,
+  TamperedProtoField,
+} from 'trace/proto_utils/tampered_message_type';
+import {TraceFile} from 'trace/trace_file';
+import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
+import {TransactionType} from 'trace/transactions/transaction_type';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
-} from 'trace/custom_query';
-import {EntriesRange} from 'trace/index_types';
-import {TraceFile} from 'trace/trace_file';
-import {TraceType} from 'trace/trace_type';
-import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {TransactionType} from 'trace/transactions/transaction_type';
-import {
-  EnumFormatter,
-  FixedStringFormatter,
-  PropertyFormatter,
-} from 'trace/tree_node/formatters';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {Operation} from 'trace/tree_node/operations/operation';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'trace/tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {QueryResult, Row, RowIteratorBase} from 'trace_processor/query_result';
+} from 'trace_api/custom_query';
+import {EntriesRange} from 'trace_api/index_types';
+import {TraceType} from 'trace_api/trace_type';
+import {RowIterator} from 'trace_processor/query_result';
 import {TraceProcessor} from 'trace_processor/trace_processor';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {Operation} from 'tree_node/operation';
+import {PropertiesProvider} from 'tree_node/properties_provider';
+import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
+import {
+  PropertyFormatter,
+  PropertyTreeNode,
+} from 'tree_node/property_tree_node';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TransactionsTraceEntryField =
     TAMPERED_TRACE_PACKET.fields['surfaceflingerTransactions'];
+
+  private static readonly TRANSACTION_COLUMNS = [
+    'transaction_id',
+    'pid',
+    'uid',
+    'process_name',
+    'layer_id',
+    'display_id',
+    'flags_id',
+    'transaction_type',
+  ];
 
   private flags: {[key: number]: string} | undefined;
 
@@ -77,6 +92,8 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
 
   override async getEntry(index: number): Promise<HierarchyTreeNode> {
     const sql = `SELECT
+      sfs.id as snapshot_id,
+      sfs.vsync_id,
       sft.transaction_id,
       sft.pid,
       sft.uid,
@@ -85,24 +102,34 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
       sft.display_id,
       sft.flags_id,
       sft.transaction_type,
-      sft.arg_set_id,
-      sfs.vsync_id
-    FROM __transaction_with_process AS sft
-    INNER JOIN surfaceflinger_transactions AS sfs
-      ON sfs.id = ${this.entryIndexToRowIdMap[index]}
-      AND sfs.id = sft.snapshot_id`;
+      sft.arg_set_id
+      FROM ${this.getTableName()} AS sfs
+      LEFT JOIN  ${this.getProcessedTransactionTableName()} AS sft
+        ON sfs.id = sft.snapshot_id
+      WHERE sfs.id = ${this.entryIndexToRowIdMap[index]}`;
 
-    const queryResult = await this.traceProcessor.query(sql);
+    return this.makeHierarchyTrees(sql).then((trees) => trees[0]);
+  }
 
-    if (this.flags === undefined) {
-      const flags = await this.queryFlags();
-      this.flags = {};
-      flags.forEach(
-        (flags, flagId) => (assertDefined(this.flags)[flagId] = flags),
-      );
-    }
+  override async getAllEntries(): Promise<HierarchyTreeNode[]> {
+    const sql = `SELECT
+      sfs.id as snapshot_id,
+      sfs.vsync_id,
+      sft.transaction_id,
+      sft.pid,
+      sft.uid,
+      sft.process_name,
+      sft.layer_id,
+      sft.display_id,
+      sft.flags_id,
+      sft.transaction_type,
+      sft.arg_set_id
+      FROM ${this.getTableName()} AS sfs
+      LEFT JOIN  ${this.getProcessedTransactionTableName()} AS sft
+        ON sfs.id = sft.snapshot_id
+      ORDER BY sfs.id`;
 
-    return this.makeHierarchyTree(queryResult);
+    return this.makeHierarchyTrees(sql);
   }
 
   override async customQuery<Q extends CustomQueryType>(
@@ -121,7 +148,7 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
         );
       })
       .visit(CustomQueryType.LOG_TABLE_FILTER_VALUES, async () => {
-        let tableName = this.getTransactionTableName();
+        let tableName = this.getProcessedTransactionTableName();
         let columns: string[];
         switch (param) {
           case TransactionColumnType.TRANSACTION_ID:
@@ -160,14 +187,15 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   }
 
   protected override async preProcessTrace(): Promise<void> {
+    const transactionTable = this.getTransactionTableName();
     const sql = `
-CREATE PERFETTO TABLE ${this.getTransactionTableName()} AS
+CREATE PERFETTO TABLE ${this.getProcessedTransactionTableName()} AS
   WITH process_matches AS (
   SELECT
       sft.id as row_id,
       processes.name AS process_name,
       0 AS match_priority
-  FROM __intrinsic_surfaceflinger_transaction AS sft
+  FROM ${transactionTable} AS sft
   INNER JOIN process AS processes
       ON sft.pid = processes.pid AND sft.uid = processes.uid
   WHERE
@@ -180,7 +208,7 @@ CREATE PERFETTO TABLE ${this.getTransactionTableName()} AS
       sft.id as row_id,
       processes.name AS process_name,
       1 AS match_priority
-  FROM __intrinsic_surfaceflinger_transaction AS sft
+  FROM ${transactionTable} AS sft
   INNER JOIN process AS processes
       ON sft.pid = processes.pid
   WHERE
@@ -193,7 +221,7 @@ CREATE PERFETTO TABLE ${this.getTransactionTableName()} AS
       sft.id as row_id,
       processes.name AS process_name,
       2 AS match_priority
-  FROM __intrinsic_surfaceflinger_transaction AS sft
+  FROM ${transactionTable} AS sft
   INNER JOIN process AS processes
       ON sft.uid = processes.uid
   WHERE
@@ -223,7 +251,7 @@ SELECT
     sft.flags_id,
     sft.transaction_type,
     sft.arg_set_id
-FROM __intrinsic_surfaceflinger_transaction AS sft
+FROM ${transactionTable} AS sft
 LEFT JOIN ranked_process_matches AS rpm
     ON sft.id = rpm.row_id AND rpm.row_number = 1;`;
     await this.traceProcessor.query(sql);
@@ -233,95 +261,127 @@ LEFT JOIN ranked_process_matches AS rpm
     return 'surfaceflinger_transactions';
   }
 
-  private getTransactionTableName(): string {
+  protected override getStdLibModuleName(): string | undefined {
+    return 'android.winscope.surfaceflinger';
+  }
+
+  private getProcessedTransactionTableName(): string {
     return '__transaction_with_process';
   }
 
   private getFlagTableName(): string {
-    return '__intrinsic_surfaceflinger_transaction_flag';
+    return 'android_surfaceflinger_transaction_flag';
   }
 
-  private makeHierarchyTree(result: QueryResult): HierarchyTreeNode {
-    const vsyncId =
-      result.numRows() > 0 ? result.firstRow<Row>({})['vsync_id'] : undefined;
+  private getTransactionTableName() {
+    return 'android_surfaceflinger_transaction';
+  }
+
+  private async makeHierarchyTrees(sql: string): Promise<HierarchyTreeNode[]> {
+    const queryResult = await this.traceProcessor.query(sql);
+
+    if (this.flags === undefined) {
+      await this.updateFlags();
+    }
+
+    const trees: HierarchyTreeNode[] = [];
+
+    let currSnapshotId: bigint | undefined;
+    let currSnapshot: PropertiesProvider | undefined;
+    let currTransactions: PropertiesProvider[] = [];
+
+    for (const it = queryResult.iter({}); it.valid(); it.next()) {
+      const snapshotId = assertBigInt(it.get('snapshot_id'));
+
+      if (currSnapshotId !== snapshotId) {
+        if (currSnapshot) {
+          trees.push(this.makeHierarchyTree(currSnapshot, currTransactions));
+        }
+        currSnapshot = this.makeSnapshotProperties(it);
+        currSnapshotId = snapshotId;
+        currTransactions = [];
+      }
+
+      if (it.get('transaction_type')) {
+        // has associated transaction
+        currTransactions.push(
+          this.makeTransactionPropertiesProvider(it, currTransactions.length),
+        );
+      }
+    }
+
+    if (currSnapshot) {
+      trees.push(this.makeHierarchyTree(currSnapshot, currTransactions));
+    }
+
+    return trees;
+  }
+
+  private async updateFlags() {
+    const flags = await this.queryFlags();
+    this.flags = {};
+    flags.forEach(
+      (flags, flagId) => (assertDefined(this.flags)[flagId] = flags),
+    );
+  }
+
+  private async queryFlags(): Promise<Map<number, string>> {
+    const sql = `SELECT flags_id, flag FROM ${this.getFlagTableName()};`;
+    const result = await this.traceProcessor.query(sql);
+
+    const flags = new Map<number, string>();
+    for (const it = result.iter({}); it.valid(); it.next()) {
+      const flagId = Number(assertBigInt(it.get('flags_id')));
+      const flag = assertString(it.get('flag'));
+      if (flags.has(flagId)) {
+        flags.set(flagId, flags.get(flagId) + ' | ' + flag);
+      } else {
+        flags.set(flagId, flag);
+      }
+    }
+    return flags;
+  }
+
+  private makeHierarchyTree(
+    snapshot: PropertiesProvider,
+    transactions: PropertiesProvider[],
+  ): HierarchyTreeNode {
+    return new HierarchyTreeBuilderLog()
+      .setRoot(snapshot)
+      .setChildren(transactions)
+      .build();
+  }
+
+  private makeSnapshotProperties(row: RowIterator) {
+    const vsyncId = assertBigInt(row.get('vsync_id'));
     const entryProperties = new PropertyTreeBuilderFromProto()
       .setData({vsyncId})
       .setRootId('TransactionsTraceEntry')
       .setRootName('entry')
       .build();
-    const entry = new PropertiesProviderBuilder()
+    return new PropertiesProviderBuilder()
       .setEagerProperties(entryProperties)
-      .build();
-
-    const transactions: PropertiesProvider[] = [];
-    const columns = [
-      'transaction_id',
-      'pid',
-      'uid',
-      'process_name',
-      'layer_id',
-      'display_id',
-      'flags_id',
-      'transaction_type',
-    ];
-
-    for (const it = result.iter({}); it.valid(); it.next()) {
-      transactions.push(
-        this.makeTransactionPropertiesProvider(
-          it,
-          columns,
-          transactions.length,
-        ),
-      );
-    }
-
-    return new HierarchyTreeBuilderLog()
-      .setRoot(entry)
-      .setChildren(transactions)
       .build();
   }
 
   private makeTransactionPropertiesProvider(
-    row: RowIteratorBase,
-    columns: string[],
+    row: RowIterator,
     index: number,
   ): PropertiesProvider {
-    const argSetId = row.get('arg_set_id') ?? undefined;
-
-    let field: TamperedProtoField | undefined;
-    const transactionType = assertString(row.get('transaction_type'));
-    const entryProtoType = assertDefined(
-      ParserTransactions.TransactionsTraceEntryField.tamperedMessageType,
+    const argSetId = assertBigIntOrUndefined(
+      row.get('arg_set_id') ?? undefined,
     );
-    switch (transactionType) {
-      case TransactionType.DISPLAY_ADDED:
-      case TransactionType.DISPLAY_CHANGED:
-        field = entryProtoType.fields['addedDisplays'];
-        break;
-      case TransactionType.LAYER_ADDED:
-        field = entryProtoType.fields['addedLayers'];
-        break;
-      case TransactionType.LAYER_CHANGED:
-        field = assertDefined(
-          entryProtoType.fields['transactions']?.tamperedMessageType?.fields[
-            'layerChanges'
-          ],
-        );
-        break;
-      default:
-        if (argSetId !== undefined) {
-          throw new Error('unexpected transaction type found with arg set id');
-        }
-    }
+    const transactionType = assertString(row.get('transaction_type'));
+    const field = this.getField(transactionType, argSetId);
 
     const eagerProperties = new PropertyTreeBuilderFromQueryRow()
       .setData(row)
-      .setColumns(columns)
+      .setColumns(ParserTransactions.TRANSACTION_COLUMNS)
       .setRootId(index)
       .setRootName(field?.type ?? transactionType)
       .build();
 
-    const flagsIdFormatter = new EnumFormatter(assertDefined(this.flags));
+    const flagsIdFormatter = new EnumFormatter(assertDefined(this.flags), '0');
     const builder = new PropertiesProviderBuilder()
       .setEagerProperties(eagerProperties)
       .setEagerOperations([
@@ -367,21 +427,35 @@ LEFT JOIN ranked_process_matches AS rpm
     return builder.build();
   }
 
-  private async queryFlags(): Promise<Map<number, string>> {
-    const sql = `SELECT flags_id, flag FROM ${this.getFlagTableName()};`;
-    const result = await this.traceProcessor.query(sql);
-
-    const flags = new Map<number, string>();
-    for (const it = result.iter({}); it.valid(); it.next()) {
-      const flagId = Number(assertBigInt(it.get('flags_id')));
-      const flag = assertString(it.get('flag'));
-      if (flags.has(flagId)) {
-        flags.set(flagId, flags.get(flagId) + ' | ' + flag);
-      } else {
-        flags.set(flagId, flag);
-      }
+  private getField(
+    transactionType: string,
+    argSetId: bigint | undefined,
+  ): TamperedProtoField | undefined {
+    let field: TamperedProtoField | undefined;
+    const entryProtoType = assertDefined(
+      ParserTransactions.TransactionsTraceEntryField.tamperedMessageType,
+    );
+    switch (transactionType) {
+      case TransactionType.DISPLAY_ADDED:
+      case TransactionType.DISPLAY_CHANGED:
+        field = entryProtoType.fields['addedDisplays'];
+        break;
+      case TransactionType.LAYER_ADDED:
+        field = entryProtoType.fields['addedLayers'];
+        break;
+      case TransactionType.LAYER_CHANGED:
+        field = assertDefined(
+          entryProtoType.fields['transactions']?.tamperedMessageType?.fields[
+            'layerChanges'
+          ],
+        );
+        break;
+      default:
+        if (argSetId !== undefined) {
+          throw new Error('unexpected transaction type found with arg set id');
+        }
     }
-    return flags;
+    return field;
   }
 
   // Use a custom sql query to get the vsync_id of the first dispatch

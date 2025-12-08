@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 import {proxySetupStyles} from 'app/styles/proxy_setup.styles';
 import {ConnectionState} from 'trace_collection/connection_state';
 
+/**
+ * A component for displaying the Web Device Proxy setup instructions.
+ */
 @Component({
   selector: 'wdp-setup',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   template: `
-    <ng-container [ngSwitch]="state">
-      <ng-container *ngSwitchCase="${ConnectionState.CONNECTING}">
+    @switch (state) {
+      @case (${ConnectionState.CONNECTING}) {
         <p class="connecting-message mat-body-1">
           Connecting...
         </p>
-      </ng-container>
-      <ng-container *ngSwitchCase="${ConnectionState.NOT_FOUND}">
+      }
+      @case (${ConnectionState.NOT_FOUND}) {
         <div class="further-adb-info-text">
           <p class="mat-body-1">
             Failed to connect. Web Device Proxy doesn't seem to be running.
@@ -41,16 +49,20 @@ import {ConnectionState} from 'trace_collection/connection_state';
             color="primary"
             mat-stroked-button
             class="install"
-            (click)="onInstallButtonClick()">Install Web Device Proxy</button>
+            (click)="onInstallExternalButtonClick()">Install (Non-Google users)</button>
+          <button
+            color="primary"
+            mat-stroked-button
+            class="install"
+            (click)="onInstallGoogleButtonClick()">Install (Google employees only)</button>
           <button
             color="primary"
             mat-stroked-button
             class="retry"
             (click)="onRetryButtonClick()">Retry</button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="${ConnectionState.UNAUTH}">
+      }
+      @case (${ConnectionState.UNAUTH}) {
         <div class="further-adb-info-text">
           <p class="icon-information mat-body-1">
             <mat-icon class="adb-icon">lock</mat-icon>
@@ -65,10 +77,8 @@ import {ConnectionState} from 'trace_collection/connection_state';
             class="retry"
             (click)="onRetryButtonClick()">Retry</button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchDefault></ng-container>
-    </ng-container>
+      }
+    }
   `,
   styles: [proxySetupStyles],
 })
@@ -76,11 +86,15 @@ export class WdpSetupComponent {
   @Input() state: ConnectionState | undefined;
   @Output() readonly retryConnection = new EventEmitter();
 
-  onInstallButtonClick() {
+  onInstallExternalButtonClick() {
     window.open(
       'https://tools.google.com/dlpage/android_web_device_proxy',
       '_blank',
     );
+  }
+
+  onInstallGoogleButtonClick() {
+    window.open('http://go/web-device-proxy#setup', '_blank');
   }
 
   onRetryButtonClick() {

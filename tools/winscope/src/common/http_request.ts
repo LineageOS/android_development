@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from './assert_utils';
+import {assertDefined} from './assert';
 
 /**
  * Type for HTTP request headers.
@@ -34,9 +34,9 @@ export enum HttpRequestStatus {
 /**
  * Response from an HTTP request.
  */
-export interface HttpResponse {
+export declare interface HttpResponse {
   status: HttpRequestStatus;
-  type: XMLHttpRequestResponseType; //eslint-disable-line no-undef
+  type: XMLHttpRequestResponseType;
   text: string;
   body: any;
   getHeader: (name: string) => string | undefined;

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Styles for the proxy setup component.
+ */
 export const proxySetupStyles = `
   .icon-information {
     display: flex;
@@ -35,5 +38,8 @@ export const proxySetupStyles = `
   }
   .adb-info {
     margin-left: 5px;
+  }
+  .adb-icon {
+    min-width: fit-content;
   }
 `;

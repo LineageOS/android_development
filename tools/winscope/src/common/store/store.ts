@@ -17,7 +17,7 @@
 /**
  * A simple key-value store interface.
  */
-export interface Store {
+export declare interface Store {
   /**
    * Adds a key-value pair to the store.
    * @param key The key of the key-value pair.

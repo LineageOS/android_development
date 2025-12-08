@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined, assertNumber} from 'common/assert';
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
-import {
-  PropertySource,
-  PropertyTreeNode,
-} from 'trace/tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'trace/tree_node/property_tree_node_factory';
+import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from 'tree_node/properties_provider';
+import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
+import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+import {SetFormatters} from 'viewers/operations/set_formatters';
 
 export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
   protected override buildIdentifierToChildrenMap(
@@ -35,20 +35,22 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
         layerProperties.name,
         layer,
       );
-      const layerId = assertDefined(
-        layerProperties.getChildByName('id'),
-      ).getValue();
+      const layerId = this.getIdentifierValue(
+        assertDefined(layerProperties.getChildByName('layerId')),
+      );
 
       const curr = map.get(layerId);
       if (curr) {
         curr.push(layerNode);
-        layer.addEagerProperty(
+        const formatter = new SetFormatters();
+        const property =
           DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
             layerProperties.id,
             'isDuplicate',
             true,
-          ),
-        );
+          );
+        formatter.apply(property);
+        layer.addEagerProperty(property);
       } else {
         map.set(layerId, [layerNode]);
       }
@@ -62,14 +64,27 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
     identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
     isRoot?: boolean,
   ): void {
-    for (const children of identifierToChildren.values()) {
+    let recurLayerRoot: HierarchyTreeNode | undefined;
+
+    for (const [identifier, children] of identifierToChildren) {
       children.forEach((child) => {
-        const parentIdNode = assertDefined(
-          child.getEagerPropertyByName('parent'),
-        );
-        const isDefault = parentIdNode.source === PropertySource.DEFAULT;
-        const parentId = this.getIdentifierValue(parentIdNode);
-        const parent = identifierToChildren.get(parentId)?.at(0);
+        const parentIdNode = child.getEagerPropertyByName('parent');
+        const isDefault = parentIdNode?.source === PropertySource.DEFAULT;
+
+        let parent: HierarchyTreeNode | undefined;
+        if (parentIdNode) {
+          const parentId = this.getIdentifierValue(parentIdNode);
+          if (parentId === identifier) {
+            // recursive id
+            if (!recurLayerRoot) {
+              recurLayerRoot = this.makeRecurParentRoot(identifierToChildren);
+            }
+            parent = recurLayerRoot;
+          } else {
+            parent = identifierToChildren.get(parentId)?.at(0);
+          }
+        }
+
         if (!isDefault && parent) {
           this.setParentChildRelationship(parent, child);
         } else {
@@ -77,6 +92,40 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder {
         }
       });
     }
+
+    if (recurLayerRoot) {
+      this.setParentChildRelationship(root, recurLayerRoot);
+    }
+  }
+
+  private makeRecurParentRoot(
+    identifierToChildren: Map<string | number, HierarchyTreeNode[]>,
+  ): HierarchyTreeNode {
+    let uniqueLayerId = 1;
+    const layerIds = Array.from(identifierToChildren.keys()).sort();
+    for (const id of layerIds) {
+      if (uniqueLayerId === id) {
+        uniqueLayerId++;
+      } else if (assertNumber(id) > uniqueLayerId) {
+        break;
+      }
+    }
+
+    const props = new PropertyTreeBuilderFromProto()
+      .setData({
+        layerId: BigInt(uniqueLayerId),
+        detail:
+          'This node was artificially created by Winscope as a parent for all recursive layers',
+      })
+      .setRootId(uniqueLayerId)
+      .setRootName('WinscopeRecursiveLayerRoot')
+      .build();
+    const provider = new PropertiesProviderBuilder()
+      .setEagerProperties(props)
+      .setEagerOperations([new SetFormatters()])
+      .build();
+
+    return this.makeNode(props.id, props.name, provider);
   }
 
   private getIdentifierValue(identifier: PropertyTreeNode): number {

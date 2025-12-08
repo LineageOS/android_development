@@ -21,10 +21,10 @@ import {
   assertString,
   assertStringOrUndefined,
   assertTrue,
-} from 'common/assert_utils';
-import {UserNotifier} from 'common/user_notifier';
+} from 'common/assert';
 import {MissingVsyncId} from 'messaging/user_warnings';
-import {AbsoluteEntryIndex, EntriesRange} from 'trace/trace';
+import {UserNotifier} from 'services/user_notifier';
+import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
 import {TraceProcessor} from 'trace_processor/trace_processor';
 import {FakeProto, FakeProtoBuilder} from './fake_proto_builder';
 
@@ -66,7 +66,7 @@ export async function queryEntry(
   return getAndConvertArgsToProto(traceProcessor, sql);
 }
 
-async function getAndConvertArgsToProto(
+export async function getAndConvertArgsToProto(
   traceProcessor: TraceProcessor,
   sql: string,
 ): Promise<FakeProto> {
@@ -184,6 +184,7 @@ export async function getDistinctValues(
   traceProcessor: TraceProcessor,
   tableName: string,
   columns: string[],
+  nullString = 'N/A',
 ): Promise<string[]> {
   const uniqueValueCol = 'unique_value';
   const sql =
@@ -201,7 +202,8 @@ export async function getDistinctValues(
   const options: string[] = [];
   for (const it = rows.iter({}); it.valid(); it.next()) {
     const val = it.get(uniqueValueCol);
-    const option = val !== null && val !== undefined ? val.toString() : 'N/A';
+    const option =
+      val !== null && val !== undefined ? val.toString() : nullString;
     options.push(option);
   }
   return options;

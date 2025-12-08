@@ -248,8 +248,8 @@ describe('UserRequestParser', () => {
     );
   });
 
-  it('makes protolog perfetto session', async () => {
-    const configDs = `data_sources: {
+  describe('makes protolog perfetto session', () => {
+    const defaultConfigDs = `data_sources: {
   config {
     name: "android.protolog"
     protolog_config: {
@@ -257,11 +257,56 @@ describe('UserRequestParser', () => {
     }
   }
 }`;
-    await checkPerfettoSessionCreated(
-      configDs,
-      'android.protolog',
-      UiTraceTarget.PROTO_LOG,
-    );
+
+    it('without config', async () => {
+      await checkPerfettoSessionCreated(
+        defaultConfigDs,
+        'android.protolog',
+        UiTraceTarget.PROTO_LOG,
+      );
+    });
+
+    it('with invalid config', async () => {
+      await checkPerfettoSessionCreated(
+        defaultConfigDs,
+        'android.protolog',
+        UiTraceTarget.PROTO_LOG,
+        [{key: 'invalid', value: '123'}],
+      );
+    });
+
+    it('with groups', async () => {
+      const dataSource = `data_sources: {
+  config {
+    name: "android.protolog"
+    protolog_config: {
+      tracing_mode: DEFAULT
+      group_overrides {
+        group_name: "GROUP_1"
+        collect_stacktrace: false
+      }
+      group_overrides {
+        group_name: "GROUP_2"
+        collect_stacktrace: true
+      }
+    }
+  }
+}`;
+      await checkPerfettoSessionCreated(
+        dataSource,
+        'android.protolog',
+        UiTraceTarget.PROTO_LOG,
+        [
+          {
+            key: 'groups',
+            subRequests: [
+              {key: 'GROUP_1'},
+              {key: 'GROUP_2', value: 'stacktrace'},
+            ],
+          },
+        ],
+      );
+    });
   });
 
   it('makes IME perfetto session', async () => {
@@ -314,6 +359,7 @@ describe('UserRequestParser', () => {
       mode: MODE_DUMP
       trace_flags: TRACE_FLAG_INPUT
       trace_flags: TRACE_FLAG_COMPOSITION
+      trace_flags: TRACE_FLAG_EXTRA
       trace_flags: TRACE_FLAG_HWC
       trace_flags: TRACE_FLAG_BUFFERS
       trace_flags: TRACE_FLAG_VIRTUAL_DISPLAYS
@@ -752,29 +798,23 @@ describe('UserRequestParser', () => {
     ]);
   });
 
-  it('makes eventlog session', async () => {
-    const startTimeSeconds = 123000;
-    spyOn(Date, 'now').and.returnValue(startTimeSeconds);
-    const req = [{target: UiTraceTarget.EVENTLOG, config: []}];
-    expect(await parseRequests(req)).toEqual([
-      new TracingSession(
-        new TraceTarget(
-          'Eventlog',
-          [],
-          'rm -f /data/local/tmp/eventlog.winscope' +
-            '\n echo "EventLog started."',
-          'echo "EventLog\\n" > /data/local/tmp/eventlog.winscope ' +
-            `&& su root logcat -b events -v threadtime -v printable -v uid -v nsec -v epoch -b events -t 123 >> /data/local/tmp/eventlog.winscope`,
-          [
-            new AdbFileIdentifier(
-              '/data/local/tmp',
-              ['eventlog.winscope', 'eventlog.pb'],
-              'eventlog',
-            ),
-          ],
-        ),
-      ),
-    ]);
+  it('makes CUJ perfetto session', async () => {
+    const configDs = `data_sources: {
+  config {
+    name: "linux.ftrace"
+    ftrace_config {
+      atrace_apps: "com.android.systemui"
+      atrace_apps: "com.google.android.apps.nexuslauncher"
+      atrace_apps: "com.android.launcher3"
+      atrace_apps: "system_server"
+    }
+  }
+}`;
+    await checkPerfettoSessionCreated(
+      configDs,
+      'linux.ftrace',
+      UiTraceTarget.EVENTLOG,
+    );
   });
 
   it('makes SF dump legacy session', async () => {

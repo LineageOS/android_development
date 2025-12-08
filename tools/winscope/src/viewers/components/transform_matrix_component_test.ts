@@ -22,7 +22,7 @@ describe('TransformMatrixComponent', () => {
   beforeAll(async () => {
     await TestBed.configureTestingModule({
       providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
-      declarations: [TransformMatrixComponent],
+      imports: [TransformMatrixComponent],
     }).compileComponents();
   });
 

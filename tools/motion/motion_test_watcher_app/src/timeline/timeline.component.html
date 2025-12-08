@@ -1,6 +1,17 @@
-<div *ngIf="selectedGolden" class="w-full h-full p-4 relative overflow-y-auto">
+<div *ngIf="selectedGolden" class="w-full h-full relative">
+  <div class="text-right" *ngIf="expandedGraphIdx === -1 && !loading && actualData && actualData.features">
+    <button class="p-2 mx-auto cursor-pointer rounded-full hover:bg-gray-200 transition-colors relative group"
+      (click)="openFilter()"><span class="google-symbols">filter_alt</span>
+      <span class="
+        absolute right-full top-1/2 -translate-y-1/2 mr-2
+        px-3 py-1 bg-white text-gray-800 text-sm font-medium border border-gray-800
+        rounded-lg whitespace-nowrap opacity-0 pointer-events-none
+        transition-opacity duration-300
+        group-hover:opacity-100
+      ">Filter Graphs</span></button>
+  </div>
   <div class="flex flex-col flex-grow items-stretch bg-white rounded shadow-md p-4">
-      <app-graph
+      <app-graph [showTestList]="showTestList" [dataSource]="selectedGolden.dataSource"
         class="flex flex-grow w-full h-96"
         *ngIf="expandedGraphIdx !== -1 && !loading"
         [expectedData]="expectedData"
@@ -11,15 +22,17 @@
       ></app-graph>
 
        <div class="flex flex-col gap-4" *ngIf="expandedGraphIdx === -1 && !loading && actualData && actualData.features">
-        <app-graph
-          *ngFor="let feature of actualData.features; let i = index"
-          class="h-48 w-full"
-          [expectedData]="expectedData"
-          [actualData]="actualData"
-          [featureName]="getFeatureName(i)"
-          (expand)="toggleGraph($event)"
-        >
-        </app-graph>
+        <ng-container *ngFor="let feature of actualData.features; let i = index">
+          <app-graph [showTestList]="showTestList" [dataSource]="selectedGolden.dataSource"
+            *ngIf="shouldDisplayGraph(feature.name)"
+            class="h-48 w-full"
+            [expectedData]="expectedData"
+            [actualData]="actualData"
+            [featureName]="getFeatureName(i)"
+            (expand)="toggleGraph($event)"
+          >
+          </app-graph>
+        </ng-container>
       </div>
 
       <div *ngIf="loading">Loading...</div>
@@ -39,7 +52,7 @@
       &#17;
     </button>
   </div>
-  <div class="mt-4 flex justify-center space-x-2">
+  <div *ngIf="showUpdateButton" class="py-4 flex justify-center space-x-2">
     <button
       class="px-3 py-1 rounded bg-red-500 hover:bg-red-700 text-white"
       (click)="updateGolden()"
@@ -49,6 +62,6 @@
   </div>
 </div>
 
-<div *ngIf="!selectedGolden" class="w-full h-[500px] p-4 flex justify-center items-center">
+<div *ngIf="!selectedGolden" class="w-full h-full p-4 flex justify-center items-center">
   <p class="text-center text-gray-500">No test selected.</p>
 </div>

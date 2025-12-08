@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert_utils';
+import {assertString} from 'common/assert';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
 import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
 import {TransactionsEntry} from 'viewers/viewer_transactions/ui_data';

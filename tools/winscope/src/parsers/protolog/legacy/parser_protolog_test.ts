@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {utf8Encode} from 'common/string_utils';
-import {
-  TimestampConverterUtils,
-  timestampEqualityTester,
-} from 'common/time/test_utils';
+import {assertDefined} from 'common/assert';
+import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import Long from 'long';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {CoarseVersion} from 'trace/coarse_version';
-import {Parser} from 'trace/parser';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {
+  makeRealTimestamp,
+  timestampEqualityTester,
+} from 'test/unit/time_test_helpers';
+import {CoarseVersion} from 'trace_api/coarse_version';
+import {Parser} from 'trace_api/parser';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 interface ExpectedInternedData {
@@ -50,7 +51,7 @@ interface ExpectedMessagePacket {
 interface ExpectedMessage {
   message: string;
   ts: string;
-  at: string;
+  location: string;
   level: string;
   tag: string;
 }
@@ -74,7 +75,7 @@ abstract class ParserProtologTest {
       beforeAll(async () => {
         jasmine.addCustomEqualityTester(timestampEqualityTester);
         parser = await new LegacyParserProvider()
-          .addFilename(this.traceFile)
+          .addFile(this.traceFile)
           .getParser<PropertyTreeNode>();
       });
 
@@ -134,7 +135,7 @@ abstract class ParserProtologTest {
           this.expectedConfig,
         );
         expect(viewerConfigPacket.trustedUid).toEqual(trustedUid);
-        expect(viewerConfigPacket.trustedPid).toEqual(0);
+        expect(viewerConfigPacket.trustedPid).toBe(0);
         expect(viewerConfigPacket.internedData).toBeNull();
         expect(viewerConfigPacket.protologMessage).toBeNull();
 
@@ -147,9 +148,9 @@ abstract class ParserProtologTest {
 
       it('converts to valid perfetto trace', async () => {
         const perfettoParser = await new LegacyParserProvider()
-          .addFilename(this.traceFile)
+          .addFile(this.traceFile)
           .setConvertToPerfetto(true)
-          .getParser<PropertyTreeNode>();
+          .getParser<HierarchyTreeNode>();
 
         expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual(
           this.first3ExpectedRealTimestamps,
@@ -158,20 +159,26 @@ abstract class ParserProtologTest {
         const message = await perfettoParser.getEntry(0);
 
         expect(
-          assertDefined(message.getChildByName('text')).formattedValue(),
+          assertDefined(
+            message.getEagerPropertyByName('message'),
+          ).formattedValue(),
         ).toEqual(this.expectedFirstMessage.message);
         expect(
-          assertDefined(message.getChildByName('timestamp')).formattedValue(),
+          assertDefined(message.getEagerPropertyByName('ts')).formattedValue(),
         ).toEqual(this.expectedFirstMessage.ts);
         expect(
-          assertDefined(message.getChildByName('tag')).formattedValue(),
+          assertDefined(message.getEagerPropertyByName('tag')).formattedValue(),
         ).toEqual(this.expectedFirstMessage.tag);
         expect(
-          assertDefined(message.getChildByName('level')).formattedValue(),
+          assertDefined(
+            message.getEagerPropertyByName('level'),
+          ).formattedValue(),
         ).toEqual(this.expectedFirstMessage.level);
         expect(
-          assertDefined(message.getChildByName('at')).formattedValue(),
-        ).toEqual(this.expectedFirstMessage.at);
+          assertDefined(
+            message.getEagerPropertyByName('location'),
+          ).formattedValue(),
+        ).toEqual(this.expectedFirstMessage.location);
       });
 
       function checkMessagePacket(
@@ -234,9 +241,9 @@ class ParserProtolog32Test extends ParserProtologTest {
     'traces/elapsed_and_real_timestamp/ProtoLog32.pb';
   override readonly timestampCount = 50;
   override readonly first3ExpectedRealTimestamps = [
-    TimestampConverterUtils.makeRealTimestamp(1655727125377266486n),
-    TimestampConverterUtils.makeRealTimestamp(1655727125377336718n),
-    TimestampConverterUtils.makeRealTimestamp(1655727125377350430n),
+    makeRealTimestamp(1655727125377266486n),
+    makeRealTimestamp(1655727125377336718n),
+    makeRealTimestamp(1655727125377350430n),
   ];
   override readonly expectedConfig = CONFIG_32;
   override readonly internedData1: ExpectedInternedData = {
@@ -276,7 +283,7 @@ class ParserProtolog32Test extends ParserProtologTest {
     ts: '2022-06-20, 12:12:05.377',
     tag: 'WindowManager',
     level: 'DEBUG',
-    at: 'com/android/server/wm/InsetsSourceProvider.java',
+    location: 'com/android/server/wm/InsetsSourceProvider.java',
   };
 }
 
@@ -285,9 +292,9 @@ class ParserProtolog64Test extends ParserProtologTest {
     'traces/elapsed_and_real_timestamp/ProtoLog64.pb';
   override readonly timestampCount = 4615;
   override readonly first3ExpectedRealTimestamps = [
-    TimestampConverterUtils.makeRealTimestamp(1709196806399529939n),
-    TimestampConverterUtils.makeRealTimestamp(1709196806399763866n),
-    TimestampConverterUtils.makeRealTimestamp(1709196806400297151n),
+    makeRealTimestamp(1709196806399529939n),
+    makeRealTimestamp(1709196806399763866n),
+    makeRealTimestamp(1709196806400297151n),
   ];
   override readonly expectedConfig = CONFIG_64;
   override readonly internedData1: ExpectedInternedData = {
@@ -326,7 +333,7 @@ class ParserProtolog64Test extends ParserProtologTest {
     ts: '2024-02-29, 08:53:26.400',
     tag: 'WindowManager',
     level: 'VERBOSE',
-    at: 'com/android/server/wm/ActivityStarter.java',
+    location: 'com/android/server/wm/ActivityStarter.java',
   };
 }
 
@@ -335,9 +342,9 @@ class ParserProtologMissingConfigTest extends ParserProtologTest {
     'traces/elapsed_and_real_timestamp/ProtoLogMissingConfigMessage.pb';
   override readonly timestampCount = 7295;
   override readonly first3ExpectedRealTimestamps = [
-    TimestampConverterUtils.makeRealTimestamp(1669053909777144978n),
-    TimestampConverterUtils.makeRealTimestamp(1669053909778011697n),
-    TimestampConverterUtils.makeRealTimestamp(1669053909778800707n),
+    makeRealTimestamp(1669053909777144978n),
+    makeRealTimestamp(1669053909778011697n),
+    makeRealTimestamp(1669053909778800707n),
   ];
   override readonly expectedConfig = CONFIG_32;
   override readonly internedData1: ExpectedInternedData = {
@@ -376,7 +383,7 @@ class ParserProtologMissingConfigTest extends ParserProtologTest {
     ts: '2022-11-21, 18:05:09.777',
     tag: 'WindowManager',
     level: 'INFO',
-    at: 'com/android/server/wm/WindowSurfaceController.java',
+    location: 'com/android/server/wm/WindowSurfaceController.java',
   };
 }
 

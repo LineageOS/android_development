@@ -3,26 +3,13 @@ syntax = "proto2";
 package winscope.test;
 
 message RootMessage {
-  optional InputWindowInfoProto intdef_mapping_entry = 1;
-  optional WindowLayoutParamsProto window_layout_params = 2;
+  optional InputWindowInfoProto input_window_info = 1;
 }
+
 
 message InputWindowInfoProto {
-  optional int32 layoutParamsFlags = 1;
-  optional int32 inputConfig = 2;
-}
-
-/* represents WindowManager.LayoutParams */
-message WindowLayoutParamsProto {
-    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
-
-    optional int32 type = 1 [(.android.typedef) = "android.view.WindowManager.LayoutParams.WindowType"];
-    optional int32 gravity = 8 [(.android.typedef) = "android.view.Gravity.GravityFlags"];
-    optional int32 soft_input_mode = 9 [(.android.typedef) = "android.view.WindowManager.LayoutParams.SoftInputModeFlags"];
-    optional uint32 input_feature_flags = 19 [(.android.typedef) = "android.view.WindowManager.LayoutParams.InputFeatureFlags"];
-    optional uint32 flags = 24 [(.android.typedef) = "android.view.WindowManager.LayoutParams.Flags"];
-    optional uint32 system_ui_visibility_flags = 27 [(.android.typedef) = "android.view.WindowManager.LayoutParams.SystemUiVisibilityFlags"];
-    optional uint32 subtree_system_ui_visibility_flags = 28 [(.android.typedef) = "android.view.WindowManager.LayoutParams.SystemUiVisibilityFlags"];
-    optional uint32 appearance = 29 [(.android.typedef) = "android.view.WindowInsetsController.Appearance"];
-    optional uint32 behavior = 30 [(.android.typedef) = "android.view.WindowInsetsController.Behavior"];
+  optional int32 layout_params_flags = 1;
+  optional int32 input_config = 2 [(.perfetto.protos.typedef) =  "android.view.WindowInsets.Side.InsetsSide"];
+  optional int32 test_android_typedef = 3 [(.android.typedef) =  "android.content.pm.ActivityInfo.ScreenOrientation"];
+  optional int32 test_android_common_typedef = 4 [(.android_common.typedef) =  "android.view.WindowManager.TransitionFlags"];
 }

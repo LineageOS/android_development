@@ -14,37 +14,42 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
 import {
   TabbedViewSwitchRequest,
   TracePositionUpdate,
+  PlaybackStateChangeRequest,
+  PlaybackSpeedChange,
 } from 'messaging/winscope_event';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makeHierarchyNode} from 'test/unit/tree_node_test_helpers';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {CustomQueryType} from 'trace/custom_query';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
-import {EMPTY_OBJ_STRING} from 'trace/tree_node/formatters';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {EMPTY_OBJ_STRING} from 'trace/formatters';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Trace} from 'trace_api/trace';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {NotifyHierarchyViewCallbackType} from 'viewers/common/abstract_hierarchy_viewer_presenter';
 import {AbstractHierarchyViewerPresenterTest} from 'viewers/common/abstract_hierarchy_viewer_presenter_test';
 import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiDataHierarchy} from 'viewers/common/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {makeIdMatchFilter, makeNodeFilter} from 'viewers/common/ui_tree_utils';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {PlaybackPresenter} from 'viewers/common/playback/playback_presenter';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
 
 class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traceSf: Trace<HierarchyTreeNode> | undefined;
@@ -176,7 +181,7 @@ the default for its data type.`,
 
   override async setUpTestEnvironment(): Promise<void> {
     const parser = await new LegacyParserProvider()
-      .addFilename(
+      .addFile(
         'traces/elapsed_and_real_timestamp/SurfaceFlinger_multidisplay.pb',
       )
       .setConvertToPerfetto(true)
@@ -201,7 +206,7 @@ the default for its data type.`,
 
     const layer = assertDefined(
       firstEntryDataTree.findDfs(
-        UiTreeUtils.makeIdMatchFilter(
+        makeIdMatchFilter(
           '576 com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher#576',
         ),
       ),
@@ -219,7 +224,7 @@ the default for its data type.`,
       assertDefined(
         firstEntryDataTree
           .findDfs(
-            UiTreeUtils.makeIdMatchFilter(
+            makeIdMatchFilter(
               '630 com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity#630',
             ),
           )
@@ -275,12 +280,12 @@ the default for its data type.`,
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataHierarchy) {
     expect(
       uiData.propertiesTree?.getChildByName('screenBounds')?.formattedValue(),
-    ).toEqual('(0, 0) - (1080, 600)');
+    ).toBe('(0, 0) - (1080, 600)');
     expect(
       assertDefined(
         uiData.propertiesTree?.getChildByName('damageRegion'),
       ).formattedValue(),
-    ).toEqual('SkRegion((0, 0, 1080, 600))');
+    ).toBe('SkRegion((0, 0, 1080, 600))');
     expect(uiData.displays?.at(0)).toEqual({
       displayId: '4619827259835644672',
       groupId: 0,
@@ -388,9 +393,43 @@ the default for its data type.`,
         expect(spy).toHaveBeenCalledOnceWith(TraceRectType.LAYERS);
       });
 
+      it('initializes playback when a PlaybackStart event is received', async () => {
+        const playbackPresenterSpy = spyOn(PlaybackPresenter.prototype, 'play');
+        const event = new PlaybackStateChangeRequest(
+          TraceType.SURFACE_FLINGER,
+          PlaybackState.FORWARDS,
+          0,
+        );
+        await presenter.onAppEvent(event);
+        expect(playbackPresenterSpy).toHaveBeenCalled();
+      });
+
+      it('pauses playback when a PlaybackPause event is received', async () => {
+        const playbackPresenterSpy = spyOn(
+          PlaybackPresenter.prototype,
+          'pause',
+        );
+        const event = new PlaybackStateChangeRequest(
+          TraceType.SURFACE_FLINGER,
+          PlaybackState.PAUSED,
+        );
+        await presenter.onAppEvent(event);
+        expect(playbackPresenterSpy).toHaveBeenCalled();
+      });
+
+      it('changes playback speed when a PlaybackSpeedChange event is received', async () => {
+        const playbackPresenterSpy = spyOn(
+          PlaybackPresenter.prototype,
+          'changeSpeed',
+        );
+        const event = new PlaybackSpeedChange(TraceType.SURFACE_FLINGER, 2);
+        await presenter.onAppEvent(event);
+        expect(playbackPresenterSpy).toHaveBeenCalled();
+      });
+
       it('handles displays with no visible layers', async () => {
         await presenter?.onAppEvent(assertDefined(this.positionUpdate));
-        expect(uiData?.displays?.length).toEqual(5);
+        expect(uiData?.displays?.length).toBe(5);
         // we want the displays to be sorted by name
         expect(uiData?.displays).toEqual([
           {
@@ -466,7 +505,7 @@ the default for its data type.`,
         await createPresenterWithViewCapture(assertDefined(this.traceSf));
         expect(
           uiData.rectsToDraw.filter((rect) => rect.hasContent).length,
-        ).toEqual(1);
+        ).toBe(1);
       });
 
       it('handles rect double click if view capture trace present', async () => {
@@ -525,7 +564,7 @@ the default for its data type.`,
         const nodeWithRelZChild = this.getSelectedTree();
         const nodeWithRelZParent = assertDefined(
           assertDefined(uiData.hierarchyTrees)[0].findDfs(
-            UiTreeUtils.makeNodeFilter(
+            makeNodeFilter(
               new TextFilter(
                 '626 SurfaceView[com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher]#626',
               ).getFilterPredicate(),
@@ -536,7 +575,7 @@ the default for its data type.`,
         await presenter.onHighlightedNodeChange(nodeWithRelZChild);
         const secondRelZChildName =
           'Background for SurfaceView[com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher]#628';
-        expect(uiData.curatedProperties?.relativeParent).toEqual('none');
+        expect(uiData.curatedProperties?.relativeParent).toBe('none');
         expect(uiData.curatedProperties?.relativeChildren).toEqual([
           {
             layerId: '626',
@@ -570,7 +609,74 @@ the default for its data type.`,
         expect(uiData.curatedProperties).toBeUndefined();
       });
 
+      it('sets showDiff button as unavailable during playback', async () => {
+        await presenter.onAppEvent(this.getPositionUpdate());
+        const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
+        await presenter.onHighlightedIdChange(selectedId);
+
+        const playbackPresenter = PlaybackPresenter.prototype;
+        expect(playbackPresenter).toBeDefined();
+
+        const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
+        isPlayingSpy.and.returnValue(true);
+
+        expect(
+          uiData.propertiesUserOptions?.['showDiff']?.isUnavailable,
+        ).toBeTrue();
+      });
+
+      it("doesn't update properties tree on position update if playback is playing", async () => {
+        await presenter.onAppEvent(this.getPositionUpdate());
+        const selectedId = this.getSelectedTreeAfterPositionUpdate().id;
+        await presenter.onHighlightedIdChange(selectedId);
+        expect(uiData.propertiesTree).toBeDefined();
+        const propsTreeBeforePlayback = uiData.propertiesTree;
+
+        const playbackPresenter = PlaybackPresenter.prototype;
+        expect(playbackPresenter).toBeDefined();
+
+        const isPlayingSpy = spyOn(playbackPresenter, 'isPlaying');
+
+        isPlayingSpy.and.returnValue(true);
+
+        await presenter.onAppEvent(this.getSecondPositionUpdate());
+        expect(uiData.propertiesTree).toEqual(propsTreeBeforePlayback);
+      });
+
+      it('sets properties tree but no curated properties for recursive root node', async () => {
+        await presenter.onAppEvent(this.getPositionUpdate());
+        const hierarchyTree = assertDefined(uiData.hierarchyTrees?.[0]);
+        Object.assign(hierarchyTree.getAllChildren()[0], {
+          name: 'WinscopeRecursiveLayerRoot',
+        });
+        await presenter.onHighlightedNodeChange(
+          hierarchyTree.getAllChildren()[0],
+        );
+        expect(uiData.propertiesTree).toBeDefined();
+        expect(uiData.curatedProperties).toBeUndefined();
+      });
+
       it('formats summary, color, pixel and crop correctly in curated properties', async () => {
+        const layer1Props = getPropertiesForCuratedPanel(1n);
+        Object.assign(layer1Props, {
+          occludedBy: [0n],
+          partiallyOccludedBy: [2n],
+          coveredBy: [3n],
+          destinationFrame: {left: 0, right: 1, top: 0, bottom: 1},
+          color: {r: 0, g: 0, b: 0, a: 1},
+          shadowRadius: 1,
+          cornerRadii: {tl: 1, tr: 2, br: 4},
+          crop: {left: 0, top: 0, right: 1, bottom: 2},
+          requestedCornerRadius: 5,
+        });
+
+        const layer2Props = getPropertiesForCuratedPanel(2n);
+        Object.assign(layer2Props, {
+          cornerRadius: 6,
+          cornerRadii: {tl: 0, tr: 0, bl: 0, br: 0},
+          requestedCornerRadii: {bl: 3},
+        });
+
         const tree = new HierarchyTreeBuilder()
           .setId('LayerTraceEntry')
           .setName('root')
@@ -578,26 +684,22 @@ the default for its data type.`,
             {
               id: '1',
               name: 'layer1',
-              properties: {
-                occludedBy: ['0 layer0'],
-                partiallyOccludedBy: ['2 layer2'],
-                coveredBy: ['3 layer3'],
-                flags: null,
-                zOrderRelativeOf: null,
-                bounds: null,
-                screenBounds: null,
-                activeBuffer: null,
-                currFrame: null,
-                destinationFrame: {left: 0, right: 1, top: 0, bottom: 1},
-                z: null,
-                color: {r: 0, g: 0, b: 0, a: 1},
-                shadowRadius: 1,
-                cornerRadius: null,
-                cornerRadiusCrop: null,
-                backgroundBlurRadius: null,
-                requestedColor: null,
-                requestedCornerRadius: null,
-              },
+              properties: layer1Props,
+            },
+            {
+              id: '0',
+              name: 'layer0',
+              properties: getPropertiesForCuratedPanel(0n),
+            },
+            {
+              id: '2',
+              name: 'layer2',
+              properties: layer2Props,
+            },
+            {
+              id: '3',
+              name: 'layer3',
+              properties: {layerId: 3n},
             },
           ])
           .build();
@@ -606,6 +708,12 @@ the default for its data type.`,
           .setType(TraceType.SURFACE_FLINGER)
           .setEntries([tree])
           .build();
+        const cornerRadii = (await traceSf.getEntry(0).getValue())
+          .getChildByName('layer2')
+          ?.getEagerPropertyByName('cornerRadii');
+        cornerRadii?.getAllChildren().forEach((child) => {
+          Object.assign(child, {source: PropertySource.DEFAULT});
+        });
         traces.addTrace(traceSf);
         const notifyViewCallback = (newData: UiData) => {
           uiData = newData;
@@ -623,7 +731,8 @@ the default for its data type.`,
         await presenter.onHighlightedIdChange(
           assertDefined(tree.getChildByName('layer1')).id,
         );
-        expect(uiData.curatedProperties?.summary).toEqual([
+        let properties = assertDefined(uiData.curatedProperties);
+        expect(properties.summary).toEqual([
           {
             key: 'Occluded by',
             desc: 'Fully occluded by these opaque layers',
@@ -640,26 +749,38 @@ the default for its data type.`,
             layerValues: [{layerId: '3', nodeId: '3 layer3', name: 'layer3'}],
           },
         ]);
-        expect(uiData.curatedProperties?.calcColor).toEqual(
-          '(0, 0, 0), alpha: 1',
+        expect(properties.calcColor).toBe('(0, 0, 0), alpha: 1');
+        expect(properties.reqColor).toBe('no color found');
+        expect(properties.calcShadowRadius).toBe('1 px');
+        expect(properties.calcCornerRadii).toBe('(1, 2, 0, 4)');
+        expect(properties.destinationFrame).toBe('(0, 0) - (1, 1)');
+        expect(properties.calcCrop).toEqual(EMPTY_OBJ_STRING);
+        expect(properties.reqCrop).toBe('(0, 0) - (1, 2)');
+        expect(properties.reqCornerRadii).toBe('(5, 5, 5, 5)');
+
+        await presenter.onHighlightedIdChange(
+          assertDefined(tree.getChildByName('layer0')).id,
         );
-        expect(uiData.curatedProperties?.reqColor).toEqual('no color found');
-        expect(uiData.curatedProperties?.calcShadowRadius).toEqual('1 px');
-        expect(uiData.curatedProperties?.calcCornerRadius).toEqual('0 px');
-        expect(uiData.curatedProperties?.destinationFrame).toEqual(
-          '(0, 0) - (1, 1)',
+        properties = assertDefined(uiData.curatedProperties);
+        expect(properties.calcCornerRadii).toBe('(0, 0, 0, 0)');
+        expect(properties.reqCornerRadii).toBe('(0, 0, 0, 0)');
+
+        await presenter.onHighlightedIdChange(
+          assertDefined(tree.getChildByName('layer2')).id,
         );
-        expect(uiData.curatedProperties?.calcCrop).toEqual(EMPTY_OBJ_STRING);
+        properties = assertDefined(uiData.curatedProperties);
+        expect(properties.calcCornerRadii).toBe('(6, 6, 6, 6)');
+        expect(properties.reqCornerRadii).toBe('(0, 0, 3, 0)');
       });
 
       it('draws input windows', async () => {
         await presenter.onAppEvent(this.getPositionUpdate());
-        expect(uiData.rectsToDraw.length).toEqual(27);
+        expect(uiData.rectsToDraw.length).toBe(27);
         expect(uiData.rectsToDraw[6].label).toEqual(
           'Bounds for - com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher#577',
         );
         presenter.onRectTypeButtonClicked(TraceRectType.INPUT_WINDOWS);
-        expect(uiData.rectsToDraw.length).toEqual(15);
+        expect(uiData.rectsToDraw.length).toBe(15);
         expect(uiData.rectsToDraw[6].label).toEqual(
           'com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity#630',
         );
@@ -683,7 +804,7 @@ the default for its data type.`,
           uiData.propertiesTree
             ?.getChildByName('requestedTransform')
             ?.formattedValue(),
-        ).toEqual('IDENTITY');
+        ).toBe('IDENTITY');
       }
 
       async function createPresenterWithViewCapture(
@@ -691,9 +812,7 @@ the default for its data type.`,
       ): Promise<[Presenter, Trace<HierarchyTreeNode>]> {
         const traceVc = new TraceBuilder<HierarchyTreeNode>()
           .setType(TraceType.VIEW_CAPTURE)
-          .setEntries([
-            TreeNodeUtils.makeHierarchyNode({id: 'vc id', name: 'vc node'}),
-          ])
+          .setEntries([makeHierarchyNode({id: 'vc id', name: 'vc node'})])
           .setParserCustomQueryResult(CustomQueryType.VIEW_CAPTURE_METADATA, {
             packageName: 'com.android.car.carlauncher',
             windowName: 'not_used',
@@ -718,6 +837,30 @@ the default for its data type.`,
 
         await presenter.onAppEvent(positionUpdate);
         return [presenter, traceVc];
+      }
+
+      function getPropertiesForCuratedPanel(layerId: bigint) {
+        return {
+          layerId,
+          flags: null,
+          zOrderRelativeOf: null,
+          bounds: null,
+          screenBounds: null,
+          activeBuffer: null,
+          currFrame: null,
+          destinationFrame: null,
+          z: null,
+          color: null,
+          shadowRadius: null,
+          cornerRadii: null,
+          cornerRadius: null,
+          cornerRadiusCrop: null,
+          backgroundBlurRadius: null,
+          crop: null,
+          requestedColor: null,
+          requestedCornerRadii: null,
+          requestedCornerRadius: null,
+        };
       }
     });
   }

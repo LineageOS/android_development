@@ -193,8 +193,8 @@ def make_libraries(build_target, arches, libs, lsdump_filter):
 
 def get_lsdump_paths_file_path(build_target):
     """Get the path to lsdump_paths.txt."""
-    product_out = get_build_vars(['PRODUCT_OUT'], build_target)[0]
-    return os.path.join(product_out, 'lsdump_paths.txt')
+    out = get_build_vars(['OUT_DIR'], build_target)[0]
+    return os.path.join(out, 'soong/lsdump_paths.txt')
 
 
 def _get_module_variant_sort_key(suffix):

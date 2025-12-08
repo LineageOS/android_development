@@ -50,21 +50,23 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.debug.debugMotionValue
-import com.android.mechanics.demo.staging.rememberDistanceGestureContext
-import com.android.mechanics.demo.staging.rememberMotionValue
 import com.android.mechanics.demo.tuneable.Demo
 import com.android.mechanics.demo.tuneable.Dropdown
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.LabelledCheckbox
+import com.android.mechanics.rememberDistanceGestureContext
+import com.android.mechanics.rememberMotionSpecAsState
+import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.DirectionalMotionSpec
 import com.android.mechanics.spec.Guarantee
 import com.android.mechanics.spec.Mapping
 import com.android.mechanics.spec.MotionSpec
-import com.android.mechanics.spec.builder.rememberMotionBuilderContext
+import com.android.mechanics.spec.builder.MotionBuilderContext
 import com.android.mechanics.spec.builder.spatialDirectionalMotionSpec
 
-object SpecDemo : Demo<SpecDemo.Config> {
+object SpecDemo : Demo<SpecDemo.Config>, HasMotionValueVisualization {
     enum class Scenario(val label: String) {
-        Empty("Simple"),
+        Identity("Simple"),
         Toggle("Toggle"),
         Steps("Discrete Steps"),
         TrackNSnap("Track and Snap"),
@@ -77,12 +79,19 @@ object SpecDemo : Demo<SpecDemo.Config> {
     @Composable
     override fun DemoUi(config: Config, modifier: Modifier) {
         val colors = MaterialTheme.colorScheme
-        var activeScenario by remember { mutableStateOf(Scenario.Empty) }
+        var activeScenario by remember { mutableStateOf(Scenario.Identity) }
 
         // Also using GestureContext.dragOffset as input.
         val gestureContext = rememberDistanceGestureContext()
-        val spec = rememberSpec(activeScenario, config, inputOutputRange = inputRange)
-        val motionValue = rememberMotionValue(gestureContext::dragOffset, { spec }, gestureContext)
+        val motionValue =
+            rememberMotionValue(
+                input = { gestureContext.dragOffset },
+                gestureContext = gestureContext,
+                spec =
+                    rememberMotionSpecAsState {
+                        buildSpec(activeScenario, config, inputOutputRange = inputRange)
+                    },
+            )
 
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -152,75 +161,59 @@ object SpecDemo : Demo<SpecDemo.Config> {
         }
     }
 
-    @Composable
-    fun rememberSpec(
+    private fun MotionBuilderContext.buildSpec(
         scenario: Scenario,
         config: Config,
         inputOutputRange: ClosedFloatingPointRange<Float>,
     ): MotionSpec {
+        return MotionSpec(
+            when (scenario) {
+                Scenario.Identity -> DirectionalMotionSpec.Identity
+                Scenario.Toggle ->
+                    spatialDirectionalMotionSpec(Mapping.Fixed(inputOutputRange.start)) {
+                        fixedValue(
+                            breakpoint =
+                                (inputOutputRange.start + inputOutputRange.endInclusive) / 2f,
+                            value = inputOutputRange.endInclusive,
+                        )
+                    }
 
-        val builderContext = rememberMotionBuilderContext()
+                Scenario.Steps ->
+                    spatialDirectionalMotionSpec(Mapping.Fixed(inputOutputRange.start)) {
+                        val steps = 8
+                        val stepSize =
+                            (inputOutputRange.start + inputOutputRange.endInclusive) / steps
 
-        return remember(scenario, inputOutputRange, config, builderContext) {
-            MotionSpec(
-                when (scenario) {
-                    Scenario.Empty -> DirectionalMotionSpec.Empty
-                    Scenario.Toggle ->
-                        builderContext.spatialDirectionalMotionSpec(
-                            Mapping.Fixed(inputOutputRange.start)
-                        ) {
+                        val guarantee =
+                            if (config.stepGuarantee) Guarantee.InputDelta(stepSize)
+                            else Guarantee.None
+
+                        val outDiff =
+                            (inputOutputRange.start + inputOutputRange.endInclusive) / (steps - 1)
+                        repeat(steps - 2) { step ->
                             fixedValue(
-                                breakpoint =
-                                    (inputOutputRange.start + inputOutputRange.endInclusive) / 2f,
-                                value = inputOutputRange.endInclusive,
-                            )
-                        }
-
-                    Scenario.Steps ->
-                        builderContext.spatialDirectionalMotionSpec(
-                            Mapping.Fixed(inputOutputRange.start)
-                        ) {
-                            val steps = 8
-                            val stepSize =
-                                (inputOutputRange.start + inputOutputRange.endInclusive) / steps
-
-                            val guarantee =
-                                if (config.stepGuarantee) Guarantee.InputDelta(stepSize)
-                                else Guarantee.None
-
-                            val outDiff =
-                                (inputOutputRange.start + inputOutputRange.endInclusive) /
-                                    (steps - 1)
-                            repeat(steps - 2) { step ->
-                                fixedValue(
-                                    breakpoint = (step + 1) * stepSize,
-                                    value = (step + 1) * outDiff,
-                                    guarantee = guarantee,
-                                )
-                            }
-
-                            fixedValue(
-                                breakpoint = inputOutputRange.endInclusive - stepSize,
-                                value = inputOutputRange.endInclusive,
+                                breakpoint = (step + 1) * stepSize,
+                                value = (step + 1) * outDiff,
                                 guarantee = guarantee,
                             )
                         }
 
-                    Scenario.TrackNSnap ->
-                        builderContext.spatialDirectionalMotionSpec(
-                            Mapping.Fixed(inputOutputRange.start)
-                        ) {
-                            val third = (inputOutputRange.start + inputOutputRange.endInclusive) / 3
+                        fixedValue(
+                            breakpoint = inputOutputRange.endInclusive - stepSize,
+                            value = inputOutputRange.endInclusive,
+                            guarantee = guarantee,
+                        )
+                    }
 
-                            target(third, from = third, to = 2 * third)
-                            fixedValue(
-                                breakpoint = 2 * third,
-                                value = inputOutputRange.endInclusive,
-                            )
-                        }
-                }
-            )
-        }
+                Scenario.TrackNSnap ->
+                    spatialDirectionalMotionSpec(Mapping.Fixed(inputOutputRange.start)) {
+                        val third = (inputOutputRange.start + inputOutputRange.endInclusive) / 3
+
+                        target(third, from = third, to = 2 * third)
+                        fixedValue(breakpoint = 2 * third, value = inputOutputRange.endInclusive)
+                    }
+            }
+        )
     }
 
     @Composable

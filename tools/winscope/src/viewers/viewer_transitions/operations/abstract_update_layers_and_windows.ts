@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {FixedStringFormatter, formatAsHex} from 'trace/tree_node/formatters';
-import {Operation} from 'trace/tree_node/operations/operation';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {FixedStringFormatter, formatAsHex} from 'trace/formatters';
+import {Operation} from 'tree_node/operation';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {TreeNode} from 'tree_node/tree_node';
 
 export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
   implements Operation<T>
@@ -30,7 +30,7 @@ export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
   abstract apply(node: T): void;
 
   protected updateLayerId(layerId: PropertyTreeNode) {
-    const layerIdValue = layerId.getValue();
+    const layerIdValue = layerId.getValue() ?? undefined;
     if (layerIdValue === undefined) {
       return;
     }
@@ -44,11 +44,11 @@ export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
   }
 
   protected updateWindowId(windowId: PropertyTreeNode) {
-    let windowIdValue = windowId.getValue();
-    if (windowIdValue === undefined) {
+    const value = windowId.getValue<string>() ?? undefined;
+    if (value === undefined) {
       return;
     }
-    windowIdValue = Number(windowIdValue);
+    const windowIdValue = Number(value);
     const windowIdString = formatAsHex(windowIdValue);
     const windowTitle = this.windowTokenToTitle.get(windowIdValue.toString(16));
     windowId.setFormatter(

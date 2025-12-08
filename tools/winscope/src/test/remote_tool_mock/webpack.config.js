@@ -15,7 +15,7 @@
  */
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 module.exports = {
   resolve: {
@@ -31,7 +31,7 @@ module.exports = {
     rules: [
       {
         test: /\.ts$/,
-        use: ['ts-loader', 'angular2-template-loader'],
+        loader: '@ngtools/webpack',
       },
       {
         test: /\.html$/,
@@ -70,6 +70,9 @@ module.exports = {
       inject: 'body',
       inlineSource: '.(css|js)$',
     }),
-    new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
+    new AngularWebpackPlugin({
+      tsconfig: __dirname + '/tsconfig.remote_tool.json',
+      jitMode: '@angular/compiler',
+    }),
   ],
 };

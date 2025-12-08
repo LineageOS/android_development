@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {makeUiHierarchyNode} from 'test/unit/ui_tree_node_utils';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {FlattenChildren} from './flatten_children';
 
@@ -27,19 +27,19 @@ describe('FlattenChildren', () => {
   });
 
   it('flattens children of nested tree', () => {
-    hierarchyRoot = TreeNodeUtils.makeUiHierarchyNode({
+    hierarchyRoot = makeUiHierarchyNode({
       id: 'test',
       name: 'root',
     });
 
-    let prevChild = TreeNodeUtils.makeUiHierarchyNode({
+    let prevChild = makeUiHierarchyNode({
       id: 0,
       name: 'child',
     });
     hierarchyRoot.addOrReplaceChild(prevChild);
 
     for (let i = 1; i < 10; i++) {
-      const child = TreeNodeUtils.makeUiHierarchyNode({
+      const child = makeUiHierarchyNode({
         id: i,
         name: 'child',
       });
@@ -48,18 +48,18 @@ describe('FlattenChildren', () => {
     }
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getAllChildren().length).toEqual(10);
+    expect(hierarchyRoot.getAllChildren().length).toBe(10);
   });
 
   it('flattens children in expected order for multiple root children', () => {
-    hierarchyRoot = TreeNodeUtils.makeUiHierarchyNode({
+    hierarchyRoot = makeUiHierarchyNode({
       id: 'test',
       name: 'root',
     });
 
     const expectedChildren = [];
 
-    const firstChild = TreeNodeUtils.makeUiHierarchyNode({
+    const firstChild = makeUiHierarchyNode({
       id: 0,
       name: 'child',
     });
@@ -68,7 +68,7 @@ describe('FlattenChildren', () => {
 
     let prevChild = firstChild;
     for (let i = 1; i < 5; i++) {
-      const child = TreeNodeUtils.makeUiHierarchyNode({
+      const child = makeUiHierarchyNode({
         id: i,
         name: 'child',
       });
@@ -77,7 +77,7 @@ describe('FlattenChildren', () => {
       prevChild = child;
     }
 
-    const secondChild = TreeNodeUtils.makeUiHierarchyNode({
+    const secondChild = makeUiHierarchyNode({
       id: 5,
       name: 'child',
     });
@@ -86,7 +86,7 @@ describe('FlattenChildren', () => {
 
     prevChild = secondChild;
     for (let i = 6; i < 10; i++) {
-      const child = TreeNodeUtils.makeUiHierarchyNode({
+      const child = makeUiHierarchyNode({
         id: i,
         name: 'child',
       });
@@ -100,20 +100,20 @@ describe('FlattenChildren', () => {
   });
 
   it('leaves flat tree unchanged', () => {
-    hierarchyRoot = TreeNodeUtils.makeUiHierarchyNode({
+    hierarchyRoot = makeUiHierarchyNode({
       id: 'test',
       name: 'root',
     });
 
     for (let i = 0; i < 10; i++) {
-      const child = TreeNodeUtils.makeUiHierarchyNode({
+      const child = makeUiHierarchyNode({
         id: i,
         name: 'child',
       });
       hierarchyRoot.addOrReplaceChild(child);
     }
-    expect(hierarchyRoot.getAllChildren().length).toEqual(10);
+    expect(hierarchyRoot.getAllChildren().length).toBe(10);
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getAllChildren().length).toEqual(10);
+    expect(hierarchyRoot.getAllChildren().length).toBe(10);
   });
 });

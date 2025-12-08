@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {utf8Encode} from 'common/string_utils';
+import {utf8Encode} from 'common/string_helpers';
 import {Timestamp} from 'common/time/time';
 import {ParserTimestampConverter} from 'common/time/timestamp_converter';
 import Long from 'long';
 import {perfetto} from 'protos/perfetto/trace/static';
 import {com} from 'protos/viewcapture/udc/static';
-import {CoarseVersion} from 'trace/coarse_version';
+import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace/custom_query';
-import {EntriesRange} from 'trace/index_types';
-import {Parser} from 'trace/parser';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+} from 'trace_api/custom_query';
+import {EntriesRange} from 'trace_api/index_types';
+import {Parser} from 'trace_api/parser';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
+/**
+ * A parser for a single window in a legacy ViewCapture trace.
+ */
 export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
   private static readonly PACKAGE_OR_WINDOW_IID = 1;
 
@@ -50,6 +53,10 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
 
   parse() {
     throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  isPerfetto(): boolean {
+    return false;
   }
 
   getTraceType(): TraceType {
@@ -81,6 +88,12 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
   }
 
   getEntry(index: number): Promise<HierarchyTreeNode> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getRangeOfEntries(
+    entriesRange: EntriesRange,
+  ): Promise<Array<HierarchyTreeNode | undefined>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -128,6 +141,10 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
 
   getDescriptors(): string[] {
     return [this.windowName, ...this.descriptors];
+  }
+
+  getAllEntries(): Promise<HierarchyTreeNode[]> {
+    throw NOT_IMPLEMENTED_ERROR;
   }
 
   private decodeTimestamps(): Timestamp[] {

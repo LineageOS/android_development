@@ -281,12 +281,12 @@ fn compare_with_cargo_tree() -> Result<()> {
             if cargo_tree_deps != crates_io_deps {
                 all_match = false;
                 if cargo_tree_deps.required != crates_io_deps.required {
-                    println!("  Required deps different for {:?}", features);
+                    println!("  Required deps different for {features:?}");
                     println!("    cargo tree: {}", cargo_tree_deps.required.iter().join(", "));
                     println!("    crates.io:  {}", crates_io_deps.required.iter().join(", "));
                 }
                 if cargo_tree_deps.optional != crates_io_deps.optional {
-                    println!("  Optional deps different for {:?}", features);
+                    println!("  Optional deps different for {features:?}");
                     println!("    cargo tree: {}", cargo_tree_deps.optional.iter().join(", "));
                     println!("    crates.io:  {}", crates_io_deps.optional.iter().join(", "));
                 }

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {PropertyTreeNodeFactory} from 'trace/tree_node/property_tree_node_factory';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {PropertyTreeNodeFactory} from 'tree_node/property_tree_node_factory';
 import {AbstractPropertyTreeBuilder} from './abstract_property_tree_builder';
 
+/**
+ * A builder for creating a property tree from a proto object.
+ */
 export class PropertyTreeBuilderFromProto extends AbstractPropertyTreeBuilder<object> {
   private denylistProperties: string[] = [];
 

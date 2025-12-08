@@ -55,6 +55,7 @@ describe('Viewer Window Manager', () => {
     await checkWinscopeRealTimestamp('18:05:09.753');
     await selectItemInHierarchy(viewerSelector, 'root');
     await checkRootProperties();
+    await checkRectLabel(viewerSelector, 'SnapshotStartingWindow for taskId=8');
 
     await changeRealTimestampInWinscope('2022-11-21, 18:05:14.544');
     await checkWinscopeRealTimestamp('18:05:14.544');
@@ -68,10 +69,6 @@ describe('Viewer Window Manager', () => {
       viewerSelector,
       'focusedApp',
       'focusedApp:\ncom.google.android.apps.messaging/.ui.ConversationListActivity',
-    );
-    await checkRectLabel(
-      viewerSelector,
-      'com.google.android.apps.messaging/com.google.android.apps.messaging.ui.ConversationListActivity',
     );
   }
 

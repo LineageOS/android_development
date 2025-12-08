@@ -42,12 +42,12 @@ describe('FormatDispatchEntry', () => {
     const root = UiPropertyTreeNode.from(dispatchEntries.build());
 
     operation.apply(root);
-    expect(root.getDisplayName()).toEqual('TargetWindows');
-    expect(root.getChildByName('0')?.getDisplayName()).toEqual('one');
+    expect(root.getDisplayName()).toBe('TargetWindows');
+    expect(root.getChildByName('0')?.getDisplayName()).toBe('one');
     expect(root.getChildByName('1')?.getDisplayName()).toEqual(
       'WindowId: 0 - <Unknown Name>',
     );
-    expect(root.getChildByName('2')?.getDisplayName()).toEqual('two');
+    expect(root.getChildByName('2')?.getDisplayName()).toBe('two');
   });
 
   it('formats dispatched pointers', () => {
@@ -192,68 +192,68 @@ describe('FormatDispatchEntry', () => {
         .getChildByName('0')
         ?.getChildByName('dispatchedPointer')
         ?.getDisplayName(),
-    ).toEqual('DispatchedPointers');
+    ).toBe('DispatchedPointers');
     expect(
       root
         .getChildByName('0')
         ?.getChildByName('dispatchedPointer')
         ?.formattedValue(),
-    ).toEqual('<none>');
+    ).toBe('<none>');
 
     expect(
       root
         .getChildByName('1')
         ?.getChildByName('dispatchedPointer')
         ?.getDisplayName(),
-    ).toEqual('DispatchedPointers');
+    ).toBe('DispatchedPointers');
     expect(
       root
         .getChildByName('1')
         ?.getChildByName('dispatchedPointer')
         ?.getChildByName('0')
         ?.getDisplayName(),
-    ).toEqual('0 - Pointer');
+    ).toBe('0 - Pointer');
     expect(
       root
         .getChildByName('1')
         ?.getChildByName('dispatchedPointer')
         ?.getChildByName('0')
         ?.formattedValue(),
-    ).toEqual('ID: ?, XY: (2.00, 3.00), RawXY: (4.78, ?)');
+    ).toBe('ID: ?, XY: (2.00, 3.00), RawXY: (4.78, ?)');
 
     expect(
       root
         .getChildByName('2')
         ?.getChildByName('dispatchedPointer')
         ?.getDisplayName(),
-    ).toEqual('DispatchedPointers');
+    ).toBe('DispatchedPointers');
     expect(
       root
         .getChildByName('2')
         ?.getChildByName('dispatchedPointer')
         ?.getChildByName('0')
         ?.getDisplayName(),
-    ).toEqual('0 - Pointer');
+    ).toBe('0 - Pointer');
     expect(
       root
         .getChildByName('2')
         ?.getChildByName('dispatchedPointer')
         ?.getChildByName('0')
         ?.formattedValue(),
-    ).toEqual('ID: 21, XY: (4.00, ?), RawXY: (123.00, 0.02)');
+    ).toBe('ID: 21, XY: (4.00, ?), RawXY: (123.00, 0.02)');
     expect(
       root
         .getChildByName('2')
         ?.getChildByName('dispatchedPointer')
         ?.getChildByName('2')
         ?.getDisplayName(),
-    ).toEqual('1 - Pointer');
+    ).toBe('1 - Pointer');
     expect(
       root
         .getChildByName('2')
         ?.getChildByName('dispatchedPointer')
         ?.getChildByName('2')
         ?.formattedValue(),
-    ).toEqual('ID: ?, XY: (5.00, 6.00), RawXY: (?, ?)');
+    ).toBe('ID: ?, XY: (5.00, 6.00), RawXY: (?, ?)');
   });
 });

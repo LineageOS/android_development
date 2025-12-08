@@ -76,7 +76,8 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_custom_activity_policy, BAKLAVA,
                     Flags::activityControlApi),
 
-            new StringRule(R.string.pref_camera_policy, VANILLA_ICE_CREAM),
+            new StringRule(R.string.pref_camera_policy, VANILLA_ICE_CREAM)
+                    .withDefaultValue(String.valueOf(0)),
 
             new BoolRule(R.string.pref_enable_client_sensors, UPSIDE_DOWN_CAKE),
 
@@ -86,6 +87,9 @@ final class PreferenceController {
                     .withDefaultValue(true),
 
             new BoolRule(R.string.pref_enable_display_category, UPSIDE_DOWN_CAKE),
+
+            new BoolRule(R.string.pref_public_displays, TIRAMISU)
+                    .withDefaultValue(true),
 
             new BoolRule(R.string.pref_always_unlocked_device, TIRAMISU)
                     .withRequiredPermissions(ADD_ALWAYS_UNLOCKED_DISPLAY),
@@ -99,12 +103,18 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_custom_status_bar, BAKLAVA, Flags::statusBarAndInsets)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
 
-            new StringRule(R.string.pref_display_timeout, BAKLAVA,
-                    Flags::deviceAwareDisplayPower, Flags::displayPowerManagerApis)
+            new StringRule(R.string.pref_display_timeout, BAKLAVA, Flags::deviceAwareDisplayPower)
                     .withDefaultValue(String.valueOf(0)),
 
             new StringRule(R.string.pref_enable_client_brightness, BAKLAVA,
-                    Flags::deviceAwareDisplayPower, Flags::displayPowerManagerApis),
+                    Flags::deviceAwareDisplayPower),
+
+            new BoolRule(R.string.pref_custom_ui_mode, BAKLAVA, Flags::deviceAwareUiMode)
+                    .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
+
+            new StringRule(R.string.pref_night_mode, BAKLAVA, Flags::deviceAwareUiMode)
+                    .withRequiredPermissions(ADD_TRUSTED_DISPLAY)
+                    .withDefaultValue("0x00"),  // UI_MODE_NIGHT_UNDEFINED
 
             new StringRule(R.string.pref_display_ime_policy, VANILLA_ICE_CREAM)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY)
@@ -122,6 +132,9 @@ final class PreferenceController {
 
             new BoolRule(R.string.pref_enable_update_audio_policy_mixes, VANILLA_ICE_CREAM)
                     .withDefaultValue(true),
+
+            new BoolRule(R.string.pref_use_legacy_playback_state, UPSIDE_DOWN_CAKE)
+                    .withDefaultValue(false),
 
             new BoolRule(R.string.pref_duplicate_front_camera, BAKLAVA,
                     Flags::externalVirtualCameras),

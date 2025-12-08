@@ -53,9 +53,12 @@
     <string name="pref_enable_client_audio" translatable="false">enable_client_audio</string>
     <string name="pref_enable_display_rotation" translatable="false">enable_display_rotation</string>
     <string name="pref_enable_display_category" translatable="false">enable_display_category</string>
+    <string name="pref_public_displays" translatable="false">public_displays</string>
     <string name="pref_always_unlocked_device" translatable="false">always_unlocked_device</string>
     <string name="pref_display_timeout" translatable="false">display_timeout</string>
     <string name="pref_enable_client_brightness" translatable="false">enable_client_brightness</string>
+    <string name="pref_custom_ui_mode" translatable="false">custom_ui_mode</string>
+    <string name="pref_night_mode" translatable="false">night_mode</string>
     <string name="pref_show_pointer_icon" translatable="false">show_pointer_icon</string>
     <string name="pref_enable_custom_home" translatable="false">enable_custom_home</string>
     <string name="pref_enable_custom_status_bar" translatable="false">enable_custom_status_bar</string>
@@ -67,6 +70,7 @@
     <string name="pref_duplicate_back_camera" translatable="false">duplicate_back_camera</string>
     <string name="pref_network_channel" translatable="false">network_channel</string>
     <string name="pref_enable_update_audio_policy_mixes" translatable="false">enable_update_mixing_rules</string>
+    <string name="pref_use_legacy_playback_state" translatable="false">use_legacy_playback_state</string>
 
     <string name="internal_pref_home_displays_supported" translatable="false">home_displays_supported</string>
     <string name="internal_pref_mirror_displays_supported" translatable="false">mirror_displays_supported</string>
@@ -82,4 +86,10 @@
     <string name="no_cameras" translatable="false">No cameras</string>
     <string name="default_cameras" translatable="false">Default device cameras</string>
     <string name="client_cameras" translatable="false">Client cameras</string>
+
+    <!-- Values corresponding to Configuration#UI_MODE_NIGHT_* constants. -->
+    <string name="night_mode_undefined" translatable="false">0x00</string>
+    <string name="night_mode_no" translatable="false">0x10</string>
+    <string name="night_mode_yes" translatable="false">0x20</string>
+
 </resources>

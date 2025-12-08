@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -21,15 +22,29 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import {assertDefined} from 'common/assert_utils';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {assertDefined} from 'common/assert';
 import {SfCuratedProperties} from 'viewers/common/curated_properties';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
 import {ViewerEvents} from 'viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {inlineButtonStyle} from './styles/clickable_property.styles';
 import {viewerCardInnerStyle} from './styles/viewer_card.styles';
+import {TransformMatrixComponent} from './transform_matrix_component';
 
 @Component({
   selector: 'surface-flinger-property-groups',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDividerModule,
+    MatButtonModule,
+    MatTooltipModule,
+    CollapsibleSectionTitleComponent,
+    TransformMatrixComponent,
+  ],
   template: `
     <div class="title-section">
       <collapsible-section-title
@@ -37,295 +52,309 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
         (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
     </div>
 
-    <span class="mat-body-1 placeholder-text" *ngIf="!properties"> Layer not selected. </span>
-
-    <div class="property-groups-content" *ngIf="properties">
-      <div class="group">
-        <h3 class="group-header mat-subheading-2">Visibility</h3>
-        <div class="left-column">
-          <p class="mat-body-2 flags">
-            <span class="mat-body-1">Flags:</span>
-            &ngsp;
-            {{ properties.flags }}
-          </p>
-          <span *ngFor="let summaryProperty of properties.summary" class="mat-body-2 summary inline">
-            <span class="mat-body-1" [matTooltip]="summaryProperty.desc" [matTooltipShowDelay]="400">{{ summaryProperty.key }}:</span>
-            <ng-container *ngIf="summaryProperty.simpleValue">
-              {{ summaryProperty.simpleValue }}
-            </ng-container>
-            <ng-container *ngIf="summaryProperty.layerValues">
-              &ngsp;
-              <ng-container *ngFor="let layer of summaryProperty.layerValues; index as i">
-                <button
-                  mat-button
-                  color="primary"
-                  [matTooltip]="layer.name"
-                  (click)="onIdClicked(layer.nodeId)">
-                  {{ layer.layerId }}
-                </button>
-                {{(i === summaryProperty.layerValues.length - 1) ? '' : ', '}}
-              </ng-container>
-            </ng-container>
-          </span>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="group geometry">
-        <h3 class="group-header mat-subheading-2">Geometry</h3>
-        <div class="left-column">
-          <p class="column-header mat-small">Calculated</p>
-          <p
-            class="property mat-body-1"
-            matTooltip="Requested transform multiplied by any parent transforms.
-                Used on calculated crop to generate final bounds.">Transform:</p>
-          <transform-matrix
-            *ngIf="properties.calcTransform?.getAllChildren().length > 0"
-            [matTooltip]="getTransformType(properties.calcTransform)"
-            [matrix]="getTransformMatrix(properties.calcTransform)"></transform-matrix>
-          <p class="mat-body-2 crop">
-            <span
-              class="mat-body-1"
-              matTooltip="Raw value read from proto.bounds. This is the buffer size or
-                  requested crop, cropped by parent bounds.">Crop:</span>
-            &ngsp;
-            {{ properties.calcCrop }}
-          </p>
-
-          <p class="mat-body-2 final-bounds">
-            <span
-              class="mat-body-1"
-              matTooltip="Raw value read from proto.screenBounds. This is the calculated crop
-                  transformed by calculated transform."
-              >Final Bounds:</span
-            >
-            &ngsp;
-            {{ properties.finalBounds }}
-          </p>
-        </div>
-        <div class="right-column">
-          <p class="column-header mat-small">Requested</p>
-          <p
-            class="property mat-body-1"
-            matTooltip="Transform requested for this layer, not accounting for parent transforms.">Transform:</p>
-          <transform-matrix
-            *ngIf="properties.reqTransform?.getAllChildren().length > 0"
-            [matTooltip]="getTransformType(properties.reqTransform)"
-            [matrix]="getTransformMatrix(properties.reqTransform)"></transform-matrix>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="group buffer">
-        <h3 class="group-header mat-subheading-2">Buffer</h3>
-        <div class="left-column">
-          <p
-            class="mat-body-2 size"
-            matTooltip="Width, height, stride and format of active buffer, if available.">
-            <span class="mat-body-1">Size:</span>
-            &ngsp;
-            {{ properties.bufferSize }}
-          </p>
-          <p class="mat-body-2 frame-number">
-            <span class="mat-body-1">Frame Number:</span>
-            &ngsp;
-            {{ properties.frameNumber }}
-          </p>
-          <p class="mat-body-2 transform">
-            <span
-              class="mat-body-1"
-              matTooltip="Rotates or flips the buffer in place. Used with display transform
-                  hint to cancel out any buffer transformation when sending to
-                  HWC."
-              >Transform:</span
-            >
-            &ngsp;
-            {{ properties.bufferTransformType }}
-          </p>
-        </div>
-        <div class="right-column">
-          <p class="mat-body-2 dest-frame">
-            <span
-              class="mat-body-1"
-              matTooltip="Scales buffer to the frame by overriding the requested transform
-                  for this item.">Destination Frame:</span>
-            &ngsp;
-            {{ properties.destinationFrame }}
-          </p>
-          <p *ngIf="properties.ignoreDestinationFrame" class="mat-body-2 ignore-frame">
-            Destination Frame ignored because item has eIgnoreDestinationFrame flag set.
-          </p>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="group hierarchy-info">
-        <h3 class="group-header mat-subheading-2">Hierarchy</h3>
-        <div class="left-column">
-          <p class="mat-body-2 z-order">
-            <span class="mat-body-1">Z-order:</span>
-            &ngsp;
-            {{ properties.z }}
-          </p>
-          <p class="mat-body-2 rel-parent inline">
-            <span
-              class="mat-body-1"
-              matTooltip="Item is z-ordered relative to its relative parents but its bounds
-                  and other properties are inherited from its parents."
-              >Relative Parent:</span>
-            &ngsp;
-            <ng-container *ngIf="!properties.relativeParent.nodeId">
-              {{ properties.relativeParent }}
-            </ng-container>
-            <ng-container *ngIf="properties.relativeParent.nodeId">
-              <button
-                mat-button
-                color="primary"
-                [matTooltip]="properties.relativeParent.name"
-                (click)="onIdClicked(properties.relativeParent.nodeId)">
-                {{ properties.relativeParent.layerId }}
-              </button>
-            </ng-container>
-          </p>
-          <span class="mat-body-2 rel-children inline">
-            <span class="mat-body-1">Relative Children:</span>
-            &ngsp;
-            <ng-container *ngIf="properties.relativeChildren.length === 0">
-              none
-            </ng-container>
-            <ng-container *ngFor="let layer of properties.relativeChildren; index as i">
-              <button
-                mat-button
-                color="primary"
-                [matTooltip]="layer.name"
-                (click)="onIdClicked(layer.nodeId)">
-                {{ layer.layerId }}
-              </button>
-              {{(i === properties.relativeChildren.length - 1) ? '' : ', '}}
-            </ng-container>
-          </span>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="group effects">
-        <h3 class="group-header mat-subheading-2">Effects</h3>
-        <div class="left-column">
-          <p class="column-header mat-small">Calculated</p>
-          <p class="mat-body-2 color">
-            <span
-              class="mat-body-1"
-              matTooltip="Final color - alpha may be inherited from a parent layer.">Color:</span>
-            &ngsp;
-            {{ properties.calcColor }}
-          </p>
-          <p class="mat-body-2 corner-radius">
-            <span
-              class="mat-body-1"
-              matTooltip="Final corner radius - may be affected by parent corner radii.">Corner Radius:</span>
-            &ngsp;
-            {{ properties.calcCornerRadius }}
-          </p>
-          <p class="mat-body-2 shadow">
-            <span class="mat-body-1">Shadow Radius:</span>
-            &ngsp;
-            {{ properties.calcShadowRadius }}
-          </p>
-          <p class="mat-body-2">
-            <span
-              class="mat-body-1"
-              matTooltip="Crop used to define the bounds of the corner radii. If the bounds
-                  are greater than the item bounds then the rounded corner will not
-                  be visible."
-              >Corner Radius Crop:</span
-            >
-            &ngsp;
-            {{ properties.calcCornerRadiusCrop }}
-          </p>
-          <p class="mat-body-2 blur">
-            <span class="mat-body-1">Blur Radius:</span>
-            &ngsp;
-            {{ properties.backgroundBlurRadius }}
-          </p>
-        </div>
-        <div class="right-column">
-          <p class="column-header mat-small">Requested</p>
-          <p class="mat-body-2">
-            <span
-              class="mat-body-1"
-              matTooltip="Requested color and alpha for this layer.">Color:</span>
-            &ngsp;
-            {{ properties.reqColor }}
-          </p>
-          <p class="mat-body-2 corner-radius">
-            <span
-              class="mat-body-1"
-              matTooltip="Requested corner radius not accounting for any parent values.">Corner Radius:</span>
-            &ngsp;
-            {{ properties.reqCornerRadius }}
-          </p>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="group inputs">
-        <h3 class="group-header mat-subheading-2">Input</h3>
-        <ng-container *ngIf="properties.hasInputChannel">
+    @if (!properties) {
+      <span class="mat-body-1 placeholder-text"> Layer not selected. </span>
+    } @else {
+      <div class="property-groups-content">
+        <div class="group">
+          <h3 class="group-header mat-subtitle-1">Visibility</h3>
           <div class="left-column">
-            <p class="property mat-body-1">To Display Transform:</p>
-            <transform-matrix
-              *ngIf="properties.inputTransform?.getAllChildren().length > 0"
-              [matTooltip]="getTransformType(properties.inputTransform)"
-              [matrix]="getTransformMatrix(properties.inputTransform)"></transform-matrix>
-            <p class="mat-body-2">
-              <span class="mat-body-1">Touchable Region:</span>
+            <p class="mat-body-2 flags">
+              <span class="mat-body-1">Flags:</span>
               &ngsp;
-              {{ properties.inputRegion }}
+              {{ properties.flags }}
+            </p>
+            @for (summaryProperty of properties.summary; track summaryProperty.key) {
+              <span class="mat-body-2 summary inline">
+                <span class="mat-body-1" [matTooltip]="summaryProperty.desc" [matTooltipShowDelay]="400">{{ summaryProperty.key }}:</span>
+                @if (summaryProperty.simpleValue) {
+                  {{ summaryProperty.simpleValue }}
+                }
+                @if (summaryProperty.layerValues) {
+                  &ngsp;
+                  @for (layer of summaryProperty.layerValues; track layer.nodeId; let i = $index) {
+                    <button
+                      mat-button
+                      color="primary"
+                      [matTooltip]="layer.name"
+                      (click)="onIdClicked(layer.nodeId)">
+                      {{ layer.layerId }}
+                    </button>
+                    {{(i === summaryProperty.layerValues.length - 1) ? '' : ', '}}
+                  }
+                }
+              </span>
+            }
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="group geometry">
+          <h3 class="group-header mat-subtitle-1">Geometry</h3>
+          <div class="left-column">
+            <p class="column-header mat-small">Calculated</p>
+            <p
+              class="property mat-body-1"
+              matTooltip="Requested transform multiplied by any parent transforms.
+                  Used on calculated crop to generate final bounds.">Transform:</p>
+            @if (properties.calcTransform?.getAllChildren().length > 0) {
+              <transform-matrix
+                [matTooltip]="getTransformType(properties.calcTransform)"
+                [matrix]="getTransformMatrix(properties.calcTransform)"></transform-matrix>
+            }
+            <p class="mat-body-2 crop">
+              <span
+                class="mat-body-1"
+                matTooltip="Raw value read from proto.bounds. This is the buffer size or
+                    requested crop, cropped by parent bounds.">Crop:</span>
+              &ngsp;
+              {{ properties.calcCrop }}
+            </p>
+
+            <p class="mat-body-2 final-bounds">
+              <span
+                class="mat-body-1"
+                matTooltip="Raw value read from proto.screenBounds. This is the calculated crop
+                    transformed by calculated transform."
+                >Final Bounds:</span
+              >
+              &ngsp;
+              {{ properties.finalBounds }}
             </p>
           </div>
           <div class="right-column">
-            <p class="column-header mat-small">Config</p>
-            <p class="mat-body-2 focusable">
-              <span class="mat-body-1">Focusable:</span>
+            <p class="column-header mat-small">Requested</p>
+            <p
+              class="property mat-body-1"
+              matTooltip="Transform requested for this layer, not accounting for parent transforms.">Transform:</p>
+            @if (properties.reqTransform?.getAllChildren().length > 0) {
+              <transform-matrix
+                [matTooltip]="getTransformType(properties.reqTransform)"
+                [matrix]="getTransformMatrix(properties.reqTransform)"></transform-matrix>
+            }
+            <p class="mat-body-2 crop">
+              <span
+                class="mat-body-1"
+                matTooltip="Requested crop">Crop:</span>
               &ngsp;
-              {{ properties.focusable }}
-            </p>
-            <p class="mat-body-2 crop-touch-region">
-              <span class="mat-body-1">Crop touch region with item:</span>
-              &ngsp;
-              {{ properties.cropTouchRegionWithItem }}
-            </p>
-            <p class="mat-body-2 replace-touch-region">
-              <span class="mat-body-1">Replace touch region with crop:</span>
-              &ngsp;
-              {{ properties.replaceTouchRegionWithCrop }}
-            </p>
-            <p class="mat-body-2 input-config">
-              <span class="mat-body-1">Input Config:</span>
-              &ngsp;
-              {{ properties.inputConfig }}
+              {{ properties.reqCrop }}
             </p>
           </div>
-        </ng-container>
-        <div *ngIf="!properties.hasInputChannel" class="left-column">
-          <p class="mat-body-2">
-            <span class="mat-body-1">Input Channel:</span>
-            &ngsp; not set
-          </p>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="group buffer">
+          <h3 class="group-header mat-subtitle-1">Buffer</h3>
+          <div class="left-column">
+            <p
+              class="mat-body-2 size"
+              matTooltip="Width, height, stride and format of active buffer, if available.">
+              <span class="mat-body-1">Size:</span>
+              &ngsp;
+              {{ properties.bufferSize }}
+            </p>
+            <p class="mat-body-2 frame-number">
+              <span class="mat-body-1">Frame Number:</span>
+              &ngsp;
+              {{ properties.frameNumber }}
+            </p>
+            <p class="mat-body-2 transform">
+              <span
+                class="mat-body-1"
+                matTooltip="Rotates or flips the buffer in place. Used with display transform
+                    hint to cancel out any buffer transformation when sending to
+                    HWC."
+                >Transform:</span
+              >
+              &ngsp;
+              {{ properties.bufferTransformType }}
+            </p>
+          </div>
+          <div class="right-column">
+            <p class="mat-body-2 dest-frame">
+              <span
+                class="mat-body-1"
+                matTooltip="Scales buffer to the frame by overriding the requested transform
+                    for this item.">Destination Frame:</span>
+              &ngsp;
+              {{ properties.destinationFrame }}
+            </p>
+            @if (properties.ignoreDestinationFrame) {
+              <p class="mat-body-2 ignore-frame">
+                Destination Frame ignored because item has eIgnoreDestinationFrame flag set.
+              </p>
+            }
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="group hierarchy-info">
+          <h3 class="group-header mat-subtitle-1">Hierarchy</h3>
+          <div class="left-column">
+            <p class="mat-body-2 z-order">
+              <span class="mat-body-1">Z-order:</span>
+              &ngsp;
+              {{ properties.z }}
+            </p>
+            <p class="mat-body-2 rel-parent inline">
+              <span
+                class="mat-body-1"
+                matTooltip="Item is z-ordered relative to its relative parents but its bounds
+                    and other properties are inherited from its parents."
+                >Relative Parent:</span>
+              &ngsp;
+              @if (!properties.relativeParent.nodeId) {
+                {{ properties.relativeParent }}
+              } @else {
+                <button
+                  mat-button
+                  color="primary"
+                  [matTooltip]="properties.relativeParent.name"
+                  (click)="onIdClicked(properties.relativeParent.nodeId)">
+                  {{ properties.relativeParent.layerId }}
+                </button>
+              }
+            </p>
+            <span class="mat-body-2 rel-children inline">
+              <span class="mat-body-1">Relative Children:</span>
+              &ngsp;
+              @if (properties.relativeChildren.length === 0) {
+                none
+              } @else {
+                @for (layer of properties.relativeChildren; track layer.nodeId; let i = $index) {
+                  <button
+                    mat-button
+                    color="primary"
+                    [matTooltip]="layer.name"
+                    (click)="onIdClicked(layer.nodeId)">
+                    {{ layer.layerId }}
+                  </button>
+                  {{(i === properties.relativeChildren.length - 1) ? '' : ', '}}
+                }
+              }
+            </span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="group effects">
+          <h3 class="group-header mat-subtitle-1">Effects</h3>
+          <div class="left-column">
+            <p class="column-header mat-small">Calculated</p>
+            <p class="mat-body-2 color">
+              <span
+                class="mat-body-1"
+                matTooltip="Final color - alpha may be inherited from a parent layer.">Color:</span>
+              &ngsp;
+              {{ properties.calcColor }}
+            </p>
+            <p class="mat-body-2 corner-radius">
+              <span
+                class="mat-body-1"
+                matTooltip="Final corner radii (<TL>, <TR>, <BL>, <BR>) - may be affected by parent corner radii.">Corner Radii:</span>
+              &ngsp;
+              {{ properties.calcCornerRadii }}
+            </p>
+            <p class="mat-body-2 shadow">
+              <span class="mat-body-1">Shadow Radius:</span>
+              &ngsp;
+              {{ properties.calcShadowRadius }}
+            </p>
+            <p class="mat-body-2">
+              <span
+                class="mat-body-1"
+                matTooltip="Crop used to define the bounds of the corner radii. If the bounds
+                    are greater than the item bounds then the rounded corner will not
+                    be visible."
+                >Corner Radius Crop:</span
+              >
+              &ngsp;
+              {{ properties.calcCornerRadiusCrop }}
+            </p>
+            <p class="mat-body-2 blur">
+              <span class="mat-body-1">Blur Radius:</span>
+              &ngsp;
+              {{ properties.backgroundBlurRadius }}
+            </p>
+          </div>
+          <div class="right-column">
+            <p class="column-header mat-small">Requested</p>
+            <p class="mat-body-2">
+              <span
+                class="mat-body-1"
+                matTooltip="Requested color and alpha for this layer.">Color:</span>
+              &ngsp;
+              {{ properties.reqColor }}
+            </p>
+            <p class="mat-body-2 corner-radius">
+              <span
+                class="mat-body-1"
+                matTooltip="Requested corner radii (<TL>, <TR>, <BL>, <BR>) not accounting for any parent values.">Corner Radii:</span>
+              &ngsp;
+              {{ properties.reqCornerRadii }}
+            </p>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="group inputs">
+          <h3 class="group-header mat-subtitle-1">Input</h3>
+          @if (properties.hasInputChannel) {
+            <div class="left-column">
+              <p class="property mat-body-1">To Display Transform:</p>
+              @if (properties.inputTransform?.getAllChildren().length > 0) {
+                <transform-matrix
+                  [matTooltip]="getTransformType(properties.inputTransform)"
+                  [matrix]="getTransformMatrix(properties.inputTransform)"></transform-matrix>
+              }
+              <p class="mat-body-2">
+                <span class="mat-body-1">Touchable Region:</span>
+                &ngsp;
+                {{ properties.inputRegion }}
+              </p>
+            </div>
+            <div class="right-column">
+              <p class="column-header mat-small">Config</p>
+              <p class="mat-body-2 focusable">
+                <span class="mat-body-1">Focusable:</span>
+                &ngsp;
+                {{ properties.focusable }}
+              </p>
+              <p class="mat-body-2 crop-touch-region">
+                <span class="mat-body-1">Crop touch region with item:</span>
+                &ngsp;
+                {{ properties.cropTouchRegionWithItem }}
+              </p>
+              <p class="mat-body-2 replace-touch-region">
+                <span class="mat-body-1">Replace touch region with crop:</span>
+                &ngsp;
+                {{ properties.replaceTouchRegionWithCrop }}
+              </p>
+              <p class="mat-body-2 input-config">
+                <span class="mat-body-1">Input Config:</span>
+                &ngsp;
+                {{ properties.inputConfig }}
+              </p>
+            </div>
+          } @else {
+            <div class="left-column">
+              <p class="mat-body-2">
+                <span class="mat-body-1">Input Channel:</span>
+                &ngsp; not set
+              </p>
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
   `,
   styles: [
     `
-      :host collapsible-section-title {
-        padding-bottom: 8px;
-      }
       .placeholder-text {
         padding: 8px 12px;
       }

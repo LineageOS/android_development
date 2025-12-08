@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {Operation} from 'trace/tree_node/operations/operation';
-import {OperationChain} from 'trace/tree_node/operations/operation_chain';
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {Operation} from 'tree_node/operation';
+import {OperationChain} from 'tree_node/operation_chain';
+import {TreeNode} from 'tree_node/tree_node';
 
 export class UiTreeFormatter<T extends TreeNode> {
   private uiTree: T | undefined;

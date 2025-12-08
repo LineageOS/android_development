@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimatableApi::class)
-
 package com.android.mechanics.demo.presentation
 
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,21 +52,24 @@ import androidx.compose.ui.unit.dp
 import com.android.compose.modifiers.height
 import com.android.compose.modifiers.width
 import com.android.mechanics.debug.DebugMotionValueVisualization
-import com.android.mechanics.demo.staging.rememberDistanceGestureContext
-import com.android.mechanics.demo.staging.rememberMotionValue
 import com.android.mechanics.demo.tuneable.Demo
 import com.android.mechanics.demo.tuneable.DpSlider
 import com.android.mechanics.demo.tuneable.Dropdown
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.demo.tuneable.SpringParameterSection
+import com.android.mechanics.rememberDistanceGestureContext
+import com.android.mechanics.rememberMotionSpecAsState
+import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.Guarantee
 import com.android.mechanics.spec.Mapping
 import com.android.mechanics.spec.MotionSpec
+import com.android.mechanics.spec.builder.MotionBuilderContext
 import com.android.mechanics.spec.builder.rememberMotionBuilderContext
 import com.android.mechanics.spec.builder.spatialDirectionalMotionSpec
 import com.android.mechanics.spring.SpringParameters
 import kotlin.math.min
 
-object GuaranteeBoxDemo : Demo<GuaranteeBoxDemo.Config> {
+object GuaranteeBoxDemo : Demo<GuaranteeBoxDemo.Config>, HasMotionValueVisualization {
     enum class Scenario(val label: String) {
         Mapped("Mapped"),
         Triggered("With Triggers"),
@@ -95,15 +95,21 @@ object GuaranteeBoxDemo : Demo<GuaranteeBoxDemo.Config> {
 
         // Also using GestureContext.dragOffset as input.
         val gestureContext = rememberDistanceGestureContext()
-        val spec =
-            rememberSpec(
-                activeScenario,
-                { placedBoxX },
-                { placedBoxWidth },
-                inputOutputRange = inputRange,
-                config,
+
+        val motionValue =
+            rememberMotionValue(
+                input = { gestureContext.dragOffset },
+                gestureContext = gestureContext,
+                spec =
+                    rememberMotionSpecAsState {
+                        buildSpec(
+                            scenario = activeScenario,
+                            x = { placedBoxX },
+                            width = { placedBoxWidth },
+                            config = config,
+                        )
+                    },
             )
-        val motionValue = rememberMotionValue(gestureContext::dragOffset, { spec }, gestureContext)
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             modifier = modifier.fillMaxWidth().padding(vertical = 24.dp, horizontal = 48.dp),
@@ -204,63 +210,52 @@ object GuaranteeBoxDemo : Demo<GuaranteeBoxDemo.Config> {
         }
     }
 
-    @Composable
-    fun rememberSpec(
+    private fun MotionBuilderContext.buildSpec(
         scenario: Scenario,
         x: () -> Float,
         width: () -> Float,
-        inputOutputRange: ClosedFloatingPointRange<Float>,
         config: Config,
     ): MotionSpec {
-
-        val builderContext = rememberMotionBuilderContext()
         val left = x()
         val widthVal = width()
         val right = left + widthVal
 
-        return remember(scenario, inputOutputRange, config, left, widthVal, builderContext) {
-            with(builderContext) {
-                val guarantee = Guarantee.InputDelta(config.guaranteeDistance.toPx())
-                val minSize = config.minVisibleWidth.toPx()
-                when (scenario) {
-                    Scenario.Mapped ->
-                        MotionSpec(
-                            spatialDirectionalMotionSpec(initialMapping = Mapping.Zero) {
-                                target(breakpoint = left, from = 0f, to = widthVal)
-                                fixedValue(breakpoint = right, value = widthVal)
-                            }
-                        )
+        val guarantee = Guarantee.InputDelta(config.guaranteeDistance.toPx())
+        val minSize = config.minVisibleWidth.toPx()
 
-                    Scenario.Triggered ->
-                        MotionSpec(
-                            spatialDirectionalMotionSpec(initialMapping = Mapping.Zero) {
-                                target(
-                                    breakpoint = min(left + minSize, right),
-                                    from = minSize,
-                                    to = widthVal - minSize,
-                                )
-                                fixedValue(breakpoint = right, value = widthVal)
-                            }
-                        )
+        return when (scenario) {
+            Scenario.Mapped ->
+                MotionSpec(
+                    spatialDirectionalMotionSpec(initialMapping = Mapping.Zero) {
+                        target(breakpoint = left, from = 0f, to = widthVal)
+                        fixedValue(breakpoint = right, value = widthVal)
+                    }
+                )
 
-                    Scenario.Guaranteed ->
-                        MotionSpec(
-                            spatialDirectionalMotionSpec(initialMapping = Mapping.Zero) {
-                                target(
-                                    breakpoint = min(left + minSize, right),
-                                    from = minSize,
-                                    to = widthVal - minSize,
-                                    guarantee = guarantee,
-                                )
-                                fixedValue(
-                                    breakpoint = right,
-                                    value = widthVal,
-                                    guarantee = guarantee,
-                                )
-                            }
+            Scenario.Triggered ->
+                MotionSpec(
+                    spatialDirectionalMotionSpec(initialMapping = Mapping.Zero) {
+                        target(
+                            breakpoint = min(left + minSize, right),
+                            from = minSize,
+                            to = widthVal - minSize,
                         )
-                }
-            }
+                        fixedValue(breakpoint = right, value = widthVal)
+                    }
+                )
+
+            Scenario.Guaranteed ->
+                MotionSpec(
+                    spatialDirectionalMotionSpec(initialMapping = Mapping.Zero) {
+                        target(
+                            breakpoint = min(left + minSize, right),
+                            from = minSize,
+                            to = widthVal - minSize,
+                            guarantee = guarantee,
+                        )
+                        fixedValue(breakpoint = right, value = widthVal, guarantee = guarantee)
+                    }
+                )
         }
     }
 

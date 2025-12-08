@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {AbstractSearchViewFactory} from './abstract_search_view_factory';
-import {SearchView} from './trace_search_initializer';
+import {SearchView} from './search_view';
 
+/**
+ * A factory for creating search views for Surface Flinger traces.
+ */
 export class SearchViewFactorySf extends AbstractSearchViewFactory {
   override readonly traceType = TraceType.SURFACE_FLINGER;
+  private static readonly URL =
+    AbstractSearchViewFactory.BASE_DOCS_URL + 'surfaceflinger-sql-views';
   private static readonly LAYER_VIEW: SearchView = {
     name: 'sf_layer_search',
     dataType: 'SurfaceFlinger layer',
+    docsUrl: SearchViewFactorySf.URL,
     columns: [
       {
         name: 'state_id',
@@ -32,6 +38,7 @@ export class SearchViewFactorySf extends AbstractSearchViewFactory {
       {name: 'layer_id', desc: 'Layer id'},
       {name: 'parent_id', desc: 'Layer id of parent'},
       {name: 'layer_name', desc: 'Layer name'},
+      {name: 'is_visible', desc: 'Layer visibility, accounting for occlusion'},
       {
         name: 'property',
         desc: 'Property name accounting for repeated fields',
@@ -66,6 +73,7 @@ AND cast_int!(value) <= 2400`,
   private static readonly ROOT_VIEW: SearchView = {
     name: 'sf_hierarchy_root_search',
     dataType: 'SurfaceFlinger root',
+    docsUrl: SearchViewFactorySf.URL,
     columns: [
       {
         name: 'state_id',
@@ -132,34 +140,20 @@ AND STATE.property LIKE CONCAT(
           `;
     await this.traceProcessor.query(sqlCreateTableSfStateChanges);
 
-    const sqlCreateTableSfLayerIdentifier = `
-            CREATE PERFETTO TABLE sf_layer_identifier AS
-              SELECT
-                LAYER.snapshot_id as state_id,
-                LAYER_ID.int_value as layer_id,
-                PARENT_PROPERTY.int_value as parent_id,
-                NAME.string_value as layer_name,
-                LAYER.base64_proto_id
-              FROM surfaceflinger_layer LAYER
-              INNER JOIN ${layerArgsTable} LAYER_ID ON LAYER_ID.base64_proto_id = LAYER.base64_proto_id AND LAYER_ID.key = 'id'
-              INNER JOIN ${layerArgsTable} PARENT_PROPERTY ON PARENT_PROPERTY.base64_proto_id = LAYER.base64_proto_id AND PARENT_PROPERTY.key = 'parent'
-              INNER JOIN ${layerArgsTable} NAME ON NAME.base64_proto_id = LAYER.base64_proto_id AND NAME.key = 'name';
-          `;
-    await this.traceProcessor.query(sqlCreateTableSfLayerIdentifier);
-
     const sqlCreateViewSfLayerWithProperties = `
             CREATE PERFETTO VIEW sf_layer_with_properties AS
               SELECT
                 STATE.id as state_id,
                 STATE.ts,
                 LAYER.layer_id,
-                LAYER.parent_id,
+                LAYER.parent as parent_id,
                 LAYER.layer_name,
+                LAYER.is_visible,
                 PROPERTY.key as property,
                 PROPERTY.flat_key as flat_property,
                 PROPERTY.display_value as value
               FROM surfaceflinger_layers_snapshot STATE
-              INNER JOIN sf_layer_identifier LAYER ON LAYER.state_id = STATE.id
+              INNER JOIN surfaceflinger_layer LAYER ON LAYER.snapshot_id = STATE.id
               INNER JOIN ${layerArgsTable} PROPERTY ON PROPERTY.base64_proto_id = LAYER.base64_proto_id;
           `;
     await this.traceProcessor.query(sqlCreateViewSfLayerWithProperties);
@@ -171,6 +165,7 @@ AND STATE.property LIKE CONCAT(
               layer_id INT,
               parent_id INT,
               layer_name STRING,
+              is_visible INT,
               property STRING,
               flat_property STRING,
               value STRING,
@@ -182,6 +177,7 @@ AND STATE.property LIKE CONCAT(
               CURRENT.layer_id,
               CURRENT.parent_id,
               CURRENT.layer_name,
+              CURRENT.is_visible,
               CURRENT.property,
               CURRENT.flat_property,
               CURRENT.value,

@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-import {FileUtils} from 'common/file_utils';
-import {OnProgressUpdateType} from 'common/function_utils';
+import {
+  decompressGZipFile,
+  DOWNLOAD_FILENAME_REGEX,
+  ILLEGAL_FILENAME_CHARACTERS_REGEX,
+  isGZipFile,
+  isZipFile,
+  removeDirFromFileName,
+  removeExtensionFromFilename,
+  unzipFile,
+  OnProgressUpdateType,
+} from 'common/io';
+import {TimezoneInfo} from 'common/time/time';
 import {
   TimestampConverter,
   UTC_TIMEZONE_INFO,
 } from 'common/time/timestamp_converter';
-import {UserNotifier} from 'common/user_notifier';
 import {Analytics} from 'logging/analytics';
 import {ProgressListener} from 'messaging/progress_listener';
 import {UserWarning} from 'messaging/user_warning';
@@ -38,7 +47,10 @@ import {
 import {WinscopeEventListener} from 'messaging/winscope_event_listener';
 import {FileAndParser} from 'parsers/file_and_parser';
 import {FileAndParsers} from 'parsers/file_and_parsers';
-import {ParserFactory as LegacyParserFactory} from 'parsers/legacy/parser_factory';
+import {
+  ParserFactory as LegacyParserFactory,
+  ProcessedFiles,
+} from 'parsers/legacy/parser_factory';
 import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
 import {
   getParserWithLatestRealToBootTimeOffset,
@@ -47,20 +59,33 @@ import {
 import {ParserFactory as PerfettoParserFactory} from 'parsers/perfetto/parser_factory';
 import {ParserSearch} from 'parsers/search/parser_search';
 import {TracesParserFactory} from 'parsers/traces/traces_parser_factory';
-import {FrameMapper} from 'trace/frame_mapper';
-import {Parser} from 'trace/parser';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
+import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
-import {TraceEntryTypeMap, TraceType, TraceTypeUtils} from 'trace/trace_type';
-import {QueryResult, Row} from 'trace_processor/query_result';
+import {FrameMapper} from 'trace_api/frame_mapper';
+import {Parser} from 'trace_api/parser';
+import {Trace} from 'trace_api/trace';
+import {TraceMetadata} from 'trace_api/trace_metadata';
+import {
+  TraceEntryTypeMap,
+  TraceType,
+  TraceTypeUtils,
+} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {QueryResult} from 'trace_processor/query_result';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 import {FilesSource} from './files_source';
 import {LoadedParsers} from './loaded_parsers';
-import {FilterResult, TraceFileFilter} from './trace_file_filter';
+import {TraceFileFilter} from './trace_file_filter';
 
-type UnzippedArchive = TraceFile[];
-
+/**
+ * A pipeline that loads, parses and transforms traces.
+ *
+ * The pipeline is responsible for:
+ * - Unzipping and filtering files
+ * - Parsing files into traces
+ * - Transforming traces (e.g. merging, creating frame mapping)
+ * - Storing the final traces
+ */
 export class TracePipeline
   implements WinscopeEventListener, WinscopeEventEmitter
 {
@@ -89,26 +114,21 @@ export class TracePipeline
       source,
     );
 
-    const warnings: UserWarning[] = [];
-
     try {
-      const unzippedArchives = await this.unzipFiles(files, progressListener);
-
-      if (unzippedArchives.length === 0) {
+      const unzippedFiles = await this.unzipFiles(files, progressListener);
+      if (unzippedFiles.length === 0) {
         UserNotifier.add(new NoValidFiles());
-        return warnings;
+        return [];
       }
 
-      for (const unzippedArchive of unzippedArchives) {
-        const newWarnings = await this.loadUnzippedArchive(
-          unzippedArchive,
-          source,
-          progressListener,
-        );
-        warnings.push(...newWarnings);
-      }
+      const warnings = await this.loadUnzippedFiles(
+        unzippedFiles,
+        source,
+        progressListener,
+      );
 
       await this.convertLoadedParsersToTraces();
+
       return warnings;
     } finally {
       progressListener?.onOperationFinished(true);
@@ -237,7 +257,7 @@ export class TracePipeline
       const trace = Trace.fromParser(parser);
       this.traces.addTrace(trace);
       return trace;
-    } catch (e) {
+    } catch {
       return undefined;
     }
   }
@@ -250,86 +270,73 @@ export class TracePipeline
     this.lostPerfettoPackets = 0;
   }
 
-  private async loadUnzippedArchive(
-    unzippedArchive: UnzippedArchive,
+  private async loadUnzippedFiles(
+    unzippedFiles: TraceFile[],
     source: FilesSource,
     progressListener: ProgressListener | undefined,
   ): Promise<UserWarning[]> {
     const warnings: UserWarning[] = [];
 
-    let startTimeMs = Date.now();
-    const filterResult = await this.traceFileFilter.filter(unzippedArchive);
-    warnings.push(...(filterResult.criticalWarnings ?? []));
-    const size =
-      filterResult.legacy.reduce(
-        (totalSize, f) => (totalSize += f.file.size),
-        0,
-      ) + (filterResult.perfetto?.file.size ?? 0);
-    Analytics.Loading.logFileExtractionTime(
-      'bugreport',
-      Date.now() - startTimeMs,
-      size,
-    );
-
-    if (filterResult.timezoneInfo) {
-      this.timestampConverter = new TimestampConverter(
-        filterResult.timezoneInfo,
+    const tryParseLegacy = (
+      files: TraceFile[],
+      metadata: TraceMetadata,
+      timezoneInfo?: TimezoneInfo,
+    ) => {
+      return this.processLegacyFiles(
+        files,
+        metadata,
+        timezoneInfo,
+        source,
+        progressListener,
       );
-    }
+    };
 
-    if (!filterResult.perfetto && filterResult.legacy.length === 0) {
-      UserNotifier.add(new NoValidFiles());
+    const tryParsePerfetto = (file: TraceFile) => {
+      return this.processPerfettoFile(
+        file,
+        source,
+        progressListener,
+        new UnsupportedFileFormat(file.getDescriptor()),
+      );
+    };
+
+    const parsedFiles = await this.traceFileFilter.filterAndParse(
+      unzippedFiles,
+      tryParseLegacy,
+      tryParsePerfetto,
+    );
+    warnings.push(...(parsedFiles.criticalWarnings ?? []));
+
+    if (parsedFiles.perfetto === undefined && parsedFiles.legacy.length === 0) {
       return warnings;
     }
 
-    startTimeMs = Date.now();
-
-    const {parsers: legacyParsers, unsupportedFiles} =
-      await this.processLegacyFiles(filterResult, source, progressListener);
-
-    let perfettoParsers: FileAndParsers | undefined;
-    if (filterResult.perfetto) {
-      perfettoParsers = await this.processPerfettoFile(
-        filterResult.perfetto,
-        source,
-        progressListener,
-        new UnsupportedFileFormat(filterResult.perfetto.getDescriptor()),
-      );
-    } else {
-      for (const file of unsupportedFiles) {
-        if (perfettoParsers) {
-          UserNotifier.add(new UnsupportedFileFormat(file.getDescriptor()));
-          continue;
-        }
-        perfettoParsers = await this.processPerfettoFile(
-          file,
-          source,
-          progressListener,
-          new UnsupportedFileFormat(file.getDescriptor()),
-        );
-      }
-    }
-
-    if (perfettoParsers) {
+    if (parsedFiles.perfetto) {
       await this.checkForLostPerfettoPackets();
     }
 
-    this.updateTimestamps(legacyParsers, perfettoParsers);
-    this.loadedParsers.addParsers(legacyParsers, perfettoParsers);
+    this.updateTimestamps(parsedFiles.legacy, parsedFiles.perfetto);
+    this.loadedParsers.addParsers(parsedFiles.legacy, parsedFiles.perfetto);
 
     return warnings;
   }
 
   private async processLegacyFiles(
-    filterResult: FilterResult,
+    files: TraceFile[],
+    metadata: TraceMetadata,
+    timezoneInfo: TimezoneInfo | undefined,
     source: FilesSource,
     progressListener: ProgressListener | undefined,
-  ) {
+  ): Promise<ProcessedFiles> {
+    if (timezoneInfo) {
+      this.timestampConverter = new TimestampConverter(timezoneInfo);
+    }
+
     const startTimeMs = Date.now();
     const processedLegacyFiles = await new LegacyParserFactory().processFiles(
-      filterResult.legacy,
+      files,
       this.timestampConverter,
-      filterResult.metadata,
+      metadata,
       progressListener,
     );
     Analytics.Loading.logFileParsingTime(
@@ -376,8 +383,7 @@ export class TracePipeline
       'SELECT name, value FROM stats ' +
       "WHERE name = 'traced_buf_trace_writer_packet_loss'";
     const res = await tp.query(packetLossQuery);
-    const value =
-      res.numRows() > 0 ? res.firstRow<Row>({})['value'] : undefined;
+    const value = res.numRows() > 0 ? res.iter({}).get('value') : undefined;
     if (typeof value === 'bigint' && value > 0n) {
       this.lostPerfettoPackets = Number(value);
     } else {
@@ -489,19 +495,18 @@ export class TracePipeline
     let filenameWithCurrTime: string;
     const currTime = new Date().toISOString().slice(0, -5).replace('T', '_');
     if (!this.downloadArchiveFilename && files.length === 1) {
-      const filenameNoDir = FileUtils.removeDirFromFileName(files[0].name);
-      const filenameNoDirOrExt =
-        FileUtils.removeExtensionFromFilename(filenameNoDir);
+      const filenameNoDir = removeDirFromFileName(files[0].name);
+      const filenameNoDirOrExt = removeExtensionFromFilename(filenameNoDir);
       filenameWithCurrTime = `${filenameNoDirOrExt}_${currTime}`;
     } else {
       filenameWithCurrTime = `${source}_${currTime}`;
     }
 
     const archiveFilenameNoIllegalChars = filenameWithCurrTime.replace(
-      FileUtils.ILLEGAL_FILENAME_CHARACTERS_REGEX,
+      ILLEGAL_FILENAME_CHARACTERS_REGEX,
       '_',
     );
-    if (FileUtils.DOWNLOAD_FILENAME_REGEX.test(archiveFilenameNoIllegalChars)) {
+    if (DOWNLOAD_FILENAME_REGEX.test(archiveFilenameNoIllegalChars)) {
       return archiveFilenameNoIllegalChars;
     } else {
       console.error(
@@ -515,13 +520,12 @@ export class TracePipeline
   private async unzipFiles(
     files: File[],
     progressListener: ProgressListener | undefined,
-  ): Promise<UnzippedArchive[]> {
-    const unzippedArchives: UnzippedArchive[] = [];
+  ): Promise<TraceFile[]> {
+    const unzippedFiles: TraceFile[] = [];
     const progressMessage = 'Unzipping files...';
 
     progressListener?.onProgressUpdate(progressMessage, 0);
 
-    const currArchive: UnzippedArchive = [];
     for (let i = 0; i < files.length; i++) {
       let file = files[i];
 
@@ -531,31 +535,28 @@ export class TracePipeline
         progressListener?.onProgressUpdate(progressMessage, totalPercentage);
       };
 
-      if (await FileUtils.isGZipFile(file)) {
-        file = await FileUtils.decompressGZipFile(file);
+      if (await isGZipFile(file)) {
+        file = await decompressGZipFile(file);
       }
 
-      if (await FileUtils.isZipFile(file)) {
+      if (await isZipFile(file)) {
         try {
-          const subFiles = await FileUtils.unzipFile(file, onSubProgressUpdate);
+          const subFiles = await unzipFile(file, onSubProgressUpdate);
           const subTraceFiles = subFiles.map((subFile) => {
             return new TraceFile(subFile, file);
           });
-          unzippedArchives.push([...subTraceFiles]);
+          unzippedFiles.push(...subTraceFiles);
           onSubProgressUpdate(100);
-        } catch (e) {
+        } catch {
           UserNotifier.add(new CorruptedArchive(file));
         }
       } else {
-        currArchive.push(new TraceFile(file, undefined));
+        unzippedFiles.push(new TraceFile(file, undefined));
       }
-    }
-    if (currArchive.length > 0) {
-      unzippedArchives.push(currArchive);
     }
     progressListener?.onProgressUpdate(progressMessage, 100);
 
-    return unzippedArchives;
+    return unzippedFiles;
   }
 
   private removeTracesAndParsersByType(type: TraceType) {

@@ -15,14 +15,14 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceType} from 'trace/trace_type';
 import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {TraceType} from 'trace_api/trace_type';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from 'viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from 'viewers/common/log_filters';
 import {LogHeader} from 'viewers/common/ui_data_log';
@@ -34,6 +34,7 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
   protected override readonly testProperties = true;
   protected override readonly hasCurrentTimeButton = true;
   protected override readonly testScroll = true;
+  protected override readonly initialEntries = 6;
   protected override readonly propertiesSectionTitle =
     'PROPERTIES - PROTO DUMP';
   protected override readonly propertiesPlaceholder =
@@ -61,10 +62,10 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
     const propertiesTree = new PropertyTreeBuilder()
       .setRootId('Transactions')
       .setName('tree')
-      .setValue(null)
+      .setValue(undefined)
       .build();
 
-    const ts = TimestampConverterUtils.makeElapsedTimestamp(1n);
+    const ts = makeElapsedTimestamp(1n);
 
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setEntries([hierarchyTree, hierarchyTree])
@@ -73,14 +74,18 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
 
     const entry1 = new TransactionsEntry(
       trace.getEntry(0),
-      Array.from({length: 8}, () => this.testField),
+      Array.from({length: 7}, () => this.testField).concat([
+        {
+          spec: {
+            name: 'Test Column',
+            cssClass: 'test-class-flags',
+            columnType: TransactionColumnType.FLAGS,
+          },
+          value: 'VALUE',
+        },
+      ]),
       async () => propertiesTree,
     );
-    entry1.fields[7].spec = {
-      name: 'Test Column',
-      cssClass: 'test-class',
-      columnType: TransactionColumnType.FLAGS,
-    };
 
     const uiData = new UiData(
       [new LogHeader(this.testSpec, new LogSelectFilter([]))],
@@ -105,10 +110,10 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
     const propertiesTree = new PropertyTreeBuilder()
       .setRootId('Transactions')
       .setName('tree')
-      .setValue(null)
+      .setValue(undefined)
       .build();
 
-    const ts = TimestampConverterUtils.makeElapsedTimestamp(1n);
+    const ts = makeElapsedTimestamp(1n);
 
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.TRANSACTIONS)
@@ -125,6 +130,7 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
       UiPropertyTreeNode.from(propertiesTree),
       {},
     );
+
     const shortMessage = 'flag1 | flag2';
     const longMessage = shortMessage.repeat(20);
     const traceEntry = trace.getEntry(0);

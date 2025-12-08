@@ -55,6 +55,11 @@
             android:defaultValue="true"
             app:iconSpaceReserved="false" />
         <SwitchPreferenceCompat
+            android:key="@string/pref_public_displays"
+            android:title="Public displays"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false" />
+        <SwitchPreferenceCompat
             android:key="@string/pref_always_unlocked_device"
             android:title="Always unlocked"
             android:summary="Remote displays remain unlocked even when the host is locked"
@@ -92,6 +97,20 @@
             android:summary="Propagate the virtual display brightness changes to the client display"
             android:defaultValue="false"
             app:iconSpaceReserved="false" />
+        <SwitchPreferenceCompat
+            android:key="@string/pref_custom_ui_mode"
+            android:title="Custom UI mode"
+            android:summary="Set APPLIANCE UI mode on the virtual displays. If unset, use the host's UI mode."
+            android:defaultValue="false"
+            app:iconSpaceReserved="false" />
+        <ListPreference
+            android:key="@string/pref_night_mode"
+            android:title="Night mode"
+            android:entries="@array/night_mode_labels"
+            android:entryValues="@array/night_modes"
+            android:defaultValue="@string/night_mode_undefined"
+            app:useSimpleSummaryProvider="true"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -101,9 +120,9 @@
         <ListPreference
             android:key="@string/pref_camera_policy"
             android:title="Camera policy"
-            android:entries="@array/camera_policy_options"
-            android:entryValues="@array/camera_policy_options"
-            android:defaultValue="@string/no_cameras"
+            android:entries="@array/camera_policy_labels"
+            android:entryValues="@array/camera_policy_values"
+            android:defaultValue="0"
             app:useSimpleSummaryProvider="true"
             app:iconSpaceReserved="false" />
         <SwitchPreferenceCompat
@@ -135,6 +154,13 @@
         android:title="Use AudioPolicy.updateMixingRules"
         android:summary="Updates the dynamic AudiPolicy mixing rules instead of unregistering and registering the AudioPolicy."
         android:defaultValue="true"
+        app:iconSpaceReserved="false" />
+    <SwitchPreferenceCompat
+        android:key="@string/pref_use_legacy_playback_state"
+        android:dependency="@string/pref_enable_client_audio"
+        android:title="Use legacy playback state"
+        android:summary="Listens to playback state changes for the uids associated with the virtual device to start and stop remote client audio playback."
+        android:defaultValue="false"
         app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

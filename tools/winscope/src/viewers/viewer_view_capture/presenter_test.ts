@@ -14,34 +14,31 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
 import {
   TabbedViewSwitchRequest,
   TracePositionUpdate,
 } from 'messaging/winscope_event';
-import {
-  getFixtureFile,
-  getPerfettoParser,
-  LegacyParserProvider,
-} from 'test/unit/fixture_utils';
+import {getFixtureFile} from 'test/unit/io_helpers';
+import {getPerfettoParser, LegacyParserProvider} from 'test/unit/fixture_utils';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {CustomQueryType} from 'trace/custom_query';
-import {Parser} from 'trace/parser';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
 import {TraceFile} from 'trace/trace_file';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Parser} from 'trace_api/parser';
+import {Trace} from 'trace_api/trace';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {NotifyHierarchyViewCallbackType} from 'viewers/common/abstract_hierarchy_viewer_presenter';
 import {AbstractHierarchyViewerPresenterTest} from 'viewers/common/abstract_hierarchy_viewer_presenter_test';
 import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {UiDataHierarchy} from 'viewers/common/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {makeIdMatchFilter} from 'viewers/common/ui_tree_utils';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {Presenter} from 'viewers/viewer_view_capture/presenter';
@@ -153,11 +150,7 @@ the default for its data type.`,
     this.selectedTree = UiHierarchyTreeNode.from(
       assertDefined(
         firstEntryDataTree
-          .findDfs(
-            UiTreeUtils.makeIdMatchFilter(
-              'ViewNode44 ' + this.treeNodeLongName,
-            ),
-          )
+          .findDfs(makeIdMatchFilter('ViewNode44 ' + this.treeNodeLongName))
           ?.getParent(),
       ),
     ).getChildByName(this.treeNodeLongName);
@@ -208,7 +201,7 @@ the default for its data type.`,
       assertDefined(
         propertiesTree.getChildByName('translationY'),
       ).formattedValue(),
-    ).toEqual('786.506');
+    ).toBe('786.506');
     expect(propertiesTree.getChildByName('translationX')).toBeUndefined();
     expect(uiData.displays).toEqual([
       {displayId: 0, groupId: 0, name: 'PhoneWindow@4f9be60', isActive: true},
@@ -216,8 +209,8 @@ the default for its data type.`,
     const curatedProperties = assertDefined(
       (uiData as UiData).curatedProperties,
     );
-    expect(curatedProperties.translationY).toEqual('786.506');
-    expect(curatedProperties.translationX).toEqual('0');
+    expect(curatedProperties.translationY).toBe('786.506');
+    expect(curatedProperties.translationX).toBe('0');
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(
@@ -228,10 +221,10 @@ the default for its data type.`,
       assertDefined(
         propertiesTree.getChildByName('translationY'),
       ).formattedValue(),
-    ).toEqual('785.500');
+    ).toBe('785.500');
     expect(
       assertDefined((uiData as UiData).curatedProperties).translationY,
-    ).toEqual('785.500');
+    ).toBe('785.500');
   }
 
   override executeSpecializedChecksForPropertiesFromRect(
@@ -240,10 +233,10 @@ the default for its data type.`,
     const curatedProperties = assertDefined(
       (uiData as UiData).curatedProperties,
     );
-    expect(curatedProperties.translationX).toEqual('-9.800');
-    expect(curatedProperties.translationY).toEqual('210.700');
-    expect(curatedProperties.alpha).toEqual('0');
-    expect(curatedProperties.willNotDraw).toEqual('true');
+    expect(curatedProperties.translationX).toBe('-9.800');
+    expect(curatedProperties.translationY).toBe('210.700');
+    expect(curatedProperties.alpha).toBe('0');
+    expect(curatedProperties.willNotDraw).toBe('true');
   }
 
   override executeSpecializedTests() {
@@ -297,7 +290,7 @@ the default for its data type.`,
         );
         const sfTrace = Trace.fromParser(
           await new LegacyParserProvider()
-            .addFilename('traces/elapsed_timestamp/SurfaceFlinger.pb')
+            .addFile('traces/elapsed_timestamp/SurfaceFlinger.pb')
             .setExistingPerfettoFile(perfettoFile)
             .setConvertToPerfetto(true)
             .getParser<HierarchyTreeNode>(),

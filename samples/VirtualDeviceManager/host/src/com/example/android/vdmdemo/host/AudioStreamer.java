@@ -64,6 +64,8 @@ import javax.inject.Singleton;
 @Singleton
 final class AudioStreamer {
     private static final String TAG = AudioStreamer.class.getSimpleName();
+    // Enable debug logging at runtime with "adb shell setprop log.tag.AudioStreamer DEBUG"
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final int SAMPLE_RATE = 44000;
     private static final AudioFormat AUDIO_FORMAT =
@@ -83,6 +85,7 @@ final class AudioStreamer {
     private final RemoteIo mRemoteIo;
     private AudioManager mAudioManager;
     private int mPlaybackSessionId;
+    private boolean mUseLegacyPlaybackState;
 
     @Inject
     PreferenceController mPreferenceController;
@@ -125,31 +128,17 @@ final class AudioStreamer {
                                         || c.getSessionId() == mPlaybackSessionId));
 
                         if (mAudioSessionPolicy == null) {
-                            Log.d(TAG, "There's no active audio policy, ignoring playback "
+                            Log.w(TAG, "There's no active audio policy, ignoring playback "
                                             + "config callback");
                             return;
                         }
 
-                        if (mSessionIdAudioMix != null && shouldStream
-                                && mStreamingThread == null) {
-                            Log.d(TAG, "Send StartAudio RemoteEvent to remote device.");
-                            mRemoteIo.sendMessage(
-                                    RemoteEvent.newBuilder()
-                                            .setStartAudio(StartAudio.newBuilder())
-                                            .build());
-                            // reuse the same AudioRecord that is kept alive and recording
-                            mStreamingThread = new StreamingThread(mHostRecord, mRemoteIo);
-                            mStreamingThread.start();
-                        } else if (!shouldStream && mStreamingThread != null) {
-                            Log.d(TAG, "Send StopAudio RemoteEvent to remote device.");
-                            mRemoteIo.sendMessage(
-                                    RemoteEvent.newBuilder()
-                                            .setStopAudio(StopAudio.newBuilder())
-                                            .build());
-                            mStreamingThread.stopStreaming();
-                            joinUninterruptibly(mStreamingThread);
-                            mStreamingThread = null;
+                        if (mStreamingThread == null || !mStreamingThread.isRunning()) {
+                            Log.w(TAG, "The StreamingThread is not running!");
+                            return;
                         }
+
+                        mStreamingThread.toggleRemoteStreaming(shouldStream);
                     }
                 }
             };
@@ -161,15 +150,28 @@ final class AudioStreamer {
     }
 
     public void start(int deviceId, int audioSessionId) {
-        Log.d(TAG, "AudioStreamer start with deviceId " + deviceId + " and audioSessionId "
+        Log.i(TAG, "AudioStreamer start with deviceId " + deviceId + " and audioSessionId "
                 + audioSessionId);
         mDeviceContext = mApplicationContext.createDeviceContext(deviceId)
                 .createDeviceContext(deviceId);
 
+        // This is consistent per AudioStreamer session, between start and stop
+        mUseLegacyPlaybackState =
+                mPreferenceController.getBoolean(R.string.pref_use_legacy_playback_state);
+
         mAudioManager = mDeviceContext.getSystemService(AudioManager.class);
         if (mAudioManager != null) {
-            mAudioManager.registerAudioPlaybackCallback(mAudioPlaybackCallback, null);
+            if (mUseLegacyPlaybackState) {
+                mAudioManager.registerAudioPlaybackCallback(mAudioPlaybackCallback, null);
+            }
             registerAudioPolicies(audioSessionId, ImmutableSet.of());
+
+            // create and start the remote streaming Thread
+            // the host AudioRecord is kept alive and recording
+            // audio data is actually sent to the client only when needed
+            mStreamingThread =
+                    new StreamingThread(mHostRecord, mRemoteIo, !mUseLegacyPlaybackState);
+            mStreamingThread.start();
         }
     }
 
@@ -235,8 +237,10 @@ final class AudioStreamer {
     private void updateAudioPolicies(ImmutableSet<Integer> uids) {
         long startUpdateTimeMs = SystemClock.uptimeMillis();
 
-        Log.d(TAG, "Started updateAudioPolicies. Already rerouted uids: "
-                + mReroutedUids + " -> updated uids: " + uids);
+        if (DEBUG) {
+            Log.d(TAG, "Started updateAudioPolicies. Already rerouted uids: "
+                    + mReroutedUids + " -> updated uids: " + uids);
+        }
 
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
                 && mPreferenceController.getBoolean(
@@ -245,22 +249,28 @@ final class AudioStreamer {
                 if (uids.isEmpty()) {
                     unregisterUidPolicy();
 
-                    Log.d(TAG, "Unregistered UID AudioPolicy since uid set is empty in "
-                            + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+                    if (DEBUG) {
+                        Log.d(TAG, "Unregistered UID AudioPolicy since uid set is empty in "
+                                + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+                    }
                 } else {
                     Pair<AudioMix, AudioMixingRule> update =
                             Pair.create(mUidAudioMix, createUidMixingRule(uids));
                     mReroutedUids = ImmutableSet.copyOf(uids);
                     mUidAudioPolicy.updateMixingRules(Collections.singletonList(update));
 
-                    Log.d(TAG, "Updated UID AudioPolicy mixes in "
-                            + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+                    if (DEBUG) {
+                        Log.d(TAG, "Updated UID AudioPolicy mixes in "
+                                + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+                    }
                 }
             } else {
                 registerUidPolicy(uids);
 
-                Log.d(TAG, "Registered UID AudioPolicy since there was none previous in "
-                        + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+                if (DEBUG) {
+                    Log.d(TAG, "Registered UID AudioPolicy since there was none previous in "
+                            + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+                }
             }
         } else {
             // Legacy and inefficient way to unregister the UID audio policy and then just
@@ -270,8 +280,10 @@ final class AudioStreamer {
                 registerUidPolicy(uids);
             }
 
-            Log.d(TAG, "Unregistered / re-registered UID AudioPolicy in "
-                    + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+            if (DEBUG) {
+                Log.d(TAG, "Unregistered / re-registered UID AudioPolicy in "
+                        + (SystemClock.uptimeMillis() - startUpdateTimeMs) + "ms.");
+            }
         }
     }
 
@@ -294,8 +306,11 @@ final class AudioStreamer {
                 return false;
             }
 
-            AudioPolicy.Builder sessionPolicyBuilder =
-                    new AudioPolicy.Builder(mApplicationContext).addMix(audioMix);
+            Log.i(TAG, "Register MediaSession audio policy on context deviceId: "
+                    + mDeviceContext.getDeviceId());
+
+            AudioPolicy.Builder sessionPolicyBuilder = new AudioPolicy.Builder(mDeviceContext)
+                    .addMix(audioMix);
             sessionPolicyBuilder.setAudioPolicyFocusListener(
                     new AudioFocusChangeListener("Session policy"));
             sessionPolicyBuilder.setIsAudioFocusPolicy(false);
@@ -347,7 +362,10 @@ final class AudioStreamer {
                         .setFormat(AUDIO_FORMAT)
                         .build();
 
-        AudioPolicy.Builder uidPolicyBuilder = new AudioPolicy.Builder(mApplicationContext)
+        Log.i(TAG, "Register UID audio policy on context deviceId: "
+                + mDeviceContext.getDeviceId());
+
+        AudioPolicy.Builder uidPolicyBuilder = new AudioPolicy.Builder(mDeviceContext)
                 .addMix(uidAudioMix);
         uidPolicyBuilder.setAudioPolicyFocusListener(new AudioFocusChangeListener("Uid policy"));
         uidPolicyBuilder.setIsAudioFocusPolicy(false);
@@ -399,18 +417,24 @@ final class AudioStreamer {
 
         Log.i(TAG, "Unregistered MediaSession audio policy done.");
     }
+
     public void stop() {
-        Log.d(TAG, "AudioStreamer stop.");
+        Log.i(TAG, "AudioStreamer stop.");
         synchronized (mLock) {
             if (mStreamingThread != null) {
-                mStreamingThread.stopStreaming();
+                if (mStreamingThread.isRemoteStreaming()) {
+                    mStreamingThread.toggleRemoteStreaming(false);
+                }
+                mStreamingThread.stopRunning();
                 joinUninterruptibly(mStreamingThread);
                 mStreamingThread = null;
             }
 
             if (mAudioManager != null) {
                 unregisterAudioPolicies();
-                mAudioManager.unregisterAudioPlaybackCallback(mAudioPlaybackCallback);
+                if (mUseLegacyPlaybackState) {
+                    mAudioManager.unregisterAudioPlaybackCallback(mAudioPlaybackCallback);
+                }
             }
         }
     }
@@ -433,29 +457,39 @@ final class AudioStreamer {
                 && info.isSink();
     }
 
+    // The StreamingThread is the transfer link between the host submix AudioRecord that
+    // listens for all audio data redirected from the uids associated with the virtual device
+    // and the remote client that remotely plays the audio
     private static class StreamingThread extends Thread {
         private static final int BUFFER_SIZE =
                 AudioRecord.getMinBufferSize(
                         SAMPLE_RATE,
                         AudioFormat.CHANNEL_OUT_STEREO,
                         AudioFormat.ENCODING_PCM_16BIT);
-        // Max safe number of AudioRecord buffers in which to expect silence
-        // when stopping and flushing the AudioRecord
-        private static final int MAX_FLUSH_BUFFERS = 64;
+        // Number of detected silent audio buffers after which we can stop the remote playback
+        private static final int MAX_SILENCE_COUNT = 32;
         private final RemoteIo mRemoteIo;
         private final AudioRecord mAudioRecord;
         private final AtomicBoolean mIsRunning = new AtomicBoolean(true);
+        // whether the StreamingThread is actually sending the audio data to the client
+        private final AtomicBoolean mIsRemoteStreaming = new AtomicBoolean(false);
+        // allow remote streaming start and stop events based on internal silence detection
+        private final boolean mAutoRemoteStreaming;
 
-        StreamingThread(AudioRecord audioRecord, RemoteIo remoteIo) {
+        StreamingThread(AudioRecord audioRecord, RemoteIo remoteIo, boolean autoRemoteStreaming) {
             super();
             mRemoteIo = Objects.requireNonNull(remoteIo);
             mAudioRecord = Objects.requireNonNull(audioRecord);
+            mAutoRemoteStreaming = autoRemoteStreaming;
         }
 
         @Override
         public void run() {
             super.run();
-            Log.d(TAG, "Starting audio streaming");
+            if (DEBUG) {
+                Log.d(TAG, "Start audio StreamingThread. Remote streaming control by silence: "
+                        + mAutoRemoteStreaming);
+            }
 
             if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
                 Log.e(TAG, "Audio record is not initialized");
@@ -469,36 +503,60 @@ final class AudioStreamer {
             }
 
             byte[] buffer = new byte[BUFFER_SIZE];
+            int silenceCount = 0;
             while (mIsRunning.get()) {
                 int ret = mAudioRecord.read(buffer, 0, buffer.length, AudioRecord.READ_BLOCKING);
                 if (ret <= 0) {
-                    Log.e(TAG, "AudioRecord.read returned error code " + ret);
+                    Log.e(TAG, "StreamingThread AudioRecord.read returned error code " + ret);
                     continue;
                 }
 
-                if (mIsRunning.get()) {
+                boolean isSilence = isSilence(buffer);
+
+                if (mAutoRemoteStreaming) {
+                    // silence detection is used as the mechanism for starting and stopping
+                    // the remote playback on the client
+                    if (isSilence) {
+                        if (silenceCount < MAX_SILENCE_COUNT) {
+                            silenceCount++;
+                            if (silenceCount == MAX_SILENCE_COUNT && isRemoteStreaming()) {
+                                // stop the audio streaming for remote playback
+                                toggleRemoteStreaming(false);
+                            }
+                        }
+                    } else {
+                        // reset silence counter and start remote playback
+                        silenceCount = 0;
+                        if (!isRemoteStreaming()) {
+                            toggleRemoteStreaming(true);
+                        }
+                    }
+                }
+
+                if (isRemoteStreaming()) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Sending " + ret + " bytes of audio data. isSilence: "
+                                + isSilence);
+                    }
                     mRemoteIo.sendMessage(RemoteEvent.newBuilder().setAudioFrame(
                             AudioFrame.newBuilder().setData(
                                     ByteString.copyFrom(buffer, 0, ret))).build());
                 } else {
-                    // Streaming ended, we just need to "flush" the remaining unneeded data
-                    // from the AudioRecord, since the AudioRecord might be reused later
-                    // There is no straightforward API to do this on the AudioRecord,
-                    // so simulate this by reading enough data until we get silence (buffer full
-                    // of zeros) or for safety a reasonable number of buffers has passed
-                    int i = 0;
-                    while (i++ < MAX_FLUSH_BUFFERS && !isSilence(buffer)) {
-                        mAudioRecord.read(buffer, 0, buffer.length, AudioRecord.READ_BLOCKING);
+                    if (!isSilence) {
+                        // detected non silence and not streaming
+                        if (DEBUG) {
+                            Log.w(TAG, "Detected non silence and not remote streaming. "
+                                    + "Buffer intended for remote audio playback discarded!");
+                        }
                     }
-                    Log.d(TAG, "Flushed " + i + " AudioRecord buffers.");
-                    // Note: we already send the stop play RemoteEvent since we prioritize
-                    // low latency for the user input, the alternative is to continue sending
-                    // the rest of the audio data and only stop the actual remote playback here
                 }
             }
+
             // we only stop the streaming and not the AudioRecord recording
             // which is owned by the AudioStreamer
-            Log.d(TAG, "Stopping audio streaming");
+            if (DEBUG) {
+                Log.d(TAG, "Stop audio StreamingThread");
+            }
         }
 
         private static boolean isSilence(byte[] buffer) {
@@ -510,9 +568,37 @@ final class AudioStreamer {
             return true;
         }
 
-        void stopStreaming() {
+        void stopRunning() {
             mIsRunning.set(false);
         }
+
+        boolean isRunning() {
+            return mIsRunning.get();
+        }
+
+        void toggleRemoteStreaming(boolean shouldStream) {
+            if (shouldStream) {
+                if (DEBUG) {
+                    Log.d(TAG, "Send StartAudio RemoteEvent to remote device.");
+                }
+                mRemoteIo.sendMessage(RemoteEvent.newBuilder()
+                        .setStartAudio(StartAudio.newBuilder())
+                        .build());
+            } else {
+                if (DEBUG) {
+                    Log.d(TAG, "Send StopAudio RemoteEvent to remote device.");
+                }
+                mRemoteIo.sendMessage(RemoteEvent.newBuilder()
+                        .setStopAudio(StopAudio.newBuilder())
+                        .build());
+            }
+            mIsRemoteStreaming.set(shouldStream);
+        }
+
+        boolean isRemoteStreaming() {
+            return mIsRemoteStreaming.get();
+        }
+
     }
 
     private static class AudioFocusChangeListener extends AudioPolicy.AudioPolicyFocusListener {

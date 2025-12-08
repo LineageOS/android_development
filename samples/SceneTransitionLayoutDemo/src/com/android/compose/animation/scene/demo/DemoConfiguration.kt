@@ -68,6 +68,8 @@ data class DemoConfiguration(
     val transitionBorder: Boolean = true,
     val deferTransitionProgress: Boolean = false,
     val firstCompositionDelay: Long = 0L,
+    val qsRevealEffect: Boolean = false,
+    val enableMotionValueDebugger: Boolean = false,
 ) {
     companion object {
         val Saver = run {
@@ -85,6 +87,8 @@ data class DemoConfiguration(
             val transitionBorder = "transitionBorder"
             val deferTransitionProgress = "deferTransitionProgress"
             val firstCompositionDelay = "firstCompositionDelay"
+            val qsRevealEffect = "qsRevealEffect"
+            val enableMotionValueDebugger = "enableMotionValueDebugger"
 
             mapSaver(
                 save = {
@@ -103,6 +107,8 @@ data class DemoConfiguration(
                         transitionBorder to it.transitionBorder,
                         deferTransitionProgress to it.deferTransitionProgress,
                         firstCompositionDelay to it.firstCompositionDelay,
+                        qsRevealEffect to it.qsRevealEffect,
+                        enableMotionValueDebugger to it.enableMotionValueDebugger,
                     )
                 },
                 restore = {
@@ -123,6 +129,8 @@ data class DemoConfiguration(
                         transitionBorder = it[transitionBorder] as Boolean,
                         deferTransitionProgress = it[deferTransitionProgress] as Boolean,
                         firstCompositionDelay = it[firstCompositionDelay] as Long,
+                        qsRevealEffect = it[qsRevealEffect] as Boolean,
+                        enableMotionValueDebugger = it[enableMotionValueDebugger] as Boolean,
                     )
                 },
             )
@@ -267,6 +275,18 @@ fun DemoConfigurationDialog(
                     },
                 )
 
+                Checkbox(
+                    label = "MotionValue debugger",
+                    checked = configuration.enableMotionValueDebugger,
+                    onCheckedChange = {
+                        onConfigurationChange(
+                            configuration.copy(
+                                enableMotionValueDebugger = !configuration.enableMotionValueDebugger
+                            )
+                        )
+                    },
+                )
+
                 // First composition delay.
                 Text(text = "First composition delay: ${configuration.firstCompositionDelay}ms")
                 Slider(
@@ -358,6 +378,16 @@ fun DemoConfigurationDialog(
                     configuration.quickSettingsRows,
                     onValueChange = {
                         onConfigurationChange(configuration.copy(quickSettingsRows = it))
+                    },
+                )
+
+                Checkbox(
+                    label = "Show reveal effect (DualShade only)",
+                    checked = configuration.qsRevealEffect,
+                    onCheckedChange = {
+                        onConfigurationChange(
+                            configuration.copy(qsRevealEffect = !configuration.qsRevealEffect)
+                        )
                     },
                 )
 

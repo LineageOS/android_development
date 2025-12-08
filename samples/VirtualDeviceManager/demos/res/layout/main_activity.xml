@@ -32,6 +32,13 @@
             android:text="@string/pip_demo" />
 
         <Button
+            android:id="@+id/ui_mode_demo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onDemoSelected"
+            android:text="@string/ui_mode_demo" />
+
+        <Button
             android:id="@+id/display_power_demo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,6 +93,13 @@
             android:layout_height="wrap_content"
             android:onClick="onDemoSelected"
             android:text="@string/recorder_demo" />
+
+        <Button
+            android:id="@+id/sound_demo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onDemoSelected"
+            android:text="@string/sound_demo" />
 
     </LinearLayout>
 

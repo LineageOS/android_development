@@ -19,8 +19,6 @@ package {
 
 android_library {
     name: "PlatformComposeSceneTransitionLayoutDemoLib",
-
-    sdk_version: "current",
     manifest: "AndroidManifest.xml",
 
     srcs: [
@@ -28,7 +26,11 @@ android_library {
     ],
 
     static_libs: [
+        // Private APIs
         "PlatformComposeSceneTransitionLayout",
+        "//frameworks/libs/systemui/mechanics/compose:mechanics-compose",
+
+        // Public APIs
         "androidx.compose.runtime_runtime",
         "androidx.compose.material3_material3",
         "androidx.compose.material3_material3-window-size-class",
@@ -50,7 +52,7 @@ android_app {
         "SystemUI_optimized_defaults",
     ],
 
-    sdk_version: "current",
+    platform_apis: true,
     manifest: "app/AndroidManifest.xml",
 
     static_libs: [

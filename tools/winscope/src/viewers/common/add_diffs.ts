@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {assertDefined} from 'common/assert';
+import {TreeNode} from 'tree_node/tree_node';
 import {DiffNode} from 'viewers/common/diff_node';
 import {DiffType} from 'viewers/common/diff_type';
 
@@ -53,113 +53,133 @@ export abstract class AddDiffs<T extends DiffNode> {
     newNodeSiblingIds: string[],
     oldNodeSiblingIds: string[],
   ): Promise<T[]> {
-    const diffNodes: T[] = [];
-
-    if (!oldNode && !newNode) {
+    if (newNode === undefined && oldNode === undefined) {
       console.error('both new and old trees undefined');
-      return diffNodes;
+      return [];
     }
 
-    if (!newNode && oldNode) {
-      if (!newNodeSiblingIds.includes(oldNode.id)) {
-        //oldNode deleted or moved
-        if (this.newIdNodeMap.get(oldNode.id)) {
-          oldNode.setDiff(DiffType.DELETED_MOVE);
-        } else {
-          oldNode.setDiff(DiffType.DELETED);
-        }
-        const newChildren = await this.visitChildren(undefined, oldNode);
-        oldNode.removeAllChildren();
-        newChildren.forEach((child) => {
-          assertDefined(oldNode).addOrReplaceChild(child);
-        });
-        this.processOldNode(oldNode);
-        diffNodes.push(oldNode);
+    if (newNode === undefined && oldNode !== undefined) {
+      if (newNodeSiblingIds.includes(oldNode.id)) {
+        // node still at same hierarchy level - no diffs
+        return [];
       }
-      return diffNodes;
+      await this.processDeletedOrMovedNode(oldNode);
+      return [oldNode];
     }
 
     newNode = assertDefined(newNode);
 
-    if (!newNode.isRoot() && newNode.id !== oldNode?.id) {
-      let nextOldNode: T | undefined;
-
-      if (!oldNodeSiblingIds.includes(newNode.id)) {
-        if (this.oldIdNodeMap.get(newNode.id)) {
-          if (this.addDiffsToNewRoot) {
-            newNode.setDiff(DiffType.ADDED_MOVE);
-            nextOldNode = this.oldIdNodeMap.get(newNode.id);
-          }
-        } else {
-          newNode.setDiff(DiffType.ADDED);
-          nextOldNode = undefined; //newNode has no equiv in old tree
-        }
-      }
-
-      if (oldNode && !newNodeSiblingIds.includes(oldNode.id)) {
-        if (this.newIdNodeMap.get(oldNode.id)) {
-          //oldNode still exists
-          oldNode.setDiff(DiffType.DELETED_MOVE);
-          nextOldNode = undefined;
-        } else {
-          oldNode.setDiff(DiffType.DELETED);
-
-          const newChildren = await this.visitChildren(undefined, oldNode);
-          oldNode.removeAllChildren();
-
-          newChildren.forEach((child) => {
-            assertDefined(oldNode).addOrReplaceChild(child);
-          });
-        }
-        this.processOldNode(oldNode);
-        diffNodes.push(oldNode);
-      }
-
-      oldNode = nextOldNode;
-    } else if (!newNode.isRoot()) {
-      if (
-        oldNode &&
-        oldNode.id === newNode.id &&
-        (await this.isModified(newNode, oldNode, this.denylistProperties))
-      ) {
-        this.processModifiedNodes(newNode, oldNode);
-      }
+    if (!newNode.isRoot()) {
+      const diffNodes = await this.generateDiffNodesForNonRoot(
+        newNode,
+        oldNode,
+        newNodeSiblingIds,
+        oldNodeSiblingIds,
+      );
+      return diffNodes;
     }
 
+    await this.processNewNodeChildren(newNode, oldNode);
+
+    return [newNode];
+  }
+
+  private async processNewNodeChildren(newNode: T, oldNode: T | undefined) {
     const newChildren = await this.visitChildren(newNode, oldNode);
     newNode.removeAllChildren();
     newChildren.forEach((child) =>
       assertDefined(newNode).addOrReplaceChild(child),
     );
+  }
 
+  private async generateDiffNodesForNonRoot(
+    newNode: T,
+    oldNode: T | undefined,
+    newNodeSiblingIds: string[],
+    oldNodeSiblingIds: string[],
+  ) {
+    const diffNodes: T[] = [];
+    let nextOldNode = oldNode;
+
+    if (newNode.id !== oldNode?.id) {
+      if (!oldNodeSiblingIds.includes(newNode.id)) {
+        // newNode not in oldNode at same level
+        nextOldNode = this.processAddedOrMovedNode(newNode);
+      }
+
+      if (oldNode !== undefined && !newNodeSiblingIds.includes(oldNode.id)) {
+        // oldNode not in newNode at same level
+        await this.processDeletedOrMovedNode(oldNode);
+        diffNodes.push(oldNode);
+      }
+
+      if (oldNodeSiblingIds.includes(newNode.id)) {
+        // oldNode is in newNode at same level
+        nextOldNode = assertDefined(this.oldIdNodeMap.get(newNode.id));
+      }
+    }
+
+    if (
+      newNode.id === nextOldNode?.id &&
+      (await this.isModified(newNode, nextOldNode, this.denylistProperties))
+    ) {
+      this.processModifiedNodes(newNode, nextOldNode);
+    }
+
+    await this.processNewNodeChildren(newNode, nextOldNode);
     diffNodes.push(newNode);
     return diffNodes;
   }
 
-  async visitChildren(
+  private processAddedOrMovedNode(newNode: T): T | undefined {
+    if (this.oldIdNodeMap.get(newNode.id) && this.addDiffsToNewRoot) {
+      newNode.setDiff(DiffType.ADDED_MOVE);
+      return this.oldIdNodeMap.get(newNode.id);
+    }
+    newNode.setDiff(DiffType.ADDED);
+    return undefined;
+  }
+
+  private async processDeletedOrMovedNode(oldNode: T): Promise<void> {
+    if (this.newIdNodeMap.get(oldNode.id)) {
+      oldNode.setDiff(DiffType.DELETED_MOVE);
+    } else {
+      oldNode.setDiff(DiffType.DELETED);
+    }
+    const newChildren = await this.visitChildren(undefined, oldNode);
+    oldNode.removeAllChildren();
+    newChildren.forEach((child) => {
+      assertDefined(oldNode).addOrReplaceChild(child);
+    });
+    this.processOldNode(oldNode);
+  }
+
+  private async visitChildren(
     newNode: T | undefined,
     oldNode: T | undefined,
   ): Promise<T[]> {
     const diffChildren: T[] = [];
+
+    const newNodeChildren = newNode?.getAllChildren() ?? [];
+    const oldNodeChildren = oldNode?.getAllChildren() ?? [];
+
     const numOfChildren = Math.max(
-      newNode?.getAllChildren().length ?? 0,
-      oldNode?.getAllChildren().length ?? 0,
+      newNodeChildren.length,
+      oldNodeChildren.length,
     );
     for (let i = 0; i < numOfChildren; i++) {
-      const newChild = newNode?.getAllChildren()[i];
-      let oldChild = oldNode?.getAllChildren()[i];
+      const newChild = newNodeChildren[i];
+      let oldChild: T | undefined = oldNodeChildren[i];
 
       if (!oldChild && newChild) {
-        oldChild = oldNode
-          ?.getAllChildren()
-          .find((node) => node.name === newChild.name);
+        oldChild = oldNodeChildren.find((node) => node.name === newChild.name);
       }
 
       const childDiffTrees = await this.generateDiffNodes(
         newChild,
         oldChild,
-        newNode?.getAllChildren().map((child) => child.id) ?? [],
-        oldNode?.getAllChildren().map((child) => child.id) ?? [],
+        newNodeChildren.map((child) => child.id),
+        oldNodeChildren.map((child) => child.id),
       );
       childDiffTrees.forEach((child) => diffChildren.push(child));
     }

@@ -33,14 +33,16 @@ import {
   MatDrawerContent,
 } from 'app/components/bottomnav/bottom_drawer_component';
 import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {PersistentStore} from 'common/store/persistent_store';
-import {TimestampConverterUtils} from 'common/time/test_utils';
 import {TimeRange} from 'common/time/time';
 import {
   ActiveTraceChanged,
   ExpandedTimelineToggled,
   InitializeTraceSearchRequest,
+  PlaybackSpeedChange,
+  PlaybackStateChangeHandled,
+  PlaybackStateChangeRequest,
   TraceAddRequest,
   TracePositionUpdate,
   TraceRemoveRequest,
@@ -49,15 +51,16 @@ import {
   TraceSearchRequest,
   WinscopeEvent,
 } from 'messaging/winscope_event';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_utils';
-import {TracesBuilder} from 'test/unit/traces_builder';
+import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
 import {makeEmptyTrace} from 'test/unit/trace_utils';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TRACE_INFO} from 'trace/trace_info';
-import {TracePosition} from 'trace/trace_position';
-import {TraceType} from 'trace/trace_type';
+import {TracesBuilder} from 'test/unit/traces_builder';
+import {Trace} from 'trace_api/trace';
+import {TRACE_INFO} from 'trace_api/trace_info';
+import {TracePosition} from 'trace_api/trace_position';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
 import {QueryResult} from 'trace_processor/query_result';
 import {makeSearchTraceSpies} from 'trace_processor/test_utils';
 import {CanvasDrawer} from './expanded-timeline/canvas_drawer';
@@ -68,20 +71,22 @@ import {MiniTimelineDrawerImpl} from './mini-timeline/drawer/mini_timeline_drawe
 import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
 import {SliderComponent} from './mini-timeline/slider_component';
 import {TimelineComponent} from './timeline_component';
+import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {PlaybackControlsComponent} from './playback_component';
 
 describe('TimelineComponent', () => {
-  const time90 = TimestampConverterUtils.makeRealTimestamp(90n);
-  const time100 = TimestampConverterUtils.makeRealTimestamp(100n);
-  const time101 = TimestampConverterUtils.makeRealTimestamp(101n);
-  const time105 = TimestampConverterUtils.makeRealTimestamp(105n);
-  const time110 = TimestampConverterUtils.makeRealTimestamp(110n);
-  const time112 = TimestampConverterUtils.makeRealTimestamp(112n);
+  const time90 = makeRealTimestamp(90n);
+  const time100 = makeRealTimestamp(100n);
+  const time101 = makeRealTimestamp(101n);
+  const time105 = makeRealTimestamp(105n);
+  const time110 = makeRealTimestamp(110n);
+  const time112 = makeRealTimestamp(112n);
 
-  const time2000 = TimestampConverterUtils.makeRealTimestamp(2000n);
-  const time3000 = TimestampConverterUtils.makeRealTimestamp(3000n);
-  const time4000 = TimestampConverterUtils.makeRealTimestamp(4000n);
-  const time6000 = TimestampConverterUtils.makeRealTimestamp(6000n);
-  const time8000 = TimestampConverterUtils.makeRealTimestamp(8000n);
+  const time2000 = makeRealTimestamp(2000n);
+  const time3000 = makeRealTimestamp(3000n);
+  const time4000 = makeRealTimestamp(4000n);
+  const time6000 = makeRealTimestamp(6000n);
+  const time8000 = makeRealTimestamp(8000n);
 
   const position90 = TracePosition.fromTimestamp(time90);
   const position100 = TracePosition.fromTimestamp(time100);
@@ -110,9 +115,6 @@ describe('TimelineComponent', () => {
         DragDropModule,
         ClipboardModule,
         CdkMenuModule,
-      ],
-      declarations: [
-        TestHostComponent,
         ExpandedTimelineComponent,
         DefaultTimelineRowComponent,
         MatDrawer,
@@ -121,7 +123,9 @@ describe('TimelineComponent', () => {
         MiniTimelineComponent,
         TimelineComponent,
         SliderComponent,
+        TestHostComponent,
         TransitionTimelineComponent,
+        PlaybackControlsComponent,
       ],
     })
       .overrideComponent(TimelineComponent, {
@@ -144,7 +148,7 @@ describe('TimelineComponent', () => {
     assertDefined(component.timelineData).initialize(
       traces,
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
     dom.detectChanges();
 
@@ -182,7 +186,7 @@ describe('TimelineComponent', () => {
     assertDefined(assertDefined(component.timelineData)).initialize(
       traces,
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
     dom.detectChanges();
 
@@ -275,11 +279,7 @@ describe('TimelineComponent', () => {
       .build();
 
     const timelineData = assertDefined(component.timelineData);
-    timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    timelineData.initialize(traces, undefined, UTC_CONVERTER);
     timelineData.setPosition(position100);
     dom.detectChanges();
     const nextEntryButton = dom.get(nextEntrySelector);
@@ -345,9 +345,9 @@ describe('TimelineComponent', () => {
     matOptions[0].checkText('Search test query');
     const sfOption = matOptions[2];
     sfOption.checkText('Surface Flinger');
-    expect(sfOption.getHTMLElement().ariaDisabled).toEqual('true');
+    expect(sfOption.getHTMLElement().ariaDisabled).toBe('true');
     for (const i of [1, 3, 4]) {
-      expect(matOptions[1].getHTMLElement().ariaDisabled).toEqual('false');
+      expect(matOptions[1].getHTMLElement().ariaDisabled).toBe('false');
     }
 
     matOptions[3].click();
@@ -388,13 +388,13 @@ describe('TimelineComponent', () => {
     loadAllTraces(component, dom, false);
     await dom.openMatSelect();
 
-    const matOptions = dom.getMatSelectPanel().findAll('mat-option'); // [WM, SF, SR, ProtoLog, VC]
+    const matOptions = dom.getMatSelectPanel().findAll('.mat-mdc-option'); // [WM, SF, SR, ProtoLog, VC]
 
     for (const i of [0, 2, 4]) {
-      expect(matOptions[i].getHTMLElement().ariaDisabled).toEqual('false');
+      expect(matOptions[i].getHTMLElement().ariaDisabled).toBe('false');
     }
     for (const i of [1, 3]) {
-      expect(matOptions[i].getHTMLElement().ariaDisabled).toEqual('true');
+      expect(matOptions[i].getHTMLElement().ariaDisabled).toBe('true');
     }
     matOptions[3].checkText('ProtoLog Dump');
     matOptions[4].checkText('View Capture Test Window');
@@ -464,7 +464,7 @@ describe('TimelineComponent', () => {
       assertDefined(component.timelineData)
         .getCurrentPosition()
         ?.timestamp.getValueNs(),
-    ).toEqual(100n);
+    ).toBe(100n);
     const nextEntryButton = dom.get(nextEntrySelector);
 
     testCurrentTimestampOnButtonClick(nextEntryButton, position105, 110n);
@@ -487,7 +487,7 @@ describe('TimelineComponent', () => {
       assertDefined(component.timelineData)
         .getCurrentPosition()
         ?.timestamp.getValueNs(),
-    ).toEqual(100n);
+    ).toBe(100n);
     const prevEntryButton = dom.get(prevEntrySelector);
 
     // In this state we are already on the first entry at timestamp 100, so
@@ -506,14 +506,14 @@ describe('TimelineComponent', () => {
     testCurrentTimestampOnButtonClick(prevEntryButton, position90, 90n);
   });
 
-  it('performs expected action on arrow key press depending on input form focus', () => {
+  it('performs expected action on arrow key press depending on input form focus', async () => {
     loadSfWmTraces();
     const timelineComponent = assertDefined(component.timeline);
 
     const spyNextEntry = spyOn(timelineComponent, 'moveToNextEntry');
     const spyPrevEntry = spyOn(timelineComponent, 'moveToPreviousEntry');
 
-    dom.keydownArrowRight(true);
+    await dom.keydownArrowRight(true);
     expect(spyNextEntry).toHaveBeenCalled();
 
     const formElement = dom.get('.time-input input').getHTMLElement();
@@ -521,7 +521,7 @@ describe('TimelineComponent', () => {
     Object.defineProperty(focusInEvent, 'target', {value: formElement});
     dom.dispatchEventInDocument(focusInEvent);
 
-    dom.keydownArrowLeft(true);
+    await dom.keydownArrowLeft(true);
     expect(spyPrevEntry).not.toHaveBeenCalled();
 
     const focusOutEvent = new FocusEvent('focusout');
@@ -539,7 +539,7 @@ describe('TimelineComponent', () => {
       assertDefined(component.timelineData)
         .getCurrentPosition()
         ?.timestamp.getValueNs(),
-    ).toEqual(100n);
+    ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.nano');
 
@@ -583,7 +583,7 @@ describe('TimelineComponent', () => {
       assertDefined(component.timelineData)
         .getCurrentPosition()
         ?.timestamp.getValueNs(),
-    ).toEqual(100n);
+    ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.human');
 
@@ -632,7 +632,7 @@ describe('TimelineComponent', () => {
       assertDefined(component.timelineData)
         .getCurrentPosition()
         ?.timestamp.valueOf(),
-    ).toEqual(100n);
+    ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.human');
 
@@ -651,7 +651,7 @@ describe('TimelineComponent', () => {
       assertDefined(component.timelineData)
         .getCurrentPosition()
         ?.timestamp.valueOf(),
-    ).toEqual(100n);
+    ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.human');
 
@@ -946,34 +946,34 @@ describe('TimelineComponent', () => {
     loadTracesWithLargeTimeRange();
 
     const timelineComponent = assertDefined(component.timeline);
-    expect(timelineComponent.bookmarks.length).toEqual(0);
+    expect(timelineComponent.bookmarks.length).toBe(0);
 
     openContextMenu();
     clickToggleBookmarkOption();
-    expect(timelineComponent.bookmarks.length).toEqual(1);
+    expect(timelineComponent.bookmarks.length).toBe(1);
 
     // click within marker y-pos, x-pos close enough to remove bookmark
     openContextMenu(5);
     clickToggleBookmarkOption();
-    expect(timelineComponent.bookmarks.length).toEqual(0);
+    expect(timelineComponent.bookmarks.length).toBe(0);
 
     openContextMenu();
     clickToggleBookmarkOption();
-    expect(timelineComponent.bookmarks.length).toEqual(1);
+    expect(timelineComponent.bookmarks.length).toBe(1);
 
     // click within marker y-pos, x-pos too large so new bookmark added
     openContextMenu(20);
     clickToggleBookmarkOption();
-    expect(timelineComponent.bookmarks.length).toEqual(2);
+    expect(timelineComponent.bookmarks.length).toBe(2);
 
     openContextMenu(20);
     clickToggleBookmarkOption();
-    expect(timelineComponent.bookmarks.length).toEqual(1);
+    expect(timelineComponent.bookmarks.length).toBe(1);
 
     // click below marker y-pos, x-pos now too large so new bookmark added
     openContextMenu(5, true);
     clickToggleBookmarkOption();
-    expect(timelineComponent.bookmarks.length).toEqual(2);
+    expect(timelineComponent.bookmarks.length).toBe(2);
   });
 
   it('removes all bookmarks', () => {
@@ -1025,6 +1025,11 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
     const timelineComponent = assertDefined(component.timeline);
     const initialTraces = timelineComponent.sortedTraces.slice();
+
+    await dom.openMatSelect();
+    dom.getMatSelectPanel().findAndClickByIndex('mat-option', 1);
+    expectSelectedTraceTypes([TraceType.SURFACE_FLINGER]);
+
     const spy = spyOn(
       assertDefined(timelineComponent.miniTimeline?.drawer),
       'draw',
@@ -1035,10 +1040,12 @@ describe('TimelineComponent', () => {
     expect(spy).toHaveBeenCalledTimes(1);
     expect(timelineComponent.sortedTraces).not.toEqual(initialTraces);
     expect(timelineComponent.sortedTraces[0]).toEqual(trace);
+    expectSelectedTraceTypes([TraceType.SEARCH, TraceType.SURFACE_FLINGER]);
 
     await timelineComponent.onWinscopeEvent(new TraceRemoveRequest(trace));
     expect(spy).toHaveBeenCalledTimes(2);
     expect(timelineComponent.sortedTraces).toEqual(initialTraces);
+    expectSelectedTraceTypes([TraceType.SURFACE_FLINGER]);
   });
 
   it('disables or enables timeline on winscope events', async () => {
@@ -1079,6 +1086,8 @@ describe('TimelineComponent', () => {
     spyOnProperty(wheelEvent, 'deltaY').and.returnValue(-200);
     spyOnProperty(wheelEvent, 'deltaX').and.returnValue(0);
     spyOnProperty(wheelEvent, 'y').and.returnValue(10);
+    dom.get('single-timeline').getHTMLElement().style.maxWidth = '500px';
+    dom.detectChanges();
     dom.get('single-timeline').dispatchEvent(wheelEvent);
     expect(expandedDrawSpy).toHaveBeenCalledTimes(5); // 3 entries total + 2 selected
     expect(miniDrawSpy).toHaveBeenCalledTimes(1); // all on one canvas so spy called once
@@ -1108,6 +1117,53 @@ describe('TimelineComponent', () => {
     expect(miniDrawSpy).toHaveBeenCalledTimes(1); // all on one canvas so spy called once
   });
 
+  describe('PlaybackControls', async () => {
+    beforeEach(() => {
+      component.initialTabTraceType = TraceType.SURFACE_FLINGER;
+      loadSfWmTraces();
+    });
+
+    it('emits PlaybackSpeedChange event', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      const emitEventSpy = jasmine.createSpy('emitEvent');
+      timelineComponent.setEmitEvent(emitEventSpy);
+
+      await dom.openMatSelect();
+      const selectPanel = dom.getMatSelectPanel();
+      await selectPanel.clickByIndexAndWaitStable('mat-option', 3);
+      const event = emitEventSpy.calls.mostRecent().args[0];
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+      expect(event).toBeInstanceOf(PlaybackSpeedChange);
+    });
+
+    it('handles PlaybackStateChangeHandled event', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      const emitEventSpy = jasmine.createSpy('emitEvent');
+      timelineComponent.setEmitEvent(emitEventSpy);
+
+      dom.findAndClick('playback-controls #play_playback_button');
+      const event = emitEventSpy.calls.mostRecent().args[0];
+      expect(event.state).toEqual(PlaybackState.FORWARDS);
+      await timelineComponent.onWinscopeEvent(
+        new PlaybackStateChangeHandled(event.state),
+      );
+      expect(timelineComponent.playbackState).toEqual(event.state);
+    });
+
+    it('emits PlaybackStateChangeRequest event on a playback button clicked', async () => {
+      const timelineComponent = assertDefined(component.timeline);
+      const emitEventSpy = jasmine.createSpy('emitEvent');
+      timelineComponent.setEmitEvent(emitEventSpy);
+
+      dom.findAndClick('playback-controls #play_playback_button');
+      expect(emitEventSpy).toHaveBeenCalledTimes(1);
+      const event = emitEventSpy.calls.mostRecent().args[0];
+      expect(event).toBeInstanceOf(PlaybackStateChangeRequest);
+      expect(event.state).toEqual(PlaybackState.FORWARDS);
+      expect(event.traceType).toEqual(TraceType.SURFACE_FLINGER);
+    });
+  });
+
   function loadSfWmTraces(hostComponent = component, domHelper = dom) {
     const traces = new TracesBuilder()
       .setTimestamps(TraceType.SURFACE_FLINGER, [time100, time110])
@@ -1120,11 +1176,7 @@ describe('TimelineComponent', () => {
       .build();
 
     const timelineData = assertDefined(hostComponent.timelineData);
-    timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    timelineData.initialize(traces, undefined, UTC_CONVERTER);
     timelineData.setPosition(position100);
     hostComponent.allTraces = hostComponent.timelineData.getTraces();
     domHelper.detectChanges();
@@ -1171,7 +1223,7 @@ describe('TimelineComponent', () => {
     assertDefined(hostComponent.timelineData).initialize(
       timelineDataTraces,
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
     hostComponent.allTraces = traces;
     domHelper.detectChanges();
@@ -1194,11 +1246,7 @@ describe('TimelineComponent', () => {
       .build();
 
     const timelineData = assertDefined(component.timelineData);
-    timelineData.initialize(
-      traces,
-      undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
-    );
+    timelineData.initialize(traces, undefined, UTC_CONVERTER);
     timelineData.setPosition(position100);
     component.allTraces = timelineData.getTraces();
     dom.detectChanges();
@@ -1223,7 +1271,7 @@ describe('TimelineComponent', () => {
     assertDefined(hostComponent.timelineData).initialize(
       traces,
       undefined,
-      TimestampConverterUtils.TIMESTAMP_CONVERTER,
+      UTC_CONVERTER,
     );
     hostComponent.allTraces = traces;
     await domHelper.detectChangesAndWaitStable();
@@ -1386,18 +1434,21 @@ describe('TimelineComponent', () => {
   }
 
   @Component({
+    imports: [TimelineComponent],
     selector: 'host-component',
     template: `
       <timeline
         [allTraces]="allTraces"
         [timelineData]="timelineData"
-        [store]="store"></timeline>
+        [store]="store"
+        [initialTabTraceType]="initialTabTraceType"></timeline>
     `,
   })
   class TestHostComponent {
     timelineData = new TimelineData();
     allTraces = new Traces();
     store = new PersistentStore();
+    initialTabTraceType: TraceType | undefined;
 
     @ViewChild(TimelineComponent)
     timeline: TimelineComponent | undefined;

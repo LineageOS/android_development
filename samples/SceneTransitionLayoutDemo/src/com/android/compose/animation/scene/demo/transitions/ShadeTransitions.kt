@@ -19,13 +19,16 @@ package com.android.compose.animation.scene.demo.transitions
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.android.compose.animation.scene.ContentKey
 import com.android.compose.animation.scene.Edge
+import com.android.compose.animation.scene.ElementKey
 import com.android.compose.animation.scene.SceneTransitionsBuilder
 import com.android.compose.animation.scene.TransitionBuilder
 import com.android.compose.animation.scene.UserActionDistance
 import com.android.compose.animation.scene.UserActionDistanceScope
+import com.android.compose.animation.scene.content.state.TransitionState
 import com.android.compose.animation.scene.demo.MediaPlayer
 import com.android.compose.animation.scene.demo.QuickSettings
 import com.android.compose.animation.scene.demo.QuickSettingsGrid
@@ -33,6 +36,9 @@ import com.android.compose.animation.scene.demo.Scenes
 import com.android.compose.animation.scene.demo.Shade
 import com.android.compose.animation.scene.demo.notification.NotificationList
 import com.android.compose.animation.scene.inScene
+import com.android.compose.animation.scene.transformation.InterpolatedPropertyTransformation
+import com.android.compose.animation.scene.transformation.PropertyTransformation
+import com.android.compose.animation.scene.transformation.PropertyTransformationScope
 
 fun SceneTransitionsBuilder.shadeTransitions(qsPagerState: PagerState) {
     // The distance when swiping the Shade from/to a scene (except QuickSettings).
@@ -163,6 +169,27 @@ val ToShadeScrimFadeEndFraction = 0.5f
 
 private fun TransitionBuilder.toShadeTransformations() {
     translate(Shade.Elements.Scrim, Edge.Top, startsOutsideLayoutBounds = false)
+
+    // Extend the scrim to content height during transition to prevent a visual gap at the bottom.
+    // Its target height is shorter, because it is its size at rest, where the underScrim is fully
+    // visible.
+    transformation(Shade.Elements.Scrim) {
+        object : InterpolatedPropertyTransformation<IntSize> {
+            override fun PropertyTransformationScope.transform(
+                content: ContentKey,
+                element: ElementKey,
+                transition: TransitionState.Transition,
+                idleValue: IntSize,
+            ): IntSize {
+                return content.targetSize()
+                    ?: error("Content ${content.debugName} does not have a target size")
+            }
+
+            override val property: PropertyTransformation.Property<IntSize>
+                get() = PropertyTransformation.Property.Size
+        }
+    }
+
     scaleSize(QuickSettingsGrid.Elements.Tiles, height = 0.5f)
 
     // Never share the media player when going to the shade. We will compose it in the lockscreen

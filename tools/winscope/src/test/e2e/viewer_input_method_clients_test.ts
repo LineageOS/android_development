@@ -72,7 +72,7 @@ describe('Viewer Input Method Clients', () => {
     const nodes = await element.all(
       by.css(`${viewerSelector} hierarchy-view .node`),
     );
-    expect(nodes.length).toEqual(5);
+    expect(nodes.length).toBe(5);
     expect(await nodes[0].getText()).toContain(
       'InputMethodClients - 2022-11-21, 18:05:14.970 - InsetsSourceConsumer#notifyAnimationFinished',
     );
@@ -118,11 +118,11 @@ describe('Viewer Input Method Clients', () => {
 
     const sfState = additionalProperties.element(by.css('.sf-state'));
     const sfStateTimestamp = await sfState.getText();
-    expect(sfStateTimestamp).toEqual('2022-11-21, 18:05:14.902');
+    expect(sfStateTimestamp).toBe('2022-11-21, 18:05:14.902');
 
     const wmState = additionalProperties.element(by.css('.wm-state'));
     const wmStateTimestamp = await wmState.getText();
-    expect(wmStateTimestamp).toEqual('2022-11-21, 18:05:14.896');
+    expect(wmStateTimestamp).toBe('2022-11-21, 18:05:14.896');
 
     const focusSection = additionalProperties.element(by.css('.focus'));
     const focusSectionText = await focusSection.getText();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {AbstractUpdateLayersAndWindows} from './abstract_update_layers_and_windows';
 
 export class UpdateTransitionParticipants extends AbstractUpdateLayersAndWindows<HierarchyTreeNode> {

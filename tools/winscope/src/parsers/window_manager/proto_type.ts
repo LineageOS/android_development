@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * The types of protos that can be present in a WM trace.
+ */
 export enum ProtoType {
   WindowManagerService = 'WindowManagerService',
   RootWindowContainer = 'RootWindowContainer',

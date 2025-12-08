@@ -15,9 +15,14 @@
  */
 
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
   selector: 'collapsible-section-title',
+  standalone: true,
+  imports: [MatButtonModule, MatIconModule, MatTooltipModule],
   template: `
       <button
         mat-icon-button
@@ -25,7 +30,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
         (click)="onCollapseButtonClick()">
         <mat-icon class="material-symbols-outlined"> left_panel_close </mat-icon>
       </button>
-      <h2 class="mat-title">{{title.toUpperCase()}}</h2>
+      <span class="mat-headline-6 section-title">{{title.toUpperCase()}}</span>
     `,
   styles: [
     `
@@ -34,12 +39,11 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
         flex-direction: row;
       }
       :host button {
-        padding-top: 8px;
-        margin-right: 4px;
-        width: 24px;
-      }
-      .mat-title {
         padding-top: 12px;
+      }
+      .section-title {
+        padding-top: 14px;
+        margin-bottom: 14px;
       }
     `,
   ],

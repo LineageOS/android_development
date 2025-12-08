@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert_utils';
+import {assertString} from 'common/assert';
+import {InputColumnType} from 'trace/input/input_column_type';
 import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
 import {InputEntry} from 'viewers/viewer_input/ui_data';
 
@@ -23,7 +24,10 @@ export class InputHeightPredictor extends ItemHeightPredictor {
   private readonly actionCharsPerRow = 11;
 
   override predictHeight(entry: InputEntry): number {
-    const action = assertString(entry.fields[2].value);
+    const action = assertString(
+      entry.fields.find((f) => f.spec.columnType === InputColumnType.ACTION)
+        ?.value,
+    );
     return this.subItemHeight(action, this.actionCharsPerRow);
   }
 }

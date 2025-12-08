@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-import {equal} from 'common/array_utils';
+import {equal} from 'common/typed_array';
 
-export class ParsingUtils {
-  static throwIfMagicNumberDoesNotMatch(
-    traceBuffer: Uint8Array,
-    magicNumber: number[] | undefined,
-  ) {
-    if (magicNumber !== undefined) {
-      const bufferContainsMagicNumber = equal(
-        magicNumber,
-        traceBuffer.slice(0, magicNumber.length),
-      );
-      if (!bufferContainsMagicNumber) {
-        throw new TypeError("buffer doesn't contain expected magic number");
-      }
+export function throwIfMagicNumberDoesNotMatch(
+  traceBuffer: Uint8Array,
+  magicNumber: number[] | undefined,
+) {
+  if (magicNumber !== undefined) {
+    const bufferContainsMagicNumber = startsWithMagicNumber(
+      traceBuffer,
+      magicNumber,
+    );
+    if (!bufferContainsMagicNumber) {
+      throw new TypeError("buffer doesn't contain expected magic number");
     }
   }
+}
+
+export function startsWithMagicNumber(
+  buffer: Uint8Array,
+  magicNumber: number[],
+) {
+  return equal(buffer.slice(0, magicNumber.length), magicNumber);
 }

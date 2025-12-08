@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {Timestamp} from 'common/time/time';
-import {CustomQueryType} from 'trace/custom_query';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceType} from 'trace/trace_type';
 import {TransitionStatus} from 'trace/transitions/status';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {CustomQueryType} from 'trace_api/custom_query';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -51,7 +51,6 @@ export class Presenter extends AbstractLogViewerPresenter<
     flags: {name: 'Flags', cssClass: 'flags'},
     status: {name: 'Status', cssClass: 'status right-align'},
   };
-  private transitionTrace: Trace<HierarchyTreeNode>;
   private surfaceFlingerTrace: Trace<HierarchyTreeNode> | undefined;
   private windowManagerTrace: Trace<HierarchyTreeNode> | undefined;
   private layerIdToName = new Map<number, string>();
@@ -81,7 +80,6 @@ export class Presenter extends AbstractLogViewerPresenter<
     notifyViewCallback: NotifyLogViewCallbackType<UiData>,
   ) {
     super(trace, notifyViewCallback, UiData.createEmpty());
-    this.transitionTrace = trace;
     this.surfaceFlingerTrace = traces.getTrace(TraceType.SURFACE_FLINGER);
     this.windowManagerTrace = traces.getTrace(TraceType.WINDOW_MANAGER);
   }
@@ -195,17 +193,17 @@ export class Presenter extends AbstractLogViewerPresenter<
     headers: LogHeader[],
   ): Promise<TransitionsEntry[]> {
     const transitions: TransitionsEntry[] = [];
+    const entryNodes = await this.trace.getAllEntryValues();
+
     for (
       let traceIndex = 0;
-      traceIndex < this.transitionTrace.lengthEntries;
+      traceIndex < this.trace.lengthEntries;
       ++traceIndex
     ) {
       const entry = assertDefined(this.trace.getEntry(traceIndex));
-      let transitionNode: HierarchyTreeNode;
-      try {
-        transitionNode = await entry.getValue();
-      } catch (e) {
-        console.error(e);
+      const transitionNode = entryNodes.at(traceIndex);
+      if (!transitionNode) {
+        // some transitions may be corrupted
         continue;
       }
       this.updateTransitionParticipants.apply(transitionNode);
@@ -229,8 +227,10 @@ export class Presenter extends AbstractLogViewerPresenter<
         {
           spec: Presenter.COLUMNS.id,
           value: assertDefined(
-            transitionNode.getEagerPropertyByName('transitionId'),
-          ).getValue(),
+            transitionNode
+              .getEagerPropertyByName('transitionId')
+              ?.getValue<number>(),
+          ),
         },
         {spec: Presenter.COLUMNS.type, value: transitionType},
         {

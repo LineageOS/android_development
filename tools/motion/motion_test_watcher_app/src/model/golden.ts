@@ -20,13 +20,25 @@ export interface MotionGolden {
   goldenRepoPath: string;
   id: string;
   label: string;
-  result: 'PASSED' | 'FAILED' | 'MISSING_REFERENCE';
+  result: 'PASSED' | 'FAILED' | 'MISSING_REFERENCE' | 'NONE';
   testClassName: string;
   testMethodName: string;
   testTime: string;
-  updated: boolean;
   videoUrl: string | undefined;
   goldenName: string | undefined;
+  dataSource: DataSource;
+  expectedData: MotionGoldenData;
+  actualData: MotionGoldenData;
+  status?: 'IDLE' | 'UPDATING' | 'PASSED_UPDATE' | 'FAILED_UPDATE';
+  error?: string;
+}
+
+export interface PresubmitTest {
+  testname: string;
+}
+
+export enum DataSource {
+  GERRIT = 'gerrit',
 }
 
 export interface MotionGoldenData {
@@ -50,7 +62,7 @@ type DataPointTypes =
 export interface DataPointObject {
   [member: string]: DataPointTypes;
 }
-export interface DataPointArray extends Array<DataPointTypes> {}
+export interface DataPointArray extends Array<DataPointTypes> { }
 export interface NotFound {
   type: 'not_found';
 }
@@ -63,3 +75,8 @@ export function isNotFound(dataPoint: DataPoint) {
     dataPoint.type === 'not_found'
   );
 }
+
+export interface GerritLinkPair {
+  linkLeft: string;
+  linkRight: string;
+};

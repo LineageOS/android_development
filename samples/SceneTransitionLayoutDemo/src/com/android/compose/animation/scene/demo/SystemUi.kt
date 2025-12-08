@@ -20,8 +20,10 @@ package com.android.compose.animation.scene.demo
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.OverscrollEffect
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -30,6 +32,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -105,9 +109,12 @@ import com.android.compose.animation.scene.demo.notification.NotificationList
 import com.android.compose.animation.scene.demo.notification.notifications
 import com.android.compose.animation.scene.demo.transitions.systemUiTransitions
 import com.android.compose.gesture.effect.rememberOffsetOverscrollEffectFactory
+import com.android.compose.modifiers.height
 import com.android.compose.modifiers.thenIf
-import com.android.compose.windowsizeclass.calculateWindowSizeClass
 import com.android.mechanics.behavior.VerticalExpandContainerSpec
+import com.android.mechanics.debug.DebugMotionValueVisualization
+import com.android.mechanics.debug.LocalMotionValueDebugController
+import com.android.mechanics.debug.MotionValueDebuggerProvider
 import kotlin.math.max
 
 object Scenes {
@@ -205,7 +212,9 @@ fun SystemUi(modifier: Modifier = Modifier) {
         rememberSaveable(stateSaver = DemoConfiguration.Saver) {
             mutableStateOf(DemoConfiguration())
         }
-    SystemUi(configuration, { configuration = it }, modifier)
+    MotionValueDebuggerProvider(enableDebugger = configuration.enableMotionValueDebugger) {
+        SystemUi(configuration, { configuration = it }, modifier)
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -492,9 +501,11 @@ fun SystemUi(
                 var isMediaPlayerPlaying by remember { mutableStateOf(false) }
                 val mediaPlayer:
                     (@Composable
-                    ContentScope.(presentationStyle: DemoMediaPresentationStyle) -> Unit)? =
+                    ContentScope.(
+                        presentationStyle: DemoMediaPresentationStyle, revealEffect: Boolean,
+                    ) -> Unit)? =
                     if (configuration.showMediaPlayer) {
-                        { presentationStyle ->
+                        { presentationStyle, revealEffect ->
                             MediaPlayer(
                                 presentationStyle = presentationStyle,
                                 isPlaying = isMediaPlayerPlaying,
@@ -504,24 +515,31 @@ fun SystemUi(
                                         configuration.copy(showMediaPlayer = isVisible)
                                     )
                                 },
+                                revealEffect = revealEffect,
                             )
                         }
                     } else {
                         null
                     }
                 val defaultMediaPlayer: (@Composable ContentScope.() -> Unit)? =
-                    mediaPlayer?.let { { it(DemoMediaPresentationStyle.Default) } }
-                val compactMediaPlayer: (@Composable ContentScope.() -> Unit)? =
-                    mediaPlayer?.let { { it(DemoMediaPresentationStyle.Compact) } }
+                    mediaPlayer?.let { { it(DemoMediaPresentationStyle.Default, false) } }
+                val compactMediaPlayer:
+                    (@Composable
+                    ContentScope.(revealEffect: Boolean) -> Unit)? =
+                    mediaPlayer?.let { player ->
+                        { revealEffect -> player(DemoMediaPresentationStyle.Compact, revealEffect) }
+                    }
 
-                val qsPager: (@Composable ContentScope.() -> Unit) = {
-                    QuickSettingsPager(
-                        pagerState = quickSettingsPagerState,
-                        tiles = quickSettingsTiles,
-                        nRows = nQuickSettingsRow,
-                        nColumns = nQuickSettingsColumns,
-                    )
-                }
+                val qsPager: (@Composable ContentScope.(revealEffect: Boolean) -> Unit) =
+                    { revealEffect ->
+                        QuickSettingsPager(
+                            pagerState = quickSettingsPagerState,
+                            tiles = quickSettingsTiles,
+                            nRows = nQuickSettingsRow,
+                            nColumns = nQuickSettingsColumns,
+                            revealEffect = revealEffect,
+                        )
+                    }
 
                 // SceneTransitionLayout can only be bound to one SceneTransitionLayoutState, so
                 // make sure we recompose it fully when we create a new state object.
@@ -698,7 +716,11 @@ fun SystemUi(
                             effectFactory = overlayEffectFactory,
                         ) {
                             FirstCompositionDelay(configuration)
-                            QuickSettingsShade(qsPager, compactMediaPlayer)
+                            QuickSettingsShade(
+                                qsPager = qsPager,
+                                mediaPlayer = compactMediaPlayer,
+                                revealEffect = configuration.qsRevealEffect,
+                            )
                         }
 
                         overlay(
@@ -731,6 +753,39 @@ fun SystemUi(
                     Row {
                         Box(Modifier.testTag("StlStartHalf").fillMaxHeight().weight(1f))
                         Box(Modifier.testTag("StlEndHalf").fillMaxHeight().weight(1f))
+                    }
+                }
+
+                val debuggerState = LocalMotionValueDebugController.current
+                if (debuggerState != null) {
+                    Box(Modifier.fillMaxSize()) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier =
+                                Modifier.padding(bottom = 32.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+                                    )
+                                    .align(Alignment.BottomStart),
+                        ) {
+                            debuggerState.observed.forEach {
+                                key(it) {
+                                    var rowExpanded by remember { mutableStateOf(false) }
+
+                                    val height by
+                                        animateDpAsState(if (rowExpanded) 96.dp else 24.dp)
+
+                                    DebugMotionValueVisualization(
+                                        it,
+                                        0f..2000f,
+                                        modifier =
+                                            Modifier.height { height.toPx().toInt() }
+                                                .fillMaxWidth()
+                                                .clickable { rowExpanded = !rowExpanded },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -27,7 +27,7 @@ import {
 } from './utils';
 
 describe('Upload traces', () => {
-  const DEFAULT_TIMEOUT_MS = 60000;
+  const DEFAULT_TIMEOUT_MS = 40000;
 
   beforeAll(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = DEFAULT_TIMEOUT_MS;
@@ -51,9 +51,13 @@ describe('Upload traces', () => {
   });
 
   it('can replace an uploaded file with a new file', async () => {
-    await loadBugReport(DEFAULT_TIMEOUT_MS);
-    await uploadFixture('traces/perfetto/layers_trace.perfetto-trace');
-    await checkFileReplaced();
+    const dir = 'traces/perfetto/';
+    const firstFile = 'layers_trace.perfetto-trace';
+    const secondFile = 'layers_trace_with_duplicated_ids.perfetto-trace';
+    await uploadFixture(dir + firstFile);
+    await checkFileUploaded(firstFile);
+    await uploadFixture(dir + secondFile);
+    await checkFileReplaced(firstFile, secondFile);
   });
 
   it('can process bugreport', async () => {
@@ -90,11 +94,16 @@ describe('Upload traces', () => {
     expect(text).toContain('Transitions');
   }
 
-  async function checkFileReplaced() {
+  async function checkFileUploaded(file: string) {
     const text = await element(by.css('.uploaded-files')).getText();
     expect(text).toContain('Surface Flinger');
+    expect(text).toContain(file);
+  }
 
-    expect(text).not.toContain('layers_trace_from_transactions.winscope');
-    expect(text).toContain('layers_trace.perfetto-trace');
+  async function checkFileReplaced(firstFile: string, secondFile: string) {
+    const text = await element(by.css('.uploaded-files')).getText();
+    expect(text).toContain('Surface Flinger');
+    expect(text).not.toContain(firstFile);
+    expect(text).toContain(secondFile);
   }
 });

@@ -16,6 +16,13 @@
 
 import {TIME_UNIT_TO_NANO} from './time_units';
 
+/**
+ * A class representing a UTC offset used to convert system timestamps to
+ * local time when this information is available on traces and bugreports.
+ *
+ * Due to backwards compatibility, not all bugreports and traces will have
+ * this information available.
+ */
 export class UTCOffset {
   private valueNs: bigint | undefined;
 
@@ -37,12 +44,10 @@ export class UTCOffset {
 
   initialize(valueNs: bigint) {
     if (valueNs > BigInt(14 * TIME_UNIT_TO_NANO.h)) {
-      console.warn('Failed to set timezone offset greater than UTC+14:00');
-      return;
+      throw new Error('Failed to set timezone offset greater than UTC+14:00');
     }
     if (valueNs < BigInt(-12 * TIME_UNIT_TO_NANO.h)) {
-      console.warn('Failed to set timezone offset greater than UTC-12:00');
-      return;
+      throw new Error('Failed to set timezone offset greater than UTC-12:00');
     }
     this.valueNs = valueNs;
   }

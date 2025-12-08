@@ -51,18 +51,34 @@ class ChildScreen(identifier: String, val content: @Composable (NavController) -
 class DemoScreen(val demo: Demo<*>) : Screen(demo.identifier)
 
 /** Create the navigation graph for [screen]. */
-fun NavGraphBuilder.screen(screen: Screen, navController: NavController) {
+fun NavGraphBuilder.screen(
+    screen: Screen,
+    navController: NavController,
+    startDestination: String = "",
+) {
     when (screen) {
         is ChildScreen -> composable(screen.identifier) { screen.content(navController) }
         is DemoScreen -> composable(screen.identifier) { screen.demo.ConfigurableDemo() }
         is ParentScreen -> {
             val menuRoute = "${screen.identifier}_menu"
-            navigation(startDestination = menuRoute, route = screen.identifier) {
+            navigation(
+                startDestination = startDestination.takeIf { it.isNotBlank() } ?: menuRoute,
+                route = screen.identifier,
+            ) {
                 // The menu to navigate to one of the children screens.
                 composable(menuRoute) { ScreenMenu(screen, navController) }
 
+                val subDestination =
+                    startDestination.let {
+                        val subRouteStart = it.indexOf('/')
+
+                        if (subRouteStart > 0) it.substring(subRouteStart + 1) else ""
+                    }
+
                 // The content of the child screens.
-                screen.children.forEach { (_, child) -> screen(child, navController) }
+                screen.children.forEach { (_, child) ->
+                    screen(child, navController, subDestination)
+                }
             }
         }
     }

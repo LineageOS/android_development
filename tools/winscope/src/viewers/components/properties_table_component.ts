@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
 import {TableProperties} from 'viewers/common/table_properties';
 
 @Component({
   selector: 'properties-table',
+  standalone: true,
+  imports: [CommonModule],
   template: `
-    <table class="table" *ngIf="properties !== undefined">
-      <tr *ngFor="let entry of objectEntries(properties)">
-        <td class="table-cell-name">
-          <p class="mat-body-1">{{ entry[0] }}</p>
-        </td>
-        <td class="table-cell-value">
-          <p class="mat-body-1">{{ entry[1] != undefined ? entry[1] : 'undefined' }}</p>
-        </td>
-      </tr>
-    </table>
+    @if (properties !== undefined) {
+      <table class="table">
+        @for (entry of objectEntries(properties); track entry[0]) {
+          <tr>
+            <td class="table-cell-name">
+              <p class="mat-body-1">{{ entry[0] }}</p>
+            </td>
+            <td class="table-cell-value">
+              <p class="mat-body-1">{{ entry[1] != undefined ? entry[1] : 'undefined' }}</p>
+            </td>
+          </tr>
+        }
+      </table>
+    }
   `,
   styles: [
     `

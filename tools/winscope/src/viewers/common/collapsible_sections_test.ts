@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {CollapsibleSections} from './collapsible_sections';
 import {CollapsibleSectionType} from './collapsible_section_type';
+import {CollapsibleSections} from './collapsible_sections';
 
 describe('AddDiffsPropertiesTree', () => {
   let collapsibleSections: CollapsibleSections;

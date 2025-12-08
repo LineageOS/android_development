@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+import {CommonModule} from '@angular/common';
 import {Component, ViewChild} from '@angular/core';
-import {TraceType} from 'trace/trace_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
+import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
 import {LogComponent} from 'viewers/components/log_component';
+import {PropertiesComponent} from 'viewers/components/properties_component';
 import {selectedElementStyle} from 'viewers/components/styles/selected_element.styles';
 import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
 import {ViewerComponent} from 'viewers/components/viewer_component';
@@ -26,6 +29,13 @@ import {UiData} from './ui_data';
 
 @Component({
   selector: 'viewer-transitions',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CollapsedSectionsComponent,
+    LogComponent,
+    PropertiesComponent,
+  ],
   template: `
     <div class="card-grid">
       <collapsed-sections
@@ -39,12 +49,13 @@ import {UiData} from './ui_data';
         [selectedIndex]="inputData?.selectedIndex"
         [scrollToIndex]="inputData?.scrollToIndex"
         [currentIndex]="inputData?.currentIndex"
-        [entries]="inputData?.entries"
-        [headers]="inputData?.headers"
+        [entries]="inputData?.entries ?? []"
+        [headers]="inputData?.headers ?? []"
         [traceType]="${TraceType.TRANSITION}"
         [showTraceEntryTimes]="false"
         [showCurrentTimeButton]="false"
-        [isFetchingData]="inputData?.isFetchingData">
+        [isFetchingData]="inputData?.isFetchingData"
+        [checkScrollViewport]="inputData?.checkScrollViewport">
       </log-view>
 
       <properties-view

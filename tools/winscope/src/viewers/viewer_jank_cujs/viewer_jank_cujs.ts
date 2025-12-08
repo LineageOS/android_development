@@ -15,24 +15,24 @@
  */
 
 import {Store} from 'common/store/store';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceType} from 'trace/trace_type';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {AbstractViewer} from 'viewers/abstract_viewer';
 import {ViewerComponent} from 'viewers/components/viewer_component';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
-export class ViewerJankCujs extends AbstractViewer<PropertyTreeNode> {
+export class ViewerJankCujs extends AbstractViewer<HierarchyTreeNode> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.CUJS];
 
-  constructor(trace: Trace<PropertyTreeNode>, traces: Traces, store: Store) {
+  constructor(trace: Trace<HierarchyTreeNode>, traces: Traces, store: Store) {
     super(trace, traces, 'viewer-jank-cujs', store);
   }
 
   protected override initializePresenter(
-    trace: Trace<PropertyTreeNode>,
+    trace: Trace<HierarchyTreeNode>,
     traces: Traces,
     store: Store,
   ): Presenter {

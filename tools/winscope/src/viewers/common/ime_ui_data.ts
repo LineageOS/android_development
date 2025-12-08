@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ImeTraceType} from 'trace/trace_type';
+import {ImeTraceType} from 'trace_api/trace_type';
 import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
 import {TableProperties} from 'viewers/common/table_properties';
 import {TextFilter} from 'viewers/common/text_filter';

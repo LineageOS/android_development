@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {AbstractSearchViewFactory} from './abstract_search_view_factory';
-import {SearchView} from './trace_search_initializer';
+import {SearchView} from './search_view';
 
+/**
+ * A factory for creating search views for ProtoLog traces.
+ */
 export class SearchViewFactoryProtoLog extends AbstractSearchViewFactory {
   override readonly traceType = TraceType.PROTO_LOG;
   private static readonly VIEW: SearchView = {
     name: 'protolog',
     dataType: 'ProtoLog',
+    docsUrl: AbstractSearchViewFactory.BASE_DOCS_URL + 'protolog-sql-table',
     columns: [
       {
         name: 'ts',

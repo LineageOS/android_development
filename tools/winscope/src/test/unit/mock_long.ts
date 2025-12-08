@@ -15,7 +15,10 @@
  */
 
 export class MockLong {
-  constructor(public low: number, public high: number) {}
+  constructor(
+    public low: number,
+    public high: number,
+  ) {}
 
   toString() {
     const low = BigInt(this.low >>> 0);

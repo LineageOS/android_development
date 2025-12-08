@@ -34,7 +34,6 @@ export class TracingSession {
       return;
     }
     await device.endTrace(this.target);
-    await this.moveFiles(device);
     this.isTracing = false;
   }
 
@@ -59,16 +58,17 @@ export class TracingSession {
           `Attempting to move file ${filepath} to ${WINSCOPE_BACKUP_DIR}${file.destName} on device`,
         );
         try {
-          await device.runShellCommand(
+          const output = await device.runShellCommand(
             maybeRootParam +
               `[ -f ${filepath} ] && ` +
               maybeRootParam +
-              `cp ${filepath} ${WINSCOPE_BACKUP_DIR}${file.destName} && ` +
+              `cp -p ${filepath} ${WINSCOPE_BACKUP_DIR}${file.destName} && ` +
               maybeRootParam +
               `rm -f ${filepath}`,
           );
           console.debug(
-            `Moved ${filepath} to ${WINSCOPE_BACKUP_DIR}${file.destName} on device`,
+            `Moved ${filepath} to ${WINSCOPE_BACKUP_DIR}${file.destName} on device.` +
+              ` Output: ${output}`,
           );
         } catch (e) {
           console.warn(
@@ -85,7 +85,8 @@ export class TracingSession {
 
   private async setup(device: AdbDeviceConnection) {
     for (const cmd of this.target.setupCmds) {
-      await device.runShellCommand(cmd);
+      const output = await device.runShellCommand(cmd);
+      console.log(`Ran ${cmd}. Output: ${output}`);
     }
   }
 }

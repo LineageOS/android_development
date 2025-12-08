@@ -17,4 +17,10 @@ export class PreviewService {
   setCurrentFrameFromView(frame: number | null) {
     this.currentFrameFromView.next(frame);
   }
+
+  private showMarker = new BehaviorSubject<boolean | false>(false);
+  showMarker$= this.showMarker.asObservable();
+  setShowMarker(showMarker: boolean | false){
+    this.showMarker.next(showMarker);
+  }
 }

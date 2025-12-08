@@ -223,3 +223,10 @@ flag {
     bug: "413977839"
     is_fixed_read_only: true
 }
+flag {
+    name: "test_trunk_stable_gantry_creates_studies"
+    namespace: "core_experiments_team_internal"
+    description: "A test flag to test new gantry creates studies via rpc"
+    bug: "413977839"
+    is_fixed_read_only: false
+}

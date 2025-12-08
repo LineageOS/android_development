@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertySource} from 'trace/tree_node/property_tree_node';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {TextFilter} from 'viewers/common/text_filter';
 import {DiffType} from './diff_type';
 import {PropertiesPresenter} from './properties_presenter';
@@ -45,7 +45,7 @@ describe('PropertiesPresenter', () => {
   let presenter: PropertiesPresenter;
 
   beforeAll(async () => {
-    jasmine.addCustomEqualityTester(TreeNodeUtils.treeNodeEqualityTester);
+    jasmine.addCustomEqualityTester(treeNodeEqualityTester);
   });
 
   beforeEach(() => {
@@ -61,12 +61,12 @@ describe('PropertiesPresenter', () => {
   });
 
   it('updates highlighted property', () => {
-    expect(presenter.getHighlightedProperty()).toEqual('');
+    expect(presenter.getHighlightedProperty()).toBe('');
     const id = '4';
     presenter.applyHighlightedPropertyChange(id);
     expect(presenter.getHighlightedProperty()).toEqual(id);
     presenter.applyHighlightedPropertyChange(id);
-    expect(presenter.getHighlightedProperty()).toEqual('');
+    expect(presenter.getHighlightedProperty()).toBe('');
   });
 
   it('updates properties tree to show diffs based on user option', async () => {
@@ -88,29 +88,29 @@ describe('PropertiesPresenter', () => {
   });
 
   it('shows/hides defaults based on user option', async () => {
-    expect((await getFormattedTree()).getAllChildren().length).toEqual(2);
+    expect((await getFormattedTree()).getAllChildren().length).toBe(2);
     presenter.applyPropertiesUserOptionsChange({
       showDefaults: {name: '', enabled: true},
     });
-    expect((await getFormattedTree()).getAllChildren().length).toEqual(3);
+    expect((await getFormattedTree()).getAllChildren().length).toBe(3);
   });
 
   it('filters properties tree', async () => {
-    expect((await getFormattedTree()).getAllChildren().length).toEqual(2);
+    expect((await getFormattedTree()).getAllChildren().length).toBe(2);
     const filter = new TextFilter('setProp');
     presenter.applyPropertiesFilterChange(filter);
     expect(presenter.getTextFilter()).toEqual(filter);
-    expect((await getFormattedTree()).getAllChildren().length).toEqual(1);
+    expect((await getFormattedTree()).getAllChildren().length).toBe(1);
   });
 
   it('keeps calculated properties', async () => {
     const tree = await getFormattedTree(undefined, undefined, true);
-    expect(tree.getAllChildren().length).toEqual(3);
+    expect(tree.getAllChildren().length).toBe(3);
   });
 
   it('overrides display name', async () => {
     const tree = await getFormattedTree(undefined, 'Override Name');
-    expect(tree.getDisplayName()).toEqual('Override Name');
+    expect(tree.getDisplayName()).toBe('Override Name');
   });
 
   it('keeps allowlist default properties', async () => {

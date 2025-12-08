@@ -20,25 +20,23 @@ import {Store} from './store';
  * A proxy class that allows you to create objects that are backed by a persistent store.
  * The proxy will automatically save changes made to the object to the store.
  */
-export class PersistentStoreProxy {
-  static new<T extends object>(
-    key: string,
-    defaultState: T,
-    storage: Store,
-  ): T {
-    const storedState = JSON.parse(storage.get(key) ?? '{}', parseMap);
-    const currentState = mergeDeep({}, structuredClone(defaultState));
-    mergeDeepKeepingStructure(currentState, storedState);
-    return wrapWithPersistentStoreProxy(key, currentState, storage) as T;
-  }
+export function createPersistentStoreProxy<T extends object>(
+  key: string,
+  defaultState: T,
+  storage: Store,
+): T {
+  const storedState = JSON.parse(storage.get(key) ?? '{}', parseMap);
+  const currentState = mergeDeep({}, structuredClone(defaultState)) as T;
+  mergeDeepKeepingStructure(currentState, storedState);
+  return wrapWithPersistentStoreProxy(key, currentState, storage);
 }
 
-function wrapWithPersistentStoreProxy(
+function wrapWithPersistentStoreProxy<T extends object>(
   storeKey: string,
-  object: object,
+  object: T,
   storage: Store,
   baseObject: object = object,
-): object {
+): T {
   const updatableProps: string[] = [];
 
   for (const [key, value] of Object.entries(object)) {
@@ -51,8 +49,8 @@ function wrapWithPersistentStoreProxy(
       if (!Array.isArray(object)) {
         updatableProps.push(key);
       }
-    } else {
-      (object as any)[key] = wrapWithPersistentStoreProxy(
+    } else if (value !== null && typeof value === 'object') {
+      (object as Record<string, unknown>)[key] = wrapWithPersistentStoreProxy(
         storeKey,
         value,
         storage,
@@ -61,35 +59,28 @@ function wrapWithPersistentStoreProxy(
     }
   }
   const proxyObj = new Proxy(object, {
-    set: (target, prop, newValue) => {
+    set: (target: T, prop: string | symbol, newValue: unknown): boolean => {
       if (typeof prop === 'symbol') {
         throw new Error("Can't use symbol keys only strings");
       }
-      if (
-        Array.isArray(target) &&
-        (typeof prop === 'number' || !Number.isNaN(Number(prop)))
-      ) {
+      if (Array.isArray(target) && !Number.isNaN(Number(prop))) {
         target[Number(prop)] = newValue;
         storage.add(storeKey, JSON.stringify(baseObject, stringifyMap));
         return true;
       }
       if (!Array.isArray(target) && Array.isArray(newValue)) {
-        (target as any)[prop] = wrapWithPersistentStoreProxy(
-          storeKey,
-          newValue,
-          storage,
-          baseObject,
-        );
+        (target as Record<string, unknown>)[prop] =
+          wrapWithPersistentStoreProxy(storeKey, newValue, storage, baseObject);
         storage.add(storeKey, JSON.stringify(baseObject, stringifyMap));
         return true;
       }
       if (!Array.isArray(target) && updatableProps.includes(prop)) {
-        (target as any)[prop] = newValue;
+        (target as Record<string, unknown>)[prop] = newValue;
         storage.add(storeKey, JSON.stringify(baseObject, stringifyMap));
         return true;
       }
       throw new Error(
-        `Object property '${prop}' is not updatable. Can only update leaf keys: [${updatableProps}]`,
+        `Object property '${prop.toString()}' is not updatable. Can only update leaf keys: [${updatableProps}]`,
       );
     },
   });
@@ -97,8 +88,8 @@ function wrapWithPersistentStoreProxy(
   return proxyObj;
 }
 
-function isObject(item: any): boolean {
-  return item && typeof item === 'object' && !Array.isArray(item);
+function isObject(item: unknown): item is Record<string, unknown> {
+  return item !== null && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
@@ -106,37 +97,40 @@ function isObject(item: any): boolean {
  * @param target the object we mutate by merging the data from source into, but keep the object structure of
  * @param source the object we merge into target
  */
-function mergeDeepKeepingStructure(target: any, source: any) {
+function mergeDeepKeepingStructure(target: object, source: unknown) {
   if (isObject(target) && isObject(source)) {
-    for (const key in target) {
-      if (source[key] === undefined) {
+    for (const key of Object.keys(target)) {
+      if (!(key in source)) {
         continue;
       }
 
-      if (isObject(target[key]) && isObject(source[key])) {
-        mergeDeepKeepingStructure(target[key], source[key]);
-        continue;
-      }
+      const targetValue = target[key];
+      const sourceValue = source[key];
 
-      if (!isObject(target[key]) && !isObject(source[key])) {
-        Object.assign(target, {[key]: source[key]});
-        continue;
+      if (isObject(targetValue) && isObject(sourceValue)) {
+        mergeDeepKeepingStructure(targetValue, sourceValue);
+      } else if (!isObject(targetValue) && !isObject(sourceValue)) {
+        target[key] = sourceValue;
       }
     }
   }
 }
 
-function mergeDeep(target: any, ...sources: any): object {
-  if (!sources.length) return target;
+function mergeDeep(target: object, ...sources: object[]): object {
+  if (!sources.length) {
+    return target;
+  }
   const source = sources.shift();
 
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, {[key]: {}});
-        mergeDeep(target[key], source[key]);
+        if (!target[key] || !isObject(target[key])) {
+          target[key] = {};
+        }
+        mergeDeep(target[key] as object, source[key]);
       } else {
-        Object.assign(target, {[key]: source[key]});
+        target[key] = source[key];
       }
     }
   }
@@ -150,7 +144,7 @@ function mergeDeep(target: any, ...sources: any): object {
  * @param value the Map object
  * @return the object with type and value properties
  */
-export function stringifyMap(key: string, value: any) {
+export function stringifyMap(key: string, value: unknown) {
   if (value instanceof Map) {
     return {
       type: 'Map',
@@ -166,9 +160,13 @@ export function stringifyMap(key: string, value: any) {
  * @param value the object with type and value properties
  * @return the Map object
  */
-export function parseMap(key: string, value: any) {
-  if (value && value.type === 'Map') {
-    return new Map(value.value);
+export function parseMap(key: string, value: unknown) {
+  if (
+    isObject(value) &&
+    value['type'] === 'Map' &&
+    Array.isArray(value['value'])
+  ) {
+    return new Map(value['value']);
   }
   return value;
 }

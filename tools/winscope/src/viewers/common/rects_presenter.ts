@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Trace} from 'trace/trace';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {Trace} from 'trace_api/trace';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {UiRect} from 'viewers/components/rects/ui_rect';
 import {DisplayIdentifier} from './display_identifier';
 import {TraceAndTrees} from './hierarchy_presenter';
@@ -24,7 +24,7 @@ import {RectShowState} from './rect_show_state';
 import {UserOptions} from './user_options';
 
 export class RectsPresenter {
-  private readonly rectFilter = new RectFilter(this.convertToKey);
+  private readonly rectFilter: RectFilter;
   private allCurrentRects: UiRect[] = [];
   private rectsToDraw: UiRect[] = [];
   private displays: DisplayIdentifier[] = [];
@@ -38,7 +38,9 @@ export class RectsPresenter {
     ) => UiRect[],
     private makeDisplaysStrategy?: (rects: UiRect[]) => DisplayIdentifier[],
     private convertToKey: (rectId: string) => string = (id: string) => id,
-  ) {}
+  ) {
+    this.rectFilter = new RectFilter(this.convertToKey);
+  }
 
   getUserOptions(): UserOptions {
     return this.userOptions;

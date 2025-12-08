@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {UserNotifier} from 'common/user_notifier';
 import {UserNotification} from 'messaging/user_notification';
+import {UserNotifier} from 'services/user_notifier';
 
 export class UserNotifierChecker {
   private userNotifierAdd: jasmine.Spy<jasmine.Func>;

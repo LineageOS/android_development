@@ -269,7 +269,6 @@ describe('RectFilter', () => {
       .setId(id)
       .setGroupId(0)
       .setIsClickable(false)
-      .setCornerRadius(0)
       .setDepth(0)
       .setOpacity(0.5)
       .setHasContent(hasContent)

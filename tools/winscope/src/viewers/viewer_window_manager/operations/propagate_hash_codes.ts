@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Operation} from 'trace/tree_node/operations/operation';
+import {Operation} from 'tree_node/operation';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
 
 export class PropagateHashCodes implements Operation<UiPropertyTreeNode> {
@@ -34,7 +34,7 @@ export class PropagateHashCodes implements Operation<UiPropertyTreeNode> {
         if (child.name !== 'hashCode') {
           return;
         }
-        const hex = (child.getValue() ?? 0).toString(16);
+        const hex = (child.getValue<number>() ?? 0).toString(16);
         if (child.id.split(' ').at(1) === hex) {
           return;
         }

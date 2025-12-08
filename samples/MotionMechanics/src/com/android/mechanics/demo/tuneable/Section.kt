@@ -41,12 +41,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -68,9 +71,49 @@ data class SectionData(
 val LocalSectionData = staticCompositionLocalOf<SectionData> { throw AssertionError() }
 
 @Composable
+fun SectionContainer(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    val rootSectionData = remember {
+        val expansionStateByKey = mutableMapOf<String, MutableState<Boolean>>()
+
+        fun isExpanded(key: String): MutableState<Boolean> {
+            return expansionStateByKey.computeIfAbsent(key) { mutableStateOf(false) }
+        }
+
+        SectionData(keyPrefix = "mechanics", expansionStateFactory = ::isExpanded)
+    }
+    CompositionLocalProvider(LocalSectionData provides rootSectionData) {
+        Column(modifier = modifier) { content() }
+    }
+}
+
+@Composable
 fun <T> Section(
     label: String,
     summary: (T) -> String,
+    value: T,
+    onValueChanged: (T) -> Unit,
+    sectionKey: String,
+    modifier: Modifier = Modifier,
+    showSummaryWhenExpanded: Boolean = false,
+    subsections: ConfigurationContent<T>? = null,
+    content: ConfigurationContent<T>,
+) =
+    SectionWithAnnotatedSummary(
+        label,
+        { append(summary(it)) },
+        value,
+        onValueChanged,
+        sectionKey,
+        modifier,
+        showSummaryWhenExpanded,
+        subsections,
+        content,
+    )
+
+@Composable
+fun <T> SectionWithAnnotatedSummary(
+    label: String,
+    summary: AnnotatedString.Builder.(T) -> Unit,
     value: T,
     onValueChanged: (T) -> Unit,
     sectionKey: String,
@@ -120,7 +163,7 @@ fun <T> Section(
                     exit = fadeOut(),
                 ) {
                     Text(
-                        summary(value),
+                        text = buildAnnotatedString { summary(value) },
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

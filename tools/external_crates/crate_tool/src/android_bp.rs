@@ -85,7 +85,7 @@ pub fn maybe_build_cargo_embargo(repo_root: &impl AsRef<Path>, force_rebuild: bo
 }
 
 fn build_cargo_embargo(repo_root: &impl AsRef<Path>) -> Result<()> {
-    Command::new("/usr/bin/bash")
+    Command::new("bash")
         .args(["-c", "source build/envsetup.sh && lunch aosp_cf_x86_64_phone-trunk_staging-eng && m cargo_embargo"])
         .env_remove("OUT_DIR")
         .current_dir(repo_root)

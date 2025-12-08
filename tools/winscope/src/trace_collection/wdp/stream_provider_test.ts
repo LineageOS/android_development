@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {binaryEncode} from 'common/string_utils';
+import {binaryEncode} from 'common/string_helpers';
 import {waitToBeCalled} from 'test/unit/spy_utils';
 import {
   makeFakeWebSocket,

@@ -18,13 +18,13 @@ syntax = "proto2";
 
 package com.android.internal.protolog;
 
-option java_multiple_files = true;
+import "privacy.proto";
 
-import "frameworks/base/core/proto/android/privacy.proto";
+option java_multiple_files = true;
 
 /* represents a single log entry */
 message ProtoLogMessage {
-    option (.android.msg_privacy).dest = DEST_LOCAL;
+    option (.android_common.msg_privacy).dest = DEST_LOCAL;
 
     /* log statement identifier, created from message string and log level. */
     optional sfixed32 message_hash_legacy = 1 [deprecated = true];
@@ -47,7 +47,7 @@ message ProtoLogMessage {
    Encoded, it should start with 0x9 0x50 0x52 0x4f 0x54 0x4f 0x4c 0x4f 0x47 (.PROTOLOG), such
    that they can be easily identified. */
 message ProtoLogFileProto {
-    option (.android.msg_privacy).dest = DEST_LOCAL;
+    option (.android_common.msg_privacy).dest = DEST_LOCAL;
 
     /* constant; MAGIC_NUMBER = (long) MAGIC_NUMBER_H << 32 | MagicNumber.MAGIC_NUMBER_L
        (this is needed because enums have to be 32 bits and there's no nice way to put 64bit

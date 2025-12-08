@@ -13,33 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {ClipboardModule} from '@angular/cdk/clipboard';
+import {CommonModule} from '@angular/common';
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {proxySetupStyles} from 'app/styles/proxy_setup.styles';
-import {Download} from 'common/download';
-import {getRootUrl} from 'common/url_utils';
+import {DownloadRequest, downloadFromUrl} from 'common/download';
+import {getRootUrl} from 'common/window';
 import {ConnectionState} from 'trace_collection/connection_state';
 import {VERSION} from 'trace_collection/winscope_proxy/utils';
 
+/**
+ * A component for displaying the Winscope proxy setup instructions.
+ */
 @Component({
   selector: 'winscope-proxy-setup',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    ClipboardModule,
+    MatTooltipModule,
+    MatIconModule,
+    FormsModule,
+  ],
   template: `
-    <ng-container [ngSwitch]="state">
-      <ng-container *ngSwitchCase="${ConnectionState.CONNECTING}">
+    @switch (state) {
+      @case (${ConnectionState.CONNECTING}) {
         <p class="connecting-message mat-body-1">
           Connecting...
         </p>
-      </ng-container>
-      <ng-container *ngSwitchCase="${ConnectionState.NOT_FOUND}">
+      }
+      @case (${ConnectionState.NOT_FOUND}) {
         <div class="further-adb-info-text">
           <p class="mat-body-1">
             Launch the Winscope ADB Connect proxy to capture traces directly from your browser.
           </p>
           <p class="mat-body-1">Python 3.10+ and ADB are required. Run this command:</p>
-          <mat-form-field class="proxy-command-form" appearance="outline">
+          <mat-form-field class="proxy-command" appearance="outline">
             <input matInput readonly [value]="proxyCommand" />
             <button
               mat-icon-button
-              matSuffix
+              matIconSuffix
               [cdkCopyToClipboard]="proxyCommand"
               matTooltip="Copy command">
               <mat-icon>content_copy</mat-icon>
@@ -60,9 +82,8 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
             Retry
           </button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="${ConnectionState.INVALID_VERSION}">
+      }
+      @case (${ConnectionState.INVALID_VERSION}) {
         <div class="further-adb-info-text">
           <p class="icon-information mat-body-1">
             <mat-icon class="adb-icon">update</mat-icon>
@@ -71,11 +92,11 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
           <p class="mat-body-1">
             Please update the proxy to version {{ proxyVersion }}. Run this command:
           </p>
-          <mat-form-field class="proxy-command-container" appearance="outline">
+          <mat-form-field class="proxy-command" appearance="outline">
             <input matInput readonly [value]="proxyCommand" />
             <button
               mat-icon-button
-              matSuffix
+              matIconSuffix
               [cdkCopyToClipboard]="proxyCommand"
               matTooltip="Copy command">
               <mat-icon>content_copy</mat-icon>
@@ -96,9 +117,8 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
             Retry
           </button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="${ConnectionState.UNAUTH}">
+      }
+      @case (${ConnectionState.UNAUTH}) {
         <div class="further-adb-info-text">
           <p class="icon-information mat-body-1">
             <mat-icon class="adb-icon">lock</mat-icon>
@@ -106,7 +126,8 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
           </p>
           <p class="mat-body-1">Enter Winscope proxy token:</p>
           <mat-form-field
-            class="proxy-token-input-field"
+            class="proxy-token-input-field mat-form-field-appearance-none"
+            subscriptSizing="dynamic"
             (keydown.enter)="onKeydownEnterProxyTokenInput($event)">
             <input matInput [(ngModel)]="proxyToken" name="proxy-token" />
           </mat-form-field>
@@ -120,17 +141,11 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
             Connect
           </button>
         </div>
-      </ng-container>
-
-      <ng-container *ngSwitchDefault></ng-container>
-    </ng-container>
+      }
+    }
   `,
   styles: [
     `
-      /* TODO(b/300063426): remove after migration to angular 15, replace with subscriptSizing */
-      ::ng-deep .proxy-command-form .mat-form-field-wrapper {
-        padding: 0;
-      }
       .proxy-command-text {
         user-select: all;
         overflow: auto;
@@ -141,6 +156,12 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
 })
 export class WinscopeProxySetupComponent {
   @Input() state: ConnectionState | undefined;
+  @Input() downloadRequest: DownloadRequest = (
+    url: string,
+    fileName: string,
+  ) => {
+    downloadFromUrl(url, fileName);
+  };
   @Output() readonly retryConnection = new EventEmitter<string>();
 
   readonly downloadProxyUrl: string = getRootUrl() + 'winscope_proxy.py';
@@ -161,6 +182,6 @@ export class WinscopeProxySetupComponent {
   }
 
   onDownloadProxyClick() {
-    Download.fromUrl(this.downloadProxyUrl, 'winscope_proxy.py');
+    this.downloadRequest(this.downloadProxyUrl, 'winscope_proxy.py');
   }
 }

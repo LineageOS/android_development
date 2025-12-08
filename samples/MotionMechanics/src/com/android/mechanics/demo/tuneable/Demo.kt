@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.android.mechanics.demo.tuneable
 
 import androidx.compose.foundation.layout.Column
@@ -25,18 +27,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.android.mechanics.debug.DebugMotionValueVisualization
 import com.android.mechanics.demo.staging.debug.DebugUi
+import com.android.mechanics.spec.MotionSpec
 
 interface Demo<T> {
     val identifier: String
@@ -46,8 +54,13 @@ interface Demo<T> {
     @Composable fun ColumnScope.ConfigUi(config: T, onConfigChanged: (T) -> Unit)
 
     @Composable fun DemoUi(config: T, modifier: Modifier)
+}
 
+interface HasMotionValueVisualization {
     val visualizationInputRange: ClosedFloatingPointRange<Float>
+
+    fun computeOutputRange(spec: MotionSpec, inputRange: ClosedFloatingPointRange<Float>) =
+        DebugMotionValueVisualization.default(spec, inputRange)
 
     val expandedGraphHeight: Dp
         get() = 96.dp
@@ -62,6 +75,8 @@ fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
     var config by remember(defaultConfig) { mutableStateOf(defaultConfig) }
 
     var showConfigurationDialog by remember { mutableStateOf(false) }
+    var expressive by remember { mutableStateOf(true) }
+    var showDebugger by remember { mutableStateOf(false) }
 
     if (showConfigurationDialog) {
         ConfigDialog(
@@ -81,15 +96,43 @@ fun <T> Demo<T>.ConfigurableDemo(modifier: Modifier = Modifier) {
                 Spacer(Modifier.width(8.dp))
                 Text("Config")
             }
+
+            TextButton(onClick = { expressive = !expressive }) {
+                Text(if (expressive) "Expressive" else "Standard")
+            }
+
+            if (this@ConfigurableDemo is HasMotionValueVisualization) {
+                TextButton(onClick = { showDebugger = !showDebugger }) {
+                    Text(if (showDebugger) "Hide Debugger" else "Show Debugger")
+                }
+            }
         }
 
-        DebugUi(
-            visualizationInputRange,
-            expandedGraphHeight,
-            collapsedGraphHeight,
-            modifier = modifier.fillMaxWidth().weight(1f, fill = true),
-        ) { contentModifier ->
-            DemoUi(config, contentModifier)
+        val demoContent = remember {
+            movableContentOf { DemoUi(config, modifier = Modifier.fillMaxSize()) }
+        }
+
+        SectionContainer {
+            MaterialTheme(
+                motionScheme =
+                    remember(expressive) {
+                        if (expressive) MotionScheme.expressive() else MotionScheme.standard()
+                    }
+            ) {
+                if (showDebugger && this@ConfigurableDemo is HasMotionValueVisualization) {
+                    DebugUi(
+                        visualizationInputRange = visualizationInputRange,
+                        outputRange = this@ConfigurableDemo::computeOutputRange,
+                        expandedGraphHeight = expandedGraphHeight,
+                        collapsedGraphHeight = collapsedGraphHeight,
+                        modifier = modifier.fillMaxWidth().weight(1f, fill = true),
+                    ) {
+                        demoContent()
+                    }
+                } else {
+                    demoContent()
+                }
+            }
         }
     }
 }

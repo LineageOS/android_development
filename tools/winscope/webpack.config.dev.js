@@ -17,6 +17,7 @@ const {merge} = require('webpack-merge');
 const configCommon = require('./webpack.config.common');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 const configDev = {
   mode: 'development',
@@ -39,7 +40,22 @@ const configDev = {
     __dirname: false,
   },
 
+  devServer: {
+    client: {
+      overlay: {
+        runtimeErrors: (error) => {
+          console.error(error);
+          return false;
+        },
+      },
+    },
+  },
+
   plugins: [
+    new AngularWebpackPlugin({
+      tsconfig: 'tsconfig.dev.json',
+      jitMode: '@angular/compiler',
+    }),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
       inject: 'body',

@@ -15,7 +15,7 @@
  */
 
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/tree_node/formatters';
+import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UpdateDisplayNames} from './update_display_names';
 
@@ -45,7 +45,7 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('view 7654321');
+    expect(hierarchyRoot.getDisplayName()).toBe('view 7654321');
   });
 
   it('changes display name of client node without view', () => {
@@ -54,7 +54,7 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('null');
+    expect(hierarchyRoot.getDisplayName()).toBe('null');
   });
 
   it('does not change name of non-client node', () => {
@@ -76,6 +76,6 @@ describe('UpdateDisplayNames', () => {
     );
 
     operation.apply(hierarchyRoot);
-    expect(hierarchyRoot.getDisplayName()).toEqual('service');
+    expect(hierarchyRoot.getDisplayName()).toBe('service');
   });
 });

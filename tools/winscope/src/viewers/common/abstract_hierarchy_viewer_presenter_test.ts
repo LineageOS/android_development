@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {Store} from 'common/store/store';
 import {TracePositionUpdate} from 'messaging/winscope_event';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {PropertySource} from 'trace/tree_node/property_tree_node';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {
   AbstractHierarchyViewerPresenter,
   NotifyHierarchyViewCallbackType,
 } from 'viewers/common/abstract_hierarchy_viewer_presenter';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiTreeUtils} from 'viewers/common/ui_tree_utils';
+import {makeNodeFilter} from 'viewers/common/ui_tree_utils';
 import {UserOptions} from 'viewers/common/user_options';
 import {RectSpec} from 'viewers/components/rects/rect_spec';
 import {Chip} from './chip';
@@ -44,7 +44,7 @@ export abstract class AbstractHierarchyViewerPresenterTest<
       let storage: InMemoryStorage;
 
       beforeAll(async () => {
-        jasmine.addCustomEqualityTester(TreeNodeUtils.treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
         jasmine.addCustomEqualityTester(chipEqualityTester);
         userNotifierChecker = new UserNotifierChecker();
         await this.setUpTestEnvironment();
@@ -147,7 +147,7 @@ export abstract class AbstractHierarchyViewerPresenterTest<
           expect(uiData.rectSpec).toEqual(this.expectedInitialRectSpec);
 
           await presenter.onHighlightedIdChange(rect.id);
-          expect(uiData.highlightedItem).toEqual('');
+          expect(uiData.highlightedItem).toBe('');
         });
       }
 
@@ -163,7 +163,7 @@ export abstract class AbstractHierarchyViewerPresenterTest<
           };
 
           await presenter.onAppEvent(this.getPositionUpdate());
-          const longNameFilter = UiTreeUtils.makeNodeFilter(
+          const longNameFilter = makeNodeFilter(
             new TextFilter(longName).getFilterPredicate(),
           );
           let nodeWithLongName = assertDefined(

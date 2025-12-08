@@ -22,6 +22,7 @@ from __future__ import print_function
 
 import argparse
 import collections
+import dataclasses
 import itertools
 import json
 import multiprocessing
@@ -66,6 +67,13 @@ else:
         """Write bytes to a file."""
         # pylint: disable=redefined-builtin
         file.buffer.write(data)
+
+
+@dataclasses.dataclass(frozen=True)
+class ProjectInfo:
+    """Holds information about a project."""
+    path: str
+    clone_depth: int | None
 
 
 def _confirm(question, default, file=sys.stderr):
@@ -131,29 +139,30 @@ def find_repo_top(curdir):
     raise ValueError('.repo dir not found')
 
 
-class ProjectNameDirDict:
-    """A dict which maps project name and revision to the source path."""
+class ProjectInfoDict:
+    """A dict which maps project name and revision to project info."""
     def __init__(self):
-        self._dirs = dict()
+        self._projects = dict()
 
 
-    def add_directory(self, name, revision, path):
+    def add_project(self, name, revision, path, clone_depth):
         """Maps project name and revision to path."""
-        self._dirs[name] = path or name
+        info = ProjectInfo(path=path or name, clone_depth=clone_depth)
+        self._projects[name] = info
         if revision:
-            self._dirs[(name, revision)] = path or name
+            self._projects[(name, revision)] = info
 
 
-    def find_directory(self, name, revision, default_result=None):
+    def find_project_info(self, name, revision, default_result=None):
         """Finds corresponding path of project name and revision."""
-        if (name, revision) in self._dirs:
-            return self._dirs[(name, revision)]
+        if (name, revision) in self._projects:
+            return self._projects[(name, revision)]
         if default_result is None:
-            return self._dirs[name]
-        return self._dirs.get(name, default_result)
+            return self._projects[name]
+        return self._projects.get(name, default_result)
 
 
-def build_project_name_dir_dict(manifest_name):
+def build_project_info_dict(manifest_name):
     """Build the mapping from Gerrit project name to source tree project
     directory path."""
     manifest_cmd = ['repo', 'manifest']
@@ -162,14 +171,16 @@ def build_project_name_dir_dict(manifest_name):
     raw_manifest_xml = run(manifest_cmd, stdout=PIPE, check=True).stdout
 
     manifest_xml = xml.dom.minidom.parseString(raw_manifest_xml)
-    project_dirs = ProjectNameDirDict()
+    project_infos = ProjectInfoDict()
     for project in manifest_xml.getElementsByTagName('project'):
         name = project.getAttribute('name')
         path = project.getAttribute('path')
         revision = project.getAttribute('revision')
-        project_dirs.add_directory(name, revision, path)
+        clone_depth_str = project.getAttribute('clone-depth')
+        clone_depth = int(clone_depth_str) if clone_depth_str else None
+        project_infos.add_project(name, revision, path, clone_depth)
 
-    return project_dirs
+    return project_infos
 
 
 def group_and_sort_change_lists(change_lists):
@@ -253,16 +264,32 @@ _PICK_COMMANDS = {
 
 
 def build_pull_commands(
-    change, branch_name, merge_opt, merge_args, pick_opt, pick_args
+    change, branch_name, merge_opt, merge_args, pick_opt, pick_args, project_info
 ):
     """Build command lines for each change.  The command lines will be passed
     to subprocess.run()."""
-
     cmds = []
+    clone_depth = project_info.clone_depth if project_info else None
+
     if branch_name is not None:
         cmds.append(['repo', 'start', branch_name])
-    cmds.append(['git', 'fetch', change.fetch_url, change.fetch_ref])
-    if change.is_merge():
+
+    fetch_cmd = ['git', 'fetch']
+    if clone_depth:
+        fetch_cmd.extend(['--depth', str(clone_depth)])
+    fetch_cmd.extend([change.fetch_url, change.fetch_ref])
+    cmds.append(fetch_cmd)
+
+    # For projects with clone_depth, 'checkout' is used because:
+    # - 'merge' fails with an "unrelated histories" error because the shallow
+    #   fetch doesn't share a common ancestor with the local branch.
+    # - 'cherry-pick' is not used as it fails on merge commits, which has at
+    #   least two parents.
+    # - 'checkout' reliably sets the workspace to the state of the fetched
+    #   change.
+    if clone_depth:
+        cmds.append(['git', 'checkout', 'FETCH_HEAD'])
+    elif change.is_merge():
         merge_args = shlex.split(merge_args)
         cmds.append(_MERGE_COMMANDS[merge_opt] + merge_args + ['FETCH_HEAD'])
     else:
@@ -286,7 +313,7 @@ def _sh_quote_commands(cmds):
 def _main_bash(args):
     """Print the bash command to pull the change lists."""
     repo_top = find_repo_top(os.getcwd())
-    project_dirs = build_project_name_dir_dict(args.manifest)
+    project_infos = build_project_info_dict(args.manifest)
     branch_name = _get_local_branch_name_from_args(args)
 
     change_lists = _get_change_lists_from_args(args)
@@ -295,13 +322,17 @@ def _main_bash(args):
     print(_sh_quote_command(['pushd', repo_top]))
     for changes in change_list_groups:
         for change in changes:
-            project_dir = project_dirs.find_directory(
-                change.project, change.branch, change.project)
+            project_info = project_infos.find_project_info(
+                change.project, change.branch,
+                default_result=ProjectInfo(path=change.project,
+                                           clone_depth=None))
+            project_dir = project_info.path
+
             cmds = []
             cmds.append(['pushd', project_dir])
             cmds.extend(build_pull_commands(
                 change, branch_name, args.merge, args.merge_args, args.pick,
-                args.pick_args))
+                args.pick_args, project_info))
             cmds.append(['popd'])
             print(_sh_quote_commands(cmds))
     print(_sh_quote_command(['popd']))
@@ -316,12 +347,14 @@ def _do_pull_change_lists_for_project(task, ignore_unknown_changes):
     merge_args = task_opts['merge_args']
     pick_opt = task_opts['pick_opt']
     pick_args = task_opts['pick_args']
-    project_dirs = task_opts['project_dirs']
+    project_infos = task_opts['project_infos']
     repo_top = task_opts['repo_top']
 
     for i, change in enumerate(changes):
         try:
-            cwd = project_dirs.find_directory(change.project, change.branch)
+            project_info = project_infos.find_project_info(
+                change.project, change.branch)
+            cwd = project_info.path
         except KeyError:
             err_msg = 'error: project "{}" cannot be found in manifest.xml\n'
             err_msg = err_msg.format(change.project).encode('utf-8')
@@ -332,7 +365,7 @@ def _do_pull_change_lists_for_project(task, ignore_unknown_changes):
 
         print(change.commit_sha1[0:10], i + 1, cwd)
         cmds = build_pull_commands(change, branch_name, merge_opt, merge_args,
-                                   pick_opt, pick_args)
+                                   pick_opt, pick_args, project_info)
         for cmd in cmds:
             proc = run(cmd, cwd=os.path.join(repo_top, cwd), stderr=PIPE)
             if proc.returncode != 0:
@@ -362,7 +395,7 @@ def _print_pull_failures(failures, file=sys.stderr):
 def _main_pull(args):
     """Pull the change lists."""
     repo_top = find_repo_top(os.getcwd())
-    project_dirs = build_project_name_dir_dict(args.manifest)
+    project_infos = build_project_info_dict(args.manifest)
     branch_name = _get_local_branch_name_from_args(args)
 
     # Collect change lists
@@ -376,7 +409,7 @@ def _main_pull(args):
         'merge_args': args.merge_args,
         'pick_opt': args.pick,
         'pick_args': args.pick_args,
-        'project_dirs': project_dirs,
+        'project_infos': project_infos,
         'repo_top': repo_top,
     }
 
@@ -444,7 +477,7 @@ def _get_change_lists_from_args(args):
     """Query the change lists by args."""
     url_opener = create_url_opener_from_args(args)
     return query_change_lists(url_opener, args.gerrit, args.query, args.start,
-                              args.limits)
+                              args.limits, args.exact_commit)
 
 
 def _get_local_branch_name_from_args(args):

@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.android.compose.animation.scene.ContentKey
 import com.android.compose.animation.scene.ContentScope
@@ -40,6 +41,9 @@ import com.android.compose.animation.scene.MovableElementContentPicker
 import com.android.compose.animation.scene.MovableElementKey
 import com.android.compose.animation.scene.StaticElementContentPicker
 import com.android.compose.animation.scene.content.state.TransitionState
+import com.android.compose.modifiers.thenIf
+import com.android.mechanics.compose.modifier.verticalFadeContentReveal
+import com.android.mechanics.compose.modifier.verticalTactileSurfaceReveal
 
 object MediaPlayer {
     object Elements {
@@ -123,6 +127,7 @@ fun ContentScope.MediaPlayer(
     isPlaying: Boolean,
     onIsPlayingChange: (Boolean) -> Unit,
     onVisibilityChange: (Boolean) -> Unit,
+    revealEffect: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val injectedContentOrNull = LocalDependencies.current.mediaPlayer
@@ -147,9 +152,14 @@ fun ContentScope.MediaPlayer(
                 MediaPlayer.Elements.MediaPlayer
             }
 
+        val deltaY = -with(LocalDensity.current) { QuickSettingsGrid.Dimensions.Spacing.toPx() }
+
         MovableElement(
             key,
             modifier
+                .thenIf(revealEffect) {
+                    Modifier.verticalTactileSurfaceReveal(deltaY = deltaY, label = "mediaPlayer")
+                }
                 .fillMaxWidth()
                 .height(
                     if (isSmall) MediaPlayer.Dimensions.HeightSmall
@@ -162,6 +172,12 @@ fun ContentScope.MediaPlayer(
                             MaterialTheme.colorScheme.tertiary,
                             MediaPlayer.Shapes.Background,
                         )
+                        .thenIf(revealEffect) {
+                            Modifier.verticalFadeContentReveal(
+                                deltaY = deltaY,
+                                label = "mediaPlayer",
+                            )
+                        }
                         .padding(8.dp)
                 ) {
                     FilledIconButton(

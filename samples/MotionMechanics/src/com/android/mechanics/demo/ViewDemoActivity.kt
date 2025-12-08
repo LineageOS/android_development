@@ -40,7 +40,7 @@ class ViewDemoActivity : AppCompatActivity() {
     private var specs = createMotionSpecs(100f)
 
     private val gestureContext by lazy { DistanceGestureContext.create(this) }
-    private val motionValue by lazy { ViewMotionValue(0f, gestureContext, MotionSpec.Empty) }
+    private val motionValue by lazy { ViewMotionValue(0f, gestureContext, MotionSpec.Identity) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +120,7 @@ class ViewDemoActivity : AppCompatActivity() {
 
     fun createMotionSpecs(maxRange: Float): Map<String, MotionSpec> {
         return mapOf(
-            "empty" to MotionSpec.Empty,
+            "empty" to MotionSpec.Identity,
             "toggle" to
                 MotionSpec(
                     directionalMotionSpec(DefaultSpring, Mapping.Zero) {

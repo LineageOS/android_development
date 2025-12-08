@@ -36,7 +36,7 @@ describe('Trace navigation', () => {
     await uploadFixture('traces/perfetto/layers_trace.perfetto-trace');
     await checkHomepage();
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(false);
     await checkTraceViewPage();
 
     await clickUploadNewButton();

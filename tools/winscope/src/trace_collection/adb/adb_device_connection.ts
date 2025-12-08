@@ -33,6 +33,7 @@ export abstract class AdbDeviceConnection {
   protected model = '';
   protected displays: string[] = [];
   protected multiDisplayScreenRecording = false;
+  protected protologGroups: string[] = [];
 
   constructor(
     readonly id: string,
@@ -49,6 +50,10 @@ export abstract class AdbDeviceConnection {
 
   getDisplays() {
     return this.displays;
+  }
+
+  getProtologGroups(): string[] {
+    return this.protologGroups;
   }
 
   getFormattedName(): string {
@@ -83,6 +88,7 @@ export abstract class AdbDeviceConnection {
   async updateProperties(resp: object) {
     this.updatePropertiesFromResponse(resp);
     await this.updateDisplaysInformation();
+    await this.updateProtologGroups();
   }
 
   async findFiles(path: string, matchers: string[]): Promise<string[]> {
@@ -137,38 +143,62 @@ export abstract class AdbDeviceConnection {
       screenRecordVersion >=
       AdbDeviceConnection.MULTI_DISPLAY_SCREENRECORD_VERSION;
 
-    if (this.state === AdbDeviceState.AVAILABLE) {
-      const output = await this.runShellCommand(
-        'dumpsys SurfaceFlinger --display-id',
-      );
-      if (!output.includes('Display')) {
-        this.displays = [];
-      } else {
-        this.displays = output
-          .trim()
-          .split('\n')
-          .map((display) => {
-            const parts = display.split(' ').slice(1);
-            const displayNameStartIndex = parts.findIndex((part) =>
-              part.includes('displayName'),
-            );
-            if (displayNameStartIndex !== -1) {
-              const displayName = parts
-                .slice(displayNameStartIndex)
-                .join(' ')
-                .slice(12);
-              if (displayName.length > 2) {
-                return [displayName]
-                  .concat(parts.slice(0, displayNameStartIndex))
-                  .join(' ');
-              }
-            }
-            return parts.join(' ');
-          });
-      }
-    } else {
+    if (this.state !== AdbDeviceState.AVAILABLE) {
       this.displays = [];
+      return;
     }
+    const output = await this.runShellCommand(
+      'dumpsys SurfaceFlinger --display-id',
+    );
+    if (!output.includes('Display')) {
+      this.displays = [];
+    } else {
+      this.displays = output
+        .trim()
+        .split('\n')
+        .map((display) => {
+          const parts = display.split(' ').slice(1);
+          const displayNameStartIndex = parts.findIndex((part) =>
+            part.includes('displayName'),
+          );
+          if (displayNameStartIndex !== -1) {
+            const displayName = parts
+              .slice(displayNameStartIndex)
+              .join(' ')
+              .slice(12);
+            if (displayName.length > 2) {
+              return [displayName]
+                .concat(parts.slice(0, displayNameStartIndex))
+                .join(' ');
+            }
+          }
+          return parts.join(' ');
+        });
+    }
+  }
+
+  private async updateProtologGroups() {
+    if (this.state !== AdbDeviceState.AVAILABLE) {
+      this.protologGroups = [];
+      return;
+    }
+    const groups = (
+      await this.runShellCommand('cmd protolog_configuration groups list')
+    ).trim();
+
+    if (!groups.startsWith('ProtoLog groups registered with service')) {
+      this.protologGroups = [];
+      return;
+    }
+    // output format:
+    // ProtoLog groups registered with service:
+    // - GROUP_1
+    // ...
+    // - GROUP_N
+    this.protologGroups = groups
+      .split('\n')
+      .slice(1)
+      .map((group) => group.slice(2));
   }
 
   private async isWaylandAvailable(): Promise<boolean> {

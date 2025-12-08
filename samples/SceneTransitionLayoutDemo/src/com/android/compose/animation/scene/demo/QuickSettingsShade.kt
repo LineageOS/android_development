@@ -52,21 +52,26 @@ object QuickSettingsShade {
 
 @Composable
 fun ContentScope.QuickSettingsShade(
-    qsPager: @Composable ContentScope.() -> Unit,
-    mediaPlayer: @Composable (ContentScope.() -> Unit)?,
+    qsPager: @Composable ContentScope.(revealEffect: Boolean) -> Unit,
+    mediaPlayer: @Composable (ContentScope.(revealEffect: Boolean) -> Unit)?,
+    revealEffect: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    PartialShade(QuickSettingsShade.Elements.Root, modifier) {
+    PartialShade(
+        rootElement = QuickSettingsShade.Elements.Root,
+        modifier = modifier,
+        revealEffect = revealEffect,
+    ) {
         Column(Modifier.element(QuickSettingsShade.Elements.Content)) {
             if (mediaPlayer != null) {
                 // Ensure that the media player is above the QS tiles when they fade in.
                 Box(Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp).zIndex(1f)) {
-                    mediaPlayer()
+                    mediaPlayer(revealEffect)
                 }
             }
 
             Spacer(Modifier.padding(top = 16.dp))
-            qsPager()
+            qsPager(revealEffect)
         }
     }
 }

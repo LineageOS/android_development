@@ -30,6 +30,7 @@ npm-debug.log
 !.vscode/launch.json
 !.vscode/extensions.json
 .history/*
+tsconfig.json
 
 # Miscellaneous
 /.angular/cache

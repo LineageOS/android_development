@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {TestBed} from '@angular/core/testing';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {ShortcutsComponent} from './shortcuts_component';
 
 describe('ShortcutsComponent', () => {
@@ -26,8 +27,13 @@ describe('ShortcutsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatIconModule, HttpClientModule, MatDialogModule],
-      declarations: [ShortcutsComponent],
+      providers: [provideHttpClient(withInterceptorsFromDi())],
+      imports: [
+        NoopAnimationsModule,
+        MatIconModule,
+        MatDialogModule,
+        ShortcutsComponent,
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(ShortcutsComponent);
     component = fixture.componentInstance;

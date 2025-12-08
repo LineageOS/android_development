@@ -17,9 +17,22 @@
 export const timeButtonStyle = `
     .time-button {
       padding: 0px;
-      line-height: normal;
+      line-height: 20px;
       text-align: left;
       white-space: normal;
+      height: fit-content;
+    }
+`;
+
+export const targetWindowButtonStyle = `
+    .window-button {
+      padding: 0px;
+      line-height: normal;
+      text-align: center;
+      white-space: normal;
+      min-width: fit-content;
+      width: fit-content;
+      height: fit-content;
     }
 `;
 
@@ -28,7 +41,7 @@ export const inlineButtonStyle = `
       padding: 0px;
       min-width: fit-content;
       width: fit-content;
-      line-height: normal;
+      height: fit-content;
       text-align: left;
     }
 `;

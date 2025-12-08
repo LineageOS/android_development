@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {android} from 'protos/surfaceflinger/udc/static';
 import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {ZOrderPathsComputation} from './z_order_paths_computation';
@@ -39,7 +39,7 @@ describe('ZOrderPathsComputation', () => {
           id: 1,
           name: 'layer1',
           properties: {
-            id: 1,
+            layerId: 1,
             name: 'layer1',
             parent: -1,
             children: [2, 4],
@@ -51,7 +51,7 @@ describe('ZOrderPathsComputation', () => {
               id: 2,
               name: 'layer2',
               properties: {
-                id: 2,
+                layerId: 2,
                 name: 'layer2',
                 parent: 1,
                 children: [3],
@@ -63,7 +63,7 @@ describe('ZOrderPathsComputation', () => {
                   id: 3,
                   name: 'layer3',
                   properties: {
-                    id: 3,
+                    layerId: 3,
                     name: 'layer3',
                     parent: 2,
                     children: [],
@@ -77,7 +77,7 @@ describe('ZOrderPathsComputation', () => {
               id: 4,
               name: 'layer4',
               properties: {
-                id: 4,
+                layerId: 4,
                 name: 'layer4',
                 parent: 1,
                 children: [],
@@ -107,7 +107,7 @@ describe('ZOrderPathsComputation', () => {
     expect(layer4.getZParent()).toEqual(layer4.getParent());
   });
 
-  it('updates tree with rel z parent', () => {
+  it('updates tree with rel z parents', () => {
     const hierarchyRoot = new HierarchyTreeBuilder()
       .setId('LayerTraceEntry')
       .setName('root')
@@ -116,7 +116,7 @@ describe('ZOrderPathsComputation', () => {
           id: 1,
           name: 'layer1',
           properties: {
-            id: 1,
+            layerId: 1,
             name: 'layer1',
             parent: -1,
             children: [2, 4],
@@ -128,7 +128,7 @@ describe('ZOrderPathsComputation', () => {
               id: 2,
               name: 'layer2',
               properties: {
-                id: 2,
+                layerId: 2,
                 name: 'layer2',
                 parent: 1,
                 children: [3],
@@ -140,7 +140,7 @@ describe('ZOrderPathsComputation', () => {
               id: 4,
               name: 'layer4',
               properties: {
-                id: 4,
+                layerId: 4,
                 name: 'layer4',
                 parent: 1,
                 children: [],
@@ -152,12 +152,24 @@ describe('ZOrderPathsComputation', () => {
               id: 5,
               name: 'layer5',
               properties: {
-                id: 5,
+                layerId: 5,
                 name: 'layer5',
                 parent: 1,
                 children: [],
                 z: 2,
                 zOrderRelativeOf: 2,
+              } as android.surfaceflinger.ILayerProto,
+            },
+            {
+              id: 6,
+              name: 'layer6',
+              properties: {
+                layerId: 6,
+                name: 'layer6',
+                parent: 1,
+                children: [],
+                z: 2,
+                zOrderRelativeOf: 7,
               } as android.surfaceflinger.ILayerProto,
             },
           ],
@@ -170,78 +182,18 @@ describe('ZOrderPathsComputation', () => {
     const layer2 = assertDefined(layer1.getChildByName('layer2'));
     const layer4 = assertDefined(layer1.getChildByName('layer4'));
     const layer5 = assertDefined(layer1.getChildByName('layer5'));
+    const layer6 = assertDefined(layer1.getChildByName('layer6'));
 
     expect(layer1.getRelativeChildren()).toEqual([]);
     expect(layer2.getRelativeChildren()).toEqual([layer4, layer5]);
     expect(layer4.getRelativeChildren()).toEqual([]);
     expect(layer5.getRelativeChildren()).toEqual([]);
+    expect(layer6.getRelativeChildren()).toEqual([]);
 
     expect(layer1.getZParent()).toEqual(layer1.getParent());
     expect(layer2.getZParent()).toEqual(layer2.getParent());
     expect(layer4.getZParent()).toEqual(layer2);
     expect(layer5.getZParent()).toEqual(layer2);
-  });
-
-  it('adds isMissingZParent chip', () => {
-    const hierarchyRoot = new HierarchyTreeBuilder()
-      .setId('LayerTraceEntry')
-      .setName('root')
-      .setChildren([
-        {
-          id: 1,
-          name: 'layer1',
-          properties: {
-            id: 1,
-            name: 'layer1',
-            parent: -1,
-            children: [2, 4],
-            z: 0,
-            zOrderRelativeOf: -1,
-          } as android.surfaceflinger.ILayerProto,
-          children: [
-            {
-              id: 2,
-              name: 'layer2',
-              properties: {
-                id: 2,
-                name: 'layer2',
-                parent: 1,
-                children: [3],
-                z: 1,
-                zOrderRelativeOf: -1,
-              } as android.surfaceflinger.ILayerProto,
-            },
-            {
-              id: 4,
-              name: 'layer4',
-              properties: {
-                id: 4,
-                name: 'layer4',
-                parent: 1,
-                children: [],
-                z: 2,
-                zOrderRelativeOf: 5,
-              } as android.surfaceflinger.ILayerProto,
-            },
-          ],
-        },
-      ])
-      .build();
-
-    computation.setRoot(hierarchyRoot).executeInPlace();
-    const layer1 = assertDefined(hierarchyRoot.getChildByName('layer1'));
-    const layer2 = assertDefined(layer1.getChildByName('layer2'));
-    const layer4 = assertDefined(layer1.getChildByName('layer4'));
-    expect(
-      layer4.getEagerPropertyByName('isMissingZParent')?.getValue(),
-    ).toBeTrue();
-
-    expect(layer1.getRelativeChildren()).toEqual([]);
-    expect(layer2.getRelativeChildren()).toEqual([]);
-    expect(layer4.getRelativeChildren()).toEqual([]);
-
-    expect(layer1.getZParent()).toEqual(layer1.getParent());
-    expect(layer2.getZParent()).toEqual(layer2.getParent());
-    expect(layer4.getZParent()).toEqual(layer4.getParent());
+    expect(layer6.getZParent()).toEqual(layer6.getParent());
   });
 });

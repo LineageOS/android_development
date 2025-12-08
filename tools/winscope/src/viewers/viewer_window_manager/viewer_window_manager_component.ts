@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {TraceType} from 'trace/trace_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {assertDefined} from 'common/assert';
+import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
+import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from 'viewers/components/hierarchy_component';
+import {PropertiesComponent} from 'viewers/components/properties_component';
+import {RectsComponent} from 'viewers/components/rects/rects_component';
 import {ShadingMode} from 'viewers/components/rects/shading_mode';
 import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
 import {ViewerComponent} from 'viewers/components/viewer_component';
@@ -24,6 +30,14 @@ import {UiData} from './ui_data';
 
 @Component({
   selector: 'viewer-window-manager',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CollapsedSectionsComponent,
+    RectsComponent,
+    HierarchyComponent,
+    PropertiesComponent,
+  ],
   template: `
     <div class="card-grid">
       <collapsed-sections
@@ -34,7 +48,7 @@ import {UiData} from './ui_data';
       <rects-view
         class="rects-view"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [title]="rectsTitle"
+        [title]="getRectsTitle()"
         [store]="store"
         [rects]="inputData?.rectsToDraw ?? []"
         [displays]="inputData?.displays ?? []"
@@ -79,11 +93,10 @@ export class ViewerWindowManagerComponent extends ViewerComponent<UiData> {
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
 
-  rectsTitle = 'WINDOWS';
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.RECTS,
-      label: this.rectsTitle,
+      label: 'WINDOWS',
       isCollapsed: false,
     },
     {
@@ -102,4 +115,9 @@ export class ViewerWindowManagerComponent extends ViewerComponent<UiData> {
     ShadingMode.OPACITY,
     ShadingMode.WIRE_FRAME,
   ];
+
+  getRectsTitle(): string {
+    return assertDefined(this.sections.getSection(CollapsibleSectionType.RECTS))
+      .label;
+  }
 }

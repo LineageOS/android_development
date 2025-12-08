@@ -15,8 +15,8 @@
  */
 
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {PropertySource} from 'trace/tree_node/property_tree_node';
 import {WindowType, WindowTypePrefix} from 'trace/window_manager/window_type';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {AddWindowType} from './add_window_type';
 
 describe('AddWindowType', () => {
@@ -79,7 +79,7 @@ describe('AddWindowType', () => {
       .setRootId('test node')
       .setIsRoot(true)
       .setName('state')
-      .setChildren([{name: 'animatingExit', value: null}])
+      .setChildren([{name: 'animatingExit', value: undefined}])
       .build();
 
     const expectedRoot = new PropertyTreeBuilder()
@@ -87,7 +87,7 @@ describe('AddWindowType', () => {
       .setIsRoot(true)
       .setName('state')
       .setChildren([
-        {name: 'animatingExit', value: null},
+        {name: 'animatingExit', value: undefined},
         {
           name: 'windowType',
           value: WindowType.EXITING,
@@ -105,7 +105,7 @@ describe('AddWindowType', () => {
       .setRootId('test node')
       .setIsRoot(true)
       .setName(WindowTypePrefix.DEBUGGER)
-      .setChildren([{name: 'animatingExit', value: null}])
+      .setChildren([{name: 'animatingExit', value: undefined}])
       .build();
 
     const expectedRoot = new PropertyTreeBuilder()
@@ -113,7 +113,7 @@ describe('AddWindowType', () => {
       .setIsRoot(true)
       .setName(WindowTypePrefix.DEBUGGER)
       .setChildren([
-        {name: 'animatingExit', value: null},
+        {name: 'animatingExit', value: undefined},
         {
           name: 'windowType',
           value: WindowType.EXITING,

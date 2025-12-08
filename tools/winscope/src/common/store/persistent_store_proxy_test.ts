@@ -15,7 +15,7 @@
  */
 
 import {InMemoryStorage} from './in_memory_storage';
-import {PersistentStoreProxy} from './persistent_store_proxy';
+import {createPersistentStoreProxy} from './persistent_store_proxy';
 
 describe('PersistentStoreObject', () => {
   let mockStorage: InMemoryStorage;
@@ -29,14 +29,14 @@ describe('PersistentStoreObject', () => {
       key1: 'value',
       key2: true,
     };
-    const storeObject = PersistentStoreProxy.new(
+    const storeObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
 
-    expect(storeObject['key1']).toBe('value');
-    expect(storeObject['key2']).toBeTrue();
+    expect(storeObject.key1).toBe('value');
+    expect(storeObject.key2).toBeTrue();
   });
 
   it('can update properties', () => {
@@ -44,16 +44,16 @@ describe('PersistentStoreObject', () => {
       key1: 'value',
       key2: true,
     };
-    const storeObject = PersistentStoreProxy.new(
+    const storeObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
 
-    storeObject['key1'] = 'someOtherValue';
-    storeObject['key2'] = false;
-    expect(storeObject['key1']).toBe('someOtherValue');
-    expect(storeObject['key2']).toBeFalse();
+    storeObject.key1 = 'someOtherValue';
+    storeObject.key2 = false;
+    expect(storeObject.key1).toBe('someOtherValue');
+    expect(storeObject.key2).toBeFalse();
   });
 
   it('uses explicitly set store data', () => {
@@ -61,21 +61,21 @@ describe('PersistentStoreObject', () => {
       key1: 'value',
       key2: true,
     };
-    const storeObject = PersistentStoreProxy.new(
+    const storeObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
-    storeObject['key1'] = 'someOtherValue';
-    storeObject['key2'] = false;
+    storeObject.key1 = 'someOtherValue';
+    storeObject.key2 = false;
 
-    const newStoreObject = PersistentStoreProxy.new(
+    const newStoreObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
-    expect(newStoreObject['key1']).toBe('someOtherValue');
-    expect(newStoreObject['key2']).toBeFalse();
+    expect(newStoreObject.key1).toBe('someOtherValue');
+    expect(newStoreObject.key2).toBeFalse();
   });
 
   it('uses default values if not explicitly set', () => {
@@ -83,25 +83,25 @@ describe('PersistentStoreObject', () => {
       key1: 'value',
       key2: true,
     };
-    const storeObject = PersistentStoreProxy.new(
+    const storeObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
-    expect(storeObject['key1']).toBe('value');
-    expect(storeObject['key2']).toBeTrue();
+    expect(storeObject.key1).toBe('value');
+    expect(storeObject.key2).toBeTrue();
 
     const newDefaultValues = {
       key1: 'someOtherValue',
       key2: false,
     };
-    const newStoreObject = PersistentStoreProxy.new(
+    const newStoreObject = createPersistentStoreProxy(
       'storeKey',
       newDefaultValues,
       mockStorage,
     );
-    expect(newStoreObject['key1']).toBe('someOtherValue');
-    expect(newStoreObject['key2']).toBeFalse();
+    expect(newStoreObject.key1).toBe('someOtherValue');
+    expect(newStoreObject.key2).toBeFalse();
   });
 
   it("can't update non leaf configs", () => {
@@ -111,12 +111,12 @@ describe('PersistentStoreObject', () => {
         key3: true,
       },
     };
-    const storeObject = PersistentStoreProxy.new(
+    const storeObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
-    expect(() => (storeObject['key2'] = {key3: false})).toThrowError();
+    expect(() => (storeObject.key2 = {key3: false})).toThrowError();
   });
 
   it('can get and update nested configs', () => {
@@ -126,23 +126,23 @@ describe('PersistentStoreObject', () => {
         key3: true,
       },
     };
-    const storeObject = PersistentStoreProxy.new(
+    const storeObject = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
-    expect(storeObject['key2']['key3']).toBeTrue();
+    expect(storeObject.key2.key3).toBeTrue();
 
-    storeObject['key2']['key3'] = false;
-    expect(defaultValues['key2']['key3']).toBeTrue();
-    expect(storeObject['key2']['key3']).toBeFalse();
+    storeObject.key2.key3 = false;
+    expect(defaultValues.key2.key3).toBeTrue();
+    expect(storeObject.key2.key3).toBeFalse();
 
-    const storeObject2 = PersistentStoreProxy.new(
+    const storeObject2 = createPersistentStoreProxy(
       'storeKey',
       defaultValues,
       mockStorage,
     );
-    expect(storeObject2['key2']['key3']).toBeFalse();
+    expect(storeObject2.key2.key3).toBeFalse();
   });
 
   it('can update schema', () => {
@@ -152,17 +152,17 @@ describe('PersistentStoreObject', () => {
         key3: true,
       },
     };
-    const storeObject1 = PersistentStoreProxy.new(
+    const storeObject1 = createPersistentStoreProxy(
       'storeKey',
       schema1,
       mockStorage,
     );
-    expect(storeObject1['key1']).toBe('value1');
-    expect(storeObject1['key2']['key3']).toBeTrue();
+    expect(storeObject1.key1).toBe('value1');
+    expect(storeObject1.key2.key3).toBeTrue();
 
     // Change from default value to ensure we update the storage
-    storeObject1['key1'] = 'someOtherValue';
-    storeObject1['key2']['key3'] = false;
+    storeObject1.key1 = 'someOtherValue';
+    storeObject1.key2.key3 = false;
 
     const schema2 = {
       key1: {
@@ -170,12 +170,12 @@ describe('PersistentStoreObject', () => {
       },
       key2: true,
     };
-    const storeObject2 = PersistentStoreProxy.new(
+    const storeObject2 = createPersistentStoreProxy(
       'storeKey',
       schema2,
       mockStorage,
     );
-    expect(storeObject2['key1']['key3']).toBe('value2');
-    expect(storeObject2['key2']).toBeTrue();
+    expect(storeObject2.key1.key3).toBe('value2');
+    expect(storeObject2.key2).toBeTrue();
   });
 });

@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import {WindowUtils} from 'common/window_utils';
+import {showPopupWindow} from 'common/window';
 import {AdbHostConnection} from 'trace_collection/adb/adb_host_connection';
 import {AdbConnectionType} from 'trace_collection/adb_connection_type';
 import {ConnectionState} from 'trace_collection/connection_state';
+import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
 import {StreamProvider} from './stream_provider';
-import {WdpDeviceConnection} from './wdp_device_connection';
+import {
+  WdpDeviceConnection,
+  WdpDeviceConnectionResponse,
+} from './wdp_device_connection';
 
 /**
  * A connection to the WebDeviceProxy websocket.
@@ -29,6 +33,13 @@ export class WdpHostConnection extends AdbHostConnection<WdpDeviceConnection> {
     'ws://localhost:9167/track-devices-json';
   readonly connectionType = AdbConnectionType.WDP;
   private streamProvider = new StreamProvider();
+
+  constructor(
+    listener: ConnectionStateListener,
+    private showWindow: (url: string) => boolean = showPopupWindow,
+  ) {
+    super(listener);
+  }
 
   protected override initializeExtraParameters() {
     // do nothing
@@ -66,7 +77,7 @@ export class WdpHostConnection extends AdbHostConnection<WdpDeviceConnection> {
       resp.error?.type === 'ORIGIN_NOT_ALLOWLISTED' &&
       resp.error.approveUrl !== undefined
     ) {
-      const popup = WindowUtils.showPopupWindow(resp.error.approveUrl);
+      const popup = this.showWindow(resp.error.approveUrl);
       if (popup === false) {
         this.listener.onError(`Please enable popups and try again.`);
         return;
@@ -74,7 +85,11 @@ export class WdpHostConnection extends AdbHostConnection<WdpDeviceConnection> {
       this.setState(ConnectionState.UNAUTH);
       return;
     } else if (resp.error !== undefined) {
-      console.error(`Invalid WebDeviceProxy response ${data} : ${resp.error}`);
+      console.error(
+        `Invalid WebDeviceProxy response ${data} : ${JSON.stringify(
+          resp.error,
+        )}`,
+      );
       this.listener.onError(resp.error.message ?? 'Unknown WDP Error');
       return;
     }
@@ -115,12 +130,4 @@ export interface WdpRequestDevicesResponse {
     message?: string;
     approveUrl?: string;
   };
-}
-
-export interface WdpDeviceConnectionResponse {
-  serialNumber: string;
-  proxyStatus: 'ADB' | 'PROXY_UNAUTHORIZED';
-  adbStatus: string;
-  adbProps?: {[key: string]: string};
-  approveUrl?: string;
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
 export interface SfLayerSummary {
   layerId: string;
@@ -45,11 +45,12 @@ export interface SfCuratedProperties {
   relativeChildren: SfLayerSummary[];
   calcColor: string;
   calcShadowRadius: string;
-  calcCornerRadius: string;
+  calcCornerRadii: string;
   calcCornerRadiusCrop: string;
   backgroundBlurRadius: string;
   reqColor: string;
-  reqCornerRadius: string;
+  reqCornerRadii: string;
+  reqCrop: string;
   inputTransform: PropertyTreeNode | undefined;
   inputRegion: string | undefined;
   focusable: string;
@@ -62,6 +63,7 @@ export interface SfCuratedProperties {
 
 export interface VcCuratedProperties {
   className: string;
+  viewId: string;
   hashcode: string;
   left: string;
   top: string;

@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {PropertyFormatter} from 'trace/tree_node/formatters';
+import {assertDefined} from 'common/assert';
 import {
+  PropertyFormatter,
   PropertySource,
   PropertyTreeNode,
-} from 'trace/tree_node/property_tree_node';
+  PropertyValue,
+} from 'tree_node/property_tree_node';
 import {TreeBuilder} from './tree_builder';
 
+/**
+ * A test utility class for building `PropertyTreeNode` instances and their
+ * hierarchies in a more readable way within unit tests.
+ * It extends `TreeBuilder` to provide specific methods for configuring
+ * `PropertyTreeNode` properties like source, value, and formatter.
+ */
 export class PropertyTreeBuilder extends TreeBuilder<
   PropertyTreeNode,
   ChildProperty
 > {
   isRoot = false;
   source = PropertySource.PROTO;
-  value: any;
+  value: PropertyValue | undefined;
   formatter: PropertyFormatter | undefined;
 
   setIsRoot(value: boolean): this {
@@ -46,7 +53,7 @@ export class PropertyTreeBuilder extends TreeBuilder<
     return this;
   }
 
-  setValue(value: any): this {
+  setValue(value: PropertyValue | undefined): this {
     this.value = value;
     return this;
   }
@@ -91,9 +98,14 @@ export class PropertyTreeBuilder extends TreeBuilder<
   }
 }
 
+/**
+ * Represents a child property used when building a `PropertyTreeNode` tree
+ * with `PropertyTreeBuilder`. It defines the structure of a child node,
+ * including its name, value, optional children, source, and formatter.
+ */
 export interface ChildProperty {
   name: string;
-  value?: any;
+  value?: PropertyValue;
   children?: ChildProperty[];
   source?: PropertySource;
   formatter?: PropertyFormatter;

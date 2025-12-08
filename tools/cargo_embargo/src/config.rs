@@ -83,7 +83,7 @@ impl Config {
     /// Parses an instance of this config from the given JSON file.
     pub fn from_file(filename: &Path) -> Result<Self> {
         let json_string = std::fs::read_to_string(filename)
-            .with_context(|| format!("failed to read file: {:?}", filename))?;
+            .with_context(|| format!("failed to read file: {filename:?}"))?;
         Self::from_json_str(&json_string)
     }
 
@@ -299,6 +299,9 @@ pub struct VariantConfig {
     /// Minimum SDK version.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub min_sdk_version: Option<String>,
+    /// SDK version.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sdk_version: Option<String>,
     /// Map of renames for modules. For example, if a "libfoo" would be generated and there is an
     /// entry ("libfoo", "libbar"), the generated module will be called "libbar" instead.
     ///
@@ -349,6 +352,7 @@ impl Default for VariantConfig {
             vendor_available: true,
             vendor_ramdisk_available: false,
             min_sdk_version: None,
+            sdk_version: None,
             module_name_overrides: Default::default(),
             package: Default::default(),
             cfg_blocklist: Default::default(),
@@ -440,6 +444,12 @@ pub struct PackageVariantConfig {
     /// Directories with headers to export for C usage.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub exported_c_header_dir: Vec<PathBuf>,
+    /// Additional sources that should be listed as inputs in `srcs`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub extra_srcs: Vec<PathBuf>,
+    /// Add a `target: { windows: { enabled: true } }` property to modules.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub target_windows: bool,
 }
 
 impl Default for PackageVariantConfig {
@@ -459,6 +469,8 @@ impl Default for PackageVariantConfig {
             test_data: Default::default(),
             whole_static_libs: Default::default(),
             exported_c_header_dir: Default::default(),
+            extra_srcs: Default::default(),
+            target_windows: false,
         }
     }
 }
@@ -479,7 +491,8 @@ mod tests {
                 "another": {
                     "add_toplevel_block": "block.bp",
                     "device_supported": false,
-                    "force_rlib": true
+                    "force_rlib": true,
+                    "target_windows": true
                 },
                 "rulesmk": {
                     "rulesmk_patch": "patches/rules.mk.patch"
@@ -525,6 +538,7 @@ mod tests {
                                 PackageVariantConfig {
                                     device_supported: false,
                                     force_rlib: true,
+                                    target_windows: true,
                                     ..Default::default()
                                 },
                             ),
@@ -548,6 +562,7 @@ mod tests {
                                     alloc: false,
                                     device_supported: false,
                                     force_rlib: false,
+                                    target_windows: true,
                                     ..Default::default()
                                 },
                             ),
@@ -607,6 +622,7 @@ mod tests {
                         "argh".to_string(),
                         PackageVariantConfig {
                             dep_blocklist: vec!["bad_dep".to_string()],
+                            target_windows: true,
                             ..Default::default()
                         },
                     )]
@@ -627,6 +643,7 @@ mod tests {
                         PackageVariantConfig {
                             dep_blocklist: vec!["bad_dep".to_string()],
                             no_std: true,
+                            target_windows: true,
                             ..Default::default()
                         },
                     )]
@@ -652,7 +669,8 @@ mod tests {
       "add_toplevel_block": "block.bp",
       "dep_blocklist": [
         "bad_dep"
-      ]
+      ],
+      "target_windows": true
     }
   },
   "tests": true,

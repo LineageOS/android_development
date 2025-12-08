@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Component} from '@angular/core';
-import {DOMTestHelper} from 'test/unit/dom_test_utils';
+import {DOMTestHelper} from 'test/unit/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from 'viewers/common/abstract_hierarchy_viewer_component_test';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {SurfaceFlingerPropertyGroupsComponent} from 'viewers/components/surface_flinger_property_groups_component';
@@ -22,6 +22,7 @@ import {UiData} from './ui_data';
 import {ViewerSurfaceFlingerComponent} from './viewer_surface_flinger_component';
 
 @Component({
+  imports: [ViewerSurfaceFlingerComponent],
   selector: 'host-component',
   template:
     '<viewer-surface-flinger [inputData]="inputData"></viewer-surface-flinger>',

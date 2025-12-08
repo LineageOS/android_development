@@ -16,19 +16,20 @@
 
 import {Timestamp} from 'common/time/time';
 import {
+  CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace/custom_query';
-import {FrameMap} from 'trace/frame_map';
-import {FrameMapBuilder} from 'trace/frame_map_builder';
+} from 'trace_api/custom_query';
+import {FrameMap} from 'trace_api/frame_map';
+import {FrameMapBuilder} from 'trace_api/frame_map_builder';
 import {
   AbsoluteEntryIndex,
   AbsoluteFrameIndex,
   EntriesRange,
-} from 'trace/index_types';
-import {Parser} from 'trace/parser';
-import {Trace} from 'trace/trace';
-import {TraceType} from 'trace/trace_type';
+} from 'trace_api/index_types';
+import {Parser} from 'trace_api/parser';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
 import {ParserBuilder} from './parser_builder';
 
 export class TraceBuilder<T> {
@@ -36,7 +37,10 @@ export class TraceBuilder<T> {
   private parser?: Parser<T>;
   private parserCustomQueryResult = new Map<
     CustomQueryType,
-    CustomQueryParserResultTypeMap[CustomQueryType]
+    Map<
+      CustomQueryParamTypeMap[CustomQueryType],
+      CustomQueryParserResultTypeMap[CustomQueryType]
+    >
   >();
   private entries?: T[];
   private timestamps?: Timestamp[];
@@ -84,8 +88,14 @@ export class TraceBuilder<T> {
   setParserCustomQueryResult<Q extends CustomQueryType>(
     type: Q,
     result: CustomQueryParserResultTypeMap[Q],
+    param?: CustomQueryParamTypeMap[Q],
   ): TraceBuilder<T> {
-    this.parserCustomQueryResult.set(type, result ?? {});
+    const existingResult = this.parserCustomQueryResult.get(type);
+    if (existingResult) {
+      existingResult.set(param ?? 0, result);
+    } else {
+      this.parserCustomQueryResult.set(type, new Map([[param ?? 0, result]]));
+    }
     return this;
   }
 
@@ -141,9 +151,7 @@ export class TraceBuilder<T> {
       builder.setDescriptors(this.descriptors);
     }
 
-    this.parserCustomQueryResult?.forEach((result, queryType) => {
-      builder.setCustomQueryResult(queryType, result);
-    });
+    builder.setCustomQueryResult(this.parserCustomQueryResult);
 
     return builder.build();
   }

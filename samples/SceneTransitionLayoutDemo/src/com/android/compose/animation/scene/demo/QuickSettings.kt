@@ -115,7 +115,7 @@ object QuickSettings {
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 fun ContentScope.QuickSettings(
-    qsPager: @Composable ContentScope.() -> Unit,
+    qsPager: @Composable ContentScope.(revealEffect: Boolean) -> Unit,
     mediaPlayer: (@Composable ContentScope.() -> Unit)?,
     onSettingsButtonClicked: () -> Unit,
     onPowerButtonClicked: () -> Unit,
@@ -148,7 +148,7 @@ fun ContentScope.QuickSettings(
                     Modifier.padding(top = QuickSettings.Dimensions.Padding)
                         .element(QuickSettings.Elements.ExpandedGrid)
                 ) {
-                    qsPager()
+                    qsPager(false)
                 }
 
                 if (mediaPlayer != null) {

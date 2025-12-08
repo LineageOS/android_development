@@ -20,7 +20,7 @@ import {Store} from './store';
  * An in-memory implementation of the Store interface.
  */
 export class InMemoryStorage implements Store {
-  private store: {[key: string]: string} = {};
+  private readonly store: {[key: string]: string} = {};
 
   /**
    * Adds a key-value pair to the store.

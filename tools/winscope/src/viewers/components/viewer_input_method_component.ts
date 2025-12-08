@@ -13,16 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {TraceType} from 'trace/trace_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {TraceType} from 'trace_api/trace_type';
 import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
+import {CollapsibleSections} from 'viewers/common/collapsible_sections';
 import {ImeUiData} from 'viewers/common/ime_ui_data';
+import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from 'viewers/components/hierarchy_component';
+import {ImeAdditionalPropertiesComponent} from 'viewers/components/ime_additional_properties_component';
+import {PropertiesComponent} from 'viewers/components/properties_component';
 import {ViewerComponent} from 'viewers/components/viewer_component';
 import {viewerCardStyle} from './styles/viewer_card.styles';
 
 @Component({
   selector: 'viewer-input-method',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CollapsedSectionsComponent,
+    HierarchyComponent,
+    PropertiesComponent,
+    ImeAdditionalPropertiesComponent,
+  ],
   template: `
     <div class="card-grid">
       <collapsed-sections
@@ -31,28 +44,30 @@ import {viewerCardStyle} from './styles/viewer_card.styles';
         (sectionChange)="sections.onCollapseStateChange($event, false)">
       </collapsed-sections>
 
-      <div class="left-views" *ngIf="!areLeftViewsCollapsed()">
-        <hierarchy-view
-          class="hierarchy-view"
-          [trees]="this.inputData?.hierarchyTrees ?? []"
-          [dependencies]="inputData ? [inputData.traceType] : []"
-          [highlightedItem]="inputData?.highlightedItem"
-          [pinnedItems]="inputData?.pinnedItems ?? []"
-          [tableProperties]="inputData?.hierarchyTableProperties"
-          [textFilter]="inputData?.hierarchyFilter"
-          [store]="store"
-          [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-          placeholderText="No IME entry found."></hierarchy-view>
-        <ime-additional-properties
-          class="ime-additional-properties"
-          [isImeManagerService]="isImeManagerService()"
-          [highlightedItem]="inputData?.highlightedItem ?? ''"
-          [additionalProperties]="inputData?.additionalProperties"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"></ime-additional-properties>
-      </div>
+      @if (!areLeftViewsCollapsed()) {
+        <div class="left-views">
+          <hierarchy-view
+            class="hierarchy-view"
+            [trees]="this.inputData?.hierarchyTrees ?? []"
+            [dependencies]="inputData ? [inputData.traceType] : []"
+            [highlightedItem]="inputData?.highlightedItem"
+            [pinnedItems]="inputData?.pinnedItems ?? []"
+            [tableProperties]="inputData?.hierarchyTableProperties"
+            [textFilter]="inputData?.hierarchyFilter"
+            [store]="store"
+            [userOptions]="inputData?.hierarchyUserOptions ?? {}"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+            placeholderText="No IME entry found."></hierarchy-view>
+          <ime-additional-properties
+            class="ime-additional-properties"
+            [isImeManagerService]="isImeManagerService()"
+            [highlightedItem]="inputData?.highlightedItem ?? ''"
+            [additionalProperties]="inputData?.additionalProperties"
+            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
+            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"></ime-additional-properties>
+        </div>
+      }
 
       <properties-view
         class="properties-view"

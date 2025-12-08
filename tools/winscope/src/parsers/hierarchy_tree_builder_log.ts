@@ -15,9 +15,12 @@
  */
 
 import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from 'tree_node/properties_provider';
 
+/**
+ * A builder for creating a hierarchy tree from a log.
+ */
 export class HierarchyTreeBuilderLog extends HierarchyTreeBuilder {
   protected override buildIdentifierToChildrenMap(
     traceLogEntries: PropertiesProvider[],

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
-import {PersistentStoreProxy} from 'common/store/persistent_store_proxy';
+import {assertDefined} from 'common/assert';
+import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
 import {Store} from 'common/store/store';
 import {Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {ImeTraceType, TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {Trace, TraceEntry} from 'trace_api/trace';
+import {ImeTraceType, TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {TreeNode} from 'tree_node/tree_node';
 import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
 import {ImeUiData} from 'viewers/common/ime_ui_data';
 import {
@@ -43,7 +43,7 @@ import {HierarchyPresenter} from './hierarchy_presenter';
 import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_display_names';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
-import {UiTreeUtils} from './ui_tree_utils';
+import {isHighlighted} from './ui_tree_utils';
 import {ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {
@@ -55,7 +55,7 @@ export abstract class AbstractPresenterInputMethod extends AbstractHierarchyView
     return this.getEntryFormattedTimestamp(entry) + ' - ' + where;
   };
   protected override hierarchyPresenter = new HierarchyPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'ImeHierarchyOptions',
       {
         simplifyNames: {
@@ -82,7 +82,7 @@ export abstract class AbstractPresenterInputMethod extends AbstractHierarchyView
     [[TraceType.SURFACE_FLINGER, [new UpdateSfSubtreeDisplayNames()]]],
   );
   protected override propertiesPresenter = new PropertiesPresenter(
-    PersistentStoreProxy.new<UserOptions>(
+    createPersistentStoreProxy<UserOptions>(
       'ImePropertiesOptions',
       {
         showDefaults: {
@@ -178,7 +178,7 @@ the default for its data type.`,
       );
 
       if (sfEntry) {
-        sfProperties = ImeUtils.getImeLayers(
+        sfProperties = await ImeUtils.getImeLayers(
           sfEntry,
           wmProperties,
           sfEntryTimestamp,
@@ -227,7 +227,7 @@ the default for its data type.`,
 
       if (!selected && highlightedItem !== undefined) {
         const isHighlightedFilter = (node: HierarchyTreeNode) =>
-          UiTreeUtils.isHighlighted(node, highlightedItem);
+          isHighlighted(node, highlightedItem);
         let selectedTree =
           this.additionalProperties?.sf?.taskLayerOfImeContainer?.findDfs(
             isHighlightedFilter,

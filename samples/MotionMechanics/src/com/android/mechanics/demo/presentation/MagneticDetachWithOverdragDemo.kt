@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimatableApi::class)
-
 package com.android.mechanics.demo.presentation
 
-import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -50,19 +47,20 @@ import androidx.compose.ui.unit.dp
 import com.android.mechanics.debug.debugMotionValue
 import com.android.mechanics.demo.presentation.MagneticDetachWithOverdragDemo.TargetValue
 import com.android.mechanics.demo.presentation.MagneticDetachWithOverdragDemo.inputRange
-import com.android.mechanics.demo.staging.rememberDistanceGestureContext
-import com.android.mechanics.demo.staging.rememberMotionValue
 import com.android.mechanics.demo.tuneable.Demo
+import com.android.mechanics.demo.tuneable.HasMotionValueVisualization
 import com.android.mechanics.effects.MagneticDetach
 import com.android.mechanics.effects.Overdrag
+import com.android.mechanics.rememberDistanceGestureContext
+import com.android.mechanics.rememberMotionSpecAsState
+import com.android.mechanics.rememberMotionValue
 import com.android.mechanics.spec.InputDirection
 import com.android.mechanics.spec.SemanticKey
 import com.android.mechanics.spec.builder.MotionBuilderContext
 import com.android.mechanics.spec.builder.fixedSpatialValueSpec
-import com.android.mechanics.spec.builder.rememberMotionBuilderContext
 import com.android.mechanics.spec.builder.spatialMotionSpec
 
-object MagneticDetachWithOverdragDemo : Demo<Unit> {
+object MagneticDetachWithOverdragDemo : Demo<Unit>, HasMotionValueVisualization {
 
     var inputRange by mutableStateOf(0f..0f)
 
@@ -70,10 +68,20 @@ object MagneticDetachWithOverdragDemo : Demo<Unit> {
     override fun DemoUi(config: Unit, modifier: Modifier) {
         val colors = MaterialTheme.colorScheme
         val gestureContext = rememberDistanceGestureContext()
-        val motionBuilderContext = rememberMotionBuilderContext()
-        var spec by remember() { mutableStateOf(motionBuilderContext.fixedSpatialValueSpec(0f)) }
+        var dragState: DragState by remember { mutableStateOf(DragState.Idle(targetValue = 0f)) }
 
-        val motionValue = rememberMotionValue(gestureContext::dragOffset, { spec }, gestureContext)
+        val motionValue =
+            rememberMotionValue(
+                input = { gestureContext.dragOffset },
+                gestureContext = gestureContext,
+                spec =
+                    rememberMotionSpecAsState {
+                        when (val dragState = dragState) {
+                            is DragState.Idle -> fixedSpatialValueSpec(dragState.targetValue)
+                            DragState.Dragging -> createDragSpec()
+                        }
+                    },
+            )
 
         Column(
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -112,11 +120,11 @@ object MagneticDetachWithOverdragDemo : Demo<Unit> {
                                 Orientation.Horizontal,
                                 onDragStarted = {
                                     gestureContext.reset(motionValue.output, InputDirection.Max)
-                                    spec = motionBuilderContext.createDragSpec()
+                                    dragState = DragState.Dragging
                                 },
                                 onDragStopped = {
                                     val targetValue = motionValue[TargetValue] ?: motionValue.output
-                                    spec = motionBuilderContext.fixedSpatialValueSpec(targetValue)
+                                    dragState = DragState.Idle(targetValue = targetValue)
                                 },
                             )
                             .debugMotionValue(motionValue)
@@ -137,6 +145,12 @@ object MagneticDetachWithOverdragDemo : Demo<Unit> {
     override val identifier: String = "MagneticDetachOverdrag"
 
     val TargetValue = SemanticKey<Float?>()
+
+    private sealed interface DragState {
+        data class Idle(val targetValue: Float) : DragState
+
+        data object Dragging : DragState
+    }
 }
 
 private fun MotionBuilderContext.createDragSpec() = spatialMotionSpec {

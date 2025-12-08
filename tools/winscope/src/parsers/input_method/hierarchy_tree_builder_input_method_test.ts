@@ -16,11 +16,11 @@
 
 import {HierarchyTreeBuilderInputMethod} from 'parsers/input_method/hierarchy_tree_builder_input_method';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {TreeNodeUtils} from 'test/unit/tree_node_utils';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
-import {OperationChain} from 'trace/tree_node/operations/operation_chain';
-import {PropertiesProvider} from 'trace/tree_node/properties_provider';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {OperationChain} from 'tree_node/operation_chain';
+import {PropertiesProvider} from 'tree_node/properties_provider';
+import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
 describe('HierarchyTreeBuilderInputMethod', () => {
   let builder: HierarchyTreeBuilderInputMethod;
@@ -28,7 +28,7 @@ describe('HierarchyTreeBuilderInputMethod', () => {
   let entryPropertiesTree: PropertyTreeNode;
 
   beforeEach(() => {
-    jasmine.addCustomEqualityTester(TreeNodeUtils.treeNodeEqualityTester);
+    jasmine.addCustomEqualityTester(treeNodeEqualityTester);
     builder = new HierarchyTreeBuilderInputMethod();
     entryPropertiesTree = new PropertyTreeBuilder()
       .setIsRoot(true)

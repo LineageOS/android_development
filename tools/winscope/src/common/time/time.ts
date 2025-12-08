@@ -14,11 +14,49 @@
  * limitations under the License.
  */
 
+/**
+ * A type for a function that creates a timestamp.
+ */
+export type MakeTimestampStrategyType = (valueNs: bigint) => Timestamp;
+
+/**
+ * A constant representing an invalid time in nanoseconds.
+ */
 export const INVALID_TIME_NS = 0n;
 
+/**
+ * A class representing a time range.
+ */
 export class TimeRange {
-  constructor(readonly from: Timestamp, readonly to: Timestamp) {}
+  /**
+   * @param from The start of the time range.
+   * @param to The end of the time range.
+   */
+  constructor(
+    readonly from: Timestamp,
+    readonly to: Timestamp,
+  ) {}
 
+  /**
+   * Gets the start of the time range in nanoseconds.
+   */
+  get startNs(): bigint {
+    return this.from.getValueNs();
+  }
+
+  /**
+   * Gets the end of the time range in nanoseconds.
+   */
+  get endNs(): bigint {
+    return this.to.getValueNs();
+  }
+
+  /**
+   * Checks if a timestamp is within the time range.
+   *
+   * @param ts The timestamp to check.
+   * @return True if the timestamp is within the time range, false otherwise.
+   */
   containsTimestamp(ts: Timestamp): boolean {
     const min = this.from.getValueNs();
     const max = this.to.getValueNs();
@@ -26,63 +64,164 @@ export class TimeRange {
   }
 }
 
-export interface TimezoneInfo {
+/**
+ * An interface for timezone information.
+ */
+export declare interface TimezoneInfo {
   timezone: string;
   locale: string;
 }
 
-export interface TimestampFormatter {
-  format(timestamp: Timestamp, type: TimestampFormatType): string;
+/**
+ * An interface for a timestamp formatter.
+ */
+export declare interface TimestampFormatter {
+  /**
+   * Formats a timestamp.
+   *
+   * @param timestamp The timestamp to format.
+   * @param type The format type.
+   * @return The formatted timestamp.
+   */
+  format(timestampNs: bigint): string;
 }
 
-export enum TimestampFormatType {
-  FULL,
-  DROP_DATE,
-}
-
+/**
+ * A class representing a timestamp.
+ */
 export class Timestamp {
   private readonly utcValueNs: bigint;
   private readonly formatter: TimestampFormatter;
 
+  /**
+   * @param valueNs The value of the timestamp in nanoseconds.
+   * @param formatter The formatter to use for formatting the timestamp.
+   */
   constructor(valueNs: bigint, formatter: TimestampFormatter) {
     this.utcValueNs = valueNs;
     this.formatter = formatter;
   }
 
+  /**
+   * Gets the value of the timestamp in nanoseconds.
+   *
+   * @return The value of the timestamp in nanoseconds.
+   */
   getValueNs(): bigint {
     return this.utcValueNs;
   }
 
+  /**
+   * Gets the value of the timestamp in nanoseconds.
+   *
+   * @return The value of the timestamp in nanoseconds.
+   */
   valueOf(): bigint {
     return this.utcValueNs;
   }
 
+  /**
+   * Checks if the timestamp is within a time range.
+   *
+   * @param range The time range to check.
+   * @return True if the timestamp is within the time range, false otherwise.
+   */
   in(range: TimeRange): boolean {
     return (
-      range.from.getValueNs() <= this.getValueNs() &&
-      this.getValueNs() <= range.to.getValueNs()
+      range.startNs <= this.getValueNs() && this.getValueNs() <= range.endNs
     );
   }
 
-  add(n: bigint): Timestamp {
+  /**
+   * Adds a value to the timestamp.
+   *
+   * @param other The value to add.
+   * @return A new timestamp with the added value.
+   */
+  add(other: bigint | Timestamp): Timestamp {
+    let n: bigint;
+    if (other instanceof Timestamp) {
+      n = other.getValueNs();
+    } else {
+      n = other;
+    }
+
     return new Timestamp(this.getValueNs() + n, this.formatter);
   }
 
-  minus(n: bigint): Timestamp {
+  /**
+   * Subtracts a value from the timestamp.
+   *
+   * @param other The value to subtract.
+   * @return A new timestamp with the subtracted value.
+   */
+  minus(other: bigint | Timestamp): Timestamp {
+    let n: bigint;
+    if (other instanceof Timestamp) {
+      n = other.getValueNs();
+    } else {
+      n = other;
+    }
     return new Timestamp(this.getValueNs() - n, this.formatter);
   }
 
-  times(n: bigint): Timestamp {
-    return new Timestamp(this.getValueNs() * n, this.formatter);
+  /**
+   * Multiplies the timestamp by a value.
+   *
+   * @param other The value to multiply by.
+   * @return A new timestamp with the multiplied value.
+   */
+  times(other: bigint): Timestamp {
+    return new Timestamp(this.getValueNs() * other, this.formatter);
   }
 
-  div(n: bigint): Timestamp {
-    return new Timestamp(this.getValueNs() / n, this.formatter);
+  /**
+   * Divides the timestamp by a value.
+   *
+   * @param other The value to divide by.
+   * @return A new timestamp with the divided value.
+   */
+  div(other: bigint): Timestamp {
+    return new Timestamp(this.getValueNs() / other, this.formatter);
   }
 
-  format(type = TimestampFormatType.FULL): string {
-    return this.formatter.format(this, type);
+  /**
+   * Formats the timestamp.
+   *
+   * @param type The format type.
+   * @return The formatted timestamp.
+   */
+  format(): string {
+    return this.formatter.format(this.getValueNs());
+  }
+
+  /**
+   * Returns the minimum of two timestamps.
+   *
+   * @param ts1 The first timestamp.
+   * @param ts2 The second timestamp.
+   * @return The minimum of the two timestamps.
+   */
+  static min(ts1: Timestamp, ts2: Timestamp): Timestamp {
+    if (ts2.getValueNs() < ts1.getValueNs()) {
+      return ts2;
+    }
+
+    return ts1;
+  }
+
+  /**
+   * Returns the maximum of two timestamps.
+   *
+   * @param ts1 The first timestamp.
+   * @param ts2 The second timestamp.
+   * @return The maximum of the two timestamps.
+   */
+  static max(ts1: Timestamp, ts2: Timestamp): Timestamp {
+    if (ts2.getValueNs() > ts1.getValueNs()) {
+      return ts2;
+    }
+
+    return ts1;
   }
 }
-
-export type MakeTimestampStrategyType = (valueNs: bigint) => Timestamp;

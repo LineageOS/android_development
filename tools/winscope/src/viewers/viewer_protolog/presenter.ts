@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
-import {Trace} from 'trace/trace';
-import {PropertyTreeNode} from 'trace/tree_node/property_tree_node';
+import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
+import {Trace} from 'trace_api/trace';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
@@ -30,31 +31,36 @@ import {ProtologEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<
   UiData,
-  PropertyTreeNode
+  HierarchyTreeNode
 > {
   private static readonly COLUMNS = {
     logLevel: {
       name: 'Log Level',
       cssClass: 'log-level',
+      columnType: ProtologColumnType.LEVEL,
     },
     tag: {
       name: 'Tag',
       cssClass: 'tag',
+      columnType: ProtologColumnType.TAG,
     },
     sourceFile: {
       name: 'Source files',
       cssClass: 'source-file',
       canCopy: true,
+      columnType: ProtologColumnType.LOCATION,
     },
     text: {
       name: 'Search text',
       cssClass: 'text',
+      columnType: ProtologColumnType.MESSAGE,
     },
   };
+  private static readonly NO_LOCATION = '<NO_LOC>';
   protected override logPresenter = new LogPresenter<LogEntry>();
 
   constructor(
-    trace: Trace<PropertyTreeNode>,
+    trace: Trace<HierarchyTreeNode>,
     notifyViewCallback: NotifyLogViewCallbackType<UiData>,
     private storage: Store,
   ) {
@@ -70,7 +76,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       ),
       new LogHeader(
         Presenter.COLUMNS.sourceFile,
-        new LogSelectFilter([], false, '300'),
+        new LogSelectFilter([], true, '300'),
       ),
       new LogHeader(
         Presenter.COLUMNS.text,
@@ -81,38 +87,39 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   protected override async makeUiDataEntries(): Promise<ProtologEntry[]> {
     const messages: ProtologEntry[] = [];
+    const messageNodes = await this.trace.getAllEntryValues();
 
     for (
       let traceIndex = 0;
       traceIndex < this.trace.lengthEntries;
       ++traceIndex
     ) {
-      const entry = assertDefined(this.trace.getEntry(traceIndex));
-      const messageNode = await entry.getValue();
+      const entry = this.trace.getEntry(traceIndex);
+      const messageNode = assertDefined(messageNodes[traceIndex]);
       const fields: LogField[] = [
         {
           spec: Presenter.COLUMNS.logLevel,
-          value: assertDefined(
-            messageNode.getChildByName('level'),
-          ).formattedValue(),
+          value:
+            messageNode.getEagerPropertyByName('level')?.formattedValue() ??
+            Presenter.VALUE_NA,
         },
         {
           spec: Presenter.COLUMNS.tag,
-          value: assertDefined(
-            messageNode.getChildByName('tag'),
-          ).formattedValue(),
+          value:
+            messageNode.getEagerPropertyByName('tag')?.formattedValue() ??
+            Presenter.VALUE_NA,
         },
         {
           spec: Presenter.COLUMNS.sourceFile,
-          value: assertDefined(
-            messageNode.getChildByName('at'),
-          ).formattedValue(),
+          value:
+            messageNode.getEagerPropertyByName('location')?.formattedValue() ??
+            Presenter.NO_LOCATION,
         },
         {
           spec: Presenter.COLUMNS.text,
-          value: assertDefined(
-            messageNode.getChildByName('text'),
-          ).formattedValue(),
+          value:
+            messageNode.getEagerPropertyByName('message')?.formattedValue() ??
+            Presenter.VALUE_NA,
         },
       ];
       messages.push(new ProtologEntry(entry, fields));
@@ -121,33 +128,11 @@ export class Presenter extends AbstractLogViewerPresenter<
     return messages;
   }
 
-  protected override async updateFiltersInHeaders(
-    headers: LogHeader[],
-    allEntries: ProtologEntry[],
-  ) {
-    for (const header of headers) {
-      if (header.filter instanceof LogSelectFilter) {
-        assertDefined(header.filter).options = this.getUniqueMessageValues(
-          allEntries,
-          (entry: ProtologEntry) =>
-            assertDefined(
-              entry.fields.find((f) => f.spec === header.spec),
-            ).value.toString(),
-        );
-      }
-    }
-  }
-
-  private getUniqueMessageValues(
-    allMessages: ProtologEntry[],
-    getValue: (message: ProtologEntry) => string,
-  ): string[] {
-    const uniqueValues = new Set<string>();
-    allMessages.forEach((message) => {
-      uniqueValues.add(getValue(message));
-    });
-    const result = [...uniqueValues];
-    result.sort();
-    return result;
+  protected override async updateFiltersInHeaders(headers: LogHeader[]) {
+    Promise.all(
+      headers
+        .filter((header) => header.filter instanceof LogSelectFilter)
+        .map((header) => this.updateFilterByCustomQuery(header)),
+    );
   }
 }

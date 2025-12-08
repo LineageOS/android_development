@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TreeNode} from 'trace/tree_node/tree_node';
+import {TreeNode} from 'tree_node/tree_node';
 import {DiffType} from './diff_type';
 
 export interface DiffNode extends TreeNode {

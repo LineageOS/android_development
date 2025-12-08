@@ -111,6 +111,7 @@ fun ContentScope.SplitShade(
                             nRows = nQuickSettingsRows,
                             nColumns = nQuickSettingsColumns,
                             Modifier.padding(top = QuickSettings.Dimensions.Padding),
+                            revealEffect = false,
                         )
 
                         if (mediaPlayer != null) {

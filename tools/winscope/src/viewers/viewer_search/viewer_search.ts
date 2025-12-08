@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {Store} from 'common/store/store';
 import {TimestampConverter} from 'common/time/timestamp_converter';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceType} from 'trace/trace_type';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
 import {QueryResult} from 'trace_processor/query_result';
 import {AbstractViewer} from 'viewers/abstract_viewer';
 import {ViewType} from 'viewers/viewer';
@@ -45,7 +45,7 @@ export class ViewerSearch extends AbstractViewer<QueryResult> {
   }
 
   protected override initializePresenter(
-    trace: Trace<QueryResult>,
+    trace: Trace<QueryResult> | undefined,
     traces: Traces,
     store: Store,
     timestampConverter: TimestampConverter,

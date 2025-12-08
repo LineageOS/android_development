@@ -17,6 +17,12 @@
 import {ErrorHandler} from '@angular/core';
 import {Analytics} from 'logging/analytics';
 
+/**
+ * A global error handler for the application.
+ *
+ * NOTE: This handler is not triggered for errors that occur within the context of a promise.
+ *       Such errors must be handled via a dedicated `.catch(...)` block.
+ */
 export class GlobalErrorHandler implements ErrorHandler {
   handleError(error: Error) {
     Analytics.Error.logGlobalException(error.message);

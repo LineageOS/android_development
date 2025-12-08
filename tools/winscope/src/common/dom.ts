@@ -1,0 +1,83 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Utility functions for DOM manipulation.
+ */
+
+/**
+ * Checks if an element is visible on the screen.
+ *
+ * @param element The element to check.
+ * @return True if the element is visible, false otherwise.
+ */
+export function isElementVisible(element: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+  return rect.height > 0 && rect.width > 0;
+}
+
+/**
+ * Checks if an element is overflowing its container.
+ *
+ * @param element The element to check.
+ * @return True if the element is overflowing, false otherwise.
+ */
+export function isElementOverflowing(element: HTMLElement) {
+  return element.scrollWidth > element.clientWidth;
+}
+
+/**
+ * Checks if an element is an input text field.
+ *
+ * @param element The element to check.
+ * @return True if the element is an input text field, false otherwise.
+ */
+export function isInputTextField(element: HTMLElement): boolean {
+  return (
+    element instanceof HTMLInputElement &&
+    element.tagName === 'INPUT' &&
+    element.type === 'text'
+  );
+}
+
+/**
+ * Keyboard event codes.
+ */
+export enum KeyboardEventCode {
+  A = 'KeyA',
+  D = 'KeyD',
+  S = 'KeyS',
+  W = 'KeyW',
+}
+
+/**
+ * Keyboard event keys.
+ */
+export enum KeyboardEventKey {
+  ARROW_DOWN = 'ArrowDown',
+  ARROW_LEFT = 'ArrowLeft',
+  ARROW_RIGHT = 'ArrowRight',
+  ARROW_UP = 'ArrowUp',
+  ENTER = 'Enter',
+  ESCAPE = 'Escape',
+}
+
+/**
+ * Keyboard event key codes.
+ */
+export enum KeyboardEventKeyCode {
+  SPACE = 32,
+}

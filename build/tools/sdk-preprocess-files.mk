@@ -182,3 +182,6 @@ $(wear_sdk_jar_full_target): $(wear_sdk_current_stubs_target) $(wildcard $(PRIVA
         )
 
 ALL_SDK_FILES += $(wear_sdk_jar_full_target)
+
+# ===== Generate source.property files for clockwork device image. =====
+-include vendor/google_clockwork/sdk/build/gen-src-properties.mk

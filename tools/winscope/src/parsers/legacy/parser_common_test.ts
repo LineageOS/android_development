@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
+import {getFixtureFile} from 'test/unit/io_helpers';
+import {LegacyParserProvider} from 'test/unit/fixture_utils';
 import {
-  TimestampConverterUtils,
+  makeElapsedTimestamp,
+  makeRealTimestamp,
   timestampEqualityTester,
-} from 'common/time/test_utils';
-import {getFixtureFile, LegacyParserProvider} from 'test/unit/fixture_utils';
-import {Parser} from 'trace/parser';
+  UTC_CONVERTER,
+} from 'test/unit/time_test_helpers';
 import {TraceFile} from 'trace/trace_file';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {Parser} from 'trace_api/parser';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {ParserFactory} from './parser_factory';
 
 describe('Parser', () => {
@@ -46,10 +49,10 @@ describe('Parser', () => {
       const trace = new TraceFile(await getFixtureFile(file), undefined);
       const processed = await new ParserFactory().processFiles(
         [trace],
-        TimestampConverterUtils.TIMESTAMP_CONVERTER,
+        UTC_CONVERTER,
         {},
       );
-      expect(processed.parsers.length).toEqual(0);
+      expect(processed.parsers.length).toBe(0);
       expect(processed.unsupportedFiles).toEqual(unsupported ? [trace] : []);
     }
   });
@@ -59,7 +62,7 @@ describe('Parser', () => {
 
     beforeAll(async () => {
       parser = await new LegacyParserProvider()
-        .addFilename('traces/elapsed_and_real_timestamp/WindowManager.pb')
+        .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
         .getParser<HierarchyTreeNode>();
     });
 
@@ -69,9 +72,9 @@ describe('Parser', () => {
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeRealTimestamp(1659107089075566202n),
-        TimestampConverterUtils.makeRealTimestamp(1659107089999048990n),
-        TimestampConverterUtils.makeRealTimestamp(1659107090010194213n),
+        makeRealTimestamp(1659107089075566202n),
+        makeRealTimestamp(1659107089999048990n),
+        makeRealTimestamp(1659107090010194213n),
       ];
       expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(
         expected,
@@ -82,12 +85,12 @@ describe('Parser', () => {
       let entry = await parser.getEntry(0);
       expect(
         assertDefined(entry.getEagerPropertyByName('focusedApp')).getValue(),
-      ).toEqual('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
+      ).toBe('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
 
       entry = await parser.getEntry(parser.getLengthEntries() - 1);
       expect(
         assertDefined(entry.getEagerPropertyByName('focusedApp')).getValue(),
-      ).toEqual('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
+      ).toBe('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
     });
   });
 
@@ -96,15 +99,15 @@ describe('Parser', () => {
 
     beforeAll(async () => {
       parser = await new LegacyParserProvider()
-        .addFilename('traces/elapsed_timestamp/WindowManager.pb')
+        .addFile('traces/elapsed_timestamp/WindowManager.pb')
         .getParser<HierarchyTreeNode>();
     });
 
     it('provides timestamps', () => {
       const expected = [
-        TimestampConverterUtils.makeElapsedTimestamp(850254319343n),
-        TimestampConverterUtils.makeElapsedTimestamp(850763506110n),
-        TimestampConverterUtils.makeElapsedTimestamp(850782750048n),
+        makeElapsedTimestamp(850254319343n),
+        makeElapsedTimestamp(850763506110n),
+        makeElapsedTimestamp(850782750048n),
       ];
       expect(parser.getTimestamps()).toEqual(expected);
     });
@@ -113,12 +116,12 @@ describe('Parser', () => {
       let entry = await parser.getEntry(0);
       expect(
         assertDefined(entry.getEagerPropertyByName('focusedApp')).getValue(),
-      ).toEqual('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
+      ).toBe('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
 
       entry = await parser.getEntry(parser.getLengthEntries() - 1);
       expect(
         assertDefined(entry.getEagerPropertyByName('focusedApp')).getValue(),
-      ).toEqual('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
+      ).toBe('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
     });
   });
 });

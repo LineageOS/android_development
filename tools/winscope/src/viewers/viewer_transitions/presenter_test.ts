@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert_utils';
+import {assertDefined} from 'common/assert';
 import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimestampConverterUtils} from 'common/time/test_utils';
-import {TimeUtils} from 'common/time/time_utils';
+import {Timer} from 'common/time/timer';
 import {TracePositionUpdate} from 'messaging/winscope_event';
 import {getPerfettoParser} from 'test/unit/fixture_utils';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
 import {ParserBuilder} from 'test/unit/parser_builder';
-import {TracesBuilder} from 'test/unit/traces_builder';
+import {makeRealTimestamp} from 'test/unit/time_test_helpers';
 import {TraceBuilder} from 'test/unit/trace_builder';
-import {Trace} from 'trace/trace';
-import {Traces} from 'trace/traces';
-import {TraceType} from 'trace/trace_type';
-import {HierarchyTreeNode} from 'trace/tree_node/hierarchy_tree_node';
+import {TracesBuilder} from 'test/unit/traces_builder';
+import {Trace} from 'trace_api/trace';
+import {TraceType} from 'trace_api/trace_type';
+import {Traces} from 'trace_api/traces';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
 import {LogSelectFilter} from 'viewers/common/log_filters';
@@ -172,18 +171,18 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataLog) {
-    expect(uiData.entries.length).toEqual(4);
+    expect(uiData.entries.length).toBe(4);
 
     const selectedTransition = assertDefined(uiData.propertiesTree);
-    expect(selectedTransition.getChildByName('id')?.formattedValue()).toEqual(
+    expect(selectedTransition.getChildByName('id')?.formattedValue()).toBe(
       '32',
     );
-    expect(selectedTransition.getChildByName('type')?.formattedValue()).toEqual(
+    expect(selectedTransition.getChildByName('type')?.formattedValue()).toBe(
       'OPEN',
     );
     expect(
       selectedTransition.getChildByName('createTimeNs')?.formattedValue(),
-    ).toEqual('2023-11-21, 13:30:25.429');
+    ).toBe('2023-11-21, 13:30:25.429');
 
     const dispatchTimeEntryTs = uiData.entries[0].fields[3];
     expect(dispatchTimeEntryTs?.propagateEntryTimestamp).toBeTrue();
@@ -199,18 +198,12 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
   override executeSpecializedTests() {
     describe('Specialized tests', () => {
       it('robust to corrupted transitions trace', async () => {
-        const timestamp10 = TimestampConverterUtils.makeRealTimestamp(10n);
-        const trace = new TraceBuilder<HierarchyTreeNode>()
+        const timestamp10 = makeRealTimestamp(10n);
+        const trace = new TraceBuilder<HierarchyTreeNode | undefined>()
           .setType(TraceType.TRANSITION)
           .setParser(
-            new ParserBuilder<HierarchyTreeNode>()
-              .setIsCorrupted(true)
-              .setEntries([
-                new HierarchyTreeBuilder()
-                  .setId('TransitionsTraceEntry')
-                  .setName('transition0')
-                  .build(),
-              ])
+            new ParserBuilder<HierarchyTreeNode | undefined>()
+              .setEntries([undefined])
               .setTimestamps([timestamp10])
               .build(),
           )
@@ -221,11 +214,11 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
           (newData) => {
             uiData = newData;
           },
-          trace,
+          trace as Trace<HierarchyTreeNode>,
           positionUpdate,
         );
         await presenter.onAppEvent(positionUpdate);
-        await TimeUtils.wait(
+        await new Timer().wait(
           () => uiData !== undefined && !uiData.isFetchingData,
         );
         expect(uiData?.entries).toEqual([]);
