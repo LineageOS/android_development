@@ -19,13 +19,14 @@ import {Timestamp} from 'common/time/time';
 import {WindowType} from 'trace/window_manager/window_type';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Item} from 'tree_node/item';
+import {makeNodeFilter} from 'tree_node/helpers';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 import {TextFilter} from 'viewers/common/text_filter';
 import {
   getFocusedActivity,
   getFocusedWindow,
 } from 'viewers/common/wm_ime_utils';
-import {makeNodeFilter, TreeNodeFilter} from './ui_tree_utils';
+import {TreeNodeFilter} from './ui_tree_utils';
 
 interface WmStateProperties {
   timestamp: string | undefined;

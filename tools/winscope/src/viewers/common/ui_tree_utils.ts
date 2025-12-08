@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+import {PropertySource} from 'tree_node/property_tree_node';
 import {TreeNode} from 'tree_node/tree_node';
-import {StringFilterPredicate} from 'viewers/common/string_filter_predicate';
 import {DiffType} from './diff_type';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
@@ -96,47 +95,6 @@ export const isNotFromTP: (node: TreeNode) => boolean = (node: TreeNode) => {
     node instanceof UiPropertyTreeNode && node.source !== PropertySource.TP
   );
 };
-
-/**
- * Creates a filter that checks if a node's id or formatted value matches a predicate.
- *
- * @param predicate The predicate to use.
- * @return A filter function.
- */
-export function makeNodeFilter(
-  predicate: StringFilterPredicate,
-): (node: TreeNode) => boolean {
-  return (node: TreeNode) => {
-    return (
-      predicate(node.id) ||
-      (node instanceof PropertyTreeNode && predicate(node.formattedValue()))
-    );
-  };
-}
-
-/**
- * Creates a filter that checks if a node's id matches a target id.
- *
- * @param targetId The target id to match.
- * @return A filter function.
- */
-export function makeIdMatchFilter(
-  targetId: string,
-): (node: TreeNode) => boolean {
-  return (node: TreeNode) => node.id === targetId;
-}
-
-/**
- * Creates a filter that removes nodes whose name is in a denylist.
- *
- * @param denylist The list of names to deny.
- * @return A filter function.
- */
-export function makeDenyListFilterByName(
-  denylist: string[],
-): (node: TreeNode) => boolean {
-  return (node: TreeNode) => !denylist.includes(node.name);
-}
 
 /**
  * Checks if a node should have its properties fetched.

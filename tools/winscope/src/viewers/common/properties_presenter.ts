@@ -17,6 +17,11 @@
 import {Analytics} from 'logging/analytics';
 import {TRACE_INFO} from 'trace_api/trace_info';
 import {TraceType} from 'trace_api/trace_type';
+import {
+  makeDenyListFilterByName,
+  makeIdMatchFilter,
+  makeNodeFilter,
+} from 'tree_node/helpers';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Operation} from 'tree_node/operation';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
@@ -30,10 +35,7 @@ import {UiTreeFormatter} from './ui_tree_formatter';
 import {
   isNotCalculated,
   isNotFromTP,
-  makeDenyListFilterByName,
-  makeIdMatchFilter,
   makeIsNotDefaultFilter,
-  makeNodeFilter,
   TreeNodeFilter,
 } from './ui_tree_utils';
 import {UserOptions} from './user_options';
