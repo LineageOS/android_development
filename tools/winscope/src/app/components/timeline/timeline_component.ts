@@ -1186,7 +1186,7 @@ export class TimelineComponent
 
     const srChanged = this.currentScreenRecordingTrace !== lastTrace;
 
-    if (srChanged || !this.videoUrl) {
+    if (srChanged || !this.videoUrl || !this.thumbnail) {
       const video = await this.currentScreenRecordingTrace
         .getEntry(0)
         .getValue();
@@ -1194,6 +1194,9 @@ export class TimelineComponent
         this.videoUrl = this.sanitizer.bypassSecurityTrustUrl(
           URL.createObjectURL(video.frameData),
         );
+        this.thumbnail = video.thumbnail;
+        this.changeDetectorRef.detectChanges();
+      } else if (this.thumbnail === undefined && video.thumbnail) {
         this.thumbnail = video.thumbnail;
         this.changeDetectorRef.detectChanges();
       }

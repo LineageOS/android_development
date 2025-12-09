@@ -25,7 +25,6 @@ import {
   VideoEntry,
 } from 'trace/media_based/media_based_trace_entry';
 import {Thumbnail} from 'trace/media_based/thumbnail';
-import {generateThumbnail} from './thumbnail_generator';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserExternalMetadata} from './parser_external_metadata';
 import {ParserFilename} from './parser_filename';
@@ -37,6 +36,7 @@ import {
   WINSCOPE_MAGIC_STRING,
 } from './helpers';
 import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
+import {ThumbnailGenerator} from './thumbnail_generator';
 
 export class ParserScreenRecording extends AbstractParser<
   MediaBasedTraceEntry,
@@ -45,8 +45,10 @@ export class ParserScreenRecording extends AbstractParser<
   private realToBootTimeOffsetNs: bigint | undefined;
   private makeTimestampFromExactValue = false;
   private thumbnail: Thumbnail | undefined;
+  private thumbnailGenerator: ThumbnailGenerator | undefined;
 
   onDestroy() {
+    this.thumbnailGenerator?.onDestroy();
     this.thumbnail?.onDestroy();
   }
 
@@ -87,7 +89,7 @@ export class ParserScreenRecording extends AbstractParser<
     if (result.realToBootTimeOffsetNs === 0n) {
       this.makeTimestampFromExactValue = true;
     }
-    this.thumbnail = await generateThumbnail(videoData);
+    this.queueThumbnailGeneration(videoData);
     return result.timestamps;
   }
 
@@ -147,5 +149,16 @@ export class ParserScreenRecording extends AbstractParser<
       UserNotifier.add(makeWarningMonotonicScreenRecording());
     }
     return new ParserMetadataV1Or2(posTimeOffset);
+  }
+
+  private queueThumbnailGeneration(videoData: Uint8Array) {
+    if (this.thumbnail) {
+      return;
+    }
+    this.thumbnailGenerator = new ThumbnailGenerator().setVideoData(videoData);
+    this.thumbnailGenerator.generate().then((thumbnail) => {
+      this.thumbnail = thumbnail;
+      this.thumbnailGenerator = undefined;
+    });
   }
 }
