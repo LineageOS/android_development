@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {StringFilterPredicate} from 'viewers/common/string_filter_predicate';
+import {StringFilterPredicate} from 'common/string_filter_predicate';
 import {TextFilter} from 'viewers/common/text_filter';
 
 export abstract class LogFilter {

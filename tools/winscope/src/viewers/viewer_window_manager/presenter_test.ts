@@ -33,7 +33,7 @@ import {VISIBLE_CHIP} from 'viewers/common/chip';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {makeNodeFilter} from 'viewers/common/ui_tree_utils';
+import {makeNodeFilter} from 'tree_node/helpers';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {TraceRectType} from 'viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';

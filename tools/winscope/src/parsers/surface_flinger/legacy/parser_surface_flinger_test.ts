@@ -30,8 +30,8 @@ import {CustomQueryType} from 'trace_api/custom_query';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceType} from 'trace_api/trace_type';
+import {makeIdMatchFilter} from 'tree_node/helpers';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {makeIdMatchFilter} from 'viewers/common/ui_tree_utils';
 
 describe('ParserSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;

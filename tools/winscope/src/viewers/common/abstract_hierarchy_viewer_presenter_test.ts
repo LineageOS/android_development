@@ -27,6 +27,7 @@ import {
 import {TracePositionUpdate} from 'trace/trace_events';
 import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
+import {makeNodeFilter} from 'tree_node/helpers';
 import {PropertySource} from 'tree_node/property_tree_node';
 import {
   AbstractHierarchyViewerPresenter,
@@ -34,7 +35,6 @@ import {
 } from 'viewers/common/abstract_hierarchy_viewer_presenter';
 import {TextFilter} from 'viewers/common/text_filter';
 import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {makeNodeFilter} from 'viewers/common/ui_tree_utils';
 import {UserOptions} from 'viewers/common/user_options';
 import {RectSpec} from 'viewers/components/rects/rect_spec';
 import {Chip} from './chip';
