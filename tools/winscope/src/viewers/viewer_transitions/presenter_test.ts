@@ -143,7 +143,9 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
     const traces = new TracesBuilder()
       .setEntries(TraceType.TRANSITION, [])
       .build();
-    const trace = assertDefined(traces.getTrace(TraceType.TRANSITION));
+    const trace = assertDefined(
+      traces.getTrace<HierarchyTreeNode>(TraceType.TRANSITION),
+    );
     return new Presenter(trace, traces, new InMemoryStorage(), callback);
   }
 

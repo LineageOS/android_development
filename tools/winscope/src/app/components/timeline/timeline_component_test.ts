@@ -80,8 +80,10 @@ import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {Thumbnail} from 'trace/media_based/thumbnail';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -1017,7 +1019,7 @@ describe('TimelineComponent', () => {
     const timelineComponent = assertDefined(component.timeline);
 
     let firstEvent: WinscopeEvent | undefined;
-    let activeTrace: Trace<object> | undefined;
+    let activeTrace: Trace<unknown> | undefined;
     let position: TracePosition | undefined;
     timelineComponent.setEmitEvent(async (event: WinscopeEvent) => {
       if (!firstEvent) {
@@ -1031,7 +1033,9 @@ describe('TimelineComponent', () => {
     });
     const miniTimelineComponent = assertDefined(timelineComponent.miniTimeline);
     const trace = assertDefined(
-      component.timelineData.getTraces().getTrace(TraceType.WINDOW_MANAGER),
+      component.timelineData
+        .getTraces()
+        .getTrace<HierarchyTreeNode>(TraceType.WINDOW_MANAGER),
     );
     spyOn(
       assertDefined(miniTimelineComponent.drawer),
@@ -1059,7 +1063,7 @@ describe('TimelineComponent', () => {
       assertDefined(timelineComponent.miniTimeline?.drawer),
       'draw',
     );
-    const trace = makeEmptyTrace(TraceType.SEARCH);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.SEARCH);
 
     await timelineComponent.onWinscopeEvent(new TraceAddRequest(trace));
     expect(spy).toHaveBeenCalledTimes(1);
@@ -1180,7 +1184,7 @@ describe('TimelineComponent', () => {
       height: 10,
     });
     const canvasEntry = new CanvasEntry(frame);
-    const drawSpy = spyOn(canvasEntry, 'tryDrawOnCanvas');
+    const drawSpy = spyOn(canvasEntry.frame, 'tryDrawOnCanvas');
     const mockSrEntry = jasmine.createSpyObj<
       TraceEntry<MediaBasedTraceEntry, Promise<CanvasEntry>>
     >('entry', ['getValue']);
@@ -1206,15 +1210,50 @@ describe('TimelineComponent', () => {
 
   it('shows hover timestamp', () => {
     loadSfWmTraces();
-    expect(dom.find('.hover-timestamp')).toBeUndefined();
+    const hoverPreview = dom.get('.hover-preview').getHTMLElement();
+    expect(hoverPreview.style.display).toBe('none');
 
-    const tsValue = '01:23:45.789';
+    const ts = makeRealTimestamp(5025789000000n);
     const miniTimeline = assertDefined(component.timeline?.miniTimeline);
-    miniTimeline.onHoverPositionUpdate.emit({posX: 10, tsValue});
+    miniTimeline.onHoverPositionUpdate.emit({posX: 10, ts, xRatio: 0.1});
     dom.detectChanges();
 
+    expect(hoverPreview.style.display).not.toBe('none');
     const hoverTs = dom.get('.hover-timestamp');
-    hoverTs.checkTextExact(tsValue);
+    hoverTs.checkTextExact('01:23:45.789');
+    expect(dom.find('#thumbnail-video')).toBeUndefined();
+  });
+
+  it('shows hover video thumbnail', async () => {
+    const thumbnail = new Thumbnail(10, 2, 4, new Blob(), 2, 40);
+    const entry = new VideoEntry(new Blob(), 0, thumbnail);
+    const srTrace = new TraceBuilder<MediaBasedTraceEntry>()
+      .setType(TraceType.SCREEN_RECORDING)
+      .setDescriptors(['mock_screen_recording'])
+      .setTimestamps([time100, time105, time110])
+      .setEntries([entry, entry, entry])
+      .build();
+    loadAllTraces(undefined, undefined, undefined, srTrace);
+    await dom.whenStable();
+    const hoverPreview = dom.get('.hover-preview').getHTMLElement();
+    expect(hoverPreview.style.display).toBe('none');
+
+    const miniTimeline = assertDefined(component.timeline?.miniTimeline);
+    miniTimeline.onHoverPositionUpdate.emit({
+      posX: 10,
+      ts: time105,
+      xRatio: 0.5,
+    });
+    dom.detectChanges();
+
+    expect(hoverPreview.style.display).not.toBe('none');
+    const thumbnailVideo = dom.get('#thumbnail-video').getHTMLElement();
+    expect(thumbnailVideo.style.backgroundImage).toMatch(/url\("blob:.*"\)/);
+    expect(thumbnailVideo.style.backgroundSize).toEqual('1500px 75px');
+    expect(thumbnailVideo.style.backgroundPosition).toEqual('-450px 0px');
+
+    openExpandedTimeline();
+    expect(dom.find('#thumbnail-video')).toBeUndefined();
   });
 
   describe('playback controls', () => {
@@ -1462,7 +1501,9 @@ describe('TimelineComponent', () => {
       timelineComponent.setEmitEvent(emitEventSpy);
 
       const trace = assertDefined(
-        component.allTraces.getTrace(TraceType.SURFACE_FLINGER),
+        component.allTraces.getTrace<HierarchyTreeNode>(
+          TraceType.SURFACE_FLINGER,
+        ),
       );
       spyOn(component.timelineData, 'findCurrentEntryFor')
         .withArgs(trace)
@@ -1576,12 +1617,9 @@ describe('TimelineComponent', () => {
     dom.detectChanges();
   }
 
-  function getLoadedTrace(type: TraceType): Trace<object> {
+  function getLoadedTrace(type: TraceType): Trace<unknown> {
     const timelineData = assertDefined(component.timelineData);
-    const trace = assertDefined(
-      timelineData.getTraces().getTrace(type),
-    ) as Trace<object>;
-    return trace;
+    return assertDefined(timelineData.getTraces().getTrace(type));
   }
 
   async function loadTracesWithOneTimestamp(

@@ -18,7 +18,7 @@ import {Timestamp} from 'common/time/time';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {TracePosition} from 'trace_api/trace_position';
 import {WinscopeEvent} from 'messaging/winscope_event';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {PlaybackPrefetchedEntries} from './playback_prefetched_entries';
 
 export class TracePositionUpdate implements WinscopeEvent {
@@ -37,7 +37,7 @@ export class TracePositionUpdate implements WinscopeEvent {
   }
 
   static fromTraceEntry(
-    entry: TraceEntry<{}>,
+    entry: TraceEntry<unknown>,
     updateTimeline = false,
   ): TracePositionUpdate {
     const position = TracePosition.fromTraceEntry(entry);
@@ -52,11 +52,11 @@ export class TraceSearchRequest implements WinscopeEvent {
 export class TraceSearchFailed implements WinscopeEvent {}
 
 export class TraceAddRequest implements WinscopeEvent {
-  constructor(readonly trace: Trace<object>) {}
+  constructor(readonly trace: Trace<unknown>) {}
 }
 
 export class TraceRemoveRequest implements WinscopeEvent {
-  constructor(readonly trace: Trace<object>) {}
+  constructor(readonly trace: Trace<unknown>) {}
 }
 
 export class InitializeTraceSearchRequest implements WinscopeEvent {}
@@ -72,7 +72,7 @@ export class ShowTraceUploadWarning implements WinscopeEvent {
 }
 
 export class ActiveTraceChanged implements WinscopeEvent {
-  constructor(readonly trace: Trace<object>) {}
+  constructor(readonly trace: Trace<unknown>) {}
 }
 
 export class ScreenRecordingChange implements WinscopeEvent {

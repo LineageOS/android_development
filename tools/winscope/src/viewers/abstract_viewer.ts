@@ -76,7 +76,7 @@ export abstract class AbstractViewer<T extends object> implements Viewer {
     return [this.view];
   }
 
-  getTraces(): Array<Trace<object>> {
+  getTraces(): Array<Trace<unknown>> {
     return [assertDefined(this.trace)];
   }
 

@@ -21,15 +21,23 @@ import {AbstractParser} from 'parsers/legacy/abstract_parser';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
+import {generateThumbnail} from './thumbnail_generator';
+import {Thumbnail} from 'trace/media_based/thumbnail';
 
 export class ParserScreenRecordingLegacy extends AbstractParser<
   MediaBasedTraceEntry,
   bigint
 > {
+  private thumbnail: Thumbnail | undefined;
+
+  onDestroy() {
+    this.thumbnail?.onDestroy();
+  }
+
   override getTraceType(): TraceType {
     return TraceType.SCREEN_RECORDING;
   }
@@ -49,7 +57,9 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
   override async decodeTrace(videoData: Uint8Array): Promise<Array<bigint>> {
     const posCount = this.searchMagicString(videoData);
     const [posTimestamps, count] = parseIntFromBuffer(videoData, posCount);
-    return this.parseVideoData(videoData, posTimestamps, count);
+    const timestamps = this.parseVideoData(videoData, posTimestamps, count);
+    this.thumbnail = await generateThumbnail(videoData);
+    return timestamps;
   }
 
   override async processDecodedEntry(
@@ -58,7 +68,7 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
   ): Promise<MediaBasedTraceEntry> {
     const time = timestampToVideoTimeSeconds(this.decodedEntries[0], entry);
     const videoData = this.traceFile.file;
-    return new VideoEntry(videoData, time);
+    return new VideoEntry(videoData, time, this.thumbnail);
   }
 
   protected override getTimestamp(decodedEntry: bigint): Timestamp {

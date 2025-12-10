@@ -38,9 +38,10 @@ import {TraceProcessor} from 'trace_processor/trace_processor';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
 import {getLogger, Logger} from 'compat/logging';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 interface ProcessedFile {
-  parsers: Array<Parser<object>>;
+  parsers: Array<Parser<HierarchyTreeNode>>;
   isPerfettoTrace: boolean;
   traceGeometryData: TraceGeometryData | undefined;
 }
@@ -93,7 +94,7 @@ export class ParserFactory {
       .setTraceProcessor(traceProcessor)
       .build();
 
-    const parsers: Array<Parser<object>> = [];
+    const parsers: Array<Parser<HierarchyTreeNode>> = [];
     let hasFoundParser = false;
     const errors: string[] = [];
 

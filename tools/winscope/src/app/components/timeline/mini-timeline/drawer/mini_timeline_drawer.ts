@@ -40,7 +40,7 @@ export interface MiniTimelineDrawer {
    *
    * @param mousePoint The position of the mouse click.
    */
-  getTraceClicked(mousePoint: Point): Promise<Trace<object> | undefined>;
+  getTraceClicked(mousePoint: Point): Promise<Trace<unknown> | undefined>;
 
   /**
    * Gets the horizontal scale of the canvas.

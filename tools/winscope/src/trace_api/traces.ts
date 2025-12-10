@@ -18,7 +18,7 @@ import {Timestamp} from 'common/time/time';
 
 import {AbsoluteFrameIndex} from './index_types';
 import {Trace} from './trace';
-import {TraceEntryTypeMap, TraceType} from './trace_type';
+import {TraceType} from './trace_type';
 
 /**
  * A container for a collection of traces.
@@ -28,16 +28,14 @@ import {TraceEntryTypeMap, TraceType} from './trace_type';
  * all contained traces, such as slicing by time or frames.
  */
 export class Traces {
-  private readonly traces = new Set<Trace<{}>>();
+  private readonly traces = new Set<Trace<unknown>>();
 
-  addTrace(trace: Trace<{}>) {
+  addTrace(trace: Trace<unknown>) {
     this.traces.add(trace);
   }
 
-  getTrace<T extends TraceType>(
-    type: T,
-  ): Trace<TraceEntryTypeMap[T]> | undefined {
-    let longestTraceWithMatchingType: Trace<{}> | undefined;
+  getTrace<T>(type: TraceType): Trace<T> | undefined {
+    let longestTraceWithMatchingType: Trace<unknown> | undefined;
     this.traces.forEach((trace) => {
       if (trace.type !== type) {
         return;
@@ -54,22 +52,20 @@ export class Traces {
         longestTraceWithMatchingType = trace;
       }
     });
-    return longestTraceWithMatchingType as
-      | Trace<TraceEntryTypeMap[T]>
-      | undefined;
+    return longestTraceWithMatchingType as Trace<T> | undefined;
   }
 
-  getTraces<T extends TraceType>(type: T): Array<Trace<TraceEntryTypeMap[T]>> {
+  getTraces<T>(type: TraceType): Array<Trace<T>> {
     return Array.from(this.traces).filter(
       (trace) => trace.type === type,
-    ) as Array<Trace<TraceEntryTypeMap[T]>>;
+    ) as Array<Trace<T>>;
   }
 
-  deleteTrace(trace: Trace<{}>) {
+  deleteTrace(trace: Trace<unknown>) {
     this.traces.delete(trace);
   }
 
-  hasTrace(trace: Trace<{}>) {
+  hasTrace(trace: Trace<unknown>) {
     return this.traces.has(trace);
   }
 
@@ -89,13 +85,15 @@ export class Traces {
     return slice;
   }
 
-  forEachTrace(callback: (trace: Trace<{}>, type: TraceType) => void): void {
+  forEachTrace(
+    callback: (trace: Trace<unknown>, type: TraceType) => void,
+  ): void {
     this.traces.forEach((trace) => {
       callback(trace, trace.type);
     });
   }
 
-  mapTrace<T>(callback: (trace: Trace<{}>, type: TraceType) => T): T[] {
+  mapTrace<T>(callback: (trace: Trace<unknown>, type: TraceType) => T): T[] {
     const result: T[] = [];
     this.forEachTrace((trace, type) => {
       result.push(callback(trace, type));

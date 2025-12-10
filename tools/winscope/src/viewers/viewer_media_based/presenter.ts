@@ -23,7 +23,7 @@ import {WinscopeEvent} from 'messaging/winscope_event';
 import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
 import {EmitEvent} from 'messaging/winscope_event_emitter';
 import {getLogger, Logger} from 'compat/logging';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {ViewerEvents} from 'viewers/common/viewer_events';
@@ -154,6 +154,6 @@ export class Presenter {
     // (playback trace has no corresponding SR entries for its current position) or if
     // there are prefetched CanvasEntry entries present. This condition does not hold
     // when the user changes the direction or position of playback whilst already running.
-    return entries.length === 0 || entries.some((e) => e.image !== undefined);
+    return entries.length === 0 || entries.some((e) => e.frame !== undefined);
   }
 }

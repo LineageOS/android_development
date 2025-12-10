@@ -57,7 +57,7 @@ export abstract class AbstractLogViewerPresenter<
   protected filterOptionSorters: {
     [key: string]: FilterOptionSorter;
   } = {};
-  private activeTrace?: Trace<object>;
+  private activeTrace?: Trace<unknown>;
   private isInitialized = false;
   protected readonly logger: Logger;
 
@@ -233,7 +233,7 @@ export abstract class AbstractLogViewerPresenter<
     this.notifyViewChanged();
   }
 
-  async onLogTimestampClick(traceEntry: TraceEntry<object>) {
+  async onLogTimestampClick(traceEntry: TraceEntry<unknown>) {
     await this.emitAppEvent(
       TracePositionUpdate.fromTraceEntry(traceEntry, true),
     );

@@ -66,7 +66,7 @@ export class RectDblClickDetail {
 
 export class TimestampClickDetail {
   constructor(
-    public entry?: TraceEntry<object>,
+    public entry?: TraceEntry<unknown>,
     public timestamp?: Timestamp,
   ) {}
 }

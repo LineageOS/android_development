@@ -31,7 +31,7 @@ import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceMetadata} from 'trace_api/trace_metadata';
-import {TraceEntryTypeMap, TraceType} from 'trace_api/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {TraceBuilder} from './trace_builder';
@@ -101,7 +101,7 @@ export class LegacyParserProvider {
   /**
    * @return The parsers for the specified trace files.
    */
-  async getParsers(): Promise<Array<Parser<object>>> {
+  async getParsers(): Promise<Array<Parser<unknown>>> {
     const files = [];
     for (const fixture of this.files) {
       const file = new TraceFile(
@@ -264,16 +264,16 @@ function createTimestamps(
  * @param withUTCOffset Whether to include the UTC offset in the timestamp converter.
  * @return The parser for the specified trace file.
  */
-export async function getPerfettoParser<T extends TraceType>(
-  traceType: T,
+export async function getPerfettoParser(
+  traceType: TraceType,
   fixturePath: string,
   withUTCOffset = false,
-): Promise<Parser<TraceEntryTypeMap[T]>> {
+): Promise<Parser<HierarchyTreeNode>> {
   const parsers = await getPerfettoParsers(fixturePath, withUTCOffset);
   const parser = assertDefined(
     parsers.find((parser) => parser.getTraceType() === traceType),
   );
-  return parser as Parser<TraceEntryTypeMap[T]>;
+  return parser;
 }
 
 /**
@@ -286,7 +286,7 @@ export async function getPerfettoParsers(
   fixturePath: string,
   withUTCOffset = false,
   isPerfetto?: boolean,
-): Promise<Array<Parser<object>>> {
+): Promise<Array<Parser<HierarchyTreeNode>>> {
   const file = await getFixtureFile(fixturePath);
   const traceFile = new TraceFile(file);
   const converter = getTimestampConverter(withUTCOffset);
@@ -318,8 +318,8 @@ export async function getTracesParser(
   filenames: string[],
   withUTCOffset = false,
 ): Promise<{
-  tracesParser: Parser<object>;
-  constituentParsers: Array<Parser<object>>;
+  tracesParser: Parser<unknown>;
+  constituentParsers: Array<Parser<unknown>>;
 }> {
   const converter = getTimestampConverter(withUTCOffset);
   const provider = new LegacyParserProvider();

@@ -41,7 +41,7 @@ import {Parser} from 'trace_api/parser';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {TracePosition} from 'trace_api/trace_position';
 import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
 import {CornerRadii} from 'common/geometry/corner_radii';

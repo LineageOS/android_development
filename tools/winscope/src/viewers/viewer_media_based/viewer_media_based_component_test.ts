@@ -29,7 +29,7 @@ import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 import {LegacyParserProvider} from 'test/unit/fixture_utils';
@@ -142,9 +142,9 @@ describe('ViewerMediaBasedComponent', () => {
 
   it('image updated on selector entry change', () => {
     const entry0 = new CanvasEntry(makeSpyImage());
-    const spy0 = spyOn(entry0, 'tryDrawOnCanvas');
+    const spy0 = spyOn(entry0.frame, 'tryDrawOnCanvas');
     const entry1 = new CanvasEntry(makeSpyImage());
-    const spy1 = spyOn(entry1, 'tryDrawOnCanvas');
+    const spy1 = spyOn(entry1.frame, 'tryDrawOnCanvas');
     component.currentTraceEntries = [entry0, entry1];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
@@ -177,9 +177,9 @@ describe('ViewerMediaBasedComponent', () => {
       index = (event as CustomEvent).detail;
     });
     const entry0 = new CanvasEntry(makeSpyImage());
-    const spy0 = spyOn(entry0, 'tryDrawOnCanvas');
+    const spy0 = spyOn(entry0.frame, 'tryDrawOnCanvas');
     const entry1 = new CanvasEntry(makeSpyImage());
-    const spy1 = spyOn(entry1, 'tryDrawOnCanvas');
+    const spy1 = spyOn(entry1.frame, 'tryDrawOnCanvas');
     component.currentTraceEntries = [entry0, entry1];
     component.titles = ['Screenshot 1', 'Screenshot 2'];
     dom.detectChanges();
@@ -224,7 +224,7 @@ describe('ViewerMediaBasedComponent', () => {
 
   it('does not update frame if trace entries do not change', async () => {
     const entry = new CanvasEntry(screenshotImage);
-    const spy = spyOn(entry, 'tryDrawOnCanvas');
+    const spy = spyOn(entry.frame, 'tryDrawOnCanvas');
     component.currentTraceEntries = [entry];
     component.titles = ['Screenshot 1'];
     dom.detectChanges();

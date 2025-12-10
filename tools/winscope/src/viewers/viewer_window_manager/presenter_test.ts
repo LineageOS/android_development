@@ -167,7 +167,7 @@ the default for its data type.`,
   override createPresenterWithEmptyTrace(
     callback: NotifyHierarchyViewCallbackType<UiData>,
   ): Presenter {
-    const trace = makeEmptyTrace(TraceType.WINDOW_MANAGER);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.WINDOW_MANAGER);
     const traces = new Traces();
     traces.addTrace(trace);
     return new Presenter(trace, traces, new InMemoryStorage(), callback);

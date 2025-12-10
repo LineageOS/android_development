@@ -87,7 +87,7 @@ class PresenterJankCujsTest extends AbstractLogViewerPresenterTest<UiData> {
   override async createPresenterWithEmptyTrace(
     callback: NotifyLogViewCallbackType<UiData>,
   ): Promise<Presenter> {
-    const trace = makeEmptyTrace(TraceType.CUJS);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.CUJS);
     return new Presenter(trace, new InMemoryStorage(), callback);
   }
 

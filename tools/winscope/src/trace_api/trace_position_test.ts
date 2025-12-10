@@ -80,7 +80,7 @@ describe('TracePosition', () => {
     function getMockTraceEntry(
       index: number,
       frames?: FramesRange,
-    ): TraceEntry<{}> {
+    ): TraceEntry<unknown> {
       const entry = mockSfTraceTwoEntries.getEntry(index);
       if (frames !== undefined) {
         spyOn(mockSfTraceTwoEntries, 'hasFrameInfo').and.returnValue(true);

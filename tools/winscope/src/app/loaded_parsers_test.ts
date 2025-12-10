@@ -557,8 +557,8 @@ describe('LoadedParsers', () => {
   });
 
   function loadParsers(
-    legacy: Array<Parser<object>>,
-    perfetto: Array<Parser<object>>,
+    legacy: Array<Parser<unknown>>,
+    perfetto: Array<Parser<unknown>>,
     legacyFiles?: File[],
   ) {
     const legacyFileAndParsers = legacy.map((parser, i) => {
@@ -578,7 +578,7 @@ describe('LoadedParsers', () => {
   }
 
   function expectLoadResult(
-    expectedParsers: Array<Parser<object>>,
+    expectedParsers: Array<Parser<unknown>>,
     expectedWarnings: UserWarning[],
   ) {
     const actualParsers = loadedParsers.getParsers();

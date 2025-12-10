@@ -35,7 +35,7 @@ import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {assertDefined} from 'common/assert';
 import {Size} from 'common/geometry/size';
 import {Timer} from 'common/time/timer';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 
 @Component({
@@ -336,7 +336,7 @@ export class ViewerMediaBasedComponent {
 
   hasImageToShow() {
     const curr = this.currentTraceEntries.at(this.index);
-    return curr !== undefined && curr.image !== undefined;
+    return curr !== undefined && curr.frame !== undefined;
   }
 
   getCurrentTime(): number | undefined {
@@ -371,11 +371,11 @@ export class ViewerMediaBasedComponent {
 
   private tryUpdateRenderedFrame() {
     const entry = this.currentTraceEntries.at(this.index);
-    if (!entry?.image) {
+    if (!entry?.frame) {
       return;
     }
     const canvas = assertDefined(this.canvasElement?.nativeElement);
-    entry.tryDrawOnCanvas(canvas);
+    entry.frame.tryDrawOnCanvas(canvas);
   }
 
   private resetFrameSizeWorker() {

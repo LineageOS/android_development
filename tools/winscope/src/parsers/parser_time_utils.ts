@@ -25,8 +25,8 @@ import {Parser} from 'trace_api/parser';
  *     no such parser exists.
  */
 export function getParserWithLatestRealToBootTimeOffset(
-  parsers: Array<Parser<object>>,
-): Parser<object> | undefined {
+  parsers: Array<Parser<unknown>>,
+): Parser<unknown> | undefined {
   return parsers
     .filter((parser) => parser.getRealToBootTimeOffsetNs() !== undefined)
     .sort((a, b) => {
@@ -46,8 +46,8 @@ export function getParserWithLatestRealToBootTimeOffset(
  *     no such parser exists.
  */
 export function getParserWithLatestRealToMonotonicTimeOffset(
-  parsers: Array<Parser<object>>,
-): Parser<object> | undefined {
+  parsers: Array<Parser<unknown>>,
+): Parser<unknown> | undefined {
   return parsers
     .filter((parser) => parser.getRealToMonotonicTimeOffsetNs() !== undefined)
     .sort((a, b) => {

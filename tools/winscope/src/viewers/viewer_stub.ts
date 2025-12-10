@@ -20,7 +20,7 @@ import {Trace} from 'trace_api/trace';
 import {View, Viewer, ViewType} from './viewer';
 
 export class ViewerStub implements Viewer {
-  private readonly traces: Array<Trace<object>> = [];
+  private readonly traces: Array<Trace<unknown>> = [];
   private htmlElement: HTMLElement;
   private title: string;
   private view: View;
@@ -29,7 +29,7 @@ export class ViewerStub implements Viewer {
   constructor(
     title: string,
     viewContent?: string,
-    trace?: Trace<object>,
+    trace?: Trace<unknown>,
     viewType?: ViewType,
   ) {
     this.title = title;
@@ -66,7 +66,7 @@ export class ViewerStub implements Viewer {
     return [this.view];
   }
 
-  getTraces(): Array<Trace<object>> {
+  getTraces(): Array<Trace<unknown>> {
     return this.traces;
   }
 

@@ -644,7 +644,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         const parser = assertDefined(this.trace).getParser();
         const traces = await getTracesWithSf(parser, this.layerIdToName);
         const trace = assertDefined(
-          traces.getTrace(TraceType.INPUT_EVENT_MERGED),
+          traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
         );
 
         const presenter = PresenterInputTest.createPresenterWithTraces(
@@ -756,7 +756,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         const parser = assertDefined(this.trace).getParser();
         const traces = await getTracesWithSf(parser, this.layerIdToName);
         const trace = assertDefined(
-          traces.getTrace(TraceType.INPUT_EVENT_MERGED),
+          traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
         );
         const presenter = PresenterInputTest.createPresenterWithTraces(
           traces,
@@ -791,7 +791,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         const parser = assertDefined(this.trace).getParser();
         const traces = await getTracesWithSf(parser, this.layerIdToName);
         const trace = assertDefined(
-          traces.getTrace(TraceType.INPUT_EVENT_MERGED),
+          traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
         );
         const presenter = PresenterInputTest.createPresenterWithTraces(
           traces,
@@ -934,7 +934,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         const parser = assertDefined(presenterTrace).getParser();
         const traces = await getTracesWithSf(parser, layerIdToName);
         const trace = assertDefined(
-          traces.getTrace(TraceType.INPUT_EVENT_MERGED),
+          traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
         );
         const presenter = PresenterInputTest.createPresenterWithTraces(
           traces,

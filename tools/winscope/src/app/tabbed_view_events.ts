@@ -29,5 +29,5 @@ export class TabbedViewSwitched implements WinscopeEvent {
 }
 
 export class TabbedViewSwitchRequest implements WinscopeEvent {
-  constructor(readonly newActiveTrace: Trace<object>) {}
+  constructor(readonly newActiveTrace: Trace<unknown>) {}
 }

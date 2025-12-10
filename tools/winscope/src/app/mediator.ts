@@ -95,7 +95,7 @@ import {TimelineData} from './timeline_data';
 import {TracePipeline} from './trace_pipeline';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
 import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
 
 /**
@@ -825,7 +825,7 @@ export class Mediator {
       assertDefined(event.currentTraceIndex),
       traceGeometryData,
     );
-    this.timelineData.trySetActiveTrace(trace as Trace<object>);
+    this.timelineData.trySetActiveTrace(trace);
     await viewer.onWinscopeEvent(playbackStatePropagate);
   }
 

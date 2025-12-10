@@ -36,9 +36,9 @@ import {CanvasDrawer} from './canvas_drawer';
  * An abstract component for a single row in the expanded timeline view.
  */
 @Directive()
-export abstract class AbstractTimelineRowComponent<T extends {}> {
+export abstract class AbstractTimelineRowComponent<T> {
   abstract selectedEntry: TraceEntry<T> | undefined;
-  abstract trace: Trace<{}> | undefined;
+  abstract trace: Trace<unknown> | undefined;
 
   @Input() color = '#AF5CF7';
   @Input() isActive = false;
@@ -46,7 +46,7 @@ export abstract class AbstractTimelineRowComponent<T extends {}> {
   @Input() timestampConverter: ComponentTimestampConverter | undefined;
 
   @Output() readonly onScrollEvent = new EventEmitter<WheelEvent>();
-  @Output() readonly onTraceClicked = new EventEmitter<Trace<object>>();
+  @Output() readonly onTraceClicked = new EventEmitter<Trace<unknown>>();
   @Output() readonly onTracePositionUpdate = new EventEmitter<TracePosition>();
   @Output() readonly onMouseXRatioUpdate = new EventEmitter<
     number | undefined

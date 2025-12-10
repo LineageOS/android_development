@@ -42,7 +42,7 @@ export class MiniTimelineDrawerInput {
     public selectedPosition: Timestamp,
     public selection: TimeRange,
     public zoomRange: TimeRange,
-    public traces: Array<Trace<object>>,
+    public traces: Array<Trace<unknown>>,
     public timelineData: TimelineData,
     public bookmarks: Timestamp[],
     public isDarkMode: boolean,
@@ -72,7 +72,7 @@ export class MiniTimelineDrawerInput {
   private async transformTracesTimestamps(
     transformer: Transformer,
   ): Promise<TimelineTraces> {
-    const transformedTraceSegments = new Map<Trace<object>, TimelineTrace>();
+    const transformedTraceSegments = new Map<Trace<unknown>, TimelineTrace>();
 
     this.traces.forEach((trace) => {
       const activeEntry = this.timelineData.findCurrentEntryFor(trace);
@@ -154,7 +154,7 @@ export class MiniTimelineDrawerInput {
 
   private transformTraceTimestamps(
     transformer: Transformer,
-    trace: Trace<{}>,
+    trace: Trace<unknown>,
   ): number[] {
     const result: number[] = [];
 

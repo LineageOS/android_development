@@ -19,7 +19,7 @@ import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
 import {Analytics} from 'logging/analytics';
 import {makeWarningCannotParseAllTransitions} from './warnings';
 import {UserNotifier} from 'services/user_notifier';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {Trace, TraceEntry} from 'trace_api/trace';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {TracePosition} from 'trace_api/trace_position';
@@ -31,7 +31,7 @@ import {
 import {Traces} from 'trace_api/traces';
 import {getLogger, Logger} from 'compat/logging';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
 
 /**
  * A container of all the timeline-related data.
@@ -42,18 +42,18 @@ import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
 export class TimelineData {
   private traces = new Traces();
   private currentScreenRecordingTrace?: Trace<MediaBasedTraceEntry>;
-  private firstEntry?: TraceEntry<object>;
-  private lastEntry?: TraceEntry<object>;
+  private firstEntry?: TraceEntry<unknown>;
+  private lastEntry?: TraceEntry<unknown>;
   private explicitlySetPosition?: TracePosition;
   private explicitlySetSelection?: TimeRange;
   private explicitlySetZoomRange?: TimeRange;
   private lastReturnedCurrentPosition?: TracePosition;
   private lastReturnedFullTimeRange?: TimeRange;
   private lastReturnedCurrentEntries = new Map<
-    Trace<object>,
-    TraceEntry<object> | undefined
+    Trace<unknown>,
+    TraceEntry<unknown> | undefined
   >();
-  private activeTrace: Trace<object> | undefined;
+  private activeTrace: Trace<unknown> | undefined;
   // cached trace entries to avoid TP and object creation latencies each time transition timeline is redrawn
   private transitionEntries: Array<HierarchyTreeNode | undefined> = [];
   private timestampConverter: ComponentTimestampConverter | undefined;
@@ -77,7 +77,9 @@ export class TimelineData {
       this.traces.addTrace(trace);
     });
 
-    const transitionTrace = this.traces.getTrace(TraceType.TRANSITION);
+    const transitionTrace = this.traces.getTrace<HierarchyTreeNode>(
+      TraceType.TRANSITION,
+    );
     if (transitionTrace) {
       this.transitionEntries = await transitionTrace.getAllEntryValues();
       if (this.transitionEntries.includes(undefined)) {
@@ -186,7 +188,7 @@ export class TimelineData {
     return TracePosition.fromTraceEntry(entry, timestamp);
   }
 
-  trySetActiveTrace(trace: Trace<object>): boolean {
+  trySetActiveTrace(trace: Trace<unknown>): boolean {
     const isTraceWithValidTimestamps = this.traces.hasTrace(trace);
     if (this.activeTrace !== trace && isTraceWithValidTimestamps) {
       this.activeTrace = trace;
@@ -250,7 +252,7 @@ export class TimelineData {
     return this.traces;
   }
 
-  hasTrace(trace: Trace<object>): boolean {
+  hasTrace(trace: Trace<unknown>): boolean {
     return this.traces.hasTrace(trace);
   }
 
@@ -271,11 +273,12 @@ export class TimelineData {
     }
 
     const firstTimestamp = trace.getEntry(0).getTimestamp();
+    const logger = getLogger('TimelineData');
     let entry;
     try {
       entry = findCorrespondingEntry(trace, position);
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Could not find corresponding entry: ${(e as Error).message}`,
       );
       Analytics.Error.logFrameMapError((e as Error).message);
@@ -302,7 +305,7 @@ export class TimelineData {
     );
   }
 
-  getPreviousEntryFor(trace: Trace<object>): TraceEntry<object> | undefined {
+  getPreviousEntryFor(trace: Trace<unknown>): TraceEntry<unknown> | undefined {
     if (trace.lengthEntries === 0) {
       return undefined;
     }
@@ -319,7 +322,7 @@ export class TimelineData {
     return trace.getEntry(currentIndex - 1);
   }
 
-  getNextEntryFor(trace: Trace<object>): TraceEntry<object> | undefined {
+  getNextEntryFor(trace: Trace<unknown>): TraceEntry<unknown> | undefined {
     if (trace.lengthEntries === 0) {
       return undefined;
     }
@@ -340,7 +343,7 @@ export class TimelineData {
     return trace.getEntry(currentIndex + 1);
   }
 
-  findCurrentEntryFor(trace: Trace<object>): TraceEntry<object> | undefined {
+  findCurrentEntryFor(trace: Trace<unknown>): TraceEntry<unknown> | undefined {
     const position = this.getCurrentPosition();
     if (!position) {
       return undefined;
@@ -366,14 +369,14 @@ export class TimelineData {
     return this.lastReturnedCurrentEntries.get(trace);
   }
 
-  moveToPreviousEntryFor(trace: Trace<object>) {
+  moveToPreviousEntryFor(trace: Trace<unknown>) {
     const prevEntry = this.getPreviousEntryFor(trace);
     if (prevEntry !== undefined) {
       this.setPosition(TracePosition.fromTraceEntry(prevEntry));
     }
   }
 
-  moveToNextEntryFor(trace: Trace<object>) {
+  moveToNextEntryFor(trace: Trace<unknown>) {
     const nextEntry = this.getNextEntryFor(trace);
     if (nextEntry !== undefined) {
       this.setPosition(TracePosition.fromTraceEntry(nextEntry));
@@ -394,11 +397,11 @@ export class TimelineData {
     this.activeTrace = undefined;
   }
 
-  private findFirstEntry(): TraceEntry<{}> | undefined {
-    let first: TraceEntry<{}> | undefined;
+  private findFirstEntry(): TraceEntry<unknown> | undefined {
+    let first: TraceEntry<unknown> | undefined;
 
     this.traces.forEachTrace((trace) => {
-      let candidate: TraceEntry<{}> | undefined;
+      let candidate: TraceEntry<unknown> | undefined;
       for (let i = 0; i < trace.lengthEntries; i++) {
         const entry = trace.getEntry(i);
         if (entry.hasValidTimestamp()) {
@@ -417,8 +420,8 @@ export class TimelineData {
     return first;
   }
 
-  private findLastEntry(): TraceEntry<{}> | undefined {
-    let last: TraceEntry<{}> | undefined = undefined;
+  private findLastEntry(): TraceEntry<unknown> | undefined {
+    let last: TraceEntry<unknown> | undefined = undefined;
 
     this.traces.forEachTrace((trace) => {
       const candidate = trace.getEntry(trace.lengthEntries - 1);
@@ -430,7 +433,7 @@ export class TimelineData {
     return last;
   }
 
-  private getFirstEntryOfActiveViewTrace(): TraceEntry<{}> | undefined {
+  private getFirstEntryOfActiveViewTrace(): TraceEntry<unknown> | undefined {
     if (!this.activeTrace) {
       return undefined;
     }

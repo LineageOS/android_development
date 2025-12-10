@@ -26,7 +26,7 @@ import {extractEntries as extractTraceEntries} from './trace_test_helpers';
  * @param traces The Traces object to extract traces from.
  * @return An array of Trace objects.
  */
-export function extractTraces(traces: Traces): Array<Trace<{}>> {
+export function extractTraces(traces: Traces): Array<Trace<unknown>> {
   return traces.mapTrace((trace) => trace);
 }
 
@@ -38,13 +38,13 @@ export function extractTraces(traces: Traces): Array<Trace<{}>> {
  */
 export async function extractEntries(
   traces: Traces,
-): Promise<Map<TraceType, Array<{}>>> {
-  const traceEntries: Array<[TraceType, Array<{}>]> = await Promise.all(
+): Promise<Map<TraceType, unknown[]>> {
+  const traceEntries: Array<[TraceType, unknown[]]> = await Promise.all(
     traces.mapTrace(async (trace) => {
       return [trace.type, await extractTraceEntries(trace)];
     }),
   );
-  return new Map<TraceType, Array<{}>>(traceEntries);
+  return new Map<TraceType, unknown[]>(traceEntries);
 }
 
 /**
@@ -65,4 +65,4 @@ export async function extractFrames(
   return new Map<AbsoluteFrameIndex, FrameMap>(frames);
 }
 
-type FrameMap = Map<TraceType, Array<{}>>;
+type FrameMap = Map<TraceType, unknown[]>;

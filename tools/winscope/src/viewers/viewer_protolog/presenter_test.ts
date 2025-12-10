@@ -171,12 +171,16 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
   override async createPresenterWithEmptyTrace(
     callback: NotifyLogViewCallbackType<UiData>,
   ): Promise<Presenter> {
-    const trace = makeEmptyTrace(TraceType.PROTO_LOG, undefined, [
-      {
-        queryType: CustomQueryType.LOG_TABLE_FILTER_VALUES,
-        result: [],
-      },
-    ]);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(
+      TraceType.PROTO_LOG,
+      undefined,
+      [
+        {
+          queryType: CustomQueryType.LOG_TABLE_FILTER_VALUES,
+          result: [],
+        },
+      ],
+    );
     return new Presenter(trace, callback, new InMemoryStorage());
   }
 

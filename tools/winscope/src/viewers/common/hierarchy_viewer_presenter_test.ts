@@ -296,7 +296,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
     const callback = (newData: UiDataHierarchy) => {
       uiData = newData;
     };
-    const trace = makeEmptyTrace(TraceType.WINDOW_MANAGER);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.WINDOW_MANAGER);
     const traces = new Traces();
     traces.addTrace(trace);
     const presenter = new MockPresenter(

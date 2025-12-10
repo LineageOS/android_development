@@ -131,7 +131,7 @@ describe('LogComponent', () => {
       assertDefined(component.logComponent?.scrollComponent),
       'scrollToIndex',
     );
-    let clicked: TraceEntry<object> | undefined;
+    let clicked: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       clicked = (event as CustomEvent).detail.entry;
     });
@@ -156,7 +156,7 @@ describe('LogComponent', () => {
       assertDefined(component.logComponent?.scrollComponent),
       'scrollToIndex',
     );
-    let clicked: TraceEntry<object> | undefined;
+    let clicked: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       clicked = (event as CustomEvent).detail.entry;
     });
@@ -353,7 +353,7 @@ describe('LogComponent', () => {
   });
 
   it('propagates selected entry on keydown enter event', () => {
-    let entry: TraceEntry<object> | undefined;
+    let entry: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       const detail: TimestampClickDetail = (event as CustomEvent).detail;
       entry = detail.entry;
@@ -464,7 +464,7 @@ describe('LogComponent', () => {
   function checkEntryPropagatedOnTimestampClick(
     button: DOMTestHelper<TestHostComponent>,
   ) {
-    let entry: TraceEntry<object> | undefined;
+    let entry: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       const detail: TimestampClickDetail = (event as CustomEvent).detail;
       entry = detail.entry;

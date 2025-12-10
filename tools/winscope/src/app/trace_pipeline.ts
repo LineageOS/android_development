@@ -65,14 +65,9 @@ import {TracesParserFactory} from 'parsers/traces/traces_parser_factory';
 import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {FrameMapper} from 'trace_api/frame_mapper';
-import {Parser} from 'trace_api/parser';
 import {Trace} from 'trace_api/trace';
 import {TraceMetadata} from 'trace_api/trace_metadata';
-import {
-  TraceEntryTypeMap,
-  TraceType,
-  isTraceTypeWithViewer,
-} from 'trace_api/trace_type';
+import {TraceType, isTraceTypeWithViewer} from 'trace_api/trace_type';
 import {Traces} from 'trace_api/traces';
 import {QueryResult} from 'trace_processor/query_result';
 import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
@@ -81,7 +76,7 @@ import {LoadedParsers} from './loaded_parsers';
 import {TraceFileFilter} from './trace_file_filter';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 import {getLogger, Logger} from 'compat/logging';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -191,7 +186,7 @@ export class TracePipeline
     });
   }
 
-  removeTrace<T extends TraceType>(trace: Trace<TraceEntryTypeMap[T]>) {
+  removeTrace(trace: Trace<unknown>) {
     const clear = (type: TraceType) => {
       this.loadedParsers.removeByType(type);
     };
@@ -220,7 +215,7 @@ export class TracePipeline
         }
         return undefined;
       })
-      .filter((trace) => trace !== undefined) as Array<Trace<object>>;
+      .filter((trace) => trace !== undefined);
     tracesWithoutVisualization.forEach((trace) =>
       this.traces.deleteTrace(trace),
     );
@@ -256,7 +251,9 @@ export class TracePipeline
   }
 
   getScreenRecordingTrace(): Trace<MediaBasedTraceEntry> | undefined {
-    const trace = this.getTraces().getTrace(TraceType.SCREEN_RECORDING);
+    const trace = this.getTraces().getTrace<MediaBasedTraceEntry>(
+      TraceType.SCREEN_RECORDING,
+    );
     if (!trace || trace.lengthEntries === 0) {
       return undefined;
     }
@@ -289,7 +286,7 @@ export class TracePipeline
   }
 
   private getLegacyTracesWithPerfettoConversion() {
-    const traces: Array<Trace<object>> = [];
+    const traces: Array<Trace<unknown>> = [];
     this.traces.forEachTrace((trace) => {
       if (trace.getParser()?.canConvertToPerfetto()) {
         traces.push(trace);
@@ -532,7 +529,7 @@ export class TracePipeline
       .mapTrace((trace) => {
         return trace.isPerfetto() ? undefined : trace.getParser();
       })
-      .filter((parser) => parser !== undefined) as Array<Parser<object>>;
+      .filter((parser) => parser !== undefined);
 
     if (legacyParsers.length === 0) {
       return undefined;

@@ -87,7 +87,7 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
     const time100 = makeRealTimestamp(100n);
     const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, 123);
     this.spyIter = spyIter;
-    const trace = makeEmptyTrace(TraceType.SEARCH);
+    const trace = makeEmptyTrace<QueryResult>(TraceType.SEARCH);
     return new SearchResultPresenter(
       trace,
       callback,

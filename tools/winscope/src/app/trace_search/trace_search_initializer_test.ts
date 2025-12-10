@@ -134,7 +134,7 @@ describe('TraceSearchInitializer', () => {
   });
 
   async function createViewsAndTestExamples(
-    parser: Parser<object>,
+    parser: Parser<unknown>,
     expectedViews: string[],
   ) {
     const trace = Trace.fromParser(parser);

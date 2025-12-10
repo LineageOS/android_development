@@ -560,7 +560,7 @@ describe('TracePipeline', () => {
   });
 
   describe('legacy to perfetto conversion', () => {
-    let parserSf: Parser<object>;
+    let parserSf: Parser<unknown>;
     let setLegacyParsersSpy: jasmine.Spy;
     let setAllParsersSpy: jasmine.Spy;
     let setPerfettoFileSpy: jasmine.Spy;
@@ -673,7 +673,7 @@ describe('TracePipeline', () => {
       expect(trace?.isPerfetto()).toBeTrue();
     }
 
-    function getParser(type: TraceType): Parser<{}> {
+    function getParser(type: TraceType): Parser<unknown> {
       return assertDefined(
         tracePipeline.getTraces().getTrace(type)?.getParser(),
       );
