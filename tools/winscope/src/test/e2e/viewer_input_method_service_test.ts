@@ -69,7 +69,7 @@ describe('Viewer Input Method Service', () => {
     );
     expect(nodes.length).toBe(4);
     expect(await nodes[0].getText()).toContain(
-      'InputMethodService - 2022-11-21, 18:05:14.720 - InputMethodService#applyVisibilityInInsetsConsumerIfNecessary',
+      'InputMethodServiceTraceProto - 2022-11-21, 18:05:14.720 - InputMethodService#applyVisibilityInInsetsConsumerIfNecessary',
     );
     expect(await nodes[1].getText()).toContain('253 - SfSubtree - Task=8#253');
     expect(await nodes[2].getText()).toContain(
