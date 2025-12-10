@@ -32,6 +32,7 @@ cc_defaults {
         "-Wno-unused-parameter",
         "-DGOOGLE_PROTOBUF_NO_RTTI",
         "-UNDEBUG",
+        "-Wno-unused-variable", // b/315246135
     ],
 
     cppflags: [
