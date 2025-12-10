@@ -15,6 +15,7 @@
  */
 
 import {INTDEF_MAPPING_JSON} from 'compat/intdef_mapping';
+import {getLogger} from 'compat/logging';
 import {
   FixedStringFormatter,
   FLAG_SEPARATOR,
@@ -22,14 +23,12 @@ import {
 } from 'trace/formatters';
 import {TamperedProtoField} from 'trace/proto_utils/tampered_message_type';
 import {Operation} from 'tree_node/operation';
-import {getLogger, Logger} from 'compat/logging';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';
 
 export class TranslateIntDef implements Operation<PropertyTreeNode> {
   constructor(
     private readonly rootField: TamperedProtoField,
     private translateAsAll: string[] = [],
-    private readonly logger: Logger = getLogger('TranslateIntDef'),
   ) {}
 
   apply(value: PropertyTreeNode, parentField = this.rootField): void {
@@ -112,7 +111,7 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
       .map((x) => Math.floor(Number(x)));
 
     if (knownFlagValues.length === 0) {
-      this.logger.warn('No mapping for type', annotationType);
+      getLogger('TranslateIntDef').warn('No mapping for type', annotationType);
       return intFlags + '';
     }
 
