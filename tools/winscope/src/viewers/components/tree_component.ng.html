@@ -14,58 +14,42 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@if (node && showNode(node)) {
-<tree-node
-  [id]="'node' + node.name"
-  class="node"
-  [id]="'node' + node.name"
-  [class.leaf]="isLeaf(node)"
-  [class.selected]="isHighlighted(node, highlightedItem)"
-  [class.clickable]="isClickable()"
-  [class.child-selected]="hasSelectedChild()"
-  [class.child-hover]="childHover"
-  [class.full-opacity]="showFullOpacity(node)"
-  [class]="node.getDiff()"
-  [style]="nodeOffsetStyle()"
-  [node]="node"
-  [flattened]="isFlattened"
-  [isLeaf]="isLeaf(node)"
-  [isExpanded]="isExpanded()"
-  [isPinned]="isPinned()"
-  [isSelected]="isHighlighted(node, highlightedItem)"
-  [showStateIcon]="getShowStateIcon(node)"
-  (toggleTreeChange)="toggleTree()"
-  (rectShowStateChange)="toggleRectShowState()"
-  (click)="onNodeClick($event)"
-  (expandTreeChange)="expandTree()"
-  (pinNodeChange)="propagateNewPinnedItem($event)"
-></tree-node>
-} @if (!isLeaf(node)) {
-<div
-  class="children"
-  [class.flattened]="isFlattened"
-  [class.with-gutter]="addGutter()"
-  [hidden]="!isExpanded()"
+<virtual-scroll-viewport
+  #treeContainer
+  [itemCount]="filteredRows.length"
+  [heightPredictor]="heightPredictor"
+  (visibleRangeChanged)="onVisibleRangeChanged()"
+  class="tree-scroll"
 >
-  @for (child of node.children.values(); track child.id) {
-  <tree-view
-    class="subtree"
-    [node]="child"
-    [store]="store"
-    [showNode]="showNode"
-    [isFlattened]="isFlattened"
-    [useStoredExpandedState]="useStoredExpandedState"
-    [initialDepth]="initialDepth + 1"
-    [highlightedItem]="highlightedItem"
-    [pinnedItems]="pinnedItems"
-    [itemsClickable]="itemsClickable"
-    [rectIdToShowState]="rectIdToShowState"
-    (highlightedChange)="propagateNewHighlightedItem($event)"
-    (pinnedItemChange)="propagateNewPinnedItem($event)"
-    (hoverStart)="childHover = true"
-    (hoverEnd)="childHover = false"
-    (expandParent)="expandTree()"
-  ></tree-view>
-  }
-</div>
-}
+  @for (row of filteredRows; track row.node.id) { @if (isRowVisible($index)) {
+  <tree-node
+    virtualRow
+    [rowIndex]="$index"
+    (click)="onNodeClick($event, row)"
+    [id]="'node'+ row.node.name"
+    [attr.item-id]="$index"
+    [class]="'node ' + row.node.getDiff()"
+    [class.leaf]="row.node.isLeaf()"
+    [class.selected]="isHighlighted(row.node, highlightedItem)"
+    [class.child-selected]="hasSelectedChild(row.node)"
+    [class.full-opacity]="showFullOpacity(row.node)"
+    [class.clickable]="isClickable(row.node)"
+    [class.with-gutter]="!row.node.isRoot() && addGutter()"
+    [style]="row.offsetStyle"
+    [node]="row.node"
+    [depth]="row.depth"
+    [childHighlightDepth]="row.childHighlightDepth"
+    [parentHighlightDepth]="row.parentHighlightDepth"
+    [flattened]="isFlattened"
+    [isLeaf]="row.node.isLeaf()"
+    [isExpanded]="isExpanded(row)"
+    [isPinned]="isPinned(row.node)"
+    [isSelected]="isHighlighted(row.node, highlightedItem)"
+    [showStateIcon]="getShowStateIcon(row.node)"
+    (toggleTreeChange)="toggleTree(row)"
+    (rectShowStateChange)="toggleRectShowState(row.node)"
+    (expandTreeChange)="expandTree(row)"
+    (pinNodeChange)="propagateNewPinnedItem($event)"
+  ></tree-node>
+  } }
+</virtual-scroll-viewport>
