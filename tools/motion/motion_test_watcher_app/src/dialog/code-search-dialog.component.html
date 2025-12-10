@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Get Goldens from CodeSearch</h2>
+<mat-dialog-content class="mat-typography flex flex-col gap-4 min-w-[500px]">
+    <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-gray-700">CodeSearch URL</label>
+        <textarea rows="3" [(ngModel)]="url" placeholder="https://source.corp.google.com/..."
+            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="gap-2">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="getGoldens()" [disabled]="!url">Get Goldens</button>
+</mat-dialog-actions>

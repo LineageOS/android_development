@@ -14,7 +14,7 @@
   </mat-spinner>
 </div>
 
-<div *ngIf="totalTestCount > 0">
+<div *ngIf="showStandardList">
   <div class="p-4 bg-white rounded-md">
     <div *ngIf="shouldShowRefreshButton" class="flex justify-between items-center pb-2 mb-2 text-sm 2xl:text-base">
       <select id="statusFilter" class="mt-1 mr-2 block border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm rounded-md
@@ -49,46 +49,60 @@
       <input type="text" placeholder="Search tests..." [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
     </div>
-    <mat-accordion class="mt-4" displayMode="flat">
+    <mat-accordion class="mt-4 space-y-3" displayMode="flat">
       <div *ngFor="let goldenEntry of filteredGoldens">
-        <p class="mt-2 mb-2 font-medium text-gray-400">{{ goldenEntry.key }}</p>
+        <p class="mt-4 mb-2 font-medium text-gray-500 text-sm uppercase tracking-wider px-1">{{ goldenEntry.key }}</p>
         <mat-expansion-panel *ngFor="let golden of goldenEntry.value" (opened)="panelOpened(golden)"
-          (closed)="panelClosed(golden)" [ngClass]="getResultClass(golden)">
-          <mat-expansion-panel-header class="flex items-center" matTooltip={{golden.testMethodName}}
+          (closed)="panelClosed(golden)" [ngClass]="getResultClass(golden)"
+          class="mb-2 !rounded-lg !shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md">
+          <mat-expansion-panel-header class="flex items-center h-14 px-4" matTooltip={{golden.testMethodName}}
             matTooltipPosition="right">
-            <mat-panel-title class="flex-1 min-w-0 flex items-center">
-              <div *ngIf="showCheckBoxes" class="flex-shrink-0">
-                <label for="golden-checkbox-{{ golden.id }}"
-                  class="flex items-center text-sm 2xl:text-base cursor-pointer p-3 rounded-full hover:bg-gray-200 transition-colors"
-                  (click)="$event.stopPropagation()">
-                  <input class="h-5 w-5" id="golden-checkbox-{{ golden.id }}" type="checkbox"
-                    [checked]="isGoldenSelected(golden)" (change)="toggleGoldenSelection(golden, $event)"
-                    (click)="$event.stopPropagation()">
-                </label>
+            <mat-panel-title class="flex-1 min-w-0 flex items-center gap-3">
+              <div *ngIf="showCheckBoxes" class="flex-shrink-0" (click)="$event.stopPropagation()">
+                <mat-checkbox [checked]="isGoldenSelected(golden)" (change)="toggleGoldenSelection(golden, $event)" color="primary"
+                  class="pointer-events-auto">
+                </mat-checkbox>
               </div>
 
-              <div class="flex-grow min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                <span class="truncate">{{ golden.testMethodName }}</span>
+              <div class="flex-grow min-w-0 overflow-hidden">
+                <div class="text-sm font-medium text-gray-900 truncate">{{ golden.testMethodName }}</div>
+                <div class="text-xs text-gray-500 truncate">{{ golden.testClassName }}</div>
               </div>
             </mat-panel-title>
             <div class="status-indicator-container flex items-center space-x-2 mr-2">
-              <mat-spinner *ngIf="golden.status === 'UPDATING'" [diameter]="20" [strokeWidth]="3"
-                matTooltip="Updating...">
-              </mat-spinner>
-              <button mat-icon-button *ngIf="golden.status === 'FAILED_UPDATE'"
+              <div *ngIf="golden.status === GoldenStatus.Updating"
+                class="flex items-center text-blue-500 text-xs font-medium bg-blue-50 px-2 py-1 rounded-full">
+                <mat-spinner [diameter]="14" [strokeWidth]="2" class="mr-2"></mat-spinner>
+                Updating
+              </div>
+              <div *ngIf="golden.status === GoldenStatus.PassedUpdate"
+                class="flex items-center text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-full">
+                <mat-icon class="text-sm h-4 w-4 mr-1">check_circle</mat-icon>
+                Updated
+              </div>
+              <div *ngIf="golden.status === GoldenStatus.FailedUpdate"
+                class="flex items-center text-red-600 text-xs font-medium bg-red-50 px-2 py-1 rounded-full cursor-pointer hover:bg-red-100"
                 (click)="retryGolden(golden.id); $event.stopPropagation()"
                 [matTooltip]="'Retry. Error: ' + golden.error">
-                <mat-icon class="text-red-500">replay</mat-icon>
-              </button>
+                <mat-icon class="text-sm h-4 w-4 mr-1">error</mat-icon>
+                Failed
+                </div>
             </div>
           </mat-expansion-panel-header>
-          <div class="p-2 pt-0">
-            <div class="font-medium text-sm 2xl:text-base text-gray-700">
-              {{ golden.testClassName }}
-            </div>
-            <div class="text-gray-600 text-sm 2xl:text-base break-all">Golden: {{ golden.label }}</div>
-            <div class="text-gray-500 text-sm">
-              {{ golden.testTime | date : "medium" }}
+          <div class="p-4 bg-gray-50 border-t border-gray-100">
+            <div class="grid grid-cols-1 gap-2 text-sm">
+              <div class="flex items-start">
+                <span class="font-medium text-gray-500 w-24 flex-shrink-0">Class:</span>
+                <span class="text-gray-700 break-all">{{ golden.testClassName }}</span>
+              </div>
+              <div class="flex items-start">
+                <span class="font-medium text-gray-500 w-24 flex-shrink-0">Golden:</span>
+                <span class="text-gray-700 break-all">{{ golden.label }}</span>
+              </div>
+              <div class="flex items-start">
+                <span class="font-medium text-gray-500 w-24 flex-shrink-0">Time:</span>
+                <span class="text-gray-700">{{ golden.testTime | date : "medium" }}</span>
+              </div>
             </div>
           </div>
         </mat-expansion-panel>
@@ -116,18 +130,44 @@
       <input type="text" placeholder="Search presubmit tests..." [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
     </div>
-    <mat-accordion class="mt-4" displayMode="flat">
-      <mat-expansion-panel hideToggle="" *ngFor="let golden of filteredPresubmitTests"
-        (opened)="presubmitTestOpened(golden)">
-        <mat-expansion-panel-header class="flex items-center h-10" [matTooltip]="golden.testname">
-          <mat-panel-title class="flex-1 min-w-0">
-            <div class="flex-grow items-center overflow-hidden text-ellipsis">
-              <span class="block overflow-hidden whitespace-nowrap text-ellipsis">{{extractLastPart(golden.testname)
-                }}</span>
+    <div class="mt-4 space-y-2">
+      <div *ngFor="let golden of filteredPresubmitTests" (click)="presubmitTestOpened(golden)"
+        class="p-3 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:shadow-sm flex items-center"
+        [ngClass]="{'bg-blue-50 border-blue-200 text-blue-700': selectedPresubmitTest?.testname === golden.testname, 'bg-gray-50 hover:bg-gray-100 text-gray-700': selectedPresubmitTest?.testname !== golden.testname}">
+
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center overflow-hidden" [matTooltip]="golden.testname">
+            <span class="block overflow-hidden whitespace-nowrap text-ellipsis font-medium text-sm">
+              {{extractLastPart(golden.testname)}}
+            </span>
+          </div>
+        </div>
+        </div>
+        </div>
+  </div>
+</div>
+<div *ngIf="showSimpleList">
+  <div class="p-4 bg-white rounded-md">
+    <div class="my-4">
+      <input type="text" placeholder="Search goldens..." [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+    </div>
+    <div class="mt-4 space-y-2">
+      <ng-container *ngFor="let goldenEntry of filteredGoldens">
+        <div *ngFor="let golden of goldenEntry.value" (click)="panelOpened(golden)"
+          class="p-3 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:shadow-sm flex items-center"
+          [ngClass]="{'bg-blue-50 border-blue-200 text-blue-700': selectedGolden?.id === golden.id, 'bg-gray-50 hover:bg-gray-100 text-gray-700': selectedGolden?.id !== golden.id}">
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center overflow-hidden" [matTooltip]="golden.testMethodName">
+              <span class="block overflow-hidden whitespace-nowrap text-ellipsis font-medium text-sm">
+                {{golden.testMethodName}}
+              </span>
             </div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-      </mat-expansion-panel>
-    </mat-accordion>
+            <div class="text-xs text-gray-500 truncate">{{ golden.testClassName }}</div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
   </div>
 </div>

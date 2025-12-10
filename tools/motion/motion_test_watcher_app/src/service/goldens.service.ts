@@ -16,18 +16,20 @@
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 
-import { GerritLinkPair, MotionGolden, MotionGoldenData, PresubmitTest } from '../model/golden';
+import { GerritLinkPair, MotionGolden, MotionGoldenData, PresubmitTest, DataSource } from '../model/golden';
+import { TestResult } from '../model/enums';
 import { RecordedMotion } from '../model/recorded-motion';
 import { Timeline } from '../model/timeline';
 import { VideoSource } from '../model/video-source';
 import { checkNotNull } from '../util/preconditions';
-import { Feature, recordedFeatureFactory } from '../model/feature';
+import { recordedFeatureFactory } from '../model/feature';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorService } from './error.service';
-import { Error } from '../model/error';
+import { Error as AppError } from '../model/error';
+import { ApiResponse, BatchUpdateResult, UpdateResult } from '../model/api-response';
 
 export const ACCESS_TOKEN = new InjectionToken<string>('token');
 export const SERVICE_PORT = new InjectionToken<string>('port');
@@ -35,7 +37,7 @@ export const SERVICE_PORT = new InjectionToken<string>('port');
 @Injectable({ providedIn: 'root' })
 export class GoldensService {
   private serverRoot: string;
-  private defaultHeaders: { [heder: string]: string };
+  private defaultHeaders: { [header: string]: string };
 
   constructor(
     private http: HttpClient,
@@ -65,37 +67,27 @@ export class GoldensService {
 
   getPresubmitTestArtifacts(invocation_id: string): Observable<PresubmitTest[]> {
     return this.http
-      .post<PresubmitTest[]>(
-        `${this.serverRoot}/service/presubmit_artifact/list`,
+      .post<ApiResponse<PresubmitTest[]>>(
+        `${this.serverRoot}/service/presubmit/tests`,
         { invocation_id },
-        {
-          headers: {
-            ...this.defaultHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers: this.getHeaders() }
       )
       .pipe(
-        tap((artifacts) => console.log(`fetched ${artifacts.length} for invocationID : ${invocation_id}`)),
-        catchError(this.handleError<PresubmitTest[]>('e'))
+        map(response => this.unwrapResponse(response, [])),
+        catchError(this.handleError<PresubmitTest[]>('getPresubmitTestArtifacts', []))
       );
   }
 
-  getPresubmitTestArtifactsForTestName(resource_id: string): Observable<MotionGolden> {
+  getPresubmitTestArtifactsForTestName(resource_id: string): Observable<MotionGolden | null> {
     return this.http
-      .post<MotionGolden>(
-        `${this.serverRoot}/service/fetch_artifact`,
+      .post<ApiResponse<MotionGolden>>(
+        `${this.serverRoot}/service/presubmit/artifact`,
         { resource_id },
-        {
-          headers: {
-            ...this.defaultHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers: this.getHeaders() }
       )
       .pipe(
-        tap((artifact) => console.log(`fetched ${artifact} for testName : ${resource_id}`)),
-        catchError(this.handleError<MotionGolden>('e'))
+        map(response => this.unwrapResponse(response, null)),
+        catchError(this.handleError<MotionGolden | null>('getPresubmitTestArtifactsForTestName', null))
       );
   }
 
@@ -105,8 +97,7 @@ export class GoldensService {
         headers: this.defaultHeaders,
       })
       .pipe(
-        tap((x) => console.log(`listed loaded golden data`)),
-        catchError(this.handleError<MotionGoldenData>('e'))
+        catchError(this.handleError<MotionGoldenData>('getActualGoldenData'))
       );
   }
 
@@ -116,162 +107,164 @@ export class GoldensService {
         headers: this.defaultHeaders,
       })
       .pipe(
-        tap((x) => console.log('listed expected golden data')),
-        catchError(this.handleError<MotionGoldenData>('e'))
+        catchError(this.handleError<MotionGoldenData>('getExpectedGoldenData'))
       );
   }
 
   refreshGoldens(clear: boolean): Observable<MotionGolden[]> {
     return this.http
-      .post<MotionGolden[]>(
-        `${this.serverRoot}/service/refresh`,
+      .post<ApiResponse<MotionGolden[]>>(
+        `${this.serverRoot}/service/goldens/refresh`,
         { clear },
-        {
-          headers: {
-            ...this.defaultHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers: this.getHeaders() }
       )
       .pipe(
-        tap((_) => console.log(`refreshed goldens (clear)`)),
-        catchError(this.handleError<MotionGolden[]>('e'))
+        map(response => this.unwrapResponse(response, [])),
+        catchError(this.handleError<MotionGolden[]>('refreshGoldens', []))
       );
   }
 
   switchMode(mode: string): Observable<MotionGolden[] | PresubmitTest[]> {
     return this.http
-      .post<MotionGolden[] | PresubmitTest[]>(
-        `${this.serverRoot}/service/mode`,
+      .post<ApiResponse<MotionGolden[] | PresubmitTest[]>>(
+        `${this.serverRoot}/service/config/mode`,
         { mode },
-        {
-          headers: {
-            ...this.defaultHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers: this.getHeaders() }
       )
       .pipe(
-        tap((artifacts) => console.log(`fetched ${artifacts.length} goldens for testMode : ${mode}`)),
-        catchError(this.handleError<MotionGolden[] | PresubmitTest[]>('e'))
+        map(response => this.unwrapResponse(response, [])),
+        catchError(this.handleError<MotionGolden[] | PresubmitTest[]>('switchMode', []))
       );
   }
 
-  updateGolden(golden: MotionGolden): Observable<Record<string, string>> {
+  updateGolden(golden: MotionGolden): Observable<UpdateResult | null> {
     return this.http
-      .put<
-        Record<string, string>
-      >(`${this.serverRoot}/service/update?id=${golden.id}`, {}, { headers: this.defaultHeaders })
+      .put<ApiResponse<UpdateResult>>(
+        `${this.serverRoot}/service/goldens/update?id=${golden.id}`,
+        {},
+        { headers: this.defaultHeaders }
+      )
       .pipe(
-        tap((results: Record<string, string>) => { }),
-        catchError(this.handleErrorForUpdatingGolden<Record<string, string>>('updateGolden')),
+        map(response => this.unwrapResponse(response, null)),
+        catchError(this.handleError<UpdateResult | null>('updateGolden', null))
       );
   }
 
-  updateSelectedGoldens(selectedGoldenIds: string[]): Observable<any> {
+  updateSelectedGoldens(selectedGoldenIds: string[]): Observable<BatchUpdateResult | null> {
     return this.http
-      .put<
-        Record<string, string>
-      >(`${this.serverRoot}/service/updateSelectedGoldensIds`, { selectedGoldenIds }, { headers: this.defaultHeaders })
+      .put<ApiResponse<BatchUpdateResult>>(
+        `${this.serverRoot}/service/goldens/batch-update`,
+        { selectedGoldenIds },
+        { headers: this.defaultHeaders }
+      )
       .pipe(
-        tap((rawResults: Record<string, string>) => {
-          console.log(
-            `Service: Batch update request sent for the IDs:`,
-            selectedGoldenIds,
-          );
-          console.log(
-            `Service: Raw batch update results received:`,
-            rawResults,
-          );
-        }),
-        catchError(
-          this.handleErrorForUpdatingGolden<Record<string, string>>('updateSelectedGoldens'),
-        ),
+        map(response => this.unwrapResponse(response, null)),
+        catchError(this.handleError<BatchUpdateResult | null>('updateSelectedGoldens', null))
       );
   }
 
   getTestModes(): Observable<string[]> {
     return this.http
-      .get<string[]>(
-        `${this.serverRoot}/service/testModes/list`,
-        {
-          headers: {
-            ...this.defaultHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
+      .get<ApiResponse<string[]>>(
+        `${this.serverRoot}/service/config/modes`,
+        { headers: this.getHeaders() }
       )
       .pipe(
-        tap((x) => console.log(`Got response as ${x.toString()}`)),
-        catchError(this.handleError<string[]>('e'))
+        map(response => this.unwrapResponse(response, [])),
+        catchError(this.handleError<string[]>('getTestModes', []))
       );
   }
 
-  getMultipleJsonsFromGerritLinks(linkPairs : GerritLinkPair[]) : Observable<MotionGolden[]> {
-    return this.http.post<MotionGolden[]>(`${this.serverRoot}/getMultipleGoldensFromGerrit`,
+  fetchGerritGoldens(linkPairs: GerritLinkPair[]): Observable<MotionGolden[]> {
+    return this.http.post<ApiResponse<MotionGolden[]>>(
+      `${this.serverRoot}/service/gerrit/goldens`,
       { linkPairs },
-      {
-      headers: {
-            ...this.defaultHeaders,
-            'Content-Type': 'application/json',
-          },
-      }
+      { headers: this.getHeaders() }
     ).pipe(
-      tap((x) => console.log(`Got response as ${x}`)),
-      catchError(this.handleError<MotionGolden[]>('e'))
-    )
+      map(response => this.unwrapResponse(response, [])),
+      catchError(this.handleError<MotionGolden[]>('fetchGerritGoldens', []))
+    );
   }
 
-  getGerritData(leftLink: string, rightLink: string) {
-    let params = new HttpParams()
-    params = params.set('leftLink', leftLink)
-    params = params.set('rightLink', rightLink)
-    console.log(`GERRIT: Setting params as ${params.toString()}`)
-    return this.http
-      .get<string[]>(`${this.serverRoot}/getGerrit`, {
-        headers: this.defaultHeaders,
-        params: params
-      })
-      .pipe(
-        tap((x) => console.log(`Got response as ${x.toString()}`)),
-        catchError(this.handleError<string[]>('e'))
-      );
+  getGerritData(leftLink: string, rightLink: string): Observable<MotionGolden[]> {
+    return this.fetchGerritGoldens([{ linkLeft: leftLink, linkRight: rightLink }]);
+  }
+
+  fetchCodeSearchGoldens(url: string): Observable<MotionGolden[]> {
+    return this.http.post<ApiResponse<MotionGolden[]>>(
+      `${this.serverRoot}/service/codesearch/goldens`,
+      { url },
+      { headers: this.getHeaders() }
+    ).pipe(
+    ).pipe(
+      map(response => {
+        const items = this.unwrapResponse(response, []);
+        return items.map((item: any) => {
+          const data: MotionGoldenData = {
+            frame_ids: item.frame_ids,
+            features: item.features
+          };
+          return {
+            id: item.goldenName,
+            label: item.goldenName,
+            testMethodName: item.goldenName,
+            testClassName: 'CodeSearch',
+            testTime: new Date().toISOString(),
+            result: TestResult.Passed,
+            dataSource: DataSource.CODESEARCH,
+            actualData: data,
+            expectedData: data,
+            actualUrl: '',
+            expectedUrl: '',
+            goldenRepoPath: '',
+            videoUrl: undefined,
+            goldenName: item.goldenName
+          } as MotionGolden;
+        });
+      }),
+      catchError(this.handleError<MotionGolden[]>('fetchCodeSearchGoldens', []))
+    );
+  }
+
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      ...this.defaultHeaders,
+      'Content-Type': 'application/json',
+    });
+  }
+
+  private unwrapResponse<T>(response: ApiResponse<T>, fallback: T): T {
+    if (response.success && response.data !== undefined) {
+      return response.data;
+    }
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    return fallback;
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      console.error(error);
-      if (error.status == 0) {
+      console.error(`${operation} failed:`, error);
+      if (error.status === 0) {
         this.showNoServerError();
       } else {
-        const apiError: Error = {
+        const apiError: AppError = {
           displayDuration: 5000,
           statusCode: error.status,
-          message: error.error?.message
-        }
+          message: error.message || error.error?.message || 'Unknown error'
+        };
         this.errorService.handleError(apiError);
       }
-      // Let the app keep running by returning an empty result.
       return of(result as T);
     };
   }
 
-  private handleErrorForUpdatingGolden<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(error);
-      if (error.status == 0) {
-        this.showNoServerError();
-      }
-      const response = error.error;
-      return of(response as T);
-    };
-  }
-
   private showNoServerError() {
-    const serverError: Error = {
+    const serverError: AppError = {
       statusCode: 0,
       message: 'Server is not connected. Run the server and try again.'
-    }
+    };
     this.errorService.handleError(serverError);
   }
 }

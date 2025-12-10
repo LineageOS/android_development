@@ -2,11 +2,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+:root {
+  /* Primary Brand Colors */
+  --primary-color: #1557B0;
+  /* Deep Blue */
+  --primary-light: #4285F4;
+  --primary-dark: #0D47A1;
+
+  /* Background Colors */
+  --bg-app: #F8F9FA;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F1F3F4;
+
+  /* Text Colors */
+  --text-primary: #202124;
+  --text-secondary: #5F6368;
+  --text-disabled: #DADCE0;
+
+  /* Status Colors */
+  --status-pass: #34A853;
+  /* Google Green */
+  --status-fail: #EA4335;
+  /* Google Red */
+  --status-warning: #FBBC04;
+  /* Google Yellow */
+  --status-info: #4285F4;
+  /* Google Blue */
+
+  /* Borders & Dividers */
+  --border-color: #E0E0E0;
+}
+
+/* Utility Classes */
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.bg-app {
+  background-color: var(--bg-app) !important;
+}
+
+.bg-card {
+  background-color: var(--bg-card) !important;
+}
+
+.text-primary-color {
+  color: var(--primary-color) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.border-custom {
+  border-color: var(--border-color) !important;
+}
 html,
 body {
   height: 100%;
 }
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbar Customization */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #BDC1C6;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9AA0A6;
 }

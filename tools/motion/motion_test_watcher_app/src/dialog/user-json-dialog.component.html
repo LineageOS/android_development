@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>Paste JSON</h2>
+<mat-dialog-content class="mat-typography flex flex-col gap-4 flex-grow !max-h-none">
+  <p class="text-gray-600">Paste the JSON data you want to visualize.</p>
+
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-medium text-gray-700">Name (Optional)</label>
+    <input type="text" [(ngModel)]="nameInput" placeholder="My Custom Graph"
+      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+  </div>
+
+  <div class="flex flex-col gap-1 flex-grow h-full">
+    <label class="text-sm font-medium text-gray-700">JSON Data</label>
+    <textarea [(ngModel)]="jsonInput" placeholder='{"frame_ids": [...], "features": [...]}'
+      class="w-full p-2 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-full resize-none"></textarea>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="gap-2">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onVisualize()" [disabled]="!jsonInput">Visualize</button>
+</mat-dialog-actions>

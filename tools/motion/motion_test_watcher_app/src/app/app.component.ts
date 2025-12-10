@@ -8,7 +8,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { TestListComponent } from '../test-list/test-list.component';
 import { PreviewComponent } from '../preview/preview.component';
 import { TimelineComponent } from '../timeline/timeline.component';
-import { GerritLinkPair, MotionGolden, PresubmitTest } from '../model/golden';
+import { GerritLinkPair, MotionGolden, PresubmitTest, DataSource, MotionGoldenData } from '../model/golden';
+import { TestResult } from '../model/enums';
 import { finalize, Subscription } from 'rxjs';
 import { NgIf, NgStyle } from '@angular/common';
 import {
@@ -21,6 +22,8 @@ import {
 } from '@angular/animations';
 
 import { DialogContentComponent } from '../dialog/dialog.component';
+import { CodeSearchDialogComponent } from '../dialog/code-search-dialog.component';
+import { UserJsonDialogComponent } from '../dialog/user-json-dialog.component';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -30,6 +33,7 @@ import { TestModeComponent } from '../testMode/test-mode.component';
 import { PreviewService } from '../service/preview.service';
 import { ErrorService } from '../service/error.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TestModes } from '../model/test_mode';
 import { DIVIDER_HEIGHT, MIN_PANEL_HEIGHT, MIN_PANEL_WIDTH } from '../model/constants';
 import { AnimationEventPhasename, AnimationEventTime } from '../model/constants';
@@ -47,8 +51,8 @@ import { TestListPanelDimensionsFactor, VideoPanelDimensionsFactor } from '../mo
     MatIconModule,
     MatMenuModule,
     MatButtonModule,
-    NgStyle,
-    TestModeComponent
+    TestModeComponent,
+    MatTooltipModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -242,6 +246,98 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     });
   }
 
+  openCodeSearchDialog(): void {
+    const dialogRef = this.dialog.open(CodeSearchDialogComponent, {
+      maxWidth: '55vw'
+    });
+
+    dialogRef.afterClosed().subscribe(url => {
+      if (url) {
+        this.resetVariables();
+        this.testMode = TestModes.CODESEARCH;
+        this.showLoaderBar();
+        this.goldenService.fetchCodeSearchGoldens(url)
+          .pipe(finalize(() => this.hideLoaderBar()))
+          .subscribe({
+            next: (goldens) => {
+              console.log('AppComponent: Fetched CodeSearch goldens:', goldens);
+              this.goldens = goldens;
+              if (this.goldens.length > 0) {
+                this.setSelectedGolden(this.goldens[0]);
+              }
+            },
+            error: (err) => {
+              console.error('AppComponent: Error fetching CodeSearch goldens:', err);
+              this.snackBar.open('Error fetching CodeSearch goldens', 'Dismiss', { duration: 3000 });
+            }
+          });
+      }
+    });
+  }
+
+  openUserJsonDialog(): void {
+    const dialogRef = this.dialog.open(UserJsonDialogComponent, {
+      width: '90vw',
+      height: '90vh',
+      maxWidth: '95vw',
+      maxHeight: '95vh'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.json) {
+        try {
+          const parsedData = JSON.parse(result.json);
+          // Handle both top-level data and nested data (like CodeSearch response)
+          let actualData: MotionGoldenData;
+          if (parsedData.frame_ids && parsedData.features) {
+            actualData = parsedData;
+          } else if (parsedData.data && parsedData.data[0] && parsedData.data[0].frame_ids) {
+            actualData = parsedData.data[0];
+          } else {
+            throw new Error("Invalid JSON format");
+          }
+
+          const goldenName = result.name || `User Content ${new Date().toLocaleString()}`;
+          const userGolden: MotionGolden = {
+            id: goldenName,
+            label: goldenName,
+            testMethodName: goldenName,
+            testClassName: 'User',
+            testTime: new Date().toISOString(),
+            result: TestResult.Passed,
+            dataSource: DataSource.USER,
+            actualData: actualData,
+            expectedData: actualData,
+            actualUrl: '',
+            expectedUrl: '',
+            goldenRepoPath: '',
+            videoUrl: undefined,
+            goldenName: goldenName
+          };
+
+          this.goldens = [userGolden];
+          this.testMode = TestModes.USER;
+          this.setSelectedGolden(userGolden);
+          console.log('AppComponent: Loaded User JSON golden:', userGolden);
+
+        } catch (e) {
+          console.error('AppComponent: Error parsing User JSON:', e);
+          this.snackBar.open('Invalid JSON format', 'Dismiss', { duration: 3000 });
+        }
+      }
+    });
+  }
+
+  clearAll(): void {
+    this.resetVariables();
+    this.testMode = "";
+    const index = this.testModes.indexOf(TestModes.PRESUBMIT);
+    if (index > -1) {
+      this.testModes.splice(index, 1);
+    }
+    this.snackBar.open('Cleared all data', 'Dismiss', { duration: 2000 });
+  }
+
   showProgress = false;
   testMode: string = "";
   showLoader = false;
@@ -377,7 +473,7 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
     this.testMode = TestModes.GERRIT
     this.goldens = []
     this.showLoaderBar()
-    this.goldenService.getMultipleJsonsFromGerritLinks(linkPairs)
+    this.goldenService.fetchGerritGoldens(linkPairs)
       .pipe(finalize(() => this.hideLoaderBar()))
       .subscribe((goldens) => {
         this.goldens = goldens as MotionGolden[]
@@ -393,8 +489,10 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
       .getGerritData(leftLink, rightLink)
       .pipe(finalize(() => this.hideLoaderBar()))
       .subscribe((goldens) => {
-        this.goldens = JSON.parse(JSON.stringify(goldens)) as MotionGolden[]
-        this.setSelectedGolden(JSON.parse(JSON.stringify(goldens[0])) as MotionGolden)
+        this.goldens = goldens;
+        if (this.goldens.length > 0) {
+          this.setSelectedGolden(this.goldens[0]);
+        }
       })
     this.testModes.push(TestModes.GERRIT)
   }
