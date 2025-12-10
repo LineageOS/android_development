@@ -26,7 +26,7 @@ import {
   getFocusedActivity,
   getFocusedWindow,
 } from '@viewers/common/wm_ime_utils';
-import {TreeNodeFilter} from './ui_tree_utils';
+import {TreeNodeFilter} from './ui_tree_node_helpers';
 
 interface WmStateProperties {
   timestamp: string | undefined;

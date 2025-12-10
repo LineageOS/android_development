@@ -44,7 +44,7 @@ import {HierarchyPresenter, HierarchyTraceEntry} from './hierarchy_presenter';
 import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_display_names';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
-import {isHighlighted} from './ui_tree_utils';
+import {isHighlighted} from './ui_tree_node_helpers';
 import {ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {

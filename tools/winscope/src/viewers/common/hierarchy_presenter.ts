@@ -32,7 +32,7 @@ import {
   TreeNodeFilter,
   isVisible,
   shouldGetProperties,
-} from '@viewers/common/ui_tree_utils';
+} from '@viewers/common/ui_tree_node_helpers';
 import {UserOptions} from '@viewers/common/user_options';
 import {SimplifyNamesVc} from '@viewers/viewer_view_capture/operations/simplify_names';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';

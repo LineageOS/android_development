@@ -37,7 +37,7 @@ import {
   isNotFromTP,
   makeIsNotDefaultFilter,
   TreeNodeFilter,
-} from './ui_tree_utils';
+} from './ui_tree_node_helpers';
 import {UserOptions} from './user_options';
 
 export class PropertiesPresenter {
