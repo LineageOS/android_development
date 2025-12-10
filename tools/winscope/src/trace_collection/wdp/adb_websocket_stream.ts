@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Logger} from 'compat/logging';
+import {Logger} from 'compat/logging';
 import {base64Decode} from 'common/string_helpers';
 import {ErrorListener, WebSocketStream} from './websocket_stream';
 
