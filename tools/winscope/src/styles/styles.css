@@ -284,3 +284,7 @@ log-view .headers .mat-mdc-form-field-infix {
   width: 1px;
   background-color: #C4C0C0;
 }
+
+.multline-tooltip {
+  white-space: pre-line;
+}

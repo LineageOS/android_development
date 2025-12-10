@@ -80,7 +80,7 @@ import {ConnectionState} from 'trace_collection/connection_state';
       }
     }
   `,
-  styleUrls: ['wdp_setup_component.css'],
+  styleUrls: ['../styles/proxy_setup.css'],
 })
 export class WdpSetupComponent {
   @Input() state: ConnectionState | undefined;

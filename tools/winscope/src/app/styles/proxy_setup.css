@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-.mat-drawer.mat-drawer-bottom {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: unset;
-  position: fixed;
-  z-index: 5;
-  background-color: var(--drawer-color);
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-}
-
-.mat-drawer-content {
+.icon-information {
   display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 1;
-  height: unset;
-  overflow: unset;
-  width: 100%;
-  flex-grow: 1;
-}
-
-.mat-drawer-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  flex-direction: row;
   align-items: center;
-  align-content: center;
-  justify-content: center;
+}
+
+.further-adb-info-text {
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: break-word;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.further-adb-info-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.adb-info {
+  margin-left: 5px;
+}
+
+.adb-icon {
+  min-width: fit-content;
 }

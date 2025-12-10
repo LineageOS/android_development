@@ -422,10 +422,11 @@ body {
 body:not(.dark-mode) {
   --added-element-color: #d8eac5;
   --blue-text-color: #{map.get(mat.$m2-indigo-palette, A200)};
+  --black-text-color: rgba(0, 0, 0, 0.87);
   --card-title-background-color: #f1f1f1;
   --contrast-text-color: white;
   --current-element-color: #7b9ccc;
-  --default-text-color: rgba(0, 0, 0, 0.87);
+  --default-text-color: var(--black-text-color);
   --deleted-element-color: #ffcfd0;
   --disabled-color: rgba(0, 0, 0, 0.12);
   --drawer-block-primary: #eeeff0;
@@ -466,7 +467,7 @@ body.dark-mode {
   --added-element-color: #6d8358;
   --blue-text-color: #b8e3fd;
   --card-title-background-color: #343434;
-  --contrast-text-color: rgba(0, 0, 0, 0.87);
+  --contrast-text-color: var(--black-text-color);
   --current-element-color: #365179;
   --default-text-color: white;
   --deleted-element-color: #856566;
