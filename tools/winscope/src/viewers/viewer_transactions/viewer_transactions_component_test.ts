@@ -27,6 +27,7 @@ import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewe
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader} from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
 import {TransactionsEntry, UiData} from './ui_data';
 import {ViewerTransactionsComponent} from './viewer_transactions_component';
 
@@ -93,7 +94,12 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
       1,
       0,
       0,
-      UiPropertyTreeNode.from(propertiesTree),
+      flattenNodesToRows(
+        [UiPropertyTreeNode.from(propertiesTree)],
+        false,
+        false,
+        '',
+      ),
       {},
     );
     return this.initializeTestEnvironment(uiData, ViewerTransactionsComponent);
@@ -127,7 +133,12 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
       0,
       0,
       0,
-      UiPropertyTreeNode.from(propertiesTree),
+      flattenNodesToRows(
+        [UiPropertyTreeNode.from(propertiesTree)],
+        false,
+        false,
+        '',
+      ),
       {},
     );
 

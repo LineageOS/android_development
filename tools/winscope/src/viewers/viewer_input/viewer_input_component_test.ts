@@ -95,8 +95,8 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
       });
 
       it('shows message when no event is selected', () => {
-        assertDefined(component.inputData).propertiesTree = undefined;
-        assertDefined(component.inputData).dispatchPropertiesTree = undefined;
+        assertDefined(component.inputData).propertyNodes = undefined;
+        assertDefined(component.inputData).dispatchPropertyNodes = undefined;
         dom.detectChanges();
         dom
           .get('.event-properties .placeholder-text')

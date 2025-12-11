@@ -43,7 +43,7 @@ limitations under the License.
   <hierarchy-view
     class="hierarchy-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-    [trees]="inputData?.hierarchyTrees ?? []"
+    [nodeRows]="inputData?.hierarchyNodes ?? []"
     [dependencies]="inputData?.dependencies ?? []"
     [highlightedItem]="inputData?.highlightedItem ?? ''"
     [pinnedItems]="inputData?.pinnedItems ?? []"
@@ -57,7 +57,7 @@ limitations under the License.
     class="properties-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
     [userOptions]="inputData?.propertiesUserOptions ?? {}"
-    [propertiesTree]="inputData?.propertiesTree"
+    [nodeRows]="inputData?.propertyNodes"
     [curatedProperties]="inputData?.curatedProperties"
     [traceType]="TraceType.VIEW_CAPTURE"
     [store]="store"

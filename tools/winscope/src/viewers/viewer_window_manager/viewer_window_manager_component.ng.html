@@ -42,7 +42,7 @@ limitations under the License.
     class="hierarchy-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
     [class.disabled-component]="inputData?.isPlaybackInitializing"
-    [trees]="inputData?.hierarchyTrees ?? []"
+    [nodeRows]="inputData?.hierarchyNodes ?? []"
     [dependencies]="inputData?.dependencies ?? []"
     [highlightedItem]="inputData?.highlightedItem ?? ''"
     [pinnedItems]="inputData?.pinnedItems ?? []"
@@ -68,7 +68,7 @@ limitations under the License.
       [class.disabled-component]="inputData?.isPlaybackPlaying
         || inputData?.isPlaybackInitializing"
       [userOptions]="inputData?.propertiesUserOptions ?? {}"
-      [propertiesTree]="inputData?.propertiesTree"
+      [nodeRows]="inputData?.propertyNodes"
       [traceType]="TraceType.WINDOW_MANAGER"
       [textFilter]="inputData?.propertiesFilter"
       [highlightedProperty]="inputData?.highlightedProperty ?? ''"

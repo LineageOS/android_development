@@ -417,7 +417,10 @@ $dark-theme: mat.m2-define-dark-theme(
 body {
   background-color: var(--background-color, transparent);
   color: var(--default-text-color, inherit);
-  --black-text-color: rgba(0, 0, 0, 0.87);
+  --chip-blue: #b4c8ef;
+  --text-color-black: rgba(0, 0, 0, 0.87);
+  --text-color-gray: rgb(155, 155, 155);
+  --pinned-item-border-color: #FFC24B;
 }
 
 body:not(.dark-mode) {
@@ -426,7 +429,7 @@ body:not(.dark-mode) {
   --card-title-background-color: #f1f1f1;
   --contrast-text-color: white;
   --current-element-color: #7b9ccc;
-  --default-text-color: var(--black-text-color);
+  --default-text-color: var(--text-color-black);
   --deleted-element-color: #ffcfd0;
   --disabled-color: rgba(0, 0, 0, 0.12);
   --drawer-block-primary: #eeeff0;
@@ -467,7 +470,7 @@ body.dark-mode {
   --added-element-color: #6d8358;
   --blue-text-color: #b8e3fd;
   --card-title-background-color: #343434;
-  --contrast-text-color: var(--black-text-color);
+  --contrast-text-color: var(--text-color-black);
   --current-element-color: #365179;
   --default-text-color: white;
   --deleted-element-color: #856566;
