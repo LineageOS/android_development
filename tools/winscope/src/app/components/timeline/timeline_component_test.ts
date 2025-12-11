@@ -1442,7 +1442,7 @@ describe('TimelineComponent', () => {
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);
 
-      dom.findAndClick('playback-controls #play-playback-button');
+      dom.findAndClick('playback-controls #start-playback-button');
       const event = emitEventSpy.calls.mostRecent().args[0];
       expect(event.state).toEqual(PlaybackState.FORWARDS);
       await timelineComponent.onWinscopeEvent(
@@ -1456,7 +1456,7 @@ describe('TimelineComponent', () => {
       const emitEventSpy = jasmine.createSpy('emitEvent');
       timelineComponent.setEmitEvent(emitEventSpy);
 
-      dom.findAndClick('playback-controls #play-playback-button');
+      dom.findAndClick('playback-controls #start-playback-button');
       expect(emitEventSpy).toHaveBeenCalledTimes(1);
       const event = emitEventSpy.calls.mostRecent().args[0];
       expect(event).toBeInstanceOf(PlaybackStateChangeRequest);
@@ -1511,7 +1511,7 @@ describe('TimelineComponent', () => {
           currentIndex !== undefined ? trace.getEntry(currentIndex) : undefined,
         );
 
-      dom.findAndClick('playback-controls #play-playback-button');
+      dom.findAndClick('playback-controls #start-playback-button');
       const event = emitEventSpy.calls.mostRecent().args[0];
       expect(event.currentTraceIndex).toEqual(expectedIndex);
     }

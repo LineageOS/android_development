@@ -417,12 +417,12 @@ $dark-theme: mat.m2-define-dark-theme(
 body {
   background-color: var(--background-color, transparent);
   color: var(--default-text-color, inherit);
+  --black-text-color: rgba(0, 0, 0, 0.87);
 }
 
 body:not(.dark-mode) {
   --added-element-color: #d8eac5;
   --blue-text-color: #{map.get(mat.$m2-indigo-palette, A200)};
-  --black-text-color: rgba(0, 0, 0, 0.87);
   --card-title-background-color: #f1f1f1;
   --contrast-text-color: white;
   --current-element-color: #7b9ccc;

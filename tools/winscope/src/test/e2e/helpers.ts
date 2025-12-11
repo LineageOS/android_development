@@ -244,13 +244,17 @@ export async function checkWinscopeRealTimestamp(timestamp: string) {
   let value: string | undefined;
   await browser.wait(
     async () => {
-      const inputElement = element(by.css('input[name="humanTimeInput"]'));
-      value = await inputElement.getAttribute('value');
+      value = await getWinscopeRealTimestamp();
       return value === timestamp;
     },
     1000,
     `Expected '${timestamp}' to equal '${value}'`,
   );
+}
+
+export async function getWinscopeRealTimestamp(): Promise<string | undefined> {
+  const inputElement = element(by.css('input[name="humanTimeInput"]'));
+  return await inputElement.getAttribute('value');
 }
 
 /**
