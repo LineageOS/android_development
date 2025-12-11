@@ -26,7 +26,7 @@ import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {TraceType} from 'trace_api/trace_type';
 import {ViewerEvents} from 'viewers/common/viewer_events';
 import {Presenter} from './presenter';

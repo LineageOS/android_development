@@ -103,7 +103,7 @@ export class ExpandedTimelineComponent {
   @Input() timelineData: TimelineData | undefined;
   @Output() readonly onTracePositionUpdate = new EventEmitter<TracePosition>();
   @Output() readonly onScrollEvent = new EventEmitter<WheelEvent>();
-  @Output() readonly onTraceClicked = new EventEmitter<Trace<object>>();
+  @Output() readonly onTraceClicked = new EventEmitter<Trace<unknown>>();
   @Output() readonly onMouseXRatioUpdate = new EventEmitter<
     number | undefined
   >();
@@ -122,7 +122,7 @@ export class ExpandedTimelineComponent {
     this.resizeCanvases();
   }
 
-  getTracesSortedByDisplayOrder(): Array<Trace<{}>> {
+  getTracesSortedByDisplayOrder(): Array<Trace<unknown>> {
     const traces = assertDefined(this.timelineData)
       .getTraces()
       .mapTrace((trace) => trace);
@@ -133,7 +133,7 @@ export class ExpandedTimelineComponent {
     this.onScrollEvent.emit(event);
   }
 
-  isActiveTrace(trace: Trace<object>) {
+  isActiveTrace(trace: Trace<unknown>) {
     return trace === this.timelineData?.getActiveTrace();
   }
 
@@ -143,9 +143,11 @@ export class ExpandedTimelineComponent {
     // each other, since if one timeline is still too big the container will stretch to that size.
     const timelines = [
       ...(this.transitionTimelines as QueryList<
-        AbstractTimelineRowComponent<{}>
+        AbstractTimelineRowComponent<unknown>
       >),
-      ...(this.singleTimelines as QueryList<AbstractTimelineRowComponent<{}>>),
+      ...(this.singleTimelines as QueryList<
+        AbstractTimelineRowComponent<unknown>
+      >),
     ];
     for (const timeline of timelines) {
       timeline.getCanvas().width = 0;

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+import { GoldenStatus, TestResult } from './enums';
+
 export interface MotionGolden {
   actualUrl: string;
   expectedUrl: string;
   goldenRepoPath: string;
   id: string;
   label: string;
-  result: 'PASSED' | 'FAILED' | 'MISSING_REFERENCE' | 'NONE';
+  result: TestResult;
   testClassName: string;
   testMethodName: string;
   testTime: string;
@@ -29,7 +31,7 @@ export interface MotionGolden {
   dataSource: DataSource;
   expectedData: MotionGoldenData;
   actualData: MotionGoldenData;
-  status?: 'IDLE' | 'UPDATING' | 'PASSED_UPDATE' | 'FAILED_UPDATE';
+  status?: GoldenStatus;
   error?: string;
 }
 
@@ -39,6 +41,8 @@ export interface PresubmitTest {
 
 export enum DataSource {
   GERRIT = 'gerrit',
+  CODESEARCH = 'codesearch',
+  USER = 'user',
 }
 
 export interface MotionGoldenData {

@@ -24,7 +24,7 @@ import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 
@@ -74,6 +74,17 @@ describe('ParserScreenRecording', () => {
         expect(Number(entry.videoTimeSeconds)).toBeCloseTo(1.371077, 0.001);
       }
     });
+
+    it('generates thumbnail', async () => {
+      const entry0 = await parser.getEntry(0);
+      expect(entry0.thumbnail).toBeDefined();
+      expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
+        width: 600,
+        height: 1000 / 3,
+      });
+      const entry1 = await parser.getEntry(1);
+      expect(entry1.thumbnail).toEqual(entry0.thumbnail);
+    });
   });
 
   describe('metadata v3', () => {
@@ -118,6 +129,17 @@ describe('ParserScreenRecording', () => {
         expect(entry).toBeInstanceOf(VideoEntry);
         expect(Number(entry.videoTimeSeconds)).toBeCloseTo(3.251884, 0.001);
       }
+    });
+
+    it('generates thumbnail', async () => {
+      const entry0 = await parser.getEntry(0);
+      expect(entry0.thumbnail).toBeDefined();
+      expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
+        width: 600,
+        height: 1000 / 3,
+      });
+      const entry1 = await parser.getEntry(1);
+      expect(entry1.thumbnail).toEqual(entry0.thumbnail);
     });
   });
 
@@ -176,6 +198,17 @@ describe('ParserScreenRecording', () => {
         expect(entry).toBeInstanceOf(VideoEntry);
         expect(Number(entry.videoTimeSeconds)).toBeCloseTo(4.192109, 0.001);
       }
+    });
+
+    it('generates thumbnail', async () => {
+      const entry0 = await parser.getEntry(0);
+      expect(entry0.thumbnail).toBeDefined();
+      expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
+        width: 900,
+        height: 1000 / 3,
+      });
+      const entry1 = await parser.getEntry(1);
+      expect(entry1.thumbnail).toEqual(entry0.thumbnail);
     });
   });
 
@@ -280,6 +313,17 @@ describe('ParserScreenRecording', () => {
           expect(entry).toBeInstanceOf(VideoEntry);
           expect(Number(entry.videoTimeSeconds)).toBeCloseTo(4.192109, 0.001);
         }
+      });
+
+      it('generates thumbnail', async () => {
+        const entry0 = await parser.getEntry(0);
+        expect(entry0.thumbnail).toBeDefined();
+        expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
+          width: 900,
+          height: 1000 / 3,
+        });
+        const entry1 = await parser.getEntry(1);
+        expect(entry1.thumbnail).toEqual(entry0.thumbnail);
       });
     }
 

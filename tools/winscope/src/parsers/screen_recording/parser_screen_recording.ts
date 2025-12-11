@@ -23,7 +23,9 @@ import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
+import {Thumbnail} from 'trace/media_based/thumbnail';
+import {generateThumbnail} from './thumbnail_generator';
 import {TraceType} from 'trace_api/trace_type';
 import {ParserExternalMetadata} from './parser_external_metadata';
 import {ParserFilename} from './parser_filename';
@@ -34,7 +36,7 @@ import {
   ScreenRecordingParser,
   WINSCOPE_MAGIC_STRING,
 } from './helpers';
-import {timestampToVideoTimeSeconds} from 'trace/screen_recording/helpers';
+import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
 
 export class ParserScreenRecording extends AbstractParser<
   MediaBasedTraceEntry,
@@ -42,6 +44,11 @@ export class ParserScreenRecording extends AbstractParser<
 > {
   private realToBootTimeOffsetNs: bigint | undefined;
   private makeTimestampFromExactValue = false;
+  private thumbnail: Thumbnail | undefined;
+
+  onDestroy() {
+    this.thumbnail?.onDestroy();
+  }
 
   override getTraceType(): TraceType {
     return TraceType.SCREEN_RECORDING;
@@ -80,6 +87,7 @@ export class ParserScreenRecording extends AbstractParser<
     if (result.realToBootTimeOffsetNs === 0n) {
       this.makeTimestampFromExactValue = true;
     }
+    this.thumbnail = await generateThumbnail(videoData);
     return result.timestamps;
   }
 
@@ -89,7 +97,7 @@ export class ParserScreenRecording extends AbstractParser<
   ): Promise<MediaBasedTraceEntry> {
     const time = timestampToVideoTimeSeconds(this.decodedEntries[0], entry);
     const videoData = this.traceFile.file;
-    return new VideoEntry(videoData, time);
+    return new VideoEntry(videoData, time, this.thumbnail);
   }
 
   protected override getTimestamp(decodedEntry: bigint): Timestamp {

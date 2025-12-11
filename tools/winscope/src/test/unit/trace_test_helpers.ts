@@ -22,7 +22,7 @@ import {
 } from 'trace_api/custom_query';
 import {AbsoluteFrameIndex} from 'trace_api/index_types';
 import {Trace} from 'trace_api/trace';
-import {TraceEntryTypeMap, TraceType} from 'trace_api/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 import {TraceBuilder} from './trace_builder';
 
 /**
@@ -88,16 +88,16 @@ export async function extractFrames<T>(
  * @param parserCustomQueryResult Optional custom query results to include in the trace.
  * @return An empty `Trace` instance.
  */
-export function makeEmptyTrace<T extends TraceType>(
-  traceType: T,
+export function makeEmptyTrace<T>(
+  traceType: TraceType,
   descriptors: string[] = [],
   parserCustomQueryResult: Array<{
     queryType: CustomQueryType;
     result: CustomQueryParserResultTypeMap[CustomQueryType];
     param?: CustomQueryParamTypeMap[CustomQueryType];
   }> = [],
-): Trace<TraceEntryTypeMap[T]> {
-  const builder = new TraceBuilder<TraceEntryTypeMap[T]>()
+): Trace<T> {
+  const builder = new TraceBuilder<T>()
     .setEntries([])
     .setTimestamps([])
     .setDescriptors(descriptors)

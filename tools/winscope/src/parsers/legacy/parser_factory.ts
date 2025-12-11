@@ -68,7 +68,7 @@ export class ParserFactory {
     metadata: TraceMetadata,
     progressListener?: ProgressListener,
   ): Promise<ProcessedFiles> {
-    const parsers = new Array<{file: TraceFile; parser: Parser<object>}>();
+    const parsers = new Array<{file: TraceFile; parser: Parser<unknown>}>();
     const unsupportedFiles: TraceFile[] = [];
 
     for (const [index, traceFile] of traceFiles.entries()) {

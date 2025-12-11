@@ -5,6 +5,10 @@
   >
   <mat-icon *ngIf="!isExpanded">fullscreen</mat-icon> <mat-icon *ngIf="isExpanded">fullscreen_exit</mat-icon>
   </button>
+  <button class="absolute top-2 right-10 z-10 p-1 rounded hover:scale-110 text-gray-500 hover:text-primary-color"
+    (click)="downloadGraph()" matTooltip="Download as PNG">
+    <mat-icon>download</mat-icon>
+  </button>
   <div class="font-bold" *ngIf="featureName">
     {{ featureName }}
   </div>

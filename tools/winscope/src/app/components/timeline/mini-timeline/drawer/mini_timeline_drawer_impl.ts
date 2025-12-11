@@ -55,7 +55,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     private onPointerPositionChanged: (pos: Timestamp) => void,
     private onUnhandledClick: (
       pos: Timestamp,
-      trace: Trace<object> | undefined,
+      trace: Trace<unknown> | undefined,
     ) => void,
   ) {
     const ctx = canvas.getContext('2d');
@@ -69,7 +69,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     const onUnhandledClickInternal = async (
       mousePoint: Point,
       button: number,
-      trace: Trace<object> | undefined,
+      trace: Trace<unknown> | undefined,
     ) => {
       if (button === MouseEventButton.SECONDARY) {
         return;
@@ -213,7 +213,9 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     await this.draw();
   }
 
-  async getTraceClicked(mousePoint: Point): Promise<Trace<object> | undefined> {
+  async getTraceClicked(
+    mousePoint: Point,
+  ): Promise<Trace<unknown> | undefined> {
     const timelineTraces = await this.getTimelineTraces();
     const innerHeight = this.getInnerHeight();
     const lineHeight = this.getLineHeight(timelineTraces, innerHeight);
@@ -268,7 +270,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
   }
 
   private drawTraceEntries(
-    trace: Trace<object>,
+    trace: Trace<unknown>,
     timelineTrace: TimelineTrace,
     fromTop: number,
     lineHeight: number,

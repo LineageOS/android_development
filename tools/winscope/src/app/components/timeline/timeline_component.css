@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 .navbar-wrapper {
   display: flex;
   flex-direction: column;
@@ -212,7 +228,7 @@
 .no-video-message {
   padding: 1rem;
   font-family: 'Roboto', sans-serif;
-  width: 230px;
+  width: 100%;
 }
 
 .no-timeline-msg {
@@ -232,17 +248,33 @@
   justify-items: center;
 }
 
+.hover-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: fixed;
+  z-index: 12;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
 .hover-timestamp {
   border-radius: 4px;
   color: var(--mdc-plain-tooltip-supporting-text-color);
   background-color: var(--mdc-plain-tooltip-container-color);
-  position: fixed;
-  z-index: 12;
-  pointer-events: none;
   padding: 4px 8px;
-  transform: translateX(-50%);
 }
 
-.multline-tooltip {
-  white-space: pre-line;
+.thumbnail-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.thumbnail {
+  max-width: calc(100% - 2px);
+  max-height: calc(100% - 2px);
+  border: 1px solid var(--default-text-color);
 }

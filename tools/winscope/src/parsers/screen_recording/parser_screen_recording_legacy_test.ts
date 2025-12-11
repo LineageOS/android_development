@@ -21,7 +21,7 @@ import {CoarseVersion} from 'trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
 
@@ -75,5 +75,16 @@ describe('ParserScreenRecordingLegacy', () => {
       expect(entry).toBeInstanceOf(VideoEntry);
       expect(Number(entry.videoTimeSeconds)).toBeCloseTo(2.37, 0.001);
     }
+  });
+
+  it('generates thumbnail', async () => {
+    const entry0 = await parser.getEntry(0);
+    expect(entry0.thumbnail).toBeDefined();
+    expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
+      width: 450,
+      height: 1000 / 3,
+    });
+    const entry1 = await parser.getEntry(1);
+    expect(entry1.thumbnail).toEqual(entry0.thumbnail);
   });
 });

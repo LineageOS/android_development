@@ -49,19 +49,19 @@ export interface ClockSnapshot {
  * A class for converting legacy traces to Perfetto format.
  */
 export class LegacyToPerfettoConverter {
-  private legacyParsers: Array<Parser<object>> = [];
-  private allParsers: Array<Parser<object>> = [];
+  private legacyParsers: Array<Parser<unknown>> = [];
+  private allParsers: Array<Parser<unknown>> = [];
   private perfettoFile: TraceFile | undefined;
   constructor(
     private readonly logger: Logger = getLogger('LegacyToPerfettoConverter'),
   ) {}
 
-  setLegacyParsers(value: Array<Parser<object>>): this {
+  setLegacyParsers(value: Array<Parser<unknown>>): this {
     this.legacyParsers = value;
     return this;
   }
 
-  setAllParsers(value: Array<Parser<object>>): this {
+  setAllParsers(value: Array<Parser<unknown>>): this {
     this.allParsers = value;
     return this;
   }
@@ -228,7 +228,7 @@ export class LegacyToPerfettoConverter {
   }
 
   private getRealTimestampsForClockSnapshots(
-    parser: Parser<object>,
+    parser: Parser<unknown>,
   ): Array<bigint> {
     const ts = assertDefined(parser.getTimestamps());
     const realTs: Array<bigint> = [];

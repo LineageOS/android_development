@@ -43,6 +43,7 @@ import {
 } from 'viewers/common/viewer_events';
 import {Presenter} from './presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
+import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 
 describe('PresenterSearch', () => {
   let presenter: Presenter;
@@ -219,7 +220,7 @@ describe('PresenterSearch', () => {
 
   it('handles non-search trace added event', async () => {
     const currData = uiData;
-    const trace = makeEmptyTrace(TraceType.SURFACE_FLINGER);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER);
     await presenter.onAppEvent(new TraceAddRequest(trace));
     expect(uiData).toEqual(currData);
   });
@@ -235,7 +236,7 @@ describe('PresenterSearch', () => {
 
   it('clears current search result when query run again, keeping both in recent searches', async () => {
     const testQuery = 'query to be overwritten';
-    const trace = makeEmptyTrace(TraceType.SEARCH, [testQuery]);
+    const trace = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [testQuery]);
     await runSearchWithNoRowsAndCheckUiData(testQuery, trace);
     emitEventSpy.calls.reset();
 
@@ -253,7 +254,7 @@ describe('PresenterSearch', () => {
     emitEventSpy.calls.reset();
 
     const newQuery = 'new query';
-    const newTrace = makeEmptyTrace(TraceType.SEARCH, [newQuery]);
+    const newTrace = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [newQuery]);
     await runSearchWithNoRowsAndCheckUiData(newQuery, newTrace);
     emitEventSpy.calls.reset();
 
@@ -301,7 +302,10 @@ describe('PresenterSearch', () => {
 
   it('handles clear query click', async () => {
     const testQuery = 'clear query';
-    const trace = makeEmptyTrace(TraceType.SEARCH, [testQuery, '1']);
+    const trace = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [
+      testQuery,
+      '1',
+    ]);
     await runSearchWithNoRowsAndCheckUiData(testQuery, trace);
 
     await presenter.onClearQueryClick(0);
@@ -313,7 +317,10 @@ describe('PresenterSearch', () => {
   it('retains at most 10 recent searches', async () => {
     for (let i = 0; i < 12; i++) {
       const testQuery = 'recent query';
-      const trace = makeEmptyTrace(TraceType.SEARCH, [testQuery, '1']);
+      const trace = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [
+        testQuery,
+        '1',
+      ]);
       await presenter.onSearchQueryClick(testQuery, 1);
       await presenter.onAppEvent(new TraceAddRequest(trace));
     }

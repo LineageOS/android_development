@@ -43,7 +43,7 @@ export class CanvasMouseHandlerImpl implements CanvasMouseHandler {
     private onUnhandledMouseDown: (
       point: Point,
       button: number,
-      trace: Trace<object> | undefined,
+      trace: Trace<unknown> | undefined,
     ) => void = (point, button) => {},
   ) {
     this.drawer.canvas.addEventListener('mousemove', (event) => {

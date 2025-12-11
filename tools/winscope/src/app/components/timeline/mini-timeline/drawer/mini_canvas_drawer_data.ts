@@ -23,7 +23,7 @@ import {MiniTimelineDrawerOutput} from './mini_timeline_drawer_output';
 /**
  * A map of traces to their timeline data.
  */
-export type TimelineTraces = Map<Trace<object>, TimelineTrace>;
+export type TimelineTraces = Map<Trace<unknown>, TimelineTrace>;
 
 /**
  * Data for rendering a trace on the mini timeline.

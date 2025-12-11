@@ -129,7 +129,7 @@ the default for its data type.`,
   override createPresenterWithEmptyTrace(
     callback: NotifyHierarchyViewCallbackType<ImeUiData>,
   ): AbstractPresenterInputMethod {
-    const trace = makeEmptyTrace(this.imeTraceType);
+    const trace = makeEmptyTrace<HierarchyTreeNode>(this.imeTraceType);
     const traces = new Traces();
     traces.addTrace(trace);
     return new this.PresenterInputMethod(
@@ -145,7 +145,9 @@ the default for its data type.`,
     storage: Store,
   ): AbstractPresenterInputMethod {
     const traces = assertDefined(this.traces);
-    const trace = assertDefined(traces.getTrace(this.imeTraceType));
+    const trace = assertDefined(
+      traces.getTrace<HierarchyTreeNode>(this.imeTraceType),
+    );
     return new this.PresenterInputMethod(trace, traces, storage, callback);
   }
 
@@ -328,7 +330,9 @@ the default for its data type.`,
         const callback = (newData: ImeUiData) => {
           uiData = newData;
         };
-        const trace = assertDefined(traces.getTrace(imeTraceType));
+        const trace = assertDefined(
+          traces.getTrace<HierarchyTreeNode>(imeTraceType),
+        );
         return new Presenter(
           trace,
           traces,

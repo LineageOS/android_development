@@ -57,7 +57,7 @@ import {UiDataHierarchy} from './ui_data_hierarchy';
 import {ViewerEvents} from './viewer_events';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
-import {MediaBasedTraceEntry} from 'trace_api/media_based_trace_entry';
+import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
 import {TraceGeometryData} from 'parsers/trace_geometry_data';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;

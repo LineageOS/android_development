@@ -25,7 +25,7 @@ import {PlaybackState} from './playback_state';
 import {
   CanvasEntry,
   MediaBasedTraceEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
 import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
 import {PropertyTreeNode} from 'tree_node/property_tree_node';

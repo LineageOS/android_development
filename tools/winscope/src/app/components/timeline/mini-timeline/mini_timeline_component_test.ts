@@ -41,6 +41,7 @@ import {TracePosition} from 'trace_api/trace_position';
 import {TraceType} from 'trace_api/trace_type';
 import {MiniTimelineComponent} from './mini_timeline_component';
 import {SliderComponent} from './slider_component';
+import {Transformer} from './transformer';
 
 describe('MiniTimelineComponent', () => {
   let component: TestHostComponent;
@@ -649,19 +650,25 @@ describe('MiniTimelineComponent', () => {
     component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
     dom.detectChanges();
 
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
+    const miniTimeline = assertDefined(component.miniTimelineComponent);
+    const miniTimelineElement = assertDefined(
+      miniTimeline.miniTimelineWrapper?.nativeElement,
     );
-    const offsetLeft = assertDefined(
-      miniTimelineComponent.miniTimelineWrapper?.nativeElement.offsetLeft,
-    );
-    const spy = spyOn(miniTimelineComponent.onHoverPositionUpdate, 'emit');
+    const spy = spyOn(miniTimeline.onHoverPositionUpdate, 'emit');
 
-    const offsetX = 5;
+    const xRatio = 0.1;
+    const offsetX = xRatio * miniTimelineElement.clientWidth;
+    const hoverTs = new Transformer(
+      timelineData.getZoomRange(),
+      assertDefined(miniTimeline.drawer).getUsableRange(),
+      assertDefined(timelineData.getTimestampConverter()),
+    ).untransform(offsetX);
+
     dispatchMouseMoveToCanvas(offsetX);
     expect(spy).toHaveBeenCalledOnceWith({
-      posX: offsetX + offsetLeft,
-      tsValue: '00:00:00.010',
+      posX: offsetX + miniTimelineElement.offsetLeft,
+      ts: hoverTs,
+      xRatio,
     });
 
     spy.calls.reset();
@@ -842,7 +849,7 @@ describe('MiniTimelineComponent', () => {
   class TestHostComponent {
     timelineData = new TimelineData();
     currentTracePosition: TracePosition | undefined;
-    selectedTraces: Array<Trace<object>> = [];
+    selectedTraces: Array<Trace<unknown>> = [];
     initialZoom: TimeRange | undefined;
     expandedTimelineScrollEvent: WheelEvent | undefined;
     expandedTimelineMouseXRatio: number | undefined;

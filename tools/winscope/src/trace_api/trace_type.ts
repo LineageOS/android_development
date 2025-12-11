@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-import {QueryResult} from 'trace_processor/query_result';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-
-import {MediaBasedTraceEntry} from './media_based_trace_entry';
-
 /**
  * An enum representing the different types of traces that can be loaded and
  * visualized in Winscope. Each value corresponds to a specific data source
@@ -154,42 +148,6 @@ export type ImeTraceType =
   | TraceType.INPUT_METHOD_CLIENTS
   | TraceType.INPUT_METHOD_MANAGER_SERVICE
   | TraceType.INPUT_METHOD_SERVICE;
-
-/**
- * Maps each {@link TraceType} to the expected type of its corresponding trace entry data.
- *
- * This interface is used to enforce type safety when working with trace entries.
- * For example, when accessing data for a `TraceType.SURFACE_FLINGER`,
- * TypeScript will know that the entry is of type `HierarchyTreeNode`.
- * This prevents runtime errors and improves code maintainability by ensuring
- * that trace data is used according to its defined structure.
- */
-export declare interface TraceEntryTypeMap {
-  [TraceType.PROTO_LOG]: HierarchyTreeNode;
-  [TraceType.SURFACE_FLINGER]: HierarchyTreeNode;
-  [TraceType.SCREEN_RECORDING]: MediaBasedTraceEntry;
-  [TraceType.SCREENSHOT]: MediaBasedTraceEntry;
-  [TraceType.SYSTEM_UI]: object;
-  [TraceType.TRANSACTIONS]: HierarchyTreeNode;
-  [TraceType.WAYLAND]: object;
-  [TraceType.WAYLAND_DUMP]: object;
-  [TraceType.WINDOW_MANAGER]: HierarchyTreeNode;
-  [TraceType.INPUT_METHOD_CLIENTS]: HierarchyTreeNode;
-  [TraceType.INPUT_METHOD_MANAGER_SERVICE]: HierarchyTreeNode;
-  [TraceType.INPUT_METHOD_SERVICE]: HierarchyTreeNode;
-  [TraceType.EVENT_LOG]: PropertyTreeNode;
-  [TraceType.WM_TRANSITION]: object;
-  [TraceType.SHELL_TRANSITION]: object;
-  [TraceType.TRANSITION]: HierarchyTreeNode;
-  [TraceType.CUJS]: HierarchyTreeNode;
-  [TraceType.TEST_TRACE_STRING]: string;
-  [TraceType.TEST_TRACE_NUMBER]: number;
-  [TraceType.VIEW_CAPTURE]: HierarchyTreeNode;
-  [TraceType.INPUT_MOTION_EVENT]: HierarchyTreeNode;
-  [TraceType.INPUT_KEY_EVENT]: HierarchyTreeNode;
-  [TraceType.INPUT_EVENT_MERGED]: HierarchyTreeNode;
-  [TraceType.SEARCH]: QueryResult;
-}
 
 const UI_PIPELINE_ORDER = [
   TraceType.INPUT_EVENT_MERGED,

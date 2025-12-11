@@ -55,7 +55,6 @@ import {RectDblClickDetail, ViewerEvents} from 'viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
 import {RectSpec, TraceRectType} from 'viewers/components/rects/rect_spec';
 import {UiRect} from 'viewers/components/rects/ui_rect';
-import {multlineTooltip} from 'viewers/components/styles/tooltip.styles';
 import {viewerCardInnerStyle} from 'viewers/components/styles/viewer_card.styles';
 import {UserOptionsComponent} from 'viewers/components/user_options_component';
 import {Canvas} from './canvas';
@@ -460,7 +459,6 @@ interface CanColor {
         padding: 0px;
       }
     `,
-    multlineTooltip,
     viewerCardInnerStyle,
   ],
 })

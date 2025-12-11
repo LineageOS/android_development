@@ -11,16 +11,16 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { MotionGoldenData, MotionGoldenFeature, DataSource } from '../../model/golden';
-import { Visualization, ValueDataPoint } from './visualization';
+import { Visualization, DataPoint } from './visualization';
+import { LineGraphVisualization } from './line-graph-visualization';
 import * as d3 from 'd3';
 import { NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { LineGraphVisualizationForString } from './line-graph-visualization-for-string';
-import { LineGraphVisualizationForNumber } from './line-graph-visualization-for-number';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-graph',
-  imports: [NgIf, MatIconModule],
+  imports: [NgIf, MatIconModule, MatTooltipModule],
   templateUrl: './graph.component.html',
   styleUrl: './graph.component.css',
 })
@@ -38,13 +38,11 @@ export class GraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chartContainer', { static: true })
   chartContainer!: ElementRef<HTMLDivElement>;
   graphId: string = '';
-  dataType: string = '';
-  static readonly UNSPECIFIED: string = "unspecified";
 
   private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private width!: number;
   private height!: number;
-  private data: ValueDataPoint[] = [];
+  private data: DataPoint[] = [];
   private visualization!: Visualization;
   private resizeObserver: ResizeObserver | null = null;
 
@@ -103,15 +101,10 @@ export class GraphComponent implements AfterViewInit, OnChanges {
       (f) => f.name === this.featureName
     )
     this.visualization = this.createVisualization(actualFeature, expectedFeature);
-    if (this.isVisualizationSupported()) {
+    if (this.visualization instanceof LineGraphVisualization) {
       this.createLineChartData(actualFeature, expectedFeature);
     } else {
     }
-  }
-
-  private isVisualizationSupported() {
-    return this.visualization instanceof LineGraphVisualizationForNumber
-      || this.visualization instanceof LineGraphVisualizationForString;
   }
 
   private createLineChartData(
@@ -148,21 +141,12 @@ export class GraphComponent implements AfterViewInit, OnChanges {
         x = frameIdSource?.frame_ids[i] as number;
       }
 
-      const newPoint: ValueDataPoint = { x };
-      if (this.dataType === typeof actualDataPoint) {
-        if (typeof actualDataPoint === 'number' || typeof actualDataPoint === 'string') {
-          newPoint.actualValue = actualDataPoint;
-        } else if (typeof actualDataPoint === 'boolean') {
-          newPoint.actualValue = (actualDataPoint ? "true" : "false");
-        }
+      const newPoint: DataPoint = { x };
+      if (typeof actualDataPoint === 'number') {
+        newPoint.actualValue = actualDataPoint;
       }
-
-      if (this.dataType === typeof expectedDataPoint) {
-        if (typeof expectedDataPoint === 'number' || typeof expectedDataPoint === 'string') {
-          newPoint.expectedValue = expectedDataPoint;
-        } else if (typeof expectedDataPoint === 'boolean') {
-          newPoint.expectedValue = (expectedDataPoint ? "true" : "false");
-        }
+      if (typeof expectedDataPoint === 'number') {
+        newPoint.expectedValue = expectedDataPoint;
       }
       this.data.push(newPoint);
     }
@@ -177,33 +161,21 @@ export class GraphComponent implements AfterViewInit, OnChanges {
 
     const actualDataPoints = actualFeature?.data_points ?? [];
     const expectedDataPoints = expectedFeature?.data_points ?? [];
-    const dataPoints = [...actualDataPoints, ...expectedDataPoints];
-    const firstValidPoint = dataPoints.find(d => d !== undefined
-      && d !== GraphComponent.UNSPECIFIED);
 
-    this.dataType = firstValidPoint !== undefined
-      ? typeof firstValidPoint
-      : GraphComponent.UNSPECIFIED;
-
-    if (this.dataType === 'boolean' || this.dataType === 'string') {
-      return new LineGraphVisualizationForString(
-        this.graphId,
-        this.previewService,
-        this.dataSource
-      );
-    }
-
-    const numericValues: number[] =
-      actualDataPoints.filter(
+    let numericValues: number[] = [];
+    if (actualFeature?.data_points) {
+      numericValues = numericValues.concat(actualFeature.data_points.filter(
         (it): it is number => typeof it === 'number'
-      ).concat(
-        expectedDataPoints.filter(
-          (it): it is number => typeof it === 'number'
-        )
-      )
+      ))
+    };
+    if (expectedFeature?.data_points) {
+      numericValues = numericValues.concat(expectedFeature.data_points.filter(
+        (it): it is number => typeof it === 'number'
+      ))
+    };
 
-    let minValue = numericValues.length > 0 ? Math.min(...numericValues) : 0;
-    let maxValue = numericValues.length > 0 ? Math.max(...numericValues) : 1;
+    let minValue = Math.min(...numericValues) ?? 0;
+    let maxValue = Math.max(...numericValues) ?? 1;
 
     if (minValue === maxValue) {
       maxValue += 1;
@@ -212,7 +184,7 @@ export class GraphComponent implements AfterViewInit, OnChanges {
       minValue -= (maxValue - minValue) / 10;
     }
 
-    return new LineGraphVisualizationForNumber(
+    return new LineGraphVisualization(
       minValue,
       maxValue,
       this.graphId,
@@ -229,5 +201,41 @@ export class GraphComponent implements AfterViewInit, OnChanges {
       .attr('width', this.width)
       .attr('height', this.height);
     this.visualization.render(this.svg, this.data, this.width, this.height);
+  }
+
+  downloadGraph(): void {
+    if (!this.chartContainer || !this.chartContainer.nativeElement) return;
+
+    const svgElement = this.chartContainer.nativeElement.querySelector('svg');
+    if (!svgElement) return;
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    const canvas = document.createElement('canvas');
+    canvas.width = this.width;
+    canvas.height = this.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = new Image();
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      const pngUrl = canvas.toDataURL('image/png');
+      const downloadLink = document.createElement('a');
+      downloadLink.href = pngUrl;
+      downloadLink.download = `${this.featureName || 'graph'}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    };
+
+    img.src = url;
   }
 }

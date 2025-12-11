@@ -29,7 +29,9 @@ export class ViewerInput extends AbstractViewer<HierarchyTreeNode> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.INPUT_EVENT_MERGED];
 
   constructor(traces: Traces, store: Store) {
-    const trace = assertDefined(traces.getTrace(TraceType.INPUT_EVENT_MERGED));
+    const trace = assertDefined(
+      traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
+    );
     super(trace, traces, 'viewer-input', store);
   }
 

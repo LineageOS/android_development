@@ -14,8 +14,36 @@
  * limitations under the License.
  */
 
-export const multlineTooltip = `
-    .multline-tooltip {
-      white-space: pre-line;
-    }
-`;
+.overlay-panel {
+  font-family: 'Roboto', sans-serif;
+  background: var(--overlay-panel-background-color);
+  box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.36);
+}
+
+.overlay-panel-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+}
+
+.overlay-panel-content {
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.overlay-panel-section {
+  margin-top: 10px;
+}
+
+.overlay-panel-section-title {
+  display: block;
+  width: 100%;
+}
+
+.overlay-panel-item {
+  padding: 8px 0px;
+}
+

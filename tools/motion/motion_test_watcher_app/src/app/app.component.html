@@ -1,69 +1,59 @@
-<div class="relative z-10">
-  <mat-toolbar class="bg-blue-500 text-white">
-    <span class="font-medium text-lg">Motion Test Watcher</span>
+<div class="relative z-10 shadow-md">
+  <mat-toolbar class="bg-white text-gray-900 flex items-center px-4">
+    <span class="font-medium text-xl tracking-tight">Motion Test Watcher</span>
     <span class="flex-auto"></span>
 
-    <div class="font-medium text-lg justify-end">
-      <button mat-button color="primary" (click)="openDialog()">
+    <div class="font-medium text-lg justify-end mr-4 flex gap-2">
+      <button mat-stroked-button color="primary" (click)="openDialog()"
+        class="!border-gray-300 !text-gray-700 hover:!bg-gray-50 rounded-full">
+        <mat-icon class="mr-2">cloud_download</mat-icon>
         Get Presubmit Artifacts
+      </button>
+      <button mat-stroked-button color="primary" (click)="openCodeSearchDialog()"
+        class="!border-gray-300 !text-gray-700 hover:!bg-gray-50 rounded-full">
+        <mat-icon class="mr-2">code</mat-icon>
+        Get CodeSearch Goldens
+      </button>
+      <button mat-stroked-button color="primary" (click)="openUserJsonDialog()"
+        class="!border-gray-300 !text-gray-700 hover:!bg-gray-50 rounded-full">
+        <mat-icon class="mr-2">data_object</mat-icon>
+        Paste JSON
+      </button>
+      <button mat-stroked-button color="warn" (click)="clearAll()"
+        class="!border-red-300 !text-red-700 hover:!bg-red-50 rounded-full">
+        <mat-icon class="mr-2">delete_sweep</mat-icon>
+        Clear All
       </button>
     </div>
     <div class="button-dropdown-container">
       <test-mode-list [testModes]="testModes" (selectedTestMode)="switchMode($event)" [testMode]="testMode">
-
       </test-mode-list>
     </div>
   </mat-toolbar>
-  <div *ngIf="isVideoPresent" class="absolute w-full justify-end flex">
-    <button class="px-2 pt-1 rounded-b-lg bg-gray-300 hover:bg-gray-400 mr-10 relative group"
-      (click)="openPreviewComponent()">
-      <span class="google-symbols">slideshow</span>
-      <span class="
-              absolute right-full top-1/2 -translate-y-1/2 mr-2
-              px-3 py-1 bg-gray-600 text-gray-100 text-sm font-medium
-              rounded-lg whitespace-nowrap opacity-0 pointer-events-none
-              transition-opacity duration-300
-              group-hover:opacity-100
-            ">
-        {{showPreviewComponent && isVideoPresent? 'Close Video Panel' : 'Open Video Panel' }}
-      </span>
+  <div *ngIf="isVideoPresent" class="absolute w-full justify-end flex top-full right-0 mt-2 mr-4 pointer-events-none">
+    <button
+      class="pointer-events-auto shadow-lg bg-white text-gray-700 hover:bg-gray-50 rounded-full p-2 transition-all duration-200 border border-gray-200 flex items-center justify-center group"
+      (click)="openPreviewComponent()" matTooltip="{{showPreviewComponent ? 'Close Video Panel' : 'Open Video Panel'}}">
+      <span class="google-symbols text-2xl">{{showPreviewComponent ? 'videocam_off' : 'videocam'}}</span>
     </button>
   </div>
 </div>
 
 <div class="flex h-screen p-2 2xl:p-4 bg-gray-100" #appContainer>
-  <div class="flex flex-col py-4 justify-start w-10 bg-slate-200 mx-auto">
+  <div
+    class="flex flex-col py-4 justify-start w-14 bg-white border-r border-gray-200 mx-auto items-center space-y-4 shadow-sm z-20">
     <div (click)="toggleTestListVisibility()"
-      class="p-2 mx-auto cursor-pointer rounded hover:bg-gray-400 transition-colors relative group">
-      <button>
-        <span class="google-symbols">menu</span>
+      class="p-2 cursor-pointer rounded-full hover:bg-gray-100 text-gray-600 hover:text-primary-color transition-all duration-200 relative group"
+      matTooltip="{{ showTestList ? 'Close Test List' : 'Open Test List' }}" matTooltipPosition="right">
+      <button class="flex items-center justify-center">
+        <span class="google-symbols text-2xl">menu</span>
       </button>
-      <span class="z-10
-              absolute left-full top-1/2 -translate-y-1/2 ml-2
-              px-3 py-1 bg-gray-600 text-gray-100 text-sm font-medium
-              rounded-lg whitespace-nowrap opacity-0
-              transition-opacity duration-300
-              group-hover:opacity-100
-              pointer-events-none
-            ">
-        {{ showTestList ? 'Close Test List' : 'Open Test List' }}
-      </span>
     </div>
-    <div *ngIf="goldens && goldens.length > 0 && goldens[0]?.dataSource===undefined" (click)="toggleCheckBoxes()"
-      class="p-2 mx-auto cursor-pointer rounded hover:bg-gray-400 transition-colors relative group">
-      <button>
-        <span class="google-symbols">check_box</span>
+    <div *ngIf="goldens && goldens.length > 0 && goldens[0]?.dataSource===undefined" (click)="toggleCheckBoxes()" class="p-2 cursor-pointer rounded-full hover:bg-gray-100 text-gray-600 hover:text-primary-color transition-all
+      duration-200 relative group" matTooltip="Toggle Selection Mode" matTooltipPosition="right">
+      <button class="flex items-center justify-center">
+        <span class="google-symbols text-2xl">{{ showCheckBoxes ? 'check_box' : 'check_box_outline_blank' }}</span>
       </button>
-      <span class="z-10
-              absolute left-full top-1/2 -translate-y-1/2 ml-2
-              px-3 py-1 bg-gray-600 text-gray-100 text-sm font-medium
-              rounded-lg whitespace-nowrap opacity-0
-              transition-opacity duration-300
-              group-hover:opacity-100
-              pointer-events-none
-            ">
-        Update Golden
-      </span>
     </div>
   </div>
   <div *ngIf="showTestList" [@sidebarMenuAnimation] (@sidebarMenuAnimation.done)="onAnimationDone($event)"

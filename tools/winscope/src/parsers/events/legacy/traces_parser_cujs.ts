@@ -46,7 +46,9 @@ export class TracesParserCujs extends AbstractTracesParser<HierarchyTreeNode> {
   constructor(traces: Traces, timestampConverter: ParserTimestampConverter) {
     super(timestampConverter);
 
-    const eventlogTrace = traces.getTrace(TraceType.EVENT_LOG);
+    const eventlogTrace = traces.getTrace<PropertyTreeNode>(
+      TraceType.EVENT_LOG,
+    );
     if (eventlogTrace !== undefined) {
       this.eventLogTrace = eventlogTrace;
       this.descriptors = this.eventLogTrace.getDescriptors();

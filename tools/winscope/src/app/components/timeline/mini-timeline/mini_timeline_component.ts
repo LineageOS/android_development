@@ -105,7 +105,7 @@ import {Transformer} from './transformer';
 export class MiniTimelineComponent {
   @Input() timelineData: TimelineData | undefined;
   @Input() currentTracePosition: TracePosition | undefined;
-  @Input() selectedTraces: Array<Trace<object>> | undefined;
+  @Input() selectedTraces: Array<Trace<unknown>> | undefined;
   @Input() initialZoom: TimeRange | undefined;
   @Input() expandedTimelineScrollEvent: WheelEvent | undefined;
   @Input() expandedTimelineMouseXRatio: number | undefined;
@@ -122,7 +122,7 @@ export class MiniTimelineComponent {
     rangeContainsBookmark: boolean;
   }>();
   @Output() readonly onTraceClicked = new EventEmitter<
-    [Trace<object>, Timestamp]
+    [Trace<unknown>, Timestamp]
   >();
   @Output() readonly onHoverPositionUpdate = new EventEmitter<
     HoverPositionUpdate | undefined
@@ -184,7 +184,7 @@ export class MiniTimelineComponent {
 
     const onClickCallback = (
       timestamp: Timestamp,
-      trace: Trace<object> | undefined,
+      trace: Trace<unknown> | undefined,
     ) => {
       if (trace) {
         this.onTraceClicked.emit([trace, timestamp]);
@@ -248,7 +248,7 @@ export class MiniTimelineComponent {
     this.drawer.draw();
   }
 
-  getTracesToShow(): Array<Trace<object>> {
+  getTracesToShow(): Array<Trace<unknown>> {
     return assertDefined(this.selectedTraces)
       .slice()
       .sort((a, b) => compareByDisplayOrder(a.type, b.type))
@@ -572,16 +572,22 @@ export class MiniTimelineComponent {
       assertDefined(this.drawer).getUsableRange(),
       assertDefined(timelineData.getTimestampConverter()),
     ).untransform(this.lastMousePosX);
+    const posX =
+      (this.miniTimelineWrapper?.nativeElement.offsetLeft ?? 0) +
+      this.lastMousePosX;
     this.onHoverPositionUpdate.emit({
-      posX:
-        (this.miniTimelineWrapper?.nativeElement.offsetLeft ?? 0) +
-        this.lastMousePosX,
-      tsValue: assertDefined(this.hoverTimestamp.format().split(' ').at(-1)),
+      posX,
+      xRatio:
+        this.lastMousePosX /
+        (this.miniTimelineWrapper?.nativeElement.clientWidth ??
+          this.lastMousePosX),
+      ts: this.hoverTimestamp,
     });
   }
 }
 
 export interface HoverPositionUpdate {
   posX: number;
-  tsValue: string;
+  xRatio: number;
+  ts: Timestamp;
 }

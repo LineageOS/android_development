@@ -23,6 +23,6 @@ import {Parser} from 'trace_api/parser';
 export class FileAndParser {
   constructor(
     readonly file: TraceFile,
-    readonly parser: Parser<object>,
+    readonly parser: Parser<unknown>,
   ) {}
 }

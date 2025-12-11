@@ -18,7 +18,7 @@ import {TraceEntry} from 'trace_api/trace';
 import {
   CanvasEntry,
   MediaBasedTraceEntry,
-} from 'trace_api/media_based_trace_entry';
+} from 'trace/media_based/media_based_trace_entry';
 import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
 import {Timestamp} from 'common/time/time';
 

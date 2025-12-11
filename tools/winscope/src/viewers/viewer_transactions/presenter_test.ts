@@ -252,7 +252,7 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
   override async createPresenterWithEmptyTrace(
     callback: NotifyLogViewCallbackType<UiData>,
   ): Promise<Presenter> {
-    const trace = makeEmptyTrace(
+    const trace = makeEmptyTrace<HierarchyTreeNode>(
       TraceType.TRANSACTIONS,
       [],
       [

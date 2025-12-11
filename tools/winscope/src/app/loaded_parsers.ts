@@ -39,7 +39,7 @@ import {UserNotifier} from 'services/user_notifier';
 import {TraceFile} from 'trace/trace_file';
 import {Parser} from 'trace_api/parser';
 import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceEntryTypeMap, TraceType} from 'trace_api/trace_type';
+import {TraceType} from 'trace_api/trace_type';
 
 /**
  * A collection of parsers loaded from user-provided files.
@@ -83,7 +83,7 @@ export class LoadedParsers {
     this.addLegacyParsers(legacyParsers);
   }
 
-  getParsers(): Array<Parser<object>> {
+  getParsers(): Array<Parser<unknown>> {
     const fileAndParsers = [
       ...this.legacyParsers.values(),
       ...this.perfettoParsers.values(),
@@ -95,7 +95,7 @@ export class LoadedParsers {
     return this.perfettoParsers.at(0)?.file;
   }
 
-  remove<T extends TraceType>(parser: Parser<TraceEntryTypeMap[T]>) {
+  remove(parser: Parser<unknown>) {
     const predicate = (fileAndParser: FileAndParser) => {
       return fileAndParser.parser !== parser;
     };
@@ -212,7 +212,7 @@ export class LoadedParsers {
   }
 
   private addLegacyParsers(parsers: FileAndParser[]) {
-    const legacyParsersBeingLoaded = new Map<TraceType, Parser<object>>();
+    const legacyParsersBeingLoaded = new Map<TraceType, Parser<unknown>>();
 
     parsers.forEach((fileAndParser) => {
       const {parser} = fileAndParser;
@@ -240,7 +240,7 @@ export class LoadedParsers {
     });
   }
 
-  private shouldUseLegacyParser(newParser: Parser<object>): boolean {
+  private shouldUseLegacyParser(newParser: Parser<unknown>): boolean {
     // While transitioning to the Perfetto format, devices might still have old legacy trace files
     // dangling in the disk that get automatically included into bugreports. Hence, Perfetto parsers
     // must always override legacy ones so that dangling legacy files are ignored.
