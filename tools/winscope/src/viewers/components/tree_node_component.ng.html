@@ -15,7 +15,7 @@ limitations under the License.
 -->
 
 @if (showStateIcon) {
-<div class="icon-wrapper-show-state" [style]="getShowStateIconStyle()">
+<div class="icon-wrapper-show-state">
   <button
     mat-icon-button
     class="icon-button toggle-rect-show-state-btn"
@@ -24,9 +24,25 @@ limitations under the License.
     <mat-icon class="material-symbols-outlined"> {{ showStateIcon }} </mat-icon>
   </button>
 </div>
-} @if (showChevron()) {
+}
+
+<div class="tree-indentation-container">
+  @for (marker of getIndentMarkers(depth); track $index) {
+  <div
+    class="indent-spacer"
+    [class.parent-highlight]="parentHighlightDepth === $index"
+    [class.child-highlight]="childHighlightDepth === $index"
+  ></div>
+  }
+</div>
+
+@if (showChevron()) {
 <div class="icon-wrapper">
-  <button mat-icon-button class="icon-button toggle-tree-btn" (click)="toggleTree($event)">
+  <button
+    mat-icon-button
+    class="icon-button toggle-tree-btn no-touch-target-button"
+    (click)="toggleTree($event)"
+  >
     <mat-icon> {{ isExpanded ? 'arrow_drop_down' : 'chevron_right' }} </mat-icon>
   </button>
 </div>
@@ -45,7 +61,7 @@ limitations under the License.
 <div class="description">
   @if (node && !isPropertyTreeNode()) {
   <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
-  } @else {
+  } @else if (node) {
   <property-tree-node-data-view [node]="node"></property-tree-node-data-view>
   }
 </div>

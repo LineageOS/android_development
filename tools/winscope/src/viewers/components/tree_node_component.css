@@ -1,0 +1,142 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.tree-indentation-container {
+  display: flex;
+  align-items: center;
+}
+
+.indent-spacer {
+  width: 24px;
+  height: 100%;
+  position: relative;
+}
+
+:host:not(:hover):not(.selected) .indent-spacer::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.indent-spacer:not(.parent-highlight):not(.child-highlight)::before {
+  background-color: var(--border-color);
+}
+
+.indent-spacer.parent-highlight::before {
+  background-color: rgb(100, 100, 100);
+}
+
+.indent-spacer.child-highlight::before {
+  background-color: rgb(150, 150, 150);
+}
+
+:host.full-opacity .indent-spacer::before {
+  opacity: 0.5;
+}
+
+.leaf-node-icon {
+  content: '';
+  display: inline-block;
+  margin-left: 40%;
+  margin-top: 40%;
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  background-color:  var(--text-color-gray);
+}
+
+.icon-wrapper, .description {
+  position: relative;
+  display: inline-block;
+}
+
+.icon-wrapper-show-state {
+position: absolute;
+}
+
+.icon-wrapper-copy {
+  right: 0;
+}
+
+.toggle-tree-btn, .expand-tree-btn, .pin-node-btn, .toggle-rect-show-state-btn, .copy-btn {
+  padding: 0;
+}
+
+.toggle-rect-show-state-btn, .copy-btn {
+  transform: scale(0.75);
+}
+
+.pin-node-btn {
+  transform: scale(0.7);
+}
+
+.description {
+  align-items: center;
+  flex: 1 1 auto;
+  vertical-align: middle;
+  word-break: break-all;
+  flex-basis: 0;
+  align-content: center;
+}
+
+.leaf-node-icon-wrapper {
+  min-height: 24px;
+  width: 24px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  display: inline-block;
+  vertical-align: middle;
+  color: inherit;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+  line-height: 24px;
+}
+
+.expand-tree-btn {
+  float: right;
+}
+
+.expand-tree-btn.modified {
+  background-color: var(--modified-element-color);
+}
+
+.expand-tree-btn.deleted,
+.expand-tree-btn.deletedMove {
+  background-color: var(--deleted-element-color);
+}
+
+.expand-tree-btn.added,
+.expand-tree-btn.addedMove {
+  background-color: var(--added-element-color);
+}
+
+.icon-wrapper-show-state {
+  opacity: 1;
+  left: 0px;
+}
+
+:host:not(:hover):not(.selected) .icon-wrapper-show-state,
+:host:not(:hover) .icon-wrapper-copy {
+  visibility: hidden;
+}
