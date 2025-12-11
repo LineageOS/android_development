@@ -56,7 +56,7 @@ describe('PlaybackControlsComponent', () => {
   it('should emit PlaybackState.FORWARDS when play forwards button is clicked', () => {
     hostComponent.currentState = PlaybackState.PAUSED;
     dom.detectChanges();
-    dom.findAndClick('#play-playback-button');
+    dom.findAndClick('#start-playback-button');
     expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
       PlaybackState.FORWARDS,
     );
@@ -65,7 +65,7 @@ describe('PlaybackControlsComponent', () => {
   it('should emit PlaybackState.BACKWARDS when play backwards button is clicked', () => {
     hostComponent.currentState = PlaybackState.PAUSED;
     dom.detectChanges();
-    dom.findAndClick('#play-reverse-playback-button');
+    dom.findAndClick('#start-reverse-playback-button');
     expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
       PlaybackState.BACKWARDS,
     );

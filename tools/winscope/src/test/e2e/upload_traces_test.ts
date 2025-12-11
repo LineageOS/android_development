@@ -66,17 +66,17 @@ describe('Upload traces', () => {
     await checkRendersSurfaceFlingerView();
   });
 
+  it("doesn't emit messages for valid trace file", async () => {
+    await uploadFixture('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb');
+    expect(await areMessagesEmitted(DEFAULT_TIMEOUT_MS)).toBeFalsy();
+  });
+
   async function checkRendersSurfaceFlingerView() {
     const viewerPresent = await element(
       by.css('viewer-surface-flinger'),
     ).isPresent();
     expect(viewerPresent).toBeTruthy();
   }
-
-  it("doesn't emit messages for valid trace file", async () => {
-    await uploadFixture('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb');
-    expect(await areMessagesEmitted(DEFAULT_TIMEOUT_MS)).toBeFalsy();
-  });
 
   async function checkNoFilesUploaded() {
     // default timeout to understand whether the messages where emitted or not.
