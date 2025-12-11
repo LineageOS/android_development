@@ -64,7 +64,6 @@ void VersionScriptParser::SetApiLevelMap(utils::ApiLevelMap api_level_map) {
 static std::optional<ModeTagLevel> ParseModeTag(std::string_view tag,
                                                 utils::ApiLevel default_level) {
   std::vector<std::string_view> split_tag = utils::Split(tag, "=");
-  utils::ApiLevel level = default_level;
   if (split_tag.size() == 2) {
     auto level = utils::ParseInt(std::string(split_tag[1]));
     if (level.has_value()) {
