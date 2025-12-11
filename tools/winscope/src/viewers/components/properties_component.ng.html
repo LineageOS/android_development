@@ -55,17 +55,14 @@ limitations under the License.
   }
 </ng-container>
 } @if (showPropertiesTree()) {
-<div class="properties-content">
-  <div class="tree-wrapper">
-    <tree-view
-      [node]="propertiesTree"
-      [useStoredExpandedState]="!!store"
-      [itemsClickable]="true"
-      [highlightedItem]="highlightedProperty"
-      (highlightedChange)="onHighlightedPropertyChange($event)"
-    ></tree-view>
-  </div>
-</div>
+<tree-view
+  class="tree"
+  [nodeRows]="nodeRows"
+  [useStoredExpandedState]="!!store"
+  [itemsClickable]="true"
+  [highlightedItem]="highlightedProperty"
+  (highlightedChange)="onHighlightedPropertyChange($event)"
+></tree-view>
 } @if (showPlaceholderText()) {
 <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
 }
