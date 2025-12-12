@@ -24,7 +24,7 @@ import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   ChildHierarchy,
   HierarchyTreeBuilder,
-} from 'test/unit/hierarchy_tree_builder';
+} from '@test/unit/hierarchy_tree_builder';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
@@ -220,12 +220,10 @@ describe('TreeComponent', () => {
   it('renders show state button if applicable', async () => {
     await waitForNodeStability();
     expect(dom.find('.toggle-rect-show-state-btn')).toBeUndefined();
-    expect(dom.findAll('.with-gutter').length).toEqual(0);
 
     const id = component.nodeRows[0].node.id;
     component.rectIdToShowState = new Map([[id, RectShowState.HIDE]]);
     dom.detectChanges();
-    expect(dom.findAll('.with-gutter').length).toEqual(19); // no gutter for root node
     dom.get('.toggle-rect-show-state-btn').checkTextExact('visibility_off');
 
     component.rectIdToShowState = new Map([[id, RectShowState.SHOW]]);

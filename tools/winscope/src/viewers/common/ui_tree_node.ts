@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-import {DiffNode} from './diff_node';
+import {TreeNode} from '@tree_node/tree_node';
+import {DiffType} from './diff_type';
 
 /** Shared interface for any tree node used for UI rendering. */
 
-export declare interface UiTreeNode extends DiffNode {
+export declare interface UiTreeNode extends TreeNode {
   isLeaf(): boolean;
   getDisplayName(): string;
+  getDiff(): DiffType;
+  setDiff(value: DiffType): void;
+  hasShowState(): boolean;
+  getCopyText(): string | undefined;
+  canBePinned(): boolean;
 }

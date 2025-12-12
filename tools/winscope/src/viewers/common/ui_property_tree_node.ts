@@ -104,4 +104,20 @@ export class UiPropertyTreeNode extends PropertyTreeNode implements UiTreeNode {
   isLeaf(): boolean {
     return this.children.length === 0 || this.formattedValue().length > 0;
   }
+
+  hasShowState(): boolean {
+    return false;
+  }
+
+  getCopyText(): string | undefined {
+    const formattedValue = this.formattedValue();
+    if (!formattedValue) {
+      return this.name;
+    }
+    return `${this.name}: ${formattedValue}`;
+  }
+
+  canBePinned(): boolean {
+    return false;
+  }
 }

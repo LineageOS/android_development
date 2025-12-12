@@ -106,10 +106,7 @@ export class HierarchyComponent {
 
   getWarnings(): Warning[] {
     return this.nodeRows.flatMap((row) => {
-      if (row.node instanceof UiHierarchyTreeNode) {
-        return row.node.getWarnings();
-      }
-      return [];
+      return row.node.getWarnings();
     });
   }
 

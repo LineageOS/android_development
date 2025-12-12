@@ -17,10 +17,10 @@
 import {getLogger, Logger} from '@compat/logging';
 import {assertDefined} from '@common/assert';
 import {TreeNode} from '@tree_node/tree_node';
-import {DiffNode} from '@viewers/common/diff_node';
 import {DiffType} from '@viewers/common/diff_type';
+import {UiTreeNode} from './ui_tree_node';
 
-export abstract class AddDiffs<T extends DiffNode> {
+export abstract class AddDiffs<T extends UiTreeNode> {
   private newIdNodeMap = new Map<string, T>();
   private oldIdNodeMap = new Map<string, T>();
   protected abstract addDiffsToNewRoot: boolean;
