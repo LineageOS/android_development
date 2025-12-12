@@ -40,41 +40,41 @@ import {
   isElementOverflowing,
   isElementVisible,
   KeyboardEventKey,
-} from 'common/dom';
-import {Timestamp} from 'common/time/time';
-import {Timer} from 'common/time/timer';
-import {TraceType} from 'trace_api/trace_type';
-import {TextFilter} from 'viewers/common/text_filter';
+} from '@common/dom';
+import {Timestamp} from '@common/time/time';
+import {Timer} from '@common/time/timer';
+import {TraceType} from '@trace_api/trace_type';
+import {TextFilter} from '@viewers/common/text_filter';
 import {
   LogEntry,
   LogField,
   LogFieldValue,
   LogHeader,
-} from 'viewers/common/ui_data_log';
-import {VariableHeightScrollDirective} from 'viewers/common/variable_height_scroll_directive';
+} from '@viewers/common/ui_data_log';
+import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {
   LogFilterChangeDetail,
   LogTextFilterChangeDetail,
   TimestampClickDetail,
   ViewerEvents,
-} from 'viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {SearchBoxComponent} from 'viewers/components/search_box_component';
-import {SelectWithFilterComponent} from 'viewers/components/select_with_filter_component';
+} from '@viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {SearchBoxComponent} from '@viewers/components/search_box_component';
+import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 import {
   inlineButtonStyle,
   targetWindowButtonStyle,
   timeButtonStyle,
-} from 'viewers/components/styles/clickable_property.styles';
-import {currentElementStyle} from 'viewers/components/styles/current_element.styles';
-import {logComponentStyles} from 'viewers/components/styles/log_component.styles';
-import {selectedElementStyle} from 'viewers/components/styles/selected_element.styles';
+} from '@viewers/components/styles/clickable_property.styles';
+import {currentElementStyle} from '@viewers/components/styles/current_element.styles';
+import {logComponentStyles} from '@viewers/components/styles/log_component.styles';
+import {selectedElementStyle} from '@viewers/components/styles/selected_element.styles';
 import {
   viewerCardInnerStyle,
   viewerCardStyle,
-} from 'viewers/components/styles/viewer_card.styles';
-import {assertDefined} from 'common/assert';
-import {UserTimestamp} from 'common/time/user_timestamp';
+} from '@viewers/components/styles/viewer_card.styles';
+import {assertDefined} from '@common/assert';
+import {UserTimestamp} from '@common/time/user_timestamp';
 
 @Component({
   selector: 'log-view',

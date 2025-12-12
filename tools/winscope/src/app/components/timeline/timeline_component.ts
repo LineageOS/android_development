@@ -45,19 +45,19 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
-import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {BookmarksChanged, DarkModeToggled} from 'app/misc_events';
+import {TimelineData} from '@app/timeline_data';
+import {assertDefined} from '@common/assert';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {BookmarksChanged, DarkModeToggled} from '@app/misc_events';
 import {
   isInputTextField,
   KeyboardEventKey,
   KeyboardEventKeyCode,
-} from 'common/dom';
-import {PersistentStore} from 'common/store/persistent_store';
-import {parseBigIntStrippingUnit} from 'common/string_helpers';
-import {TimeRange, Timestamp} from 'common/time/time';
-import {Analytics} from 'logging/analytics';
+} from '@common/dom';
+import {PersistentStore} from '@common/store/persistent_store';
+import {parseBigIntStrippingUnit} from '@common/string_helpers';
+import {TimeRange, Timestamp} from '@common/time/time';
+import {Analytics} from '@logging/analytics';
 import {
   ActiveTraceChanged,
   ScreenRecordingChange,
@@ -68,43 +68,43 @@ import {
   TraceSearchRequest,
   TraceSearchInitialized,
   TraceSearchCompleted,
-} from 'trace/trace_events';
-import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+} from '@trace/trace_events';
+import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
 import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangeRequest,
-} from 'app/components/timeline/playback_events';
-import {TabbedViewSwitched} from 'app/tabbed_view_events';
-import {getLogger} from 'compat/logging';
+} from '@app/components/timeline/playback_events';
+import {TabbedViewSwitched} from '@app/tabbed_view_events';
+import {getLogger} from '@compat/logging';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TracePosition} from 'trace_api/trace_position';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TracePosition} from '@trace_api/trace_position';
 import {
   TraceType,
   compareByDisplayOrder,
   isTraceTypeWithViewer,
   supportsPlayback,
-} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
+} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
 import {
   HoverPositionUpdate,
   MiniTimelineComponent,
 } from './mini-timeline/mini_timeline_component';
-import {UserTimestamp} from 'common/time/user_timestamp';
+import {UserTimestamp} from '@common/time/user_timestamp';
 import {PlaybackControlsComponent} from './playback_component';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
-import {Thumbnail} from 'trace/media_based/thumbnail';
-import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
+import {PlaybackPrefetchedEntries} from '@trace/playback_prefetched_entries';
+import {Thumbnail} from '@trace/media_based/thumbnail';
+import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 
 /**
  * A component for displaying the timeline view.

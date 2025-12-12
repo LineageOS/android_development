@@ -29,20 +29,20 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {TracePipeline} from 'app/trace_pipeline';
-import {Store} from 'common/store/store';
-import {ProgressListener} from 'messaging/progress_listener';
-import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
-import {ShowTraceUploadWarning} from 'trace/trace_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {getLogger} from 'compat/logging';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
+import {TracePipeline} from '@app/trace_pipeline';
+import {Store} from '@common/store/store';
+import {ProgressListener} from '@messaging/progress_listener';
+import {AppTraceViewRequest, AppTraceViewRequestHandled} from '@app/app_events';
+import {ShowTraceUploadWarning} from '@trace/trace_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {getLogger} from '@compat/logging';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
 import {
   isTraceTypeWithViewer,
   getReasonForNoTraceVisualization,
-} from 'trace_api/trace_type';
+} from '@trace_api/trace_type';
 import {LoadProgressComponent} from './load_progress_component';
 
 /**

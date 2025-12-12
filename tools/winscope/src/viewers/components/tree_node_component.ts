@@ -26,11 +26,11 @@ import {
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {assertDefined} from 'common/assert';
-import {DiffType} from 'viewers/common/diff_type';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {nodeInnerItemStyles} from 'viewers/components/styles/node.styles';
+import {assertDefined} from '@common/assert';
+import {DiffType} from '@viewers/common/diff_type';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {nodeInnerItemStyles} from '@viewers/components/styles/node.styles';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 

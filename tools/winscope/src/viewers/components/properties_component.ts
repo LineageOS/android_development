@@ -24,20 +24,20 @@ import {
   ViewChild,
 } from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
-import {PersistentStore} from 'common/store/persistent_store';
-import {Analytics} from 'logging/analytics';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CuratedProperties} from 'viewers/common/curated_properties';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {nodeStyles} from 'viewers/components/styles/node.styles';
-import {TreeComponent} from 'viewers/components/tree_component';
-import {UserOptionsComponent} from 'viewers/components/user_options_component';
-import {ViewCapturePropertyGroupsComponent} from 'viewers/components/view_capture_property_groups_component';
+import {PersistentStore} from '@common/store/persistent_store';
+import {Analytics} from '@logging/analytics';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CuratedProperties} from '@viewers/common/curated_properties';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {nodeStyles} from '@viewers/components/styles/node.styles';
+import {TreeComponent} from '@viewers/components/tree_component';
+import {UserOptionsComponent} from '@viewers/components/user_options_component';
+import {ViewCapturePropertyGroupsComponent} from '@viewers/components/view_capture_property_groups_component';
 import {SearchBoxComponent} from './search_box_component';
 import {viewerCardInnerStyle} from './styles/viewer_card.styles';
 

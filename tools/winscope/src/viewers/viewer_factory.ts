@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertTrue} from 'common/assert';
-import {Store} from 'common/store/store';
-import {TimestampConverter} from 'common/time/timestamp_converter';
-import {Trace} from 'trace_api/trace';
-import {TraceType, compareByDisplayOrder} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
+import {assertTrue} from '@common/assert';
+import {Store} from '@common/store/store';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {Trace} from '@trace_api/trace';
+import {TraceType, compareByDisplayOrder} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
 import {Viewer, ViewType} from './viewer';
 import {ViewerInput} from './viewer_input/viewer_input';
 import {ViewerInputMethodClients} from './viewer_input_method_clients/viewer_input_method_clients';

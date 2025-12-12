@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {extractAllRects} from 'parsers/view_capture/perfetto/rect_extractor';
-import {TraceFile} from 'trace/trace_file';
+import {assertDefined} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {extractAllRects} from '@parsers/view_capture/perfetto/rect_extractor';
+import {TraceFile} from '@trace/trace_file';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
-} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
-import {TraceType} from 'trace_api/trace_type';
+} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {TraceType} from '@trace_api/trace_type';
 import {
   QueryResult,
   QueryResults,
   RowIterator,
-} from 'trace_processor/query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@trace_processor/query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   makeEntryHierarchyTrees,
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 /**
  * A parser for a single window in a Perfetto ViewCapture trace.

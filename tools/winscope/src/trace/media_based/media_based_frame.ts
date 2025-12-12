@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Point} from 'common/geometry/point';
-import {Size} from 'common/geometry/size';
+import {assertDefined} from '@common/assert';
+import {Point} from '@common/geometry/point';
+import {Size} from '@common/geometry/size';
 
 export class MediaBasedFrame<T extends ImageBitmap | VideoFrame> {
   readonly size: Size;

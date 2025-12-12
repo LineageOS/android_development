@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TimezoneInfo} from 'common/time/time';
+import {assertDefined} from '@common/assert';
+import {TimezoneInfo} from '@common/time/time';
 import {
   makeWarningNoValidFiles,
   makeWarningMissingPersistentTrace,
@@ -24,15 +24,15 @@ import {
 import {
   BugreportFileSelected,
   BugreportFileSelectionRequest,
-} from 'app/misc_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {FileAndParsers} from 'parsers/file_and_parsers';
-import {ProcessedFiles} from 'parsers/legacy/parser_factory';
-import {getFixtureFile} from 'test/unit/io_helpers';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceFile} from 'trace/trace_file';
-import {TraceMetadata} from 'trace_api/trace_metadata';
+} from '@app/misc_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {FileAndParsers} from '@parsers/file_and_parsers';
+import {ProcessedFiles} from '@parsers/legacy/parser_factory';
+import {getFixtureFile} from '@test/unit/io_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceFile} from '@trace/trace_file';
+import {TraceMetadata} from '@trace_api/trace_metadata';
 import {
   BuildType,
   ParseLegacyFilesStrategy,

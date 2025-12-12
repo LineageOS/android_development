@@ -20,16 +20,16 @@ import {
   getTimeRangeForTransition,
   isTransitionWithUnknownEnd,
   isTransitionWithUnknownStart,
-} from 'app/components/timeline/timeline_utils';
-import {assertDefined, assertTrue} from 'common/assert';
-import {Point} from 'common/geometry/point';
-import {Rect} from 'common/geometry/rect';
-import {TimeRange, Timestamp} from 'common/time/time';
-import {TransitionStatus} from 'trace/transitions/status';
-import {AbsoluteEntryIndex} from 'trace_api/index_types';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@app/components/timeline/timeline_utils';
+import {assertDefined, assertTrue} from '@common/assert';
+import {Point} from '@common/geometry/point';
+import {Rect} from '@common/geometry/rect';
+import {TimeRange, Timestamp} from '@common/time/time';
+import {TransitionStatus} from '@trace/transitions/status';
+import {AbsoluteEntryIndex} from '@trace_api/index_types';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 
 /**

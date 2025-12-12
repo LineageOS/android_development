@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {Store} from 'common/store/store';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
+import {Store} from '@common/store/store';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
 import {ViewerMediaBased} from './viewer_media_based';
 
 export class ViewerScreenRecording extends ViewerMediaBased {

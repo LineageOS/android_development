@@ -22,9 +22,9 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {FilterFlag} from 'common/filter_flag';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {TextFilter} from 'viewers/common/text_filter';
+import {FilterFlag} from '@common/filter_flag';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {TextFilter} from '@viewers/common/text_filter';
 import {SearchBoxComponent} from './search_box_component';
 
 describe('SearchBoxComponent', () => {

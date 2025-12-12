@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {trySanitizeUrl} from 'compat/safevalues';
-import {windowOpen} from 'compat/safevalues/dom';
+import {trySanitizeUrl} from '@compat/safevalues';
+import {windowOpen} from '@compat/safevalues/dom';
 
 /**
  * Opens a popup window with the specified URL.

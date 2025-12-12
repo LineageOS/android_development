@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {assertDefined} from '@common/assert';
+import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {TransactionType} from 'trace/transactions/transaction_type';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Parser} from 'trace_api/parser';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {TransactionType} from '@trace/transactions/transaction_type';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('PerfettoParserTransactions', () => {
   let parser: Parser<HierarchyTreeNode>;

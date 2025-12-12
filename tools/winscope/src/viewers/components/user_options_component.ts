@@ -18,9 +18,9 @@ import {CommonModule} from '@angular/common';
 import {Component, ElementRef, Inject, Input} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {UserOption, UserOptions} from 'viewers/common/user_options';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {UserOption, UserOptions} from '@viewers/common/user_options';
 import {userOptionStyle} from './styles/user_option.styles';
 
 type LogCallback = (key: string, state: boolean, name: string) => void;

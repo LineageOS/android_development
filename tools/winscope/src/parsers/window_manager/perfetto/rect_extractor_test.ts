@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {Rect} from 'common/geometry/rect';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {ColumnType} from 'trace_processor/query_result';
+import {Rect} from '@common/geometry/rect';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {ColumnType} from '@trace_processor/query_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,
-} from 'trace_processor/test_utils';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
+} from '@trace_processor/test_utils';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {extractAllRects, extractRect} from './rect_extractor';
 import {ContainerType} from './container_type';
-import {RectsForTrace, SnapshotRects} from 'tree_node/rect_extractor_result';
+import {RectsForTrace, SnapshotRects} from '@tree_node/rect_extractor_result';
 
 describe('WindowManager RectExtractor', () => {
   it('handles row without rect id', () => {

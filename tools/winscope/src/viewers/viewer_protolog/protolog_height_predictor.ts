@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert';
-import {ProtologColumnType} from 'trace/protolog/protolog_column_type';
-import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
-import {ProtologEntry} from 'viewers/viewer_protolog/ui_data';
+import {assertString} from '@common/assert';
+import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
+import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
+import {ProtologEntry} from '@viewers/viewer_protolog/ui_data';
 
 export class ProtologHeightPredictor extends ItemHeightPredictor {
   protected override readonly defaultRowSize = 16;

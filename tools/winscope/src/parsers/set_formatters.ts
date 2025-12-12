@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {ProtobufEnum} from 'compat/protobuf';
+import {Timestamp} from '@common/time/time';
+import {ProtobufEnum} from '@compat/protobuf';
 import {
   BUFFER_FORMATTER,
   COLOR_FORMATTER,
@@ -28,16 +28,16 @@ import {
   SIZE_FORMATTER,
   TIMESTAMP_NODE_FORMATTER,
   TRANSFORM_FORMATTER,
-} from 'trace/formatters';
+} from '@trace/formatters';
 import {
   TamperedMessageType,
   TamperedProtoField,
-} from 'trace/proto_utils/tampered_message_type';
-import {Operation} from 'tree_node/operation';
+} from '@trace/proto_utils/tampered_message_type';
+import {Operation} from '@tree_node/operation';
 import {
   PropertyFormatter,
   PropertyTreeNode,
-} from 'tree_node/property_tree_node';
+} from '@tree_node/property_tree_node';
 
 export class SetFormatters implements Operation<PropertyTreeNode> {
   private static readonly TransformRegExp = new RegExp('transform', 'i');

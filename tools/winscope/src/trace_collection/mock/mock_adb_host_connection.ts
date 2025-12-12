@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {AdbDeviceState} from 'trace_collection/adb/adb_device_connection';
-import {AdbHostConnection} from 'trace_collection/adb/adb_host_connection';
-import {AdbConnectionType} from 'trace_collection/adb_connection_type';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {MockAdbDeviceConnection} from 'trace_collection/mock/mock_adb_device_connection';
+import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
+import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
+import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
 
 export class MockAdbHostConnection extends AdbHostConnection<MockAdbDeviceConnection> {
   readonly connectionType = AdbConnectionType.MOCK;

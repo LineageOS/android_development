@@ -16,8 +16,8 @@
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {assertDefined} from '@common/assert';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 @Component({
   selector: 'transform-matrix',

@@ -38,27 +38,27 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {Store} from 'common/store/store';
-import {Analytics} from 'logging/analytics';
+import {assertDefined} from '@common/assert';
+import {Store} from '@common/store/store';
+import {Analytics} from '@logging/analytics';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-} from 'app/misc_events';
+} from '@app/misc_events';
 import {
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
-} from 'app/tabbed_view_events';
+} from '@app/tabbed_view_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {getLogger} from 'compat/logging';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {View, Viewer, ViewType} from 'viewers/viewer';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {getLogger} from '@compat/logging';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {View, Viewer, ViewType} from '@viewers/viewer';
 
 interface Tab {
   view: View;

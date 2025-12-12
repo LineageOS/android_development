@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Box3D} from 'common/geometry/box3d';
-import {Distance} from 'common/geometry/distance';
-import {Point3D} from 'common/geometry/point3d';
-import {Rect3D} from 'common/geometry/rect3d';
-import {Size} from 'common/geometry/size';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiRect} from 'viewers/components/rects/ui_rect';
+import {assertDefined} from '@common/assert';
+import {Box3D} from '@common/geometry/box3d';
+import {Distance} from '@common/geometry/distance';
+import {Point3D} from '@common/geometry/point3d';
+import {Rect3D} from '@common/geometry/rect3d';
+import {Size} from '@common/geometry/size';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiRect} from '@viewers/components/rects/ui_rect';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
 import {Scene} from './scene';

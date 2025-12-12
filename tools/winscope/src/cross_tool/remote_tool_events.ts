@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {WinscopeEvent} from 'messaging/winscope_event';
+import {Timestamp} from '@common/time/time';
+import {WinscopeEvent} from '@messaging/winscope_event';
 
 export class RemoteToolDownloadStart implements WinscopeEvent {}
 

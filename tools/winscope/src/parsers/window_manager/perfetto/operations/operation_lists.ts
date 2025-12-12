@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {AddDefaults} from 'parsers/operations/add_defaults';
-import {TranslateIntDef} from 'parsers/operations/translate_intdef';
-import {DENYLIST_PROPERTIES} from 'parsers/window_manager/perfetto/denylist_properties';
-import {ContainerType} from 'parsers/window_manager/perfetto/container_type';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {DENYLIST_PROPERTIES} from '@parsers/window_manager/perfetto/denylist_properties';
+import {ContainerType} from '@parsers/window_manager/perfetto/container_type';
 import {
   HEX_FORMATTER,
   HEX_NO_PREFIX_FORMATTER,
   RECT_FORMATTER,
-} from 'trace/formatters';
-import {Operation} from 'tree_node/operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'parsers/set_formatters';
+} from '@trace/formatters';
+import {Operation} from '@tree_node/operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {SetFormatters} from '@parsers/set_formatters';
 import {AddWindowType} from './add_window_type';
-import {TAMPERED_PROTOS_LATEST} from 'parsers/window_manager/perfetto/tampered_protos_latest';
+import {TAMPERED_PROTOS_LATEST} from '@parsers/window_manager/perfetto/tampered_protos_latest';
 
 interface OperationLists {
   common: Array<Operation<PropertyTreeNode>>;

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {getPerfettoParser} from 'test/unit/fixture_utils';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {assertDefined} from '@common/assert';
+import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
   UTC_CONVERTER,
-} from 'test/unit/time_test_helpers';
+} from '@test/unit/time_test_helpers';
 import {
   DEFAULT_PROPERTY_FORMATTER,
   TIMESTAMP_NODE_FORMATTER,
-} from 'trace/formatters';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
+} from '@trace/formatters';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
 
 describe('ParserCujs', () => {
   let parser: Parser<HierarchyTreeNode>;

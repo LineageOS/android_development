@@ -14,38 +14,38 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {parseMap, stringifyMap} from 'common/store/persistent_store_proxy';
-import {Store} from 'common/store/store';
-import {Analytics} from 'logging/analytics';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {parseMap, stringifyMap} from '@common/store/persistent_store_proxy';
+import {Store} from '@common/store/store';
+import {Analytics} from '@logging/analytics';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
   DarkModeToggled,
-} from 'app/misc_events';
+} from '@app/misc_events';
 import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
-} from 'app/components/timeline/playback_events';
-import {ScreenRecordingChange, TracePositionUpdate} from 'trace/trace_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {getLogger, Logger} from 'compat/logging';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {PropertiesPresenter} from 'viewers/common/properties_presenter';
-import {RectsPresenter} from 'viewers/common/rects_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UserOption, UserOptions} from 'viewers/common/user_options';
+} from '@app/components/timeline/playback_events';
+import {ScreenRecordingChange, TracePositionUpdate} from '@trace/trace_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {getLogger, Logger} from '@compat/logging';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertiesPresenter} from '@viewers/common/properties_presenter';
+import {RectsPresenter} from '@viewers/common/rects_presenter';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UserOption, UserOptions} from '@viewers/common/user_options';
 import {
   HierarchyPresenter,
   HierarchyTraceEntry,
@@ -57,8 +57,8 @@ import {UiDataHierarchy} from './ui_data_hierarchy';
 import {ViewerEvents} from './viewer_events';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
-import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 

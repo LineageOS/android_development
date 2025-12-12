@@ -34,31 +34,31 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {equal} from 'common/typed_array';
-import {assertDefined, assertTrue, assertUnreachable} from 'common/assert';
-import {Store} from 'common/store/store';
-import {Analytics} from 'logging/analytics';
-import {ProgressListener} from 'messaging/progress_listener';
-import {makeWarningProxyTraceTimeout} from 'app/warnings';
-import {AppRefreshDumpsRequest} from 'app/app_events';
-import {NoTraceTargetsSelectedEvent} from 'app/misc_events';
+import {equal} from '@common/typed_array';
+import {assertDefined, assertTrue, assertUnreachable} from '@common/assert';
+import {Store} from '@common/store/store';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
+import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {AppRefreshDumpsRequest} from '@app/app_events';
+import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {getLogger} from 'compat/logging';
-import {UserNotifier} from 'services/user_notifier';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {getLogger} from '@compat/logging';
+import {UserNotifier} from '@services/user_notifier';
 import {
   AdbDeviceConnection,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {AdbConnectionType} from 'trace_collection/adb_connection_type';
-import {AdbFiles, RequestedTraceTypes} from 'trace_collection/adb_files';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
-import {TraceCollectionController} from 'trace_collection/controller/trace_collection_controller';
+} from '@trace_collection/adb/adb_device_connection';
+import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {AdbFiles, RequestedTraceTypes} from '@trace_collection/adb_files';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
+import {TraceCollectionController} from '@trace_collection/controller/trace_collection_controller';
 import {
   CheckboxConfiguration,
   makeDefaultDumpConfigMap,
@@ -68,9 +68,9 @@ import {
   SelectionConfiguration,
   TraceConfigurationMap,
   updateConfigsFromStore,
-} from 'trace_collection/ui/ui_trace_configuration';
-import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
-import {UserRequest, UserRequestConfig} from 'trace_collection/user_request';
+} from '@trace_collection/ui/ui_trace_configuration';
+import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
+import {UserRequest, UserRequestConfig} from '@trace_collection/user_request';
 import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
 import {

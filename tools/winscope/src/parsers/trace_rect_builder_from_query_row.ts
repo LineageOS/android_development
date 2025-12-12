@@ -19,14 +19,14 @@ import {
   assertBigIntOrUndefined,
   assertNumber,
   assertNumberOrUndefined,
-} from 'common/assert';
-import {CornerRadii} from 'common/geometry/corner_radii';
-import {Rect} from 'common/geometry/rect';
-import {Region} from 'common/geometry/region';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {RowIterator} from 'trace_processor/query_result';
-import {TraceRect} from 'tree_node/trace_rect';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
+} from '@common/assert';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {Rect} from '@common/geometry/rect';
+import {Region} from '@common/geometry/region';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {RowIterator} from '@trace_processor/query_result';
+import {TraceRect} from '@tree_node/trace_rect';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 
 /**
  * A builder for creating a trace rect from a query row.

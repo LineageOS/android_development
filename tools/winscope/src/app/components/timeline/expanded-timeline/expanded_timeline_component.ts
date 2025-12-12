@@ -26,12 +26,12 @@ import {
 } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType, compareByDisplayOrder} from 'trace_api/trace_type';
+import {TimelineData} from '@app/timeline_data';
+import {assertDefined} from '@common/assert';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType, compareByDisplayOrder} from '@trace_api/trace_type';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';

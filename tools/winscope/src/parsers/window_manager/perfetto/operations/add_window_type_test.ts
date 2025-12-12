@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {WindowType, WindowTypePrefix} from 'trace/window_manager/window_type';
-import {PropertySource} from 'tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {WindowType, WindowTypePrefix} from '@trace/window_manager/window_type';
+import {PropertySource} from '@tree_node/property_tree_node';
 import {AddWindowType} from './add_window_type';
 
 describe('AddWindowType', () => {

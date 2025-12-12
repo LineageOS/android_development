@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {isBlank, utf8Decode, utf8Encode} from 'common/string_helpers';
-import {Timestamp} from 'common/time/time';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {TraceType} from 'trace_api/trace_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {isBlank, utf8Decode, utf8Encode} from '@common/string_helpers';
+import {Timestamp} from '@common/time/time';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
+import {PropertyTreeBuilderFromProto} from '@parsers/property_tree_builder_from_proto';
+import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 class ParserEventLog extends AbstractParser<PropertyTreeNode, Event> {
   private static readonly MAGIC_NUMBER_STRING = 'EventLog';

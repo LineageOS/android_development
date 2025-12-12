@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {CornerRadii} from 'common/geometry/corner_radii';
-import {Point3D} from 'common/geometry/point3d';
-import {Rect3D} from 'common/geometry/rect3d';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {Point3D} from '@common/geometry/point3d';
+import {Rect3D} from '@common/geometry/rect3d';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {ColorType} from './color_type';
 
 export interface UiRect3D extends Rect3D {

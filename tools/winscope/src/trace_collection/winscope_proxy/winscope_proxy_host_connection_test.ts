@@ -19,14 +19,14 @@ import {
   HttpRequestHeaderType,
   HttpRequestStatus,
   HttpResponse,
-} from 'common/http_request';
-import {waitToBeCalled} from 'test/unit/spy_utils';
+} from '@common/http_request';
+import {waitToBeCalled} from '@test/unit/spy_utils';
 import {
   AdbDeviceConnection,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
+} from '@trace_collection/adb/adb_device_connection';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {Endpoint} from './endpoint';
 import {VERSION, WINSCOPE_PROXY_URL} from './utils';
 import {WinscopeProxyHostConnection} from './winscope_proxy_host_connection';

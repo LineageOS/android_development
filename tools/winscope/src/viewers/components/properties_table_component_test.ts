@@ -16,7 +16,7 @@
 import {TestBed} from '@angular/core/testing';
 import {PropertiesTableComponent} from './properties_table_component';
 import {CommonModule} from '@angular/common';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 
 describe('PropertiesTableComponent', () => {
   let component: PropertiesTableComponent;

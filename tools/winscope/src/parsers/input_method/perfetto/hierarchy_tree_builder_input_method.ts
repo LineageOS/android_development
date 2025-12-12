@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from 'parsers/hierarchy_tree_builder';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProvider} from 'tree_node/properties_provider';
+import {HierarchyTreeBuilder} from '@parsers/hierarchy_tree_builder';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from '@tree_node/properties_provider';
 
 export class HierarchyTreeBuilderInputMethod extends HierarchyTreeBuilder<string> {
   private childIdentifier = 'child';

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TracePositionUpdate} from 'trace/trace_events';
+import {assertDefined} from '@common/assert';
+import {TracePositionUpdate} from '@trace/trace_events';
 import {
   makeRealTimestamp,
   makeZeroTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {makeSearchTraceSpies} from 'trace_processor/test_utils';
-import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
-import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
-import {LogHeader} from 'viewers/common/ui_data_log';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, RowIterator} from '@trace_processor/query_result';
+import {makeSearchTraceSpies} from '@trace_processor/test_utils';
+import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
+import {LogHeader} from '@viewers/common/ui_data_log';
 import {SearchResultPresenter} from './search_result_presenter';
 import {SearchResult} from './ui_data';
 

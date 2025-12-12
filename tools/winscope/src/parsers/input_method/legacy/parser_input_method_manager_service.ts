@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {ClockSnapshot, TracePacket} from 'compat/perfetto';
-import {InputMethodManagerServiceTraceProto} from 'compat/winscope_protos';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {ClockSnapshot, TracePacket} from '@compat/perfetto';
+import {InputMethodManagerServiceTraceProto} from '@compat/winscope_protos';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import root from 'protos/ime/udc/json';
 import {android} from 'protos/ime/udc/static';
 

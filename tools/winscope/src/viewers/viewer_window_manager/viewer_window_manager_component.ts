@@ -15,17 +15,17 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {ShadingMode} from 'viewers/components/rects/shading_mode';
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {assertDefined} from '@common/assert';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {ShadingMode} from '@viewers/components/rects/shading_mode';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({

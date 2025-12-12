@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {assertDefined} from '@common/assert';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace/media_based/media_based_trace_entry';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
+} from '@trace/media_based/media_based_trace_entry';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
 import {spyOnThumbnailGenerator} from './test_helpers';
 
 describe('ParserScreenRecordingLegacy', () => {

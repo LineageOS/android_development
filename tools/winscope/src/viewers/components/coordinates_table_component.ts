@@ -15,7 +15,7 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 @Component({
   selector: 'coordinates-table',

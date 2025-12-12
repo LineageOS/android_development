@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Thumbnail} from 'trace/media_based/thumbnail';
-import {getLogger} from 'compat/logging';
+import {assertDefined} from '@common/assert';
+import {Thumbnail} from '@trace/media_based/thumbnail';
+import {getLogger} from '@compat/logging';
 
 class ThumbnailBuilder {
   private spriteSheet: Blob | undefined;

@@ -25,18 +25,18 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {RectShowState} from 'viewers/common/rect_show_state';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {isHighlighted} from 'viewers/common/ui_tree_utils';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {RectShowState} from '@viewers/common/rect_show_state';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {isHighlighted} from '@viewers/common/ui_tree_utils';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {
   nodeInnerItemStyles,
   nodeStyles,
   treeNodeDataViewStyles,
-} from 'viewers/components/styles/node.styles';
+} from '@viewers/components/styles/node.styles';
 import {TreeNodeComponent} from './tree_node_component';
 
 @Component({

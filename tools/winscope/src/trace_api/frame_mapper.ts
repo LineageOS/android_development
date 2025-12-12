@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 
 import {CustomQueryType} from './custom_query';
 import {FrameMapBuilder} from './frame_map_builder';

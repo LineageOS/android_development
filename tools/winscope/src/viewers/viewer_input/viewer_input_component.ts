@@ -16,20 +16,20 @@
 
 import {CommonModule} from '@angular/common';
 import {Component, Input, ViewChild} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {LogComponent} from 'viewers/components/log_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {ShadingMode} from 'viewers/components/rects/shading_mode';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {LogComponent} from '@viewers/components/log_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {ShadingMode} from '@viewers/components/rects/shading_mode';
 import {
   viewerCardInnerStyle,
   viewerCardStyle,
-} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({

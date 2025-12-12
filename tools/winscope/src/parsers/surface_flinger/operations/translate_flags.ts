@@ -18,10 +18,10 @@ import {
   FixedStringFormatter,
   FLAG_SEPARATOR,
   formatAsHex,
-} from 'trace/formatters';
-import {LayerFlag} from 'trace/surface_flinger/layer_flag';
-import {Operation} from 'tree_node/operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@trace/formatters';
+import {LayerFlag} from '@trace/surface_flinger/layer_flag';
+import {Operation} from '@tree_node/operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 export class TranslateFlags implements Operation<PropertyTreeNode> {
   apply(value: PropertyTreeNode): void {

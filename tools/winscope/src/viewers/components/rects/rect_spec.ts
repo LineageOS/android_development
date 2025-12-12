@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Canvas, colorToCss} from 'viewers/components/rects/canvas';
+import {Canvas, colorToCss} from '@viewers/components/rects/canvas';
 
 export interface RectSpec {
   type: TraceRectType;

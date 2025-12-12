@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {StringFilterPredicate} from 'common/string_filter_predicate';
-import {binarySearchFirstGreaterOrEqual} from 'common/typed_array';
-import {assertDefined} from 'common/assert';
-import {TraceEntry} from 'trace_api/trace';
-import {TextFilter} from 'viewers/common/text_filter';
+import {StringFilterPredicate} from '@common/string_filter_predicate';
+import {binarySearchFirstGreaterOrEqual} from '@common/typed_array';
+import {assertDefined} from '@common/assert';
+import {TraceEntry} from '@trace_api/trace';
+import {TextFilter} from '@viewers/common/text_filter';
 import {ColumnSpec, LogEntry, LogHeader} from './ui_data_log';
 
 export class LogPresenter<Entry extends LogEntry> {

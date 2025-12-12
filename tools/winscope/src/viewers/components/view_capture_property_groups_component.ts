@@ -16,7 +16,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
-import {VcCuratedProperties} from 'viewers/common/curated_properties';
+import {VcCuratedProperties} from '@viewers/common/curated_properties';
 
 @Component({
   selector: 'view-capture-property-groups',

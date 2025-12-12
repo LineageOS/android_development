@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 
 export class UiData {
   readonly titles: string[];

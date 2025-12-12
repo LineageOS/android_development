@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {Transformer} from 'app/components/timeline/mini-timeline/transformer';
-import {Segment} from 'app/components/timeline/segment';
+import {Transformer} from '@app/components/timeline/mini-timeline/transformer';
+import {Segment} from '@app/components/timeline/segment';
 import {
   getTimeRangeForTransition,
   isTransitionWithUnknownEnd,
   isTransitionWithUnknownStart,
-} from 'app/components/timeline/timeline_utils';
-import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert';
-import {TimeRange, Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@app/components/timeline/timeline_utils';
+import {TimelineData} from '@app/timeline_data';
+import {assertDefined} from '@common/assert';
+import {TimeRange, Timestamp} from '@common/time/time';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   MiniCanvasDrawerData,
   TimelineTrace,

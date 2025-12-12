@@ -25,10 +25,10 @@ import {
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {SfCuratedProperties} from 'viewers/common/curated_properties';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+import {assertDefined} from '@common/assert';
+import {SfCuratedProperties} from '@viewers/common/curated_properties';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {inlineButtonStyle} from './styles/clickable_property.styles';
 import {viewerCardInnerStyle} from './styles/viewer_card.styles';

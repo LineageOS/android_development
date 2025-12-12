@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {StringFilterPredicate} from 'common/string_filter_predicate';
-import {TreeNode} from 'tree_node/tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {StringFilterPredicate} from '@common/string_filter_predicate';
+import {TreeNode} from '@tree_node/tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 /**
  * Creates a filter that checks if a node's id or formatted value matches a predicate.

@@ -21,9 +21,9 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {ConnectionState} from 'trace_collection/connection_state';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {ConnectionState} from '@trace_collection/connection_state';
 import {WdpSetupComponent} from './wdp_setup_component';
 
 describe('WdpSetupComponent', () => {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Operation} from 'tree_node/operation';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {Operation} from '@tree_node/operation';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 export class PropagateHashCodes implements Operation<UiPropertyTreeNode> {
   private readonly layerFields = [

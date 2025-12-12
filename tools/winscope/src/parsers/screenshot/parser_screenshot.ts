@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {Timestamp} from '@common/time/time';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CanvasEntry,
   MediaBasedTraceEntry,
-} from 'trace/media_based/media_based_trace_entry';
-import {TraceType} from 'trace_api/trace_type';
+} from '@trace/media_based/media_based_trace_entry';
+import {TraceType} from '@trace_api/trace_type';
 
 export class ParserScreenshot extends AbstractParser<
   MediaBasedTraceEntry,

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {TraceEntry} from 'trace_api/trace';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
-import {TextFilter} from 'viewers/common/text_filter';
+import {TraceEntry} from '@trace_api/trace';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
+import {TextFilter} from '@viewers/common/text_filter';
 import {
   LogEntry,
   LogField,
   LogHeader,
   UiDataLog,
-} from 'viewers/common/ui_data_log';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+} from '@viewers/common/ui_data_log';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 export class UiData implements UiDataLog {
   constructor(

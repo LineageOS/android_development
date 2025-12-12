@@ -22,10 +22,10 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DownloadRequest, downloadFromUrl} from 'common/download';
-import {getRootUrl} from 'common/window';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {VERSION} from 'trace_collection/winscope_proxy/utils';
+import {DownloadRequest, downloadFromUrl} from '@common/download';
+import {getRootUrl} from '@common/window';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {VERSION} from '@trace_collection/winscope_proxy/utils';
 
 /**
  * A component for displaying the Winscope proxy setup instructions.

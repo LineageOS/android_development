@@ -15,10 +15,10 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, ViewChild} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {LogComponent} from 'viewers/components/log_component';
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {TraceType} from '@trace_api/trace_type';
+import {LogComponent} from '@viewers/components/log_component';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({

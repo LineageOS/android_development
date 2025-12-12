@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
-import {AbstractPresenterInputMethodTest} from 'viewers/common/abstract_presenter_input_method_test';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {AbstractPresenterInputMethodTest} from '@viewers/common/abstract_presenter_input_method_test';
 import {PresenterInputMethodService} from './presenter_input_method_service';
 
 class PresenterInputMethodServiceTest extends AbstractPresenterInputMethodTest {

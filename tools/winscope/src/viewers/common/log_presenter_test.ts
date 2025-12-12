@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceType} from 'trace_api/trace_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';
 import {LogEntry, LogHeader} from './ui_data_log';

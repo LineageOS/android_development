@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TransformTypeFlags} from 'common/geometry/transform';
-import {SetFormatters} from 'parsers/set_formatters';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
+import {assertDefined} from '@common/assert';
+import {TransformTypeFlags} from '@common/geometry/transform';
+import {SetFormatters} from '@parsers/set_formatters';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
 import {
   makeBufferNode,
   makeColorNode,
@@ -26,13 +26,13 @@ import {
   makeRectNode,
   makeSizeNode,
   makeTransformNode,
-} from 'test/unit/tree_node_test_helpers';
-import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from 'trace/formatters';
+} from '@test/unit/tree_node_test_helpers';
+import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from '@trace/formatters';
 import {
   TamperedMessageType,
   TamperedProtoField,
-} from 'trace/proto_utils/tampered_message_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@trace/proto_utils/tampered_message_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import root from 'protos/test/fake_proto/json';
 
 describe('SetFormatters', () => {

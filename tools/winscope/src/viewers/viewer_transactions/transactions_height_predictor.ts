@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert';
-import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
-import {TransactionsEntry} from 'viewers/viewer_transactions/ui_data';
+import {assertString} from '@common/assert';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
+import {TransactionsEntry} from '@viewers/viewer_transactions/ui_data';
 
 export class TransactionsHeightPredictor extends ItemHeightPredictor {
   protected override readonly defaultRowSize = 24;

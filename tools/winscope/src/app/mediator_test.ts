@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TimezoneInfo} from 'common/time/time';
-import {TimestampConverter} from 'common/time/timestamp_converter';
-import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
-import {ProgressListener} from 'messaging/progress_listener';
-import {ProgressListenerStub} from 'messaging/progress_listener_stub';
-import {UserWarning} from 'messaging/user_warning';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {TimezoneInfo} from '@common/time/time';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
+import {ProgressListener} from '@messaging/progress_listener';
+import {ProgressListenerStub} from '@messaging/progress_listener_stub';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningFailedToCreateTracesParser,
   makeWarningInvalidLegacyTrace,
   makeWarningInvalidPerfettoTrace,
-} from 'parsers/warnings';
+} from '@parsers/warnings';
 import {
   makeWarningNoValidFiles,
   makeWarningIncompleteFrameMapping,
@@ -40,14 +40,14 @@ import {
   AppResetRequest,
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
-} from 'app/app_events';
+} from '@app/app_events';
 import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
-} from 'app/components/timeline/playback_events';
-import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+} from '@app/components/timeline/playback_events';
+import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
 import {
   ActiveSearchQueriesUpdate,
   BookmarksChanged,
@@ -57,17 +57,17 @@ import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
   NoTraceTargetsSelectedEvent,
-} from 'app/misc_events';
+} from '@app/misc_events';
 import {
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
-} from 'app/tabbed_view_events';
-import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+} from '@app/tabbed_view_events';
+import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
-} from 'cross_tool/remote_tool_events';
+} from '@cross_tool/remote_tool_events';
 import {
   ActiveTraceChanged,
   InitializeTraceSearchRequest,
@@ -79,36 +79,36 @@ import {
   TraceSearchFailed,
   TraceSearchInitialized,
   TraceSearchRequest,
-} from 'trace/trace_events';
+} from '@trace/trace_events';
 
-import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
-import {WinscopeEventEmitterStub} from 'messaging/winscope_event_emitter_stub';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {WinscopeEventListenerStub} from 'messaging/winscope_event_listener_stub';
-import {getFixtureFile} from 'test/unit/io_helpers';
-import {mixin} from 'test/unit/mixin_helpers';
+import {WinscopeEventEmitter} from '@messaging/winscope_event_emitter';
+import {WinscopeEventEmitterStub} from '@messaging/winscope_event_emitter_stub';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {WinscopeEventListenerStub} from '@messaging/winscope_event_listener_stub';
+import {getFixtureFile} from '@test/unit/io_helpers';
+import {mixin} from '@test/unit/mixin_helpers';
 import {
   makeRealTimestamp,
   makeZeroTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceEntry} from 'trace_api/trace';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {ViewType} from 'viewers/viewer';
-import {ViewerFactory} from 'viewers/viewer_factory';
-import {ViewerStub} from 'viewers/viewer_stub';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceEntry} from '@trace_api/trace';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ViewType} from '@viewers/viewer';
+import {ViewerFactory} from '@viewers/viewer_factory';
+import {ViewerStub} from '@viewers/viewer_stub';
 import {Mediator} from './mediator';
 import {TimelineData} from './timeline_data';
 import {TracePipeline} from './trace_pipeline';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {Rect} from 'common/geometry/rect';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {Rect} from '@common/geometry/rect';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 
 describe('Mediator', () => {
   const TIMESTAMP_INVALID = makeRealTimestamp(-1n);

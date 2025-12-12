@@ -17,7 +17,7 @@
 import {
   timestampEqualityTester,
   ASIA_TIMEZONE_INFO,
-} from 'test/unit/time_test_helpers';
+} from '@test/unit/time_test_helpers';
 import {TIME_UNIT_TO_NANO} from './time_units';
 import {UTC_TIMEZONE_INFO, TimestampConverter} from './timestamp_converter';
 

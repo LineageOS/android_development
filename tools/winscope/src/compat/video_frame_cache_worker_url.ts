@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {globalConfig} from 'common/global_config';
-import {getRootUrl} from 'common/window';
+import {globalConfig} from '@common/global_config';
+import {getRootUrl} from '@common/window';
 
 export function getVideoFrameCacheWorkerUrl(): string {
   const root =

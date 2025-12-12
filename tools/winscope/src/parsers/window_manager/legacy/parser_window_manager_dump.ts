@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
 import {com} from 'protos/windowmanager/udc/static';
 import Long from 'long';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {WindowManagerTraceEntry} from 'compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {WindowManagerTraceEntry} from '@compat/winscope_protos';
+import {TracePacket, ClockSnapshot} from '@compat/perfetto';
 import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
 
 type DumpProto = com.android.server.wm.IWindowManagerServiceDumpProto;

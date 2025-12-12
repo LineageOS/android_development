@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceEntry} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {AbstractLogViewerComponentTest} from 'viewers/common/abstract_log_viewer_component_test';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogHeader} from 'viewers/common/ui_data_log';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceEntry} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogHeader} from '@viewers/common/ui_data_log';
 import {TransitionsEntry, UiData} from './ui_data';
 import {ViewerTransitionsComponent} from './viewer_transitions_component';
 

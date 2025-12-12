@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {RectSpec} from 'viewers/components/rects/rect_spec';
-import {UiRect} from 'viewers/components/rects/ui_rect';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectSpec} from '@viewers/components/rects/rect_spec';
+import {UiRect} from '@viewers/components/rects/ui_rect';
 import {DisplayIdentifier} from './display_identifier';
 import {RectShowState} from './rect_show_state';
 import {UiPropertyTreeNode} from './ui_property_tree_node';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LogEntry, LogHeader} from 'viewers/common/ui_data_log';
+import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
 
 export class UiData {
   currentSearches: CurrentSearch[] = [];

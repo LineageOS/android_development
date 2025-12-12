@@ -20,23 +20,23 @@ import {
   assertNumberOrUndefined,
   assertString,
   assertStringOrUndefined,
-} from 'common/assert';
-import {convertSnakeToCamelCase} from 'common/string_helpers';
+} from '@common/assert';
+import {convertSnakeToCamelCase} from '@common/string_helpers';
 import {
   getDefaultValue,
   LeafValue,
-} from 'trace/proto_utils/field_value_helpers';
+} from '@trace/proto_utils/field_value_helpers';
 import {
   TamperedMessageType,
   TamperedProtoField,
-} from 'trace/proto_utils/tampered_message_type';
-import {RowIterator} from 'trace_processor/query_result';
+} from '@trace/proto_utils/tampered_message_type';
+import {RowIterator} from '@trace_processor/query_result';
 import {
   PropertySource,
   PropertyTreeNode,
   PropertyValue,
-} from 'tree_node/property_tree_node';
-import {PropertyTreeNodeFactory} from 'tree_node/property_tree_node_factory';
+} from '@tree_node/property_tree_node';
+import {PropertyTreeNodeFactory} from '@tree_node/property_tree_node_factory';
 
 import {AbstractPropertyTreeBuilder} from './abstract_property_tree_builder';
 

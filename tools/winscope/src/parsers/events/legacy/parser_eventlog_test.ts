@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {assertDefined} from '@common/assert';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {EventTag} from './event_tag';
 
 describe('ParserEventLog', () => {

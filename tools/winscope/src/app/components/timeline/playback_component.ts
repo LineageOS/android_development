@@ -27,8 +27,8 @@ import {MatSelectModule, MatSelectChange} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {CommonModule} from '@angular/common';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {Analytics} from 'logging/analytics';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {Analytics} from '@logging/analytics';
 
 @Component({
   selector: 'playback-controls',

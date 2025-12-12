@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 /**
  * An abstract builder for creating a property tree.

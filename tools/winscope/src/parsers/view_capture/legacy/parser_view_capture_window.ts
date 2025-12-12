@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {utf8Encode} from 'common/string_helpers';
-import {Timestamp} from 'common/time/time';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
+import {assertDefined} from '@common/assert';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {utf8Encode} from '@common/string_helpers';
+import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import Long from 'long';
-import {ViewCapture} from 'compat/winscope_protos';
+import {ViewCapture} from '@compat/winscope_protos';
 import {
   ClockSnapshot,
   InternedData,
   InternedString,
   TracePacket,
-} from 'compat/perfetto';
+} from '@compat/perfetto';
 import {com} from 'protos/viewcapture/udc/static';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
-import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 /**
  * A parser for a single window in a legacy ViewCapture trace.

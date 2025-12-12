@@ -47,14 +47,14 @@ import {
   MatTabsModule,
 } from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {SEARCH_VIEWS} from 'app/trace_search/trace_search_initializer';
-import {assertDefined} from 'common/assert';
-import {TimeDuration} from 'common/time/time_duration';
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {Analytics} from 'logging/analytics';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
+import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
+import {assertDefined} from '@common/assert';
+import {TimeDuration} from '@common/time/time_duration';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
+import {Analytics} from '@logging/analytics';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {
   AddQueryClickDetail,
   ClearQueryClickDetail,
@@ -62,15 +62,15 @@ import {
   SaveQueryClickDetail,
   SearchQueryClickDetail,
   ViewerEvents,
-} from 'viewers/common/viewer_events';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {LogComponent} from 'viewers/components/log_component';
+} from '@viewers/common/viewer_events';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {LogComponent} from '@viewers/components/log_component';
 import {
   viewerCardInnerStyle,
   viewerCardStyle,
-} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {ActiveSearchComponent} from './active_search_component';
 import {ListItemOption, SearchListComponent} from './search_list_component';
 import {CurrentSearch, ListedSearch, UiData} from './ui_data';

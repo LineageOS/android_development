@@ -15,7 +15,7 @@
  */
 
 import {Thumbnail} from './thumbnail';
-import {MediaBasedFrame} from 'trace/media_based/media_based_frame';
+import {MediaBasedFrame} from '@trace/media_based/media_based_frame';
 
 /**
  * Represents a single entry in a media-based trace, such as a video or a

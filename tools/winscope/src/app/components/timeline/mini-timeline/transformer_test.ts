@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TimeRange} from 'common/time/time';
-import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
+import {TimeRange} from '@common/time/time';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
 import {Transformer} from './transformer';
 
 describe('Transformer', () => {

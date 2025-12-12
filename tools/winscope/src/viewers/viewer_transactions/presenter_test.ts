@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Timer} from 'common/time/timer';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
-import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogHeader} from 'viewers/common/ui_data_log';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Timer} from '@common/time/timer';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogHeader} from '@viewers/common/ui_data_log';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 

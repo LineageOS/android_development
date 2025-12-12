@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {KeyboardEventKey} from 'common/dom';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Timer} from 'common/time/timer';
-import {DarkModeToggled} from 'app/misc_events';
-import {ActiveTraceChanged, TracePositionUpdate} from 'trace/trace_events';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {MockPresenter} from 'test/unit/mock_log_viewer_presenter';
+import {assertDefined} from '@common/assert';
+import {KeyboardEventKey} from '@common/dom';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Timer} from '@common/time/timer';
+import {DarkModeToggled} from '@app/misc_events';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {MockPresenter} from '@test/unit/mock_log_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   makeZeroTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
-import {Trace} from 'trace_api/trace';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {Trace} from '@trace_api/trace';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogHeader, UiDataLog} from './ui_data_log';
 import {UserOptions} from './user_options';
@@ -45,7 +45,7 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from './viewer_events';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;

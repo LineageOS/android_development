@@ -19,7 +19,7 @@ import {
   makeRealTimestamp,
   TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
   UTC_CONVERTER,
-} from 'test/unit/time_test_helpers';
+} from '@test/unit/time_test_helpers';
 import {TimeRange} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
 

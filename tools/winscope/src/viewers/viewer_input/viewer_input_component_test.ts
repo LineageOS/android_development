@@ -15,20 +15,20 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {InputColumnType} from 'trace/input/input_column_type';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {AbstractLogViewerComponentTest} from 'viewers/common/abstract_log_viewer_component_test';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogHeader} from 'viewers/common/ui_data_log';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {UserOptionsComponent} from 'viewers/components/user_options_component';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {InputColumnType} from '@trace/input/input_column_type';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogHeader} from '@viewers/common/ui_data_log';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {UserOptionsComponent} from '@viewers/components/user_options_component';
 import {InputEntry, UiData} from './ui_data';
 import {ViewerInputComponent} from './viewer_input_component';
 

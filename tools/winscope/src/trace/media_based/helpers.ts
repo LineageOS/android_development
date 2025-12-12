@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {assertDefined} from '@common/assert';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {
   AvcCBox,
   createFile,

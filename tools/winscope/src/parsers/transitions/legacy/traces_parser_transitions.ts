@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert';
-import {getMax} from 'common/bigint_math';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
+import {assertDefined, assertTrue} from '@common/assert';
+import {getMax} from '@common/bigint_math';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import Long from 'long';
-import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {AbstractTracesParser} from '@parsers/traces/abstract_traces_parser';
+import {TracePacket, ClockSnapshot} from '@compat/perfetto';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {ParserTransitionsShell} from './parser_transitions_shell';
-import {IShellTransition as PerfettoTransition} from 'compat/winscope_protos';
+import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.

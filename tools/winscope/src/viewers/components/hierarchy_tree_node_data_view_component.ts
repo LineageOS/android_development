@@ -16,9 +16,9 @@
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {Chip} from 'viewers/common/chip';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {hierarchyTreeNodeDataViewStyles} from 'viewers/components/styles/tree_node_data_view.styles';
+import {Chip} from '@viewers/common/chip';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {hierarchyTreeNodeDataViewStyles} from '@viewers/components/styles/tree_node_data_view.styles';
 
 @Component({
   selector: 'hierarchy-tree-node-data-view',

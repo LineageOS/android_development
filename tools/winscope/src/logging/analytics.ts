@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {FilesSource} from 'app/files_source';
-import {analyticsLogEvent} from 'common/analytics';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
+import {FilesSource} from '@app/files_source';
+import {analyticsLogEvent} from '@common/analytics';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
 
 const BUGANIZER_OPENED = 'buganizer_opened';
 const CROSS_TOOL_SYNC = 'cross_tool_sync';

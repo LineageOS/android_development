@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-import {TraceFile} from 'trace/trace_file';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {assertDefined} from 'common/assert';
-import {utf8Encode} from 'common/string_helpers';
-import {Timestamp} from 'common/time/time';
-import {getLogger, Logger} from 'compat/logging';
-import {TraceMetadata} from 'trace_api/trace_metadata';
+import {TraceFile} from '@trace/trace_file';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {assertDefined} from '@common/assert';
+import {utf8Encode} from '@common/string_helpers';
+import {Timestamp} from '@common/time/time';
+import {getLogger, Logger} from '@compat/logging';
+import {TraceMetadata} from '@trace_api/trace_metadata';
 import Long from 'long';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {ProtoLogMessage as PerfettoProtoLogMessage} from 'compat/winscope_protos';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
+import {ProtoLogMessage as PerfettoProtoLogMessage} from '@compat/winscope_protos';
 import {
   ClockSnapshot,
   InternedData,
   InternedString,
   TracePacket,
-} from 'compat/perfetto';
+} from '@compat/perfetto';
 import root from 'protos/protolog/udc/json';
 import {com} from 'protos/protolog/udc/static';
-import {TraceType} from 'trace_api/trace_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import configJson32 from '../../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
 import configJson64 from '../../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';

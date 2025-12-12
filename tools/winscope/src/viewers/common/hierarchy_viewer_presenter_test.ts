@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
+import {assertDefined} from '@common/assert';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {
   DarkModeToggled,
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-} from 'app/misc_events';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {MockPresenter} from 'test/unit/mock_hierarchy_viewer_presenter';
+} from '@app/misc_events';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {
   makeUiHierarchyNode,
   treeNodeEqualityTester,
-} from 'test/unit/ui_tree_node_utils';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
+} from '@test/unit/ui_tree_node_utils';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 import {DiffType} from './diff_type';
 import {RectShowState} from './rect_show_state';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UserOptions} from './user_options';
 import {ViewerEvents} from './viewer_events';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 
 describe('AbstractHierarchyViewerPresenter', () => {
   const timestamp2 = makeElapsedTimestamp(2n);

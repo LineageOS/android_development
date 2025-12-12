@@ -21,7 +21,7 @@ import {FormControl} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {isElementOverflowing} from 'common/dom';
+import {isElementOverflowing} from '@common/dom';
 import {ListedSearch} from './ui_data';
 
 @Component({

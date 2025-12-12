@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Point} from 'common/geometry/point';
-import {Trace} from 'trace_api/trace';
+import {assertDefined} from '@common/assert';
+import {Point} from '@common/geometry/point';
+import {Trace} from '@trace_api/trace';
 import {
   CanvasMouseHandler,
   DragListener,

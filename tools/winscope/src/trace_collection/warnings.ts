@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UserWarning} from 'messaging/user_warning';
+import {UserWarning} from '@messaging/user_warning';
 
 /**
  * A warning for proxy tracing errors.

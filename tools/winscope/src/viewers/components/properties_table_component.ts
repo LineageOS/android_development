@@ -15,7 +15,7 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {TableProperties} from 'viewers/common/table_properties';
+import {TableProperties} from '@viewers/common/table_properties';
 
 @Component({
   selector: 'properties-table',

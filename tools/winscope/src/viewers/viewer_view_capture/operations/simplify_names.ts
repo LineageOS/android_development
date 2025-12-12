@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Operation} from 'tree_node/operation';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {Operation} from '@tree_node/operation';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 
 export class SimplifyNamesVc implements Operation<UiHierarchyTreeNode> {
   apply(node: UiHierarchyTreeNode): void {

@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {
   createZipArchive,
   getFileExtension,
   removeDirFromFileName,
   removeExtensionFromFilename,
   OnProgressUpdateType,
-} from 'common/io';
-import {INVALID_TIME_NS, TimeRange, Timestamp} from 'common/time/time';
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
+} from '@common/io';
+import {INVALID_TIME_NS, TimeRange, Timestamp} from '@common/time/time';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {
   makeWarningTraceHasOldData,
   makeWarningTraceOverridden,
   makeWarningTraceHasElapsedTimestamps,
 } from './warnings';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {FileAndParsers} from 'parsers/file_and_parsers';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {FileAndParsers} from '@parsers/file_and_parsers';
 import {
   getParserWithLatestRealToBootTimeOffset,
   getParserWithLatestRealToMonotonicTimeOffset,
-} from 'parsers/parser_time_utils';
-import {UserNotifier} from 'services/user_notifier';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
+} from '@parsers/parser_time_utils';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * A collection of parsers loaded from user-provided files.

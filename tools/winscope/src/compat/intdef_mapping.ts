@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import intDefMapping from 'common/intDefMapping.json';
+import intDefMapping from '@common/intDefMapping.json';
 
 /*
  * Wrapper for IntDef json file for easier interop with google3

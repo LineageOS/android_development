@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UiRect} from 'viewers/components/rects/ui_rect';
+import {UiRect} from '@viewers/components/rects/ui_rect';
 import {RectShowState} from './rect_show_state';
 
 export class RectFilter {

@@ -15,16 +15,16 @@
  */
 
 import {TraceEntryValueBuilder} from './trace_entry_value_builder';
-import {QueryResult} from 'trace_processor/query_result';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {makeEntryHierarchyTrees} from 'parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {TraceType} from 'trace_api/trace_type';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+import {QueryResult} from '@trace_processor/query_result';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {makeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
+import {TraceType} from '@trace_api/trace_type';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,
-} from 'trace_processor/test_utils';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+} from '@trace_processor/test_utils';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 describe('TraceEntryValueBuilder', async () => {
   const mockQueryResult: QueryResult = {} as QueryResult;

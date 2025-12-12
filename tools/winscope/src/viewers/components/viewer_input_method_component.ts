@@ -15,15 +15,15 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {ImeUiData} from 'viewers/common/ime_ui_data';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {ImeAdditionalPropertiesComponent} from 'viewers/components/ime_additional_properties_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {ImeUiData} from '@viewers/common/ime_ui_data';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {ImeAdditionalPropertiesComponent} from '@viewers/components/ime_additional_properties_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {viewerCardStyle} from './styles/viewer_card.styles';
 
 @Component({

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {FLAG_SEPARATOR} from 'trace/formatters';
+import {FLAG_SEPARATOR} from '@trace/formatters';
 import {
   DiffValuePart,
   UiPropertyTreeNode,
-} from 'viewers/common/ui_property_tree_node';
+} from '@viewers/common/ui_property_tree_node';
 import {AddDiffs} from './add_diffs';
 import {DiffType} from './diff_type';
 

@@ -19,7 +19,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 
-import {ConnectionState} from 'trace_collection/connection_state';
+import {ConnectionState} from '@trace_collection/connection_state';
 
 /**
  * A component for displaying the Web Device Proxy setup instructions.

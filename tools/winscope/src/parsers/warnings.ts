@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {UserWarning} from 'messaging/user_warning';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
+import {UserWarning} from '@messaging/user_warning';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * A warning for duplicate layer IDs.

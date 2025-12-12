@@ -16,9 +16,9 @@
 
 import {Inject, Injectable, NgZone} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {assertDefined} from 'common/assert';
-import {NotificationType, UserNotification} from 'messaging/user_notification';
-import {UserNotificationListener} from 'messaging/user_notification_listener';
+import {assertDefined} from '@common/assert';
+import {NotificationType, UserNotification} from '@messaging/user_notification';
+import {UserNotificationListener} from '@messaging/user_notification_listener';
 import {SnackBarComponent} from './snack_bar_component';
 
 type Messages = string[];

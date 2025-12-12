@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Circle3D} from 'common/geometry/circle3d';
-import {Point3D} from 'common/geometry/point3d';
+import {Circle3D} from '@common/geometry/circle3d';
+import {Point3D} from '@common/geometry/point3d';
 
 export interface RectLabel {
   circle: Circle3D;

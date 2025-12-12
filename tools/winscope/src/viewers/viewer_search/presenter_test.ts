@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {InMemoryStorage} from 'common/store/in_memory_storage';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {
   InitializeTraceSearchRequest,
   TraceAddRequest,
@@ -23,16 +23,16 @@ import {
   TraceSearchFailed,
   TraceSearchInitialized,
   TraceSearchRequest,
-} from 'trace/trace_events';
-import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {QueryResult} from 'trace_processor/query_result';
-import {makeSearchTraceSpies} from 'trace_processor/test_utils';
+} from '@trace/trace_events';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {QueryResult} from '@trace_processor/query_result';
+import {makeSearchTraceSpies} from '@trace_processor/test_utils';
 import {
   ClearQueryClickDetail,
   DeleteSavedQueryClickDetail,
@@ -40,10 +40,10 @@ import {
   SearchQueryClickDetail,
   TimestampClickDetail,
   ViewerEvents,
-} from 'viewers/common/viewer_events';
+} from '@viewers/common/viewer_events';
 import {Presenter} from './presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('PresenterSearch', () => {
   let presenter: Presenter;

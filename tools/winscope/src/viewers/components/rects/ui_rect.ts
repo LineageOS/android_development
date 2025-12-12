@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {CornerRadii} from 'common/geometry/corner_radii';
-import {Point} from 'common/geometry/point';
-import {Rect} from 'common/geometry/rect';
-import {Region} from 'common/geometry/region';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {Point} from '@common/geometry/point';
+import {Rect} from '@common/geometry/rect';
+import {Region} from '@common/geometry/region';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
 
 export class UiRect extends Rect {
   constructor(

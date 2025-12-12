@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
+import {assertDefined} from '@common/assert';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
 import {
   extractEntries as extractTraceEntries,
   makeEmptyTrace,
-} from 'test/unit/trace_test_helpers';
-import {TracesBuilder} from 'test/unit/traces_builder';
+} from '@test/unit/trace_test_helpers';
+import {TracesBuilder} from '@test/unit/traces_builder';
 import {
   extractEntries,
   extractFrames,
   extractTraces,
-} from 'test/unit/traces_test_helpers';
+} from '@test/unit/traces_test_helpers';
 
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';

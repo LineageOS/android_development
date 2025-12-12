@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {
   TimestampConverter,
   UTC_TIMEZONE_INFO,
-} from 'common/time/timestamp_converter';
-import {getFixtureFile} from 'test/unit/io_helpers';
+} from '@common/time/timestamp_converter';
+import {getFixtureFile} from '@test/unit/io_helpers';
 import {
   TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
   makeElapsedTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {TraceFile} from 'trace/trace_file';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {CanvasEntry} from 'trace/media_based/media_based_trace_entry';
-import {TraceType} from 'trace_api/trace_type';
+} from '@test/unit/time_test_helpers';
+import {TraceFile} from '@trace/trace_file';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {CanvasEntry} from '@trace/media_based/media_based_trace_entry';
+import {TraceType} from '@trace_api/trace_type';
 import {ParserScreenshot} from './parser_screenshot';
 
 describe('ParserScreenshot', () => {

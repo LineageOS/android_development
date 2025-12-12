@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
 import Long from 'long';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {LayersSnapshotProto} from 'compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
+import {LayersSnapshotProto} from '@compat/winscope_protos';
+import {TracePacket, ClockSnapshot} from '@compat/perfetto';
 import root from 'protos/surfaceflinger/udc/json';
 import {android} from 'protos/surfaceflinger/udc/static';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 type LayerTraceProto = android.surfaceflinger.ILayersTraceProto;
 

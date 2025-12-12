@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {removeDirFromFileName} from 'common/io';
+import {removeDirFromFileName} from '@common/io';
 
 /**
  * Represents a trace file loaded into Winscope.

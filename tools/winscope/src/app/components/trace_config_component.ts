@@ -38,18 +38,18 @@ import {
   MatSelectModule,
 } from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {isElementOverflowing} from 'common/dom';
-import {globalConfig} from 'common/global_config';
-import {Store} from 'common/store/store';
+import {assertDefined} from '@common/assert';
+import {isElementOverflowing} from '@common/dom';
+import {globalConfig} from '@common/global_config';
+import {Store} from '@common/store/store';
 import {
   AdvancedConfiguration,
   SelectionConfiguration,
   SelectionOption,
   TraceConfigurationMap,
   updateConfigsFromStore,
-} from 'trace_collection/ui/ui_trace_configuration';
-import {AbstractSelectComponent} from 'viewers/components/abstract_select_component';
+} from '@trace_collection/ui/ui_trace_configuration';
+import {AbstractSelectComponent} from '@viewers/components/abstract_select_component';
 
 /**
  * A component for displaying and editing trace configurations.

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UpdateSfSubtreeDisplayNames} from './update_sf_subtree_display_names';
 
 describe('UpdateDisplayNames', () => {

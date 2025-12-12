@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Box3D} from 'common/geometry/box3d';
+import {Box3D} from '@common/geometry/box3d';
 import {Camera} from './camera';
 import {RectLabel} from './rect_label';
 import {UiRect3D} from './ui_rect3d';

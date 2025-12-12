@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UpdateDisplayNames} from './update_display_names';
 
 describe('UpdateDisplayNames', () => {

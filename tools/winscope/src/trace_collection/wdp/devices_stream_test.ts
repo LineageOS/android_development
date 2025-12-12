@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Timer} from 'common/time/timer';
+import {Timer} from '@common/time/timer';
 import {
   makeFakeWebSocket,
   makeFakeWebSocketMessage,
-} from 'test/unit/web_socket_utils';
+} from '@test/unit/web_socket_utils';
 import {DevicesStream} from './devices_stream';
 
 describe('DevicesStream', () => {
