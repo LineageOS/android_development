@@ -17,6 +17,7 @@
 import {TraceEntry} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {TextFilter} from '@viewers/common/text_filter';
 import {
   LogEntry,
@@ -25,7 +26,6 @@ import {
   UiDataLog,
 } from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
-import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 
 export class UiData implements UiDataLog {
   constructor(
@@ -34,7 +34,9 @@ export class UiData implements UiDataLog {
     public currentIndex: undefined | number,
     public selectedIndex: undefined | number,
     public scrollToIndex: undefined | number,
-    public propertyNodes: undefined | Array<UiTreeNodeRow<UiPropertyTreeNode>>,
+    public propertyNodes:
+      | undefined
+      | Array<FlattenedTreeRow<UiPropertyTreeNode>>,
   ) {}
 
   isFetchingData = false;

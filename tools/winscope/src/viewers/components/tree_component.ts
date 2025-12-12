@@ -30,11 +30,11 @@ import {
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
-import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TreeNodeComponent} from './tree_node_component';
 import {
@@ -60,10 +60,10 @@ export class TreeComponent<T extends UiTreeNode> {
   readonly isRowVisible = (index: number) => {
     return this.virtualScrollViewport?.isIndexVisible(index) ?? false;
   };
-  filteredRows: Array<UiTreeNodeRow<T>> = [];
+  filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
 
-  @Input() nodeRows: Array<UiTreeNodeRow<T>> = [];
+  @Input() nodeRows: Array<FlattenedTreeRow<T>> = [];
   @Input() store: InMemoryStorage | undefined;
   @Input() isFlattened? = false;
   @Input() highlightedItem = '';
@@ -145,7 +145,7 @@ export class TreeComponent<T extends UiTreeNode> {
     }
   }
 
-  onNodeClick(event: MouseEvent, row: UiTreeNodeRow<T>) {
+  onNodeClick(event: MouseEvent, row: FlattenedTreeRow<T>) {
     event.preventDefault();
     if (window.getSelection()?.type === 'range') {
       return;
@@ -175,11 +175,11 @@ export class TreeComponent<T extends UiTreeNode> {
     return !node.isLeaf() || !!this.itemsClickable;
   }
 
-  toggleTree(row: UiTreeNodeRow<T>) {
+  toggleTree(row: FlattenedTreeRow<T>) {
     this.setExpandedValue(row, !this.isExpanded(row));
   }
 
-  expandTree(row: UiTreeNodeRow<T>) {
+  expandTree(row: FlattenedTreeRow<T>) {
     const j = this.setExpandedValue(row, true, false);
     let i = row.originalIndex;
     while (i < j) {
@@ -192,7 +192,10 @@ export class TreeComponent<T extends UiTreeNode> {
     this.updateRenderedNodes();
   }
 
-  expandParentIfCollapsed(row: UiTreeNodeRow<T>, updateRenderedNodes = true) {
+  expandParentIfCollapsed(
+    row: FlattenedTreeRow<T>,
+    updateRenderedNodes = true,
+  ) {
     let prevDepth = row.depth;
     for (let i = row.originalIndex - 1; i >= 0; i--) {
       const prevRow = this.nodeRows[i];
@@ -208,7 +211,7 @@ export class TreeComponent<T extends UiTreeNode> {
     }
   }
 
-  isExpanded(row: UiTreeNodeRow<T>): boolean {
+  isExpanded(row: FlattenedTreeRow<T>): boolean {
     return row.node.isLeaf() || row.localExpandedState;
   }
 
@@ -330,7 +333,7 @@ export class TreeComponent<T extends UiTreeNode> {
   }
 
   private setExpandedValue(
-    row: UiTreeNodeRow<T>,
+    row: FlattenedTreeRow<T>,
     isExpanded: boolean,
     updateRenderedNodes = true,
   ): number {
@@ -398,7 +401,7 @@ class NodeHeightPredictor {
   constructor(
     private readonly getRow: (
       index: number,
-    ) => UiTreeNodeRow<UiTreeNode> | undefined,
+    ) => FlattenedTreeRow<UiTreeNode> | undefined,
     private readonly getViewportWidth: () => number | undefined,
   ) {}
 

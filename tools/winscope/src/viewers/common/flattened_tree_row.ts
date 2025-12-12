@@ -18,10 +18,10 @@ import {UiTreeNode} from './ui_tree_node';
 
 /**
  * Used to represent a flattened UiTreeNode. We flatten a tree to an array of
- * UiTreeNodeRows to take advantage of virtual rendering in the UI.
+ * FlattenedTreeRows to take advantage of virtual rendering in the UI.
  */
 
-export interface UiTreeNodeRow<T extends UiTreeNode> {
+export interface FlattenedTreeRow<T extends UiTreeNode> {
   node: T;
   storeKey: string;
   localExpandedState: boolean;
