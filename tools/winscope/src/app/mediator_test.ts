@@ -339,7 +339,7 @@ describe('Mediator', () => {
       userNotifierChecker.expectNotified([
         makeWarningInvalidLegacyTrace(
           'no_entries_InputMethodClients.pb',
-          'Trace has no entries',
+          'Trace is empty',
         ),
       ]),
     );
