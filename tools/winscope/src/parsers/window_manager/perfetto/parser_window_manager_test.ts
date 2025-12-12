@@ -121,7 +121,7 @@ describe('PerfettoParserWindowManager', () => {
     const state = assertDefined(
       entry.findDfs((node) => node.name === 'EdgeBackGestureHandler0'),
     );
-    const rect = assertDefined(state.getRects()?.[0]);
+    const rect = assertDefined(state.getRects()[0]);
     expect(rect.isDisplay).toBeFalse();
     expect(rect.w).toBe(276);
     expect(rect.h).toBe(704);

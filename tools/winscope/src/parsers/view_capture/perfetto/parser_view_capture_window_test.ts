@@ -70,12 +70,12 @@ describe('PerfettoParserViewCaptureWindow', () => {
     const root = await parser.getEntry(1);
     expect(root).toBeInstanceOf(HierarchyTreeNode);
     expect(root.name).toBe('com.android.internal.policy.DecorView@203589466');
-    expect(root.getRects()?.length).toBe(1);
+    expect(root.getRects().length).toBe(1);
 
     const children = root.getAllChildren();
     expect(children.length).toBe(1);
     expect(children[0].name).toBe('android.widget.LinearLayout@160251275');
-    expect(children[0].getRects()?.length).toBe(1);
+    expect(children[0].getRects().length).toBe(1);
   });
 
   it('sets property default values + formatters', async () => {

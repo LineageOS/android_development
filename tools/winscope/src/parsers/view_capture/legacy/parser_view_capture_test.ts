@@ -148,6 +148,6 @@ describe('ParserViewCapture', () => {
     expect(entry.name).toBe(
       'com.android.launcher3.taskbar.TaskbarDragLayer@265160962',
     );
-    expect(entry.getRects()?.length).toBe(1);
+    expect(entry.getRects().length).toBe(1);
   });
 });
