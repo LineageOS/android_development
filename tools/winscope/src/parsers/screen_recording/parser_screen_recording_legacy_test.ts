@@ -24,11 +24,13 @@ import {
 } from 'trace/media_based/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
+import {spyOnThumbnailGenerator} from './test_helpers';
 
 describe('ParserScreenRecordingLegacy', () => {
   let parser: Parser<MediaBasedTraceEntry>;
 
   beforeAll(async () => {
+    spyOnThumbnailGenerator();
     parser = await new LegacyParserProvider()
       .addFile('traces/elapsed_timestamp/screen_recording.mp4')
       .getParser<MediaBasedTraceEntry>();
@@ -80,10 +82,6 @@ describe('ParserScreenRecordingLegacy', () => {
   it('generates thumbnail', async () => {
     const entry0 = await parser.getEntry(0);
     expect(entry0.thumbnail).toBeDefined();
-    expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
-      width: 450,
-      height: 1000 / 3,
-    });
     const entry1 = await parser.getEntry(1);
     expect(entry1.thumbnail).toEqual(entry0.thumbnail);
   });

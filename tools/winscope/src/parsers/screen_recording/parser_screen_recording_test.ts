@@ -27,9 +27,14 @@ import {
 } from 'trace/media_based/media_based_trace_entry';
 import {Parser} from 'trace_api/parser';
 import {TraceType} from 'trace_api/trace_type';
+import {spyOnThumbnailGenerator} from './test_helpers';
 
 describe('ParserScreenRecording', () => {
   let parser: Parser<MediaBasedTraceEntry>;
+
+  beforeAll(() => {
+    spyOnThumbnailGenerator();
+  });
 
   describe('metadata v2', () => {
     beforeAll(async () => {
@@ -78,10 +83,6 @@ describe('ParserScreenRecording', () => {
     it('generates thumbnail', async () => {
       const entry0 = await parser.getEntry(0);
       expect(entry0.thumbnail).toBeDefined();
-      expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
-        width: 600,
-        height: 1000 / 3,
-      });
       const entry1 = await parser.getEntry(1);
       expect(entry1.thumbnail).toEqual(entry0.thumbnail);
     });
@@ -134,10 +135,6 @@ describe('ParserScreenRecording', () => {
     it('generates thumbnail', async () => {
       const entry0 = await parser.getEntry(0);
       expect(entry0.thumbnail).toBeDefined();
-      expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
-        width: 600,
-        height: 1000 / 3,
-      });
       const entry1 = await parser.getEntry(1);
       expect(entry1.thumbnail).toEqual(entry0.thumbnail);
     });
@@ -203,10 +200,6 @@ describe('ParserScreenRecording', () => {
     it('generates thumbnail', async () => {
       const entry0 = await parser.getEntry(0);
       expect(entry0.thumbnail).toBeDefined();
-      expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
-        width: 900,
-        height: 1000 / 3,
-      });
       const entry1 = await parser.getEntry(1);
       expect(entry1.thumbnail).toEqual(entry0.thumbnail);
     });
@@ -318,10 +311,6 @@ describe('ParserScreenRecording', () => {
       it('generates thumbnail', async () => {
         const entry0 = await parser.getEntry(0);
         expect(entry0.thumbnail).toBeDefined();
-        expect(entry0.thumbnail?.getBackgroundSize()).toEqual({
-          width: 900,
-          height: 1000 / 3,
-        });
         const entry1 = await parser.getEntry(1);
         expect(entry1.thumbnail).toEqual(entry0.thumbnail);
       });

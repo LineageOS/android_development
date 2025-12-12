@@ -25,17 +25,19 @@ import {
 import {TraceType} from 'trace_api/trace_type';
 import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
 import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
-import {generateThumbnail} from './thumbnail_generator';
 import {Thumbnail} from 'trace/media_based/thumbnail';
+import {ThumbnailGenerator} from './thumbnail_generator';
 
 export class ParserScreenRecordingLegacy extends AbstractParser<
   MediaBasedTraceEntry,
   bigint
 > {
   private thumbnail: Thumbnail | undefined;
+  private thumbnailGenerator: ThumbnailGenerator | undefined;
 
   onDestroy() {
     this.thumbnail?.onDestroy();
+    this.thumbnailGenerator?.onDestroy();
   }
 
   override getTraceType(): TraceType {
@@ -58,7 +60,7 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
     const posCount = this.searchMagicString(videoData);
     const [posTimestamps, count] = parseIntFromBuffer(videoData, posCount);
     const timestamps = this.parseVideoData(videoData, posTimestamps, count);
-    this.thumbnail = await generateThumbnail(videoData);
+    this.queueThumbnailGeneration(videoData);
     return timestamps;
   }
 
@@ -104,6 +106,17 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
       timestamps.push(timestamp * BigInt(TIME_UNIT_TO_NANO.us));
     }
     return timestamps;
+  }
+
+  private queueThumbnailGeneration(videoData: Uint8Array) {
+    if (this.thumbnail) {
+      return;
+    }
+    this.thumbnailGenerator = new ThumbnailGenerator().setVideoData(videoData);
+    this.thumbnailGenerator.generate().then((thumbnail) => {
+      this.thumbnail = thumbnail;
+      this.thumbnailGenerator = undefined;
+    });
   }
 
   private static readonly MPEG4_MAGIC_NUMBER = [
