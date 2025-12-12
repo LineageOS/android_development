@@ -89,12 +89,12 @@ export class ParserFactory {
             p.getWindowParsers().forEach((subParser) => {
               assertTrue(
                 subParser.getLengthEntries() > 0,
-                () => 'Trace has no entries',
+                () => 'Trace is empty',
               );
               parsers.push(new FileAndParser(traceFile, subParser));
             });
           } else {
-            assertTrue(p.getLengthEntries() > 0, () => 'Trace has no entries');
+            assertTrue(p.getLengthEntries() > 0, () => 'Trace is empty');
             parsers.push({file: traceFile, parser: p});
           }
           break;
