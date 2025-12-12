@@ -45,6 +45,9 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from './viewer_events';
+import {flattenNodesToRows} from './ui_tree_node_helpers';
+import {UiPropertyTreeNode} from './ui_property_tree_node';
+import {UiTreeNodeRow} from './ui_tree_node_row';
 
 export type NotifyLogViewCallbackType<UiData> = (uiData: UiData) => void;
 export type FilterOptionSorter = (a: string, b: string) => number;
@@ -323,7 +326,9 @@ export abstract class AbstractLogViewerPresenter<
     this.uiData.scrollToIndex = this.logPresenter.getScrollToIndex();
     this.uiData.currentIndex = this.logPresenter.getCurrentIndex();
     if (this.propertiesPresenter) {
-      this.uiData.propertiesTree = this.propertiesPresenter.getFormattedTree();
+      this.uiData.propertyNodes = this.flattenProperties(
+        this.propertiesPresenter?.getFormattedTree(),
+      );
       this.uiData.propertiesUserOptions =
         this.propertiesPresenter.getUserOptions();
       this.uiData.propertiesFilter = this.propertiesPresenter.getTextFilter();
@@ -344,7 +349,9 @@ export abstract class AbstractLogViewerPresenter<
     this.uiData.currentIndex = this.logPresenter.getCurrentIndex();
     if (this.propertiesPresenter) {
       await this.updatePropertiesTree();
-      this.uiData.propertiesTree = this.propertiesPresenter.getFormattedTree();
+      this.uiData.propertyNodes = this.flattenProperties(
+        this.propertiesPresenter?.getFormattedTree(),
+      );
     }
 
     this.notifyViewChanged();
@@ -366,7 +373,9 @@ export abstract class AbstractLogViewerPresenter<
         this.keepCalculated ?? false,
         this.trace.type,
       );
-      this.uiData.propertiesTree = this.propertiesPresenter.getFormattedTree();
+      this.uiData.propertyNodes = this.flattenProperties(
+        this.propertiesPresenter?.getFormattedTree(),
+      );
       Analytics.Navigation.logFetchComponentDataTime(
         'properties',
         traceName,
@@ -410,6 +419,20 @@ export abstract class AbstractLogViewerPresenter<
         : undefined;
     }
     return undefined;
+  }
+
+  protected flattenProperties(
+    tree: UiPropertyTreeNode | undefined,
+  ): Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined {
+    if (!tree) {
+      return undefined;
+    }
+    return flattenNodesToRows(
+      [tree],
+      true,
+      false,
+      assertDefined(this.propertiesPresenter).getHighlightedProperty(),
+    );
   }
 
   protected async updateFilterByCustomQuery(header: LogHeader) {
