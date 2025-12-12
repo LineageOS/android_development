@@ -200,16 +200,14 @@ the default for its data type.`,
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiData) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
     expect(
-      assertDefined(
-        propertiesTree.getChildByName('activity')?.getChildByName('state'),
-      ).formattedValue(),
+      propertyNodes.find((r) => r.node.name === 'state')?.node.formattedValue(),
     ).toBe('STOPPED');
     expect(
-      assertDefined(
-        propertiesTree.findDfs((node) => node.name === 'hashCode'),
-      ).formattedValue(),
+      propertyNodes
+        .find((r) => r.node.name === 'hashCode')
+        ?.node.formattedValue(),
     ).toBe('0xf7092ed');
     expect(uiData.displays).toEqual([
       {
@@ -222,16 +220,14 @@ the default for its data type.`,
   }
 
   override executeSpecializedChecksForPropertiesFromRect(uiData: UiData) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
-    expect(propertiesTree.getAllChildren()[0].getAllChildren().length).toBe(6);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
+    expect(propertyNodes.length).toBe(40);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(uiData: UiData) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
     expect(
-      assertDefined(
-        propertiesTree.getChildByName('activity')?.getChildByName('state'),
-      ).formattedValue(),
+      propertyNodes.find((r) => r.node.name === 'state')?.node.formattedValue(),
     ).toBe('RESUMED');
   }
 

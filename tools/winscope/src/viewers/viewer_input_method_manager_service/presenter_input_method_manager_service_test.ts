@@ -41,6 +41,7 @@ class PresenterInputMethodManagerServiceTest extends AbstractPresenterInputMetho
       })
       .build();
   }
+
   override getPropertiesTree(): PropertyTreeNode {
     return new PropertyTreeBuilder()
       .setRootId('TestNode')

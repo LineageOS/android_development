@@ -160,11 +160,11 @@ the default for its data type.`,
       return;
     }
     const token = (node.getValue<number>() ?? 0).toString(16);
-    const target = this.uiData.hierarchyTrees
-      ?.at(0)
-      ?.findDfs((node) => node.id.includes(token));
+    const target = this.uiData.hierarchyNodes?.find((node) =>
+      node.node.id.includes(token),
+    );
     if (target) {
-      await this.onHighlightedNodeChange(target);
+      await this.onHighlightedNodeChange(target.node as UiHierarchyTreeNode);
     }
   }
 

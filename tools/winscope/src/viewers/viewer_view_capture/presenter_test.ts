@@ -198,13 +198,15 @@ the default for its data type.`,
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataHierarchy) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
     expect(
-      assertDefined(
-        propertiesTree.getChildByName('translationY'),
-      ).formattedValue(),
+      propertyNodes
+        .find((row) => row.node.name === 'translationY')
+        ?.node.formattedValue(),
     ).toBe('786.506');
-    expect(propertiesTree.getChildByName('translationX')).toBeUndefined();
+    expect(
+      propertyNodes.find((row) => row.node.name === 'translationX'),
+    ).toBeUndefined();
     expect(uiData.displays).toEqual([
       {displayId: 0, groupId: 0, name: 'PhoneWindow@4f9be60', isActive: true},
     ]);
@@ -218,11 +220,11 @@ the default for its data type.`,
   override executePropertiesChecksAfterSecondPositionUpdate(
     uiData: UiDataHierarchy,
   ) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
     expect(
-      assertDefined(
-        propertiesTree.getChildByName('translationY'),
-      ).formattedValue(),
+      propertyNodes
+        .find((row) => row.node.name === 'translationY')
+        ?.node.formattedValue(),
     ).toBe('785.500');
     expect(
       assertDefined((uiData as UiData).curatedProperties).translationY,
@@ -336,11 +338,11 @@ the default for its data type.`,
         const nodeName =
           'com.android.launcher3.allapps.AllAppsRecyclerView@188184411';
         await presenter.onHighlightedIdChange(nodeName);
-        expect(uiData.propertiesTree).toBeDefined();
+        expect(uiData.propertyNodes?.length).toBeGreaterThan(0);
         expect(uiData.curatedProperties).toBeDefined();
 
         await presenter.onAppEvent(assertDefined(this.secondPositionUpdate));
-        expect(uiData.propertiesTree).toBeUndefined();
+        expect(uiData.propertyNodes).toBeUndefined();
         expect(uiData.curatedProperties).toBeUndefined();
       });
 

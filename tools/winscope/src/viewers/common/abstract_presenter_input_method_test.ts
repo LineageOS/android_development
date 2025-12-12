@@ -168,14 +168,18 @@ the default for its data type.`,
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataHierarchy) {
-    const trees = assertDefined(uiData.hierarchyTrees);
+    const trees = assertDefined(uiData.hierarchyNodes).filter(
+      (t) => t.depth === 0,
+    );
     expect(trees.length).toBe(this.numberOfNestedChildren);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(
     uiData: UiDataHierarchy,
   ) {
-    const trees = assertDefined(uiData.hierarchyTrees);
+    const trees = assertDefined(uiData.hierarchyNodes).filter(
+      (t) => t.depth === 0,
+    );
     expect(trees.length).toBe(1);
   }
 
@@ -233,7 +237,7 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
         expect(uiData.hierarchyUserOptions).toBeTruthy();
         expect(uiData.propertiesUserOptions).toBeTruthy();
-        expect(uiData.hierarchyTrees).toBeDefined();
+        expect(uiData.hierarchyNodes?.length).toBeGreaterThan(0);
       });
 
       it('is robust to traces without WM', async () => {
@@ -241,7 +245,7 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
         expect(uiData.hierarchyUserOptions).toBeTruthy();
         expect(uiData.propertiesUserOptions).toBeTruthy();
-        expect(uiData.hierarchyTrees).toBeDefined();
+        expect(uiData.hierarchyNodes?.length).toBeGreaterThan(0);
       });
 
       it('is robust to traces without WM and SF', async () => {
@@ -249,36 +253,36 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
         expect(uiData.hierarchyUserOptions).toBeTruthy();
         expect(uiData.propertiesUserOptions).toBeTruthy();
-        expect(uiData.hierarchyTrees).toBeDefined();
+        expect(uiData.hierarchyNodes?.length).toBeGreaterThan(0);
       });
 
       it('can set new additional properties tree and associated ui data from hierarchy tree node', async () => {
         setUpPresenter([imeTraceType, TraceType.WINDOW_MANAGER]);
-        expect(uiData.propertiesTree).toBeUndefined();
+        expect(uiData.propertyNodes).toBeUndefined();
         await presenter.onAppEvent(this.getPositionUpdate());
         await presenter.onAdditionalPropertySelected({
           name: 'Test Tree',
           treeNode: this.getSelectedTree(),
         });
-        expect(assertDefined(uiData.propertiesTree).getDisplayName()).toEqual(
-          'Test Tree',
-        );
+        expect(
+          assertDefined(uiData.propertyNodes?.at(0)).node.getDisplayName(),
+        ).toEqual('Test Tree');
         expect(uiData.highlightedItem).toEqual(this.getSelectedTree().id);
       });
 
       it('can set new properties tree and associated ui data from id', async () => {
         setUpPresenter([imeTraceType, TraceType.WINDOW_MANAGER]);
-        expect(uiData.propertiesTree).toBeUndefined();
+        expect(uiData.propertyNodes).toBeUndefined();
         await presenter.onAppEvent(this.getPositionUpdate());
 
         const selectedTree = this.getSelectedTree();
         await presenter.onHighlightedIdChange(selectedTree.id);
-        const propertiesTree = assertDefined(uiData.propertiesTree);
+        const propertiesTree = assertDefined(uiData.propertyNodes?.at(0)).node;
         expect(propertiesTree.getDisplayName()).toEqual(selectedTree.name);
         expect(uiData.highlightedItem).toEqual(this.getSelectedTree().id);
 
         await presenter.onHighlightedIdChange(selectedTree.id);
-        expect(uiData.propertiesTree).toEqual(propertiesTree);
+        expect(uiData.propertyNodes?.at(0)?.node).toEqual(propertiesTree);
         expect(uiData.highlightedItem).toBe('');
       });
 
@@ -289,13 +293,15 @@ the default for its data type.`,
             return;
           }
           setUpPresenter([imeTraceType]);
-          expect(uiData.propertiesTree).toBeUndefined();
+          expect(uiData.propertyNodes).toBeUndefined();
           await presenter.onAppEvent(this.getPositionUpdate());
           await presenter.onAdditionalPropertySelected({
             name: 'Additional Properties Tree',
             treeNode: selectedPropertyTree,
           });
-          const propertiesTree = assertDefined(uiData.propertiesTree);
+          const propertiesTree = assertDefined(
+            uiData.propertyNodes?.at(0),
+          ).node;
           expect(propertiesTree.getDisplayName()).toEqual(
             'Additional Properties Tree',
           );
@@ -307,7 +313,7 @@ the default for its data type.`,
           // clears additional property tree selection
           const selectedTree = this.getSelectedTree();
           await presenter.onHighlightedIdChange(selectedTree.id);
-          expect(uiData.propertiesTree?.getDisplayName()).toEqual(
+          expect(uiData.propertyNodes?.at(0)?.node.getDisplayName()).toEqual(
             selectedTree.name,
           );
         });
