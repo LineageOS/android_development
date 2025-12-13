@@ -28,17 +28,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 @Component({
   selector: 'single-timeline',
   standalone: true,
-  template: `
-    <div
-      class="single-timeline"
-      (click)="onTimelineClick($event)"
-      [style.background-color]="getBackgroundColor()" #wrapper>
-      <canvas
-        id="canvas"
-        (mousemove)="trackMousePos($event)"
-        (mouseleave)="onMouseLeave($event)" #canvas></canvas>
-    </div>
-  `,
+  templateUrl: './default_timeline_row_component.ng.html',
   styleUrls: ['default_timeline_row_component.css'],
 })
 export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<unknown> {

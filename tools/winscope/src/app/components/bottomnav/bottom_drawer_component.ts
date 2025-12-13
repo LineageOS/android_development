@@ -82,11 +82,7 @@ const transformDrawer: AnimationTriggerMetadata =
   exportAs: 'matDrawer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="mat-drawer-inner-container" #content>
-      <ng-content></ng-content>
-    </div>
-  `,
+  templateUrl: './bottom_drawer_component.ng.html',
   styleUrls: ['bottom_drawer_component.css'],
   animations: [transformDrawer],
   host: {
