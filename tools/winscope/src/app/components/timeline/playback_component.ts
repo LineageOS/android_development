@@ -47,7 +47,7 @@ import {Analytics} from 'logging/analytics';
         <button
           mat-icon-button
           class="no-touch-target-button"
-          id="play-reverse-playback-button"
+          id="start-reverse-playback-button"
           matTooltip="Play backwards"
           (click)="changePlaybackState(PlaybackState.BACKWARDS)">
           <mat-icon class="force-icon-flip"
@@ -68,7 +68,7 @@ import {Analytics} from 'logging/analytics';
         <button
           mat-icon-button
           class="no-touch-target-button"
-          id="play-playback-button"
+          id="start-playback-button"
           matTooltip="Play forwards"
           (click)="changePlaybackState(PlaybackState.FORWARDS)">
           <mat-icon [class.material-symbols-outlined]="currentState !== PlaybackState.FORWARDS"

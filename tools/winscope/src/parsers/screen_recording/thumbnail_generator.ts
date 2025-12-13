@@ -15,9 +15,7 @@
  */
 
 import {assertDefined} from 'common/assert';
-import {MediaBasedFrame} from 'trace/media_based/media_based_frame';
 import {Thumbnail} from 'trace/media_based/thumbnail';
-import {parseWebCodecData} from 'trace/media_based/helpers';
 import {getLogger} from 'compat/logging';
 
 class ThumbnailBuilder {
@@ -58,7 +56,7 @@ class ThumbnailBuilder {
     return this;
   }
 
-  build() {
+  build(): Thumbnail {
     return new Thumbnail(
       assertDefined(this.totalSprites),
       assertDefined(this.spriteHeight),
@@ -70,122 +68,76 @@ class ThumbnailBuilder {
   }
 }
 
-export async function generateThumbnail(
-  videoData: Uint8Array,
-): Promise<Thumbnail | undefined> {
-  const logger = getLogger('ParserScreenRecording');
-  try {
-    const {chunks, config, rotationAngle} = await parseWebCodecData(videoData);
+export class ThumbnailGenerator {
+  private videoData: Uint8Array | undefined;
+  private worker: Worker | undefined;
 
-    const unrotatedSpriteWidth = FIXED_SPRITE_WIDTH;
-    const unrotatedSpriteHeight =
-      (assertDefined(config.codedHeight) * FIXED_SPRITE_WIDTH) /
-      assertDefined(config.codedWidth);
+  onDestroy() {
+    this.worker?.terminate();
+  }
 
-    const shouldFlip = rotationAngle % 180 !== 0;
-    const rotatedSpriteWidth = shouldFlip
-      ? unrotatedSpriteHeight
-      : FIXED_SPRITE_WIDTH;
-    const rotatedSpriteHeight = shouldFlip
-      ? FIXED_SPRITE_WIDTH
-      : unrotatedSpriteHeight;
+  setVideoData(value: Uint8Array): this {
+    this.videoData = value;
+    return this;
+  }
 
-    const maxPossibleSprites = Math.max(
-      1,
-      Math.floor((chunks.length - 1) / DEFAULT_SPRITE_FRAME_INTERVAL),
-    );
-    const spritesPerRow = Math.min(
-      maxPossibleSprites,
-      Math.floor(CANVAS_MAX_DIM / rotatedSpriteWidth),
-    );
-    const numRows = Math.min(
-      Math.ceil(maxPossibleSprites / spritesPerRow),
-      Math.floor(CANVAS_MAX_DIM / rotatedSpriteHeight),
-    );
-    const totalSprites = Math.min(maxPossibleSprites, spritesPerRow * numRows);
-    const spriteInterval = Math.floor(chunks.length / totalSprites);
-
-    const canvas = new OffscreenCanvas(
-      rotatedSpriteWidth * spritesPerRow,
-      rotatedSpriteHeight * numRows,
-    );
-
-    let decoder: VideoDecoder | undefined;
-    let decodingQueue = Promise.resolve();
-    let spriteCount = 0;
-    let distanceFromLastSprite = 0;
-
-    const onOutput = (frame: VideoFrame) => {
-      if (decoder?.state === 'closed' || spriteCount >= totalSprites) {
-        frame.close();
-        return;
-      }
-
-      if (distanceFromLastSprite === 0) {
-        decodingQueue = decodingQueue.then(async () => {
-          const xOffset =
-            Math.floor(spriteCount % spritesPerRow) * rotatedSpriteWidth;
-          const yOffset =
-            Math.floor(spriteCount / spritesPerRow) * rotatedSpriteHeight;
-
-          new MediaBasedFrame(
-            frame,
-            rotationAngle,
-            {x: xOffset, y: yOffset},
-            {width: unrotatedSpriteWidth, height: unrotatedSpriteHeight},
-          ).tryDrawOnCanvas(canvas, false);
-
-          spriteCount++;
-          frame.close();
-        });
-      } else {
-        frame.close();
-      }
-
-      distanceFromLastSprite = (distanceFromLastSprite + 1) % spriteInterval;
-    };
-
+  async generate(): Promise<Thumbnail | undefined> {
+    const logger = getLogger('ThumbnailGenerator');
     try {
-      decoder = new VideoDecoder({
-        output: (frame) => {
-          onOutput(frame);
-        },
-        error: (e) => {
-          logger.error(e.message);
-        },
-      });
-      decoder.configure(config);
-
-      const chunksToDecode = chunks.slice(
-        0,
-        Math.min(chunks.length, totalSprites * spriteInterval + 1),
+      const worker = new Worker(
+        new URL('./thumbnail_generator_worker', import.meta.url),
+        {type: 'module'},
       );
-      for (const chunk of chunksToDecode) {
-        decoder.decode(chunk);
-      }
+      this.worker = worker;
+      const workerData = await new Promise<ThumbnailGeneratorWorkerData>(
+        (resolve, reject) => {
+          worker.onerror = (error) => {
+            reject(error?.message);
+          };
+          worker.onmessage = (
+            event: MessageEvent<ThumbnailGeneratorWorkerData>,
+          ) => {
+            if (event.data.log !== undefined) {
+              logger.debug(event.data.log);
+            }
 
-      await decoder.flush();
-      await decodingQueue;
-      decoder.close();
+            if (event.data.error !== undefined) {
+              logger.error(event.data.error.message);
+              worker.terminate();
+              reject(event.data.error.message);
+            }
+
+            if (event.data.buffer !== undefined) {
+              worker.terminate();
+              resolve(event.data);
+            }
+          };
+          const arrayBuffer = assertDefined(this.videoData).buffer;
+          worker.postMessage(arrayBuffer, [arrayBuffer]);
+        },
+      );
+      return new ThumbnailBuilder()
+        .setTotalSprites(assertDefined(workerData.totalSprites))
+        .setSpriteHeight(assertDefined(workerData.rotatedSpriteHeight))
+        .setSpriteWidth(assertDefined(workerData.rotatedSpriteWidth))
+        .setSpriteSheet(new Blob([assertDefined(workerData.buffer)]))
+        .setSheetHeight(assertDefined(workerData.sheetHeight))
+        .setSheetWidth(assertDefined(workerData.sheetWidth))
+        .build();
     } catch (e) {
-      logger.error((e as Error).message);
+      logger.error(e ? (e as Error).message : 'Failed to generate thumbnail.');
+      return undefined;
     }
-
-    const spriteSheetBlob = await canvas.convertToBlob();
-    return new ThumbnailBuilder()
-      .setTotalSprites(totalSprites)
-      .setSpriteHeight(rotatedSpriteHeight)
-      .setSpriteWidth(rotatedSpriteWidth)
-      .setSpriteSheet(spriteSheetBlob)
-      .setSheetHeight(canvas.height)
-      .setSheetWidth(canvas.width)
-      .build();
-  } catch (e) {
-    logger.error((e as Error).message);
-    return undefined;
   }
 }
 
-const DEFAULT_SPRITE_FRAME_INTERVAL = 25;
-const CANVAS_MAX_DIM = 8000;
-const FIXED_SPRITE_WIDTH = 300;
+interface ThumbnailGeneratorWorkerData {
+  log?: string;
+  error?: Error;
+  buffer?: ArrayBuffer;
+  totalSprites?: number;
+  rotatedSpriteHeight?: number;
+  rotatedSpriteWidth?: number;
+  sheetHeight?: number;
+  sheetWidth?: number;
+}
