@@ -20,7 +20,10 @@ import {FileAndParser} from '@parsers/file_and_parser';
 import {ShellHandlerMappings} from '@compat/winscope_protos';
 import {ClockSnapshot} from '@compat/perfetto';
 import {com} from 'protos/transitions/udc/static';
-import {convertToPerfettoTrace, getTracesParser} from '@test/unit/fixture_utils';
+import {
+  convertToPerfettoTrace,
+  getTracesParser,
+} from '@test/unit/fixture_utils';
 import {
   getTimestampConverter,
   makeRealTimestamp,

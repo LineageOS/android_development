@@ -57,25 +57,7 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
       <p class="mat-body-1">null</p>
     }
   `,
-  styles: [
-    `
-      .table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .table td {
-        padding: 1px 5px;
-        border: 1px solid var(--border-color);
-        text-align: center;
-        overflow-wrap: anywhere;
-      }
-
-      .header-row td {
-        color: gray;
-      }
-    `,
-  ],
+  styleUrls: ['coordinates_table_component.css'],
 })
 export class CoordinatesTableComponent {
   @Input() coordinates: UiPropertyTreeNode | undefined;

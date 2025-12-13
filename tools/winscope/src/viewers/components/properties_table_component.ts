@@ -37,26 +37,7 @@ import {TableProperties} from '@viewers/common/table_properties';
       </table>
     }
   `,
-  styles: [
-    `
-      .table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .table-cell-name,
-      .table-cell-value {
-        padding: 1px 5px;
-        border: 1px solid var(--border-color);
-        overflow-wrap: anywhere;
-      }
-
-      .table-cell-name {
-        width: 20%;
-        background-color: rgba(158, 192, 200, 0.281);
-      }
-    `,
-  ],
+  styleUrls: ['properties_table_component.css'],
 })
 export class PropertiesTableComponent {
   objectEntries = Object.entries;

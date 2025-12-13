@@ -34,40 +34,7 @@ import {CollapsibleSections} from '@viewers/common/collapsible_sections';
         </span>
       }
     `,
-  styles: [
-    `
-      :host {
-        font: 12px 'Roboto', sans-serif;
-        font-weight: bold;
-        margin: 4px 4px 4px 0px;
-      }
-      :host.empty {
-        display: none;
-      }
-      .collapsed-section {
-        cursor: pointer;
-        padding-top: 5px;
-        margin-bottom: 4px;
-        background-color: var(--side-bar-color);
-        color: var(--contrast-text-color);
-        border-radius: 0px 4px 4px 0px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .collapsed-section-text {
-        rotate: 180deg;
-        writing-mode: vertical-lr;
-      }
-      .mat-icon {
-        font-size: 22px;
-        width: 22px;
-        height: 22px;
-        line-height: 22px;
-        display: flex;
-      }
-    `,
-  ],
+  styleUrls: ['collapsed_sections_component.css'],
 })
 export class CollapsedSectionsComponent {
   @Input() sections: CollapsibleSections | undefined;
