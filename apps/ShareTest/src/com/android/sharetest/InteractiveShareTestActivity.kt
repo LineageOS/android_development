@@ -30,10 +30,10 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.service.chooser.ChooserManager
 import android.service.chooser.ChooserSession
+import android.service.chooser.ChooserSessionToken
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -58,17 +58,17 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val SESSION_KEY = "chooser-session"
+
 @AndroidEntryPoint(value = FragmentActivity::class)
 class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     private val TAG = "ShareTest/$hashId"
     private var chooserWindowTopOffset = MutableStateFlow(OffsetInfo(-1, Color.Red))
-    private val isInMultiWindowMode = MutableStateFlow<Boolean>(false)
-    private val viewModel: InteractiveShareTestViewModel by viewModels()
+    private val isInMultiWindowMode = MutableStateFlow(false)
     private lateinit var chooserManager: ChooserManager
-    private val chooserSession: MutableStateFlow<ChooserSession?>
-        get() = viewModel.chooserSession
+    private val chooserSession = MutableStateFlow<ChooserSession?>(null)
 
-    private val useRefinementFlow = MutableStateFlow<Boolean>(false)
+    private val useRefinementFlow = MutableStateFlow(false)
     private val refinementReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
@@ -109,6 +109,7 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
 
         val cm = getSystemService(ChooserManager::class.java)
@@ -118,6 +119,13 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
             return
         }
         chooserManager = cm
+
+        savedInstanceState?.getParcelable(SESSION_KEY, ChooserSessionToken::class.java)?.let {
+            chooserSession.value =
+                chooserManager.getSession(it)?.also { session ->
+                    Log.d(TAG, "restoring session: $session, state: ${session.state}")
+                }
+        }
 
         isInMultiWindowMode.value = isInMultiWindowMode()
 
@@ -191,6 +199,16 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        chooserSession.value
+            ?.takeIf { it.isActive }
+            ?.let {
+                Log.d(TAG, "saving session: $it, state: ${it.state}")
+                outState.putParcelable(SESSION_KEY, it.token)
+            }
     }
 
     override fun onStop() {
@@ -287,6 +305,7 @@ class InteractiveShareTestActivity : Hilt_InteractiveShareTestActivity() {
     }
 
     private fun closeChooser() {
+        Log.d(TAG, "close chooser")
         chooserSession.value = null
     }
 

@@ -140,13 +140,13 @@ describe('PerfettoParserSurfaceFlinger', () => {
       const overlay = assertDefined(
         entry.findDfs(makeIdMatchFilter('60 ScreenDecorOverlay#60')),
       );
-      const layerRect = assertDefined(overlay.getRects()?.[0]);
+      const layerRect = assertDefined(overlay.getRects()[0]);
       expect(layerRect.isDisplay).toBeFalse();
       expect(layerRect.w).toBe(1080);
       expect(layerRect.h).toBe(118);
       expect(layerRect.fillRegion).toBeUndefined();
 
-      const inputRect = assertDefined(overlay.getSecondaryRects()?.[0]);
+      const inputRect = assertDefined(overlay.getSecondaryRects()[0]);
       expect(inputRect.isDisplay).toBeFalse();
       expect(inputRect.w).toBe(1080);
       expect(inputRect.h).toBe(118);

@@ -232,7 +232,7 @@ the default for its data type.`,
       ),
     );
     const rect = assertDefined(
-      this.selectedTreeAfterPositionUpdate.getRects()?.at(0),
+      this.selectedTreeAfterPositionUpdate.getRects().at(0),
     );
     Object.assign(rect, {isVisible: false});
   }

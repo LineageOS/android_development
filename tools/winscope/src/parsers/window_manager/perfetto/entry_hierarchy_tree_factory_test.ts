@@ -161,7 +161,7 @@ describe('EntryHierarchyTreeFactory', () => {
 
       expect(
         assertDefined(trees[1].getChildByName('Container1')).getRects(),
-      ).toBeUndefined();
+      ).toEqual([]);
 
       rects = assertDefined(trees[2].getChildByName('Container1')?.getRects());
       expect(rects.length).toBe(1);

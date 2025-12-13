@@ -29,8 +29,8 @@ import {TreeNode} from './tree_node';
  * A node in a hierarchy tree.
  */
 export class HierarchyTreeNode extends TreeNode {
-  private rects: TraceRect[] | undefined;
-  private secondaryRects: TraceRect[] | undefined;
+  private rects: TraceRect[] = [];
+  private secondaryRects: TraceRect[] = [];
   private zParent: HierarchyTreeNode | undefined;
   private parent: this | undefined;
   private readonly relativeChildren: HierarchyTreeNode[] = [];
@@ -67,7 +67,7 @@ export class HierarchyTreeNode extends TreeNode {
     this.rects = value;
   }
 
-  getRects(): TraceRect[] | undefined {
+  getRects(): TraceRect[] {
     return this.rects;
   }
 
@@ -75,7 +75,7 @@ export class HierarchyTreeNode extends TreeNode {
     this.secondaryRects = value;
   }
 
-  getSecondaryRects(): TraceRect[] | undefined {
+  getSecondaryRects(): TraceRect[] {
     return this.secondaryRects;
   }
 
