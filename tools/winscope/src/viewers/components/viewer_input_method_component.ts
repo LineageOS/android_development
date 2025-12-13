@@ -36,51 +36,7 @@ import {viewerCardStyle} from './styles/viewer_card.styles';
     PropertiesComponent,
     ImeAdditionalPropertiesComponent,
   ],
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-        [class.empty]="sections.areAllSectionsExpanded()"
-        [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-
-      @if (!areLeftViewsCollapsed()) {
-        <div class="left-views">
-          <hierarchy-view
-            class="hierarchy-view"
-            [trees]="this.inputData?.hierarchyTrees ?? []"
-            [dependencies]="inputData ? [inputData.traceType] : []"
-            [highlightedItem]="inputData?.highlightedItem"
-            [pinnedItems]="inputData?.pinnedItems ?? []"
-            [tableProperties]="inputData?.hierarchyTableProperties"
-            [textFilter]="inputData?.hierarchyFilter"
-            [store]="store"
-            [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-            placeholderText="No IME entry found."></hierarchy-view>
-          <ime-additional-properties
-            class="ime-additional-properties"
-            [isImeManagerService]="isImeManagerService()"
-            [highlightedItem]="inputData?.highlightedItem ?? ''"
-            [additionalProperties]="inputData?.additionalProperties"
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"></ime-additional-properties>
-        </div>
-      }
-
-      <properties-view
-        class="properties-view"
-        [store]="store"
-        [userOptions]="inputData?.propertiesUserOptions ?? {}"
-        [propertiesTree]="inputData?.propertiesTree"
-        [traceType]="inputData?.traceType"
-        [textFilter]="inputData?.propertiesFilter"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-        placeholderText="No selected item."></properties-view>
-    </div>
-  `,
+  templateUrl: './viewer_input_method_component.ng.html',
   styles: [
     `
       .left-views {

@@ -25,23 +25,10 @@ import {UiData} from './ui_data';
   selector: 'viewer-protolog',
   standalone: true,
   imports: [CommonModule, LogComponent],
-  template: `
-    <div class="card-grid">
-       <log-view
-        class="log-view"
-        [selectedIndex]="inputData?.selectedIndex"
-        [scrollToIndex]="inputData?.scrollToIndex"
-        [currentIndex]="inputData?.currentIndex"
-        [entries]="inputData?.entries ?? []"
-        [headers]="inputData?.headers ?? []"
-        [traceType]="${TraceType.PROTO_LOG}"
-        [isFetchingData]="inputData?.isFetchingData"
-        [checkScrollViewport]="inputData?.checkScrollViewport">
-      </log-view>
-    </div>
-  `,
+  templateUrl: './viewer_protolog_component.ng.html',
   styles: [viewerCardStyle],
 })
 export class ViewerProtologComponent extends ViewerComponent<UiData> {
   @ViewChild(LogComponent) logComponent?: LogComponent;
+  TraceType = TraceType;
 }

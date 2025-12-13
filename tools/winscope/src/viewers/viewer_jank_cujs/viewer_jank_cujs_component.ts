@@ -25,25 +25,10 @@ import {UiData} from './ui_data';
   selector: 'viewer-jank-cujs',
   standalone: true,
   imports: [CommonModule, LogComponent],
-  template: `
-    <div class="card-grid">
-       <log-view
-        class="log-view"
-        [selectedIndex]="inputData?.selectedIndex"
-        [scrollToIndex]="inputData?.scrollToIndex"
-        [currentIndex]="inputData?.currentIndex"
-        [entries]="inputData?.entries ?? []"
-        [headers]="inputData?.headers ?? []"
-        [traceType]="${TraceType.CUJS}"
-        [showTraceEntryTimes]="false"
-        [showCurrentTimeButton]="false"
-        [isFetchingData]="inputData?.isFetchingData"
-        [checkScrollViewport]="inputData?.checkScrollViewport">
-      </log-view>
-    </div>
-  `,
+  templateUrl: './viewer_jank_cujs_component.ng.html',
   styles: [viewerCardStyle],
 })
 export class ViewerJankCujsComponent extends ViewerComponent<UiData> {
   @ViewChild(LogComponent) logComponent?: LogComponent;
+  TraceType = TraceType;
 }
