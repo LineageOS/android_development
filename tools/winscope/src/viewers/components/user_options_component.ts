@@ -29,28 +29,7 @@ type LogCallback = (key: string, state: boolean, name: string) => void;
   selector: 'user-options',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
-  template: `
-      @for (option of objectKeys(userOptions); track option) {
-        <button
-          mat-flat-button
-          [color]="getUserOptionButtonColor(userOptions[option])"
-          [disabled]="userOptions[option].isUnavailable"
-          [class.not-enabled]="!userOptions[option].enabled"
-          class="user-option"
-          [style.cursor]="'pointer'"
-          (click)="onUserOptionChange(userOptions[option])">
-          <span class="user-option-label" [class.with-chip]="!!userOptions[option].chip">
-            <span> {{userOptions[option].name}} </span>
-            @if (userOptions[option].chip) {
-              <div class="user-option-chip"> {{userOptions[option].chip.short}} </div>
-            }
-            @if (userOptions[option].icon) {
-              <mat-icon class="material-symbols-outlined"> {{userOptions[option].icon}} </mat-icon>
-            }
-          </span>
-        </button>
-      }
-    `,
+  templateUrl: './user_options_component.ng.html',
   styles: [userOptionStyle],
 })
 export class UserOptionsComponent {

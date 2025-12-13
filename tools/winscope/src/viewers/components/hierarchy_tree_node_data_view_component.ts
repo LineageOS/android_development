@@ -24,24 +24,7 @@ import {hierarchyTreeNodeDataViewStyles} from '@viewers/components/styles/tree_n
   selector: 'hierarchy-tree-node-data-view',
   standalone: true,
   imports: [CommonModule, MatTooltipModule],
-  template: `
-    @if (node) {
-      <span class="mat-body-1">
-        @if (node.heading()) {
-          <span class="mat-body-2">{{ node.heading() }}</span>
-        }
-        @if (node.heading()) {
-          &ngsp;-&ngsp;
-        }
-        <span class="display-name" [matTooltip]="getNameTooltip()" [matTooltipShowDelay]="300">{{ node.getDisplayName() }}</span>
-        @for (chip of node.getChips(); track chip.short) {
-          <div [class]="chipClass(chip)" [matTooltip]="chip.long">
-            {{ chip.short }}
-          </div>
-        }
-      </span>
-    }
-  `,
+  templateUrl: './hierarchy_tree_node_data_view_component.ng.html',
   styles: [hierarchyTreeNodeDataViewStyles],
 })
 export class HierarchyTreeNodeDataViewComponent {

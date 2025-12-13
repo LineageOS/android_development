@@ -53,64 +53,7 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
     ViewCapturePropertyGroupsComponent,
     TreeComponent,
   ],
-  template: `
-    <div class="view-header">
-      <div class="title-section">
-       <collapsible-section-title
-          class="properties-title"
-          [class.padded-title]="!hasUserOptions()"
-          [title]="title"
-          (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
-        <search-box
-          formFieldClass="applied-field mat-form-field-appearance-none"
-          [textFilter]="textFilter"
-          (filterChange)="onFilterChange($event)"></search-box>
-      </div>
-
-      @if (hasUserOptions()) {
-        <user-options
-          class="view-controls"
-          [userOptions]="userOptions"
-          [eventType]="ViewerEvents.PropertiesUserOptionsChange"
-          [traceType]="traceType"
-          [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged">
-        </user-options>
-      }
-    </div>
-
-    @if (hasUserOptions()) {
-      <mat-divider></mat-divider>
-    }
-
-    @if (showViewCaptureFormat()) {
-      <ng-container>
-        <view-capture-property-groups
-          class="property-groups"
-          [properties]="curatedProperties"></view-capture-property-groups>
-
-        @if (showPropertiesTree()) {
-          <mat-divider></mat-divider>
-        }
-      </ng-container>
-    }
-
-    @if (showPropertiesTree()) {
-      <div class="properties-content">
-        <div class="tree-wrapper">
-          <tree-view
-            [node]="propertiesTree"
-            [useStoredExpandedState]="!!store"
-            [itemsClickable]="true"
-            [highlightedItem]="highlightedProperty"
-            (highlightedChange)="onHighlightedPropertyChange($event)"></tree-view>
-        </div>
-      </div>
-    }
-
-    @if (showPlaceholderText()) {
-      <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
-    }
-  `,
+  templateUrl: './properties_component.ng.html',
   styles: [
     `
       .view-header {

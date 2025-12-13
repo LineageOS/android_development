@@ -21,22 +21,7 @@ import {TableProperties} from '@viewers/common/table_properties';
   selector: 'properties-table',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    @if (properties !== undefined) {
-      <table class="table">
-        @for (entry of objectEntries(properties); track entry[0]) {
-          <tr>
-            <td class="table-cell-name">
-              <p class="mat-body-1">{{ entry[0] }}</p>
-            </td>
-            <td class="table-cell-value">
-              <p class="mat-body-1">{{ entry[1] != undefined ? entry[1] : 'undefined' }}</p>
-            </td>
-          </tr>
-        }
-      </table>
-    }
-  `,
+  templateUrl: './properties_table_component.ng.html',
   styleUrls: ['properties_table_component.css'],
 })
 export class PropertiesTableComponent {
