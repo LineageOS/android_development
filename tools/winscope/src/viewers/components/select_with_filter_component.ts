@@ -58,21 +58,7 @@ import {AbstractSelectComponent} from './abstract_select_component';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './select_with_filter_component.ng.html',
-  styles: [
-    `
-      mat-form-field {
-        width: 100%;
-      }
-
-      .selected-options {
-        display: flex;
-        flex-direction: column;
-      }
-      .hidden-option {
-        display: none;
-      }
-    `,
-  ],
+  styleUrls: ['select_with_filter_component.css'],
 })
 export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInputElement> {
   @Input() options: string[] = [];

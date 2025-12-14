@@ -110,20 +110,7 @@ export class MatDrawer {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bottom_drawer_component_mat_drawer_content.ng.html',
-  styles: [
-    `
-      .mat-drawer-content {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        z-index: 1;
-        height: unset;
-        overflow: unset;
-        width: 100%;
-        flex-grow: 1;
-      }
-    `,
-  ],
+  styleUrls: ['bottom_drawer_component_mat_drawer_content.css'],
   host: {
     class: 'mat-drawer-content',
     '[style.margin-top.px]': 'contentMargins.top',
@@ -165,18 +152,7 @@ export class MatDrawerContent /*extends MatDrawerContentBase*/ {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bottom_drawer_component_mat_drawer_container.ng.html',
-  styles: [
-    `
-      .mat-drawer-container {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        align-items: center;
-        align-content: center;
-        justify-content: center;
-      }
-    `,
-  ],
+  styleUrls: ['bottom_drawer_component_mat_drawer_container.css'],
   host: {
     class: 'mat-drawer-container',
   },

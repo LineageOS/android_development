@@ -23,36 +23,7 @@ import {VcCuratedProperties} from '@viewers/common/curated_properties';
   standalone: true,
   imports: [CommonModule, MatDividerModule],
   templateUrl: './view_capture_property_groups_component.ng.html',
-  styles: [
-    `
-      .group {
-        display: flex;
-        flex-direction: row;
-        padding: 8px;
-      }
-
-      .group-header {
-        width: 80px;
-        color: gray;
-      }
-
-      .left-column {
-        flex: 1;
-        padding: 0 5px;
-      }
-
-      .right-column {
-        flex: 1;
-        border: 1px solid var(--border-color);
-        border-left-width: 5px;
-        padding: 0 5px;
-      }
-
-      .column-header {
-        color: gray;
-      }
-    `,
-  ],
+  styleUrls: ['view_capture_property_groups_component.css'],
 })
 export class ViewCapturePropertyGroupsComponent {
   @Input() properties: VcCuratedProperties | undefined;

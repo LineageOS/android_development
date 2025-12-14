@@ -40,30 +40,7 @@ import {AbstractFormFieldComponent} from './abstract_form_field_component';
     MatTooltipModule,
   ],
   templateUrl: './search_box_component.ng.html',
-  styles: [
-    `
-    :host {
-      height: 40px;
-      margin-left: 8px;
-      max-width: 100%;
-    }
-    .search-box {
-      font-size: 14px;
-      max-width: 100%;
-    }
-    .search-box .field-suffix {
-      display: flex;
-      flex-wrap: nowrap;
-    }
-    .search-box.applied-field .field-suffix {
-      top: 4px;
-      position: relative;
-    }
-    .wide-field {
-      width: 100%;
-    }
-  `,
-  ],
+  styleUrls: ['search_box_component.css'],
 })
 export class SearchBoxComponent extends AbstractFormFieldComponent {
   FilterFlag = FilterFlag;

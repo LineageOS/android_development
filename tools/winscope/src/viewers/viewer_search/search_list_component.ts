@@ -35,39 +35,7 @@ import {ListedSearch} from './ui_data';
     CdkMenuModule,
   ],
   templateUrl: './search_list_component.ng.html',
-  styles: [
-    `
-      .listed-search {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .listed-search {
-        width: 100%;
-        column-gap: 10px;
-      }
-      .listed-search:hover {
-        background-color: var(--hover-element-color);
-      }
-      .listed-search:not(:hover) .listed-search-option:not(.force-show) {
-        visibility: hidden;
-      }
-      .listed-search-name {
-        white-space: nowrap;
-      }
-      .listed-search-date-options {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        white-space: pre-line;
-        text-align: right;
-      }
-      .listed-search-option {
-        cursor: pointer;
-      }
-    `,
-  ],
+  styleUrls: ['search_list_component.css'],
 })
 export class SearchListComponent {
   @Input() searches: ListedSearch[] = [];

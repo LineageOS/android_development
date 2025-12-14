@@ -24,16 +24,7 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
   standalone: true,
   imports: [CommonModule, MatTooltipModule],
   templateUrl: './transform_matrix_component.ng.html',
-  styles: [
-    `
-      .matrix {
-        display: grid;
-        grid-gap: 1px;
-        grid-template-columns: repeat(3, 1fr);
-        text-align: center;
-      }
-    `,
-  ],
+  styleUrls: ['transform_matrix_component.css'],
 })
 export class TransformMatrixComponent {
   @Input() matrix: UiPropertyTreeNode | undefined;
