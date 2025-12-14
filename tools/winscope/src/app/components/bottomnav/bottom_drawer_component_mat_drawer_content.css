@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
- .mat-drawer-content {
-     display: flex;
-     flex-direction: column;
-     position: relative;
-     z-index: 1;
-     height: unset;
-     overflow: unset;
-     width: 100%;
-     flex-grow: 1;
- }
+.mat-drawer-content {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    height: unset;
+    overflow: unset;
+    width: 100%;
+    flex-grow: 1;
+}

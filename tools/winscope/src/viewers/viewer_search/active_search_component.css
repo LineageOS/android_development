@@ -14,60 +14,60 @@
  * limitations under the License.
  */
 
- .header {
-     justify-content: space-between;
-     display: flex;
-     align-items: center;
- }
+.header {
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+}
 
- .query-field {
-     height: fit-content;
- }
+.query-field {
+    height: fit-content;
+}
 
- .query-field .mat-mdc-form-field-input-control.mdc-text-field__input {
-     height: 300px;
- }
+.query-field .mat-mdc-form-field-input-control.mdc-text-field__input {
+    height: 300px;
+}
 
- .query-button {
-     min-width: fit-content;
-     width: fit-content;
-     line-height: 24px;
-     padding: 0 10px;
-     height: fit-content;
- }
+.query-button {
+    min-width: fit-content;
+    width: fit-content;
+    line-height: 24px;
+    padding: 0 10px;
+    height: fit-content;
+}
 
- .end-align-button {
-     align-self: end;
- }
+.end-align-button {
+    align-self: end;
+}
 
- .query-actions {
-     display: flex;
-     flex-direction: row;
-     justify-content: end;
-     column-gap: 10px;
-     align-items: center;
-     padding-bottom: 16px;
- }
+.query-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    column-gap: 10px;
+    align-items: center;
+    padding-bottom: 16px;
+}
 
- .running-query-message {
-     display: flex;
-     flex-direction: row;
-     align-items: center;
-     color: #FF8A00;
- }
+.running-query-message {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: #FF8A00;
+}
 
- .current-search {
-     padding-bottom: 10px;
- }
+.current-search {
+    padding-bottom: 10px;
+}
 
- .current-search .query {
-     display: flex;
-     flex-direction: column;
- }
+.current-search .query {
+    display: flex;
+    flex-direction: column;
+}
 
- .message-with-spinner {
-     display: flex;
-     flex-direction: row;
-     align-items: center;
-     justify-content: space-between;
- }
+.message-with-spinner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
