@@ -109,7 +109,7 @@ export class MatDrawer {
   selector: 'mat-drawer-content',
   standalone: true,
   imports: [CommonModule],
-  template: '<ng-content></ng-content>',
+  templateUrl: './bottom_drawer_component_mat_drawer_content.ng.html',
   styles: [
     `
       .mat-drawer-content {
@@ -164,11 +164,7 @@ export class MatDrawerContent /*extends MatDrawerContentBase*/ {
   exportAs: 'matDrawerContainer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <ng-content select="mat-drawer-content"> </ng-content>
-
-    <ng-content select="mat-drawer"></ng-content>
-  `,
+  templateUrl: './bottom_drawer_component_mat_drawer_container.ng.html',
   styles: [
     `
       .mat-drawer-container {

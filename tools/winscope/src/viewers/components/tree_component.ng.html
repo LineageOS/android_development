@@ -1,0 +1,39 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+@if (node && showNode(node)) {
+<tree-node [id]="'node' + node.name" class="node" [id]="'node' + node.name" [class.leaf]="isLeaf(node)"
+    [class.selected]="isHighlighted(node, highlightedItem)" [class.clickable]="isClickable()"
+    [class.child-selected]="hasSelectedChild()" [class.child-hover]="childHover"
+    [class.full-opacity]="showFullOpacity(node)" [class]="node.getDiff()" [style]="nodeOffsetStyle()" [node]="node"
+    [flattened]="isFlattened" [isLeaf]="isLeaf(node)" [isExpanded]="isExpanded()" [isPinned]="isPinned()"
+    [isSelected]="isHighlighted(node, highlightedItem)" [showStateIcon]="getShowStateIcon(node)"
+    (toggleTreeChange)="toggleTree()" (rectShowStateChange)="toggleRectShowState()" (click)="onNodeClick($event)"
+    (expandTreeChange)="expandTree()" (pinNodeChange)="propagateNewPinnedItem($event)"></tree-node>
+}
+
+@if (!isLeaf(node)) {
+<div class="children" [class.flattened]="isFlattened" [class.with-gutter]="addGutter()" [hidden]="!isExpanded()">
+    @for (child of node.children.values(); track child.id) {
+    <tree-view class="subtree" [node]="child" [store]="store" [showNode]="showNode" [isFlattened]="isFlattened"
+        [useStoredExpandedState]="useStoredExpandedState" [initialDepth]="initialDepth + 1"
+        [highlightedItem]="highlightedItem" [pinnedItems]="pinnedItems" [itemsClickable]="itemsClickable"
+        [rectIdToShowState]="rectIdToShowState" (highlightedChange)="propagateNewHighlightedItem($event)"
+        (pinnedItemChange)="propagateNewPinnedItem($event)" (hoverStart)="childHover = true"
+        (hoverEnd)="childHover = false" (expandParent)="expandTree()"></tree-view>
+    }
+</div>
+}

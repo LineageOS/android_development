@@ -58,48 +58,7 @@ import {Transformer} from './transformer';
     CdkMenuModule,
     SliderComponent,
   ],
-  template: `
-    <div class="mini-timeline-outer-wrapper" #outerWrapper>
-      <div class="zoom-buttons">
-        <button mat-icon-button id="zoom-in-btn" (click)="onZoomInButtonClick()">
-          <mat-icon>zoom_in</mat-icon>
-        </button>
-        <button mat-icon-button id="zoom-out-btn" (click)="onZoomOutButtonClick()">
-          <mat-icon>zoom_out</mat-icon>
-        </button>
-        <button mat-icon-button id="reset-zoom-btn" (click)="resetZoom()">
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </div>
-      <div id="mini-timeline-wrapper" #miniTimelineWrapper>
-        <canvas
-          #canvas
-          id="mini-timeline-canvas"
-          (mousemove)="trackMousePos($event)"
-          (mouseleave)="onMouseLeave($event)"
-          (contextmenu)="recordClickPosition($event)"
-          [cdkContextMenuTriggerFor]="timeline_context_menu"
-          #menuTrigger="cdkContextMenuTriggerFor"></canvas>
-        <div class="zoom-control">
-          <slider
-            [fullRange]="timelineData.getFullTimeRange()"
-            [zoomRange]="timelineData.getZoomRange()"
-            [currentPosition]="currentTracePosition"
-            [timestampConverter]="timelineData.getTimestampConverter()"
-            (onZoomChanged)="onSliderZoomChanged($event)"></slider>
-        </div>
-      </div>
-    </div>
-
-    <ng-template #timeline_context_menu>
-      <div class="context-menu" cdkMenu #timelineMenu="cdkMenu">
-        <div class="context-menu-item-container">
-          <span class="context-menu-item" (click)="toggleBookmark()" cdkMenuItem> {{getToggleBookmarkText()}} </span>
-          <span class="context-menu-item" (click)="removeAllBookmarks()" cdkMenuItem>Remove all bookmarks</span>
-        </div>
-      </div>
-    </ng-template>
-  `,
+  templateUrl: './mini_timeline_component.ng.html',
   styleUrls: ['mini_timeline_component.css'],
 })
 export class MiniTimelineComponent {

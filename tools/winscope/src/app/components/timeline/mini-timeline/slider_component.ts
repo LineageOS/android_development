@@ -46,26 +46,7 @@ import {Transformer} from './transformer';
   selector: 'slider',
   standalone: true,
   imports: [DragDropModule],
-  template: `
-    <div id="timeline-slider-box" #sliderBox>
-      <div class="background line"></div>
-      <div
-        class="slider"
-        cdkDragLockAxis="x"
-        cdkDragBoundary="#timeline-slider-box"
-        cdkDrag
-        (cdkDragMoved)="onSliderMove($event)"
-        (cdkDragStarted)="onSlideStart($event)"
-        (cdkDragEnded)="onSlideEnd($event)"
-        [cdkDragFreeDragPosition]="dragPosition"
-        [style]="{width: sliderWidth + 'px'}">
-        <div class="left cropper" (mousedown)="startMoveLeft($event)"></div>
-        <div class="handle" cdkDragHandle></div>
-        <div class="right cropper" (mousedown)="startMoveRight($event)"></div>
-      </div>
-      <div class="cursor" [style]="{left: cursorOffset + 'px'}"></div>
-    </div>
-  `,
+  templateUrl: './slider_component.ng.html',
   styleUrls: ['slider_component.css'],
 })
 export class SliderComponent {

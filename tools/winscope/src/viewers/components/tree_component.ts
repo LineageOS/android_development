@@ -44,62 +44,7 @@ import {TreeNodeComponent} from './tree_node_component';
   standalone: true,
   imports: [CommonModule, TreeNodeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @if (node && showNode(node)) {
-      <tree-node
-        [id]="'node' + node.name"
-        class="node"
-        [id]="'node' + node.name"
-        [class.leaf]="isLeaf(node)"
-        [class.selected]="isHighlighted(node, highlightedItem)"
-        [class.clickable]="isClickable()"
-        [class.child-selected]="hasSelectedChild()"
-        [class.child-hover]="childHover"
-        [class.full-opacity]="showFullOpacity(node)"
-        [class]="node.getDiff()"
-        [style]="nodeOffsetStyle()"
-        [node]="node"
-        [flattened]="isFlattened"
-        [isLeaf]="isLeaf(node)"
-        [isExpanded]="isExpanded()"
-        [isPinned]="isPinned()"
-        [isSelected]="isHighlighted(node, highlightedItem)"
-        [showStateIcon]="getShowStateIcon(node)"
-        (toggleTreeChange)="toggleTree()"
-        (rectShowStateChange)="toggleRectShowState()"
-        (click)="onNodeClick($event)"
-        (expandTreeChange)="expandTree()"
-        (pinNodeChange)="propagateNewPinnedItem($event)"></tree-node>
-    }
-
-    @if (!isLeaf(node)) {
-      <div
-        class="children"
-        [class.flattened]="isFlattened"
-        [class.with-gutter]="addGutter()"
-        [hidden]="!isExpanded()">
-        @for (child of node.children.values(); track child.id) {
-          <tree-view
-            class="subtree"
-            [node]="child"
-            [store]="store"
-            [showNode]="showNode"
-            [isFlattened]="isFlattened"
-            [useStoredExpandedState]="useStoredExpandedState"
-            [initialDepth]="initialDepth + 1"
-            [highlightedItem]="highlightedItem"
-            [pinnedItems]="pinnedItems"
-            [itemsClickable]="itemsClickable"
-            [rectIdToShowState]="rectIdToShowState"
-            (highlightedChange)="propagateNewHighlightedItem($event)"
-            (pinnedItemChange)="propagateNewPinnedItem($event)"
-            (hoverStart)="childHover = true"
-            (hoverEnd)="childHover = false"
-            (expandParent)="expandTree()"></tree-view>
-        }
-      </div>
-    }
-  `,
+  templateUrl: './tree_component.ng.html',
   styles: [nodeStyles, treeNodeDataViewStyles, nodeInnerItemStyles],
 })
 export class TreeComponent {
