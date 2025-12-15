@@ -18,7 +18,6 @@ import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/warnings';
-import {ParserCujs} from '@parsers/events/perfetto/parser_cujs';
 import {ParserKeyEvent} from '@parsers/input/perfetto/parser_key_event';
 import {ParserMotionEvent} from '@parsers/input/perfetto/parser_motion_event';
 import {ParserInputMethodClients} from '@parsers/input_method/perfetto/parser_input_method_clients';
@@ -39,6 +38,7 @@ import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {getLogger, Logger} from '@compat/logging';
 import {TraceGeometryData} from '@parsers/trace_geometry_data';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
 
 interface ProcessedFile {
   parsers: Array<Parser<HierarchyTreeNode>>;

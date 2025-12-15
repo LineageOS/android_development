@@ -36,6 +36,7 @@ const EXPECTED_DENY_LIST_DEV = [
 
 const EXPECTED_DENY_LIST_KARMA_TEST = [
   new RegExp('^(http|https)://localhost:9876$'), // Karma test environment
+  new RegExp('^(http|https)://localhost:9877$'), // Karma test environment
 ];
 
 const IFRAME_PARENT_ALLOW_LIST_PROD = [

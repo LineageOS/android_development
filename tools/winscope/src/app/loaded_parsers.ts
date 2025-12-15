@@ -54,10 +54,7 @@ export class LoadedParsers {
   static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET = BigInt(
     5 * TIME_UNIT_TO_NANO.s,
   ); // 5s
-  static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [
-    TraceType.CUJS,
-    TraceType.EVENT_LOG,
-  ];
+  static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [TraceType.CUJS];
 
   private legacyParsers = new Array<FileAndParser>();
   private perfettoParsers = new Array<FileAndParser>();
@@ -78,7 +75,6 @@ export class LoadedParsers {
     );
     legacyParsers = this.filterOutLegacyParsersWithOldData(legacyParsers);
     legacyParsers = this.filterScreenshotParsersIfRequired(legacyParsers);
-    legacyParsers = this.filterEventlogParsersIfRequired(legacyParsers);
 
     this.addLegacyParsers(legacyParsers);
   }
@@ -387,25 +383,6 @@ export class LoadedParsers {
       (fileAndParser) =>
         fileAndParser.parser.getTraceType() !== TraceType.SCREENSHOT,
     );
-  }
-
-  private filterEventlogParsersIfRequired(
-    newLegacyParsers: FileAndParser[],
-  ): FileAndParser[] {
-    const hasCujParsers = this.perfettoParsers.some(
-      (entry) => entry.parser.getTraceType() === TraceType.CUJS,
-    );
-    if (!hasCujParsers) {
-      return newLegacyParsers;
-    }
-    this.legacyParsers.forEach((fileAndParser) => {
-      if (fileAndParser.parser.getTraceType() === TraceType.EVENT_LOG) {
-        this.remove(fileAndParser.parser);
-      }
-    });
-    return newLegacyParsers.filter((fileAndParser) => {
-      return fileAndParser.parser.getTraceType() !== TraceType.EVENT_LOG;
-    });
   }
 
   private filterOutParsersWithoutOffsetsIfRequired(

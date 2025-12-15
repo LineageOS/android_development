@@ -86,15 +86,13 @@ export class LegacyParserProvider {
    */
   async getParser<T>(): Promise<Parser<T>> {
     const parsers = await this.getParsers();
-
-    expect(parsers.length)
-      .withContext(
+    assertTrue(
+      parsers.length > 0,
+      () =>
         `Should have been able to create a parser for ${this.files
           .map((f) => f.src)
           .join(', ')}`,
-      )
-      .toBeGreaterThanOrEqual(1);
-
+    );
     return parsers[0] as Parser<T>;
   }
 

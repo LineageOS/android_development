@@ -84,10 +84,6 @@ export enum TraceType {
    */
   INPUT_METHOD_SERVICE,
   /**
-   * Represents an event log trace, which contains a log of system events.
-   */
-  EVENT_LOG,
-  /**
    * Represents a Window Manager transition trace, which provides
    * information about window transitions and animations.
    */
@@ -272,8 +268,6 @@ export function getReasonForNoTraceVisualization(t: TraceType): string {
       return 'Must also upload a shell transitions trace to visualize transitions.';
     case TraceType.SHELL_TRANSITION:
       return 'Must also upload a wm transitions trace to visualize transitions.';
-    case TraceType.EVENT_LOG:
-      return 'Uploaded file does not contain CUJs. Only CUJ visualization is supported in Winscope.';
     default:
       return 'Visualization for this trace is not supported in Winscope.';
   }

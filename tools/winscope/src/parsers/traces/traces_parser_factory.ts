@@ -17,7 +17,6 @@
 import {assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {makeWarningFailedToCreateTracesParser} from '@parsers/warnings';
-import {TracesParserCujs} from '@parsers/events/legacy/traces_parser_cujs';
 import {TracesParserInput} from '@parsers/input/perfetto/traces_parser_input';
 import {TracesParserTransitions} from '@parsers/transitions/legacy/traces_parser_transitions';
 import {UserNotifier} from '@services/user_notifier';
@@ -28,11 +27,7 @@ import {Traces} from '@trace_api/traces';
  * A factory for creating traces parsers.
  */
 export class TracesParserFactory {
-  static readonly PARSERS = [
-    TracesParserCujs,
-    TracesParserTransitions,
-    TracesParserInput,
-  ];
+  static readonly PARSERS = [TracesParserTransitions, TracesParserInput];
 
   async createParsers(
     traces: Traces,

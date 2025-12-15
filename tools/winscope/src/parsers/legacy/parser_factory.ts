@@ -17,7 +17,6 @@ import {assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningInvalidLegacyTrace} from '@parsers/warnings';
-import {ParserEventLog} from '@parsers/events/legacy/parser_eventlog';
 import {FileAndParser} from '@parsers/file_and_parser';
 import {ParserInputMethodClients} from '@parsers/input_method/legacy/parser_input_method_clients';
 import {ParserInputMethodManagerService} from '@parsers/input_method/legacy/parser_input_method_manager_service';
@@ -37,6 +36,7 @@ import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace/trace_file';
 import {Parser} from '@trace_api/parser';
 import {TraceMetadata} from '@trace_api/trace_metadata';
+import {ParserCujs} from '@parsers/cujs/legacy/parser_cujs';
 
 export interface ProcessedFiles {
   parsers: FileAndParser[];
@@ -55,7 +55,7 @@ export class ParserFactory {
     ParserTransactions,
     ParserWindowManager,
     ParserWindowManagerDump,
-    ParserEventLog,
+    ParserCujs,
     ParserTransitionsWm,
     ParserTransitionsShell,
     ParserViewCapture,

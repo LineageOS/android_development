@@ -23,7 +23,6 @@ import {ProgressListener} from '@messaging/progress_listener';
 import {ProgressListenerStub} from '@messaging/progress_listener_stub';
 import {UserWarning} from '@messaging/user_warning';
 import {
-  makeWarningFailedToCreateTracesParser,
   makeWarningInvalidLegacyTrace,
   makeWarningInvalidPerfettoTrace,
 } from '@parsers/warnings';
@@ -132,7 +131,7 @@ describe('Mediator', () => {
     .build();
 
   let inputFiles: File[];
-  let eventLogFile: File;
+  let shellTransitionFile: File;
   let perfettoFile: File;
   let wmDumpFile: File;
   let tracePipeline: TracePipeline;
@@ -178,8 +177,8 @@ describe('Mediator', () => {
     perfettoFile = await getFixtureFile(
       'traces/perfetto/layers_trace.perfetto-trace',
     );
-    eventLogFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/eventlog_no_cujs.winscope',
+    shellTransitionFile = await getFixtureFile(
+      'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
     );
     wmDumpFile = await getFixtureFile(
       'traces/elapsed_timestamp/dump_WindowManager.pb',
@@ -350,17 +349,10 @@ describe('Mediator', () => {
     await mediator.onWinscopeEvent(
       new AppFilesCollected({
         requested: [],
-        collected: [eventLogFile],
+        collected: [shellTransitionFile],
       }),
     );
-    expect(
-      userNotifierChecker.expectNotified([
-        makeWarningFailedToCreateTracesParser(
-          TraceType.CUJS,
-          'eventlog_no_cujs.winscope has no relevant entries',
-        ),
-      ]),
-    );
+    expect(userNotifierChecker.expectNone());
     expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
     checkUploadTracesComponentTraceViewEvents();
   });
@@ -590,9 +582,7 @@ describe('Mediator', () => {
   });
 
   it('filters traces without visualization on loading viewers', async () => {
-    const fileWithoutVisualization = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
-    );
+    const fileWithoutVisualization = shellTransitionFile;
     await loadFiles();
     await mediator.onWinscopeEvent(
       new AppFilesUploaded([fileWithoutVisualization]),

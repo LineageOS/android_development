@@ -343,19 +343,6 @@ const traceDefaultConfig = new Map<UiTraceTarget, TraceConfiguration>([
     },
   ],
   [
-    UiTraceTarget.EVENTLOG,
-    {
-      name: TRACE_INFO[TraceType.EVENT_LOG].name + ' (CUJs)',
-      config: {
-        enabled: false,
-        checkboxConfigs: [],
-        selectionConfigs: [],
-      },
-      available: true,
-      types: [TraceType.EVENT_LOG, TraceType.CUJS],
-    },
-  ],
-  [
     UiTraceTarget.TRANSITIONS,
     {
       name: TRACE_INFO[TraceType.SHELL_TRANSITION].name,

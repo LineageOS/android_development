@@ -192,8 +192,6 @@ export class TracePipeline
     };
     if (trace.type === TraceType.TRANSITION) {
       this.clearChildTransitionTraces(clear);
-    } else if (trace.type === TraceType.CUJS) {
-      this.clearChildCujTrace(clear);
     } else if (trace.type === TraceType.INPUT_EVENT_MERGED) {
       this.clearChildInputTraces(clear);
     }
@@ -487,7 +485,6 @@ export class TracePipeline
       this.removeTracesKeepForDownload(type);
     };
     this.clearChildTransitionTraces(clear);
-    this.clearChildCujTrace(clear);
     this.clearChildInputTraces(clear);
   }
 
@@ -497,13 +494,6 @@ export class TracePipeline
     if (hasTransitionTrace) {
       clear(TraceType.WM_TRANSITION);
       clear(TraceType.SHELL_TRANSITION);
-    }
-  }
-
-  private clearChildCujTrace(clear: (type: TraceType) => void) {
-    const hasCujTrace = this.traces.getTrace(TraceType.CUJS) !== undefined;
-    if (hasCujTrace) {
-      clear(TraceType.EVENT_LOG);
     }
   }
 
