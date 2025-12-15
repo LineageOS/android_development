@@ -185,7 +185,7 @@ describe('CollectTracesComponent', () => {
 
     spy.and.returnValue([mockDevice]);
     await dom.detectChangesAndWaitStable();
-    el.checkText('Select a device: smartphone  Pixel 6 (35562)');
+    el.checkText('Select a device: smartphone Pixel 6 (35562)');
   });
 
   it('displays connected devices again if selected device no longer present', () => {
@@ -195,7 +195,7 @@ describe('CollectTracesComponent', () => {
     spy.and.returnValue([mockDeviceWatch]);
     dom.detectChanges();
     const el = dom.get('.devices-connecting');
-    el.checkText('Select a device: smartphone  Pixel Watch (75432)');
+    el.checkText('Select a device: smartphone Pixel Watch (75432)');
   });
 
   it('auto selects last device', () => {
@@ -208,7 +208,7 @@ describe('CollectTracesComponent', () => {
     dom.detectChanges();
 
     const el = dom.get('.devices-connecting');
-    el.checkText('Select a device: smartphone  Pixel Watch (75432)');
+    el.checkText('Select a device: smartphone Pixel Watch (75432)');
     expect(dom.find('.trace-collection-config')).toBeUndefined();
 
     spy.and.returnValue([mockDevice]);

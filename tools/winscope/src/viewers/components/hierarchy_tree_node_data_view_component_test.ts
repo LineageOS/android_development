@@ -65,7 +65,9 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
     testNode.addChip(VISIBLE_CHIP);
     component.node = testNode;
     dom.detectChanges();
-    dom.checkTextExact(`1 - test node ${VISIBLE_CHIP.short}`);
-    await dom.get('.tree-view-chip').checkTooltip(VISIBLE_CHIP.long);
+    dom.checkText(`1 - test node`);
+    const chip = dom.get('.tree-view-chip');
+    chip.checkTextExact('V');
+    await chip.checkTooltip(VISIBLE_CHIP.long);
   });
 });
