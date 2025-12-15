@@ -75,11 +75,13 @@ describe('WinscopeProxySetupComponent', () => {
   it('correct icon and message displays if invalid proxy', () => {
     component.state = ConnectionState.INVALID_VERSION;
     dom.detectChanges();
-    dom
-      .get('.further-adb-info-text')
-      .checkText(
-        `Your local proxy version is incompatible with Winscope. Please update the proxy to version ${component.proxyVersion}.`,
-      );
+    const infoText = dom.get('.further-adb-info-text');
+    infoText.checkText(
+      'Your local proxy version is incompatible with Winscope.',
+    );
+    infoText.checkText(
+      `Please update the proxy to version ${component.proxyVersion}`,
+    );
     dom.get('.adb-icon').checkTextExact('update');
   });
 
