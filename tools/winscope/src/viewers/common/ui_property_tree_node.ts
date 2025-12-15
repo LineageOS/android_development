@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {assertDefined} from '@common/assert';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DiffNode} from './diff_node';
 import {DiffType} from './diff_type';
 

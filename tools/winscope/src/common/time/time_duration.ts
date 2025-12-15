@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {divideAndRound} from 'common/bigint_math';
+import {divideAndRound} from '@common/bigint_math';
 import {TIME_UNIT_TO_NANO} from './time_units';
 
 /**

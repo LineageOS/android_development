@@ -1,4 +1,4 @@
-import {TimeRange, Timestamp} from 'common/time/time';
+import {TimeRange, Timestamp} from '@common/time/time';
 
 /**
  * Output data from the mini timeline drawer.

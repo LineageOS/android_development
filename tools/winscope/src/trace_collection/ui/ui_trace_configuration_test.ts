@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {TraceType} from 'trace_api/trace_type';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {TraceType} from '@trace_api/trace_type';
 import {
   TraceConfigurationMap,
   updateConfigsFromStore,

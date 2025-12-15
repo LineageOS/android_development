@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {Analytics} from 'logging/analytics';
-import {UserNotification} from 'messaging/user_notification';
-import {UserNotificationListener} from 'messaging/user_notification_listener';
+import {Analytics} from '@logging/analytics';
+import {UserNotification} from '@messaging/user_notification';
+import {UserNotificationListener} from '@messaging/user_notification_listener';
 
 /**
  * A utility class to collect and display notifications to the user.

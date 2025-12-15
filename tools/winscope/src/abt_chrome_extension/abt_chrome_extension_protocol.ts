@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import {AppInitialized} from 'app/app_events';
-import {getLogger, Logger} from 'compat/logging';
+import {AppInitialized} from '@app/app_events';
+import {getLogger, Logger} from '@compat/logging';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
-} from 'cross_tool/remote_tool_events';
+} from '@cross_tool/remote_tool_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {
   MessageType,
   OpenBuganizerResponse,

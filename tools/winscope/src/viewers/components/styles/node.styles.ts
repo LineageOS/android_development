@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Color} from 'app/colors';
+import {Color} from '@app/colors';
 import {selectedElementStyle} from './selected_element.styles';
 
 export const nodeStyles =

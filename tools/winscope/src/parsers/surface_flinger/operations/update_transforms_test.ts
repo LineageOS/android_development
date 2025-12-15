@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TransformTypeFlags} from 'common/geometry/transform';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {assertDefined} from '@common/assert';
+import {TransformTypeFlags} from '@common/geometry/transform';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
   makeCalculatedPropertyNode,
   makePropertyNode,
-} from 'test/unit/tree_node_test_helpers';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@test/unit/tree_node_test_helpers';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {UpdateTransforms} from './update_transforms';
 
 describe('UpdateTransforms', () => {

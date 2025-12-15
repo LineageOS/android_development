@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Rect} from 'common/geometry/rect';
+import {Rect} from '@common/geometry/rect';
 
 import {TreeNode} from './tree_node';
 

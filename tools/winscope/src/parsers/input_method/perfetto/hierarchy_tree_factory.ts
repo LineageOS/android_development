@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
-import {TamperedProtoField} from 'trace/proto_utils/tampered_message_type';
-import {QueryResult} from 'trace_processor/query_result';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {assertDefined} from '@common/assert';
+import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
+import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
+import {QueryResult} from '@trace_processor/query_result';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {CHILD_DENYLIST_PROPERTIES} from './child_denylist_properties';
 import {HierarchyTreeBuilderInputMethod} from './hierarchy_tree_builder_input_method';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
+import {Timestamp} from '@common/time/time';
 import {
   AbsoluteEntryIndex,
   FramesRange,

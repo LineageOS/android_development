@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertUnreachable} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {RemoteToolTimestampConverter} from 'common/time/timestamp_converter';
+import {assertDefined, assertUnreachable} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {RemoteToolTimestampConverter} from '@common/time/timestamp_converter';
 import {
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
-} from 'cross_tool/remote_tool_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {TracePositionUpdate} from 'trace/trace_events';
+} from '@cross_tool/remote_tool_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {TracePositionUpdate} from '@trace/trace_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {getLogger, Logger} from 'compat/logging';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {getLogger, Logger} from '@compat/logging';
 import {
   Message,
   MessageBugReport,
@@ -102,7 +102,7 @@ export class CrossToolProtocol
       this.remoteTool.timestampType,
     );
     this.remoteTool.window.postMessage(message, this.remoteTool.origin);
-    this.logger.debug('Cross-tool protocol sent timestamp message:', message);
+    this.logger.trace('Cross-tool protocol sent timestamp message:', message);
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -152,7 +152,7 @@ export class CrossToolProtocol
 
     switch (message.type) {
       case MessageType.PING:
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol received ping message:',
           message,
         );
@@ -165,47 +165,47 @@ export class CrossToolProtocol
         );
         break;
       case MessageType.BUGREPORT:
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol received bugreport message:',
           message,
         );
         await this.onMessageBugreportReceived(message as MessageBugReport);
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol processed bugreport message:',
           message,
         );
         break;
       case MessageType.TIMESTAMP:
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol received timestamp message:',
           message,
         );
         await this.onMessageTimestampReceived(message as MessageTimestamp);
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol processed timestamp message:',
           message,
         );
         break;
       case MessageType.FILES:
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol received files message:',
           message,
         );
         await this.onMessageFilesReceived(message as MessageFiles);
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol processed files message:',
           message,
         );
         break;
       case MessageType.TEST_FAILURE_INFO:
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol received debug info message:',
           message,
         );
         await this.onMessageDebugInfoReceived(
           message as MessageTestFailureInfo,
         );
-        this.logger.debug(
+        this.logger.trace(
           'Cross-tool protocol processed debug info message:',
           message,
         );

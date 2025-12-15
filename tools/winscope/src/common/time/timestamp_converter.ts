@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert';
+import {assertDefined, assertTrue} from '@common/assert';
 import {INVALID_TIME_NS, Timestamp, TimezoneInfo} from './time';
 import {TIME_UNIT_TO_NANO, TIME_UNITS} from './time_units';
 import {

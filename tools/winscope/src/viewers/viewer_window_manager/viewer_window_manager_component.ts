@@ -15,17 +15,17 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {ShadingMode} from 'viewers/components/rects/shading_mode';
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {assertDefined} from '@common/assert';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {ShadingMode} from '@viewers/components/rects/shading_mode';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({
@@ -38,67 +38,7 @@ import {UiData} from './ui_data';
     HierarchyComponent,
     PropertiesComponent,
   ],
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-        [class.empty]="sections.areAllSectionsExpanded()"
-        [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-      <rects-view
-        class="rects-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [class.disabled-component]="inputData?.isPlaybackInitializing"
-        [title]="getRectsTitle()"
-        [store]="store"
-        [rects]="inputData?.rectsToDraw ?? []"
-        [displays]="inputData?.displays ?? []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [shadingModes]="shadingModes"
-        [dependencies]="inputData?.dependencies ?? []"
-        [userOptions]="inputData?.rectsUserOptions ?? {}"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [isDarkMode]="inputData?.isDarkMode ?? false"
-        [rectSpec]="inputData?.rectSpec"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"></rects-view>
-      <hierarchy-view
-        class="hierarchy-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-        [class.disabled-component]="inputData?.isPlaybackInitializing"
-        [trees]="inputData?.hierarchyTrees ?? []"
-        [dependencies]="inputData?.dependencies ?? []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [textFilter]="inputData?.hierarchyFilter"
-        [store]="store"
-        [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-        [rectIdToShowState]="inputData?.rectIdToShowState"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
-      <div class="properties"
-        [class.disabled-component]="inputData?.isPlaybackPlaying
-        || inputData?.isPlaybackInitializing">
-        @if (inputData?.isPlaybackPlaying) {
-          <div class="disabled-message user-notification mat-body-1">
-            Properties disabled due to playback
-          </div>
-        }
-        <properties-view
-        class="properties-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-        [class.disabled-component]="inputData?.isPlaybackPlaying
-        || inputData?.isPlaybackInitializing"
-        [userOptions]="inputData?.propertiesUserOptions ?? {}"
-        [propertiesTree]="inputData?.propertiesTree"
-        [traceType]="${TraceType.WINDOW_MANAGER}"
-        [textFilter]="inputData?.propertiesFilter"
-        [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-        [store]="store"
-        [isProtoDump]="false"
-        placeholderText="No selected item."
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-    </div>
-  </div>
-  `,
+  templateUrl: './viewer_window_manager_component.ng.html',
   styles: [
     `
     .properties{

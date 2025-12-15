@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {unzipFile} from 'common/io';
-import {TimeRange} from 'common/time/time';
-import {UserWarning} from 'messaging/user_warning';
+import {assertDefined} from '@common/assert';
+import {unzipFile} from '@common/io';
+import {TimeRange} from '@common/time/time';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningTraceHasOldData,
   makeWarningTraceOverridden,
   makeWarningTraceHasElapsedTimestamps,
 } from './warnings';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {FileAndParsers} from 'parsers/file_and_parsers';
-import {ParserBuilder} from 'test/unit/parser_builder';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {FileAndParsers} from '@parsers/file_and_parsers';
+import {ParserBuilder} from '@test/unit/parser_builder';
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
-} from 'test/unit/time_test_helpers';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
+} from '@test/unit/time_test_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
 import {LoadedParsers} from './loaded_parsers';
 
 describe('LoadedParsers', () => {

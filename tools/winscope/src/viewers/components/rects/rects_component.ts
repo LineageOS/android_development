@@ -41,22 +41,22 @@ import {MatSelectChange, MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer} from '@angular/platform-browser';
-import {assertDefined} from 'common/assert';
-import {Distance} from 'common/geometry/distance';
-import {PersistentStore} from 'common/store/persistent_store';
-import {getRootUrl} from 'common/window';
-import {Analytics} from 'logging/analytics';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {DisplayIdentifier} from 'viewers/common/display_identifier';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {RectDblClickDetail, ViewerEvents} from 'viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {RectSpec, TraceRectType} from 'viewers/components/rects/rect_spec';
-import {UiRect} from 'viewers/components/rects/ui_rect';
-import {viewerCardInnerStyle} from 'viewers/components/styles/viewer_card.styles';
-import {UserOptionsComponent} from 'viewers/components/user_options_component';
+import {assertDefined} from '@common/assert';
+import {Distance} from '@common/geometry/distance';
+import {PersistentStore} from '@common/store/persistent_store';
+import {getRootUrl} from '@common/window';
+import {Analytics} from '@logging/analytics';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {RectSpec, TraceRectType} from '@viewers/components/rects/rect_spec';
+import {UiRect} from '@viewers/components/rects/ui_rect';
+import {viewerCardInnerStyle} from '@viewers/components/styles/viewer_card.styles';
+import {UserOptionsComponent} from '@viewers/components/user_options_component';
 import {Canvas} from './canvas';
 import {Mapper3D} from './mapper3d';
 import {ShadingMode} from './shading_mode';
@@ -82,243 +82,7 @@ interface CanColor {
     CollapsibleSectionTitleComponent,
     UserOptionsComponent,
   ],
-  template: `
-    <div class="view-header">
-      <div class="title-section">
-        <collapsible-section-title
-          [title]="title"
-          (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
-        <div class="right-btn-container">
-          <button
-            color="accent"
-            class="shading-mode"
-            (mouseenter)="onInteractionStart([shadingModeButton])"
-            (mouseleave)="onInteractionEnd([shadingModeButton])"
-            mat-icon-button
-            [matTooltip]="getShadingMode()"
-            [disabled]="shadingModes.length < 2"
-            (click)="onShadingModeButtonClicked()" #shadingModeButton>
-            @if (largeRectsMapper3d.isWireFrame()) {
-              <mat-icon class="material-symbols-outlined" aria-hidden="true"> deployed_code </mat-icon>
-            } @else if (largeRectsMapper3d.isShadedByGradient()) {
-              <mat-icon svgIcon="cube_partial_shade"></mat-icon>
-            } @else if (largeRectsMapper3d.isShadedByOpacity()) {
-              <mat-icon svgIcon="cube_full_shade"></mat-icon>
-            }
-          </button>
-
-          <div class="icon-divider"></div>
-
-          <div class="slider-container">
-            <mat-icon
-              color="accent"
-              matTooltip="Rotation"
-              class="slider-icon icon-small"
-              (mouseenter)="onInteractionStart([rotationSlider, rotationSliderIcon])"
-              (mouseleave)="onInteractionEnd([rotationSlider, rotationSliderIcon])" #rotationSliderIcon> rotate_90_degrees_ccw </mat-icon>
-            <mat-slider
-              class="slider-rotation"
-              aria-label="units"
-              color="accent"
-              [step]="0.02"
-              [min]="0"
-              [max]="1"
-              (mousedown)="onInteractionStart([rotationSlider, rotationSliderIcon])"
-              (mouseup)="onInteractionEnd([rotationSlider, rotationSliderIcon])"
-              #rotationSlider>
-              <input
-                [value]="largeRectsMapper3d.getCameraRotationFactor()"
-                (input)="onRotationSliderChange($event.target.value)"
-                (focus)="$event.target.blur()"
-                matSliderThumb>
-            </mat-slider>
-            <mat-icon
-              color="accent"
-              matTooltip="Spacing"
-              class="slider-icon icon-small material-symbols-outlined"
-              (mouseenter)="onInteractionStart([spacingSlider, spacingSliderIcon])"
-              (mouseleave)="onInteractionEnd([spacingSlider, spacingSliderIcon])" #spacingSliderIcon> format_letter_spacing </mat-icon>
-            <mat-slider
-              class="slider-spacing"
-              aria-label="units"
-              color="accent"
-              [step]="0.02"
-              [min]="0.02"
-              [max]="1"
-              (mousedown)="onInteractionStart([spacingSlider, spacingSliderIcon])"
-              (mouseup)="onInteractionEnd([spacingSlider, spacingSliderIcon])"
-              #spacingSlider>
-              <input
-                [value]="getZSpacingFactor()"
-                (input)="onSeparationSliderChange($event.target.value)"
-                (focus)="$event.target.blur()"
-                matSliderThumb>
-            </mat-slider>
-          </div>
-
-          <div class="icon-divider"></div>
-
-          <button
-            color="accent"
-            (mouseenter)="onInteractionStart([zoomInButton])"
-            (mouseleave)="onInteractionEnd([zoomInButton])"
-            mat-icon-button
-            class="zoom-in-button"
-            (click)="onZoomInClick()" #zoomInButton>
-            <mat-icon aria-hidden="true"> zoom_in </mat-icon>
-          </button>
-          <button
-            color="accent"
-            (mouseenter)="onInteractionStart([zoomOutButton])"
-            (mouseleave)="onInteractionEnd([zoomOutButton])"
-            mat-icon-button
-            class="zoom-out-button"
-            (click)="onZoomOutClick()" #zoomOutButton>
-            <mat-icon aria-hidden="true"> zoom_out </mat-icon>
-          </button>
-
-          <div class="icon-divider"></div>
-
-          <button
-            color="accent"
-            (mouseenter)="onInteractionStart([resetZoomButton])"
-            (mouseleave)="onInteractionEnd([resetZoomButton])"
-            mat-icon-button
-            matTooltip="Restore camera settings"
-            class="reset-button"
-            (click)="resetCamera()" #resetZoomButton>
-            <mat-icon aria-hidden="true"> restore </mat-icon>
-          </button>
-        </div>
-      </div>
-      <div class="filter-controls view-controls">
-        <user-options
-          class="block-filter-controls"
-          [userOptions]="userOptions"
-          [eventType]="ViewerEvents.RectsUserOptionsChange"
-          [traceType]="dependencies[0]"
-          [logCallback]="Analytics.Navigation.logRectSettingsChanged">
-        </user-options>
-
-        <div class="displays-section">
-          @if (allRectSpecs) {
-            <mat-button-toggle-group
-              [value]="rectSpec"
-              (change)="onRectTypeButtonClicked($event)"
-              appearance="legacy"
-              class="rect-type-toggle"
-              [hideSingleSelectionIndicator]="true">
-              @for (spec of allRectSpecs; track $index) {
-                <mat-button-toggle [value]="spec">
-                  <mat-icon
-                    [color]="spec === rectSpec ? 'primary' : 'accent'"
-                    [matTooltip]="'Show ' + spec.type"
-                    class="rect-type-icon material-symbols-outlined">{{spec.icon}}</mat-icon>
-                </mat-button-toggle>
-              }
-            </mat-button-toggle-group>
-          }
-          <span class="mat-body-1">{{groupLabel}}:</span>
-          <mat-form-field
-            class="displays-select"
-            subscriptSizing="dynamic"
-            appearance="outline">
-            <mat-select
-              #displaySelect
-              disableOptionCentering
-              (selectionChange)="onDisplaySelectChange($event)"
-              [value]="currentDisplays"
-              [disabled]="internalDisplays.length === 1"
-              panelWidth="340px"
-              multiple>
-              <mat-select-trigger>
-                <span>
-                  {{ getSelectTriggerValue() }}
-                </span>
-              </mat-select-trigger>
-              @for (display of internalDisplays; track display.groupId) {
-                <mat-option
-                  [value]="display"
-                  [matTooltip]="'Display Id: ' + display.displayId"
-                  matTooltipPosition="right">
-                  <div class="option-with-chip">
-                    <button
-                      mat-flat-button
-                      class="option-only-button"
-                      (click)="onOnlyButtonClick($event, display)">Only</button>
-                    <span class="option-label-text text-no-overflow">{{ display.name }}</span>
-                  </div>
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
-    </div>
-    <mat-divider></mat-divider>
-    @if (showRectSpecWarning()) {
-      <span
-        class="mat-body-1 warning">
-        <mat-icon class="warning-icon icon-small"> warning </mat-icon>
-        <span class="warning-message text-no-overflow">
-          Showing {{rectSpec.type}} - change rect type via toggle above
-        </span>
-      </span>
-    }
-    @if (rects.length===0) {
-      <span class="mat-body-1 placeholder-text"> No rects found. </span>
-    }
-    @if (currentDisplays.length===0) {
-      <span class="mat-body-1 placeholder-text"> No displays selected. </span>
-    }
-    <div class="rects-content">
-      <div class="canvas-container">
-        <canvas
-          class="large-rects-canvas"
-          (click)="onRectClick($event)"
-          (dblclick)="onRectDblClick($event)"
-          oncontextmenu="return false"></canvas>
-        <div class="large-rects-labels"></div>
-        <canvas
-          class="mini-rects-canvas"
-          (dblclick)="onMiniRectDblClick($event)"
-          oncontextmenu="return false"></canvas>
-      </div>
-    </div>
-    @if (rectSpec) {
-      <span class="mat-body-1 rect-legend">
-        <span class="shading-opts" [class.force-show-all]="legendExpanded" #shadingOpts>
-          @for (opt of rectSpec.legend; track opt) {
-            @if (!largeRectsMapper3d.isWireFrame() || opt.showInWireFrameMode) {
-              <span
-                class="shading-opt">
-                @if (opt.fill === undefined) {
-                  <mat-icon
-                    [style.border-color]="opt.border"
-                    class="square">question_mark</mat-icon>
-                }
-                @if (opt.fill !== undefined) {
-                  <div
-                    [style.background-color]="opt.fill"
-                    [style.border-color]="opt.border"
-                    class="square"></div>
-                }
-                <span class="mat-body-1 shading-opt-desc">{{opt.desc}}</span>
-              </span>
-            }
-          }
-        </span>
-        @if (showExpandButton(shadingOpts)) {
-          <button
-            mat-icon-button
-            class="rect-legend-expand-button"
-            (click)="legendExpanded = !legendExpanded">
-            <mat-icon class="material-symbols-outlined">{{legendExpanded ? 'expand_circle_down' : 'more_horiz'}}</mat-icon>
-          </button>
-        }
-      </span>
-    }
-  `,
+  templateUrl: './rects_component.ng.html',
   styles: [
     `
       .view-header {

@@ -15,38 +15,38 @@
  */
 
 import {PlaybackPresenter} from './playback_presenter';
-import {EmitEvent} from 'messaging/winscope_event_emitter';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {
   CustomTraceEntryLazy,
   Trace,
   TraceEntryEager,
   TraceEntryLazy,
-} from 'trace_api/trace';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {TraceType} from 'trace_api/trace_type';
-import {Timer} from 'common/time/timer';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
-import {TracePositionUpdate} from 'trace/trace_events';
+} from '@trace_api/trace';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {TraceType} from '@trace_api/trace_type';
+import {Timer} from '@common/time/timer';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
+import {TracePositionUpdate} from '@trace/trace_events';
 import {PlaybackState} from './playback_state';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
-import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {Rect} from 'common/geometry/rect';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {Parser} from 'trace_api/parser';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {Rect} from '@common/geometry/rect';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {Parser} from '@trace_api/parser';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace/media_based/media_based_trace_entry';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
-import {CornerRadii} from 'common/geometry/corner_radii';
-import {assertDefined} from 'common/assert';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+} from '@trace/media_based/media_based_trace_entry';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {assertDefined} from '@common/assert';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 import {VideoFrameCache} from './video_frame_cache';
 
 describe('PlaybackPresenter', () => {

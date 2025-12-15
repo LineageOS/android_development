@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import {TraceEntry} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
-import {DisplayIdentifier} from 'viewers/common/display_identifier';
-import {RectShowState} from 'viewers/common/rect_show_state';
-import {TextFilter} from 'viewers/common/text_filter';
+import {TraceEntry} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {RectShowState} from '@viewers/common/rect_show_state';
+import {TextFilter} from '@viewers/common/text_filter';
 import {
   LogEntry,
   LogField,
   LogHeader,
   UiDataLog,
-} from 'viewers/common/ui_data_log';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {RectSpec} from 'viewers/components/rects/rect_spec';
-import {UiRect} from 'viewers/components/rects/ui_rect';
+} from '@viewers/common/ui_data_log';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectSpec} from '@viewers/components/rects/rect_spec';
+import {UiRect} from '@viewers/components/rects/ui_rect';
 
 export class UiData implements UiDataLog {
   constructor(

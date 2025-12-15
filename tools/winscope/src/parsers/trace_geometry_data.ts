@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertBigInt} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {assertBigInt} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 /**
  * A class for fetching and building geometry data from a trace.

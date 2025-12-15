@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {MakeTimestampStrategyType} from 'common/time/time';
-import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
-import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
-import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {SetFormatters} from 'parsers/set_formatters';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {MakeTimestampStrategyType} from '@common/time/time';
+import {HierarchyTreeBuilderLog} from '@parsers/hierarchy_tree_builder_log';
+import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
+import {SetFormatters} from '@parsers/set_formatters';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 
 export class ParserCujs extends AbstractParser<HierarchyTreeNode> {
   override getTraceType(): TraceType {

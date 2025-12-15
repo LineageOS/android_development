@@ -17,9 +17,9 @@
 import {
   AdbDeviceConnectionListener,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {MockAdbDeviceConnection} from 'trace_collection/mock/mock_adb_device_connection';
-import {AdbFileIdentifier, TraceTarget} from 'trace_collection/trace_target';
+} from '@trace_collection/adb/adb_device_connection';
+import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
+import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
 import {TracingSession} from './tracing_session';
 import {WINSCOPE_BACKUP_DIR} from './winscope_backup_dir';
 

@@ -47,30 +47,30 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {RequestData} from 'cross_tool/g3_proxy';
-import {DOWNLOAD_FILENAME_REGEX} from 'common/io';
+import {assertDefined} from '@common/assert';
+import {RequestData} from '@cross_tool/g3_proxy';
+import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
 import {
   makeWarningNoValidFiles,
   makeWarningFailedToInitializeTimelineData,
-} from 'app/warnings';
-import {AppRefreshDumpsRequest} from 'app/app_events';
+} from '@app/warnings';
+import {AppRefreshDumpsRequest} from '@app/app_events';
 import {
   BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
-} from 'app/misc_events';
-import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
-import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
-import {TracePositionUpdate, TraceSearchRequest} from 'trace/trace_events';
-import {TraceType} from 'trace_api/trace_type';
-import {View, Viewer, ViewType} from 'viewers/viewer';
-import {UserNotifier} from 'services/user_notifier';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {UTC_CONVERTER} from 'test/unit/time_test_helpers';
-import {waitToBeCalled} from 'test/unit/spy_utils';
-import {TracesBuilder} from 'test/unit/traces_builder';
-import {ViewerSurfaceFlingerComponent} from 'viewers/viewer_surface_flinger/viewer_surface_flinger_component';
+} from '@app/misc_events';
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
+import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
+import {TracePositionUpdate, TraceSearchRequest} from '@trace/trace_events';
+import {TraceType} from '@trace_api/trace_type';
+import {View, Viewer, ViewType} from '@viewers/viewer';
+import {UserNotifier} from '@services/user_notifier';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {waitToBeCalled} from '@test/unit/spy_utils';
+import {TracesBuilder} from '@test/unit/traces_builder';
+import {ViewerSurfaceFlingerComponent} from '@viewers/viewer_surface_flinger/viewer_surface_flinger_component';
 import {AppComponent} from './app_component';
 import {
   MatDrawer,

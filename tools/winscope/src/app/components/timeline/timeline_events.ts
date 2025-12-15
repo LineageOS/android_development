@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {WinscopeEvent} from 'messaging/winscope_event';
+import {WinscopeEvent} from '@messaging/winscope_event';
 
 export class ExpandedTimelineToggled implements WinscopeEvent {
   constructor(readonly isTimelineExpanded: boolean) {}

@@ -18,28 +18,28 @@ import {
   assertBigIntOrUndefined,
   assertDefined,
   assertStringOrUndefined,
-} from 'common/assert';
-import {AbstractParser} from 'parsers/perfetto/abstract_parser';
+} from '@common/assert';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
-} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   QueryResults,
   QueryResult,
   RowIterator,
-} from 'trace_processor/query_result';
+} from '@trace_processor/query_result';
 import {extractAllRects} from './rect_extractor';
 import {
   makeEntryHierarchyTrees,
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 /**
  * Parser for WindowManager Perfetto traces.

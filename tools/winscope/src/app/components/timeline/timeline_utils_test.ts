@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {TimeRange} from 'common/time/time';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
+import {TimeRange} from '@common/time/time';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
 import {
   makeRealTimestamp,
   makeZeroTimestamp,
   UTC_CONVERTER,
-} from 'test/unit/time_test_helpers';
-import {TransitionStatus} from 'trace/transitions/status';
+} from '@test/unit/time_test_helpers';
+import {TransitionStatus} from '@trace/transitions/status';
 import {
   convertHexToRgb,
   getTimeRangeForTransition,
   isTransitionWithUnknownEnd,
   isTransitionWithUnknownStart,
 } from './timeline_utils';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 
 describe('TimelineUtils', () => {
   const zeroTs = makeZeroTimestamp();

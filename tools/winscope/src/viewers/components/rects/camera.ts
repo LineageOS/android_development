@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Distance} from 'common/geometry/distance';
+import {Distance} from '@common/geometry/distance';
 
 export interface Camera {
   rotationAngleX: number;

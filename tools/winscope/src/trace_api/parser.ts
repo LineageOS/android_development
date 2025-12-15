@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {TracePacket} from 'compat/perfetto';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
-import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+import {Timestamp} from '@common/time/time';
+import {TracePacket} from '@compat/perfetto';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 import {CoarseVersion} from './coarse_version';
 import {

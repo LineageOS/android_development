@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {Store} from 'common/store/store';
-import {Trace} from 'trace_api/trace';
-import {ImeTraceType, TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {NotifyHierarchyViewCallbackType} from 'viewers/common/abstract_hierarchy_viewer_presenter';
-import {AbstractViewerInputMethod} from 'viewers/common/abstract_viewer_input_method';
-import {ImeUiData} from 'viewers/common/ime_ui_data';
+import {Store} from '@common/store/store';
+import {Trace} from '@trace_api/trace';
+import {ImeTraceType, TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {NotifyHierarchyViewCallbackType} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {AbstractViewerInputMethod} from '@viewers/common/abstract_viewer_input_method';
+import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {PresenterInputMethodManagerService} from './presenter_input_method_manager_service';
 
 export class ViewerInputMethodManagerService extends AbstractViewerInputMethod {

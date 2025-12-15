@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {assertDefined, assertTrue} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {AbstractTracesParser} from '@parsers/traces/abstract_traces_parser';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
-} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 type OriginalTraceIndex = number;
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
-import {InputEntry} from 'viewers/viewer_input/ui_data';
+import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
+import {InputEntry} from '@viewers/viewer_input/ui_data';
 
 export class SearchHeightPredictor extends ItemHeightPredictor {
   protected override readonly defaultRowSize = 35;

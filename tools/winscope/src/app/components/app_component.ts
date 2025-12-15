@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ViewerSearch} from 'viewers/viewer_search/viewer_search';
+import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
 import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -38,22 +38,22 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Title} from '@angular/platform-browser';
-import {AbtChromeExtensionProtocol} from 'abt_chrome_extension/abt_chrome_extension_protocol';
-import {GlobalErrorHandler} from 'app/global_error_handler';
-import {Mediator} from 'app/mediator';
-import {TimelineData} from 'app/timeline_data';
-import {TracePipeline} from 'app/trace_pipeline';
-import {DownloadRequest, downloadFromUrl} from 'common/download';
-import {DOWNLOAD_FILENAME_REGEX} from 'common/io';
-import {globalConfig} from 'common/global_config';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {PersistentStore} from 'common/store/persistent_store';
-import {Store} from 'common/store/store';
-import {Timestamp} from 'common/time/time';
-import {getRootUrl} from 'common/window';
-import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
-import {Analytics} from 'logging/analytics';
-import {ProgressListener} from 'messaging/progress_listener';
+import {AbtChromeExtensionProtocol} from '@abt_chrome_extension/abt_chrome_extension_protocol';
+import {GlobalErrorHandler} from '@app/global_error_handler';
+import {Mediator} from '@app/mediator';
+import {TimelineData} from '@app/timeline_data';
+import {TracePipeline} from '@app/trace_pipeline';
+import {DownloadRequest, downloadFromUrl} from '@common/download';
+import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
+import {globalConfig} from '@common/global_config';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {PersistentStore} from '@common/store/persistent_store';
+import {Store} from '@common/store/store';
+import {Timestamp} from '@common/time/time';
+import {getRootUrl} from '@common/window';
+import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
 import {
   AppFilesCollected,
   AppFilesUploaded,
@@ -61,38 +61,38 @@ import {
   AppRefreshDumpsRequest,
   AppResetRequest,
   AppTraceViewRequest,
-} from 'app/app_events';
+} from '@app/app_events';
 import {
   ActiveSearchQueriesUpdate,
   BookmarksChanged,
   BugreportFileSelected,
   BugreportFileSelectionRequest,
   DarkModeToggled,
-} from 'app/misc_events';
-import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
+} from '@app/misc_events';
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {
   ActiveTraceChanged,
   TracePositionUpdate,
   TraceSearchRequest,
-} from 'trace/trace_events';
-import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {UserNotifier} from 'services/user_notifier';
-import {AdbFiles} from 'trace_collection/adb_files';
-import {ViewerInputMethodComponent} from 'viewers/components/viewer_input_method_component';
-import {Viewer} from 'viewers/viewer';
-import {ViewerInputComponent} from 'viewers/viewer_input/viewer_input_component';
-import {ViewerJankCujsComponent} from 'viewers/viewer_jank_cujs/viewer_jank_cujs_component';
-import {ViewerMediaBasedComponent} from 'viewers/viewer_media_based/viewer_media_based_component';
-import {ViewerProtologComponent} from 'viewers/viewer_protolog/viewer_protolog_component';
-import {ViewerSearchComponent} from 'viewers/viewer_search/viewer_search_component';
-import {ViewerSurfaceFlingerComponent} from 'viewers/viewer_surface_flinger/viewer_surface_flinger_component';
-import {ViewerTransactionsComponent} from 'viewers/viewer_transactions/viewer_transactions_component';
-import {ViewerTransitionsComponent} from 'viewers/viewer_transitions/viewer_transitions_component';
-import {ViewerViewCaptureComponent} from 'viewers/viewer_view_capture/viewer_view_capture_component';
-import {ViewerWindowManagerComponent} from 'viewers/viewer_window_manager/viewer_window_manager_component';
-import {isAllowedIframeParentOrigin} from 'cross_tool/origin_allow_list';
+} from '@trace/trace_events';
+import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {UserNotifier} from '@services/user_notifier';
+import {AdbFiles} from '@trace_collection/adb_files';
+import {ViewerInputMethodComponent} from '@viewers/components/viewer_input_method_component';
+import {Viewer} from '@viewers/viewer';
+import {ViewerInputComponent} from '@viewers/viewer_input/viewer_input_component';
+import {ViewerJankCujsComponent} from '@viewers/viewer_jank_cujs/viewer_jank_cujs_component';
+import {ViewerMediaBasedComponent} from '@viewers/viewer_media_based/viewer_media_based_component';
+import {ViewerProtologComponent} from '@viewers/viewer_protolog/viewer_protolog_component';
+import {ViewerSearchComponent} from '@viewers/viewer_search/viewer_search_component';
+import {ViewerSurfaceFlingerComponent} from '@viewers/viewer_surface_flinger/viewer_surface_flinger_component';
+import {ViewerTransactionsComponent} from '@viewers/viewer_transactions/viewer_transactions_component';
+import {ViewerTransitionsComponent} from '@viewers/viewer_transitions/viewer_transitions_component';
+import {ViewerViewCaptureComponent} from '@viewers/viewer_view_capture/viewer_view_capture_component';
+import {ViewerWindowManagerComponent} from '@viewers/viewer_window_manager/viewer_window_manager_component';
+import {isAllowedIframeParentOrigin} from '@cross_tool/origin_allow_list';
 import {
   MatDrawer,
   MatDrawerContainer,
@@ -113,8 +113,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatMenuModule} from '@angular/material/menu';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
-import {RequestData} from 'cross_tool/g3_proxy';
-import {getLogger} from 'compat/logging';
+import {RequestData} from '@cross_tool/g3_proxy';
+import {getLogger} from '@compat/logging';
 
 /**
  * The root component of the Winscope app.
@@ -150,273 +150,7 @@ import {getLogger} from 'compat/logging';
     WarningDialogComponent,
   ],
   providers: [Title, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
-  template: `
-    <mat-toolbar class="toolbar">
-      <div class="horizontal-align vertical-align fixed logo">
-        <img class="app-title" [src]="getLogoUrl()"/>
-        @if (isBeta) {
-          <span class="beta-tag">BETA</span>
-        }
-      </div>
-
-      <div class="horizontal-align vertical-align icon-actions small-icon-container">
-        @if (showDataLoadedElements) {
-          @let packetLoss = packetLossWarning();
-          @let showFileWarningStyle = downloadProgress === undefined
-            && !isEditingFilename
-            && packetLoss !== undefined;
-          <div class="download-files-section">
-            <div
-              class="file-descriptor vertical-align"
-              [class.file-warning]="showFileWarningStyle">
-              @if (showCrossToolSyncButton()) {
-                <button
-                  mat-icon-button
-                  [matTooltip]="getCrossToolSyncTooltip()"
-                  class="cross-tool-sync-button"
-                  (click)="onCrossToolSyncButtonClick()"
-                  [color]="getCrossToolSyncButtonColor()">
-                  <mat-icon class="material-symbols-outlined">cloud_sync</mat-icon>
-                </button>
-              }
-              @if (packetLoss !== undefined) {
-                <mat-icon
-                  [matTooltip]="packetLoss"
-                  class="warning-icon fixed">warning</mat-icon>
-              }
-              @if (!isEditingFilename) {
-                <span class="download-file-info text-no-overflow mat-body-2">
-                  {{ filenameFormControl.value }}
-                </span>
-              }
-              @if (!isEditingFilename) {
-                <span class="download-file-ext mat-body-2">.zip</span>
-              }
-              @if (isEditingFilename) {
-                <mat-form-field
-                  class="file-name-input-field"
-                  subscriptSizing="dynamic"
-                  floatLabel="always"
-                  (keydown.esc)="trySubmitFilename()"
-                  (keydown.enter)="trySubmitFilename()"
-                  (focusout)="trySubmitFilename()"
-                  matTooltip="Allowed: A-Z a-z 0-9 . _ - #">
-                  <mat-label>Edit file name</mat-label>
-                  <input matInput class="right-align" [formControl]="filenameFormControl" />
-                  <span matTextSuffix>.zip</span>
-                </mat-form-field>
-              }
-              @if (isEditingFilename) {
-                <button
-                  mat-icon-button
-                  class="check-button"
-                  matTooltip="Submit file name"
-                  (click)="trySubmitFilename()">
-                  <mat-icon>check</mat-icon>
-                </button>
-              }
-              @if (!isEditingFilename) {
-                <button
-                  mat-icon-button
-                  class="edit-button"
-                  matTooltip="Edit file name"
-                  (click)="onPencilIconClick()">
-                  <mat-icon>edit</mat-icon>
-                </button>
-              }
-              <button
-                mat-icon-button
-                [disabled]="isEditingFilename"
-                matTooltip="Download all traces"
-                class="save-button"
-                (click)="onDownloadTracesButtonClick()">
-                <mat-icon class="material-symbols-outlined">download</mat-icon>
-              </button>
-            </div>
-            @if (downloadProgress !== undefined) {
-              <mat-progress-bar
-                mode="determinate"
-                [value]="downloadProgress">
-              </mat-progress-bar>
-            }
-          </div>
-        }
-
-        @if (showDataLoadedElements) {
-          <div class="icon-divider toolbar-icon-divider"></div>
-        }
-        @if (showDataLoadedElements && allTracesAreDumps()) {
-          <button
-            color="primary"
-            mat-icon-button
-            matTooltip="Refresh dumps"
-            class="refresh-dumps"
-            (click)="onRefreshDumpsButtonClick()">
-            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
-          </button>
-        }
-        @if (showDataLoadedElements) {
-          <button
-            mat-icon-button
-            matTooltip="Upload or collect new trace"
-            class="upload-new"
-            (click)="onUploadNewButtonClick()">
-            <mat-icon class="material-symbols-outlined">upload</mat-icon>
-          </button>
-        }
-
-        <button
-          mat-icon-button
-          matTooltip="Shortcuts"
-          class="shortcuts"
-          (click)="openShortcutsPanel()">
-          <mat-icon>keyboard_command_key</mat-icon>
-        </button>
-
-        <button
-          mat-icon-button
-          matTooltip="Documentation"
-          class="documentation"
-          (click)="goToDocumentation()">
-          <mat-icon>menu_book</mat-icon>
-        </button>
-
-        <button
-          mat-icon-button
-          class="report-bug"
-          matTooltip="Report bug"
-          (click)="goToBuganizer()">
-          <mat-icon>bug_report</mat-icon>
-        </button>
-
-        <button
-          mat-icon-button
-          class="dark-mode"
-          matTooltip="Switch to {{ isDarkModeOn ? 'light' : 'dark' }} mode"
-          (click)="toggleDarkMode()">
-          <mat-icon>
-            {{ isDarkModeOn ? 'brightness_5' : 'brightness_4' }}
-          </mat-icon>
-        </button>
-
-        <div class="share-btn-wrapper" matTooltip="Share functionality is not available for the provided traces" [matTooltipDisabled]="isInsideWinscopeProxyFrame()">
-          <button
-            mat-icon-button
-            matTooltip="Share"
-            class="share-btn"
-            [disabled]="!isInsideWinscopeProxyFrame()"
-            (click)="updateShareState()"
-            [matMenuTriggerFor]="shareMenu">
-            <mat-icon>share</mat-icon>
-          </button>
-        </div>
-        <mat-menu #shareMenu="matMenu" (click)="$event.stopPropagation()">
-          <div class="share-menu-content" (click)="$event.stopPropagation()">
-            <div class="share-options" *ngIf="showShareOptionsContainer">
-              <p class="mat-subheading-2" style="margin: 0 0 8px;">Select what to share</p>
-
-              <div class="share-option" *ngIf="canShareLocation">
-                <mat-checkbox [(ngModel)]="shareOptions.location" (change)="updateShareLink()">
-                  Current location</mat-checkbox>
-                <mat-icon
-                  class="info-icon"
-                  matTooltip="Shares the active position in the timeline and the tab of the active trace being viewed. The shared URL will jump to this trace and timestamp when opened."
-                  >info_outline</mat-icon>
-              </div>
-              <div class="share-option" *ngIf="canShareBookmarks">
-                <mat-checkbox [(ngModel)]="shareOptions.bookmarks" (change)="updateShareLink()">Bookmarks</mat-checkbox>
-                <mat-icon
-                  class="info-icon"
-                  matTooltip="Shares any bookmarks you have added to the timeline."
-                  >info_outline</mat-icon>
-              </div>
-              <div class="share-option" *ngIf="canShareQueries">
-                <mat-checkbox [(ngModel)]="shareOptions.searchQueries" (change)="updateShareLink()"
-                  >Search queries</mat-checkbox
-                >
-                <mat-icon
-                  class="info-icon"
-                  matTooltip="Shares your search queries and results."
-                  >info_outline</mat-icon>
-              </div>
-            </div>
-
-            <div class="share-link-container">
-              <mat-form-field class="share-link-field" subscriptSizing="dynamic">
-                <mat-label>Shareable link</mat-label>
-                <input matInput readonly [value]="generatedShareLink">
-              </mat-form-field>
-
-              <button mat-icon-button [cdkCopyToClipboard]="generatedShareLink" matTooltip="Copy link" [disabled]="!generatedShareLink">
-                <mat-icon>content_copy</mat-icon>
-              </button>
-            </div>
-          </div>
-        </mat-menu>
-
-        @if (isInsideWinscopeProxyFrame()) {
-          <button
-            mat-icon-button
-            class="iframe-settings"
-            matTootltip="Settings"
-            (click)="openSettings()">
-            <mat-icon>settings</mat-icon>
-          </button>
-        }
-      </div>
-    </mat-toolbar>
-
-    <mat-divider></mat-divider>
-
-    <mat-drawer-container
-      autosize
-      disableClose
-      autoFocus
-      style.background="var(--background-color)">
-      <mat-drawer-content>
-        @if (dataLoaded) {
-          <trace-view class="viewers" [viewers]="viewers" [store]="persistentStore"></trace-view>
-
-          <mat-divider></mat-divider>
-        } @else {
-          <div class="center">
-            <div class="landing-content">
-              <h1 class="welcome-info mat-headline-1">
-                Welcome to Winscope. Please select source to view traces.
-              </h1>
-
-              <div class="card-grid landing-grid">
-                <collect-traces
-                  class="collect-traces-card homepage-card"
-                  [storage]="appStorage"
-                  (filesCollected)="onFilesCollected($event)"></collect-traces>
-
-                <upload-traces
-                  #uploadTraces
-                  class="upload-traces-card homepage-card"
-                  [tracePipeline]="tracePipeline"
-                  [storage]="appStorage"
-                  (filesUploaded)="onFilesUploaded($event)"
-                  (viewTracesButtonClick)="onViewTracesButtonClick($event)"
-                  (downloadTracesClick)="onDownloadTracesButtonClick(uploadTraces)"></upload-traces>
-              </div>
-            </div>
-          </div>
-        }
-      </mat-drawer-content>
-
-      <mat-drawer #drawer mode="overlay" opened="true" [baseHeight]="collapsedTimelineHeight">
-        @if (dataLoaded) {
-          <timeline
-            [allTraces]="tracePipeline.getTraces()"
-            [timelineData]="timelineData"
-            [store]="persistentStore"
-            [initialTabTraceType]="mediator.initialTimelineTabTraceType"
-            (collapsedTimelineSizeChanged)="onCollapsedTimelineSizeChanged($event)"></timeline>
-        }
-      </mat-drawer>
-    </mat-drawer-container>
-  `,
+  templateUrl: './app_component.ng.html',
   styleUrls: ['app_component.css'],
 })
 export class AppComponent implements WinscopeEventListener {

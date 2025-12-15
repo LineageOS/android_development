@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {getTracesParser} from 'test/unit/fixture_utils';
+import {assertDefined} from '@common/assert';
+import {getTracesParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
   UTC_CONVERTER,
-} from 'test/unit/time_test_helpers';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+} from '@test/unit/time_test_helpers';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
   CUJ_TYPE_FORMATTER,
   DEFAULT_PROPERTY_FORMATTER,
   TIMESTAMP_NODE_FORMATTER,
-} from 'trace/formatters';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@trace/formatters';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('TracesParserCujs', () => {
   let parser: Parser<HierarchyTreeNode>;

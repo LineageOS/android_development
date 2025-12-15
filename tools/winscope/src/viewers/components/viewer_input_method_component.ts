@@ -15,15 +15,15 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {ImeUiData} from 'viewers/common/ime_ui_data';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {ImeAdditionalPropertiesComponent} from 'viewers/components/ime_additional_properties_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {ImeUiData} from '@viewers/common/ime_ui_data';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {ImeAdditionalPropertiesComponent} from '@viewers/components/ime_additional_properties_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {viewerCardStyle} from './styles/viewer_card.styles';
 
 @Component({
@@ -36,51 +36,7 @@ import {viewerCardStyle} from './styles/viewer_card.styles';
     PropertiesComponent,
     ImeAdditionalPropertiesComponent,
   ],
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-        [class.empty]="sections.areAllSectionsExpanded()"
-        [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-
-      @if (!areLeftViewsCollapsed()) {
-        <div class="left-views">
-          <hierarchy-view
-            class="hierarchy-view"
-            [trees]="this.inputData?.hierarchyTrees ?? []"
-            [dependencies]="inputData ? [inputData.traceType] : []"
-            [highlightedItem]="inputData?.highlightedItem"
-            [pinnedItems]="inputData?.pinnedItems ?? []"
-            [tableProperties]="inputData?.hierarchyTableProperties"
-            [textFilter]="inputData?.hierarchyFilter"
-            [store]="store"
-            [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-            placeholderText="No IME entry found."></hierarchy-view>
-          <ime-additional-properties
-            class="ime-additional-properties"
-            [isImeManagerService]="isImeManagerService()"
-            [highlightedItem]="inputData?.highlightedItem ?? ''"
-            [additionalProperties]="inputData?.additionalProperties"
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"></ime-additional-properties>
-        </div>
-      }
-
-      <properties-view
-        class="properties-view"
-        [store]="store"
-        [userOptions]="inputData?.propertiesUserOptions ?? {}"
-        [propertiesTree]="inputData?.propertiesTree"
-        [traceType]="inputData?.traceType"
-        [textFilter]="inputData?.propertiesFilter"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-        placeholderText="No selected item."></properties-view>
-    </div>
-  `,
+  templateUrl: './viewer_input_method_component.ng.html',
   styles: [
     `
       .left-views {

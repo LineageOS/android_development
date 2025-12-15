@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {getLogger, Logger} from '@compat/logging';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Chip} from './chip';
 import {DiffNode} from './diff_node';
 import {DiffType} from './diff_type';

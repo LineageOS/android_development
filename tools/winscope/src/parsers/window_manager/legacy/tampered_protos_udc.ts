@@ -15,7 +15,7 @@
  */
 
 import root from 'protos/windowmanager/udc/json';
-import {TamperedMessageType} from 'trace/proto_utils/tampered_message_type';
+import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 
 export const TAMPERED_PROTO_UDC = TamperedMessageType.tamper(
   root.lookupType('com.android.server.wm.WindowManagerTraceFileProto'),

@@ -30,10 +30,10 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {SEARCH_VIEWS} from 'app/trace_search/trace_search_initializer';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {VariableHeightScrollDirective} from 'viewers/common/variable_height_scroll_directive';
+import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {
   AddQueryClickDetail,
   ClearQueryClickDetail,
@@ -41,10 +41,10 @@ import {
   SaveQueryClickDetail,
   SearchQueryClickDetail,
   ViewerEvents,
-} from 'viewers/common/viewer_events';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {LogComponent} from 'viewers/components/log_component';
+} from '@viewers/common/viewer_events';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {LogComponent} from '@viewers/components/log_component';
 import {ActiveSearchComponent} from './active_search_component';
 import {SearchListComponent} from './search_list_component';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';

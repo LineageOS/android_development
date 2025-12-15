@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert';
-import {utf8Encode} from 'common/string_helpers';
+import {assertDefined} from '@common/assert';
+import {utf8Encode} from '@common/string_helpers';
 import Long from 'long';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {TracePacket, ClockSnapshot} from '@compat/perfetto';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('ParserViewCapture', () => {
   let parser: Parser<HierarchyTreeNode>;

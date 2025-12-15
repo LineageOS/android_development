@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 export interface SfLayerSummary {
   layerId: string;

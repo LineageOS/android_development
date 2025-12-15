@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {ParserBuilder} from 'test/unit/parser_builder';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
+import {ParserBuilder} from '@test/unit/parser_builder';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   makeZeroTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
 import {
   extractEntries,
   extractFrames,
   extractTimestamps,
   makeEmptyTrace,
-} from 'test/unit/trace_test_helpers';
+} from '@test/unit/trace_test_helpers';
 
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';

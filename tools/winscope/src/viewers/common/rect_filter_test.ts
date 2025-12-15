@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 import {RectFilter} from './rect_filter';
 import {RectShowState} from './rect_show_state';
 

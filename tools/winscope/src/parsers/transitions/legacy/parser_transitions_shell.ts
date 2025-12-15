@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
+import {Timestamp} from '@common/time/time';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
 import {
   ShellHandlerMappings,
   IShellTransition as PerfettoTransition,
-} from 'compat/winscope_protos';
-import {TracePacket} from 'compat/perfetto';
+} from '@compat/winscope_protos';
+import {TracePacket} from '@compat/perfetto';
 import root from 'protos/transitions/udc/json';
 import {com} from 'protos/transitions/udc/static';
-import {TraceType} from 'trace_api/trace_type';
+import {TraceType} from '@trace_api/trace_type';
 import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
 
 /**

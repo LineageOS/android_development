@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Timestamp, TimezoneInfo} from 'common/time/time';
+import {Timestamp, TimezoneInfo} from '@common/time/time';
 import {
   TimestampConverter,
   UTC_TIMEZONE_INFO,
-} from 'common/time/timestamp_converter';
+} from '@common/time/timestamp_converter';
 
 /**
  * Timezone information for Asia/Kolkata.

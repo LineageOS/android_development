@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {makeElapsedTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {DiffType} from './diff_type';
 import {HierarchyPresenter} from './hierarchy_presenter';
 import {SimplifyNames} from './operations/simplify_names';
 import {UserOptions} from './user_options';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 describe('HierarchyPresenter', () => {

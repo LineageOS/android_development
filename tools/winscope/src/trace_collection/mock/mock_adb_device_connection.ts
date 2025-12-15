@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
+import {getLogger, Logger} from '@compat/logging';
 import {
   AdbDeviceConnection,
   AdbDeviceConnectionListener,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {TraceTarget} from 'trace_collection/trace_target';
+} from '@trace_collection/adb/adb_device_connection';
+import {TraceTarget} from '@trace_collection/trace_target';
 
 /**
  * Represents an ADB device.

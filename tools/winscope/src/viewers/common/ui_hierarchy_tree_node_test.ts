@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
-import {makeHierarchyNode} from 'test/unit/tree_node_test_helpers';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
+import {makeWarningDuplicateLayerIds} from '@parsers/warnings';
+import {makeHierarchyNode} from '@test/unit/tree_node_test_helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 describe('UiHierarchyTreeNode', () => {

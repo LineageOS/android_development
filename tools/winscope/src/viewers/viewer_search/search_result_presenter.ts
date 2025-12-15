@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import {MakeTimestampStrategyType} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {MakeTimestampStrategyType} from '@common/time/time';
+import {Trace, TraceEntry} from '@trace_api/trace';
 import {
   ColumnType,
   QueryResult,
   RowIterator,
-} from 'trace_processor/query_result';
+} from '@trace_processor/query_result';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
-} from 'viewers/common/abstract_log_viewer_presenter';
-import {LogPresenter} from 'viewers/common/log_presenter';
+} from '@viewers/common/abstract_log_viewer_presenter';
+import {LogPresenter} from '@viewers/common/log_presenter';
 import {
   LogEntry,
   LogField,
   LogFieldValue,
   LogHeader,
-} from 'viewers/common/ui_data_log';
+} from '@viewers/common/ui_data_log';
 import {SearchResult} from './ui_data';
 
 export class SearchResultPresenter extends AbstractLogViewerPresenter<

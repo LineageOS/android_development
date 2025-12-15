@@ -1,0 +1,15 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table td {
+  padding: 1px 5px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.header-row td {
+  color: gray;
+}

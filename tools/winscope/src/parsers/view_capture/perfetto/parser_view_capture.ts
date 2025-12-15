@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {assertString, assertTrue} from 'common/assert';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {TraceFile} from 'trace/trace_file';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {assertString, assertTrue} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceFile} from '@trace/trace_file';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {ParserViewCaptureWindow} from './parser_view_capture_window';
 
 interface WindowAndPackage {

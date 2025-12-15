@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Color} from 'app/colors';
+import {Color} from '@app/colors';
 
 export const userOptionStyle = `
   .user-option {

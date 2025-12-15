@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {ArrayBufferBuilder} from 'common/buffer';
-import {base64Encode, binaryEncode, utf8Decode} from 'common/string_helpers';
+import {ArrayBufferBuilder} from '@common/buffer';
+import {base64Encode, binaryEncode, utf8Decode} from '@common/string_helpers';
 import {
   makeFakeWebSocket,
   makeFakeWebSocketMessage,
-} from 'test/unit/web_socket_utils';
+} from '@test/unit/web_socket_utils';
 import {SyncStream} from './sync_stream';
 
 describe('SyncStream', () => {

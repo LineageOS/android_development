@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {TracePacket} from 'compat/perfetto';
-import {Timestamp} from 'common/time/time';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {TracePacket} from '@compat/perfetto';
+import {Timestamp} from '@common/time/time';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace_api/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
-import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+} from '@trace_api/custom_query';
+import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 
 /**
  * A mock implementation of the Parser interface.

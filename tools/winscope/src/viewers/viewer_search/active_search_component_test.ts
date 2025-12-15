@@ -25,12 +25,12 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   SearchQueryClickDetail,
   ViewerEvents,
-} from 'viewers/common/viewer_events';
+} from '@viewers/common/viewer_events';
 import {ActiveSearchComponent} from './active_search_component';
 
 describe('ActiveSearchComponent', () => {

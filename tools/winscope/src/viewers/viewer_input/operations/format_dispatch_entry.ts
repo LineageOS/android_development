@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {FixedStringFormatter} from 'trace/formatters';
-import {DispatchedPointerAxis} from 'trace/input/dispatched_pointer_axis';
-import {Operation} from 'tree_node/operation';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {FixedStringFormatter} from '@trace/formatters';
+import {DispatchedPointerAxis} from '@trace/input/dispatched_pointer_axis';
+import {Operation} from '@tree_node/operation';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 export class FormatDispatchEntry implements Operation<UiPropertyTreeNode> {
   constructor(private readonly layerIdToName: Map<number, string>) {}

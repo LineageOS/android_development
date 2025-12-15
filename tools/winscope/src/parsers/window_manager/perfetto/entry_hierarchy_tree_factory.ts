@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined, assertString} from 'common/assert';
+import {assertBigInt, assertDefined, assertString} from '@common/assert';
 import {
   LazyPropertiesStrategyType,
   PropertiesProvider,
-} from 'tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@tree_node/properties_provider';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {ContainerType} from './container_type';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
+import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {extractRect} from './rect_extractor';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TraceRect} from 'tree_node/trace_rect';
-import {queryArgs} from 'parsers/perfetto/query_helpers';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
-import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {WM_OPERATION_LISTS} from './operations/operation_lists';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
+import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
 
 /**
  * Creates HierarchyTreeNode objects for a WM trace.

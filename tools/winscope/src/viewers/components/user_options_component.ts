@@ -18,9 +18,9 @@ import {CommonModule} from '@angular/common';
 import {Component, ElementRef, Inject, Input} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {UserOption, UserOptions} from 'viewers/common/user_options';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {UserOption, UserOptions} from '@viewers/common/user_options';
 import {userOptionStyle} from './styles/user_option.styles';
 
 type LogCallback = (key: string, state: boolean, name: string) => void;
@@ -29,28 +29,7 @@ type LogCallback = (key: string, state: boolean, name: string) => void;
   selector: 'user-options',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
-  template: `
-      @for (option of objectKeys(userOptions); track option) {
-        <button
-          mat-flat-button
-          [color]="getUserOptionButtonColor(userOptions[option])"
-          [disabled]="userOptions[option].isUnavailable"
-          [class.not-enabled]="!userOptions[option].enabled"
-          class="user-option"
-          [style.cursor]="'pointer'"
-          (click)="onUserOptionChange(userOptions[option])">
-          <span class="user-option-label" [class.with-chip]="!!userOptions[option].chip">
-            <span> {{userOptions[option].name}} </span>
-            @if (userOptions[option].chip) {
-              <div class="user-option-chip"> {{userOptions[option].chip.short}} </div>
-            }
-            @if (userOptions[option].icon) {
-              <mat-icon class="material-symbols-outlined"> {{userOptions[option].icon}} </mat-icon>
-            }
-          </span>
-        </button>
-      }
-    `,
+  templateUrl: './user_options_component.ng.html',
   styles: [userOptionStyle],
 })
 export class UserOptionsComponent {

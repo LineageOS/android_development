@@ -16,12 +16,15 @@
 import {CommonModule} from '@angular/common';
 import {Component, ElementRef, Inject, Input} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {DiffType} from 'viewers/common/diff_type';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {TimestampClickDetail, ViewerEvents} from 'viewers/common/viewer_events';
-import {propertyTreeNodeDataViewStyles} from 'viewers/components/styles/tree_node_data_view.styles';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {DiffType} from '@viewers/common/diff_type';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {
+  TimestampClickDetail,
+  ViewerEvents,
+} from '@viewers/common/viewer_events';
+import {propertyTreeNodeDataViewStyles} from '@viewers/components/styles/tree_node_data_view.styles';
 import {
   inlineButtonStyle,
   timeButtonStyle,
@@ -31,63 +34,7 @@ import {
   selector: 'property-tree-node-data-view',
   standalone: true,
   imports: [CommonModule, MatButtonModule],
-  template: `
-    @if (node) {
-      <div class="node-property">
-        <span class=" mat-body-1 property-key"> {{ getKey(node) }} </span>
-        @if (node.formattedValue()) {
-          <div class="property-value" [class]="[timeClass()]">
-            @if (isTimestamp()) {
-              <button
-                class="time-button"
-                mat-button
-                color="primary"
-                (click)="onTimestampClicked(node)">
-                {{ node.formattedValue() }}
-              </button>
-            } @else if (!isTimestamp() && !node.hasDiffValueParts()) {
-              @if (node.canPropagate()) {
-                <div class="inline">
-                  <button
-                    mat-button
-                    color="primary"
-                    (click)="onPropagateButtonClicked(node)">
-                    {{ node.formattedValue() }}
-                  </button>
-                </div>
-              } @else {
-                <span
-                  [class]="valueClass()"
-                  class="mat-body-2 value new-value">{{ node.formattedValue() }}</span>
-              }
-              @if (isModified()) {
-                <s class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
-              }
-            } @else if (node.hasDiffValueParts()) {
-              <span
-                class="value diff-value-parts">
-                @for (part of node.getDiffValueParts(); track $index; let i = $index) {
-                  @if (i > 0) {
-                    <span>&ngsp; | &ngsp;</span>
-                  }
-                  @if (part.isNew) {
-                    <span
-                      class="mat-body-2 new-value">{{ part.value }}</span>
-                  } @else if (part.isOld) {
-                    <s
-                      class="mat-body-2 old-value">{{ part.value }}</s>
-                  } @else if (!part.isNew && !part.isOld) {
-                    <span
-                      class="mat-body-1 unchanged-value">{{ part.value }}</span>
-                  }
-                }
-              </span>
-            }
-          </div>
-        }
-      </div>
-    }
-  `,
+  templateUrl: './property_tree_node_data_view_component.ng.html',
   styles: [
     `
       .property-value button {

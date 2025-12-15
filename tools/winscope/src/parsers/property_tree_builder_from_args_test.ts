@@ -18,13 +18,13 @@ import root from 'protos/test/fake_proto/json';
 import {
   ChildProperty,
   PropertyTreeBuilder,
-} from 'test/unit/property_tree_builder';
+} from '@test/unit/property_tree_builder';
 import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
-import {makeSpyRowIterator} from 'trace_processor/test_utils';
-import {TamperedMessageType} from 'trace/proto_utils/tampered_message_type';
-import {PropertySource, PropertyValue} from 'tree_node/property_tree_node';
-import {convertSnakeToCamelCase} from 'common/string_helpers';
-import {ColumnType, RowIterator} from 'trace_processor/query_result';
+import {makeSpyRowIterator} from '@trace_processor/test_utils';
+import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
+import {PropertySource, PropertyValue} from '@tree_node/property_tree_node';
+import {convertSnakeToCamelCase} from '@common/string_helpers';
+import {ColumnType, RowIterator} from '@trace_processor/query_result';
 
 describe('PropertyTreeBuilderFromArgs', () => {
   const messageType = TamperedMessageType.tamper(root.lookupType('Entry'));

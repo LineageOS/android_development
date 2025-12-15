@@ -38,27 +38,27 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {Store} from 'common/store/store';
-import {Analytics} from 'logging/analytics';
+import {assertDefined} from '@common/assert';
+import {Store} from '@common/store/store';
+import {Analytics} from '@logging/analytics';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-} from 'app/misc_events';
+} from '@app/misc_events';
 import {
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
-} from 'app/tabbed_view_events';
+} from '@app/tabbed_view_events';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {getLogger} from 'compat/logging';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {View, Viewer, ViewType} from 'viewers/viewer';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {getLogger} from '@compat/logging';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {View, Viewer, ViewType} from '@viewers/viewer';
 
 interface Tab {
   view: View;
@@ -84,112 +84,7 @@ interface Tab {
     ReactiveFormsModule,
     MatDividerModule,
   ],
-  template: `
-      <div class="overlay-container">
-      </div>
-      <div class="header-items-wrapper">
-        <div class="trace-tabs-wrapper header-items-wrapper">
-          <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="tabs-navigation-bar">
-            @for (tab of tabs; track tab; let isLast = $last) {
-              <a
-                mat-tab-link
-                [active]="isCurrentActiveTab(tab)"
-                [class.active]="isCurrentActiveTab(tab)"
-                [matTooltip]="getTabTooltip(tab.view)"
-                matTooltipPosition="above"
-                [matTooltipShowDelay]="300"
-                [matTooltipDisabled]="!tab.isTooltipStable"
-                (click)="onTabClick(tab)"
-                (focus)="$event.target.blur()"
-                (mouseenter)="onTabHover($event, tab)"
-                [class.last]="isLast"
-                class="tab text-no-overflow">
-                <mat-icon
-                  class="icon"
-                  [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
-                    {{ getTabIcon(tab) }}
-                </mat-icon>
-                <span class="tab-title">
-                  {{ getTitle(tab.view) }}
-                </span>
-              </a>
-            }
-          </nav>
-        </div>
-
-        <button
-          [disabled]="!currentTabHasFilterPresets()"
-          mat-flat-button
-          cdkOverlayOrigin
-          #filterPresetsTrigger="cdkOverlayOrigin"
-          color="primary"
-          class="filter-presets"
-          (click)="onFilterPresetsClick()">
-          <span class="filter-presets-label">
-            <mat-icon class="material-symbols-outlined">save</mat-icon>
-            <span> Filter Presets </span>
-          </span>
-        </button>
-
-        <ng-template
-          cdkConnectedOverlay
-          [cdkConnectedOverlayOrigin]="filterPresetsTrigger"
-          [cdkConnectedOverlayOpen]="isFilterPresetsPanelOpen"
-          [cdkConnectedOverlayHasBackdrop]="true"
-          cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-          (backdropClick)="onFilterPresetsClick()">
-          <div class="overlay-panel filter-presets-panel">
-            <h2 class="overlay-panel-title">
-              <span> FILTER PRESETS </span>
-              <button (click)="onFilterPresetsClick()" class="close-button" mat-icon-button>
-                <mat-icon> close </mat-icon>
-              </button>
-            </h2>
-            <div class="overlay-panel-content">
-              <span class="mat-body-1"> Save the current configuration of filters for this trace type to access later, or select one of the existing configurations below. </span>
-
-              <div class="overlay-panel-section save-section">
-                <span class="mat-body-2 overlay-panel-section-title"> Preset Name </span>
-                <div class="outline-field save-field">
-                  <mat-form-field subscriptSizing="dynamic" appearance="outline">
-                    <input matInput [formControl]="filterPresetNameControl" (keydown.enter)="savePreset()"/>
-                    @if (filterPresetNameControl.invalid && filterPresetNameControl.value) {
-                      <mat-error>Preset with that name already exists.</mat-error>
-                    }
-                  </mat-form-field>
-                  <button mat-flat-button color="primary" [disabled]="filterPresetNameControl.invalid" (click)="savePreset()"> Save </button>
-                </div>
-              </div>
-
-              <mat-divider></mat-divider>
-
-              <div class="overlay-panel-section existing-presets-section">
-                <span class="mat-body-2 overlay-panel-section-title"> Apply a preset </span>
-                @if (getCurrentFilterPresets().length === 0) {
-                  <span class="mat-body-1"> No existing presets found. </span>
-                }
-                @for (preset of getCurrentFilterPresets(); track preset) {
-                  <div class="existing-preset inline">
-                    <button
-                        mat-button
-                        color="primary"
-                        (click)="onExistingPresetClick(preset)">
-                      {{ preset.split(".")[0] }}
-                    </button>
-                    <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
-                      <mat-icon class="material-symbols-outlined"> delete </mat-icon>
-                    </button>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        </ng-template>
-      </div>
-      <mat-divider></mat-divider>
-      <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
-      <div class="trace-view-content"></div>
-  `,
+  templateUrl: './trace_view_component.ng.html',
   styleUrls: ['trace_view_component.css'],
 })
 export class TraceViewComponent

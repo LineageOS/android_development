@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Segment} from 'app/components/timeline/segment';
+import {Segment} from '@app/components/timeline/segment';
 import {MathUtils} from 'three/src/Three';
 import {DraggableCanvasObject} from './draggable_canvas_object';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';

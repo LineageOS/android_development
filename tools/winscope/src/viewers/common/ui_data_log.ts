@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {TraceEntry} from 'trace_api/trace';
-import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UserOptions} from 'viewers/common/user_options';
+import {Timestamp} from '@common/time/time';
+import {TraceEntry} from '@trace_api/trace';
+import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UserOptions} from '@viewers/common/user_options';
 import {LogFilter} from './log_filters';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 

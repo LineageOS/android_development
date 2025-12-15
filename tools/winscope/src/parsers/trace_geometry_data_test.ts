@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {Rect} from 'common/geometry/rect';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {QueryResult} from 'trace_processor/query_result';
+import {Rect} from '@common/geometry/rect';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {QueryResult} from '@trace_processor/query_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,
-} from 'trace_processor/test_utils';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+} from '@trace_processor/test_utils';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 import {
   TraceGeometryData,

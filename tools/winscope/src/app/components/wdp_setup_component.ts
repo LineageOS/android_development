@@ -19,7 +19,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 
-import {ConnectionState} from 'trace_collection/connection_state';
+import {ConnectionState} from '@trace_collection/connection_state';
 
 /**
  * A component for displaying the Web Device Proxy setup instructions.
@@ -28,63 +28,13 @@ import {ConnectionState} from 'trace_collection/connection_state';
   selector: 'wdp-setup',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
-  template: `
-    @switch (state) {
-      @case (${ConnectionState.CONNECTING}) {
-        <p class="connecting-message mat-body-1">
-          Connecting...
-        </p>
-      }
-      @case (${ConnectionState.NOT_FOUND}) {
-        <div class="further-adb-info-text">
-          <p class="mat-body-1">
-            Failed to connect. Web Device Proxy doesn't seem to be running.
-          </p>
-          <p class="mat-body-1">
-            Please check you have Web Device Proxy installed.
-          </p>
-        </div>
-        <div class="further-adb-info-actions">
-          <button
-            color="primary"
-            mat-stroked-button
-            class="install"
-            (click)="onInstallExternalButtonClick()">Install (Non-Google users)</button>
-          <button
-            color="primary"
-            mat-stroked-button
-            class="install"
-            (click)="onInstallGoogleButtonClick()">Install (Google employees only)</button>
-          <button
-            color="primary"
-            mat-stroked-button
-            class="retry"
-            (click)="onRetryButtonClick()">Retry</button>
-        </div>
-      }
-      @case (${ConnectionState.UNAUTH}) {
-        <div class="further-adb-info-text">
-          <p class="icon-information mat-body-1">
-            <mat-icon class="adb-icon">lock</mat-icon>
-            <span class="adb-info">Web Device Proxy not yet authorized. Enable popups and try again.</span>
-          </p>
-        </div>
-
-        <div class="further-adb-info-actions">
-          <button
-            color="primary"
-            mat-stroked-button
-            class="retry"
-            (click)="onRetryButtonClick()">Retry</button>
-        </div>
-      }
-    }
-  `,
+  templateUrl: './wdp_setup_component.ng.html',
   styleUrls: ['../styles/proxy_setup.css'],
 })
 export class WdpSetupComponent {
   @Input() state: ConnectionState | undefined;
   @Output() readonly retryConnection = new EventEmitter();
+  ConnectionState = ConnectionState;
 
   onInstallExternalButtonClick() {
     window.open(

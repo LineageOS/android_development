@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
-import {Region} from 'common/geometry/region';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {Region} from '@common/geometry/region';
 import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
   makeWarningRecursiveLayerIds,
-} from 'parsers/warnings';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+} from '@parsers/warnings';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 import {
   ColumnType,
   QueryResult,
   RowIterator,
-} from 'trace_processor/query_result';
+} from '@trace_processor/query_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,
-} from 'trace_processor/test_utils';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TraceRect} from 'tree_node/trace_rect';
+} from '@trace_processor/test_utils';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from './entry_hierarchy_tree_factory';
 import {RectExtractor} from './rect_extractor';
-import {RectsForTrace, SnapshotRects} from 'tree_node/rect_extractor_result';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
+import {RectsForTrace, SnapshotRects} from '@tree_node/rect_extractor_result';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 
 describe('EntryHierarchyTreeFactory', () => {
   const traceProcessor = jasmine.createSpyObj<TraceProcessor>(

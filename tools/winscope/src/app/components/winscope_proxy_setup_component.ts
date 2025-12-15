@@ -22,10 +22,10 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DownloadRequest, downloadFromUrl} from 'common/download';
-import {getRootUrl} from 'common/window';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {VERSION} from 'trace_collection/winscope_proxy/utils';
+import {DownloadRequest, downloadFromUrl} from '@common/download';
+import {getRootUrl} from '@common/window';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {VERSION} from '@trace_collection/winscope_proxy/utils';
 
 /**
  * A component for displaying the Winscope proxy setup instructions.
@@ -43,106 +43,7 @@ import {VERSION} from 'trace_collection/winscope_proxy/utils';
     MatIconModule,
     FormsModule,
   ],
-  template: `
-    @switch (state) {
-      @case (${ConnectionState.CONNECTING}) {
-        <p class="connecting-message mat-body-1">
-          Connecting...
-        </p>
-      }
-      @case (${ConnectionState.NOT_FOUND}) {
-        <div class="further-adb-info-text">
-          <p class="mat-body-1">
-            Launch the Winscope ADB Connect proxy to capture traces directly from your browser.
-          </p>
-          <p class="mat-body-1">Python 3.10+ and ADB are required. Run this command:</p>
-          <mat-form-field class="proxy-command" appearance="outline">
-            <input matInput readonly [value]="proxyCommand" />
-            <button
-              mat-icon-button
-              matIconSuffix
-              [cdkCopyToClipboard]="proxyCommand"
-              matTooltip="Copy command">
-              <mat-icon>content_copy</mat-icon>
-            </button>
-          </mat-form-field>
-          <p class="mat-body-1">Or download below.</p>
-        </div>
-
-        <div class="further-adb-info-actions">
-          <button
-            class="download-proxy-btn"
-            color="primary"
-            mat-stroked-button
-            (click)="onDownloadProxyClick()">
-            Download Proxy
-          </button>
-          <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
-            Retry
-          </button>
-        </div>
-      }
-      @case (${ConnectionState.INVALID_VERSION}) {
-        <div class="further-adb-info-text">
-          <p class="icon-information mat-body-1">
-            <mat-icon class="adb-icon">update</mat-icon>
-            <span class="adb-info">Your local proxy version is incompatible with Winscope.</span>
-          </p>
-          <p class="mat-body-1">
-            Please update the proxy to version {{ proxyVersion }}. Run this command:
-          </p>
-          <mat-form-field class="proxy-command" appearance="outline">
-            <input matInput readonly [value]="proxyCommand" />
-            <button
-              mat-icon-button
-              matIconSuffix
-              [cdkCopyToClipboard]="proxyCommand"
-              matTooltip="Copy command">
-              <mat-icon>content_copy</mat-icon>
-            </button>
-          </mat-form-field>
-          <p class="mat-body-1">Or download below.</p>
-        </div>
-
-        <div class="further-adb-info-actions">
-          <button
-            class="download-proxy-btn"
-            color="primary"
-            mat-stroked-button
-            (click)="onDownloadProxyClick()">
-            Download Proxy
-          </button>
-          <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
-            Retry
-          </button>
-        </div>
-      }
-      @case (${ConnectionState.UNAUTH}) {
-        <div class="further-adb-info-text">
-          <p class="icon-information mat-body-1">
-            <mat-icon class="adb-icon">lock</mat-icon>
-            <span class="adb-info">Proxy authorization required.</span>
-          </p>
-          <p class="mat-body-1">Enter Winscope proxy token:</p>
-          <mat-form-field
-            class="proxy-token-input-field mat-form-field-appearance-none"
-            subscriptSizing="dynamic"
-            (keydown.enter)="onKeydownEnterProxyTokenInput($event)">
-            <input matInput [(ngModel)]="proxyToken" name="proxy-token" />
-          </mat-form-field>
-          <p class="mat-body-1">
-            The proxy token is printed to console on proxy launch, copy and paste it above.
-          </p>
-        </div>
-
-        <div class="further-adb-info-actions">
-          <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
-            Connect
-          </button>
-        </div>
-      }
-    }
-  `,
+  templateUrl: './winscope_proxy_setup_component.ng.html',
   styleUrls: ['winscope_proxy_setup_component.css'],
 })
 export class WinscopeProxySetupComponent {
@@ -154,6 +55,7 @@ export class WinscopeProxySetupComponent {
     downloadFromUrl(url, fileName);
   };
   @Output() readonly retryConnection = new EventEmitter<string>();
+  ConnectionState = ConnectionState;
 
   readonly downloadProxyUrl: string = getRootUrl() + 'winscope_proxy.py';
   readonly proxyCommand: string =

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {getTypeFlags} from 'common/geometry/transform';
-import {Timestamp} from 'common/time/time';
-import {TimeDuration} from 'common/time/time_duration';
+import {getTypeFlags} from '@common/geometry/transform';
+import {Timestamp} from '@common/time/time';
+import {TimeDuration} from '@common/time/time_duration';
 import {
   PropertyFormatter,
   PropertyTreeNode,
-} from 'tree_node/property_tree_node';
+} from '@tree_node/property_tree_node';
 
 import {CUJ_TYPE} from './cuj_type';
 

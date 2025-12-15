@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
+import {assertDefined} from '@common/assert';
+import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
 
 const entryField = assertDefined(
   TAMPERED_WINSCOPE_EXTENSIONS.fields[

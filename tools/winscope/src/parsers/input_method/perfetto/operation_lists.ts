@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Operation} from 'tree_node/operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {Operation} from '@tree_node/operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 export interface OperationLists {
   entryEager: Array<Operation<PropertyTreeNode>>;

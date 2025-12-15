@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
+import {assertDefined} from '@common/assert';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 // TODO(b/311642700): Not compatible with google3
 import Long from 'long';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
-import {UserNotifier} from 'services/user_notifier';
+import {UserNotifier} from '@services/user_notifier';
 // TODO(b/311642700): Not compatible with google3
 import {Writer} from 'protobufjs';
 import {
@@ -27,10 +27,10 @@ import {
   TracePacket,
   ITracePacket,
   ClockSnapshot as PerfettoClockSnapshot,
-} from 'compat/perfetto';
-import {TraceFile} from 'trace/trace_file';
-import {getLogger, Logger} from 'compat/logging';
-import {Parser} from 'trace_api/parser';
+} from '@compat/perfetto';
+import {TraceFile} from '@trace/trace_file';
+import {getLogger, Logger} from '@compat/logging';
+import {Parser} from '@trace_api/parser';
 import {
   getParserWithLatestRealToBootTimeOffset,
   getParserWithLatestRealToMonotonicTimeOffset,

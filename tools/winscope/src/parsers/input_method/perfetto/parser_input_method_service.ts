@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {queryArgsForEntry} from 'parsers/perfetto/query_helpers';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {queryArgsForEntry} from '@parsers/perfetto/query_helpers';
+import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {HierarchyTreeFactory} from './hierarchy_tree_factory';
 import {makeOperations} from './operations_factory';

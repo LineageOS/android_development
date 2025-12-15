@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Logger} from 'compat/logging';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {TraceTarget} from 'trace_collection/trace_target';
-import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
+import {Logger} from '@compat/logging';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {TraceTarget} from '@trace_collection/trace_target';
+import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 
 export interface AdbDeviceConnectionListener {
   onError(errorText: string): Promise<void>;
@@ -138,7 +138,7 @@ export abstract class AdbDeviceConnection {
         }
       } catch (e) {
         // swallow
-        this.logger.debug((e as Error).message);
+        this.logger.error((e as Error).message);
       }
     }
     this.multiDisplayScreenRecording =

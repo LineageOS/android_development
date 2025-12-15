@@ -36,7 +36,7 @@ import {
   NgZone,
   ViewEncapsulation,
 } from '@angular/core';
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {Subject} from 'rxjs';
 import {debounceTime, takeUntil} from 'rxjs/operators';
 
@@ -82,11 +82,7 @@ const transformDrawer: AnimationTriggerMetadata =
   exportAs: 'matDrawer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="mat-drawer-inner-container" #content>
-      <ng-content></ng-content>
-    </div>
-  `,
+  templateUrl: './bottom_drawer_component.ng.html',
   styleUrls: ['bottom_drawer_component.css'],
   animations: [transformDrawer],
   host: {
@@ -113,7 +109,7 @@ export class MatDrawer {
   selector: 'mat-drawer-content',
   standalone: true,
   imports: [CommonModule],
-  template: '<ng-content></ng-content>',
+  templateUrl: './bottom_drawer_component_mat_drawer_content.ng.html',
   styles: [
     `
       .mat-drawer-content {
@@ -168,11 +164,7 @@ export class MatDrawerContent /*extends MatDrawerContentBase*/ {
   exportAs: 'matDrawerContainer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <ng-content select="mat-drawer-content"> </ng-content>
-
-    <ng-content select="mat-drawer"></ng-content>
-  `,
+  templateUrl: './bottom_drawer_component_mat_drawer_container.ng.html',
   styles: [
     `
       .mat-drawer-container {

@@ -28,14 +28,14 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
-import {TracesBuilder} from 'test/unit/traces_builder';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType} from 'trace_api/trace_type';
+import {TimelineData} from '@app/timeline_data';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {TracesBuilder} from '@test/unit/traces_builder';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {ExpandedTimelineComponent} from './expanded_timeline_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';

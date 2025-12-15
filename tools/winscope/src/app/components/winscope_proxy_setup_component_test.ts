@@ -24,11 +24,11 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {ConnectionState} from 'trace_collection/connection_state';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {ConnectionState} from '@trace_collection/connection_state';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
-import {DownloadRequest} from 'common/download';
+import {DownloadRequest} from '@common/download';
 
 describe('WinscopeProxySetupComponent', () => {
   let component: WinscopeProxySetupComponent;

@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
 import {
   ActiveTraceChanged,
   ScreenRecordingChange,
   TracePositionUpdate,
-} from 'trace/trace_events';
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
+} from '@trace/trace_events';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
 import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace/media_based/media_based_trace_entry';
-import {TraceType} from 'trace_api/trace_type';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+} from '@trace/media_based/media_based_trace_entry';
+import {TraceType} from '@trace_api/trace_type';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {TracePosition} from 'trace_api/trace_position';
-import {CustomTraceEntryLazy} from 'trace_api/trace';
-import {PlaybackStateChangeHandled} from 'app/components/timeline/playback_events';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {TracePosition} from '@trace_api/trace_position';
+import {CustomTraceEntryLazy} from '@trace_api/trace';
+import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 describe('PresenterMediaBased', () => {
   const entries = [

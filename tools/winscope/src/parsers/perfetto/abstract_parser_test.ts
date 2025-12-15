@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getPerfettoParser, getPerfettoParsers} from 'test/unit/fixture_utils';
-import {TraceType} from 'trace_api/trace_type';
+import {getPerfettoParser, getPerfettoParsers} from '@test/unit/fixture_utils';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('PerfettoAbstractParser', () => {
   it('robust to perfetto trace with no trace entries', async () => {

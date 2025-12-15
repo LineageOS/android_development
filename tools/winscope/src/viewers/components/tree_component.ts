@@ -25,18 +25,18 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {RectShowState} from 'viewers/common/rect_show_state';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {isHighlighted} from 'viewers/common/ui_tree_utils';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {RectShowState} from '@viewers/common/rect_show_state';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {isHighlighted} from '@viewers/common/ui_tree_utils';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {
   nodeInnerItemStyles,
   nodeStyles,
   treeNodeDataViewStyles,
-} from 'viewers/components/styles/node.styles';
+} from '@viewers/components/styles/node.styles';
 import {TreeNodeComponent} from './tree_node_component';
 
 @Component({
@@ -44,62 +44,7 @@ import {TreeNodeComponent} from './tree_node_component';
   standalone: true,
   imports: [CommonModule, TreeNodeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @if (node && showNode(node)) {
-      <tree-node
-        [id]="'node' + node.name"
-        class="node"
-        [id]="'node' + node.name"
-        [class.leaf]="isLeaf(node)"
-        [class.selected]="isHighlighted(node, highlightedItem)"
-        [class.clickable]="isClickable()"
-        [class.child-selected]="hasSelectedChild()"
-        [class.child-hover]="childHover"
-        [class.full-opacity]="showFullOpacity(node)"
-        [class]="node.getDiff()"
-        [style]="nodeOffsetStyle()"
-        [node]="node"
-        [flattened]="isFlattened"
-        [isLeaf]="isLeaf(node)"
-        [isExpanded]="isExpanded()"
-        [isPinned]="isPinned()"
-        [isSelected]="isHighlighted(node, highlightedItem)"
-        [showStateIcon]="getShowStateIcon(node)"
-        (toggleTreeChange)="toggleTree()"
-        (rectShowStateChange)="toggleRectShowState()"
-        (click)="onNodeClick($event)"
-        (expandTreeChange)="expandTree()"
-        (pinNodeChange)="propagateNewPinnedItem($event)"></tree-node>
-    }
-
-    @if (!isLeaf(node)) {
-      <div
-        class="children"
-        [class.flattened]="isFlattened"
-        [class.with-gutter]="addGutter()"
-        [hidden]="!isExpanded()">
-        @for (child of node.children.values(); track child.id) {
-          <tree-view
-            class="subtree"
-            [node]="child"
-            [store]="store"
-            [showNode]="showNode"
-            [isFlattened]="isFlattened"
-            [useStoredExpandedState]="useStoredExpandedState"
-            [initialDepth]="initialDepth + 1"
-            [highlightedItem]="highlightedItem"
-            [pinnedItems]="pinnedItems"
-            [itemsClickable]="itemsClickable"
-            [rectIdToShowState]="rectIdToShowState"
-            (highlightedChange)="propagateNewHighlightedItem($event)"
-            (pinnedItemChange)="propagateNewPinnedItem($event)"
-            (hoverStart)="childHover = true"
-            (hoverEnd)="childHover = false"
-            (expandParent)="expandTree()"></tree-view>
-        }
-      </div>
-    }
-  `,
+  templateUrl: './tree_component.ng.html',
   styles: [nodeStyles, treeNodeDataViewStyles, nodeInnerItemStyles],
 })
 export class TreeComponent {

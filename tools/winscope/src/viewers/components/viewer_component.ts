@@ -15,7 +15,7 @@
  */
 
 import {Directive, Input} from '@angular/core';
-import {PersistentStore} from 'common/store/persistent_store';
+import {PersistentStore} from '@common/store/persistent_store';
 
 @Directive()
 export class ViewerComponent<T extends object> {

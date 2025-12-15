@@ -3,7 +3,55 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths":{
-      "protos/*": ["../deps_build/protos/*"]
+      "protos/*": ["../deps_build/protos/*"],
+      "@abt_chrome_extension/*": [
+        "abt_chrome_extension/*"
+      ],
+      "@app/*": [
+        "app/*"
+      ],
+      "@common/*": [
+        "common/*"
+      ],
+      "@compat/*": [
+        "compat/*"
+      ],
+      "@cross_tool/*": [
+        "cross_tool/*"
+      ],
+      "@logging/*": [
+        "logging/*"
+      ],
+      "@messaging/*": [
+        "messaging/*"
+      ],
+      "@parsers/*": [
+        "parsers/*"
+      ],
+      "@services/*": [
+        "services/*"
+      ],
+      "@test/*": [
+        "test/*"
+      ],
+      "@trace/*": [
+        "trace/*"
+      ],
+      "@trace_api/*": [
+        "trace_api/*"
+      ],
+      "@trace_collection/*": [
+        "trace_collection/*"
+      ],
+      "@trace_processor/*": [
+        "trace_processor/*"
+      ],
+      "@tree_node/*": [
+        "tree_node/*"
+      ],
+      "@viewers/*": [
+        "viewers/*"
+      ],
     },
     "outDir": "./dist/out-tsc",
     "allowJs": true,

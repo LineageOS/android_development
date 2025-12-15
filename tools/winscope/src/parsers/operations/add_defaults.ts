@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {getDefaultValue} from 'trace/proto_utils/field_value_helpers';
+import {assertDefined} from '@common/assert';
+import {getDefaultValue} from '@trace/proto_utils/field_value_helpers';
 import {
   TamperedMessageType,
   TamperedProtoField,
-} from 'trace/proto_utils/tampered_message_type';
-import {AddOperation} from 'tree_node/add_operation';
-import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+} from '@trace/proto_utils/tampered_message_type';
+import {AddOperation} from '@tree_node/add_operation';
+import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
 
 export class AddDefaults extends AddOperation<PropertyTreeNode> {
   private readonly protoType: TamperedMessageType;

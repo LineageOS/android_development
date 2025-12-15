@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {SetFormatters} from 'parsers/set_formatters';
-import {AbstractTracesParser} from 'parsers/traces/abstract_traces_parser';
-import {CUJ_TYPE_FORMATTER} from 'trace/formatters';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {HierarchyTreeBuilderLog} from '@parsers/hierarchy_tree_builder_log';
+import {PropertyTreeBuilderFromProto} from '@parsers/property_tree_builder_from_proto';
+import {SetFormatters} from '@parsers/set_formatters';
+import {AbstractTracesParser} from '@parsers/traces/abstract_traces_parser';
+import {CUJ_TYPE_FORMATTER} from '@trace/formatters';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {AddCujProperties} from './add_cuj_properties';
 import {EventTag} from './event_tag';

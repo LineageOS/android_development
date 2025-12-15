@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace_api/trace_type';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {TraceType} from '@trace_api/trace_type';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 /**
  * An abstract factory for creating search views.

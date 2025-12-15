@@ -17,9 +17,9 @@
 import {
   makeUiPropertyNode,
   treeNodeEqualityTester,
-} from 'test/unit/ui_tree_node_utils';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
-import {TreeNode} from 'tree_node/tree_node';
+} from '@test/unit/ui_tree_node_utils';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {TreeNode} from '@tree_node/tree_node';
 import {AbstractAddDiffsTest} from './abstract_add_diffs_test';
 import {AddDiffs} from './add_diffs';
 import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';

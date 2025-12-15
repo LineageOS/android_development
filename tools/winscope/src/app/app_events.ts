@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AdbFiles} from 'trace_collection/adb_files';
-import {WinscopeEvent} from 'messaging/winscope_event';
+import {AdbFiles} from '@trace_collection/adb_files';
+import {WinscopeEvent} from '@messaging/winscope_event';
 
 export class AppInitialized implements WinscopeEvent {}
 

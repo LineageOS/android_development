@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {trySanitizeUrl} from 'compat/safevalues';
-import {setAnchorHref} from 'compat/safevalues/dom';
+import {trySanitizeUrl} from '@compat/safevalues';
+import {setAnchorHref} from '@compat/safevalues/dom';
 import {assertDefined} from './assert';
 
 /**

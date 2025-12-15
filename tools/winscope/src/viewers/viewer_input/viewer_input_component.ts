@@ -16,20 +16,20 @@
 
 import {CommonModule} from '@angular/common';
 import {Component, Input, ViewChild} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {LogComponent} from 'viewers/components/log_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {ShadingMode} from 'viewers/components/rects/shading_mode';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {LogComponent} from '@viewers/components/log_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {ShadingMode} from '@viewers/components/rects/shading_mode';
 import {
   viewerCardInnerStyle,
   viewerCardStyle,
-} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({
@@ -42,79 +42,7 @@ import {UiData} from './ui_data';
     LogComponent,
     PropertiesComponent,
   ],
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-          [class.empty]="sections.areAllSectionsExpanded()"
-          [sections]="sections"
-          (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-
-      @if (inputData?.rectsToDraw) {
-        <rects-view
-          class="rects-view"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-          [title]="rectsTitle"
-          [store]="store"
-          [isStackBased]="true"
-          [dependencies]="inputData?.dependencies"
-          [displays]="inputData?.displays"
-          [rects]="inputData?.rectsToDraw ?? []"
-          [shadingModes]="shadingModes"
-          [highlightedItem]="inputData?.highlightedRect ?? ''"
-          [userOptions]="inputData?.rectsUserOptions ?? {}"
-          [isDarkMode]="inputData?.isDarkMode ?? false"
-          [rectSpec]="inputData?.rectSpec"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"></rects-view>
-      }
-
-      <log-view
-          class="log-view"
-          [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.LOG)"
-          [title]="eventLogTitle"
-          [selectedIndex]="inputData?.selectedIndex"
-          [scrollToIndex]="inputData?.scrollToIndex"
-          [currentIndex]="inputData?.currentIndex"
-          [entries]="inputData?.entries ?? []"
-          [headers]="inputData?.headers ?? []"
-          [traceType]="${TraceType.INPUT_EVENT_MERGED}"
-          [showTraceEntryTimes]="false"
-          [showCurrentTimeButton]="false"
-          [isFetchingData]="inputData?.isFetchingData"
-          [checkScrollViewport]="inputData?.checkScrollViewport"
-          (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.LOG, true)"></log-view>
-
-      @if (!arePropertiesCollapsed()) {
-        <div class="properties">
-          <properties-view
-            class="properties-view event-properties"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-            [title]="eventPropertiesTitle"
-            [propertiesTree]="inputData?.propertiesTree"
-            [highlightedProperty]="inputData?.highlightedProperty"
-            [traceType]="${TraceType.INPUT_EVENT_MERGED}"
-            [store]="store"
-            [isProtoDump]="true"
-            [textFilter]="inputData?.propertiesFilter"
-            placeholderText="No selected entry."
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-          <properties-view
-            class="properties-view dispatch-properties"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)"
-            [title]="dispatchPropertiesTitle"
-            [propertiesTree]="inputData?.dispatchPropertiesTree"
-            [highlightedProperty]="inputData?.highlightedProperty"
-            [traceType]="${TraceType.INPUT_EVENT_MERGED}"
-            [store]="store"
-            [isProtoDump]="true"
-            [textFilter]="inputData?.dispatchPropertiesFilter"
-            [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
-            placeholderText="No selected entry."
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)"></properties-view>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './viewer_input_component.ng.html',
   styles: [
     viewerCardStyle,
     viewerCardInnerStyle,

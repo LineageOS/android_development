@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined, assertString} from 'common/assert';
-import {AddDefaults} from 'parsers/operations/add_defaults';
-import {queryArgs} from 'parsers/perfetto/query_helpers';
-import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from 'trace/proto_utils/tampered_message_type';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertBigInt, assertDefined, assertString} from '@common/assert';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
+import {QueryResult, RowIterator} from '@trace_processor/query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   LazyPropertiesStrategyType,
   PropertiesProvider,
-} from 'tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TraceRect} from 'tree_node/trace_rect';
+} from '@tree_node/properties_provider';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
 import {extractRect} from './rect_extractor';
-import {UINT32_MAX} from 'common/math';
+import {UINT32_MAX} from '@common/math';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
-import {SetFormatters} from 'parsers/set_formatters';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
+import {SetFormatters} from '@parsers/set_formatters';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
+import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
 
 /**
  * Creates node id for a ViewCapture view. Used to construct nodes and rects

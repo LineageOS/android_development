@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
-import {assertDefined} from 'common/assert';
-import {TreeNode} from 'tree_node/tree_node';
-import {DiffNode} from 'viewers/common/diff_node';
-import {DiffType} from 'viewers/common/diff_type';
+import {getLogger, Logger} from '@compat/logging';
+import {assertDefined} from '@common/assert';
+import {TreeNode} from '@tree_node/tree_node';
+import {DiffNode} from '@viewers/common/diff_node';
+import {DiffType} from '@viewers/common/diff_type';
 
 export abstract class AddDiffs<T extends DiffNode> {
   private newIdNodeMap = new Map<string, T>();

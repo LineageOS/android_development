@@ -24,15 +24,15 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
-import {TimeRange} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {waitToBeCalled} from 'test/unit/spy_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceType} from 'trace_api/trace_type';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {TimeRange} from '@common/time/time';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {waitToBeCalled} from '@test/unit/spy_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceType} from '@trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
-import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
 
 describe('DefaultTimelineRowComponent', () => {
   let component: DefaultTimelineRowComponent;

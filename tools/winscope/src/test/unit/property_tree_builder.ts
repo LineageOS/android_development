@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {
   PropertyFormatter,
   PropertySource,
   PropertyTreeNode,
   PropertyValue,
-} from 'tree_node/property_tree_node';
+} from '@tree_node/property_tree_node';
 import {TreeBuilder} from './tree_builder';
 
 /**

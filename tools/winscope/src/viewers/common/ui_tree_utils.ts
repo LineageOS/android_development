@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {PropertySource} from 'tree_node/property_tree_node';
-import {TreeNode} from 'tree_node/tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
 import {DiffType} from './diff_type';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';

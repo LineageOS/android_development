@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {TreeNode} from 'tree_node/tree_node';
-import {DiffNode} from 'viewers/common/diff_node';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
+import {DiffNode} from '@viewers/common/diff_node';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {
   makeHierarchyNode,
   makePropertyNode,

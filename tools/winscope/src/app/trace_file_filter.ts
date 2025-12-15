@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {getFileDirectory, isZipFile, unzipFile} from 'common/io';
-import {utf8Decode} from 'common/string_helpers';
-import {TimezoneInfo} from 'common/time/time';
-import {Analytics} from 'logging/analytics';
-import {UserWarning} from 'messaging/user_warning';
+import {assertDefined} from '@common/assert';
+import {getFileDirectory, isZipFile, unzipFile} from '@common/io';
+import {utf8Decode} from '@common/string_helpers';
+import {TimezoneInfo} from '@common/time/time';
+import {Analytics} from '@logging/analytics';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningNoValidFiles,
   makeWarningMissingPersistentTrace,
@@ -29,20 +29,20 @@ import {
 import {
   BugreportFileSelected,
   BugreportFileSelectionRequest,
-} from 'app/misc_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
+} from '@app/misc_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {FileAndParsers} from 'parsers/file_and_parsers';
-import {ProcessedFiles} from 'parsers/legacy/parser_factory';
-import {UserNotifier} from 'services/user_notifier';
-import {TraceFile} from 'trace/trace_file';
-import {getLogger, Logger} from 'compat/logging';
-import {TraceMetadata} from 'trace_api/trace_metadata';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {FileAndParsers} from '@parsers/file_and_parsers';
+import {ProcessedFiles} from '@parsers/legacy/parser_factory';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace/trace_file';
+import {getLogger, Logger} from '@compat/logging';
+import {TraceMetadata} from '@trace_api/trace_metadata';
 
 /**
  * The build type of the Android device that generated the bugreport.

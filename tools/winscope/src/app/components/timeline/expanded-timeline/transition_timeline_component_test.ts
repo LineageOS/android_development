@@ -28,19 +28,19 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
-import {TimeRange, Timestamp} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
-import {waitToBeCalled} from 'test/unit/spy_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TransitionStatus} from 'trace/transitions/status';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {TimeRange, Timestamp} from '@common/time/time';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {waitToBeCalled} from '@test/unit/spy_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TransitionStatus} from '@trace/transitions/status';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TransitionTimelineComponent} from './transition_timeline_component';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 
 describe('TransitionTimelineComponent', () => {
   let component: TransitionTimelineComponent;

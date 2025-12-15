@@ -22,8 +22,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
   makeWarningNoValidFiles,
   makeWarningFailedToInitializeTimelineData,
-} from 'app/warnings';
-import {waitToBeCalled} from 'test/unit/spy_utils';
+} from '@app/warnings';
+import {waitToBeCalled} from '@test/unit/spy_utils';
 import {SnackBarComponent} from './snack_bar_component';
 import {SnackBarOpener} from './snack_bar_opener';
 

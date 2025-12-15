@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Logger} from 'compat/logging';
-import {base64Decode} from 'common/string_helpers';
+import {Logger} from '@compat/logging';
+import {base64Decode} from '@common/string_helpers';
 import {ErrorListener, WebSocketStream} from './websocket_stream';
 
 interface AdbResponse {
@@ -65,7 +65,7 @@ export abstract class AdbWebSocketStream extends WebSocketStream {
           throw new Error('Expected message data to be ArrayBuffer or Blob');
         }
       } catch (error) {
-        this.logger.debug('WebSocket failed, state: ' + sock.readyState);
+        this.logger.error('WebSocket failed, state: ' + sock.readyState);
         const errMsg = adbResponse?.error?.message;
         this.onError(
           `Could not parse data:\nReceived: ${e.data}` +

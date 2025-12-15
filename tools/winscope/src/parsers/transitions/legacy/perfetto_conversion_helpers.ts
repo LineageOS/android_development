@@ -15,7 +15,7 @@
  */
 
 import Long from 'long';
-import {ShellTransition} from 'compat/winscope_protos';
+import {ShellTransition} from '@compat/winscope_protos';
 
 type TransitionProperty =
   | number

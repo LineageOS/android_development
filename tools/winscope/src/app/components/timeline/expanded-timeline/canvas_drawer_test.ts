@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
 import {CanvasDrawer} from './canvas_drawer';
 
 describe('CanvasDrawer', () => {

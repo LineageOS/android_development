@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {makeWarningProxyTracingWarnings} from 'trace_collection/warnings';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {AdbDeviceState} from 'trace_collection/adb/adb_device_connection';
-import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
-import {MockAdbDeviceConnection} from 'trace_collection/mock/mock_adb_device_connection';
-import {AdbFileIdentifier, TraceTarget} from 'trace_collection/trace_target';
+import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
+import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
+import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
+import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
 import {
   PERFETTO_DUMP_CONFIG_FILE,
   PERFETTO_DUMP_FILE,

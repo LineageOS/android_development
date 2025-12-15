@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {isElementVisible, isInputTextField, KeyboardEventKey} from 'common/dom';
-import {Timestamp} from 'common/time/time';
-import {Analytics} from 'logging/analytics';
-import {DarkModeToggled} from 'app/misc_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {ActiveTraceChanged, TracePositionUpdate} from 'trace/trace_events';
-import {EmitEvent} from 'messaging/winscope_event_emitter';
-import {getLogger, Logger} from 'compat/logging';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {findCorrespondingEntry} from 'trace_api/trace_entry_finder';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TracePosition} from 'trace_api/trace_position';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {PropertiesPresenter} from 'viewers/common/properties_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UserOptions} from 'viewers/common/user_options';
+import {assertDefined} from '@common/assert';
+import {
+  isElementVisible,
+  isInputTextField,
+  KeyboardEventKey,
+} from '@common/dom';
+import {Timestamp} from '@common/time/time';
+import {Analytics} from '@logging/analytics';
+import {DarkModeToggled} from '@app/misc_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {getLogger, Logger} from '@compat/logging';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TracePosition} from '@trace_api/trace_position';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertiesPresenter} from '@viewers/common/properties_presenter';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UserOptions} from '@viewers/common/user_options';
 import {LogSelectFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';
 import {LogEntry, LogHeader, UiDataLog} from './ui_data_log';

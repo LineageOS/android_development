@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Point} from 'common/geometry/point';
-import {DispatchedPointerAxis} from 'trace/input/dispatched_pointer_axis';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TraceRect} from 'tree_node/trace_rect';
-import {UiRect} from 'viewers/components/rects/ui_rect';
-import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
+import {assertDefined} from '@common/assert';
+import {Point} from '@common/geometry/point';
+import {DispatchedPointerAxis} from '@trace/input/dispatched_pointer_axis';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
+import {UiRect} from '@viewers/components/rects/ui_rect';
+import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 
 export function makeUiRects(
   hierarchyRoot: HierarchyTreeNode,

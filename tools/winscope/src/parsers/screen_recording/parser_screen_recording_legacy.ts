@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import {searchSubarray} from 'common/typed_array';
-import {Timestamp} from 'common/time/time';
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
+import {searchSubarray} from '@common/typed_array';
+import {Timestamp} from '@common/time/time';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace/media_based/media_based_trace_entry';
-import {TraceType} from 'trace_api/trace_type';
+} from '@trace/media_based/media_based_trace_entry';
+import {TraceType} from '@trace_api/trace_type';
 import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
-import {timestampToVideoTimeSeconds} from 'trace/media_based/helpers';
-import {Thumbnail} from 'trace/media_based/thumbnail';
+import {timestampToVideoTimeSeconds} from '@trace/media_based/helpers';
+import {Thumbnail} from '@trace/media_based/thumbnail';
 import {ThumbnailGenerator} from './thumbnail_generator';
 
 export class ParserScreenRecordingLegacy extends AbstractParser<

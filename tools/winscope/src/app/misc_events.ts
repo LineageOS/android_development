@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {TraceType} from 'trace_api/trace_type';
-import {WinscopeEvent} from 'messaging/winscope_event';
+import {Timestamp} from '@common/time/time';
+import {TraceType} from '@trace_api/trace_type';
+import {WinscopeEvent} from '@messaging/winscope_event';
 
 export class DarkModeToggled implements WinscopeEvent {
   constructor(readonly isDarkMode: boolean) {}

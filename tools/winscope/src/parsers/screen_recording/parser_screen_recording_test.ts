@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert';
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {assertDefined} from '@common/assert';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace/media_based/media_based_trace_entry';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
+} from '@trace/media_based/media_based_trace_entry';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
 import {spyOnThumbnailGenerator} from './test_helpers';
 
 describe('ParserScreenRecording', () => {

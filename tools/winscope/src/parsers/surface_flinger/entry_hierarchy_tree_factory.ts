@@ -19,31 +19,31 @@ import {
   assertBigIntOrUndefined,
   assertDefined,
   assertString,
-} from 'common/assert';
-import {UserWarning} from 'messaging/user_warning';
+} from '@common/assert';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
   makeWarningRecursiveLayerIds,
-} from 'parsers/warnings';
-import {AddDefaults} from 'parsers/operations/add_defaults';
-import {TranslateIntDef} from 'parsers/operations/translate_intdef';
-import {queryArgs} from 'parsers/perfetto/query_helpers';
-import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {HwcCompositionType} from 'compat/winscope_protos';
-import {EnumFormatter, LAYER_ID_FORMATTER} from 'trace/formatters';
-import {TAMPERED_TRACE_PACKET} from 'trace/proto_utils/tampered_message_type';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@parsers/warnings';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {HwcCompositionType} from '@compat/winscope_protos';
+import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
+import {TAMPERED_TRACE_PACKET} from '@trace/proto_utils/tampered_message_type';
+import {QueryResult, RowIterator} from '@trace_processor/query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   LazyPropertiesStrategyType,
   PropertiesProvider,
-} from 'tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {SetFormatters} from 'parsers/set_formatters';
+} from '@tree_node/properties_provider';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {SetFormatters} from '@parsers/set_formatters';
 import {ZOrderPathsComputation} from './computations/z_order_paths_computation';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';
@@ -57,8 +57,8 @@ import {
   SnapshotRects,
   RectsForTrace,
   NodeRects,
-} from 'tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
+} from '@tree_node/rect_extractor_result';
+import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
 
 export function makeEntryHierarchyTrees(
   snapshotResults: QueryResult,

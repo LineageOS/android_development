@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace_api/trace_type';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {assertDefined} from 'common/assert';
-import {QueryResult} from 'trace_processor/query_result';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+import {TraceType} from '@trace_api/trace_type';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {assertDefined} from '@common/assert';
+import {QueryResult} from '@trace_processor/query_result';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from './window_manager/perfetto/entry_hierarchy_tree_factory';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTree} from './view_capture/perfetto/entry_hierarchy_tree_factory';
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTree} from './surface_flinger/entry_hierarchy_tree_factory';
 

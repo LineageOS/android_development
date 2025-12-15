@@ -19,13 +19,13 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   makeHierarchyNode,
   makePropertyNode,
-} from 'test/unit/tree_node_test_helpers';
-import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+} from '@test/unit/tree_node_test_helpers';
+import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {CoordinatesTableComponent} from './coordinates_table_component';
 import {ImeAdditionalPropertiesComponent} from './ime_additional_properties_component';

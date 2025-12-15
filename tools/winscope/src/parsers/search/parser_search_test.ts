@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {makeWarningTraceSearchQueryFailed} from 'parsers/warnings';
-import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
-import {getPerfettoParser} from 'test/unit/fixture_utils';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
+import {assertDefined} from '@common/assert';
+import {makeWarningTraceSearchQueryFailed} from '@parsers/warnings';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/perfetto/parser_surface_flinger';
+import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
   getTimestampConverter,
   makeElapsedTimestamp,
   makeZeroTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {TraceType} from 'trace_api/trace_type';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {TraceType} from '@trace_api/trace_type';
 import {ParserSearch} from './parser_search';
 
 describe('ParserSearch', () => {

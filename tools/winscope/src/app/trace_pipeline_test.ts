@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {createZipArchive, DOWNLOAD_FILENAME_REGEX, unzipFile} from 'common/io';
-import {ProgressListenerStub} from 'messaging/progress_listener_stub';
-import {UserWarning} from 'messaging/user_warning';
+import {assertDefined} from '@common/assert';
+import {createZipArchive, DOWNLOAD_FILENAME_REGEX, unzipFile} from '@common/io';
+import {ProgressListenerStub} from '@messaging/progress_listener_stub';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningCorruptedArchive,
   makeWarningNoValidFiles,
   makeWarningUnsupportedFileFormat,
 } from './warnings';
-import {makeWarningInvalidPerfettoTrace} from 'parsers/warnings';
-import {BugreportFileSelected} from 'app/misc_events';
-import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
-import {getFixtureFile} from 'test/unit/io_helpers';
+import {makeWarningInvalidPerfettoTrace} from '@parsers/warnings';
+import {BugreportFileSelected} from '@app/misc_events';
+import {LegacyToPerfettoConverter} from '@parsers/legacy_to_perfetto_converter';
+import {getFixtureFile} from '@test/unit/io_helpers';
 import {
   makeRealTimestampWithUTCOffset,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, RowIterator} from 'trace_processor/query_result';
-import {TraceProcessorProxy} from 'trace_processor/trace_processor';
+} from '@test/unit/time_test_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, RowIterator} from '@trace_processor/query_result';
+import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {FilesSource} from './files_source';
 import {TraceFileFilter} from './trace_file_filter';
 import {TracePipeline} from './trace_pipeline';

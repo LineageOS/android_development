@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
+import {getLogger, Logger} from '@compat/logging';
 import {AdbWebSocketStream, DataListener} from './adb_websocket_stream';
 import {ErrorListener} from './websocket_stream';
 

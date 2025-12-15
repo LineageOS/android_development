@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {INTDEF_MAPPING_JSON} from 'compat/intdef_mapping';
+import {INTDEF_MAPPING_JSON} from '@compat/intdef_mapping';
 
 /**
  * Provides access to the values defined in `com.android.internal.jank.Cuj.CujType`.

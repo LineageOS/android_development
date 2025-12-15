@@ -24,20 +24,20 @@ import {
   ViewChild,
 } from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
-import {PersistentStore} from 'common/store/persistent_store';
-import {Analytics} from 'logging/analytics';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CuratedProperties} from 'viewers/common/curated_properties';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {nodeStyles} from 'viewers/components/styles/node.styles';
-import {TreeComponent} from 'viewers/components/tree_component';
-import {UserOptionsComponent} from 'viewers/components/user_options_component';
-import {ViewCapturePropertyGroupsComponent} from 'viewers/components/view_capture_property_groups_component';
+import {PersistentStore} from '@common/store/persistent_store';
+import {Analytics} from '@logging/analytics';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CuratedProperties} from '@viewers/common/curated_properties';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {nodeStyles} from '@viewers/components/styles/node.styles';
+import {TreeComponent} from '@viewers/components/tree_component';
+import {UserOptionsComponent} from '@viewers/components/user_options_component';
+import {ViewCapturePropertyGroupsComponent} from '@viewers/components/view_capture_property_groups_component';
 import {SearchBoxComponent} from './search_box_component';
 import {viewerCardInnerStyle} from './styles/viewer_card.styles';
 
@@ -53,64 +53,7 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
     ViewCapturePropertyGroupsComponent,
     TreeComponent,
   ],
-  template: `
-    <div class="view-header">
-      <div class="title-section">
-       <collapsible-section-title
-          class="properties-title"
-          [class.padded-title]="!hasUserOptions()"
-          [title]="title"
-          (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
-        <search-box
-          formFieldClass="applied-field mat-form-field-appearance-none"
-          [textFilter]="textFilter"
-          (filterChange)="onFilterChange($event)"></search-box>
-      </div>
-
-      @if (hasUserOptions()) {
-        <user-options
-          class="view-controls"
-          [userOptions]="userOptions"
-          [eventType]="ViewerEvents.PropertiesUserOptionsChange"
-          [traceType]="traceType"
-          [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged">
-        </user-options>
-      }
-    </div>
-
-    @if (hasUserOptions()) {
-      <mat-divider></mat-divider>
-    }
-
-    @if (showViewCaptureFormat()) {
-      <ng-container>
-        <view-capture-property-groups
-          class="property-groups"
-          [properties]="curatedProperties"></view-capture-property-groups>
-
-        @if (showPropertiesTree()) {
-          <mat-divider></mat-divider>
-        }
-      </ng-container>
-    }
-
-    @if (showPropertiesTree()) {
-      <div class="properties-content">
-        <div class="tree-wrapper">
-          <tree-view
-            [node]="propertiesTree"
-            [useStoredExpandedState]="!!store"
-            [itemsClickable]="true"
-            [highlightedItem]="highlightedProperty"
-            (highlightedChange)="onHighlightedPropertyChange($event)"></tree-view>
-        </div>
-      </div>
-    }
-
-    @if (showPlaceholderText()) {
-      <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
-    }
-  `,
+  templateUrl: './properties_component.ng.html',
   styles: [
     `
       .view-header {

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import {assertUnreachable} from 'common/assert';
+import {assertUnreachable} from '@common/assert';
 import {
   HttpRequest,
   HttpRequestHeaderType,
   HttpRequestStatus,
   HttpResponse,
-} from 'common/http_request';
+} from '@common/http_request';
 import {
   AdbResponse,
   OnRequestSuccessCallback,
-} from 'trace_collection/adb/adb_host_connection';
-import {ConnectionState} from 'trace_collection/connection_state';
+} from '@trace_collection/adb/adb_host_connection';
+import {ConnectionState} from '@trace_collection/connection_state';
 
 export const WINSCOPE_PROXY_URL = 'http://localhost:5544';
 // Keep in sync with VERSION in src/adb/winscope_proxy.py

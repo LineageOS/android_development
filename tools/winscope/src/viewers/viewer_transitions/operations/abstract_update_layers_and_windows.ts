@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {FixedStringFormatter, formatAsHex} from 'trace/formatters';
-import {Operation} from 'tree_node/operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TreeNode} from 'tree_node/tree_node';
+import {FixedStringFormatter, formatAsHex} from '@trace/formatters';
+import {Operation} from '@tree_node/operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
 
 export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
   implements Operation<T>
