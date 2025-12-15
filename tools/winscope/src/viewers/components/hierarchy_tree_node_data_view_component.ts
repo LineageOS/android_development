@@ -18,14 +18,13 @@ import {Component, Input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Chip} from '@viewers/common/chip';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-import {hierarchyTreeNodeDataViewStyles} from '@viewers/components/styles/tree_node_data_view.styles';
 
 @Component({
   selector: 'hierarchy-tree-node-data-view',
   standalone: true,
   imports: [CommonModule, MatTooltipModule],
   templateUrl: './hierarchy_tree_node_data_view_component.ng.html',
-  styles: [hierarchyTreeNodeDataViewStyles],
+  styleUrls: ['hierarchy_tree_node_data_view_component.css'],
 })
 export class HierarchyTreeNodeDataViewComponent {
   @Input() node?: UiHierarchyTreeNode;

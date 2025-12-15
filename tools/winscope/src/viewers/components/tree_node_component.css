@@ -59,7 +59,7 @@
   height: 5px;
   width: 5px;
   border-radius: 50%;
-  background-color:  var(--text-color-gray);
+  background-color: var(--neutral-gray-text-color);
 }
 
 .icon-wrapper, .description {

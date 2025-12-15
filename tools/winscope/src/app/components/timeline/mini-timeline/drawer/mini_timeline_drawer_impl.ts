@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {Color} from '@app/colors';
 import {Segment} from '@app/components/timeline/segment';
 import {convertHexToRgb} from '@app/components/timeline/timeline_utils';
 import {Point} from '@common/geometry/point';
@@ -48,6 +47,11 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
   private static readonly MARKER_CLICK_REGION_WIDTH = 2;
   private static readonly TRACE_ENTRY_ALPHA = 0.7;
 
+  // these colors do not change between light and dark mode, so can be
+  // retrieved just once
+  private readonly activePointerColor: string;
+  private readonly bookmarkColor: string;
+
   constructor(
     public canvas: HTMLCanvasElement,
     private inputGetter: () => MiniTimelineDrawerInput,
@@ -58,6 +62,12 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
       trace: Trace<unknown> | undefined,
     ) => void,
   ) {
+    const computedStyles = getComputedStyle(canvas);
+    this.activePointerColor = computedStyles.getPropertyValue(
+      '--active-pointer-color',
+    );
+    this.bookmarkColor = computedStyles.getPropertyValue('--bookmark-color');
+
     const ctx = canvas.getContext('2d');
 
     if (ctx === null) {
@@ -112,7 +122,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
         ctx.closePath();
       },
       {
-        fillStyle: Color.ACTIVE_POINTER,
+        fillStyle: this.activePointerColor,
         fill: true,
       },
       (x) => {
@@ -251,16 +261,18 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     const lineHeight = this.getLineHeight(timelineTraces, innerHeight);
     let fromTop = this.getPadding().top + innerHeight - lineHeight;
 
+    const computedStyles = getComputedStyle(this.canvas);
+
     timelineTraces.forEach((timelineTrace, trace) => {
       if (this.inputGetter().timelineData.getActiveTrace() === trace) {
-        this.fillActiveTimelineBackground(fromTop, lineHeight);
+        this.fillActiveTimelineBackground(fromTop, lineHeight, computedStyles);
       } else if (
         this.lastMousePoint?.y &&
         this.pointWithinTimeline(this.lastMousePoint?.y, fromTop, lineHeight)
       ) {
-        this.fillHoverTimelineBackground(fromTop, lineHeight);
+        this.fillHoverTimelineBackground(fromTop, lineHeight, computedStyles);
       } else if (trace.type === TraceType.SEARCH) {
-        this.fillSearchTimelineBackground(fromTop, lineHeight);
+        this.fillSearchTimelineBackground(fromTop, lineHeight, computedStyles);
       }
 
       this.drawTraceEntries(trace, timelineTrace, fromTop, lineHeight);
@@ -293,7 +305,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
       );
     }
 
-    this.ctx.fillStyle = Color.ACTIVE_POINTER;
+    this.ctx.fillStyle = this.activePointerColor;
     if (timelineTrace.activePoint) {
       const entry = timelineTrace.activePoint;
       const width = 5;
@@ -304,7 +316,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
       this.drawTransitionEntry(
         timelineTrace.activeSegment,
         fromTop,
-        Color.ACTIVE_POINTER,
+        this.activePointerColor,
         lineHeight,
       );
     }
@@ -397,7 +409,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     this.ctx.closePath();
 
     this.ctx.globalAlpha = 0.4;
-    this.ctx.fillStyle = Color.ACTIVE_POINTER;
+    this.ctx.fillStyle = this.activePointerColor;
     this.ctx.fill();
     this.ctx.globalAlpha = 1.0;
   }
@@ -418,7 +430,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
       this.ctx.lineTo(position - barWidth / 2, this.getHeight());
       this.ctx.closePath();
 
-      this.ctx.fillStyle = Color.BOOKMARK;
+      this.ctx.fillStyle = this.bookmarkColor;
       this.ctx.fill();
     });
   }
@@ -427,25 +439,37 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     return (lineHeight * 4) / 3;
   }
 
-  private fillActiveTimelineBackground(fromTop: number, lineHeight: number) {
+  private fillActiveTimelineBackground(
+    fromTop: number,
+    lineHeight: number,
+    computedStyles: CSSStyleDeclaration,
+  ) {
     this.ctx.globalAlpha = 1.0;
-    this.ctx.fillStyle = getComputedStyle(this.canvas).getPropertyValue(
+    this.ctx.fillStyle = computedStyles.getPropertyValue(
       '--selected-element-color',
     );
     this.ctx.fillRect(0, fromTop, this.getUsableRange().to, lineHeight);
   }
 
-  private fillHoverTimelineBackground(fromTop: number, lineHeight: number) {
+  private fillHoverTimelineBackground(
+    fromTop: number,
+    lineHeight: number,
+    computedStyles: CSSStyleDeclaration,
+  ) {
     this.ctx.globalAlpha = 1.0;
-    this.ctx.fillStyle = getComputedStyle(this.canvas).getPropertyValue(
+    this.ctx.fillStyle = computedStyles.getPropertyValue(
       '--hover-element-color',
     );
     this.ctx.fillRect(0, fromTop, this.getUsableRange().to, lineHeight);
   }
 
-  private fillSearchTimelineBackground(fromTop: number, lineHeight: number) {
+  private fillSearchTimelineBackground(
+    fromTop: number,
+    lineHeight: number,
+    computedStyles: CSSStyleDeclaration,
+  ) {
     this.ctx.globalAlpha = 1.0;
-    this.ctx.fillStyle = getComputedStyle(this.canvas).getPropertyValue(
+    this.ctx.fillStyle = computedStyles.getPropertyValue(
       '--search-background-color',
     );
     this.ctx.fillRect(0, fromTop, this.getUsableRange().to, lineHeight);

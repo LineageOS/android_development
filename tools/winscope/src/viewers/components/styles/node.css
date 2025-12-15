@@ -45,7 +45,7 @@
     font: 14px 'Roboto', sans-serif;
     margin: 0 5px;
     background-color: var(--chip-blue);
-    color: var(--text-color-black);
+    color: var(--black-text-color);
     border-radius: 10px;
     height: fit-content;
     padding: 3px;

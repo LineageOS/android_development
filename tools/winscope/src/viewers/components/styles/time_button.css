@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-/**
- * Colors used in Winscope.
- *
- * Follows the Material Design color system.
- * See https://m2.material.io/design/color/the-color-system.html.
- */
-export enum Color {
-  ACTIVE_BORDER = '#1967D2',
-  ACTIVE_POINTER = ACTIVE_BORDER,
-  BOOKMARK = '#E88C65',
-  CHIP_BLUE = '#b4c8ef',
-  GUIDE_BAR = '#9AA0A6',
-  PINNED_ITEM_BORDER = '#FFC24B',
-  TEXT_BLACK = 'rgba(0, 0, 0, 0.87)',
-  TEXT_GRAY = 'rgb(155, 155, 155)',
+.time-button {
+  padding: 0px;
+  line-height: 20px;
+  text-align: left;
+  white-space: normal;
+  height: fit-content;
 }
