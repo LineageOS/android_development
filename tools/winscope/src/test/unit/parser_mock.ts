@@ -15,7 +15,6 @@
  */
 
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
-import {TracePacket} from '@compat/perfetto';
 import {Timestamp} from '@common/time/time';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
@@ -57,6 +56,10 @@ export class ParserMock<T> implements Parser<T> {
     }
   }
 
+  onDestroy() {
+    // do nothing
+  }
+
   getTraceType(): TraceType {
     return this.type;
   }
@@ -67,18 +70,6 @@ export class ParserMock<T> implements Parser<T> {
 
   getCoarseVersion(): CoarseVersion {
     return CoarseVersion.MOCK;
-  }
-
-  createTimestamps() {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  getRealToMonotonicTimeOffsetNs(): bigint | undefined {
-    return this.noOffsets ? undefined : 0n;
-  }
-
-  getRealToBootTimeOffsetNs(): bigint | undefined {
-    return this.noOffsets ? undefined : 0n;
   }
 
   getTimestamps(): Timestamp[] {
@@ -136,12 +127,4 @@ export class ParserMock<T> implements Parser<T> {
   getDescriptors(): string[] {
     return this.descriptors;
   }
-
-  canConvertToPerfetto(): boolean {
-    return this.convertToPerfettoPackets !== undefined;
-  }
-
-  convertToPerfettoPackets:
-    | ((sequenceId: number) => TracePacket[])
-    | undefined = undefined;
 }
