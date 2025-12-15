@@ -15,54 +15,82 @@ limitations under the License.
 -->
 
 <div class="view-header">
-    <div class="title-section">
-        <collapsible-section-title class="hierarchy-title" title="HIERARCHY"
-            (collapseButtonClicked)="collapseButtonClicked.emit()"></collapsible-section-title>
-        <search-box formFieldClass="applied-field mat-form-field-appearance-none" subscriptSizing="dynamic"
-            [textFilter]="textFilter" (filterChange)="onFilterChange($event)"></search-box>
-    </div>
-    <user-options class="view-controls" [userOptions]="userOptions"
-        [eventType]="ViewerEvents.HierarchyUserOptionsChange" [traceType]="dependencies[0]"
-        [logCallback]="Analytics.Navigation.logHierarchySettingsChanged">
-    </user-options>
-    @let treeWarnings = getWarnings();
-    @if (treeWarnings.length > 0) {
-    <div>
-        @for (warning of treeWarnings; track $index) {
-        <span class="mat-body-1 warning" [matTooltip]="warning.message"
-            [matTooltipDisabled]="disableTooltip(warningEl)">
-            <mat-icon class="warning-icon icon-small"> warning </mat-icon>
-            <span class="warning-message text-no-overflow" #warningEl>{{warning.message}}</span>
-        </span>
-        }
-    </div>
+  <div class="title-section">
+    <collapsible-section-title
+      class="hierarchy-title"
+      title="HIERARCHY"
+      (collapseButtonClicked)="collapseButtonClicked.emit()"
+    ></collapsible-section-title>
+    <search-box
+      formFieldClass="applied-field mat-form-field-appearance-none"
+      subscriptSizing="dynamic"
+      [textFilter]="textFilter"
+      (filterChange)="onFilterChange($event)"
+    ></search-box>
+  </div>
+  <user-options
+    class="view-controls"
+    [userOptions]="userOptions"
+    [eventType]="ViewerEvents.HierarchyUserOptionsChange"
+    [traceType]="dependencies[0]"
+    [logCallback]="Analytics.Navigation.logHierarchySettingsChanged"
+  >
+  </user-options>
+  @let treeWarnings = getWarnings(); @if (treeWarnings.length > 0) {
+  <div>
+    @for (warning of treeWarnings; track $index) {
+    <span
+      class="mat-body-1 warning"
+      [matTooltip]="warning.message"
+      [matTooltipDisabled]="disableTooltip(warningEl)"
+    >
+      <mat-icon class="warning-icon icon-small"> warning </mat-icon>
+      <span class="warning-message text-no-overflow" #warningEl>{{warning.message}}</span>
+    </span>
     }
-    @if (tableProperties) {
-    <properties-table class="properties-table" [properties]="tableProperties"></properties-table>
+  </div>
+  } @if (tableProperties) {
+  <properties-table class="properties-table" [properties]="tableProperties"></properties-table>
+  } @if (pinnedItems.length > 0) {
+  <div class="pinned-items">
+    @for (pinnedItem of pinnedItems; track pinnedItem.id) {
+    <tree-node
+      class="node full-opacity"
+      [class]="pinnedItem.getDiff()"
+      [class.selected]="isHighlighted(pinnedItem, highlightedItem)"
+      [class.clickable]="true"
+      [node]="pinnedItem"
+      [isPinned]="true"
+      [isInPinnedSection]="true"
+      [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
+      (pinNodeChange)="onPinnedItemChange($event)"
+      (click)="onPinnedNodeClick($event, pinnedItem)"
+    ></tree-node>
     }
-    @if (pinnedItems.length > 0) {
-    <div class="pinned-items">
-        @for (pinnedItem of pinnedItems; track pinnedItem.id) {
-        <tree-node class="node full-opacity" [class]="pinnedItem.getDiff()"
-            [class.selected]="isHighlighted(pinnedItem, highlightedItem)" [class.clickable]="true" [node]="pinnedItem"
-            [isPinned]="true" [isInPinnedSection]="true" [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
-            (pinNodeChange)="onPinnedItemChange($event)" (click)="onPinnedNodeClick($event, pinnedItem)"></tree-node>
-        }
-    </div>
-    }
+  </div>
+  }
 </div>
 <mat-divider></mat-divider>
 @if (showPlaceholderText()) {
 <span class="mat-body-1 placeholder-text">{{ getPlaceholderText() }}</span>
 }
 <div class="hierarchy-content tree-wrapper">
-    <div class="trees">
-        @for (tree of trees; track tree.id) {
-        <tree-view class="tree" [node]="tree" [isFlattened]="isFlattened()" [useStoredExpandedState]="true"
-            [highlightedItem]="highlightedItem" [pinnedItems]="pinnedItems" [itemsClickable]="true"
-            [rectIdToShowState]="rectIdToShowState" [store]="treeStorage"
-            (highlightedChange)="onHighlightedItemChange($event)" (pinnedItemChange)="onPinnedItemChange($event)"
-            (selectedTreeChange)="onSelectedTreeChange($event)"></tree-view>
-        }
-    </div>
+  <div class="trees">
+    @for (tree of trees; track tree.id) {
+    <tree-view
+      class="tree"
+      [node]="tree"
+      [isFlattened]="isFlattened()"
+      [useStoredExpandedState]="true"
+      [highlightedItem]="highlightedItem"
+      [pinnedItems]="pinnedItems"
+      [itemsClickable]="true"
+      [rectIdToShowState]="rectIdToShowState"
+      [store]="treeStorage"
+      (highlightedChange)="onHighlightedItemChange($event)"
+      (pinnedItemChange)="onPinnedItemChange($event)"
+      (selectedTreeChange)="onSelectedTreeChange($event)"
+    ></tree-view>
+    }
+  </div>
 </div>

@@ -15,20 +15,36 @@ limitations under the License.
 -->
 
 <div class="card-grid">
-    <collapsed-sections [class.empty]="sections.areAllSectionsExpanded()" [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-    </collapsed-sections>
+  <collapsed-sections
+    [class.empty]="sections.areAllSectionsExpanded()"
+    [sections]="sections"
+    (sectionChange)="sections.onCollapseStateChange($event, false)"
+  >
+  </collapsed-sections>
 
-    <log-view class="log-view" [selectedIndex]="inputData?.selectedIndex" [scrollToIndex]="inputData?.scrollToIndex"
-        [currentIndex]="inputData?.currentIndex" [entries]="inputData?.entries ?? []"
-        [headers]="inputData?.headers ?? []" [traceType]="TraceType.TRANSACTIONS"
-        [isFetchingData]="inputData?.isFetchingData" [checkScrollViewport]="inputData?.checkScrollViewport">
-    </log-view>
+  <log-view
+    class="log-view"
+    [selectedIndex]="inputData?.selectedIndex"
+    [scrollToIndex]="inputData?.scrollToIndex"
+    [currentIndex]="inputData?.currentIndex"
+    [entries]="inputData?.entries ?? []"
+    [headers]="inputData?.headers ?? []"
+    [traceType]="TraceType.TRANSACTIONS"
+    [isFetchingData]="inputData?.isFetchingData"
+    [checkScrollViewport]="inputData?.checkScrollViewport"
+  >
+  </log-view>
 
-    <properties-view class="properties-view" [title]="propertiesTitle"
-        [userOptions]="inputData?.propertiesUserOptions ?? {}" [propertiesTree]="inputData?.propertiesTree"
-        [traceType]="TraceType.TRANSACTIONS" [isProtoDump]="false" [textFilter]="inputData?.propertiesFilter"
-        placeholderText="No current or selected transaction with additional properties."
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"></properties-view>
+  <properties-view
+    class="properties-view"
+    [title]="propertiesTitle"
+    [userOptions]="inputData?.propertiesUserOptions ?? {}"
+    [propertiesTree]="inputData?.propertiesTree"
+    [traceType]="TraceType.TRANSACTIONS"
+    [isProtoDump]="false"
+    [textFilter]="inputData?.propertiesFilter"
+    placeholderText="No current or selected transaction with additional properties."
+    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
+    [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+  ></properties-view>
 </div>

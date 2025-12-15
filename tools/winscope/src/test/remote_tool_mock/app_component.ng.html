@@ -18,11 +18,21 @@
 
 <hr />
 <p>Open Winscope tab</p>
-<input class="button-open-winscope" type="button" value="Open" (click)="onButtonOpenWinscopeClick()" />
+<input
+  class="button-open-winscope"
+  type="button"
+  value="Open"
+  (click)="onButtonOpenWinscopeClick()"
+/>
 
 <hr />
 <p>Send bugreport</p>
-<input class="button-send-bugreport" type="file" value="" (change)="onButtonSendBugreportClick($event)" />
+<input
+  class="button-send-bugreport"
+  type="file"
+  value=""
+  (change)="onButtonSendBugreportClick($event)"
+/>
 
 <hr />
 <p>Send file</p>
@@ -31,10 +41,18 @@
 <hr />
 <p>Send timestamp [ns]</p>
 <input class="input-timestamp" type="number" id="name" name="name" />
-<input class="button-send-realtime-timestamp" type="button" value="Send"
-    (click)="onButtonSendRealtimeTimestampClick()" />
-<input class="button-send-boottime-timestamp" type="button" value="Send"
-    (click)="onButtonSendBoottimeTimestampClick()" />
+<input
+  class="button-send-realtime-timestamp"
+  type="button"
+  value="Send"
+  (click)="onButtonSendRealtimeTimestampClick()"
+/>
+<input
+  class="button-send-boottime-timestamp"
+  type="button"
+  value="Send"
+  (click)="onButtonSendBoottimeTimestampClick()"
+/>
 <hr />
 <p>Received realtime timestamp:</p>
 <p class="paragraph-received-realtime-timestamp"></p>

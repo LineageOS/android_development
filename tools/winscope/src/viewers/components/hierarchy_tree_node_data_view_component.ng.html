@@ -16,18 +16,14 @@ limitations under the License.
 
 @if (node) {
 <span class="mat-body-1">
-    @if (node.heading()) {
-    <span class="mat-body-2">{{ node.heading() }}</span>
-    }
-    @if (node.heading()) {
-    &ngsp;-&ngsp;
-    }
-    <span class="display-name" [matTooltip]="getNameTooltip()" [matTooltipShowDelay]="300">{{ node.getDisplayName()
-        }}</span>
-    @for (chip of node.getChips(); track chip.short) {
-    <div [class]="chipClass(chip)" [matTooltip]="chip.long">
-        {{ chip.short }}
-    </div>
-    }
+  @if (node.heading()) {
+  <span class="mat-body-2">{{ node.heading() }}</span>
+  } @if (node.heading()) { &ngsp;-&ngsp; }
+  <span class="display-name" [matTooltip]="getNameTooltip()" [matTooltipShowDelay]="300"
+    >{{ node.getDisplayName() }}</span
+  >
+  @for (chip of node.getChips(); track chip.short) {
+  <div [class]="chipClass(chip)" [matTooltip]="chip.long">{{ chip.short }}</div>
+  }
 </span>
 }
