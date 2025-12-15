@@ -22,7 +22,7 @@
   padding: 8px 12px;
 }
 
- .title-section {
+.title-section {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

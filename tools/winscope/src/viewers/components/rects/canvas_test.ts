@@ -32,7 +32,6 @@ import {Canvas} from './canvas';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
 import {UiRect3D} from './ui_rect3d';
-import {Color} from '@app/colors';
 
 describe('Canvas', () => {
   const rectId = 'rect1';
@@ -877,7 +876,7 @@ describe('Canvas', () => {
       expect((line.material as THREE.LineBasicMaterial).color.getHex()).toEqual(
         Canvas.LABEL_LINE_COLOR,
       );
-      expect(text.element.style.color).toBe(Color.TEXT_GRAY);
+      expect(text.element.style.color).toBe('var(--neutral-gray-text-color)');
 
       const highlighted = makeRectLabel(rectId);
       highlighted.isHighlighted = true;
@@ -907,7 +906,7 @@ describe('Canvas', () => {
       expect((line.material as THREE.LineBasicMaterial).color.getHex()).toEqual(
         Canvas.LABEL_LINE_COLOR,
       );
-      expect(text.element.style.color).toBe(Color.TEXT_GRAY);
+      expect(text.element.style.color).toBe('var(--neutral-gray-text-color)');
     });
 
     it('handles change in line points', () => {

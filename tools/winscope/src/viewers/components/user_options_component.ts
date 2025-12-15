@@ -21,7 +21,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {UserOption, UserOptions} from '@viewers/common/user_options';
-import {userOptionStyle} from './styles/user_option.styles';
 
 type LogCallback = (key: string, state: boolean, name: string) => void;
 
@@ -30,7 +29,7 @@ type LogCallback = (key: string, state: boolean, name: string) => void;
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './user_options_component.ng.html',
-  styles: [userOptionStyle],
+  styleUrls: ['user_options_component.css'],
 })
 export class UserOptionsComponent {
   objectKeys = Object.keys;

@@ -14,44 +14,14 @@
  * limitations under the License.
  */
 
-.user-option {
-  line-height: 24px;
-  padding: 0 10px;
-  margin-inline-end: 10px;
-  min-width: fit-content;
-  height: 24px;
+.tree-view-internal-chip {
+  display: inline-block;
 }
 
-.user-option.not-enabled {
-  background-color: var(--disabled-color);
-}
-
-.user-option-label {
-  display: flex;
-  flex-direction: row;
-}
-
-.user-option-label.with-chip {
-  align-items: baseline;
-}
-
-.user-option-label:not(.with-chip) {
-  align-items: center;
-}
-
-.user-option .mat-icon {
-  margin-inline-start: 5px;
-}
-
-.user-option-chip {
-  margin-inline-start: 5px;
-  margin-top: 2px;
+.tree-view-chip {
+  margin: 0 5px;
   padding: 0 10px;
   border-radius: 10px;
   background-color: var(--chip-blue);
-  font-weight: normal;
   color: var(--black-text-color);
-  height: 18px;
-  align-items: center;
-  display: flex;
 }

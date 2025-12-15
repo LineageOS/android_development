@@ -24,27 +24,13 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from '@viewers/common/viewer_events';
-import {propertyTreeNodeDataViewStyles} from '@viewers/components/styles/tree_node_data_view.styles';
-import {
-  inlineButtonStyle,
-  timeButtonStyle,
-} from './styles/clickable_property.styles';
 
 @Component({
   selector: 'property-tree-node-data-view',
   standalone: true,
   imports: [CommonModule, MatButtonModule],
   templateUrl: './property_tree_node_data_view_component.ng.html',
-  styles: [
-    `
-      .property-value button {
-        white-space: normal;
-      }
-    `,
-    propertyTreeNodeDataViewStyles,
-    timeButtonStyle,
-    inlineButtonStyle,
-  ],
+  styleUrls: ['property_tree_node_data_view_component.css'],
 })
 export class PropertyTreeNodeDataViewComponent {
   @Input() node?: UiPropertyTreeNode;
