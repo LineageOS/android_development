@@ -25,7 +25,8 @@
   display: flex;
 }
 
-.tree-scroll .mat-cell, .tree-scroll .mdc-data-table__cell {
+.tree-scroll .mat-cell,
+.tree-scroll .mdc-data-table__cell {
   padding: 0;
 }
 

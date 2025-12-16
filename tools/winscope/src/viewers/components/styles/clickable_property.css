@@ -15,27 +15,27 @@
  */
 
 .time-button {
-    padding: 0px;
-    line-height: 20px;
-    text-align: left;
-    white-space: normal;
-    height: fit-content;
+  padding: 0px;
+  line-height: 20px;
+  text-align: left;
+  white-space: normal;
+  height: fit-content;
 }
 
 .window-button {
-    padding: 0px;
-    line-height: normal;
-    text-align: center;
-    white-space: normal;
-    min-width: fit-content;
-    width: fit-content;
-    height: fit-content;
+  padding: 0px;
+  line-height: normal;
+  text-align: center;
+  white-space: normal;
+  min-width: fit-content;
+  width: fit-content;
+  height: fit-content;
 }
 
 .inline button {
-    padding: 0px;
-    min-width: fit-content;
-    width: fit-content;
-    height: fit-content;
-    text-align: left;
+  padding: 0px;
+  min-width: fit-content;
+  width: fit-content;
+  height: fit-content;
+  text-align: left;
 }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-@import url('../components/styles/viewer_card_style.css');
+@import url("../components/styles/viewer_card_style.css");
 
 .properties {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  position: relative;
 }

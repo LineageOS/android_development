@@ -26,7 +26,7 @@
 }
 
 :host:not(:hover):not(.selected) .indent-spacer::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 50%;
   top: 0;
@@ -52,7 +52,7 @@
 }
 
 .leaf-node-icon {
-  content: '';
+  content: "";
   display: inline-block;
   margin-left: 40%;
   margin-top: 40%;
@@ -62,24 +62,30 @@
   background-color: var(--neutral-gray-text-color);
 }
 
-.icon-wrapper, .description {
+.icon-wrapper,
+.description {
   position: relative;
   display: inline-block;
 }
 
 .icon-wrapper-show-state {
-position: absolute;
+  position: absolute;
 }
 
 .icon-wrapper-copy {
   right: 0;
 }
 
-.toggle-tree-btn, .expand-tree-btn, .pin-node-btn, .toggle-rect-show-state-btn, .copy-btn {
+.toggle-tree-btn,
+.expand-tree-btn,
+.pin-node-btn,
+.toggle-rect-show-state-btn,
+.copy-btn {
   padding: 0;
 }
 
-.toggle-rect-show-state-btn, .copy-btn {
+.toggle-rect-show-state-btn,
+.copy-btn {
   transform: scale(0.75);
 }
 

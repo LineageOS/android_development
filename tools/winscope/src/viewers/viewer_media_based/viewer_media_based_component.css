@@ -15,96 +15,96 @@
  */
 
 .overlay {
-    z-index: 30;
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+  z-index: 30;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .container {
-    pointer-events: all;
-    width: max(250px, 15vw);
-    min-width: 200px;
-    resize: horizontal;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    left: 80vw;
-    top: 20vh;
+  pointer-events: all;
+  width: max(250px, 15vw);
+  min-width: 200px;
+  resize: horizontal;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  left: 80vw;
+  top: 20vh;
 }
 
 .header {
-    display: flex;
-    flex-direction: row;
-    margin: 0px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  margin: 0px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .draggable {
-    cursor: grab;
+  cursor: grab;
 }
 
 .button-drag {
-    padding: 2px;
-    min-width: fit-content;
+  padding: 2px;
+  min-width: fit-content;
 }
 
 .overlay-title {
-    font-size: 14px;
-    width: unset;
+  font-size: 14px;
+  width: unset;
 }
 
 .select-title {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .header-end {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .info-icon {
-    transform: scale(0.75);
-    cursor: pointer;
+  transform: scale(0.75);
+  cursor: pointer;
 }
 
 .button-minimize {
-    flex-grow: 0;
-    padding: 2px;
-    min-width: 24px;
+  flex-grow: 0;
+  padding: 2px;
+  min-width: 24px;
 }
 
 .video-container,
 canvas,
 video {
-    border: 1px solid var(--default-border);
-    width: 100%;
-    height: auto;
-    cursor: grab;
-    overflow: hidden;
+  border: 1px solid var(--default-border);
+  width: 100%;
+  height: auto;
+  cursor: grab;
+  overflow: hidden;
 }
 
 .no-video {
-    padding: 1rem;
-    text-align: center;
+  padding: 1rem;
+  text-align: center;
 }
 
 .fetching-entries-message {
-    text-align: center;
-    position: absolute;
-    z-index: 100;
-    width: calc(100% - 52px);
+  text-align: center;
+  position: absolute;
+  z-index: 100;
+  width: calc(100% - 52px);
 }
 
 .reduce-opacity {
-    opacity: 90%;
+  opacity: 90%;
 }

@@ -15,59 +15,59 @@
  */
 
 .header {
-    justify-content: space-between;
-    display: flex;
-    align-items: center;
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
 }
 
 .query-field {
-    height: fit-content;
+  height: fit-content;
 }
 
 .query-field .mat-mdc-form-field-input-control.mdc-text-field__input {
-    height: 300px;
+  height: 300px;
 }
 
 .query-button {
-    min-width: fit-content;
-    width: fit-content;
-    line-height: 24px;
-    padding: 0 10px;
-    height: fit-content;
+  min-width: fit-content;
+  width: fit-content;
+  line-height: 24px;
+  padding: 0 10px;
+  height: fit-content;
 }
 
 .end-align-button {
-    align-self: end;
+  align-self: end;
 }
 
 .query-actions {
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    column-gap: 10px;
-    align-items: center;
-    padding-bottom: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  column-gap: 10px;
+  align-items: center;
+  padding-bottom: 16px;
 }
 
 .running-query-message {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    color: #FF8A00;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: #ff8a00;
 }
 
 .current-search {
-    padding-bottom: 10px;
+  padding-bottom: 10px;
 }
 
 .current-search .query {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .message-with-spinner {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }

@@ -263,7 +263,8 @@ log-view .headers .mat-mdc-form-field-infix {
   flex-grow: 1;
 }
 
-.small-icon-container .mat-mdc-icon-button, .icon-button-small.mat-mdc-icon-button {
+.small-icon-container .mat-mdc-icon-button,
+.icon-button-small.mat-mdc-icon-button {
   height: 24px;
   width: 24px;
   display: flex;
@@ -272,7 +273,9 @@ log-view .headers .mat-mdc-form-field-infix {
   justify-content: center;
 }
 
-.small-icon-container .mat-icon, .icon-button-small .mat-icon, .icon-small.mat-icon {
+.small-icon-container .mat-icon,
+.icon-button-small .mat-icon,
+.icon-small.mat-icon {
   display: flex;
   font-size: 18px;
   width: 18px;
@@ -282,7 +285,7 @@ log-view .headers .mat-mdc-form-field-infix {
 
 .icon-divider {
   width: 1px;
-  background-color: #C4C0C0;
+  background-color: #c4c0c0;
 }
 
 .multline-tooltip {

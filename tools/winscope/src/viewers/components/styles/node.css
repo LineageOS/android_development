@@ -14,39 +14,41 @@
  * limitations under the License.
  */
 
-@import url('selected_element.css');
+@import url("selected_element.css");
 
 .node {
-    position: relative;
-    display: inline-flex;
+  position: relative;
+  display: inline-flex;
 }
 
 .node:not(.selected):not(.full-opacity):not(:hover) {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 .node:not(.selected).added,
 .node:not(.selected).addedMove {
-    background-color: var(--added-element-color);
+  background-color: var(--added-element-color);
 }
 
 .node:not(.selected).deleted,
 .node:not(.selected).deletedMove {
-    background-color: var(--deleted-element-color);
+  background-color: var(--deleted-element-color);
 }
 
 .node:not(.selected).modified {
-    background-color: var(--modified-element-color);
+  background-color: var(--modified-element-color);
 }
 
 .node.addedMove:after,
 .node.deletedMove:after {
-    content: 'Moved';
-    font: 14px 'Roboto', sans-serif;
-    margin: 0 5px;
-    background-color: var(--chip-blue);
-    color: var(--black-text-color);
-    border-radius: 10px;
-    height: fit-content;
-    padding: 3px;
+  content: "Moved";
+  font:
+    14px "Roboto",
+    sans-serif;
+  margin: 0 5px;
+  background-color: var(--chip-blue);
+  color: var(--black-text-color);
+  border-radius: 10px;
+  height: fit-content;
+  padding: 3px;
 }

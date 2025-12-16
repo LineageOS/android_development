@@ -14,49 +14,49 @@
  * limitations under the License.
  */
 
-@import url('styles/selected_element.css');
-@import url('styles/viewer_card_inner.css');
+@import url("styles/selected_element.css");
+@import url("styles/viewer_card_inner.css");
 
 :host collapsible-section-title {
-    padding-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .additional-properties-content {
-    height: 0;
-    flex-grow: 1;
-    overflow-y: auto;
+  height: 0;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .group {
-    padding: 8px;
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid var(--border-color);
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .mat-body-1 {
-    overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .group-header {
-    height: 100%;
-    width: 80px;
-    padding: 0;
-    text-align: center;
-    line-height: normal;
-    white-space: normal;
+  height: 100%;
+  width: 80px;
+  padding: 0;
+  text-align: center;
+  line-height: normal;
+  white-space: normal;
 }
 
 p.group-header {
-    color: gray;
+  color: gray;
 }
 
 .left-column {
-    flex: 1;
-    padding: 0 5px;
+  flex: 1;
+  padding: 0 5px;
 }
 
 .right-column {
-    flex: 1;
-    padding: 0 5px;
+  flex: 1;
+  padding: 0 5px;
 }

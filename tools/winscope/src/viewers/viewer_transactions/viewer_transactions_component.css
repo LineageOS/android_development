@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-@import url('../components/styles/viewer_card_style.css');
+@import url("../components/styles/viewer_card_style.css");
 
 .properties-view {
-    flex: 1;
+  flex: 1;
 }

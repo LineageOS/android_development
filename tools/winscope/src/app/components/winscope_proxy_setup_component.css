@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import url('../styles/proxy_setup.css');
+@import url("../styles/proxy_setup.css");
 
 .proxy-command-text {
   user-select: all;

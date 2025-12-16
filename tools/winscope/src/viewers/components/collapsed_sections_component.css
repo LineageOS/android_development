@@ -15,7 +15,9 @@
  */
 
 :host {
-  font: 12px 'Roboto', sans-serif;
+  font:
+    12px "Roboto",
+    sans-serif;
   font-weight: bold;
   margin: 4px 4px 4px 0px;
 }

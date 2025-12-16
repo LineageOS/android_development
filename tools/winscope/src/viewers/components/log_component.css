@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-@import url('styles/current_element.css');
-@import url('styles/clickable_property.css');
-@import url('styles/viewer_card_style.css');
-@import url('styles/viewer_card_inner.css');
-@import url('styles/log_component.css');
+@import url("styles/current_element.css");
+@import url("styles/clickable_property.css");
+@import url("styles/viewer_card_style.css");
+@import url("styles/viewer_card_inner.css");
+@import url("styles/log_component.css");
 
 .log-title {
-    padding-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .view-header {
-    display: flex;
-    flex-direction: column;
-    flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
 }
 
 .message-with-spinner {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }

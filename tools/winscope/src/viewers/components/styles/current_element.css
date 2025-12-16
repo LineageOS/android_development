@@ -15,5 +15,5 @@
  */
 
 .current {
-    background-color: var(--current-element-color);
+  background-color: var(--current-element-color);
 }

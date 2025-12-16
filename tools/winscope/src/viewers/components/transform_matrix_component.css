@@ -15,8 +15,8 @@
  */
 
 .matrix {
-    display: grid;
-    grid-gap: 1px;
-    grid-template-columns: repeat(3, 1fr);
-    text-align: center;
+  display: grid;
+  grid-gap: 1px;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
 }
