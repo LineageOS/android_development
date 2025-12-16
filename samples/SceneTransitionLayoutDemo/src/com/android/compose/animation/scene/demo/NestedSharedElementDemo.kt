@@ -140,15 +140,16 @@ private fun ContentScope.ChildSTL(
     val scope = rememberCoroutineScope()
     NestedSceneTransitionLayout(
         state,
-        modifier.border(3.dp, Color.Red).clickable(null, null) {
-            val targetScene =
-                when (state.currentScene) {
-                    ChildSTL.Scenes.Top -> ChildSTL.Scenes.Bottom
-                    else -> ChildSTL.Scenes.Top
-                }
-            state.setTargetScene(targetScene, scope)
-        },
         debugName = "Demo-ChildSTL",
+        modifier =
+            modifier.border(3.dp, Color.Red).clickable(null, null) {
+                val targetScene =
+                    when (state.currentScene) {
+                        ChildSTL.Scenes.Top -> ChildSTL.Scenes.Bottom
+                        else -> ChildSTL.Scenes.Top
+                    }
+                state.setTargetScene(targetScene, scope)
+            },
     ) {
         scene(ChildSTL.Scenes.Top, mapOf(Swipe.Down to ChildSTL.Scenes.Bottom)) {
             Box(Modifier.fillMaxSize()) {
