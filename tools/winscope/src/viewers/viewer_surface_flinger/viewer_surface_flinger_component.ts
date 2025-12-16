@@ -25,7 +25,6 @@ import {HierarchyComponent} from '@viewers/components/hierarchy_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
-import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
 import {SurfaceFlingerPropertyGroupsComponent} from '@viewers/components/surface_flinger_property_groups_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
@@ -42,18 +41,7 @@ import {UiData} from './ui_data';
     SurfaceFlingerPropertyGroupsComponent,
   ],
   templateUrl: './viewer_surface_flinger_component.ng.html',
-  styles: [
-    `
-      .properties {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-        position: relative;
-      }
-    `,
-    viewerCardStyle,
-  ],
+  styleUrls: ['./viewer_surface_flinger_component.css'],
 })
 export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
   @Input() active = false;

@@ -30,8 +30,6 @@ import {SfCuratedProperties} from '@viewers/common/curated_properties';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
-import {inlineButtonStyle} from './styles/clickable_property.styles';
-import {viewerCardInnerStyle} from './styles/viewer_card.styles';
 import {TransformMatrixComponent} from './transform_matrix_component';
 
 @Component({
@@ -46,51 +44,7 @@ import {TransformMatrixComponent} from './transform_matrix_component';
     TransformMatrixComponent,
   ],
   templateUrl: './surface_flinger_property_groups_component.ng.html',
-  styles: [
-    `
-      .placeholder-text {
-        padding: 8px 12px;
-      }
-
-      .property-groups-content {
-        overflow-y: auto;
-        padding: 0px 12px;
-      }
-
-      .group {
-        display: flex;
-        flex-direction: row;
-        padding: 8px;
-      }
-
-      .group-header {
-        width: 80px;
-        color: gray;
-      }
-
-      .left-column {
-        flex: 1;
-        padding: 0 5px;
-      }
-
-      .right-column {
-        flex: 1;
-        border: 1px solid var(--border-color);
-        border-left-width: 5px;
-        padding: 0 5px;
-      }
-
-      .column-header {
-        color: gray;
-      }
-
-      .summary {
-        display: block;
-      }
-    `,
-    inlineButtonStyle,
-    viewerCardInnerStyle,
-  ],
+  styleUrls: ['./surface_flinger_property_groups_component.css'],
 })
 export class SurfaceFlingerPropertyGroupsComponent {
   @Input() properties: SfCuratedProperties | undefined;

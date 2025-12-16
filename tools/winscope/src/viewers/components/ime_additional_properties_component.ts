@@ -35,8 +35,6 @@ import {
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {CoordinatesTableComponent} from './coordinates_table_component';
-import {selectedElementStyle} from './styles/selected_element.styles';
-import {viewerCardInnerStyle} from './styles/viewer_card.styles';
 
 @Component({
   selector: 'ime-additional-properties',
@@ -48,55 +46,7 @@ import {viewerCardInnerStyle} from './styles/viewer_card.styles';
     CoordinatesTableComponent,
   ],
   templateUrl: './ime_additional_properties_component.ng.html',
-  styles: [
-    `
-      :host collapsible-section-title {
-        padding-bottom: 8px;
-      }
-
-      .additional-properties-content {
-        height: 0;
-        flex-grow: 1;
-        overflow-y: auto;
-      }
-
-      .group {
-        padding: 8px;
-        display: flex;
-        flex-direction: row;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .mat-body-1 {
-        overflow-wrap: anywhere;
-      }
-
-      .group-header {
-        height: 100%;
-        width: 80px;
-        padding: 0;
-        text-align: center;
-        line-height: normal;
-        white-space: normal;
-      }
-
-      p.group-header {
-        color: gray;
-      }
-
-      .left-column {
-        flex: 1;
-        padding: 0 5px;
-      }
-
-      .right-column {
-        flex: 1;
-        padding: 0 5px;
-      }
-    `,
-    selectedElementStyle,
-    viewerCardInnerStyle,
-  ],
+  styleUrls: ['./ime_additional_properties_component.css'],
 })
 export class ImeAdditionalPropertiesComponent {
   @Input() additionalProperties: ImeAdditionalProperties | undefined;

@@ -61,18 +61,6 @@ import {
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {SearchBoxComponent} from '@viewers/components/search_box_component';
 import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
-import {
-  inlineButtonStyle,
-  targetWindowButtonStyle,
-  timeButtonStyle,
-} from '@viewers/components/styles/clickable_property.styles';
-import {currentElementStyle} from '@viewers/components/styles/current_element.styles';
-import {logComponentStyles} from '@viewers/components/styles/log_component.styles';
-import {selectedElementStyle} from '@viewers/components/styles/selected_element.styles';
-import {
-  viewerCardInnerStyle,
-  viewerCardStyle,
-} from '@viewers/components/styles/viewer_card.styles';
 import {assertDefined} from '@common/assert';
 import {UserTimestamp} from '@common/time/user_timestamp';
 
@@ -93,32 +81,7 @@ import {UserTimestamp} from '@common/time/user_timestamp';
     VariableHeightScrollDirective,
   ],
   templateUrl: './log_component.ng.html',
-  styles: [
-    `
-      .log-title {
-        padding-bottom: 8px;
-      }
-      .view-header {
-        display: flex;
-        flex-direction: column;
-        flex: 0 0 auto;
-      }
-      .message-with-spinner {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-      }
-    `,
-    selectedElementStyle,
-    currentElementStyle,
-    timeButtonStyle,
-    targetWindowButtonStyle,
-    inlineButtonStyle,
-    viewerCardStyle,
-    viewerCardInnerStyle,
-    logComponentStyles,
-  ],
+  styleUrls: ['./log_component.css'],
 })
 export class LogComponent {
   emptyFilterValue = '';
