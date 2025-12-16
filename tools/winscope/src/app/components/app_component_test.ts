@@ -88,6 +88,7 @@ import {UploadTracesComponent} from './upload_traces_component';
 import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
+import {Traces} from '@trace_api/traces';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -269,21 +270,44 @@ describe('AppComponent', () => {
 
   it('changes page title based on archive name', async () => {
     const pageTitle = TestBed.inject(Title);
-    component.timelineData.initialize(
-      new TracesBuilder().build(),
-      undefined,
-      UTC_CONVERTER,
-    );
-
     await component.onWinscopeEvent(new ViewersUnloaded());
     expect(pageTitle.getTitle()).toBe('Winscope');
 
+    component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
     component.tracePipeline.getDownloadArchiveFilename = jasmine
       .createSpy()
       .and.returnValue('test_archive');
     await component.onWinscopeEvent(new ViewersLoaded([]));
     dom.detectChanges();
     expect(pageTitle.getTitle()).toBe('Winscope | test_archive');
+  });
+
+  it('handles ViewersUnloaded event', async () => {
+    const tracePipeline = component.tracePipeline;
+    const timelineData = component.timelineData;
+    const mediator = component.mediator;
+    const spy = spyOn(tracePipeline, 'onDestroy');
+
+    await component.onWinscopeEvent(new ViewersUnloaded());
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(component.tracePipeline).not.toBe(tracePipeline);
+    expect(component.timelineData).not.toBe(timelineData);
+    expect(component.mediator).not.toBe(mediator);
+  });
+
+  it('handles clearAllTraces from upload traces component', () => {
+    const tracePipeline = component.tracePipeline;
+    const spyTracePipeline = spyOn(tracePipeline, 'onDestroy');
+    const spyMediator = spyOn(
+      component.mediator,
+      'setTracePipeline',
+    ).and.callThrough();
+
+    component.uploadTracesComponent?.clearAllTraces.emit();
+    dom.detectChanges();
+    expect(spyTracePipeline).toHaveBeenCalledTimes(1);
+    expect(component.tracePipeline).not.toBe(tracePipeline);
+    expect(spyMediator).toHaveBeenCalledOnceWith(component.tracePipeline);
   });
 
   it('does not download traces if invalid file name chosen', () => {
@@ -693,11 +717,7 @@ describe('AppComponent', () => {
     });
 
     it('processes bookmarks', async () => {
-      component.timelineData.initialize(
-        new TracesBuilder().build(),
-        undefined,
-        UTC_CONVERTER,
-      );
+      component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
       dom.detectChanges();
       const request: RequestData = {
         artifacts: [],
@@ -754,11 +774,7 @@ describe('AppComponent', () => {
         undefined,
       );
       spyOn(UserNotifier, 'add');
-      component.timelineData.initialize(
-        new TracesBuilder().build(),
-        undefined,
-        UTC_CONVERTER,
-      );
+      component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
       dom.detectChanges();
       const request: RequestData = {
         artifacts: [],
@@ -830,11 +846,7 @@ describe('AppComponent', () => {
   function goToTraceView() {
     component.dataLoaded = true;
     component.showDataLoadedElements = true;
-    component.timelineData.initialize(
-      new TracesBuilder().build(),
-      undefined,
-      UTC_CONVERTER,
-    );
+    component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
     dom.detectChanges();
   }
 

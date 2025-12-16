@@ -181,22 +181,26 @@ describe('UploadTracesComponent', () => {
   it('handles removal of the only uploaded trace', async () => {
     await loadFiles([validSfFile]);
 
-    const spy = spyOn(component, 'onOperationFinished');
+    const onOperationFinished = spyOn(component, 'onOperationFinished');
+    const clearAllTracesEmitted = spyOn(component.clearAllTraces, 'emit');
     dom.findAndClick(removeTraceSelector);
+
+    expect(dom.find('.uploaded-files')).toBeUndefined();
     expect(dom.find('.drop-info')).toBeDefined();
-    expect(spy).toHaveBeenCalled();
+    expect(onOperationFinished).toHaveBeenCalledTimes(1);
+    expect(clearAllTracesEmitted).toHaveBeenCalledTimes(1);
     expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
   });
 
-  it('can remove all uploaded traces', async () => {
+  it('can clear all uploaded traces', async () => {
     await loadFiles([validSfFile, validWmFile]);
     expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
 
-    const spy = spyOn(component, 'onOperationFinished');
+    const onOperationFinished = spyOn(component, 'onOperationFinished');
+    const clearAllTracesEmitted = spyOn(component.clearAllTraces, 'emit');
     dom.findAndClick(clearAllSelector);
-    expect(dom.find('.drop-info')).toBeDefined();
-    expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
+    expect(onOperationFinished).toHaveBeenCalledTimes(1);
+    expect(clearAllTracesEmitted).toHaveBeenCalledTimes(1);
   });
 
   it('can emit view traces event', async () => {
@@ -472,9 +476,8 @@ describe('UploadTracesComponent', () => {
   });
 
   async function loadFiles(files: File[]) {
-    const tracePipeline = assertDefined(component.tracePipeline);
-    tracePipeline.clear();
-    await tracePipeline.loadFiles(files, FilesSource.TEST, undefined);
+    component.tracePipeline = new TracePipeline();
+    await component.tracePipeline.loadFiles(files, FilesSource.TEST, undefined);
     dom.detectChanges();
   }
 
