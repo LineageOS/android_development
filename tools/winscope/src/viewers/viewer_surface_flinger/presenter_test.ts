@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Store} from 'common/store/store';
-import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {EMPTY_OBJ_STRING} from 'trace/formatters';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Trace} from 'trace_api/trace';
-import {SetFormatters} from 'parsers/set_formatters';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {makeIdMatchFilter, makeNodeFilter} from 'tree_node/helpers';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
-import {NotifyHierarchyViewCallbackType} from 'viewers/common/abstract_hierarchy_viewer_presenter';
-import {AbstractHierarchyViewerPresenterTest} from 'viewers/common/abstract_hierarchy_viewer_presenter_test';
-import {VISIBLE_CHIP} from 'viewers/common/chip';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiDataHierarchy} from 'viewers/common/ui_data_hierarchy';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {TraceRectType} from 'viewers/components/rects/rect_spec';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Store} from '@common/store/store';
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {EMPTY_OBJ_STRING} from '@trace/formatters';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Trace} from '@trace_api/trace';
+import {SetFormatters} from '@parsers/set_formatters';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {makeIdMatchFilter, makeNodeFilter} from '@tree_node/helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {NotifyHierarchyViewCallbackType} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {AbstractHierarchyViewerPresenterTest} from '@viewers/common/abstract_hierarchy_viewer_presenter_test';
+import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiDataHierarchy} from '@viewers/common/ui_data_hierarchy';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
@@ -274,12 +274,14 @@ the default for its data type.`,
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataHierarchy) {
     expect(
-      uiData.propertiesTree?.getChildByName('screenBounds')?.formattedValue(),
+      uiData.propertyNodes
+        ?.find((r) => r.node.name === 'screenBounds')
+        ?.node?.formattedValue(),
     ).toBe('(0, 0) - (1080, 600)');
     expect(
-      assertDefined(
-        uiData.propertiesTree?.getChildByName('damageRegion'),
-      ).formattedValue(),
+      uiData.propertyNodes
+        ?.find((r) => r.node.name === 'damageRegion')
+        ?.node?.formattedValue(),
     ).toBe('SkRegion((0, 0, 1080, 600))');
     expect(uiData.displays?.at(0)).toEqual({
       displayId: '4619827259835644672',
@@ -301,7 +303,7 @@ the default for its data type.`,
     uiData: UiDataHierarchy,
   ) {
     expect(
-      uiData.propertiesTree?.getChildByName('damageRegion'),
+      uiData.propertyNodes?.find((r) => r.node.name === 'damageRegion'),
     ).toBeUndefined();
   }
 
@@ -511,11 +513,11 @@ the default for its data type.`,
         await presenter.onHighlightedIdChange(
           '744 1d30e3b VolumeDialogImpl#744',
         );
-        expect(uiData.propertiesTree).toBeDefined();
+        expect(uiData.propertyNodes).toBeDefined();
         expect(uiData.curatedProperties).toBeDefined();
 
         await presenter.onAppEvent(assertDefined(this.positionUpdate));
-        expect(uiData.propertiesTree).toBeUndefined();
+        expect(uiData.propertyNodes).toBeUndefined();
         expect(uiData.curatedProperties).toBeUndefined();
       });
 
@@ -523,15 +525,14 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
 
         const nodeWithRelZChild = this.getSelectedTree();
-        const nodeWithRelZParent = assertDefined(
-          assertDefined(uiData.hierarchyTrees)[0].findDfs(
-            makeNodeFilter(
-              new TextFilter(
-                '626 SurfaceView[com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher]#626',
-              ).getFilterPredicate(),
-            ),
-          ),
+        const filter = makeNodeFilter(
+          new TextFilter(
+            '626 SurfaceView[com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher]#626',
+          ).getFilterPredicate(),
         );
+        const nodeWithRelZParent = assertDefined(
+          assertDefined(uiData.hierarchyNodes).find((row) => filter(row.node)),
+        ).node;
 
         await presenter.onHighlightedNodeChange(nodeWithRelZChild);
         const secondRelZChildName =
@@ -562,9 +563,9 @@ the default for its data type.`,
       it('sets properties tree but no curated properties for root node', async () => {
         await presenter.onAppEvent(this.getPositionUpdate());
         await presenter.onHighlightedIdChange(
-          assertDefined(uiData.hierarchyTrees)[0].id,
+          assertDefined(uiData.hierarchyNodes?.at(0)).node.id,
         );
-        expect(uiData.propertiesTree?.getDisplayName()).toEqual(
+        expect(uiData.propertyNodes?.at(0)?.node.getDisplayName()).toEqual(
           '1970-01-01, 00:00:00.000',
         );
         expect(uiData.curatedProperties).toBeUndefined();
@@ -572,14 +573,12 @@ the default for its data type.`,
 
       it('sets properties tree but no curated properties for recursive root node', async () => {
         await presenter.onAppEvent(this.getPositionUpdate());
-        const hierarchyTree = assertDefined(uiData.hierarchyTrees?.[0]);
-        Object.assign(hierarchyTree.getAllChildren()[0], {
+        const hierarchyNodes = assertDefined(uiData.hierarchyNodes);
+        Object.assign(hierarchyNodes[1].node, {
           name: 'WinscopeRecursiveLayerRoot',
         });
-        await presenter.onHighlightedNodeChange(
-          hierarchyTree.getAllChildren()[0],
-        );
-        expect(uiData.propertiesTree).toBeDefined();
+        await presenter.onHighlightedNodeChange(hierarchyNodes[1].node);
+        expect(uiData.propertyNodes?.length).toBeGreaterThan(0);
         expect(uiData.curatedProperties).toBeUndefined();
       });
 
@@ -724,14 +723,16 @@ the default for its data type.`,
       ) {
         await presenter.onHighlightedNodeChange(treeForAlphaCheck);
         expect(
-          uiData.propertiesTree?.getChildByName('color')?.formattedValue(),
+          uiData.propertyNodes
+            ?.find((r) => r.node.name === 'color')
+            ?.node.formattedValue(),
         ).toEqual(`${EMPTY_OBJ_STRING}, alpha: 1`);
 
         await presenter.onHighlightedNodeChange(treeForTransformCheck);
         expect(
-          uiData.propertiesTree
-            ?.getChildByName('requestedTransform')
-            ?.formattedValue(),
+          uiData.propertyNodes
+            ?.find((r) => r.node.name === 'requestedTransform')
+            ?.node?.formattedValue(),
         ).toBe('IDENTITY');
       }
 

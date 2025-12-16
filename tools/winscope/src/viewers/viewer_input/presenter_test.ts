@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Transform} from 'common/geometry/transform';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Timer} from 'common/time/timer';
-import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {getTracesParser} from 'test/unit/fixture_utils';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TracesBuilder} from 'test/unit/traces_builder';
-import {FixedStringFormatter} from 'trace/formatters';
-import {InputColumnType} from 'trace/input/input_column_type';
-import {InputEventType} from 'trace/input/input_event_type';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Parser} from 'trace_api/parser';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
-import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
-import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
-import {VISIBLE_CHIP} from 'viewers/common/chip';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {TextFilter} from 'viewers/common/text_filter';
-import {LogField, LogHeader} from 'viewers/common/ui_data_log';
-import {UserOptions} from 'viewers/common/user_options';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {TraceRectType} from 'viewers/components/rects/rect_spec';
+import {assertDefined} from '@common/assert';
+import {Transform} from '@common/geometry/transform';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Timer} from '@common/time/timer';
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {getTracesParser} from '@test/unit/fixture_utils';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TracesBuilder} from '@test/unit/traces_builder';
+import {FixedStringFormatter} from '@trace/formatters';
+import {InputColumnType} from '@trace/input/input_column_type';
+import {InputEventType} from '@trace/input/input_event_type';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
+import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
+import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {TextFilter} from '@viewers/common/text_filter';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
+import {UserOptions} from '@viewers/common/user_options';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
@@ -226,7 +226,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
 
   override executePropertiesChecksForEmptyTrace(uiData: UiData) {
     expect(uiData.highlightedProperty).toBeFalsy();
-    expect(uiData.dispatchPropertiesTree).toBeUndefined();
+    expect(uiData.dispatchPropertyNodes).toBeUndefined();
     expect(uiData.dispatchPropertiesFilter).toBeDefined();
   }
 
@@ -289,19 +289,10 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     expectedFields.forEach((field) => {
       expect(curEntry.fields).toContain(field);
     });
-
-    const motionEvent = assertDefined(uiData.propertiesTree);
-    expect(motionEvent.getChildByName('eventId')?.getValue()).toBe(330184796);
-    expect(motionEvent.getChildByName('action')?.formattedValue()).toBe(
-      'ACTION_DOWN',
-    );
-
-    const dispatchProperties = assertDefined(uiData.dispatchPropertiesTree);
-    expect(dispatchProperties.getAllChildren().length).toBe(5);
-
-    expect(dispatchProperties.getChildByName('0')?.getDisplayName()).toBe(
-      'win-212',
-    );
+    this.expectEventPresented(uiData, 330184796, 'ACTION_DOWN');
+    const dispatchPropertyNodes = assertDefined(uiData.dispatchPropertyNodes);
+    expect(dispatchPropertyNodes.length).toBe(31);
+    expect(dispatchPropertyNodes.at(1)?.node.getDisplayName()).toBe('win-212');
   }
 
   private expectEventPresented(
@@ -309,9 +300,15 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     eventId: number,
     action: string,
   ) {
-    const properties = assertDefined(uiData.propertiesTree);
-    expect(properties.getChildByName('action')?.formattedValue()).toBe(action);
-    expect(properties.getChildByName('eventId')?.getValue()).toBe(eventId);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
+    expect(
+      propertyNodes.find((row) => row.node.name === 'eventId')?.node.getValue(),
+    ).toBe(eventId);
+    expect(
+      propertyNodes
+        .find((row) => row.node.name === 'action')
+        ?.node.formattedValue(),
+    ).toBe(action);
   }
 
   override executeSpecializedTests() {
@@ -490,14 +487,13 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         this.expectEventPresented(uiData, 1327679296, 'ACTION_OUTSIDE');
 
         const motionDispatchProperties = assertDefined(
-          uiData.dispatchPropertiesTree,
+          uiData.dispatchPropertyNodes,
         );
-        expect(motionDispatchProperties.getAllChildren().length).toBe(1);
+        expect(motionDispatchProperties.length).toBe(7);
         expect(
           motionDispatchProperties
-            .getChildByName('0')
-            ?.getChildByName('windowId')
-            ?.getValue(),
+            .find((row) => row.node.name === 'windowId')
+            ?.node.getValue(),
         ).toBe(98);
       });
 
@@ -687,13 +683,9 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         );
         await sendFirstPositionUpdate(this.getPositionUpdate(), presenter);
         await presenter.onLogEntryClick(3);
-        expect(
-          assertDefined(uiData.dispatchPropertiesTree).getAllChildren().length,
-        ).toBe(5);
+        expect(assertDefined(uiData.dispatchPropertyNodes).length).toBe(31);
         await presenter.onDispatchPropertiesFilterChange(new TextFilter('212'));
-        expect(
-          assertDefined(uiData.dispatchPropertiesTree).getAllChildren().length,
-        ).toBe(1);
+        expect(assertDefined(uiData.dispatchPropertyNodes).length).toBe(3);
       });
 
       it('updates highlighted property', async () => {
@@ -904,17 +896,15 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
           );
         const windowId = layerIdToName[1].id;
         const windowName = layerIdToName[1].name;
-        const dispatchTree = assertDefined(uiData.dispatchPropertiesTree);
+        const dispatchPropertyNodes = assertDefined(
+          uiData.dispatchPropertyNodes,
+        );
 
         const expectedPropertyId = assertDefined(
-          dispatchTree
-            .getAllChildren()
-            .find(
-              (dispatchEntry) =>
-                dispatchEntry.getChildByName('windowId')?.getValue() ===
-                windowId,
-            )
-            ?.getChildByName('windowId')?.id,
+          dispatchPropertyNodes.find(
+            (row) =>
+              row.node.name === 'windowId' && row.node?.getValue() === windowId,
+          )?.node.id,
         );
 
         expect(uiData.highlightedProperty).toEqual(assertDefined(''));

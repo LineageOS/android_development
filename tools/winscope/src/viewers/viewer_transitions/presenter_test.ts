@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Timer} from 'common/time/timer';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {getPerfettoParser} from 'test/unit/fixture_utils';
-import {ParserBuilder} from 'test/unit/parser_builder';
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TracesBuilder} from 'test/unit/traces_builder';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
-import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogHeader, UiDataLog} from 'viewers/common/ui_data_log';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Timer} from '@common/time/timer';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {ParserBuilder} from '@test/unit/parser_builder';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TracesBuilder} from '@test/unit/traces_builder';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogHeader, UiDataLog} from '@viewers/common/ui_data_log';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
@@ -175,7 +175,7 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataLog) {
     expect(uiData.entries.length).toBe(4);
 
-    const selectedTransition = assertDefined(uiData.propertiesTree);
+    const selectedTransition = assertDefined(uiData.propertyNodes?.at(0)).node;
     expect(selectedTransition.getChildByName('id')?.formattedValue()).toBe(
       '32',
     );

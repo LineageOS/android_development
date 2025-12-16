@@ -24,22 +24,27 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {FilterFlag} from 'common/filter_flag';
-import {PersistentStore} from 'common/store/persistent_store';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {TraceType} from 'trace_api/trace_type';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+import {FilterFlag} from '@common/filter_flag';
+import {PersistentStore} from '@common/store/persistent_store';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {TraceType} from '@trace_api/trace_type';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {PropertiesComponent} from './properties_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 import {SearchBoxComponent} from './search_box_component';
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';
-import {TreeComponent} from './tree_component';
 import {TreeNodeComponent} from './tree_node_component';
 import {UserOptionsComponent} from './user_options_component';
+import {TreeComponent} from './tree_component';
+import {
+  VirtualRow,
+  VirtualScrollViewportComponent,
+} from './virtual_scroll_viewport_component';
 
 describe('PropertiesComponent', () => {
   let component: PropertiesComponent;
@@ -50,9 +55,6 @@ describe('PropertiesComponent', () => {
       providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
         CommonModule,
-        PropertyTreeNodeDataViewComponent,
-        TreeNodeComponent,
-        TreeComponent,
         MatInputModule,
         MatFormFieldModule,
         MatButtonModule,
@@ -63,6 +65,11 @@ describe('PropertiesComponent', () => {
         MatIconModule,
         MatTooltipModule,
         ClipboardModule,
+        VirtualRow,
+        VirtualScrollViewportComponent,
+        TreeComponent,
+        PropertyTreeNodeDataViewComponent,
+        TreeNodeComponent,
         PropertiesComponent,
         SurfaceFlingerPropertyGroupsComponent,
         CollapsibleSectionTitleComponent,
@@ -108,27 +115,37 @@ describe('PropertiesComponent', () => {
       .setValue(undefined)
       .build();
     tree.setIsRoot(true);
-    component.propertiesTree = UiPropertyTreeNode.from(tree);
+    component.nodeRows = flattenNodesToRows(
+      [UiPropertyTreeNode.from(tree)],
+      false,
+      false,
+      '',
+    );
     dom.detectChanges();
     expect(dom.find('tree-view')).toBeDefined();
   });
 
   it('renders placeholder text', () => {
-    component.propertiesTree = undefined;
+    component.nodeRows = undefined;
     component.placeholderText = 'Placeholder text';
     dom.detectChanges();
     dom.get('.placeholder-text').checkTextExact('Placeholder text');
   });
 
-  it('handles node click', () => {
+  it('handles node click', async () => {
     const tree = new PropertyTreeBuilder()
       .setRootId('selectedItem')
       .setName('property')
       .setValue(undefined)
       .build();
     tree.setIsRoot(true);
-    component.propertiesTree = UiPropertyTreeNode.from(tree);
-    dom.detectChanges();
+    component.nodeRows = flattenNodesToRows(
+      [UiPropertyTreeNode.from(tree)],
+      false,
+      false,
+      '',
+    );
+    await dom.detectChangesAndWaitStable();
 
     let highlightedItem: string | undefined;
     dom.addEventListener(ViewerEvents.HighlightedPropertyChange, (event) => {

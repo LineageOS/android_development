@@ -26,7 +26,6 @@ const PROTO_LOG_ICON = 'notes';
 const SYSTEM_UI_ICON = 'filter_none';
 const VIEW_CAPTURE_ICON = 'filter_none';
 const IME_ICON = 'keyboard_alt';
-const EVENT_LOG_ICON = 'description';
 const TRANSITION_ICON = 'animation';
 const CUJ_ICON = 'label';
 const INPUT_ICON = 'touch_app';
@@ -138,13 +137,6 @@ export const TRACE_INFO: TraceInfoMap = {
     icon: IME_ICON,
     color: '#FF6B00',
     downloadArchiveDir: 'ime',
-    legacyExt: '.winscope',
-  },
-  [TraceType.EVENT_LOG]: {
-    name: 'Event Log',
-    icon: EVENT_LOG_ICON,
-    color: '#fdd663',
-    downloadArchiveDir: 'eventlog',
     legacyExt: '.winscope',
   },
   [TraceType.WM_TRANSITION]: {

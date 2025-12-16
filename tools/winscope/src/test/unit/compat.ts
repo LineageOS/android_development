@@ -22,7 +22,7 @@
  * environments.
  *
  */
-import {getRootUrl} from 'common/window';
+import {getRootUrl} from '@common/window';
 
 /**
  * Fixtures directory used for compatibility between AOSP and google3.

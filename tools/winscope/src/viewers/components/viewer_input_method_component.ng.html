@@ -1,0 +1,63 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<div class="card-grid">
+  <collapsed-sections
+    [class.empty]="sections.areAllSectionsExpanded()"
+    [sections]="sections"
+    (sectionChange)="sections.onCollapseStateChange($event, false)"
+  >
+  </collapsed-sections>
+
+  @if (!areLeftViewsCollapsed()) {
+  <div class="left-views">
+    <hierarchy-view
+      class="hierarchy-view"
+      [nodeRows]="this.inputData?.hierarchyNodes ?? []"
+      [dependencies]="inputData ? [inputData.traceType] : []"
+      [highlightedItem]="inputData?.highlightedItem"
+      [pinnedItems]="inputData?.pinnedItems ?? []"
+      [tableProperties]="inputData?.hierarchyTableProperties"
+      [textFilter]="inputData?.hierarchyFilter"
+      [store]="store"
+      [userOptions]="inputData?.hierarchyUserOptions ?? {}"
+      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
+      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
+      placeholderText="No IME entry found."
+    ></hierarchy-view>
+    <ime-additional-properties
+      class="ime-additional-properties"
+      [isImeManagerService]="isImeManagerService()"
+      [highlightedItem]="inputData?.highlightedItem ?? ''"
+      [additionalProperties]="inputData?.additionalProperties"
+      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)"
+      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)"
+    ></ime-additional-properties>
+  </div>
+  }
+
+  <properties-view
+    class="properties-view"
+    [store]="store"
+    [userOptions]="inputData?.propertiesUserOptions ?? {}"
+    [nodeRows]="inputData?.propertyNodes"
+    [traceType]="inputData?.traceType"
+    [textFilter]="inputData?.propertiesFilter"
+    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
+    [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+    placeholderText="No selected item."
+  ></properties-view>
+</div>

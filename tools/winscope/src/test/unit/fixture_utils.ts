@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-import {assertDefined, assertTrue} from 'common/assert';
-import {TimestampConverter} from 'common/time/timestamp_converter';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {ParserFactory as LegacyParserFactory} from 'parsers/legacy/parser_factory';
-import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
+import {assertDefined, assertTrue} from '@common/assert';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {ParserFactory as LegacyParserFactory} from '@parsers/legacy/parser_factory';
+import {LegacyToPerfettoConverter} from '@parsers/legacy_to_perfetto_converter';
 import {
   getParserWithLatestRealToBootTimeOffset,
   getParserWithLatestRealToMonotonicTimeOffset,
-} from 'parsers/parser_time_utils';
-import {ParserFactory as PerfettoParserFactory} from 'parsers/perfetto/parser_factory';
-import {TracesParserFactory} from 'parsers/traces/traces_parser_factory';
-import {getFixtureFile} from 'test/unit/io_helpers';
-import {getTimestampConverter} from 'test/unit/time_test_helpers';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
-import {Trace} from 'trace_api/trace';
-import {TraceMetadata} from 'trace_api/trace_metadata';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@parsers/parser_time_utils';
+import {ParserFactory as PerfettoParserFactory} from '@parsers/perfetto/parser_factory';
+import {TracesParserFactory} from '@parsers/traces/traces_parser_factory';
+import {getFixtureFile} from '@test/unit/io_helpers';
+import {getTimestampConverter} from '@test/unit/time_test_helpers';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceBuilder} from './trace_builder';
 
 /**
@@ -86,15 +86,13 @@ export class LegacyParserProvider {
    */
   async getParser<T>(): Promise<Parser<T>> {
     const parsers = await this.getParsers();
-
-    expect(parsers.length)
-      .withContext(
+    assertTrue(
+      parsers.length > 0,
+      () =>
         `Should have been able to create a parser for ${this.files
           .map((f) => f.src)
           .join(', ')}`,
-      )
-      .toBeGreaterThanOrEqual(1);
-
+    );
     return parsers[0] as Parser<T>;
   }
 

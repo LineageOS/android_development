@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TimeDuration} from 'common/time/time_duration';
-import {AddOperation} from 'tree_node/add_operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+import {assertDefined} from '@common/assert';
+import {TimeDuration} from '@common/time/time_duration';
+import {AddOperation} from '@tree_node/add_operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
 
 /**
  * Transforms a nanosecond resolution duration property into a human-readable

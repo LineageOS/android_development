@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import {assertBigInt, assertDefined} from 'common/assert';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
-import {TimestampConverter} from 'common/time/timestamp_converter';
-import {Analytics} from 'logging/analytics';
-import {makeWarningTraceSearchQueryFailed} from 'parsers/warnings';
-import {UserNotifier} from 'services/user_notifier';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {assertBigInt, assertDefined} from '@common/assert';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {INVALID_TIME_NS, Timestamp} from '@common/time/time';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {Analytics} from '@logging/analytics';
+import {makeWarningTraceSearchQueryFailed} from '@parsers/warnings';
+import {UserNotifier} from '@services/user_notifier';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace_api/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
-import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
-import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
+} from '@trace_api/custom_query';
+import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 
 export class ParserSearch implements Parser<QueryResult> {
   private queryResult?: QueryResult;

@@ -14,24 +14,24 @@
  * limitations under the License.d
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Store} from 'common/store/store';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {getImeTraceEntries} from 'test/unit/fixture_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {makePropertyNode} from 'test/unit/tree_node_test_helpers';
-import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {ImeTraceType, TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {ImeUiData} from 'viewers/common/ime_ui_data';
-import {PresenterInputMethodClients} from 'viewers/viewer_input_method_clients/presenter_input_method_clients';
-import {PresenterInputMethodManagerService} from 'viewers/viewer_input_method_manager_service/presenter_input_method_manager_service';
-import {PresenterInputMethodService} from 'viewers/viewer_input_method_service/presenter_input_method_service';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Store} from '@common/store/store';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {getImeTraceEntries} from '@test/unit/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {makePropertyNode} from '@test/unit/tree_node_test_helpers';
+import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {ImeTraceType, TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {ImeUiData} from '@viewers/common/ime_ui_data';
+import {PresenterInputMethodClients} from '@viewers/viewer_input_method_clients/presenter_input_method_clients';
+import {PresenterInputMethodManagerService} from '@viewers/viewer_input_method_manager_service/presenter_input_method_manager_service';
+import {PresenterInputMethodService} from '@viewers/viewer_input_method_service/presenter_input_method_service';
 import {NotifyHierarchyViewCallbackType} from './abstract_hierarchy_viewer_presenter';
 import {AbstractHierarchyViewerPresenterTest} from './abstract_hierarchy_viewer_presenter_test';
 import {AbstractPresenterInputMethod} from './abstract_presenter_input_method';
@@ -168,14 +168,18 @@ the default for its data type.`,
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataHierarchy) {
-    const trees = assertDefined(uiData.hierarchyTrees);
+    const trees = assertDefined(uiData.hierarchyNodes).filter(
+      (t) => t.depth === 0,
+    );
     expect(trees.length).toBe(this.numberOfNestedChildren);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(
     uiData: UiDataHierarchy,
   ) {
-    const trees = assertDefined(uiData.hierarchyTrees);
+    const trees = assertDefined(uiData.hierarchyNodes).filter(
+      (t) => t.depth === 0,
+    );
     expect(trees.length).toBe(1);
   }
 
@@ -233,7 +237,7 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
         expect(uiData.hierarchyUserOptions).toBeTruthy();
         expect(uiData.propertiesUserOptions).toBeTruthy();
-        expect(uiData.hierarchyTrees).toBeDefined();
+        expect(uiData.hierarchyNodes?.length).toBeGreaterThan(0);
       });
 
       it('is robust to traces without WM', async () => {
@@ -241,7 +245,7 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
         expect(uiData.hierarchyUserOptions).toBeTruthy();
         expect(uiData.propertiesUserOptions).toBeTruthy();
-        expect(uiData.hierarchyTrees).toBeDefined();
+        expect(uiData.hierarchyNodes?.length).toBeGreaterThan(0);
       });
 
       it('is robust to traces without WM and SF', async () => {
@@ -249,36 +253,36 @@ the default for its data type.`,
         await presenter.onAppEvent(this.getPositionUpdate());
         expect(uiData.hierarchyUserOptions).toBeTruthy();
         expect(uiData.propertiesUserOptions).toBeTruthy();
-        expect(uiData.hierarchyTrees).toBeDefined();
+        expect(uiData.hierarchyNodes?.length).toBeGreaterThan(0);
       });
 
       it('can set new additional properties tree and associated ui data from hierarchy tree node', async () => {
         setUpPresenter([imeTraceType, TraceType.WINDOW_MANAGER]);
-        expect(uiData.propertiesTree).toBeUndefined();
+        expect(uiData.propertyNodes).toBeUndefined();
         await presenter.onAppEvent(this.getPositionUpdate());
         await presenter.onAdditionalPropertySelected({
           name: 'Test Tree',
           treeNode: this.getSelectedTree(),
         });
-        expect(assertDefined(uiData.propertiesTree).getDisplayName()).toEqual(
-          'Test Tree',
-        );
+        expect(
+          assertDefined(uiData.propertyNodes?.at(0)).node.getDisplayName(),
+        ).toEqual('Test Tree');
         expect(uiData.highlightedItem).toEqual(this.getSelectedTree().id);
       });
 
       it('can set new properties tree and associated ui data from id', async () => {
         setUpPresenter([imeTraceType, TraceType.WINDOW_MANAGER]);
-        expect(uiData.propertiesTree).toBeUndefined();
+        expect(uiData.propertyNodes).toBeUndefined();
         await presenter.onAppEvent(this.getPositionUpdate());
 
         const selectedTree = this.getSelectedTree();
         await presenter.onHighlightedIdChange(selectedTree.id);
-        const propertiesTree = assertDefined(uiData.propertiesTree);
+        const propertiesTree = assertDefined(uiData.propertyNodes?.at(0)).node;
         expect(propertiesTree.getDisplayName()).toEqual(selectedTree.name);
         expect(uiData.highlightedItem).toEqual(this.getSelectedTree().id);
 
         await presenter.onHighlightedIdChange(selectedTree.id);
-        expect(uiData.propertiesTree).toEqual(propertiesTree);
+        expect(uiData.propertyNodes?.at(0)?.node).toEqual(propertiesTree);
         expect(uiData.highlightedItem).toBe('');
       });
 
@@ -289,13 +293,15 @@ the default for its data type.`,
             return;
           }
           setUpPresenter([imeTraceType]);
-          expect(uiData.propertiesTree).toBeUndefined();
+          expect(uiData.propertyNodes).toBeUndefined();
           await presenter.onAppEvent(this.getPositionUpdate());
           await presenter.onAdditionalPropertySelected({
             name: 'Additional Properties Tree',
             treeNode: selectedPropertyTree,
           });
-          const propertiesTree = assertDefined(uiData.propertiesTree);
+          const propertiesTree = assertDefined(
+            uiData.propertyNodes?.at(0),
+          ).node;
           expect(propertiesTree.getDisplayName()).toEqual(
             'Additional Properties Tree',
           );
@@ -307,7 +313,7 @@ the default for its data type.`,
           // clears additional property tree selection
           const selectedTree = this.getSelectedTree();
           await presenter.onHighlightedIdChange(selectedTree.id);
-          expect(uiData.propertiesTree?.getDisplayName()).toEqual(
+          expect(uiData.propertyNodes?.at(0)?.node.getDisplayName()).toEqual(
             selectedTree.name,
           );
         });

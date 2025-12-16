@@ -73,10 +73,10 @@ describe('Viewer Input Method Service', () => {
     );
     expect(await nodes[1].getText()).toContain('253 - SfSubtree - Task=8#253');
     expect(await nodes[2].getText()).toContain(
-      '778 - Letterbox - left#778 GPU V',
+      '778 - Letterbox - left#778GPUV',
     );
     expect(await nodes[3].getText()).toContain(
-      '786 - com.google.(...).ZeroStateSearchActivity#786 GPU V',
+      '786 - com.google.(...).ZeroStateSearchActivity#786GPUV',
     );
   }
 

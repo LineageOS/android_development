@@ -15,10 +15,10 @@
  */
 import {TestBed} from '@angular/core/testing';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {makeUiHierarchyNode} from 'test/unit/ui_tree_node_utils';
-import {VISIBLE_CHIP} from 'viewers/common/chip';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {makeUiHierarchyNode} from '@test/unit/ui_tree_node_utils';
+import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 
 describe('HierarchyTreeNodeDataViewComponent', () => {
@@ -65,7 +65,9 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
     testNode.addChip(VISIBLE_CHIP);
     component.node = testNode;
     dom.detectChanges();
-    dom.checkTextExact(`1 - test node ${VISIBLE_CHIP.short}`);
-    await dom.get('.tree-view-chip').checkTooltip(VISIBLE_CHIP.long);
+    dom.checkText(`1 - test node`);
+    const chip = dom.get('.tree-view-chip');
+    chip.checkTextExact('V');
+    await chip.checkTooltip(VISIBLE_CHIP.long);
   });
 });

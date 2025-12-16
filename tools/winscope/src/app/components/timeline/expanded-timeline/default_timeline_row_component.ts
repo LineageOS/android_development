@@ -15,11 +15,11 @@
  */
 
 import {Component, Input} from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {Point} from 'common/geometry/point';
-import {Rect} from 'common/geometry/rect';
-import {Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace_api/trace';
+import {assertDefined} from '@common/assert';
+import {Point} from '@common/geometry/point';
+import {Rect} from '@common/geometry/rect';
+import {Timestamp} from '@common/time/time';
+import {Trace, TraceEntry} from '@trace_api/trace';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 
 /**
@@ -28,17 +28,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 @Component({
   selector: 'single-timeline',
   standalone: true,
-  template: `
-    <div
-      class="single-timeline"
-      (click)="onTimelineClick($event)"
-      [style.background-color]="getBackgroundColor()" #wrapper>
-      <canvas
-        id="canvas"
-        (mousemove)="trackMousePos($event)"
-        (mouseleave)="onMouseLeave($event)" #canvas></canvas>
-    </div>
-  `,
+  templateUrl: './default_timeline_row_component.ng.html',
   styleUrls: ['default_timeline_row_component.css'],
 })
 export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<unknown> {

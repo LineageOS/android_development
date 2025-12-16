@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert';
-import {FilterFlag} from 'common/filter_flag';
-import {Timestamp} from 'common/time/time';
-import {WindowType} from 'trace/window_manager/window_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Item} from 'tree_node/item';
-import {makeNodeFilter} from 'tree_node/helpers';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+import {assertDefined} from '@common/assert';
+import {FilterFlag} from '@common/filter_flag';
+import {Timestamp} from '@common/time/time';
+import {WindowType} from '@trace/window_manager/window_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {Item} from '@tree_node/item';
+import {makeNodeFilter} from '@tree_node/helpers';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {
   getFocusedActivity,
   getFocusedWindow,
-} from 'viewers/common/wm_ime_utils';
-import {TreeNodeFilter} from './ui_tree_utils';
+} from '@viewers/common/wm_ime_utils';
+import {TreeNodeFilter} from './ui_tree_node_helpers';
 
 interface WmStateProperties {
   timestamp: string | undefined;

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+import {assertDefined} from '@common/assert';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {DiffType} from './diff_type';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 
 describe('PropertiesPresenter', () => {
   const pTree = new PropertyTreeBuilder()

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {TransactionTraceEntry} from 'compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from 'compat/perfetto';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {AbstractParser} from '@parsers/legacy/abstract_parser';
+import {TransactionTraceEntry} from '@compat/winscope_protos';
+import {TracePacket, ClockSnapshot} from '@compat/perfetto';
 import root from 'protos/transactions/udc/json';
 import {android} from 'protos/transactions/udc/static';
-import {TraceType} from 'trace_api/trace_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 type TraceEntryProto = android.surfaceflinger.proto.ITransactionTraceEntry;
 

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {Analytics} from 'logging/analytics';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
+import {Analytics} from '@logging/analytics';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
 import {
   makeDenyListFilterByName,
   makeIdMatchFilter,
   makeNodeFilter,
-} from 'tree_node/helpers';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Operation} from 'tree_node/operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TreeNode} from 'tree_node/tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+} from '@tree_node/helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {Operation} from '@tree_node/operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {IsModifiedCallbackType} from './add_diffs';
 import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';
 import {Filter} from './operations/filter';
@@ -37,7 +37,7 @@ import {
   isNotFromTP,
   makeIsNotDefaultFilter,
   TreeNodeFilter,
-} from './ui_tree_utils';
+} from './ui_tree_node_helpers';
 import {UserOptions} from './user_options';
 
 export class PropertiesPresenter {

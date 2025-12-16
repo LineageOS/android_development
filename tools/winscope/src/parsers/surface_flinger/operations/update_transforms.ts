@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {assertDefined} from '@common/assert';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {
   getDefaultTransform,
   isSimpleTransform,
   Transform,
-} from 'common/geometry/transform';
-import {Operation} from 'tree_node/operation';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+} from '@common/geometry/transform';
+import {Operation} from '@tree_node/operation';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
 
 export class UpdateTransforms implements Operation<PropertyTreeNode> {
   apply(value: PropertyTreeNode): void {

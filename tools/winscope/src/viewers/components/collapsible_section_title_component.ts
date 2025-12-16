@@ -23,30 +23,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
   selector: 'collapsible-section-title',
   standalone: true,
   imports: [MatButtonModule, MatIconModule, MatTooltipModule],
-  template: `
-      <button
-        mat-icon-button
-        matTooltip="Collapse"
-        (click)="onCollapseButtonClick()">
-        <mat-icon class="material-symbols-outlined"> left_panel_close </mat-icon>
-      </button>
-      <span class="mat-headline-6 section-title">{{title.toUpperCase()}}</span>
-    `,
-  styles: [
-    `
-      :host {
-        display: flex;
-        flex-direction: row;
-      }
-      :host button {
-        padding-top: 12px;
-      }
-      .section-title {
-        padding-top: 14px;
-        margin-bottom: 14px;
-      }
-    `,
-  ],
+  templateUrl: './collapsible_section_title_component.ng.html',
+  styleUrls: ['collapsible_section_title_component.css'],
 })
 export class CollapsibleSectionTitleComponent {
   @Input() title: string | undefined;

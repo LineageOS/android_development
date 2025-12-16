@@ -16,52 +16,15 @@
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {assertDefined} from '@common/assert';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 @Component({
   selector: 'transform-matrix',
   standalone: true,
   imports: [CommonModule, MatTooltipModule],
-  template: `
-    @if (matrix) {
-      <div class="matrix">
-        <p class="mat-body-1">
-          {{ getVal('dsdx') }}
-        </p>
-        <p class="mat-body-1">
-          {{ getVal('dtdx') }}
-        </p>
-        <p class="mat-body-1" matTooltip="Translate x">
-          {{ getVal('tx') }}
-        </p>
-
-        <p class="mat-body-1">
-          {{ getVal('dtdy') }}
-        </p>
-        <p class="mat-body-1">
-          {{ getVal('dsdy') }}
-        </p>
-        <p class="mat-body-1" matTooltip="Translate y">
-          {{ getVal('ty') }}
-        </p>
-
-        <p class="mat-body-1">0</p>
-        <p class="mat-body-1">0</p>
-        <p class="mat-body-1">1</p>
-      </div>
-    }
-  `,
-  styles: [
-    `
-      .matrix {
-        display: grid;
-        grid-gap: 1px;
-        grid-template-columns: repeat(3, 1fr);
-        text-align: center;
-      }
-    `,
-  ],
+  templateUrl: './transform_matrix_component.ng.html',
+  styleUrls: ['transform_matrix_component.css'],
 })
 export class TransformMatrixComponent {
   @Input() matrix: UiPropertyTreeNode | undefined;

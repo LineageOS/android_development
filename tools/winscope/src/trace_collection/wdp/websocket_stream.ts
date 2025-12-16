@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Timer} from 'common/time/timer';
+import {Timer} from '@common/time/timer';
 
 export type ErrorListener = (msg: string) => Promise<void>;
 

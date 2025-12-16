@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
-import {Store} from 'common/store/store';
-import {Timestamp} from 'common/time/time';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {ImeTraceType, TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TreeNode} from 'tree_node/tree_node';
-import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
-import {ImeUiData} from 'viewers/common/ime_ui_data';
+import {assertDefined} from '@common/assert';
+import {createPersistentStoreProxy} from '@common/store/persistent_store_proxy';
+import {Store} from '@common/store/store';
+import {Timestamp} from '@common/time/time';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {ImeTraceType, TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
+import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
+import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {
   getImeLayers,
   ImeLayers,
   processWindowManagerTraceEntry,
   ProcessedWindowManagerState,
-} from 'viewers/common/ime_utils';
-import {TableProperties} from 'viewers/common/table_properties';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UserOptions} from 'viewers/common/user_options';
+} from '@viewers/common/ime_utils';
+import {TableProperties} from '@viewers/common/table_properties';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UserOptions} from '@viewers/common/user_options';
 import {
   AbstractHierarchyViewerPresenter,
   NotifyHierarchyViewCallbackType,
@@ -44,7 +44,7 @@ import {HierarchyPresenter, HierarchyTraceEntry} from './hierarchy_presenter';
 import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_display_names';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
-import {isHighlighted} from './ui_tree_utils';
+import {isHighlighted} from './ui_tree_node_helpers';
 import {ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {

@@ -18,41 +18,41 @@ import {
   assertBigIntOrUndefined,
   assertDefined,
   assertString,
-} from 'common/assert';
-import {MakeTimestampStrategyType} from 'common/time/time';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
-import {AddDefaults} from 'parsers/operations/add_defaults';
-import {TransformToTimestamp} from 'parsers/operations/transform_to_timestamp';
-import {TranslateIntDef} from 'parsers/operations/translate_intdef';
-import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {queryArgs} from 'parsers/perfetto/query_helpers';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {TransformDuration} from 'parsers/transitions/operations/transform_duration';
-import {TransitionType} from 'parsers/transitions/transition_type';
+} from '@common/assert';
+import {MakeTimestampStrategyType} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {HierarchyTreeBuilderLog} from '@parsers/hierarchy_tree_builder_log';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {PropertyTreeBuilderFromProto} from '@parsers/property_tree_builder_from_proto';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
+import {TransformDuration} from '@parsers/transitions/operations/transform_duration';
+import {TransitionType} from '@parsers/transitions/transition_type';
 import {
   EnumFormatter,
   TIMESTAMP_NODE_FORMATTER,
   UPPER_CASE_FORMATTER,
-} from 'trace/formatters';
-import {TAMPERED_TRACE_PACKET} from 'trace/proto_utils/tampered_message_type';
-import {TraceType} from 'trace_api/trace_type';
-import {ColumnType, RowIterator} from 'trace_processor/query_result';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Operation} from 'tree_node/operation';
-import {PropertiesProvider} from 'tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {TraceFile} from 'trace/trace_file';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+} from '@trace/formatters';
+import {TAMPERED_TRACE_PACKET} from '@trace/proto_utils/tampered_message_type';
+import {TraceType} from '@trace_api/trace_type';
+import {ColumnType, RowIterator} from '@trace_processor/query_result';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {Operation} from '@tree_node/operation';
+import {PropertiesProvider} from '@tree_node/properties_provider';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {TraceFile} from '@trace/trace_file';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {
   PropertyFormatter,
   PropertyTreeNode,
-} from 'tree_node/property_tree_node';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {getLogger, Logger} from 'compat/logging';
-import {SetFormatters} from 'parsers/set_formatters';
-import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
+} from '@tree_node/property_tree_node';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {getLogger, Logger} from '@compat/logging';
+import {SetFormatters} from '@parsers/set_formatters';
+import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
 
 /**
  * Parser for Transitions Perfetto traces.

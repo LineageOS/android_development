@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Store} from 'common/store/store';
-import {Trace} from 'trace_api/trace';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {Store} from '@common/store/store';
+import {Trace} from '@trace_api/trace';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
-} from 'viewers/common/abstract_log_viewer_presenter';
-import {LogSelectFilter, LogTextFilter} from 'viewers/common/log_filters';
-import {LogPresenter} from 'viewers/common/log_presenter';
-import {PropertiesPresenter} from 'viewers/common/properties_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
-import {LogEntry, LogHeader, UiDataLog} from 'viewers/common/ui_data_log';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
+} from '@viewers/common/abstract_log_viewer_presenter';
+import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
+import {LogPresenter} from '@viewers/common/log_presenter';
+import {PropertiesPresenter} from '@viewers/common/properties_presenter';
+import {TextFilter} from '@viewers/common/text_filter';
+import {LogEntry, LogHeader, UiDataLog} from '@viewers/common/ui_data_log';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
+import {UserOptions} from '@viewers/common/user_options';
 
 export class MockPresenter extends AbstractLogViewerPresenter<
   UiDataLog,
@@ -161,7 +162,7 @@ export class MockData implements UiDataLog {
     public currentIndex: undefined | number,
     public selectedIndex: undefined | number,
     public scrollToIndex: undefined | number,
-    public propertiesTree: undefined | UiPropertyTreeNode,
+    public propertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined,
     public propertiesUserOptions: UserOptions,
     public isDarkMode = false,
   ) {}

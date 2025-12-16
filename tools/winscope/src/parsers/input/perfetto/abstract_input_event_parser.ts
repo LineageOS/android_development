@@ -18,36 +18,36 @@ import {
   assertBigInt,
   assertBigIntOrUndefined,
   assertDefined,
-} from 'common/assert';
-import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
-import {InputCoordinatePropagator} from 'parsers/input/operations/input_coordinate_propagator';
-import {TranslateIntDef} from 'parsers/operations/translate_intdef';
-import {AbstractParser} from 'parsers/perfetto/abstract_parser';
-import {queryArgs, queryVsyncId} from 'parsers/perfetto/query_helpers';
-import {PropertyTreeBuilderFromArgs} from 'parsers/property_tree_builder_from_args';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {PropertyTreeBuilderFromQueryRow} from 'parsers/property_tree_builder_from_query_row';
-import {SetFormatters} from 'parsers/set_formatters';
-import {EnumFormatter} from 'trace/formatters';
-import {InputEventType} from 'trace/input/input_event_type';
+} from '@common/assert';
+import {HierarchyTreeBuilderLog} from '@parsers/hierarchy_tree_builder_log';
+import {InputCoordinatePropagator} from '@parsers/input/operations/input_coordinate_propagator';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {queryArgs, queryVsyncId} from '@parsers/perfetto/query_helpers';
+import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
+import {PropertyTreeBuilderFromProto} from '@parsers/property_tree_builder_from_proto';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
+import {SetFormatters} from '@parsers/set_formatters';
+import {EnumFormatter} from '@trace/formatters';
+import {InputEventType} from '@trace/input/input_event_type';
 import {
   TAMPERED_WINSCOPE_EXTENSIONS,
   TamperedMessageType,
-} from 'trace/proto_utils/tampered_message_type';
+} from '@trace/proto_utils/tampered_message_type';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
-} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
-import {RowIterator} from 'trace_processor/query_result';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Operation} from 'tree_node/operation';
-import {PropertiesProvider} from 'tree_node/properties_provider';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {RowIterator} from '@trace_processor/query_result';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {Operation} from '@tree_node/operation';
+import {PropertiesProvider} from '@tree_node/properties_provider';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected static readonly WRAPPER_PROTO = assertDefined(

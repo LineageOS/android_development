@@ -27,27 +27,27 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {Box3D} from 'common/geometry/box3d';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {PersistentStore} from 'common/store/persistent_store';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {waitToBeCalled} from 'test/unit/spy_utils';
-import {TraceType} from 'trace_api/trace_type';
-import {VISIBLE_CHIP} from 'viewers/common/chip';
-import {DisplayIdentifier} from 'viewers/common/display_identifier';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {RectDblClickDetail, ViewerEvents} from 'viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
+import {assertDefined} from '@common/assert';
+import {Box3D} from '@common/geometry/box3d';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {PersistentStore} from '@common/store/persistent_store';
+import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {waitToBeCalled} from '@test/unit/spy_utils';
+import {TraceType} from '@trace_api/trace_type';
+import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {
   RectLegendOption,
   RectSpec,
   TraceRectType,
-} from 'viewers/components/rects/rect_spec';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {UiRect} from 'viewers/components/rects/ui_rect';
-import {UserOptionsComponent} from 'viewers/components/user_options_component';
+} from '@viewers/components/rects/rect_spec';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {UiRect} from '@viewers/components/rects/ui_rect';
+import {UserOptionsComponent} from '@viewers/components/user_options_component';
 import {Camera} from './camera';
 import {Canvas} from './canvas';
 import {ColorType} from './color_type';

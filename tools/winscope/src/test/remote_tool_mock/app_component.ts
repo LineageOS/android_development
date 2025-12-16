@@ -16,8 +16,8 @@
 
 import {CommonModule} from '@angular/common';
 import {ChangeDetectorRef, Component, Inject} from '@angular/core';
-import {assertDefined, assertUnreachable} from 'common/assert';
-import {Timer} from 'common/time/timer';
+import {assertDefined, assertUnreachable} from '@common/assert';
+import {Timer} from '@common/time/timer';
 import {
   Message,
   MessageBugReport,
@@ -26,59 +26,14 @@ import {
   MessageTimestamp,
   MessageType,
   TimestampType,
-} from 'cross_tool/messages';
-import {getLogger, Logger} from 'compat/logging';
+} from '@cross_tool/messages';
+import {getLogger, Logger} from '@compat/logging';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <span class="app-title">Remote Tool Mock (simulates cross-tool protocol)</span>
-
-    <hr/>
-    <p>Open Winscope tab</p>
-    <input
-        class="button-open-winscope"
-        type="button"
-        value="Open"
-        (click)="onButtonOpenWinscopeClick()"/>
-
-    <hr/>
-    <p>Send bugreport</p>
-    <input
-        class="button-send-bugreport"
-        type="file"
-        value=""
-        (change)="onButtonSendBugreportClick($event)"/>
-
-    <hr/>
-    <p>Send file</p>
-    <input
-        class="button-send-files"
-        type="file"
-        value=""
-        (change)="onButtonSendFilesClick($event)"/>
-
-    <hr/>
-    <p>Send timestamp [ns]</p>
-    <input class="input-timestamp" type="number" id="name" name="name"/>
-    <input
-        class="button-send-realtime-timestamp"
-        type="button"
-        value="Send"
-        (click)="onButtonSendRealtimeTimestampClick()"/>
-    <input
-        class="button-send-boottime-timestamp"
-        type="button"
-        value="Send"
-        (click)="onButtonSendBoottimeTimestampClick()"/>
-    <hr/>
-    <p>Received realtime timestamp:</p>
-    <p class="paragraph-received-realtime-timestamp"></p>
-    <p>Received boottime timestamp:</p>
-    <p class="paragraph-received-boottime-timestamp"></p>
-  `,
+  templateUrl: './app_component.ng.html',
 })
 /**
  * A mock remote tool that can be used to test the cross-tool communication protocol.

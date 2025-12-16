@@ -32,11 +32,11 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {Point} from 'common/geometry/point';
-import {TimeRange, Timestamp} from 'common/time/time';
-import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
-import {TracePosition} from 'trace_api/trace_position';
+import {assertDefined} from '@common/assert';
+import {Point} from '@common/geometry/point';
+import {TimeRange, Timestamp} from '@common/time/time';
+import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
+import {TracePosition} from '@trace_api/trace_position';
 import {Transformer} from './transformer';
 
 /**
@@ -46,26 +46,7 @@ import {Transformer} from './transformer';
   selector: 'slider',
   standalone: true,
   imports: [DragDropModule],
-  template: `
-    <div id="timeline-slider-box" #sliderBox>
-      <div class="background line"></div>
-      <div
-        class="slider"
-        cdkDragLockAxis="x"
-        cdkDragBoundary="#timeline-slider-box"
-        cdkDrag
-        (cdkDragMoved)="onSliderMove($event)"
-        (cdkDragStarted)="onSlideStart($event)"
-        (cdkDragEnded)="onSlideEnd($event)"
-        [cdkDragFreeDragPosition]="dragPosition"
-        [style]="{width: sliderWidth + 'px'}">
-        <div class="left cropper" (mousedown)="startMoveLeft($event)"></div>
-        <div class="handle" cdkDragHandle></div>
-        <div class="right cropper" (mousedown)="startMoveRight($event)"></div>
-      </div>
-      <div class="cursor" [style]="{left: cursorOffset + 'px'}"></div>
-    </div>
-  `,
+  templateUrl: './slider_component.ng.html',
   styleUrls: ['slider_component.css'],
 })
 export class SliderComponent {

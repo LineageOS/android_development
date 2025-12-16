@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
-import {showPopupWindow} from 'common/window';
-import {AdbHostConnection} from 'trace_collection/adb/adb_host_connection';
-import {AdbConnectionType} from 'trace_collection/adb_connection_type';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
+import {getLogger, Logger} from '@compat/logging';
+import {showPopupWindow} from '@common/window';
+import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
+import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {StreamProvider} from './stream_provider';
 import {
   WdpDeviceConnection,

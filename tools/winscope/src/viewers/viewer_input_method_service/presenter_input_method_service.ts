@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {AbstractPresenterInputMethod} from 'viewers/common/abstract_presenter_input_method';
+import {AbstractPresenterInputMethod} from '@viewers/common/abstract_presenter_input_method';
 
 export class PresenterInputMethodService extends AbstractPresenterInputMethod {
   protected getHierarchyTableProperties() {

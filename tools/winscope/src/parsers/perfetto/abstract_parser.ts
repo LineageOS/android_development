@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
-import {assertBigInt, assertTrue} from 'common/assert';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {INVALID_TIME_NS, Timestamp} from 'common/time/time';
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {TraceFile} from 'trace/trace_file';
-import {CoarseVersion} from 'trace_api/coarse_version';
+import {getLogger, Logger} from '@compat/logging';
+import {assertBigInt, assertTrue} from '@common/assert';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {INVALID_TIME_NS, Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceFile} from '@trace/trace_file';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace_api/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from 'trace_api/index_types';
-import {Parser} from 'trace_api/parser';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {QueryResult, QueryResults} from 'trace_processor/query_result';
-import {RawDataQueryResult} from 'trace_processor/raw_data_query_result';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {RectsForTrace} from 'tree_node/rect_extractor_result';
+} from '@trace_api/custom_query';
+import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
+import {Parser} from '@trace_api/parser';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T> {
   protected readonly checkInvalidTs: boolean = false;

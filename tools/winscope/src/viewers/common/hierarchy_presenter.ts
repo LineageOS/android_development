@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Analytics} from 'logging/analytics';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {makeIdMatchFilter, makeNodeFilter} from 'tree_node/helpers';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {Operation} from 'tree_node/operation';
-import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
-import {TreeNode} from 'tree_node/tree_node';
-import {IsModifiedCallbackType} from 'viewers/common/add_diffs';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Analytics} from '@logging/analytics';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {makeIdMatchFilter, makeNodeFilter} from '@tree_node/helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {Operation} from '@tree_node/operation';
+import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
+import {IsModifiedCallbackType} from '@viewers/common/add_diffs';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {
   TreeNodeFilter,
   isVisible,
   shouldGetProperties,
-} from 'viewers/common/ui_tree_utils';
-import {UserOptions} from 'viewers/common/user_options';
-import {SimplifyNamesVc} from 'viewers/viewer_view_capture/operations/simplify_names';
+} from '@viewers/common/ui_tree_node_helpers';
+import {UserOptions} from '@viewers/common/user_options';
+import {SimplifyNamesVc} from '@viewers/viewer_view_capture/operations/simplify_names';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
 import {AddChips} from './operations/add_chips';
 import {Filter} from './operations/filter';
@@ -199,40 +199,6 @@ export class HierarchyPresenter {
 
   setSelectedTree(value: SelectedTree | undefined) {
     this.selectedTree = value;
-  }
-
-  getAdjacentVisibleNode(
-    treeStore: InMemoryStorage,
-    getPrevious: boolean,
-  ): UiHierarchyTreeNode | undefined {
-    if (!this.selectedTree) {
-      return this.currentTrees?.at(0)?.formattedTrees?.at(0);
-    }
-    let selectedTree: UiHierarchyTreeNode;
-    if (this.selectedTree.tree instanceof UiHierarchyTreeNode) {
-      selectedTree = this.selectedTree.tree;
-    } else {
-      selectedTree =
-        (this.findSelectedTreeById(this.selectedTree.tree.id, true)
-          ?.tree as UiHierarchyTreeNode) ?? undefined;
-      if (!selectedTree) {
-        return this.currentTrees?.at(0)?.formattedTrees?.at(0);
-      }
-    }
-
-    this.treeStore = treeStore;
-    const adjNode = this.findAdjacentNonHiddenNode(
-      selectedTree,
-      getPrevious ? (n) => n.getPrevDfs() : (n) => n.getNextDfs(),
-    );
-    if (adjNode) {
-      return adjNode;
-    }
-    const adjacentNode = getPrevious
-      ? this.getPrevNonHiddenNode(this.selectedTree.index)
-      : this.getNextNonHiddenNode(selectedTree, this.selectedTree.index);
-    this.treeStore = undefined;
-    return adjacentNode;
   }
 
   async updatePreviousHierarchyTrees() {
@@ -405,9 +371,7 @@ export class HierarchyPresenter {
       hierarchyTreeIndex,
     );
     this.pinnedItems.push(...this.extractPinnedItems(formattedTree));
-    const filteredTree = this.filterTree(formattedTree);
-    filteredTree.assignDfsOrder();
-    return filteredTree;
+    return this.filterTree(formattedTree);
   }
 
   private async formatTree(
@@ -536,76 +500,6 @@ export class HierarchyPresenter {
       indexOffset += treesToSearch.length;
     }
     return undefined;
-  }
-
-  private findAdjacentNonHiddenNode(
-    node: UiHierarchyTreeNode,
-    getAdj: (n: UiHierarchyTreeNode) => UiHierarchyTreeNode | undefined,
-  ): UiHierarchyTreeNode | undefined {
-    const adjNode = getAdj(node);
-    if (adjNode && this.isHidden(adjNode)) {
-      return this.findAdjacentNonHiddenNode(adjNode, getAdj);
-    }
-    return adjNode;
-  }
-
-  private getPrevNonHiddenNode(
-    index: FormattedTreeIndex,
-  ): UiHierarchyTreeNode | undefined {
-    if (index > 0) {
-      const trees = assertDefined(this.getAllFormattedTrees());
-      return this.findFinalChild(trees[index - 1]);
-    }
-    return undefined;
-  }
-
-  private findFinalChild(node: UiHierarchyTreeNode): UiHierarchyTreeNode {
-    const children = node.getAllChildren();
-    if (this.isCollapsed(node) || children.length === 0) {
-      return node;
-    }
-    return this.findFinalChild(children[children.length - 1]);
-  }
-
-  private getNextNonHiddenNode(
-    tree: UiHierarchyTreeNode,
-    index: FormattedTreeIndex,
-  ): UiHierarchyTreeNode | undefined {
-    const trees = assertDefined(this.getAllFormattedTrees());
-    if (index < trees.length - 1) {
-      return trees[index + 1];
-    }
-    if (this.isHidden(tree)) {
-      return this.findFirstNonHiddenParent(tree);
-    }
-    return undefined;
-  }
-
-  private findFirstNonHiddenParent(
-    node: UiHierarchyTreeNode,
-  ): UiHierarchyTreeNode | undefined {
-    const parent = assertDefined(node.getParent());
-    if (!this.isHidden(parent)) {
-      return parent;
-    }
-    return this.findFirstNonHiddenParent(parent);
-  }
-
-  private isHidden(node: UiHierarchyTreeNode): boolean {
-    const parent = node.getParent();
-    if (!parent) {
-      return false;
-    }
-    if (this.isCollapsed(parent)) {
-      return true;
-    }
-    return this.isHidden(parent);
-  }
-
-  private isCollapsed(node: UiHierarchyTreeNode): boolean {
-    return (
-      assertDefined(this.treeStore).get(`${node.id}.collapsedState`) === 'true'
-    );
   }
 
   private getCurrentTreesByTrace(

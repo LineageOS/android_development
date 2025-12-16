@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Store} from 'common/store/store';
-import {Timestamp} from 'common/time/time';
-import {Timer} from 'common/time/timer';
-import {CrossToolProtocol} from 'cross_tool/cross_tool_protocol';
-import {Analytics} from 'logging/analytics';
-import {ProgressListener} from 'messaging/progress_listener';
-import {UserWarning} from 'messaging/user_warning';
+import {assertDefined} from '@common/assert';
+import {Store} from '@common/store/store';
+import {Timestamp} from '@common/time/time';
+import {Timer} from '@common/time/timer';
+import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningNoValidFiles,
   makeWarningCannotVisualizeTraceEntry,
@@ -37,7 +37,7 @@ import {
   AppResetRequest,
   AppTraceViewRequest,
   AppTraceViewRequestHandled,
-} from 'app/app_events';
+} from '@app/app_events';
 import {
   ActiveSearchQueriesUpdate,
   BookmarksChanged,
@@ -47,14 +47,14 @@ import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
   NoTraceTargetsSelectedEvent,
-} from 'app/misc_events';
-import {ExpandedTimelineToggled} from 'app/components/timeline/timeline_events';
+} from '@app/misc_events';
+import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
 import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
-} from 'app/components/timeline/playback_events';
+} from '@app/components/timeline/playback_events';
 import {
   ActiveTraceChanged,
   InitializeTraceSearchRequest,
@@ -67,36 +67,36 @@ import {
   TraceSearchInitialized,
   TraceSearchRequest,
   ShowTraceUploadWarning,
-} from 'trace/trace_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
+} from '@trace/trace_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
   RemoteToolTimestampReceived,
-} from 'cross_tool/remote_tool_events';
-import {ViewersLoaded, ViewersUnloaded} from 'app/viewers_events';
+} from '@cross_tool/remote_tool_events';
+import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
 import {
   TabbedViewSwitched,
   TabbedViewSwitchRequest,
-} from 'app/tabbed_view_events';
-import {WinscopeEventEmitter} from 'messaging/winscope_event_emitter';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {getLogger, Logger} from 'compat/logging';
-import {UserNotifier} from 'services/user_notifier';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType} from 'trace_api/trace_type';
-import {RequestedTraceTypes} from 'trace_collection/adb_files';
-import {View, Viewer, ViewType} from 'viewers/viewer';
-import {ViewerFactory} from 'viewers/viewer_factory';
+} from '@app/tabbed_view_events';
+import {WinscopeEventEmitter} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {getLogger, Logger} from '@compat/logging';
+import {UserNotifier} from '@services/user_notifier';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {RequestedTraceTypes} from '@trace_collection/adb_files';
+import {View, Viewer, ViewType} from '@viewers/viewer';
+import {ViewerFactory} from '@viewers/viewer_factory';
 import {FilesSource} from './files_source';
 import {TimelineData} from './timeline_data';
 import {TracePipeline} from './trace_pipeline';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
-import {PlaybackPrefetchedEntries} from 'trace/playback_prefetched_entries';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
+import {PlaybackPrefetchedEntries} from '@trace/playback_prefetched_entries';
 
 /**
  * Mediator class for communication between components

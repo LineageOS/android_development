@@ -15,7 +15,7 @@
  */
 
 // organize-imports-ignore
-import 'app/global_init';
+import '@app/global_init';
 import {globalConfig} from './common/global_config';
 globalConfig.set({
   MODE: 'KARMA_TEST',

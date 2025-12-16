@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {Color} from 'app/colors';
-import {Segment} from 'app/components/timeline/segment';
-import {convertHexToRgb} from 'app/components/timeline/timeline_utils';
-import {Point} from 'common/geometry/point';
-import {MouseEventButton} from 'common/mouse_event_button';
-import {Padding} from 'common/padding';
-import {Timestamp} from 'common/time/time';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
+import {Color} from '@app/colors';
+import {Segment} from '@app/components/timeline/segment';
+import {convertHexToRgb} from '@app/components/timeline/timeline_utils';
+import {Point} from '@common/geometry/point';
+import {MouseEventButton} from '@common/mouse_event_button';
+import {Padding} from '@common/padding';
+import {Timestamp} from '@common/time/time';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
 import {CanvasMouseHandler} from './canvas_mouse_handler';
 import {CanvasMouseHandlerImpl} from './canvas_mouse_handler_impl';
 import {DraggableCanvasObject} from './draggable_canvas_object';

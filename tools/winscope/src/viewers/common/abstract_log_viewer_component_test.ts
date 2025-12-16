@@ -34,22 +34,26 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {LogComponent} from 'viewers/components/log_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {PropertyTreeNodeDataViewComponent} from 'viewers/components/property_tree_node_data_view_component';
-import {SearchBoxComponent} from 'viewers/components/search_box_component';
-import {SelectWithFilterComponent} from 'viewers/components/select_with_filter_component';
-import {TreeComponent} from 'viewers/components/tree_component';
-import {TreeNodeComponent} from 'viewers/components/tree_node_component';
-import {ViewerInputComponent} from 'viewers/viewer_input/viewer_input_component';
-import {ViewerJankCujsComponent} from 'viewers/viewer_jank_cujs/viewer_jank_cujs_component';
-import {ViewerProtologComponent} from 'viewers/viewer_protolog/viewer_protolog_component';
-import {ViewerTransactionsComponent} from 'viewers/viewer_transactions/viewer_transactions_component';
-import {ViewerTransitionsComponent} from 'viewers/viewer_transitions/viewer_transitions_component';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {LogComponent} from '@viewers/components/log_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {PropertyTreeNodeDataViewComponent} from '@viewers/components/property_tree_node_data_view_component';
+import {SearchBoxComponent} from '@viewers/components/search_box_component';
+import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
+import {TreeComponent} from '@viewers/components/tree_component';
+import {TreeNodeComponent} from '@viewers/components/tree_node_component';
+import {
+  VirtualRow,
+  VirtualScrollViewportComponent,
+} from '@viewers/components/virtual_scroll_viewport_component';
+import {ViewerInputComponent} from '@viewers/viewer_input/viewer_input_component';
+import {ViewerJankCujsComponent} from '@viewers/viewer_jank_cujs/viewer_jank_cujs_component';
+import {ViewerProtologComponent} from '@viewers/viewer_protolog/viewer_protolog_component';
+import {ViewerTransactionsComponent} from '@viewers/viewer_transactions/viewer_transactions_component';
+import {ViewerTransitionsComponent} from '@viewers/viewer_transitions/viewer_transitions_component';
 import {ColumnSpec, UiDataLog} from './ui_data_log';
 import {VariableHeightScrollDirective} from './variable_height_scroll_directive';
 
@@ -150,7 +154,7 @@ export abstract class AbstractLogViewerComponentTest<
 
           it('shows message when no entry is selected', () => {
             const data = assertDefined(component.inputData);
-            (data as any).propertiesTree = undefined;
+            (data as UiDataLog).propertyNodes = undefined;
             dom.detectChanges();
             dom
               .get('.properties-view .placeholder-text')
@@ -235,13 +239,15 @@ export abstract class AbstractLogViewerComponentTest<
   ): Promise<[DOMTestHelper<U>, CdkVirtualScrollViewport, U]> {
     const imports: object[] = [
       typeofViewer,
-      SelectWithFilterComponent,
-      SearchBoxComponent,
-      LogComponent,
+      VirtualRow,
       VariableHeightScrollDirective,
+      VirtualScrollViewportComponent,
       TreeComponent,
       TreeNodeComponent,
       PropertyTreeNodeDataViewComponent,
+      SelectWithFilterComponent,
+      SearchBoxComponent,
+      LogComponent,
       MatDividerModule,
       ScrollingModule,
       MatIconModule,

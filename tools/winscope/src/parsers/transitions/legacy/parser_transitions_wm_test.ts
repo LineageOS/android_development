@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {com} from 'protos/transitions/udc/static';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeZeroTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('ParserTransitionsWm', () => {
   let parser: Parser<com.android.server.wm.shell.ITransition>;

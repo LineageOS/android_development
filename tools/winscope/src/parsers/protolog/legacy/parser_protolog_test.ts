@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {utf8Encode} from 'common/string_helpers';
-import {Timestamp} from 'common/time/time';
+import {assertDefined} from '@common/assert';
+import {utf8Encode} from '@common/string_helpers';
+import {Timestamp} from '@common/time/time';
 import Long from 'long';
-import {InternedString, TracePacket} from 'compat/perfetto';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {InternedString, TracePacket} from '@compat/perfetto';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {IProtoLogViewerConfig} from 'compat/winscope_protos';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {IProtoLogViewerConfig} from '@compat/winscope_protos';
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 interface ExpectedInternedData {

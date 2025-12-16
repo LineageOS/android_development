@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-import {TraceEntry} from 'trace_api/trace';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
-import {TextFilter} from 'viewers/common/text_filter';
+import {TraceEntry} from '@trace_api/trace';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   LogEntry,
   LogField,
   LogHeader,
   UiDataLog,
-} from 'viewers/common/ui_data_log';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+} from '@viewers/common/ui_data_log';
 
 export class UiData implements UiDataLog {
   constructor(
@@ -33,23 +30,22 @@ export class UiData implements UiDataLog {
     public selectedIndex: undefined | number,
     public currentIndex: undefined | number,
     public scrollToIndex: undefined | number,
-    public propertiesTree: undefined | UiPropertyTreeNode,
   ) {}
 
   isFetchingData = false;
   checkScrollViewport = false;
-  propertiesFilter = new TextFilter();
 
   static createEmpty() {
-    return new UiData([], [], undefined, undefined, undefined, undefined);
+    return new UiData([], [], undefined, undefined, undefined);
   }
 }
 
 export class CujEntry implements LogEntry {
+  readonly getPropertiesTree = undefined;
+
   constructor(
     public traceEntry: TraceEntry<HierarchyTreeNode>,
     public fields: LogField[],
-    public getPropertiesTree: LazyPropertiesStrategyType | undefined,
   ) {}
 }
 

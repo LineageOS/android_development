@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import {Component, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
@@ -24,44 +25,50 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {FilterFlag} from 'common/filter_flag';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {PersistentStore} from 'common/store/persistent_store';
+import {FilterFlag} from '@common/filter_flag';
+import {PersistentStore} from '@common/store/persistent_store';
 import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
-} from 'parsers/warnings';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {HierarchyTreeNodeDataViewComponent} from 'viewers/components/hierarchy_tree_node_data_view_component';
-import {TreeComponent} from 'viewers/components/tree_component';
-import {TreeNodeComponent} from 'viewers/components/tree_node_component';
+} from '@parsers/warnings';
+import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {HierarchyTreeNodeDataViewComponent} from '@viewers/components/hierarchy_tree_node_data_view_component';
+import {TreeNodeComponent} from '@viewers/components/tree_node_component';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {HierarchyComponent} from './hierarchy_component';
 import {SearchBoxComponent} from './search_box_component';
 import {UserOptionsComponent} from './user_options_component';
+import {TreeComponent} from './tree_component';
+import {
+  VirtualRow,
+  VirtualScrollViewportComponent,
+} from './virtual_scroll_viewport_component';
 
 describe('HierarchyComponent', () => {
-  let component: HierarchyComponent;
-  let dom: DOMTestHelper<HierarchyComponent>;
+  let component: TestHostComponent;
+  let dom: DOMTestHelper<TestHostComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
+        TestHostComponent,
         HierarchyComponent,
         HierarchyTreeNodeDataViewComponent,
         CollapsibleSectionTitleComponent,
         UserOptionsComponent,
         SearchBoxComponent,
-        TreeComponent,
         TreeNodeComponent,
+        TreeComponent,
+        VirtualScrollViewportComponent,
+        VirtualRow,
         CommonModule,
         MatButtonModule,
         MatDividerModule,
@@ -74,31 +81,9 @@ describe('HierarchyComponent', () => {
         ClipboardModule,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(HierarchyComponent);
+    const fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-
-    component.trees = [
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('RootNode1')
-          .setName('Root node')
-          .setChildren([{id: 'Child1', name: 'Child node'}])
-          .build(),
-      ),
-    ];
-
-    component.store = new PersistentStore();
-    component.userOptions = {
-      showDiff: {
-        name: 'Show diff',
-        enabled: false,
-        isUnavailable: false,
-      },
-    };
-    component.textFilter = new TextFilter();
-    component.dependencies = [TraceType.SURFACE_FLINGER];
-
     dom.detectChanges();
   });
 
@@ -112,37 +97,26 @@ describe('HierarchyComponent', () => {
 
   it('renders view controls', () => {
     expect(dom.find('.view-controls')).toBeDefined();
-    expect(dom.find('.view-controls .user-option')).toBeDefined(); //renders at least one view control option
+    // renders at least one view control option
+    expect(dom.find('.view-controls .user-option')).toBeDefined();
   });
 
   it('renders initial tree elements', () => {
+    expect(dom.findAll('tree-node').length).toBe(2);
     const treeView = dom.get('tree-view');
     treeView.checkText('Root node');
     treeView.checkText('Child node');
   });
 
-  it('renders multiple trees', () => {
-    component.trees = [
-      component.trees[0],
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder().setId('subtree').setName('subtree').build(),
-      ),
-    ];
-    dom.detectChanges();
-    const trees = dom.findAll('.tree-wrapper .tree');
-    expect(trees.length).toBe(2);
-    trees[1].checkText('subtree');
-  });
-
   it('renders pinned nodes', () => {
     expect(dom.find('.pinned-items')).toBeUndefined();
-    component.pinnedItems = assertDefined(component.trees);
+    component.pinnedItems = [component.nodeRows[0].node];
     dom.detectChanges();
     expect(dom.find('.pinned-items tree-node')).toBeDefined();
   });
 
   it('renders placeholder text', () => {
-    component.trees = [];
+    component.nodeRows = [];
     component.placeholderText = 'Placeholder text.';
     dom.detectChanges();
 
@@ -165,7 +139,7 @@ describe('HierarchyComponent', () => {
   });
 
   it('handles pinned node click', () => {
-    const node = assertDefined(component.trees[0]);
+    const node = component.nodeRows[0].node;
     component.pinnedItems = [node];
     dom.detectChanges();
 
@@ -183,9 +157,7 @@ describe('HierarchyComponent', () => {
     dom.addEventListener(ViewerEvents.HierarchyPinnedChange, (event) => {
       pinnedItem = (event as CustomEvent).detail.pinnedItem;
     });
-    const child = assertDefined(
-      component.trees[0].getChildByName('Child node'),
-    );
+    const child = component.nodeRows[1].node;
     component.pinnedItems = [child];
     dom.detectChanges();
 
@@ -204,29 +176,35 @@ describe('HierarchyComponent', () => {
   });
 
   it('handles collapse button click', () => {
-    const spy = spyOn(component.collapseButtonClicked, 'emit');
     dom.findAndClick('collapsible-section-title button');
-    expect(spy).toHaveBeenCalled();
+    expect(component.onCollapseButtonClicked).toHaveBeenCalledTimes(1);
   });
 
   it('shows warnings from all trees', () => {
     expect(dom.find('.warning')).toBeUndefined();
 
-    component.trees = [
-      component.trees[0],
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('RootNode2')
-          .setName('Root node')
-          .setChildren([{id: 'Child2', name: 'Child node'}])
-          .build(),
+    component.nodeRows = [
+      component.nodeRows[0],
+      ...flattenNodesToRows(
+        [
+          UiHierarchyTreeNode.from(
+            new HierarchyTreeBuilder()
+              .setId('RootNode2')
+              .setName('Root node')
+              .setChildren([{id: 'Child2', name: 'Child node'}])
+              .build(),
+          ),
+        ],
+        false,
+        false,
+        '',
       ),
     ];
     dom.detectChanges();
     const warning1 = makeWarningDuplicateLayerIds([123]);
-    component.trees[0].addWarning(warning1);
+    component.nodeRows[0].node.addWarning(warning1);
     const warning2 = makeWarningMissingLayerIds();
-    component.trees[1].addWarning(warning2);
+    component.nodeRows[1].node.addWarning(warning2);
     dom.detectChanges();
     const warnings = dom.findAll('.warning');
     expect(warnings.length).toBe(2);
@@ -236,7 +214,7 @@ describe('HierarchyComponent', () => {
 
   it('shows warning tooltip if text overflowing', () => {
     const warning = makeWarningDuplicateLayerIds([123]);
-    component.trees[0].addWarning(warning);
+    component.nodeRows[0].node.addWarning(warning);
     dom.detectChanges();
 
     const warningEl = dom.get('.warning');
@@ -252,32 +230,64 @@ describe('HierarchyComponent', () => {
     checkTooltips([warningEl], [warning.message]);
   });
 
-  it('handles arrow down key press', () => {
-    testArrowKeyPress(ViewerEvents.ArrowDownPress);
-  });
+  @Component({
+    imports: [HierarchyComponent],
+    selector: 'host-component',
+    template: `
+      <hierarchy-view
+        class="hierarchy-view"
+        [nodeRows]="nodeRows"
+        [dependencies]="dependencies"
+        [highlightedItem]="highlightedItem"
+        [pinnedItems]="pinnedItems"
+        [textFilter]="textFilter"
+        [store]="store"
+        [userOptions]="userOptions"
+        [placeholderText]="placeholderText"
+        (collapseButtonClicked)="onCollapseButtonClicked()"></hierarchy-view>
+    `,
+    styles: [
+      `
+      .hierarchy-view {
+        display: flex;
+        flex-direction: column;
+        height: 500px;
+      }
+    `,
+    ],
+  })
+  class TestHostComponent {
+    nodeRows = flattenNodesToRows(
+      [
+        UiHierarchyTreeNode.from(
+          new HierarchyTreeBuilder()
+            .setId('RootNode1')
+            .setName('Root node')
+            .setChildren([{id: 'Child1', name: 'Child node'}])
+            .build(),
+        ),
+      ],
+      false,
+      false,
+      '',
+    );
 
-  it('handles arrow up key press', () => {
-    testArrowKeyPress(ViewerEvents.ArrowUpPress);
-  });
+    store = new PersistentStore();
+    userOptions = {
+      showDiff: {
+        name: 'Show diff',
+        enabled: false,
+        isUnavailable: false,
+      },
+    };
+    textFilter = new TextFilter();
+    dependencies = [TraceType.SURFACE_FLINGER];
+    pinnedItems: UiHierarchyTreeNode[] = [];
+    placeholderText: string | undefined;
+    onCollapseButtonClicked = jasmine.createSpy();
 
-  function testArrowKeyPress(viewerEvent: string) {
-    let storage: InMemoryStorage | undefined;
-    dom.addEventListener(viewerEvent, (event) => {
-      storage = (event as CustomEvent).detail;
-    });
-    let keydown: () => void;
-    if (viewerEvent === ViewerEvents.ArrowDownPress) {
-      keydown = () => dom.keydownArrowDown(true);
-    } else {
-      keydown = () => dom.keydownArrowUp(true);
-    }
-    keydown();
-    expect(storage).toEqual(component.treeStorage);
-
-    storage = undefined;
-    dom.getHTMLElement().style.height = '0px';
-    dom.detectChanges();
-    keydown();
-    expect(storage).toBeUndefined();
+    @ViewChild(HierarchyComponent) hierarchyComponent:
+      | HierarchyComponent
+      | undefined;
   }
 });

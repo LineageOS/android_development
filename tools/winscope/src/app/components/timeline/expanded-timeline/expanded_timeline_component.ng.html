@@ -1,0 +1,64 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<div id="expanded-timeline-wrapper" #expandedTimelineWrapper>
+  @for (trace of getTracesSortedByDisplayOrder(); track trace) {
+  <div class="timeline row">
+    <div class="icon-wrapper">
+      <mat-icon
+        class="icon"
+        [matTooltip]="TRACE_INFO[trace.type].name"
+        [style]="{color: TRACE_INFO[trace.type].color}"
+      >
+        {{ TRACE_INFO[trace.type].icon }}
+      </mat-icon>
+    </div>
+    @if (trace.type === TraceType.TRANSITION) {
+    <transition-timeline
+      [color]="TRACE_INFO[trace.type].color"
+      [trace]="trace"
+      [transitionEntries]="timelineData.getTransitionEntries()"
+      [selectedEntry]="timelineData.findCurrentEntryFor(trace)"
+      [selectionRange]="timelineData.getSelectionTimeRange()"
+      [fullRange]="timelineData.getFullTimeRange()"
+      [timestampConverter]="timelineData.getTimestampConverter()"
+      [isActive]="isActiveTrace(trace)"
+      (onTracePositionUpdate)="onTracePositionUpdate.emit($event)"
+      (onScrollEvent)="updateScroll($event)"
+      (onTraceClicked)="onTraceClicked.emit($event)"
+      (onMouseXRatioUpdate)="onMouseXRatioUpdate.emit($event)"
+      class="single-timeline"
+    >
+    </transition-timeline>
+    } @else {
+    <single-timeline
+      [color]="TRACE_INFO[trace.type].color"
+      [trace]="trace"
+      [selectedEntry]="timelineData.findCurrentEntryFor(trace)"
+      [selectionRange]="timelineData.getSelectionTimeRange()"
+      [timestampConverter]="timelineData.getTimestampConverter()"
+      [isActive]="isActiveTrace(trace)"
+      (onTracePositionUpdate)="onTracePositionUpdate.emit($event)"
+      (onScrollEvent)="updateScroll($event)"
+      (onTraceClicked)="onTraceClicked.emit($event)"
+      (onMouseXRatioUpdate)="onMouseXRatioUpdate.emit($event)"
+      class="single-timeline"
+    >
+    </single-timeline>
+    }
+  </div>
+  }
+</div>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {getLogger} from 'compat/logging';
+import {getLogger} from '@compat/logging';
 // organize-imports-ignore
 import '@angular/compiler';
 import {bootstrapApplication} from '@angular/platform-browser';

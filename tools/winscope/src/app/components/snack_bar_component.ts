@@ -27,29 +27,7 @@ import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
   selector: 'snack-bar',
   standalone: true,
   imports: [CommonModule, MatButtonModule, ClipboardModule],
-  template: `
-    <div class="snack-bar-container">
-      <div class="message-container">
-        @for (message of messages; track $index) {
-          <p class="message mat-body-1">
-            {{ message }}
-          </p>
-        }
-      </div>
-      <div class="snack-bar-actions">
-        <button
-          color="primary"
-          mat-button
-          class="copy-button"
-          [cdkCopyToClipboard]="formatMessages()">Copy</button>
-        <button
-          color="primary"
-          mat-button
-          class="close-button"
-          (click)="snackBarRef.dismiss()">Close</button>
-      </div>
-    </div>
-  `,
+  templateUrl: './snack_bar_component.ng.html',
   styleUrls: ['snack_bar_component.css'],
 })
 export class SnackBarComponent {

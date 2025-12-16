@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import Long from 'long';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {ShellHandlerMappings} from 'compat/winscope_protos';
-import {ClockSnapshot} from 'compat/perfetto';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {ShellHandlerMappings} from '@compat/winscope_protos';
+import {ClockSnapshot} from '@compat/perfetto';
 import {com} from 'protos/transitions/udc/static';
-import {convertToPerfettoTrace, getTracesParser} from 'test/unit/fixture_utils';
+import {
+  convertToPerfettoTrace,
+  getTracesParser,
+} from '@test/unit/fixture_utils';
 import {
   getTimestampConverter,
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {TraceFile} from 'trace/trace_file';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {Parser} from 'trace_api/parser';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@test/unit/time_test_helpers';
+import {TraceFile} from '@trace/trace_file';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TracesParserTransitions} from './traces_parser_transitions';
 
 describe('TracesParserTransitions', () => {

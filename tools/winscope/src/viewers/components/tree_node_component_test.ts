@@ -19,14 +19,15 @@ import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
-import {DiffType} from 'viewers/common/diff_type';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {DiffType} from '@viewers/common/diff_type';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 import {TreeNodeComponent} from './tree_node_component';
@@ -103,24 +104,6 @@ describe('TreeNodeComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('can trigger tree expansion if node is selected and not in pinned section', () => {
-    const spy = spyOn(
-      assertDefined(component.treeNodeComponent).expandTreeChange,
-      'emit',
-    );
-    component.isInPinnedSection = true;
-    component.isSelected = true;
-    dom.detectChanges();
-    expect(spy).not.toHaveBeenCalled();
-
-    component.isSelected = false;
-    component.isInPinnedSection = false;
-    dom.detectChanges();
-    component.isSelected = true;
-    dom.detectChanges();
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
   it('can collapse a tree if node is selected', () => {
     const treeNodeComponent = assertDefined(component.treeNodeComponent);
     treeNodeComponent.showChevron = jasmine.createSpy().and.returnValue(true);
@@ -131,21 +114,6 @@ describe('TreeNodeComponent', () => {
     dom.detectChanges();
     const spy = spyOn(treeNodeComponent.toggleTreeChange, 'emit');
     dom.findAndClick('.toggle-tree-btn');
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can expand a tree only once on change', () => {
-    const spy = spyOn(
-      assertDefined(component.treeNodeComponent).expandTreeChange,
-      'emit',
-    );
-    component.isSelected = false;
-    component.isExpanded = true;
-    dom.detectChanges();
-    component.isSelected = true;
-    dom.detectChanges();
-    component.isExpanded = false;
-    dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -246,7 +214,7 @@ describe('TreeNodeComponent', () => {
     `,
   })
   class TestHostComponent {
-    node: UiHierarchyTreeNode | UiPropertyTreeNode = UiHierarchyTreeNode.from(
+    node: UiTreeNode = UiHierarchyTreeNode.from(
       new HierarchyTreeBuilder()
         .setId('LayerTraceEntry')
         .setName('4')

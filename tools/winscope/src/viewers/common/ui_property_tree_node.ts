@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {DiffNode} from './diff_node';
+import {assertDefined} from '@common/assert';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DiffType} from './diff_type';
+import {UiTreeNode} from './ui_tree_node';
 
 export interface DiffValuePart {
   isOld: boolean;
@@ -25,7 +25,7 @@ export interface DiffValuePart {
   value: string;
 }
 
-export class UiPropertyTreeNode extends PropertyTreeNode implements DiffNode {
+export class UiPropertyTreeNode extends PropertyTreeNode implements UiTreeNode {
   private diff: DiffType = DiffType.NONE;
   private displayName: string = this.name;
   private oldValue = 'null';
@@ -99,5 +99,9 @@ export class UiPropertyTreeNode extends PropertyTreeNode implements DiffNode {
 
   getDiffValueParts(): DiffValuePart[] {
     return assertDefined(this.diffValueParts);
+  }
+
+  isLeaf(): boolean {
+    return this.children.length === 0 || this.formattedValue().length > 0;
   }
 }

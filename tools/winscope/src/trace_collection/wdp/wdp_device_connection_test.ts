@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {ArrayBufferBuilder} from 'common/buffer';
-import {binaryEncode} from 'common/string_helpers';
+import {ArrayBufferBuilder} from '@common/buffer';
+import {binaryEncode} from '@common/string_helpers';
 import {
   makeWarningProxyTracingWarnings,
   makeWarningProxyTracingErrors,
-} from 'trace_collection/warnings';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
+} from '@trace_collection/warnings';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
   makeFakeWebSocket,
   makeFakeWebSocketMessage,
-} from 'test/unit/web_socket_utils';
+} from '@test/unit/web_socket_utils';
 import {
   AdbDeviceConnectionListener,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {TraceTarget} from 'trace_collection/trace_target';
+} from '@trace_collection/adb/adb_device_connection';
+import {TraceTarget} from '@trace_collection/trace_target';
 import {AdbWebSocketStream} from './adb_websocket_stream';
 import {ShellStream} from './shell_stream';
 import {StreamProvider} from './stream_provider';

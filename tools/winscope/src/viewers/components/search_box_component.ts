@@ -22,9 +22,9 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from 'common/assert';
-import {FilterFlag} from 'common/filter_flag';
-import {TextFilter} from 'viewers/common/text_filter';
+import {assertDefined} from '@common/assert';
+import {FilterFlag} from '@common/filter_flag';
+import {TextFilter} from '@viewers/common/text_filter';
 import {AbstractFormFieldComponent} from './abstract_form_field_component';
 
 @Component({
@@ -39,73 +39,8 @@ import {AbstractFormFieldComponent} from './abstract_form_field_component';
     MatIconModule,
     MatTooltipModule,
   ],
-  template: `
-    @if (textFilter) {
-      <mat-form-field
-        [class]="getFormFieldClasses()"
-        [appearance]="appearance"
-        (keydown.esc)="$event.target.blur()"
-        (keydown.enter)="$event.target.blur()"
-        [matTooltip]="label"
-        matTooltipPosition="above"
-        subscriptSizing="dynamic"
-        [matTooltipDisabled]="disableFormFieldTooltip(formField)" #formField>
-        <mat-label>{{ label }}</mat-label>
-        <input
-          matInput
-          [(ngModel)]="textFilter.filterString"
-          (ngModelChange)="onFilterChange()"
-          [name]="filterName" />
-        <div class="field-suffix" matTextSuffix>
-          <button
-            mat-icon-button
-            matTooltip="Match case"
-            [color]="hasFlag(FilterFlag.MATCH_CASE) ? 'primary' : undefined"
-            (click)="onFilterFlagClick($event, FilterFlag.MATCH_CASE)">
-            <mat-icon class="material-symbols-outlined">match_case</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            matTooltip="Match whole word"
-            [color]="hasFlag(FilterFlag.MATCH_WORD) ? 'primary' : undefined"
-            (click)="onFilterFlagClick($event, FilterFlag.MATCH_WORD)">
-            <mat-icon class="material-symbols-outlined">match_word</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            matTooltip="Use regex"
-            [color]="hasFlag(FilterFlag.USE_REGEX) ? 'primary' : undefined"
-            (click)="onFilterFlagClick($event, FilterFlag.USE_REGEX)">
-            <mat-icon class="material-symbols-outlined">regular_expression</mat-icon>
-          </button>
-        </div>
-      </mat-form-field>
-    }
-  `,
-  styles: [
-    `
-    :host {
-      height: 40px;
-      margin-left: 8px;
-      max-width: 100%;
-    }
-    .search-box {
-      font-size: 14px;
-      max-width: 100%;
-    }
-    .search-box .field-suffix {
-      display: flex;
-      flex-wrap: nowrap;
-    }
-    .search-box.applied-field .field-suffix {
-      top: 4px;
-      position: relative;
-    }
-    .wide-field {
-      width: 100%;
-    }
-  `,
-  ],
+  templateUrl: './search_box_component.ng.html',
+  styleUrls: ['search_box_component.css'],
 })
 export class SearchBoxComponent extends AbstractFormFieldComponent {
   FilterFlag = FilterFlag;

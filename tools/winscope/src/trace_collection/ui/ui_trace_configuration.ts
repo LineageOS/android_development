@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
-import {Store} from 'common/store/store';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
+import {createPersistentStoreProxy} from '@common/store/persistent_store_proxy';
+import {Store} from '@common/store/store';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
 import {UiTraceTarget} from './ui_trace_target';
 
 /**
@@ -340,19 +340,6 @@ const traceDefaultConfig = new Map<UiTraceTarget, TraceConfiguration>([
       },
       available: false,
       types: [TraceType.WAYLAND, TraceType.WAYLAND_DUMP],
-    },
-  ],
-  [
-    UiTraceTarget.EVENTLOG,
-    {
-      name: TRACE_INFO[TraceType.EVENT_LOG].name + ' (CUJs)',
-      config: {
-        enabled: false,
-        checkboxConfigs: [],
-        selectionConfigs: [],
-      },
-      available: true,
-      types: [TraceType.EVENT_LOG, TraceType.CUJS],
     },
   ],
   [

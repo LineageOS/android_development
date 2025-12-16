@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {
   createZipArchive,
   getFileExtension,
   removeDirFromFileName,
   removeExtensionFromFilename,
   OnProgressUpdateType,
-} from 'common/io';
-import {INVALID_TIME_NS, TimeRange, Timestamp} from 'common/time/time';
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
+} from '@common/io';
+import {INVALID_TIME_NS, TimeRange, Timestamp} from '@common/time/time';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {
   makeWarningTraceHasOldData,
   makeWarningTraceOverridden,
   makeWarningTraceHasElapsedTimestamps,
 } from './warnings';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {FileAndParsers} from 'parsers/file_and_parsers';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {FileAndParsers} from '@parsers/file_and_parsers';
 import {
   getParserWithLatestRealToBootTimeOffset,
   getParserWithLatestRealToMonotonicTimeOffset,
-} from 'parsers/parser_time_utils';
-import {UserNotifier} from 'services/user_notifier';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
+} from '@parsers/parser_time_utils';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * A collection of parsers loaded from user-provided files.
@@ -54,10 +54,7 @@ export class LoadedParsers {
   static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET = BigInt(
     5 * TIME_UNIT_TO_NANO.s,
   ); // 5s
-  static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [
-    TraceType.CUJS,
-    TraceType.EVENT_LOG,
-  ];
+  static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [TraceType.CUJS];
 
   private legacyParsers = new Array<FileAndParser>();
   private perfettoParsers = new Array<FileAndParser>();
@@ -78,7 +75,6 @@ export class LoadedParsers {
     );
     legacyParsers = this.filterOutLegacyParsersWithOldData(legacyParsers);
     legacyParsers = this.filterScreenshotParsersIfRequired(legacyParsers);
-    legacyParsers = this.filterEventlogParsersIfRequired(legacyParsers);
 
     this.addLegacyParsers(legacyParsers);
   }
@@ -387,25 +383,6 @@ export class LoadedParsers {
       (fileAndParser) =>
         fileAndParser.parser.getTraceType() !== TraceType.SCREENSHOT,
     );
-  }
-
-  private filterEventlogParsersIfRequired(
-    newLegacyParsers: FileAndParser[],
-  ): FileAndParser[] {
-    const hasCujParsers = this.perfettoParsers.some(
-      (entry) => entry.parser.getTraceType() === TraceType.CUJS,
-    );
-    if (!hasCujParsers) {
-      return newLegacyParsers;
-    }
-    this.legacyParsers.forEach((fileAndParser) => {
-      if (fileAndParser.parser.getTraceType() === TraceType.EVENT_LOG) {
-        this.remove(fileAndParser.parser);
-      }
-    });
-    return newLegacyParsers.filter((fileAndParser) => {
-      return fileAndParser.parser.getTraceType() !== TraceType.EVENT_LOG;
-    });
   }
 
   private filterOutParsersWithoutOffsetsIfRequired(

@@ -17,9 +17,9 @@
 import {
   makeRealTimestamp,
   makeZeroTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 
 import {findCorrespondingEntry} from './trace_entry_finder';
 import {TracePosition} from './trace_position';

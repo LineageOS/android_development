@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
 import {
   DarkModeToggled,
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-} from 'app/misc_events';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {MockPresenter} from 'test/unit/mock_hierarchy_viewer_presenter';
+} from '@app/misc_events';
+import {assertDefined} from '@common/assert';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {SetFormatters} from '@parsers/set_formatters';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {
   makeUiHierarchyNode,
   treeNodeEqualityTester,
-} from 'test/unit/ui_tree_node_utils';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
+} from '@test/unit/ui_tree_node_utils';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 import {DiffType} from './diff_type';
 import {RectShowState} from './rect_show_state';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UserOptions} from './user_options';
 import {ViewerEvents} from './viewer_events';
-import {SetFormatters} from 'parsers/set_formatters';
 
 describe('AbstractHierarchyViewerPresenter', () => {
   const timestamp2 = makeElapsedTimestamp(2n);
@@ -155,8 +155,8 @@ describe('AbstractHierarchyViewerPresenter', () => {
       expect(Object.keys(uiData.propertiesUserOptions).length).toBeGreaterThan(
         0,
       );
-      expect(uiData.hierarchyTrees).toBeUndefined();
-      expect(uiData.propertiesTree).toBeUndefined();
+      expect(uiData.hierarchyNodes).toBeUndefined();
+      expect(uiData.propertyNodes).toBeUndefined();
       expect(uiData.highlightedItem).toBe('');
       expect(uiData.highlightedProperty).toBe('');
       expect(uiData.pinnedItems.length).toBe(0);
@@ -175,9 +175,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
     expect(uiData.highlightedItem?.length).toBe(0);
     expect(Object.keys(uiData.hierarchyUserOptions).length).toBeGreaterThan(0);
     expect(Object.keys(uiData.propertiesUserOptions).length).toBeGreaterThan(0);
-    assertDefined(uiData.hierarchyTrees).forEach((tree) => {
-      expect(tree.getAllChildren().length > 0).toBeTrue();
-    });
+    expect(assertDefined(uiData.hierarchyNodes?.length)).toBe(4);
     expect(uiData.pinnedItems.length).toBeGreaterThan(0);
     expect(
       Object.keys(assertDefined(uiData.rectsUserOptions)).length,
@@ -186,16 +184,16 @@ describe('AbstractHierarchyViewerPresenter', () => {
     expect(uiData.displays?.length).toBeGreaterThan(0);
 
     await presenter.onHighlightedNodeChange(selectedTree);
-    expect(uiData.propertiesTree).toBeDefined();
+    expect(uiData.propertyNodes?.length).toBeGreaterThan(0);
 
     await presenter.onAppEvent(
       TracePositionUpdate.fromTimestamp(makeElapsedTimestamp(1n)),
     );
-    expect(uiData.hierarchyTrees).toBeUndefined();
+    expect(uiData.hierarchyNodes).toBeUndefined();
     expect(uiData.pinnedItems.length).toBe(0);
     expect(uiData.rectsToDraw).toEqual([]);
     expect(uiData.displays).toEqual([]);
-    expect(uiData.propertiesTree).toBeUndefined();
+    expect(uiData.propertyNodes).toBeUndefined();
   });
 
   it('adds event listeners', () => {
@@ -279,17 +277,6 @@ describe('AbstractHierarchyViewerPresenter', () => {
       }),
     );
     expect(spy).toHaveBeenCalledWith({});
-
-    spy = spyOn(presenter, 'onArrowPress');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.ArrowDownPress, {detail: storage}),
-    );
-    expect(spy).toHaveBeenCalledWith(storage, false);
-
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.ArrowUpPress, {detail: storage}),
-    );
-    expect(spy).toHaveBeenCalledWith(storage, true);
   });
 
   it('is robust to empty trace', async () => {
@@ -315,7 +302,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
 
     expect(Object.keys(uiData.hierarchyUserOptions).length).toBeGreaterThan(0);
     expect(Object.keys(uiData.propertiesUserOptions).length).toBeGreaterThan(0);
-    expect(uiData.hierarchyTrees).toBeUndefined();
+    expect(uiData.hierarchyNodes).toBeUndefined();
     expect(
       Object.keys(assertDefined(uiData?.rectsUserOptions)).length,
     ).toBeGreaterThan(0);
@@ -375,7 +362,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
     );
     spy.and.returnValue(false);
     await presenter.onAppEvent(positionUpdate);
-    const entryNode = assertDefined(uiData.hierarchyTrees?.at(0));
+    const entryNode = assertDefined(uiData.hierarchyNodes?.at(0)).node;
     expect(entryNode.getDisplayName()).toContain(
       positionUpdate.position.timestamp.format(),
     );
@@ -383,7 +370,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
     pinNode(entryNode);
     spy.and.returnValue(true);
     await presenter.onAppEvent(positionUpdate);
-    const newEntryNode = assertDefined(uiData.hierarchyTrees?.at(0));
+    const newEntryNode = assertDefined(uiData.hierarchyNodes?.at(0)).node;
     expect(newEntryNode.getDisplayName()).toContain('Dump');
     expect(uiData.pinnedItems).toEqual([newEntryNode]);
   });
@@ -402,7 +389,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
     const userOptions: UserOptions = {flat: {name: '', enabled: true}};
     await presenter.onHierarchyUserOptionsChange(userOptions);
     expect(uiData.hierarchyUserOptions).toEqual(userOptions);
-    expect(uiData.hierarchyTrees?.at(0)?.getAllChildren().length).toBe(3);
+    expect(uiData.hierarchyNodes?.at(0)?.node.getAllChildren().length).toBe(3);
   });
 
   it('updates highlighted property', () => {
@@ -416,7 +403,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
   it('sets properties tree and associated ui data from tree node', async () => {
     await presenter.onAppEvent(positionUpdate);
     await presenter.onHighlightedNodeChange(selectedTree);
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertiesTree = assertDefined(uiData.propertyNodes?.at(0)?.node);
     expect(propertiesTree.id).toContain(selectedTree.id);
     expect(propertiesTree.getAllChildren().length).toBe(2);
   });
@@ -426,14 +413,14 @@ describe('AbstractHierarchyViewerPresenter', () => {
     await presenter.onHighlightedIdChange(selectedTree.id);
     await presenter.onAppEvent(secondPositionUpdate);
     expect(
-      uiData.propertiesTree?.getChildByName('testProp')?.getDiff(),
+      uiData.propertyNodes?.at(0)?.node?.getChildByName('testProp')?.getDiff(),
     ).toEqual(DiffType.NONE);
 
     const userOptions: UserOptions = {showDiff: {name: '', enabled: true}};
     await presenter.onPropertiesUserOptionsChange(userOptions);
     expect(uiData.propertiesUserOptions).toEqual(userOptions);
     expect(
-      uiData.propertiesTree?.getChildByName('testProp')?.getDiff(),
+      uiData.propertyNodes?.at(0)?.node?.getChildByName('testProp')?.getDiff(),
     ).toEqual(DiffType.MODIFIED);
   });
 
@@ -522,16 +509,6 @@ describe('AbstractHierarchyViewerPresenter', () => {
     userOptions['ignoreRectShowState'].enabled = true;
     presenter.onRectsUserOptionsChange(userOptions);
     checkRectUiData(uiData, 2, 3, 1);
-  });
-
-  it('handles arrow up/down press', async () => {
-    await presenter.onAppEvent(positionUpdate);
-    await presenter.onArrowPress(storage, false);
-    expect(uiData.propertiesTree?.id).toContain('Test Trace entry');
-    await presenter.onArrowPress(storage, false);
-    expect(uiData.propertiesTree?.id).toContain('1 p1');
-    await presenter.onArrowPress(storage, true);
-    expect(uiData.propertiesTree?.id).toContain('Test Trace entry');
   });
 
   function pinNode(node: UiHierarchyTreeNode) {

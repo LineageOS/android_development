@@ -15,35 +15,20 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, ViewChild} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {LogComponent} from 'viewers/components/log_component';
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {TraceType} from '@trace_api/trace_type';
+import {LogComponent} from '@viewers/components/log_component';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({
   selector: 'viewer-jank-cujs',
   standalone: true,
   imports: [CommonModule, LogComponent],
-  template: `
-    <div class="card-grid">
-       <log-view
-        class="log-view"
-        [selectedIndex]="inputData?.selectedIndex"
-        [scrollToIndex]="inputData?.scrollToIndex"
-        [currentIndex]="inputData?.currentIndex"
-        [entries]="inputData?.entries ?? []"
-        [headers]="inputData?.headers ?? []"
-        [traceType]="${TraceType.CUJS}"
-        [showTraceEntryTimes]="false"
-        [showCurrentTimeButton]="false"
-        [isFetchingData]="inputData?.isFetchingData"
-        [checkScrollViewport]="inputData?.checkScrollViewport">
-      </log-view>
-    </div>
-  `,
+  templateUrl: './viewer_jank_cujs_component.ng.html',
   styles: [viewerCardStyle],
 })
 export class ViewerJankCujsComponent extends ViewerComponent<UiData> {
   @ViewChild(LogComponent) logComponent?: LogComponent;
+  TraceType = TraceType;
 }

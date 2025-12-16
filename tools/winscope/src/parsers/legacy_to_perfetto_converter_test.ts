@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import Long from 'long';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 import {
   ClockSnapshot as PerfettoClockSnapshot,
   Trace,
   TracePacket,
-} from 'compat/perfetto';
-import {ParserBuilder} from 'test/unit/parser_builder';
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
+} from '@compat/perfetto';
+import {ParserBuilder} from '@test/unit/parser_builder';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
 import {
   ClockSnapshot,
   LegacyToPerfettoConverter,

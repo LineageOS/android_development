@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace_api/trace_type';
-import {VcCuratedProperties} from 'viewers/common/curated_properties';
-import {DisplayIdentifier} from 'viewers/common/display_identifier';
-import {RectShowState} from 'viewers/common/rect_show_state';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiDataHierarchy} from 'viewers/common/ui_data_hierarchy';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {RectSpec} from 'viewers/components/rects/rect_spec';
-import {UiRect} from 'viewers/components/rects/ui_rect';
+import {TraceType} from '@trace_api/trace_type';
+import {VcCuratedProperties} from '@viewers/common/curated_properties';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {RectShowState} from '@viewers/common/rect_show_state';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiDataHierarchy} from '@viewers/common/ui_data_hierarchy';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectSpec} from '@viewers/components/rects/rect_spec';
+import {UiRect} from '@viewers/components/rects/ui_rect';
 
 export class UiData implements UiDataHierarchy {
   readonly dependencies: TraceType[] = [TraceType.VIEW_CAPTURE];
@@ -36,12 +37,12 @@ export class UiData implements UiDataHierarchy {
   highlightedProperty = '';
   hierarchyFilter = new TextFilter();
   propertiesFilter = new TextFilter();
-  pinnedItems: UiHierarchyTreeNode[] = [];
   rectsUserOptions: UserOptions = {};
+  pinnedItems: UiHierarchyTreeNode[] = [];
   hierarchyUserOptions: UserOptions = {};
+  hierarchyNodes: Array<UiTreeNodeRow<UiHierarchyTreeNode>> | undefined;
   propertiesUserOptions: UserOptions = {};
-  hierarchyTrees: UiHierarchyTreeNode[] | undefined;
-  propertiesTree: UiPropertyTreeNode | undefined;
+  propertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
   isDarkMode = false;
 
   constructor(

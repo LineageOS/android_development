@@ -31,25 +31,25 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {
   FilterPresetApplyRequest,
   FilterPresetSaveRequest,
-} from 'app/misc_events';
+} from '@app/misc_events';
 import {
   TabbedViewSwitchRequest,
   TabbedViewSwitched,
-} from 'app/tabbed_view_events';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {makeZeroTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {TraceType} from 'trace_api/trace_type';
-import {Viewer, ViewType} from 'viewers/viewer';
-import {ViewerStub} from 'viewers/viewer_stub';
+} from '@app/tabbed_view_events';
+import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {makeZeroTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceType} from '@trace_api/trace_type';
+import {Viewer, ViewType} from '@viewers/viewer';
+import {ViewerStub} from '@viewers/viewer_stub';
 import {TraceViewComponent} from './trace_view_component';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('TraceViewComponent', () => {
   const traceSf = makeEmptyTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER);

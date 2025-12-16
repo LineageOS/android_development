@@ -24,15 +24,15 @@ import {
   removeExtensionFromFilename,
   unzipFile,
   OnProgressUpdateType,
-} from 'common/io';
-import {TimezoneInfo} from 'common/time/time';
+} from '@common/io';
+import {TimezoneInfo} from '@common/time/time';
 import {
   TimestampConverter,
   UTC_TIMEZONE_INFO,
-} from 'common/time/timestamp_converter';
-import {Analytics} from 'logging/analytics';
-import {ProgressListener} from 'messaging/progress_listener';
-import {UserWarning} from 'messaging/user_warning';
+} from '@common/time/timestamp_converter';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
+import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningCorruptedArchive,
   makeWarningNoValidFiles,
@@ -41,42 +41,42 @@ import {
 import {
   makeWarningInvalidLegacyTrace,
   makeWarningInvalidPerfettoTrace,
-} from 'parsers/warnings';
-import {WinscopeEvent} from 'messaging/winscope_event';
+} from '@parsers/warnings';
+import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   EmitEvent,
   WinscopeEventEmitter,
-} from 'messaging/winscope_event_emitter';
-import {WinscopeEventListener} from 'messaging/winscope_event_listener';
-import {FileAndParser} from 'parsers/file_and_parser';
-import {FileAndParsers} from 'parsers/file_and_parsers';
+} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {FileAndParser} from '@parsers/file_and_parser';
+import {FileAndParsers} from '@parsers/file_and_parsers';
 import {
   ParserFactory as LegacyParserFactory,
   ProcessedFiles,
-} from 'parsers/legacy/parser_factory';
-import {LegacyToPerfettoConverter} from 'parsers/legacy_to_perfetto_converter';
+} from '@parsers/legacy/parser_factory';
+import {LegacyToPerfettoConverter} from '@parsers/legacy_to_perfetto_converter';
 import {
   getParserWithLatestRealToBootTimeOffset,
   getParserWithLatestRealToMonotonicTimeOffset,
-} from 'parsers/parser_time_utils';
-import {ParserFactory as PerfettoParserFactory} from 'parsers/perfetto/parser_factory';
-import {ParserSearch} from 'parsers/search/parser_search';
-import {TracesParserFactory} from 'parsers/traces/traces_parser_factory';
-import {UserNotifier} from 'services/user_notifier';
-import {TraceFile} from 'trace/trace_file';
-import {FrameMapper} from 'trace_api/frame_mapper';
-import {Trace} from 'trace_api/trace';
-import {TraceMetadata} from 'trace_api/trace_metadata';
-import {TraceType, isTraceTypeWithViewer} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {QueryResult} from 'trace_processor/query_result';
-import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
+} from '@parsers/parser_time_utils';
+import {ParserFactory as PerfettoParserFactory} from '@parsers/perfetto/parser_factory';
+import {ParserSearch} from '@parsers/search/parser_search';
+import {TracesParserFactory} from '@parsers/traces/traces_parser_factory';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace/trace_file';
+import {FrameMapper} from '@trace_api/frame_mapper';
+import {Trace} from '@trace_api/trace';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {TraceType, isTraceTypeWithViewer} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {QueryResult} from '@trace_processor/query_result';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {FilesSource} from './files_source';
 import {LoadedParsers} from './loaded_parsers';
 import {TraceFileFilter} from './trace_file_filter';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {getLogger, Logger} from 'compat/logging';
-import {MediaBasedTraceEntry} from 'trace/media_based/media_based_trace_entry';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {getLogger, Logger} from '@compat/logging';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -192,8 +192,6 @@ export class TracePipeline
     };
     if (trace.type === TraceType.TRANSITION) {
       this.clearChildTransitionTraces(clear);
-    } else if (trace.type === TraceType.CUJS) {
-      this.clearChildCujTrace(clear);
     } else if (trace.type === TraceType.INPUT_EVENT_MERGED) {
       this.clearChildInputTraces(clear);
     }
@@ -487,7 +485,6 @@ export class TracePipeline
       this.removeTracesKeepForDownload(type);
     };
     this.clearChildTransitionTraces(clear);
-    this.clearChildCujTrace(clear);
     this.clearChildInputTraces(clear);
   }
 
@@ -497,13 +494,6 @@ export class TracePipeline
     if (hasTransitionTrace) {
       clear(TraceType.WM_TRANSITION);
       clear(TraceType.SHELL_TRANSITION);
-    }
-  }
-
-  private clearChildCujTrace(clear: (type: TraceType) => void) {
-    const hasCujTrace = this.traces.getTrace(TraceType.CUJS) !== undefined;
-    if (hasCujTrace) {
-      clear(TraceType.EVENT_LOG);
     }
   }
 

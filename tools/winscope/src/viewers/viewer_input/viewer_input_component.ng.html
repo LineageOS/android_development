@@ -1,0 +1,92 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<div class="card-grid">
+  <collapsed-sections
+    [class.empty]="sections.areAllSectionsExpanded()"
+    [sections]="sections"
+    (sectionChange)="sections.onCollapseStateChange($event, false)"
+  >
+  </collapsed-sections>
+
+  @if (inputData?.rectsToDraw) {
+  <rects-view
+    class="rects-view"
+    [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
+    [title]="rectsTitle"
+    [store]="store"
+    [isStackBased]="true"
+    [dependencies]="inputData?.dependencies"
+    [displays]="inputData?.displays"
+    [rects]="inputData?.rectsToDraw ?? []"
+    [shadingModes]="shadingModes"
+    [highlightedItem]="inputData?.highlightedRect ?? ''"
+    [userOptions]="inputData?.rectsUserOptions ?? {}"
+    [isDarkMode]="inputData?.isDarkMode ?? false"
+    [rectSpec]="inputData?.rectSpec"
+    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
+  ></rects-view>
+  }
+
+  <log-view
+    class="log-view"
+    [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.LOG)"
+    [title]="eventLogTitle"
+    [selectedIndex]="inputData?.selectedIndex"
+    [scrollToIndex]="inputData?.scrollToIndex"
+    [currentIndex]="inputData?.currentIndex"
+    [entries]="inputData?.entries ?? []"
+    [headers]="inputData?.headers ?? []"
+    [traceType]="TraceType.INPUT_EVENT_MERGED"
+    [showTraceEntryTimes]="false"
+    [showCurrentTimeButton]="false"
+    [isFetchingData]="inputData?.isFetchingData"
+    [checkScrollViewport]="inputData?.checkScrollViewport"
+    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.LOG, true)"
+  ></log-view>
+
+  @if (!arePropertiesCollapsed()) {
+  <div class="properties">
+    <properties-view
+      class="properties-view event-properties"
+      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+      [title]="eventPropertiesTitle"
+      [nodeRows]="inputData?.propertyNodes"
+      [highlightedProperty]="inputData?.highlightedProperty"
+      [traceType]="TraceType.INPUT_EVENT_MERGED"
+      [store]="store"
+      [isProtoDump]="true"
+      [textFilter]="inputData?.propertiesFilter"
+      placeholderText="No selected entry."
+      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
+    ></properties-view>
+    <properties-view
+      class="properties-view dispatch-properties"
+      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)"
+      [title]="dispatchPropertiesTitle"
+      [nodeRows]="inputData?.dispatchPropertyNodes"
+      [highlightedProperty]="inputData?.highlightedProperty"
+      [traceType]="TraceType.INPUT_EVENT_MERGED"
+      [store]="store"
+      [isProtoDump]="true"
+      [textFilter]="inputData?.dispatchPropertiesFilter"
+      [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
+      placeholderText="No selected entry."
+      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)"
+    ></properties-view>
+  </div>
+  }
+</div>

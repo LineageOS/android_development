@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {equal} from 'common/typed_array';
+import {equal} from '@common/typed_array';
 
 export function throwIfMagicNumberDoesNotMatch(
   traceBuffer: Uint8Array,

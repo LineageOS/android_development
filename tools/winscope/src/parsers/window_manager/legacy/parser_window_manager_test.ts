@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {assertDefined} from '@common/assert';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Parser} from 'trace_api/parser';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
 import Long from 'long';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {ClockSnapshot} from 'compat/perfetto';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ClockSnapshot} from '@compat/perfetto';
 
 describe('ParserWindowManager', () => {
   describe('trace with real timestamps', () => {

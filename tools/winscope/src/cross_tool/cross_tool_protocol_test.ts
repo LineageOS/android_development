@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Timestamp, TimezoneInfo} from 'common/time/time';
-import {TimestampConverter} from 'common/time/timestamp_converter';
-import {WinscopeEvent} from 'messaging/winscope_event';
+import {assertDefined} from '@common/assert';
+import {Timestamp, TimezoneInfo} from '@common/time/time';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {WinscopeEvent} from '@messaging/winscope_event';
 import {RemoteToolTimestampReceived} from './remote_tool_events';
 import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';

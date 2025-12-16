@@ -15,9 +15,9 @@
  */
 
 import {ErrorHandler} from '@angular/core';
-import {Analytics} from 'logging/analytics';
+import {Analytics} from '@logging/analytics';
 
-import {getLogger, Logger} from 'compat/logging';
+import {getLogger, Logger} from '@compat/logging';
 
 /**
  * A global error handler for the application.

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
+import {assertDefined} from '@common/assert';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {
   TamperedMessageType,
   TamperedProtoField,
-} from 'trace/proto_utils/tampered_message_type';
-import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@trace/proto_utils/tampered_message_type';
+import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import root from 'protos/test/fake_proto/json';
 
 import {AddDefaults} from './add_defaults';

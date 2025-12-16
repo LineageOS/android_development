@@ -1,0 +1,269 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<mat-toolbar class="toolbar">
+  <div class="horizontal-align vertical-align fixed logo">
+    <img class="app-title" [src]="getLogoUrl()" />
+    @if (isBeta) {
+    <span class="beta-tag">BETA</span>
+    }
+  </div>
+
+  <div class="horizontal-align vertical-align icon-actions small-icon-container">
+    @if (showDataLoadedElements) { @let packetLoss = packetLossWarning(); @let showFileWarningStyle
+    = downloadProgress === undefined && !isEditingFilename && packetLoss !== undefined;
+    <div class="download-files-section">
+      <div class="file-descriptor vertical-align" [class.file-warning]="showFileWarningStyle">
+        @if (showCrossToolSyncButton()) {
+        <button
+          mat-icon-button
+          [matTooltip]="getCrossToolSyncTooltip()"
+          class="cross-tool-sync-button"
+          (click)="onCrossToolSyncButtonClick()"
+          [color]="getCrossToolSyncButtonColor()"
+        >
+          <mat-icon class="material-symbols-outlined">cloud_sync</mat-icon>
+        </button>
+        } @if (packetLoss !== undefined) {
+        <mat-icon [matTooltip]="packetLoss" class="warning-icon fixed">warning</mat-icon>
+        } @if (!isEditingFilename) {
+        <span class="download-file-info text-no-overflow mat-body-2">
+          {{ filenameFormControl.value }}
+        </span>
+        } @if (!isEditingFilename) {
+        <span class="download-file-ext mat-body-2">.zip</span>
+        } @if (isEditingFilename) {
+        <mat-form-field
+          class="file-name-input-field"
+          subscriptSizing="dynamic"
+          floatLabel="always"
+          (keydown.esc)="trySubmitFilename()"
+          (keydown.enter)="trySubmitFilename()"
+          (focusout)="trySubmitFilename()"
+          matTooltip="Allowed: A-Z a-z 0-9 . _ - #"
+        >
+          <mat-label>Edit file name</mat-label>
+          <input matInput class="right-align" [formControl]="filenameFormControl" />
+          <span matTextSuffix>.zip</span>
+        </mat-form-field>
+        } @if (isEditingFilename) {
+        <button
+          mat-icon-button
+          class="check-button"
+          matTooltip="Submit file name"
+          (click)="trySubmitFilename()"
+        >
+          <mat-icon>check</mat-icon>
+        </button>
+        } @if (!isEditingFilename) {
+        <button
+          mat-icon-button
+          class="edit-button"
+          matTooltip="Edit file name"
+          (click)="onPencilIconClick()"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        }
+        <button
+          mat-icon-button
+          [disabled]="isEditingFilename"
+          matTooltip="Download all traces"
+          class="save-button"
+          (click)="onDownloadTracesButtonClick()"
+        >
+          <mat-icon class="material-symbols-outlined">download</mat-icon>
+        </button>
+      </div>
+      @if (downloadProgress !== undefined) {
+      <mat-progress-bar mode="determinate" [value]="downloadProgress"> </mat-progress-bar>
+      }
+    </div>
+    } @if (showDataLoadedElements) {
+    <div class="icon-divider toolbar-icon-divider"></div>
+    } @if (showDataLoadedElements && allTracesAreDumps()) {
+    <button
+      color="primary"
+      mat-icon-button
+      matTooltip="Refresh dumps"
+      class="refresh-dumps"
+      (click)="onRefreshDumpsButtonClick()"
+    >
+      <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+    </button>
+    } @if (showDataLoadedElements) {
+    <button
+      mat-icon-button
+      matTooltip="Upload or collect new trace"
+      class="upload-new"
+      (click)="onUploadNewButtonClick()"
+    >
+      <mat-icon class="material-symbols-outlined">upload</mat-icon>
+    </button>
+    }
+
+    <button mat-icon-button matTooltip="Shortcuts" class="shortcuts" (click)="openShortcutsPanel()">
+      <mat-icon>keyboard_command_key</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      matTooltip="Documentation"
+      class="documentation"
+      (click)="goToDocumentation()"
+    >
+      <mat-icon>menu_book</mat-icon>
+    </button>
+
+    <button mat-icon-button class="report-bug" matTooltip="Report bug" (click)="goToBuganizer()">
+      <mat-icon>bug_report</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      class="dark-mode"
+      matTooltip="Switch to {{ isDarkModeOn ? 'light' : 'dark' }} mode"
+      (click)="toggleDarkMode()"
+    >
+      <mat-icon> {{ isDarkModeOn ? 'brightness_5' : 'brightness_4' }} </mat-icon>
+    </button>
+
+    <div
+      class="share-btn-wrapper"
+      matTooltip="Share functionality is not available for the provided traces"
+      [matTooltipDisabled]="isInsideWinscopeProxyFrame()"
+    >
+      <button
+        mat-icon-button
+        matTooltip="Share"
+        class="share-btn"
+        [disabled]="!isInsideWinscopeProxyFrame()"
+        (click)="updateShareState()"
+        [matMenuTriggerFor]="shareMenu"
+      >
+        <mat-icon>share</mat-icon>
+      </button>
+    </div>
+    <mat-menu #shareMenu="matMenu" (click)="$event.stopPropagation()">
+      <div class="share-menu-content" (click)="$event.stopPropagation()">
+        <div class="share-options" *ngIf="showShareOptionsContainer">
+          <p class="mat-subheading-2" style="margin: 0 0 8px">Select what to share</p>
+
+          <div class="share-option" *ngIf="canShareLocation">
+            <mat-checkbox [(ngModel)]="shareOptions.location" (change)="updateShareLink()">
+              Current location</mat-checkbox
+            >
+            <mat-icon
+              class="info-icon"
+              matTooltip="Shares the active position in the timeline and the tab of the active trace being viewed. The shared URL will jump to this trace and timestamp when opened."
+              >info_outline</mat-icon
+            >
+          </div>
+          <div class="share-option" *ngIf="canShareBookmarks">
+            <mat-checkbox [(ngModel)]="shareOptions.bookmarks" (change)="updateShareLink()"
+              >Bookmarks</mat-checkbox
+            >
+            <mat-icon
+              class="info-icon"
+              matTooltip="Shares any bookmarks you have added to the timeline."
+              >info_outline</mat-icon
+            >
+          </div>
+          <div class="share-option" *ngIf="canShareQueries">
+            <mat-checkbox [(ngModel)]="shareOptions.searchQueries" (change)="updateShareLink()"
+              >Search queries</mat-checkbox
+            >
+            <mat-icon class="info-icon" matTooltip="Shares your search queries and results."
+              >info_outline</mat-icon
+            >
+          </div>
+        </div>
+
+        <div class="share-link-container">
+          <mat-form-field class="share-link-field" subscriptSizing="dynamic">
+            <mat-label>Shareable link</mat-label>
+            <input matInput readonly [value]="generatedShareLink" />
+          </mat-form-field>
+
+          <button
+            mat-icon-button
+            [cdkCopyToClipboard]="generatedShareLink"
+            matTooltip="Copy link"
+            [disabled]="!generatedShareLink"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-menu>
+
+    @if (isInsideWinscopeProxyFrame()) {
+    <button mat-icon-button class="iframe-settings" matTootltip="Settings" (click)="openSettings()">
+      <mat-icon>settings</mat-icon>
+    </button>
+    }
+  </div>
+</mat-toolbar>
+
+<mat-divider></mat-divider>
+
+<mat-drawer-container autosize disableClose autoFocus style.background="var(--background-color)">
+  <mat-drawer-content>
+    @if (dataLoaded) {
+    <trace-view class="viewers" [viewers]="viewers" [store]="persistentStore"></trace-view>
+
+    <mat-divider></mat-divider>
+    } @else {
+    <div class="center">
+      <div class="landing-content">
+        <h1 class="welcome-info mat-headline-1">
+          Welcome to Winscope. Please select source to view traces.
+        </h1>
+
+        <div class="card-grid landing-grid">
+          <collect-traces
+            class="collect-traces-card homepage-card"
+            [storage]="appStorage"
+            (filesCollected)="onFilesCollected($event)"
+          ></collect-traces>
+
+          <upload-traces
+            #uploadTraces
+            class="upload-traces-card homepage-card"
+            [tracePipeline]="tracePipeline"
+            [storage]="appStorage"
+            (filesUploaded)="onFilesUploaded($event)"
+            (viewTracesButtonClick)="onViewTracesButtonClick($event)"
+            (downloadTracesClick)="onDownloadTracesButtonClick(uploadTraces)"
+          ></upload-traces>
+        </div>
+      </div>
+    </div>
+    }
+  </mat-drawer-content>
+
+  <mat-drawer #drawer mode="overlay" opened="true" [baseHeight]="collapsedTimelineHeight">
+    @if (dataLoaded) {
+    <timeline
+      [allTraces]="tracePipeline.getTraces()"
+      [timelineData]="timelineData"
+      [store]="persistentStore"
+      [initialTabTraceType]="mediator.initialTimelineTabTraceType"
+      (collapsedTimelineSizeChanged)="onCollapsedTimelineSizeChanged($event)"
+    ></timeline>
+    }
+  </mat-drawer>
+</mat-drawer-container>

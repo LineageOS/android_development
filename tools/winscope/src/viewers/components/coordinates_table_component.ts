@@ -15,67 +15,14 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 @Component({
   selector: 'coordinates-table',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    @if (hasCoordinates()) {
-      <table class="table">
-        <tr class="header-row">
-          <td>
-            <p class="mat-body-1">Left</p>
-          </td>
-          <td>
-            <p class="mat-body-1">Top</p>
-          </td>
-          <td>
-            <p class="mat-body-1">Right</p>
-          </td>
-          <td>
-            <p class="mat-body-1">Bottom</p>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <p class="mat-body-1">{{ coordinates.getChildByName('left')?.formattedValue() }}</p>
-          </td>
-          <td>
-            <p class="mat-body-1">{{ coordinates.getChildByName('top')?.formattedValue() }}</p>
-          </td>
-          <td>
-            <p class="mat-body-1">{{ coordinates.getChildByName('right')?.formattedValue() }}</p>
-          </td>
-          <td>
-            <p class="mat-body-1">{{ coordinates.getChildByName('bottom')?.formattedValue() }}</p>
-          </td>
-        </tr>
-      </table>
-    } @else {
-      <p class="mat-body-1">null</p>
-    }
-  `,
-  styles: [
-    `
-      .table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .table td {
-        padding: 1px 5px;
-        border: 1px solid var(--border-color);
-        text-align: center;
-        overflow-wrap: anywhere;
-      }
-
-      .header-row td {
-        color: gray;
-      }
-    `,
-  ],
+  templateUrl: './coordinates_table_component.ng.html',
+  styleUrls: ['coordinates_table_component.css'],
 })
 export class CoordinatesTableComponent {
   @Input() coordinates: UiPropertyTreeNode | undefined;

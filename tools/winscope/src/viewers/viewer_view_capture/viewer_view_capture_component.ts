@@ -16,17 +16,17 @@
 
 import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {ShadingMode} from 'viewers/components/rects/shading_mode';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {ShadingMode} from '@viewers/components/rects/shading_mode';
 
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 /**
@@ -43,61 +43,12 @@ import {UiData} from './ui_data';
     PropertiesComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-        [class.empty]="sections.areAllSectionsExpanded()"
-        [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-      <rects-view
-        class="rects-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [title]="rectsTitle"
-        [store]="store"
-        [rects]="inputData?.rectsToDraw ?? []"
-        [zoomFactor]="4"
-        [miniRects]="inputData?.sfRects ?? []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [displays]="inputData?.displays ?? []"
-        groupLabel="Windows"
-        [shadingModes]="shadingModes"
-        [dependencies]="inputData?.dependencies ?? []"
-        [userOptions]="inputData?.rectsUserOptions ?? {}"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [isDarkMode]="inputData?.isDarkMode ?? false"
-        [rectSpec]="inputData?.rectSpec"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"></rects-view>
-      <hierarchy-view
-        class="hierarchy-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-        [trees]="inputData?.hierarchyTrees ?? []"
-        [dependencies]="inputData?.dependencies ?? []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [textFilter]="inputData?.hierarchyFilter"
-        [store]="store"
-        [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-        [rectIdToShowState]="inputData?.rectIdToShowState"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
-      <properties-view
-        class="properties-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-        [userOptions]="inputData?.propertiesUserOptions ?? {}"
-        [propertiesTree]="inputData?.propertiesTree"
-        [curatedProperties]="inputData?.curatedProperties"
-        [traceType]="${TraceType.VIEW_CAPTURE}"
-        [store]="store"
-        [isProtoDump]="false"
-        placeholderText="No selected item."
-        [textFilter]="inputData?.propertiesFilter"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-    </div>
-  `,
+  templateUrl: './viewer_view_capture_component.ng.html',
   styles: [viewerCardStyle],
 })
 export class ViewerViewCaptureComponent extends ViewerComponent<UiData> {
   CollapsibleSectionType = CollapsibleSectionType;
+  TraceType = TraceType;
 
   rectsTitle = 'SKETCH';
   sections = new CollapsibleSections([

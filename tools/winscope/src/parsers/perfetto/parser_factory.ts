@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-import {ParserTimestampConverter} from 'common/time/timestamp_converter';
-import {Analytics} from 'logging/analytics';
-import {ProgressListener} from 'messaging/progress_listener';
-import {makeWarningInvalidPerfettoTrace} from 'parsers/warnings';
-import {ParserCujs} from 'parsers/events/perfetto/parser_cujs';
-import {ParserKeyEvent} from 'parsers/input/perfetto/parser_key_event';
-import {ParserMotionEvent} from 'parsers/input/perfetto/parser_motion_event';
-import {ParserInputMethodClients} from 'parsers/input_method/perfetto/parser_input_method_clients';
-import {ParserInputMethodManagerService} from 'parsers/input_method/perfetto/parser_input_method_manager_service';
-import {ParserInputMethodService} from 'parsers/input_method/perfetto/parser_input_method_service';
-import {ParserProtolog} from 'parsers/protolog/perfetto/parser_protolog';
-import {ParserSurfaceFlinger} from 'parsers/surface_flinger/perfetto/parser_surface_flinger';
-import {TraceGeometryDataBuilder} from 'parsers/trace_geometry_data';
-import {ParserTransactions} from 'parsers/transactions/perfetto/parser_transactions';
-import {ParserTransitions} from 'parsers/transitions/perfetto/parser_transitions';
-import {ParserViewCapture} from 'parsers/view_capture/perfetto/parser_view_capture';
-import {ParserWindowManager} from 'parsers/window_manager/perfetto/parser_window_manager';
-import {UserNotifier} from 'services/user_notifier';
-import {TraceFile} from 'trace/trace_file';
-import {Parser} from 'trace_api/parser';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {TraceProcessorFactory} from 'trace_processor/trace_processor_factory';
-import {getLogger, Logger} from 'compat/logging';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
+import {makeWarningInvalidPerfettoTrace} from '@parsers/warnings';
+import {ParserKeyEvent} from '@parsers/input/perfetto/parser_key_event';
+import {ParserMotionEvent} from '@parsers/input/perfetto/parser_motion_event';
+import {ParserInputMethodClients} from '@parsers/input_method/perfetto/parser_input_method_clients';
+import {ParserInputMethodManagerService} from '@parsers/input_method/perfetto/parser_input_method_manager_service';
+import {ParserInputMethodService} from '@parsers/input_method/perfetto/parser_input_method_service';
+import {ParserProtolog} from '@parsers/protolog/perfetto/parser_protolog';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/perfetto/parser_surface_flinger';
+import {TraceGeometryDataBuilder} from '@parsers/trace_geometry_data';
+import {ParserTransactions} from '@parsers/transactions/perfetto/parser_transactions';
+import {ParserTransitions} from '@parsers/transitions/perfetto/parser_transitions';
+import {ParserViewCapture} from '@parsers/view_capture/perfetto/parser_view_capture';
+import {ParserWindowManager} from '@parsers/window_manager/perfetto/parser_window_manager';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace/trace_file';
+import {Parser} from '@trace_api/parser';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
+import {getLogger, Logger} from '@compat/logging';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
 
 interface ProcessedFile {
   parsers: Array<Parser<HierarchyTreeNode>>;

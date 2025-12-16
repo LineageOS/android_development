@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Store} from 'common/store/store';
-import {Timestamp} from 'common/time/time';
-import {TimeDuration} from 'common/time/time_duration';
-import {Trace} from 'trace_api/trace';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {Store} from '@common/store/store';
+import {Timestamp} from '@common/time/time';
+import {TimeDuration} from '@common/time/time_duration';
+import {Trace} from '@trace_api/trace';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
-} from 'viewers/common/abstract_log_viewer_presenter';
-import {LogPresenter} from 'viewers/common/log_presenter';
-import {PropertiesPresenter} from 'viewers/common/properties_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
-import {LogField, LogHeader} from 'viewers/common/ui_data_log';
+} from '@viewers/common/abstract_log_viewer_presenter';
+import {LogPresenter} from '@viewers/common/log_presenter';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {CujEntry, CujStatus, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<
@@ -58,12 +56,6 @@ export class Presenter extends AbstractLogViewerPresenter<
   };
 
   protected override logPresenter = new LogPresenter<CujEntry>();
-  protected override propertiesPresenter = new PropertiesPresenter(
-    {},
-    new TextFilter(),
-    [],
-    [],
-  );
 
   constructor(
     trace: Trace<HierarchyTreeNode>,
@@ -147,9 +139,7 @@ export class Presenter extends AbstractLogViewerPresenter<
           iconColor: statusIconColor,
         },
       ];
-      cujs.push(
-        new CujEntry(entry, fields, async () => cujNode.getAllProperties()),
-      );
+      cujs.push(new CujEntry(entry, fields));
     }
 
     return cujs;

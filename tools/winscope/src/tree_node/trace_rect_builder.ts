@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {CornerRadii} from 'common/geometry/corner_radii';
-import {Region} from 'common/geometry/region';
-import {Transform} from 'common/geometry/transform';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {Region} from '@common/geometry/region';
+import {Transform} from '@common/geometry/transform';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
 
 import {TraceRect} from './trace_rect';
 

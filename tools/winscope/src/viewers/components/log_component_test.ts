@@ -29,38 +29,38 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {KeyboardEventKey} from 'common/dom';
-import {Timestamp} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {assertDefined} from '@common/assert';
+import {KeyboardEventKey} from '@common/dom';
+import {Timestamp} from '@common/time/time';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {TraceEntry} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
-import {LogSelectFilter, LogTextFilter} from 'viewers/common/log_filters';
-import {TextFilter} from 'viewers/common/text_filter';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceEntry} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
+import {TextFilter} from '@viewers/common/text_filter';
 import {
   ColumnSpec,
   LogEntry,
   LogField,
   LogHeader,
-} from 'viewers/common/ui_data_log';
-import {VariableHeightScrollDirective} from 'viewers/common/variable_height_scroll_directive';
+} from '@viewers/common/ui_data_log';
+import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {
   LogFilterChangeDetail,
   LogTextFilterChangeDetail,
   TimestampClickDetail,
   ViewerEvents,
-} from 'viewers/common/viewer_events';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {CollapsibleSectionTitleComponent} from 'viewers/components/collapsible_section_title_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {SearchBoxComponent} from 'viewers/components/search_box_component';
-import {SelectWithFilterComponent} from 'viewers/components/select_with_filter_component';
+} from '@viewers/common/viewer_events';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {SearchBoxComponent} from '@viewers/components/search_box_component';
+import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 import {LogComponent} from './log_component';
 
 describe('LogComponent', () => {

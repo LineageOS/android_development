@@ -22,7 +22,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {ListItemOption, SearchListComponent} from './search_list_component';
 import {ListedSearch} from './ui_data';
 

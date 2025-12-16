@@ -15,14 +15,14 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, ViewChild} from '@angular/core';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {LogComponent} from 'viewers/components/log_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {LogComponent} from '@viewers/components/log_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({
@@ -34,39 +34,7 @@ import {UiData} from './ui_data';
     LogComponent,
     PropertiesComponent,
   ],
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-        [class.empty]="sections.areAllSectionsExpanded()"
-        [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-
-      <log-view
-        class="log-view"
-        [selectedIndex]="inputData?.selectedIndex"
-        [scrollToIndex]="inputData?.scrollToIndex"
-        [currentIndex]="inputData?.currentIndex"
-        [entries]="inputData?.entries ?? []"
-        [headers]="inputData?.headers ?? []"
-        [traceType]="${TraceType.TRANSACTIONS}"
-        [isFetchingData]="inputData?.isFetchingData"
-        [checkScrollViewport]="inputData?.checkScrollViewport">
-      </log-view>
-
-      <properties-view
-        class="properties-view"
-        [title]="propertiesTitle"
-        [userOptions]="inputData?.propertiesUserOptions ?? {}"
-        [propertiesTree]="inputData?.propertiesTree"
-        [traceType]="${TraceType.TRANSACTIONS}"
-        [isProtoDump]="false"
-        [textFilter]="inputData?.propertiesFilter"
-        placeholderText="No current or selected transaction with additional properties."
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"></properties-view>
-    </div>
-  `,
+  templateUrl: './viewer_transactions_component.ng.html',
   styles: [
     `
       .properties-view {
@@ -82,6 +50,7 @@ export class ViewerTransactionsComponent extends ViewerComponent<UiData> {
   CollapsibleSectionType = CollapsibleSectionType;
 
   propertiesTitle = 'PROPERTIES - PROTO DUMP';
+  TraceType = TraceType;
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.PROPERTIES,

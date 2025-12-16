@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {Point} from 'common/geometry/point';
-import {Padding} from 'common/padding';
-import {Trace} from 'trace_api/trace';
+import {Point} from '@common/geometry/point';
+import {Padding} from '@common/padding';
+import {Trace} from '@trace_api/trace';
 import {CanvasMouseHandler} from './canvas_mouse_handler';
 
 /**

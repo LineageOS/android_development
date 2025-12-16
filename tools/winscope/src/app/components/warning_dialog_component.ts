@@ -26,38 +26,7 @@ import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
   selector: 'warning-dialog',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatCheckboxModule, MatButtonModule],
-  template: `
-    <h2 class="warning-dialog-title" mat-dialog-title>
-      <span> Warning </span>
-    </h2>
-    <mat-dialog-content class="warning-content">
-      <p class="warning-message"> {{data.message}} </p>
-
-      <div class="warning-actions">
-        <div class="warning-action-boxes">
-          @for (option of data.options; track option; let i = $index) {
-            <mat-checkbox
-              color="primary"
-              [checked]="selectedOptions.includes(option)"
-              (change)="updateSelectedOptions(option)">{{ option }}</mat-checkbox>
-          }
-        </div>
-        <div class="warning-action-buttons">
-          @for (action of data.actions; track action) {
-            <button
-              [mat-dialog-close]="getDialogResult(action)"
-              class="not-last"
-              color="primary"
-              mat-stroked-button> {{ action }} </button>
-          }
-          <button
-            [mat-dialog-close]="getDialogResult(data.closeText)"
-            color="primary"
-            mat-raised-button> {{ data.closeText }} </button>
-        </div>
-      </div>
-    </mat-dialog-content>
-  `,
+  templateUrl: './warning_dialog_component.ng.html',
   styleUrls: ['warning_dialog_component.css'],
 })
 export class WarningDialogComponent {

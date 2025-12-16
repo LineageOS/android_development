@@ -15,7 +15,7 @@
  */
 
 import Long from 'long';
-import {ProtoLogLevel, ProtoLogViewerConfig} from 'compat/winscope_protos';
+import {ProtoLogLevel, ProtoLogViewerConfig} from '@compat/winscope_protos';
 import configJson32 from '../../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
 import configJson64 from '../../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 

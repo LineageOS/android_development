@@ -16,20 +16,20 @@
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {Timestamp} from 'common/time/time';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
+import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
 import {
   DEFAULT_PROPERTY_FORMATTER,
   FixedStringFormatter,
   HEX_FORMATTER,
   TIMESTAMP_NODE_FORMATTER,
-} from 'trace/formatters';
-import {DiffType} from 'viewers/common/diff_type';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+} from '@trace/formatters';
+import {DiffType} from '@viewers/common/diff_type';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 
 describe('PropertyTreeNodeDataViewComponent', () => {

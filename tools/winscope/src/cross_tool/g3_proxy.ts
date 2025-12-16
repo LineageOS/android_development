@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace_api/trace_type';
+import {TraceType} from '@trace_api/trace_type';
 
 /** An identifier for a test artifact. */
 export declare interface ArtifactIdentifier {

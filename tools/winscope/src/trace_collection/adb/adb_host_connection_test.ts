@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {ConnectionState} from 'trace_collection/connection_state';
-import {ConnectionStateListener} from 'trace_collection/connection_state_listener';
-import {MockAdbHostConnection} from 'trace_collection/mock/mock_adb_host_connection';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
+import {MockAdbHostConnection} from '@trace_collection/mock/mock_adb_host_connection';
 
 describe('AdbHostConnection', () => {
   const listener = jasmine.createSpyObj<ConnectionStateListener>(

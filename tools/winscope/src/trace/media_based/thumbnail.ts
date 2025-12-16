@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Point} from 'common/geometry/point';
-import {Size} from 'common/geometry/size';
+import {Point} from '@common/geometry/point';
+import {Size} from '@common/geometry/size';
 
 /**
  * Represents sprite sheet for thumbnail video preview. Provides css for visualizing

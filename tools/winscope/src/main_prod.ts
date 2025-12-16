@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {getLogger} from 'compat/logging';
+import {getLogger} from '@compat/logging';
 // organize-imports-ignore
 import '@angular/compiler';
-import 'app/global_init';
+import '@app/global_init';
 import {globalConfig} from './common/global_config';
 globalConfig.set({
   MODE: 'PROD',
@@ -27,8 +27,8 @@ import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {enableProdMode, ErrorHandler} from '@angular/core';
 import {bootstrapApplication} from '@angular/platform-browser';
 import {provideAnimations} from '@angular/platform-browser/animations';
-import {AppComponent} from 'app/components/app_component';
-import {GlobalErrorHandler} from 'app/global_error_handler';
+import {AppComponent} from '@app/components/app_component';
+import {GlobalErrorHandler} from '@app/global_error_handler';
 
 enableProdMode();
 

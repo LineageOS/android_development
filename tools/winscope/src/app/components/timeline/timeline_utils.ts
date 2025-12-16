@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TimeRange, Timestamp} from 'common/time/time';
-import {ComponentTimestampConverter} from 'common/time/timestamp_converter';
-import {TransitionStatus} from 'trace/transitions/status';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {assertDefined} from '@common/assert';
+import {TimeRange, Timestamp} from '@common/time/time';
+import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
+import {TransitionStatus} from '@trace/transitions/status';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 /**
  * Checks if a transition has an unknown start time.

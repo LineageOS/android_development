@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {FilterFlag} from 'common/filter_flag';
-import {isAlpha, isDigit} from 'common/string_helpers';
-import {StringFilterPredicate} from 'common/string_filter_predicate';
+import {FilterFlag} from '@common/filter_flag';
+import {isAlpha, isDigit} from '@common/string_helpers';
+import {StringFilterPredicate} from '@common/string_filter_predicate';
 
 export class TextFilter {
   constructor(

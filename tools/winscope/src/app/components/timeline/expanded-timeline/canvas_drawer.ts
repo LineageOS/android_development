@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {convertHexToRgb} from 'app/components/timeline/timeline_utils';
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
+import {convertHexToRgb} from '@app/components/timeline/timeline_utils';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
 
 /**
  * A class for drawing shapes on a canvas.

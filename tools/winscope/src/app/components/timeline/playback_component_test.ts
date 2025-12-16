@@ -17,9 +17,9 @@
 import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {PlaybackControlsComponent} from './playback_component';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 describe('PlaybackControlsComponent', () => {
   let hostComponent: TestHostComponent;

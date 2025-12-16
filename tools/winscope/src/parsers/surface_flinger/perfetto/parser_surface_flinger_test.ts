@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
-import {Region} from 'common/geometry/region';
-import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
-import {getPerfettoParser} from 'test/unit/fixture_utils';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {Region} from '@common/geometry/region';
+import {makeWarningDuplicateLayerIds} from '@parsers/warnings';
+import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {EntriesRange} from 'trace_api/index_types';
-import {Parser} from 'trace_api/parser';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {makeIdMatchFilter} from 'tree_node/helpers';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {makeIdMatchFilter} from '@tree_node/helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('PerfettoParserSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;

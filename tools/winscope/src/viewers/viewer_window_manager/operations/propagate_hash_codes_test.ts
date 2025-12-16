@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
+import {assertDefined} from '@common/assert';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {PropagateHashCodes} from './propagate_hash_codes';
 
 describe('PropagateHashCodes', () => {

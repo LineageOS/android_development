@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getFixtureFile} from 'test/unit/io_helpers';
+import {getFixtureFile} from '@test/unit/io_helpers';
 import {
   timestampEqualityTester,
   UTC_CONVERTER,
-} from 'test/unit/time_test_helpers';
-import {TraceFile} from 'trace/trace_file';
+} from '@test/unit/time_test_helpers';
+import {TraceFile} from '@trace/trace_file';
 import {ParserFactory} from './parser_factory';
 
 describe('Parser', () => {

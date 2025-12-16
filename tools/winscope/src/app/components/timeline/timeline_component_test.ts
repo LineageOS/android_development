@@ -31,13 +31,13 @@ import {
   MatDrawer,
   MatDrawerContainer,
   MatDrawerContent,
-} from 'app/components/bottomnav/bottom_drawer_component';
-import {TimelineData} from 'app/timeline_data';
-import {assertDefined} from 'common/assert';
-import {PersistentStore} from 'common/store/persistent_store';
-import {TimeRange} from 'common/time/time';
-import {BookmarksChanged} from 'app/misc_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
+} from '@app/components/bottomnav/bottom_drawer_component';
+import {TimelineData} from '@app/timeline_data';
+import {assertDefined} from '@common/assert';
+import {PersistentStore} from '@common/store/persistent_store';
+import {TimeRange} from '@common/time/time';
+import {BookmarksChanged} from '@app/misc_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   ActiveTraceChanged,
   InitializeTraceSearchRequest,
@@ -47,25 +47,25 @@ import {
   TraceSearchCompleted,
   TraceSearchInitialized,
   TraceSearchRequest,
-} from 'trace/trace_events';
+} from '@trace/trace_events';
 import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangeRequest,
 } from './playback_events';
 import {ExpandedTimelineToggled} from './timeline_events';
-import {checkTooltips, DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {TracesBuilder} from 'test/unit/traces_builder';
-import {Trace, TraceEntry} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {QueryResult} from 'trace_processor/query_result';
-import {makeSearchTraceSpies} from 'trace_processor/test_utils';
+import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TracesBuilder} from '@test/unit/traces_builder';
+import {Trace, TraceEntry} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {QueryResult} from '@trace_processor/query_result';
+import {makeSearchTraceSpies} from '@trace_processor/test_utils';
 import {CanvasDrawer} from './expanded-timeline/canvas_drawer';
 import {DefaultTimelineRowComponent} from './expanded-timeline/default_timeline_row_component';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
@@ -74,16 +74,16 @@ import {MiniTimelineDrawerImpl} from './mini-timeline/drawer/mini_timeline_drawe
 import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
 import {SliderComponent} from './mini-timeline/slider_component';
 import {TimelineComponent} from './timeline_component';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {PlaybackControlsComponent} from './playback_component';
 import {
   CanvasEntry,
   MediaBasedTraceEntry,
   VideoEntry,
-} from 'trace/media_based/media_based_trace_entry';
+} from '@trace/media_based/media_based_trace_entry';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {Thumbnail} from 'trace/media_based/thumbnail';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {Thumbnail} from '@trace/media_based/thumbnail';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('TimelineComponent', () => {
   const time90 = makeRealTimestamp(90n);
@@ -287,7 +287,7 @@ describe('TimelineComponent', () => {
 
   it('handles undefined active trace input', async () => {
     const traces = new TracesBuilder()
-      .setTimestamps(TraceType.EVENT_LOG, [time100, time110])
+      .setTimestamps(TraceType.WM_TRANSITION, [time100, time110])
       .build();
 
     const timelineData = assertDefined(component.timelineData);

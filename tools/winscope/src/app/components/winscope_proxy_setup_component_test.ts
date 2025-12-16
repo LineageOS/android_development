@@ -24,11 +24,11 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {ConnectionState} from 'trace_collection/connection_state';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {ConnectionState} from '@trace_collection/connection_state';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
-import {DownloadRequest} from 'common/download';
+import {DownloadRequest} from '@common/download';
 
 describe('WinscopeProxySetupComponent', () => {
   let component: WinscopeProxySetupComponent;
@@ -75,11 +75,13 @@ describe('WinscopeProxySetupComponent', () => {
   it('correct icon and message displays if invalid proxy', () => {
     component.state = ConnectionState.INVALID_VERSION;
     dom.detectChanges();
-    dom
-      .get('.further-adb-info-text')
-      .checkText(
-        `Your local proxy version is incompatible with Winscope. Please update the proxy to version ${component.proxyVersion}.`,
-      );
+    const infoText = dom.get('.further-adb-info-text');
+    infoText.checkText(
+      'Your local proxy version is incompatible with Winscope.',
+    );
+    infoText.checkText(
+      `Please update the proxy to version ${component.proxyVersion}`,
+    );
     dom.get('.adb-icon').checkTextExact('update');
   });
 

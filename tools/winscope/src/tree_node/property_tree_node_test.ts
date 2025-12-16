@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
+import {assertDefined} from '@common/assert';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
   makeBufferNode,
   makeColorNode,
   makePositionNode,
   makeRectNode,
   makeSizeNode,
-} from 'test/unit/tree_node_test_helpers';
+} from '@test/unit/tree_node_test_helpers';
 
 import {
   PropertyFormatter,

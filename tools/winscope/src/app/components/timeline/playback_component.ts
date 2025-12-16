@@ -27,8 +27,8 @@ import {MatSelectModule, MatSelectChange} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {CommonModule} from '@angular/common';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {Analytics} from 'logging/analytics';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {Analytics} from '@logging/analytics';
 
 @Component({
   selector: 'playback-controls',
@@ -41,61 +41,7 @@ import {Analytics} from 'logging/analytics';
     MatFormFieldModule,
     MatTooltipModule,
   ],
-  template: `
-    <div class="playback-controls-container">
-      <div class="controls">
-        <button
-          mat-icon-button
-          class="no-touch-target-button"
-          id="start-reverse-playback-button"
-          matTooltip="Play backwards"
-          (click)="changePlaybackState(PlaybackState.BACKWARDS)">
-          <mat-icon class="force-icon-flip"
-            [class.material-symbols-outlined]="currentState !== PlaybackState.BACKWARDS"
-            [color]="currentState === PlaybackState.BACKWARDS ? 'primary' : null">
-            play_arrow
-          </mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          class="no-touch-target-button"
-          id="pause-playback-button"
-          matTooltip="Pause"
-          (click)="changePlaybackState(PlaybackState.PAUSED)"
-          [disabled]="currentState === PlaybackState.PAUSED">
-          <mat-icon>pause</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          class="no-touch-target-button"
-          id="start-playback-button"
-          matTooltip="Play forwards"
-          (click)="changePlaybackState(PlaybackState.FORWARDS)">
-          <mat-icon [class.material-symbols-outlined]="currentState !== PlaybackState.FORWARDS"
-          [color]="currentState === PlaybackState.FORWARDS ? 'primary' : null">
-          play_arrow
-          </mat-icon>
-        </button>
-      </div>
-      <div class="playback-select">
-        <span class="mat-body-1 speed-label"> Speed: </span>
-        <mat-form-field
-          subscriptSizing="dynamic"
-          class="mat-form-field-appearance-none playback-speed-selector no-ripple-field">
-          <mat-select
-            (selectionChange)="changeSpeed($event)"
-            [(value)]="selectedScale"
-            panelWidth='80px'>
-            @for (speed of playbackSpeedSelection; track speed) {
-              <mat-option [value]="speed">
-                {{speed}}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </div>
-  `,
+  templateUrl: './playback_component.ng.html',
   styleUrls: ['playback_component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

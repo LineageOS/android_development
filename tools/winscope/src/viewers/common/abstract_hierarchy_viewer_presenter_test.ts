@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Store} from 'common/store/store';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Store} from '@common/store/store';
 
 import {
   PlaybackSpeedChange,
   PlaybackStateChangeHandled,
   PlaybackStateChangePropagate,
   PlaybackStateChangeRequest,
-} from 'app/components/timeline/playback_events';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {makeNodeFilter} from 'tree_node/helpers';
-import {PropertySource} from 'tree_node/property_tree_node';
+} from '@app/components/timeline/playback_events';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {makeNodeFilter} from '@tree_node/helpers';
+import {PropertySource} from '@tree_node/property_tree_node';
 import {
   AbstractHierarchyViewerPresenter,
   NotifyHierarchyViewCallbackType,
-} from 'viewers/common/abstract_hierarchy_viewer_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UserOptions} from 'viewers/common/user_options';
-import {RectSpec} from 'viewers/components/rects/rect_spec';
+} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectSpec} from '@viewers/components/rects/rect_spec';
 import {Chip} from './chip';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
-import {Rect} from 'common/geometry/rect';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {TraceType} from 'trace_api/trace_type';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {Rect} from '@common/geometry/rect';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {TraceType} from '@trace_api/trace_type';
 
 export abstract class AbstractHierarchyViewerPresenterTest<
   UiData extends UiDataHierarchy,
@@ -121,10 +121,10 @@ export abstract class AbstractHierarchyViewerPresenterTest<
         });
         await presenter.onAppEvent(this.getPositionUpdate());
         await presenter.onHighlightedIdChange(
-          assertDefined(uiData.hierarchyTrees)[0].id,
+          assertDefined(uiData.hierarchyNodes?.at(0)).node.id,
         );
-        const calculatedPropertyInRoot = uiData.propertiesTree?.findDfs(
-          (node) => node.source === PropertySource.CALCULATED,
+        const calculatedPropertyInRoot = uiData.propertyNodes?.find(
+          (row) => row.node.source === PropertySource.CALCULATED,
         );
         expect(calculatedPropertyInRoot !== undefined).toEqual(
           this.keepCalculatedPropertiesInRoot,
@@ -133,8 +133,8 @@ export abstract class AbstractHierarchyViewerPresenterTest<
         await presenter.onHighlightedIdChange(
           this.getSelectedTreeAfterPositionUpdate().id,
         );
-        const calculatedPropertyInChild = uiData.propertiesTree?.findDfs(
-          (node) => node.source === PropertySource.CALCULATED,
+        const calculatedPropertyInChild = uiData.propertyNodes?.find(
+          (row) => row.node.source === PropertySource.CALCULATED,
         );
         expect(calculatedPropertyInChild !== undefined).toEqual(
           this.keepCalculatedPropertiesInChild,
@@ -151,9 +151,12 @@ export abstract class AbstractHierarchyViewerPresenterTest<
           ];
           await presenter.onHighlightedIdChange(rect.id);
           expect(uiData.highlightedItem).toEqual(rect.id);
-          const propertiesTree = assertDefined(uiData.propertiesTree);
+          const propertiesTree = assertDefined(
+            uiData.propertyNodes?.at(0),
+          ).node;
           expect(propertiesTree.id).toEqual(rect.id);
           expect(propertiesTree.getAllChildren().length).toBeGreaterThan(0);
+          expect(uiData.propertyNodes?.length).toBeGreaterThan(0);
           assertDefined(this.executeSpecializedChecksForPropertiesFromRect)(
             uiData,
           );
@@ -180,8 +183,10 @@ export abstract class AbstractHierarchyViewerPresenterTest<
             new TextFilter(longName).getFilterPredicate(),
           );
           let nodeWithLongName = assertDefined(
-            assertDefined(uiData.hierarchyTrees)[0].findDfs(longNameFilter),
-          );
+            assertDefined(uiData.hierarchyNodes).find((row) =>
+              longNameFilter(row.node),
+            ),
+          ).node;
           expect(nodeWithLongName.getDisplayName()).toEqual(shortName);
           presenter.onPinnedItemChange(nodeWithLongName);
           expect(uiData.pinnedItems).toEqual([nodeWithLongName]);
@@ -189,8 +194,10 @@ export abstract class AbstractHierarchyViewerPresenterTest<
           await presenter.onHierarchyUserOptionsChange(userOptions);
           expect(uiData.hierarchyUserOptions).toEqual(userOptions);
           nodeWithLongName = assertDefined(
-            assertDefined(uiData.hierarchyTrees)[0].findDfs(longNameFilter),
-          );
+            assertDefined(uiData.hierarchyNodes).find((row) =>
+              longNameFilter(row.node),
+            ),
+          ).node;
           expect(longName).toContain(nodeWithLongName.getDisplayName());
           expect(uiData.pinnedItems).toEqual([nodeWithLongName]);
         });
@@ -216,35 +223,35 @@ export abstract class AbstractHierarchyViewerPresenterTest<
         it("doesn't update properties tree onHighlightedIdChange if playback is playing", async () => {
           await presenter.onAppEvent(this.getPositionUpdate());
           const node = this.getSelectedTreeAfterPositionUpdate();
-          expect(uiData.propertiesTree).toBeUndefined();
+          expect(uiData.propertyNodes).toBeUndefined();
           spyOn(PlaybackPresenter.prototype, 'isPlaying').and.returnValue(true);
 
           await presenter.onHighlightedIdChange(node.id);
-          expect(uiData.propertiesTree).toBeUndefined();
+          expect(uiData.propertyNodes).toBeUndefined();
         });
 
         it("doesn't update properties tree onHighlightedNodeChange if playback is playing", async () => {
           await presenter.onAppEvent(this.getPositionUpdate());
           const node = this.getSelectedTreeAfterPositionUpdate();
-          expect(uiData.propertiesTree).toBeUndefined();
+          expect(uiData.propertyNodes).toBeUndefined();
           spyOn(PlaybackPresenter.prototype, 'isPlaying').and.returnValue(true);
 
           await presenter.onHighlightedNodeChange(node);
-          expect(uiData.propertiesTree).toBeUndefined();
+          expect(uiData.propertyNodes).toBeUndefined();
         });
 
         it("doesn't update properties tree on trace position update if playback is playing", async () => {
           await presenter.onAppEvent(this.getPositionUpdate());
           const node = this.getSelectedTreeAfterPositionUpdate();
           await presenter.onHighlightedIdChange(node.id);
-          expect(uiData.propertiesTree).toBeDefined();
-          const prevProperties = uiData.propertiesTree;
+          expect(uiData.propertyNodes).toBeDefined();
+          const prevProperties = uiData.propertyNodes;
           spyOn(PlaybackPresenter.prototype, 'isPlaying').and.returnValue(true);
 
           await presenter.onAppEvent(
             assertDefined(this.getSecondPositionUpdate()),
           );
-          expect(uiData.propertiesTree).toEqual(prevProperties);
+          expect(uiData.propertyNodes).toEqual(prevProperties);
         });
 
         it('initializes playback when a PlaybackStart event is received', async () => {

@@ -18,49 +18,49 @@ import {
   assertBigInt,
   assertDefined,
   assertStringOrUndefined,
-} from 'common/assert';
-import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
-import {Store} from 'common/store/store';
-import {Analytics} from 'logging/analytics';
-import {TabbedViewSwitchRequest} from 'app/tabbed_view_events';
-import {InputColumnType} from 'trace/input/input_column_type';
-import {InputEventType} from 'trace/input/input_event_type';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Trace, TraceEntry, TraceEntryLazy} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@common/assert';
+import {createPersistentStoreProxy} from '@common/store/persistent_store_proxy';
+import {Store} from '@common/store/store';
+import {Analytics} from '@logging/analytics';
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
+import {InputColumnType} from '@trace/input/input_column_type';
+import {InputEventType} from '@trace/input/input_event_type';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Trace, TraceEntry, TraceEntryLazy} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
-} from 'viewers/common/abstract_log_viewer_presenter';
-import {VISIBLE_CHIP} from 'viewers/common/chip';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogPresenter} from 'viewers/common/log_presenter';
-import {PropertiesPresenter} from 'viewers/common/properties_presenter';
-import {RectsPresenter} from 'viewers/common/rects_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
+} from '@viewers/common/abstract_log_viewer_presenter';
+import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogPresenter} from '@viewers/common/log_presenter';
+import {PropertiesPresenter} from '@viewers/common/properties_presenter';
+import {RectsPresenter} from '@viewers/common/rects_presenter';
+import {TextFilter} from '@viewers/common/text_filter';
 import {
   ClickableProperty,
   ColumnSpec,
   LogEntry,
   LogHeader,
-} from 'viewers/common/ui_data_log';
-import {UserOptions} from 'viewers/common/user_options';
-import {ViewerEvents} from 'viewers/common/viewer_events';
+} from '@viewers/common/ui_data_log';
+import {UserOptions} from '@viewers/common/user_options';
+import {ViewerEvents} from '@viewers/common/viewer_events';
 import {
   RectLegendFactory,
   TraceRectType,
-} from 'viewers/components/rects/rect_spec';
+} from '@viewers/components/rects/rect_spec';
 import {
   convertRectIdToLayerorDisplayName,
   makeDisplayIdentifiers,
-} from 'viewers/viewer_surface_flinger/presenter';
+} from '@viewers/viewer_surface_flinger/presenter';
 import {FormatDispatchEntry} from './operations/format_dispatch_entry';
 import {InputEntry, UiData} from './ui_data';
-import {makeInputRects} from 'viewers/common/ui_rect_factory';
+import {makeInputRects} from '@viewers/common/ui_rect_factory';
 
 export class Presenter extends AbstractLogViewerPresenter<
   UiData,
@@ -388,8 +388,9 @@ export class Presenter extends AbstractLogViewerPresenter<
       this.keepCalculated ?? false,
       this.trace.type,
     );
-    this.uiData.dispatchPropertiesTree =
-      this.dispatchPropertiesPresenter.getFormattedTree();
+    this.uiData.dispatchPropertyNodes = this.flattenProperties(
+      this.dispatchPropertiesPresenter.getFormattedTree(),
+    );
   }
 
   private async handleWindowPropertyHighlight() {

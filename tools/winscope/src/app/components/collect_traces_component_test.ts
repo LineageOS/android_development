@@ -36,28 +36,28 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {makeWarningProxyTraceTimeout} from 'app/warnings';
-import {AppRefreshDumpsRequest} from 'app/app_events';
-import {NoTraceTargetsSelectedEvent} from 'app/misc_events';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {waitToBeCalled} from 'test/unit/spy_utils';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
-import {TraceType} from 'trace_api/trace_type';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {AppRefreshDumpsRequest} from '@app/app_events';
+import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {waitToBeCalled} from '@test/unit/spy_utils';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceType} from '@trace_api/trace_type';
 import {
   AdbDeviceConnection,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {AdbConnectionType} from 'trace_collection/adb_connection_type';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {MockAdbDeviceConnection} from 'trace_collection/mock/mock_adb_device_connection';
-import {makeProtologGroupOptions} from 'trace_collection/ui/ui_trace_configuration';
-import {UiTraceTarget} from 'trace_collection/ui/ui_trace_target';
-import {WdpDeviceConnection} from 'trace_collection/wdp/wdp_device_connection';
-import {WdpHostConnection} from 'trace_collection/wdp/wdp_host_connection';
-import {WinscopeProxyDeviceConnection} from 'trace_collection/winscope_proxy/winscope_proxy_device_connection';
+} from '@trace_collection/adb/adb_device_connection';
+import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
+import {makeProtologGroupOptions} from '@trace_collection/ui/ui_trace_configuration';
+import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
+import {WdpDeviceConnection} from '@trace_collection/wdp/wdp_device_connection';
+import {WdpHostConnection} from '@trace_collection/wdp/wdp_host_connection';
+import {WinscopeProxyDeviceConnection} from '@trace_collection/winscope_proxy/winscope_proxy_device_connection';
 import {CollectTracesComponent} from './collect_traces_component';
 import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
@@ -185,7 +185,7 @@ describe('CollectTracesComponent', () => {
 
     spy.and.returnValue([mockDevice]);
     await dom.detectChangesAndWaitStable();
-    el.checkText('Select a device: smartphone  Pixel 6 (35562)');
+    el.checkText('Select a device: smartphone Pixel 6 (35562)');
   });
 
   it('displays connected devices again if selected device no longer present', () => {
@@ -195,7 +195,7 @@ describe('CollectTracesComponent', () => {
     spy.and.returnValue([mockDeviceWatch]);
     dom.detectChanges();
     const el = dom.get('.devices-connecting');
-    el.checkText('Select a device: smartphone  Pixel Watch (75432)');
+    el.checkText('Select a device: smartphone Pixel Watch (75432)');
   });
 
   it('auto selects last device', () => {
@@ -208,7 +208,7 @@ describe('CollectTracesComponent', () => {
     dom.detectChanges();
 
     const el = dom.get('.devices-connecting');
-    el.checkText('Select a device: smartphone  Pixel Watch (75432)');
+    el.checkText('Select a device: smartphone Pixel Watch (75432)');
     expect(dom.find('.trace-collection-config')).toBeUndefined();
 
     spy.and.returnValue([mockDevice]);

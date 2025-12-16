@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Store} from 'common/store/store';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {makeUiPropertyNode} from 'test/unit/ui_tree_node_utils';
-import {Trace} from 'trace_api/trace';
-import {TRACE_INFO} from 'trace_api/trace_info';
-import {TraceType} from 'trace_api/trace_type';
-import {Traces} from 'trace_api/traces';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {NotifyHierarchyViewCallbackType} from 'viewers/common/abstract_hierarchy_viewer_presenter';
-import {AbstractHierarchyViewerPresenterTest} from 'viewers/common/abstract_hierarchy_viewer_presenter_test';
-import {VISIBLE_CHIP} from 'viewers/common/chip';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {makeNodeFilter} from 'tree_node/helpers';
-import {ViewerEvents} from 'viewers/common/viewer_events';
-import {TraceRectType} from 'viewers/components/rects/rect_spec';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Store} from '@common/store/store';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
+import {Trace} from '@trace_api/trace';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {NotifyHierarchyViewCallbackType} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {AbstractHierarchyViewerPresenterTest} from '@viewers/common/abstract_hierarchy_viewer_presenter_test';
+import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {makeNodeFilter} from '@tree_node/helpers';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
@@ -200,16 +200,14 @@ the default for its data type.`,
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiData) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
     expect(
-      assertDefined(
-        propertiesTree.getChildByName('activity')?.getChildByName('state'),
-      ).formattedValue(),
+      propertyNodes.find((r) => r.node.name === 'state')?.node.formattedValue(),
     ).toBe('STOPPED');
     expect(
-      assertDefined(
-        propertiesTree.findDfs((node) => node.name === 'hashCode'),
-      ).formattedValue(),
+      propertyNodes
+        .find((r) => r.node.name === 'hashCode')
+        ?.node.formattedValue(),
     ).toBe('0xf7092ed');
     expect(uiData.displays).toEqual([
       {
@@ -222,16 +220,14 @@ the default for its data type.`,
   }
 
   override executeSpecializedChecksForPropertiesFromRect(uiData: UiData) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
-    expect(propertiesTree.getAllChildren()[0].getAllChildren().length).toBe(6);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
+    expect(propertyNodes.length).toBe(40);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(uiData: UiData) {
-    const propertiesTree = assertDefined(uiData.propertiesTree);
+    const propertyNodes = assertDefined(uiData.propertyNodes);
     expect(
-      assertDefined(
-        propertiesTree.getChildByName('activity')?.getChildByName('state'),
-      ).formattedValue(),
+      propertyNodes.find((r) => r.node.name === 'state')?.node.formattedValue(),
     ).toBe('RESUMED');
   }
 

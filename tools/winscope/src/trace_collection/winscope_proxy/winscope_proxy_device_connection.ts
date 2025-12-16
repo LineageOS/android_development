@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
-import {HttpRequestHeaderType, HttpResponse} from 'common/http_request';
-import {utf8Decode} from 'common/string_helpers';
-import {makeWarningProxyTracingErrors} from 'trace_collection/warnings';
-import {UserNotifier} from 'services/user_notifier';
+import {getLogger, Logger} from '@compat/logging';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {HttpRequestHeaderType, HttpResponse} from '@common/http_request';
+import {utf8Decode} from '@common/string_helpers';
+import {makeWarningProxyTracingErrors} from '@trace_collection/warnings';
+import {UserNotifier} from '@services/user_notifier';
 import {
   AdbDeviceConnection,
   AdbDeviceConnectionListener,
   AdbDeviceState,
-} from 'trace_collection/adb/adb_device_connection';
-import {ConnectionState} from 'trace_collection/connection_state';
-import {TraceTarget} from 'trace_collection/trace_target';
+} from '@trace_collection/adb/adb_device_connection';
+import {ConnectionState} from '@trace_collection/connection_state';
+import {TraceTarget} from '@trace_collection/trace_target';
 import {Endpoint} from './endpoint';
 import {getFromProxy, postToProxy} from './utils';
 

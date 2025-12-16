@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {
   ChildProperty,
   PropertyTreeBuilder,
-} from 'test/unit/property_tree_builder';
-import {treeNodeEqualityTester} from 'test/unit/ui_tree_node_utils';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {OperationChain} from 'tree_node/operation_chain';
-import {PropertiesProvider} from 'tree_node/properties_provider';
-import {PropertySource, PropertyTreeNode} from 'tree_node/property_tree_node';
+} from '@test/unit/property_tree_builder';
+import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {OperationChain} from '@tree_node/operation_chain';
+import {PropertiesProvider} from '@tree_node/properties_provider';
+import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';
 
 describe('HierarchyTreeBuilderSf', () => {

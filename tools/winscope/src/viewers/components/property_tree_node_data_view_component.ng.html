@@ -1,0 +1,54 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+@if (node) {
+<div class="node-property">
+  <span class="mat-body-1 property-key"> {{ getKey(node) }} </span>
+  @if (node.formattedValue()) {
+  <div class="property-value" [class]="[timeClass()]">
+    @if (isTimestamp()) {
+    <button class="time-button" mat-button color="primary" (click)="onTimestampClicked(node)">
+      {{ node.formattedValue() }}
+    </button>
+    } @else if (!isTimestamp() && !node.hasDiffValueParts()) { @if (node.canPropagate()) {
+    <div class="inline">
+      <button mat-button color="primary" (click)="onPropagateButtonClicked(node)">
+        {{ node.formattedValue() }}
+      </button>
+    </div>
+    } @else {
+    <span [class]="valueClass()" class="mat-body-2 value new-value"
+      >{{ node.formattedValue() }}</span
+    >
+    } @if (isModified()) {
+    <s class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
+    } } @else if (node.hasDiffValueParts()) {
+    <span class="value diff-value-parts">
+      @for (part of node.getDiffValueParts(); track $index; let i = $index) { @if (i > 0) {
+      <span>&ngsp; | &ngsp;</span>
+      } @if (part.isNew) {
+      <span class="mat-body-2 new-value">{{ part.value }}</span>
+      } @else if (part.isOld) {
+      <s class="mat-body-2 old-value">{{ part.value }}</s>
+      } @else if (!part.isNew && !part.isOld) {
+      <span class="mat-body-1 unchanged-value">{{ part.value }}</span>
+      } }
+    </span>
+    }
+  </div>
+  }
+</div>
+}

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertString} from 'common/assert';
-import {ItemHeightPredictor} from 'viewers/common/item_height_predictor';
-import {TransitionsEntry} from 'viewers/viewer_transitions/ui_data';
+import {assertString} from '@common/assert';
+import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
+import {TransitionsEntry} from '@viewers/viewer_transitions/ui_data';
 
 export class TransitionsHeightPredictor extends ItemHeightPredictor {
   protected override readonly defaultRowSize = 36;

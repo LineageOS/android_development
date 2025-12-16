@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ScreenRecordingOffsets} from 'trace_api/trace_metadata';
+import {ScreenRecordingOffsets} from '@trace_api/trace_metadata';
 import {
   ParserResult,
   parseTimestampsFromMp4VideoTrack,

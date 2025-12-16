@@ -54,17 +54,36 @@ export abstract class TreeNode implements Item {
     return this.children;
   }
 
-  forEachNodeDfs(callback: (node: this) => void, reverseChildren = false) {
-    callback(this);
+  forEachNodeDfs(
+    callback: (node: this, depth: number) => void,
+    reverseChildren = false,
+    depth = 0,
+    skipChildren?: (node: this) => boolean,
+  ) {
+    callback(this, depth);
+
+    if (skipChildren?.(this) ?? false) {
+      return;
+    }
 
     if (reverseChildren) {
       for (let i = this.children.length - 1; i > -1; i--) {
-        this.children[i].forEachNodeDfs(callback, reverseChildren);
+        this.children[i].forEachNodeDfs(
+          callback,
+          reverseChildren,
+          depth + 1,
+          skipChildren,
+        );
       }
     } else {
-      this.children.forEach((child) => {
-        child.forEachNodeDfs(callback, reverseChildren);
-      });
+      this.children.forEach((child) =>
+        child.forEachNodeDfs(
+          callback,
+          reverseChildren,
+          depth + 1,
+          skipChildren,
+        ),
+      );
     }
   }
 

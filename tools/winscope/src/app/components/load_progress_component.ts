@@ -26,26 +26,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
   selector: 'load-progress',
   standalone: true,
   imports: [CommonModule, MatIconModule, MatProgressBarModule],
-  template: `
-    <div class="container-progress">
-      <p class="mat-body-3">
-        <mat-icon [fontIcon]="icon"> </mat-icon>
-      </p>
-
-      @if (progressPercentage === undefined) {
-        <mat-progress-bar mode="indeterminate">
-        </mat-progress-bar>
-      }
-      @if (progressPercentage !== undefined) {
-        <mat-progress-bar
-          mode="determinate"
-          [value]="progressPercentage">
-        </mat-progress-bar>
-      }
-
-      <p class="mat-body-1 progress-message">{{ message }}</p>
-    </div>
-  `,
+  templateUrl: './load_progress_component.ng.html',
   styleUrls: ['load_progress_component.css'],
 })
 export class LoadProgressComponent {

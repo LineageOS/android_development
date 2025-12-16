@@ -17,9 +17,9 @@
 import {
   makeUiHierarchyNode,
   treeNodeEqualityTester,
-} from 'test/unit/ui_tree_node_utils';
-import {TreeNode} from 'tree_node/tree_node';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
+} from '@test/unit/ui_tree_node_utils';
+import {TreeNode} from '@tree_node/tree_node';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {AbstractAddDiffsTest} from './abstract_add_diffs_test';
 import {AddDiffs} from './add_diffs';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';

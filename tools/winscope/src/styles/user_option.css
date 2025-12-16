@@ -50,7 +50,7 @@
   border-radius: 10px;
   background-color: var(--chip-blue);
   font-weight: normal;
-  color: var(--black-text-color);
+  color: var(--text-color-black);
   height: 18px;
   align-items: center;
   display: flex;

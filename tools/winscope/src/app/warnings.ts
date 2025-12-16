@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {BugreportData, BuildType} from 'app/trace_file_filter';
-import {TraceType} from 'trace_api/trace_type';
-import {UserWarning} from 'messaging/user_warning';
-import {TimeRange} from 'common/time/time';
-import {TimeDuration} from 'common/time/time_duration';
+import {BugreportData, BuildType} from '@app/trace_file_filter';
+import {TraceType} from '@trace_api/trace_type';
+import {UserWarning} from '@messaging/user_warning';
+import {TimeRange} from '@common/time/time';
+import {TimeDuration} from '@common/time/time_duration';
 
 /**
  * A warning for when not all transitions in a trace can be parsed.

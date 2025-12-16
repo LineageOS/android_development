@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace_api/trace_type';
-import {PlaybackState} from 'viewers/common/playback/playback_state';
-import {WinscopeEvent} from 'messaging/winscope_event';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {TraceType} from '@trace_api/trace_type';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 
 export class PlaybackStateChangeRequest implements WinscopeEvent {
   constructor(

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Transform} from 'common/geometry/transform';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
-import {UiRect} from 'viewers/components/rects/ui_rect';
-import {UiRectBuilder} from 'viewers/components/rects/ui_rect_builder';
+import {assertDefined} from '@common/assert';
+import {Transform} from '@common/geometry/transform';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
+import {UiRect} from '@viewers/components/rects/ui_rect';
+import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 import {makeInputRects, makeUiRects, makeVcUiRects} from './ui_rect_factory';
 
 describe('ui_rect_factory', () => {

@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from 'compat/logging';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Chip} from './chip';
-import {DiffNode} from './diff_node';
 import {DiffType} from './diff_type';
+import {UiTreeNode} from './ui_tree_node';
 
-export class UiHierarchyTreeNode extends HierarchyTreeNode implements DiffNode {
+export class UiHierarchyTreeNode
+  extends HierarchyTreeNode
+  implements UiTreeNode
+{
   private chips: Chip[] = [];
   private diff: DiffType = DiffType.NONE;
   private displayName: string = this.name;
   private isOldNodeInternal = false;
   private showHeading = true;
-  private nextNodeDfs: this | undefined;
-  private prevNodeDfs: this | undefined;
 
-  constructor(
-    id: string,
-    name: string,
-    propertiesProvider: any,
-    private readonly logger: Logger = getLogger('UiHierarchyTreeNode'),
-  ) {
+  constructor(id: string, name: string, propertiesProvider: any) {
     super(id, name, propertiesProvider);
   }
 
@@ -72,7 +67,7 @@ export class UiHierarchyTreeNode extends HierarchyTreeNode implements DiffNode {
     return displayNode;
   }
 
-  setDiff(diff: DiffType): void {
+  setDiff(diff: DiffType) {
     this.diff = diff;
   }
 
@@ -96,7 +91,7 @@ export class UiHierarchyTreeNode extends HierarchyTreeNode implements DiffNode {
     return this.displayName;
   }
 
-  addChip(chip: Chip): void {
+  addChip(chip: Chip) {
     this.chips.push(chip);
   }
 
@@ -108,39 +103,11 @@ export class UiHierarchyTreeNode extends HierarchyTreeNode implements DiffNode {
     this.isOldNodeInternal = value;
   }
 
-  isOldNode() {
+  isOldNode(): boolean {
     return this.isOldNodeInternal;
   }
 
-  getNextDfs(): this | undefined {
-    return this.nextNodeDfs;
-  }
-
-  getPrevDfs(): this | undefined {
-    return this.prevNodeDfs;
-  }
-
-  assignDfsOrder() {
-    if (!this.isRoot()) {
-      this.logger.warn('Attempted to assign DFS order from non-root node.');
-      return;
-    }
-
-    let prev: this | undefined;
-    this.forEachNodeDfs((node) => {
-      if (prev) {
-        prev.setNextDfs(node);
-        node.setPrevDfs(prev);
-      }
-      prev = node;
-    });
-  }
-
-  private setNextDfs(node: this) {
-    this.nextNodeDfs = node;
-  }
-
-  private setPrevDfs(node: this) {
-    this.prevNodeDfs = node;
+  isLeaf(): boolean {
+    return this.children.length === 0;
   }
 }

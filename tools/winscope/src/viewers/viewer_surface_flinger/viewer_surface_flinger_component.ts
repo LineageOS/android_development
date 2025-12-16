@@ -16,18 +16,18 @@
 
 import {CommonModule} from '@angular/common';
 import {Component, Input, SimpleChanges} from '@angular/core';
-import {assertDefined} from 'common/assert';
-import {TraceType} from 'trace_api/trace_type';
-import {CollapsibleSectionType} from 'viewers/common/collapsible_section_type';
-import {CollapsibleSections} from 'viewers/common/collapsible_sections';
-import {CollapsedSectionsComponent} from 'viewers/components/collapsed_sections_component';
-import {HierarchyComponent} from 'viewers/components/hierarchy_component';
-import {PropertiesComponent} from 'viewers/components/properties_component';
-import {RectsComponent} from 'viewers/components/rects/rects_component';
-import {ShadingMode} from 'viewers/components/rects/shading_mode';
-import {viewerCardStyle} from 'viewers/components/styles/viewer_card.styles';
-import {SurfaceFlingerPropertyGroupsComponent} from 'viewers/components/surface_flinger_property_groups_component';
-import {ViewerComponent} from 'viewers/components/viewer_component';
+import {assertDefined} from '@common/assert';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
+import {ShadingMode} from '@viewers/components/rects/shading_mode';
+import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
+import {SurfaceFlingerPropertyGroupsComponent} from '@viewers/components/surface_flinger_property_groups_component';
+import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
 @Component({
@@ -41,82 +41,7 @@ import {UiData} from './ui_data';
     PropertiesComponent,
     SurfaceFlingerPropertyGroupsComponent,
   ],
-  template: `
-    <div class="card-grid">
-      <collapsed-sections
-        [class.empty]="sections.areAllSectionsExpanded()"
-        [sections]="sections"
-        (sectionChange)="sections.onCollapseStateChange($event, false)">
-      </collapsed-sections>
-
-      <rects-view
-        class="rects-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-        [class.disabled-component]="inputData?.isPlaybackInitializing"
-        [title]="getRectsTitle()"
-        [store]="store"
-        [isStackBased]="true"
-        [rects]="inputData?.rectsToDraw ?? []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [displays]="inputData?.displays ?? []"
-        [shadingModes]="shadingModes"
-        [dependencies]="inputData?.dependencies ?? []"
-        [userOptions]="inputData?.rectsUserOptions ?? {}"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [isDarkMode]="inputData?.isDarkMode ?? false"
-        [rectSpec]="inputData?.rectSpec"
-        [allRectSpecs]="inputData?.allRectSpecs"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"></rects-view>
-
-      <hierarchy-view
-        class="hierarchy-view"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-        [class.disabled-component]="inputData?.isPlaybackInitializing"
-        [trees]="inputData?.hierarchyTrees ?? []"
-        [dependencies]="inputData?.dependencies ?? []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [textFilter]="inputData?.hierarchyFilter"
-        [store]="store"
-        [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-        [rectIdToShowState]="inputData?.rectIdToShowState"
-        (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"></hierarchy-view>
-
-      @if (!arePropertiesCollapsed()) {
-        <div class="properties"
-        [class.disabled-component]="inputData?.isPlaybackPlaying
-        || inputData?.isPlaybackInitializing">
-          @if (inputData?.isPlaybackPlaying) {
-            <div
-            class="disabled-message user-notification mat-body-1">
-            Properties disabled due to playback
-            </div>
-          }
-          <surface-flinger-property-groups
-            class="property-groups"
-            [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
-            [properties]="inputData?.curatedProperties"
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)"></surface-flinger-property-groups>
-
-          <properties-view
-            class="properties-view"
-            [class.disabled]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
-            [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-            [title]="propertiesTitle"
-            [userOptions]="inputData?.propertiesUserOptions ?? {}"
-            [propertiesTree]="inputData?.propertiesTree"
-            [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-            [traceType]="${TraceType.SURFACE_FLINGER}"
-            [store]="store"
-            [isProtoDump]="true"
-            placeholderText="No selected entry or layer."
-            [textFilter]="inputData?.propertiesFilter"
-            (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"></properties-view>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './viewer_surface_flinger_component.ng.html',
   styles: [
     `
       .properties {

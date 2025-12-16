@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TranslateIntDef} from 'parsers/operations/translate_intdef';
-import {SetFormatters} from 'parsers/set_formatters';
-import {InputEventType} from 'trace/input/input_event_type';
-import {TraceType} from 'trace_api/trace_type';
+import {assertDefined} from '@common/assert';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {SetFormatters} from '@parsers/set_formatters';
+import {InputEventType} from '@trace/input/input_event_type';
+import {TraceType} from '@trace_api/trace_type';
 
 import {AbstractInputEventParser} from './abstract_input_event_parser';
 

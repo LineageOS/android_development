@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {makeRealTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {extractFrames} from 'test/unit/traces_test_helpers';
+import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {extractFrames} from '@test/unit/traces_test_helpers';
 import {CustomQueryType} from './custom_query';
 import {FrameMapper} from './frame_mapper';
 import {AbsoluteFrameIndex} from './index_types';

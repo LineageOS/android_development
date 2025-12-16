@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import Long from 'long';
-import {makeWarningDuplicateLayerIds} from 'parsers/warnings';
-import {ClockSnapshot} from 'compat/perfetto';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {UserNotifierChecker} from 'test/unit/user_notifier_checker';
+import {makeWarningDuplicateLayerIds} from '@parsers/warnings';
+import {ClockSnapshot} from '@compat/perfetto';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
-} from 'test/unit/time_test_helpers';
-import {CoarseVersion} from 'trace_api/coarse_version';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Parser} from 'trace_api/parser';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {makeIdMatchFilter} from 'tree_node/helpers';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@test/unit/time_test_helpers';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {makeIdMatchFilter} from '@tree_node/helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('ParserSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;

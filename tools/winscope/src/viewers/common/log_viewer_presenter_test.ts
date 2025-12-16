@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {KeyboardEventKey} from 'common/dom';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Timer} from 'common/time/timer';
-import {DarkModeToggled} from 'app/misc_events';
-import {ActiveTraceChanged, TracePositionUpdate} from 'trace/trace_events';
-import {HierarchyTreeBuilder} from 'test/unit/hierarchy_tree_builder';
-import {MockPresenter} from 'test/unit/mock_log_viewer_presenter';
+import {assertDefined} from '@common/assert';
+import {KeyboardEventKey} from '@common/dom';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Timer} from '@common/time/timer';
+import {DarkModeToggled} from '@app/misc_events';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
+import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {MockPresenter} from '@test/unit/mock_log_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   makeZeroTimestamp,
-} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {DEFAULT_PROPERTY_FORMATTER} from 'trace/formatters';
-import {Trace} from 'trace_api/trace';
-import {TracePosition} from 'trace_api/trace_position';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertySource} from 'tree_node/property_tree_node';
-import {TextFilter} from 'viewers/common/text_filter';
+} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {Trace} from '@trace_api/trace';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertySource} from '@tree_node/property_tree_node';
+import {TextFilter} from '@viewers/common/text_filter';
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogHeader, UiDataLog} from './ui_data_log';
 import {UserOptions} from './user_options';
@@ -45,7 +45,7 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from './viewer_events';
-import {SetFormatters} from 'parsers/set_formatters';
+import {SetFormatters} from '@parsers/set_formatters';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;
@@ -220,7 +220,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.currentIndex).toBeUndefined();
     expect(uiData.selectedIndex).toBeUndefined();
     expect(uiData.entries.length).toBe(0);
-    expect(uiData.propertiesTree).toBeUndefined();
+    expect(uiData.propertyNodes).toBeUndefined();
     expect(uiData.headers).toEqual([]);
 
     await sendPositionUpdate(positionUpdate, true);
@@ -229,7 +229,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.currentIndex).toBeDefined();
     expect(uiData.selectedIndex).toBeUndefined();
     expect(uiData.entries.length).toBe(4);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
       (await getPropertiesTree(0)).id,
     );
     expect(uiData.headers.length).toBe(3);
@@ -242,7 +242,7 @@ describe('AbstractLogViewerPresenter', () => {
   it('processes trace position update and updates ui data', async () => {
     await sendPositionUpdate(secondPositionUpdate, true);
     expect(uiData.currentIndex).toBe(1);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
       (await getPropertiesTree(1)).id,
     );
   });
@@ -438,11 +438,15 @@ describe('AbstractLogViewerPresenter', () => {
     const expectedId = (await getPropertiesTree(2)).id;
 
     await presenter.onLogEntryClick(2);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(expectedId);
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
+      expectedId,
+    );
 
     // does not remove selection when entry clicked again
     await presenter.onLogEntryClick(2);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(expectedId);
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
+      expectedId,
+    );
   });
 
   it('updates properties tree when changed by key press', async () => {
@@ -451,7 +455,7 @@ describe('AbstractLogViewerPresenter', () => {
 
     await presenter.onArrowDownPress();
     expect(uiData.selectedIndex).toBe(1);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
       (await getPropertiesTree(1)).id,
     );
 
@@ -459,18 +463,22 @@ describe('AbstractLogViewerPresenter', () => {
 
     await presenter.onArrowUpPress();
     expect(uiData.selectedIndex).toBe(0);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(expectedId0);
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
+      expectedId0,
+    );
 
     // does not remove selection if index out of range
     await presenter.onArrowUpPress();
     expect(uiData.selectedIndex).toBe(0);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(expectedId0);
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
+      expectedId0,
+    );
 
     // does not remove selection if index out of range
     await presenter.onLogEntryClick(3);
     await presenter.onArrowDownPress();
     expect(uiData.selectedIndex).toBe(3);
-    expect(assertDefined(uiData.propertiesTree).id).toEqual(
+    expect(assertDefined(uiData.propertyNodes?.at(0)).node.id).toEqual(
       (await getPropertiesTree(3)).id,
     );
   });
@@ -500,20 +508,14 @@ describe('AbstractLogViewerPresenter', () => {
 
   it('filters properties tree', async () => {
     await sendPositionUpdate(positionUpdate, true);
-    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
-      3,
-    );
+    expect(assertDefined(uiData.propertyNodes).length).toBe(4);
     await presenter.onPropertiesFilterChange(new TextFilter('pass'));
-    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
-      2,
-    );
+    expect(assertDefined(uiData.propertyNodes).length).toBe(3);
   });
 
   it('shows/hides defaults', async () => {
     await sendPositionUpdate(positionUpdate, true);
-    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
-      3,
-    );
+    expect(assertDefined(uiData.propertyNodes).length).toBe(4);
     const userOptions: UserOptions = {
       showDefaults: {
         name: 'Show defaults',
@@ -522,9 +524,7 @@ describe('AbstractLogViewerPresenter', () => {
     };
     await presenter.onPropertiesUserOptionsChange(userOptions);
     expect(uiData.propertiesUserOptions).toEqual(userOptions);
-    expect(assertDefined(uiData.propertiesTree).getAllChildren().length).toBe(
-      4,
-    );
+    expect(assertDefined(uiData.propertyNodes).length).toBe(5);
   });
 
   it('updates dark mode', async () => {
@@ -552,7 +552,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.scrollToIndex).toBeUndefined();
     expect(uiData.currentIndex).toBeUndefined();
     expect(uiData.headers.length).toBe(3);
-    expect(uiData.propertiesTree).toBeUndefined();
+    expect(uiData.propertyNodes).toBeUndefined();
     expect(uiData.propertiesUserOptions).toBeDefined();
     expect(uiData.propertiesFilter).toBeDefined();
   });

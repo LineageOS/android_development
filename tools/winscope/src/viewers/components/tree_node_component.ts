@@ -22,15 +22,14 @@ import {
   Inject,
   Input,
   Output,
-  SimpleChanges,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {assertDefined} from 'common/assert';
-import {DiffType} from 'viewers/common/diff_type';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {nodeInnerItemStyles} from 'viewers/components/styles/node.styles';
+import {assertDefined} from '@common/assert';
+import {DiffType} from '@viewers/common/diff_type';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 
@@ -45,86 +44,11 @@ import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_
     HierarchyTreeNodeDataViewComponent,
     PropertyTreeNodeDataViewComponent,
   ],
-  template: `
-    @if (showStateIcon) {
-      <div class="icon-wrapper-show-state" [style]="getShowStateIconStyle()">
-        <button
-          mat-icon-button
-          class="icon-button toggle-rect-show-state-btn"
-          (click)="toggleRectShowState($event)">
-          <mat-icon class="material-symbols-outlined">
-            {{ showStateIcon }}
-          </mat-icon>
-        </button>
-      </div>
-    }
-    @if (showChevron()) {
-      <div class="icon-wrapper">
-        <button
-          mat-icon-button
-          class="icon-button toggle-tree-btn"
-          (click)="toggleTree($event)">
-          <mat-icon>
-            {{ isExpanded ? 'arrow_drop_down' : 'chevron_right' }}
-          </mat-icon>
-        </button>
-      </div>
-    }
-
-    @if (!showChevron() && !isInPinnedSection) {
-      <div class="icon-wrapper leaf-node-icon-wrapper">
-        <mat-icon class="leaf-node-icon"></mat-icon>
-      </div>
-    }
-
-    @if (showPinNodeIcon()) {
-      <div class="icon-wrapper">
-        <button
-          mat-icon-button
-          class="icon-button pin-node-btn"
-          (click)="pinNode($event)">
-          <mat-icon [class.material-symbols-outlined]="!isPinned">push_pin</mat-icon>
-        </button>
-      </div>
-    }
-
-    <div class="description">
-      @if (node && !isPropertyTreeNode()) {
-        <hierarchy-tree-node-data-view
-          [node]="node"></hierarchy-tree-node-data-view>
-      } @else {
-        <property-tree-node-data-view
-          [node]="node"></property-tree-node-data-view>
-      }
-    </div>
-
-    @if (!isLeaf && !isExpanded && !isPinned) {
-      <div class="icon-wrapper">
-        <button
-          mat-icon-button
-          class="icon-button expand-tree-btn"
-          [class]="collapseDiffClass"
-          (click)="expandTree($event)">
-          <mat-icon aria-hidden="true"> more_horiz </mat-icon>
-        </button>
-      </div>
-    }
-    @if (showCopyButton()) {
-      <div class="icon-wrapper-copy">
-        <button
-          mat-icon-button
-          class="icon-button copy-btn"
-          [cdkCopyToClipboard]="getCopyText()"
-          (click)="$event.stopPropagation()">
-          <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
-        </button>
-      </div>
-    }
-  `,
-  styles: [nodeInnerItemStyles],
+  templateUrl: './tree_node_component.ng.html',
+  styleUrls: ['tree_node_component.css'],
 })
 export class TreeNodeComponent {
-  @Input() node?: UiHierarchyTreeNode | UiPropertyTreeNode;
+  @Input({required: true}) node: UiTreeNode | undefined;
   @Input() isLeaf?: boolean;
   @Input() flattened?: boolean;
   @Input() isExpanded?: boolean;
@@ -132,62 +56,37 @@ export class TreeNodeComponent {
   @Input() isInPinnedSection = false;
   @Input() isSelected = false;
   @Input() showStateIcon?: string;
+  @Input() depth = 0;
+  @Input() childHighlightDepth: number | undefined;
+  @Input() parentHighlightDepth: number | undefined;
 
   @Output() readonly toggleTreeChange = new EventEmitter<void>();
   @Output() readonly rectShowStateChange = new EventEmitter<void>();
   @Output() readonly expandTreeChange = new EventEmitter<void>();
   @Output() readonly pinNodeChange = new EventEmitter<UiHierarchyTreeNode>();
+  @Output() readonly scrollChange = new EventEmitter<void>();
 
   collapseDiffClass = '';
-  private el: HTMLElement;
-  private treeWrapper: HTMLElement | undefined;
-  private readonly gutterOffset = -13;
+  private readonly el: HTMLElement;
 
-  constructor(@Inject(ElementRef) public elementRef: ElementRef) {
+  constructor(@Inject(ElementRef) elementRef: ElementRef<HTMLElement>) {
     this.el = elementRef.nativeElement;
+    this.el?.addEventListener('mousedown', this.nodeMouseDownEventListener);
   }
 
-  ngAfterViewInit() {
-    this.treeWrapper = this.getTreeWrapper();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (!this.isInPinnedSection && changes['isSelected']?.currentValue) {
-      this.expandTreeChange.emit();
-    }
-
+  ngOnChanges() {
     this.collapseDiffClass = this.updateCollapseDiffClass();
-    if (!this.isInPinnedSection && this.isSelected && !this.isNodeInView()) {
-      this.el.scrollIntoView({block: 'center', inline: 'nearest'});
+    if (!this.isInPinnedSection && this.isSelected) {
+      this.scrollChange.emit();
     }
   }
 
-  isNodeInView(): boolean {
-    if (!this.treeWrapper) {
-      return false;
-    }
-    const rect = this.el.getBoundingClientRect();
-    const parentRect = this.treeWrapper.getBoundingClientRect();
-    return (
-      rect.top >= parentRect.top &&
-      rect.bottom <= parentRect.bottom &&
-      rect.left >= parentRect.left &&
-      rect.right <= parentRect.right
-    );
+  ngOnDestroy() {
+    this.el?.removeEventListener('mousedown', this.nodeMouseDownEventListener);
   }
 
-  getTreeWrapper(): HTMLElement | undefined {
-    let parent = this.el;
-    while (
-      !parent.className.includes('tree-wrapper') &&
-      parent?.parentElement
-    ) {
-      parent = parent.parentElement;
-    }
-    if (!parent.className.includes('tree-wrapper')) {
-      return undefined;
-    }
-    return parent;
+  getIndentMarkers(depth: number): number[] {
+    return Array.from({length: depth}, (_, index) => index);
   }
 
   isPropertyTreeNode(): boolean {
@@ -223,13 +122,11 @@ export class TreeNodeComponent {
   }
 
   updateCollapseDiffClass(): string {
-    if (this.isExpanded) {
+    if (this.isExpanded || !this.node) {
       return '';
     }
 
-    const childrenDiffClasses = this.getAllDiffTypesOfChildren(
-      assertDefined(this.node),
-    );
+    const childrenDiffClasses = this.getAllDiffTypesOfChildren(this.node);
 
     childrenDiffClasses.delete(DiffType.NONE);
 
@@ -241,15 +138,6 @@ export class TreeNodeComponent {
       return diffType;
     }
     return DiffType.MODIFIED;
-  }
-
-  getShowStateIconStyle() {
-    const nodeMargin = this.flattened
-      ? 0
-      : Number(this.el.style.marginLeft.split('px')[0]);
-    return {
-      marginLeft: nodeMargin + this.gutterOffset + 'px',
-    };
   }
 
   showCopyButton(): boolean {
@@ -267,9 +155,7 @@ export class TreeNodeComponent {
     return `${node.name}: ${node.formattedValue()}`;
   }
 
-  private getAllDiffTypesOfChildren(
-    node: UiHierarchyTreeNode | UiPropertyTreeNode,
-  ): Set<DiffType> {
+  private getAllDiffTypesOfChildren(node: UiTreeNode): Set<DiffType> {
     const classes = new Set<DiffType>();
     for (const child of node.getAllChildren()) {
       classes.add(child.getDiff());
@@ -280,4 +166,12 @@ export class TreeNodeComponent {
 
     return classes;
   }
+
+  private nodeMouseDownEventListener = (event: MouseEvent) => {
+    if (event.detail > 1) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  };
 }

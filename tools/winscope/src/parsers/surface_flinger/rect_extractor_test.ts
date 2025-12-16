@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import {CornerRadii} from 'common/geometry/corner_radii';
-import {Rect} from 'common/geometry/rect';
-import {Region} from 'common/geometry/region';
-import {TransformMatrix} from 'common/geometry/transform_matrix';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {Rect} from '@common/geometry/rect';
+import {Region} from '@common/geometry/region';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 import {
   ColumnType,
   QueryResult,
   RowIterator,
-} from 'trace_processor/query_result';
+} from '@trace_processor/query_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,
-} from 'trace_processor/test_utils';
-import {TraceRect} from 'tree_node/trace_rect';
-import {TraceRectBuilder} from 'tree_node/trace_rect_builder';
+} from '@trace_processor/test_utils';
+import {TraceRect} from '@tree_node/trace_rect';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {RectExtractor} from './rect_extractor';
-import {SnapshotRects, RectsForTrace} from 'tree_node/rect_extractor_result';
+import {SnapshotRects, RectsForTrace} from '@tree_node/rect_extractor_result';
 
 describe('SurfaceFlinger RectExtractor', () => {
   const expectedMatrix = TransformMatrix.from({

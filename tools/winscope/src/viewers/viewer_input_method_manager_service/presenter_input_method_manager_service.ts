@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {AbstractPresenterInputMethod} from 'viewers/common/abstract_presenter_input_method';
-import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
-import {processWindowManagerTraceEntry} from 'viewers/common/ime_utils';
+import {Timestamp} from '@common/time/time';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {AbstractPresenterInputMethod} from '@viewers/common/abstract_presenter_input_method';
+import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
+import {processWindowManagerTraceEntry} from '@viewers/common/ime_utils';
 
 export class PresenterInputMethodManagerService extends AbstractPresenterInputMethod {
   protected getHierarchyTableProperties() {

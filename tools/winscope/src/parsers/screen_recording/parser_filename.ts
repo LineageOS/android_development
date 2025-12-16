@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {removeDirFromFileName, removeExtensionFromFilename} from 'common/io';
-import {TIME_UNIT_TO_NANO} from 'common/time/time_units';
-import {getLogger, Logger} from 'compat/logging';
+import {removeDirFromFileName, removeExtensionFromFilename} from '@common/io';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
+import {getLogger, Logger} from '@compat/logging';
 import {
   ParserResult,
   parseTimestampsFromMp4VideoTrack,

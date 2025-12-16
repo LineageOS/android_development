@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {createQueryResult} from 'trace_processor/perfetto/query_result';
-import {TraceEntryValueBuilder} from 'parsers/trace_entry_value_builder';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {createQueryResult} from '@trace_processor/perfetto/query_result';
+import {TraceEntryValueBuilder} from '@parsers/trace_entry_value_builder';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 
 self.onmessage = async (event) => {
   const traceGeometryData = new TraceGeometryData(

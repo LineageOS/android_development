@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {Timestamp} from 'common/time/time';
+import {Timestamp} from '@common/time/time';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
-} from 'trace_api/custom_query';
-import {AbsoluteFrameIndex} from 'trace_api/index_types';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
+} from '@trace_api/custom_query';
+import {AbsoluteFrameIndex} from '@trace_api/index_types';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
 import {TraceBuilder} from './trace_builder';
 
 /**

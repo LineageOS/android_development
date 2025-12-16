@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {createPersistentStoreProxy} from 'common/store/persistent_store_proxy';
-import {Store} from 'common/store/store';
-import {FLAG_SEPARATOR} from 'trace/formatters';
-import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {TransactionType} from 'trace/transactions/transaction_type';
-import {Trace} from 'trace_api/trace';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {LazyPropertiesStrategyType} from 'tree_node/properties_provider';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {assertDefined} from '@common/assert';
+import {createPersistentStoreProxy} from '@common/store/persistent_store_proxy';
+import {Store} from '@common/store/store';
+import {FLAG_SEPARATOR} from '@trace/formatters';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {TransactionType} from '@trace/transactions/transaction_type';
+import {Trace} from '@trace_api/trace';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {
   AbstractLogViewerPresenter,
   NotifyLogViewCallbackType,
-} from 'viewers/common/abstract_log_viewer_presenter';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogPresenter} from 'viewers/common/log_presenter';
-import {PropertiesPresenter} from 'viewers/common/properties_presenter';
-import {TextFilter} from 'viewers/common/text_filter';
-import {LogField, LogHeader} from 'viewers/common/ui_data_log';
-import {UserOptions} from 'viewers/common/user_options';
+} from '@viewers/common/abstract_log_viewer_presenter';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogPresenter} from '@viewers/common/log_presenter';
+import {PropertiesPresenter} from '@viewers/common/properties_presenter';
+import {TextFilter} from '@viewers/common/text_filter';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
+import {UserOptions} from '@viewers/common/user_options';
 import {TransactionsEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<

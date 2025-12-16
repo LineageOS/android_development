@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {
   PERFETTO_TRACE_PACKET_ROOT,
   ProtobufEnum,
   ProtobufField,
   ProtobufType,
-} from 'compat/protobuf';
+} from '@compat/protobuf';
 
 export class TamperedMessageType extends ProtobufType {
   override fields: {[k: string]: TamperedProtoField} = {};

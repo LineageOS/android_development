@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {assertTrue} from 'common/assert';
+import {assertTrue} from '@common/assert';
 import protobuf from 'protobufjs/minimal';
 import {
   WritableQueryResult,
@@ -22,7 +22,7 @@ import {
   Row,
   RowIterator,
 } from './perfetto/query_result';
-import {NOT_IMPLEMENTED_ERROR} from 'common/errors';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 
 /**
  * Represents a query result where the raw data is received in multiple batches.

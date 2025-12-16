@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Parser} from 'trace_api/parser';
+import {assertDefined} from '@common/assert';
+import {Parser} from '@trace_api/parser';
 
 /**
  * Gets the parser with the latest real-to-boottime offset.

@@ -31,7 +31,7 @@ describe('TraceType', () => {
 
   it('isTraceTypeWithViewer', () => {
     expect(isTraceTypeWithViewer(TraceType.SURFACE_FLINGER)).toBeTrue();
-    expect(isTraceTypeWithViewer(TraceType.EVENT_LOG)).toBeFalse();
+    expect(isTraceTypeWithViewer(TraceType.WM_TRANSITION)).toBeFalse();
   });
 
   it('compareByUiPipelineOrder', () => {
@@ -54,7 +54,7 @@ describe('TraceType', () => {
       ),
     ).toBeFalse();
     expect(
-      compareByUiPipelineOrder(TraceType.EVENT_LOG, TraceType.SURFACE_FLINGER),
+      compareByUiPipelineOrder(TraceType.CUJS, TraceType.SURFACE_FLINGER),
     ).toBeFalse();
   });
 
@@ -78,7 +78,7 @@ describe('TraceType', () => {
       ),
     ).toBe(0);
     expect(
-      compareByDisplayOrder(TraceType.EVENT_LOG, TraceType.SURFACE_FLINGER),
+      compareByDisplayOrder(TraceType.WM_TRANSITION, TraceType.SURFACE_FLINGER),
     ).toBeLessThan(0);
   });
 
@@ -90,9 +90,6 @@ describe('TraceType', () => {
       getReasonForNoTraceVisualization(TraceType.SHELL_TRANSITION),
     ).toContain(
       'Must also upload a wm transitions trace to visualize transitions.',
-    );
-    expect(getReasonForNoTraceVisualization(TraceType.EVENT_LOG)).toContain(
-      'Uploaded file does not contain CUJs. Only CUJ visualization is supported in Winscope.',
     );
     expect(
       getReasonForNoTraceVisualization(TraceType.TEST_TRACE_NUMBER),

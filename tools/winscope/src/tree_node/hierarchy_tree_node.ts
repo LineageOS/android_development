@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Warning} from 'common/warning';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {Warning} from '@common/warning';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 import {
   LazyPropertiesStrategyType,

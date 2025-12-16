@@ -15,48 +15,14 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {TableProperties} from 'viewers/common/table_properties';
+import {TableProperties} from '@viewers/common/table_properties';
 
 @Component({
   selector: 'properties-table',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    @if (properties !== undefined) {
-      <table class="table">
-        @for (entry of objectEntries(properties); track entry[0]) {
-          <tr>
-            <td class="table-cell-name">
-              <p class="mat-body-1">{{ entry[0] }}</p>
-            </td>
-            <td class="table-cell-value">
-              <p class="mat-body-1">{{ entry[1] != undefined ? entry[1] : 'undefined' }}</p>
-            </td>
-          </tr>
-        }
-      </table>
-    }
-  `,
-  styles: [
-    `
-      .table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .table-cell-name,
-      .table-cell-value {
-        padding: 1px 5px;
-        border: 1px solid var(--border-color);
-        overflow-wrap: anywhere;
-      }
-
-      .table-cell-name {
-        width: 20%;
-        background-color: rgba(158, 192, 200, 0.281);
-      }
-    `,
-  ],
+  templateUrl: './properties_table_component.ng.html',
+  styleUrls: ['properties_table_component.css'],
 })
 export class PropertiesTableComponent {
   objectEntries = Object.entries;

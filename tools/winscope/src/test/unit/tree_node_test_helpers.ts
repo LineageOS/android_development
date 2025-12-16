@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {TransformTypeFlags} from 'common/geometry/transform';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {TreeNode} from 'tree_node/tree_node';
-import {PropertyTreeNode, PropertyValue} from 'tree_node/property_tree_node';
-import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from 'tree_node/property_tree_node_factory';
+import {TransformTypeFlags} from '@common/geometry/transform';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TreeNode} from '@tree_node/tree_node';
+import {PropertyTreeNode, PropertyValue} from '@tree_node/property_tree_node';
+import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
 import {ChildHierarchy, HierarchyTreeBuilder} from './hierarchy_tree_builder';
 import {PropertyTreeBuilder} from './property_tree_builder';
 

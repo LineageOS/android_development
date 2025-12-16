@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {TraceProcessor} from 'trace_processor/trace_processor';
+import {assertDefined} from '@common/assert';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 import {Operation} from './operation';
 import {OperationChain} from './operation_chain';

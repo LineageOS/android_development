@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {Timer} from 'common/time/timer';
-import {TracePositionUpdate} from 'trace/trace_events';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {makeEmptyTrace} from 'test/unit/trace_test_helpers';
-import {TransactionColumnType} from 'trace/transactions/transaction_column_type';
-import {CustomQueryType} from 'trace_api/custom_query';
-import {Trace} from 'trace_api/trace';
-import {TraceType} from 'trace_api/trace_type';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {NotifyLogViewCallbackType} from 'viewers/common/abstract_log_viewer_presenter';
-import {AbstractLogViewerPresenterTest} from 'viewers/common/abstract_log_viewer_presenter_test';
-import {LogSelectFilter} from 'viewers/common/log_filters';
-import {LogHeader} from 'viewers/common/ui_data_log';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Timer} from '@common/time/timer';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {CustomQueryType} from '@trace_api/custom_query';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
+import {LogSelectFilter} from '@viewers/common/log_filters';
+import {LogHeader} from '@viewers/common/ui_data_log';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 
@@ -190,47 +190,36 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         await presenter.onAppEvent(this.getPositionUpdate());
         await new Timer().wait(() => !uiData.isFetchingData);
         await presenter.onLogEntryClick(10);
-        expect(
-          assertDefined(uiData.propertiesTree).getAllChildren().length,
-        ).toBe(8);
-        expect(
-          uiData.propertiesTree?.getChildByName('transformToDisplayInverse'),
-        ).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('destinationFrame'),
-        ).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('autoRefresh'),
-        ).toBeDefined();
+        expect(assertDefined(uiData.propertyNodes).length).toBe(17);
+        let properties = assertDefined(uiData.propertyNodes).map(
+          (n) => n.node.name,
+        );
+        expect(properties).toContain('transformToDisplayInverse');
+        expect(properties).toContain('destinationFrame');
+        expect(properties).toContain('autoRefresh');
 
         await presenter.onLogEntryClick(279);
-        expect(uiData.propertiesTree?.getChildByName('flags')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('parentId')).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('relativeParentId'),
-        ).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('transformToDisplayInverse'),
-        ).toBeUndefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('destinationFrame'),
-        ).toBeUndefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('autoRefresh'),
-        ).toBeUndefined();
+        properties = assertDefined(uiData.propertyNodes).map(
+          (n) => n.node.name,
+        );
+        expect(properties).toContain('flags');
+        expect(properties).toContain('parentId');
+        expect(properties).toContain('relativeParentId');
+        expect(properties).not.toContain('transformToDisplayInverse');
+        expect(properties).not.toContain('destinationFrame');
+        expect(properties).not.toContain('autoRefresh');
 
         await presenter.onLogEntryClick(584);
-        expect(uiData.propertiesTree?.getChildByName('flags')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('layerId')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('x')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('y')).toBeDefined();
-        expect(uiData.propertiesTree?.getChildByName('z')).toBeDefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('parentId'),
-        ).toBeUndefined();
-        expect(
-          uiData.propertiesTree?.getChildByName('relativeParentId'),
-        ).toBeUndefined();
+        properties = assertDefined(uiData.propertyNodes).map(
+          (n) => n.node.name,
+        );
+        expect(properties).toContain('flags');
+        expect(properties).toContain('layerId');
+        expect(properties).toContain('x');
+        expect(properties).toContain('y');
+        expect(properties).toContain('z');
+        expect(properties).not.toContain('parentId');
+        expect(properties).not.toContain('relativeParentId');
       });
     });
   }

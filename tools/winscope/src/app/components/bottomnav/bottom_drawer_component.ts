@@ -36,7 +36,7 @@ import {
   NgZone,
   ViewEncapsulation,
 } from '@angular/core';
-import {assertDefined} from 'common/assert';
+import {assertDefined} from '@common/assert';
 import {Subject} from 'rxjs';
 import {debounceTime, takeUntil} from 'rxjs/operators';
 
@@ -82,11 +82,7 @@ const transformDrawer: AnimationTriggerMetadata =
   exportAs: 'matDrawer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="mat-drawer-inner-container" #content>
-      <ng-content></ng-content>
-    </div>
-  `,
+  templateUrl: './bottom_drawer_component.ng.html',
   styleUrls: ['bottom_drawer_component.css'],
   animations: [transformDrawer],
   host: {
@@ -113,21 +109,8 @@ export class MatDrawer {
   selector: 'mat-drawer-content',
   standalone: true,
   imports: [CommonModule],
-  template: '<ng-content></ng-content>',
-  styles: [
-    `
-      .mat-drawer-content {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        z-index: 1;
-        height: unset;
-        overflow: unset;
-        width: 100%;
-        flex-grow: 1;
-      }
-    `,
-  ],
+  templateUrl: './bottom_drawer_component_mat_drawer_content.ng.html',
+  styleUrls: ['bottom_drawer_component_mat_drawer_content.css'],
   host: {
     class: 'mat-drawer-content',
     '[style.margin-top.px]': 'contentMargins.top',
@@ -168,23 +151,8 @@ export class MatDrawerContent /*extends MatDrawerContentBase*/ {
   exportAs: 'matDrawerContainer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <ng-content select="mat-drawer-content"> </ng-content>
-
-    <ng-content select="mat-drawer"></ng-content>
-  `,
-  styles: [
-    `
-      .mat-drawer-container {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        align-items: center;
-        align-content: center;
-        justify-content: center;
-      }
-    `,
-  ],
+  templateUrl: './bottom_drawer_component_mat_drawer_container.ng.html',
+  styleUrls: ['bottom_drawer_component_mat_drawer_container.css'],
   host: {
     class: 'mat-drawer-container',
   },

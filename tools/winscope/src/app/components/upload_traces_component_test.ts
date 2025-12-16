@@ -23,23 +23,23 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {FilesSource} from 'app/files_source';
-import {TracePipeline} from 'app/trace_pipeline';
-import {assertDefined} from 'common/assert';
-import {InMemoryStorage} from 'common/store/in_memory_storage';
-import {AppTraceViewRequest, AppTraceViewRequestHandled} from 'app/app_events';
-import {ShowTraceUploadWarning} from 'trace/trace_events';
-import {DOMTestHelper} from 'test/unit/dom_test_helpers';
-import {getFixtureFile} from 'test/unit/io_helpers';
-import {makeZeroTimestamp} from 'test/unit/time_test_helpers';
-import {TraceBuilder} from 'test/unit/trace_builder';
-import {Traces} from 'trace_api/traces';
+import {FilesSource} from '@app/files_source';
+import {TracePipeline} from '@app/trace_pipeline';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {AppTraceViewRequest, AppTraceViewRequestHandled} from '@app/app_events';
+import {ShowTraceUploadWarning} from '@trace/trace_events';
+import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {getFixtureFile} from '@test/unit/io_helpers';
+import {makeZeroTimestamp} from '@test/unit/time_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_builder';
+import {Traces} from '@trace_api/traces';
 import {LoadProgressComponent} from './load_progress_component';
 import {UploadTracesComponent} from './upload_traces_component';
 import {
   getReasonForNoTraceVisualization,
   TraceType,
-} from 'trace_api/trace_type';
+} from '@trace_api/trace_type';
 
 describe('UploadTracesComponent', () => {
   const uploadSelector = '.upload-btn';

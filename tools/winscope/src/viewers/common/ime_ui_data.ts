@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-import {ImeTraceType} from 'trace_api/trace_type';
-import {ImeAdditionalProperties} from 'viewers/common/ime_additional_properties';
-import {TableProperties} from 'viewers/common/table_properties';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UserOptions} from 'viewers/common/user_options';
+import {ImeTraceType} from '@trace_api/trace_type';
+import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
+import {TableProperties} from '@viewers/common/table_properties';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UserOptions} from '@viewers/common/user_options';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
+import {UiTreeNodeRow} from './ui_tree_node_row';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 export class ImeUiData implements UiDataHierarchy {
   highlightedItem = '';
   pinnedItems: UiHierarchyTreeNode[] = [];
   hierarchyUserOptions: UserOptions = {};
-  hierarchyTrees: UiHierarchyTreeNode[] | undefined;
+  hierarchyNodes: Array<UiTreeNodeRow<UiHierarchyTreeNode>> | undefined;
   propertiesUserOptions: UserOptions = {};
-  propertiesTree: UiPropertyTreeNode | undefined;
+  propertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
   highlightedProperty = '';
   hierarchyFilter = new TextFilter();
   propertiesFilter = new TextFilter();

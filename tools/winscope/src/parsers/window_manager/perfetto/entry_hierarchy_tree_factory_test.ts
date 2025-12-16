@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {Rect} from 'common/geometry/rect';
-import {TraceGeometryData} from 'parsers/trace_geometry_data';
+import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {TraceGeometryData} from '@parsers/trace_geometry_data';
 import {
   ColumnType,
   QueryResult,
   RowIterator,
-} from 'trace_processor/query_result';
+} from '@trace_processor/query_result';
 import {
   makeSpyRowIterator,
   setupMockIteratorWithRows,
-} from 'trace_processor/test_utils';
-import {TraceProcessor} from 'trace_processor/trace_processor';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
+} from '@trace_processor/test_utils';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {ContainerType} from './container_type';
 import {
   makeEntryHierarchyTrees,
   makeTreeNodeId,
   makeTreeNodeName,
 } from './entry_hierarchy_tree_factory';
-import {SnapshotRects, RectsForTrace} from 'tree_node/rect_extractor_result';
-import {TraceRect} from 'tree_node/trace_rect';
+import {SnapshotRects, RectsForTrace} from '@tree_node/rect_extractor_result';
+import {TraceRect} from '@tree_node/trace_rect';
 
 describe('EntryHierarchyTreeFactory', () => {
   describe('makeEntryHierarchyTrees', () => {
