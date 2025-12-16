@@ -348,6 +348,22 @@ def generate_lldb_script(root: str, sysroot: str, binary_name: str, port: str | 
     commands.append("settings append target.source-map '/b/f/w' '{}'".format(root))
     commands.append("settings append target.source-map '' '{}'".format(root))
     commands.append('target modules search-paths add / {}/'.format(sysroot))
+
+    # Apply ART special tricks used by studio:
+    #
+    # 1. Disable GDB JIT loader plugin to avoid non-trivial perf hit while
+    #    debugging some targets.
+    #
+    # 2. Suppress SIGSEGV and SIGBUS to avoid false alarms from ART internal
+    #    usage of these signals. Meanwhile, break at ART fault handlers to
+    #    catch actual app signals.
+    if binary_name.endswith('app_process64'):
+        commands.append('settings set plugin.jit-loader.gdb.enable off')
+        commands.append('process handle SIGSEGV --stop false --pass true --notify false')
+        commands.append('b art_sigsegv_fault')
+        commands.append('process handle SIGBUS --stop false --pass true --notify false')
+        commands.append('b art_sigbus_fault')
+
     commands.append('# If the below `gdb-remote` fails, run the command manually, '
                     + 'as it may have raced with lldbserver startup.')
     commands.append('gdb-remote {}'.format(str(port)))
