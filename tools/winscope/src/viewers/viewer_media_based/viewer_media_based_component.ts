@@ -146,13 +146,17 @@ export class ViewerMediaBasedComponent {
     this.shouldMinimize = !this.shouldMinimize;
   }
 
-  isMinimized() {
+  isMinimized(): boolean {
     return this.forceMinimize || this.shouldMinimize;
   }
 
-  hasImageToShow() {
+  hasImageToShow(): boolean {
     const curr = this.currentTraceEntries.at(this.index);
     return curr !== undefined && curr.frame !== undefined;
+  }
+
+  hasOneOrLessTitles(): boolean {
+    return this.titles.length <= 1;
   }
 
   getCurrentTime(): number | undefined {
