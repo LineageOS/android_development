@@ -15,14 +15,14 @@
  */
 
 mat-form-field {
-    width: 100%;
+  width: 100%;
 }
 
 .selected-options {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .hidden-option {
-    display: none;
+  display: none;
 }

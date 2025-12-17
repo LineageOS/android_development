@@ -25,7 +25,6 @@ import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
 
-import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
 import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
@@ -44,7 +43,7 @@ import {UiData} from './ui_data';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './viewer_view_capture_component.ng.html',
-  styles: [viewerCardStyle],
+  styleUrls: ['./viewer_view_capture_component.css'],
 })
 export class ViewerViewCaptureComponent extends ViewerComponent<UiData> {
   CollapsibleSectionType = CollapsibleSectionType;

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-@import url('../styles/overlay_panel.css');
-@import url('../../styles/inline_button.css');
+@import url("../styles/overlay_panel.css");
+@import url("../../styles/inline_button.css");
 
 .tab.active {
   opacity: 100%;
@@ -44,12 +44,12 @@
 }
 
 .tab:not(.last):after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0;
   height: 60%;
   width: 1px;
-  background-color: #C4C0C0;
+  background-color: #c4c0c0;
   align-self: center;
 }
 

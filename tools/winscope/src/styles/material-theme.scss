@@ -417,9 +417,12 @@ $dark-theme: mat.m2-define-dark-theme(
 body {
   background-color: var(--background-color, transparent);
   color: var(--default-text-color, inherit);
+  --active-pointer-color: #1967D2;
+  --bookmark-color: #E88C65;
+  --black-text-color: rgba(0, 0, 0, 0.87);
   --chip-blue: #b4c8ef;
-  --text-color-black: rgba(0, 0, 0, 0.87);
-  --text-color-gray: rgb(155, 155, 155);
+  --guide-bar-color: #9AA0A6;
+  --neutral-gray-text-color: rgb(155, 155, 155);
   --pinned-item-border-color: #FFC24B;
 }
 
@@ -429,7 +432,7 @@ body:not(.dark-mode) {
   --card-title-background-color: #f1f1f1;
   --contrast-text-color: white;
   --current-element-color: #7b9ccc;
-  --default-text-color: var(--text-color-black);
+  --default-text-color: var(--black-text-color);
   --deleted-element-color: #ffcfd0;
   --disabled-color: rgba(0, 0, 0, 0.12);
   --drawer-block-primary: #eeeff0;
@@ -470,7 +473,7 @@ body.dark-mode {
   --added-element-color: #6d8358;
   --blue-text-color: #b8e3fd;
   --card-title-background-color: #343434;
-  --contrast-text-color: var(--text-color-black);
+  --contrast-text-color: var(--black-text-color);
   --current-element-color: #365179;
   --default-text-color: white;
   --deleted-element-color: #856566;
@@ -488,6 +491,7 @@ body.dark-mode {
   --purple-text-color: #dbb4ff;
   --red-text-color: #f85252;
   --selected-element-color: #546481;
+  --search-background-color: #757055;
   --side-bar-color: #dedcdc;
   --slider-background-color: #8ab4f8;
   --slider-border-color: #e8f0fe;

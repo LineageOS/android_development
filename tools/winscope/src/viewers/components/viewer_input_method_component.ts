@@ -24,7 +24,6 @@ import {HierarchyComponent} from '@viewers/components/hierarchy_component';
 import {ImeAdditionalPropertiesComponent} from '@viewers/components/ime_additional_properties_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
-import {viewerCardStyle} from './styles/viewer_card.styles';
 
 @Component({
   selector: 'viewer-input-method',
@@ -37,17 +36,7 @@ import {viewerCardStyle} from './styles/viewer_card.styles';
     ImeAdditionalPropertiesComponent,
   ],
   templateUrl: './viewer_input_method_component.ng.html',
-  styles: [
-    `
-      .left-views {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-      }
-    `,
-    viewerCardStyle,
-  ],
+  styleUrls: ['./viewer_input_method_component.css'],
 })
 export class ViewerInputMethodComponent extends ViewerComponent<ImeUiData> {
   @Input() active = false;

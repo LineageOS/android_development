@@ -31,7 +31,6 @@ import {Camera} from './camera';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
 import {UiRect3D} from './ui_rect3d';
-import {Color} from '@app/colors';
 
 export function colorToCss(color: THREE.Color): string {
   return '#' + color.getHexString();
@@ -51,7 +50,7 @@ export class Canvas {
   static readonly RECT_EDGE_COLOR_LIGHT_MODE = 0x000000;
   static readonly RECT_EDGE_COLOR_DARK_MODE = 0xffffff;
   static readonly RECT_EDGE_COLOR_ROUNDED = 0x848884;
-  static readonly RECT_EDGE_COLOR_PINNED = new THREE.Color(0xffc24b); // Keep in sync with Color#PINNED_ITEM_BORDER
+  static readonly RECT_EDGE_COLOR_PINNED = new THREE.Color(0xffc24b); // Keep in sync with --pinned-item-border-color in material-theme.scss
   static readonly RECT_EDGE_COLOR_PINNED_ALT = new THREE.Color(0xb34a24);
   static readonly LABEL_LINE_COLOR = 0x808080;
   static readonly OPACITY_REGULAR = 0.75;
@@ -944,7 +943,7 @@ export class Canvas {
 
     div.style.marginTop = '5px';
     if (!label.isHighlighted) {
-      div.style.color = Color.TEXT_GRAY;
+      div.style.color = 'var(--neutral-gray-text-color)';
     }
     div.style.pointerEvents = 'auto';
     div.style.cursor = 'pointer';
@@ -993,7 +992,9 @@ export class Canvas {
       circle.material = lineMaterial;
       this.disposeMaterial(line);
       line.material = lineMaterial;
-      text.element.style.color = newLabel.isHighlighted ? '' : Color.TEXT_GRAY;
+      text.element.style.color = newLabel.isHighlighted
+        ? ''
+        : 'var(--neutral-gray-text-color)';
     }
 
     if (

@@ -199,9 +199,9 @@
   padding: 0;
 }
 
-:has(>.select-traces-panel) {
+:has(> .select-traces-panel) {
   max-height: unset !important;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   position: relative;
   bottom: 120px;
 }
@@ -227,7 +227,7 @@
 
 .no-video-message {
   padding: 1rem;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   width: 100%;
 }
 

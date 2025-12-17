@@ -27,7 +27,7 @@
   cursor: pointer;
 }
 
-.node + .node:not(.flattened)  .tree-node-border{
+.node + .node:not(.flattened) .tree-node-border {
   border-left: 1px solid var(--border-color);
 }
 

@@ -21,7 +21,6 @@ import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {LogComponent} from '@viewers/components/log_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
-import {viewerCardStyle} from '@viewers/components/styles/viewer_card.styles';
 import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
@@ -35,14 +34,7 @@ import {UiData} from './ui_data';
     PropertiesComponent,
   ],
   templateUrl: './viewer_transactions_component.ng.html',
-  styles: [
-    `
-      .properties-view {
-        flex: 1;
-      }
-    `,
-    viewerCardStyle,
-  ],
+  styleUrls: ['./viewer_transactions_component.css'],
 })
 export class ViewerTransactionsComponent extends ViewerComponent<UiData> {
   @ViewChild(LogComponent) logComponent?: LogComponent;

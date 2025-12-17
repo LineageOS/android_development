@@ -164,7 +164,7 @@ mat-card-content {
   align-items: center;
 }
 
-.progress-desc>* {
+.progress-desc > * {
   max-width: 250px;
 }
 

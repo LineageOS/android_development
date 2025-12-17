@@ -25,10 +25,6 @@ import {LogComponent} from '@viewers/components/log_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
-import {
-  viewerCardInnerStyle,
-  viewerCardStyle,
-} from '@viewers/components/styles/viewer_card.styles';
 import {ViewerComponent} from '@viewers/components/viewer_component';
 import {UiData} from './ui_data';
 
@@ -43,22 +39,7 @@ import {UiData} from './ui_data';
     PropertiesComponent,
   ],
   templateUrl: './viewer_input_component.ng.html',
-  styles: [
-    viewerCardStyle,
-    viewerCardInnerStyle,
-    `
-      .properties {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: auto;
-      }
-
-      .log-view:not(.collapsed) {
-        flex: 1;
-      }
-    `,
-  ],
+  styleUrls: ['./viewer_input_component.css'],
 })
 export class ViewerInputComponent extends ViewerComponent<UiData> {
   @ViewChild(LogComponent) logComponent?: LogComponent;
