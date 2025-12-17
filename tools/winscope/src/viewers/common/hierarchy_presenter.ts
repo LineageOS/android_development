@@ -15,7 +15,6 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Analytics} from '@logging/analytics';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
@@ -77,7 +76,6 @@ export class HierarchyPresenter {
   private previousTrees?: TraceAndTrees[] = [];
   private currentTrees?: TraceAndTrees[] = [];
   private selectedTree: SelectedTree | undefined;
-  private treeStore: InMemoryStorage | undefined;
 
   constructor(
     private userOptions: UserOptions,

@@ -78,8 +78,4 @@ export class RectFilter {
   updateRectShowState(id: string, newShowState: RectShowState) {
     this.forcedStates.set(this.convertToForcedStateKey(id), newShowState);
   }
-
-  clear() {
-    this.forcedStates.clear();
-  }
 }

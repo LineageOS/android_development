@@ -272,15 +272,10 @@ export class TracePipeline
     }
   }
 
-  clear() {
+  onDestroy() {
     this.traces.forEachTrace((trace) => {
       trace.onDestroy();
     });
-    this.loadedParsers.clear();
-    this.traces = new Traces();
-    this.timestampConverter.clear();
-    this.downloadArchiveFilename = undefined;
-    this.lostPerfettoPackets = 0;
   }
 
   private getLegacyTracesWithPerfettoConversion() {

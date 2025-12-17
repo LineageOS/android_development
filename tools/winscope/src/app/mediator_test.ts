@@ -399,8 +399,6 @@ describe('Mediator', () => {
     );
     await loadTraceView();
     const clearSpies = [
-      spyOn(tracePipeline, 'clear'),
-      spyOn(timelineData, 'clear'),
       ...viewers.map((v) => {
         return spyOn(v, 'onDestroy');
       }),

@@ -24,7 +24,7 @@ import {RectShowState} from './rect_show_state';
 import {UserOptions} from './user_options';
 
 export class RectsPresenter {
-  private readonly rectFilter: RectFilter;
+  private rectFilter: RectFilter;
   private allCurrentRects: UiRect[] = [];
   private rectsToDraw: UiRect[] = [];
   private displays: DisplayIdentifier[] = [];
@@ -88,7 +88,7 @@ export class RectsPresenter {
   updateRectShowStates(
     rectIdToShowState: Map<string, RectShowState> | undefined,
   ) {
-    this.rectFilter.clear();
+    this.rectFilter = new RectFilter(this.convertToKey);
     if (rectIdToShowState) {
       for (const [id, state] of rectIdToShowState.entries()) {
         this.rectFilter.updateRectShowState(id, state);
@@ -102,7 +102,7 @@ export class RectsPresenter {
     this.rectsToDraw = [];
     this.displays = [];
     this.rectIdToShowState = undefined;
-    this.rectFilter.clear();
+    this.rectFilter = new RectFilter(this.convertToKey);
   }
 
   private updateRectsToDrawAndRectIdToShowState() {
