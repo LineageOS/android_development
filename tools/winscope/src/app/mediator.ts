@@ -134,26 +134,23 @@ export class Mediator {
     storage: Store,
     private readonly logger: Logger = getLogger('Mediator'),
   ) {
-    this.tracePipeline = tracePipeline;
     this.timelineData = timelineData;
-    this.abtChromeExtensionProtocol = abtChromeExtensionProtocol;
-    this.crossToolProtocol = crossToolProtocol;
     this.appComponent = appComponent;
     this.storage = storage;
 
-    this.tracePipeline.setEmitEvent(async (event: WinscopeEvent) => {
-      await this.onWinscopeEvent(event);
-    });
+    this.tracePipeline = tracePipeline;
+    this.setEmitEvent(this.tracePipeline);
 
-    this.crossToolProtocol.setEmitEvent(async (event: WinscopeEvent) => {
-      await this.onWinscopeEvent(event);
-    });
+    this.crossToolProtocol = crossToolProtocol;
+    this.setEmitEvent(this.crossToolProtocol);
 
-    this.abtChromeExtensionProtocol.setEmitEvent(
-      async (event: WinscopeEvent) => {
-        await this.onWinscopeEvent(event);
-      },
-    );
+    this.abtChromeExtensionProtocol = abtChromeExtensionProtocol;
+    this.setEmitEvent(this.abtChromeExtensionProtocol);
+  }
+
+  setTracePipeline(value: TracePipeline) {
+    this.tracePipeline = value;
+    this.setEmitEvent(this.tracePipeline);
   }
 
   setUploadTracesComponent(
@@ -168,27 +165,27 @@ export class Mediator {
       | undefined,
   ) {
     this.collectTracesComponent = component;
-    this.collectTracesComponent?.setEmitEvent(async (event: WinscopeEvent) => {
-      await this.onWinscopeEvent(event);
-    });
+    if (this.collectTracesComponent) {
+      this.setEmitEvent(this.collectTracesComponent);
+    }
   }
 
   setTraceViewComponent(
     component: (WinscopeEventEmitter & WinscopeEventListener) | undefined,
   ) {
     this.traceViewComponent = component;
-    this.traceViewComponent?.setEmitEvent(async (event: WinscopeEvent) => {
-      await this.onWinscopeEvent(event);
-    });
+    if (this.traceViewComponent) {
+      this.setEmitEvent(this.traceViewComponent);
+    }
   }
 
   setTimelineComponent(
     component: (WinscopeEventEmitter & WinscopeEventListener) | undefined,
   ) {
     this.timelineComponent = component;
-    this.timelineComponent?.setEmitEvent(async (event: WinscopeEvent) => {
-      await this.onWinscopeEvent(event);
-    });
+    if (this.timelineComponent) {
+      this.setEmitEvent(this.timelineComponent);
+    }
   }
 
   private async onAppInitialized(event: WinscopeEvent) {
@@ -373,7 +370,7 @@ export class Mediator {
     const newSearchTrace = new TraceAddRequest(trace);
     await searchViewer?.onWinscopeEvent(newSearchTrace);
     if (trace.lengthEntries > 0 && !trace.isDumpWithoutTimestamp()) {
-      assertDefined(this.timelineData).getTraces().addTrace(trace);
+      this.timelineData.getTraces().addTrace(trace);
       await this.timelineComponent?.onWinscopeEvent(newSearchTrace);
     }
   }
@@ -748,11 +745,9 @@ export class Mediator {
       this.storage,
       this.tracePipeline.getTimestampConverter(),
     );
-    this.viewers.forEach((viewer) =>
-      viewer.setEmitEvent(async (event: WinscopeEvent) => {
-        await this.onWinscopeEvent(event);
-      }),
-    );
+    this.viewers.forEach((viewer) => {
+      this.setEmitEvent(viewer);
+    });
 
     // Set initial trace position as soon as UI is created
     const initialPosition = this.getInitialTracePosition();
@@ -896,16 +891,9 @@ export class Mediator {
   }
 
   private async resetAppToInitialState() {
-    this.tracePipeline.clear();
-    this.timelineData.clear();
     this.viewers.forEach((viewer) => {
       viewer.onDestroy();
     });
-    this.viewers = [];
-    this.areViewersLoaded = false;
-    this.lastRemoteToolDeferredTimestampReceived = undefined;
-    this.focusedTabView = undefined;
-    this.initialTimelineTabTraceType = undefined;
     await this.appComponent.onWinscopeEvent(new ViewersUnloaded());
   }
 
@@ -922,5 +910,11 @@ export class Mediator {
     return this.viewers.find(
       (viewer) => viewer.getTraces().at(0)?.type === type,
     );
+  }
+
+  private setEmitEvent(emitter: WinscopeEventEmitter) {
+    emitter.setEmitEvent(async (event: WinscopeEvent) => {
+      await this.onWinscopeEvent(event);
+    });
   }
 }

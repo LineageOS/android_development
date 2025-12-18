@@ -86,6 +86,7 @@ export class UploadTracesComponent
   @Output() filesUploaded = new EventEmitter<File[]>();
   @Output() viewTracesButtonClick = new EventEmitter<boolean>();
   @Output() downloadTracesClick = new EventEmitter<void>();
+  @Output() clearAllTraces = new EventEmitter<void>();
 
   private readonly discardLegacyStoreKey = 'discardLegacyTraces';
 
@@ -100,7 +101,7 @@ export class UploadTracesComponent
       this.discardLegacyTraces =
         storedValue === 'true' || storedValue === undefined;
     }
-    this.tracePipeline?.clear();
+    this.clearAllTraces.emit();
     this.clearAllWarnings();
   }
 
@@ -184,7 +185,7 @@ export class UploadTracesComponent
   }
 
   onClearButtonClick() {
-    this.tracePipeline?.clear();
+    this.clearAllTraces.emit();
     this.clearAllWarnings();
     this.onOperationFinished();
   }
@@ -215,6 +216,9 @@ export class UploadTracesComponent
     event.stopPropagation();
     this.tracePipeline?.removeTrace(trace);
     this.onOperationFinished();
+    if (this.tracePipeline?.getTraces().getSize() === 0) {
+      this.clearAllTraces.emit();
+    }
   }
 
   hasLoadedFilesWithViewers(): boolean {

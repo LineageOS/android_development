@@ -57,6 +57,8 @@ export class TimelineData {
   // cached trace entries to avoid TP and object creation latencies each time transition timeline is redrawn
   private transitionEntries: Array<HierarchyTreeNode | undefined> = [];
   private timestampConverter: ComponentTimestampConverter | undefined;
+  private isInitialized = false;
+
   constructor(private readonly logger: Logger = getLogger('TimelineData')) {}
 
   async initialize(
@@ -64,7 +66,10 @@ export class TimelineData {
     screenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined,
     timestampConverter: ComponentTimestampConverter,
   ) {
-    this.clear();
+    if (this.isInitialized) {
+      throw new Error('can only initialize TimelineData once');
+    }
+    this.isInitialized = true;
 
     this.timestampConverter = timestampConverter;
 
@@ -381,20 +386,6 @@ export class TimelineData {
     if (nextEntry !== undefined) {
       this.setPosition(TracePosition.fromTraceEntry(nextEntry));
     }
-  }
-
-  clear() {
-    this.traces = new Traces();
-    this.transitionEntries = [];
-    this.firstEntry = undefined;
-    this.lastEntry = undefined;
-    this.explicitlySetPosition = undefined;
-    this.explicitlySetSelection = undefined;
-    this.lastReturnedCurrentPosition = undefined;
-    this.currentScreenRecordingTrace = undefined;
-    this.lastReturnedFullTimeRange = undefined;
-    this.lastReturnedCurrentEntries.clear();
-    this.activeTrace = undefined;
   }
 
   private findFirstEntry(): TraceEntry<unknown> | undefined {

@@ -20,7 +20,7 @@ limitations under the License.
       <button mat-button class="button-drag draggable" cdkDragHandle>
         <mat-icon class="drag-icon">drag_indicator</mat-icon>
       </button>
-      @if (titles.length <= 1) {
+      @if (hasOneOrLessTitles()) {
       <span
         #titleText
         cdkDragHandle

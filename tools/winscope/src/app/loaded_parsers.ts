@@ -105,11 +105,6 @@ export class LoadedParsers {
     this.removeWithPredicate((fileAndParser) => predicate(fileAndParser));
   }
 
-  clear() {
-    this.legacyParsers = [];
-    this.perfettoParsers = [];
-  }
-
   async makeZipArchive(onProgressUpdate?: OnProgressUpdateType): Promise<Blob> {
     const outputFilesSoFar = new Set<File>();
     const outputFilenameToFiles = new Map<string, File[]>();

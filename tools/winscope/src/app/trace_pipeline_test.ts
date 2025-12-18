@@ -168,7 +168,7 @@ describe('TracePipeline', () => {
       new RegExp('SurfaceFlinger_'),
     );
 
-    tracePipeline.clear();
+    tracePipeline = new TracePipeline();
 
     await loadFiles([validSfFile, validWmFile], FilesSource.COLLECTED);
     await expectLoadResult(2, []);
@@ -346,8 +346,6 @@ describe('TracePipeline', () => {
     queryResultObj.numRows.and.returnValue(1);
     await loadFiles([perfettoFileProtolog]);
     expect(tracePipeline.lostPackets()).toBe(2);
-    tracePipeline.clear(); // resets lost packets on explicit clear call
-    expect(tracePipeline.lostPackets()).toBe(0);
   });
 
   it('is robust to mixed valid and invalid trace files', async () => {
@@ -491,16 +489,14 @@ describe('TracePipeline', () => {
     ]);
   });
 
-  it('can be cleared', async () => {
+  it('can be destroyed', async () => {
     await loadFiles([validSfFile, validWmFile]);
     await expectLoadResult(2, []);
-
     const spies = tracePipeline.getTraces().mapTrace((trace) => {
       return spyOn(trace, 'onDestroy');
     });
-    tracePipeline.clear();
+    tracePipeline.onDestroy();
     spies.forEach((spy) => expect(spy).toHaveBeenCalled());
-    expect(tracePipeline.getTraces().getSize()).toBe(0);
   });
 
   it('can filter traces without visualization', async () => {
@@ -593,7 +589,7 @@ describe('TracePipeline', () => {
     });
 
     it('robust to no available legacy-to-perfetto conversions', async () => {
-      tracePipeline.clear();
+      tracePipeline = new TracePipeline();
       await loadFiles([screenshotFile]);
       await tracePipeline.convertLegacyTracesToPerfetto();
       expect(convertSpy).not.toHaveBeenCalled();
@@ -661,7 +657,7 @@ describe('TracePipeline', () => {
     });
 
     it('discards constituent files of converted transitions trace', async () => {
-      tracePipeline.clear();
+      tracePipeline = new TracePipeline();
       await loadFiles([wmTransitionFile, shellTransitionFile]);
       await tracePipeline.convertLegacyTracesToPerfetto();
       await expectDownloadResult(['combined_winscope_trace.perfetto-trace']);
@@ -707,7 +703,7 @@ describe('TracePipeline', () => {
   }
 
   async function checkTraceIsNotDiscarded(file: File, type: TraceType) {
-    tracePipeline.clear();
+    tracePipeline = new TracePipeline();
     await loadFiles([file]);
     tracePipeline.discardLegacyTraces();
     const traces = tracePipeline.getTraces();

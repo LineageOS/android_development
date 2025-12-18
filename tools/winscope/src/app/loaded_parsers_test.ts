@@ -458,18 +458,6 @@ describe('LoadedParsers', () => {
     expectLoadResult([], []);
   });
 
-  it('can be cleared', async () => {
-    loadedParsers.clear();
-    loadParsers([parserSf0, parserWm0], []);
-    loadedParsers.clear();
-    expectLoadResult([], []);
-    await expectDownloadResult([]);
-
-    loadParsers([parserSf0, parserWm0], []);
-    expectLoadResult([parserSf0, parserWm0], []);
-    await expectDownloadResult(['sf/sf0.winscope', 'wm/wm0.winscope']);
-  });
-
   it('can make zip archive of traces with appropriate directories and extensions', async () => {
     const filename = 'filename';
     const fileDuplicated = new File([], filename);

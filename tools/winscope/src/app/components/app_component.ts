@@ -324,6 +324,12 @@ export class AppComponent implements WinscopeEventListener {
     this.mediator.setTimelineComponent(this.timelineComponent);
   }
 
+  onClearAllTraces() {
+    this.tracePipeline.onDestroy();
+    this.tracePipeline = new TracePipeline();
+    this.mediator.setTracePipeline(this.tracePipeline);
+  }
+
   onCollapsedTimelineSizeChanged(height: number) {
     this.collapsedTimelineHeight = height;
     this.changeDetectorRef.detectChanges();
@@ -433,6 +439,18 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   private async onViewersUnloaded(event: ViewersUnloaded) {
+    this.tracePipeline?.onDestroy();
+    this.tracePipeline = new TracePipeline();
+    this.timelineData = new TimelineData();
+    this.mediator = new Mediator(
+      this.tracePipeline,
+      this.timelineData,
+      this.abtChromeExtensionProtocol,
+      this.crossToolProtocol,
+      this,
+      new PersistentStore(),
+    );
+
     this.dataLoaded = false;
     this.showDataLoadedElements = false;
     this.pageTitle.setTitle('Winscope');

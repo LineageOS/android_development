@@ -51,8 +51,4 @@ export class UTCOffset {
     }
     this.valueNs = valueNs;
   }
-
-  clear() {
-    this.valueNs = undefined;
-  }
 }

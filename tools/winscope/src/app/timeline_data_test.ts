@@ -97,6 +97,13 @@ describe('TimelineData', () => {
     expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr2);
   });
 
+  it('can only be initialized once', async () => {
+    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    await expectAsync(
+      timelineData.initialize(traces, undefined, UTC_CONVERTER),
+    ).toBeRejected();
+  });
+
   describe('dumps', () => {
     const traces = new TracesBuilder()
       .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10, timestamp11])
@@ -213,60 +220,56 @@ describe('TimelineData', () => {
     expect(success).toBeFalse();
   });
 
-  it('hasTimestamps()', () => {
-    expect(timelineData.hasTimestamps()).toBeFalse();
-
-    // no trace
-    {
+  describe('hasTimestamps()', () => {
+    it('false for no traces', () => {
+      expect(timelineData.hasTimestamps()).toBeFalse();
       const traces = new TracesBuilder().build();
       timelineData.initialize(traces, undefined, UTC_CONVERTER);
       expect(timelineData.hasTimestamps()).toBeFalse();
-    }
-    // trace without timestamps
-    {
+    });
+
+    it('false for trace without timestamps', () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [])
         .build();
       timelineData.initialize(traces, undefined, UTC_CONVERTER);
       expect(timelineData.hasTimestamps()).toBeFalse();
-    }
-    // trace with timestamps
-    {
+    });
+
+    it('true for trace with timestamps', () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
         .build();
       timelineData.initialize(traces, undefined, UTC_CONVERTER);
       expect(timelineData.hasTimestamps()).toBeTrue();
-    }
+    });
   });
 
-  it('hasMoreThanOneDistinctTimestamp()', () => {
-    expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
-
-    // no trace
-    {
+  describe('hasMoreThanOneDistinctTimestamp()', () => {
+    it('false for no traces', () => {
+      expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
       const traces = new TracesBuilder().build();
       timelineData.initialize(traces, undefined, UTC_CONVERTER);
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
-    }
-    // no distinct timestamps
-    {
+    });
+
+    it('false for traces with single distinct timestamp', () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
         .setTimestamps(TraceType.WINDOW_MANAGER, [timestamp10])
         .build();
       timelineData.initialize(traces, undefined, UTC_CONVERTER);
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
-    }
-    // distinct timestamps
-    {
+    });
+
+    it('true for traces with multiple distinct timestamps', () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
         .setTimestamps(TraceType.WINDOW_MANAGER, [timestamp11])
         .build();
       timelineData.initialize(traces, undefined, UTC_CONVERTER);
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeTrue();
-    }
+    });
   });
 
   it('getCurrentPosition() returns same object if no change to range', () => {
