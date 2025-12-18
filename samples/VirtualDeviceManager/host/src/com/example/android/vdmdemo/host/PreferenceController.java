@@ -73,8 +73,7 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_cross_device_clipboard, VANILLA_ICE_CREAM)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
 
-            new BoolRule(R.string.pref_enable_custom_activity_policy, BAKLAVA,
-                    Flags::activityControlApi),
+            new BoolRule(R.string.pref_enable_custom_activity_policy, BAKLAVA),
 
             new StringRule(R.string.pref_camera_policy, VANILLA_ICE_CREAM)
                     .withDefaultValue(String.valueOf(0)),

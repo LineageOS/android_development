@@ -215,10 +215,6 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     and on whether the default display keyguard is currently locked. \
     *This can be changed dynamically.*
 
-    ```shell
-    adb shell aflags enable android.companion.virtual.flags.activity_control_api && adb reboot
-    ```
-
 -   **Enable client Sensors**: Enables sensor injection from the client device
     into the host device. Any context that is associated with the virtual device
     will access the virtual sensors by default. \
