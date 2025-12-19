@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {throwIfMagicNumberDoesNotMatch} from '@parsers/legacy/parsing_utils';
+import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import root from 'protos/viewcapture/udc/json';
 import {com} from 'protos/viewcapture/udc/static';
 import {TraceFile} from '@trace/trace_file';

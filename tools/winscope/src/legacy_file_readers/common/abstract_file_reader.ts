@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,33 +21,17 @@ import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {TraceFile} from '@trace/trace_file';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CustomQueryParamTypeMap,
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-} from '@trace_api/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
-import {Parser} from '@trace_api/parser';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {QueryResult, QueryResults} from '@trace_processor/query_result';
-import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
-export abstract class AbstractParser<
-  T extends object,
-  U extends object | bigint | number,
-> implements Parser<T> {
+import {LegacyFileReader} from './legacy_file_reader';
+
+export abstract class AbstractFileReader<T> implements LegacyFileReader {
   private timestamps: Timestamp[] | undefined;
   protected traceFile: TraceFile;
-  protected decodedEntries: U[] = [];
+  protected decodedEntries: T[] = [];
   protected timestampConverter: ParserTimestampConverter;
   protected readonly metadata: TraceMetadata | undefined;
-
-  protected abstract getMagicNumber(): undefined | number[];
-  protected abstract decodeTrace(trace: Uint8Array): U[] | Promise<U[]>;
-  protected abstract getTimestamp(decodedEntry: U): Timestamp;
 
   constructor(
     trace: TraceFile,
@@ -60,14 +44,14 @@ export abstract class AbstractParser<
     this.metadata = metadata;
   }
 
-  isPerfetto(): boolean {
-    return false;
-  }
-
-  async parse() {
+  async read() {
     const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
     throwIfMagicNumberDoesNotMatch(traceBuffer, this.getMagicNumber());
     this.decodedEntries = await this.decodeTrace(traceBuffer);
+  }
+
+  getFiles(): TraceFile[] {
+    return [this.traceFile];
   }
 
   getDescriptors(): string[] {
@@ -78,21 +62,6 @@ export abstract class AbstractParser<
     return this.decodedEntries.length;
   }
 
-  getAllEntries(): Promise<T[]> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  getQueryResults(
-    entriesRange: EntriesRange,
-    queryRawData: boolean,
-  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
   createTimestamps() {
     this.timestamps = this.decodeTimestamps();
   }
@@ -101,23 +70,7 @@ export abstract class AbstractParser<
     return this.timestamps;
   }
 
-  getCoarseVersion(): CoarseVersion {
-    return CoarseVersion.LEGACY;
-  }
-
-  getEntry(index: AbsoluteEntryIndex): Promise<T> {
-    return this.processDecodedEntry(index, this.decodedEntries[index]);
-  }
-
-  customQuery<Q extends CustomQueryType>(
-    type: Q,
-    entriesRange: EntriesRange,
-    param?: CustomQueryParamTypeMap[Q],
-  ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  canConvertToPerfetto(): boolean {
+  isPerfetto(): boolean {
     return false;
   }
 
@@ -129,25 +82,15 @@ export abstract class AbstractParser<
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  async getRectsMap(): Promise<RectsForTrace | undefined> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  protected async processDecodedEntry(
-    index: number,
-    decodedEntry: U,
-  ): Promise<T> {
-    // Legacy parsers that implement convertToPerfettoPackets should not
-    // parser and provide individual trace entries, as they should be
-    // converted to perfetto using LegacyToPerfettoConverter
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
   private decodeTimestamps(): Timestamp[] {
     return this.decodedEntries.map((entry) => this.getTimestamp(entry));
   }
 
-  abstract getTraceType(): TraceType;
   abstract getRealToBootTimeOffsetNs(): bigint | undefined;
   abstract getRealToMonotonicTimeOffsetNs(): bigint | undefined;
+  abstract getTraceType(): TraceType;
+
+  protected abstract getMagicNumber(): undefined | number[];
+  protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
+  protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }
