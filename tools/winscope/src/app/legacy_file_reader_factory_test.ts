@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
 import {getFixtureFile} from '@test/unit/io_helpers';
 import {
   timestampEqualityTester,
   UTC_CONVERTER,
 } from '@test/unit/time_test_helpers';
 import {TraceFile} from '@trace/trace_file';
-import {ParserFactory} from './parser_factory';
 
-describe('Parser', () => {
+describe('LegacyFileReaderFactory', () => {
   beforeAll(() => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
   });
@@ -41,12 +41,11 @@ describe('Parser', () => {
 
     async function checkRobustToFile(file: string, unsupported = false) {
       const trace = new TraceFile(await getFixtureFile(file), undefined);
-      const processed = await new ParserFactory().processFiles(
+      const processed = await new LegacyFileReaderFactory().processFiles(
         [trace],
         UTC_CONVERTER,
-        {},
       );
-      expect(processed.parsers.length).toBe(0);
+      expect(processed.supportedFiles.length).toBe(0);
       expect(processed.unsupportedFiles).toEqual(unsupported ? [trace] : []);
     }
   });
