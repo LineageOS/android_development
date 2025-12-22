@@ -253,26 +253,32 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(url => {
       if (url) {
-        this.resetVariables();
-        this.testMode = TestModes.CODESEARCH;
-        this.showLoaderBar();
-        this.goldenService.fetchCodeSearchGoldens(url)
-          .pipe(finalize(() => this.hideLoaderBar()))
-          .subscribe({
-            next: (goldens) => {
-              console.log('AppComponent: Fetched CodeSearch goldens:', goldens);
-              this.goldens = goldens;
-              if (this.goldens.length > 0) {
-                this.setSelectedGolden(this.goldens[0]);
-              }
-            },
-            error: (err) => {
-              console.error('AppComponent: Error fetching CodeSearch goldens:', err);
-              this.snackBar.open('Error fetching CodeSearch goldens', 'Dismiss', { duration: 3000 });
-            }
-          });
+        this.processCodesearchUrl(url);
       }
     });
+  }
+
+  private processCodesearchUrl(url: any) {
+    this.testMode = TestModes.CODESEARCH
+    this.resetVariables();
+    console.log("showing loader")
+    this.showLoaderBar();
+    this.goldenService.fetchCodeSearchGoldens(url)
+      .pipe(finalize(() => this.hideLoaderBar()))
+      .subscribe({
+        next: (goldens) => {
+          console.log('AppComponent: Fetched CodeSearch goldens:', goldens);
+          this.goldens = goldens;
+          if (this.goldens.length > 0) {
+            this.setSelectedGolden(this.goldens[0]);
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('AppComponent: Error fetching CodeSearch goldens:', err);
+          this.snackBar.open('Error fetching CodeSearch goldens', 'Dismiss', { duration: 3000 });
+        }
+      });
   }
 
   openUserJsonDialog(): void {
@@ -376,34 +382,50 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.addGerritMainChangelistDataListener();
+    this.subscribeToErrorService();
+    this.checkCodesearchLink()
+    this.checkGerritLinks()
+    this.goldenService.getTestModes().subscribe((modes) => {
+      this.testModes = this.testModes.concat(modes)
+      if (this.testModes.length > 0 && this.testModes[0]
+        && this.testModes[0] !== TestModes.GERRIT && this.testMode !== TestModes.CODESEARCH) { //set First TestMode As Default Mode
+        // if it is not Gerrit or CS
+        this.switchMode(this.testModes[0])
+      }
+      console.log(this.testModes)
+    })
+  }
+
+  private checkCodesearchLink() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const csLink = searchParams.get('csLink') ?? ""
+    if (csLink) {
+      this.processCodesearchUrl(csLink)
+    }
+  }
+
+  private checkGerritLinks() {
     const searchParams = new URLSearchParams(window.location.search);
     const leftLink = searchParams.get('leftLink') ?? ""
     const rightLink = searchParams.get('rightLink') ?? ""
-
-    this.errorSubscription = this.errorService.error$.subscribe(error => {
-      const config: any = {
-        horizontalPosition: 'left',
-        verticalPosition: 'bottom',
-      }
-      if (error.displayDuration != null) {
-        config.duration = error.displayDuration
-      }
-      this.snackBar.open(error.message, undefined, config);
-    });
-
     if (leftLink || rightLink) {
       this.fetchGerritData(leftLink, rightLink)
     } else {
       console.log("GERRIT: left and right is null")
     }
-    this.goldenService.getTestModes().subscribe((modes) => {
-      this.testModes = this.testModes.concat(modes)
-      if (this.testModes.length > 0 && this.testModes[0]
-        && this.testModes[0] !== TestModes.GERRIT) { //set First TestMode As Default Mode
-        this.switchMode(this.testModes[0])
+  }
+
+  private subscribeToErrorService() {
+    this.errorSubscription = this.errorService.error$.subscribe(error => {
+      const config: any = {
+        horizontalPosition: 'left',
+        verticalPosition: 'bottom',
+      };
+      if (error.displayDuration != null) {
+        config.duration = error.displayDuration;
       }
-      console.log(this.testModes)
-    })
+      this.snackBar.open(error.message, undefined, config);
+    });
   }
 
   onVerticalMouseDown(event: MouseEvent) {
