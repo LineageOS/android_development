@@ -446,12 +446,12 @@ def CallObjdumpForSet(lib, unique_addrs):
   #   000177b0 <android::IBinder::~IBinder()+0x2c>:
   # We pull out the address and function first. Then we check for an optional
   # offset. This is tricky due to functions that look like "operator+(..)+0x2c"
-  func_regexp = re.compile("(^[a-f0-9]*) \<(.*)\>:$")
-  offset_regexp = re.compile("(.*)\+0x([a-f0-9]*)")
+  func_regexp = re.compile(r"(^[a-f0-9]*) \<(.*)\>:$")
+  offset_regexp = re.compile(r"(.*)\+0x([a-f0-9]*)")
 
   # A disassembly line looks like:
   #   177b2:	b510      	push	{r4, lr}
-  asm_regexp = re.compile("(^[ a-f0-9]*):[ a-f0-0]*.*$")
+  asm_regexp = re.compile(r"(^[ a-f0-9]*):[ a-f0-0]*.*$")
 
   current_symbol = None    # The current function symbol in the disassembly.
   current_symbol_addr = 0  # The address of the current function.
@@ -571,8 +571,8 @@ def FormatSymbolWithoutParameters(symbol):
 def SetBitness(lines):
   global ARCH_IS_32BIT
 
-  trace_line = re.compile("\#[0-9]+[ \t]+..[ \t]+([0-9a-f]{8}|[0-9a-f]{16})([ \t]+|$)")
-  asan_trace_line = re.compile("\#[0-9]+[ \t]+0x([0-9a-f]+)[ \t]+")
+  trace_line = re.compile(r"\#[0-9]+[ \t]+..[ \t]+([0-9a-f]{8}|[0-9a-f]{16})([ \t]+|$)")
+  asan_trace_line = re.compile(r"\#[0-9]+[ \t]+0x([0-9a-f]+)[ \t]+")
 
   ARCH_IS_32BIT = False
   for line in lines:
