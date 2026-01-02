@@ -48,6 +48,7 @@ import {TreeNodeComponent} from '@viewers/components/tree_node_component';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
 import {TreeComponent} from './tree_component';
+import {UiTreeNode} from '@viewers/common/ui_tree_node';
 
 @Component({
   selector: 'hierarchy-view',
@@ -112,7 +113,7 @@ export class HierarchyComponent {
     });
   }
 
-  onPinnedNodeClick(event: MouseEvent, pinnedItem: UiHierarchyTreeNode) {
+  onPinnedNodeClick(event: MouseEvent, pinnedItem: UiTreeNode) {
     event.preventDefault();
     if (window.getSelection()?.type === 'range') {
       return;
@@ -128,10 +129,10 @@ export class HierarchyComponent {
     this.elementRef.nativeElement.dispatchEvent(event);
   }
 
-  onHighlightedItemChange(node: UiHierarchyTreeNode) {
+  onHighlightedItemChange(node: UiTreeNode) {
     const event = new CustomEvent(ViewerEvents.HighlightedNodeChange, {
       bubbles: true,
-      detail: {node},
+      detail: {node: node as UiHierarchyTreeNode},
     });
     this.elementRef.nativeElement.dispatchEvent(event);
   }
@@ -139,7 +140,7 @@ export class HierarchyComponent {
   onPinnedItemChange(item: UiHierarchyTreeNode) {
     const event = new CustomEvent(ViewerEvents.HierarchyPinnedChange, {
       bubbles: true,
-      detail: {pinnedItem: item},
+      detail: {pinnedItem: item as UiHierarchyTreeNode},
     });
     this.elementRef.nativeElement.dispatchEvent(event);
   }

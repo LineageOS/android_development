@@ -30,8 +30,8 @@ limitations under the License.
     [entries]="inputData?.entries ?? []"
     [headers]="inputData?.headers ?? []"
     [traceType]="TraceType.TRANSACTIONS"
-    [isFetchingData]="inputData?.isFetchingData"
-    [checkScrollViewport]="inputData?.checkScrollViewport"
+    [isFetchingData]="inputData?.isFetchingData ?? false"
+    [checkScrollViewport]="inputData?.checkScrollViewport ?? false"
   >
   </log-view>
 
@@ -42,7 +42,6 @@ limitations under the License.
     [nodeRows]="inputData?.propertyNodes"
     [traceType]="TraceType.TRANSACTIONS"
     [isProtoDump]="false"
-    [textFilter]="inputData?.propertiesFilter"
     placeholderText="No current or selected transaction with additional properties."
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"

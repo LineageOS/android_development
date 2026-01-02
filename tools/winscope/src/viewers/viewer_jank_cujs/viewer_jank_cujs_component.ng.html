@@ -25,8 +25,8 @@ limitations under the License.
     [traceType]="TraceType.CUJS"
     [showTraceEntryTimes]="false"
     [showCurrentTimeButton]="false"
-    [isFetchingData]="inputData?.isFetchingData"
-    [checkScrollViewport]="inputData?.checkScrollViewport"
+    [isFetchingData]="inputData?.isFetchingData ?? false"
+    [checkScrollViewport]="inputData?.checkScrollViewport ?? false"
   >
   </log-view>
 </div>

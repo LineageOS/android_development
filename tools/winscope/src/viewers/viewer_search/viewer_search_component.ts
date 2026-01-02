@@ -132,7 +132,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   private runFromOptions = false;
   private editFromOptions = false;
   private globalSearchTitleHeight = 48;
-  private checkScrollViewport = -1;
+  checkScrollViewport = -1;
 
   private readonly editOption: ListItemOption = {
     name: 'Edit',

@@ -76,7 +76,7 @@ limitations under the License.
     >
       {{header.spec.name}}
     </div>
-    } @else if (hasFilter && !showFiltersInTitle) {
+    } @else if (hasFilter) {
     <div class="filter mat-body-2" [class]="header.spec.cssClass">
       @if (isLogSelectFilter(header.filter!)) {
       <select-with-filter

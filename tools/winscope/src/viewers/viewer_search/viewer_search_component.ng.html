@@ -59,7 +59,7 @@ limitations under the License.
             [isSearchInitialized]="inputData.initialized"
             [executedQuery]="getExecutedQueryForSearchSection(section.uid)"
             [saveQueryField]="saveQueryField"
-            [lastTraceFailed]="inputData.lastTraceFailed ?? false"
+            [lastTraceFailed]="inputData.lastTraceFailed"
             [canAdd]="i === searchSections.length - 1"
             [label]="getQueryLabel(section.uid)"
             [saveQueryNameControl]="section.saveQueryNameControl"
