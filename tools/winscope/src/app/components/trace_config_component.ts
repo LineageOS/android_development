@@ -44,6 +44,7 @@ import {globalConfig} from '@common/global_config';
 import {Store} from '@common/store/store';
 import {
   AdvancedConfiguration,
+  CheckboxConfiguration,
   SelectionConfiguration,
   SelectionOption,
   TraceConfigurationMap,
@@ -233,6 +234,18 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
 
   isMultipleSelect(config: SelectionConfiguration): boolean {
     return Array.isArray(config.value);
+  }
+
+  asSelectionConfiguration(
+    config: AdvancedConfiguration,
+  ): SelectionConfiguration {
+    return config as SelectionConfiguration;
+  }
+
+  asCheckboxConfiguration(
+    config: AdvancedConfiguration,
+  ): CheckboxConfiguration {
+    return config as CheckboxConfiguration;
   }
 
   protected override onKeydownCtrlA(

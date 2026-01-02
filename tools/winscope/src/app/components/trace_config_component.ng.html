@@ -63,8 +63,8 @@ limitations under the License.
             <mat-checkbox
               color="primary"
               class="enable-config"
-              [disabled]="checkboxConfig.disabled"
-              [(ngModel)]="checkboxConfig.enabled"
+              [disabled]="asCheckboxConfiguration(checkboxConfig).disabled ?? false"
+              [(ngModel)]="asCheckboxConfiguration(checkboxConfig).enabled"
               (ngModelChange)="onTraceConfigChange()"
               >{{ checkboxConfig.name }}</mat-checkbox
             >
@@ -78,62 +78,67 @@ limitations under the License.
             <mat-form-field
               class="config-selection"
               subscriptSizing="dynamic"
-              [class.wide-field]="selectionConfig.wideField"
+              [class.wide-field]="asSelectionConfiguration(selectionConfig).wideField"
               appearance="fill"
             >
               <mat-label>{{ selectionConfig.name }}</mat-label>
 
               <mat-select
                 #matSelect
-                [multiple]="isMultipleSelect(selectionConfig)"
+                [multiple]="isMultipleSelect(asSelectionConfiguration(selectionConfig))"
                 disableOptionCentering
                 class="selected-value"
                 [attr.label]="advancedSettingsKey + selectionConfig.name"
-                [value]="selectionConfig.value"
-                [disabled]="selectionConfig.options.length === 0"
-                (opened)="handleSelectOpened(matSelect, selectionConfig)"
-                (selectionChange)="onSelectChange($event, selectionConfig)"
+                [value]="asSelectionConfiguration(selectionConfig).value"
+                [disabled]="asSelectionConfiguration(selectionConfig).options.length === 0"
+                (opened)="handleSelectOpened(matSelect, asSelectionConfiguration(selectionConfig))"
+                (selectionChange)="onSelectChange($event, asSelectionConfiguration(selectionConfig))"
               >
                 <mat-select-trigger>{{ getSelectTriggerValue(matSelect) }}</mat-select-trigger>
 
-                @if (selectionConfig.filterString !== undefined) {
+                @if (asSelectionConfiguration(selectionConfig).filterString !== undefined) {
                 <mat-form-field
                   class="select-config-filter mat-form-field-appearance-none"
                   subscriptSizing="dynamic"
                 >
                   <mat-label>Filter options</mat-label>
-                  <input matInput [(ngModel)]="selectionConfig.filterString" />
+                  <input
+                    matInput
+                    [(ngModel)]="asSelectionConfiguration(selectionConfig).filterString"
+                  />
                 </mat-form-field>
-                } @if (matSelect.multiple || selectionConfig.optional) {
+                } @if (matSelect.multiple || asSelectionConfiguration(selectionConfig).optional) {
                 <span class="mat-mdc-option">
                   @if (matSelect.multiple) {
                   <button
                     mat-flat-button
                     class="user-option"
-                    [color]="matSelect.value.length === selectionConfig.options.length ? 'primary' : undefined"
-                    [class.not-enabled]="matSelect.value.length !== selectionConfig.options.length"
-                    (click)="onAllButtonClick(matSelect, selectionConfig)"
+                    [color]="matSelect.value.length === asSelectionConfiguration(selectionConfig).options.length ? 'primary' : undefined"
+                    [class.not-enabled]="matSelect.value.length !== asSelectionConfiguration(selectionConfig).options.length"
+                    (click)="onAllButtonClick(matSelect, asSelectionConfiguration(selectionConfig))"
                   >
                     All
                   </button>
-                  } @if (selectionConfig.optional && !matSelect.multiple) {
+                  } @if (asSelectionConfiguration(selectionConfig).optional && !matSelect.multiple)
+                  {
                   <button
                     mat-flat-button
                     class="user-option"
                     [color]="matSelect.value.length === 0 ? 'primary' : undefined"
                     [class.not-enabled]="matSelect.value.length > 0"
-                    (click)="onNoneButtonClick(matSelect, selectionConfig)"
+                    (click)="onNoneButtonClick(matSelect, asSelectionConfiguration(selectionConfig))"
                   >
                     None
                   </button>
                   }
                 </span>
-                } @for (option of selectionConfig.options; track option; let i = $index) {
+                } @for (option of asSelectionConfiguration(selectionConfig).options; track option;
+                let i = $index) {
                 <mat-option
                   #matOption
                   class="option"
-                  [class.hidden-option]="hideOption(option.value, selectionConfig.filterString ?? '')"
-                  (click)="onOptionClick($event, matSelect, matOption, i, selectionConfig)"
+                  [class.hidden-option]="hideOption(option.value, asSelectionConfiguration(selectionConfig).filterString ?? '')"
+                  (click)="onOptionClick($event, matSelect, matOption, i, asSelectionConfiguration(selectionConfig))"
                   [value]="option.value"
                   matTooltipPosition="right"
                   [matTooltip]="option.value"
@@ -147,7 +152,7 @@ limitations under the License.
                     <button
                       mat-flat-button
                       class="user-option"
-                      [disabled]="!selectionConfig.value.includes(option.value)"
+                      [disabled]="!asSelectionConfiguration(selectionConfig).value.includes(option.value)"
                       [color]="option.chip.enabled ? 'primary' : undefined"
                       [class.not-enabled]="!option.chip.enabled"
                       (click)="onChipClick($event, option)"

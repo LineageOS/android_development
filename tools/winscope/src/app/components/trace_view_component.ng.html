@@ -28,7 +28,7 @@ limitations under the License.
         [matTooltipShowDelay]="300"
         [matTooltipDisabled]="!tab.isTooltipStable"
         (click)="onTabClick(tab)"
-        (focus)="$event.target.blur()"
+        (focus)="$any($event.target).blur()"
         (mouseenter)="onTabHover($event, tab)"
         [class.last]="isLast"
         class="tab text-no-overflow"

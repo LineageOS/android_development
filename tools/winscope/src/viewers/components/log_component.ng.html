@@ -78,7 +78,7 @@ limitations under the License.
     </div>
     } @else if (hasFilter && !showFiltersInTitle) {
     <div class="filter mat-body-2" [class]="header.spec.cssClass">
-      @if ((header.filter.options?.length ?? 0) > 0) {
+      @if (isLogSelectFilter(header.filter!)) {
       <select-with-filter
         [title]="header.spec.name"
         [options]="header.filter.options"
@@ -89,7 +89,7 @@ limitations under the License.
         (selectChange)="onFilterChange($event, header)"
       >
       </select-with-filter>
-      } @if (header.filter.textFilter) {
+      } @if (isLogTextFilter(header.filter!)) {
       <search-box
         [textFilter]="header.filter.textFilter"
         [label]="header.spec.name"

@@ -15,13 +15,16 @@
  */
 
 import {Directive, Input} from '@angular/core';
-import {MatFormField} from '@angular/material/form-field';
+import {
+  MatFormField,
+  MatFormFieldAppearance,
+} from '@angular/material/form-field';
 import {isElementOverflowing} from '@common/dom';
 
 @Directive()
 export abstract class AbstractFormFieldComponent {
   @Input() label = 'Search';
-  @Input() appearance = '';
+  @Input() appearance: MatFormFieldAppearance = 'fill';
   @Input() formFieldClass = '';
 
   disableFormFieldTooltip(formField: MatFormField) {

@@ -235,11 +235,11 @@ limitations under the License.
   <div class="group ime-container">
     @if (additionalProperties.sf.properties.imeContainer; as imeContainer) {
     <button
-      [color]="getButtonColor(imeContainer)"
+      [color]="getButtonColor($any(imeContainer))"
       mat-button
       class="group-header ime-container-button"
       [class]="{selected: isHighlighted(imeContainer)}"
-      (click)="onClickShowInPropertiesPanelSf(imeContainer)"
+      (click)="onClickShowInPropertiesPanelSf($any(imeContainer))"
     >
       Ime Container
     </button>
@@ -258,13 +258,13 @@ limitations under the License.
   <div class="group input-method-surface">
     @if (additionalProperties.sf.properties.inputMethodSurface; as inputMethodSurface) {
     <button
-      [color]="getButtonColor(inputMethodSurface)"
+      [color]="getButtonColor($any(inputMethodSurface))"
       mat-button
       class="group-header input-method-surface-button"
       [class]="{
                   selected: isHighlighted(inputMethodSurface)
                 }"
-      (click)="onClickShowInPropertiesPanelSf(inputMethodSurface)"
+      (click)="onClickShowInPropertiesPanelSf($any(inputMethodSurface))"
     >
       Input Method Surface
     </button>
