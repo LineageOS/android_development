@@ -42,11 +42,11 @@ limitations under the License.
 
     <ng-template
       cdkConnectedOverlay
-      [cdkConnectedOverlayOrigin]="advancedSettingsTrigger"
+      [cdkConnectedOverlayOrigin]="advancedSettingsTrigger!"
       [cdkConnectedOverlayOpen]="traceKey === advancedSettingsKey"
       [cdkConnectedOverlayHasBackdrop]="true"
       cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-      (backdropClick)="onSettingsOverlayTriggerClick(traceKey, advancedSettingsTrigger)"
+      (backdropClick)="onSettingsOverlayTriggerClick(traceKey)"
     >
       @if (advancedSettingsKey) {
       <div class="config-section overlay-panel">

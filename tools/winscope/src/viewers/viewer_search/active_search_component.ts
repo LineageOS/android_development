@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {CommonModule, NgTemplateOutlet} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -22,6 +22,7 @@ import {
   Inject,
   Input,
   Output,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -55,7 +56,7 @@ export class ActiveSearchComponent {
   @Input() isSearchInitialized = false;
   @Input() lastTraceFailed = false;
   @Input() executedQuery: string | undefined;
-  @Input() saveQueryField: NgTemplateOutlet | undefined;
+  @Input() saveQueryField: TemplateRef<any> | undefined;
   @Input() label: string | undefined;
   @Input() lastQueryExecutionTime: string | undefined;
   @Input() saveQueryNameControl: FormControl | undefined;
