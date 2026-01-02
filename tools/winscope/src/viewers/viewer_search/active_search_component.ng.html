@@ -72,7 +72,7 @@ limitations under the License.
   </span>
   @if (!lastTraceFailed) {
   <ng-container
-    [ngTemplateOutlet]="saveQueryField"
+    [ngTemplateOutlet]="saveQueryField ?? null"
     [ngTemplateOutletContext]="{query: executedQuery, control: saveQueryNameControl}"
   ></ng-container>
   }

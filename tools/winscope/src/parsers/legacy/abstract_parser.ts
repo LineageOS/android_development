@@ -39,8 +39,7 @@ import {throwIfMagicNumberDoesNotMatch} from './parsing_utils';
 export abstract class AbstractParser<
   T extends object,
   U extends object | bigint | number,
-> implements Parser<T>
-{
+> implements Parser<T> {
   private timestamps: Timestamp[] | undefined;
   protected traceFile: TraceFile;
   protected decodedEntries: U[] = [];

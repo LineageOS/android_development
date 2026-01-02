@@ -21,7 +21,7 @@ limitations under the License.
 </div>
 }
 <div [class.disabled-component]="isDisabled">
-  @if (timelineData.hasMoreThanOneDistinctTimestamp()) {
+  @if (timelineData?.hasMoreThanOneDistinctTimestamp()) {
   <div id="toggle">
     <button
       mat-icon-button
@@ -39,7 +39,7 @@ limitations under the License.
   </div>
   } @if (expanded) {
   <div id="expanded-nav">
-    @let screenRecording = timelineData.getCurrentScreenRecordingTrace(); @if (screenRecording !==
+    @let screenRecording = timelineData?.getCurrentScreenRecordingTrace(); @if (screenRecording !==
     undefined) {
     <div id="video-content">
       @if (frameCanvasEntry !== undefined) {
@@ -85,7 +85,7 @@ limitations under the License.
   </div>
   <div class="navbar-wrapper" #navbarWrapper>
     <div class="navbar" #collapsedTimeline>
-      @if (timelineData.hasTimestamps()) {
+      @if (timelineData?.hasTimestamps()) {
       <div id="time-selector" class="small-icon-container">
         <form [formGroup]="timestampForm" class="time-selector-form">
           <mat-form-field
@@ -147,9 +147,9 @@ limitations under the License.
             <div class="field-suffix" matTextSuffix>
               <button
                 mat-icon-button
-                [matTooltip]="getCopyPositionTooltip(selectedNsFormControl.value)"
+                [matTooltip]="getCopyPositionTooltip(selectedNsFormControl.value ?? '')"
                 matTooltipClass="multline-tooltip"
-                [cdkCopyToClipboard]="selectedNsFormControl.value"
+                [cdkCopyToClipboard]="selectedNsFormControl.value ?? ''"
                 (cdkCopyToClipboardCopied)="onTimeCopied('ns')"
                 matIconSuffix
               >
@@ -254,7 +254,7 @@ limitations under the License.
           </mat-select>
         </mat-form-field>
       </div>
-      @if (timelineData.hasMoreThanOneDistinctTimestamp()) {
+      @if (timelineData?.hasMoreThanOneDistinctTimestamp()) {
       <mini-timeline
         [timelineData]="timelineData"
         [currentTracePosition]="getCurrentTracePosition()"
@@ -273,10 +273,10 @@ limitations under the License.
         id="mini-timeline"
         #miniTimeline
       ></mini-timeline>
-      } } @if (!timelineData.hasMoreThanOneDistinctTimestamp()) {
+      } } @if (!timelineData?.hasMoreThanOneDistinctTimestamp()) {
       <div class="no-timeline-msg">
         <p class="mat-body-2">No timeline to show!</p>
-        @if (timelineData.hasTimestamps()) {
+        @if (timelineData?.hasTimestamps()) {
         <p class="mat-body-1">Only a single timestamp has been recorded.</p>
         } @else {
         <p class="mat-body-1">All loaded traces contain no timestamps.</p>

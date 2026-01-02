@@ -17,7 +17,7 @@ limitations under the License.
 <mat-card class="upload-card">
   <mat-card-header class="card-header">
     <mat-card-title class="title">Upload Traces</mat-card-title>
-    @if (!isLoadingFiles && tracePipeline.getTraces().getSize() > 0) {
+    @if (!isLoadingFiles && (tracePipeline?.getTraces()?.getSize() ?? 0) > 0) {
     <div class="trace-actions-container">
       <div class="trace-action-buttons trace-action-buttons-top">
         <button
@@ -115,9 +115,9 @@ limitations under the License.
       @if (isLoadingFiles) {
       <load-progress [progressPercentage]="progressPercentage" [message]="progressMessage">
       </load-progress>
-      } @if (!isLoadingFiles && tracePipeline.getTraces().getSize() > 0) {
+      } @if (!isLoadingFiles && (tracePipeline?.getTraces()?.getSize() ?? 0) > 0) {
       <mat-list class="uploaded-files">
-        @for (trace of tracePipeline.getTraces(); track trace) {
+        @for (trace of tracePipeline?.getTraces(); track trace) {
         <mat-list-item
           [class.no-visualization]="!canVisualizeTrace(trace)"
           [class.trace-error]="trace.isCorrupted()"
@@ -160,7 +160,7 @@ limitations under the License.
         </mat-list-item>
         }
       </mat-list>
-      } @if (!isLoadingFiles && tracePipeline.getTraces().getSize() === 0) {
+      } @if (!isLoadingFiles && tracePipeline?.getTraces()?.getSize() === 0) {
       <div class="drop-info">
         <p class="icon">
           <mat-icon inline fontIcon="upload"></mat-icon>

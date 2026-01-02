@@ -16,6 +16,7 @@ limitations under the License.
 
 <h3 class="mat-subtitle-1">{{title}}</h3>
 
+@if (traceConfig) {
 <div class="checkboxes" [style.height]="getTraceCheckboxContainerHeight()">
   @for (traceKey of getSortedTraceKeys(); track traceKey) {
   <mat-checkbox
@@ -47,6 +48,7 @@ limitations under the License.
       cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
       (backdropClick)="onSettingsOverlayTriggerClick(traceKey, advancedSettingsTrigger)"
     >
+      @if (advancedSettingsKey) {
       <div class="config-section overlay-panel">
         <h3 class="mat-subtitle-1 config-title">
           {{ traceConfig[advancedSettingsKey].name }} configuration
@@ -167,7 +169,9 @@ limitations under the License.
           }
         </div>
       </div>
+      }
     </ng-template>
   </mat-checkbox>
   }
 </div>
+}
