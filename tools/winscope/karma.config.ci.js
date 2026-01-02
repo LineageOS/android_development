@@ -27,8 +27,9 @@ const configCi = (config) => {
       'karma-coverage-istanbul-reporter',
       'karma-jasmine',
       'karma-sourcemap-loader',
+      'karma-spec-reporter',
     ],
-    reporters: ['progress', 'coverage-istanbul'],
+    reporters: ['progress', 'coverage-istanbul', 'spec'],
     coverageIstanbulReporter: {
       // reports can be any that are listed here: https://github.com/istanbuljs/istanbuljs/tree/73c25ce79f91010d1ff073aa6ff3fd01114f90db/packages/istanbul-reports/lib
       reports: ['html', 'lcovonly', 'text-summary'],
@@ -70,6 +71,22 @@ const configCi = (config) => {
           functions: 50,
         },
       },
+    },
+    specReporter: {
+      maxLogLines: 5,             // limit number of lines logged per test
+      suppressSummary: true,      // do not print summary
+      suppressErrorSummary: true, // do not print error summary
+      suppressFailed: false,      // do not print information about failed tests
+      suppressPassed: false,      // do not print information about passed tests
+      suppressSkipped: true,      // do not print information about skipped tests
+      showBrowser: false,         // print the browser for each spec
+      showSpecTiming: true,       // print the time elapsed for each spec
+      failFast: false,            // test would finish with error when a first fail occurs
+      prefixes: {
+        success: '    OK: ',      // override prefix for passed tests, default is '✓ '
+        failure: 'FAILED: ',      // override prefix for failed tests, default is '✗ '
+        skipped: 'SKIPPED: '      // override prefix for skipped tests, default is '- '
+      }
     },
 
     verbose: true, // output config used by istanbul for debugging
