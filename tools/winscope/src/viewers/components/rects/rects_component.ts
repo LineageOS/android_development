@@ -113,9 +113,9 @@ export class RectsComponent implements OnInit, OnDestroy {
   private storeKeyZSpacingFactor = '';
   private storeKeyShadingMode = '';
   private storeKeySelectedDisplays = '';
-  private internalDisplays: DisplayIdentifier[] = [];
+  internalDisplays: DisplayIdentifier[] = [];
   private internalHighlightedItem = '';
-  private currentDisplays: DisplayIdentifier[] = [];
+  currentDisplays: DisplayIdentifier[] = [];
   largeRectsMapper3d = new Mapper3D();
   private miniRectsMapper3d = new Mapper3D();
   private largeRectsCanvas?: Canvas;

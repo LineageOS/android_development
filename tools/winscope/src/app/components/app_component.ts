@@ -635,7 +635,7 @@ export class AppComponent implements WinscopeEventListener {
     }
   }
 
-  private updateShareState() {
+  updateShareState() {
     this.updateShareOptionsVisibility();
     this.updateShareLink();
   }

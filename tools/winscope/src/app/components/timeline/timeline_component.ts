@@ -182,15 +182,15 @@ export class TimelineComponent
   playbackState: PlaybackState = PlaybackState.PAUSED;
   disabledMessage: string = 'Timeline disabled due to ongoing search query';
 
-  private expanded = false;
+  expanded = false;
   private emitEvent: EmitEvent = () => Promise.resolve();
-  private expandedTimelineScrollEvent: WheelEvent | undefined;
-  private expandedTimelineMouseXRatio: number | undefined;
+  expandedTimelineScrollEvent: WheelEvent | undefined;
+  expandedTimelineMouseXRatio: number | undefined;
   private seekTracePosition?: TracePosition;
   private isProcessingKeyPress = false;
   private currentTabTraceType: TraceType | undefined;
   private lastPlayState: PlaybackState | undefined;
-  private frameCanvasEntry: MediaBasedTraceEntry | undefined;
+  frameCanvasEntry: MediaBasedTraceEntry | undefined;
   private hoverPosition: HoverPositionUpdate | undefined;
 
   constructor(
@@ -760,7 +760,7 @@ export class TimelineComponent
     return assertDefined(lastPart);
   }
 
-  private traceSupportsPlayback() {
+  traceSupportsPlayback() {
     if (this.currentTabTraceType === undefined) {
       return false;
     }
@@ -779,7 +779,7 @@ export class TimelineComponent
     }
   }
 
-  private async onPlaybackStateChange(state: PlaybackState) {
+  async onPlaybackStateChange(state: PlaybackState) {
     if (this.currentTabTraceType === undefined) {
       return;
     }
