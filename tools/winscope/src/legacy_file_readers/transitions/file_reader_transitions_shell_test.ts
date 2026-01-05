@@ -15,65 +15,48 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {com} from 'protos/transitions/udc/static';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {ParserTransitionsShell} from './parser_transitions_shell';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 
-describe('ParserTransitionsShell', () => {
-  let parser: Parser<com.android.wm.shell.Transition>;
+describe('FileReaderTransitionsShell', () => {
+  let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await new LegacyParserProvider()
+    reader = await new LegacyFileReaderProvider()
       .addFile('traces/elapsed_and_real_timestamp/shell_transition_trace.pb')
-      .getParser<com.android.wm.shell.Transition>();
+      .get();
   });
 
   it('has expected trace type', () => {
-    expect(parser.getTraceType()).toEqual(TraceType.SHELL_TRANSITION);
-  });
-
-  it('has expected coarse version', () => {
-    expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+    expect(reader.getTraceType()).toEqual(TraceType.SHELL_TRANSITION);
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = assertDefined(reader.getTimestamps());
+    const zeroTs = makeRealTimestamp(0n);
     const expected = [
       makeRealTimestamp(1683188477607285317n),
-      makeRealTimestamp(1683130827957362976n),
-      makeRealTimestamp(1683130827957362976n),
+      zeroTs,
+      zeroTs,
       makeRealTimestamp(1683188479256449868n),
-      makeRealTimestamp(1683130827957362976n),
-      makeRealTimestamp(1683130827957362976n),
+      zeroTs,
+      zeroTs,
     ];
     expect(timestamps).toEqual(expected);
   });
 
-  it('provides decoded proto', async () => {
-    const entry = await parser.getEntry(0);
-    expect(entry.id).toBe(6);
-    expect(entry.dispatchTimeNs.toString()).toBe('57649649922341');
-    expect(entry.handler).toBe(2);
-  });
+  it('converts to valid perfetto packets', async () => {
+    const packets = reader.convertToPerfettoPackets(0);
+    expect(packets.length).toBe(7);
+    const handlerPacket = packets[0];
 
-  it('creates shell mapping packet', async () => {
-    expect(parser).toBeInstanceOf(ParserTransitionsShell);
-    const mappingPacketEnc = (
-      parser as unknown as ParserTransitionsShell
-    ).createHandlerMappingPacket(2);
-
-    expect(mappingPacketEnc.trustedPacketSequenceId).toEqual(2);
-    const mapping = assertDefined(
-      mappingPacketEnc.shellHandlerMappings?.mapping,
-    );
+    const mapping = assertDefined(handlerPacket.shellHandlerMappings?.mapping);
 
     expect(mapping.length).toBe(2);
     expect(mapping[0].id).toBe(2);
@@ -84,5 +67,11 @@ describe('ParserTransitionsShell', () => {
     expect(mapping[1].name).toBe(
       'com.android.wm.shell.recents.RecentsTransitionHandler',
     );
+
+    expect(packets[1].shellTransition).toBeDefined();
+    const transition = packets[1].shellTransition;
+    expect(transition?.id).toBe(6);
+    expect(transition?.dispatchTimeNs?.toString()).toBe('57649649922341');
+    expect(transition?.handler).toBe(2);
   });
 });

@@ -15,45 +15,42 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {com} from 'protos/transitions/udc/static';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeZeroTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
 
-describe('ParserTransitionsWm', () => {
-  let parser: Parser<com.android.server.wm.shell.ITransition>;
+describe('FileReaderTransitionsWm', () => {
+  let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await new LegacyParserProvider()
+    reader = await new LegacyFileReaderProvider()
       .addFile('traces/elapsed_and_real_timestamp/wm_transition_trace.pb')
-      .getParser<com.android.server.wm.shell.ITransition>();
+      .get();
   });
 
   it('has expected trace type', () => {
-    expect(parser.getTraceType()).toEqual(TraceType.WM_TRANSITION);
-  });
-
-  it('has expected coarse version', () => {
-    expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+    expect(reader.getTraceType()).toEqual(TraceType.WM_TRANSITION);
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = assertDefined(reader.getTimestamps());
     expect(timestamps.length).toBe(8);
     const expected = makeZeroTimestamp();
     timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));
   });
 
-  it('provides decoded proto', async () => {
-    const entry = await parser.getEntry(0);
-    expect(entry.id).toBe(6);
-    expect(entry.startTransactionId?.toString()).toBe('13086765351818');
-    expect(entry.sendTimeNs?.toString()).toBe('57649646973488');
+  it('converst to valid perfetto packets', async () => {
+    const packets = reader.convertToPerfettoPackets(0);
+    expect(packets.length).toBe(8);
+    expect(packets[0].shellTransition).toBeDefined();
+    const transition = packets[0].shellTransition;
+    expect(transition?.id).toBe(6);
+    expect(transition?.startTransactionId?.toString()).toBe('13086765351818');
+    expect(transition?.sendTimeNs?.toString()).toBe('57649646973488');
   });
 });

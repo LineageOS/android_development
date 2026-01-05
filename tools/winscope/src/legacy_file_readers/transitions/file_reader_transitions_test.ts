@@ -16,57 +16,49 @@
 
 import {assertDefined} from '@common/assert';
 import Long from 'long';
-import {FileAndParser} from '@parsers/file_and_parser';
 import {ShellHandlerMappings} from '@compat/winscope_protos';
 import {ClockSnapshot} from '@compat/perfetto';
-import {com} from 'protos/transitions/udc/static';
 import {
   convertToPerfettoTrace,
-  getTracesParser,
+  LegacyFileReaderProvider,
 } from '@test/unit/fixture_utils';
 import {
   getTimestampConverter,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {TraceFile} from '@trace/trace_file';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {TracesParserTransitions} from './traces_parser_transitions';
+import {FileReaderTransitions} from './file_reader_transitions';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {TimestampConverter} from '@common/time/timestamp_converter';
 
-describe('TracesParserTransitions', () => {
-  let parser: Parser<PropertyTreeNode>;
+describe('FileReaderTransitions', () => {
+  let converter: TimestampConverter;
+  let reader: LegacyFileReader;
+  let readerShell: LegacyFileReader;
+  let readerWm: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = (
-      await getTracesParser([
-        'traces/elapsed_and_real_timestamp/wm_transition_trace.pb',
-        'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
-      ])
-    ).tracesParser as Parser<PropertyTreeNode>;
+    converter = getTimestampConverter();
+    [reader, readerShell, readerWm] = await getFileReaderTransitions(converter);
   });
 
   it('has expected trace type', () => {
-    expect(parser.getTraceType()).toEqual(TraceType.TRANSITION);
-  });
-
-  it('has expected coarse version', () => {
-    expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+    expect(reader.getTraceType()).toEqual(TraceType.TRANSITION);
   });
 
   it('has expected descriptors', () => {
-    expect(parser.getDescriptors()).toEqual([
+    expect(reader.getDescriptors()).toEqual([
       'wm_transition_trace.pb',
       'shell_transition_trace.pb',
     ]);
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = assertDefined(reader.getTimestamps());
     const expected = [
       makeRealTimestamp(1683188477607285317n),
       makeRealTimestamp(1683188477785406289n),
@@ -76,59 +68,34 @@ describe('TracesParserTransitions', () => {
     expect(timestamps).toEqual(expected);
   });
 
-  it('does not provide entry', () => {
-    expect(parser.getEntry).toThrow();
-  });
-
   it('sets zero timestamp if both dispatch and send time unavailable', async () => {
-    const result = await getTracesParser([
-      'traces/elapsed_and_real_timestamp/wm_transition_trace.pb',
-      'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
-    ]);
-    const transitionsParser = result.tracesParser as Parser<PropertyTreeNode>;
-    const wmParser = result
-      .constituentParsers[0] as Parser<com.android.server.wm.shell.ITransition>;
-    const shellParser = result
-      .constituentParsers[1] as Parser<com.android.wm.shell.ITransition>;
-
-    const shellEntry = await shellParser.getEntry(1);
-    shellEntry.dispatchTimeNs = null;
-    const shellSpy = spyOn(shellParser, 'getEntry').and.callThrough();
-    shellSpy.withArgs(1).and.returnValue(Promise.resolve(shellEntry));
-
-    const wmEntry = await wmParser.getEntry(1);
-    wmEntry.sendTimeNs = null;
-    const wmSpy = spyOn(wmParser, 'getEntry').and.callThrough();
-    wmSpy.withArgs(1).and.returnValue(Promise.resolve(wmEntry));
-
-    await (transitionsParser as TracesParserTransitions).parse();
-    expect(transitionsParser.getTimestamps()?.at(0)).toEqual(
-      makeRealTimestamp(0n),
+    const shellPackets = readerShell.convertToPerfettoPackets(0);
+    assertDefined(shellPackets[2].shellTransition).dispatchTimeNs = undefined;
+    spyOn(readerShell, 'convertToPerfettoPackets').and.returnValue(
+      shellPackets,
     );
-  });
 
-  it('fails to parse without both wm and shell transition traces', async () => {
-    await expectAsync(
-      getTracesParser([
-        'traces/elapsed_and_real_timestamp/wm_transition_trace.pb',
-      ]),
-    ).toBeRejected();
-    await expectAsync(
-      getTracesParser([
-        'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
-      ]),
-    ).toBeRejected();
+    const wmPackets = readerWm.convertToPerfettoPackets(0);
+    assertDefined(wmPackets[1].shellTransition).sendTimeNs = undefined;
+    spyOn(readerWm, 'convertToPerfettoPackets').and.returnValue(wmPackets);
+
+    const mergedReader = new FileReaderTransitions(
+      readerShell,
+      readerWm,
+      converter,
+    );
+    mergedReader.read();
+    expect(mergedReader.getTimestamps()?.at(0)).toEqual(makeRealTimestamp(0n));
   });
 
   it('converts to valid perfetto packets', () => {
-    const packets = parser.convertToPerfettoPackets!(10);
+    const packets = reader.convertToPerfettoPackets(10);
     expect(packets.length).toBe(5);
     packets.forEach((packet) => {
       expect(packet.trustedPacketSequenceId).toBe(10);
     });
 
     const handlerMappingPacket = packets[0];
-
     const shellHandlerMappings = ShellHandlerMappings.fromObject({
       mapping: [
         {id: 2, name: 'com.android.wm.shell.transition.DefaultMixedHandler'},
@@ -194,18 +161,9 @@ describe('TracesParserTransitions', () => {
   });
 
   it('converts to valid perfetto trace', async () => {
-    const converter = getTimestampConverter();
     const perfettoParser = (
-      await convertToPerfettoTrace(
-        [new FileAndParser(new TraceFile(new File([], '')), parser)],
-        converter,
-      )
-    )[0].parser as Parser<HierarchyTreeNode>;
-
-    converter.setRealToBootTimeOffsetNs(
-      assertDefined(perfettoParser.getRealToBootTimeOffsetNs()),
-    );
-    perfettoParser.createTimestamps();
+      await convertToPerfettoTrace([reader], getTimestampConverter())
+    )[0];
     expect(perfettoParser.getTimestamps()).toEqual([
       makeRealTimestamp(1683188477607285317n),
       makeRealTimestamp(1683188477785406289n),
@@ -284,5 +242,25 @@ describe('TracesParserTransitions', () => {
     value: string,
   ) {
     expect(node.getChildByName(property)?.formattedValue()).toBe(value);
+  }
+
+  async function getFileReaderTransitions(
+    converter: TimestampConverter,
+  ): Promise<LegacyFileReader[]> {
+    const [readerShell, readerWm] = await new LegacyFileReaderProvider()
+      .addFile('traces/elapsed_and_real_timestamp/shell_transition_trace.pb')
+      .addFile('traces/elapsed_and_real_timestamp/wm_transition_trace.pb')
+      .getAll();
+    const boottimeOffset = assertDefined(
+      readerShell.getRealToBootTimeOffsetNs(),
+    );
+    converter.setRealToBootTimeOffsetNs(boottimeOffset);
+    const mergedReader = new FileReaderTransitions(
+      readerShell,
+      readerWm,
+      converter,
+    );
+    mergedReader.read();
+    return [mergedReader, readerShell, readerWm];
   }
 });

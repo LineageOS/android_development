@@ -16,138 +16,115 @@
 
 import {assertDefined, assertTrue} from '@common/assert';
 import {getMax} from '@common/bigint_math';
-import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import Long from 'long';
-import {AbstractTracesParser} from '@parsers/traces/abstract_traces_parser';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
-import {Traces} from '@trace_api/traces';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {ParserTransitionsShell} from './parser_transitions_shell';
 import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {Timestamp} from '@common/time/time';
+import {TraceFile} from '@trace/trace_file';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.
  */
-export class TracesParserTransitions extends AbstractTracesParser<PropertyTreeNode> {
-  private readonly wmTransitionTrace: Trace<object> | undefined;
-  private readonly shellTransitionTrace: Trace<object> | undefined;
+export class FileReaderTransitions implements LegacyFileReader {
+  private readonly parserShell: LegacyFileReader;
+  private readonly parserWm: LegacyFileReader;
   private readonly descriptors: string[];
+  private readonly timestampConverter: ParserTimestampConverter;
   private decodedEntries: PerfettoTransition[] | undefined;
   private realToBootTimeOffsetNs: bigint | undefined;
+  private handlerMappingPacket: TracePacket | undefined;
+  private timestamps: Timestamp[] | undefined;
 
-  constructor(traces: Traces, timestampConverter: ParserTimestampConverter) {
-    super(timestampConverter);
-    const wmTransitionTrace = traces.getTrace<object>(TraceType.WM_TRANSITION);
-    const shellTransitionTrace = traces.getTrace<object>(
-      TraceType.SHELL_TRANSITION,
-    );
-    if (wmTransitionTrace && shellTransitionTrace) {
-      this.wmTransitionTrace = wmTransitionTrace;
-      this.shellTransitionTrace = shellTransitionTrace;
-      this.descriptors = this.wmTransitionTrace
-        .getDescriptors()
-        .concat(this.shellTransitionTrace.getDescriptors());
-    } else {
-      this.descriptors = [];
-    }
+  constructor(
+    parserShell: LegacyFileReader,
+    parserWm: LegacyFileReader,
+    timestampConverter: ParserTimestampConverter,
+  ) {
+    this.parserShell = parserShell;
+    this.parserWm = parserWm;
+    this.descriptors = this.parserWm
+      .getDescriptors()
+      .concat(this.parserShell.getDescriptors());
+    this.timestampConverter = timestampConverter;
   }
 
-  override getCoarseVersion(): CoarseVersion {
-    return CoarseVersion.LEGACY;
+  getFiles(): TraceFile[] {
+    return this.parserWm.getFiles().concat(this.parserShell.getFiles());
   }
 
-  override async parse() {
-    if (this.wmTransitionTrace === undefined) {
-      throw new Error('Missing WM Transition trace');
-    }
-
-    if (this.shellTransitionTrace === undefined) {
-      throw new Error('Missing Shell Transition trace');
-    }
-
-    const wmOffset = this.wmTransitionTrace
-      .getParser()
-      .getRealToBootTimeOffsetNs();
-    const shellOffset = this.shellTransitionTrace
-      .getParser()
-      .getRealToBootTimeOffsetNs();
+  read() {
+    const wmOffset = this.parserWm.getRealToBootTimeOffsetNs();
+    const shellOffset = this.parserShell.getRealToBootTimeOffsetNs();
 
     this.realToBootTimeOffsetNs = getMax([wmOffset ?? 0n, shellOffset ?? 0n]);
     if (this.realToBootTimeOffsetNs === 0n) {
       this.realToBootTimeOffsetNs = undefined;
     }
 
-    const wmTransitionEntries = await Promise.all(
-      this.wmTransitionTrace.mapEntry((entry) => entry.getValue()),
-    );
-    const shellTransitionEntries = await Promise.all(
-      this.shellTransitionTrace.mapEntry((entry) => entry.getValue()),
-    );
+    const shellPackets = this.parserShell.convertToPerfettoPackets(0);
+    this.handlerMappingPacket = shellPackets[0];
+    const shellTransitions = shellPackets
+      .slice(1)
+      .map((packet) => assertDefined(packet.shellTransition));
+
+    const wmTransitions = this.parserWm
+      .convertToPerfettoPackets(0)
+      .map((packet) => assertDefined(packet.shellTransition));
+
     this.decodedEntries = this.compressEntries(
-      wmTransitionEntries.concat(shellTransitionEntries),
+      wmTransitions.concat(shellTransitions),
     );
 
-    await this.createTimestamps();
+    this.createTimestamps();
   }
 
-  override async createTimestamps() {
+  createTimestamps() {
     this.timestamps = [];
     const zeroTs = this.timestampConverter.makeZeroTimestamp();
     for (let index = 0; index < this.getLengthEntries(); index++) {
       const entry = assertDefined(this.decodedEntries)[index];
       const ns = this.getTimestampNsFromTransitionProperties(entry);
       const ts =
-        ns && ns !== 0n
+        ns !== undefined && ns !== 0n
           ? this.timestampConverter.makeTimestampFromBootTimeNs(ns)
           : zeroTs;
       this.timestamps.push(ts);
     }
   }
 
-  override getLengthEntries(): number {
+  getTimestamps(): Timestamp[] | undefined {
+    return this.timestamps;
+  }
+
+  getLengthEntries(): number {
     return assertDefined(this.decodedEntries).length;
   }
 
-  override getEntry(index: number): Promise<PropertyTreeNode> {
-    // Legacy parsers that implement convertToPerfettoPackets should not
-    // parser and provide individual trace entries, as they should be
-    // converted to perfetto using LegacyToPerfettoConverter
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  override getDescriptors(): string[] {
+  getDescriptors(): string[] {
     return this.descriptors;
   }
 
-  override getTraceType(): TraceType {
+  getTraceType(): TraceType {
     return TraceType.TRANSITION;
   }
 
-  override getRealToMonotonicTimeOffsetNs(): bigint | undefined {
+  getRealToMonotonicTimeOffsetNs(): bigint | undefined {
     return undefined;
   }
 
-  override getRealToBootTimeOffsetNs(): bigint | undefined {
+  getRealToBootTimeOffsetNs(): bigint | undefined {
     return this.realToBootTimeOffsetNs;
   }
 
-  override canConvertToPerfetto(): boolean {
-    return true;
-  }
-
-  convertToPerfettoPackets?(sequenceId: number): TracePacket[] {
+  convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
 
-    const shellParser = assertDefined(this.shellTransitionTrace).getParser();
-    packets.push(
-      (shellParser as ParserTransitionsShell).createHandlerMappingPacket(
-        sequenceId,
-      ),
-    );
+    const handlerMappingPacket = assertDefined(this.handlerMappingPacket);
+    handlerMappingPacket.trustedPacketSequenceId = sequenceId;
+    packets.push(handlerMappingPacket);
 
     for (const entry of assertDefined(this.decodedEntries)) {
       const packet = new TracePacket();

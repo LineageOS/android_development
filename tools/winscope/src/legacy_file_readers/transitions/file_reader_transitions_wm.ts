@@ -15,24 +15,18 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
-import root from 'protos/transitions/udc/json';
+import Long from 'long';
 import {com} from 'protos/transitions/udc/static';
 import {TraceType} from '@trace_api/trace_type';
 import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
-import {IShellTransition} from '@compat/winscope_protos';
+import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
+import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
+import {ClockSnapshot, TracePacket} from '@compat/perfetto';
 
 /**
  * Parser for WM Transition trace files.
  */
-export class ParserTransitionsWm extends AbstractParser<
-  LegacyTransition,
-  IShellTransition
-> {
-  private static readonly TransitionTraceProto = root.lookupType(
-    'com.android.server.wm.shell.TransitionTraceProto',
-  );
-
+export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransition> {
   private realToBootTimeOffsetNs: bigint | undefined;
 
   override getTraceType(): TraceType {
@@ -47,11 +41,47 @@ export class ParserTransitionsWm extends AbstractParser<
     return undefined;
   }
 
-  override async processDecodedEntry(
-    index: number,
+  override decodeTrace(buffer: Uint8Array): PerfettoTransition[] {
+    const decodedProto =
+      com.android.server.wm.shell.TransitionTraceProto.decode(buffer);
+
+    const timeOffset = BigInt(
+      decodedProto.realToElapsedTimeOffsetNanos?.toString() ?? '0',
+    );
+    this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
+
+    return (
+      decodedProto.transitions?.map((transition) => {
+        return this.convertToPerfettoTransition(transition);
+      }) ?? []
+    );
+  }
+
+  override getMagicNumber(): number[] | undefined {
+    return [0x09, 0x54, 0x52, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45]; // .TRNTRACE
+  }
+
+  override convertToPerfettoPackets(): TracePacket[] {
+    return this.decodedEntries.map((entry) => {
+      const packet = new TracePacket();
+      const ns = entry.sendTimeNs ?? 0n;
+      packet.timestamp = Long.fromString(ns.toString());
+      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.shellTransition = entry;
+      return packet;
+    });
+  }
+
+  protected override getTimestamp(entry: LegacyTransition): Timestamp {
+    // for consistency with all transitions, elapsed nanos are defined as
+    // shell dispatch time else INVALID_TIME_NS
+    return this.timestampConverter.makeZeroTimestamp();
+  }
+
+  private convertToPerfettoTransition(
     wmTransition: LegacyTransition,
-  ): Promise<IShellTransition> {
-    const perfettoTransition: IShellTransition = {
+  ): PerfettoTransition {
+    const perfettoTransition: PerfettoTransition = {
       id: wmTransition.id,
       createTimeNs: nullifyIfDefaultValue(wmTransition.createTimeNs),
       sendTimeNs: nullifyIfDefaultValue(wmTransition.sendTimeNs),
@@ -71,29 +101,6 @@ export class ParserTransitionsWm extends AbstractParser<
       ),
     };
     return perfettoTransition;
-  }
-
-  override decodeTrace(buffer: Uint8Array): IShellTransition[] {
-    const decodedProto = ParserTransitionsWm.TransitionTraceProto.decode(
-      buffer,
-    ) as unknown as com.android.server.wm.shell.ITransitionTraceProto;
-
-    const timeOffset = BigInt(
-      decodedProto.realToElapsedTimeOffsetNanos?.toString() ?? '0',
-    );
-    this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
-
-    return decodedProto.transitions ?? [];
-  }
-
-  override getMagicNumber(): number[] | undefined {
-    return [0x09, 0x54, 0x52, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45]; // .TRNTRACE
-  }
-
-  protected override getTimestamp(entry: LegacyTransition): Timestamp {
-    // for consistency with all transitions, elapsed nanos are defined as
-    // shell dispatch time else INVALID_TIME_NS
-    return this.timestampConverter.makeZeroTimestamp();
   }
 }
 
