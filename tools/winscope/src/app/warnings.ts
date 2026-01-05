@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {BugreportData, BuildType} from '@app/trace_file_filter';
+import {BugreportData, BuildType} from '@app/trace_file_identifier';
 import {TraceType} from '@trace_api/trace_type';
 import {UserWarning} from '@messaging/user_warning';
 import {TimeRange} from '@common/time/time';
@@ -140,14 +140,14 @@ export function makeWarningTraceHasElapsedTimestamps(descriptor: string) {
  * A warning for a trace with old data.
  */
 export function makeWarningTraceHasOldData(
-  descriptor: string,
+  descriptors: string[],
   timeGap?: TimeRange,
 ) {
   const elapsedTime = timeGap
     ? new TimeDuration(timeGap.endNs - timeGap.startNs)
     : undefined;
   const message =
-    `${descriptor}: discarded because data is old` +
+    `${descriptors.join(', ')}: discarded because data is old` +
     (timeGap ? `er than ${elapsedTime?.format()}` : '');
   return new UserWarning('old trace', message);
 }
@@ -184,5 +184,16 @@ export function makeWarningUnsupportedFileFormat(descriptor: string) {
   return new UserWarning(
     'unsupported format',
     `${descriptor}: unsupported format`,
+  );
+}
+
+/**
+ * A warning for when legacy to perfetto trace conversion fails.
+ */
+export function makeWarningFailedToConvertLegacyTraces(errorMessage: string) {
+  return new UserWarning(
+    'failed to convert legacy trace',
+    `Legacy to perfetto conversion failed: ${errorMessage}
+Discarding legacy traces.`,
   );
 }

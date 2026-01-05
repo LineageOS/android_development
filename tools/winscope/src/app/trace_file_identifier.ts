@@ -36,13 +36,13 @@ import {
   WinscopeEventEmitter,
 } from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
-import {FileAndParser} from '@parsers/file_and_parser';
-import {FileAndParsers} from '@parsers/file_and_parsers';
-import {ProcessedFiles} from '@parsers/legacy/parser_factory';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace/trace_file';
 import {getLogger, Logger} from '@compat/logging';
 import {TraceMetadata} from '@trace_api/trace_metadata';
+import {ProcessedFiles} from '@app/processed_files';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {FileReader} from '@trace_api/file_reader';
 
 /**
  * The build type of the Android device that generated the bugreport.
@@ -74,11 +74,12 @@ export interface BugreportData {
 }
 
 /**
- * The result of parsing a set of files.
+ * The result of filtering and identifying a set of files.
  */
-export interface ParsedFiles {
-  legacy: FileAndParser[];
-  perfetto: FileAndParsers | undefined;
+interface IdentifiedFiles<T extends FileReader> {
+  legacy: LegacyFileReader[];
+  nonPerfetto: T[];
+  perfetto: T[];
   criticalWarnings?: UserWarning[];
 }
 
@@ -90,33 +91,42 @@ interface FilterResult {
   criticalWarnings?: UserWarning[];
 }
 
-type ParsePerfettoFileStrategy = (
-  file: TraceFile,
-) => Promise<FileAndParsers | undefined>;
+type IdentifyPerfettoFileStrategy<T> = (file: TraceFile) => Promise<T[]>;
 
 /**
- * A strategy for parsing legacy files.
+ * A strategy for identifying legacy files and returning the relevant file readers.
  */
-export type ParseLegacyFilesStrategy = (
+export type IdentifyLegacyFilesStrategy = (
+  files: TraceFile[],
+  timezoneInfo?: TimezoneInfo,
+) => Promise<ProcessedFiles<LegacyFileReader>>;
+
+/**
+ * A strategy for identifying non-perfetto i.e. non legacy-convertible files and
+ * returning the relevant parsers.
+ */
+export type IdentifyNonPerfettoFilesStrategy<T extends FileReader> = (
   files: TraceFile[],
   metadata: TraceMetadata,
-  timezoneInfo?: TimezoneInfo,
-) => Promise<ProcessedFiles>;
+) => Promise<ProcessedFiles<T>>;
 
 /**
- * A filter for trace files.
+ * An identifier for trace files.
  *
- * The filter identifies the type of each file and, if applicable, extracts metadata from it.
- * The filter is also responsible for parsing the files and returning the corresponding parsers.
+ * The identifier is responsible for:
+ * - filtering received files
+ * - identifying the type of each file
+ * - if applicable, extracting metadata from it
+ * - returning corresponding file readers/parsers for identified files
  */
-export class TraceFileFilter
+export class TraceFileIdentifier<T extends FileReader>
   implements WinscopeEventListener, WinscopeEventEmitter
 {
   private static readonly BUGREPORT_PERFETTO_TRACE_DIR =
     'FS/data/misc/perfetto-traces/bugreport';
   private static readonly BUGREPORT_PERFETTO_TRACE_ORDER = [
-    TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR + '/systrace.pftrace',
-    TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR + '/sysui.pftrace',
+    TraceFileIdentifier.BUGREPORT_PERFETTO_TRACE_DIR + '/systrace.pftrace',
+    TraceFileIdentifier.BUGREPORT_PERFETTO_TRACE_DIR + '/sysui.pftrace',
   ];
   private static readonly BUGREPORT_LEGACY_FILES_ALLOWLIST = [
     'FS/data/misc/wmtrace/',
@@ -133,7 +143,9 @@ export class TraceFileFilter
 
   private emitEvent: EmitEvent = () => Promise.resolve();
   private selectedFile: string | undefined;
-  constructor(private readonly logger: Logger = getLogger('TraceFileFilter')) {}
+  constructor(
+    private readonly logger: Logger = getLogger('TraceFileIdentifier'),
+  ) {}
 
   setEmitEvent(callback: EmitEvent) {
     this.emitEvent = callback;
@@ -149,14 +161,15 @@ export class TraceFileFilter
     }
   }
 
-  async filterAndParse(
+  async identifyFiles(
     files: TraceFile[],
-    tryParseLegacy: ParseLegacyFilesStrategy,
-    tryParsePerfetto: ParsePerfettoFileStrategy,
-  ): Promise<ParsedFiles> {
+    tryIdentifyLegacy: IdentifyLegacyFilesStrategy,
+    tryIdentifyNonPerfetto: IdentifyNonPerfettoFilesStrategy<T>,
+    tryIdentifyPerfetto: IdentifyPerfettoFileStrategy<T>,
+  ): Promise<IdentifiedFiles<T>> {
     const startTimeMs = Date.now();
 
-    const {result, isBugreport} = await this.filterWithoutParsing(files);
+    const {result, isBugreport} = await this.filter(files);
 
     const size = result.legacy
       .concat(result.perfetto)
@@ -173,24 +186,28 @@ export class TraceFileFilter
     if (result.perfetto.length === 0 && result.legacy.length === 0) {
       UserNotifier.add(makeWarningNoValidFiles());
       return {
-        perfetto: undefined,
+        perfetto: [],
         legacy: [],
+        nonPerfetto: [],
         criticalWarnings: result.criticalWarnings,
       };
     }
 
-    const {parsers: legacyParsers, unsupportedFiles} = await tryParseLegacy(
-      result.legacy,
-      result.metadata,
-      result.timezoneInfo,
-    );
+    let {supportedFiles: legacyFileReaders, unsupportedFiles} =
+      await tryIdentifyLegacy(result.legacy, result.timezoneInfo);
 
-    let perfettoParsers: FileAndParsers | undefined;
+    let nonPerfettoParsers: T[] = [];
+    if (unsupportedFiles.length > 0) {
+      const {supportedFiles, unsupportedFiles: stillUnsupported} =
+        await tryIdentifyNonPerfetto(unsupportedFiles, result.metadata);
+      nonPerfettoParsers = supportedFiles;
+      unsupportedFiles = stillUnsupported;
+    }
 
+    let perfettoParsers: T[] = [];
     const largestPerfettoFile = this.pickLargestFile(result.perfetto);
-
     if (largestPerfettoFile) {
-      perfettoParsers = await tryParsePerfetto(largestPerfettoFile);
+      perfettoParsers = await tryIdentifyPerfetto(largestPerfettoFile);
       unsupportedFiles.forEach((file: TraceFile) => {
         UserNotifier.add(
           makeWarningUnsupportedFileFormat(file.getDescriptor()),
@@ -201,7 +218,7 @@ export class TraceFileFilter
         (a: TraceFile, b: TraceFile) => b.file.size - a.file.size,
       );
       for (const file of unsupportedFiles) {
-        perfettoParsers = await tryParsePerfetto(file);
+        perfettoParsers = await tryIdentifyPerfetto(file);
         if (perfettoParsers) {
           break;
         }
@@ -209,13 +226,14 @@ export class TraceFileFilter
     }
 
     return {
-      legacy: legacyParsers,
+      legacy: legacyFileReaders,
+      nonPerfetto: nonPerfettoParsers,
       perfetto: perfettoParsers,
       criticalWarnings: result.criticalWarnings,
     };
   }
 
-  private async filterWithoutParsing(
+  private async filter(
     files: TraceFile[],
   ): Promise<{result: FilterResult; isBugreport: boolean}> {
     const bugreportMainEntry = files.find((file) =>
@@ -361,7 +379,7 @@ export class TraceFileFilter
     bugreportData?: BugreportData,
   ): Promise<FilterResult> {
     const isFileAllowlisted = (file: TraceFile) => {
-      for (const traceDir of TraceFileFilter.BUGREPORT_LEGACY_FILES_ALLOWLIST) {
+      for (const traceDir of TraceFileIdentifier.BUGREPORT_LEGACY_FILES_ALLOWLIST) {
         if (file.file.name.startsWith(traceDir)) {
           return true;
         }
@@ -396,17 +414,19 @@ export class TraceFileFilter
     const brPerfettoFiles = perfettoFiles.filter(
       (file) =>
         getFileDirectory(file.file.name) ===
-        TraceFileFilter.BUGREPORT_PERFETTO_TRACE_DIR,
+        TraceFileIdentifier.BUGREPORT_PERFETTO_TRACE_DIR,
     );
 
     const getIndex = (fileName: string) => {
-      return TraceFileFilter.BUGREPORT_PERFETTO_TRACE_ORDER.findIndex(
+      return TraceFileIdentifier.BUGREPORT_PERFETTO_TRACE_ORDER.findIndex(
         (name) => name === fileName,
       );
     };
     let perfettoFile = brPerfettoFiles
       .filter((file) =>
-        TraceFileFilter.BUGREPORT_PERFETTO_TRACE_ORDER.includes(file.file.name),
+        TraceFileIdentifier.BUGREPORT_PERFETTO_TRACE_ORDER.includes(
+          file.file.name,
+        ),
       )
       .sort((f1, f2) => getIndex(f1.file.name) - getIndex(f2.file.name))
       .at(0);
@@ -418,7 +438,7 @@ export class TraceFileFilter
     if (!perfettoFile && brPerfettoFiles.length > 1) {
       // emitEvent must be set to propagate event to mediator, which routes file selection
       // request to AppComponent. User is prompted by dialog to select which file to
-      // process. Once dialog is closed, selected file is sent back to TraceFileFilter
+      // process. Once dialog is closed, selected file is sent back to TraceFileIdentifier
       // via BugreportFileSelected event and handled above in onWinscopeEvent where
       // it is stored in selectedFile. Promise below only resolves after BugreportFileSelected
       // event has been handled.
@@ -450,7 +470,7 @@ export class TraceFileFilter
   }
 
   private isPerfettoFile(file: TraceFile): boolean {
-    return TraceFileFilter.PERFETTO_EXTENSIONS.some((perfettoExt) => {
+    return TraceFileIdentifier.PERFETTO_EXTENSIONS.some((perfettoExt) => {
       return (
         file.file.name.endsWith(perfettoExt) ||
         file.file.name.endsWith(`${perfettoExt}.gz`)
