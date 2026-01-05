@@ -19,18 +19,19 @@ import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
 import Long from 'long';
 import {InternedString, TracePacket} from '@compat/perfetto';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
+  getTimestampConverter,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {IProtoLogViewerConfig} from '@compat/winscope_protos';
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
+import {
+  convertToPerfettoTrace,
+  LegacyFileReaderProvider,
+} from '@test/unit/fixture_utils';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 
 interface ExpectedInternedData {
   packetIndex: number;
@@ -69,31 +70,27 @@ abstract class ParserProtologTest {
   abstract readonly expectedFirstMessage: ExpectedMessage;
 
   execute() {
-    describe('ParserProtologTest', () => {
+    describe('FileReaderProtologTest', () => {
       const [sequenceId, trustedUid, trustedPid] = [10, 3, 5];
-      let parser: Parser<PropertyTreeNode>;
+      let reader: LegacyFileReader;
 
       beforeAll(async () => {
         jasmine.addCustomEqualityTester(timestampEqualityTester);
-        parser = await new LegacyParserProvider()
+        reader = await new LegacyFileReaderProvider()
           .addFile(this.traceFile)
-          .getParser<PropertyTreeNode>();
+          .get();
       });
 
       it('has expected trace type', () => {
-        expect(parser.getTraceType()).toEqual(TraceType.PROTO_LOG);
-      });
-
-      it('has expected coarse version', () => {
-        expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+        expect(reader.getTraceType()).toEqual(TraceType.PROTO_LOG);
       });
 
       it('has expected length', () => {
-        expect(parser.getLengthEntries()).toEqual(this.timestampCount);
+        expect(reader.getLengthEntries()).toEqual(this.timestampCount);
       });
 
       it('provides timestamps', () => {
-        const timestamps = assertDefined(parser.getTimestamps());
+        const timestamps = assertDefined(reader.getTimestamps());
         expect(timestamps.length).toEqual(this.timestampCount);
 
         expect(timestamps.slice(0, 3)).toEqual(
@@ -101,12 +98,8 @@ abstract class ParserProtologTest {
         );
       });
 
-      it('does not provide entry', () => {
-        expect(parser.getEntry).toThrow();
-      });
-
       it('converts to valid perfetto packets', async () => {
-        const packets = parser.convertToPerfettoPackets!(
+        const packets = reader.convertToPerfettoPackets(
           sequenceId,
           trustedUid,
           trustedPid,
@@ -147,10 +140,9 @@ abstract class ParserProtologTest {
       });
 
       it('converts to valid perfetto trace', async () => {
-        const perfettoParser = await new LegacyParserProvider()
-          .addFile(this.traceFile)
-          .setConvertToPerfetto(true)
-          .getParser<HierarchyTreeNode>();
+        const perfettoParser = (
+          await convertToPerfettoTrace([reader], getTimestampConverter())
+        )[0];
 
         expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual(
           this.first3ExpectedRealTimestamps,

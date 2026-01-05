@@ -16,36 +16,29 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
-import {TransactionTraceEntry} from '@compat/winscope_protos';
+import Long from 'long';
+import {LayersSnapshotProto} from '@compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import root from 'protos/transactions/udc/json';
-import {android} from 'protos/transactions/udc/static';
+import {android} from 'protos/surfaceflinger/udc/static';
 import {TraceType} from '@trace_api/trace_type';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
 
-type TraceEntryProto = android.surfaceflinger.proto.ITransactionTraceEntry;
+type LayerTraceProto = android.surfaceflinger.ILayersTraceProto;
 
-export class ParserTransactions extends AbstractParser<
-  PropertyTreeNode,
-  TraceEntryProto
-> {
+export class FileReaderSurfaceFlinger extends AbstractFileReader<LayerTraceProto> {
   private static readonly MAGIC_NUMBER = [
-    0x09, 0x54, 0x4e, 0x58, 0x54, 0x52, 0x41, 0x43, 0x45,
-  ]; // .TNXTRACE
-
-  private static readonly TransactionsTraceFileProto = root.lookupType(
-    'android.surfaceflinger.TransactionTraceFile',
-  );
+    0x09, 0x4c, 0x59, 0x52, 0x54, 0x52, 0x41, 0x43, 0x45,
+  ]; // .LYRTRACE
 
   private realToMonotonicTimeOffsetNs: bigint | undefined;
+  private isDump = false;
 
   override getTraceType(): TraceType {
-    return TraceType.TRANSACTIONS;
+    return TraceType.SURFACE_FLINGER;
   }
 
   override getMagicNumber(): number[] {
-    return ParserTransactions.MAGIC_NUMBER;
+    return FileReaderSurfaceFlinger.MAGIC_NUMBER;
   }
 
   override getRealToBootTimeOffsetNs(): bigint | undefined {
@@ -56,41 +49,45 @@ export class ParserTransactions extends AbstractParser<
     return this.realToMonotonicTimeOffsetNs;
   }
 
-  override decodeTrace(buffer: Uint8Array): TraceEntryProto[] {
-    const decodedProto = ParserTransactions.TransactionsTraceFileProto.decode(
-      buffer,
-    ) as android.surfaceflinger.proto.ITransactionTraceFile;
+  override decodeTrace(buffer: Uint8Array): LayerTraceProto[] {
+    const decoded = android.surfaceflinger.LayersTraceFileProto.decode(buffer);
 
     const timeOffset = BigInt(
-      decodedProto.realToElapsedTimeOffsetNanos?.toString() ?? '0',
+      decoded.realToElapsedTimeOffsetNanos?.toString() ?? '0',
     );
     this.realToMonotonicTimeOffsetNs =
       timeOffset !== 0n ? timeOffset : undefined;
-
-    return decodedProto.entry ?? [];
-  }
-
-  override canConvertToPerfetto(): boolean {
-    return true;
+    this.isDump =
+      decoded.entry?.length === 1 &&
+      !Object.prototype.hasOwnProperty.call(
+        decoded.entry[0],
+        'elapsedRealtimeNanos',
+      );
+    return decoded.entry ?? [];
   }
 
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
     for (const entry of this.decodedEntries) {
       const packet = new TracePacket();
-      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
+      packet.timestamp = this.isDump
+        ? Long.fromInt(0)
+        : assertDefined(entry.elapsedRealtimeNanos);
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
       packet.trustedPacketSequenceId = sequenceId;
-      packet.surfaceflingerTransactions =
-        TransactionTraceEntry.fromObject(entry);
+      packet.surfaceflingerLayersSnapshot =
+        LayersSnapshotProto.fromObject(entry);
       packets.push(packet);
     }
     return packets;
   }
 
-  protected override getTimestamp(entryProto: TraceEntryProto): Timestamp {
+  protected override getTimestamp(entry: LayerTraceProto): Timestamp {
+    if (this.isDump) {
+      return this.timestampConverter.makeZeroTimestamp();
+    }
     return this.timestampConverter.makeTimestampFromMonotonicNs(
-      BigInt(assertDefined(entryProto.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
     );
   }
 }

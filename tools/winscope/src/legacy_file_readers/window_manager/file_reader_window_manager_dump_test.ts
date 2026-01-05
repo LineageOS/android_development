@@ -15,62 +15,56 @@
  */
 
 import {ClockSnapshot} from '@compat/perfetto';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {
+  convertToPerfettoTrace,
+  LegacyFileReaderProvider,
+} from '@test/unit/fixture_utils';
 import {
   getTimestampConverter,
   makeElapsedTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
 import Long from 'long';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
-import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 
-describe('ParserWindowManagerDump', () => {
-  let parser: Parser<HierarchyTreeNode>;
+describe('FileReaderWindowManagerDump', () => {
+  let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await new LegacyParserProvider()
+    reader = await new LegacyFileReaderProvider()
       .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
-      .getParser<HierarchyTreeNode>();
+      .get();
   });
 
   it('has expected trace type', () => {
-    expect(parser.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
-  });
-
-  it('has expected coarse version', () => {
-    expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+    expect(reader.getTraceType()).toEqual(TraceType.WINDOW_MANAGER);
   });
 
   it('provides timestamp (always zero)', () => {
     const expected = [makeElapsedTimestamp(0n)];
-    expect(parser.getTimestamps()).toEqual(expected);
+    expect(reader.getTimestamps()).toEqual(expected);
   });
 
   it('does not apply timezone info', async () => {
-    const parserWithTimezoneInfo = await new LegacyParserProvider()
+    const readerWithTimezoneInfo = await new LegacyFileReaderProvider()
       .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
       .setTimestampConverter(getTimestampConverter(true))
-      .getParser<HierarchyTreeNode>();
-    expect(parserWithTimezoneInfo.getTraceType()).toEqual(
+      .get();
+    expect(readerWithTimezoneInfo.getTraceType()).toEqual(
       TraceType.WINDOW_MANAGER,
     );
-
-    expect(parser.getTimestamps()).toEqual([makeElapsedTimestamp(0n)]);
-  });
-
-  it('does not provide entry', () => {
-    expect(parser.getEntry).toThrow();
+    expect(readerWithTimezoneInfo.getTimestamps()).toEqual([
+      makeElapsedTimestamp(0n),
+    ]);
   });
 
   it('converts to valid perfetto packets', async () => {
-    const packets = parser.convertToPerfettoPackets!(10);
+    const packets = reader.convertToPerfettoPackets(10);
     expect(packets.length).toBe(1);
     expect(packets[0].trustedPacketSequenceId).toBe(10);
     expect(
@@ -88,17 +82,11 @@ describe('ParserWindowManagerDump', () => {
 
   describe('converts to valid perfetto trace', () => {
     let perfettoParser: Parser<HierarchyTreeNode>;
-    let perfettoTrace: Trace<HierarchyTreeNode>;
 
     beforeAll(async () => {
-      perfettoParser = await new LegacyParserProvider()
-        .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
-        .setConvertToPerfetto(true)
-        .getParser<HierarchyTreeNode>();
-      perfettoTrace = new TraceBuilder<HierarchyTreeNode>()
-        .setType(TraceType.WINDOW_MANAGER)
-        .setParser(perfettoParser)
-        .build();
+      perfettoParser = (
+        await convertToPerfettoTrace([reader], getTimestampConverter())
+      )[0];
     });
 
     it('provides timestamps', () => {
@@ -118,8 +106,9 @@ describe('ParserWindowManagerDump', () => {
     });
 
     it('supports WM_WINDOWS_TOKEN_AND_TITLE custom query', async () => {
-      const tokenAndTitles = await perfettoTrace.customQuery(
+      const tokenAndTitles = await perfettoParser.customQuery(
         CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE,
+        {start: 0, end: 1},
       );
       expect(tokenAndTitles.length).toBe(73);
       expect(tokenAndTitles).toContain({

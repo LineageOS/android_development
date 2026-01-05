@@ -22,7 +22,6 @@ import {Timestamp} from '@common/time/time';
 import {getLogger, Logger} from '@compat/logging';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import Long from 'long';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
 import {ProtoLogMessage as PerfettoProtoLogMessage} from '@compat/winscope_protos';
 import {
   ClockSnapshot,
@@ -30,23 +29,16 @@ import {
   InternedString,
   TracePacket,
 } from '@compat/perfetto';
-import root from 'protos/protolog/udc/json';
 import {com} from 'protos/protolog/udc/static';
 import {TraceType} from '@trace_api/trace_type';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import configJson32 from '../../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
-import configJson64 from '../../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
+import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
+import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
+import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
 
 type ProtoLogMessage = com.android.internal.protolog.IProtoLogMessage;
 
-export class ParserProtoLog extends AbstractParser<
-  PropertyTreeNode,
-  ProtoLogMessage
-> {
-  private static readonly ProtoLogFileProto = root.lookupType(
-    'com.android.internal.protolog.ProtoLogFileProto',
-  );
+export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x4c, 0x4f, 0x47,
   ]; // .PROTOLOG
@@ -69,7 +61,7 @@ export class ParserProtoLog extends AbstractParser<
   }
 
   override getMagicNumber(): number[] {
-    return ParserProtoLog.MAGIC_NUMBER;
+    return FileReaderProtoLog.MAGIC_NUMBER;
   }
 
   override getRealToMonotonicTimeOffsetNs(): bigint | undefined {
@@ -81,19 +73,18 @@ export class ParserProtoLog extends AbstractParser<
   }
 
   override decodeTrace(buffer: Uint8Array): ProtoLogMessage[] {
-    const fileProto = ParserProtoLog.ProtoLogFileProto.decode(
-      buffer,
-    ) as com.android.internal.protolog.IProtoLogFileProto;
+    const fileProto =
+      com.android.internal.protolog.ProtoLogFileProto.decode(buffer);
 
     if (this.is32BitVersion(fileProto.log?.at(0))) {
-      if (configJson32.version !== ParserProtoLog.PROTOLOG_32_BIT_VERSION) {
-        const message = `Unsupported ProtoLog JSON config version ${configJson32.version}. Expected ${ParserProtoLog.PROTOLOG_32_BIT_VERSION}`;
+      if (configJson32.version !== FileReaderProtoLog.PROTOLOG_32_BIT_VERSION) {
+        const message = `Unsupported ProtoLog JSON config version ${configJson32.version}. Expected ${FileReaderProtoLog.PROTOLOG_32_BIT_VERSION}`;
         this.logger.error(message);
         throw new TypeError(message);
       }
     } else if (this.is64BitVersion(fileProto.log?.at(0))) {
-      if (configJson64.version !== ParserProtoLog.PROTOLOG_64_BIT_VERSION) {
-        const message = `Unsupported ProtoLog JSON config version ${configJson64.version}. Expected ${ParserProtoLog.PROTOLOG_64_BIT_VERSION}`;
+      if (configJson64.version !== FileReaderProtoLog.PROTOLOG_64_BIT_VERSION) {
+        const message = `Unsupported ProtoLog JSON config version ${configJson64.version}. Expected ${FileReaderProtoLog.PROTOLOG_64_BIT_VERSION}`;
         this.logger.error(message);
         throw new TypeError(message);
       }
@@ -128,10 +119,6 @@ export class ParserProtoLog extends AbstractParser<
       entry?.messageHash instanceof Long &&
       (entry.messageHash.toString() ?? '0') !== '0'
     );
-  }
-
-  override canConvertToPerfetto(): boolean {
-    return true;
   }
 
   override convertToPerfettoPackets(

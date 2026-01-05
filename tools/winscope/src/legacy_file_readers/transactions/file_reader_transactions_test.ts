@@ -16,40 +16,39 @@
 import {assertDefined} from '@common/assert';
 import Long from 'long';
 import {ClockSnapshot} from '@compat/perfetto';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
-import {TraceBuilder} from '@test/unit/trace_builder';
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
   timestampEqualityTester,
+  getTimestampConverter,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {
+  convertToPerfettoTrace,
+  LegacyFileReaderProvider,
+} from '@test/unit/fixture_utils';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 
-describe('ParserTransactions', () => {
+describe('FileReaderTransactions', () => {
   describe('trace with real timestamps', () => {
-    let parser: Parser<HierarchyTreeNode>;
+    let reader: LegacyFileReader;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      reader = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_and_real_timestamp/Transactions.pb')
-        .getParser<HierarchyTreeNode>();
+        .get();
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.TRANSACTIONS);
-    });
-
-    it('has expected coarse version', () => {
-      expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+      expect(reader.getTraceType()).toEqual(TraceType.TRANSACTIONS);
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(parser.getTimestamps());
+      const timestamps = assertDefined(reader.getTimestamps());
 
       expect(timestamps.length).toBe(712);
 
@@ -61,12 +60,8 @@ describe('ParserTransactions', () => {
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
 
-    it('does not provide entry', () => {
-      expect(parser.getEntry).toThrow();
-    });
-
     it('converts to valid perfetto packets', async () => {
-      const packets = parser.convertToPerfettoPackets!(10);
+      const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(712);
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(packets[0].surfaceflingerTransactions?.transactions?.length).toBe(
@@ -84,10 +79,9 @@ describe('ParserTransactions', () => {
       let perfettoParser: Parser<HierarchyTreeNode>;
 
       beforeAll(async () => {
-        perfettoParser = await new LegacyParserProvider()
-          .addFile('traces/elapsed_and_real_timestamp/Transactions.pb')
-          .setConvertToPerfetto(true)
-          .getParser<HierarchyTreeNode>();
+        perfettoParser = (
+          await convertToPerfettoTrace([reader], getTimestampConverter())
+        )[0];
       });
 
       it('provides timestamps', () => {
@@ -133,34 +127,30 @@ describe('ParserTransactions', () => {
       });
 
       it('supports VSYNCID custom query', async () => {
-        const trace = new TraceBuilder()
-          .setType(TraceType.TRANSACTIONS)
-          .setParser(perfettoParser)
-          .build();
-        const entries = await trace
-          .sliceEntries(0, 3)
-          .customQuery(CustomQueryType.VSYNCID);
-        const values = entries.map((entry) => entry.getValue());
-        expect(values).toEqual([1n, 2n, 3n]);
+        const entries = await perfettoParser.customQuery(
+          CustomQueryType.VSYNCID,
+          {start: 0, end: 3},
+        );
+        expect(entries).toEqual([1n, 2n, 3n]);
       });
     });
   });
 
   describe('trace with only elapsed timestamps', () => {
-    let parser: Parser<HierarchyTreeNode>;
+    let reader: LegacyFileReader;
 
     beforeAll(async () => {
-      parser = await new LegacyParserProvider()
+      reader = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_timestamp/Transactions.pb')
-        .getParser<HierarchyTreeNode>();
+        .get();
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.TRANSACTIONS);
+      expect(reader.getTraceType()).toEqual(TraceType.TRANSACTIONS);
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(parser.getTimestamps());
+      const timestamps = assertDefined(reader.getTimestamps());
 
       expect(timestamps.length).toBe(4997);
 
@@ -173,7 +163,7 @@ describe('ParserTransactions', () => {
     });
 
     it('converts to valid perfetto packets', async () => {
-      const packets = parser.convertToPerfettoPackets!(10);
+      const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(4997);
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(packets[0].surfaceflingerTransactions?.transactions?.length).toBe(

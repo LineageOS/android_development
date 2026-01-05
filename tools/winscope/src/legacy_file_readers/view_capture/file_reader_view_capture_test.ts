@@ -17,39 +17,37 @@ import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
 import Long from 'long';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
+  getTimestampConverter,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {
+  convertToPerfettoTrace,
+  LegacyFileReaderProvider,
+} from '@test/unit/fixture_utils';
 
-describe('ParserViewCapture', () => {
-  let parser: Parser<HierarchyTreeNode>;
+describe('FileReaderViewCapture', () => {
+  let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await new LegacyParserProvider()
+    reader = await new LegacyFileReaderProvider()
       .addFile(
         'traces/elapsed_and_real_timestamp/com.google.android.apps.nexuslauncher_0.vc',
       )
-      .getParser<HierarchyTreeNode>();
+      .get();
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   });
 
   it('has expected trace type', () => {
-    expect(parser.getTraceType()).toEqual(TraceType.VIEW_CAPTURE);
-  });
-
-  it('has expected coarse version', () => {
-    expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+    expect(reader.getTraceType()).toEqual(TraceType.VIEW_CAPTURE);
   });
 
   it('has expected descriptors', () => {
-    expect(parser.getDescriptors()).toEqual([
+    expect(reader.getDescriptors()).toEqual([
       '.Taskbar',
       'com.google.android.apps.nexuslauncher_0.vc',
     ]);
@@ -61,15 +59,11 @@ describe('ParserViewCapture', () => {
       makeRealTimestamp(1691692936301385080n),
       makeRealTimestamp(1691692936309419870n),
     ];
-    expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
-  });
-
-  it('does not provide entry', () => {
-    expect(parser.getEntry).toThrow();
+    expect(assertDefined(reader.getTimestamps()).slice(0, 3)).toEqual(expected);
   });
 
   it('converts to valid perfetto packets', async () => {
-    const packets = parser.convertToPerfettoPackets!(10, 2, 3);
+    const packets = reader.convertToPerfettoPackets(10, 2, 3);
     expect(packets.length).toBe(2000);
     expect(packets[0].trustedPacketSequenceId).toBe(10);
     expect(packets[0].timestamp).toEqual(
@@ -132,12 +126,9 @@ describe('ParserViewCapture', () => {
   });
 
   it('converts to valid perfetto trace', async () => {
-    const perfettoParser = await new LegacyParserProvider()
-      .addFile(
-        'traces/elapsed_and_real_timestamp/com.google.android.apps.nexuslauncher_0.vc',
-      )
-      .setConvertToPerfetto(true)
-      .getParser<HierarchyTreeNode>();
+    const perfettoParser = (
+      await convertToPerfettoTrace([reader], getTimestampConverter())
+    )[0];
     expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual([
       makeRealTimestamp(1691692936292808460n),
       makeRealTimestamp(1691692936301385080n),

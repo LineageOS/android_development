@@ -16,35 +16,27 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
-import root from 'protos/ime/udc/json';
-import {android} from 'protos/ime/udc/static';
-import {InputMethodServiceTraceProto} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
+import {ClockSnapshot, TracePacket} from '@compat/perfetto';
+import {InputMethodManagerServiceTraceProto} from '@compat/winscope_protos';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {android} from 'protos/ime/udc/static';
+import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
 
-type ImeProto = android.view.inputmethod.IInputMethodServiceTraceProto;
+type ImeProto = android.view.inputmethod.IInputMethodManagerServiceTraceProto;
 
-export class ParserInputMethodService extends AbstractParser<
-  HierarchyTreeNode,
-  ImeProto
-> {
+export class FileReaderInputMethodManagerService extends AbstractFileReader<ImeProto> {
   private static readonly MAGIC_NUMBER = [
-    0x09, 0x49, 0x4d, 0x53, 0x54, 0x52, 0x41, 0x43, 0x45,
-  ]; // .IMSTRACE
-  private static readonly InputMethodServiceTraceFileProto = root.lookupType(
-    'android.view.inputmethod.InputMethodServiceTraceFileProto',
-  );
+    0x09, 0x49, 0x4d, 0x4d, 0x54, 0x52, 0x41, 0x43, 0x45,
+  ]; // .IMMTRACE
 
   private realToBootTimeOffsetNs: bigint | undefined;
 
   override getTraceType(): TraceType {
-    return TraceType.INPUT_METHOD_SERVICE;
+    return TraceType.INPUT_METHOD_MANAGER_SERVICE;
   }
 
   override getMagicNumber(): number[] {
-    return ParserInputMethodService.MAGIC_NUMBER;
+    return FileReaderInputMethodManagerService.MAGIC_NUMBER;
   }
 
   override getRealToBootTimeOffsetNs(): bigint | undefined {
@@ -57,18 +49,14 @@ export class ParserInputMethodService extends AbstractParser<
 
   override decodeTrace(buffer: Uint8Array): ImeProto[] {
     const decoded =
-      ParserInputMethodService.InputMethodServiceTraceFileProto.decode(
+      android.view.inputmethod.InputMethodManagerServiceTraceFileProto.decode(
         buffer,
-      ) as android.view.inputmethod.IInputMethodServiceTraceFileProto;
+      );
     const timeOffset = BigInt(
       decoded.realToElapsedTimeOffsetNanos?.toString() ?? '0',
     );
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
     return decoded.entry ?? [];
-  }
-
-  override canConvertToPerfetto(): boolean {
-    return true;
   }
 
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
@@ -80,8 +68,8 @@ export class ParserInputMethodService extends AbstractParser<
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedPacketSequenceId = sequenceId;
       packet.winscopeExtensions = {
-        '.perfetto.protos.WinscopeExtensionsImpl.inputmethodService':
-          InputMethodServiceTraceProto.fromObject(entry),
+        '.perfetto.protos.WinscopeExtensionsImpl.inputmethodManagerService':
+          InputMethodManagerServiceTraceProto.fromObject(entry),
       };
       packets.push(packet);
     }

@@ -16,36 +16,27 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
-import {com} from 'protos/windowmanager/udc/static';
-
+import {ClockSnapshot, TracePacket} from '@compat/perfetto';
+import {InputMethodClientsTraceProto} from '@compat/winscope_protos';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {WindowManagerTraceEntry} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
+import {android} from 'protos/ime/udc/static';
+import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
 
-type WindowManagerProto = com.android.server.wm.IWindowManagerTraceProto;
+type ImeProto = android.view.inputmethod.IInputMethodClientsTraceProto;
 
-/**
- * Parser for WindowManager trace files.
- */
-export class ParserWindowManager extends AbstractParser<
-  HierarchyTreeNode,
-  WindowManagerProto
-> {
+export class FileReaderInputMethodClients extends AbstractFileReader<ImeProto> {
   private static readonly MAGIC_NUMBER = [
-    0x09, 0x57, 0x49, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45,
-  ]; // .WINTRACE
+    0x09, 0x49, 0x4d, 0x43, 0x54, 0x52, 0x41, 0x43, 0x45,
+  ]; // .IMCTRACE
 
   private realToBootTimeOffsetNs: bigint | undefined;
 
   override getTraceType(): TraceType {
-    return TraceType.WINDOW_MANAGER;
+    return TraceType.INPUT_METHOD_CLIENTS;
   }
 
   override getMagicNumber(): number[] {
-    return ParserWindowManager.MAGIC_NUMBER;
+    return FileReaderInputMethodClients.MAGIC_NUMBER;
   }
 
   override getRealToBootTimeOffsetNs(): bigint | undefined {
@@ -56,10 +47,9 @@ export class ParserWindowManager extends AbstractParser<
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): WindowManagerProto[] {
-    const decoded = TAMPERED_PROTO_UDC.decode(
-      buffer,
-    ) as com.android.server.wm.IWindowManagerTraceFileProto;
+  override decodeTrace(buffer: Uint8Array): ImeProto[] {
+    const decoded =
+      android.view.inputmethod.InputMethodClientsTraceFileProto.decode(buffer);
     const timeOffset = BigInt(
       decoded.realToElapsedTimeOffsetNanos?.toString() ?? '0',
     );
@@ -67,29 +57,26 @@ export class ParserWindowManager extends AbstractParser<
     return decoded.entry ?? [];
   }
 
-  protected override getTimestamp(entry: WindowManagerProto): Timestamp {
-    return this.timestampConverter.makeTimestampFromBootTimeNs(
-      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
-    );
-  }
-
-  override canConvertToPerfetto(): boolean {
-    return true;
-  }
-
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets = [];
+
     for (const entry of this.decodedEntries) {
       const packet = new TracePacket();
       packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
       packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
       packet.trustedPacketSequenceId = sequenceId;
       packet.winscopeExtensions = {
-        '.perfetto.protos.WinscopeExtensionsImpl.windowmanager':
-          WindowManagerTraceEntry.fromObject(entry),
+        '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients':
+          InputMethodClientsTraceProto.fromObject(entry),
       };
       packets.push(packet);
     }
     return packets;
+  }
+
+  protected override getTimestamp(entry: ImeProto): Timestamp {
+    return this.timestampConverter.makeTimestampFromBootTimeNs(
+      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
+    );
   }
 }

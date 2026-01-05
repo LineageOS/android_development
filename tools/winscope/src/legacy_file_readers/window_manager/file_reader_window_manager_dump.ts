@@ -14,30 +14,20 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
 import {com} from 'protos/windowmanager/udc/static';
 import Long from 'long';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {WindowManagerTraceEntry} from '@compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {TAMPERED_PROTO_UDC} from './tampered_protos_udc';
+import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
 
 type DumpProto = com.android.server.wm.IWindowManagerServiceDumpProto;
 
 /**
  * Parser for WindowManager dump files.
  */
-export class ParserWindowManagerDump extends AbstractParser<
-  HierarchyTreeNode,
-  DumpProto
-> {
-  private static TAMPERED_PROTO = assertDefined(
-    TAMPERED_PROTO_UDC.fields['entry'].tamperedMessageType,
-  ).fields['windowManagerService'];
-
+export class FileReaderWindowManagerDump extends AbstractFileReader<DumpProto> {
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;
   }
@@ -55,10 +45,8 @@ export class ParserWindowManagerDump extends AbstractParser<
   }
 
   override decodeTrace(buffer: Uint8Array): DumpProto[] {
-    const protoType = assertDefined(
-      ParserWindowManagerDump.TAMPERED_PROTO.tamperedMessageType,
-    );
-    const entryProto = protoType.decode(buffer) as DumpProto;
+    const entryProto =
+      com.android.server.wm.WindowManagerServiceDumpProto.decode(buffer);
 
     // This parser is prone to accepting invalid inputs because it lacks a magic
     // number. Reduce the chances of accepting invalid inputs by ensuring that the
@@ -80,10 +68,6 @@ export class ParserWindowManagerDump extends AbstractParser<
 
   protected override getTimestamp(entryProto: DumpProto): Timestamp {
     return this.timestampConverter.makeZeroTimestamp();
-  }
-
-  override canConvertToPerfetto(): boolean {
-    return true;
   }
 
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {

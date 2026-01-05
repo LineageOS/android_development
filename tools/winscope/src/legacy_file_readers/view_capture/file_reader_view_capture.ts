@@ -17,35 +17,32 @@
 import {assertDefined} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
-import root from 'protos/viewcapture/udc/json';
 import {com} from 'protos/viewcapture/udc/static';
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {ParserViewCaptureWindow} from './parser_view_capture_window';
+import {FileReaderViewCaptureWindow} from './file_reader_view_capture_window';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 
 /**
  * A parser for legacy ViewCapture traces.
  */
-export class ParserViewCapture {
-  private static readonly ExportedDataProto = root.lookupType(
-    'com.android.app.viewcapture.data.ExportedData',
-  );
-  private readonly windowParsers: ParserViewCaptureWindow[] = [];
+export class FileReaderViewCapture {
+  private readonly windowParsers: FileReaderViewCaptureWindow[] = [];
 
   constructor(
     private readonly traceFile: TraceFile,
     private readonly timestampConverter: ParserTimestampConverter,
   ) {}
 
-  async parse() {
+  async read() {
     const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
-    throwIfMagicNumberDoesNotMatch(traceBuffer, ParserViewCapture.MAGIC_NUMBER);
-
-    const exportedData = ParserViewCapture.ExportedDataProto.decode(
+    throwIfMagicNumberDoesNotMatch(
       traceBuffer,
-    ) as com.android.app.viewcapture.data.IExportedData;
+      FileReaderViewCapture.MAGIC_NUMBER,
+    );
+
+    const exportedData =
+      com.android.app.viewcapture.data.ExportedData.decode(traceBuffer);
 
     const realToBootTimeOffsetNs = BigInt(
       assertDefined(exportedData.realToElapsedTimeOffsetNanos).toString(),
@@ -54,8 +51,8 @@ export class ParserViewCapture {
     exportedData.windowData?.forEach(
       (windowData: com.android.app.viewcapture.data.IWindowData) => {
         this.windowParsers.push(
-          new ParserViewCaptureWindow(
-            [this.traceFile.getDescriptor()],
+          new FileReaderViewCaptureWindow(
+            this.traceFile,
             windowData.frameData ?? [],
             realToBootTimeOffsetNs,
             assertDefined(exportedData.package),
@@ -72,7 +69,7 @@ export class ParserViewCapture {
     return TraceType.VIEW_CAPTURE;
   }
 
-  getWindowParsers(): Array<Parser<HierarchyTreeNode>> {
+  getWindowParsers(): LegacyFileReader[] {
     return this.windowParsers;
   }
 

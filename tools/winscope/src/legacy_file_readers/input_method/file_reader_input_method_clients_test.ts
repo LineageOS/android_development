@@ -16,34 +16,33 @@
 
 import {assertDefined} from '@common/assert';
 import Long from 'long';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
+  convertToPerfettoTrace,
+  LegacyFileReaderProvider,
+} from '@test/unit/fixture_utils';
+import {
+  getTimestampConverter,
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 
-describe('ParserInputMethodClients', () => {
+describe('FileReaderInputMethodClients', () => {
   describe('trace with real timestamps', () => {
-    let parser: Parser<HierarchyTreeNode>;
+    let reader: LegacyFileReader;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      reader = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_and_real_timestamp/InputMethodClients.pb')
-        .getParser<HierarchyTreeNode>();
+        .get();
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.INPUT_METHOD_CLIENTS);
-    });
-
-    it('has expected coarse version', () => {
-      expect(parser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+      expect(reader.getTraceType()).toEqual(TraceType.INPUT_METHOD_CLIENTS);
     });
 
     it('provides timestamps', () => {
@@ -52,15 +51,11 @@ describe('ParserInputMethodClients', () => {
         makeRealTimestamp(1659107090249283325n),
         makeRealTimestamp(1659107090279417928n),
       ];
-      expect(parser.getTimestamps()?.slice(0, 3)).toEqual(expected);
-    });
-
-    it('does not provide entry', () => {
-      expect(parser.getEntry).toThrow();
+      expect(reader.getTimestamps()?.slice(0, 3)).toEqual(expected);
     });
 
     it('converts to valid perfetto packets', async () => {
-      const packets = parser.convertToPerfettoPackets!(10);
+      const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(13);
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       const data =
@@ -75,10 +70,9 @@ describe('ParserInputMethodClients', () => {
     });
 
     it('converts to valid perfetto trace', async () => {
-      const perfettoParser = await new LegacyParserProvider()
-        .addFile('traces/elapsed_and_real_timestamp/InputMethodClients.pb')
-        .setConvertToPerfetto(true)
-        .getParser<HierarchyTreeNode>();
+      const perfettoParser = (
+        await convertToPerfettoTrace([reader], getTimestampConverter())
+      )[0];
 
       expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual([
         makeRealTimestamp(1659107090215405395n),
@@ -102,31 +96,27 @@ describe('ParserInputMethodClients', () => {
   });
 
   describe('trace with only elapsed timestamps', () => {
-    let parser: Parser<HierarchyTreeNode>;
+    let reader: LegacyFileReader;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      reader = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_timestamp/InputMethodClients.pb')
-        .getParser<HierarchyTreeNode>();
+        .get();
     });
 
     it('has expected trace type', () => {
-      expect(parser.getTraceType()).toEqual(TraceType.INPUT_METHOD_CLIENTS);
+      expect(reader.getTraceType()).toEqual(TraceType.INPUT_METHOD_CLIENTS);
     });
 
     it('provides timestamps', () => {
-      expect(assertDefined(parser.getTimestamps())[0]).toEqual(
+      expect(assertDefined(reader.getTimestamps())[0]).toEqual(
         makeElapsedTimestamp(1149083651642n),
       );
     });
 
-    it('does not provide entry', () => {
-      expect(parser.getEntry).toThrow();
-    });
-
     it('converts to valid perfetto packets', async () => {
-      const packets = parser.convertToPerfettoPackets!(10);
+      const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(33);
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       const data =

@@ -15,25 +15,28 @@
  */
 import {assertDefined} from '@common/assert';
 import Long from 'long';
-import {makeWarningDuplicateLayerIds} from '@parsers/warnings';
+import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
 import {ClockSnapshot} from '@compat/perfetto';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
-import {TraceBuilder} from '@test/unit/trace_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
+  getTimestampConverter,
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@test/unit/time_test_helpers';
-import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
-import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {makeIdMatchFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {
+  convertToPerfettoTrace,
+  LegacyFileReaderProvider,
+  parseAndConvertToPerfettoTrace,
+} from '@test/unit/fixture_utils';
 
-describe('ParserSurfaceFlinger', () => {
+describe('FileReaderSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
 
   beforeAll(() => {
@@ -46,21 +49,17 @@ describe('ParserSurfaceFlinger', () => {
   });
 
   describe('trace with real timestamps', () => {
-    let realParser: Parser<HierarchyTreeNode>;
+    let readerRealTs: LegacyFileReader;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      realParser = await new LegacyParserProvider()
+      readerRealTs = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
-        .getParser<HierarchyTreeNode>();
+        .get();
     });
 
     it('has expected trace type', () => {
-      expect(realParser.getTraceType()).toEqual(TraceType.SURFACE_FLINGER);
-    });
-
-    it('has expected coarse version', () => {
-      expect(realParser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+      expect(readerRealTs.getTraceType()).toEqual(TraceType.SURFACE_FLINGER);
     });
 
     it('provides timestamps', () => {
@@ -69,17 +68,13 @@ describe('ParserSurfaceFlinger', () => {
         makeRealTimestamp(1659107089233029344n),
         makeRealTimestamp(1659107090005226366n),
       ];
-      expect(assertDefined(realParser.getTimestamps()).slice(0, 3)).toEqual(
+      expect(assertDefined(readerRealTs.getTimestamps()).slice(0, 3)).toEqual(
         expected,
       );
     });
 
-    it('does not provide entry', () => {
-      expect(realParser.getEntry).toThrow();
-    });
-
     it('converts to valid perfetto packets', async () => {
-      const packets = realParser.convertToPerfettoPackets!(10);
+      const packets = readerRealTs.convertToPerfettoPackets(10);
       expect(packets.length).toBe(21);
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(
@@ -95,17 +90,11 @@ describe('ParserSurfaceFlinger', () => {
 
     describe('converts to valid perfetto trace', () => {
       let perfettoParser: Parser<HierarchyTreeNode>;
-      let perfettoTrace: Trace<HierarchyTreeNode>;
 
       beforeAll(async () => {
-        perfettoParser = await new LegacyParserProvider()
-          .addFile('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
-          .setConvertToPerfetto(true)
-          .getParser<HierarchyTreeNode>();
-        perfettoTrace = new TraceBuilder<HierarchyTreeNode>()
-          .setType(TraceType.SURFACE_FLINGER)
-          .setParser(perfettoParser)
-          .build();
+        perfettoParser = (
+          await convertToPerfettoTrace([readerRealTs], getTimestampConverter())
+        )[0];
       });
 
       it('provides timestamps', () => {
@@ -133,17 +122,18 @@ describe('ParserSurfaceFlinger', () => {
       });
 
       it('supports VSYNCID custom query', async () => {
-        const entries = await perfettoTrace
-          .sliceEntries(0, 3)
-          .customQuery(CustomQueryType.VSYNCID);
-        const values = entries.map((entry) => entry.getValue());
-        expect(values).toEqual([4891n, 5235n, 5748n]);
+        const entries = await perfettoParser.customQuery(
+          CustomQueryType.VSYNCID,
+          {start: 0, end: 3},
+        );
+        expect(entries).toEqual([4891n, 5235n, 5748n]);
       });
 
       it('supports SF_LAYERS_ID_AND_NAME custom query', async () => {
-        const idAndNames = await perfettoTrace
-          .sliceEntries(0, 1)
-          .customQuery(CustomQueryType.SF_LAYERS_ID_AND_NAME);
+        const idAndNames = await perfettoParser.customQuery(
+          CustomQueryType.SF_LAYERS_ID_AND_NAME,
+          {start: 0, end: 1},
+        );
         expect(idAndNames).toContain({
           id: 4,
           name: 'WindowedMagnification:0:31#4',
@@ -154,12 +144,9 @@ describe('ParserSurfaceFlinger', () => {
 
     describe('handles duplicate ids', () => {
       it('is robust to duplicated layer ids', async () => {
-        const parser = await new LegacyParserProvider()
-          .addFile(
-            'traces/elapsed_and_real_timestamp/SurfaceFlinger_with_duplicated_ids.pb',
-          )
-          .setConvertToPerfetto(true)
-          .getParser<HierarchyTreeNode>();
+        const parser = await parseAndConvertToPerfettoTrace(
+          'traces/elapsed_and_real_timestamp/SurfaceFlinger_with_duplicated_ids.pb',
+        );
         const entry = await parser.getEntry(0);
         expect(entry.getWarnings()).toEqual([
           makeWarningDuplicateLayerIds([-2147483595]),
@@ -194,30 +181,27 @@ describe('ParserSurfaceFlinger', () => {
   });
 
   describe('trace with only elapsed timestamps', () => {
-    let elapsedParser: Parser<HierarchyTreeNode>;
+    let readerElapsedTs: LegacyFileReader;
 
     beforeAll(async () => {
-      elapsedParser = await new LegacyParserProvider()
+      jasmine.addCustomEqualityTester(timestampEqualityTester);
+      readerElapsedTs = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_timestamp/SurfaceFlinger.pb')
-        .getParser<HierarchyTreeNode>();
+        .get();
     });
 
     it('has expected trace type', () => {
-      expect(elapsedParser.getTraceType()).toEqual(TraceType.SURFACE_FLINGER);
-    });
-
-    it('has expected coarse version', () => {
-      expect(elapsedParser.getCoarseVersion()).toEqual(CoarseVersion.LEGACY);
+      expect(readerElapsedTs.getTraceType()).toEqual(TraceType.SURFACE_FLINGER);
     });
 
     it('provides timestamps', () => {
-      expect(assertDefined(elapsedParser.getTimestamps())[0]).toEqual(
+      expect(assertDefined(readerElapsedTs.getTimestamps())[0]).toEqual(
         makeElapsedTimestamp(850335483446n),
       );
     });
 
     it('converts to valid perfetto packets, without latest offsets', async () => {
-      const packets = elapsedParser.convertToPerfettoPackets!(10);
+      const packets = readerElapsedTs.convertToPerfettoPackets(10);
       expect(packets.length).toBe(3);
       expect(packets[0].trustedPacketSequenceId).toBe(10);
       expect(

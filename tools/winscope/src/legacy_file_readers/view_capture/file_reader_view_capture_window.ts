@@ -15,7 +15,6 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
@@ -28,29 +27,22 @@ import {
   TracePacket,
 } from '@compat/perfetto';
 import {com} from 'protos/viewcapture/udc/static';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-} from '@trace_api/custom_query';
-import {EntriesRange} from '@trace_api/index_types';
-import {Parser} from '@trace_api/parser';
+
 import {TraceType} from '@trace_api/trace_type';
-import {QueryResult, QueryResults} from '@trace_processor/query_result';
-import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {TraceFile} from '@trace/trace_file';
 
 /**
- * A parser for a single window in a legacy ViewCapture trace.
+ * A file reader for a single window in a legacy ViewCapture trace.
  */
-export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
+export class FileReaderViewCaptureWindow implements LegacyFileReader {
   private static readonly PACKAGE_OR_WINDOW_IID = 1;
 
   private timestamps: Timestamp[] | undefined;
   private viewIdToIid = new Map<string, number>();
 
   constructor(
-    private readonly descriptors: string[],
+    private readonly traceFile: TraceFile,
     private readonly frameData: FrameData[],
     private readonly realToBootTimeOffsetNs: bigint,
     private readonly packageName: string,
@@ -59,20 +51,20 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     private readonly timestampConverter: ParserTimestampConverter,
   ) {}
 
-  parse() {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  isPerfetto(): boolean {
-    return false;
-  }
-
   getTraceType(): TraceType {
     return TraceType.VIEW_CAPTURE;
   }
 
-  getCoarseVersion(): CoarseVersion {
-    return CoarseVersion.LEGACY;
+  getFiles(): TraceFile[] {
+    return [this.traceFile];
+  }
+
+  getDescriptors(): string[] {
+    return [this.windowName, this.traceFile.getDescriptor()];
+  }
+
+  getDecodedEntries(): FrameData[] {
+    return this.frameData;
   }
 
   getLengthEntries(): number {
@@ -93,24 +85,6 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
 
   getTimestamps(): Timestamp[] | undefined {
     return this.timestamps;
-  }
-
-  getEntry(index: number): Promise<HierarchyTreeNode> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<HierarchyTreeNode[]> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  getQueryResults(
-    entriesRange: EntriesRange,
-  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  canConvertToPerfetto(): boolean {
-    return true;
   }
 
   convertToPerfettoPackets(
@@ -138,21 +112,6 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     });
     packets[0].internedData = this.makeInternedData();
     return packets;
-  }
-
-  customQuery<Q extends CustomQueryType>(
-    type: Q,
-    entriesRange: EntriesRange,
-  ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  getDescriptors(): string[] {
-    return [this.windowName, ...this.descriptors];
-  }
-
-  getAllEntries(): Promise<HierarchyTreeNode[]> {
-    throw NOT_IMPLEMENTED_ERROR;
   }
 
   private decodeTimestamps(): Timestamp[] {
@@ -205,8 +164,8 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
     const perfettoViews: ViewCapture.IView[] = [];
     this.convertToPerfettoView(assertDefined(frame.node), -1, perfettoViews);
     return ViewCapture.fromObject({
-      packageNameIid: ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
-      windowNameIid: ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
+      packageNameIid: FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
+      windowNameIid: FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
       views: perfettoViews,
     });
   }
@@ -214,7 +173,7 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
   private makeInternedData(): InternedData {
     const internedWindowNames: InternedString[] = [
       InternedString.fromObject({
-        iid: Long.fromNumber(ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
+        iid: Long.fromNumber(FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
         str: utf8Encode(this.windowName),
       }),
     ];
@@ -230,7 +189,7 @@ export class ParserViewCaptureWindow implements Parser<HierarchyTreeNode> {
 
     const internedPackageNames: InternedString[] = [
       InternedString.fromObject({
-        iid: Long.fromNumber(ParserViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
+        iid: Long.fromNumber(FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
         str: utf8Encode(this.packageName),
       }),
     ];
