@@ -41,7 +41,7 @@ import {Chip} from './chip';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {Rect} from '@common/geometry/rect';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {TraceType} from '@trace_api/trace_type';

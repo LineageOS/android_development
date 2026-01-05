@@ -19,7 +19,6 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
@@ -27,7 +26,7 @@ import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
-import {SetFormatters} from '@parsers/set_formatters';
+import {SetFormatters} from '@parsers/helpers/set_formatters';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
@@ -44,6 +43,7 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 
 class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traceSf: Trace<HierarchyTreeNode> | undefined;
@@ -175,12 +175,9 @@ the default for its data type.`,
     'com.google.(...).LimitedMapsActivity#630';
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parser = await new LegacyParserProvider()
-      .addFile(
-        'traces/elapsed_and_real_timestamp/SurfaceFlinger_multidisplay.pb',
-      )
-      .setConvertToPerfetto(true)
-      .getParser<HierarchyTreeNode>();
+    const parser = await parseAndConvertToPerfettoTrace(
+      'traces/elapsed_and_real_timestamp/SurfaceFlinger_multidisplay.pb',
+    );
 
     this.traceSf = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.SURFACE_FLINGER)

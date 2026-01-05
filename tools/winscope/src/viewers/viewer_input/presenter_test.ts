@@ -20,7 +20,6 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Timer} from '@common/time/timer';
 import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {getTracesParser} from '@test/unit/fixture_utils';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
 import {makeRealTimestamp} from '@test/unit/time_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
@@ -47,6 +46,7 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {getParserInput} from '@test/unit/fixture_utils';
 
 class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
   override readonly expectedHeaders = [
@@ -153,9 +153,9 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
   }
   override async setUpTestEnvironment(): Promise<void> {
     if (!this.parser) {
-      this.parser = (
-        await getTracesParser(['traces/perfetto/input-events.perfetto-trace'])
-      ).tracesParser as Parser<HierarchyTreeNode>;
+      this.parser = await getParserInput(
+        'traces/perfetto/input-events.perfetto-trace',
+      );
     }
 
     this.trace = new TraceBuilder<HierarchyTreeNode>()
@@ -539,7 +539,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       });
 
       it('finds closest input event by frame', async () => {
-        const parser = assertDefined(this.trace).getParser();
+        const parser = assertDefined(this.parser);
         const traces = new Traces();
 
         // FRAME:            0        1       2
@@ -637,7 +637,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       });
 
       it('extracts corresponding input rects from SF trace', async () => {
-        const parser = assertDefined(this.trace).getParser();
+        const parser = assertDefined(this.parser);
         const traces = await getTracesWithSf(parser, this.layerIdToName);
         const trace = assertDefined(
           traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
@@ -702,12 +702,11 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       });
 
       it('highlights the proper selected node', async () => {
-        const presenter = (
-          await setupAndAssertInitialHighlight(this.trace, this.layerIdToName)
-        ).presenter;
-        const testLogId = (
-          await setupAndAssertInitialHighlight(this.trace, this.layerIdToName)
-        ).testLogId;
+        const parser = assertDefined(this.parser);
+        const {presenter, testLogId} = await setupAndAssertInitialHighlight(
+          parser,
+          this.layerIdToName,
+        );
 
         const element = document.createElement('div');
         presenter.addEventListeners(element);
@@ -721,8 +720,9 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       });
 
       it('updates highlighted property on target window click', async () => {
+        const parser = assertDefined(this.parser);
         const expectedPropertyId = (
-          await setupAndAssertInitialHighlight(this.trace, this.layerIdToName)
+          await setupAndAssertInitialHighlight(parser, this.layerIdToName)
         ).expectedPropertyId;
         expect(uiData.highlightedProperty).toEqual(expectedPropertyId);
       });
@@ -730,7 +730,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       it('updates highlighted rect on target window click', async () => {
         const {presenter, testLogId} =
           await setupInitialHighlightTestingEnvironment(
-            this.trace,
+            assertDefined(this.parser),
             this.layerIdToName,
           );
         const windowId = BigInt(this.layerIdToName[1].id);
@@ -745,7 +745,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       });
 
       it('updates highlighted rect', async () => {
-        const parser = assertDefined(this.trace).getParser();
+        const parser = assertDefined(this.parser);
         const traces = await getTracesWithSf(parser, this.layerIdToName);
         const trace = assertDefined(
           traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
@@ -780,7 +780,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
             enabled: true,
           },
         };
-        const parser = assertDefined(this.trace).getParser();
+        const parser = assertDefined(this.parser);
         const traces = await getTracesWithSf(parser, this.layerIdToName);
         const trace = assertDefined(
           traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
@@ -883,17 +883,14 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       });
 
       async function setupAndAssertInitialHighlight(
-        presenterTrace: Trace<HierarchyTreeNode> | undefined,
+        parser: Parser<HierarchyTreeNode>,
         layerIdToName: Array<{
           id: number;
           name: string;
         }>,
       ) {
         const {presenter, testLogId} =
-          await setupInitialHighlightTestingEnvironment(
-            presenterTrace,
-            layerIdToName,
-          );
+          await setupInitialHighlightTestingEnvironment(parser, layerIdToName);
         const windowId = layerIdToName[1].id;
         const windowName = layerIdToName[1].name;
         const dispatchPropertyNodes = assertDefined(
@@ -915,13 +912,12 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       }
 
       async function setupInitialHighlightTestingEnvironment(
-        presenterTrace: Trace<HierarchyTreeNode> | undefined,
+        parser: Parser<HierarchyTreeNode>,
         layerIdToName: Array<{
           id: number;
           name: string;
         }>,
       ) {
-        const parser = assertDefined(presenterTrace).getParser();
         const traces = await getTracesWithSf(parser, layerIdToName);
         const trace = assertDefined(
           traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),

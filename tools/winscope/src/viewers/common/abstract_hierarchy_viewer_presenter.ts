@@ -32,7 +32,7 @@ import {getLogger, Logger} from '@compat/logging';
 import {Analytics} from '@logging/analytics';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {ScreenRecordingChange, TracePositionUpdate} from '@trace/trace_events';
 import {Trace, TraceEntry} from '@trace_api/trace';

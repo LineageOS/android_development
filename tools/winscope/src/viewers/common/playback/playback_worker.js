@@ -17,10 +17,10 @@
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {TraceType} from '@trace_api/trace_type';
 import {createQueryResult} from '@trace_processor/perfetto/query_result';
-import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/window_manager/perfetto/entry_hierarchy_tree_factory';
-import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/perfetto/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/window_manager/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/entry_hierarchy_tree_factory';
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 
 self.onmessage = async (event) => {
   const traceGeometryData = new TraceGeometryData(

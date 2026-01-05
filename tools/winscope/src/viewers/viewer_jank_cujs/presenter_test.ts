@@ -28,7 +28,8 @@ import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewe
 import {LogHeader} from '@viewers/common/ui_data_log';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {Parser} from '@trace_api/parser';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 
 class PresenterJankCujsTest extends AbstractLogViewerPresenterTest<UiData> {
   override readonly expectedHeaders = [
@@ -67,9 +68,9 @@ class PresenterJankCujsTest extends AbstractLogViewerPresenterTest<UiData> {
   private positionUpdate: TracePositionUpdate | undefined;
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parser = await new LegacyParserProvider()
+    const parser = (await new NonPerfettoParserProvider()
       .addFile('traces/elapsed_and_real_timestamp/eventlog.winscope')
-      .getParser<HierarchyTreeNode>();
+      .get()) as Parser<HierarchyTreeNode>;
 
     this.trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.CUJS)

@@ -18,7 +18,6 @@ import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
@@ -38,6 +37,7 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 
 class PresenterWindowManagerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private trace: Trace<HierarchyTreeNode> | undefined;
@@ -131,10 +131,9 @@ the default for its data type.`,
     'com.google.(...).NexusLauncherActivity';
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parser = await new LegacyParserProvider()
-      .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
-      .setConvertToPerfetto(true)
-      .getParser<HierarchyTreeNode>();
+    const parser = await parseAndConvertToPerfettoTrace(
+      'traces/elapsed_and_real_timestamp/WindowManager.pb',
+    );
 
     this.trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.WINDOW_MANAGER)

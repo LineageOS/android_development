@@ -24,7 +24,8 @@ import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewe
 import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
 import {CujEntry, UiData} from './ui_data';
 import {ViewerJankCujsComponent} from './viewer_jank_cujs_component';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {Parser} from '@trace_api/parser';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 
 class ViewerJankCujsComponentTest extends AbstractLogViewerComponentTest<ViewerJankCujsComponent> {
   protected override readonly testProperties = false;
@@ -45,9 +46,9 @@ class ViewerJankCujsComponentTest extends AbstractLogViewerComponentTest<ViewerJ
       ViewerJankCujsComponent,
     ]
   > {
-    const parser = await new LegacyParserProvider()
+    const parser = (await new NonPerfettoParserProvider()
       .addFile('traces/elapsed_and_real_timestamp/eventlog.winscope')
-      .getParser<HierarchyTreeNode>();
+      .get()) as Parser<HierarchyTreeNode>;
 
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setParser(parser)
