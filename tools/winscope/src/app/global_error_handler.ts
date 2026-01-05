@@ -32,6 +32,6 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   handleError(error: Error) {
     Analytics.Error.logGlobalException(error.message);
-    this.logger.error(error.message);
+    this.logger.error(error.message, error);
   }
 }
