@@ -36,17 +36,6 @@ function makeErrorMessageDuplicateLayerIds(layerIds: number[]) {
 }
 
 /**
- * A warning for when legacy to perfetto trace conversion fails.
- */
-export function makeWarningFailedToConvertLegacyTraces(errorMessage: string) {
-  return new UserWarning(
-    'failed to convert legacy trace',
-    `Legacy to perfetto conversion failed: ${errorMessage}
-Discarding legacy traces.`,
-  );
-}
-
-/**
  * A warning for when a traces parser fails to be created.
  */
 export function makeWarningFailedToCreateTracesParser(
@@ -63,12 +52,12 @@ export function makeWarningFailedToCreateTracesParser(
  * A warning for an invalid legacy trace.
  */
 export function makeWarningInvalidLegacyTrace(
-  descriptor: string,
+  descriptors: string[],
   errorMessage: string,
 ) {
   return new UserWarning(
     'invalid legacy trace',
-    `${descriptor}: ${errorMessage}`,
+    `${descriptors.join(', ')}: ${errorMessage}`,
   );
 }
 
