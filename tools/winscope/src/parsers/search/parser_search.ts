@@ -19,7 +19,7 @@ import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {INVALID_TIME_NS, Timestamp} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {Analytics} from '@logging/analytics';
-import {makeWarningTraceSearchQueryFailed} from '@parsers/warnings';
+import {makeWarningTraceSearchQueryFailed} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
@@ -41,6 +41,10 @@ export class ParserSearch implements Parser<QueryResult> {
     private readonly query: string,
     private timestampConverter: TimestampConverter,
   ) {}
+
+  onDestroy() {
+    // do nothing
+  }
 
   getCoarseVersion(): CoarseVersion {
     return CoarseVersion.LATEST;
@@ -102,14 +106,6 @@ export class ParserSearch implements Parser<QueryResult> {
 
   getRealToBootTimeOffsetNs(): bigint | undefined {
     return undefined;
-  }
-
-  createTimestamps(): void {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  canConvertToPerfetto(): boolean {
-    return false;
   }
 
   async parse() {

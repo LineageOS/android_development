@@ -22,8 +22,8 @@ import {
   assertStringOrUndefined,
 } from '@common/assert';
 import {Rect} from '@common/geometry/rect';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
-import {TraceRectBuilderFromQueryRow} from '@parsers/trace_rect_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {TraceRectBuilderFromQueryRow} from '@parsers/helpers/trace_rect_builder_from_query_row';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceRect} from '@tree_node/trace_rect';
 import {RectsForTrace, SnapshotRects} from '@tree_node/rect_extractor_result';

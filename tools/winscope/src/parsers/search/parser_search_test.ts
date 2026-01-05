@@ -15,8 +15,8 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeWarningTraceSearchQueryFailed} from '@parsers/warnings';
-import {ParserSurfaceFlinger} from '@parsers/surface_flinger/perfetto/parser_surface_flinger';
+import {makeWarningTraceSearchQueryFailed} from '@parsers/helpers/warnings';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {

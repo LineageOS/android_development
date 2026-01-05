@@ -20,7 +20,7 @@ import {
   assertString,
   assertTrue,
 } from '@common/assert';
-import {makeWarningMissingVsyncId} from '@parsers/warnings';
+import {makeWarningMissingVsyncId} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
 import {QueryResult} from '@trace_processor/query_result';

@@ -21,8 +21,8 @@ import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
   makeWarningRecursiveLayerIds,
-} from '@parsers/warnings';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+} from '@parsers/helpers/warnings';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {
   ColumnType,
   QueryResult,

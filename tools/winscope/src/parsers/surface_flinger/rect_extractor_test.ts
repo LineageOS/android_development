@@ -18,7 +18,7 @@ import {CornerRadii} from '@common/geometry/corner_radii';
 import {Rect} from '@common/geometry/rect';
 import {Region} from '@common/geometry/region';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {
   ColumnType,
   QueryResult,
