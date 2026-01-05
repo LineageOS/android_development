@@ -67,7 +67,7 @@ limitations under the License.
       >
         Transform:
       </p>
-      @if (properties.calcTransform?.getAllChildren().length > 0) {
+      @if ((properties.calcTransform?.getAllChildren()?.length ?? 0) > 0) {
       <transform-matrix
         [matTooltip]="getTransformType(properties.calcTransform)"
         [matrix]="getTransformMatrix(properties.calcTransform)"
@@ -101,7 +101,7 @@ limitations under the License.
       >
         Transform:
       </p>
-      @if (properties.reqTransform?.getAllChildren().length > 0) {
+      @if ((properties.reqTransform?.getAllChildren()?.length ?? 0) > 0) {
       <transform-matrix
         [matTooltip]="getTransformType(properties.reqTransform)"
         [matrix]="getTransformMatrix(properties.reqTransform)"
@@ -175,7 +175,8 @@ limitations under the License.
                     and other properties are inherited from its parents."
           >Relative Parent:</span
         >
-        &ngsp; @if (!properties.relativeParent.nodeId) { {{ properties.relativeParent }} } @else {
+        &ngsp; @if (!isSfLayerSummary(properties.relativeParent)) { {{ properties.relativeParent }}
+        } @else {
         <button
           mat-button
           color="primary"
@@ -270,7 +271,7 @@ limitations under the License.
     @if (properties.hasInputChannel) {
     <div class="left-column">
       <p class="property mat-body-1">To Display Transform:</p>
-      @if (properties.inputTransform?.getAllChildren().length > 0) {
+      @if ((properties.inputTransform?.getAllChildren()?.length ?? 0) > 0) {
       <transform-matrix
         [matTooltip]="getTransformType(properties.inputTransform)"
         [matrix]="getTransformMatrix(properties.inputTransform)"
