@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,20 @@ import {
   makeWarningTraceOverridden,
   makeWarningTraceHasElapsedTimestamps,
 } from './warnings';
-import {FileAndParser} from '@parsers/file_and_parser';
-import {FileAndParsers} from '@parsers/file_and_parsers';
-import {ParserBuilder} from '@test/unit/parser_builder';
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
 } from '@test/unit/time_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {LoadedParsers} from './loaded_parsers';
+import {LoadedFiles} from './loaded_files';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {FileReader} from '@trace_api/file_reader';
+import {LegacyFileReaderBuilder} from '@test/unit/legacy_file_reader_builder';
+import {FileReaderBuilder} from '@test/unit/file_reader_builder';
 
-describe('LoadedParsers', () => {
+describe('LoadedFiles', () => {
   const realZeroTimestamp = makeRealTimestamp(0n);
   const elapsedZeroTimestamp = makeElapsedTimestamp(0n);
   const oldTimestamps = [
@@ -47,68 +47,51 @@ describe('LoadedParsers', () => {
     makeRealTimestamp(4n),
   ];
 
-  const elapsedTimestamps = [
-    elapsedZeroTimestamp,
-    makeElapsedTimestamp(1n),
-    makeElapsedTimestamp(2n),
-    makeElapsedTimestamp(3n),
-    makeElapsedTimestamp(4n),
-  ];
-
   const timestamps = [
     makeRealTimestamp(5n * 60n * 1000000000n + 10n), // 5m10ns
     makeRealTimestamp(5n * 60n * 1000000000n + 11n), // 5m11ns
     makeRealTimestamp(5n * 60n * 1000000000n + 12n), // 5m12ns
   ];
 
-  const parserSf0 = new ParserBuilder<object>()
+  const legacyReaderSf0 = new LegacyFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps(timestamps)
     .setDescriptors(['sf0'])
     .build();
-  const parserSf1 = new ParserBuilder<object>()
-    .setType(TraceType.SURFACE_FLINGER)
+  const legacyReaderWm0 = new LegacyFileReaderBuilder()
+    .setType(TraceType.WINDOW_MANAGER)
     .setTimestamps(timestamps)
-    .setDescriptors(['sf1'])
+    .setDescriptors(['wm0'])
     .build();
-  const parserSf_longButOldData = new ParserBuilder<object>()
-    .setType(TraceType.SURFACE_FLINGER)
-    .setTimestamps(oldTimestamps)
-    .setDescriptors(['sf old'])
-    .build();
-  const parserSf_empty = new ParserBuilder<object>()
-    .setType(TraceType.SURFACE_FLINGER)
-    .setTimestamps([])
-    .setDescriptors(['sf empty'])
-    .build();
-  const parserSf_elapsed = new ParserBuilder<object>()
+  const legacyReaderSf_elapsed = new LegacyFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps(timestamps)
     .setDescriptors(['sf elapsed'])
     .setNoOffsets(true)
     .build();
-  const parserWm0 = new ParserBuilder<object>()
-    .setType(TraceType.WINDOW_MANAGER)
-    .setTimestamps(timestamps)
-    .setDescriptors(['wm0'])
-    .build();
-  const parserWm1 = new ParserBuilder<object>()
-    .setType(TraceType.WINDOW_MANAGER)
-    .setTimestamps(timestamps)
-    .setDescriptors(['wm1'])
-    .build();
-  const parserWm_dump = new ParserBuilder<object>()
-    .setType(TraceType.WINDOW_MANAGER)
-    .setTimestamps([realZeroTimestamp])
-    .setDescriptors(['wm dump'])
-    .build();
-  const parserWm_elapsed = new ParserBuilder<object>()
+  const legacyReaderWm_elapsed = new LegacyFileReaderBuilder()
     .setType(TraceType.WINDOW_MANAGER)
     .setTimestamps(timestamps)
     .setDescriptors(['wm elapsed'])
     .setNoOffsets(true)
     .build();
-  const parserWmTransitions = new ParserBuilder<object>()
+  const legacyReaderNoOffsets = new LegacyFileReaderBuilder()
+    .setType(TraceType.CUJS)
+    .setTimestamps(timestamps)
+    .setDescriptors(['cujs'])
+    .setNoOffsets(true)
+    .build();
+  const legacyReaderSf_longButOldData = new LegacyFileReaderBuilder()
+    .setType(TraceType.SURFACE_FLINGER)
+    .setTimestamps(oldTimestamps)
+    .setDescriptors(['sf old'])
+    .build();
+  const legacyReaderWm_dump = new LegacyFileReaderBuilder()
+    .setType(TraceType.WINDOW_MANAGER)
+    .setTimestamps([realZeroTimestamp])
+    .setDescriptors(['wm dump'])
+    .build();
+  const legacyReaderWmTransitions = new LegacyFileReaderBuilder()
     .setType(TraceType.WM_TRANSITION)
     .setTimestamps([
       elapsedZeroTimestamp,
@@ -117,30 +100,40 @@ describe('LoadedParsers', () => {
     ])
     .setDescriptors(['wm transitions'])
     .build();
-  const parserNoOffsets = new ParserBuilder<object>()
-    .setType(TraceType.CUJS)
-    .setTimestamps(timestamps)
-    .setDescriptors(['cujs'])
-    .setNoOffsets(true)
+  const legacyReaderSf_empty = new LegacyFileReaderBuilder()
+    .setType(TraceType.SURFACE_FLINGER)
+    .setTimestamps([])
+    .setDescriptors(['sf empty'])
     .build();
-  const parserScreenRecording = new ParserBuilder<object>()
+
+  const readerSf1 = new FileReaderBuilder()
+    .setType(TraceType.SURFACE_FLINGER)
+    .setTimestamps(timestamps)
+    .setDescriptors(['sf1'])
+    .build();
+  const readerWm1 = new FileReaderBuilder()
+    .setType(TraceType.WINDOW_MANAGER)
+    .setTimestamps(timestamps)
+    .setDescriptors(['wm1'])
+    .build();
+  const readerScreenRecording = new FileReaderBuilder()
     .setType(TraceType.SCREEN_RECORDING)
     .setTimestamps(timestamps)
     .setDescriptors(['screen recording'])
     .build();
-  const parserViewCapture0 = new ParserBuilder<object>()
+  const readerViewCapture0 = new FileReaderBuilder()
     .setType(TraceType.VIEW_CAPTURE)
-    .setEntries([])
+    .setTimestamps([])
     .setDescriptors(['vc0'])
     .build();
-  const parserViewCapture1 = new ParserBuilder<object>()
+  const readerViewCapture1 = new FileReaderBuilder()
     .setType(TraceType.VIEW_CAPTURE)
-    .setEntries([])
+    .setTimestamps([])
     .setDescriptors(['vc1'])
     .build();
   const perfettoFilename = 'perfetto trace';
 
-  let loadedParsers: LoadedParsers;
+  let loadedReaders: LoadedFiles<FileReader>;
   let userNotifierChecker: UserNotifierChecker;
 
   beforeAll(() => {
@@ -148,117 +141,176 @@ describe('LoadedParsers', () => {
   });
 
   beforeEach(() => {
-    loadedParsers = new LoadedParsers();
-    expect(loadedParsers.getParsers().length).toBe(0);
+    loadedReaders = new LoadedFiles();
+    expect(loadedReaders.getNonLegacyFileReaders().length).toBe(0);
     userNotifierChecker.reset();
   });
 
-  it('can load a single legacy parser', () => {
-    loadParsers([parserSf0], []);
-    expectLoadResult([parserSf0], []);
+  it('can load a single legacy file reader', () => {
+    loadReaders([legacyReaderSf0], [], []);
+    expectLoadResult([legacyReaderSf0], [], []);
   });
 
-  it('can load a single perfetto parser', () => {
-    loadParsers([], [parserSf0]);
-    expectLoadResult([parserSf0], []);
+  it('can load a single non-perfetto reader', () => {
+    loadReaders([], [legacyReaderSf0], []);
+    expectLoadResult([], [legacyReaderSf0], []);
   });
 
-  it('loads multiple perfetto parsers with same trace type', async () => {
-    loadParsers([], [parserSf0, parserSf1]);
-    expectLoadResult([parserSf0, parserSf1], []);
+  it('can load a single perfetto reader', () => {
+    loadReaders([], [], [legacyReaderSf0]);
+    expectLoadResult([], [legacyReaderSf0], []);
   });
 
-  it('loads legacy parser without dropping already-loaded legacy parser (different trace type)', async () => {
-    loadParsers([parserSf0], []);
-    expectLoadResult([parserSf0], []);
-
-    loadParsers([parserWm0], []);
-    expectLoadResult([parserSf0, parserWm0], []);
+  it('loads multiple perfetto readers with same trace type', async () => {
+    loadReaders([], [], [legacyReaderSf0, readerSf1]);
+    expectLoadResult([], [legacyReaderSf0, readerSf1], []);
   });
 
-  it('loads legacy parser without dropping already-loaded legacy parser (same trace type)', async () => {
-    loadParsers([parserSf0], []);
-    expectLoadResult([parserSf0], []);
+  it('loads legacy file reader without dropping already-loaded legacy reader (different trace type)', async () => {
+    loadReaders([legacyReaderSf0], [], []);
+    expectLoadResult([legacyReaderSf0], [], []);
 
-    loadParsers([parserSf1], []);
-    expectLoadResult([parserSf0, parserSf1], []);
+    loadReaders([legacyReaderWm0], [], []);
+    expectLoadResult([legacyReaderSf0, legacyReaderWm0], [], []);
   });
 
-  it('warns about elapsed-only parsers if parsers with real timestamps present', () => {
-    loadParsers([parserSf_elapsed, parserSf0], []);
+  it('loads legacy file reader without dropping already-loaded legacy reader (same trace type)', async () => {
+    loadReaders([legacyReaderSf0], [], []);
+    expectLoadResult([legacyReaderSf0], [], []);
+
+    loadReaders([legacyReaderSf0], [], []);
+    expectLoadResult([legacyReaderSf0, legacyReaderSf0], [], []);
+  });
+
+  it('loads non-perfetto reader without dropping already-loaded non-perfetto reader (same trace type)', async () => {
+    loadReaders([], [legacyReaderSf0], []);
+    expectLoadResult([], [legacyReaderSf0], []);
+
+    loadReaders([], [legacyReaderSf0], []);
+    expectLoadResult([], [legacyReaderSf0, legacyReaderSf0], []);
+  });
+
+  it('warns about elapsed-only legacy readers if readers with real timestamps present', () => {
+    loadReaders([legacyReaderSf_elapsed, legacyReaderSf0], [], []);
     expectLoadResult(
-      [parserSf_elapsed, parserSf0],
+      [legacyReaderSf_elapsed, legacyReaderSf0],
+      [],
       [makeWarningTraceHasElapsedTimestamps('sf elapsed')],
     );
   });
 
-  it('does not warn about elapsed-only parsers if no parsers with real timestamps present', () => {
-    loadParsers([parserSf_elapsed, parserWm_elapsed], []);
-    expectLoadResult([parserSf_elapsed, parserWm_elapsed], []);
-  });
-
-  it('keeps real-time parsers without offset', () => {
-    loadParsers([parserSf0, parserNoOffsets], []);
-    expectLoadResult([parserSf0, parserNoOffsets], []);
-  });
-
-  describe('drops legacy parser with old data (dangling old trace file)', () => {
-    const timeGapFrom = assertDefined(
-      parserSf_longButOldData.getTimestamps()?.at(-1),
+  it('warns about elapsed-only readers if readers with real timestamps present', () => {
+    loadReaders([], [legacyReaderSf_elapsed, legacyReaderSf0], []);
+    expectLoadResult(
+      [],
+      [legacyReaderSf_elapsed, legacyReaderSf0],
+      [makeWarningTraceHasElapsedTimestamps('sf elapsed')],
     );
-    const timeGapTo = assertDefined(parserWm0.getTimestamps()?.at(0));
+  });
+
+  it('does not warn about elapsed-only legacy readers if no readers with real timestamps present', () => {
+    loadReaders([legacyReaderSf_elapsed, legacyReaderWm_elapsed], [], []);
+    expectLoadResult([legacyReaderSf_elapsed, legacyReaderWm_elapsed], [], []);
+  });
+
+  it('does not warn about elapsed-only non-perfetto readers if no readers with real timestamps present', () => {
+    loadReaders([], [legacyReaderSf_elapsed, legacyReaderWm_elapsed], []);
+    expectLoadResult([], [legacyReaderSf_elapsed, legacyReaderWm_elapsed], []);
+  });
+
+  it('keeps real-time legacy readers without offset', () => {
+    loadReaders([legacyReaderSf0, legacyReaderNoOffsets], [], []);
+    expectLoadResult([legacyReaderSf0, legacyReaderNoOffsets], [], []);
+  });
+
+  it('keeps real-time readers without offset', () => {
+    loadReaders([], [legacyReaderSf0, legacyReaderNoOffsets], []);
+    expectLoadResult([], [legacyReaderSf0, legacyReaderNoOffsets], []);
+  });
+
+  describe('drops legacy reader with old data (dangling old trace file)', () => {
+    const timeGapFrom = assertDefined(
+      legacyReaderSf_longButOldData.getTimestamps()?.at(-1),
+    );
+    const timeGapTo = assertDefined(legacyReaderWm0.getTimestamps()?.at(0));
     const timeGap = new TimeRange(timeGapFrom, timeGapTo);
 
-    it('taking into account other legacy parsers', () => {
-      loadParsers([parserSf_longButOldData, parserWm0], []);
+    it('taking into account other legacy readers', () => {
+      loadReaders([legacyReaderSf_longButOldData, legacyReaderWm0], [], []);
       expectLoadResult(
-        [parserWm0],
-        [makeWarningTraceHasOldData('sf old', timeGap)],
+        [legacyReaderWm0],
+        [],
+        [makeWarningTraceHasOldData(['sf old'], timeGap)],
       );
     });
 
-    it('taking into account perfetto parsers', () => {
-      loadParsers([parserSf_longButOldData], [parserWm0]);
+    it('taking into account other non-perfetto readers', () => {
+      loadReaders([], [legacyReaderSf_longButOldData, legacyReaderWm0], []);
       expectLoadResult(
-        [parserWm0],
-        [makeWarningTraceHasOldData('sf old', timeGap)],
+        [],
+        [legacyReaderWm0],
+        [makeWarningTraceHasOldData(['sf old'], timeGap)],
       );
     });
 
-    it('taking into account already-loaded parsers', () => {
-      loadParsers([parserWm0], []);
-
-      // Drop parser with old data, even if it provides
-      // a longer trace than the already-loaded parser
-      loadParsers([parserSf_longButOldData], []);
+    it('taking into account other legacy and non-perfetto readers', () => {
+      loadReaders([legacyReaderWm0], [legacyReaderSf_longButOldData], []);
       expectLoadResult(
-        [parserWm0],
-        [makeWarningTraceHasOldData('sf old', timeGap)],
+        [legacyReaderWm0],
+        [],
+        [makeWarningTraceHasOldData(['sf old'], timeGap)],
       );
     });
 
-    it('doesnt drop legacy parser with dump (zero timestamp)', () => {
-      loadParsers([parserWm_dump, parserSf0], []);
-      expectLoadResult([parserWm_dump, parserSf0], []);
+    it('taking into account perfetto readers', () => {
+      loadReaders([legacyReaderSf_longButOldData], [], [legacyReaderWm0]);
+      expectLoadResult(
+        [],
+        [legacyReaderWm0],
+        [makeWarningTraceHasOldData(['sf old'], timeGap)],
+      );
     });
 
-    it('doesnt drop legacy parser with wm transitions', () => {
+    it('taking into account already-loaded legacy readers', () => {
+      loadReaders([legacyReaderWm0], [], []);
+
+      // Drop reader with old data, even if it provides a longer trace than the
+      // already-loaded reader
+      loadReaders([legacyReaderSf_longButOldData], [], []);
+      expectLoadResult(
+        [legacyReaderWm0],
+        [],
+        [makeWarningTraceHasOldData(['sf old'], timeGap)],
+      );
+    });
+
+    it('doesnt drop legacy reader with dump (zero timestamp)', () => {
+      loadReaders([legacyReaderWm_dump, legacyReaderSf0], [], []);
+      expectLoadResult([legacyReaderWm_dump, legacyReaderSf0], [], []);
+    });
+
+    it('doesnt drop non-perfetto reader with dump (zero timestamp)', () => {
+      loadReaders([], [legacyReaderWm_dump, legacyReaderSf0], []);
+      expectLoadResult([], [legacyReaderWm_dump, legacyReaderSf0], []);
+    });
+
+    it('doesnt drop legacy reader with wm transitions', () => {
       // Only Shell Transition data used to set timestamps of merged Transition trace,
       // so WM Transition data should not be considered by "old data" policy
-      loadParsers([parserWmTransitions, parserSf0], []);
-      expectLoadResult([parserWmTransitions, parserSf0], []);
+      loadReaders([legacyReaderWmTransitions, legacyReaderSf0], [], []);
+      expectLoadResult([legacyReaderWmTransitions, legacyReaderSf0], [], []);
     });
 
     it('is robust to traces with time range overlap', () => {
-      const parser = parserSf0;
-      const timestamps = assertDefined(parserSf0.getTimestamps());
+      const reader = legacyReaderSf0;
+      const timestamps = assertDefined(reader.getTimestamps());
       const filename = 'overlapping';
 
       const timestampsOverlappingFront = [
         timestamps[0].add(-1n),
         timestamps[0].add(1n),
       ];
-      const parserOverlappingFront = new ParserBuilder<object>()
+      const readerOverlappingFront = new LegacyFileReaderBuilder()
         .setType(TraceType.TRANSACTIONS)
         .setTimestamps(timestampsOverlappingFront)
         .setDescriptors([filename])
@@ -268,7 +320,7 @@ describe('LoadedParsers', () => {
         timestamps[timestamps.length - 1].add(-1n),
         timestamps[timestamps.length - 1].add(1n),
       ];
-      const parserOverlappingBack = new ParserBuilder<object>()
+      const readerOverlappingBack = new LegacyFileReaderBuilder()
         .setType(TraceType.TRANSITION)
         .setTimestamps(timestampsOverlappingBack)
         .setDescriptors([filename])
@@ -278,7 +330,7 @@ describe('LoadedParsers', () => {
         timestamps[0].add(-1n),
         timestamps[timestamps.length - 1].add(1n),
       ];
-      const parserOverlappingEntirely = new ParserBuilder<object>()
+      const readerOverlappingEntirely = new LegacyFileReaderBuilder()
         .setType(TraceType.VIEW_CAPTURE)
         .setTimestamps(timestampsOverlappingEntirely)
         .setDescriptors([filename])
@@ -288,105 +340,93 @@ describe('LoadedParsers', () => {
         timestamps[0],
         timestamps[timestamps.length - 1],
       ];
-      const parserOverlappingExactly = new ParserBuilder<object>()
+      const readerOverlappingExactly = new LegacyFileReaderBuilder()
         .setType(TraceType.WINDOW_MANAGER)
         .setTimestamps(timestampsOverlappingExactly)
         .setDescriptors([filename])
         .build();
 
-      loadParsers(
-        [
-          parser,
-          parserOverlappingFront,
-          parserOverlappingBack,
-          parserOverlappingEntirely,
-          parserOverlappingExactly,
-        ],
+      loadReaders(
+        [reader, readerOverlappingFront, readerOverlappingBack],
+        [readerOverlappingEntirely, readerOverlappingExactly],
         [],
       );
       expectLoadResult(
-        [
-          parser,
-          parserOverlappingFront,
-          parserOverlappingBack,
-          parserOverlappingEntirely,
-          parserOverlappingExactly,
-        ],
+        [reader, readerOverlappingFront, readerOverlappingBack],
+        [readerOverlappingEntirely, readerOverlappingExactly],
         [],
       );
     });
   });
 
-  it('loads perfetto parser dropping all already-loaded perfetto parsers', () => {
-    loadParsers([], [parserSf0, parserWm0]);
-    expectLoadResult([parserSf0, parserWm0], []);
+  it('loads perfetto reader dropping all already-loaded perfetto readers', () => {
+    loadReaders([], [], [legacyReaderSf0, legacyReaderWm0]);
+    expectLoadResult([], [legacyReaderSf0, legacyReaderWm0], []);
 
-    // We currently run only one Perfetto TP WebWorker at a time,
-    // so Perfetto parsers previously loaded are now invalid
-    // and must be removed (previous WebWorker is not running anymore).
-    loadParsers([], [parserSf1, parserWm1]);
-    expectLoadResult([parserSf1, parserWm1], []);
+    // We currently run only one Perfetto TP WebWorker at a time, so Perfetto
+    // readers previously loaded are now invalid and must be removed (previous
+    // WebWorker is not running anymore).
+    loadReaders([], [], [readerSf1, readerWm1]);
+    expectLoadResult([], [readerSf1, readerWm1], []);
   });
 
-  describe('prioritizes perfetto parsers over legacy parsers', () => {
-    // While transitioning to the Perfetto format, devices might still have old legacy trace files
-    // dangling in the disk that get automatically included into bugreports. Hence, Perfetto parsers
-    // must always override legacy ones so that dangling legacy files are ignored.
+  describe('prioritizes perfetto readers over legacy readers', () => {
+    // While transitioning to the Perfetto format, devices might still have old
+    // legacy trace files dangling in the disk that get automatically included
+    // into bugreports. Hence, Perfetto readers must always override legacy ones
+    // so that dangling legacy files are ignored.
 
-    it('when a perfetto parser is already loaded', () => {
-      loadParsers([parserSf0], [parserSf1]);
-      expectLoadResult([parserSf1], []);
+    it('when a perfetto reader is already loaded', () => {
+      loadReaders([legacyReaderSf0], [], [readerSf1]);
+      expectLoadResult([], [readerSf1], []);
       userNotifierChecker.reset();
-
-      loadParsers([parserSf0], []);
-      expectLoadResult([parserSf1], []);
+      loadReaders([legacyReaderSf0], [], []);
+      expectLoadResult([], [readerSf1], []);
     });
 
-    it('when a perfetto parser is loaded afterwards', () => {
-      loadParsers([parserSf0], []);
-      expectLoadResult([parserSf0], []);
+    it('when a perfetto reader is loaded afterwards', () => {
+      loadReaders([legacyReaderSf0], [], []);
+      expectLoadResult([legacyReaderSf0], [], []);
 
-      loadParsers([], [parserSf1]);
-      expectLoadResult([parserSf1], []);
-    });
-  });
-
-  describe('is robust to multiple parsers of same type loaded at once', () => {
-    it('legacy parsers', () => {
-      loadParsers([parserSf0, parserSf1], []);
-      expectLoadResult([parserSf0, parserSf1], []);
-    });
-
-    it('legacy + perfetto parsers', () => {
-      loadParsers([parserSf0, parserSf0], [parserSf1]);
-      expectLoadResult([parserSf1], []);
+      loadReaders([], [], [readerSf1]);
+      expectLoadResult([], [readerSf1], []);
     });
   });
 
-  describe('is robust to parser with no entries', () => {
-    it('legacy parser', () => {
-      loadParsers([parserSf_empty], []);
-      expectLoadResult([parserSf_empty], []);
+  it('robust to legacy + perfetto readers of same type', () => {
+    loadReaders([legacyReaderSf0, legacyReaderSf0], [], [readerSf1]);
+    expectLoadResult([], [readerSf1], []);
+  });
+
+  describe('is robust to reader with no entries', () => {
+    it('legacy reader', () => {
+      loadReaders([legacyReaderSf_empty], [], []);
+      expectLoadResult([legacyReaderSf_empty], [], []);
     });
 
-    it('perfetto parser', () => {
-      loadParsers([], [parserSf_empty]);
-      expectLoadResult([parserSf_empty], []);
+    it('non-perfetto reader', () => {
+      loadReaders([], [legacyReaderSf_empty], []);
+      expectLoadResult([], [legacyReaderSf_empty], []);
+    });
+
+    it('perfetto reader', () => {
+      loadReaders([], [], [legacyReaderSf_empty]);
+      expectLoadResult([], [legacyReaderSf_empty], []);
     });
   });
 
   describe('handles screen recordings and screenshots', () => {
-    const parserScreenRecording0 = new ParserBuilder<object>()
+    const readerScreenRecording0 = new FileReaderBuilder()
       .setType(TraceType.SCREEN_RECORDING)
       .setTimestamps(timestamps)
       .setDescriptors(['screen_recording.mp4'])
       .build();
-    const parserScreenRecording1 = new ParserBuilder<object>()
+    const readerScreenRecording1 = new FileReaderBuilder()
       .setType(TraceType.SCREEN_RECORDING)
       .setTimestamps(timestamps)
       .setDescriptors(['screen_recording.mp4'])
       .build();
-    const parserScreenshot0 = new ParserBuilder<object>()
+    const readerScreenshot0 = new FileReaderBuilder()
       .setType(TraceType.SCREENSHOT)
       .setTimestamps(timestamps)
       .setDescriptors(['screenshot.png'])
@@ -396,66 +436,59 @@ describe('LoadedParsers', () => {
       TraceType.SCREEN_RECORDING,
     );
 
-    it('loads screenshot parser', () => {
-      loadParsers([parserScreenshot0], []);
-      expectLoadResult([parserScreenshot0], []);
+    it('loads screenshot reader', () => {
+      loadReaders([], [readerScreenshot0], []);
+      expectLoadResult([], [readerScreenshot0], []);
     });
 
-    it('loads screen recording parser', () => {
-      loadParsers([parserScreenRecording0], []);
-      expectLoadResult([parserScreenRecording0], []);
+    it('loads screen recording reader', () => {
+      loadReaders([], [readerScreenRecording0], []);
+      expectLoadResult([], [readerScreenRecording0], []);
     });
 
-    it('does not load screenshot parser after loading screen recording parser in same call', () => {
-      loadParsers([parserScreenshot0, parserScreenRecording0], []);
-      expectLoadResult([parserScreenRecording0], [overrideError]);
+    it('does not load screenshot reader after loading screen recording reader in same call', () => {
+      loadReaders([], [readerScreenshot0, readerScreenRecording0], []);
+      expectLoadResult([], [readerScreenRecording0], [overrideError]);
     });
 
-    it('does not load screenshot parser after loading screen recording parser in previous call', () => {
-      loadParsers([parserScreenRecording0], []);
-      expectLoadResult([parserScreenRecording0], []);
+    it('does not load screenshot reader after loading screen recording reader in previous call', () => {
+      loadReaders([], [readerScreenRecording0], []);
+      expectLoadResult([], [readerScreenRecording0], []);
 
-      loadParsers([parserScreenshot0], []);
-      expectLoadResult([parserScreenRecording0], [overrideError]);
+      loadReaders([], [readerScreenshot0], []);
+      expectLoadResult([], [readerScreenRecording0], [overrideError]);
     });
 
-    it('overrides previously loaded screenshot parser with screen recording parser', () => {
-      loadParsers([parserScreenshot0], []);
-      expectLoadResult([parserScreenshot0], []);
+    it('overrides previously loaded screenshot reader with screen recording reader', () => {
+      loadReaders([], [readerScreenshot0], []);
+      expectLoadResult([], [readerScreenshot0], []);
 
-      loadParsers([parserScreenRecording0], []);
-      expectLoadResult([parserScreenRecording0], [overrideError]);
+      loadReaders([], [readerScreenRecording0], []);
+      expectLoadResult([], [readerScreenRecording0], [overrideError]);
     });
 
     it('loads multiple screen recordings', () => {
-      loadParsers([parserScreenRecording0], []);
-      expectLoadResult([parserScreenRecording0], []);
+      loadReaders([], [readerScreenRecording0], []);
+      expectLoadResult([], [readerScreenRecording0], []);
 
-      loadParsers([parserScreenRecording1], []);
-      expectLoadResult([parserScreenRecording0, parserScreenRecording1], []);
+      loadReaders([], [readerScreenRecording1], []);
+      expectLoadResult(
+        [],
+        [readerScreenRecording0, readerScreenRecording1],
+        [],
+      );
     });
   });
 
-  it('can remove parsers', () => {
-    loadParsers([parserSf0], [parserWm0]);
-    expectLoadResult([parserSf0, parserWm0], []);
+  it('can remove readers', () => {
+    loadReaders([legacyReaderSf0], [], [legacyReaderWm0]);
+    expectLoadResult([legacyReaderSf0], [legacyReaderWm0], []);
 
-    loadedParsers.remove(parserWm0);
-    expectLoadResult([parserSf0], []);
+    loadedReaders.remove(legacyReaderWm0);
+    expectLoadResult([legacyReaderSf0], [], []);
 
-    loadedParsers.remove(parserSf0);
-    expectLoadResult([], []);
-  });
-
-  it('can remove parsers by type', () => {
-    loadParsers([parserSf0], [parserWm0]);
-    expectLoadResult([parserSf0, parserWm0], []);
-
-    loadedParsers.removeByType(TraceType.WINDOW_MANAGER);
-    expectLoadResult([parserSf0], []);
-
-    loadedParsers.removeByType(TraceType.SURFACE_FLINGER);
-    expectLoadResult([], []);
+    loadedReaders.remove(legacyReaderSf0);
+    expectLoadResult([], [], []);
   });
 
   it('can make zip archive of traces with appropriate directories and extensions', async () => {
@@ -467,7 +500,7 @@ describe('LoadedParsers', () => {
       new File([], filename),
 
       // ViewCapture
-      // Multiple parsers point to the same viewcapture file,
+      // Multiple readers point to the same viewcapture file,
       // but we expect to see only one in the output archive (deduplicated)
       fileDuplicated,
       fileDuplicated,
@@ -481,26 +514,31 @@ describe('LoadedParsers', () => {
       new File([], filename + '.pb'),
     ];
 
-    loadParsers(
-      [
-        parserScreenRecording,
-        parserViewCapture0,
-        parserViewCapture1,
-        parserWm0,
-        parserWm1,
-      ],
-      [parserSf0, parserWmTransitions],
-      legacyFiles,
-    );
+    const readers = [
+      readerScreenRecording,
+      readerViewCapture0,
+      readerViewCapture1,
+      legacyReaderWm0,
+      readerWm1,
+    ];
+
+    readers.forEach((reader, index) => {
+      spyOn(reader, 'getFiles').and.returnValue([
+        new TraceFile(legacyFiles[index]),
+      ]);
+    });
+
+    loadReaders([], readers, [legacyReaderSf0, legacyReaderWmTransitions]);
     expectLoadResult(
+      [],
       [
-        parserScreenRecording,
-        parserViewCapture0,
-        parserViewCapture1,
-        parserWm0,
-        parserWm1,
-        parserSf0,
-        parserWmTransitions,
+        readerScreenRecording,
+        readerViewCapture0,
+        readerViewCapture1,
+        legacyReaderWm0,
+        readerWm1,
+        legacyReaderSf0,
+        legacyReaderWmTransitions,
       ],
       [],
     );
@@ -515,11 +553,11 @@ describe('LoadedParsers', () => {
   });
 
   it('makes zip archive with progress listener', async () => {
-    loadParsers([parserSf0], [parserWm0]);
-    expectLoadResult([parserSf0, parserWm0], []);
+    loadReaders([], [legacyReaderSf0], [legacyReaderWm0]);
+    expectLoadResult([], [legacyReaderSf0, legacyReaderWm0], []);
 
     const progressSpy = jasmine.createSpy();
-    await loadedParsers.makeZipArchive(progressSpy);
+    await loadedReaders.makeZipArchive(progressSpy);
 
     expect(progressSpy).toHaveBeenCalledTimes(5);
     expect(progressSpy).toHaveBeenCalledWith(0);
@@ -529,40 +567,40 @@ describe('LoadedParsers', () => {
     expect(progressSpy).toHaveBeenCalledWith(1);
   });
 
-  function loadParsers(
-    legacy: Array<Parser<unknown>>,
-    perfetto: Array<Parser<unknown>>,
-    legacyFiles?: File[],
+  function loadReaders(
+    legacy: LegacyFileReader[],
+    nonPerfetto: FileReader[],
+    perfetto: FileReader[],
   ) {
-    const legacyFileAndParsers = legacy.map((parser, i) => {
-      const legacyFile = legacyFiles
-        ? legacyFiles[i]
-        : new File([], parser.getDescriptors()[0]);
-      return new FileAndParser(new TraceFile(legacyFile), parser);
-    });
-
     const perfettoTraceFile = new TraceFile(new File([], perfettoFilename));
-    const perfettoFileAndParsers =
-      perfetto.length > 0
-        ? new FileAndParsers(perfettoTraceFile, perfetto)
-        : undefined;
-
-    loadedParsers.addParsers(legacyFileAndParsers, perfettoFileAndParsers);
+    perfetto.forEach((file) => {
+      spyOn(file, 'getFiles').and.returnValue([perfettoTraceFile]);
+    });
+    loadedReaders.addFiles(legacy, nonPerfetto, perfetto);
   }
 
   function expectLoadResult(
-    expectedParsers: Array<Parser<unknown>>,
+    expectedLegacyReaders: LegacyFileReader[],
+    expectedNonLegacyReaders: FileReader[],
     expectedWarnings: UserWarning[],
   ) {
-    const actualParsers = loadedParsers.getParsers();
-    expect(actualParsers.length).toEqual(expectedParsers.length);
-    expect(new Set([...actualParsers])).toEqual(new Set([...expectedParsers]));
+    const legacyReaders = loadedReaders.getLegacyFileReaders();
+    expect(legacyReaders.length).toEqual(expectedLegacyReaders.length);
+    expect(new Set([...legacyReaders])).toEqual(
+      new Set([...expectedLegacyReaders]),
+    );
+
+    const nonLegacyReaders = loadedReaders.getNonLegacyFileReaders();
+    expect(nonLegacyReaders.length).toEqual(expectedNonLegacyReaders.length);
+    expect(new Set([...nonLegacyReaders])).toEqual(
+      new Set([...expectedNonLegacyReaders]),
+    );
 
     userNotifierChecker.expectAdded(expectedWarnings);
   }
 
   async function expectDownloadResult(expectedArchiveContents: string[]) {
-    const zipArchive = await loadedParsers.makeZipArchive();
+    const zipArchive = await loadedReaders.makeZipArchive();
     const actualArchiveContents = (await unzipFile(zipArchive))
       .map((file) => file.name)
       .sort();

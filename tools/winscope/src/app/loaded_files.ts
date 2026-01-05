@@ -29,25 +29,25 @@ import {
   makeWarningTraceOverridden,
   makeWarningTraceHasElapsedTimestamps,
 } from './warnings';
-import {FileAndParser} from '@parsers/file_and_parser';
-import {FileAndParsers} from '@parsers/file_and_parsers';
 import {
-  getParserWithLatestRealToBootTimeOffset,
-  getParserWithLatestRealToMonotonicTimeOffset,
-} from '@parsers/parser_time_utils';
+  getReaderWithLatestRealToBootTimeOffset,
+  getReaderWithLatestRealToMonotonicTimeOffset,
+} from '@app/file_reader_helpers';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {FileReader} from '@trace_api/file_reader';
 
 /**
- * A collection of parsers loaded from user-provided files.
+ * A collection of file readers loaded from user-provided files.
  *
- * The collection can be updated with new parsers. When this happens, the collection tries to
- * filter out parsers with old data that would produce a confusing visualization.
+ * The collection can be updated with new files. When this happens, the
+ * collection tries to filter out files with old data that would produce
+ * a confusing visualization.
  */
-export class LoadedParsers {
+export class LoadedFiles<T extends FileReader> {
   static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS = BigInt(
     5 * TIME_UNIT_TO_NANO.m,
   ); // 5m
@@ -56,53 +56,58 @@ export class LoadedParsers {
   ); // 5s
   static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [TraceType.CUJS];
 
-  private legacyParsers = new Array<FileAndParser>();
-  private perfettoParsers = new Array<FileAndParser>();
+  private legacyReaders = new Array<LegacyFileReader>();
+  private nonPerfettoReaders = new Array<T>();
+  private perfettoReaders = new Array<T>();
 
-  addParsers(
-    legacyParsers: FileAndParser[],
-    perfettoParsers: FileAndParsers | undefined,
+  addFiles(
+    legacyFileReaders: LegacyFileReader[],
+    nonPerfettoFileReaders: T[],
+    perfettoFileReaders: T[],
+    clearExistingPerfetto = true,
   ) {
-    if (perfettoParsers) {
-      this.addPerfettoParsers(perfettoParsers);
+    if (perfettoFileReaders.length > 0) {
+      this.addPerfettoFileReaders(perfettoFileReaders, clearExistingPerfetto);
     }
-    // Traces were simultaneously upgraded to contain real-to-boottime or real-to-monotonic offsets.
-    // If we have a mix of parsers with and without offsets, the ones without must be dangling
-    // trace files with old data, and should be filtered out.
-    legacyParsers = this.filterOutParsersWithoutOffsetsIfRequired(
-      legacyParsers,
-      perfettoParsers,
-    );
-    legacyParsers = this.filterOutLegacyParsersWithOldData(legacyParsers);
-    legacyParsers = this.filterScreenshotParsersIfRequired(legacyParsers);
+    const nonPerfettoReaders: FileReader[] = [
+      ...legacyFileReaders,
+      ...nonPerfettoFileReaders,
+    ];
+    this.checkIfMixedTimestampType(nonPerfettoReaders, perfettoFileReaders);
 
-    this.addLegacyParsers(legacyParsers);
+    // Traces were simultaneously upgraded to contain real-to-boottime
+    // or real-to-monotonic offsets. If we have a mix of readers with
+    // and without offsets, the ones without must be dangling trace files
+    // with old data, and should be filtered out.
+    let {newLegacyReaders, newNonPerfettoReaders} =
+      this.filterOutReadersWithOldData(
+        legacyFileReaders,
+        nonPerfettoFileReaders,
+      );
+    newNonPerfettoReaders = this.filterScreenshotReadersIfRequired(
+      newNonPerfettoReaders,
+    );
+    this.addLegacyReaders(newLegacyReaders);
+    this.addNonPerfettoReaders(newNonPerfettoReaders);
   }
 
-  getParsers(): Array<Parser<unknown>> {
-    const fileAndParsers = [
-      ...this.legacyParsers.values(),
-      ...this.perfettoParsers.values(),
-    ];
-    return fileAndParsers.map((fileAndParser) => fileAndParser.parser);
+  getLegacyFileReaders(): LegacyFileReader[] {
+    return this.legacyReaders;
+  }
+
+  getNonLegacyFileReaders(): T[] {
+    return this.perfettoReaders.concat(this.nonPerfettoReaders);
   }
 
   getPerfettoFile(): TraceFile | undefined {
-    return this.perfettoParsers.at(0)?.file;
+    return this.perfettoReaders.at(0)?.getFiles()[0];
   }
 
-  remove(parser: Parser<unknown>) {
-    const predicate = (fileAndParser: FileAndParser) => {
-      return fileAndParser.parser !== parser;
+  remove(reader: FileReader) {
+    const predicate = (r: FileReader) => {
+      return r !== reader;
     };
-    this.removeWithPredicate((fileAndParser) => predicate(fileAndParser));
-  }
-
-  removeByType(type: TraceType) {
-    const predicate = (fileAndParser: FileAndParser) => {
-      return fileAndParser.parser.getTraceType() !== type;
-    };
-    this.removeWithPredicate((fileAndParser) => predicate(fileAndParser));
+    this.removeWithPredicate(predicate);
   }
 
   async makeZipArchive(onProgressUpdate?: OnProgressUpdateType): Promise<Blob> {
@@ -110,12 +115,14 @@ export class LoadedParsers {
     const outputFilenameToFiles = new Map<string, File[]>();
 
     if (onProgressUpdate) onProgressUpdate(0);
-    const totalParsers =
-      this.perfettoParsers.length + this.legacyParsers.length;
+    const totalReaders =
+      this.perfettoReaders.length +
+      this.legacyReaders.length +
+      this.nonPerfettoReaders.length;
     let progress = 0;
 
     const tryPushOutputFile = (file: File, filename: string) => {
-      // Remove duplicates because some parsers (e.g. view capture) could share the same file
+      // Remove duplicates because some readers (e.g. view capture) could share the same file
       if (outputFilesSoFar.has(file)) {
         return;
       }
@@ -149,42 +156,43 @@ export class LoadedParsers {
       );
     };
 
-    const tryPushOutPerfettoFile = (parsers: FileAndParser[]) => {
-      const file = parsers[0].file;
-      let outputFilename = removeDirFromFileName(file.file.name);
-      if (getFileExtension(file.file.name) === undefined) {
+    if (this.perfettoReaders.length > 0) {
+      const file = this.perfettoReaders[0].getFiles()[0].file;
+      let outputFilename = removeDirFromFileName(file.name);
+      if (getFileExtension(file.name) === undefined) {
         outputFilename += '.perfetto-trace';
       }
-      tryPushOutputFile(file.file, outputFilename);
-    };
-
-    if (this.perfettoParsers.length > 0) {
-      tryPushOutPerfettoFile(this.perfettoParsers);
+      tryPushOutputFile(file, outputFilename);
     }
+
     if (onProgressUpdate) {
-      progress = this.perfettoParsers.length;
-      onProgressUpdate((0.5 * progress) / totalParsers);
+      progress = this.perfettoReaders.length;
+      onProgressUpdate((0.5 * progress) / totalReaders);
     }
 
-    const tryPushOutputLegacyFile = (fileAndParser: FileAndParser) => {
-      const {file, parser} = fileAndParser;
-      const traceType = parser.getTraceType();
+    const tryPushOutputLegacyFile = (reader: FileReader) => {
+      const traceFiles = reader.getFiles();
+      const traceType = reader.getTraceType();
       const archiveDir =
         TRACE_INFO[traceType].downloadArchiveDir.length > 0
           ? TRACE_INFO[traceType].downloadArchiveDir + '/'
           : '';
-      let outputFilename = archiveDir + removeDirFromFileName(file.file.name);
-      if (getFileExtension(file.file.name) === undefined) {
-        outputFilename += TRACE_INFO[traceType].legacyExt;
-      }
-      tryPushOutputFile(file.file, outputFilename);
+      traceFiles.forEach((traceFile) => {
+        let outputFilename =
+          archiveDir + removeDirFromFileName(traceFile.file.name);
+        if (getFileExtension(traceFile.file.name) === undefined) {
+          outputFilename += TRACE_INFO[traceType].legacyExt;
+        }
+        tryPushOutputFile(traceFile.file, outputFilename);
+      });
       if (onProgressUpdate) {
         progress++;
-        onProgressUpdate((0.5 * progress) / totalParsers);
+        onProgressUpdate((0.5 * progress) / totalReaders);
       }
     };
 
-    this.legacyParsers.forEach(tryPushOutputLegacyFile);
+    this.legacyReaders.forEach(tryPushOutputLegacyFile);
+    this.nonPerfettoReaders.forEach(tryPushOutputLegacyFile);
 
     const archiveFiles = [...outputFilenameToFiles.entries()]
       .map(([filename, files]) => {
@@ -202,228 +210,256 @@ export class LoadedParsers {
     );
   }
 
-  private addLegacyParsers(parsers: FileAndParser[]) {
-    const legacyParsersBeingLoaded = new Map<TraceType, Parser<unknown>>();
-
-    parsers.forEach((fileAndParser) => {
-      const {parser} = fileAndParser;
-      if (this.shouldUseLegacyParser(parser)) {
-        legacyParsersBeingLoaded.set(parser.getTraceType(), parser);
-        this.legacyParsers.push(fileAndParser);
+  private addLegacyReaders(readers: LegacyFileReader[]) {
+    readers.forEach((reader) => {
+      if (this.shouldUseLegacyReader(reader)) {
+        this.legacyReaders.push(reader);
       }
     });
   }
 
-  private addPerfettoParsers({file, parsers}: FileAndParsers) {
-    // We currently run only one Perfetto TP WebWorker at a time, so Perfetto parsers previously
-    // loaded are now invalid and must be removed (previous WebWorker is not running anymore).
-    this.perfettoParsers = [];
-
-    parsers.forEach((parser) => {
-      this.perfettoParsers.push(new FileAndParser(file, parser));
-
-      // While transitioning to the Perfetto format, devices might still have old legacy trace files
-      // dangling in the disk that get automatically included into bugreports. Hence, Perfetto
-      // parsers must always override legacy ones so that dangling legacy files are ignored.
-      this.legacyParsers = this.legacyParsers.filter((fileAndParser) => {
-        return fileAndParser.parser.getTraceType() !== parser.getTraceType();
-      });
+  private addNonPerfettoReaders(readers: T[]) {
+    readers.forEach((reader) => {
+      if (this.shouldUseLegacyReader(reader)) {
+        this.nonPerfettoReaders.push(reader);
+      }
     });
   }
 
-  private shouldUseLegacyParser(newParser: Parser<unknown>): boolean {
-    // While transitioning to the Perfetto format, devices might still have old legacy trace files
-    // dangling in the disk that get automatically included into bugreports. Hence, Perfetto parsers
-    // must always override legacy ones so that dangling legacy files are ignored.
-    return !this.perfettoParsers.some(
-      (fileAndParser) =>
-        fileAndParser.parser.getTraceType() === newParser.getTraceType(),
+  private addPerfettoFileReaders(readers: T[], clearExistingPerfetto: boolean) {
+    if (clearExistingPerfetto) {
+      // We currently run only one Perfetto TP WebWorker at a time, so Perfetto readers previously
+      // loaded are now invalid and must be removed (previous WebWorker is not running anymore).
+      this.perfettoReaders = [];
+    }
+
+    readers.forEach((perfettoReader) => {
+      this.perfettoReaders.push(perfettoReader);
+
+      // While transitioning to the Perfetto format, devices might still have old
+      // legacy trace files dangling in the disk that get automatically included
+      // into bugreports. Hence, Perfetto readers must always override legacy ones
+      // so that dangling legacy files are ignored.
+      this.legacyReaders = this.legacyReaders.filter((legacyReader) => {
+        return legacyReader.getTraceType() !== perfettoReader.getTraceType();
+      });
+      this.nonPerfettoReaders = this.nonPerfettoReaders.filter(
+        (nonPerfettoReader) => {
+          return (
+            nonPerfettoReader.getTraceType() !== perfettoReader.getTraceType()
+          );
+        },
+      );
+    });
+  }
+
+  private shouldUseLegacyReader(newReader: FileReader): boolean {
+    // While transitioning to the Perfetto format, devices might still have old
+    // legacy trace files dangling in the disk that get automatically included
+    // into bugreports. Hence, Perfetto readers must always override legacy ones
+    // so that dangling legacy files are ignored.
+    return !this.perfettoReaders.some(
+      (reader) => reader.getTraceType() === newReader.getTraceType(),
     );
   }
 
-  private filterOutLegacyParsersWithOldData(
-    newLegacyParsers: FileAndParser[],
-  ): FileAndParser[] {
-    let allParsers = [
-      ...newLegacyParsers,
-      ...this.legacyParsers.values(),
-      ...this.perfettoParsers.values(),
+  private filterOutReadersWithOldData<T extends FileReader>(
+    newLegacyReaders: LegacyFileReader[],
+    newNonPerfettoReaders: T[],
+  ): {
+    newLegacyReaders: LegacyFileReader[];
+    newNonPerfettoReaders: T[];
+  } {
+    let allReaders = [
+      ...newLegacyReaders,
+      ...newNonPerfettoReaders,
+      ...this.legacyReaders,
+      ...this.nonPerfettoReaders,
+      ...this.perfettoReaders,
     ];
 
-    const latestMonotonicOffset = getParserWithLatestRealToMonotonicTimeOffset(
-      allParsers.map(({parser}) => parser),
-    )?.getRealToMonotonicTimeOffsetNs();
-    const latestBootTimeOffset = getParserWithLatestRealToBootTimeOffset(
-      allParsers.map(({parser}) => parser),
-    )?.getRealToBootTimeOffsetNs();
+    const latestMonotonicOffset =
+      getReaderWithLatestRealToMonotonicTimeOffset(
+        allReaders,
+      )?.getRealToMonotonicTimeOffsetNs();
+    const latestBootTimeOffset =
+      getReaderWithLatestRealToBootTimeOffset(
+        allReaders,
+      )?.getRealToBootTimeOffsetNs();
 
-    newLegacyParsers = newLegacyParsers.filter(({parser, file}) => {
-      const monotonicOffset = parser.getRealToMonotonicTimeOffsetNs();
+    const predicate = (reader: FileReader) => {
+      const monotonicOffset = reader.getRealToMonotonicTimeOffsetNs();
       if (monotonicOffset && latestMonotonicOffset) {
         const isOldData =
           Math.abs(Number(monotonicOffset - latestMonotonicOffset)) >
-          LoadedParsers.MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET;
+          LoadedFiles.MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET;
         if (isOldData) {
-          UserNotifier.add(makeWarningTraceHasOldData(file.getDescriptor()));
+          UserNotifier.add(makeWarningTraceHasOldData(reader.getDescriptors()));
           return false;
         }
       }
 
-      const bootTimeOffset = parser.getRealToBootTimeOffsetNs();
+      const bootTimeOffset = reader.getRealToBootTimeOffsetNs();
       if (bootTimeOffset && latestBootTimeOffset) {
         const isOldData =
           Math.abs(Number(bootTimeOffset - latestBootTimeOffset)) >
-          LoadedParsers.MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET;
+          LoadedFiles.MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET;
         if (isOldData) {
-          UserNotifier.add(makeWarningTraceHasOldData(file.getDescriptor()));
+          UserNotifier.add(makeWarningTraceHasOldData(reader.getDescriptors()));
           return false;
         }
       }
 
       return true;
-    });
+    };
 
-    allParsers = [
-      ...newLegacyParsers,
-      ...this.legacyParsers.values(),
-      ...this.perfettoParsers.values(),
+    newLegacyReaders = newLegacyReaders.filter(predicate);
+    newNonPerfettoReaders = newNonPerfettoReaders.filter(predicate);
+
+    allReaders = [
+      ...newLegacyReaders,
+      ...newNonPerfettoReaders,
+      ...this.legacyReaders,
+      ...this.nonPerfettoReaders,
+      ...this.perfettoReaders,
     ];
 
-    const timeRanges = allParsers
-      .map(({parser}) => {
-        const timestamps = parser.getTimestamps();
+    const timeRanges = allReaders
+      .map((reader) => {
+        const timestamps = reader.getTimestamps();
         if (!timestamps || timestamps.length === 0) {
           return undefined;
         }
-        return new TimeRange(timestamps[0], timestamps[timestamps.length - 1]);
+        return new TimeRange(
+          this.getSmallestNonZeroTimestamp(timestamps),
+          this.getLargestNonZeroTimestamp(timestamps),
+        );
       })
-      .filter((range) => range !== undefined) as TimeRange[];
+      .filter((range) => range !== undefined);
 
     const timeGap = this.findLastTimeGapAboveThreshold(timeRanges);
     if (!timeGap) {
-      return newLegacyParsers;
+      return {newLegacyReaders, newNonPerfettoReaders};
     }
 
-    return newLegacyParsers.filter(({parser, file}) => {
-      // Only Shell Transition data used to set timestamps of merged Transition trace,
-      // so WM Transition data should not be considered by "old data" policy
-      if (parser.getTraceType() === TraceType.WM_TRANSITION) {
-        return true;
-      }
-
-      let timestamps = parser.getTimestamps();
+    const hasOldData = (reader: FileReader) => {
+      let timestamps = reader.getTimestamps();
       if (!this.hasValidTimestamps(timestamps)) {
         return true;
       }
       timestamps = assertDefined(timestamps);
 
-      const endTimestamp = timestamps[timestamps.length - 1];
+      const endTimestamp = this.getLargestNonZeroTimestamp(timestamps);
       const isOldData = endTimestamp.getValueNs() <= timeGap.startNs;
       if (isOldData) {
         UserNotifier.add(
-          makeWarningTraceHasOldData(file.getDescriptor(), timeGap),
+          makeWarningTraceHasOldData(reader.getDescriptors(), timeGap),
         );
         return false;
       }
 
       return true;
+    };
+
+    newLegacyReaders = newLegacyReaders.filter((reader) => {
+      // Only Shell Transition data used to set timestamps of merged Transition trace,
+      // so WM Transition data should not be considered by "old data" policy
+      if (reader.getTraceType() === TraceType.WM_TRANSITION) {
+        return true;
+      }
+      return hasOldData(reader);
     });
+    newNonPerfettoReaders = newNonPerfettoReaders.filter(hasOldData);
+    return {newLegacyReaders, newNonPerfettoReaders};
   }
 
-  private filterScreenshotParsersIfRequired(
-    newLegacyParsers: FileAndParser[],
-  ): FileAndParser[] {
-    const hasOldScreenRecordingParsers = this.legacyParsers.some(
-      (entry) => entry.parser.getTraceType() === TraceType.SCREEN_RECORDING,
+  private filterScreenshotReadersIfRequired(newNonPerfettoReaders: T[]): T[] {
+    const hasOldScreenRecordingReaders = this.nonPerfettoReaders.some(
+      (reader) => reader.getTraceType() === TraceType.SCREEN_RECORDING,
     );
-    const hasNewScreenRecordingParsers = newLegacyParsers.some(
-      (entry) => entry.parser.getTraceType() === TraceType.SCREEN_RECORDING,
+    const hasNewScreenRecordingReaders = newNonPerfettoReaders.some(
+      (reader) => reader.getTraceType() === TraceType.SCREEN_RECORDING,
     );
-    const hasScreenRecordingParsers =
-      hasOldScreenRecordingParsers || hasNewScreenRecordingParsers;
+    const hasScreenRecordingReaders =
+      hasOldScreenRecordingReaders || hasNewScreenRecordingReaders;
 
-    if (!hasScreenRecordingParsers) {
-      return newLegacyParsers;
+    if (!hasScreenRecordingReaders) {
+      return newNonPerfettoReaders;
     }
 
-    const oldScreenshotParsers = this.legacyParsers.filter(
-      (fileAndParser) =>
-        fileAndParser.parser.getTraceType() === TraceType.SCREENSHOT,
+    const oldScreenshotReaders = this.nonPerfettoReaders.filter(
+      (reader) => reader.getTraceType() === TraceType.SCREENSHOT,
     );
-    const newScreenshotParsers = newLegacyParsers.filter(
-      (fileAndParser) =>
-        fileAndParser.parser.getTraceType() === TraceType.SCREENSHOT,
+    const newScreenshotReaders = newNonPerfettoReaders.filter(
+      (reader) => reader.getTraceType() === TraceType.SCREENSHOT,
     );
 
-    oldScreenshotParsers.forEach((fileAndParser) => {
+    oldScreenshotReaders.forEach((reader) => {
       UserNotifier.add(
         makeWarningTraceOverridden(
-          fileAndParser.parser.getDescriptors().join(),
+          reader.getDescriptors().join(),
           TraceType.SCREEN_RECORDING,
         ),
       );
-      this.remove(fileAndParser.parser);
+      this.remove(reader);
     });
 
-    newScreenshotParsers.forEach((newScreenshotParser) => {
+    newScreenshotReaders.forEach((reader) => {
       UserNotifier.add(
         makeWarningTraceOverridden(
-          newScreenshotParser.parser.getDescriptors().join(),
+          reader.getDescriptors().join(),
           TraceType.SCREEN_RECORDING,
         ),
       );
     });
 
-    return newLegacyParsers.filter(
-      (fileAndParser) =>
-        fileAndParser.parser.getTraceType() !== TraceType.SCREENSHOT,
+    return newNonPerfettoReaders.filter(
+      (reader) => reader.getTraceType() !== TraceType.SCREENSHOT,
     );
   }
 
-  private filterOutParsersWithoutOffsetsIfRequired(
-    newLegacyParsers: FileAndParser[],
-    perfettoParsers: FileAndParsers | undefined,
-  ): FileAndParser[] {
-    const hasParserWithOffset =
-      perfettoParsers ||
-      newLegacyParsers.find(({parser}) => {
+  private checkIfMixedTimestampType(
+    newNonPerfettoReaders: FileReader[],
+    perfettoReaders: FileReader[],
+  ): void {
+    const hasReaderWithOffset =
+      perfettoReaders.length > 0 ||
+      newNonPerfettoReaders.some((reader) => {
         return (
-          parser.getRealToBootTimeOffsetNs() !== undefined ||
-          parser.getRealToMonotonicTimeOffsetNs() !== undefined
+          reader.getRealToBootTimeOffsetNs() !== undefined ||
+          reader.getRealToMonotonicTimeOffsetNs() !== undefined
         );
       });
-    const hasParserWithoutOffset = newLegacyParsers.find(({parser}) => {
-      const timestamps = parser.getTimestamps();
+    const hasReaderWithoutOffset = newNonPerfettoReaders.some((reader) => {
+      const timestamps = reader.getTimestamps();
       return (
         this.hasValidTimestamps(timestamps) &&
-        parser.getRealToBootTimeOffsetNs() === undefined &&
-        parser.getRealToMonotonicTimeOffsetNs() === undefined
+        reader.getRealToBootTimeOffsetNs() === undefined &&
+        reader.getRealToMonotonicTimeOffsetNs() === undefined
       );
     });
 
-    if (hasParserWithOffset && hasParserWithoutOffset) {
-      newLegacyParsers.forEach(({parser}) => {
+    if (hasReaderWithOffset && hasReaderWithoutOffset) {
+      newNonPerfettoReaders.forEach((reader) => {
         if (
-          LoadedParsers.REAL_TIME_TRACES_WITHOUT_RTE_OFFSET.some(
-            (traceType) => parser.getTraceType() === traceType,
+          LoadedFiles.REAL_TIME_TRACES_WITHOUT_RTE_OFFSET.some(
+            (traceType) => reader.getTraceType() === traceType,
           )
         ) {
           return;
         }
         const hasOffset =
-          parser.getRealToMonotonicTimeOffsetNs() !== undefined ||
-          parser.getRealToBootTimeOffsetNs() !== undefined;
+          reader.getRealToMonotonicTimeOffsetNs() !== undefined ||
+          reader.getRealToBootTimeOffsetNs() !== undefined;
         if (!hasOffset) {
           UserNotifier.add(
             makeWarningTraceHasElapsedTimestamps(
-              parser.getDescriptors().join(),
+              reader.getDescriptors().join(),
             ),
           );
         }
       });
     }
-
-    return newLegacyParsers;
   }
 
   private findLastTimeGapAboveThreshold(
@@ -437,7 +473,7 @@ export class LoadedParsers {
       const curr = rangesSortedByEnd[i];
       const next = rangesSortedByEnd[i + 1];
       const gap = next.startNs - curr.endNs;
-      if (gap > LoadedParsers.MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS) {
+      if (gap > LoadedFiles.MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS) {
         return new TimeRange(curr.to, next.from);
       }
     }
@@ -445,15 +481,10 @@ export class LoadedParsers {
     return undefined;
   }
 
-  private removeWithPredicate(
-    predicate: (fileAndParser: FileAndParser) => boolean,
-  ) {
-    this.legacyParsers = this.legacyParsers.filter(
-      (fileAndParser: FileAndParser) => predicate(fileAndParser),
-    );
-    this.perfettoParsers = this.perfettoParsers.filter(
-      (fileAndParser: FileAndParser) => predicate(fileAndParser),
-    );
+  private removeWithPredicate(predicate: (reader: FileReader) => boolean) {
+    this.legacyReaders = this.legacyReaders.filter(predicate);
+    this.nonPerfettoReaders = this.nonPerfettoReaders.filter(predicate);
+    this.perfettoReaders = this.perfettoReaders.filter(predicate);
   }
 
   private hasValidTimestamps(timestamps: Timestamp[] | undefined): boolean {
@@ -467,5 +498,27 @@ export class LoadedParsers {
       return false;
     }
     return true;
+  }
+
+  // Non-zero timestamps are time-ordered within the trace, but zero timestamps
+  // may occur anywhere.
+
+  // Search from the start for the first non-zero timestamp to get the smallest.
+  private getSmallestNonZeroTimestamp(timestamps: Timestamp[]): Timestamp {
+    return (
+      timestamps.find((ts) => ts.getValueNs() !== INVALID_TIME_NS) ??
+      timestamps[0]
+    );
+  }
+
+  // Search from the end for the first non-zero timestamp to get the largest.
+  private getLargestNonZeroTimestamp(timestamps: Timestamp[]): Timestamp {
+    for (let i = timestamps.length - 1; i >= 0; i--) {
+      const ts = timestamps[i];
+      if (ts.getValueNs() !== INVALID_TIME_NS) {
+        return ts;
+      }
+    }
+    return timestamps[timestamps.length - 1];
   }
 }
