@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
@@ -31,9 +31,9 @@ describe('ParserScreenRecordingLegacy', () => {
 
   beforeAll(async () => {
     spyOnThumbnailGenerator();
-    parser = await new LegacyParserProvider()
+    parser = (await new NonPerfettoParserProvider()
       .addFile('traces/elapsed_timestamp/screen_recording.mp4')
-      .getParser<MediaBasedTraceEntry>();
+      .get()) as Parser<MediaBasedTraceEntry>;
   });
 
   it('has expected trace type', () => {

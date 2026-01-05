@@ -15,7 +15,6 @@
  */
 import {assertDefined} from '@common/assert';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
@@ -28,9 +27,11 @@ import {
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {spyOnThumbnailGenerator} from './test_helpers';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
+import {FileReader} from '@trace_api/file_reader';
 
 describe('ParserScreenRecording', () => {
-  let parser: Parser<MediaBasedTraceEntry>;
+  let parser: Parser<MediaBasedTraceEntry> & FileReader;
 
   beforeAll(() => {
     spyOnThumbnailGenerator();
@@ -39,11 +40,11 @@ describe('ParserScreenRecording', () => {
   describe('metadata v2', () => {
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      parser = (await new NonPerfettoParserProvider()
         .addFile(
           'traces/elapsed_and_real_timestamp/screen_recording_metadata_v2.mp4',
         )
-        .getParser<MediaBasedTraceEntry>();
+        .get()) as Parser<MediaBasedTraceEntry> & FileReader;
     });
 
     it('has expected trace type', () => {
@@ -91,11 +92,11 @@ describe('ParserScreenRecording', () => {
   describe('metadata v3', () => {
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      parser = (await new NonPerfettoParserProvider()
         .addFile(
           'traces/elapsed_and_real_timestamp/screen_recording_metadata_v3.mp4',
         )
-        .getParser<MediaBasedTraceEntry>();
+        .get()) as Parser<MediaBasedTraceEntry> & FileReader;
     });
 
     it('has expected trace type', () => {
@@ -145,7 +146,7 @@ describe('ParserScreenRecording', () => {
     const realtoElapsedNs = 10n;
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      parser = (await new NonPerfettoParserProvider()
         .addFile(
           'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
         )
@@ -155,16 +156,13 @@ describe('ParserScreenRecording', () => {
             realToElapsedTimeOffsetNanos: realtoElapsedNs,
           },
         })
-        .getParser<MediaBasedTraceEntry>();
+        .get()) as Parser<MediaBasedTraceEntry> & FileReader;
     });
 
     it('throws error if metadata not provided', async () => {
-      const parsers = await new LegacyParserProvider()
-        .addFile(
-          'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
-        )
-        .getParsers();
-      expect(parsers.length).toBe(0);
+      await checkFailsToParseFilename(
+        'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
+      );
     });
 
     it('sets real to boot time offset', () => {
@@ -271,12 +269,12 @@ describe('ParserScreenRecording', () => {
     function checkStartTimeInFilename(filename: string) {
       beforeAll(async () => {
         jasmine.addCustomEqualityTester(timestampEqualityTester);
-        parser = await new LegacyParserProvider()
+        parser = (await new NonPerfettoParserProvider()
           .addFile(
             'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
             filename,
           )
-          .getParser<MediaBasedTraceEntry>();
+          .get()) as Parser<MediaBasedTraceEntry> & FileReader;
       });
 
       it('sets real to boot time offset', () => {
@@ -315,15 +313,15 @@ describe('ParserScreenRecording', () => {
         expect(entry1.thumbnail).toEqual(entry0.thumbnail);
       });
     }
-
-    async function checkFailsToParseFilename(filename: string) {
-      const parsers = await new LegacyParserProvider()
-        .addFile(
-          'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
-          filename,
-        )
-        .getParsers();
-      expect(parsers.length).toBe(0);
-    }
   });
+
+  async function checkFailsToParseFilename(filename: string) {
+    const parsers = await new NonPerfettoParserProvider()
+      .addFile(
+        'traces/elapsed_and_real_timestamp/screen_recording_no_metadata.mp4',
+        filename,
+      )
+      .getAll();
+    expect(parsers.length).toBe(0);
+  }
 });

@@ -15,7 +15,7 @@
  */
 
 import {ThumbnailGenerator} from './thumbnail_generator';
-import {Thumbnail} from 'trace/media_based/thumbnail';
+import {Thumbnail} from '@trace/media_based/thumbnail';
 
 // Karma webpack compilation does not function well with module workers.
 // Since thumbnail generation is offloaded to a module worker, we spy on
