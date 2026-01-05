@@ -225,7 +225,10 @@ export class ImeAdditionalPropertiesComponent {
     }
   }
 
-  onClickShowInPropertiesPanelWm(item: TreeNode, name: string) {
+  onClickShowInPropertiesPanelWm(item: TreeNode | undefined, name: string) {
+    if (!item) {
+      return;
+    }
     this.updateAdditionalPropertySelected(item, name);
   }
 

@@ -32,6 +32,7 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
+import {TreeNode} from '@tree_node/tree_node';
 
 @Component({
   selector: 'tree-node',
@@ -91,6 +92,14 @@ export class TreeNodeComponent {
 
   isPropertyTreeNode(): boolean {
     return this.node instanceof UiPropertyTreeNode;
+  }
+
+  toPropertyTreeNode(input: TreeNode): UiPropertyTreeNode {
+    return input as UiPropertyTreeNode;
+  }
+
+  toHierarchyTreeNode(input: TreeNode): UiHierarchyTreeNode {
+    return input as UiHierarchyTreeNode;
   }
 
   showPinNodeIcon(): boolean {

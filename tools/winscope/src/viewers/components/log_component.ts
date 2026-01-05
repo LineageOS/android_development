@@ -63,6 +63,11 @@ import {SearchBoxComponent} from '@viewers/components/search_box_component';
 import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 import {assertDefined} from '@common/assert';
 import {UserTimestamp} from '@common/time/user_timestamp';
+import {
+  LogFilter,
+  LogSelectFilter,
+  LogTextFilter,
+} from '@viewers/common/log_filters';
 
 @Component({
   selector: 'log-view',
@@ -318,5 +323,13 @@ export class LogComponent {
       detail: data,
     });
     this.elementRef.nativeElement.dispatchEvent(customEvent);
+  }
+
+  isLogSelectFilter(filter: LogFilter): filter is LogSelectFilter {
+    return filter instanceof LogSelectFilter;
+  }
+
+  isLogTextFilter(filter: LogFilter): filter is LogTextFilter {
+    return filter instanceof LogTextFilter;
   }
 }

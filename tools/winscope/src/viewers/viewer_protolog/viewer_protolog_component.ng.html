@@ -23,8 +23,8 @@ limitations under the License.
     [entries]="inputData?.entries ?? []"
     [headers]="inputData?.headers ?? []"
     [traceType]="TraceType.PROTO_LOG"
-    [isFetchingData]="inputData?.isFetchingData"
-    [checkScrollViewport]="inputData?.checkScrollViewport"
+    [isFetchingData]="inputData?.isFetchingData ?? false"
+    [checkScrollViewport]="inputData?.checkScrollViewport ?? false"
   >
   </log-view>
 </div>

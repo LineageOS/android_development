@@ -92,8 +92,8 @@ limitations under the License.
             class="time-input human"
             subscriptSizing="dynamic"
             appearance="fill"
-            (keydown.esc)="$event.target.blur()"
-            (keydown.enter)="onKeydownEnterTimeInputField($event)"
+            (keydown.esc)="$any($event.target).blur()"
+            (keydown.enter)="onKeydownEnterTimeInputField($any($event))"
             (change)="onHumanTimeInputChange($event)"
           >
             @let humanTooltip = getHumanTimeTooltip();
@@ -128,15 +128,15 @@ limitations under the License.
             class="time-input nano"
             subscriptSizing="dynamic"
             appearance="fill"
-            (keydown.esc)="$event.target.blur()"
-            (keydown.enter)="onKeydownEnterNanosecondsTimeInputField($event)"
+            (keydown.esc)="$any($event.target).blur()"
+            (keydown.enter)="onKeydownEnterNanosecondsTimeInputField($any($event))"
             (change)="onNanosecondsInputTimeChange($event)"
           >
             <mat-icon
               class="bookmark-icon prefix"
               [class.material-symbols-outlined]="!currentPositionBookmarked()"
               matTooltip="bookmark timestamp"
-              (click)="toggleBookmarkCurrentPosition($event)"
+              (click)="toggleBookmarkCurrentPosition($any($event))"
               matRipple
               [matRippleCentered]="true"
               [matRippleRadius]="10"

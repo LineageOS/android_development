@@ -146,8 +146,6 @@ import {getLogger} from '@compat/logging';
     TimelineComponent,
     CollectTracesComponent,
     UploadTracesComponent,
-    ShortcutsComponent,
-    WarningDialogComponent,
   ],
   providers: [Title, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
   templateUrl: './app_component.ng.html',
@@ -635,7 +633,7 @@ export class AppComponent implements WinscopeEventListener {
     }
   }
 
-  private updateShareState() {
+  updateShareState() {
     this.updateShareOptionsVisibility();
     this.updateShareLink();
   }

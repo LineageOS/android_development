@@ -28,17 +28,17 @@ import {
   SimpleChange,
   SimpleChanges,
 } from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
+import {MatButtonModule, MatIconButton} from '@angular/material/button';
 import {
   MatButtonToggleChange,
   MatButtonToggleModule,
 } from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatIconModule, MatIconRegistry} from '@angular/material/icon';
+import {MatIcon, MatIconModule, MatIconRegistry} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectChange, MatSelectModule} from '@angular/material/select';
-import {MatSliderModule} from '@angular/material/slider';
+import {MatSlider, MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer} from '@angular/platform-browser';
 import {assertDefined} from '@common/assert';
@@ -113,9 +113,9 @@ export class RectsComponent implements OnInit, OnDestroy {
   private storeKeyZSpacingFactor = '';
   private storeKeyShadingMode = '';
   private storeKeySelectedDisplays = '';
-  private internalDisplays: DisplayIdentifier[] = [];
+  internalDisplays: DisplayIdentifier[] = [];
   private internalHighlightedItem = '';
-  private currentDisplays: DisplayIdentifier[] = [];
+  currentDisplays: DisplayIdentifier[] = [];
   largeRectsMapper3d = new Mapper3D();
   private miniRectsMapper3d = new Mapper3D();
   private largeRectsCanvas?: Canvas;
@@ -483,11 +483,11 @@ export class RectsComponent implements OnInit, OnDestroy {
     this.updateLargeRectsColors();
   }
 
-  onInteractionStart(components: CanColor[]) {
+  onInteractionStart(components: Array<MatIconButton | MatSlider | MatIcon>) {
     components.forEach((c) => (c.color = 'primary'));
   }
 
-  onInteractionEnd(components: CanColor[]) {
+  onInteractionEnd(components: Array<MatIconButton | MatSlider | MatIcon>) {
     components.forEach((c) => (c.color = 'accent'));
   }
 

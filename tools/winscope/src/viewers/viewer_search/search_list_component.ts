@@ -15,8 +15,8 @@
  */
 
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {CommonModule, NgTemplateOutlet} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Component, Input, TemplateRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -64,5 +64,5 @@ export interface ListItemOption {
   name: string;
   icon: string;
   onClickCallback?: (search: ListedSearch) => void;
-  menu?: NgTemplateOutlet;
+  menu?: TemplateRef<any>;
 }

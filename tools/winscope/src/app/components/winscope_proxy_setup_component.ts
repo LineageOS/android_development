@@ -69,7 +69,7 @@ export class WinscopeProxySetupComponent {
     }
   }
 
-  onKeydownEnterProxyTokenInput(event: MouseEvent) {
+  onKeydownEnterProxyTokenInput(event: Event) {
     (event.target as HTMLInputElement).blur();
     this.onRetryButtonClick();
   }

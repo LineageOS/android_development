@@ -29,9 +29,9 @@ limitations under the License.
     @if (trace.type === TraceType.TRANSITION) {
     <transition-timeline
       [color]="TRACE_INFO[trace.type].color"
-      [trace]="trace"
+      [trace]="$any(trace)"
       [transitionEntries]="timelineData?.getTransitionEntries()"
-      [selectedEntry]="timelineData?.findCurrentEntryFor(trace)"
+      [selectedEntry]="$any(timelineData?.findCurrentEntryFor($any(trace)))"
       [selectionRange]="timelineData?.getSelectionTimeRange()"
       [fullRange]="timelineData?.getFullTimeRange()"
       [timestampConverter]="timelineData?.getTimestampConverter()"
@@ -47,7 +47,7 @@ limitations under the License.
     <single-timeline
       [color]="TRACE_INFO[trace.type].color"
       [trace]="trace"
-      [selectedEntry]="timelineData?.findCurrentEntryFor(trace)"
+      [selectedEntry]="timelineData?.findCurrentEntryFor($any(trace))"
       [selectionRange]="timelineData?.getSelectionTimeRange()"
       [timestampConverter]="timelineData?.getTimestampConverter()"
       [isActive]="isActiveTrace(trace)"

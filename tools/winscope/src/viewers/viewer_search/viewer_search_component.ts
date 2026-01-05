@@ -16,7 +16,7 @@
 
 import {CdkAccordionItem, CdkAccordionModule} from '@angular/cdk/accordion';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {CommonModule, NgTemplateOutlet} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
@@ -25,6 +25,7 @@ import {
   Inject,
   QueryList,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
@@ -98,7 +99,7 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
   styleUrls: ['./viewer_search_component.css'],
 })
 export class ViewerSearchComponent extends ViewerComponent<UiData> {
-  @ViewChild('saveQueryField') saveQueryField: NgTemplateOutlet | undefined;
+  @ViewChild('saveQueryField') saveQueryField: TemplateRef<any> | undefined;
   @ViewChild('globalSearchTitle') globalSearchTitle: ElementRef | undefined;
   @ViewChildren(MatTabGroup) matTabGroups: QueryList<MatTabGroup> | undefined;
   @ViewChildren(ActiveSearchComponent) activeSearchComponents:
@@ -132,7 +133,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   private runFromOptions = false;
   private editFromOptions = false;
   private globalSearchTitleHeight = 48;
-  private checkScrollViewport = -1;
+  checkScrollViewport = -1;
 
   private readonly editOption: ListItemOption = {
     name: 'Edit',

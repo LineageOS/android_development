@@ -67,8 +67,8 @@ limitations under the License.
         >
           <input
             [value]="largeRectsMapper3d.getCameraRotationFactor()"
-            (input)="onRotationSliderChange($event.target.value)"
-            (focus)="$event.target.blur()"
+            (input)="onRotationSliderChange($any($event.target).value)"
+            (focus)="$any($event.target).blur()"
             matSliderThumb
           />
         </mat-slider>
@@ -95,8 +95,8 @@ limitations under the License.
         >
           <input
             [value]="getZSpacingFactor()"
-            (input)="onSeparationSliderChange($event.target.value)"
-            (focus)="$event.target.blur()"
+            (input)="onSeparationSliderChange($any($event.target).value)"
+            (focus)="$any($event.target).blur()"
             matSliderThumb
           />
         </mat-slider>

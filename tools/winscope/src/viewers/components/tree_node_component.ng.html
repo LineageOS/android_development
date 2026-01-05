@@ -60,9 +60,9 @@ limitations under the License.
 
 <div class="description">
   @if (node && !isPropertyTreeNode()) {
-  <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
+  <hierarchy-tree-node-data-view [node]="toHierarchyTreeNode(node)"></hierarchy-tree-node-data-view>
   } @else if (node) {
-  <property-tree-node-data-view [node]="node"></property-tree-node-data-view>
+  <property-tree-node-data-view [node]="toPropertyTreeNode(node)"></property-tree-node-data-view>
   }
 </div>
 

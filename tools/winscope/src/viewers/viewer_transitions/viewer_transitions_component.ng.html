@@ -32,8 +32,8 @@ limitations under the License.
     [traceType]="TraceType.TRANSITION"
     [showTraceEntryTimes]="false"
     [showCurrentTimeButton]="false"
-    [isFetchingData]="inputData?.isFetchingData"
-    [checkScrollViewport]="inputData?.checkScrollViewport"
+    [isFetchingData]="inputData?.isFetchingData ?? false"
+    [checkScrollViewport]="inputData?.checkScrollViewport ?? false"
   >
   </log-view>
 

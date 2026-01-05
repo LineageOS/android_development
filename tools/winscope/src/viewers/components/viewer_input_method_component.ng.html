@@ -28,7 +28,7 @@ limitations under the License.
       class="hierarchy-view"
       [nodeRows]="this.inputData?.hierarchyNodes ?? []"
       [dependencies]="inputData ? [inputData.traceType] : []"
-      [highlightedItem]="inputData?.highlightedItem"
+      [highlightedItem]="inputData?.highlightedItem ?? ''"
       [pinnedItems]="inputData?.pinnedItems ?? []"
       [tableProperties]="inputData?.hierarchyTableProperties"
       [textFilter]="inputData?.hierarchyFilter"
