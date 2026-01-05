@@ -31,7 +31,7 @@ import {
 } from './legacy_to_perfetto_converter';
 import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
-import {LegacyFileReaderBuilder} from '@test/unit/legacy_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 
 describe('LegacyToPerfettoConverter', () => {
   const packetB1 = makePacketWithBoottimeTs(10);
@@ -350,7 +350,7 @@ describe('LegacyToPerfettoConverter', () => {
             const ns = BigInt(testPacket?.timestamp.toString() ?? 0n);
             return makeRealTimestamp(ns);
           });
-    const fileReader = new LegacyFileReaderBuilder()
+    const fileReader = new TestLegacyFileReaderBuilder()
       .setTracePackets(testPackets)
       .setTimestamps(ts)
       .build();

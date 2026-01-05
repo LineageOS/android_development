@@ -34,8 +34,8 @@ import {BuildType, TraceFileIdentifier} from './trace_file_identifier';
 import {ProcessedFiles} from './processed_files';
 import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
-import {FileReaderBuilder} from '@test/unit/file_reader_builder';
-import {LegacyFileReaderBuilder} from '@test/unit/legacy_file_reader_builder';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 
 describe('TraceFileIdentifier', () => {
   const identifier = new TraceFileIdentifier<FileReader>();
@@ -597,7 +597,7 @@ describe('TraceFileIdentifier', () => {
   ): Promise<ProcessedFiles<FileReader>> {
     return {
       supportedFiles: files.map((f) => {
-        return new FileReaderBuilder()
+        return new TestFileReaderBuilder()
           .setTraceFile(f)
           .setTimestamps([])
           .build();
@@ -611,7 +611,7 @@ describe('TraceFileIdentifier', () => {
   ): Promise<ProcessedFiles<LegacyFileReader>> {
     return {
       supportedFiles: files.map((f) => {
-        return new LegacyFileReaderBuilder()
+        return new TestLegacyFileReaderBuilder()
           .setTraceFile(f)
           .setTimestamps([])
           .build();
@@ -626,7 +626,10 @@ describe('TraceFileIdentifier', () => {
   ): Promise<FileReader[]> {
     if (perfettoFiles.includes(file)) {
       return [
-        new FileReaderBuilder().setTraceFile(file).setTimestamps([]).build(),
+        new TestFileReaderBuilder()
+          .setTraceFile(file)
+          .setTimestamps([])
+          .build(),
       ];
     } else {
       return [];

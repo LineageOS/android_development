@@ -214,10 +214,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
     this.onTraceConfigChange();
   }
 
-  onSettingsOverlayTriggerClick(
-    traceKey: string,
-    trigger?: CdkOverlayOrigin,
-  ) {
+  onSettingsOverlayTriggerClick(traceKey: string, trigger?: CdkOverlayOrigin) {
     this.ngZone.run(() => {
       if (this.advancedSettingsKey === traceKey) {
         this.advancedSettingsKey = undefined;

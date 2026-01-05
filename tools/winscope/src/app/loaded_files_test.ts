@@ -33,8 +33,8 @@ import {TraceType} from '@trace_api/trace_type';
 import {LoadedFiles} from './loaded_files';
 import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
-import {LegacyFileReaderBuilder} from '@test/unit/legacy_file_reader_builder';
-import {FileReaderBuilder} from '@test/unit/file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 
 describe('LoadedFiles', () => {
   const realZeroTimestamp = makeRealTimestamp(0n);
@@ -53,45 +53,45 @@ describe('LoadedFiles', () => {
     makeRealTimestamp(5n * 60n * 1000000000n + 12n), // 5m12ns
   ];
 
-  const legacyReaderSf0 = new LegacyFileReaderBuilder()
+  const legacyReaderSf0 = new TestLegacyFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps(timestamps)
     .setDescriptors(['sf0'])
     .build();
-  const legacyReaderWm0 = new LegacyFileReaderBuilder()
+  const legacyReaderWm0 = new TestLegacyFileReaderBuilder()
     .setType(TraceType.WINDOW_MANAGER)
     .setTimestamps(timestamps)
     .setDescriptors(['wm0'])
     .build();
-  const legacyReaderSf_elapsed = new LegacyFileReaderBuilder()
+  const legacyReaderSf_elapsed = new TestLegacyFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps(timestamps)
     .setDescriptors(['sf elapsed'])
     .setNoOffsets(true)
     .build();
-  const legacyReaderWm_elapsed = new LegacyFileReaderBuilder()
+  const legacyReaderWm_elapsed = new TestLegacyFileReaderBuilder()
     .setType(TraceType.WINDOW_MANAGER)
     .setTimestamps(timestamps)
     .setDescriptors(['wm elapsed'])
     .setNoOffsets(true)
     .build();
-  const legacyReaderNoOffsets = new LegacyFileReaderBuilder()
+  const legacyReaderNoOffsets = new TestLegacyFileReaderBuilder()
     .setType(TraceType.CUJS)
     .setTimestamps(timestamps)
     .setDescriptors(['cujs'])
     .setNoOffsets(true)
     .build();
-  const legacyReaderSf_longButOldData = new LegacyFileReaderBuilder()
+  const legacyReaderSf_longButOldData = new TestLegacyFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps(oldTimestamps)
     .setDescriptors(['sf old'])
     .build();
-  const legacyReaderWm_dump = new LegacyFileReaderBuilder()
+  const legacyReaderWm_dump = new TestLegacyFileReaderBuilder()
     .setType(TraceType.WINDOW_MANAGER)
     .setTimestamps([realZeroTimestamp])
     .setDescriptors(['wm dump'])
     .build();
-  const legacyReaderWmTransitions = new LegacyFileReaderBuilder()
+  const legacyReaderWmTransitions = new TestLegacyFileReaderBuilder()
     .setType(TraceType.WM_TRANSITION)
     .setTimestamps([
       elapsedZeroTimestamp,
@@ -100,33 +100,33 @@ describe('LoadedFiles', () => {
     ])
     .setDescriptors(['wm transitions'])
     .build();
-  const legacyReaderSf_empty = new LegacyFileReaderBuilder()
+  const legacyReaderSf_empty = new TestLegacyFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps([])
     .setDescriptors(['sf empty'])
     .build();
 
-  const readerSf1 = new FileReaderBuilder()
+  const readerSf1 = new TestFileReaderBuilder()
     .setType(TraceType.SURFACE_FLINGER)
     .setTimestamps(timestamps)
     .setDescriptors(['sf1'])
     .build();
-  const readerWm1 = new FileReaderBuilder()
+  const readerWm1 = new TestFileReaderBuilder()
     .setType(TraceType.WINDOW_MANAGER)
     .setTimestamps(timestamps)
     .setDescriptors(['wm1'])
     .build();
-  const readerScreenRecording = new FileReaderBuilder()
+  const readerScreenRecording = new TestFileReaderBuilder()
     .setType(TraceType.SCREEN_RECORDING)
     .setTimestamps(timestamps)
     .setDescriptors(['screen recording'])
     .build();
-  const readerViewCapture0 = new FileReaderBuilder()
+  const readerViewCapture0 = new TestFileReaderBuilder()
     .setType(TraceType.VIEW_CAPTURE)
     .setTimestamps([])
     .setDescriptors(['vc0'])
     .build();
-  const readerViewCapture1 = new FileReaderBuilder()
+  const readerViewCapture1 = new TestFileReaderBuilder()
     .setType(TraceType.VIEW_CAPTURE)
     .setTimestamps([])
     .setDescriptors(['vc1'])
@@ -310,7 +310,7 @@ describe('LoadedFiles', () => {
         timestamps[0].add(-1n),
         timestamps[0].add(1n),
       ];
-      const readerOverlappingFront = new LegacyFileReaderBuilder()
+      const readerOverlappingFront = new TestLegacyFileReaderBuilder()
         .setType(TraceType.TRANSACTIONS)
         .setTimestamps(timestampsOverlappingFront)
         .setDescriptors([filename])
@@ -320,7 +320,7 @@ describe('LoadedFiles', () => {
         timestamps[timestamps.length - 1].add(-1n),
         timestamps[timestamps.length - 1].add(1n),
       ];
-      const readerOverlappingBack = new LegacyFileReaderBuilder()
+      const readerOverlappingBack = new TestLegacyFileReaderBuilder()
         .setType(TraceType.TRANSITION)
         .setTimestamps(timestampsOverlappingBack)
         .setDescriptors([filename])
@@ -330,7 +330,7 @@ describe('LoadedFiles', () => {
         timestamps[0].add(-1n),
         timestamps[timestamps.length - 1].add(1n),
       ];
-      const readerOverlappingEntirely = new LegacyFileReaderBuilder()
+      const readerOverlappingEntirely = new TestLegacyFileReaderBuilder()
         .setType(TraceType.VIEW_CAPTURE)
         .setTimestamps(timestampsOverlappingEntirely)
         .setDescriptors([filename])
@@ -340,7 +340,7 @@ describe('LoadedFiles', () => {
         timestamps[0],
         timestamps[timestamps.length - 1],
       ];
-      const readerOverlappingExactly = new LegacyFileReaderBuilder()
+      const readerOverlappingExactly = new TestLegacyFileReaderBuilder()
         .setType(TraceType.WINDOW_MANAGER)
         .setTimestamps(timestampsOverlappingExactly)
         .setDescriptors([filename])
@@ -416,17 +416,17 @@ describe('LoadedFiles', () => {
   });
 
   describe('handles screen recordings and screenshots', () => {
-    const readerScreenRecording0 = new FileReaderBuilder()
+    const readerScreenRecording0 = new TestFileReaderBuilder()
       .setType(TraceType.SCREEN_RECORDING)
       .setTimestamps(timestamps)
       .setDescriptors(['screen_recording.mp4'])
       .build();
-    const readerScreenRecording1 = new FileReaderBuilder()
+    const readerScreenRecording1 = new TestFileReaderBuilder()
       .setType(TraceType.SCREEN_RECORDING)
       .setTimestamps(timestamps)
       .setDescriptors(['screen_recording.mp4'])
       .build();
-    const readerScreenshot0 = new FileReaderBuilder()
+    const readerScreenshot0 = new TestFileReaderBuilder()
       .setType(TraceType.SCREENSHOT)
       .setTimestamps(timestamps)
       .setDescriptors(['screenshot.png'])
