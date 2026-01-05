@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,9 @@
  */
 
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
+import {FileReader} from '@trace_api/file_reader';
 
-/**
- * A class that associates a file with a parser.
- */
-export class FileAndParser {
-  constructor(
-    readonly file: TraceFile,
-    readonly parser: Parser<unknown>,
-  ) {}
+export interface ProcessedFiles<T extends FileReader> {
+  supportedFiles: T[];
+  unsupportedFiles: TraceFile[];
 }

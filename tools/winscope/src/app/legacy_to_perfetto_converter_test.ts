@@ -22,15 +22,16 @@ import {
   Trace,
   TracePacket,
 } from '@compat/perfetto';
-import {ParserBuilder} from '@test/unit/parser_builder';
 import {makeRealTimestamp} from '@test/unit/time_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
 import {
   ClockSnapshot,
   LegacyToPerfettoConverter,
 } from './legacy_to_perfetto_converter';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {FileReader} from '@trace_api/file_reader';
+import {LegacyFileReaderBuilder} from '@test/unit/legacy_file_reader_builder';
 
 describe('LegacyToPerfettoConverter', () => {
   const packetB1 = makePacketWithBoottimeTs(10);
@@ -46,12 +47,19 @@ describe('LegacyToPerfettoConverter', () => {
   const existingFile = makeExistingPerfettoFile(perfettoSnapshot, emptyPacket);
 
   it('converts multiple legacy files to new perfetto file', async () => {
-    const parser1 = makeParser([packetB1]);
-    spyOn(parser1, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
-    const parser2 = makeParser([packetB2]);
-    spyOn(parser2, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
+    const legacyReader1 = makeFileReader([packetB1]);
+    spyOn(legacyReader1, 'getRealToMonotonicTimeOffsetNs').and.returnValue(
+      undefined,
+    );
+    const legacyReader2 = makeFileReader([packetB2]);
+    spyOn(legacyReader2, 'getRealToMonotonicTimeOffsetNs').and.returnValue(
+      undefined,
+    );
 
-    const perfettoFile = await convertToPerfetto([parser1, parser2]);
+    const perfettoFile = await convertToPerfetto([
+      legacyReader1,
+      legacyReader2,
+    ]);
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(trace.packet).toEqual([
       makeExpectedClockSnapshot({
@@ -65,8 +73,12 @@ describe('LegacyToPerfettoConverter', () => {
   });
 
   it('adds multiple legacy files to existing perfetto file', async () => {
-    const parsers = [makeParser([packetB1]), makeParser([packetM1])];
-    const perfettoFile = await convertToPerfetto(parsers, existingFile);
+    const readers = [makeFileReader([packetB1]), makeFileReader([packetM1])];
+    const perfettoFile = await convertToPerfetto(
+      readers,
+      readers,
+      existingFile,
+    );
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(trace.packet).toEqual([
       perfettoSnapshot,
@@ -78,7 +90,7 @@ describe('LegacyToPerfettoConverter', () => {
 
   it('adds legacy trace without timestamp to existing perfetto file', async () => {
     const packetB0 = makePacketWithBoottimeTs(0);
-    const parser = makeParser([packetB0]);
+    const readers = [makeFileReader([packetB0])];
     expect(packetB0.timestamp).toEqual(Long.fromInt(0, true));
 
     const existingPacket = new TracePacket();
@@ -89,7 +101,7 @@ describe('LegacyToPerfettoConverter', () => {
     );
 
     const perfettoFile = assertDefined(
-      await convertToPerfetto([parser], fileWithPacket),
+      await convertToPerfetto(readers, readers, fileWithPacket),
     );
     const trace = await checkAndDecodePerfettoFile(perfettoFile);
 
@@ -98,56 +110,62 @@ describe('LegacyToPerfettoConverter', () => {
   });
 
   it('ignores legacy file that cannot be converted to perfetto format', async () => {
-    const parser1 = makeParser([]);
-    expect(await convertToPerfetto([parser1])).toBeUndefined();
-    expect(await convertToPerfetto([parser1], existingFile)).toBeUndefined();
+    const reader1 = makeFileReader([]);
+    expect(await convertToPerfetto([reader1])).toBeUndefined();
+    expect(
+      await convertToPerfetto([reader1], [reader1], existingFile),
+    ).toBeUndefined();
 
-    const parser2 = makeParser([packetM1]);
-    const parsers = [parser1, parser2];
-    const perfettoFile = await convertToPerfetto(parsers, existingFile);
+    const reader2 = makeFileReader([packetM1]);
+    const readers = [reader1, reader2];
+    const perfettoFile = await convertToPerfetto(
+      readers,
+      readers,
+      existingFile,
+    );
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(trace.packet).toEqual([perfettoSnapshot, emptyPacket, packetM1]);
   });
 
   it('converts elapsed legacy trace to new perfetto trace', async () => {
-    await testElapsedParsers([packetB1]);
+    await testElapsedTraces([packetB1]);
   });
 
   it('converts elapsed legacy trace with multiple entries', async () => {
     const packets = [packetB1, packetB2, packetB3];
-    await testElapsedParsers(packets);
+    await testElapsedTraces(packets);
   });
 
   it('converts legacy trace with real-to-boottime offset', async () => {
-    await testBoottimeParsers([packetB1]);
+    await testBoottimeTraces([packetB1]);
   });
 
   it('converts legacy trace with real-to-boottime offset with multiple entries', async () => {
     const packets = [packetB1, packetB2, packetB3];
-    await testBoottimeParsers(packets);
+    await testBoottimeTraces(packets);
   });
 
   it('converts legacy trace with real-to-monotonic offset', async () => {
-    await testMonotonicParsers([packetM1]);
+    await testMonotonicTraces([packetM1]);
   });
 
   it('converts legacy trace with real-to-monotonic offset with multiple entries', async () => {
     const packets = [packetM1, packetM2, packetM3];
-    await testMonotonicParsers(packets);
+    await testMonotonicTraces(packets);
   });
 
-  it('converts boot-time and monotonically offset parsers', async () => {
-    const parserB = makeParser([packetB1]);
-    spyOn(parserB, 'getRealToBootTimeOffsetNs').and.returnValue(2n);
-    spyOn(parserB, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
+  it('converts boot-time and monotonically offset traces', async () => {
+    const readerB = makeFileReader([packetB1]);
+    spyOn(readerB, 'getRealToBootTimeOffsetNs').and.returnValue(2n);
+    spyOn(readerB, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
 
-    const parserM = makeParser([packetM1]);
-    spyOn(parserM, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
-    spyOn(parserM, 'getRealToMonotonicTimeOffsetNs').and.returnValue(3n);
+    const readerM = makeFileReader([packetM1]);
+    spyOn(readerM, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
+    spyOn(readerM, 'getRealToMonotonicTimeOffsetNs').and.returnValue(3n);
 
     const perfettoFile = await new LegacyToPerfettoConverter()
-      .setLegacyParsers([parserM])
-      .setAllParsers([parserM, parserB])
+      .setLegacyFileReaders([readerM])
+      .setAllFileReaders([readerM, readerB])
       .convert();
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(trace.packet).toEqual([
@@ -167,10 +185,10 @@ describe('LegacyToPerfettoConverter', () => {
 
   it('converts legacy trace with zero timestamp', async () => {
     const packet = makePacketWithBoottimeTs(0);
-    const parser = makeParser([packet]);
-    spyOn(parser, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
-    spyOn(parser, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
-    const perfettoFile = await convertToPerfetto([parser]);
+    const reader = makeFileReader([packet]);
+    spyOn(reader, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
+    spyOn(reader, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
+    const perfettoFile = await convertToPerfetto([reader]);
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     const clockSnapshot = makeExpectedClockSnapshot({
       realtime: 0n,
@@ -182,9 +200,13 @@ describe('LegacyToPerfettoConverter', () => {
 
   it('robust to errors in existing trace decoding', async () => {
     const userNotifierChecker = new UserNotifierChecker();
-    const parser = makeParser([]);
+    const readers = [makeFileReader([])];
     spyOn(Trace, 'decode').and.throwError('decoding failed');
-    const perfettoFile = await convertToPerfetto([parser], existingFile);
+    const perfettoFile = await convertToPerfetto(
+      readers,
+      readers,
+      existingFile,
+    );
     expect(perfettoFile).toEqual(existingFile);
     userNotifierChecker.expectNotified([
       makeWarningFailedToConvertLegacyTraces('decoding failed'),
@@ -192,21 +214,21 @@ describe('LegacyToPerfettoConverter', () => {
   });
 
   it('robust to errors in packet conversion', async () => {
-    const parser = makeParser([], true);
-    expect(await convertToPerfetto([parser])).toBeUndefined();
+    const reader = makeFileReader([], true);
+    expect(await convertToPerfetto([reader])).toBeUndefined();
   });
 
-  it('robust to errors if allParsers empty and no Perfetto file provided', async () => {
+  it('robust to errors if allReaders empty and no Perfetto file provided', async () => {
     const userNotifierChecker = new UserNotifierChecker();
-    const parser = makeParser([], true);
+    const reader = makeFileReader([], true);
     const perfettoFile = await new LegacyToPerfettoConverter()
-      .setLegacyParsers([parser])
-      .setAllParsers([])
+      .setLegacyFileReaders([reader])
+      .setAllFileReaders([])
       .convert();
     expect(perfettoFile).toBeUndefined();
     userNotifierChecker.expectNotified([
       makeWarningFailedToConvertLegacyTraces(
-        'no parsers or Perfetto file provided',
+        'no file readers or Perfetto file provided',
       ),
     ]);
   });
@@ -228,23 +250,24 @@ describe('LegacyToPerfettoConverter', () => {
   }
 
   async function convertToPerfetto(
-    parsers: Array<Parser<unknown>>,
+    readers: LegacyFileReader[],
+    allReaders: FileReader[] = readers,
     perfettoFile?: TraceFile,
   ) {
     const converter = new LegacyToPerfettoConverter()
-      .setLegacyParsers(parsers)
-      .setAllParsers(parsers);
+      .setLegacyFileReaders(readers)
+      .setAllFileReaders(allReaders);
     if (perfettoFile) {
       converter.setPerfettoFile(perfettoFile);
     }
     return await converter.convert();
   }
 
-  async function testElapsedParsers(packets: TracePacket[]) {
-    const parser = makeParser(packets);
-    spyOn(parser, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
-    spyOn(parser, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
-    const perfettoFile = await convertToPerfetto([parser]);
+  async function testElapsedTraces(packets: TracePacket[]) {
+    const reader = makeFileReader(packets);
+    spyOn(reader, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
+    spyOn(reader, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
+    const perfettoFile = await convertToPerfetto([reader]);
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     const snapshotPackets = [
       makeExpectedClockSnapshot({
@@ -265,26 +288,26 @@ describe('LegacyToPerfettoConverter', () => {
     expect(trace.packet).toEqual([...snapshotPackets, ...packets]);
   }
 
-  async function testBoottimeParsers(packets: TracePacket[]) {
-    const parser = makeParser(packets);
-    spyOn(parser, 'getRealToBootTimeOffsetNs').and.returnValue(3n);
-    spyOn(parser, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
-    await testConversion(parser, packets, false);
+  async function testBoottimeTraces(packets: TracePacket[]) {
+    const reader = makeFileReader(packets);
+    spyOn(reader, 'getRealToBootTimeOffsetNs').and.returnValue(3n);
+    spyOn(reader, 'getRealToMonotonicTimeOffsetNs').and.returnValue(undefined);
+    await testConversion(reader, packets, false);
   }
 
-  async function testMonotonicParsers(packets: TracePacket[]) {
-    const parser = makeParser(packets);
-    spyOn(parser, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
-    spyOn(parser, 'getRealToMonotonicTimeOffsetNs').and.returnValue(3n);
-    await testConversion(parser, packets, true);
+  async function testMonotonicTraces(packets: TracePacket[]) {
+    const reader = makeFileReader(packets);
+    spyOn(reader, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
+    spyOn(reader, 'getRealToMonotonicTimeOffsetNs').and.returnValue(3n);
+    await testConversion(reader, packets, true);
   }
 
   async function testConversion(
-    parser: Parser<unknown>,
+    reader: LegacyFileReader,
     packets: TracePacket[],
     isMonotonic: boolean,
   ) {
-    const perfettoFile = await convertToPerfetto([parser]);
+    const perfettoFile = await convertToPerfetto([reader]);
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     const snapshotPackets = [makeSnapshotFromPacket(packets[0], isMonotonic)];
     if (packets.length > 1) {
@@ -316,10 +339,10 @@ describe('LegacyToPerfettoConverter', () => {
     );
   }
 
-  function makeParser(
+  function makeFileReader(
     testPackets: TracePacket[],
     conversionError = false,
-  ): Parser<unknown> {
+  ): LegacyFileReader {
     const ts =
       testPackets.length === 0
         ? [makeRealTimestamp(0n)]
@@ -327,22 +350,16 @@ describe('LegacyToPerfettoConverter', () => {
             const ns = BigInt(testPacket?.timestamp.toString() ?? 0n);
             return makeRealTimestamp(ns);
           });
-    const parser = new ParserBuilder<string>()
-      .setEntries(ts.length === 0 ? [''] : ts.map(() => ''))
+    const fileReader = new LegacyFileReaderBuilder()
+      .setTracePackets(testPackets)
       .setTimestamps(ts)
       .build();
-
-    if (testPackets.length > 0) {
-      const parserConvertSpy = jasmine.createSpy();
-      parserConvertSpy.and.returnValue(testPackets);
-      parser.convertToPerfettoPackets = parserConvertSpy;
-    } else if (conversionError) {
-      const parserConvertSpy = jasmine.createSpy();
-      parserConvertSpy.and.throwError(new Error('conversion failed'));
-      parser.convertToPerfettoPackets = parserConvertSpy;
+    if (conversionError) {
+      spyOn(fileReader, 'convertToPerfettoPackets').and.throwError(
+        'conversion failed',
+      );
     }
-
-    return parser;
+    return fileReader;
   }
 
   async function checkAndDecodePerfettoFile(

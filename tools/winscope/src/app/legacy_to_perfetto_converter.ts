@@ -15,7 +15,6 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 // TODO(b/311642700): Not compatible with google3
 import Long from 'long';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
@@ -30,11 +29,12 @@ import {
 } from '@compat/perfetto';
 import {TraceFile} from '@trace/trace_file';
 import {getLogger, Logger} from '@compat/logging';
-import {Parser} from '@trace_api/parser';
 import {
-  getParserWithLatestRealToBootTimeOffset,
-  getParserWithLatestRealToMonotonicTimeOffset,
-} from './parser_time_utils';
+  getReaderWithLatestRealToBootTimeOffset,
+  getReaderWithLatestRealToMonotonicTimeOffset,
+} from './file_reader_helpers';
+import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {FileReader} from '@trace_api/file_reader';
 
 /**
  * An interface for a clock snapshot.
@@ -49,20 +49,21 @@ export interface ClockSnapshot {
  * A class for converting legacy traces to Perfetto format.
  */
 export class LegacyToPerfettoConverter {
-  private legacyParsers: Array<Parser<unknown>> = [];
-  private allParsers: Array<Parser<unknown>> = [];
+  private legacyReaders: LegacyFileReader[] = [];
+  private allReaders: FileReader[] = [];
   private perfettoFile: TraceFile | undefined;
+
   constructor(
     private readonly logger: Logger = getLogger('LegacyToPerfettoConverter'),
   ) {}
 
-  setLegacyParsers(value: Array<Parser<unknown>>): this {
-    this.legacyParsers = value;
+  setLegacyFileReaders(value: LegacyFileReader[]): this {
+    this.legacyReaders = value;
     return this;
   }
 
-  setAllParsers(value: Array<Parser<unknown>>): this {
-    this.allParsers = value;
+  setAllFileReaders(value: FileReader[]): this {
+    this.allReaders = value;
     return this;
   }
 
@@ -145,7 +146,7 @@ export class LegacyToPerfettoConverter {
       const clockSnapshots = this.makeClockSnapshots();
       trace = new Trace();
       if (clockSnapshots.length === 0) {
-        throw new Error('no parsers or Perfetto file provided');
+        throw new Error('no file readers or Perfetto file provided');
       }
       clockSnapshots.forEach((snapshot) => {
         const clockSnapshot = this.makeTracePacketWithClockSnapshot(snapshot);
@@ -162,23 +163,23 @@ export class LegacyToPerfettoConverter {
   }
 
   private makeClockSnapshots(): ClockSnapshot[] {
-    if (this.allParsers.length === 0) {
+    if (this.allReaders.length === 0) {
       return [];
     }
     const clockSnapshots: ClockSnapshot[] = [];
 
-    const boottimeParser = getParserWithLatestRealToBootTimeOffset(
-      this.allParsers,
+    const boottimeFileReader = getReaderWithLatestRealToBootTimeOffset(
+      this.allReaders,
     );
-    const monotonicParser = getParserWithLatestRealToMonotonicTimeOffset(
-      this.allParsers,
+    const monotonicFileReader = getReaderWithLatestRealToMonotonicTimeOffset(
+      this.allReaders,
     );
 
     const boottimeSnapshots: ClockSnapshot[] = [];
     const monotonicSnapshots: ClockSnapshot[] = [];
 
-    if (boottimeParser === undefined && monotonicParser === undefined) {
-      this.getRealTimestampsForClockSnapshots(this.allParsers[0]).forEach(
+    if (boottimeFileReader === undefined && monotonicFileReader === undefined) {
+      this.getRealTimestampsForClockSnapshots(this.allReaders[0]).forEach(
         (realtime) => {
           clockSnapshots.push({
             realtime,
@@ -189,9 +190,9 @@ export class LegacyToPerfettoConverter {
       );
     }
 
-    if (boottimeParser) {
-      const boottimeOffset = boottimeParser?.getRealToBootTimeOffsetNs();
-      this.getRealTimestampsForClockSnapshots(boottimeParser).forEach(
+    if (boottimeFileReader) {
+      const boottimeOffset = boottimeFileReader.getRealToBootTimeOffsetNs();
+      this.getRealTimestampsForClockSnapshots(boottimeFileReader).forEach(
         (realtime) => {
           const boottime = realtime - assertDefined(boottimeOffset);
           boottimeSnapshots.push({realtime, boottime, monotonic: undefined});
@@ -199,16 +200,17 @@ export class LegacyToPerfettoConverter {
       );
     }
 
-    if (monotonicParser) {
-      const monotonicOffset = monotonicParser?.getRealToMonotonicTimeOffsetNs();
-      this.getRealTimestampsForClockSnapshots(monotonicParser).forEach(
+    if (monotonicFileReader) {
+      const monotonicOffset =
+        monotonicFileReader.getRealToMonotonicTimeOffsetNs();
+      this.getRealTimestampsForClockSnapshots(monotonicFileReader).forEach(
         (realtime) => {
           const monotonic = realtime - assertDefined(monotonicOffset);
 
           // Monotonic snapshots must contain a boottime timestamp for TP to be able
           // to convert monotonic timestamps to boottime
           let boottime: bigint;
-          if (boottimeParser) {
+          if (boottimeFileReader) {
             const snapshotB = boottimeSnapshots[boottimeSnapshots.length - 1];
             const realtimeDiff = snapshotB.realtime - realtime;
             boottime = assertDefined(snapshotB.boottime) - realtimeDiff;
@@ -228,9 +230,9 @@ export class LegacyToPerfettoConverter {
   }
 
   private getRealTimestampsForClockSnapshots(
-    parser: Parser<unknown>,
+    reader: FileReader,
   ): Array<bigint> {
-    const ts = assertDefined(parser.getTimestamps());
+    const ts = assertDefined(reader.getTimestamps());
     const realTs: Array<bigint> = [];
     if (ts.length > 0) {
       realTs.push(ts[0].getValueNs());
@@ -238,7 +240,7 @@ export class LegacyToPerfettoConverter {
     if (ts.length > 1) {
       // to adjust against drift in TP, we add clock snapshots at the
       // start and end of the trace
-      realTs.push(ts[parser.getLengthEntries() - 1].getValueNs());
+      realTs.push(ts[reader.getLengthEntries() - 1].getValueNs());
     }
     return realTs;
   }
@@ -316,28 +318,23 @@ export class LegacyToPerfettoConverter {
       Math.max(
         ...trace.packet.map((packet) => packet.trustedPacketSequenceId ?? 0),
       ) + 1;
-    for (const parser of this.legacyParsers) {
-      if (parser.canConvertToPerfetto()) {
-        try {
-          const legacyPackets = parser.convertToPerfettoPackets!(
-            sequenceId,
-            trustedUid,
-            trustedPid,
-          );
+    for (const reader of this.legacyReaders) {
+      try {
+        const legacyPackets = reader.convertToPerfettoPackets(
+          sequenceId,
+          trustedUid,
+          trustedPid,
+        );
 
-          if (legacyPackets.length > 0) {
-            legacyPackets[0].firstPacketOnSequence = true;
-            packets.push(...legacyPackets);
-            sequenceId++;
-            trustedUid++;
-            trustedPid++;
-          }
-        } catch (e) {
-          // swallow
-          if (e !== NOT_IMPLEMENTED_ERROR) {
-            this.logger.error((e as Error).message);
-          }
+        if (legacyPackets.length > 0) {
+          legacyPackets[0].firstPacketOnSequence = true;
+          packets.push(...legacyPackets);
+          sequenceId++;
+          trustedUid++;
+          trustedPid++;
         }
+      } catch (e) {
+        this.logger.error((e as Error).message);
       }
     }
     return packets;

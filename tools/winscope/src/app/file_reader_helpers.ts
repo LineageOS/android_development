@@ -15,20 +15,20 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {Parser} from '@trace_api/parser';
+import {FileReader} from '@trace_api/file_reader';
 
 /**
- * Gets the parser with the latest real-to-boottime offset.
+ * Gets the reader with the latest real-to-boottime offset.
  *
- * @param parsers The parsers to search.
- * @return The parser with the latest real-to-boottime offset, or undefined if
- *     no such parser exists.
+ * @param readers The readers to search.
+ * @return The reader with the latest real-to-boottime offset, or undefined if
+ *     no such reader exists.
  */
-export function getParserWithLatestRealToBootTimeOffset(
-  parsers: Array<Parser<unknown>>,
-): Parser<unknown> | undefined {
-  return parsers
-    .filter((parser) => parser.getRealToBootTimeOffsetNs() !== undefined)
+export function getReaderWithLatestRealToBootTimeOffset(
+  readers: FileReader[],
+): FileReader | undefined {
+  return readers
+    .filter((reader) => reader.getRealToBootTimeOffsetNs() !== undefined)
     .sort((a, b) => {
       return Number(
         assertDefined(a.getRealToBootTimeOffsetNs()) -
@@ -39,17 +39,17 @@ export function getParserWithLatestRealToBootTimeOffset(
 }
 
 /**
- * Gets the parser with the latest real-to-monotonic offset.
+ * Gets the reader with the latest real-to-monotonic offset.
  *
- * @param parsers The parsers to search.
- * @return The parser with the latest real-to-monotonic offset, or undefined if
- *     no such parser exists.
+ * @param readers The readers to search.
+ * @return The reader with the latest real-to-monotonic offset, or undefined if
+ *     no such reader exists.
  */
-export function getParserWithLatestRealToMonotonicTimeOffset(
-  parsers: Array<Parser<unknown>>,
-): Parser<unknown> | undefined {
-  return parsers
-    .filter((parser) => parser.getRealToMonotonicTimeOffsetNs() !== undefined)
+export function getReaderWithLatestRealToMonotonicTimeOffset(
+  readers: FileReader[],
+): FileReader | undefined {
+  return readers
+    .filter((reader) => reader.getRealToMonotonicTimeOffsetNs() !== undefined)
     .sort((a, b) => {
       return Number(
         assertDefined(a.getRealToMonotonicTimeOffsetNs()) -
