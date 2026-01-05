@@ -203,13 +203,13 @@ export class Mediator {
     this.currentProgressListener = this.collectTracesComponent;
     if (event.files.collected.length > 0) {
       await this.loadFiles(event.files.collected, FilesSource.COLLECTED);
-      const traces = this.tracePipeline.getTraces();
-      if (traces.getSize() > 0) {
+      const loadedReaders = this.tracePipeline.getLoadedFileReaders();
+      if (loadedReaders.length > 0) {
         const failedTraces: string[] = [];
         event.files.requested.forEach((requested: RequestedTraceTypes) => {
           if (
-            !requested.types.some(
-              (type: TraceType) => traces.getTraces(type).length > 0,
+            !requested.types.some((type: TraceType) =>
+              loadedReaders.some((r) => r.getTraceType() === type),
             )
           ) {
             failedTraces.push(requested.name);
@@ -680,37 +680,44 @@ export class Mediator {
   }
 
   private async loadViewers(source: FilesSource, discardLegacyTraces: boolean) {
-    const e2eStartTimeMs = Date.now();
+    // timer#sleepMs() allows the UI to update before making the main thread very busy
     const timer = new Timer(10, 10);
+    const e2eStartTimeMs = Date.now();
+
+    this.tracePipeline.filterLoadedFilesWithoutVisualization();
 
     if (discardLegacyTraces) {
       this.tracePipeline.discardLegacyTraces();
     } else {
       this.currentProgressListener?.onProgressUpdate(
-        'Converting legacy traces to perfetto...',
+        'Converting legacy files to perfetto...',
         undefined,
       );
-      await timer.sleepMs(); // allow the UI to update before making the main thread very busy
+      await timer.sleepMs();
       await this.tracePipeline.convertLegacyTracesToPerfetto();
       this.currentProgressListener?.onOperationFinished(true);
     }
 
     this.currentProgressListener?.onProgressUpdate(
-      'Computing frame mapping...',
+      'Building traces...',
       undefined,
     );
-
-    await timer.sleepMs(); // allow the UI to update before making the main thread very busy
-
-    this.tracePipeline.filterTracesWithoutVisualization();
+    await timer.sleepMs();
+    this.tracePipeline.buildTraces();
     if (this.tracePipeline.getTraces().getSize() === 0) {
       this.currentProgressListener?.onOperationFinished(false);
       return;
     }
 
+    this.currentProgressListener?.onProgressUpdate(
+      'Building frame mapping...',
+      undefined,
+    );
+    await timer.sleepMs();
+
     try {
       const startTimeMs = Date.now();
-      await this.tracePipeline.buildTraces();
+      await this.tracePipeline.buildFrameMapping();
       Analytics.Loading.logFrameMapBuildTime(Date.now() - startTimeMs);
       Analytics.Memory.logUsage('frame_map_built');
       this.currentProgressListener?.onOperationFinished(true);
