@@ -32,7 +32,7 @@
 // 0 2 * * * cargo run --manifest-path=$HOME/src/main-without-vendor/development/tools/crate-updater/Cargo.toml -- $HOME/src/main-for-crate-updates &> $HOME/crate-updater-`date +"\%Y-\%m-\%d"`.log
 
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     env,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Output},
@@ -47,7 +47,6 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use regex::Regex;
 use serde::Deserialize;
-use std::collections::BTreeMap;
 #[derive(Parser)]
 struct Cli {
     /// Absolute path to a repo checkout of main-without-vendor.
@@ -302,9 +301,20 @@ fn try_update(
 fn send_email(body: String, rotation: bool) -> Result<()> {
     println!("Sending email");
     let username = env::var("USER").or_else(|_err| env::var("LOGNAME"))?;
-    let to = if rotation { "crate-update-rotation@google.com" } else { username.as_str() };
+    let mut args: Vec<&str> = vec!["--subject", "Automated crate updates"];
+    if rotation {
+        args.extend([
+            "--to",
+            "crate-update-rotation@google.com",
+            "--to",
+            "crate-update-oncall@rotations.google.com",
+        ])
+    } else {
+        args.extend(["--to", username.as_str()])
+    };
+    args.extend(["--inline_body", &body]);
     Command::new("/google/bin/releases/gws-sre/files/sendgmr/sendgmr")
-        .args(["--subject", "Automated crate updates", "--to", to, "--inline_body", &body])
+        .args(args)
         .run_and_stream_output()?;
 
     Ok(())
