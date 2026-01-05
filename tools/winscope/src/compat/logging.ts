@@ -16,15 +16,23 @@
 
 import {LogLevel} from 'typescript-logging';
 import {Log4TSProvider, Logger as Log} from 'typescript-logging-log4ts-style';
+import {globalConfig} from '@common/global_config';
 
 export type Logger = Log;
+
+const isTest = globalConfig.MODE === 'KARMA_TEST';
+
+let logLevel = LogLevel.Debug;
+if (isTest) {
+  logLevel = LogLevel.Fatal;
+}
 
 const provider = Log4TSProvider.createProvider('DefaultLogProvider', {
   /* Specify the various group expressions to match against */
   groups: [
     {
       expression: new RegExp('.*'),
-      level: LogLevel.Debug /* This group will log on debug instead */,
+      level: logLevel,
     },
   ],
 });
