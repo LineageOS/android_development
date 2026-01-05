@@ -34,7 +34,7 @@ import {TraceType} from '@trace_api/trace_type';
 import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
 import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
-import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 
 type ProtoLogMessage = com.android.internal.protolog.IProtoLogMessage;
 

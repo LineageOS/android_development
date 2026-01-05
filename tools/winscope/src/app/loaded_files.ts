@@ -37,7 +37,7 @@ import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace/trace_file';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 
 /**

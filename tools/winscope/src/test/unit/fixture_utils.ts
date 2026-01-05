@@ -26,7 +26,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceBuilder} from './trace_builder';
 import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
 import {LegacyToPerfettoConverter} from '@app/legacy_to_perfetto_converter';
 import {PerfettoParserFactory} from '@app/perfetto_parser_factory';

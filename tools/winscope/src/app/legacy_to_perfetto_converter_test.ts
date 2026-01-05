@@ -29,7 +29,7 @@ import {
   ClockSnapshot,
   LegacyToPerfettoConverter,
 } from './legacy_to_perfetto_converter';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 

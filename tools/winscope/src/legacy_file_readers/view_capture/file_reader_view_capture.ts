@@ -21,7 +21,7 @@ import {com} from 'protos/viewcapture/udc/static';
 import {TraceFile} from '@trace/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {FileReaderViewCaptureWindow} from './file_reader_view_capture_window';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 /**
  * A parser for legacy ViewCapture traces.

@@ -21,7 +21,7 @@ import Long from 'long';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
 import {TraceType} from '@trace_api/trace_type';
 import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {Timestamp} from '@common/time/time';
 import {TraceFile} from '@trace/trace_file';
 

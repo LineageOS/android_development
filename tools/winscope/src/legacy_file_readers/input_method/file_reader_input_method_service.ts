@@ -20,7 +20,7 @@ import {android} from 'protos/ime/udc/static';
 import {InputMethodServiceTraceProto} from '@compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
 import {TraceType} from '@trace_api/trace_type';
-import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 
 type ImeProto = android.view.inputmethod.IInputMethodServiceTraceProto;
 

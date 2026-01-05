@@ -29,7 +29,7 @@ import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 describe('FileReaderWindowManagerDump', () => {
   let reader: LegacyFileReader;

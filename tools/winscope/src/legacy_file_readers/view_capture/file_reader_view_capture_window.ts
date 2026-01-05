@@ -29,7 +29,7 @@ import {
 import {com} from 'protos/viewcapture/udc/static';
 
 import {TraceType} from '@trace_api/trace_type';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceFile} from '@trace/trace_file';
 
 /**

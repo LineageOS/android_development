@@ -20,7 +20,7 @@ import {TransactionTraceEntry} from '@compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
 import {android} from 'protos/transactions/udc/static';
 import {TraceType} from '@trace_api/trace_type';
-import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 
 type TraceEntryProto = android.surfaceflinger.proto.ITransactionTraceEntry;
 

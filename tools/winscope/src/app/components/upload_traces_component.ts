@@ -44,7 +44,7 @@ import {
 } from '@trace_api/trace_type';
 import {LoadProgressComponent} from './load_progress_component';
 import {FileReader} from '@trace_api/file_reader';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 /**
  * A component for uploading traces.

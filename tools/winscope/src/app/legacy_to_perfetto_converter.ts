@@ -33,7 +33,7 @@ import {
   getReaderWithLatestRealToBootTimeOffset,
   getReaderWithLatestRealToMonotonicTimeOffset,
 } from './file_reader_helpers';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 
 /**

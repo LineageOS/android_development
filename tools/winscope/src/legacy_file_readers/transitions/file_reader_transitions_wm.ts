@@ -20,7 +20,7 @@ import {com} from 'protos/transitions/udc/static';
 import {TraceType} from '@trace_api/trace_type';
 import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
 import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
-import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 import {ClockSnapshot, TracePacket} from '@compat/perfetto';
 
 /**

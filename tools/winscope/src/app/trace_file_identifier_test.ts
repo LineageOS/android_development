@@ -32,7 +32,7 @@ import {TraceFile} from '@trace/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {BuildType, TraceFileIdentifier} from './trace_file_identifier';
 import {ProcessedFiles} from './processed_files';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';

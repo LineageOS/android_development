@@ -21,7 +21,7 @@ import {com} from 'protos/windowmanager/udc/static';
 import {TraceType} from '@trace_api/trace_type';
 import {WindowManagerTraceEntry} from '@compat/winscope_protos';
 import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {AbstractFileReader} from 'legacy_file_readers/common/abstract_file_reader';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 
 type WindowManagerProto = com.android.server.wm.IWindowManagerTraceProto;
 

@@ -41,7 +41,7 @@ import {TraceFile} from '@trace/trace_file';
 import {getLogger, Logger} from '@compat/logging';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {ProcessedFiles} from '@app/processed_files';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 
 /**

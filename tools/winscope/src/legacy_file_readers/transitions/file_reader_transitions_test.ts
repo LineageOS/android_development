@@ -31,7 +31,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {FileReaderTransitions} from './file_reader_transitions';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 
 describe('FileReaderTransitions', () => {

@@ -30,7 +30,7 @@ import {
   convertToPerfettoTrace,
   LegacyFileReaderProvider,
 } from '@test/unit/fixture_utils';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 describe('FileReaderWindowManager', () => {
   describe('trace with real timestamps', () => {

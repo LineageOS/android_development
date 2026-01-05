@@ -31,7 +31,7 @@ import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {LoadedFiles} from './loaded_files';
-import {LegacyFileReader} from 'legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
