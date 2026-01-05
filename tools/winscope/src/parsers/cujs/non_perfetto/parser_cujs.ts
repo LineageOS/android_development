@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {isBlank, utf8Decode, utf8Encode} from 'common/string_helpers';
-import {Timestamp} from 'common/time/time';
-import {HierarchyTreeBuilderLog} from 'parsers/hierarchy_tree_builder_log';
-import {AbstractParser} from 'parsers/legacy/abstract_parser';
-import {PropertyTreeBuilderFromProto} from 'parsers/property_tree_builder_from_proto';
-import {SetFormatters} from 'parsers/set_formatters';
-import {TraceType} from 'trace_api/trace_type';
-import {CUJ_TYPE_FORMATTER} from 'trace/formatters';
-import {HierarchyTreeNode} from 'tree_node/hierarchy_tree_node';
-import {PropertiesProviderBuilder} from 'tree_node/properties_provider_builder';
-import {PropertyTreeNode} from 'tree_node/property_tree_node';
+import {assertDefined} from '@common/assert';
+import {isBlank, utf8Decode, utf8Encode} from '@common/string_helpers';
+import {Timestamp} from '@common/time/time';
+import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
+import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {CUJ_TYPE_FORMATTER} from '@trace/formatters';
+import {Cuj} from './cuj';
+import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
 import {AddCujProperties} from './add_cuj_properties';
 import {EventTag} from './event_tag';
 
-export class ParserCujs extends AbstractParser<HierarchyTreeNode, Cuj> {
+export class ParserCujs extends AbstractParser<Cuj, HierarchyTreeNode> {
+  static readonly TRACE_TYPE = TraceType.CUJS;
   private static readonly MAGIC_NUMBER_STRING = 'EventLog';
   private static readonly MAGIC_NUMBER: number[] = Array.from(
     utf8Encode(ParserCujs.MAGIC_NUMBER_STRING),
@@ -57,7 +60,11 @@ export class ParserCujs extends AbstractParser<HierarchyTreeNode, Cuj> {
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): Cuj[] {
+  override getCoarseVersion(): CoarseVersion {
+    return CoarseVersion.LEGACY;
+  }
+
+  protected override decodeTrace(buffer: Uint8Array): Cuj[] {
     const decodedLogs = this.decodeByteArray(buffer);
     const events = this.parseLogs(decodedLogs);
     events.sort((a: Event, b: Event) => {
@@ -70,10 +77,10 @@ export class ParserCujs extends AbstractParser<HierarchyTreeNode, Cuj> {
     return entry.startTimestamp;
   }
 
-  override async processDecodedEntry(
+  protected override async processDecodedEntry(
     index: number,
-    entry: Cuj,
   ): Promise<HierarchyTreeNode> {
+    const entry = this.decodedEntries[index];
     const provider = new PropertiesProviderBuilder()
       .setEagerProperties(this.makeCujPropertyTree(entry))
       .setEagerOperations([ParserCujs.SET_FORMATTERS])
@@ -298,11 +305,4 @@ interface Event {
   tid: number;
   tag: EventTag;
   eventData: string;
-}
-
-interface Cuj {
-  cujType: number;
-  startTimestamp: Timestamp;
-  endTimestamp: Timestamp;
-  canceled: boolean;
 }

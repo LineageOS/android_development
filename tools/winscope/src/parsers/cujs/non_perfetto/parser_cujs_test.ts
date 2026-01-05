@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {LegacyParserProvider} from 'test/unit/fixture_utils';
+import {assertDefined} from '@common/assert';
 import {PropertyTreeBuilder} from 'test/unit/property_tree_builder';
 import {
   makeRealTimestamp,
@@ -31,6 +30,7 @@ import {
   DEFAULT_PROPERTY_FORMATTER,
   TIMESTAMP_NODE_FORMATTER,
 } from 'trace/formatters';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 
 describe('ParserCujs', () => {
   describe('trace with monotonically increasing timestamps', () => {
@@ -38,9 +38,9 @@ describe('ParserCujs', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      parser = (await new NonPerfettoParserProvider()
         .addFile('traces/elapsed_and_real_timestamp/eventlog.winscope')
-        .getParser<HierarchyTreeNode>();
+        .get()) as Parser<HierarchyTreeNode>;
     });
 
     it('has expected trace type', () => {
@@ -108,11 +108,11 @@ describe('ParserCujs', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await new LegacyParserProvider()
+      parser = (await new NonPerfettoParserProvider()
         .addFile(
           'traces/elapsed_and_real_timestamp/eventlog_timestamps_not_monotonically_increasing.winscope',
         )
-        .getParser<HierarchyTreeNode>();
+        .get()) as Parser<HierarchyTreeNode>;
     });
 
     it('sorts entries to make timestamps monotonically increasing', () => {
@@ -159,10 +159,10 @@ describe('ParserCujs', () => {
 
   describe('trace with no CUJ events', () => {
     it('fails due to empty trace', async () => {
-      const provider = new LegacyParserProvider().addFile(
+      const provider = new NonPerfettoParserProvider().addFile(
         'traces/elapsed_and_real_timestamp/eventlog_no_cujs.winscope',
       );
-      await expectAsync(provider.getParser()).toBeRejected();
+      await expectAsync(provider.get()).toBeRejected();
     });
   });
 });

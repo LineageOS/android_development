@@ -14,60 +14,57 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from '@compat/logging';
-import {TracePacket} from '@compat/perfetto';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {getLogger} from '@compat/logging';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {Timestamp} from '@common/time/time';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
 } from '@trace_api/custom_query';
-import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
+import {EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
-import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {RectsForTrace} from '@tree_node/rect_extractor_result';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace/trace_file';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {Logger} from 'typescript-logging-log4ts-style';
 
-export abstract class AbstractParser<
-  T extends object,
-  U extends object | bigint | number,
-> implements Parser<T> {
+export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
   private timestamps: Timestamp[] | undefined;
   protected traceFile: TraceFile;
-  protected decodedEntries: U[] = [];
+  protected decodedEntries: T[] = [];
   protected timestampConverter: ParserTimestampConverter;
   protected readonly metadata: TraceMetadata | undefined;
-
-  protected abstract getMagicNumber(): undefined | number[];
-  protected abstract decodeTrace(trace: Uint8Array): U[] | Promise<U[]>;
-  protected abstract getTimestamp(decodedEntry: U): Timestamp;
 
   constructor(
     trace: TraceFile,
     timestampConverter: ParserTimestampConverter,
     metadata?: TraceMetadata,
-    protected logger: Logger = getLogger('AbstractParser'),
+    protected logger: Logger = getLogger('AbstractNonPerfettoParser'),
   ) {
     this.traceFile = trace;
     this.timestampConverter = timestampConverter;
     this.metadata = metadata;
   }
 
-  isPerfetto(): boolean {
-    return false;
+  onDestroy() {
+    // do nothing
   }
 
   async parse() {
     const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
     throwIfMagicNumberDoesNotMatch(traceBuffer, this.getMagicNumber());
     this.decodedEntries = await this.decodeTrace(traceBuffer);
+  }
+
+  getFiles(): TraceFile[] {
+    return [this.traceFile];
   }
 
   getDescriptors(): string[] {
@@ -78,11 +75,27 @@ export abstract class AbstractParser<
     return this.decodedEntries.length;
   }
 
-  getAllEntries(): Promise<T[]> {
+  createTimestamps() {
+    this.timestamps = this.decodeTimestamps();
+  }
+
+  getTimestamps(): undefined | Timestamp[] {
+    return this.timestamps;
+  }
+
+  isPerfetto(): boolean {
+    return false;
+  }
+
+  getAllEntries(): Promise<U[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
+  async getEntry(index: number): Promise<U> {
+    return this.processDecodedEntry(index);
+  }
+
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<U[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -93,53 +106,11 @@ export abstract class AbstractParser<
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  createTimestamps() {
-    this.timestamps = this.decodeTimestamps();
-  }
-
-  getTimestamps(): undefined | Timestamp[] {
-    return this.timestamps;
-  }
-
-  getCoarseVersion(): CoarseVersion {
-    return CoarseVersion.LEGACY;
-  }
-
-  getEntry(index: AbsoluteEntryIndex): Promise<T> {
-    return this.processDecodedEntry(index, this.decodedEntries[index]);
-  }
-
   customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,
     param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  canConvertToPerfetto(): boolean {
-    return false;
-  }
-
-  convertToPerfettoPackets(
-    sequenceId: number,
-    trustedPid: number,
-    trustedUid: number,
-  ): TracePacket[] {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  async getRectsMap(): Promise<RectsForTrace | undefined> {
-    throw NOT_IMPLEMENTED_ERROR;
-  }
-
-  protected async processDecodedEntry(
-    index: number,
-    decodedEntry: U,
-  ): Promise<T> {
-    // Legacy parsers that implement convertToPerfettoPackets should not
-    // parser and provide individual trace entries, as they should be
-    // converted to perfetto using LegacyToPerfettoConverter
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -150,4 +121,10 @@ export abstract class AbstractParser<
   abstract getTraceType(): TraceType;
   abstract getRealToBootTimeOffsetNs(): bigint | undefined;
   abstract getRealToMonotonicTimeOffsetNs(): bigint | undefined;
+  abstract getCoarseVersion(): CoarseVersion;
+
+  protected abstract processDecodedEntry(index: number): Promise<U>;
+  protected abstract getMagicNumber(): undefined | number[];
+  protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
+  protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }
