@@ -34,10 +34,9 @@ import {TracePositionUpdate} from '@trace/trace_events';
 import {PlaybackState} from './playback_state';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {Rect} from '@common/geometry/rect';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {Parser} from '@trace_api/parser';
 import {
   MediaBasedTraceEntry,
   VideoEntry,
@@ -585,11 +584,8 @@ describe('PlaybackPresenter', () => {
   }
 
   function setTraceSpies(traceToSpy: Trace<HierarchyTreeNode>) {
-    const mockParser = {
-      getRectsMap: async () => new Map(),
-    };
-    spyOn(traceToSpy, 'getParser').and.returnValue(
-      mockParser as Parser<HierarchyTreeNode>,
+    spyOn(traceToSpy, 'getRectsMap').and.returnValue(
+      Promise.resolve(new Map()),
     );
     spyOn(traceToSpy, 'getQueryResults').and.callFake(async () => {
       return Promise.resolve({

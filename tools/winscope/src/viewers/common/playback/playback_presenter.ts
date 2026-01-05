@@ -33,7 +33,7 @@ import {PropertiesProvider} from '@tree_node/properties_provider';
 import {TraceRect} from '@tree_node/trace_rect';
 import {CornerRadii} from '@common/geometry/corner_radii';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 import {assertDefined, assertTrue} from '@common/assert';
 import {EntriesRange} from '@trace_api/index_types';
@@ -484,15 +484,7 @@ export class PlaybackPresenter {
       return new CanvasEntry(frame, rotationAngle);
     };
     const trace = assertDefined(this.currentSr);
-    const fullEntry = trace.getEntry(index);
-    return new CustomTraceEntryLazy(
-      trace,
-      trace.getParser(),
-      index,
-      fullEntry.getTimestamp(),
-      trace.hasFrameInfo() ? fullEntry.getFramesRange() : undefined,
-      getValue,
-    );
+    return trace.createLazyEntry(index, getValue);
   }
 
   private assignPropertyTreeNodePrototype(node: PropertyTreeNode) {
@@ -585,11 +577,10 @@ export class PlaybackPresenter {
       snapshotBatches = queryResults.snapshotRange.batches;
     }
 
-    const parser = this.trace.getParser();
-    if (parser.getRectsMap === undefined) {
-      throw Error('Playback is only implemented for parsers with rects map');
+    const map = await this.trace.getRectsMap();
+    if (map === undefined) {
+      throw Error('Playback is only implemented for traces with rects map');
     }
-    const map = await parser.getRectsMap();
 
     return new Promise<HierarchyTreeNode[]>((resolve, reject) => {
       this.workerPromiseResolve = resolve;

@@ -1356,11 +1356,8 @@ describe('Trace', () => {
   });
 
   it('onDestroy()', () => {
-    const trace = new TraceBuilder<string>()
-      .setEntries(['entry-0'])
-      .setTimestamps([time10])
-      .build();
-    const parser = trace.getParser();
+    const parser = new ParserBuilder<string>().setEntries([]).build();
+    const trace = new TraceBuilder<string>().setParser(parser).build();
     parser.onDestroy = jasmine.createSpy();
     trace.onDestroy();
     expect(parser.onDestroy).toHaveBeenCalledTimes(1);

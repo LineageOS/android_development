@@ -42,6 +42,7 @@ import {
 import {Parser} from './parser';
 import {TRACE_INFO} from './trace_info';
 import {TraceType} from './trace_type';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 /**
  * Represents a single entry within a trace. This abstract class provides
@@ -219,8 +220,8 @@ export class Trace<T> {
     return this.parser.getDescriptors();
   }
 
-  getParser(): Parser<T> {
-    return this.parser;
+  async getRectsMap(): Promise<RectsForTrace | undefined> {
+    return this.parser.getRectsMap?.();
   }
 
   isPerfetto(): boolean {
@@ -253,6 +254,21 @@ export class Trace<T> {
         frames,
       );
     });
+  }
+
+  createLazyEntry<U>(
+    index: number,
+    getValue: () => Promise<U>,
+  ): CustomTraceEntryLazy<T, U> {
+    const fullEntry = this.getEntry(index);
+    return new CustomTraceEntryLazy(
+      this,
+      this.parser,
+      index,
+      fullEntry.getTimestamp(),
+      this.hasFrameInfo() ? fullEntry.getFramesRange() : undefined,
+      getValue,
+    );
   }
 
   createEagerEntriesFromValues(
