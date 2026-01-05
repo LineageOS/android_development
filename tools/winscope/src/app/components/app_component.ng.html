@@ -248,12 +248,13 @@ limitations under the License.
           <upload-traces
             #uploadTraces
             class="upload-traces-card homepage-card"
-            [tracePipeline]="tracePipeline"
+            [loadedFileReaders]="tracePipeline.getLoadedFileReaders()"
             [storage]="appStorage"
             (filesUploaded)="onFilesUploaded($event)"
             (viewTracesButtonClick)="onViewTracesButtonClick($event)"
             (downloadTracesClick)="onDownloadTracesButtonClick(uploadTraces)"
-            (clearAllTraces)="onClearAllTraces()"
+            (removeTrace)="onRemoveTrace($event)"
+            (removeAllTraces)="onRemoveAllTraces()"
           ></upload-traces>
         </div>
       </div>

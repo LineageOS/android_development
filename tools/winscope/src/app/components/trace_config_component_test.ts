@@ -172,14 +172,13 @@ describe('TraceConfigComponent', () => {
 
     const box = getTraceBoxForKey(layersTraceKey);
     const input = box.get('input');
-    const inputElement = input.getHTMLElement<HTMLInputElement>();
 
     box.checkText(traceKey);
-    expect(inputElement.checked).toBeTrue();
+    input.checkInputChecked(true);
     expect(config[traceKey].config.enabled).toBeTrue();
 
     input.click();
-    expect(inputElement.checked).toBeFalse();
+    input.checkInputChecked(false);
     expect(config[traceKey].config.enabled).toBeFalse();
     expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
@@ -191,14 +190,13 @@ describe('TraceConfigComponent', () => {
 
     const box = getTraceBoxForKey(traceKey);
     const input = box.get('input');
-    const inputElement = input.getHTMLElement<HTMLInputElement>();
 
     box.checkText(traceKey);
-    expect(inputElement.checked).toBeFalse();
+    input.checkInputChecked(false);
     expect(config[traceKey].config.enabled).toBeFalse();
 
     input.click();
-    expect(inputElement.checked).toBeTrue();
+    input.checkInputChecked(true);
     expect(config[traceKey].config.enabled).toBeTrue();
     expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
@@ -212,9 +210,9 @@ describe('TraceConfigComponent', () => {
 
   it('disables checkbox for disabled checkbox config', () => {
     const traceKey = 'disabled_checkbox_trace';
-    const box = getTraceBoxForKey(traceKey);
-    box.get('input').checkDisabled(true);
-    box.checkText(traceKey);
+    const box = getCheckboxConfigSectionForKey(traceKey);
+    box.checkInnerHTML('disabled="true"');
+    box.get('mat-checkbox').checkText('extra');
   });
 
   it('checkbox and select configs show', () => {
@@ -229,20 +227,18 @@ describe('TraceConfigComponent', () => {
   });
 
   it('changing checkbox config model value causes box to change', async () => {
-    const inputElement = getCheckboxConfigSectionForKey(layersTraceKey)
-      .get('input')
-      .getHTMLElement<HTMLInputElement>();
+    const input = getCheckboxConfigSectionForKey(layersTraceKey).get('input');
     assertDefined(
       assertDefined(component.traceConfig)[layersTraceKey].config,
     ).checkboxConfigs[0].enabled = false;
     await detectNgModelChanges();
-    expect(inputElement.checked).toBeFalse();
+    input.checkInputChecked(false);
 
     assertDefined(
       assertDefined(component.traceConfig)[layersTraceKey].config,
     ).checkboxConfigs[0].enabled = true;
     await detectNgModelChanges();
-    expect(inputElement.checked).toBeTrue();
+    input.checkInputChecked(true);
   });
 
   it('changing checkbox config by DOM interaction emits event', async () => {

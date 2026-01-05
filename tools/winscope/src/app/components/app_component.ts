@@ -115,6 +115,7 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import {FormsModule} from '@angular/forms';
 import {RequestData} from '@cross_tool/g3_proxy';
 import {getLogger} from '@compat/logging';
+import {FileReader} from '@trace_api/file_reader';
 
 /**
  * The root component of the Winscope app.
@@ -322,7 +323,14 @@ export class AppComponent implements WinscopeEventListener {
     this.mediator.setTimelineComponent(this.timelineComponent);
   }
 
-  onClearAllTraces() {
+  onRemoveTrace(reader: FileReader) {
+    this.tracePipeline.removeFileReader(reader);
+    if (this.tracePipeline?.getLoadedFileReaders().length === 0) {
+      this.onRemoveAllTraces();
+    }
+  }
+
+  onRemoveAllTraces() {
     this.tracePipeline.onDestroy();
     this.tracePipeline = new TracePipeline();
     this.mediator.setTracePipeline(this.tracePipeline);
