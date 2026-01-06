@@ -36,9 +36,9 @@ import {
   getReasonForNoTraceVisualization,
   TraceType,
 } from '@trace_api/trace_type';
-import {FileReaderBuilder} from '@test/unit/file_reader_builder';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TraceFile} from '@trace/trace_file';
-import {LegacyFileReaderBuilder} from '@test/unit/legacy_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 
 describe('UploadTracesComponent', () => {
   const uploadSelector = '.upload-btn';
@@ -418,7 +418,7 @@ describe('UploadTracesComponent', () => {
 
   function loadLegacySfFile(testComponent = component, testDom = dom) {
     testComponent.loadedFileReaders = [
-      new LegacyFileReaderBuilder()
+      new TestLegacyFileReaderBuilder()
         .setTraceFile(traceFile)
         .setType(TraceType.SURFACE_FLINGER)
         .setTimestamps([])
@@ -433,7 +433,7 @@ describe('UploadTracesComponent', () => {
     testDom = dom,
   ) {
     const fileReaders = traceTypes.map((traceType) => {
-      return new FileReaderBuilder()
+      return new TestFileReaderBuilder()
         .setTraceFile(traceFile)
         .setType(traceType)
         .setTimestamps([])

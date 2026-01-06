@@ -62,6 +62,19 @@ export function makeWarningInvalidLegacyTrace(
 }
 
 /**
+ * A warning for an invalid non-perfetto trace.
+ */
+export function makeWarningInvalidNonPerfettoTrace(
+  descriptors: string[],
+  errorMessage: string,
+) {
+  return new UserWarning(
+    'invalid non-perfetto trace',
+    `${descriptors.join(', ')}: ${errorMessage}`,
+  );
+}
+
+/**
  * A warning for an invalid Perfetto trace.
  */
 export function makeWarningInvalidPerfettoTrace(

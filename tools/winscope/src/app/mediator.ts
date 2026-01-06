@@ -201,37 +201,37 @@ export class Mediator {
 
   private async onAppFilesCollected(event: AppFilesCollected) {
     this.currentProgressListener = this.collectTracesComponent;
-    if (event.files.collected.length > 0) {
-      await this.loadFiles(event.files.collected, FilesSource.COLLECTED);
-      const loadedReaders = this.tracePipeline.getLoadedFileReaders();
-      if (loadedReaders.length > 0) {
-        const failedTraces: string[] = [];
-        event.files.requested.forEach((requested: RequestedTraceTypes) => {
-          if (
-            !requested.types.some((type: TraceType) =>
-              loadedReaders.some((r) => r.getTraceType() === type),
-            )
-          ) {
-            failedTraces.push(requested.name);
-          }
-        });
-        if (failedTraces.length > 0) {
-          UserNotifier.add(makeWarningNoValidFiles(failedTraces));
-        }
-        await this.uploadTracesComponent?.onWinscopeEvent(
-          new AppTraceViewRequest(),
-        );
-        await this.loadViewers(FilesSource.COLLECTED, false);
-        await this.uploadTracesComponent?.onWinscopeEvent(
-          new AppTraceViewRequestHandled(),
-        );
-      } else {
-        this.currentProgressListener?.onOperationFinished(false);
-      }
-    } else {
-      UserNotifier.add(makeWarningNoValidFiles());
+
+    if (event.files.collected.length === 0) {
       this.currentProgressListener?.onOperationFinished(false);
+      UserNotifier.add(makeWarningNoValidFiles()).notify();
+      return;
     }
+
+    await this.loadFiles(event.files.collected, FilesSource.COLLECTED);
+    const loadedReaders = this.tracePipeline.getLoadedFileReaders();
+    if (loadedReaders.length === 0) {
+      this.currentProgressListener?.onOperationFinished(false);
+      UserNotifier.notify();
+      return;
+    }
+
+    const failedTraces: string[] = [];
+    event.files.requested.forEach((requested: RequestedTraceTypes) => {
+      if (!this.tracePipeline.hasLoadedRequestedType(requested.types)) {
+        failedTraces.push(requested.name);
+      }
+    });
+    if (failedTraces.length > 0) {
+      UserNotifier.add(makeWarningNoValidFiles(failedTraces));
+    }
+    await this.uploadTracesComponent?.onWinscopeEvent(
+      new AppTraceViewRequest(),
+    );
+    await this.loadViewers(FilesSource.COLLECTED, false);
+    await this.uploadTracesComponent?.onWinscopeEvent(
+      new AppTraceViewRequestHandled(),
+    );
     UserNotifier.notify();
   }
 

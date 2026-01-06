@@ -255,6 +255,13 @@ export class TracePipeline
     ];
   }
 
+  hasLoadedRequestedType(requestedTypes: TraceType[]): boolean {
+    const loadedReaders = this.getLoadedFileReaders();
+    return loadedReaders.some((reader) => {
+      return requestedTypes.includes(reader.getTraceType());
+    });
+  }
+
   removeFileReader(reader: FileReader) {
     this.loadedFiles.remove(reader);
   }

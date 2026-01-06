@@ -27,7 +27,7 @@ import {TraceFile} from '@trace/trace_file';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {UserNotifier} from '@services/user_notifier';
-import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
+import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
 
 export class NonPerfettoParserFactory {
   static readonly PARSERS = [
@@ -69,7 +69,7 @@ export class NonPerfettoParserFactory {
         } catch (error) {
           if (hasFoundParser) {
             UserNotifier.add(
-              makeWarningInvalidLegacyTrace(
+              makeWarningInvalidNonPerfettoTrace(
                 [traceFile.getDescriptor()],
                 (error as Error).message,
               ),

@@ -89,10 +89,10 @@ import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 import {Traces} from '@trace_api/traces';
-import {FileReaderBuilder} from '@test/unit/file_reader_builder';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 
 describe('AppComponent', () => {
-  const reader = new FileReaderBuilder().setTimestamps([]).build();
+  const reader = new TestFileReaderBuilder().setTimestamps([]).build();
 
   let component: AppComponent;
   let downloadTracesSpy: jasmine.Spy;
