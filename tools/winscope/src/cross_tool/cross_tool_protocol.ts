@@ -326,7 +326,7 @@ export class CrossToolProtocol
 
   // Make a deferred timestamp: a lambda meant to be executed at a later point to create a
   // timestamp. The lambda is needed to defer timestamp creation to the point where traces
-  // are loaded into TracePipeline and TimestampConverter is properly initialized and ready
+  // are loaded into LoadedFileData and TimestampConverter is properly initialized and ready
   // to instantiate timestamps.
   private makeDeferredTimestampForWinscope(
     timestampNs: bigint | undefined,

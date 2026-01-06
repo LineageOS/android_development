@@ -63,12 +63,10 @@ describe('Viewer View Capture', () => {
       by.css('#mini-timeline-canvas'),
     ).getWebElement();
     const timelineSize = await miniTimeline.getSize();
-    const pos = browser
-      .actions()
-      .mouseMove(miniTimeline, {
-        x: timelineSize.width / 2,
-        y: timelineSize.height - 10,
-      });
+    const pos = browser.actions().mouseMove(miniTimeline, {
+      x: timelineSize.width / 2,
+      y: timelineSize.height - 10,
+    });
     await pos.click().perform();
     await checkFinalRealTimestamp('2023-08-10, 18:44:27.287');
     await checkInitialRealTimestamp('2023-08-10, 18:43:14.989');

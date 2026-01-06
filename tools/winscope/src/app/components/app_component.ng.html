@@ -248,7 +248,7 @@ limitations under the License.
           <upload-traces
             #uploadTraces
             class="upload-traces-card homepage-card"
-            [loadedFileReaders]="tracePipeline.getLoadedFileReaders()"
+            [loadedFileReaders]="loadedFileData.getLoadedFileReaders()"
             [storage]="appStorage"
             (filesUploaded)="onFilesUploaded($event)"
             (viewTracesButtonClick)="onViewTracesButtonClick($event)"
@@ -265,7 +265,7 @@ limitations under the License.
   <mat-drawer #drawer mode="overlay" opened="true" [baseHeight]="collapsedTimelineHeight">
     @if (dataLoaded) {
     <timeline
-      [allTraces]="tracePipeline.getTraces()"
+      [allTraces]="loadedFileData.getTraces()"
       [timelineData]="timelineData"
       [store]="persistentStore"
       [initialTabTraceType]="mediator.initialTimelineTabTraceType"
