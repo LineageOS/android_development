@@ -38,10 +38,10 @@ limitations under the License.
     ></canvas>
     <div class="zoom-control">
       <slider
-        [fullRange]="timelineData.getFullTimeRange()"
-        [zoomRange]="timelineData.getZoomRange()"
+        [fullRange]="timelineData?.getFullTimeRange()"
+        [zoomRange]="timelineData?.getZoomRange()"
         [currentPosition]="currentTracePosition"
-        [timestampConverter]="timelineData.getTimestampConverter()"
+        [timestampConverter]="timelineData?.getTimestampConverter()"
         (onZoomChanged)="onSliderZoomChanged($event)"
       ></slider>
     </div>

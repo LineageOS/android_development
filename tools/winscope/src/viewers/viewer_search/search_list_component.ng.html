@@ -57,7 +57,7 @@ limitations under the License.
         <div class="context-menu-item-container">
           <span class="menu-item" [cdkMenuItemDisabled]="true" cdkMenuItem>
             <ng-container
-              [ngTemplateOutlet]="opt.menu"
+              [ngTemplateOutlet]="opt.menu ?? null"
               [ngTemplateOutletContext]="{query: search.query, control}"
             ></ng-container>
           </span>

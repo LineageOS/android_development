@@ -144,17 +144,17 @@ limitations under the License.
           <div class="results-table">
             <log-view
               class="results-log-view"
-              [entries]="curr.result.entries"
-              [headers]="curr.result.headers"
-              [selectedIndex]="curr.result.selectedIndex"
-              [scrollToIndex]="curr.result.scrollToIndex"
-              [currentIndex]="curr.result.currentIndex"
+              [entries]="curr.result?.entries ?? []"
+              [headers]="curr.result?.headers ?? []"
+              [selectedIndex]="curr.result?.selectedIndex"
+              [scrollToIndex]="curr.result?.scrollToIndex"
+              [currentIndex]="curr.result?.currentIndex"
               [traceType]="TraceType.SEARCH"
               [showTraceEntryTimes]="false"
               [showCurrentTimeButton]="false"
               [padEntries]="false"
-              [isFetchingData]="curr.result.isFetchingData"
-              [checkScrollViewport]="curr.result.checkScrollViewport || checkScrollViewport === $index"
+              [isFetchingData]="curr.result?.isFetchingData ?? false"
+              [checkScrollViewport]="curr.result?.checkScrollViewport || checkScrollViewport === $index"
             ></log-view>
           </div>
         </div>

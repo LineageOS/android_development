@@ -17,9 +17,7 @@
 import {Operation} from '@tree_node/operation';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 
-export class UpdateSfSubtreeDisplayNames
-  implements Operation<UiHierarchyTreeNode>
-{
+export class UpdateSfSubtreeDisplayNames implements Operation<UiHierarchyTreeNode> {
   apply(node: UiHierarchyTreeNode): void {
     this.updateRootName(node);
   }

@@ -26,7 +26,10 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
-import {SfCuratedProperties} from '@viewers/common/curated_properties';
+import {
+  SfCuratedProperties,
+  SfLayerSummary,
+} from '@viewers/common/curated_properties';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
@@ -68,5 +71,11 @@ export class SurfaceFlingerPropertyGroupsComponent {
       detail: {id: layerNodeId},
     });
     this.elementRef.nativeElement.dispatchEvent(event);
+  }
+
+  isSfLayerSummary(
+    relativeParent: string | SfLayerSummary,
+  ): relativeParent is SfLayerSummary {
+    return typeof relativeParent !== 'string';
   }
 }

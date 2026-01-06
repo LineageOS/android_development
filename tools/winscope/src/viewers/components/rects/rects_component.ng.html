@@ -216,7 +216,7 @@ limitations under the License.
 <span class="mat-body-1 warning">
   <mat-icon class="warning-icon icon-small"> warning </mat-icon>
   <span class="warning-message text-no-overflow">
-    Showing {{rectSpec.type}} - change rect type via toggle above
+    Showing {{rectSpec?.type}} - change rect type via toggle above
   </span>
 </span>
 } @if (rects.length===0) {
@@ -230,13 +230,13 @@ limitations under the License.
       class="large-rects-canvas"
       (click)="onRectClick($event)"
       (dblclick)="onRectDblClick($event)"
-      oncontextmenu="return false"
+      oncontextmenu="return false;"
     ></canvas>
     <div class="large-rects-labels"></div>
     <canvas
       class="mini-rects-canvas"
       (dblclick)="onMiniRectDblClick($event)"
-      oncontextmenu="return false"
+      oncontextmenu="return false;"
     ></canvas>
   </div>
 </div>
