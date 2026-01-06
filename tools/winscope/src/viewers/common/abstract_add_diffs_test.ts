@@ -17,9 +17,9 @@
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {DiffType} from '@viewers/common/diff_type';
 import {AddDiffs} from './add_diffs';
-import {DiffNode} from './diff_node';
+import {UiTreeNode} from './ui_tree_node';
 
-export abstract class AbstractAddDiffsTest<T extends DiffNode> {
+export abstract class AbstractAddDiffsTest<T extends UiTreeNode> {
   execute() {
     describe('AddDiffs', () => {
       let newRoot: T;

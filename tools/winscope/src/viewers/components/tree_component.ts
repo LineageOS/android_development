@@ -24,20 +24,17 @@ import {
   Inject,
   Input,
   Output,
-  QueryList,
   SimpleChanges,
   ViewChild,
-  ViewChildren,
 } from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
-import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TreeNodeComponent} from './tree_node_component';
 import {
@@ -58,20 +55,19 @@ import {
   templateUrl: './tree_component.ng.html',
   styleUrls: ['tree_component.css'],
 })
-export class TreeComponent {
+export class TreeComponent<T extends UiTreeNode> {
   readonly isHighlighted = isHighlighted;
   readonly isRowVisible = (index: number) => {
     return this.virtualScrollViewport?.isIndexVisible(index) ?? false;
   };
-  filteredRows: Array<UiTreeNodeRow<UiTreeNode>> = [];
+  filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
 
-  @Input() nodeRows: Array<UiTreeNodeRow<UiTreeNode>> = [];
+  @Input() nodeRows: Array<FlattenedTreeRow<T>> = [];
   @Input() store: InMemoryStorage | undefined;
   @Input() isFlattened? = false;
-  @Input() initialDepth = 0;
   @Input() highlightedItem = '';
-  @Input() pinnedItems?: UiHierarchyTreeNode[] = [];
+  @Input() pinnedItems?: UiTreeNode[] = [];
   @Input() itemsClickable?: boolean;
   @Input() rectIdToShowState?: Map<string, RectShowState>;
   @Input() handleArrowPress = false;
@@ -81,15 +77,10 @@ export class TreeComponent {
   @Input() useStoredExpandedState = false;
 
   @Output() readonly highlightedChange = new EventEmitter<UiTreeNode>();
-  @Output() readonly pinnedItemChange = new EventEmitter<UiHierarchyTreeNode>();
-  @Output() readonly hoverStart = new EventEmitter<void>();
-  @Output() readonly hoverEnd = new EventEmitter<void>();
+  @Output() readonly pinnedItemChange = new EventEmitter<UiTreeNode>();
 
   @ViewChild('treeContainer', {static: true})
   readonly virtualScrollViewport: VirtualScrollViewportComponent | undefined;
-
-  @ViewChildren(TreeNodeComponent)
-  treeNodes: QueryList<TreeNodeComponent> | undefined;
 
   readonly levelOffset = 24;
   readonly heightPredictor = new NodeHeightPredictor(
@@ -154,7 +145,7 @@ export class TreeComponent {
     }
   }
 
-  onNodeClick(event: MouseEvent, row: UiTreeNodeRow<UiTreeNode>) {
+  onNodeClick(event: MouseEvent, row: FlattenedTreeRow<T>) {
     event.preventDefault();
     if (window.getSelection()?.type === 'range') {
       return;
@@ -169,26 +160,26 @@ export class TreeComponent {
     }
   }
 
-  isPinned(node: UiTreeNode): boolean {
-    if (this.pinnedItems && node instanceof UiHierarchyTreeNode) {
+  isPinned(node: T): boolean {
+    if (this.pinnedItems && node.canBePinned()) {
       return this.pinnedItems.map((item) => item.id).includes(node.id);
     }
     return false;
   }
 
-  propagateNewPinnedItem(newPinnedItem: UiHierarchyTreeNode) {
+  propagateNewPinnedItem(newPinnedItem: T) {
     this.pinnedItemChange.emit(newPinnedItem);
   }
 
-  isClickable(node: UiTreeNode): boolean {
+  isClickable(node: T): boolean {
     return !node.isLeaf() || !!this.itemsClickable;
   }
 
-  toggleTree(row: UiTreeNodeRow<UiTreeNode>) {
+  toggleTree(row: FlattenedTreeRow<T>) {
     this.setExpandedValue(row, !this.isExpanded(row));
   }
 
-  expandTree(row: UiTreeNodeRow<UiTreeNode>) {
+  expandTree(row: FlattenedTreeRow<T>) {
     const j = this.setExpandedValue(row, true, false);
     let i = row.originalIndex;
     while (i < j) {
@@ -202,7 +193,7 @@ export class TreeComponent {
   }
 
   expandParentIfCollapsed(
-    row: UiTreeNodeRow<UiTreeNode>,
+    row: FlattenedTreeRow<T>,
     updateRenderedNodes = true,
   ) {
     let prevDepth = row.depth;
@@ -220,11 +211,11 @@ export class TreeComponent {
     }
   }
 
-  isExpanded(row: UiTreeNodeRow<UiTreeNode>): boolean {
+  isExpanded(row: FlattenedTreeRow<T>): boolean {
     return row.node.isLeaf() || row.localExpandedState;
   }
 
-  hasSelectedChild(node: UiTreeNode): boolean {
+  hasSelectedChild(node: T): boolean {
     if (node.isLeaf()) {
       return false;
     }
@@ -233,22 +224,25 @@ export class TreeComponent {
       .some((child) => this.highlightedItem === child.id);
   }
 
-  getShowStateIcon(node: UiTreeNode): string | undefined {
+  getShowStateIcon(node: T): string | undefined {
+    if (!node.hasShowState()) {
+      return undefined;
+    }
     const showState = this.rectIdToShowState?.get(node.id);
-    if (showState === undefined || node instanceof UiPropertyTreeNode) {
+    if (showState === undefined) {
       return undefined;
     }
     return showState === RectShowState.SHOW ? 'visibility' : 'visibility_off';
   }
 
-  showFullOpacity(node: UiTreeNode): boolean {
-    if (node instanceof UiPropertyTreeNode) return true;
+  showFullOpacity(node: T): boolean {
+    if (!node.hasShowState()) return true;
     if (this.rectIdToShowState === undefined) return true;
     const showState = this.rectIdToShowState.get(node.id);
     return showState === RectShowState.SHOW;
   }
 
-  toggleRectShowState(node: UiTreeNode) {
+  toggleRectShowState(node: T) {
     const currentShowState = assertDefined(
       this.rectIdToShowState?.get(node.id),
     );
@@ -261,10 +255,6 @@ export class TreeComponent {
       detail: {rectId: node.id, state: newShowState},
     });
     this.elementRef.nativeElement.dispatchEvent(event);
-  }
-
-  addGutter(): boolean {
-    return (this.rectIdToShowState?.size ?? 0) > 0;
   }
 
   scrollToIndex(index: number) {
@@ -343,7 +333,7 @@ export class TreeComponent {
   }
 
   private setExpandedValue(
-    row: UiTreeNodeRow<UiTreeNode>,
+    row: FlattenedTreeRow<T>,
     isExpanded: boolean,
     updateRenderedNodes = true,
   ): number {
@@ -400,38 +390,37 @@ export class TreeComponent {
 }
 
 class NodeHeightPredictor {
-  private readonly defaultRowSize = 24;
-  private readonly pxPerChar = 9;
-  private readonly nodeElementWidth = 24;
-  private readonly chipPaddingPx = 30;
+  private readonly defaultRowHeight = 24;
+  private readonly charWidth = 9;
+  private readonly nodeIconWidth = 24;
+  private readonly chipPaddingWidth = 30;
   private readonly additionalRowHeight = 16;
   private readonly defaultRowWidth = 480;
-  private readonly rowPaddingPx = 12;
+  private readonly rowPaddingWidth = 12;
 
   constructor(
     private readonly getRow: (
       index: number,
-    ) => UiTreeNodeRow<UiTreeNode> | undefined,
+    ) => FlattenedTreeRow<UiTreeNode> | undefined,
     private readonly getViewportWidth: () => number | undefined,
   ) {}
 
-  predict(index: number) {
+  predict(index: number): number {
     const row = this.getRow(index);
     if (!row) {
-      return this.defaultRowSize;
+      return this.defaultRowHeight;
     }
     const displayName = row.node.getDisplayName();
+    let textWidth = displayName.length * this.charWidth;
 
-    let textWidth = displayName.length * this.pxPerChar;
-
-    const fullWidth = this.getRowWidth() - this.rowPaddingPx;
+    const fullWidth = this.getRowWidth() - this.rowPaddingWidth;
     // leaf/chevron icon and depth indicators
     let rowLength =
-      fullWidth - this.nodeElementWidth - row.depth * this.nodeElementWidth;
+      fullWidth - this.nodeIconWidth - row.depth * this.nodeIconWidth;
 
     if (row.node instanceof UiHierarchyTreeNode) {
       if (!row.node.isRoot()) {
-        rowLength -= this.nodeElementWidth; // pin icon
+        rowLength -= this.nodeIconWidth; // pin icon
       }
 
       const heading = row.node.heading();
@@ -439,12 +428,12 @@ class NodeHeightPredictor {
       // "<heading> - " precedes display name
       textWidth += heading !== undefined ? heading.length + 3 : 0;
       row.node.getChips().forEach((chip) => {
-        textWidth += chip.short.length * this.pxPerChar + this.chipPaddingPx;
+        textWidth += chip.short.length * this.charWidth + this.chipPaddingWidth;
       });
     }
 
     const rows = Math.ceil(textWidth / rowLength);
-    return this.defaultRowSize + (rows - 1) * this.additionalRowHeight;
+    return this.defaultRowHeight + (rows - 1) * this.additionalRowHeight;
   }
 
   private getRowWidth(): number {

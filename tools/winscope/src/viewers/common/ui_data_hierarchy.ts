@@ -21,16 +21,16 @@ import {RectSpec} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
 import {DisplayIdentifier} from './display_identifier';
 import {RectShowState} from './rect_show_state';
-import {UiTreeNodeRow} from './ui_tree_node_row';
+import {FlattenedTreeRow} from './flattened_tree_row';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 export interface UiDataHierarchy {
   highlightedItem: string;
   pinnedItems: UiHierarchyTreeNode[];
   hierarchyUserOptions: UserOptions;
-  hierarchyNodes: Array<UiTreeNodeRow<UiHierarchyTreeNode>> | undefined;
+  hierarchyNodes: Array<FlattenedTreeRow<UiHierarchyTreeNode>> | undefined;
   propertiesUserOptions: UserOptions;
-  propertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
+  propertyNodes: Array<FlattenedTreeRow<UiPropertyTreeNode>> | undefined;
   highlightedProperty: string;
   hierarchyFilter: TextFilter;
   propertiesFilter: TextFilter;

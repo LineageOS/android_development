@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {TraceType} from 'trace_api/trace_type';
-import {DisplayIdentifier} from 'viewers/common/display_identifier';
-import {RectShowState} from 'viewers/common/rect_show_state';
-import {TextFilter} from 'viewers/common/text_filter';
-import {UiDataHierarchy} from 'viewers/common/ui_data_hierarchy';
-import {UiHierarchyTreeNode} from 'viewers/common/ui_hierarchy_tree_node';
-import {UiPropertyTreeNode} from 'viewers/common/ui_property_tree_node';
-import {UiTreeNodeRow} from 'viewers/common/ui_tree_node_row';
-import {UserOptions} from 'viewers/common/user_options';
-import {RectSpec} from 'viewers/components/rects/rect_spec';
-import {UiRect} from 'viewers/components/rects/ui_rect';
+import {TraceType} from '@trace_api/trace_type';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
+import {RectShowState} from '@viewers/common/rect_show_state';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiDataHierarchy} from '@viewers/common/ui_data_hierarchy';
+import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectSpec} from '@viewers/components/rects/rect_spec';
+import {UiRect} from '@viewers/components/rects/ui_rect';
 
 export class UiData implements UiDataHierarchy {
   readonly dependencies: TraceType[] = [TraceType.WINDOW_MANAGER];
@@ -41,8 +41,8 @@ export class UiData implements UiDataHierarchy {
   isPlaybackInitializing?: boolean;
   pinnedItems: UiHierarchyTreeNode[] = [];
   hierarchyUserOptions: UserOptions = {};
-  hierarchyNodes: Array<UiTreeNodeRow<UiHierarchyTreeNode>> | undefined;
+  hierarchyNodes: Array<FlattenedTreeRow<UiHierarchyTreeNode>> | undefined;
   propertiesUserOptions: UserOptions = {};
-  propertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
+  propertyNodes: Array<FlattenedTreeRow<UiPropertyTreeNode>> | undefined;
   isDarkMode = false;
 }

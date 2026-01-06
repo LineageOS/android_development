@@ -19,6 +19,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
 import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {TextFilter} from '@viewers/common/text_filter';
 import {
@@ -28,7 +29,6 @@ import {
   UiDataLog,
 } from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
-import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {UserOptions} from '@viewers/common/user_options';
 import {RectSpec} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
@@ -40,14 +40,18 @@ export class UiData implements UiDataLog {
     public selectedIndex: undefined | number,
     public scrollToIndex: undefined | number,
     public currentIndex: undefined | number,
-    public propertyNodes: undefined | Array<UiTreeNodeRow<UiPropertyTreeNode>>,
+    public propertyNodes:
+      | undefined
+      | Array<FlattenedTreeRow<UiPropertyTreeNode>>,
   ) {}
 
   isFetchingData = false;
   checkScrollViewport = false;
 
   highlightedProperty: string = '';
-  dispatchPropertyNodes: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
+  dispatchPropertyNodes:
+    | Array<FlattenedTreeRow<UiPropertyTreeNode>>
+    | undefined;
 
   rectsToDraw: UiRect[] | undefined;
   rectIdToShowState: Map<string, RectShowState> | undefined;
