@@ -54,6 +54,9 @@ struct Cli {
     /// It is strongly recommended that you use a source tree dedicated to
     /// running this updater.
     android_root: PathBuf,
+    /// Send generated email to rotation mailing list
+    #[arg(long, default_value_t = false)]
+    rotation: bool,
 }
 
 pub trait SuccessOrError {
@@ -296,18 +299,12 @@ fn try_update(
     Ok(())
 }
 
-fn send_email(body: String) -> Result<()> {
+fn send_email(body: String, rotation: bool) -> Result<()> {
     println!("Sending email");
     let username = env::var("USER").or_else(|_err| env::var("LOGNAME"))?;
+    let to = if rotation { "crate-update-rotation@google.com" } else { username.as_str() };
     Command::new("/google/bin/releases/gws-sre/files/sendgmr/sendgmr")
-        .args([
-            "--subject",
-            "Automated crate updates",
-            "--to",
-            username.as_str(),
-            "--inline_body",
-            &body,
-        ])
+        .args(["--subject", "Automated crate updates", "--to", to, "--inline_body", &body])
         .run_and_stream_output()?;
 
     Ok(())
@@ -371,7 +368,7 @@ fn main() -> Result<()> {
         let crate_name = suggestion.name.as_str();
         let version = suggestion.version.as_str();
 
-        if updates_tried.contains(crate_name, version) {
+        if !args.rotation && updates_tried.contains(crate_name, version) {
             println!("Skipping {crate_name} (already attempted recently)");
             continue;
         }
@@ -419,7 +416,7 @@ fn main() -> Result<()> {
         + line
         + updates_tried_string.join("\n").as_str();
 
-    send_email(body)?;
+    send_email(body, args.rotation)?;
 
     Ok(())
 }
