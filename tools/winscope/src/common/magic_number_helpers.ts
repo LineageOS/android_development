@@ -18,16 +18,14 @@ import {equal} from './typed_array';
 
 export function throwIfMagicNumberDoesNotMatch(
   traceBuffer: Uint8Array,
-  magicNumber: number[] | undefined,
+  magicNumber: number[],
 ) {
-  if (magicNumber !== undefined) {
-    const bufferContainsMagicNumber = startsWithMagicNumber(
-      traceBuffer,
-      magicNumber,
-    );
-    if (!bufferContainsMagicNumber) {
-      throw new TypeError("buffer doesn't contain expected magic number");
-    }
+  const bufferContainsMagicNumber = startsWithMagicNumber(
+    traceBuffer,
+    magicNumber,
+  );
+  if (!bufferContainsMagicNumber) {
+    throw new TypeError("buffer doesn't contain expected magic number");
   }
 }
 

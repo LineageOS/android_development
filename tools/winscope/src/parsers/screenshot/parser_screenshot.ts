@@ -43,7 +43,7 @@ export class ParserScreenshot extends AbstractParser<
     return CoarseVersion.LATEST;
   }
 
-  override getMagicNumber(): number[] | undefined {
+  override getMagicNumber(): number[] {
     return ParserScreenshot.MAGIC_NUMBER;
   }
 

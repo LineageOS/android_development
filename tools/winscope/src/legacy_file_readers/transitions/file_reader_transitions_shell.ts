@@ -106,7 +106,7 @@ export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoTrans
       : this.timestampConverter.makeZeroTimestamp();
   }
 
-  protected getMagicNumber(): number[] | undefined {
+  protected getMagicNumber(): number[] {
     return [0x09, 0x57, 0x4d, 0x53, 0x54, 0x52, 0x41, 0x43, 0x45]; // .WMSTRACE
   }
 

@@ -57,7 +57,7 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
     );
   }
 
-  override getMagicNumber(): number[] | undefined {
+  override getMagicNumber(): number[] {
     return [0x09, 0x54, 0x52, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45]; // .TRNTRACE
   }
 
