@@ -22,7 +22,7 @@ import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/vie
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 
-self.onmessage = async (event) => {
+addEventListener('message', async (event) => {
   const traceGeometryData = new TraceGeometryData(
     event.data.traceGeometryData.rectsMap,
     event.data.traceGeometryData.transformMap,
@@ -44,15 +44,15 @@ self.onmessage = async (event) => {
     event.data.visibleRectsMap,
     traceGeometryData,
   );
-  self.postMessage({trees});
-};
+  postMessage({trees});
+});
 
 function buildTraceEntryValue(
-  traceType,
-  snapshotResults,
-  nodeResults,
-  rectsMap,
-  traceGeometryData,
+  traceType: TraceType,
+  snapshotResults: any,
+  nodeResults: any,
+  rectsMap: any,
+  traceGeometryData: TraceGeometryData,
 ) {
   switch (traceType) {
     case TraceType.SURFACE_FLINGER:
@@ -82,7 +82,12 @@ function buildTraceEntryValue(
   }
 }
 
-function processQueryResults(start, end, snapshotBatches, nodeBatches) {
+function processQueryResults(
+  start: number,
+  end: number,
+  snapshotBatches: any[],
+  nodeBatches: any[],
+) {
   let snapshotQueryResult;
   if (snapshotBatches) {
     const snapshotQueryString = snapshotQuery(start, end);
@@ -106,7 +111,7 @@ function processQueryResults(start, end, snapshotBatches, nodeBatches) {
   return [snapshotQueryResult, layerQueryResult];
 }
 
-function snapshotQuery(start, end) {
+function snapshotQuery(start: number, end: number) {
   return `SELECT
           sfs.id,
           sfs.arg_set_id,
@@ -127,7 +132,7 @@ function snapshotQuery(start, end) {
           ORDER BY sfs.id, display.id;`;
 }
 
-function layerQuery(start, end) {
+function layerQuery(start: number, end: number) {
   return `SELECT
           sfl.snapshot_id,
           sfl.id,

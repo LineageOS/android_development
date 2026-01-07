@@ -531,7 +531,7 @@ export class PlaybackPresenter {
   }
 
   private createWorker(): Worker {
-    const worker = new Worker(new URL('./playback_worker', import.meta.url), {
+    const worker = new Worker(new URL('./playback.worker', import.meta.url), {
       type: 'module',
     });
 

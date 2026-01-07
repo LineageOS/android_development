@@ -25,9 +25,6 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/viewers/common/playback/playback_worker.js",
-              "src/viewers/common/playback/video_frame_cache_worker.js",
-              "src/parsers/screen_recording/thumbnail_generator_worker.js",
               { "glob": "*", "input": "deps_build/trace_processor/to_be_served/", "output": "/" },
               { "glob": "winscope_proxy.py", "input": "src/adb/", "output": "/" },
               { "glob": "logo_page_tab.svg", "input": "src/", "output": "/" },
@@ -45,7 +42,8 @@
             ],
             "scripts": [],
             "sourceMap": true,
-            "optimization": false
+            "optimization": false,
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -113,7 +111,8 @@
             "assets": [
               "src/favicon.ico",
               "src/assets"
-            ]
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "ci": {

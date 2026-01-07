@@ -18,12 +18,12 @@ import {assertDefined} from '@common/assert';
 import {MediaBasedFrame} from '@trace/media_based/media_based_frame';
 import {parseWebCodecData} from '@trace/media_based/helpers';
 
-self.onmessage = async (event) => {
+addEventListener('message', async (event) => {
   const thumbnail = await generateThumbnail(event.data);
-  self.postMessage({thumbnail});
-};
+  postMessage({thumbnail});
+});
 
-async function generateThumbnail(videoBuffer) {
+async function generateThumbnail(videoBuffer: ArrayBuffer) {
   try {
     const videoData = new Uint8Array(videoBuffer);
     const {chunks, config, rotationAngle} = await parseWebCodecData(videoData);
@@ -61,12 +61,12 @@ async function generateThumbnail(videoBuffer) {
       rotatedSpriteHeight * numRows,
     );
 
-    let decoder;
+    let decoder: VideoDecoder | undefined;
     let decodingQueue = Promise.resolve();
     let spriteCount = 0;
     let distanceFromLastSprite = 0;
 
-    const onOutput = (frame) => {
+    const onOutput = (frame: VideoFrame) => {
       if (decoder?.state === 'closed' || spriteCount >= totalSprites) {
         frame.close();
         return;
@@ -84,7 +84,7 @@ async function generateThumbnail(videoBuffer) {
             rotationAngle,
             {x: xOffset, y: yOffset},
             {width: unrotatedSpriteWidth, height: unrotatedSpriteHeight},
-          ).tryDrawOnCanvas(canvas, false);
+          ).tryDrawOnCanvas(canvas as any, false); // Cast to any if incompatible with HTMLCanvasElement
 
           spriteCount++;
           frame.close();
@@ -102,7 +102,7 @@ async function generateThumbnail(videoBuffer) {
           onOutput(frame);
         },
         error: (e) => {
-          self.postMessage({error: e});
+          postMessage({error: e});
         },
       });
       decoder.configure(config);
@@ -119,12 +119,12 @@ async function generateThumbnail(videoBuffer) {
       await decodingQueue;
       decoder.close();
     } catch (e) {
-      self.postMessage({error: e});
+      postMessage({error: e});
     }
 
     const spriteSheetBlob = await canvas.convertToBlob();
     const buffer = await spriteSheetBlob.arrayBuffer();
-    self.postMessage(
+    (postMessage as any)(
       {
         buffer,
         totalSprites,
@@ -136,7 +136,7 @@ async function generateThumbnail(videoBuffer) {
       [buffer],
     );
   } catch (e) {
-    self.postMessage({error: e});
+    postMessage({error: e});
     return undefined;
   }
 }

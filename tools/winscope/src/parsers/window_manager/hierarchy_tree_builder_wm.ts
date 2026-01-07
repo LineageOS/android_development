@@ -70,7 +70,10 @@ export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder<number> {
         if (parentToken) {
           const parentId = this.getIdentifierValue(parentToken);
           if (parentId !== undefined && parentId !== rootWindowContainerToken) {
-            parent = identifierToChildren.get(parentId)?.at(0);
+            const parents = identifierToChildren.get(parentId);
+            if (parents) {
+              parent = parents[0];
+            }
           }
         }
 

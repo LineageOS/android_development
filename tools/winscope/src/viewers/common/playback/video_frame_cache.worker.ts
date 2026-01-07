@@ -15,7 +15,7 @@
  */
 
 // must be initialized before any decoding is requested
-let videoDecoderConfig;
+let videoDecoderConfig: VideoDecoderConfig;
 let initialBatchSize = 32;
 let pendingBatchSize = 16;
 
@@ -25,14 +25,16 @@ let cancelQueue = Promise.resolve();
 // For forwards playback, decoders are stored by absolute key frame start index
 // for the key-frame range they are decoding, and tracked by an interface with the
 // following fields:
-// - chunks: array of EncodedVideoChunks, where each entry corresponds to a video frame
-// - absoluteDecodedFrameIndex: absolute index of frame next to be decoded
-// - lastQueuedChunkIndex: last index in chunks that was queued
-// - frameDecoder?: VideoDecoder
+interface Tracker {
+  chunks: EncodedVideoChunk[];
+  absoluteDecodedFrameIndex: number;
+  lastQueuedChunkIndex: number;
+  frameDecoder?: VideoDecoder;
+}
 
-const trackers = new Map();
+const trackers = new Map<number, Tracker>();
 
-self.onmessage = async (event) => {
+addEventListener('message', async (event) => {
   if (event.data.videoDecoderConfig) {
     return onVideoDecoderConfig(event.data);
   }
@@ -56,28 +58,28 @@ self.onmessage = async (event) => {
   if (event.data.chunks) {
     return onChunks(event.data);
   }
-};
+});
 
-function onVideoDecoderConfig(data) {
+function onVideoDecoderConfig(data: any) {
   videoDecoderConfig = data.videoDecoderConfig;
 }
 
-function onInitialBatchSize(data) {
+function onInitialBatchSize(data: any) {
   initialBatchSize = data.initialBatchSize;
 }
 
-function onPendingBatchSize(data) {
+function onPendingBatchSize(data: any) {
   pendingBatchSize = data.pendingBatchSize;
 }
 
-function onCancelFetch(data) {
+function onCancelFetch(data: any) {
   cancelQueue = cancelQueue.then(async () => {
     trackers.get(data.keyFrameIndex)?.frameDecoder?.close();
     trackers.delete(data.keyFrameIndex);
   });
 }
 
-function onFetchNextBatch(data) {
+function onFetchNextBatch(data: any) {
   const startKeyFrameIndex = data.startKeyFrameIndex;
 
   decodingQueue = decodingQueue
@@ -105,18 +107,18 @@ function onFetchNextBatch(data) {
       }
 
       if (end > tracker.chunks.length) {
-        self.postMessage({
+        postMessage({
           fetchingPendingRange: true,
           target: startKeyFrameIndex + tracker.chunks.length,
         });
       }
     })
     .catch((e) => {
-      self.postMessage({log: e});
+      postMessage({log: e});
     });
 }
 
-function onChunks(data) {
+function onChunks(data: any) {
   const startKeyFrameIndex = data.startKeyFrameIndex;
   const target = data.target;
   const chunks = data.chunks;
@@ -127,20 +129,24 @@ function onChunks(data) {
   };
   decodingQueue = decodingQueue.then(decode);
   decodingQueue.catch((e) => {
-    self.postMessage({error: e});
+    postMessage({error: e});
   });
 }
 
-async function startDecodingChunks(startKeyFrameIndex, target, chunks) {
+async function startDecodingChunks(
+  startKeyFrameIndex: number,
+  target: number,
+  chunks: EncodedVideoChunk[],
+) {
   // frameDecoder lazily set so tracker can be referenced in onOutput
-  const tracker = {
+  const tracker: Tracker = {
     frameDecoder: undefined,
     chunks,
     absoluteDecodedFrameIndex: startKeyFrameIndex,
     lastQueuedChunkIndex: -1,
   };
 
-  const onOutput = (frame) => {
+  const onOutput = (frame: VideoFrame) => {
     if (tracker.frameDecoder?.state === 'closed') {
       frame.close();
       return false;
@@ -150,7 +156,7 @@ async function startDecodingChunks(startKeyFrameIndex, target, chunks) {
     if (imageIndex >= target) {
       createImageBitmap(frame).then((buffer) => {
         frame.close();
-        self.postMessage({imageIndex, image: buffer}, [buffer]);
+        (postMessage as any)({imageIndex, image: buffer}, [buffer]);
       });
     } else {
       frame.close();
@@ -183,7 +189,7 @@ async function startDecodingChunks(startKeyFrameIndex, target, chunks) {
   }
 }
 
-function createFrameDecoder(onOutput) {
+function createFrameDecoder(onOutput: (frame: VideoFrame) => boolean) {
   const decoder = new VideoDecoder({
     output: (frame) => {
       const success = onOutput(frame);
@@ -192,7 +198,7 @@ function createFrameDecoder(onOutput) {
       }
     },
     error: (e) => {
-      self.postMessage({error: e});
+      postMessage({error: e});
     },
   });
   decoder.configure(videoDecoderConfig);
