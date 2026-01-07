@@ -96,7 +96,7 @@ describe('FileReaderInputMethodService', () => {
     });
 
     it('provides timestamps', () => {
-      expect(assertDefined(reader.getTimestamps())[0]).toEqual(
+      expect(reader.getTimestamps()[0]).toEqual(
         makeElapsedTimestamp(1149230019887n),
       );
     });

@@ -90,7 +90,7 @@ abstract class ParserProtologTest {
       });
 
       it('provides timestamps', () => {
-        const timestamps = assertDefined(reader.getTimestamps());
+        const timestamps = reader.getTimestamps();
         expect(timestamps.length).toEqual(this.timestampCount);
 
         expect(timestamps.slice(0, 3)).toEqual(
@@ -144,7 +144,7 @@ abstract class ParserProtologTest {
           await convertToPerfettoTrace([reader], getTimestampConverter())
         )[0];
 
-        expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual(
+        expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual(
           this.first3ExpectedRealTimestamps,
         );
 

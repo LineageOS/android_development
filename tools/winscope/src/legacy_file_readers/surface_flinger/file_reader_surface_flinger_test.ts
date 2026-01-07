@@ -68,9 +68,7 @@ describe('FileReaderSurfaceFlinger', () => {
         makeRealTimestamp(1659107089233029344n),
         makeRealTimestamp(1659107090005226366n),
       ];
-      expect(assertDefined(readerRealTs.getTimestamps()).slice(0, 3)).toEqual(
-        expected,
-      );
+      expect(readerRealTs.getTimestamps().slice(0, 3)).toEqual(expected);
     });
 
     it('converts to valid perfetto packets', async () => {
@@ -103,9 +101,7 @@ describe('FileReaderSurfaceFlinger', () => {
           makeRealTimestamp(1659107089233029344n),
           makeRealTimestamp(1659107090005226366n),
         ];
-        expect(
-          assertDefined(perfettoParser.getTimestamps()).slice(0, 3),
-        ).toEqual(expected);
+        expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual(expected);
       });
 
       it('decodes layer state flags', async () => {
@@ -195,7 +191,7 @@ describe('FileReaderSurfaceFlinger', () => {
     });
 
     it('provides timestamps', () => {
-      expect(assertDefined(readerElapsedTs.getTimestamps())[0]).toEqual(
+      expect(readerElapsedTs.getTimestamps()[0]).toEqual(
         makeElapsedTimestamp(850335483446n),
       );
     });

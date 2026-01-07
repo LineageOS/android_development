@@ -232,7 +232,7 @@ export class LegacyToPerfettoConverter {
   private getRealTimestampsForClockSnapshots(
     reader: FileReader,
   ): Array<bigint> {
-    const ts = assertDefined(reader.getTimestamps());
+    const ts = reader.getTimestamps();
     const realTs: Array<bigint> = [];
     if (ts.length > 0) {
       realTs.push(ts[0].getValueNs());

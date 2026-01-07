@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {
   makeZeroTimestamp,
   timestampEqualityTester,
@@ -38,7 +37,7 @@ describe('FileReaderTransitionsWm', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(reader.getTimestamps());
+    const timestamps = reader.getTimestamps();
     expect(timestamps.length).toBe(8);
     const expected = makeZeroTimestamp();
     timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));

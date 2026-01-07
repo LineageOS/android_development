@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from '@common/assert';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {
   makeRealTimestamp,
@@ -56,7 +55,7 @@ describe('ParserScreenRecording', () => {
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(parser.getTimestamps());
+      const timestamps = parser.getTimestamps();
 
       expect(timestamps.length).toBe(123);
 
@@ -108,7 +107,7 @@ describe('ParserScreenRecording', () => {
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(parser.getTimestamps());
+      const timestamps = parser.getTimestamps();
       expect(timestamps.length).toBe(105);
       const expected = [
         makeRealTimestamp(1755862820270527000n),
@@ -170,7 +169,7 @@ describe('ParserScreenRecording', () => {
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(parser.getTimestamps());
+      const timestamps = parser.getTimestamps();
       expect(timestamps.length).toBe(158);
 
       const totalOffset = elapsedNs + realtoElapsedNs;
@@ -282,7 +281,7 @@ describe('ParserScreenRecording', () => {
       });
 
       it('provides timestamps', () => {
-        const timestamps = assertDefined(parser.getTimestamps());
+        const timestamps = parser.getTimestamps();
         expect(timestamps.length).toBe(158);
 
         const expected = [

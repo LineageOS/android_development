@@ -45,7 +45,7 @@ describe('PerfettoParserMotionEvent', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = parser.getTimestamps();
 
     expect(timestamps.length).toBe(6);
 

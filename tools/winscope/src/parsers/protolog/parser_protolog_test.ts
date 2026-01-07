@@ -41,7 +41,7 @@ describe('PerfettoParserProtolog', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = parser.getTimestamps();
 
     expect(timestamps.length).toBe(3);
 
@@ -101,7 +101,7 @@ describe('PerfettoParserProtolog', () => {
 
   it('timestamps are ordered', () => {
     let prevEntryTs = 0n;
-    for (const ts of assertDefined(parser.getTimestamps())) {
+    for (const ts of parser.getTimestamps()) {
       expect(ts.getValueNs() >= prevEntryTs).toBeTrue();
       prevEntryTs = ts.getValueNs();
     }

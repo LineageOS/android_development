@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import Long from 'long';
 import {ClockSnapshot} from '@compat/perfetto';
 import {
@@ -134,7 +133,7 @@ describe('FileReaderSurfaceFlingerDump', () => {
       await convertToPerfettoTrace([readerToConvert], getTimestampConverter())
     )[0];
     const expected = [makeZeroTimestamp()];
-    expect(assertDefined(perfettoParser.getTimestamps())).toEqual(expected);
+    expect(perfettoParser.getTimestamps()).toEqual(expected);
     const entry = await perfettoParser.getEntry(0);
     let count = 0;
     entry.forEachNodeDfs(() => count++);

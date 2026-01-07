@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
   makeRealTimestamp,
@@ -62,7 +61,7 @@ describe('ParserCujs', () => {
         makeRealTimestamp(1681207048025580000n),
       ];
 
-      const timestamps = assertDefined(parser.getTimestamps());
+      const timestamps = parser.getTimestamps();
       expect(timestamps.length).toBe(16);
       expect(timestamps.slice(0, 3)).toEqual(expected);
     });
@@ -116,9 +115,8 @@ describe('ParserCujs', () => {
     });
 
     it('sorts entries to make timestamps monotonically increasing', () => {
-      const timestamps = assertDefined(parser.getTimestamps());
       const expected = [makeRealTimestamp(1681207048025446000n)];
-      expect(timestamps).toEqual(expected);
+      expect(parser.getTimestamps()).toEqual(expected);
     });
 
     it('contains parsed events', async () => {

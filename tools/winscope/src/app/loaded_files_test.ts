@@ -230,9 +230,9 @@ describe('LoadedFiles', () => {
 
   describe('drops legacy reader with old data (dangling old trace file)', () => {
     const timeGapFrom = assertDefined(
-      legacyReaderSf_longButOldData.getTimestamps()?.at(-1),
+      legacyReaderSf_longButOldData.getTimestamps().at(-1),
     );
-    const timeGapTo = assertDefined(legacyReaderWm0.getTimestamps()?.at(0));
+    const timeGapTo = assertDefined(legacyReaderWm0.getTimestamps().at(0));
     const timeGap = new TimeRange(timeGapFrom, timeGapTo);
 
     it('taking into account other legacy readers', () => {
@@ -303,7 +303,7 @@ describe('LoadedFiles', () => {
 
     it('is robust to traces with time range overlap', () => {
       const reader = legacyReaderSf0;
-      const timestamps = assertDefined(reader.getTimestamps());
+      const timestamps = reader.getTimestamps();
       const filename = 'overlapping';
 
       const timestampsOverlappingFront = [

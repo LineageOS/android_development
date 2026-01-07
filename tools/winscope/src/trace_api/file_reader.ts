@@ -33,7 +33,7 @@ export interface FileReader {
   getFiles(): TraceFile[];
 
   createTimestamps(): void;
-  getTimestamps(): Timestamp[] | undefined;
+  getTimestamps(): Timestamp[];
   getRealToMonotonicTimeOffsetNs(): bigint | undefined;
   getRealToBootTimeOffsetNs(): bigint | undefined;
 }

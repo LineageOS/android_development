@@ -44,14 +44,14 @@ describe('PerfettoParserInputMethodClients', () => {
   });
 
   it('provides timestamps', () => {
-    expect(assertDefined(parser.getTimestamps()).length).toBe(56);
-
+    const timestamps = parser.getTimestamps();
+    expect(timestamps.length).toBe(56);
     const expected = [
       makeRealTimestamp(1714659585862265133n),
       makeRealTimestamp(1714659585890068600n),
       makeRealTimestamp(1714659587314072751n),
     ];
-    expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
+    expect(timestamps.slice(0, 3)).toEqual(expected);
   });
 
   it('retrieves trace entry', async () => {

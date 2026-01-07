@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from '@common/assert';
 import Long from 'long';
 import {ClockSnapshot} from '@compat/perfetto';
 import {
@@ -48,7 +47,7 @@ describe('FileReaderTransactions', () => {
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(reader.getTimestamps());
+      const timestamps = reader.getTimestamps();
 
       expect(timestamps.length).toBe(712);
 
@@ -85,7 +84,7 @@ describe('FileReaderTransactions', () => {
       });
 
       it('provides timestamps', () => {
-        const timestamps = assertDefined(perfettoParser.getTimestamps());
+        const timestamps = perfettoParser.getTimestamps();
 
         expect(timestamps.length).toBe(712);
 
@@ -150,7 +149,7 @@ describe('FileReaderTransactions', () => {
     });
 
     it('provides timestamps', () => {
-      const timestamps = assertDefined(reader.getTimestamps());
+      const timestamps = reader.getTimestamps();
 
       expect(timestamps.length).toBe(4997);
 

@@ -52,7 +52,7 @@ describe('PerfettoParserTransitions', () => {
         makeRealTimestamp(1700573433040642612n),
         makeRealTimestamp(1700573433279358351n),
       ];
-      const actual = assertDefined(parser.getTimestamps());
+      const actual = parser.getTimestamps();
       expect(actual).toEqual(expected);
     });
 

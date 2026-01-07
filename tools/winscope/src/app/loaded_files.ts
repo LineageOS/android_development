@@ -327,7 +327,7 @@ export class LoadedFiles<T extends FileReader> {
     const timeRanges = allReaders
       .map((reader) => {
         const timestamps = reader.getTimestamps();
-        if (!timestamps || timestamps.length === 0) {
+        if (timestamps.length === 0) {
           return undefined;
         }
         return new TimeRange(
@@ -343,12 +343,10 @@ export class LoadedFiles<T extends FileReader> {
     }
 
     const hasOldData = (reader: FileReader) => {
-      let timestamps = reader.getTimestamps();
+      const timestamps = reader.getTimestamps();
       if (!this.hasValidTimestamps(timestamps)) {
         return true;
       }
-      timestamps = assertDefined(timestamps);
-
       const endTimestamp = this.getLargestNonZeroTimestamp(timestamps);
       const isOldData = endTimestamp.getValueNs() <= timeGap.startNs;
       if (isOldData) {
@@ -487,8 +485,8 @@ export class LoadedFiles<T extends FileReader> {
     this.perfettoReaders = this.perfettoReaders.filter(predicate);
   }
 
-  private hasValidTimestamps(timestamps: Timestamp[] | undefined): boolean {
-    if (!timestamps || timestamps.length === 0) {
+  private hasValidTimestamps(timestamps: Timestamp[]): boolean {
+    if (timestamps.length === 0) {
       return false;
     }
 

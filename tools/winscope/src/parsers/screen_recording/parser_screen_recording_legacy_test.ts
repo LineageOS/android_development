@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
@@ -45,7 +44,7 @@ describe('ParserScreenRecordingLegacy', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = parser.getTimestamps();
 
     expect(timestamps.length).toBe(85);
 

@@ -24,6 +24,7 @@ import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {Timestamp} from '@common/time/time';
 import {TraceFile} from '@trace/trace_file';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.
@@ -95,7 +96,10 @@ export class FileReaderTransitions implements LegacyFileReader {
     }
   }
 
-  getTimestamps(): Timestamp[] | undefined {
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
     return this.timestamps;
   }
 

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from '@common/assert';
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
@@ -53,9 +52,7 @@ describe('FileReaderWindowManager', () => {
         makeRealTimestamp(1659107089999048990n),
         makeRealTimestamp(1659107090010194213n),
       ];
-      expect(assertDefined(readerRealTs.getTimestamps()).slice(0, 3)).toEqual(
-        expected,
-      );
+      expect(readerRealTs.getTimestamps().slice(0, 3)).toEqual(expected);
     });
 
     it('converts to valid perfetto packets', async () => {
@@ -90,9 +87,7 @@ describe('FileReaderWindowManager', () => {
           makeRealTimestamp(1659107089999048990n),
           makeRealTimestamp(1659107090010194213n),
         ];
-        expect(
-          assertDefined(perfettoParser.getTimestamps()).slice(0, 3),
-        ).toEqual(expected);
+        expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual(expected);
       });
 
       it('provides entry', async () => {
@@ -181,7 +176,7 @@ describe('FileReaderWindowManager', () => {
         makeRealTimestamp(1721405246510267496n),
         makeRealTimestamp(1721405246549639200n),
       ];
-      expect(readerCritical.getTimestamps()?.slice(0, 3)).toEqual(expected);
+      expect(readerCritical.getTimestamps().slice(0, 3)).toEqual(expected);
     });
   });
 });

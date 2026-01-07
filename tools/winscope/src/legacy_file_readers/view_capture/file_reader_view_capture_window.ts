@@ -31,6 +31,7 @@ import {com} from 'protos/viewcapture/udc/static';
 import {TraceType} from '@trace_api/trace_type';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceFile} from '@trace/trace_file';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 
 /**
  * A file reader for a single window in a legacy ViewCapture trace.
@@ -83,7 +84,10 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
     this.timestamps = this.decodeTimestamps();
   }
 
-  getTimestamps(): Timestamp[] | undefined {
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
     return this.timestamps;
   }
 

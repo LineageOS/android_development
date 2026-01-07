@@ -40,7 +40,7 @@ export interface Parser<T> {
   getCoarseVersion(): CoarseVersion;
   getTraceType(): TraceType;
   getLengthEntries(): number;
-  getTimestamps(): Timestamp[] | undefined;
+  getTimestamps(): Timestamp[];
   getEntry(index: AbsoluteEntryIndex): Promise<T>;
   getRangeOfEntries(
     entriesRange: EntriesRange,

@@ -134,8 +134,8 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
 
   async createTimestamps() {
     const timestamps: Timestamp[] = [];
-    const parserKeyTs = assertDefined(this.parserKey.getTimestamps());
-    const parserMotionTs = assertDefined(this.parserMotion.getTimestamps());
+    const parserKeyTs = this.parserKey.getTimestamps();
+    const parserMotionTs = this.parserMotion.getTimestamps();
     assertDefined(this.mergedEntryIndexMap).forEach(([index, traceType]) => {
       const ts = assertDefined(
         traceType === TraceType.INPUT_KEY_EVENT ? parserKeyTs : parserMotionTs,
@@ -145,7 +145,10 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
     this.timestamps = timestamps;
   }
 
-  getTimestamps(): Timestamp[] | undefined {
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
     return this.timestamps;
   }
 
@@ -231,8 +234,8 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
     parser2: Parser<unknown>,
   ): Array<[OriginalTraceIndex, TraceType]> {
     // We are assuming the parsers entries are sorted by timestamps.
-    const timestamps1 = assertDefined(parser1.getTimestamps());
-    const timestamps2 = assertDefined(parser2.getTimestamps());
+    const timestamps1 = parser1.getTimestamps();
+    const timestamps2 = parser2.getTimestamps();
     const type1 = parser1.getTraceType();
     const type2 = parser2.getTraceType();
     const mergedIndices: Array<[OriginalTraceIndex, TraceType]> = [];

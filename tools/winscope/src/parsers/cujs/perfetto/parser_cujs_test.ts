@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
 import {
@@ -61,7 +60,7 @@ describe('ParserCujs', () => {
       makeRealTimestamp(1754580962747188031n),
       makeRealTimestamp(1754580962769690133n),
     ];
-    expect(assertDefined(parser.getTimestamps())).toEqual(expected);
+    expect(parser.getTimestamps()).toEqual(expected);
   });
 
   it('contains parsed CUJ events', async () => {

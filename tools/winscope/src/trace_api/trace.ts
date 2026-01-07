@@ -676,15 +676,15 @@ export class Trace<T> {
   }
 
   private getFullTraceTimestamps(): Timestamp[] {
-    const timestamps = this.parser.getTimestamps();
-    if (!timestamps) {
+    try {
+      return this.parser.getTimestamps();
+    } catch (e) {
       throw new Error(
         `Timestamps expected to be available for this ${
           TRACE_INFO[this.type].name
         } trace.`,
       );
     }
-    return timestamps;
   }
 
   private convertToAbsoluteEntryIndex(

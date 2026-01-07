@@ -51,7 +51,7 @@ describe('PerfettoParserWindowManager', () => {
       makeRealTimestamp(1719409456922787137n),
       makeRealTimestamp(1719409456929933622n),
     ];
-    expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
+    expect(parser.getTimestamps().slice(0, 3)).toEqual(expected);
   });
 
   it('retrieves trace entry', async () => {

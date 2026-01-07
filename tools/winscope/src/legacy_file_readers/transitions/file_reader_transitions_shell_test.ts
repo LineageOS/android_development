@@ -38,7 +38,7 @@ describe('FileReaderTransitionsShell', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(reader.getTimestamps());
+    const timestamps = reader.getTimestamps();
     const zeroTs = makeRealTimestamp(0n);
     const expected = [
       makeRealTimestamp(1683188477607285317n),

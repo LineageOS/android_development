@@ -51,7 +51,7 @@ describe('FileReaderInputMethodClients', () => {
         makeRealTimestamp(1659107090249283325n),
         makeRealTimestamp(1659107090279417928n),
       ];
-      expect(reader.getTimestamps()?.slice(0, 3)).toEqual(expected);
+      expect(reader.getTimestamps().slice(0, 3)).toEqual(expected);
     });
 
     it('converts to valid perfetto packets', async () => {
@@ -74,7 +74,7 @@ describe('FileReaderInputMethodClients', () => {
         await convertToPerfettoTrace([reader], getTimestampConverter())
       )[0];
 
-      expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual([
+      expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual([
         makeRealTimestamp(1659107090215405395n),
         makeRealTimestamp(1659107090249283325n),
         makeRealTimestamp(1659107090279417928n),
@@ -110,7 +110,7 @@ describe('FileReaderInputMethodClients', () => {
     });
 
     it('provides timestamps', () => {
-      expect(assertDefined(reader.getTimestamps())[0]).toEqual(
+      expect(reader.getTimestamps()[0]).toEqual(
         makeElapsedTimestamp(1149083651642n),
       );
     });

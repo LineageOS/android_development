@@ -66,7 +66,10 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
     this.timestamps = this.decodeTimestamps();
   }
 
-  getTimestamps(): undefined | Timestamp[] {
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
     return this.timestamps;
   }
 

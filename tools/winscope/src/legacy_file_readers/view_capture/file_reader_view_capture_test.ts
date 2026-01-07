@@ -59,7 +59,7 @@ describe('FileReaderViewCapture', () => {
       makeRealTimestamp(1691692936301385080n),
       makeRealTimestamp(1691692936309419870n),
     ];
-    expect(assertDefined(reader.getTimestamps()).slice(0, 3)).toEqual(expected);
+    expect(reader.getTimestamps().slice(0, 3)).toEqual(expected);
   });
 
   it('converts to valid perfetto packets', async () => {
@@ -129,7 +129,7 @@ describe('FileReaderViewCapture', () => {
     const perfettoParser = (
       await convertToPerfettoTrace([reader], getTimestampConverter())
     )[0];
-    expect(perfettoParser.getTimestamps()?.slice(0, 3)).toEqual([
+    expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual([
       makeRealTimestamp(1691692936292808460n),
       makeRealTimestamp(1691692936301385080n),
       makeRealTimestamp(1691692936309419870n),

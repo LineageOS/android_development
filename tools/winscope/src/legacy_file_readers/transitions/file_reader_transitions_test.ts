@@ -58,7 +58,7 @@ describe('FileReaderTransitions', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(reader.getTimestamps());
+    const timestamps = reader.getTimestamps();
     const expected = [
       makeRealTimestamp(1683188477607285317n),
       makeRealTimestamp(1683188477785406289n),
@@ -85,7 +85,7 @@ describe('FileReaderTransitions', () => {
       converter,
     );
     mergedReader.read();
-    expect(mergedReader.getTimestamps()?.at(0)).toEqual(makeRealTimestamp(0n));
+    expect(mergedReader.getTimestamps().at(0)).toEqual(makeRealTimestamp(0n));
   });
 
   it('converts to valid perfetto packets', () => {

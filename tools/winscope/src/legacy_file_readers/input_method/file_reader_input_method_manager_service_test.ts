@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import Long from 'long';
 import {
   getTimestampConverter,
@@ -106,7 +105,7 @@ describe('FileReaderInputMethodManagerService', () => {
     });
 
     it('provides timestamps', () => {
-      expect(assertDefined(reader.getTimestamps())[0]).toEqual(
+      expect(reader.getTimestamps()[0]).toEqual(
         makeElapsedTimestamp(1149226290110n),
       );
     });

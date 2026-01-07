@@ -126,7 +126,10 @@ export abstract class AbstractParser<T> implements Parser<T>, FileReader {
     return this.lengthEntries;
   }
 
-  getTimestamps(): Timestamp[] | undefined {
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
     return this.timestamps;
   }
 

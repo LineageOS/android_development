@@ -68,7 +68,7 @@ describe('PerfettoParserSurfaceFlinger', () => {
         makeRealTimestamp(1659107089233029344n),
         makeRealTimestamp(1659107090005226366n),
       ];
-      const actual = assertDefined(parser.getTimestamps()).slice(0, 3);
+      const actual = parser.getTimestamps().slice(0, 3);
       expect(actual).toEqual(expected);
     });
 

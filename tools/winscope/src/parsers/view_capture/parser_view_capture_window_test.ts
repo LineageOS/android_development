@@ -53,14 +53,14 @@ describe('PerfettoParserViewCaptureWindow', () => {
   });
 
   it('provides timestamps', () => {
-    expect(assertDefined(parser.getTimestamps()).length).toBe(36);
-
+    const timestamps = parser.getTimestamps();
+    expect(timestamps.length).toBe(36);
     const expected = [
       makeRealTimestamp(1716828479973482553n),
       makeRealTimestamp(1716828479982373666n),
       makeRealTimestamp(1716828479986084197n),
     ];
-    expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
+    expect(timestamps.slice(0, 3)).toEqual(expected);
   });
 
   it('builds trace entry', async () => {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {getParserInput} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
@@ -56,7 +55,7 @@ describe('ParserInput', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = parser.getTimestamps();
     const expected = [
       makeRealTimestamp(1718386903800330430n),
       makeRealTimestamp(1718386903800330430n),

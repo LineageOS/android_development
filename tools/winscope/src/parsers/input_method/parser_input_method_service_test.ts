@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assertDefined} from '@common/assert';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
@@ -44,14 +43,14 @@ describe('PerfettoParserInputMethodService', () => {
   });
 
   it('provides timestamps', () => {
-    expect(assertDefined(parser.getTimestamps()).length).toBe(18);
-
+    const timestamps = parser.getTimestamps();
+    expect(timestamps.length).toBe(18);
     const expected = [
       makeRealTimestamp(1714659587709640744n),
       makeRealTimestamp(1714659588932531777n),
       makeRealTimestamp(1714659588933263019n),
     ];
-    expect(assertDefined(parser.getTimestamps()).slice(0, 3)).toEqual(expected);
+    expect(timestamps.slice(0, 3)).toEqual(expected);
   });
 
   it('retrieves trace entry', async () => {
