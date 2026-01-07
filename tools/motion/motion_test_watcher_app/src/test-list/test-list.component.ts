@@ -203,6 +203,10 @@ export class TestListComponent implements OnChanges {
     }
   }
 
+  isGoldenOpened(golden: MotionGolden): boolean {
+    return this.selectedGolden?.testMethodName == golden.testMethodName;
+  }
+
   isGoldenSelected(golden: MotionGolden): boolean {
     return this.selectedGoldenIds.has(golden.id);
   }
