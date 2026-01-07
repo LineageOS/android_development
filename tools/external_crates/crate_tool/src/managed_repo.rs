@@ -662,12 +662,23 @@ We apologize for the inconvenience."#,
         Ok(())
     }
     /// Update a crate to a newer version.
-    pub fn update(&self, crate_name: impl AsRef<str>, version: impl AsRef<str>) -> Result<()> {
+    pub fn update(
+        &self,
+        crate_name: impl AsRef<str>,
+        version: impl AsRef<str>,
+        allow_older: bool,
+    ) -> Result<()> {
         let crate_name = crate_name.as_ref();
         let version = Version::parse(version.as_ref())?;
 
         let pseudo_crate = self.pseudo_crate();
         let managed_crate = self.managed_crate_for(crate_name)?;
+        let android_version = managed_crate.android_version();
+
+        if !allow_older && *android_version >= version {
+            return Err(anyhow!("The requested version {version} of {crate_name} is not younger than the current version {android_version}. If this is intentional, please pass the flag --allow-older."));
+        }
+
         let mut crate_updates = vec![NameAndVersion::new(crate_name.to_string(), version.clone())];
 
         let cio_crate = self.crates_io.get_crate(crate_name)?;

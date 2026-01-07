@@ -47,7 +47,7 @@ limitations under the License.
 <ng-container>
   <view-capture-property-groups
     class="property-groups"
-    [properties]="curatedProperties"
+    [properties]="$any(curatedProperties)"
   ></view-capture-property-groups>
 
   @if (showPropertiesTree()) {
@@ -57,11 +57,11 @@ limitations under the License.
 } @if (showPropertiesTree()) {
 <tree-view
   class="tree"
-  [nodeRows]="nodeRows"
+  [nodeRows]="$any(nodeRows)"
   [useStoredExpandedState]="!!store"
   [itemsClickable]="true"
   [highlightedItem]="highlightedProperty"
-  (highlightedChange)="onHighlightedPropertyChange($event)"
+  (highlightedChange)="onHighlightedPropertyChange($any($event))"
 ></tree-view>
 } @if (showPlaceholderText()) {
 <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>

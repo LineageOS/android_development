@@ -15,7 +15,7 @@
  */
 import {CommonModule} from '@angular/common';
 import {Component, Input} from '@angular/core';
-import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 @Component({
   selector: 'coordinates-table',
@@ -25,7 +25,7 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
   styleUrls: ['coordinates_table_component.css'],
 })
 export class CoordinatesTableComponent {
-  @Input() coordinates: UiPropertyTreeNode | undefined;
+  @Input() coordinates: PropertyTreeNode | undefined;
 
   hasCoordinates() {
     return (

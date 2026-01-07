@@ -33,12 +33,12 @@ import {Warning} from '@common/warning';
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {TableProperties} from '@viewers/common/table_properties';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
-import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
@@ -48,6 +48,7 @@ import {TreeNodeComponent} from '@viewers/components/tree_node_component';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
 import {TreeComponent} from './tree_component';
+import {UiTreeNode} from '@viewers/common/ui_tree_node';
 
 @Component({
   selector: 'hierarchy-view',
@@ -74,7 +75,7 @@ export class HierarchyComponent {
   Analytics = Analytics;
   readonly treeStorage = new InMemoryStorage();
 
-  @Input() nodeRows: Array<UiTreeNodeRow<UiHierarchyTreeNode>> = [];
+  @Input() nodeRows: Array<FlattenedTreeRow<UiHierarchyTreeNode>> = [];
   @Input() tableProperties: TableProperties | undefined;
   @Input() dependencies: TraceType[] = [];
   @Input() highlightedItem = '';
@@ -105,14 +106,11 @@ export class HierarchyComponent {
 
   getWarnings(): Warning[] {
     return this.nodeRows.flatMap((row) => {
-      if (row.node instanceof UiHierarchyTreeNode) {
-        return row.node.getWarnings();
-      }
-      return [];
+      return row.node.getWarnings();
     });
   }
 
-  onPinnedNodeClick(event: MouseEvent, pinnedItem: UiHierarchyTreeNode) {
+  onPinnedNodeClick(event: MouseEvent, pinnedItem: UiTreeNode) {
     event.preventDefault();
     if (window.getSelection()?.type === 'range') {
       return;
@@ -128,10 +126,10 @@ export class HierarchyComponent {
     this.elementRef.nativeElement.dispatchEvent(event);
   }
 
-  onHighlightedItemChange(node: UiHierarchyTreeNode) {
+  onHighlightedItemChange(node: UiTreeNode) {
     const event = new CustomEvent(ViewerEvents.HighlightedNodeChange, {
       bubbles: true,
-      detail: {node},
+      detail: {node: node as UiHierarchyTreeNode},
     });
     this.elementRef.nativeElement.dispatchEvent(event);
   }
@@ -139,7 +137,7 @@ export class HierarchyComponent {
   onPinnedItemChange(item: UiHierarchyTreeNode) {
     const event = new CustomEvent(ViewerEvents.HierarchyPinnedChange, {
       bubbles: true,
-      detail: {pinnedItem: item},
+      detail: {pinnedItem: item as UiHierarchyTreeNode},
     });
     this.elementRef.nativeElement.dispatchEvent(event);
   }

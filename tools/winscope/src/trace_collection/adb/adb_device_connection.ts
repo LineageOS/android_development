@@ -30,7 +30,7 @@ export interface AdbDeviceConnectionListener {
 
 export abstract class AdbDeviceConnection {
   private static readonly MULTI_DISPLAY_SCREENRECORD_VERSION = '1.4';
-  protected state = AdbDeviceState.OFFLINE;
+  state = AdbDeviceState.OFFLINE;
   protected model = '';
   protected displays: string[] = [];
   protected multiDisplayScreenRecording = false;

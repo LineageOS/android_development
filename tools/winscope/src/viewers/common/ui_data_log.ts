@@ -20,7 +20,7 @@ import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UserOptions} from '@viewers/common/user_options';
 import {LogFilter} from './log_filters';
-import {UiTreeNodeRow} from './ui_tree_node_row';
+import {FlattenedTreeRow} from './flattened_tree_row';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 export interface UiDataLog {
@@ -32,7 +32,7 @@ export interface UiDataLog {
   checkScrollViewport: boolean;
 
   headers: LogHeader[];
-  propertyNodes?: Array<UiTreeNodeRow<UiPropertyTreeNode>> | undefined;
+  propertyNodes?: Array<FlattenedTreeRow<UiPropertyTreeNode>> | undefined;
   propertiesUserOptions?: UserOptions;
   propertiesFilter?: TextFilter;
   isDarkMode?: boolean;

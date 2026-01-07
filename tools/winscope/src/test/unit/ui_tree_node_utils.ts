@@ -15,9 +15,9 @@
  */
 
 import {TreeNode} from '@tree_node/tree_node';
-import {DiffNode} from '@viewers/common/diff_node';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {
   makeHierarchyNode,
   makePropertyNode,
@@ -68,8 +68,10 @@ export function treeNodeEqualityTester(
 }
 
 function testTreeNodes(node: TreeNode, expectedNode: TreeNode): boolean {
-  if ((node as DiffNode).getDiff && (expectedNode as DiffNode).getDiff) {
-    if ((node as DiffNode).getDiff() !== (expectedNode as DiffNode).getDiff()) {
+  if ((node as UiTreeNode).getDiff && (expectedNode as UiTreeNode).getDiff) {
+    if (
+      (node as UiTreeNode).getDiff() !== (expectedNode as UiTreeNode).getDiff()
+    ) {
       return false;
     }
   }

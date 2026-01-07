@@ -220,7 +220,12 @@ limitations under the License.
 
 <mat-divider></mat-divider>
 
-<mat-drawer-container autosize disableClose autoFocus style.background="var(--background-color)">
+<mat-drawer-container
+  autosize
+  disableClose
+  autoFocus
+  [style.background]="'var(--background-color)'"
+>
   <mat-drawer-content>
     @if (dataLoaded) {
     <trace-view class="viewers" [viewers]="viewers" [store]="persistentStore"></trace-view>

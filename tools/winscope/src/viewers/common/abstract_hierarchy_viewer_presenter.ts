@@ -60,7 +60,7 @@ import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
 import {flattenNodesToRows} from './ui_tree_node_helpers';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {UiTreeNodeRow} from './ui_tree_node_row';
+import {FlattenedTreeRow} from './flattened_tree_row';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 
@@ -628,7 +628,7 @@ export abstract class AbstractHierarchyViewerPresenter<
   }
 
   private flattenHierarchies():
-    | Array<UiTreeNodeRow<UiHierarchyTreeNode>>
+    | Array<FlattenedTreeRow<UiHierarchyTreeNode>>
     | undefined {
     const trees = this.hierarchyPresenter.getAllFormattedTrees();
     if (!trees) {
@@ -646,7 +646,7 @@ export abstract class AbstractHierarchyViewerPresenter<
   }
 
   private flattenProperties():
-    | Array<UiTreeNodeRow<UiPropertyTreeNode>>
+    | Array<FlattenedTreeRow<UiPropertyTreeNode>>
     | undefined {
     const tree = this.propertiesPresenter.getFormattedTree();
     if (!tree) {

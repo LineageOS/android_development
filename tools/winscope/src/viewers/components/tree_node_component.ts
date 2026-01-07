@@ -32,6 +32,7 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
+import {TreeNode} from '@tree_node/tree_node';
 
 @Component({
   selector: 'tree-node',
@@ -63,7 +64,7 @@ export class TreeNodeComponent {
   @Output() readonly toggleTreeChange = new EventEmitter<void>();
   @Output() readonly rectShowStateChange = new EventEmitter<void>();
   @Output() readonly expandTreeChange = new EventEmitter<void>();
-  @Output() readonly pinNodeChange = new EventEmitter<UiHierarchyTreeNode>();
+  @Output() readonly pinNodeChange = new EventEmitter<UiTreeNode>();
   @Output() readonly scrollChange = new EventEmitter<void>();
 
   collapseDiffClass = '';
@@ -89,12 +90,26 @@ export class TreeNodeComponent {
     return Array.from({length: depth}, (_, index) => index);
   }
 
+  isHierarchyTreeNode(): boolean {
+    return this.node instanceof UiHierarchyTreeNode;
+  }
+
   isPropertyTreeNode(): boolean {
     return this.node instanceof UiPropertyTreeNode;
   }
 
+  toPropertyTreeNode(input: TreeNode): UiPropertyTreeNode {
+    return input as UiPropertyTreeNode;
+  }
+
+  toHierarchyTreeNode(input: TreeNode): UiHierarchyTreeNode {
+    return input as UiHierarchyTreeNode;
+  }
+
   showPinNodeIcon(): boolean {
-    return this.node instanceof UiHierarchyTreeNode && !this.node.isRoot();
+    return (
+      this.node !== undefined && this.node.canBePinned() && !this.node.isRoot()
+    );
   }
 
   toggleTree(event: MouseEvent) {
@@ -118,7 +133,7 @@ export class TreeNodeComponent {
 
   pinNode(event: MouseEvent) {
     event.stopPropagation();
-    this.pinNodeChange.emit(assertDefined(this.node) as UiHierarchyTreeNode);
+    this.pinNodeChange.emit(assertDefined(this.node));
   }
 
   updateCollapseDiffClass(): string {
@@ -142,17 +157,9 @@ export class TreeNodeComponent {
 
   showCopyButton(): boolean {
     return (
-      this.node instanceof UiPropertyTreeNode &&
-      (this.node.isRoot() || !this.showChevron())
+      this.node?.getCopyText() !== undefined &&
+      (this.node?.isRoot() || !this.showChevron())
     );
-  }
-
-  getCopyText(): string {
-    const node = assertDefined(this.node) as UiPropertyTreeNode;
-    if (this.showChevron()) {
-      return node.name;
-    }
-    return `${node.name}: ${node.formattedValue()}`;
   }
 
   private getAllDiffTypesOfChildren(node: UiTreeNode): Set<DiffType> {

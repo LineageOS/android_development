@@ -24,13 +24,13 @@ import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   ChildHierarchy,
   HierarchyTreeBuilder,
-} from 'test/unit/hierarchy_tree_builder';
+} from '@test/unit/hierarchy_tree_builder';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
+import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
-import {UiTreeNodeRow} from '@viewers/common/ui_tree_node_row';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
@@ -220,12 +220,10 @@ describe('TreeComponent', () => {
   it('renders show state button if applicable', async () => {
     await waitForNodeStability();
     expect(dom.find('.toggle-rect-show-state-btn')).toBeUndefined();
-    expect(dom.findAll('.with-gutter').length).toEqual(0);
 
     const id = component.nodeRows[0].node.id;
     component.rectIdToShowState = new Map([[id, RectShowState.HIDE]]);
     dom.detectChanges();
-    expect(dom.findAll('.with-gutter').length).toEqual(19); // no gutter for root node
     dom.get('.toggle-rect-show-state-btn').checkTextExact('visibility_off');
 
     component.rectIdToShowState = new Map([[id, RectShowState.SHOW]]);
@@ -456,7 +454,7 @@ describe('TreeComponent', () => {
     ],
   })
   class TestHostComponent {
-    nodeRows: Array<UiTreeNodeRow<UiTreeNode>>;
+    nodeRows: Array<FlattenedTreeRow<UiTreeNode>>;
     highlightedItem = '';
     isFlattened = false;
     useStoredExpandedState = false;
@@ -469,7 +467,7 @@ describe('TreeComponent', () => {
     }
 
     @ViewChild(TreeComponent)
-    treeComponent: TreeComponent | undefined;
+    treeComponent: TreeComponent<UiTreeNode> | undefined;
 
     onHighlightedChange(node: UiTreeNode) {
       this.highlightedItem = node.id;

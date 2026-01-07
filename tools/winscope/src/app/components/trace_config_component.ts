@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {OverlayModule} from '@angular/cdk/overlay';
+import {CdkOverlayOrigin, OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   Inject,
   Input,
@@ -44,6 +43,7 @@ import {globalConfig} from '@common/global_config';
 import {Store} from '@common/store/store';
 import {
   AdvancedConfiguration,
+  CheckboxConfiguration,
   SelectionConfiguration,
   SelectionOption,
   TraceConfigurationMap,
@@ -74,7 +74,7 @@ import {AbstractSelectComponent} from '@viewers/components/abstract_select_compo
 })
 export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfiguration> {
   changeDetectionWorker: number | undefined;
-  advancedSettingsTrigger: ElementRef | undefined;
+  advancedSettingsTrigger: CdkOverlayOrigin | undefined;
   advancedSettingsKey: string | undefined;
 
   @Input() title: string | undefined;
@@ -214,10 +214,12 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
     this.onTraceConfigChange();
   }
 
-  onSettingsOverlayTriggerClick(traceKey: string, trigger: ElementRef) {
+  onSettingsOverlayTriggerClick(
+    traceKey: string,
+    trigger?: CdkOverlayOrigin,
+  ) {
     this.ngZone.run(() => {
       if (this.advancedSettingsKey === traceKey) {
-        this.advancedSettingsTrigger = undefined;
         this.advancedSettingsKey = undefined;
       } else {
         this.advancedSettingsTrigger = trigger;
@@ -233,6 +235,18 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
 
   isMultipleSelect(config: SelectionConfiguration): boolean {
     return Array.isArray(config.value);
+  }
+
+  asSelectionConfiguration(
+    config: AdvancedConfiguration,
+  ): SelectionConfiguration {
+    return config as SelectionConfiguration;
+  }
+
+  asCheckboxConfiguration(
+    config: AdvancedConfiguration,
+  ): CheckboxConfiguration {
+    return config as CheckboxConfiguration;
   }
 
   protected override onKeydownCtrlA(

@@ -29,7 +29,7 @@ limitations under the License.
         matTooltipPosition="above"
         [matTooltipShowDelay]="300"
       >
-        {{ titles.at(0)?.split(".")[0].split(" ")[0] ?? 'Screen recording'}}
+        {{ titles.at(0)?.split('.')?.[0]?.split(' ')?.[0] }}
       </span>
       } @else {
       <mat-select

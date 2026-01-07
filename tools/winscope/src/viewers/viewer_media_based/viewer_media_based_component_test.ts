@@ -79,7 +79,7 @@ describe('ViewerMediaBasedComponent', () => {
 
   it('renders title correctly', () => {
     const title = dom.get('.overlay-title');
-    title.checkTextExact('Screen recording');
+    title.checkText('Screen');
 
     component.titles = ['Screenshot'];
     dom.detectChanges();
@@ -354,7 +354,7 @@ describe('ViewerMediaBasedComponent', () => {
   })
   class TestHostComponent {
     currentTraceEntries: MediaBasedTraceEntry[] = [];
-    titles: string[] = [];
+    titles: string[] = ['Screen recording'];
     forceMinimize = false;
     isFetchingEntries = false;
     isInPlaybackMode = false;

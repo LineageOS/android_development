@@ -13,12 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
 @if (showStateIcon) {
 <div class="icon-wrapper-show-state">
   <button
     mat-icon-button
-    class="icon-button toggle-rect-show-state-btn"
+    class="icon-button toggle-rect-show-state-btn .no-touch-target-button"
     (click)="toggleRectShowState($event)"
   >
     <mat-icon class="material-symbols-outlined"> {{ showStateIcon }} </mat-icon>
@@ -59,10 +58,10 @@ limitations under the License.
 }
 
 <div class="description">
-  @if (node && !isPropertyTreeNode()) {
-  <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
-  } @else if (node) {
-  <property-tree-node-data-view [node]="node"></property-tree-node-data-view>
+  @if (node && isHierarchyTreeNode()) {
+  <hierarchy-tree-node-data-view [node]="toHierarchyTreeNode(node)"></hierarchy-tree-node-data-view>
+  } @else if (node && isPropertyTreeNode()) {
+  <property-tree-node-data-view [node]="toPropertyTreeNode(node)"></property-tree-node-data-view>
   }
 </div>
 
@@ -70,7 +69,7 @@ limitations under the License.
 <div class="icon-wrapper">
   <button
     mat-icon-button
-    class="icon-button expand-tree-btn"
+    class="icon-button expand-tree-btn no-touch-target-button"
     [class]="collapseDiffClass"
     (click)="expandTree($event)"
   >
@@ -81,8 +80,8 @@ limitations under the License.
 <div class="icon-wrapper-copy">
   <button
     mat-icon-button
-    class="icon-button copy-btn"
-    [cdkCopyToClipboard]="getCopyText()"
+    class="icon-button copy-btn no-touch-target-button"
+    [cdkCopyToClipboard]="node?.getCopyText()"
     (click)="$event.stopPropagation()"
   >
     <mat-icon class="material-symbols-outlined">content_copy</mat-icon>

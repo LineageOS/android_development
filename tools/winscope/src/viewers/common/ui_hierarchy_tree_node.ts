@@ -110,4 +110,16 @@ export class UiHierarchyTreeNode
   isLeaf(): boolean {
     return this.children.length === 0;
   }
+
+  hasShowState(): boolean {
+    return true;
+  }
+
+  getCopyText(): string | undefined {
+    return undefined;
+  }
+
+  canBePinned(): boolean {
+    return true;
+  }
 }

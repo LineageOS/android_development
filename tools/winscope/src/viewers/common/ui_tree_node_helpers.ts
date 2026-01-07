@@ -20,7 +20,7 @@ import {DiffType} from './diff_type';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {UiTreeNode} from './ui_tree_node';
-import {UiTreeNodeRow} from './ui_tree_node_row';
+import {FlattenedTreeRow} from './flattened_tree_row';
 
 export type TreeNodeFilter = (node: TreeNode) => boolean;
 
@@ -109,7 +109,7 @@ export function shouldGetProperties(node: UiHierarchyTreeNode): boolean {
 }
 
 /**
- * Flattens trees in DFS order to an array of UiTreeNodeRows, so we only have to
+ * Flattens trees in DFS order to an array of FlattenedTreeRows, so we only have to
  * render the subset of rows that is visible in the viewport.
  *
  * @param trees The trees to flatten.
@@ -119,20 +119,20 @@ export function shouldGetProperties(node: UiHierarchyTreeNode): boolean {
  * for rect show state controls in the UI.
  * @param highlightedId The current highlighted item id, used to determine highlight
  * depths to render vertical depth lines in the UI.
- * @return An array of UiTreeNodeRows in DFS order.
+ * @return An array of FlattenedTreeRows in DFS order.
  */
 export function flattenNodesToRows<T extends UiTreeNode>(
   trees: T[],
   processDepth: boolean,
   addGutter: boolean,
   highlightedId: string,
-): Array<UiTreeNodeRow<T>> {
-  const rowsDfs: Array<UiTreeNodeRow<T>> = [];
+): Array<FlattenedTreeRow<T>> {
+  const rowsDfs: Array<FlattenedTreeRow<T>> = [];
 
   const processNode = (node: UiTreeNode, depth: number) => {
     const storeKey = `${node.id}.collapsedState`;
     const offsetStyle = getNodeOffsetStyle(addGutter);
-    const row: UiTreeNodeRow<T> = {
+    const row: FlattenedTreeRow<T> = {
       node: node as T,
       storeKey,
       depth: processDepth ? depth : 0,

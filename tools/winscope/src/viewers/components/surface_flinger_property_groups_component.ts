@@ -34,6 +34,7 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {TransformMatrixComponent} from './transform_matrix_component';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 @Component({
   selector: 'surface-flinger-property-groups',
@@ -56,13 +57,17 @@ export class SurfaceFlingerPropertyGroupsComponent {
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
-  getTransformType(transformNode: UiPropertyTreeNode): string {
-    const typeFlags = transformNode.formattedValue();
+  getTransformType(transformNode: PropertyTreeNode | undefined): string {
+    const typeFlags = transformNode?.formattedValue() ?? 'null';
     return typeFlags !== 'null' ? typeFlags : 'IDENTITY';
   }
 
-  getTransformMatrix(transformNode: UiPropertyTreeNode): UiPropertyTreeNode {
-    return assertDefined(transformNode.getChildByName('matrix'));
+  getTransformMatrix(
+    transformNode: PropertyTreeNode | undefined,
+  ): UiPropertyTreeNode {
+    return UiPropertyTreeNode.from(
+      assertDefined(transformNode?.getChildByName('matrix')),
+    );
   }
 
   onIdClicked(layerNodeId: string) {

@@ -32,6 +32,7 @@
 // 0 2 * * * cargo run --manifest-path=$HOME/src/main-without-vendor/development/tools/crate-updater/Cargo.toml -- $HOME/src/main-for-crate-updates &> $HOME/crate-updater-`date +"\%Y-\%m-\%d"`.log
 
 use std::{
+    collections::HashMap,
     env,
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Output},
@@ -44,14 +45,18 @@ use clap::Parser;
 use crate_updater::UpdatesTried;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use regex::Regex;
 use serde::Deserialize;
-
+use std::collections::BTreeMap;
 #[derive(Parser)]
 struct Cli {
     /// Absolute path to a repo checkout of main-without-vendor.
     /// It is strongly recommended that you use a source tree dedicated to
     /// running this updater.
     android_root: PathBuf,
+    /// Send generated email to rotation mailing list
+    #[arg(long, default_value_t = false)]
+    rotation: bool,
 }
 
 pub trait SuccessOrError {
@@ -294,21 +299,38 @@ fn try_update(
     Ok(())
 }
 
-fn send_email(updates_tried_string: Vec<String>) -> Result<()> {
+fn send_email(body: String, rotation: bool) -> Result<()> {
     println!("Sending email");
     let username = env::var("USER").or_else(|_err| env::var("LOGNAME"))?;
+    let to = if rotation { "crate-update-rotation@google.com" } else { username.as_str() };
     Command::new("/google/bin/releases/gws-sre/files/sendgmr/sendgmr")
-        .args([
-            "--subject",
-            "Automated crate updates",
-            "--to",
-            username.as_str(),
-            "--inline_body",
-            updates_tried_string.join("\n").as_str(),
-        ])
+        .args(["--subject", "Automated crate updates", "--to", to, "--inline_body", &body])
         .run_and_stream_output()?;
 
     Ok(())
+}
+
+fn get_stalled_crates() -> Result<HashMap<String, String>> {
+    let mut stalled_crates = HashMap::new();
+    let bugged_path = Path::new("/usr/bin/bugged");
+    if !bugged_path.exists() {
+        panic!(
+            "/usr/bin/bugged is not installed. Please go install bugged. Instructions at go/bugged"
+        );
+    }
+    let output =
+        Command::new(bugged_path).args(["search", "hotlistid:7610355", "status:Open"]).output()?;
+    let output_string = String::from_utf8(output.stdout).unwrap();
+
+    let re = Regex::new(r"(\d+).+Stalled crate update:\s*([\w_-]+)\s*:\s*(\w+)").unwrap();
+    for (i, line) in re.captures_iter(&output_string).enumerate() {
+        let name = line.get(2).expect("NAME_NOT_FOUND").as_str();
+        let ticket = line.get(1).expect("TICKET_NOT_FOUND").as_str();
+        let reason = line.get(3).expect("REASON_NOT_FOUND").as_str();
+        stalled_crates.insert(name.to_string(), ticket.to_string());
+        println!("{:?}. {:?} ticket:{:?} reason:{:?}", i, name, ticket, reason);
+    }
+    return Ok(stalled_crates);
 }
 
 fn main() -> Result<()> {
@@ -319,6 +341,9 @@ fn main() -> Result<()> {
     if !args.android_root.is_dir() {
         bail!("Does not exist, or is not a directory: {}", args.android_root.display());
     }
+
+    let stalled_crates = get_stalled_crates().unwrap_or_default();
+
     let monorepo_path = args.android_root.join("external/rust/android-crates-io");
 
     cleanup_and_sync_monorepo(&monorepo_path)?;
@@ -336,11 +361,19 @@ fn main() -> Result<()> {
 
     let mut updates_tried = UpdatesTried::read(&monorepo_path)?;
     let mut updates_tried_string = Vec::new();
+
+    let mut targeted_crates = BTreeMap::new();
+    let mut cl_crates = BTreeMap::new();
     for suggestion in get_suggestions(&monorepo_path)? {
         let crate_name = suggestion.name.as_str();
         let version = suggestion.version.as_str();
-        if updates_tried.contains(crate_name, version) {
+
+        if !args.rotation && updates_tried.contains(crate_name, version) {
             println!("Skipping {crate_name} (already attempted recently)");
+            continue;
+        }
+        if stalled_crates.contains_key(crate_name) {
+            println!("Skipping {crate_name} (stalled crate)");
             continue;
         }
         cleanup_and_sync_monorepo(&monorepo_path)?;
@@ -350,13 +383,40 @@ fn main() -> Result<()> {
             "{} {}{}",
             suggestion.name,
             suggestion.version,
-            if res.is_ok() { "" } else { " failed" }
+            if res.is_ok() {
+                cl_crates.insert(suggestion.name.clone(), suggestion.version.clone());
+                " passed local testing. A CL was generated"
+            } else {
+                targeted_crates.insert(suggestion.name.clone(), suggestion.version.clone());
+                "failed."
+            }
         ));
         updates_tried.record(suggestion.name, suggestion.version, res.is_ok())?;
     }
     cleanup_and_sync_monorepo(&monorepo_path)?;
 
-    send_email(updates_tried_string)?;
+    let mut cl_crates_string = Vec::new();
+    for (i, (name, version)) in cl_crates.iter().enumerate() {
+        cl_crates_string.push(format!("{}. {} {}", i + 1, name, version));
+        targeted_crates.remove(name);
+    }
+
+    let mut targeted_crates_string = Vec::new();
+    for (i, (name, version)) in targeted_crates.iter().enumerate() {
+        targeted_crates_string.push(format!("{}. {} {}", i + 1, name, version));
+    }
+    let line = "-----------------------------------------------------\n";
+    let body = "Please try manually updating the following crates\n".to_owned()
+        + line
+        + targeted_crates_string.join("\n").as_str()
+        + "\n\n\n\nA CL was generated for the following crates\n"
+        + line
+        + cl_crates_string.join("\n").as_str()
+        + "\n\n\n\nHere are the results of running the automatic updater\n"
+        + line
+        + updates_tried_string.join("\n").as_str();
+
+    send_email(body, args.rotation)?;
 
     Ok(())
 }
