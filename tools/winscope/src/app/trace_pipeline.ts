@@ -358,7 +358,7 @@ export class TracePipeline
       tryIdentifyNonPerfetto,
       tryIdentifyPerfetto,
     );
-    warnings.push(...(identifiedFiles.criticalWarnings ?? []));
+    warnings.push(...identifiedFiles.criticalWarnings);
 
     if (
       identifiedFiles.perfetto === undefined &&

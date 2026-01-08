@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {TimezoneInfo} from '@common/time/time';
 import {
   makeWarningNoValidFiles,
@@ -328,7 +327,7 @@ describe('TraceFileIdentifier', () => {
         (file) => tryIdentifyPerfetto(file, [perfettoSysTrace]),
       );
       expect(result.perfetto[0].getFiles()).toEqual([perfettoSysTrace]);
-      expect(result.criticalWarnings?.length).toBe(0); // No warnings expected
+      expect(result.criticalWarnings.length).toBe(0); // No warnings expected
       userNotifierChecker.expectNone();
     });
 
@@ -510,9 +509,8 @@ describe('TraceFileIdentifier', () => {
     );
 
     expect(result.perfetto.length).toBe(0);
-    expect(result.criticalWarnings).toBeDefined();
-    expect(result.criticalWarnings?.length).toBe(1);
-    const warning = assertDefined(result.criticalWarnings)[0];
+    expect(result.criticalWarnings.length).toBe(1);
+    const warning = result.criticalWarnings[0];
     expect(warning).toEqual(
       makeWarningMissingPersistentTrace({
         buildType,
