@@ -35,7 +35,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {FilesSource} from './files_source';
-import {TracePipeline} from './trace_pipeline';
+import {TracePipeline} from './loaded_file_data';
 import {TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';

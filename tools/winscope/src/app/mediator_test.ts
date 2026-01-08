@@ -101,7 +101,7 @@ import {ViewerFactory} from '@viewers/viewer_factory';
 import {ViewerStub} from '@viewers/viewer_stub';
 import {Mediator} from './mediator';
 import {TimelineData} from './timeline_data';
-import {TracePipeline} from './trace_pipeline';
+import {TracePipeline} from './loaded_file_data';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';

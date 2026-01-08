@@ -92,7 +92,7 @@ import {View, Viewer, ViewType} from '@viewers/viewer';
 import {ViewerFactory} from '@viewers/viewer_factory';
 import {FilesSource} from './files_source';
 import {TimelineData} from './timeline_data';
-import {TracePipeline} from './trace_pipeline';
+import {TracePipeline} from './loaded_file_data';
 import {TraceSearchInitializer} from './trace_search/trace_search_initializer';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';

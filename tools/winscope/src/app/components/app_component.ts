@@ -42,7 +42,7 @@ import {AbtChromeExtensionProtocol} from '@abt_chrome_extension/abt_chrome_exten
 import {GlobalErrorHandler} from '@app/global_error_handler';
 import {Mediator} from '@app/mediator';
 import {TimelineData} from '@app/timeline_data';
-import {TracePipeline} from '@app/trace_pipeline';
+import {TracePipeline} from '@app/loaded_file_data';
 import {DownloadRequest, downloadFromUrl} from '@common/download';
 import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
 import {globalConfig} from '@common/global_config';
