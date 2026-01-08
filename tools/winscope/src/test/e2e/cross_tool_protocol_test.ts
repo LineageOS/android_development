@@ -27,6 +27,7 @@ import {
 } from './helpers';
 
 describe('Cross-Tool Protocol', () => {
+  const TIMESTAMP_IN_FILES_MESSAGE_REALTIME = '1659107090327674405';
   const DEFAULT_TIMEOUT_MS = 40000;
 
   beforeEach(async () => {
@@ -73,7 +74,6 @@ describe('Cross-Tool Protocol', () => {
 
   it('allows communication with Perfetto', async () => {
     // real-to-boottime offset = 1659107074601779989
-    const TIMESTAMP_IN_FILES_MESSAGE_REALTIME = '1659107090327674405';
     const TIMESTAMP_FROM_PERFETTO_BOOTTIME = '15795654466';
     const TIMESTAMP_FROM_PERFETTO_REALTIME = '1659107090397434455';
     const TIMESTAMP_FROM_WINSCOPE_BOOTTIME = '15970486213';
@@ -98,7 +98,6 @@ describe('Cross-Tool Protocol', () => {
 
   it('can turn timestamp sync off/on', async () => {
     // real-to-boottime offset = 1659107074601779989
-    const TIMESTAMP_IN_FILES_MESSAGE_REALTIME = '1659107090327674405';
     const TIMESTAMP_FROM_PERFETTO_BOOTTIME = '15725894416';
 
     await openWinscopeTabFromRemoteTool();
