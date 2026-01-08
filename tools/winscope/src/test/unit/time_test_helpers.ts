@@ -33,10 +33,7 @@ export const ASIA_TIMEZONE_INFO: TimezoneInfo = {
  */
 export const UTC_CONVERTER = new TimestampConverter(UTC_TIMEZONE_INFO, 0n, 0n);
 
-const noRTEOffset = new TimestampConverter({
-  timezone: 'UTC',
-  locale: 'en-US',
-});
+const noRTEOffset = new TimestampConverter(UTC_TIMEZONE_INFO);
 
 /**
  * A TimestampConverter with a UTC offset for Asia/Kolkata timezone.
@@ -45,10 +42,7 @@ export const TIMESTAMP_CONVERTER_WITH_UTC_OFFSET = new TimestampConverter(
   ASIA_TIMEZONE_INFO,
   0n,
   0n,
-  new TimestampConverter({
-    timezone: 'UTC',
-    locale: 'en-US',
-  }).makeTimestampFromRealNs(0n),
+  new TimestampConverter(UTC_TIMEZONE_INFO).makeTimestampFromRealNs(0n),
 );
 
 /**

@@ -35,6 +35,7 @@ import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {ASIA_TIMEZONE_INFO} from '@test/unit/time_test_helpers';
 
 describe('TraceFileIdentifier', () => {
   const identifier = new TraceFileIdentifier<FileReader>();
@@ -227,10 +228,7 @@ describe('TraceFileIdentifier', () => {
       );
       expect(result.legacy.flatMap((f) => f.getFiles())).toEqual([legacyFile]);
       expect(result.perfetto.length).toBe(0);
-      expect(identifiedTimezoneInfo).toEqual({
-        timezone: 'Asia/Kolkata',
-        locale: 'en-US',
-      });
+      expect(identifiedTimezoneInfo).toEqual(ASIA_TIMEZONE_INFO);
       userNotifierChecker.expectNone();
     });
 

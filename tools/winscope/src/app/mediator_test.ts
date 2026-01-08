@@ -16,7 +16,6 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {TimezoneInfo} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
 import {ProgressListener} from '@messaging/progress_listener';
@@ -87,6 +86,7 @@ import {WinscopeEventListenerStub} from '@messaging/winscope_event_listener_stub
 import {getFixtureFile} from '@test/unit/io_helpers';
 import {mixin} from '@test/unit/mixin_helpers';
 import {
+  ASIA_TIMEZONE_INFO,
   makeRealTimestamp,
   makeZeroTimestamp,
 } from '@test/unit/time_test_helpers';
@@ -479,11 +479,7 @@ describe('Mediator', () => {
   });
 
   it('propagates trace position update according to timezone', async () => {
-    const timezoneInfo: TimezoneInfo = {
-      timezone: 'Asia/Kolkata',
-      locale: 'en-US',
-    };
-    const converter = new TimestampConverter(timezoneInfo, 0n);
+    const converter = new TimestampConverter(ASIA_TIMEZONE_INFO, 0n);
     spyOn(tracePipeline, 'getTimestampConverter').and.returnValue(converter);
     await loadFiles();
     await loadTraceView();

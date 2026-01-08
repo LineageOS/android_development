@@ -15,8 +15,11 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {Timestamp, TimezoneInfo} from '@common/time/time';
-import {TimestampConverter} from '@common/time/timestamp_converter';
+import {Timestamp} from '@common/time/time';
+import {
+  TimestampConverter,
+  UTC_TIMEZONE_INFO,
+} from '@common/time/timestamp_converter';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {RemoteToolTimestampReceived} from './remote_tool_events';
 import {CrossToolProtocol} from './cross_tool_protocol';
@@ -170,17 +173,11 @@ Check the test run artifacts for trace files
 
   function setUpTestEnvironment() {
     emittedEvent = undefined;
-
-    const timezoneInfo: TimezoneInfo = {
-      timezone: 'UTC',
-      locale: 'en-US',
-    };
-    timestampConverter = new TimestampConverter(timezoneInfo, 0n);
+    timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO, 0n);
     protocol = new CrossToolProtocol(timestampConverter);
     protocol.setEmitEvent(async (event) => {
       emittedEvent = event;
     });
-
     spyOn(window, 'postMessage');
   }
 });
