@@ -133,7 +133,7 @@ describe('LoadedFiles', () => {
     .build();
   const perfettoFilename = 'perfetto trace';
 
-  let loadedReaders: LoadedFiles<FileReader>;
+  let loadedFiles: LoadedFiles<FileReader>;
   let userNotifierChecker: UserNotifierChecker;
 
   beforeAll(() => {
@@ -141,8 +141,7 @@ describe('LoadedFiles', () => {
   });
 
   beforeEach(() => {
-    loadedReaders = new LoadedFiles();
-    expect(loadedReaders.getNonLegacyFileReaders().length).toBe(0);
+    loadedFiles = new LoadedFiles();
     userNotifierChecker.reset();
   });
 
@@ -484,10 +483,10 @@ describe('LoadedFiles', () => {
     loadReaders([legacyReaderSf0], [], [legacyReaderWm0]);
     expectLoadResult([legacyReaderSf0], [legacyReaderWm0], []);
 
-    loadedReaders.remove(legacyReaderWm0);
+    loadedFiles.remove(legacyReaderWm0);
     expectLoadResult([legacyReaderSf0], [], []);
 
-    loadedReaders.remove(legacyReaderSf0);
+    loadedFiles.remove(legacyReaderSf0);
     expectLoadResult([], [], []);
   });
 
@@ -557,7 +556,7 @@ describe('LoadedFiles', () => {
     expectLoadResult([], [legacyReaderSf0, legacyReaderWm0], []);
 
     const progressSpy = jasmine.createSpy();
-    await loadedReaders.makeZipArchive(progressSpy);
+    await loadedFiles.makeZipArchive(progressSpy);
 
     expect(progressSpy).toHaveBeenCalledTimes(5);
     expect(progressSpy).toHaveBeenCalledWith(0);
@@ -576,7 +575,7 @@ describe('LoadedFiles', () => {
     perfetto.forEach((file) => {
       spyOn(file, 'getFiles').and.returnValue([perfettoTraceFile]);
     });
-    loadedReaders.addFiles(legacy, nonPerfetto, perfetto);
+    loadedFiles.addFiles(legacy, nonPerfetto, perfetto);
   }
 
   function expectLoadResult(
@@ -584,13 +583,15 @@ describe('LoadedFiles', () => {
     expectedNonLegacyReaders: FileReader[],
     expectedWarnings: UserWarning[],
   ) {
-    const legacyReaders = loadedReaders.getLegacyFileReaders();
+    const legacyReaders = loadedFiles.getLegacyFileReaders();
     expect(legacyReaders.length).toEqual(expectedLegacyReaders.length);
     expect(new Set([...legacyReaders])).toEqual(
       new Set([...expectedLegacyReaders]),
     );
 
-    const nonLegacyReaders = loadedReaders.getNonLegacyFileReaders();
+    const nonLegacyReaders = loadedFiles
+      .getPerfettoFileReaders()
+      .concat(loadedFiles.getNonPerfettoFileReaders());
     expect(nonLegacyReaders.length).toEqual(expectedNonLegacyReaders.length);
     expect(new Set([...nonLegacyReaders])).toEqual(
       new Set([...expectedNonLegacyReaders]),
@@ -600,7 +601,7 @@ describe('LoadedFiles', () => {
   }
 
   async function expectDownloadResult(expectedArchiveContents: string[]) {
-    const zipArchive = await loadedReaders.makeZipArchive();
+    const zipArchive = await loadedFiles.makeZipArchive();
     const actualArchiveContents = (await unzipFile(zipArchive))
       .map((file) => file.name)
       .sort();

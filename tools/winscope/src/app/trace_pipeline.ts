@@ -171,11 +171,11 @@ export class TracePipeline
   }
 
   private async tryMergeInputEvents() {
-    const nonLegacy = this.loadedFiles.getNonLegacyFileReaders();
-    const parserKey = nonLegacy.find((p) => {
+    const perfetto = this.loadedFiles.getPerfettoFileReaders();
+    const parserKey = perfetto.find((p) => {
       return p.getTraceType() === TraceType.INPUT_KEY_EVENT;
     });
-    const parserMotion = nonLegacy.find((p) => {
+    const parserMotion = perfetto.find((p) => {
       return p.getTraceType() === TraceType.INPUT_MOTION_EVENT;
     });
     if (!parserKey || !parserMotion) {
@@ -249,7 +249,8 @@ export class TracePipeline
 
   getLoadedFileReaders(): FileReader[] {
     return [
-      ...this.loadedFiles.getNonLegacyFileReaders(),
+      ...this.loadedFiles.getPerfettoFileReaders(),
+      ...this.loadedFiles.getNonPerfettoFileReaders(),
       ...this.loadedFiles.getLegacyFileReaders(),
     ];
   }
@@ -306,7 +307,10 @@ export class TracePipeline
   }
 
   onDestroy() {
-    this.loadedFiles.getNonLegacyFileReaders().forEach((reader) => {
+    this.loadedFiles.getNonPerfettoFileReaders().forEach((reader) => {
+      reader.onDestroy?.();
+    });
+    this.loadedFiles.getPerfettoFileReaders().forEach((reader) => {
       reader.onDestroy?.();
     });
   }
@@ -533,8 +537,12 @@ export class TracePipeline
   }
 
   buildTraces() {
+    const parsers = [
+      ...this.loadedFiles.getPerfettoFileReaders(),
+      ...this.loadedFiles.getNonPerfettoFileReaders(),
+    ];
     const traces = new Traces();
-    this.loadedFiles.getNonLegacyFileReaders().forEach((parser) => {
+    parsers.forEach((parser) => {
       const trace = Trace.fromParser(parser);
       traces.addTrace(trace);
       Analytics.Tracing.logTraceLoaded(parser);
@@ -548,9 +556,7 @@ export class TracePipeline
     const readers = this.loadedFiles.getLegacyFileReaders();
     const allReaders = [
       ...readers,
-      ...this.loadedFiles
-        .getNonLegacyFileReaders()
-        .filter((r) => r.isPerfetto()),
+      ...this.loadedFiles.getPerfettoFileReaders(),
     ];
 
     const converter = new LegacyToPerfettoConverter()

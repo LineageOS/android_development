@@ -95,8 +95,12 @@ export class LoadedFiles<T extends FileReader> {
     return this.legacyReaders;
   }
 
-  getNonLegacyFileReaders(): T[] {
-    return this.perfettoReaders.concat(this.nonPerfettoReaders);
+  getNonPerfettoFileReaders(): T[] {
+    return this.nonPerfettoReaders;
+  }
+
+  getPerfettoFileReaders(): T[] {
+    return this.perfettoReaders;
   }
 
   getPerfettoFile(): TraceFile | undefined {
