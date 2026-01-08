@@ -1066,12 +1066,14 @@ describe('TimelineComponent', () => {
     const trace = makeEmptyTrace<HierarchyTreeNode>(TraceType.SEARCH);
 
     await timelineComponent.onWinscopeEvent(new TraceAddRequest(trace));
+    dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
     expect(timelineComponent.sortedTraces).not.toEqual(initialTraces);
     expect(timelineComponent.sortedTraces[0]).toEqual(trace);
     expectSelectedTraceTypes([TraceType.SEARCH, TraceType.SURFACE_FLINGER]);
 
     await timelineComponent.onWinscopeEvent(new TraceRemoveRequest(trace));
+    dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(2);
     expect(timelineComponent.sortedTraces).toEqual(initialTraces);
     expectSelectedTraceTypes([TraceType.SURFACE_FLINGER]);
