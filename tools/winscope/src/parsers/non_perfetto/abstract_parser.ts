@@ -1,0 +1,133 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {getLogger} from '@compat/logging';
+import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
+import {Timestamp} from '@common/time/time';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {
+  CustomQueryParamTypeMap,
+  CustomQueryParserResultTypeMap,
+  CustomQueryType,
+} from '@trace_api/custom_query';
+import {EntriesRange} from '@trace_api/index_types';
+import {Parser} from '@trace_api/parser';
+import {TraceType} from '@trace_api/trace_type';
+import {QueryResult, QueryResults} from '@trace_processor/query_result';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace/trace_file';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {Logger} from 'typescript-logging-log4ts-style';
+
+export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
+  private timestamps: Timestamp[] | undefined;
+  protected traceFile: TraceFile;
+  protected decodedEntries: T[] = [];
+  protected timestampConverter: ParserTimestampConverter;
+  protected readonly metadata: TraceMetadata | undefined;
+
+  constructor(
+    trace: TraceFile,
+    timestampConverter: ParserTimestampConverter,
+    metadata?: TraceMetadata,
+    protected logger: Logger = getLogger('AbstractNonPerfettoParser'),
+  ) {
+    this.traceFile = trace;
+    this.timestampConverter = timestampConverter;
+    this.metadata = metadata;
+  }
+
+  onDestroy() {
+    // do nothing
+  }
+
+  async parse() {
+    const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
+    throwIfMagicNumberDoesNotMatch(traceBuffer, this.getMagicNumber());
+    this.decodedEntries = await this.decodeTrace(traceBuffer);
+  }
+
+  getFiles(): TraceFile[] {
+    return [this.traceFile];
+  }
+
+  getDescriptors(): string[] {
+    return [this.traceFile.getDescriptor()];
+  }
+
+  getLengthEntries(): number {
+    return this.decodedEntries.length;
+  }
+
+  createTimestamps() {
+    this.timestamps = this.decodeTimestamps();
+  }
+
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
+    return this.timestamps;
+  }
+
+  isPerfetto(): boolean {
+    return false;
+  }
+
+  getAllEntries(): Promise<U[]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  async getEntry(index: number): Promise<U> {
+    return this.processDecodedEntry(index);
+  }
+
+  getRangeOfEntries(entriesRange: EntriesRange): Promise<U[]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  getQueryResults(
+    entriesRange: EntriesRange,
+    queryRawData: boolean,
+  ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  customQuery<Q extends CustomQueryType>(
+    type: Q,
+    entriesRange: EntriesRange,
+    param?: CustomQueryParamTypeMap[Q],
+  ): Promise<CustomQueryParserResultTypeMap[Q]> {
+    throw NOT_IMPLEMENTED_ERROR;
+  }
+
+  private decodeTimestamps(): Timestamp[] {
+    return this.decodedEntries.map((entry) => this.getTimestamp(entry));
+  }
+
+  abstract getTraceType(): TraceType;
+  abstract getRealToBootTimeOffsetNs(): bigint | undefined;
+  abstract getRealToMonotonicTimeOffsetNs(): bigint | undefined;
+  abstract getCoarseVersion(): CoarseVersion;
+
+  protected abstract processDecodedEntry(index: number): Promise<U>;
+  protected abstract getMagicNumber(): undefined | number[];
+  protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
+  protected abstract getTimestamp(decodedEntry: T): Timestamp;
+}

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
-import {makeWarningTraceSearchQueryFailed} from '@parsers/warnings';
-import {ParserSurfaceFlinger} from '@parsers/surface_flinger/perfetto/parser_surface_flinger';
+import {makeWarningTraceSearchQueryFailed} from '@parsers/helpers/warnings';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
@@ -77,7 +76,7 @@ describe('ParserSearch', () => {
         makeElapsedTimestamp(14631249355n),
         makeElapsedTimestamp(15403446377n),
       ];
-      const actual = assertDefined(parser.getTimestamps()).slice(0, 3);
+      const actual = parser.getTimestamps().slice(0, 3);
       expect(actual).toEqual(expected);
       userNotifierChecker.expectNone();
     });

@@ -30,7 +30,7 @@ import {PersistentStore} from '@common/store/persistent_store';
 import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
-} from '@parsers/warnings';
+} from '@parsers/helpers/warnings';
 import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
 import {TRACE_INFO} from '@trace_api/trace_info';

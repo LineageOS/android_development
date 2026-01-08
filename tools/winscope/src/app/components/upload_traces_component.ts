@@ -29,7 +29,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {TracePipeline} from '@app/trace_pipeline';
 import {Store} from '@common/store/store';
 import {ProgressListener} from '@messaging/progress_listener';
 import {AppTraceViewRequest, AppTraceViewRequestHandled} from '@app/app_events';
@@ -37,13 +36,15 @@ import {ShowTraceUploadWarning} from '@trace/trace_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {getLogger} from '@compat/logging';
-import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {
   isTraceTypeWithViewer,
   getReasonForNoTraceVisualization,
+  TraceType,
 } from '@trace_api/trace_type';
 import {LoadProgressComponent} from './load_progress_component';
+import {FileReader} from '@trace_api/file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 /**
  * A component for uploading traces.
@@ -81,12 +82,13 @@ export class UploadTracesComponent
     'Unless "Discard legacy traces" is selected, this trace will be converted ' +
     'to a Perfetto trace when you click "View traces".';
 
-  @Input() tracePipeline: TracePipeline | undefined;
+  @Input() loadedFileReaders: FileReader[] | undefined;
   @Input() storage: Store | undefined;
   @Output() filesUploaded = new EventEmitter<File[]>();
   @Output() viewTracesButtonClick = new EventEmitter<boolean>();
   @Output() downloadTracesClick = new EventEmitter<void>();
-  @Output() clearAllTraces = new EventEmitter<void>();
+  @Output() removeTrace = new EventEmitter<FileReader>();
+  @Output() removeAllTraces = new EventEmitter<void>();
 
   private readonly discardLegacyStoreKey = 'discardLegacyTraces';
 
@@ -101,8 +103,12 @@ export class UploadTracesComponent
       this.discardLegacyTraces =
         storedValue === 'true' || storedValue === undefined;
     }
-    this.clearAllTraces.emit();
+    this.removeAllTraces.emit();
     this.clearAllWarnings();
+  }
+
+  hasLoadedFiles(): boolean {
+    return (this.loadedFileReaders?.length ?? 0) > 0;
   }
 
   updateDiscardLegacyTraces() {
@@ -185,7 +191,7 @@ export class UploadTracesComponent
   }
 
   onClearButtonClick() {
-    this.clearAllTraces.emit();
+    this.removeAllTraces.emit();
     this.clearAllWarnings();
     this.onOperationFinished();
   }
@@ -211,26 +217,20 @@ export class UploadTracesComponent
     this.filesUploaded.emit(Array.from(droppedFiles));
   }
 
-  onRemoveTrace(event: MouseEvent, trace: Trace<unknown>) {
+  onRemoveTrace(event: MouseEvent, reader: FileReader) {
     event.preventDefault();
     event.stopPropagation();
-    this.tracePipeline?.removeTrace(trace);
+    this.removeTrace.emit(reader);
     this.onOperationFinished();
-    if (this.tracePipeline?.getTraces().getSize() === 0) {
-      this.clearAllTraces.emit();
-    }
   }
 
   hasLoadedFilesWithViewers(): boolean {
     return this.ngZone.run(() => {
-      let hasFilesWithViewers = false;
-      this.tracePipeline?.getTraces().forEachTrace((trace) => {
-        if (!trace.isCorrupted() && isTraceTypeWithViewer(trace.type)) {
-          hasFilesWithViewers = true;
-        }
-      });
-
-      return hasFilesWithViewers;
+      return (
+        this.loadedFileReaders?.some((reader) => {
+          return isTraceTypeWithViewer(reader.getTraceType());
+        }) ?? false
+      );
     });
   }
 
@@ -238,28 +238,26 @@ export class UploadTracesComponent
     if (this.isViewTracesButtonDisabled()) {
       return true;
     }
-    return !this.tracePipeline?.hasConvertibleLegacyTraces();
+    const isDisabled = !this.loadedFileReaders?.some((reader) => {
+      return this.isLegacyTrace(reader);
+    });
+    return isDisabled;
   }
 
   isViewTracesButtonDisabled(): boolean {
     return this.viewersLoading || !this.hasLoadedFilesWithViewers();
   }
 
-  canVisualizeTrace(trace: Trace<unknown>): boolean {
-    return isTraceTypeWithViewer(trace.type);
+  canVisualizeTrace(traceType: TraceType): boolean {
+    return isTraceTypeWithViewer(traceType);
   }
 
-  isLegacyTrace(trace: Trace<unknown>): boolean {
-    return !trace.isPerfetto() && trace.getParser().canConvertToPerfetto();
+  isLegacyTrace(reader: FileReader): boolean {
+    return (reader as LegacyFileReader).convertToPerfettoPackets !== undefined;
   }
 
-  cannotVisualizeTraceTooltip(trace: Trace<unknown>): string {
-    return getReasonForNoTraceVisualization(trace.type);
-  }
-
-  traceErrorTooltip(trace: Trace<unknown>): string {
-    const reason = trace.getCorruptedReason() ?? 'Trace is corrupted.';
-    return 'Cannot visualize trace. ' + reason;
+  cannotVisualizeTraceTooltip(traceType: TraceType): string {
+    return getReasonForNoTraceVisualization(traceType);
   }
 
   clearWarning(index: number) {

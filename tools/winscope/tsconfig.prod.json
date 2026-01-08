@@ -3,6 +3,5 @@
   "files": [
     "src/main_prod.ts",
     "src/polyfills.ts",
-    "src/parsers/trace_entry_value_builder.ts"
   ]
 }

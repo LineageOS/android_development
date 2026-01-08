@@ -14,79 +14,44 @@
  * limitations under the License.
  */
 
-import {searchSubarray} from '@common/typed_array';
 import {Timestamp} from '@common/time/time';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
-import {
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {TraceType} from '@trace_api/trace_type';
+
 import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
-import {timestampToVideoTimeSeconds} from '@trace/media_based/helpers';
-import {Thumbnail} from '@trace/media_based/thumbnail';
-import {ThumbnailGenerator} from './thumbnail_generator';
+import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
+import {CoarseVersion} from '@trace_api/coarse_version';
 
-export class ParserScreenRecordingLegacy extends AbstractParser<
-  MediaBasedTraceEntry,
-  bigint
-> {
-  private thumbnail: Thumbnail | undefined;
-  private thumbnailGenerator: ThumbnailGenerator | undefined;
-
-  onDestroy() {
-    this.thumbnail?.onDestroy();
-    this.thumbnailGenerator?.onDestroy();
-  }
-
-  override getTraceType(): TraceType {
-    return TraceType.SCREEN_RECORDING;
-  }
-
+export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
   override getMagicNumber(): number[] {
     return ParserScreenRecordingLegacy.MPEG4_MAGIC_NUMBER;
-  }
-
-  override getRealToMonotonicTimeOffsetNs(): bigint | undefined {
-    return undefined;
   }
 
   override getRealToBootTimeOffsetNs(): bigint | undefined {
     return undefined;
   }
 
-  override async decodeTrace(videoData: Uint8Array): Promise<Array<bigint>> {
-    const posCount = this.searchMagicString(videoData);
+  override getCoarseVersion(): CoarseVersion {
+    return CoarseVersion.LEGACY;
+  }
+
+  protected override async decodeTrace(
+    videoData: Uint8Array,
+  ): Promise<Array<bigint>> {
+    const posCount = this.searchMagicString(
+      videoData,
+      ParserScreenRecordingLegacy.WINSCOPE_META_MAGIC_STRING,
+    );
+    if (posCount === undefined) {
+      throw new TypeError("video data doesn't contain winscope magic string");
+    }
     const [posTimestamps, count] = parseIntFromBuffer(videoData, posCount);
     const timestamps = this.parseVideoData(videoData, posTimestamps, count);
     this.queueThumbnailGeneration(videoData);
     return timestamps;
   }
 
-  override async processDecodedEntry(
-    index: number,
-    entry: bigint,
-  ): Promise<MediaBasedTraceEntry> {
-    const time = timestampToVideoTimeSeconds(this.decodedEntries[0], entry);
-    const videoData = this.traceFile.file;
-    return new VideoEntry(videoData, time, this.thumbnail);
-  }
-
   protected override getTimestamp(decodedEntry: bigint): Timestamp {
     return this.timestampConverter.makeTimestampFromMonotonicNs(decodedEntry);
-  }
-
-  private searchMagicString(videoData: Uint8Array): number {
-    let pos = searchSubarray(
-      videoData,
-      ParserScreenRecordingLegacy.WINSCOPE_META_MAGIC_STRING,
-    );
-    if (pos === undefined) {
-      throw new TypeError("video data doesn't contain winscope magic string");
-    }
-    pos += ParserScreenRecordingLegacy.WINSCOPE_META_MAGIC_STRING.length;
-    return pos;
   }
 
   private parseVideoData(
@@ -106,17 +71,6 @@ export class ParserScreenRecordingLegacy extends AbstractParser<
       timestamps.push(timestamp * BigInt(TIME_UNIT_TO_NANO.us));
     }
     return timestamps;
-  }
-
-  private queueThumbnailGeneration(videoData: Uint8Array) {
-    if (this.thumbnail) {
-      return;
-    }
-    this.thumbnailGenerator = new ThumbnailGenerator().setVideoData(videoData);
-    this.thumbnailGenerator.generate().then((thumbnail) => {
-      this.thumbnail = thumbnail;
-      this.thumbnailGenerator = undefined;
-    });
   }
 
   private static readonly MPEG4_MAGIC_NUMBER = [

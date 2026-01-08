@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import {Timestamp} from '@common/time/time';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   CanvasEntry,
@@ -23,10 +21,14 @@ import {
 } from '@trace/media_based/media_based_trace_entry';
 import {TraceType} from '@trace_api/trace_type';
 
+import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
+import {Timestamp} from '@common/time/time';
+
 export class ParserScreenshot extends AbstractParser<
-  MediaBasedTraceEntry,
-  number
+  number,
+  MediaBasedTraceEntry
 > {
+  static readonly TRACE_TYPE = TraceType.SCREENSHOT;
   private static readonly MAGIC_NUMBER = [
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   ]; // currently only support png files
@@ -34,7 +36,7 @@ export class ParserScreenshot extends AbstractParser<
   private imageBitmap: ImageBitmap | undefined;
 
   override getTraceType(): TraceType {
-    return TraceType.SCREENSHOT;
+    return ParserScreenshot.TRACE_TYPE;
   }
 
   override getCoarseVersion(): CoarseVersion {
@@ -61,12 +63,11 @@ export class ParserScreenshot extends AbstractParser<
     return [0]; // require a non-empty array to be returned so trace can provide timestamps
   }
 
-  override async processDecodedEntry(
+  protected override async processDecodedEntry(
     index: number,
-    entry: number,
   ): Promise<MediaBasedTraceEntry> {
     if (!this.imageBitmap) {
-      this.imageBitmap = await createImageBitmap(this.traceFile.file);
+      this.imageBitmap = await createImageBitmap(this.getFiles()[0].file);
     }
     return new CanvasEntry(this.imageBitmap);
   }

@@ -19,6 +19,9 @@
       "@cross_tool/*": [
         "cross_tool/*"
       ],
+      "@legacy_file_readers/*": [
+        "legacy_file_readers/*"
+      ],
       "@logging/*": [
         "logging/*"
       ],

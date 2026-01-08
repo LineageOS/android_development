@@ -32,7 +32,6 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {TracePosition} from '@trace_api/trace_position';
-import {CustomTraceEntryLazy} from '@trace_api/trace';
 import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 
@@ -57,14 +56,7 @@ describe('PresenterMediaBased', () => {
   const canvasEntry = new CanvasEntry(
     jasmine.createSpyObj<ImageBitmap>('image', ['close']),
   );
-  const prefetchedSrEntry = new CustomTraceEntryLazy(
-    trace1,
-    trace1.getParser(),
-    0,
-    timestamps[0],
-    undefined,
-    async () => canvasEntry,
-  );
+  const prefetchedSrEntry = trace1.createLazyEntry(0, async () => canvasEntry);
   const positionUpdateWithPrefetchedEntry = new TracePositionUpdate(
     TracePosition.fromTimestamp(timestamps[0]),
     undefined,

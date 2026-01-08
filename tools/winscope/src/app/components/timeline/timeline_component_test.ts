@@ -1406,20 +1406,22 @@ describe('TimelineComponent', () => {
       expect(spyPrevEntry).not.toHaveBeenCalled();
     });
 
-    it('prev and next button disabled on playback active', () => {
+    it('prev and next button disabled on playback active', async () => {
+      await updateActiveTrace(TraceType.WINDOW_MANAGER);
+      const prevEntryButton = dom.get(prevEntrySelector);
+      const nextEntryButton = dom.get(nextEntrySelector);
+      nextEntryButton.click();
+      prevEntryButton.checkDisabled(false);
+      nextEntryButton.checkDisabled(false);
+
       const timelineComponent = assertDefined(component.timeline);
       timelineComponent.playbackState = PlaybackState.FORWARDS;
       dom.detectChanges();
-
-      const prevEntryButton = dom.get(prevEntrySelector);
-      const nextEntryButton = dom.get(nextEntrySelector);
-
       prevEntryButton.checkDisabled(true);
       nextEntryButton.checkDisabled(true);
 
       timelineComponent.playbackState = PlaybackState.PAUSED;
       dom.detectChanges();
-
       prevEntryButton.checkDisabled(false);
       nextEntryButton.checkDisabled(false);
     });

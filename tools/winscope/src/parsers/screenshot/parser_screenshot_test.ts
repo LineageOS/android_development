@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {
   TimestampConverter,
   UTC_TIMEZONE_INFO,
@@ -55,7 +54,7 @@ describe('ParserScreenshot', () => {
   });
 
   it('provides timestamps', () => {
-    const timestamps = assertDefined(parser.getTimestamps());
+    const timestamps = parser.getTimestamps();
 
     const expected = makeElapsedTimestamp(0n);
     timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));
@@ -69,9 +68,9 @@ describe('ParserScreenshot', () => {
     await parserWithTimezoneInfo.parse();
 
     const expectedReal = makeElapsedTimestamp(0n);
-    assertDefined(parser.getTimestamps()).forEach((timestamp) =>
-      expect(timestamp).toEqual(expectedReal),
-    );
+    parser
+      .getTimestamps()
+      .forEach((timestamp) => expect(timestamp).toEqual(expectedReal));
   });
 
   it('retrieves entry', async () => {

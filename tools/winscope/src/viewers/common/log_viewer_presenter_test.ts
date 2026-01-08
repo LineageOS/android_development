@@ -45,7 +45,7 @@ import {
   TimestampClickDetail,
   ViewerEvents,
 } from './viewer_events';
-import {SetFormatters} from '@parsers/set_formatters';
+import {SetFormatters} from '@parsers/helpers/set_formatters';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;

@@ -19,7 +19,7 @@ import {assertBigInt, assertTrue} from '@common/assert';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {INVALID_TIME_NS, Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
@@ -35,8 +35,9 @@ import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
+import {FileReader} from '@trace_api/file_reader';
 
-export abstract class AbstractParser<T> implements Parser<T> {
+export abstract class AbstractParser<T> implements Parser<T>, FileReader {
   protected readonly checkInvalidTs: boolean = false;
 
   protected traceProcessor: TraceProcessor;
@@ -62,6 +63,14 @@ export abstract class AbstractParser<T> implements Parser<T> {
     this.traceProcessor = traceProcessor;
     this.timestampConverter = timestampConverter;
     this.traceGeometryData = traceGeometryData;
+  }
+
+  onDestroy() {
+    // do nothing
+  }
+
+  getFiles(): TraceFile[] {
+    return [this.traceFile];
   }
 
   isPerfetto(): boolean {
@@ -117,7 +126,10 @@ export abstract class AbstractParser<T> implements Parser<T> {
     return this.lengthEntries;
   }
 
-  getTimestamps(): Timestamp[] | undefined {
+  getTimestamps(): Timestamp[] {
+    if (!this.timestamps) {
+      throw NOT_IMPLEMENTED_ERROR;
+    }
     return this.timestamps;
   }
 
@@ -154,10 +166,6 @@ export abstract class AbstractParser<T> implements Parser<T> {
 
   getRealToBootTimeOffsetNs(): bigint | undefined {
     return this.realToBootTimeOffsetNs;
-  }
-
-  canConvertToPerfetto(): boolean {
-    return false;
   }
 
   getAllEntries(): Promise<Array<T | undefined>> {

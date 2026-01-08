@@ -14,57 +14,27 @@
  * limitations under the License.
  */
 
-import {searchSubarray} from '@common/typed_array';
-import {Timestamp} from '@common/time/time';
-import {makeWarningMonotonicScreenRecording} from '@parsers/warnings';
-import {AbstractParser} from '@parsers/legacy/abstract_parser';
-import {UserNotifier} from '@services/user_notifier';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {Thumbnail} from '@trace/media_based/thumbnail';
-import {TraceType} from '@trace_api/trace_type';
-import {ParserExternalMetadata} from './parser_external_metadata';
-import {ParserFilename} from './parser_filename';
-import {ParserMetadataV1Or2} from './parser_metadata_v1_or_v2';
-import {ParserMetadataV3} from './parser_metadata_v3';
+
+import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
 import {
   parseIntFromBuffer,
   ScreenRecordingParser,
   WINSCOPE_MAGIC_STRING,
 } from './helpers';
-import {timestampToVideoTimeSeconds} from '@trace/media_based/helpers';
-import {ThumbnailGenerator} from './thumbnail_generator';
+import {ParserExternalMetadata} from './parser_external_metadata';
+import {ParserFilename} from './parser_filename';
+import {Timestamp} from '@common/time/time';
+import {ParserMetadataV3} from './parser_metadata_v3';
+import {ParserMetadataV1Or2} from './parser_metadata_v1_or_v2';
+import {makeWarningMonotonicScreenRecording} from '@parsers/helpers/warnings';
+import {UserNotifier} from '@services/user_notifier';
 
-export class ParserScreenRecording extends AbstractParser<
-  MediaBasedTraceEntry,
-  bigint
-> {
+export class ParserScreenRecording extends AbstractParserScreenRecording {
   private realToBootTimeOffsetNs: bigint | undefined;
   private makeTimestampFromExactValue = false;
-  private thumbnail: Thumbnail | undefined;
-  private thumbnailGenerator: ThumbnailGenerator | undefined;
 
-  onDestroy() {
-    this.thumbnailGenerator?.onDestroy();
-    this.thumbnail?.onDestroy();
-  }
-
-  override getTraceType(): TraceType {
-    return TraceType.SCREEN_RECORDING;
-  }
-
-  override getCoarseVersion(): CoarseVersion {
-    return CoarseVersion.LATEST;
-  }
-
-  override getMagicNumber(): number[] | undefined {
-    return undefined;
-  }
-
-  override getRealToMonotonicTimeOffsetNs(): bigint | undefined {
+  protected override getMagicNumber(): number[] | undefined {
     return undefined;
   }
 
@@ -72,8 +42,14 @@ export class ParserScreenRecording extends AbstractParser<
     return this.realToBootTimeOffsetNs;
   }
 
-  override async decodeTrace(videoData: Uint8Array): Promise<Array<bigint>> {
-    const posVersion = this.searchMagicString(videoData);
+  override getCoarseVersion(): CoarseVersion {
+    return CoarseVersion.LATEST;
+  }
+
+  protected override async decodeTrace(
+    videoData: Uint8Array,
+  ): Promise<Array<bigint>> {
+    const posVersion = this.searchMagicString(videoData, WINSCOPE_MAGIC_STRING);
 
     let parser: ScreenRecordingParser;
     if (posVersion !== undefined) {
@@ -93,28 +69,11 @@ export class ParserScreenRecording extends AbstractParser<
     return result.timestamps;
   }
 
-  override async processDecodedEntry(
-    index: number,
-    entry: bigint,
-  ): Promise<MediaBasedTraceEntry> {
-    const time = timestampToVideoTimeSeconds(this.decodedEntries[0], entry);
-    const videoData = this.traceFile.file;
-    return new VideoEntry(videoData, time, this.thumbnail);
-  }
-
   protected override getTimestamp(decodedEntry: bigint): Timestamp {
     if (this.makeTimestampFromExactValue) {
       return this.timestampConverter.makeTimestampFromRealNs(decodedEntry);
     }
     return this.timestampConverter.makeTimestampFromBootTimeNs(decodedEntry);
-  }
-
-  private searchMagicString(videoData: Uint8Array): number | undefined {
-    const pos = searchSubarray(videoData, WINSCOPE_MAGIC_STRING);
-    if (pos === undefined) {
-      return undefined;
-    }
-    return pos + WINSCOPE_MAGIC_STRING.length;
   }
 
   private getParserForEmbeddedMetadata(
@@ -149,16 +108,5 @@ export class ParserScreenRecording extends AbstractParser<
       UserNotifier.add(makeWarningMonotonicScreenRecording());
     }
     return new ParserMetadataV1Or2(posTimeOffset);
-  }
-
-  private queueThumbnailGeneration(videoData: Uint8Array) {
-    if (this.thumbnail) {
-      return;
-    }
-    this.thumbnailGenerator = new ThumbnailGenerator().setVideoData(videoData);
-    this.thumbnailGenerator.generate().then((thumbnail) => {
-      this.thumbnail = thumbnail;
-      this.thumbnailGenerator = undefined;
-    });
   }
 }

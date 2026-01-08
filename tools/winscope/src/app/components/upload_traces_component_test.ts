@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {TestBed} from '@angular/core/testing';
 import {MatCardModule} from '@angular/material/card';
@@ -23,23 +24,21 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {FilesSource} from '@app/files_source';
-import {TracePipeline} from '@app/trace_pipeline';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {AppTraceViewRequest, AppTraceViewRequestHandled} from '@app/app_events';
 import {ShowTraceUploadWarning} from '@trace/trace_events';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {getFixtureFile} from '@test/unit/io_helpers';
-import {makeZeroTimestamp} from '@test/unit/time_test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {Traces} from '@trace_api/traces';
 import {LoadProgressComponent} from './load_progress_component';
 import {UploadTracesComponent} from './upload_traces_component';
 import {
   getReasonForNoTraceVisualization,
   TraceType,
 } from '@trace_api/trace_type';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
+import {TraceFile} from '@trace/trace_file';
+import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 
 describe('UploadTracesComponent', () => {
   const uploadSelector = '.upload-btn';
@@ -50,11 +49,11 @@ describe('UploadTracesComponent', () => {
   const warningMessageSelector = '.warn-message';
   const warningCloseButtonSelector = '.warning-banner button';
   const discardLegacySelector = '.discard-legacy-traces input';
+  const traceFile = new TraceFile(new File([], ''));
 
   let component: UploadTracesComponent;
   let dom: DOMTestHelper<UploadTracesComponent>;
   let validSfFile: File;
-  let validWmFile: File;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -76,15 +75,12 @@ describe('UploadTracesComponent', () => {
     const fixture = TestBed.createComponent(UploadTracesComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.tracePipeline = new TracePipeline();
-    validSfFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/SurfaceFlinger.pb',
-    );
-    validWmFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/WindowManager.pb',
-    );
+    component.loadedFileReaders = [];
     component.storage = new InMemoryStorage();
     dom.detectChanges();
+    validSfFile = await getFixtureFile(
+      'traces/elapsed_timestamp/SurfaceFlinger.pb',
+    );
   });
 
   it('can be created', () => {
@@ -104,7 +100,7 @@ describe('UploadTracesComponent', () => {
   });
 
   it('handles file upload via upload button click', async () => {
-    await loadFiles([validSfFile]);
+    loadFiles([TraceType.SURFACE_FLINGER]);
     const spy = spyOn(component.filesUploaded, 'emit');
     addFileByClickAndGetTransferredFiles(false);
     expect(spy).not.toHaveBeenCalled();
@@ -124,7 +120,7 @@ describe('UploadTracesComponent', () => {
   });
 
   it('displays only load progress bar on progress update (existing files)', async () => {
-    await loadFiles([validSfFile]);
+    loadFiles([TraceType.SURFACE_FLINGER]);
     component.onProgressUpdate(undefined, undefined);
     dom.detectChanges();
     checkOnlyProgressBarShowing();
@@ -162,56 +158,42 @@ describe('UploadTracesComponent', () => {
   });
 
   it('can display uploaded traces', async () => {
-    await loadFiles([validSfFile]);
+    loadFiles([TraceType.SURFACE_FLINGER]);
     expect(dom.find('.uploaded-files')).toBeDefined();
     expect(dom.find('.trace-actions-container')).toBeDefined();
   });
 
-  it('can remove one of two uploaded traces', async () => {
-    await loadFiles([validSfFile, validWmFile]);
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
-
-    const spy = spyOn(component, 'onOperationFinished');
+  it('can remove trace', async () => {
+    loadFiles([TraceType.SURFACE_FLINGER, TraceType.WINDOW_MANAGER]);
+    const reader = assertDefined(component.loadedFileReaders?.[0]);
+    const removeTrace = spyOn(component.removeTrace, 'emit');
+    const operationFinished = spyOn(component, 'onOperationFinished');
     dom.findAndClick(removeTraceSelector);
+
     expect(dom.find('.uploaded-files')).toBeDefined();
-    expect(spy).toHaveBeenCalled();
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(1);
-  });
-
-  it('handles removal of the only uploaded trace', async () => {
-    await loadFiles([validSfFile]);
-
-    const onOperationFinished = spyOn(component, 'onOperationFinished');
-    const clearAllTracesEmitted = spyOn(component.clearAllTraces, 'emit');
-    dom.findAndClick(removeTraceSelector);
-
-    expect(dom.find('.uploaded-files')).toBeUndefined();
-    expect(dom.find('.drop-info')).toBeDefined();
-    expect(onOperationFinished).toHaveBeenCalledTimes(1);
-    expect(clearAllTracesEmitted).toHaveBeenCalledTimes(1);
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(0);
+    expect(removeTrace).toHaveBeenCalledOnceWith(reader);
+    expect(operationFinished).toHaveBeenCalled();
   });
 
   it('can clear all uploaded traces', async () => {
-    await loadFiles([validSfFile, validWmFile]);
-    expect(component.tracePipeline?.getTraces().getSize()).toBe(2);
-
-    const onOperationFinished = spyOn(component, 'onOperationFinished');
-    const clearAllTracesEmitted = spyOn(component.clearAllTraces, 'emit');
+    loadFiles([TraceType.SURFACE_FLINGER, TraceType.WINDOW_MANAGER]);
+    const operationFinished = spyOn(component, 'onOperationFinished');
+    const removeAllTraces = spyOn(component.removeAllTraces, 'emit');
     dom.findAndClick(clearAllSelector);
-    expect(onOperationFinished).toHaveBeenCalledTimes(1);
-    expect(clearAllTracesEmitted).toHaveBeenCalledTimes(1);
+
+    expect(operationFinished).toHaveBeenCalledTimes(1);
+    expect(removeAllTraces).toHaveBeenCalledTimes(1);
   });
 
   it('can emit view traces event', async () => {
-    await loadFiles([validSfFile]);
+    loadFiles([TraceType.SURFACE_FLINGER]);
     const spy = spyOn(component.viewTracesButtonClick, 'emit');
     dom.findAndClick(viewTracesSelector);
     expect(spy).toHaveBeenCalledWith(true);
   });
 
   it('can emit view traces event discarding legacy traces', async () => {
-    await loadFiles([validSfFile]);
+    loadLegacySfFile();
     dom.findAndClick(discardLegacySelector);
     const spy = spyOn(component.viewTracesButtonClick, 'emit');
     dom.findAndClick(viewTracesSelector);
@@ -219,49 +201,37 @@ describe('UploadTracesComponent', () => {
   });
 
   it('disables checkbox to discard legacy traces', async () => {
-    await loadFiles([validSfFile]);
-    spyOn(
-      assertDefined(component.tracePipeline),
-      'hasConvertibleLegacyTraces',
-    ).and.returnValue(false);
+    loadLegacySfFile();
     dom.detectChanges();
     const box = dom.get(discardLegacySelector);
+    box.checkDisabled(false);
+    box.checkInputChecked(true);
+
+    loadFiles([TraceType.SURFACE_FLINGER]);
     box.checkDisabled(true);
-    expect(box.getHTMLElement<HTMLInputElement>().checked).toBeFalse();
+    box.checkInputChecked(false);
   });
 
   it('updates discard legacy traces box from storage', async () => {
-    await loadFiles([validSfFile]);
+    loadLegacySfFile();
     dom.findAndClick(discardLegacySelector);
 
     const fixture = TestBed.createComponent(UploadTracesComponent);
     const newComponent = fixture.componentInstance;
     const newDom = new DOMTestHelper(fixture, fixture.nativeElement);
     newComponent.storage = component.storage;
-    newComponent.tracePipeline = new TracePipeline();
     newDom.detectChanges();
 
-    await newComponent.tracePipeline.loadFiles(
-      [validSfFile],
-      FilesSource.TEST,
-      undefined,
-    );
-    newDom.detectChanges();
+    loadLegacySfFile(newComponent, newDom);
 
-    expect(
-      newDom.get(discardLegacySelector).getHTMLElement<HTMLInputElement>()
-        .checked,
-    ).toBeFalse();
+    newDom.get(discardLegacySelector).checkInputChecked(false);
     const spy = spyOn(newComponent.viewTracesButtonClick, 'emit');
     newDom.findAndClick(viewTracesSelector);
     expect(spy).toHaveBeenCalledWith(false);
   });
 
   it('shows warning elements for traces without visualization', async () => {
-    const shellTransitionFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
-    );
-    await loadFiles([shellTransitionFile]);
+    loadFiles([TraceType.SHELL_TRANSITION]);
     await dom
       .get('.warning-icon')
       .checkTooltip(
@@ -272,10 +242,7 @@ describe('UploadTracesComponent', () => {
   });
 
   it('shows warning elements for legacy traces', async () => {
-    const imeClientsFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/InputMethodClients.pb',
-    );
-    await loadFiles([imeClientsFile]);
+    loadLegacySfFile();
     await dom
       .get('.warning-icon')
       .checkTooltip(component.legacyTraceWarningTooltip);
@@ -283,41 +250,15 @@ describe('UploadTracesComponent', () => {
     dom.get(discardLegacySelector).checkDisabled(false);
   });
 
-  it('does not show warning elements for legacy traces without perfetto conversion', async () => {
-    const eventlogFile = await getFixtureFile(
-      'traces/elapsed_and_real_timestamp/eventlog.winscope',
-    );
-    await loadFiles([eventlogFile]);
-    expect(dom.find('.warning-icon')).toBeUndefined();
-    dom.get(viewTracesSelector).checkDisabled(false);
-    dom.get(discardLegacySelector).checkDisabled(false);
-  });
-
-  it('shows error elements for corrupted traces', async () => {
-    const corruptedTrace = new TraceBuilder<string>()
-      .setEntries(['entry-0'])
-      .setTimestamps([makeZeroTimestamp()])
-      .build();
-    corruptedTrace.setCorruptedState(true);
-    const traces = new Traces();
-    traces.addTrace(corruptedTrace);
-    spyOn(assertDefined(component.tracePipeline), 'getTraces').and.returnValue(
-      traces,
-    );
-    dom.detectChanges();
-    expect(dom.find('.error-icon')).toBeDefined();
-    dom.get(viewTracesSelector).checkDisabled(true);
-  });
-
   it('emits download traces event', async () => {
-    await loadFiles([validSfFile]);
+    loadFiles([TraceType.SURFACE_FLINGER]);
     const spy = spyOn(component.downloadTracesClick, 'emit');
     dom.findAndClick('.download-btn');
     expect(spy).toHaveBeenCalled();
   });
 
   it('disables edit/view traces functionality on trace view request events', async () => {
-    await loadFiles([validSfFile]);
+    loadFiles([TraceType.SURFACE_FLINGER]);
     const buttons = [
       dom.get(viewTracesSelector),
       dom.get(removeTraceSelector),
@@ -436,7 +377,7 @@ describe('UploadTracesComponent', () => {
     const warningMessage2 = 'Warning before clear all 2!';
     const warningEvent1 = new ShowTraceUploadWarning(warningMessage1);
     const warningEvent2 = new ShowTraceUploadWarning(warningMessage2);
-    await loadFiles([validSfFile]); // Need a file to enable clear all
+    loadFiles([TraceType.SURFACE_FLINGER]); // Need a file to enable clear all
 
     // Show the banners first
     await component.onWinscopeEvent(warningEvent1);
@@ -475,10 +416,31 @@ describe('UploadTracesComponent', () => {
     expect(dom.findAll(warningBannerSelector).length).toBe(2);
   });
 
-  async function loadFiles(files: File[]) {
-    component.tracePipeline = new TracePipeline();
-    await component.tracePipeline.loadFiles(files, FilesSource.TEST, undefined);
-    dom.detectChanges();
+  function loadLegacySfFile(testComponent = component, testDom = dom) {
+    testComponent.loadedFileReaders = [
+      new TestLegacyFileReaderBuilder()
+        .setTraceFile(traceFile)
+        .setType(TraceType.SURFACE_FLINGER)
+        .setTimestamps([])
+        .build(),
+    ];
+    testDom.detectChanges();
+  }
+
+  function loadFiles(
+    traceTypes: TraceType[],
+    testComponent = component,
+    testDom = dom,
+  ) {
+    const fileReaders = traceTypes.map((traceType) => {
+      return new TestFileReaderBuilder()
+        .setTraceFile(traceFile)
+        .setType(traceType)
+        .setTimestamps([])
+        .build();
+    });
+    testComponent.loadedFileReaders = fileReaders;
+    testDom.detectChanges();
   }
 
   function dropFileAndGetTransferredFiles(withFile = true): File[] {

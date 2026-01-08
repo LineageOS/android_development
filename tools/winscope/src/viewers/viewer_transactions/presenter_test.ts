@@ -18,7 +18,6 @@ import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Timer} from '@common/time/timer';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {LegacyParserProvider} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
@@ -32,6 +31,7 @@ import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader} from '@viewers/common/ui_data_log';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 
 class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
   override readonly expectedHeaders = [
@@ -225,10 +225,9 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
   }
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parser = await new LegacyParserProvider()
-      .addFile('traces/elapsed_and_real_timestamp/Transactions.pb')
-      .setConvertToPerfetto(true)
-      .getParser<HierarchyTreeNode>();
+    const parser = await parseAndConvertToPerfettoTrace(
+      'traces/elapsed_and_real_timestamp/Transactions.pb',
+    );
     this.trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.TRANSACTIONS)
       .setParser(parser)

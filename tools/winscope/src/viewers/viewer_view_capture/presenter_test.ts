@@ -22,7 +22,7 @@ import {TracePositionUpdate} from '@trace/trace_events';
 import {getFixtureFile} from '@test/unit/io_helpers';
 import {
   getPerfettoParser,
-  LegacyParserProvider,
+  parseAndConvertToPerfettoTrace,
 } from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
@@ -292,13 +292,11 @@ the default for its data type.`,
         const perfettoFile = new TraceFile(
           await getFixtureFile('traces/perfetto/viewcapture.perfetto-trace'),
         );
-        const sfTrace = Trace.fromParser(
-          await new LegacyParserProvider()
-            .addFile('traces/elapsed_timestamp/SurfaceFlinger.pb')
-            .setExistingPerfettoFile(perfettoFile)
-            .setConvertToPerfetto(true)
-            .getParser<HierarchyTreeNode>(),
+        const sfParser = await parseAndConvertToPerfettoTrace(
+          'traces/elapsed_timestamp/SurfaceFlinger.pb',
+          perfettoFile,
         );
+        const sfTrace = Trace.fromParser(sfParser);
         const presenterWithSfTrace = createPresenterWithSfTrace(
           assertDefined(this.traces),
           sfTrace,

@@ -89,8 +89,11 @@ import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 import {Traces} from '@trace_api/traces';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 
 describe('AppComponent', () => {
+  const reader = new TestFileReaderBuilder().setTimestamps([]).build();
+
   let component: AppComponent;
   let downloadTracesSpy: jasmine.Spy;
   let dom: DOMTestHelper<AppComponent>;
@@ -295,7 +298,45 @@ describe('AppComponent', () => {
     expect(component.mediator).not.toBe(mediator);
   });
 
-  it('handles clearAllTraces from upload traces component', () => {
+  it('handles removeTrace from upload traces component - files still remaining', () => {
+    const tracePipeline = component.tracePipeline;
+    spyOn(tracePipeline, 'getLoadedFileReaders').and.returnValue([reader]);
+    const removeReaderSpy = spyOn(tracePipeline, 'removeFileReader');
+    const onDestroySpy = spyOn(tracePipeline, 'onDestroy');
+    const mediatorSpy = spyOn(
+      component.mediator,
+      'setTracePipeline',
+    ).and.callThrough();
+
+    component.uploadTracesComponent?.removeTrace.emit(reader);
+    dom.detectChanges();
+
+    expect(removeReaderSpy).toHaveBeenCalledOnceWith(reader);
+    expect(onDestroySpy).not.toHaveBeenCalled();
+    expect(component.tracePipeline).toBe(tracePipeline);
+    expect(mediatorSpy).not.toHaveBeenCalled();
+  });
+
+  it('handles removeTrace from upload traces component - all files removed', () => {
+    const tracePipeline = component.tracePipeline;
+    spyOn(tracePipeline, 'getLoadedFileReaders').and.returnValue([]);
+    const removeReaderSpy = spyOn(tracePipeline, 'removeFileReader');
+    const onDestroySpy = spyOn(tracePipeline, 'onDestroy');
+    const mediatorSpy = spyOn(
+      component.mediator,
+      'setTracePipeline',
+    ).and.callThrough();
+
+    component.uploadTracesComponent?.removeTrace.emit(reader);
+    dom.detectChanges();
+
+    expect(removeReaderSpy).toHaveBeenCalledOnceWith(reader);
+    expect(onDestroySpy).toHaveBeenCalledTimes(1);
+    expect(component.tracePipeline).not.toBe(tracePipeline);
+    expect(mediatorSpy).toHaveBeenCalledOnceWith(component.tracePipeline);
+  });
+
+  it('handles removeAllTraces from upload traces component', () => {
     const tracePipeline = component.tracePipeline;
     const spyTracePipeline = spyOn(tracePipeline, 'onDestroy');
     const spyMediator = spyOn(
@@ -303,7 +344,7 @@ describe('AppComponent', () => {
       'setTracePipeline',
     ).and.callThrough();
 
-    component.uploadTracesComponent?.clearAllTraces.emit();
+    component.uploadTracesComponent?.removeAllTraces.emit();
     dom.detectChanges();
     expect(spyTracePipeline).toHaveBeenCalledTimes(1);
     expect(component.tracePipeline).not.toBe(tracePipeline);
@@ -364,8 +405,9 @@ describe('AppComponent', () => {
   });
 
   it('downloads traces from upload traces section', () => {
-    const traces = assertDefined(component.tracePipeline.getTraces());
-    spyOn(traces, 'getSize').and.returnValue(1);
+    spyOn(component.tracePipeline, 'getLoadedFileReaders').and.returnValue([
+      reader,
+    ]);
     dom.detectChanges();
     const downloadButtonClickSpy = spyOn(
       component,
@@ -687,11 +729,11 @@ describe('AppComponent', () => {
       });
 
       it('disables copy button when no link is generated', async () => {
-        component.generatedShareLink = '';
-        dom.detectChanges();
-
         dom.findAndClick('.share-btn');
         await dom.whenStable();
+
+        component.generatedShareLink = '';
+        dom.detectChanges();
 
         const copyButton = dom.getInDocument('.share-link-container button');
         copyButton.checkDisabled(true);

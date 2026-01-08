@@ -112,7 +112,7 @@ export const Analytics = {
     },
 
     logFileParsingTime(
-      type: 'perfetto' | 'legacy',
+      type: 'perfetto' | 'legacy' | 'non_perfetto',
       files_source: FilesSource,
       ms: number,
     ) {

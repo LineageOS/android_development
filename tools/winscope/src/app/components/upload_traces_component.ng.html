@@ -17,7 +17,7 @@ limitations under the License.
 <mat-card class="upload-card">
   <mat-card-header class="card-header">
     <mat-card-title class="title">Upload Traces</mat-card-title>
-    @if (!isLoadingFiles && (tracePipeline?.getTraces()?.getSize() ?? 0) > 0) {
+    @let hasFiles = hasLoadedFiles(); @if (!isLoadingFiles && hasFiles) {
     <div class="trace-actions-container">
       <div class="trace-action-buttons trace-action-buttons-top">
         <button
@@ -62,11 +62,12 @@ limitations under the License.
         >
           View traces
         </button>
+        @let isDiscardTracesDisabled = isDiscardLegacyTracesBoxDisabled();
         <mat-checkbox
           class="discard-legacy-traces wrapped-checkbox"
           color="primary"
-          [checked]="!isDiscardLegacyTracesBoxDisabled() && discardLegacyTraces"
-          [disabled]="isDiscardLegacyTracesBoxDisabled()"
+          [checked]="!isDiscardTracesDisabled && discardLegacyTraces"
+          [disabled]="isDiscardTracesDisabled"
           matTooltip="Discard legacy traces instead of converting to Perfetto to reduce loading time"
           (change)="updateDiscardLegacyTraces()"
         >
@@ -115,43 +116,37 @@ limitations under the License.
       @if (isLoadingFiles) {
       <load-progress [progressPercentage]="progressPercentage" [message]="progressMessage">
       </load-progress>
-      } @if (!isLoadingFiles && (tracePipeline?.getTraces()?.getSize() ?? 0) > 0) {
+      } @if (!isLoadingFiles && hasFiles) {
       <mat-list class="uploaded-files">
-        @for (trace of tracePipeline?.getTraces(); track trace) {
-        <mat-list-item
-          [class.no-visualization]="!canVisualizeTrace(trace)"
-          [class.trace-error]="trace.isCorrupted()"
-        >
-          <mat-icon matListItemIcon [style.color]="TRACE_INFO[trace.type].color">
-            {{ TRACE_INFO[trace.type].icon }}
+        @for (fileReader of loadedFileReaders; track $index) { @let traceType =
+        fileReader.getTraceType();
+        <mat-list-item [class.no-visualization]="!canVisualizeTrace(traceType)">
+          <mat-icon matListItemIcon [style.color]="TRACE_INFO[traceType].color">
+            {{ TRACE_INFO[traceType].icon }}
           </mat-icon>
 
-          <p matListItemTitle>{{ TRACE_INFO[trace.type].name }}</p>
-          @for (descriptor of trace.getDescriptors(); track $index; let i = $index) {
-          <p
-            matListItemLine
-            [style.margin-bottom]="i < trace.getDescriptors().length - 1 ? '0' : undefined"
-          >
+          <p matListItemTitle>{{ TRACE_INFO[traceType].name }}</p>
+          @let descriptors = fileReader.getDescriptors(); @for (descriptor of descriptors; track
+          $index; let i = $index) {
+          <p matListItemLine [style.margin-bottom]="i < descriptors.length - 1 ? '0' : undefined">
             {{ descriptor }}
           </p>
           }
 
           <div matListItemMeta [style.margin-top]="'9px'">
-            @if (!canVisualizeTrace(trace)) {
-            <mat-icon class="warning-icon" [matTooltip]="cannotVisualizeTraceTooltip(trace)"
+            @if (!canVisualizeTrace(traceType)) {
+            <mat-icon class="warning-icon" [matTooltip]="cannotVisualizeTraceTooltip(traceType)"
               >warning</mat-icon
             >
-            } @if (isLegacyTrace(trace)) {
+            } @if (isLegacyTrace(fileReader)) {
             <mat-icon class="warning-icon" [matTooltip]="legacyTraceWarningTooltip"
               >warning</mat-icon
             >
-            } @if (trace.isCorrupted()) {
-            <mat-icon class="error-icon" [matTooltip]="traceErrorTooltip(trace)">error</mat-icon>
             }
             <button
               class="clear-icon"
               mat-icon-button
-              (click)="onRemoveTrace($event, trace)"
+              (click)="onRemoveTrace($event, fileReader)"
               [disabled]="viewersLoading"
             >
               <mat-icon>close</mat-icon>
@@ -160,7 +155,7 @@ limitations under the License.
         </mat-list-item>
         }
       </mat-list>
-      } @if (!isLoadingFiles && tracePipeline?.getTraces()?.getSize() === 0) {
+      } @if (!isLoadingFiles && !hasFiles) {
       <div class="drop-info">
         <p class="icon">
           <mat-icon inline fontIcon="upload"></mat-icon>

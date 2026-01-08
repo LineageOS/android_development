@@ -33,6 +33,7 @@ import LayersSnapshotProto = perfetto.protos.LayersSnapshotProto;
 import TransactionTraceEntry = perfetto.protos.TransactionTraceEntry;
 import LayerState = perfetto.protos.LayerState;
 import ShellHandlerMappings = perfetto.protos.ShellHandlerMappings;
+import ShellHandlerMapping = perfetto.protos.ShellHandlerMapping;
 import IShellTransition = perfetto.protos.IShellTransition;
 import ShellTransition = perfetto.protos.ShellTransition;
 import ViewCapture = perfetto.protos.ViewCapture;
@@ -57,6 +58,7 @@ export {
   TransactionTraceEntry,
   LayerState,
   ShellHandlerMappings,
+  ShellHandlerMapping,
   IShellTransition,
   ShellTransition,
   ViewCapture,

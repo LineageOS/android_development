@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {assertDefined} from 'common/assert';
-import {MediaBasedFrame} from 'trace/media_based/media_based_frame';
-import {parseWebCodecData} from 'trace/media_based/helpers';
+import {assertDefined} from '@common/assert';
+import {MediaBasedFrame} from '@trace/media_based/media_based_frame';
+import {parseWebCodecData} from '@trace/media_based/helpers';
 
 self.onmessage = async (event) => {
   const thumbnail = await generateThumbnail(event.data);

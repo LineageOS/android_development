@@ -16,7 +16,7 @@
 
 import {assertTrue} from '@common/assert';
 import {Sample} from 'mp4box';
-import {startsWithMagicNumber} from '@parsers/legacy/parsing_utils';
+import {startsWithMagicNumber} from '@common/magic_number_helpers';
 import {
   parseLongFromBuffer,
   ParserResult,

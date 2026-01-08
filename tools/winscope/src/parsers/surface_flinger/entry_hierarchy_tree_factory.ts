@@ -25,12 +25,12 @@ import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
   makeWarningRecursiveLayerIds,
-} from '@parsers/warnings';
+} from '@parsers/helpers/warnings';
 import {AddDefaults} from '@parsers/operations/add_defaults';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
-import {PropertyTreeBuilderFromQueryRow} from '@parsers/property_tree_builder_from_query_row';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {HwcCompositionType} from '@compat/winscope_protos';
 import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
 import {TAMPERED_TRACE_PACKET} from '@trace/proto_utils/tampered_message_type';
@@ -43,7 +43,7 @@ import {
 } from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {SetFormatters} from '@parsers/set_formatters';
+import {SetFormatters} from '@parsers/helpers/set_formatters';
 import {ZOrderPathsComputation} from './computations/z_order_paths_computation';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';
@@ -58,7 +58,7 @@ import {
   RectsForTrace,
   NodeRects,
 } from '@tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from '@parsers/property_tree_builder_from_args';
+import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 
 export function makeEntryHierarchyTrees(
   snapshotResults: QueryResult,

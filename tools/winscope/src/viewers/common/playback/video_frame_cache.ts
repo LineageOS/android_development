@@ -17,7 +17,7 @@
 import {Timer} from '@common/time/timer';
 import {KEY_FRAME_TYPE, WebCodecData} from '@trace/media_based/helpers';
 import {UserNotifier} from '@services/user_notifier';
-import {makeWarningVideoFrameCacheStall} from '@parsers/warnings';
+import {makeWarningVideoFrameCacheStall} from '@parsers/helpers/warnings';
 import {assertDefined} from '@common/assert';
 import {getVideoFrameCacheWorkerUrl} from '@compat/video_frame_cache_worker_url';
 import {PlaybackState} from './playback_state';

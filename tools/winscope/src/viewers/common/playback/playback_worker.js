@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {TraceType} from '@trace_api/trace_type';
 import {createQueryResult} from '@trace_processor/perfetto/query_result';
-import {TraceEntryValueBuilder} from '@parsers/trace_entry_value_builder';
-import {TraceGeometryData} from '@parsers/trace_geometry_data';
+import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/window_manager/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 
 self.onmessage = async (event) => {
   const traceGeometryData = new TraceGeometryData(
@@ -33,18 +37,50 @@ self.onmessage = async (event) => {
   const snapshot = queries[0];
   const node = queries[1];
 
-  const treeBuilder = new TraceEntryValueBuilder()
-    .setType(event.data.type)
-    .setNodeResults(node)
-    .setRectsMap(event.data.visibleRectsMap)
-    .setGeometryData(traceGeometryData);
-  if (snapshot) {
-    treeBuilder.setSnapshotResults(snapshot);
-  }
-
-  const trees = treeBuilder.build();
+  const trees = buildTraceEntryValue(
+    event.data.type,
+    snapshot,
+    node,
+    event.data.visibleRectsMap,
+    traceGeometryData,
+  );
   self.postMessage({trees});
 };
+
+function buildTraceEntryValue(
+  traceType,
+  snapshotResults,
+  nodeResults,
+  rectsMap,
+  traceGeometryData,
+) {
+  switch (traceType) {
+    case TraceType.SURFACE_FLINGER:
+      return sfMakeEntryHierarchyTrees(
+        snapshotResults,
+        nodeResults,
+        rectsMap,
+        undefined,
+        traceGeometryData,
+      );
+    case TraceType.WINDOW_MANAGER:
+      return wmMakeEntryHierarchyTrees(
+        nodeResults,
+        rectsMap,
+        undefined,
+        traceGeometryData,
+      );
+    case TraceType.VIEW_CAPTURE:
+      return vcMakeEntryHierarchyTrees(
+        nodeResults,
+        rectsMap,
+        undefined,
+        traceGeometryData,
+      );
+    default:
+      throw NOT_IMPLEMENTED_ERROR;
+  }
+}
 
 function processQueryResults(start, end, snapshotBatches, nodeBatches) {
   let snapshotQueryResult;

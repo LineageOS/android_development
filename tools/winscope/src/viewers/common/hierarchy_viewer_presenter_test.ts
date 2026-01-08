@@ -22,7 +22,7 @@ import {
 import {assertDefined} from '@common/assert';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {SetFormatters} from '@parsers/set_formatters';
+import {SetFormatters} from '@parsers/helpers/set_formatters';
 import {TracePositionUpdate} from '@trace/trace_events';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
 import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';

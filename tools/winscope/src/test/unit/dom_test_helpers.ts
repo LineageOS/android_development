@@ -312,8 +312,17 @@ export class DOMTestHelper<T> {
     }
   }
 
+  checkInputChecked(value: boolean) {
+    expect(this.root).toBeInstanceOf(HTMLInputElement);
+    expect((this.root as any).checked).toEqual(value);
+  }
+
   checkDisabled(value: boolean) {
+    if (!value && !('disabled' in this.root)) {
+      return;
+    }
     expect('disabled' in this.root).toBeTrue();
+    expect((this.root as any).disabled).toEqual(value);
   }
 
   checkValue(value: string) {
