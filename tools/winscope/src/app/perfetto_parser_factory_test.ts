@@ -21,8 +21,11 @@ import {TraceType} from '@trace_api/trace_type';
 import {PerfettoParserFactory} from './perfetto_parser_factory';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 
 describe('PerfettoParserFactory', () => {
+  const emptyGeometryData = new TraceGeometryData();
+
   describe('is robust to', () => {
     it('invalid perfetto file', async () => {
       const userNotifierChecker = new UserNotifierChecker();
@@ -55,9 +58,7 @@ describe('PerfettoParserFactory', () => {
       );
       expect(processed.parsers.length).toBe(0);
       expect(processed.isPerfettoTrace).toEqual(isPerfettoTrace);
-      expect(processed.traceGeometryData !== undefined).toEqual(
-        isPerfettoTrace,
-      );
+      expect(processed.traceGeometryData).toEqual(emptyGeometryData);
     }
   });
 
@@ -80,6 +81,7 @@ describe('PerfettoParserFactory', () => {
       await createsReaderForFile(
         'traces/perfetto/layers_trace.perfetto-trace',
         [TraceType.SURFACE_FLINGER],
+        true,
       );
     });
 
@@ -98,15 +100,18 @@ describe('PerfettoParserFactory', () => {
     });
 
     it('ViewCapture reader', async () => {
-      await createsReaderForFile('traces/perfetto/viewcapture.perfetto-trace', [
-        TraceType.VIEW_CAPTURE,
-      ]);
+      await createsReaderForFile(
+        'traces/perfetto/viewcapture.perfetto-trace',
+        [TraceType.VIEW_CAPTURE],
+        true,
+      );
     });
 
     it('WindowManager reader', async () => {
       await createsReaderForFile(
         'traces/perfetto/windowmanager.perfetto-trace',
         [TraceType.WINDOW_MANAGER],
+        true,
       );
     });
 
@@ -123,12 +128,20 @@ describe('PerfettoParserFactory', () => {
       ]);
     });
 
-    async function createsReaderForFile(filepath: string, types: TraceType[]) {
+    async function createsReaderForFile(
+      filepath: string,
+      types: TraceType[],
+      hasGeometryData = false,
+    ) {
       const file = new TraceFile(await getFixtureFile(filepath));
-      await processFiles(file, types);
+      await processFiles(file, types, hasGeometryData);
     }
 
-    async function processFiles(file: TraceFile, types: TraceType[]) {
+    async function processFiles(
+      file: TraceFile,
+      types: TraceType[],
+      hasGeometryData: boolean,
+    ) {
       const processedFiles = await new PerfettoParserFactory().processFile(
         file,
         UTC_CONVERTER,
@@ -137,7 +150,11 @@ describe('PerfettoParserFactory', () => {
         types,
       );
       expect(processedFiles.isPerfettoTrace).toEqual(true);
-      expect(processedFiles.traceGeometryData).toBeDefined();
+      if (hasGeometryData) {
+        expect(processedFiles.traceGeometryData).not.toEqual(emptyGeometryData);
+      } else {
+        expect(processedFiles.traceGeometryData).toEqual(emptyGeometryData);
+      }
     }
   });
 });

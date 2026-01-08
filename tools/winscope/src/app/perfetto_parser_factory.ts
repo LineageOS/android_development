@@ -25,7 +25,10 @@ import {ParserInputMethodManagerService} from '@parsers/input_method/parser_inpu
 import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
 import {ParserProtolog} from '@parsers/protolog/parser_protolog';
 import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
-import {TraceGeometryDataBuilder} from '@parsers/helpers/trace_geometry_data';
+import {
+  buildTraceGeometryData,
+  TraceGeometryData,
+} from '@parsers/helpers/trace_geometry_data';
 import {ParserTransactions} from '@parsers/transactions/parser_transactions';
 import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
@@ -36,7 +39,6 @@ import {Parser} from '@trace_api/parser';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {getLogger, Logger} from '@compat/logging';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
 import {FileReader} from '@trace_api/file_reader';
@@ -44,7 +46,7 @@ import {FileReader} from '@trace_api/file_reader';
 interface ProcessedFile {
   parsers: Array<Parser<HierarchyTreeNode> & FileReader>;
   isPerfettoTrace: boolean;
-  traceGeometryData: TraceGeometryData | undefined;
+  traceGeometryData: TraceGeometryData;
 }
 
 export class PerfettoParserFactory {
@@ -81,7 +83,7 @@ export class PerfettoParserFactory {
       return {
         parsers: [],
         isPerfettoTrace: false,
-        traceGeometryData: undefined,
+        traceGeometryData: new TraceGeometryData(),
       };
     }
 
@@ -91,9 +93,7 @@ export class PerfettoParserFactory {
     );
 
     await this.processGeometryTables(traceProcessor);
-    const traceGeometryData = await new TraceGeometryDataBuilder()
-      .setTraceProcessor(traceProcessor)
-      .build();
+    const traceGeometryData = await buildTraceGeometryData(traceProcessor);
 
     const parsers = [];
     let hasFoundParser = false;

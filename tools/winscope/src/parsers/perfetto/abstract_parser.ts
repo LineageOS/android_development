@@ -45,7 +45,7 @@ export abstract class AbstractParser<T> implements Parser<T>, FileReader {
   protected timestampConverter: ParserTimestampConverter;
   protected entryIndexToRowIdMap: number[] = [];
   protected preProcessTrace?(): Promise<void>;
-  protected traceGeometryData?: TraceGeometryData;
+  protected traceGeometryData: TraceGeometryData;
 
   private lengthEntries = 0;
   private traceFile: TraceFile;
@@ -56,7 +56,7 @@ export abstract class AbstractParser<T> implements Parser<T>, FileReader {
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
-    traceGeometryData?: TraceGeometryData,
+    traceGeometryData: TraceGeometryData,
     protected logger: Logger = getLogger('AbstractParser'),
   ) {
     this.traceFile = traceFile;

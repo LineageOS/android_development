@@ -70,7 +70,6 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
     ) {
       return [];
     }
-    const traceGeometryData = assertDefined(this.traceGeometryData);
     const visibleAndDisplayRects = assertDefined(
       await this.fetchAllVisibleAndDisplayRects(),
     );
@@ -79,7 +78,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
       layersResult,
       visibleAndDisplayRects,
       this.traceProcessor,
-      traceGeometryData,
+      this.traceGeometryData,
     );
   }
 
@@ -189,7 +188,7 @@ export class ParserSurfaceFlinger extends AbstractParser<HierarchyTreeNode> {
         RectExtractor.extractAllVisibleAndDisplayRects(
           assertDefined(allSnapshotsResults),
           assertDefined(visibleRectsResult),
-          assertDefined(this.traceGeometryData),
+          this.traceGeometryData,
         );
     }
     return this.visibleAndDisplayRects;

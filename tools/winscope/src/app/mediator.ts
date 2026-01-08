@@ -806,9 +806,6 @@ export class Mediator {
     const traceGeometryData = this.tracePipeline.getTraceGeometryData();
     const trace = this.screenRecordingTrace ?? eventTrace;
 
-    if (traceGeometryData === undefined) {
-      return;
-    }
     if (trace === undefined) {
       return;
     }

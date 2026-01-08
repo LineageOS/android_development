@@ -101,7 +101,7 @@ export class TracePipeline
   private downloadArchiveFilename?: string;
   private lostPerfettoPackets = 0;
   private timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO);
-  private traceGeometryData: TraceGeometryData | undefined;
+  private traceGeometryData = new TraceGeometryData();
 
   constructor(private readonly logger: Logger = getLogger('TracePipeline')) {}
 
@@ -109,7 +109,7 @@ export class TracePipeline
     this.traceFileFilter.setEmitEvent(callback);
   }
 
-  getTraceGeometryData() {
+  getTraceGeometryData(): TraceGeometryData {
     return this.traceGeometryData;
   }
 
