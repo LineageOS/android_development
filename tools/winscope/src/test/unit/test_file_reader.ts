@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {Timestamp} from '@common/time/time';
-
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
 import {FileReader} from '@trace_api/file_reader';
@@ -53,7 +51,7 @@ export class TestFileReader implements FileReader {
   }
 
   createTimestamps() {
-    throw NOT_IMPLEMENTED_ERROR;
+    // do nothing
   }
 
   getRealToMonotonicTimeOffsetNs(): bigint | undefined {
