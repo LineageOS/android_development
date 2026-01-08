@@ -311,7 +311,8 @@ describe('PresenterSearch', () => {
     await presenter.onClearQueryClick(0);
     expect(uiData.currentSearches.length).toBe(1);
     await presenter.onClearQueryClick(1);
-    expect(uiData.currentSearches.length).toBe(0);
+    expect(uiData.currentSearches.length).toBe(1);
+    expect(uiData.currentSearches[0].result).toBeUndefined();
   });
 
   it('retains at most 10 recent searches', async () => {
