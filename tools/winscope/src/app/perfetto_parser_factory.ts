@@ -35,16 +35,15 @@ import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {getLogger, Logger} from '@compat/logging';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
-import {FileReader} from '@trace_api/file_reader';
+import {FileReaderAndParser} from './file_reader_and_parser';
 
-interface ProcessedFile {
-  parsers: Array<Parser<HierarchyTreeNode> & FileReader>;
+export interface ProcessedFile {
+  parsers: Array<FileReaderAndParser<HierarchyTreeNode>>;
   isPerfettoTrace: boolean;
   traceGeometryData: TraceGeometryData;
 }

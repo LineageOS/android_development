@@ -79,8 +79,7 @@ import {FileReaderTransitions} from '@legacy_file_readers/transitions/file_reade
 import {Parser} from '@trace_api/parser';
 import {ParserInput} from '@parsers/input/parser_input';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-
-type FileReaderAndParser = FileReader & Parser<unknown>;
+import {FileReaderAndParser} from './file_reader_and_parser';
 
 /**
  * A pipeline that loads, parses and transforms traces.

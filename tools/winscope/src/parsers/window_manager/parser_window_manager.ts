@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  assertBigIntOrUndefined,
-  assertStringOrUndefined,
-} from '@common/assert';
+import {assertBigIntOrUndefined, assertStringOrUndefined} from '@common/assert';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {
   CustomQueryParserResultTypeMap,
