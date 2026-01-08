@@ -188,7 +188,7 @@ limitations under the License.
           <mat-select-trigger>
             <span> {{ getSelectTriggerValue() }} </span>
           </mat-select-trigger>
-          @for (display of internalDisplays; track display.groupId) {
+          @for (display of internalDisplays; track display.displayId) {
           <mat-option
             [value]="display"
             [matTooltip]="'Display Id: ' + display.displayId"

@@ -78,12 +78,12 @@ describe('Viewer Input Method Clients', () => {
     );
     expect(await nodes[1].getText()).toContain('253 - SfSubtree - Task=8#253');
     expect(await nodes[2].getText()).toContain(
-      '778 - Letterbox - left#778 HWCV',
+      '778 - Letterbox - left#778HWCV',
     );
     expect(await nodes[3].getText()).toContain(
-      '786 - com.google.(...).ZeroStateSearchActivity#786 HWCV',
+      '786 - com.google.(...).ZeroStateSearchActivity#786HWCV',
     );
-    expect(await nodes[4].getText()).toContain('765 - InputMethod#765 HWCV');
+    expect(await nodes[4].getText()).toContain('765 - InputMethod#765HWCV');
   }
 
   async function checkInputMethodLayerProperties() {
