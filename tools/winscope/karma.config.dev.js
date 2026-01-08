@@ -19,7 +19,13 @@ const configCommon = require('./karma.config.common');
 const configDev = (config) => {
   config.set({
     singleRun: false,
-    browsers: ['Chrome'],
+    browsers: ['ChromeFixedSize'],
+    customLaunchers: {
+      ChromeFixedSize: {
+        base: 'Chrome',
+        flags: ['--window-size=1280,1024'],
+      }
+    },
   });
 };
 
