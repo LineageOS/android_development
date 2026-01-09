@@ -245,7 +245,9 @@ function createTimestamps(
     }
   }
   fileReaders.forEach((fileReader) => {
+    expect(fileReader.getTimestamps).toThrow();
     fileReader.createTimestamps();
+    expect(fileReader.getTimestamps().length).toBeGreaterThan(0);
   });
 }
 
