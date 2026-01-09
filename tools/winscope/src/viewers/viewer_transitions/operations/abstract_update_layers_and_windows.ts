@@ -19,9 +19,9 @@ import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
 
-export abstract class AbstractUpdateLayersAndWindows<T extends TreeNode>
-  implements Operation<T>
-{
+export abstract class AbstractUpdateLayersAndWindows<
+  T extends TreeNode,
+> implements Operation<T> {
   constructor(
     private readonly layerIdToName: Map<number, string>,
     private readonly windowTokenToTitle: Map<number, string>,
