@@ -977,7 +977,6 @@ export class TimelineComponent
     );
     this.selectedTracesFormControl.setValue(newSelection);
     this.applyNewTraceSelection(event.trace);
-    await this.miniTimeline?.drawer?.draw();
   }
 
   private async onTraceRemoveRequest(event: TraceRemoveRequest) {
@@ -990,7 +989,6 @@ export class TimelineComponent
       ) ?? [],
     );
     this.applyNewTraceSelection(event.trace);
-    await this.miniTimeline?.drawer?.draw();
   }
 
   private async onTraceSearchStart() {

@@ -16,7 +16,7 @@ limitations under the License.
 
 <span class="header">
   <span class="mat-body-2"> {{label}} </span>
-  @if (canClear) {
+  @if (canClear || executedQuery) {
   <button
     mat-button
     class="query-button end-align-button clear-button"

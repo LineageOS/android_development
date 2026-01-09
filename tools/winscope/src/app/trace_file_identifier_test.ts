@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {TimezoneInfo} from '@common/time/time';
 import {
   makeWarningNoValidFiles,
@@ -36,6 +35,7 @@ import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {ASIA_TIMEZONE_INFO} from '@test/unit/time_test_helpers';
 
 describe('TraceFileIdentifier', () => {
   const identifier = new TraceFileIdentifier<FileReader>();
@@ -228,10 +228,7 @@ describe('TraceFileIdentifier', () => {
       );
       expect(result.legacy.flatMap((f) => f.getFiles())).toEqual([legacyFile]);
       expect(result.perfetto.length).toBe(0);
-      expect(identifiedTimezoneInfo).toEqual({
-        timezone: 'Asia/Kolkata',
-        locale: 'en-US',
-      });
+      expect(identifiedTimezoneInfo).toEqual(ASIA_TIMEZONE_INFO);
       userNotifierChecker.expectNone();
     });
 
@@ -328,7 +325,7 @@ describe('TraceFileIdentifier', () => {
         (file) => tryIdentifyPerfetto(file, [perfettoSysTrace]),
       );
       expect(result.perfetto[0].getFiles()).toEqual([perfettoSysTrace]);
-      expect(result.criticalWarnings?.length).toBe(0); // No warnings expected
+      expect(result.criticalWarnings.length).toBe(0); // No warnings expected
       userNotifierChecker.expectNone();
     });
 
@@ -510,9 +507,8 @@ describe('TraceFileIdentifier', () => {
     );
 
     expect(result.perfetto.length).toBe(0);
-    expect(result.criticalWarnings).toBeDefined();
-    expect(result.criticalWarnings?.length).toBe(1);
-    const warning = assertDefined(result.criticalWarnings)[0];
+    expect(result.criticalWarnings.length).toBe(1);
+    const warning = result.criticalWarnings[0];
     expect(warning).toEqual(
       makeWarningMissingPersistentTrace({
         buildType,

@@ -102,11 +102,12 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   );
 
   private handlerIdToName: {[id: number]: string} | undefined = undefined;
+
   constructor(
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,
     timestampConverter: ParserTimestampConverter,
-    traceGeometryData?: TraceGeometryData,
+    traceGeometryData: TraceGeometryData,
     logger: Logger = getLogger('ParserTransitions'),
   ) {
     super(

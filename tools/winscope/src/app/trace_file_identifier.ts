@@ -76,19 +76,18 @@ export interface BugreportData {
 /**
  * The result of filtering and identifying a set of files.
  */
-interface IdentifiedFiles<T extends FileReader> {
+export interface IdentifiedFiles<T extends FileReader> {
   legacy: LegacyFileReader[];
   nonPerfetto: T[];
   perfetto: T[];
-  criticalWarnings?: UserWarning[];
+  criticalWarnings: UserWarning[];
 }
 
 interface FilterResult {
+  criticalWarnings: UserWarning[];
   legacy: TraceFile[];
-  metadata: TraceMetadata;
   perfetto: TraceFile[];
   timezoneInfo?: TimezoneInfo;
-  criticalWarnings?: UserWarning[];
 }
 
 type IdentifyPerfettoFileStrategy<T> = (file: TraceFile) => Promise<T[]>;
@@ -143,16 +142,13 @@ export class TraceFileIdentifier<T extends FileReader>
 
   private emitEvent: EmitEvent = () => Promise.resolve();
   private selectedFile: string | undefined;
+
   constructor(
     private readonly logger: Logger = getLogger('TraceFileIdentifier'),
   ) {}
 
   setEmitEvent(callback: EmitEvent) {
     this.emitEvent = callback;
-  }
-
-  private async onBugreportFileSelected(event: BugreportFileSelected) {
-    this.selectedFile = event.filename;
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -169,7 +165,7 @@ export class TraceFileIdentifier<T extends FileReader>
   ): Promise<IdentifiedFiles<T>> {
     const startTimeMs = Date.now();
 
-    const {result, isBugreport} = await this.filter(files);
+    const {result, metadata, isBugreport} = await this.filter(files);
 
     const size = result.legacy
       .concat(result.perfetto)
@@ -186,10 +182,10 @@ export class TraceFileIdentifier<T extends FileReader>
     if (result.perfetto.length === 0 && result.legacy.length === 0) {
       UserNotifier.add(makeWarningNoValidFiles());
       return {
+        criticalWarnings: result.criticalWarnings,
         perfetto: [],
         legacy: [],
         nonPerfetto: [],
-        criticalWarnings: result.criticalWarnings,
       };
     }
 
@@ -199,7 +195,7 @@ export class TraceFileIdentifier<T extends FileReader>
     let nonPerfettoParsers: T[] = [];
     if (unsupportedFiles.length > 0) {
       const {supportedFiles, unsupportedFiles: stillUnsupported} =
-        await tryIdentifyNonPerfetto(unsupportedFiles, result.metadata);
+        await tryIdentifyNonPerfetto(unsupportedFiles, metadata);
       nonPerfettoParsers = supportedFiles;
       unsupportedFiles = stillUnsupported;
     }
@@ -226,16 +222,18 @@ export class TraceFileIdentifier<T extends FileReader>
     }
 
     return {
+      criticalWarnings: result.criticalWarnings,
       legacy: legacyFileReaders,
       nonPerfetto: nonPerfettoParsers,
       perfetto: perfettoParsers,
-      criticalWarnings: result.criticalWarnings,
     };
   }
 
-  private async filter(
-    files: TraceFile[],
-  ): Promise<{result: FilterResult; isBugreport: boolean}> {
+  private async filter(files: TraceFile[]): Promise<{
+    result: FilterResult;
+    metadata: TraceMetadata;
+    isBugreport: boolean;
+  }> {
     const bugreportMainEntry = files.find((file) =>
       file.file.name.endsWith('main_entry.txt'),
     );
@@ -252,12 +250,12 @@ export class TraceFileIdentifier<T extends FileReader>
     );
 
     if (!isBugReportArchive) {
-      const result = {
+      const result: FilterResult = {
         perfetto: perfettoFiles,
         legacy: legacyFiles,
-        metadata,
+        criticalWarnings: [],
       };
-      return {result, isBugreport: false};
+      return {result, metadata, isBugreport: false};
     }
 
     const bugreportData = await this.getBugreportData(
@@ -269,10 +267,9 @@ export class TraceFileIdentifier<T extends FileReader>
       assertDefined(bugreportMainEntry),
       perfettoFiles,
       legacyFiles,
-      metadata,
       bugreportData,
     );
-    return {result, isBugreport: true};
+    return {result, metadata, isBugreport: true};
   }
 
   private async getBugreportData(
@@ -375,7 +372,6 @@ export class TraceFileIdentifier<T extends FileReader>
     bugreportMainEntry: TraceFile,
     perfettoFiles: TraceFile[],
     legacyFiles: TraceFile[],
-    metadata: TraceMetadata,
     bugreportData?: BugreportData,
   ): Promise<FilterResult> {
     const isFileAllowlisted = (file: TraceFile) => {
@@ -461,11 +457,10 @@ export class TraceFileIdentifier<T extends FileReader>
     }
 
     return {
+      criticalWarnings,
       perfetto: perfettoFile ? [perfettoFile] : [],
       legacy: unzippedLegacyFiles,
-      metadata,
       timezoneInfo: bugreportData?.timezoneInfo,
-      criticalWarnings,
     };
   }
 
@@ -520,5 +515,9 @@ export class TraceFileIdentifier<T extends FileReader>
       UserNotifier.add(makeWarningTraceOverridden(overridden.getDescriptor()));
       return largest;
     });
+  }
+
+  private async onBugreportFileSelected(event: BugreportFileSelected) {
+    this.selectedFile = event.filename;
   }
 }

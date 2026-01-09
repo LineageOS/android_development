@@ -202,13 +202,7 @@ describe('TimestampConverter', () => {
           westCoastConverter.makeTimestampFromRealNs(testRealNs).format(),
         ).toBe('2022-07-30, 21:55:41.051');
 
-        const indiaConverter = new TimestampConverter(
-          {
-            timezone: 'Asia/Kolkata',
-            locale: 'en-US',
-          },
-          0n,
-        );
+        const indiaConverter = new TimestampConverter(ASIA_TIMEZONE_INFO, 0n);
         indiaConverter.initializeUTCOffset(
           indiaConverter.makeTimestampFromRealNs(testRealNs),
         );

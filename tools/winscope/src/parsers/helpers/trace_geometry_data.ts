@@ -19,73 +19,60 @@ import {Rect} from '@common/geometry/rect';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 
-/**
- * A class for fetching and building geometry data from a trace.
- */
-export class TraceGeometryDataBuilder {
-  private traceProcessor: TraceProcessor | undefined;
+export async function buildTraceGeometryData(
+  traceProcessor: TraceProcessor,
+): Promise<TraceGeometryData> {
+  const rectsMap = new Map<bigint, Rect>();
+  const transformMap = new Map<bigint, TransformMatrix>();
 
-  setTraceProcessor(value: TraceProcessor) {
-    this.traceProcessor = value;
-    return this;
+  const allRects = `SELECT
+      rr.id,
+      rr.x,
+      rr.y,
+      rr.w,
+      rr.h
+      FROM android_winscope_rect AS rr`;
+
+  const allTransforms = `SELECT
+      lt.id,
+      lt.dsdx,
+      lt.dtdx,
+      lt.dsdy,
+      lt.dtdy,
+      lt.tx,
+      lt.ty
+      FROM android_winscope_transform as lt`;
+
+  const rectsResults = await traceProcessor.query(allRects);
+  const transformResults = await traceProcessor.query(allTransforms);
+
+  for (const row = rectsResults.iter({}); row.valid(); row.next()) {
+    const currentId = assertBigInt(row.get('id'));
+    const getNumber = (colName: string): number => Number(row.get(colName));
+    const newRect = new Rect(
+      getNumber('x'),
+      getNumber('y'),
+      getNumber('w'),
+      getNumber('h'),
+    );
+    rectsMap.set(currentId, newRect);
   }
 
-  async build(): Promise<TraceGeometryData> {
-    if (!this.traceProcessor) {
-      throw new Error('traceProcessor not set');
-    }
-    const rectsMap = new Map<bigint, Rect>();
-    const transformMap = new Map<bigint, TransformMatrix>();
-
-    const allRects = `SELECT
-        rr.id,
-        rr.x,
-        rr.y,
-        rr.w,
-        rr.h
-        FROM android_winscope_rect AS rr`;
-
-    const allTransforms = `SELECT
-        lt.id,
-        lt.dsdx,
-        lt.dtdx,
-        lt.dsdy,
-        lt.dtdy,
-        lt.tx,
-        lt.ty
-        FROM android_winscope_transform as lt`;
-
-    const rectsResults = await this.traceProcessor.query(allRects);
-    const transformResults = await this.traceProcessor.query(allTransforms);
-
-    for (const row = rectsResults.iter({}); row.valid(); row.next()) {
-      const currentId = assertBigInt(row.get('id'));
-      const getNumber = (colName: string): number => Number(row.get(colName));
-      const newRect = new Rect(
-        getNumber('x'),
-        getNumber('y'),
-        getNumber('w'),
-        getNumber('h'),
-      );
-      rectsMap.set(currentId, newRect);
-    }
-
-    for (const row = transformResults.iter({}); row.valid(); row.next()) {
-      const currentId = assertBigInt(row.get('id'));
-      const getNumber = (colName: string): number => Number(row.get(colName));
-      const newTransform = new TransformMatrix(
-        getNumber('dsdx'),
-        getNumber('dtdx'),
-        getNumber('tx'),
-        getNumber('dtdy'),
-        getNumber('dsdy'),
-        getNumber('ty'),
-      );
-      transformMap.set(currentId, newTransform);
-    }
-
-    return new TraceGeometryData(rectsMap, transformMap);
+  for (const row = transformResults.iter({}); row.valid(); row.next()) {
+    const currentId = assertBigInt(row.get('id'));
+    const getNumber = (colName: string): number => Number(row.get(colName));
+    const newTransform = new TransformMatrix(
+      getNumber('dsdx'),
+      getNumber('dtdx'),
+      getNumber('tx'),
+      getNumber('dtdy'),
+      getNumber('dsdy'),
+      getNumber('ty'),
+    );
+    transformMap.set(currentId, newTransform);
   }
+
+  return new TraceGeometryData(rectsMap, transformMap);
 }
 
 /**
@@ -93,8 +80,11 @@ export class TraceGeometryDataBuilder {
  */
 export class TraceGeometryData {
   constructor(
-    private readonly rectsMap: Map<bigint, Rect>,
-    private readonly transformMap: Map<bigint, TransformMatrix>,
+    private readonly rectsMap: ReadonlyMap<bigint, Rect> = new Map(),
+    private readonly transformMap: ReadonlyMap<
+      bigint,
+      TransformMatrix
+    > = new Map(),
   ) {}
 
   getRect(id: bigint): Rect | undefined {

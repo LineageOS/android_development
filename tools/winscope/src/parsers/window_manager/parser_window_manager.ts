@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  assertBigIntOrUndefined,
-  assertDefined,
-  assertStringOrUndefined,
-} from '@common/assert';
+import {assertBigIntOrUndefined, assertStringOrUndefined} from '@common/assert';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {
   CustomQueryParserResultTypeMap,
@@ -79,7 +75,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
       containersResult,
       visibleAndDisplayRects,
       this.traceProcessor,
-      assertDefined(this.traceGeometryData),
+      this.traceGeometryData,
     );
   }
 
@@ -138,7 +134,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
       const visibleRectsResult = await this.queryAllVisibleAndDisplayRects();
       this.visibleAndDisplayRects = extractAllRects(
         visibleRectsResult.iter({}),
-        assertDefined(this.traceGeometryData),
+        this.traceGeometryData,
         (row: RowIterator) => makeTreeNodeId(row),
         (row: RowIterator) => makeTreeNodeName(row),
       );

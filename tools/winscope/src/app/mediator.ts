@@ -195,7 +195,6 @@ export class Mediator {
   private async onAppFilesUploaded(event: AppFilesUploaded) {
     this.currentProgressListener = this.uploadTracesComponent;
     await this.loadFiles(event.files, FilesSource.UPLOADED);
-
     UserNotifier.notify();
   }
 
@@ -673,7 +672,6 @@ export class Mediator {
   }
 
   private async processRemoteFilesReceived(files: File[], source: FilesSource) {
-    await this.resetAppToInitialState();
     this.currentProgressListener = this.uploadTracesComponent;
     await this.loadFiles(files, source);
     UserNotifier.notify();
@@ -808,9 +806,6 @@ export class Mediator {
     const traceGeometryData = this.tracePipeline.getTraceGeometryData();
     const trace = this.screenRecordingTrace ?? eventTrace;
 
-    if (traceGeometryData === undefined) {
-      return;
-    }
     if (trace === undefined) {
       return;
     }

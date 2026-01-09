@@ -32,8 +32,8 @@ export class FileReaderWindowManagerDump extends AbstractFileReader<DumpProto> {
     return TraceType.WINDOW_MANAGER;
   }
 
-  override getMagicNumber(): undefined {
-    return undefined;
+  override getMagicNumber(): number[] {
+    return [];
   }
 
   override getRealToBootTimeOffsetNs(): bigint | undefined {

@@ -127,7 +127,7 @@ export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
   abstract getCoarseVersion(): CoarseVersion;
 
   protected abstract processDecodedEntry(index: number): Promise<U>;
-  protected abstract getMagicNumber(): undefined | number[];
+  protected abstract getMagicNumber(): number[];
   protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
   protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }

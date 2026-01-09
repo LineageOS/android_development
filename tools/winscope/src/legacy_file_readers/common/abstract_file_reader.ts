@@ -93,7 +93,7 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
   abstract getRealToMonotonicTimeOffsetNs(): bigint | undefined;
   abstract getTraceType(): TraceType;
 
-  protected abstract getMagicNumber(): undefined | number[];
+  protected abstract getMagicNumber(): number[];
   protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
   protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }

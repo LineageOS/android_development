@@ -34,8 +34,8 @@ export class ParserScreenRecording extends AbstractParserScreenRecording {
   private realToBootTimeOffsetNs: bigint | undefined;
   private makeTimestampFromExactValue = false;
 
-  protected override getMagicNumber(): number[] | undefined {
-    return undefined;
+  protected override getMagicNumber(): number[] {
+    return [];
   }
 
   override getRealToBootTimeOffsetNs(): bigint | undefined {

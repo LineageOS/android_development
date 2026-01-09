@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {browser} from 'protractor';
+import {browser, by, element, protractor} from 'protractor';
 import {
   changeRealTimestampInWinscope,
   checkFinalRealTimestamp,
@@ -84,6 +84,11 @@ describe('Viewer Window Manager', () => {
       'flags',
       'flags:\nFLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS | FLAG_HARDWARE_ACCELERATED | FLAG_SPLIT_TOUCH | FLAG_LAYOUT_IN_SCREEN | FLAG_NOT_FOCUSABLE',
     );
+
+    const viewport = element(
+      by.css(`${viewerSelector} .properties .tree-scroll`),
+    );
+    await viewport.sendKeys(protractor.Key.END);
 
     await checkItemInPropertiesTree(
       viewerSelector,

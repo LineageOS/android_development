@@ -23,22 +23,15 @@ import {
 } from '@trace_processor/test_utils';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 
-import {
-  TraceGeometryData,
-  TraceGeometryDataBuilder,
-} from './trace_geometry_data';
+import {buildTraceGeometryData, TraceGeometryData} from './trace_geometry_data';
 
 describe('TraceGeometryData', () => {
   let mockTraceProcessor: jasmine.SpyObj<TraceProcessor>;
-  let builder: TraceGeometryDataBuilder;
 
   beforeEach(() => {
     mockTraceProcessor = jasmine.createSpyObj<TraceProcessor>(
       'MockTraceProcessor',
       ['query'],
-    );
-    builder = new TraceGeometryDataBuilder().setTraceProcessor(
-      mockTraceProcessor,
     );
   });
 
@@ -54,7 +47,8 @@ describe('TraceGeometryData', () => {
       ];
 
       setupMockQuery(mockRectRows, mockTransformRows);
-      const traceGeometryData = await builder.build();
+      const traceGeometryData =
+        await buildTraceGeometryData(mockTraceProcessor);
 
       expect(mockTraceProcessor.query).toHaveBeenCalledTimes(2);
 
@@ -71,7 +65,8 @@ describe('TraceGeometryData', () => {
 
     it('should handle empty query results', async () => {
       setupMockQuery([], []);
-      const traceGeometryData = await builder.build();
+      const traceGeometryData =
+        await buildTraceGeometryData(mockTraceProcessor);
       expect(mockTraceProcessor.query).toHaveBeenCalledTimes(2);
       expect(traceGeometryData.getRect(1n)).toBeUndefined();
       expect(traceGeometryData.getTransform(1n)).toBeUndefined();
@@ -84,7 +79,7 @@ describe('TraceGeometryData', () => {
     beforeEach(async () => {
       const mockRectRows = [{id: 100n, x: 1, y: 2, w: 3, h: 4}];
       setupMockQuery(mockRectRows, []);
-      traceGeometryData = await builder.build();
+      traceGeometryData = await buildTraceGeometryData(mockTraceProcessor);
     });
 
     it('getRect should return the correct Rect for a valid ID', () => {
@@ -104,7 +99,7 @@ describe('TraceGeometryData', () => {
         {id: 100n, dsdx: 1.1, dtdx: 0.1, tx: 10, dtdy: 1.2, dsdy: 0.2, ty: 11},
       ];
       setupMockQuery([], mockTransformRows);
-      traceGeometryData = await builder.build();
+      traceGeometryData = await buildTraceGeometryData(mockTraceProcessor);
     });
 
     it('getTransform should return the correct TransformMatrix for a valid ID', () => {

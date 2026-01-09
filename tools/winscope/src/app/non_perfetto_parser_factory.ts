@@ -16,18 +16,17 @@
 
 import {assertTrue} from '@common/assert';
 import {ProgressListener} from '@messaging/progress_listener';
-import {Parser} from '@trace_api/parser';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {ParserScreenRecording} from '@parsers/screen_recording/parser_screen_recording';
 import {ParserScreenshot} from '@parsers/screenshot/parser_screenshot';
 import {ParserScreenRecordingLegacy} from '@parsers/screen_recording/parser_screen_recording_legacy';
-import {FileReader} from '@trace_api/file_reader';
 import {ProcessedFiles} from '@app/processed_files';
 import {TraceFile} from '@trace/trace_file';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {UserNotifier} from '@services/user_notifier';
 import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
+import {FileReaderAndParser} from './file_reader_and_parser';
 
 export class NonPerfettoParserFactory {
   static readonly PARSERS = [
@@ -42,8 +41,8 @@ export class NonPerfettoParserFactory {
     timestampConverter: ParserTimestampConverter,
     metadata: TraceMetadata,
     progressListener?: ProgressListener,
-  ): Promise<ProcessedFiles<Parser<unknown> & FileReader>> {
-    const supportedFiles: Array<Parser<unknown> & FileReader> = [];
+  ): Promise<ProcessedFiles<FileReaderAndParser>> {
+    const supportedFiles: FileReaderAndParser[] = [];
     const unsupportedFiles: TraceFile[] = [];
 
     for (const [index, traceFile] of traceFiles.entries()) {

@@ -25,26 +25,27 @@ import {ParserInputMethodManagerService} from '@parsers/input_method/parser_inpu
 import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
 import {ParserProtolog} from '@parsers/protolog/parser_protolog';
 import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
-import {TraceGeometryDataBuilder} from '@parsers/helpers/trace_geometry_data';
+import {
+  buildTraceGeometryData,
+  TraceGeometryData,
+} from '@parsers/helpers/trace_geometry_data';
 import {ParserTransactions} from '@parsers/transactions/parser_transactions';
 import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace/trace_file';
-import {Parser} from '@trace_api/parser';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {getLogger, Logger} from '@compat/logging';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
-import {FileReader} from '@trace_api/file_reader';
+import {FileReaderAndParser} from './file_reader_and_parser';
 
-interface ProcessedFile {
-  parsers: Array<Parser<HierarchyTreeNode> & FileReader>;
+export interface ProcessedFile {
+  parsers: Array<FileReaderAndParser<HierarchyTreeNode>>;
   isPerfettoTrace: boolean;
-  traceGeometryData: TraceGeometryData | undefined;
+  traceGeometryData: TraceGeometryData;
 }
 
 export class PerfettoParserFactory {
@@ -81,7 +82,7 @@ export class PerfettoParserFactory {
       return {
         parsers: [],
         isPerfettoTrace: false,
-        traceGeometryData: undefined,
+        traceGeometryData: new TraceGeometryData(),
       };
     }
 
@@ -91,9 +92,7 @@ export class PerfettoParserFactory {
     );
 
     await this.processGeometryTables(traceProcessor);
-    const traceGeometryData = await new TraceGeometryDataBuilder()
-      .setTraceProcessor(traceProcessor)
-      .build();
+    const traceGeometryData = await buildTraceGeometryData(traceProcessor);
 
     const parsers = [];
     let hasFoundParser = false;

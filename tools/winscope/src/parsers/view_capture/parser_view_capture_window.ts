@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
@@ -96,7 +95,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       viewsResult,
       visibleRects,
       this.traceProcessor,
-      assertDefined(this.traceGeometryData),
+      this.traceGeometryData,
     );
   }
 
@@ -167,7 +166,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       const visibleRectsResult = await this.queryAllVisibleRects();
       this.visibleRects = extractAllRects(
         visibleRectsResult.iter({}),
-        assertDefined(this.traceGeometryData),
+        this.traceGeometryData,
         (row: RowIterator) => makeTreeNodeId(row),
         (row: RowIterator) => makeTreeNodeName(row),
       );

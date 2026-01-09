@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-import {equal} from './typed_array';
+import {FileReader} from '@trace_api/file_reader';
+import {Parser} from '@trace_api/parser';
 
-export function throwIfMagicNumberDoesNotMatch(
-  traceBuffer: Uint8Array,
-  magicNumber: number[],
-) {
-  const bufferContainsMagicNumber = startsWithMagicNumber(
-    traceBuffer,
-    magicNumber,
-  );
-  if (!bufferContainsMagicNumber) {
-    throw new TypeError("buffer doesn't contain expected magic number");
-  }
-}
-
-export function startsWithMagicNumber(
-  buffer: Uint8Array,
-  magicNumber: number[],
-) {
-  return equal(buffer.slice(0, magicNumber.length), magicNumber);
-}
+/**
+ * Created by non-perfetto and parser factories, to avoid duplication of methods
+ * between the two interfaces where possible, as only some classes in the app
+ * package need to be aware that the resulting objects provide both file reader
+ * and parser functionality.
+ */
+export type FileReaderAndParser<T = unknown> = FileReader & Parser<T>;

@@ -79,8 +79,7 @@ import {FileReaderTransitions} from '@legacy_file_readers/transitions/file_reade
 import {Parser} from '@trace_api/parser';
 import {ParserInput} from '@parsers/input/parser_input';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-
-type FileReaderAndParser = FileReader & Parser<unknown>;
+import {FileReaderAndParser} from './file_reader_and_parser';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -101,7 +100,7 @@ export class TracePipeline
   private downloadArchiveFilename?: string;
   private lostPerfettoPackets = 0;
   private timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO);
-  private traceGeometryData: TraceGeometryData | undefined;
+  private traceGeometryData = new TraceGeometryData();
 
   constructor(private readonly logger: Logger = getLogger('TracePipeline')) {}
 
@@ -109,7 +108,7 @@ export class TracePipeline
     this.traceFileFilter.setEmitEvent(callback);
   }
 
-  getTraceGeometryData() {
+  getTraceGeometryData(): TraceGeometryData {
     return this.traceGeometryData;
   }
 
@@ -358,7 +357,7 @@ export class TracePipeline
       tryIdentifyNonPerfetto,
       tryIdentifyPerfetto,
     );
-    warnings.push(...(identifiedFiles.criticalWarnings ?? []));
+    warnings.push(...identifiedFiles.criticalWarnings);
 
     if (
       identifiedFiles.perfetto === undefined &&

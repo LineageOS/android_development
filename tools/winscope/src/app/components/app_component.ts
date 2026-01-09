@@ -332,7 +332,7 @@ export class AppComponent implements WinscopeEventListener {
 
   onRemoveAllTraces() {
     this.tracePipeline.onDestroy();
-    this.tracePipeline = new TracePipeline();
+    this.tracePipeline = this.createNewTracePipeline();
     this.mediator.setTracePipeline(this.tracePipeline);
   }
 
@@ -420,54 +420,6 @@ export class AppComponent implements WinscopeEventListener {
     this.ngZone.run(() => {
       this.downloadProgress = undefined;
     });
-  }
-
-  private async onViewersLoaded(event: ViewersLoaded) {
-    this.viewers = event.viewers;
-    this.filenameFormControl.setValue(
-      this.tracePipeline.getDownloadArchiveFilename(),
-    );
-    this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
-    this.isEditingFilename = false;
-
-    // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
-    this.dataLoaded = true;
-    this.changeDetectorRef.detectChanges();
-
-    // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
-    // therefore toolbar elements controlled by a different boolean
-    this.ngZone.run(() => {
-      this.showDataLoadedElements = true;
-    });
-    this.updateShareState();
-
-    await this.processRequestData();
-  }
-
-  private async onViewersUnloaded(event: ViewersUnloaded) {
-    this.tracePipeline?.onDestroy();
-    this.tracePipeline = new TracePipeline();
-    this.timelineData = new TimelineData();
-    this.mediator = new Mediator(
-      this.tracePipeline,
-      this.timelineData,
-      this.abtChromeExtensionProtocol,
-      this.crossToolProtocol,
-      this,
-      new PersistentStore(),
-    );
-
-    this.dataLoaded = false;
-    this.showDataLoadedElements = false;
-    this.pageTitle.setTitle('Winscope');
-    this.changeDetectorRef.detectChanges();
-    this.updateShareState();
-  }
-
-  private async onBugreportFileSelectionRequest(
-    event: BugreportFileSelectionRequest,
-  ) {
-    await this.showFileSelectionDialog(event.filenames);
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -595,63 +547,9 @@ export class AppComponent implements WinscopeEventListener {
     return this.getTraceSearchQueries().length > 0;
   }
 
-  private async processRequestData() {
-    const request = this.getReportedRequest();
-    if (!request) {
-      return;
-    }
-
-    if (request.bookmarks && this.timelineComponent) {
-      const converter = this.timelineData.getTimestampConverter();
-      if (converter) {
-        this.timelineComponent.bookmarks = request.bookmarks.map((b) =>
-          converter.makeTimestampFromNs(BigInt(b)),
-        );
-        await this.mediator.onWinscopeEvent(
-          new BookmarksChanged(this.timelineComponent.bookmarks),
-        );
-      }
-    }
-
-    if (request.timestamp) {
-      const converter = this.timelineData.getTimestampConverter();
-      const timestamp = converter?.makeTimestampFromNs(
-        BigInt(request.timestamp),
-      );
-      if (timestamp) {
-        const position =
-          this.timelineData.makePositionFromActiveTrace(timestamp);
-        await this.mediator.onWinscopeEvent(
-          new TracePositionUpdate(position, true),
-        );
-      }
-    }
-
-    if (request.searchQueries) {
-      for (const query of request.searchQueries) {
-        await this.mediator.onWinscopeEvent(new TraceSearchRequest(query));
-      }
-    }
-
-    if (request.traceType) {
-      const trace = this.tracePipeline.getTraces().getTrace(request.traceType);
-      if (trace) {
-        await this.mediator.onWinscopeEvent(new TabbedViewSwitchRequest(trace));
-      }
-    }
-  }
-
   updateShareState() {
     this.updateShareOptionsVisibility();
     this.updateShareLink();
-  }
-
-  private updateShareOptionsVisibility() {
-    this.canShareLocation = this.hasTimestampToShare();
-    this.canShareBookmarks = this.hasBookmarksToShare();
-    this.canShareQueries = this.hasQueriesToShare();
-    this.showShareOptionsContainer =
-      this.canShareLocation || this.canShareBookmarks || this.canShareQueries;
   }
 
   getTraceSearchQueries(): string[] {
@@ -792,6 +690,108 @@ export class AppComponent implements WinscopeEventListener {
     });
   }
 
+  private async onViewersLoaded(event: ViewersLoaded) {
+    this.viewers = event.viewers;
+    this.filenameFormControl.setValue(
+      this.tracePipeline.getDownloadArchiveFilename(),
+    );
+    this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
+    this.isEditingFilename = false;
+
+    // some elements e.g. timeline require dataLoaded to be set outside NgZone to render
+    this.dataLoaded = true;
+    this.changeDetectorRef.detectChanges();
+
+    // tooltips must be rendered inside ngZone due to limitation of MatTooltip,
+    // therefore toolbar elements controlled by a different boolean
+    this.ngZone.run(() => {
+      this.showDataLoadedElements = true;
+    });
+    this.updateShareState();
+
+    await this.processRequestData();
+  }
+
+  private async onViewersUnloaded(event: ViewersUnloaded) {
+    this.tracePipeline.onDestroy();
+    this.tracePipeline = this.createNewTracePipeline();
+    this.timelineData = new TimelineData();
+    this.mediator = new Mediator(
+      this.tracePipeline,
+      this.timelineData,
+      this.abtChromeExtensionProtocol,
+      this.crossToolProtocol,
+      this,
+      new PersistentStore(),
+    );
+
+    this.dataLoaded = false;
+    this.showDataLoadedElements = false;
+    this.pageTitle.setTitle('Winscope');
+    this.changeDetectorRef.detectChanges();
+    this.updateShareState();
+  }
+
+  private async onBugreportFileSelectionRequest(
+    event: BugreportFileSelectionRequest,
+  ) {
+    await this.showFileSelectionDialog(event.filenames);
+  }
+
+  private async processRequestData() {
+    const request = this.getReportedRequest();
+    if (!request) {
+      return;
+    }
+
+    if (request.bookmarks && this.timelineComponent) {
+      const converter = this.timelineData.getTimestampConverter();
+      if (converter) {
+        this.timelineComponent.bookmarks = request.bookmarks.map((b) =>
+          converter.makeTimestampFromNs(BigInt(b)),
+        );
+        await this.mediator.onWinscopeEvent(
+          new BookmarksChanged(this.timelineComponent.bookmarks),
+        );
+      }
+    }
+
+    if (request.timestamp) {
+      const converter = this.timelineData.getTimestampConverter();
+      const timestamp = converter?.makeTimestampFromNs(
+        BigInt(request.timestamp),
+      );
+      if (timestamp) {
+        const position =
+          this.timelineData.makePositionFromActiveTrace(timestamp);
+        await this.mediator.onWinscopeEvent(
+          new TracePositionUpdate(position, true),
+        );
+      }
+    }
+
+    if (request.searchQueries) {
+      for (const query of request.searchQueries) {
+        await this.mediator.onWinscopeEvent(new TraceSearchRequest(query));
+      }
+    }
+
+    if (request.traceType) {
+      const trace = this.tracePipeline.getTraces().getTrace(request.traceType);
+      if (trace) {
+        await this.mediator.onWinscopeEvent(new TabbedViewSwitchRequest(trace));
+      }
+    }
+  }
+
+  private updateShareOptionsVisibility() {
+    this.canShareLocation = this.hasTimestampToShare();
+    this.canShareBookmarks = this.hasBookmarksToShare();
+    this.canShareQueries = this.hasQueriesToShare();
+    this.showShareOptionsContainer =
+      this.canShareLocation || this.canShareBookmarks || this.canShareQueries;
+  }
+
   private goToLink(url: string) {
     window.open(url, '_blank');
   }
@@ -803,5 +803,13 @@ export class AppComponent implements WinscopeEventListener {
   private downloadTraces(blob: Blob, filename: string) {
     const url = window.URL.createObjectURL(blob);
     this.downloadRequest(url, filename);
+  }
+
+  private createNewTracePipeline(): TracePipeline {
+    const tracePipeline = new TracePipeline();
+    this.crossToolProtocol.updateTimestampConverter(
+      tracePipeline.getTimestampConverter(),
+    );
+    return tracePipeline;
   }
 }
