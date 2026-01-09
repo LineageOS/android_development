@@ -19,6 +19,7 @@
 @import url("styles/viewer_card_style.css");
 @import url("styles/viewer_card_inner.css");
 @import url("styles/log_component.css");
+@import url("styles/selected_element.css");
 
 .log-title {
   padding-bottom: 8px;
