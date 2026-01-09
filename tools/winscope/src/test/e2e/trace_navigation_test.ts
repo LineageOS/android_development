@@ -25,7 +25,7 @@ import {
 } from './helpers';
 
 describe('Trace navigation', () => {
-  const DEFAULT_TIMEOUT_MS = 1000;
+  const DEFAULT_TIMEOUT_MS = 5000;
 
   beforeEach(async () => {
     await setTimeouts(DEFAULT_TIMEOUT_MS);
@@ -41,6 +41,24 @@ describe('Trace navigation', () => {
 
     await clickUploadNewButton();
     await checkHomepage();
+  });
+
+  it('discards legacy traces', async () => {
+    await uploadFixture('archives/deployment_full_trace_phone_legacy.zip');
+    await clickViewTracesButton(false);
+    const screenRecording = element(by.css('viewer-media-based'));
+    expect(await screenRecording.isPresent()).toBeTruthy();
+    const tabs = await element.all(by.css('.tab'));
+    expect(tabs.length).toBe(0);
+  });
+
+  it('converts legacy traces', async () => {
+    await uploadFixture('archives/deployment_full_trace_phone_legacy.zip');
+    await clickViewTracesButton(true);
+    const screenRecording = element(by.css('viewer-media-based'));
+    expect(await screenRecording.isPresent()).toBeTruthy();
+    const tabs = await element.all(by.css('.tab'));
+    expect(tabs.length).toBe(4);
   });
 
   async function checkHomepage() {
