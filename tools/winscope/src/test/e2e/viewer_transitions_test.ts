@@ -34,7 +34,7 @@ describe('Viewer Transitions', () => {
       'traces/elapsed_and_real_timestamp/shell_transition_trace.pb',
     );
     await closeSnackBar();
-    await clickViewTracesButton();
+    await clickViewTracesButton(true);
 
     const isViewerRendered = await element(
       by.css('viewer-transitions'),
