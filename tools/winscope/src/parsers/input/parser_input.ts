@@ -37,8 +37,8 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 type OriginalTraceIndex = number;
 
 export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
-  private readonly parserKey: Parser<HierarchyTreeNode>;
-  private readonly parserMotion: Parser<HierarchyTreeNode>;
+  private readonly parserKey: Parser<HierarchyTreeNode> | undefined;
+  private readonly parserMotion: Parser<HierarchyTreeNode> | undefined;
   private readonly files: TraceFile[];
   private readonly descriptors: string[];
   private mergedEntryIndexMap:
@@ -47,14 +47,15 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
   private timestamps: Timestamp[] | undefined;
 
   constructor(
-    parserKey: Parser<HierarchyTreeNode>,
-    parserMotion: Parser<HierarchyTreeNode>,
+    parserKey: Parser<HierarchyTreeNode> | undefined,
+    parserMotion: Parser<HierarchyTreeNode> | undefined,
     files: TraceFile[],
   ) {
     this.parserKey = parserKey;
     this.parserMotion = parserMotion;
     this.files = files;
-    this.descriptors = this.parserMotion?.getDescriptors() ?? [];
+    const definedParser = assertDefined(parserKey ?? parserMotion);
+    this.descriptors = definedParser.getDescriptors();
   }
 
   onDestroy() {
@@ -98,8 +99,8 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
 
   async getAllEntries(): Promise<Array<HierarchyTreeNode | undefined>> {
     const [keyEvents, motionEvents] = await Promise.all([
-      this.parserKey.getAllEntries() ?? [],
-      this.parserMotion.getAllEntries() ?? [],
+      this.parserKey?.getAllEntries() ?? [],
+      this.parserMotion?.getAllEntries() ?? [],
     ]);
     return assertDefined(this.mergedEntryIndexMap).map(([subIndex, type]) => {
       return type === TraceType.INPUT_KEY_EVENT
@@ -134,8 +135,8 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
 
   async createTimestamps() {
     const timestamps: Timestamp[] = [];
-    const parserKeyTs = this.parserKey.getTimestamps();
-    const parserMotionTs = this.parserMotion.getTimestamps();
+    const parserKeyTs = this.parserKey?.getTimestamps() ?? [];
+    const parserMotionTs = this.parserMotion?.getTimestamps() ?? [];
     assertDefined(this.mergedEntryIndexMap).forEach(([index, traceType]) => {
       const ts = assertDefined(
         traceType === TraceType.INPUT_KEY_EVENT ? parserKeyTs : parserMotionTs,
@@ -166,7 +167,7 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
         let keyResult: Array<bigint> = [];
         if (keyRange !== undefined) {
           keyResult =
-            (await this.parserKey.customQuery(
+            (await this.parserKey?.customQuery(
               CustomQueryType.VSYNCID,
               keyRange,
             )) ?? [];
@@ -175,7 +176,7 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
         let motionResult: Array<bigint> = [];
         if (motionRange !== undefined) {
           motionResult =
-            (await this.parserMotion.customQuery(
+            (await this.parserMotion?.customQuery(
               CustomQueryType.VSYNCID,
               motionRange,
             )) ?? [];
@@ -230,9 +231,15 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
   // Returns the mapping from the index of the merged trace to the index in the
   // sub-trace.
   private static createMergedEntryIndexMap(
-    parser1: Parser<unknown>,
-    parser2: Parser<unknown>,
+    parser1: Parser<unknown> | undefined,
+    parser2: Parser<unknown> | undefined,
   ): Array<[OriginalTraceIndex, TraceType]> {
+    if (!parser1) {
+      return ParserInput.createEntryIndexMap(assertDefined(parser2));
+    }
+    if (!parser2) {
+      return ParserInput.createEntryIndexMap(assertDefined(parser1));
+    }
     // We are assuming the parsers entries are sorted by timestamps.
     const timestamps1 = parser1.getTimestamps();
     const timestamps2 = parser2.getTimestamps();
@@ -260,5 +267,14 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
     }
 
     return mergedIndices;
+  }
+
+  private static createEntryIndexMap(
+    parser: Parser<unknown>,
+  ): Array<[OriginalTraceIndex, TraceType]> {
+    const type = parser.getTraceType();
+    return Array.from({length: parser.getLengthEntries()}, (_, i) => {
+      return [i, type];
+    });
   }
 }

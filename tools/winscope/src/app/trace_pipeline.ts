@@ -80,6 +80,7 @@ import {Parser} from '@trace_api/parser';
 import {ParserInput} from '@parsers/input/parser_input';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {FileReaderAndParser} from './file_reader_and_parser';
+import {assertDefined} from '@common/assert';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -178,18 +179,22 @@ export class TracePipeline
     const parserMotion = perfetto.find((p) => {
       return p.getTraceType() === TraceType.INPUT_MOTION_EVENT;
     });
-    if (!parserKey || !parserMotion) {
+    if (!parserKey && !parserMotion) {
       return;
     }
     const parserInput = new ParserInput(
-      parserKey as Parser<HierarchyTreeNode>,
-      parserMotion as Parser<HierarchyTreeNode>,
-      parserKey.getFiles(),
+      parserKey as Parser<HierarchyTreeNode> | undefined,
+      parserMotion as Parser<HierarchyTreeNode> | undefined,
+      parserKey?.getFiles() ?? assertDefined(parserMotion?.getFiles()),
     );
     await parserInput.parse();
     this.loadedFiles.addFiles([], [], [parserInput], false);
-    this.loadedFiles.remove(parserKey);
-    this.loadedFiles.remove(parserMotion);
+    if (parserKey) {
+      this.loadedFiles.remove(parserKey);
+    }
+    if (parserMotion) {
+      this.loadedFiles.remove(parserMotion);
+    }
   }
 
   async convertLegacyTracesToPerfetto() {
