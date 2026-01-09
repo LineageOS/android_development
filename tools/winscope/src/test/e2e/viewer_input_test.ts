@@ -18,6 +18,7 @@ import {browser, by, element, ElementFinder} from 'protractor';
 import {
   checkFinalRealTimestamp,
   checkInitialRealTimestamp,
+  checkItemInPropertiesTreeByIndex,
   checkSelectFilter,
   checkTimelineTraceSelector,
   loadTraceAndCheckViewer,
@@ -75,13 +76,17 @@ describe('Viewer Input', () => {
       '0',
       '[\n212\n,\n64\n,\n82\n,\n75\n]',
     ]);
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByIndex(
       '.event-properties',
       2,
       'classification:\nCLASSIFICATION_NONE',
     );
-    await checkItemInPropertiesTree('.event-properties', 11, 'metaState:\n0x0');
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByIndex(
+      '.event-properties',
+      11,
+      'metaState:\n0x0',
+    );
+    await checkItemInPropertiesTreeByIndex(
       '.dispatch-properties',
       3,
       '0 - Pointer:\nID: 0, XY: (1936.00, 431.00), RawXY: (1936.00, 431.00)',
@@ -100,12 +105,12 @@ describe('Viewer Input', () => {
       '-1',
       'Keycode: VOLUME_UP [\n212\n]',
     ]);
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByIndex(
       '.event-properties',
       7,
       'flags:\nFLAG_FROM_SYSTEM',
     );
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByIndex(
       '.dispatch-properties',
       2,
       'resolvedFlags:\n8',
@@ -140,19 +145,6 @@ describe('Viewer Input', () => {
       icon: 'touch_app',
       color: 'rgba(139, 174, 244, 1)',
     });
-  }
-
-  async function checkItemInPropertiesTree(
-    propertiesSelector: string,
-    nodeIndex: number,
-    expectedText: string,
-  ) {
-    const nodes = element.all(
-      by.css(`${viewerSelector} ${propertiesSelector} .node-property`),
-    );
-    const node = nodes.get(nodeIndex);
-    const text = await node.getText();
-    expect(text).toEqual(expectedText);
   }
 
   async function checkFilter(

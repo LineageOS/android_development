@@ -398,6 +398,24 @@ export async function checkItemInPropertiesTree(
 }
 
 /**
+ * Check that an item in the properties tree has the expected text by node index.
+ *
+ * @param propertiesSelector The properties element to check the item in.
+ * @param nodeIndex The index of the node to check.
+ * @param expectedText The expected text of the item.
+ */
+export async function checkItemInPropertiesTreeByIndex(
+  propertiesSelector: string,
+  nodeIndex: number,
+  expectedText: string,
+) {
+  const nodes = element.all(by.css(`${propertiesSelector} .node-property`));
+  const node = nodes.get(nodeIndex);
+  const text = await node.getText();
+  expect(text).toEqual(expectedText);
+}
+
+/**
  * Check that a rect label has the expected text.
  *
  * @param viewer The viewer to check the label in.
