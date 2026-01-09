@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {browser, by, element, protractor} from 'protractor';
+import {browser} from 'protractor';
 import {
   changeRealTimestampInWinscope,
   checkFinalRealTimestamp,
@@ -25,6 +25,7 @@ import {
   checkWinscopeRealTimestamp,
   filterHierarchy,
   loadTraceAndCheckViewer,
+  scrollDown,
   selectItemInHierarchy,
   setTimeouts,
   WINSCOPE_URL,
@@ -40,7 +41,7 @@ describe('Viewer Window Manager', () => {
 
   it('processes trace from zip and navigates correctly', async () => {
     await loadTraceAndCheckViewer(
-      'archives/deployment_full_trace_phone.zip',
+      'archives/deployment_full_trace_phone_perfetto.zip',
       'Window Manager',
       viewerSelector,
     );
@@ -85,10 +86,10 @@ describe('Viewer Window Manager', () => {
       'flags:\nFLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS | FLAG_HARDWARE_ACCELERATED | FLAG_SPLIT_TOUCH | FLAG_LAYOUT_IN_SCREEN | FLAG_NOT_FOCUSABLE',
     );
 
-    const viewport = element(
-      by.css(`${viewerSelector} .properties .tree-scroll`),
+    await scrollDown(
+      `${viewerSelector} .properties .tree-scroll`,
+      `${viewerSelector} .properties #nodecompatFrame`,
     );
-    await viewport.sendKeys(protractor.Key.END);
 
     await checkItemInPropertiesTree(
       viewerSelector,

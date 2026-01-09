@@ -39,7 +39,7 @@ describe('Viewer Input Method Service', () => {
 
   it('processes trace from zip and navigates correctly', async () => {
     await loadTraceAndCheckViewer(
-      'archives/deployment_full_trace_phone.zip',
+      'archives/deployment_full_trace_phone_perfetto.zip',
       'IME Service',
       viewerSelector,
     );

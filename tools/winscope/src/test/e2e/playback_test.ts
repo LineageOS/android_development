@@ -62,7 +62,7 @@ describe('Playback', () => {
 
   async function loadTraces() {
     await loadTraceAndCheckViewer(
-      'archives/deployment_full_trace_phone.zip',
+      'archives/deployment_full_trace_phone_perfetto.zip',
       'Surface Flinger',
       'viewer-surface-flinger',
     );
