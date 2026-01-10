@@ -62,7 +62,7 @@ describe('Upload traces', () => {
 
   it('can process bugreport', async () => {
     await loadBugReport(DEFAULT_TIMEOUT_MS);
-    await clickViewTracesButton();
+    await clickViewTracesButton(true);
     await checkRendersSurfaceFlingerView();
   });
 

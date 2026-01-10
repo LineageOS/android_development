@@ -245,7 +245,9 @@ function createTimestamps(
     }
   }
   fileReaders.forEach((fileReader) => {
+    expect(fileReader.getTimestamps).toThrow();
     fileReader.createTimestamps();
+    expect(fileReader.getTimestamps().length).toBeGreaterThan(0);
   });
 }
 
@@ -339,16 +341,16 @@ export async function getImeTraceEntries(): Promise<
 
 export async function getParserInput(filename: string): Promise<ParserInput> {
   const parsers = await getPerfettoParsers(filename);
-  const parserKey = assertDefined(
-    parsers.find((p) => p.getTraceType() === TraceType.INPUT_KEY_EVENT),
+  const parserKey = parsers.find(
+    (p) => p.getTraceType() === TraceType.INPUT_KEY_EVENT,
   );
-  const parserMotion = assertDefined(
-    parsers.find((p) => p.getTraceType() === TraceType.INPUT_MOTION_EVENT),
+  const parserMotion = parsers.find(
+    (p) => p.getTraceType() === TraceType.INPUT_MOTION_EVENT,
   );
   const mergedParser = new ParserInput(
     parserKey,
     parserMotion,
-    parserMotion.getFiles(),
+    parserKey?.getFiles() ?? assertDefined(parserMotion?.getFiles()),
   );
   await mergedParser.parse();
   return mergedParser;

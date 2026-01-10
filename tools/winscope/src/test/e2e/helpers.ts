@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 import * as path from 'path';
-import {browser, by, element, ElementFinder, protractor} from 'protractor';
+import {
+  browser,
+  by,
+  element,
+  ElementFinder,
+  ExpectedConditions,
+  protractor,
+} from 'protractor';
 
 export const WINSCOPE_URL = 'http://localhost:8080';
 export const REMOTE_TOOL_MOCK_URL = 'http://localhost:8081';
@@ -61,10 +68,11 @@ export async function loadTraceAndCheckViewer(
   fixturePath: string,
   viewerTabTitle: string,
   viewerSelector: string,
+  forceKeepLegacy = false,
 ) {
   await uploadFixture(fixturePath);
   await closeSnackBar();
-  await clickViewTracesButton();
+  await clickViewTracesButton(forceKeepLegacy);
   await clickViewerTabButton(viewerTabTitle);
 
   const viewerPresent = await element(by.css(viewerSelector)).isPresent();
@@ -106,7 +114,8 @@ export async function areMessagesEmitted(
  *
  * @param forceKeepLegacy Whether to un-check the "Discard legacy traces" checkbox.
  */
-export async function clickViewTracesButton(forceKeepLegacy = true) {
+export async function clickViewTracesButton(forceKeepLegacy: boolean) {
+  await waitForElement('.discard-legacy-traces');
   const discardTracesBox = element(by.css('.discard-legacy-traces'));
   if (
     forceKeepLegacy &&
@@ -379,10 +388,29 @@ export async function checkItemInPropertiesTree(
   viewer: string,
   itemName: string,
   expectedText: string,
+  propertiesSelector = '.properties-view',
 ) {
   const node = element(
-    by.css(`${viewer} .properties-view #node${itemName} .node-property`),
+    by.css(`${viewer} ${propertiesSelector} #node${itemName} .node-property`),
   );
+  const text = await node.getText();
+  expect(text).toEqual(expectedText);
+}
+
+/**
+ * Check that an item in the properties tree has the expected text by node index.
+ *
+ * @param propertiesSelector The properties element to check the item in.
+ * @param nodeIndex The index of the node to check.
+ * @param expectedText The expected text of the item.
+ */
+export async function checkItemInPropertiesTreeByIndex(
+  propertiesSelector: string,
+  nodeIndex: number,
+  expectedText: string,
+) {
+  const nodes = element.all(by.css(`${propertiesSelector} .node-property`));
+  const node = nodes.get(nodeIndex);
   const text = await node.getText();
   expect(text).toEqual(expectedText);
 }
@@ -482,12 +510,38 @@ export async function checkSelectFilter(
   options: string[],
   expectedFilteredEntries: number,
   totalEntries: number,
+  scrollToBottom = true,
 ) {
   await toggleSelectFilterOptions(viewerSelector, filterSelector, options);
   await checkTotalScrollEntries(viewerSelector, expectedFilteredEntries);
 
   await toggleSelectFilterOptions(viewerSelector, filterSelector, options);
-  await checkTotalScrollEntries(viewerSelector, totalEntries, true);
+  await checkTotalScrollEntries(viewerSelector, totalEntries, scrollToBottom);
+}
+
+/**
+ * Scroll down on a given viewport and wait for a hidden element to be shown.
+ *
+ * @param viewportEl Viewport selector to apply scroll.
+ * @param hiddenEl Element selector for element that should be shown after scroll.
+ */
+export async function scrollDown(viewportEl: string, hiddenEl: string) {
+  const viewport = element(by.css(viewportEl));
+  await viewport.sendKeys(protractor.Key.END);
+  await waitForElement(hiddenEl);
+}
+
+/**
+ * Wait for element to be shown.
+ *
+ * @param selector Selector of element to be shown.
+ */
+export async function waitForElement(selector: string) {
+  await browser.wait(
+    ExpectedConditions.presenceOf(element(by.css(selector))),
+    5000,
+    `${selector} not found`,
+  );
 }
 
 /**
@@ -584,8 +638,19 @@ async function toggleSelectFilterOptions(
   const optionElements: ElementFinder[] = await element.all(
     by.css('.mat-mdc-select-panel .option'),
   );
+  const firstOption = optionElements[0];
+  await browser.wait(
+    async () => {
+      const text = await firstOption.getText();
+      return text.trim().length > 0;
+    },
+    5000,
+    'Select filter options text did not load',
+  );
   for (const optionEl of optionElements) {
-    const optionText = (await optionEl.getText()).trim();
+    const optionText = (await optionEl.getText())
+      .trim()
+      .replace(/[\u200B-\u200D\uFEFF]/g, '');
     if (options.some((option) => optionText === option)) {
       await optionEl.click();
       options = options.filter((option) => option !== optionText);

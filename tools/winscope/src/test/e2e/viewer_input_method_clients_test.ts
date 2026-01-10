@@ -24,6 +24,7 @@ import {
   checkTimelineTraceSelector,
   checkWinscopeRealTimestamp,
   loadTraceAndCheckViewer,
+  scrollDown,
   selectItemInHierarchy,
   setTimeouts,
   WINSCOPE_URL,
@@ -39,7 +40,7 @@ describe('Viewer Input Method Clients', () => {
 
   it('processes trace from zip and navigates correctly', async () => {
     await loadTraceAndCheckViewer(
-      'archives/deployment_full_trace_phone.zip',
+      'archives/deployment_full_trace_phone_perfetto.zip',
       'IME Clients',
       viewerSelector,
     );
@@ -61,6 +62,10 @@ describe('Viewer Input Method Clients', () => {
     await clickInputMethodSurface();
     await checkInputMethodSurfaceProperties();
 
+    await scrollDown(
+      `${viewerSelector} .hierarchy-view .tree-scroll`,
+      `${viewerSelector} hierarchy-view [id="nodeInputMethod#765"]`,
+    );
     await selectItemInHierarchy(viewerSelector, 'InputMethod#765');
     await checkInputMethodLayerProperties();
 

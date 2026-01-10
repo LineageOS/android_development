@@ -64,10 +64,6 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
     return [this.windowName, this.traceFile.getDescriptor()];
   }
 
-  getDecodedEntries(): FrameData[] {
-    return this.frameData;
-  }
-
   getLengthEntries(): number {
     return this.frameData.length;
   }

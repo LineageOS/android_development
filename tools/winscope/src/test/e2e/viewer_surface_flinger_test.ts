@@ -57,7 +57,7 @@ describe('Viewer Surface Flinger', () => {
 
   async function loadTraces() {
     await loadTraceAndCheckViewer(
-      'archives/deployment_full_trace_phone.zip',
+      'archives/deployment_full_trace_phone_perfetto.zip',
       'Surface Flinger',
       viewerSelector,
     );
