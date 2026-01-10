@@ -80,6 +80,7 @@ import {Parser} from '@trace_api/parser';
 import {ParserInput} from '@parsers/input/parser_input';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {FileReaderAndParser} from './file_reader_and_parser';
+import {assertDefined} from '@common/assert';
 
 /**
  * A pipeline that loads, parses and transforms traces.
@@ -171,25 +172,29 @@ export class TracePipeline
   }
 
   private async tryMergeInputEvents() {
-    const nonLegacy = this.loadedFiles.getNonLegacyFileReaders();
-    const parserKey = nonLegacy.find((p) => {
+    const perfetto = this.loadedFiles.getPerfettoFileReaders();
+    const parserKey = perfetto.find((p) => {
       return p.getTraceType() === TraceType.INPUT_KEY_EVENT;
     });
-    const parserMotion = nonLegacy.find((p) => {
+    const parserMotion = perfetto.find((p) => {
       return p.getTraceType() === TraceType.INPUT_MOTION_EVENT;
     });
-    if (!parserKey || !parserMotion) {
+    if (!parserKey && !parserMotion) {
       return;
     }
     const parserInput = new ParserInput(
-      parserKey as Parser<HierarchyTreeNode>,
-      parserMotion as Parser<HierarchyTreeNode>,
-      parserKey.getFiles(),
+      parserKey as Parser<HierarchyTreeNode> | undefined,
+      parserMotion as Parser<HierarchyTreeNode> | undefined,
+      parserKey?.getFiles() ?? assertDefined(parserMotion?.getFiles()),
     );
     await parserInput.parse();
     this.loadedFiles.addFiles([], [], [parserInput], false);
-    this.loadedFiles.remove(parserKey);
-    this.loadedFiles.remove(parserMotion);
+    if (parserKey) {
+      this.loadedFiles.remove(parserKey);
+    }
+    if (parserMotion) {
+      this.loadedFiles.remove(parserMotion);
+    }
   }
 
   async convertLegacyTracesToPerfetto() {
@@ -249,7 +254,8 @@ export class TracePipeline
 
   getLoadedFileReaders(): FileReader[] {
     return [
-      ...this.loadedFiles.getNonLegacyFileReaders(),
+      ...this.loadedFiles.getPerfettoFileReaders(),
+      ...this.loadedFiles.getNonPerfettoFileReaders(),
       ...this.loadedFiles.getLegacyFileReaders(),
     ];
   }
@@ -306,7 +312,10 @@ export class TracePipeline
   }
 
   onDestroy() {
-    this.loadedFiles.getNonLegacyFileReaders().forEach((reader) => {
+    this.loadedFiles.getNonPerfettoFileReaders().forEach((reader) => {
+      reader.onDestroy?.();
+    });
+    this.loadedFiles.getPerfettoFileReaders().forEach((reader) => {
       reader.onDestroy?.();
     });
   }
@@ -533,8 +542,12 @@ export class TracePipeline
   }
 
   buildTraces() {
+    const parsers = [
+      ...this.loadedFiles.getPerfettoFileReaders(),
+      ...this.loadedFiles.getNonPerfettoFileReaders(),
+    ];
     const traces = new Traces();
-    this.loadedFiles.getNonLegacyFileReaders().forEach((parser) => {
+    parsers.forEach((parser) => {
       const trace = Trace.fromParser(parser);
       traces.addTrace(trace);
       Analytics.Tracing.logTraceLoaded(parser);
@@ -548,9 +561,7 @@ export class TracePipeline
     const readers = this.loadedFiles.getLegacyFileReaders();
     const allReaders = [
       ...readers,
-      ...this.loadedFiles
-        .getNonLegacyFileReaders()
-        .filter((r) => r.isPerfetto()),
+      ...this.loadedFiles.getPerfettoFileReaders(),
     ];
 
     const converter = new LegacyToPerfettoConverter()

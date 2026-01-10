@@ -48,7 +48,6 @@ export class ParserMock<T> implements Parser<T> {
       Map<CustomQueryParamTypeMap[CustomQueryType], object>
     >,
     private readonly descriptors: string[],
-    private readonly noOffsets: boolean,
     private readonly isCorrupted: boolean,
   ) {
     if (timestamps.length !== entries.length) {

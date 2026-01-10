@@ -20,7 +20,13 @@ const configCommon = require('./karma.config.common');
 const configCi = (config) => {
   config.set({
     singleRun: true,
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessFixedSize'],
+    customLaunchers: {
+      ChromeHeadlessFixedSize: {
+        base: 'ChromeHeadless',
+        flags: ['--window-size=1280,1024'],
+      }
+    },
     plugins: [
       'karma-webpack',
       'karma-chrome-launcher',

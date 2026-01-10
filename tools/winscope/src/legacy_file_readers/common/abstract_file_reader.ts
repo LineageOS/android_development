@@ -73,10 +73,6 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
     return this.timestamps;
   }
 
-  isPerfetto(): boolean {
-    return false;
-  }
-
   convertToPerfettoPackets(
     sequenceId: number,
     trustedPid: number,

@@ -46,7 +46,6 @@ export class ParserBuilder<T> {
     >
   >();
   private descriptors = ['file descriptor'];
-  private noOffsets = false;
   private isCorrupted = false;
 
   setType(type: TraceType): this {
@@ -61,11 +60,6 @@ export class ParserBuilder<T> {
 
   setTimestamps(timestamps: Timestamp[]): this {
     this.timestamps = timestamps;
-    return this;
-  }
-
-  setNoOffsets(value: boolean): this {
-    this.noOffsets = value;
     return this;
   }
 
@@ -119,7 +113,6 @@ export class ParserBuilder<T> {
       this.entries,
       this.customQueryResult,
       this.descriptors,
-      this.noOffsets,
       this.isCorrupted,
     );
   }

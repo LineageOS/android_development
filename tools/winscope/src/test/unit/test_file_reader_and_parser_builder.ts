@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,37 @@
  * limitations under the License.
  */
 
-import {TestLegacyFileReader} from './test_legacy_file_reader';
 import {TraceFile} from '@trace/trace_file';
-import {TracePacket} from '@compat/perfetto';
+import {TestFileReaderAndParser} from './test_file_reader_and_parser';
 import {TestFileReaderBuilder} from './test_file_reader_builder';
 
 /**
- * Helper class to build `TestLegacyFileReader` instances for testing.
+ * Helper class to build `FileReaderAndParser` instances for testing.
  *
- * This builder simplifies the creation of `TestLegacyFileReader` objects by
+ * This builder simplifies the creation of `TestFileReader` objects by
  * providing a fluent interface to set up different reader configurations,
  * such as trace type and timestamps.
  */
 
-export class TestLegacyFileReaderBuilder extends TestFileReaderBuilder {
-  private tracePackets: TracePacket[] = [];
+export class TestFileReaderAndParserBuilder extends TestFileReaderBuilder {
+  private isPerfetto = true;
 
-  setTracePackets(value: TracePacket[]): this {
-    this.tracePackets = value;
+  setIsPerfetto(value: boolean): this {
+    this.isPerfetto = value;
     return this;
   }
 
-  override build(): TestLegacyFileReader {
+  override build(): TestFileReaderAndParser {
     if (!this.timestamps) {
       throw new Error('timestamps not set');
     }
 
-    return new TestLegacyFileReader(
+    return new TestFileReaderAndParser(
       this.type,
       this.timestamps,
       this.descriptors,
-      this.noOffsets,
       this.traceFile ?? new TraceFile(new File([], this.descriptors[0])),
-      this.tracePackets,
+      this.isPerfetto,
     );
   }
 }
