@@ -120,7 +120,7 @@ specified outside of a package.
 | `target_windows`        | boolean                   | `false` | yes         | Add a `target: { windows: { enabled: true } }` property to modules.
 | `whole_static_libs`     | list of strings           | `[]`    | yes         | Static libraries in this list will instead be added as whole_static_libs.                                          |
 | `exported_c_header_dir` | list of paths             | `[]`    | yes         | Directories with headers to export for C usage.                                                                    |
-| `extra_srcs`            | list of paths             | `[]`    | yes         | Additional sources that should be listed as inputs in `srcs`.                                                      |
+| `srcs`                  | list of paths             | -       | yes         | Sources that should be listed as inputs in `srcs`. If not provided, a default glob of rs files will be used.       |
 
 ## Auto-config
 
