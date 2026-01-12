@@ -122,6 +122,52 @@
           }
         }
       }
+    },
+    "remote-tool-mock": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src/test/remote_tool_mock",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/remote_tool_mock",
+            "index": "src/test/remote_tool_mock/index.html",
+            "main": "src/test/remote_tool_mock/main.ts",
+            "polyfills": "src/test/remote_tool_mock/polyfills.ts",
+            "tsConfig": "src/test/remote_tool_mock/tsconfig.remote_tool.json",
+            "assets": [],
+            "styles": [],
+            "scripts": [],
+            "sourceMap": true,
+            "optimization": false
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "remote-tool-mock:build",
+            "port": 8081
+          }
+        }
+      }
     }
   },
   "cli": {

@@ -27,7 +27,7 @@ exports.config = {
   capabilities: {
     browserName: 'chrome',
     chromeOptions: {
-      args: ['--headless', '--disable-gpu', '--window-size=1280x1024'],
+      args: ['--disable-gpu', '--window-size=1280x1024', '--no-sandbox', '--disable-dev-shm-usage'],
     },
   },
   chromeDriver: './deps_build/chromedriver-linux64/chromedriver',
@@ -36,6 +36,9 @@ exports.config = {
   allScriptsTimeout: 10000,
   getPageTimeout: 10000,
 
+  files: [
+    { pattern: 'src/test/fixtures/**/*', included: false, served: true },
+  ],
   jasmineNodeOpts: {
     defaultTimeoutInterval: 10000,
   },
