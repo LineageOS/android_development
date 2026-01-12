@@ -156,8 +156,7 @@ final class PreferenceController {
             new InternalBoolRule(R.string.internal_pref_virtual_stylus_supported,
                     VANILLA_ICE_CREAM),
 
-            new InternalBoolRule(R.string.internal_pref_virtual_rotary_supported, BAKLAVA,
-                    Flags::virtualRotary),
+            new InternalBoolRule(R.string.internal_pref_virtual_rotary_supported, BAKLAVA),
 
             new InternalBoolRule(R.string.internal_pref_display_rotation_supported, BAKLAVA,
                     Flags::virtualDisplayRotationApi)
