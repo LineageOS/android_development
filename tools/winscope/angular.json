@@ -116,6 +116,7 @@
           },
           "configurations": {
             "ci": {
+              "codeCoverage": true,
               "karmaConfig": "karma.config.ci.js"
             }
           }

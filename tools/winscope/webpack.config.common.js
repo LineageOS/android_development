@@ -40,13 +40,6 @@ module.exports = {
         loader: '@ngtools/webpack',
       },
       {
-        test: /^((?!test).)*\.ts$/,
-        include: [path.resolve('src')],
-        loader: '@ephesoft/webpack.istanbul.loader', // Must be first loader
-        options: {esModules: true},
-        enforce: 'post',
-      },
-      {
         test: /\.html$/,
         use: [
           {
