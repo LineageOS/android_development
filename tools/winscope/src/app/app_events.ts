@@ -30,7 +30,7 @@ export class AppFilesUploaded implements WinscopeEvent {
 export class AppResetRequest implements WinscopeEvent {}
 
 export class AppTraceViewRequest implements WinscopeEvent {
-  constructor(readonly discardLegacyTraces = false) {}
+  constructor(readonly discardLegacyFiles = false) {}
 }
 
 export class AppTraceViewRequestHandled implements WinscopeEvent {}

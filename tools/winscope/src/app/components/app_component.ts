@@ -42,7 +42,7 @@ import {AbtChromeExtensionProtocol} from '@abt_chrome_extension/abt_chrome_exten
 import {GlobalErrorHandler} from '@app/global_error_handler';
 import {Mediator} from '@app/mediator';
 import {TimelineData} from '@app/timeline_data';
-import {TracePipeline} from '@app/trace_pipeline';
+import {LoadedFileData} from '@app/loaded_file_data';
 import {DownloadRequest, downloadFromUrl} from '@common/download';
 import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
 import {globalConfig} from '@common/global_config';
@@ -178,7 +178,7 @@ export class AppComponent implements WinscopeEventListener {
 
   isDarkModeOn = false;
   changeDetectorRef: ChangeDetectorRef;
-  tracePipeline: TracePipeline;
+  loadedFileData: LoadedFileData;
   mediator: Mediator;
   currentTimestamp?: Timestamp;
   filenameFormControl = new FormControl(
@@ -212,12 +212,12 @@ export class AppComponent implements WinscopeEventListener {
   ) {
     this.changeDetectorRef = changeDetectorRef;
     UserNotifier.setNotificationListener(snackbarOpener);
-    this.tracePipeline = new TracePipeline();
+    this.loadedFileData = new LoadedFileData();
     this.crossToolProtocol = new CrossToolProtocol(
-      this.tracePipeline.getTimestampConverter(),
+      this.loadedFileData.getTimestampConverter(),
     );
     this.mediator = new Mediator(
-      this.tracePipeline,
+      this.loadedFileData,
       this.timelineData,
       this.abtChromeExtensionProtocol,
       this.crossToolProtocol,
@@ -324,16 +324,16 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   onRemoveTrace(reader: FileReader) {
-    this.tracePipeline.removeFileReader(reader);
-    if (this.tracePipeline?.getLoadedFileReaders().length === 0) {
+    this.loadedFileData.removeFileReader(reader);
+    if (this.loadedFileData.getLoadedFileReaders().length === 0) {
       this.onRemoveAllTraces();
     }
   }
 
   onRemoveAllTraces() {
-    this.tracePipeline.onDestroy();
-    this.tracePipeline = this.createNewTracePipeline();
-    this.mediator.setTracePipeline(this.tracePipeline);
+    this.loadedFileData.onDestroy();
+    this.loadedFileData = this.createNewLoadedFileData();
+    this.mediator.setLoadedFileData(this.loadedFileData);
   }
 
   onCollapsedTimelineSizeChanged(height: number) {
@@ -372,7 +372,7 @@ export class AppComponent implements WinscopeEventListener {
       return;
     }
     const archiveBlob =
-      await this.tracePipeline.makeZipArchiveWithLoadedTraceFiles(
+      await this.loadedFileData.makeZipArchiveWithLoadedTraceFiles(
         (perc: number) => {
           progressListener.onProgressUpdate('Downloading', 90 * perc);
         },
@@ -380,7 +380,7 @@ export class AppComponent implements WinscopeEventListener {
     const archiveFilename = `${
       this.showDataLoadedElements
         ? this.filenameFormControl.value
-        : this.tracePipeline.getDownloadArchiveFilename()
+        : this.loadedFileData.getDownloadArchiveFilename()
     }.zip`;
     this.downloadTraces(archiveBlob, archiveFilename);
     progressListener.onOperationFinished(true);
@@ -404,9 +404,9 @@ export class AppComponent implements WinscopeEventListener {
     this.persistentStore.clear('treeView');
   }
 
-  async onViewTracesButtonClick(discardLegacyTraces: boolean) {
+  async onViewTracesButtonClick(discardLegacyFiles: boolean) {
     await this.mediator.onWinscopeEvent(
-      new AppTraceViewRequest(discardLegacyTraces),
+      new AppTraceViewRequest(discardLegacyFiles),
     );
   }
 
@@ -654,12 +654,12 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   packetLossWarning(): string | undefined {
-    const lostPackets = this.tracePipeline.lostPackets();
-    if (lostPackets === 0) {
+    const lostPerfettoPackets = this.loadedFileData.getLostPerfettoPackets();
+    if (lostPerfettoPackets === 0) {
       return undefined;
     }
-    return `${lostPackets} Perfetto packet${
-      lostPackets > 1 ? 's' : ''
+    return `${lostPerfettoPackets} Perfetto packet${
+      lostPerfettoPackets > 1 ? 's' : ''
     } lost during tracing - data may be incomplete`;
   }
 
@@ -693,7 +693,7 @@ export class AppComponent implements WinscopeEventListener {
   private async onViewersLoaded(event: ViewersLoaded) {
     this.viewers = event.viewers;
     this.filenameFormControl.setValue(
-      this.tracePipeline.getDownloadArchiveFilename(),
+      this.loadedFileData.getDownloadArchiveFilename(),
     );
     this.pageTitle.setTitle(`Winscope | ${this.filenameFormControl.value}`);
     this.isEditingFilename = false;
@@ -713,11 +713,11 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   private async onViewersUnloaded(event: ViewersUnloaded) {
-    this.tracePipeline.onDestroy();
-    this.tracePipeline = this.createNewTracePipeline();
+    this.loadedFileData.onDestroy();
+    this.loadedFileData = this.createNewLoadedFileData();
     this.timelineData = new TimelineData();
     this.mediator = new Mediator(
-      this.tracePipeline,
+      this.loadedFileData,
       this.timelineData,
       this.abtChromeExtensionProtocol,
       this.crossToolProtocol,
@@ -777,7 +777,7 @@ export class AppComponent implements WinscopeEventListener {
     }
 
     if (request.traceType) {
-      const trace = this.tracePipeline.getTraces().getTrace(request.traceType);
+      const trace = this.loadedFileData.getTraces().getTrace(request.traceType);
       if (trace) {
         await this.mediator.onWinscopeEvent(new TabbedViewSwitchRequest(trace));
       }
@@ -805,11 +805,11 @@ export class AppComponent implements WinscopeEventListener {
     this.downloadRequest(url, filename);
   }
 
-  private createNewTracePipeline(): TracePipeline {
-    const tracePipeline = new TracePipeline();
+  private createNewLoadedFileData(): LoadedFileData {
+    const loadedFileData = new LoadedFileData();
     this.crossToolProtocol.updateTimestampConverter(
-      tracePipeline.getTimestampConverter(),
+      loadedFileData.getTimestampConverter(),
     );
-    return tracePipeline;
+    return loadedFileData;
   }
 }

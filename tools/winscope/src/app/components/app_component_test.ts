@@ -67,7 +67,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {View, Viewer, ViewType} from '@viewers/viewer';
 import {UserNotifier} from '@services/user_notifier';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TracesBuilder} from '@test/unit/traces_builder';
 import {ViewerSurfaceFlingerComponent} from '@viewers/viewer_surface_flinger/viewer_surface_flinger_component';
@@ -90,6 +90,9 @@ import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 import {Traces} from '@trace_api/traces';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
+import {FilesSource} from '@app/files_source';
+import {TestFileReaderAndParserBuilder} from '@test/unit/test_file_reader_and_parser_builder';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 
 describe('AppComponent', () => {
   const reader = new TestFileReaderBuilder().setTimestamps([]).build();
@@ -189,8 +192,8 @@ describe('AppComponent', () => {
     checkHomepage();
   });
 
-  it('displays correct elements when data loaded', () => {
-    goToTraceView();
+  it('displays correct elements when data loaded', async () => {
+    await goToTraceView();
     checkTraceViewPage();
 
     spyOn(component, 'allTracesAreDumps').and.returnValue(true);
@@ -199,7 +202,7 @@ describe('AppComponent', () => {
   });
 
   it('returns to homepage on upload new button click', async () => {
-    goToTraceView();
+    await goToTraceView();
     checkTraceViewPage();
     await dom.clickAndWaitStable('.upload-new');
     await dom.detectChangesAndWaitStable();
@@ -208,7 +211,7 @@ describe('AppComponent', () => {
 
   it('sends event on refresh dumps button click', async () => {
     spyOn(component, 'allTracesAreDumps').and.returnValue(true);
-    goToTraceView();
+    await goToTraceView();
     checkTraceViewPage();
 
     const winscopeEventSpy = spyOn(
@@ -222,8 +225,7 @@ describe('AppComponent', () => {
   });
 
   it('shows download progress bar', () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
+    showDataLoadedElements();
     expect(
       dom.find('.download-files-section mat-progress-bar'),
     ).toBeUndefined();
@@ -240,17 +242,14 @@ describe('AppComponent', () => {
   });
 
   it('downloads traces on download button click and shows download progress bar', async () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
+    showDataLoadedElements();
     clickDownloadTracesButton();
     expect(dom.find('.download-files-section mat-progress-bar')).toBeTruthy();
     await waitToBeCalled(downloadTracesSpy);
   });
 
   it('downloads traces after valid file name change', async () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
-
+    showDataLoadedElements();
     clickEditFilenameButton();
     updateFilenameInputAndDownloadTraces('Winscope2', true);
     await waitToBeCalled(downloadTracesSpy);
@@ -276,36 +275,36 @@ describe('AppComponent', () => {
     await component.onWinscopeEvent(new ViewersUnloaded());
     expect(pageTitle.getTitle()).toBe('Winscope');
 
-    component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
-    component.tracePipeline.getDownloadArchiveFilename = jasmine
+    const traces = new Traces();
+    component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    component.loadedFileData.getDownloadArchiveFilename = jasmine
       .createSpy()
       .and.returnValue('test_archive');
-    await component.onWinscopeEvent(new ViewersLoaded([]));
-    dom.detectChanges();
+    await sendOnViewersLoadedEvent();
     expect(pageTitle.getTitle()).toBe('Winscope | test_archive');
   });
 
   it('handles ViewersUnloaded event', async () => {
-    const tracePipeline = component.tracePipeline;
+    const loadedFileData = component.loadedFileData;
     const timelineData = component.timelineData;
     const mediator = component.mediator;
-    const spy = spyOn(tracePipeline, 'onDestroy');
+    const spy = spyOn(component.loadedFileData, 'onDestroy');
 
     await component.onWinscopeEvent(new ViewersUnloaded());
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(component.tracePipeline).not.toBe(tracePipeline);
+    expect(component.loadedFileData).not.toBe(loadedFileData);
     expect(component.timelineData).not.toBe(timelineData);
     expect(component.mediator).not.toBe(mediator);
   });
 
   it('handles removeTrace from upload traces component - files still remaining', () => {
-    const tracePipeline = component.tracePipeline;
-    spyOn(tracePipeline, 'getLoadedFileReaders').and.returnValue([reader]);
-    const removeReaderSpy = spyOn(tracePipeline, 'removeFileReader');
-    const onDestroySpy = spyOn(tracePipeline, 'onDestroy');
+    const loadedFileData = component.loadedFileData;
+    spyOn(loadedFileData, 'getLoadedFileReaders').and.returnValue([reader]);
+    const removeReaderSpy = spyOn(loadedFileData, 'removeFileReader');
+    const onDestroySpy = spyOn(loadedFileData, 'onDestroy');
     const mediatorSpy = spyOn(
       component.mediator,
-      'setTracePipeline',
+      'setLoadedFileData',
     ).and.callThrough();
 
     component.uploadTracesComponent?.removeTrace.emit(reader);
@@ -313,18 +312,18 @@ describe('AppComponent', () => {
 
     expect(removeReaderSpy).toHaveBeenCalledOnceWith(reader);
     expect(onDestroySpy).not.toHaveBeenCalled();
-    expect(component.tracePipeline).toBe(tracePipeline);
+    expect(component.loadedFileData).toBe(loadedFileData);
     expect(mediatorSpy).not.toHaveBeenCalled();
   });
 
   it('handles removeTrace from upload traces component - all files removed', () => {
-    const tracePipeline = component.tracePipeline;
-    spyOn(tracePipeline, 'getLoadedFileReaders').and.returnValue([]);
-    const removeReaderSpy = spyOn(tracePipeline, 'removeFileReader');
-    const onDestroySpy = spyOn(tracePipeline, 'onDestroy');
+    const loadedFileData = component.loadedFileData;
+    spyOn(loadedFileData, 'getLoadedFileReaders').and.returnValue([]);
+    const removeReaderSpy = spyOn(loadedFileData, 'removeFileReader');
+    const onDestroySpy = spyOn(loadedFileData, 'onDestroy');
     const mediatorSpy = spyOn(
       component.mediator,
-      'setTracePipeline',
+      'setLoadedFileData',
     ).and.callThrough();
 
     component.uploadTracesComponent?.removeTrace.emit(reader);
@@ -332,38 +331,34 @@ describe('AppComponent', () => {
 
     expect(removeReaderSpy).toHaveBeenCalledOnceWith(reader);
     expect(onDestroySpy).toHaveBeenCalledTimes(1);
-    expect(component.tracePipeline).not.toBe(tracePipeline);
-    expect(mediatorSpy).toHaveBeenCalledOnceWith(component.tracePipeline);
+    expect(component.loadedFileData).not.toBe(loadedFileData);
+    expect(mediatorSpy).toHaveBeenCalledOnceWith(component.loadedFileData);
   });
 
   it('handles removeAllTraces from upload traces component', () => {
-    const tracePipeline = component.tracePipeline;
-    const spyTracePipeline = spyOn(tracePipeline, 'onDestroy');
+    const loadedFileData = component.loadedFileData;
+    const spyLoadedFileData = spyOn(loadedFileData, 'onDestroy');
     const spyMediator = spyOn(
       component.mediator,
-      'setTracePipeline',
+      'setLoadedFileData',
     ).and.callThrough();
 
     component.uploadTracesComponent?.removeAllTraces.emit();
     dom.detectChanges();
-    expect(spyTracePipeline).toHaveBeenCalledTimes(1);
-    expect(component.tracePipeline).not.toBe(tracePipeline);
-    expect(spyMediator).toHaveBeenCalledOnceWith(component.tracePipeline);
+    expect(spyLoadedFileData).toHaveBeenCalledTimes(1);
+    expect(component.loadedFileData).not.toBe(loadedFileData);
+    expect(spyMediator).toHaveBeenCalledOnceWith(component.loadedFileData);
   });
 
   it('does not download traces if invalid file name chosen', () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
-
+    showDataLoadedElements();
     clickEditFilenameButton();
     updateFilenameInputAndDownloadTraces('w?n$cope', false);
     expect(downloadTracesSpy).not.toHaveBeenCalled();
   });
 
   it('behaves as expected when entering valid then invalid then valid file names', async () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
-
+    showDataLoadedElements();
     clickEditFilenameButton();
     updateFilenameInputAndDownloadTraces('Winscope2', true);
     await waitToBeCalled(downloadTracesSpy);
@@ -387,9 +382,7 @@ describe('AppComponent', () => {
 
   it('validates filename on enter key, escape key or focus out', () => {
     const spy = spyOn(component, 'trySubmitFilename');
-
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
+    showDataLoadedElements();
     clickEditFilenameButton();
     const inputField = dom.get('.file-name-input-field');
     inputField.get('input').updateValue('valid_file_name');
@@ -405,7 +398,7 @@ describe('AppComponent', () => {
   });
 
   it('downloads traces from upload traces section', () => {
-    spyOn(component.tracePipeline, 'getLoadedFileReaders').and.returnValue([
+    spyOn(component.loadedFileData, 'getLoadedFileReaders').and.returnValue([
       reader,
     ]);
     dom.detectChanges();
@@ -420,8 +413,7 @@ describe('AppComponent', () => {
   });
 
   it('shows cross tool sync button', async () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
+    showDataLoadedElements();
     const fileDescriptor = dom.get('.file-descriptor');
     expect(fileDescriptor.find('.cross-tool-sync-button')).toBeUndefined();
 
@@ -447,15 +439,15 @@ describe('AppComponent', () => {
   });
 
   it('shows warning icon for packet loss', async () => {
-    component.showDataLoadedElements = true;
-    dom.detectChanges();
+    showDataLoadedElements();
     const fileDescriptor = dom.get('.file-descriptor');
     fileDescriptor.checkClassName('file-warning', false);
     expect(fileDescriptor.find('.warning-icon')).toBeUndefined();
 
-    const spy = spyOn(component.tracePipeline, 'lostPackets').and.returnValue(
-      1,
-    );
+    const spy = spyOn(
+      component.loadedFileData,
+      'getLostPerfettoPackets',
+    ).and.returnValue(1);
     dom.detectChanges();
     fileDescriptor.checkClassName('file-warning', true);
     const warningIcon = fileDescriptor.get('.warning-icon');
@@ -745,7 +737,8 @@ describe('AppComponent', () => {
     let getReportedRequestSpy: jasmine.Spy;
     let onWinscopeEventSpy: jasmine.Spy;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+      await buildTraces();
       component.dataLoaded = true;
       component.showDataLoadedElements = true;
       getReportedRequestSpy = spyOn(
@@ -766,8 +759,7 @@ describe('AppComponent', () => {
         bookmarks: ['10', '20'],
       };
       getReportedRequestSpy.and.returnValue(request);
-
-      await component.onWinscopeEvent(new ViewersLoaded([]));
+      await sendOnViewersLoadedEvent();
 
       const bookmarksChangedEvent = onWinscopeEventSpy.calls
         .all()
@@ -798,7 +790,7 @@ describe('AppComponent', () => {
       };
       getReportedRequestSpy.and.returnValue(request);
 
-      await component.onWinscopeEvent(new ViewersLoaded([]));
+      await sendOnViewersLoadedEvent();
 
       const tracePositionUpdateEvent = onWinscopeEventSpy.calls
         .all()
@@ -812,7 +804,7 @@ describe('AppComponent', () => {
     });
 
     it('processes search queries', async () => {
-      spyOn(component.tracePipeline, 'tryCreateSearchTrace').and.resolveTo(
+      spyOn(component.loadedFileData, 'tryCreateSearchTrace').and.resolveTo(
         undefined,
       );
       spyOn(UserNotifier, 'add');
@@ -824,7 +816,7 @@ describe('AppComponent', () => {
       };
       getReportedRequestSpy.and.returnValue(request);
 
-      await component.onWinscopeEvent(new ViewersLoaded([]));
+      await sendOnViewersLoadedEvent();
 
       const searchRequests = onWinscopeEventSpy.calls
         .all()
@@ -833,14 +825,14 @@ describe('AppComponent', () => {
       expect(searchRequests[0].args[0].query).toEqual('query1');
       expect(searchRequests[1].args[0].query).toEqual('query2');
       expect(
-        component.tracePipeline.tryCreateSearchTrace,
+        component.loadedFileData.tryCreateSearchTrace,
       ).toHaveBeenCalledTimes(2);
-      expect(component.tracePipeline.tryCreateSearchTrace).toHaveBeenCalledWith(
-        'query1',
-      );
-      expect(component.tracePipeline.tryCreateSearchTrace).toHaveBeenCalledWith(
-        'query2',
-      );
+      expect(
+        component.loadedFileData.tryCreateSearchTrace,
+      ).toHaveBeenCalledWith('query1');
+      expect(
+        component.loadedFileData.tryCreateSearchTrace,
+      ).toHaveBeenCalledWith('query2');
     });
 
     it('processes trace type to switch view', async () => {
@@ -848,7 +840,7 @@ describe('AppComponent', () => {
         .setEntries(TraceType.SURFACE_FLINGER, [])
         .build();
       const trace = assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER));
-      spyOn(component.tracePipeline, 'getTraces').and.returnValue(traces);
+      spyOn(component.loadedFileData, 'getTraces').and.returnValue(traces);
 
       component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
       dom.detectChanges();
@@ -872,7 +864,7 @@ describe('AppComponent', () => {
         getName: () => 'MockViewer',
       } as unknown as Viewer;
 
-      await component.onWinscopeEvent(new ViewersLoaded([mockViewer]));
+      await sendOnViewersLoadedEvent([mockViewer]);
 
       const switchRequest = onWinscopeEventSpy.calls
         .all()
@@ -885,10 +877,11 @@ describe('AppComponent', () => {
     });
   });
 
-  function goToTraceView() {
-    component.dataLoaded = true;
-    component.showDataLoadedElements = true;
+  async function goToTraceView() {
+    await buildTraces();
     component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
+    component.dataLoaded = true;
+    showDataLoadedElements();
     dom.detectChanges();
   }
 
@@ -942,5 +935,37 @@ describe('AppComponent', () => {
     expect(dom.find('.documentation')).toBeTruthy();
     expect(dom.find('.report-bug')).toBeTruthy();
     expect(dom.find('.dark-mode')).toBeTruthy();
+  }
+
+  function showDataLoadedElements() {
+    component.showDataLoadedElements = true;
+    dom.detectChanges();
+  }
+
+  async function sendOnViewersLoadedEvent(viewers: Viewer[] = []) {
+    await buildTraces();
+    await component.onWinscopeEvent(new ViewersLoaded(viewers));
+  }
+
+  async function buildTraces() {
+    component.loadedFileData.addFiles(
+      {
+        legacy: [],
+        nonPerfetto: [
+          new TestFileReaderAndParserBuilder()
+            .setTimestamps([makeRealTimestamp(1n)])
+            .setType(TraceType.SCREEN_RECORDING)
+            .build(),
+        ],
+        perfetto: [],
+        lostPerfettoPackets: 0,
+        timestampConverter: UTC_CONVERTER,
+        traceGeometryData: new TraceGeometryData(),
+        warnings: [],
+      },
+      FilesSource.TEST,
+    );
+    await component.loadedFileData.buildTraces(false, undefined);
+    await component.loadedFileData.buildTraces(false, undefined);
   }
 });

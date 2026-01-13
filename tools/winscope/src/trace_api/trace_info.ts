@@ -23,7 +23,6 @@ const SCREENSHOT_ICON = 'image';
 const TRANSACTION_ICON = 'show_chart';
 const WAYLAND_ICON = 'filter_none';
 const PROTO_LOG_ICON = 'notes';
-const SYSTEM_UI_ICON = 'filter_none';
 const VIEW_CAPTURE_ICON = 'filter_none';
 const IME_ICON = 'keyboard_alt';
 const TRANSITION_ICON = 'animation';
@@ -102,13 +101,6 @@ export const TRACE_INFO: TraceInfoMap = {
     icon: PROTO_LOG_ICON,
     color: '#34A853',
     downloadArchiveDir: 'protolog',
-    legacyExt: '.winscope',
-  },
-  [TraceType.SYSTEM_UI]: {
-    name: 'System UI',
-    icon: SYSTEM_UI_ICON,
-    color: '#7A86FF',
-    downloadArchiveDir: 'sysui',
     legacyExt: '.winscope',
   },
   [TraceType.VIEW_CAPTURE]: {

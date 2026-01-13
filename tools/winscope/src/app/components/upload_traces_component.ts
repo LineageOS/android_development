@@ -75,7 +75,7 @@ export class UploadTracesComponent
   lastUiProgressUpdateTimeMs?: number;
   viewersLoading = false;
   warningMessages: string[] = [];
-  discardLegacyTraces = false;
+  discardLegacyFiles = false;
 
   readonly legacyTraceWarningTooltip =
     'This trace has a legacy format. ' +
@@ -90,7 +90,7 @@ export class UploadTracesComponent
   @Output() removeTrace = new EventEmitter<FileReader>();
   @Output() removeAllTraces = new EventEmitter<void>();
 
-  private readonly discardLegacyStoreKey = 'discardLegacyTraces';
+  private readonly discardLegacyStoreKey = 'discardLegacyFiles';
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
@@ -100,7 +100,7 @@ export class UploadTracesComponent
   ngOnInit() {
     if (this.storage) {
       const storedValue = this.storage.get(this.discardLegacyStoreKey);
-      this.discardLegacyTraces =
+      this.discardLegacyFiles =
         storedValue === 'true' || storedValue === undefined;
     }
     this.removeAllTraces.emit();
@@ -112,10 +112,10 @@ export class UploadTracesComponent
   }
 
   updateDiscardLegacyTraces() {
-    this.discardLegacyTraces = !this.discardLegacyTraces;
+    this.discardLegacyFiles = !this.discardLegacyFiles;
     this.storage?.add(
       this.discardLegacyStoreKey,
-      this.discardLegacyTraces.toString(),
+      this.discardLegacyFiles.toString(),
     );
   }
 
@@ -187,7 +187,7 @@ export class UploadTracesComponent
   }
 
   onViewTracesButtonClick() {
-    this.viewTracesButtonClick.emit(this.discardLegacyTraces);
+    this.viewTracesButtonClick.emit(this.discardLegacyFiles);
   }
 
   onClearButtonClick() {

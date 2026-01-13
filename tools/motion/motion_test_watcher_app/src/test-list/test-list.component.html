@@ -53,14 +53,14 @@
       <div *ngFor="let goldenEntry of filteredGoldens">
         <p class="mt-4 mb-2 font-medium text-gray-500 text-sm uppercase tracking-wider px-1">{{ goldenEntry.key }}</p>
         <mat-expansion-panel *ngFor="let golden of goldenEntry.value" (opened)="panelOpened(golden)"
-          (closed)="panelClosed(golden)" [ngClass]="getResultClass(golden)"
+          (closed)="panelClosed(golden)" [ngClass]="getResultClass(golden)" [expanded]="isGoldenOpened(golden)"
           class="mb-2 !rounded-lg !shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md">
           <mat-expansion-panel-header class="flex items-center h-14 px-4" matTooltip={{golden.testMethodName}}
             matTooltipPosition="right">
             <mat-panel-title class="flex-1 min-w-0 flex items-center gap-3">
               <div *ngIf="showCheckBoxes" class="flex-shrink-0" (click)="$event.stopPropagation()">
-                <mat-checkbox [checked]="isGoldenSelected(golden)" (change)="toggleGoldenSelection(golden, $event)" color="primary"
-                  class="pointer-events-auto">
+                <mat-checkbox [checked]="isGoldenSelected(golden)" (change)="toggleGoldenSelection(golden, $event)"
+                  color="primary" class="pointer-events-auto">
                 </mat-checkbox>
               </div>
 
@@ -86,7 +86,7 @@
                 [matTooltip]="'Retry. Error: ' + golden.error">
                 <mat-icon class="text-sm h-4 w-4 mr-1">error</mat-icon>
                 Failed
-                </div>
+              </div>
             </div>
           </mat-expansion-panel-header>
           <div class="p-4 bg-gray-50 border-t border-gray-100">
@@ -142,8 +142,8 @@
             </span>
           </div>
         </div>
-        </div>
-        </div>
+      </div>
+    </div>
   </div>
 </div>
 <div *ngIf="showSimpleList">

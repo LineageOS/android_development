@@ -64,11 +64,6 @@ export enum TraceType {
    */
   PROTO_LOG,
   /**
-   * Represents a System UI trace, which provides information about the
-   * state and events of the Android System UI.
-   */
-  SYSTEM_UI,
-  /**
    * Represents a trace from Input Method Editor (IME) clients, which
    * captures interactions between applications and the input method.
    */

@@ -68,9 +68,7 @@ describe('Viewer Transitions', () => {
   });
 
   function getEntryForTimeButtonChecks() {
-    return element(
-      by.css(`${viewerSelector} .scroll .entry[item-id="1"]`),
-    );
+    return element(by.css(`${viewerSelector} .scroll .entry[item-id="1"]`));
   }
 
   async function checkCurrentEntry() {
