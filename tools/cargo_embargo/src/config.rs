@@ -447,9 +447,10 @@ pub struct PackageVariantConfig {
     /// Directories with headers to export for C usage.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub exported_c_header_dir: Vec<PathBuf>,
-    /// Additional sources that should be listed as inputs in `srcs`.
+    /// Sources that should be listed as inputs in `srcs`. If not provided, a default glob of rs
+    /// files will be used.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub extra_srcs: Vec<PathBuf>,
+    pub srcs: Vec<PathBuf>,
     /// Add a `target: { windows: { enabled: true } }` property to modules.
     #[serde(default, skip_serializing_if = "is_false")]
     pub target_windows: bool,
@@ -473,7 +474,7 @@ impl Default for PackageVariantConfig {
             test_data: Default::default(),
             whole_static_libs: Default::default(),
             exported_c_header_dir: Default::default(),
-            extra_srcs: Default::default(),
+            srcs: Default::default(),
             target_windows: false,
         }
     }

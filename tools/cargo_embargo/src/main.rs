@@ -1170,8 +1170,9 @@ fn crate_to_bp_modules(
         m.props.set("crate_root", crate_.main_src.clone());
 
         m.props.set_if_nonempty("srcs", extra_srcs.to_owned());
-        if !package_cfg.extra_srcs.is_empty() {
-            m.props.set_or_extend("srcs", package_cfg.extra_srcs.clone());
+        if !package_cfg.srcs.is_empty() {
+            m.props.set_or_extend("srcs", package_cfg.srcs.clone());
+            m.props.set("use_expansive_default_srcs", false);
         }
 
         m.props.set("edition", crate_.edition.clone());
