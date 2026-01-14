@@ -135,11 +135,9 @@ final class PreferenceController {
             new BoolRule(R.string.pref_use_legacy_playback_state, UPSIDE_DOWN_CAKE)
                     .withDefaultValue(false),
 
-            new BoolRule(R.string.pref_duplicate_front_camera, BAKLAVA,
-                    Flags::externalVirtualCameras),
+            new BoolRule(R.string.pref_duplicate_front_camera, BAKLAVA),
 
-            new BoolRule(R.string.pref_duplicate_back_camera, BAKLAVA,
-                    Flags::externalVirtualCameras),
+            new BoolRule(R.string.pref_duplicate_back_camera, BAKLAVA),
 
             // Internal-only switches not exposed in the settings page.
             // All of these are booleans acting as switches, while the above ones may be any type.

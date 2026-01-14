@@ -60,7 +60,7 @@ final class RemoteCameraManager implements AutoCloseable {
     void createCameras(List<RemoteEventProto.CameraCapabilities> cameraCapabilities,
             boolean isCustomCameraPolicy, boolean duplicateFrontCamera,
             boolean duplicateBackCamera) {
-        boolean supportExternal = VdmCompat.isAtLeastB() && Flags.externalVirtualCameras();
+        boolean supportExternal = VdmCompat.isAtLeastB();
         for (RemoteEventProto.CameraCapabilities capabilities : cameraCapabilities) {
             // filter out external cameras if not supported
             int lensFacing = capabilities.getLensFacing();
