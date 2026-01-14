@@ -91,7 +91,7 @@ async function run() {
     processes.push(mock);
 
     // 4. Start Angular App (async)
-    log('Starting Angular App (port 8080)...');
+    log('Starting Angular App (port 8080, remote tool proxy: 8080/mock)...');
     const app = spawn('ng', ['serve', 'winscope'], { stdio: 'inherit', shell: true });
     processes.push(app);
 
@@ -102,6 +102,7 @@ async function run() {
       checkPort(8081),
       checkUrl('http://localhost:8081/index.html'),
       checkUrl('http://localhost:8080/index.html'),
+      checkUrl('http://localhost:8080/mock/index.html'),
     ]);
     log('Services are ready!');
 

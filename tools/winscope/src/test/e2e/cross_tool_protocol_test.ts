@@ -26,7 +26,7 @@ import {
   setTimeouts,
 } from './helpers';
 
-xdescribe('Cross-Tool Protocol', () => {
+describe('Cross-Tool Protocol', () => {
   const TIMESTAMP_IN_FILES_MESSAGE_REALTIME = '1659107090327674405';
   const DEFAULT_TIMEOUT_MS = 40000;
 

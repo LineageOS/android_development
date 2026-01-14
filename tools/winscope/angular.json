@@ -81,7 +81,8 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "buildTarget": "winscope:build",
-            "port": 8080
+            "port": 8080,
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
