@@ -63,7 +63,7 @@ limitations under the License.
       [isPinned]="true"
       [isInPinnedSection]="true"
       [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
-      (pinNodeChange)="onPinnedItemChange($event)"
+      (pinNodeChange)="onPinnedItemChange($any($event))"
       (click)="onPinnedNodeClick($event, pinnedItem)"
     ></tree-node>
     }
@@ -85,7 +85,7 @@ limitations under the License.
   [rectIdToShowState]="rectIdToShowState"
   [store]="treeStorage"
   [handleArrowPress]="true"
-  (highlightedChange)="onHighlightedItemChange($event)"
-  (pinnedItemChange)="onPinnedItemChange($event)"
+  (highlightedChange)="onHighlightedItemChange($any($event))"
+  (pinnedItemChange)="onPinnedItemChange($any($event))"
 ></tree-view>
 }

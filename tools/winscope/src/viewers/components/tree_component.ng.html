@@ -47,7 +47,7 @@ limitations under the License.
     (toggleTreeChange)="toggleTree(row)"
     (rectShowStateChange)="toggleRectShowState(row.node)"
     (expandTreeChange)="expandTree(row)"
-    (pinNodeChange)="propagateNewPinnedItem($event)"
+    (pinNodeChange)="propagateNewPinnedItem($any($event))"
   ></tree-node>
   } }
 </virtual-scroll-viewport>

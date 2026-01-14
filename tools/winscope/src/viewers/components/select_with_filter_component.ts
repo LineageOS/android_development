@@ -61,6 +61,7 @@ import {AbstractSelectComponent} from './abstract_select_component';
   styleUrls: ['select_with_filter_component.css'],
 })
 export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInputElement> {
+  @Input() override label = 'Search';
   @Input() options: string[] = [];
   @Input() outerFilterWidth = '100px';
   @Input() innerFilterWidth = '100';
