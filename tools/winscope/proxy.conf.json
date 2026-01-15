@@ -1,0 +1,11 @@
+{
+  "/mock": {
+    "target": "http://localhost:8081",
+    "secure": false,
+    "pathRewrite": {
+      "^/mock": ""
+    },
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

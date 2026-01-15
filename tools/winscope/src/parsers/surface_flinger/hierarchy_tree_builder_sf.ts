@@ -81,7 +81,10 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder<bigint> {
             }
             parent = recurLayerRoot;
           } else {
-            parent = identifierToChildren.get(parentId)?.at(0);
+            const parents = identifierToChildren.get(parentId);
+            if (parents) {
+              parent = parents[0];
+            }
           }
         }
 

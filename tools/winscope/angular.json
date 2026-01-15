@@ -25,9 +25,6 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/viewers/common/playback/playback_worker.js",
-              "src/viewers/common/playback/video_frame_cache_worker.js",
-              "src/parsers/screen_recording/thumbnail_generator_worker.js",
               { "glob": "*", "input": "deps_build/trace_processor/to_be_served/", "output": "/" },
               { "glob": "winscope_proxy.py", "input": "src/adb/", "output": "/" },
               { "glob": "logo_page_tab.svg", "input": "src/", "output": "/" },
@@ -45,7 +42,8 @@
             ],
             "scripts": [],
             "sourceMap": true,
-            "optimization": false
+            "optimization": false,
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -83,7 +81,8 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "buildTarget": "winscope:build",
-            "port": 8080
+            "port": 8080,
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
@@ -113,12 +112,60 @@
             "assets": [
               "src/favicon.ico",
               "src/assets"
-            ]
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "ci": {
+              "codeCoverage": true,
               "karmaConfig": "karma.config.ci.js"
             }
+          }
+        }
+      }
+    },
+    "remote-tool-mock": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src/test/remote_tool_mock",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/remote_tool_mock",
+            "index": "src/test/remote_tool_mock/index.html",
+            "main": "src/test/remote_tool_mock/main.ts",
+            "polyfills": "src/test/remote_tool_mock/polyfills.ts",
+            "tsConfig": "src/test/remote_tool_mock/tsconfig.remote_tool.json",
+            "assets": [],
+            "styles": [],
+            "scripts": [],
+            "sourceMap": true,
+            "optimization": false
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "remote-tool-mock:build",
+            "port": 8081
           }
         }
       }

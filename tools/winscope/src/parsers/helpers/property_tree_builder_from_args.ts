@@ -154,10 +154,10 @@ export class PropertyTreeBuilderFromArgs extends AbstractPropertyTreeBuilder<Row
 
   private extractKeyParts(key: string): string[] {
     return key
-      .replaceAll('[', '.')
-      .replaceAll(']', '')
+      .replace(/\[/g, '.')
+      .replace(/\]/g, '')
       .split('.')
-      .map((token) => {
+      .map((token: string) => {
         return convertSnakeToCamelCase(token);
       });
   }
