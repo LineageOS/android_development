@@ -324,13 +324,11 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     The front and back cameras of the client can be also mapped as virtual
     external cameras on the virtual device for testing.
 
--   **Duplicate front camera**: Creates an additional external camera
-    (if external virtual cameras are supported) that duplicates the **front** camera
-    stream of the remote device (if exists).
+-   **Duplicate front camera**: Creates an additional external camera that
+    duplicates the **front** camera stream of the remote device (if exists).
 
--   **Duplicate back camera**: Creates an additional external camera
-    (if external virtual cameras are supported) that duplicates the **back** camera
-    stream of the remote device (if exists).
+-   **Duplicate back camera**: Creates an additional external camera that
+    duplicates the **back** camera stream of the remote device (if exists).
 
 #### Audio
 

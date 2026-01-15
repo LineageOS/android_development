@@ -81,7 +81,7 @@ limitations under the License.
   <button
     mat-icon-button
     class="icon-button copy-btn no-touch-target-button"
-    [cdkCopyToClipboard]="node?.getCopyText()"
+    [cdkCopyToClipboard]="node?.getCopyText() ?? ''"
     (click)="$event.stopPropagation()"
   >
     <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
