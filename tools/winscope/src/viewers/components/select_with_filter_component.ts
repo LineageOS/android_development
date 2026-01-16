@@ -21,6 +21,7 @@ import {
   EventEmitter,
   Input,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -78,6 +79,12 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
   private static readonly OPTION_PADDING_WIDTH = 32;
   private static readonly SCROLLBAR_WIDTH = 8;
   private static readonly CHAR_WIDTH = 8.5;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['options']) {
+      this.updateNonHiddenOptionToIndex();
+    }
+  }
 
   onSelectChange(event: MatSelectChange) {
     this.selectChange.emit(event);
@@ -167,6 +174,10 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
   }
 
   onFilterStringChange() {
+    this.updateNonHiddenOptionToIndex();
+  }
+
+  private updateNonHiddenOptionToIndex() {
     const nonHiddenOptionToIndex: number[] = [];
     this.options.forEach((value, i) => {
       if (!this.hideOption(value, this.filterString)) {

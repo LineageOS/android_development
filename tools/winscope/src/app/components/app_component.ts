@@ -27,7 +27,6 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import {createCustomElement} from '@angular/elements';
-import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatDividerModule} from '@angular/material/divider';
@@ -112,10 +111,15 @@ import {
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatMenuModule} from '@angular/material/menu';
 import {ClipboardModule} from '@angular/cdk/clipboard';
-import {FormsModule} from '@angular/forms';
 import {RequestData} from '@cross_tool/g3_proxy';
 import {getLogger} from '@compat/logging';
 import {FileReader} from '@trace_api/file_reader';
+import {
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 /**
  * The root component of the Winscope app.
@@ -194,6 +198,8 @@ export class AppComponent implements WinscopeEventListener {
   downloadRequest: DownloadRequest = (url: string, fileName: string) => {
     downloadFromUrl(url, fileName);
   };
+
+  private sendRefreshDumpsRequest = false;
 
   @ViewChild(UploadTracesComponent)
   uploadTracesComponent?: UploadTracesComponent;
@@ -321,6 +327,11 @@ export class AppComponent implements WinscopeEventListener {
     this.mediator.setCollectTracesComponent(this.collectTracesComponent);
     this.mediator.setTraceViewComponent(this.traceViewComponent);
     this.mediator.setTimelineComponent(this.timelineComponent);
+
+    if (this.sendRefreshDumpsRequest) {
+      this.sendRefreshDumpsRequest = false;
+      this.mediator.onWinscopeEvent(new AppRefreshDumpsRequest());
+    }
   }
 
   onRemoveTrace(reader: FileReader) {
@@ -396,7 +407,8 @@ export class AppComponent implements WinscopeEventListener {
 
   async onRefreshDumpsButtonClick() {
     Analytics.Tracing.logRefreshDumps();
-    await this.mediator.onWinscopeEvent(new AppRefreshDumpsRequest());
+    await this.mediator.onWinscopeEvent(new AppResetRequest());
+    this.sendRefreshDumpsRequest = true;
   }
 
   async onUploadNewButtonClick() {

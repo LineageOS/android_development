@@ -108,6 +108,7 @@ describe('LogComponent', () => {
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     setComponentInputData();
     dom.detectChanges();
+    await dom.whenStable();
   });
 
   it('can be created', () => {
