@@ -19,7 +19,7 @@ import {createVideoFrameCache} from './video_frame_cache_factory';
 import {VideoFrameCache} from './video_frame_cache';
 import {PlaybackState} from './playback_state';
 
-xdescribe('VideoFrameCache', () => {
+describe('VideoFrameCache', () => {
   let dataOneKeyFrameAndRotation: Uint8Array;
   let dataThreeKeyFramesNoRotation: Uint8Array;
 

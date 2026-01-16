@@ -32,4 +32,4 @@ import {getRootUrl} from '@common/window';
  * environments.
  *
  */
-export const FIXTURES_DIR = getRootUrl() + 'base/src/test/fixtures/';
+export const FIXTURES_DIR = location.origin + '/src/test/fixtures/';

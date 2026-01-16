@@ -492,7 +492,20 @@ describe('AppComponent', () => {
     snackbar.checkText(firstMessage.message);
 
     snackbar.findAndClick('.snack-bar-actions .close-button');
-    await dom.whenRenderingDone();
+
+    // Wait for the second snackbar to appear
+    // We cannot use dom.whenStable() because it waits for the snackbar duration timer (5s)
+    for (let i = 0; i < 50; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      dom.detectChanges();
+      if (
+        document.querySelector('snack-bar')?.textContent?.includes(secondMessage.message)
+      ) {
+        break;
+      }
+    }
+
+    // The previous snackbar might still be animating out, or the new one animating in.
     snackbar = dom.getSnackBar();
     snackbar.checkText(secondMessage.message);
   });
