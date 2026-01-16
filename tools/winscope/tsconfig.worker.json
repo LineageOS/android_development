@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc-worker",
+    "lib": [
+      "es2020",
+      "dom",
+    ],
+    "allowJs": true,
+    "moduleResolution": "node",
+    "types": [
+      "node",
+      "gtag.js"
+    ]
+  },
+  "include": [
+    "src/**/*.worker.ts"
+  ]
+}

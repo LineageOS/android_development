@@ -85,13 +85,14 @@ export class ThumbnailGenerator {
     const logger = getLogger('ThumbnailGenerator');
     try {
       const worker = new Worker(
-        new URL('./thumbnail_generator_worker', import.meta.url),
+        new URL('./thumbnail_generator.worker', import.meta.url),
         {type: 'module'},
       );
       this.worker = worker;
       const workerData = await new Promise<ThumbnailGeneratorWorkerData>(
         (resolve, reject) => {
           worker.onerror = (error) => {
+            logger.error(error.message, error);
             reject(error?.message);
           };
           worker.onmessage = (

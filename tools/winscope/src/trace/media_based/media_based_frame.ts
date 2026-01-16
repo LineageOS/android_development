@@ -37,10 +37,7 @@ export class MediaBasedFrame<T extends ImageBitmap | VideoFrame> {
     };
   }
 
-  tryDrawOnCanvas(
-    canvas: HTMLCanvasElement | OffscreenCanvas,
-    updateCanvasDimensions = true,
-  ) {
+  tryDrawOnCanvas(canvas: any, updateCanvasDimensions = true) {
     if (!this.image) {
       return;
     }
@@ -51,9 +48,7 @@ export class MediaBasedFrame<T extends ImageBitmap | VideoFrame> {
       canvas.height = canvasDimensions.height;
     }
 
-    const ctx = assertDefined(canvas.getContext('2d')) as
-      | CanvasRenderingContext2D
-      | OffscreenCanvasRenderingContext2D;
+    const ctx = assertDefined(canvas.getContext('2d'));
     if (this.translation) {
       ctx.translate(this.translation.x, this.translation.y);
     }

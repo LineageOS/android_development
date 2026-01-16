@@ -2,8 +2,10 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./src",
-    "paths":{
-      "protos/*": ["../deps_build/protos/*"],
+    "paths": {
+      "protos/*": [
+        "../deps_build/protos/*"
+      ],
       "@abt_chrome_extension/*": [
         "abt_chrome_extension/*"
       ],

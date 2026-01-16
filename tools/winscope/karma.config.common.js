@@ -45,7 +45,7 @@ module.exports = (config) => {
         served: true,
       },
       {pattern: 'src/test/fixtures/**/*', included: false, served: true},
-      {pattern: 'src/**/*cache_worker.js', included: false, served: true},
+      {pattern: 'src/**/*.worker.ts', included: false, served: true},
       {
         pattern: 'deps_build/trace_processor/to_be_served/engine_bundle.js',
         included: false,

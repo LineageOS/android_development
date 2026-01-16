@@ -38,10 +38,9 @@ describe('Viewer View Capture', () => {
 
   it('processes trace and navigates correctly', async () => {
     await loadTraceAndCheckViewer(
-      'traces/elapsed_and_real_timestamp/com.google.android.apps.nexuslauncher_0.vc',
+      'traces/perfetto/viewcapture_two_windows.perfetto-trace',
       'View Capture',
       viewerSelector,
-      true,
     );
     await checkTimelineTraceSelector({
       icon: 'filter_none',
@@ -63,11 +62,17 @@ describe('Viewer View Capture', () => {
       by.css('#mini-timeline-canvas'),
     ).getWebElement();
     const timelineSize = await miniTimeline.getSize();
-    const pos = browser.actions().mouseMove(miniTimeline, {
-      x: timelineSize.width / 2,
-      y: timelineSize.height - 10,
-    });
-    await pos.click().perform();
+    const slider = await element(by.css('slider')).getWebElement();
+    const sliderSize = await slider.getSize();
+    const actions = browser
+      .actions()
+      .mouseMove(miniTimeline)
+      .mouseMove({
+        x: 0,
+        y: timelineSize.height / 2 - (sliderSize.height * 3) / 2,
+      })
+      .click();
+    await actions.perform();
     await checkFinalRealTimestamp('2023-08-10, 18:44:27.287');
     await checkInitialRealTimestamp('2023-08-10, 18:43:14.989');
   });

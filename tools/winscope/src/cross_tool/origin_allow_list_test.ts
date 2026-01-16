@@ -81,7 +81,7 @@ describe('OriginAllowList', () => {
 
     const DENIED_ORIGINS = [
       'https://google.com',
-      'http://localhost:8080',
+      'http://localhost:8082',
       'https://evil.com',
     ];
 
