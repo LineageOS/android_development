@@ -35,8 +35,8 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
-import {ConfigurationOptions} from '@trace_collection/ui/ui_trace_configuration';
 import {TraceConfigComponent} from './trace_config_component';
+import {ConfigurationOptions} from '@trace_collection/ui/ui_trace_configuration';
 
 describe('TraceConfigComponent', () => {
   const storeKey = 'TestConfigSettings';
@@ -113,7 +113,7 @@ describe('TraceConfigComponent', () => {
   it('applies stored config and emits event on init', async () => {
     const traceConfig = assertDefined(component.traceConfig);
     traceConfig[windowTraceKey].config.enabled = true;
-    dom.detectChanges();
+    await detectNgModelChanges();
 
     getCheckboxConfigSectionForKey(windowTraceKey).findAndClick('input');
     expect(traceConfig[windowTraceKey].config.checkboxConfigs).toEqual([
@@ -160,7 +160,7 @@ describe('TraceConfigComponent', () => {
     newComponent.traceConfig = component.traceConfig;
     newComponent.traceConfigStoreKey = 'TestConfigSettings';
     newComponent.storage = component.storage;
-    await detectNgModelChanges(newDom);
+    await detectNgModelChanges(newDom, newComponent);
     newDom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
   });
@@ -556,13 +556,15 @@ describe('TraceConfigComponent', () => {
     };
     c.traceConfigStoreKey = storeKey;
     c.storage = storage;
-    await detectNgModelChanges(d);
+    await detectNgModelChanges(d, c);
     d.detectChanges();
   }
 
   async function detectNgModelChanges(
     d: DOMTestHelper<TraceConfigComponent> = dom,
+    c: TraceConfigComponent = component,
   ) {
+    (c as any).changeDetectorRef.markForCheck();
     await d.detectChangesAndWaitStable();
     d.detectChanges();
   }

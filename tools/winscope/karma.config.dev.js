@@ -23,7 +23,13 @@ const configDev = (config) => {
     customLaunchers: {
       ChromeFixedSize: {
         base: 'Chrome',
-        flags: ['--window-size=1280,1024'],
+        flags: [
+          '--window-size=1280,1024',
+          '--no-sandbox',
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--enable-unsafe-swiftshader',
+        ],
       }
     },
   });

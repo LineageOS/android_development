@@ -47,10 +47,15 @@ TestBed.initTestEnvironment(
 );
 
 // filter matches all "*_test.ts" files that are not within the /test/e2e/ directory
-const context = require.context('./', true, /(?<!\/test\/e2e\/.*)_test.ts$/);
+// Using import.meta.webpackContext for Webpack 5 support
+const context = (import.meta as any).webpackContext('./', {
+  recursive: true,
+  regExp: /^(?!.*\/e2e\/).*_test\.ts$/,
+});
+
 context
   .keys()
-  .sort((a, b) => {
+  .sort((a: string, b: string) => {
     if (a < b) {
       return -1;
     } else if (a === b) {

@@ -244,7 +244,6 @@ export class Mediator {
   }
 
   private async onAppRefreshDumpsRequest(event: AppRefreshDumpsRequest) {
-    await this.resetAppToInitialState();
     await this.collectTracesComponent?.onWinscopeEvent(event);
   }
 

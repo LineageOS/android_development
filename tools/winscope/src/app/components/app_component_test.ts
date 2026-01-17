@@ -54,7 +54,7 @@ import {
   makeWarningNoValidFiles,
   makeWarningFailedToInitializeTimelineData,
 } from '@app/warnings';
-import {AppRefreshDumpsRequest} from '@app/app_events';
+import {AppRefreshDumpsRequest, AppResetRequest} from '@app/app_events';
 import {
   BookmarksChanged,
   BugreportFileSelected,
@@ -93,6 +93,7 @@ import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {FilesSource} from '@app/files_source';
 import {TestFileReaderAndParserBuilder} from '@test/unit/test_file_reader_and_parser_builder';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {Mediator} from '@app/mediator';
 
 describe('AppComponent', () => {
   const reader = new TestFileReaderBuilder().setTimestamps([]).build();
@@ -215,10 +216,11 @@ describe('AppComponent', () => {
     checkTraceViewPage();
 
     const winscopeEventSpy = spyOn(
-      component.mediator,
+      Mediator.prototype,
       'onWinscopeEvent',
     ).and.callThrough();
     await dom.clickAndWaitStable('.refresh-dumps');
+    expect(winscopeEventSpy).toHaveBeenCalledWith(new AppResetRequest());
     await dom.detectChangesAndWaitStable();
     checkHomepage();
     expect(winscopeEventSpy).toHaveBeenCalledWith(new AppRefreshDumpsRequest());
@@ -492,7 +494,22 @@ describe('AppComponent', () => {
     snackbar.checkText(firstMessage.message);
 
     snackbar.findAndClick('.snack-bar-actions .close-button');
-    await dom.whenRenderingDone();
+
+    // Wait for the second snackbar to appear
+    // We cannot use dom.whenStable() because it waits for the snackbar duration timer (5s)
+    for (let i = 0; i < 50; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      dom.detectChanges();
+      if (
+        document
+          .querySelector('snack-bar')
+          ?.textContent?.includes(secondMessage.message)
+      ) {
+        break;
+      }
+    }
+
+    // The previous snackbar might still be animating out, or the new one animating in.
     snackbar = dom.getSnackBar();
     snackbar.checkText(secondMessage.message);
   });

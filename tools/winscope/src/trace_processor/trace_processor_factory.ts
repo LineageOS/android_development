@@ -27,7 +27,7 @@ export class TraceProcessorFactory {
     if (!TraceProcessorFactory.tp) {
       const traceProcessorRootUrl =
         globalConfig.MODE === 'KARMA_TEST'
-          ? getRootUrl() + 'base/deps_build/trace_processor/to_be_served/'
+          ? location.origin + '/'
           : getRootUrl();
       initWasm(traceProcessorRootUrl);
       const engineId = 'random-id';

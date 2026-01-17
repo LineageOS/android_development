@@ -13,77 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const {merge} = require('webpack-merge');
-const webpackConfig = require('./webpack.config.common');
-const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 module.exports = (config) => {
   config.set({
-    frameworks: ['jasmine', 'webpack'],
+    frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
-      'karma-webpack',
       'karma-chrome-launcher',
       'karma-jasmine',
       'karma-sourcemap-loader',
+      require('@angular-devkit/build-angular/plugins/karma')
     ],
     files: [
-      {pattern: 'src/main_unit_test.ts', watched: false},
-      {pattern: 'src/logo_light_mode.svg', included: false, served: true},
-      {
-        pattern: 'src/app/components/trackpad_right_click.svg',
-        included: false,
-        served: true,
-      },
-      {
-        pattern: 'src/app/components/trackpad_vertical_scroll.svg',
-        included: false,
-        served: true,
-      },
-      {
-        pattern: 'src/app/components/trackpad_horizontal_scroll.svg',
-        included: false,
-        served: true,
-      },
-      {pattern: 'src/test/fixtures/**/*', included: false, served: true},
-      {pattern: 'src/**/*.worker.ts', included: false, served: true},
-      {
-        pattern: 'deps_build/trace_processor/to_be_served/engine_bundle.js',
-        included: false,
-        served: true,
-      },
-      {
-        pattern: 'deps_build/trace_processor/to_be_served/trace_processor.wasm',
-        included: false,
-        served: true,
-      },
-      {
-        pattern:
-          'deps_build/trace_processor/to_be_served/trace_processor_memory64.wasm',
-        included: false,
-        served: true,
-      },
     ],
     reporters: ['progress'],
     proxies: {
-      '/logo_light_mode.svg': '/base/src/logo_light_mode.svg',
-      '/trackpad_right_click.svg':
-        '/base/src/app/components/trackpad_right_click.svg',
-      '/trackpad_vertical_scroll.svg':
-        '/base/src/app/components/trackpad_vertical_scroll.svg',
-      '/trackpad_horizontal_scroll.svg':
-        '/base/src/app/components/trackpad_horizontal_scroll.svg',
+      // Angular builder serves assets at root (or configured output).
+      // Tests usually expect them at /base/...
+      '/base/src/test/fixtures/': '/src/test/fixtures/',
+      '/base/src/assets/': '/src/assets/',
+
+      // Mappings for specific assets served at root by angular.json
+      '/base/deps_build/trace_processor/to_be_served/': '/',
+      '/base/src/adb/winscope_proxy.py': '/winscope_proxy.py',
+      '/base/src/viewers/components/rects/': '/',
+      '/base/src/app/components/': '/',
+      '/base/src/': '/', // Fallback for things like logo_light_mode.svg served at root
     },
-    preprocessors: {
-      'src/main_unit_test.ts': ['webpack', 'sourcemap'],
-    },
+    // restartOnFileChange: true,
     verbose: true, // output config used by istanbul for debugging
-    webpack: merge(webpackConfig, {
-      plugins: [
-        new AngularWebpackPlugin({
-          tsconfig: 'tsconfig.karma.json',
-          jitMode: '@angular/compiler',
-        }),
-      ],
-    }),
   });
 };

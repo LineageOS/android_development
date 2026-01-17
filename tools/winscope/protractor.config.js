@@ -27,7 +27,13 @@ exports.config = {
   capabilities: {
     browserName: 'chrome',
     chromeOptions: {
-      args: ['--disable-gpu', '--window-size=1280x1024', '--no-sandbox', '--disable-dev-shm-usage'],
+      args: [
+        '--disable-gpu',
+        '--window-size=1280x1024',
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--enable-unsafe-swiftshader',
+      ],
     },
   },
   chromeDriver: './deps_build/chromedriver-linux64/chromedriver',

@@ -219,6 +219,7 @@ export class CollectTracesComponent
       this.storeKeyPrefixDumpConfig,
     );
     this.refreshDumps = true;
+    this.changeDetectorRef.detectChanges();
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -421,6 +422,7 @@ export class CollectTracesComponent
     await this.setState(ConnectionState.DUMPING_STATE);
     await controller.dumpState(device, requestedDumpsWithConfig);
     this.refreshDumps = false;
+    this.changeDetectorRef.detectChanges();
     if (this.state === ConnectionState.DUMPING_STATE) {
       this.filesCollected.emit({
         requested: requestedTraceTypes,
@@ -747,6 +749,7 @@ export class CollectTracesComponent
       // device is not connected or proxy is not started/invalid/in error state
       // so cannot refresh dump automatically
       this.refreshDumps = false;
+      this.changeDetectorRef.detectChanges();
     }
 
     const deviceRequestStates = [

@@ -108,6 +108,7 @@ describe('LogComponent', () => {
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     setComponentInputData();
     dom.detectChanges();
+    await dom.whenStable();
   });
 
   it('can be created', () => {
@@ -261,7 +262,14 @@ describe('LogComponent', () => {
     checkEntryPropagatedOnTimestampClick(logTimestampButton);
   });
 
-  it('propagates timestamp on raw timestamp click', () => {
+  it('propagates timestamp on raw timestamp click', async () => {
+    // Force viewport layout update
+    dom.detectChanges();
+    await dom.whenRenderingDone();
+    component.logComponent?.scrollComponent?.checkViewportSize();
+    dom.detectChanges();
+    await dom.whenRenderingDone();
+
     let timestamp: Timestamp | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       const detail: TimestampClickDetail = (event as CustomEvent).detail;

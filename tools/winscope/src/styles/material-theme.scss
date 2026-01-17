@@ -319,7 +319,15 @@ $dark-theme: mat.m2-define-dark-theme(
     )
   );
 }
-
+.no-touch-target-button {
+  @include mat.button-overrides(
+    (
+      filled-touch-target-display: none,
+      outlined-touch-target-display: none,
+      protected-touch-target-display: none,
+    )
+  );
+}
 .playback-speed-selector .mat-mdc-select-arrow{
   rotate: 180deg;
 }

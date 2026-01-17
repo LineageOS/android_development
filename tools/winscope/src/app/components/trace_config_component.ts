@@ -16,6 +16,7 @@
 import {CdkOverlayOrigin, OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
@@ -39,7 +40,6 @@ import {
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
 import {isElementOverflowing} from '@common/dom';
-import {globalConfig} from '@common/global_config';
 import {Store} from '@common/store/store';
 import {
   AdvancedConfiguration,
@@ -57,6 +57,7 @@ import {AbstractSelectComponent} from '@viewers/components/abstract_select_compo
 @Component({
   selector: 'trace-config',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     MatCheckboxModule,
@@ -73,7 +74,6 @@ import {AbstractSelectComponent} from '@viewers/components/abstract_select_compo
   styleUrls: ['trace_config_component.css'],
 })
 export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfiguration> {
-  changeDetectionWorker: number | undefined;
   advancedSettingsTrigger: CdkOverlayOrigin | undefined;
   advancedSettingsKey: string | undefined;
 
@@ -102,17 +102,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
       assertDefined(this.storage),
       assertDefined(this.traceConfigStoreKey),
     );
-    if (globalConfig.MODE !== 'KARMA_TEST') {
-      this.changeDetectionWorker = window.setInterval(
-        () => this.changeDetectorRef.detectChanges(),
-        200,
-      );
-    }
     this.onTraceConfigChange();
-  }
-
-  ngOnDestroy() {
-    window.clearInterval(this.changeDetectionWorker);
   }
 
   getTraceCheckboxContainerHeight(): string {
@@ -227,6 +217,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   onTraceConfigChange() {
+    this.changeDetectorRef.markForCheck();
     this.traceConfigChange.emit(this.traceConfig);
   }
 

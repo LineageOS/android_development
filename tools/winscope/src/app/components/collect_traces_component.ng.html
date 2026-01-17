@@ -137,7 +137,12 @@ limitations under the License.
                 (traceConfigChange)="onTraceConfigChange($event)"
               ></trace-config>
               <div class="start-btn">
-                <button color="primary" mat-raised-button (click)="startTracing()">
+                <button
+                  color="primary"
+                  mat-raised-button
+                  (click)="startTracing()"
+                  class="no-touch-target-button"
+                >
                   Start trace
                 </button>
               </div>
@@ -157,6 +162,7 @@ limitations under the License.
                   mat-raised-button
                   [disabled]="state !== ConnectionState.TRACING"
                   (click)="endTrace()"
+                  class="no-touch-target-button"
                 >
                   End trace
                 </button>
@@ -179,7 +185,14 @@ limitations under the License.
               ></trace-config>
               @if (!refreshDumps) {
               <div class="dump-btn">
-                <button color="primary" mat-raised-button (click)="dumpState()">Dump state</button>
+                <button
+                  color="primary"
+                  mat-raised-button
+                  (click)="dumpState()"
+                  class="no-touch-target-button"
+                >
+                  Dump state
+                </button>
               </div>
               }
             </div>
