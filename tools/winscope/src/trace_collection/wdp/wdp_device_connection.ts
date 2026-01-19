@@ -32,7 +32,6 @@ import {TraceTarget} from '@trace_collection/trace_target';
 import {DataListener} from './adb_websocket_stream';
 import {ShellStream} from './shell_stream';
 import {StreamProvider} from './stream_provider';
-import {ErrorListener} from './websocket_stream';
 
 export class WdpDeviceConnection extends AdbDeviceConnection {
   private static readonly WDP_ADB_URL = 'ws://localhost:9167/adb-json';
@@ -71,10 +70,7 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
     const dataListener = (data: Uint8Array) => {
       cmdOut.append(data);
     };
-    const errorListener = async (msg: string) => {
-      this.listener.onError(msg);
-    };
-    const stream = this.createShellStream(dataListener, errorListener);
+    const stream = this.createShellStream(dataListener);
     await stream.connect(cmd);
     await stream.complete;
     const output = utf8Decode(cmdOut.get()).trimEnd();
@@ -182,11 +178,10 @@ export class WdpDeviceConnection extends AdbDeviceConnection {
     await stream.write(binaryEncode(target.startCmd));
   }
 
-  private createShellStream(
-    dataListener: DataListener,
-    errorListener: ErrorListener = async (msg: string) =>
-      this.listener.onError(msg),
-  ): ShellStream {
+  private createShellStream(dataListener: DataListener): ShellStream {
+    const errorListener = async (msg: string) => {
+      this.listener.onError(msg);
+    };
     const sock = new WebSocket(WdpDeviceConnection.WDP_ADB_URL);
     return this.streamProvider.createShellStream(
       this.id,
