@@ -128,7 +128,8 @@
           },
           "configurations": {
             "ci": {
-              "karmaConfig": "karma.config.ci.js"
+              "karmaConfig": "karma.config.ci.js",
+              "codeCoverage": true
             }
           }
         }

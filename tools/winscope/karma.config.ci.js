@@ -30,9 +30,18 @@ const configCi = (config) => {
       'karma-chrome-launcher',
       'karma-jasmine',
       'karma-spec-reporter',
+      'karma-coverage',
       require('@angular-devkit/build-angular/plugins/karma')
     ],
-    reporters: ['progress', 'spec'],
+    coverageReporter: {
+      dir: require('path').join(__dirname, './coverage/winscope'),
+      subdir: '.',
+      reporters: [
+        { type: 'html' },
+        { type: 'text-summary' }
+      ]
+    },
+    reporters: ['progress', 'spec', 'coverage'],
     specReporter: {
       maxLogLines: 5,             // limit number of lines logged per test
       suppressSummary: false,      // do not print summary
