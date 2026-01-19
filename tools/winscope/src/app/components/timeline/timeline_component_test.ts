@@ -1210,6 +1210,26 @@ describe('TimelineComponent', () => {
     expect(dom.find('#frameCanvasElementTimeline')).toBeUndefined();
   });
 
+  it('updates seek position based on trace position update', async () => {
+    loadAllTraces();
+    const timeline = assertDefined(component.timeline);
+    expect(timeline.getCurrentTracePosition().timestamp).toEqual(time100);
+
+    await timeline.onWinscopeEvent(
+      new TracePositionUpdate(position100, undefined, {
+        trace: undefined,
+        seek: time112,
+        screenRecording: undefined,
+      }),
+    );
+    expect(timeline.getCurrentTracePosition().timestamp).toEqual(time112);
+
+    await timeline.onWinscopeEvent(
+      new TracePositionUpdate(position100, undefined),
+    );
+    expect(timeline.getCurrentTracePosition().timestamp).toEqual(time100);
+  });
+
   it('shows hover timestamp', () => {
     loadSfWmTraces();
     const hoverPreview = dom.get('.hover-preview').getHTMLElement();
