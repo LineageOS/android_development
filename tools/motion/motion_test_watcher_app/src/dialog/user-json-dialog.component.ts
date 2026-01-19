@@ -32,7 +32,8 @@ export interface UserJsonData {
   `]
 })
 export class UserJsonDialogComponent {
-  jsonInput: string = '';
+  jsonInputLeft: string = '';
+  jsonInputRight: string = '';
   nameInput: string = '';
 
   constructor(
@@ -45,6 +46,10 @@ export class UserJsonDialogComponent {
   }
 
   onVisualize(): void {
-    this.dialogRef.close({ json: this.jsonInput, name: this.nameInput });
+    this.dialogRef.close({
+      jsonLeft: this.jsonInputLeft,
+      jsonRight: this.jsonInputRight,
+      name: this.nameInput
+    });
   }
 }
