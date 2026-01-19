@@ -96,11 +96,9 @@ export function timestampEqualityTester(
   second: unknown,
 ): boolean | undefined {
   if (first instanceof Timestamp && second instanceof Timestamp) {
-    const firstTime = first as Timestamp;
-    const secondTime = second as Timestamp;
     return (
-      firstTime.format() === secondTime.format() &&
-      firstTime.getValueNs() === secondTime.getValueNs()
+      first.format() === second.format() &&
+      first.getValueNs() === second.getValueNs()
     );
   }
   return undefined;

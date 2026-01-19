@@ -32,11 +32,14 @@ import {
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 describe('FileReaderWindowManager', () => {
+  beforeAll(() => {
+    jasmine.addCustomEqualityTester(timestampEqualityTester);
+  });
+
   describe('trace with real timestamps', () => {
     let readerRealTs: LegacyFileReader;
 
     beforeAll(async () => {
-      jasmine.addCustomEqualityTester(timestampEqualityTester);
       readerRealTs = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
         .get();
