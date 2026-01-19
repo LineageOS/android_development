@@ -25,19 +25,20 @@ import {
 } from '@trace/media_based/media_based_trace_entry';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {spyOnThumbnailGenerator} from './test_helpers';
+import {
+  spyOnThumbnailGenerator,
+  waitForThumbnailGeneration,
+} from './test_helpers';
 import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {FileReader} from '@trace_api/file_reader';
 
 describe('ParserScreenRecording', () => {
   let parser: Parser<MediaBasedTraceEntry> & FileReader;
-
-  beforeAll(() => {
-    spyOnThumbnailGenerator();
-  });
+  let thumbnailSpy: jasmine.Spy;
 
   describe('metadata v2', () => {
     beforeAll(async () => {
+      thumbnailSpy = spyOnThumbnailGenerator();
       jasmine.addCustomEqualityTester(timestampEqualityTester);
       parser = (await new NonPerfettoParserProvider()
         .addFile(
@@ -81,6 +82,7 @@ describe('ParserScreenRecording', () => {
     });
 
     it('generates thumbnail', async () => {
+      await waitForThumbnailGeneration(thumbnailSpy);
       const entry0 = await parser.getEntry(0);
       expect(entry0.thumbnail).toBeDefined();
       const entry1 = await parser.getEntry(1);
@@ -90,6 +92,7 @@ describe('ParserScreenRecording', () => {
 
   describe('metadata v3', () => {
     beforeAll(async () => {
+      thumbnailSpy = spyOnThumbnailGenerator();
       jasmine.addCustomEqualityTester(timestampEqualityTester);
       parser = (await new NonPerfettoParserProvider()
         .addFile(
@@ -133,6 +136,7 @@ describe('ParserScreenRecording', () => {
     });
 
     it('generates thumbnail', async () => {
+      await waitForThumbnailGeneration(thumbnailSpy);
       const entry0 = await parser.getEntry(0);
       expect(entry0.thumbnail).toBeDefined();
       const entry1 = await parser.getEntry(1);
@@ -143,7 +147,9 @@ describe('ParserScreenRecording', () => {
   describe('separate metadata file', () => {
     const elapsedNs = 5n;
     const realtoElapsedNs = 10n;
+
     beforeAll(async () => {
+      thumbnailSpy = spyOnThumbnailGenerator();
       jasmine.addCustomEqualityTester(timestampEqualityTester);
       parser = (await new NonPerfettoParserProvider()
         .addFile(
@@ -195,6 +201,7 @@ describe('ParserScreenRecording', () => {
     });
 
     it('generates thumbnail', async () => {
+      await waitForThumbnailGeneration(thumbnailSpy);
       const entry0 = await parser.getEntry(0);
       expect(entry0.thumbnail).toBeDefined();
       const entry1 = await parser.getEntry(1);
@@ -267,6 +274,7 @@ describe('ParserScreenRecording', () => {
 
     function checkStartTimeInFilename(filename: string) {
       beforeAll(async () => {
+        thumbnailSpy = spyOnThumbnailGenerator();
         jasmine.addCustomEqualityTester(timestampEqualityTester);
         parser = (await new NonPerfettoParserProvider()
           .addFile(
@@ -306,6 +314,7 @@ describe('ParserScreenRecording', () => {
       });
 
       it('generates thumbnail', async () => {
+        await waitForThumbnailGeneration(thumbnailSpy);
         const entry0 = await parser.getEntry(0);
         expect(entry0.thumbnail).toBeDefined();
         const entry1 = await parser.getEntry(1);
