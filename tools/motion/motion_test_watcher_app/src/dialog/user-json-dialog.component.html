@@ -13,14 +13,16 @@
 
       <div class="flex flex-col gap-1 flex-grow h-full">
         <label class="text-sm font-medium uppercase text-gray-700">JSON Data Left</label>
-        <textarea [(ngModel)]="jsonInputLeft" placeholder='{"frame_ids": [...], "features": [...]}'
+        <textarea [(ngModel)]="jsonInputLeft" (input)="onInputChange()"
+          placeholder='{"frame_ids": [...], "features": [...]}'
           class="w-full p-2 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-full resize-none">
       </textarea>
       </div>
 
       <div class="flex flex-col gap-1 flex-grow h-full">
         <label class="text-sm font-medium uppercase text-gray-700">JSON Data Right</label>
-        <textarea [(ngModel)]="jsonInputRight" placeholder='{"frame_ids": [...], "features": [...]}'
+        <textarea [(ngModel)]="jsonInputRight" (input)="onInputChange()"
+          placeholder='{"frame_ids": [...], "features": [...]}'
           class="w-full p-2 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-full resize-none">
       </textarea>
       </div>
@@ -28,6 +30,11 @@
     </div>
   </div>
 </mat-dialog-content>
+<div *ngIf="errorMessage"
+  class="mx-6 mt-2 p-3 bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2 rounded shadow-sm">
+  <span class="text-lg">⚠️</span>
+  <span>{{ errorMessage }}</span>
+</div>
 <mat-dialog-actions align="end" class="gap-2">
   <button mat-button (click)="onCancel()">Cancel</button>
   <button mat-raised-button color="primary" (click)="onVisualize()"

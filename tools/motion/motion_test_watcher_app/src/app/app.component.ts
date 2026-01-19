@@ -281,17 +281,6 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
       });
   }
 
-  parseJSONDataToMotionGolden(data: any): MotionGoldenData {
-    const parsedData = JSON.parse(data);
-    if (parsedData.frame_ids && parsedData.features) {
-      return parsedData;
-    } else if (parsedData.data && parsedData.data[0] && parsedData.data[0].frame_ids) {
-      return parsedData.data[0];
-    } else {
-      throw new Error("Invalid JSON format");
-    }
-  }
-
   openUserJsonDialog(): void {
     const dialogRef = this.dialog.open(UserJsonDialogComponent, {
       width: '90vw',
@@ -302,48 +291,42 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && (result.jsonLeft || result.jsonRight)) {
-        try {
-          let jsonDataLeft!: MotionGoldenData;
-          let jsonDataRight!: MotionGoldenData;
+        let jsonDataLeft!: MotionGoldenData;
+        let jsonDataRight!: MotionGoldenData;
 
-          if (result.jsonLeft && result.jsonRight) {
-            jsonDataLeft = this.parseJSONDataToMotionGolden(result.jsonLeft);
-            jsonDataRight = this.parseJSONDataToMotionGolden(result.jsonRight);
-          }
-          else if (result.jsonLeft) {
-            jsonDataLeft = jsonDataRight = this.parseJSONDataToMotionGolden(result.jsonLeft);
-          }
-          else if (result.jsonRight) {
-            jsonDataLeft = jsonDataRight = this.parseJSONDataToMotionGolden(result.jsonRight);
-          }
-
-          const goldenName = result.name || `User Content ${new Date().toLocaleString()}`;
-          const userGolden: MotionGolden = {
-            id: goldenName,
-            label: goldenName,
-            testMethodName: goldenName,
-            testClassName: 'User',
-            testTime: new Date().toISOString(),
-            result: TestResult.Passed,
-            dataSource: DataSource.USER,
-            actualData: jsonDataLeft,
-            expectedData: jsonDataRight,
-            actualUrl: '',
-            expectedUrl: '',
-            goldenRepoPath: '',
-            videoUrl: undefined,
-            goldenName: goldenName
-          };
-
-          this.goldens = [userGolden];
-          this.testMode = TestModes.USER;
-          this.setSelectedGolden(userGolden);
-          console.log('AppComponent: Loaded User JSON golden:', userGolden);
-
-        } catch (e) {
-          console.error('AppComponent: Error parsing User JSON:', e);
-          this.snackBar.open('Invalid JSON format', 'Dismiss', { duration: 3000 });
+        if (result.jsonLeft && result.jsonRight) {
+          jsonDataLeft = result.jsonLeft;
+          jsonDataRight = result.jsonRight;
         }
+        else if (result.jsonLeft) {
+          jsonDataLeft = jsonDataRight = result.jsonRight;
+        }
+        else if (result.jsonRight) {
+          jsonDataLeft = jsonDataRight = result.jsonLeft;
+        }
+
+        const goldenName = result.name || `User Content ${new Date().toLocaleString()}`;
+        const userGolden: MotionGolden = {
+          id: goldenName,
+          label: goldenName,
+          testMethodName: goldenName,
+          testClassName: 'User',
+          testTime: new Date().toISOString(),
+          result: TestResult.Passed,
+          dataSource: DataSource.USER,
+          actualData: jsonDataLeft,
+          expectedData: jsonDataRight,
+          actualUrl: '',
+          expectedUrl: '',
+          goldenRepoPath: '',
+          videoUrl: undefined,
+          goldenName: goldenName
+        };
+
+        this.goldens = [userGolden];
+        this.testMode = TestModes.USER;
+        this.setSelectedGolden(userGolden);
+        console.log('AppComponent: Loaded User JSON golden:', userGolden);
       }
     });
   }
