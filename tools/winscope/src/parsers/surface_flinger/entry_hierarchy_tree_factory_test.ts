@@ -30,6 +30,7 @@ import {
 } from '@trace_processor/query_result';
 import {
   makeSpyRowIterator,
+  makeSpyQueryResult,
   setupMockIteratorWithRows,
 } from '@trace_processor/test_utils';
 import {TraceProcessor} from '@trace_processor/trace_processor';
@@ -62,16 +63,14 @@ describe('EntryHierarchyTreeFactory', () => {
 
   beforeEach(() => {
     snapshotIter = makeSpyRowIterator();
-    snapshotResult = jasmine.createSpyObj<QueryResult>('result', ['iter']);
-    snapshotResult.iter.and.returnValue(snapshotIter);
+    snapshotResult = makeSpyQueryResult(snapshotIter);
     let snapshotIterValidCallCount = 0;
     snapshotIter.valid.and.callFake(() => {
       return snapshotIterValidCallCount++ === 0;
     });
     layersIter = makeSpyRowIterator();
     setColumnValuesForLayer();
-    layersResult = jasmine.createSpyObj<QueryResult>('result', ['iter']);
-    layersResult.iter.and.returnValue(layersIter);
+    layersResult = makeSpyQueryResult(layersIter);
     mockTraceGeometryData = jasmine.createSpyObj<TraceGeometryData>(
       'TraceGeometryData',
       ['getRect', 'getTransform'],
