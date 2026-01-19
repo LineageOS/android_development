@@ -283,6 +283,8 @@ export class TimelineComponent implements OnChanges {
   }
 
   get showUpdateButton(): boolean {
-    return this.testMode != TestModes.GERRIT && this.testMode != TestModes.CODESEARCH;
+    return this.testMode != TestModes.GERRIT
+      && this.testMode != TestModes.CODESEARCH
+      && this.testMode != TestModes.USER;
   }
 }
