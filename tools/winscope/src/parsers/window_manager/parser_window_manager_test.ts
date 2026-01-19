@@ -31,10 +31,12 @@ describe('PerfettoParserWindowManager', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = (await getPerfettoParser(
-      TraceType.WINDOW_MANAGER,
-      'traces/perfetto/windowmanager.perfetto-trace',
-    )) as Parser<HierarchyTreeNode>;
+    parser = (
+      await getPerfettoParser(
+        TraceType.WINDOW_MANAGER,
+        'traces/perfetto/windowmanager.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {

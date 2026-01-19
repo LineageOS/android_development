@@ -30,10 +30,12 @@ describe('PerfettoParserProtolog', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await getPerfettoParser(
-      TraceType.PROTO_LOG,
-      'traces/perfetto/protolog.perfetto-trace',
-    );
+    parser = (
+      await getPerfettoParser(
+        TraceType.PROTO_LOG,
+        'traces/perfetto/protolog.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {

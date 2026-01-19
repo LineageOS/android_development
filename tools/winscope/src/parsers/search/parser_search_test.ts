@@ -163,10 +163,12 @@ describe('ParserSearch', () => {
 
   async function createParser(query: string): Promise<ParserSearch> {
     await (
-      (await getPerfettoParser(
-        TraceType.SURFACE_FLINGER,
-        'traces/perfetto/layers_trace.perfetto-trace',
-      )) as ParserSurfaceFlinger
+      (
+        await getPerfettoParser(
+          TraceType.SURFACE_FLINGER,
+          'traces/perfetto/layers_trace.perfetto-trace',
+        )
+      ).parser as ParserSurfaceFlinger
     ).parse();
     parser = new ParserSearch(query, getTimestampConverter());
     await parser.parse();

@@ -28,10 +28,12 @@ describe('PerfettoParserInputMethodService', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = (await getPerfettoParser(
-      TraceType.INPUT_METHOD_SERVICE,
-      'traces/perfetto/ime.perfetto-trace',
-    )) as Parser<HierarchyTreeNode>;
+    parser = (
+      await getPerfettoParser(
+        TraceType.INPUT_METHOD_SERVICE,
+        'traces/perfetto/ime.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {
