@@ -33,6 +33,7 @@ const configCi = (config) => {
       'karma-coverage',
       require('@angular-devkit/build-angular/plugins/karma')
     ],
+    reporters: ['progress', 'spec', 'coverage'],
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/winscope'),
       subdir: '.',
@@ -41,24 +42,6 @@ const configCi = (config) => {
         { type: 'text-summary' }
       ]
     },
-    reporters: ['progress', 'spec', 'coverage'],
-    specReporter: {
-      maxLogLines: 5,             // limit number of lines logged per test
-      suppressSummary: false,      // do not print summary
-      suppressErrorSummary: false, // do not print error summary
-      suppressFailed: false,      // do not print information about failed tests
-      suppressPassed: false,      // do not print information about passed tests
-      suppressSkipped: true,      // do not print information about skipped tests
-      showBrowser: false,         // print the browser for each spec
-      showSpecTiming: true,       // print the time elapsed for each spec
-      failFast: false,            // test would finish with error when a first fail occurs
-      prefixes: {
-        success: '    OK: ',      // override prefix for passed tests, default is '✓ '
-        failure: 'FAILED: ',      // override prefix for failed tests, default is '✗ '
-        skipped: 'SKIPPED: '      // override prefix for skipped tests, default is '- '
-      }
-    },
-
     verbose: true, // output config used by istanbul for debugging
   });
 };

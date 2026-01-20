@@ -462,9 +462,11 @@ describe('MiniTimelineComponent', () => {
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
     component.initialZoom = initialZoom;
     component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
-    // fix minimum width to timeline regardless of browser window size, so that
-    // test timestamps are correctly calibrated for usable range
+    // fix width to timeline regardless of browser window size, so that test
+    // timestamps are correctly calibrated for usable range
     dom.get('#mini-timeline-wrapper').getHTMLElement().style.minWidth =
+      '1000px';
+    dom.get('#mini-timeline-wrapper').getHTMLElement().style.maxWidth =
       '1000px';
     dom.detectChanges();
     const drawer = assertDefined(component.miniTimelineComponent?.drawer);
