@@ -158,7 +158,7 @@ describe('ui_rect_factory', () => {
   });
 
   it('makes vc rects with groupId, content and empty label', () => {
-    const GROUP_ID = 11;
+    const groupId = 11;
 
     buildRectAndSetToNode(node1, 1);
     buildRectAndSetToNode(node2, 0);
@@ -170,7 +170,7 @@ describe('ui_rect_factory', () => {
       .setHeight(1)
       .setId('1 node1')
       .setLabel('')
-      .setGroupId(GROUP_ID)
+      .setGroupId(groupId)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
       .setIsDisplay(false)
@@ -188,7 +188,7 @@ describe('ui_rect_factory', () => {
       .setHeight(1)
       .setId('2 node2')
       .setLabel('')
-      .setGroupId(GROUP_ID)
+      .setGroupId(groupId)
       .setTransform(Transform.EMPTY.matrix)
       .setIsVisible(true)
       .setIsDisplay(false)
@@ -200,16 +200,7 @@ describe('ui_rect_factory', () => {
       .build();
 
     const expectedRects: UiRect[] = [expectedVcUiRect1, expectedVcUiRect2];
-    expect(makeVcUiRects(hierarchyRoot, GROUP_ID)).toEqual(expectedRects);
-  });
-
-  it('discards vc trace rects with zero height or width', () => {
-    const GROUP_ID = 11;
-
-    buildRectAndSetToNode(node1, 1, 0, 1);
-    buildRectAndSetToNode(node2, 0, 1, 0);
-
-    expect(makeVcUiRects(hierarchyRoot, GROUP_ID)).toEqual([]);
+    expect(makeVcUiRects(hierarchyRoot, groupId)).toEqual(expectedRects);
   });
 
   it('makes input rects', () => {
@@ -474,6 +465,17 @@ describe('ui_rect_factory', () => {
     expect(makeInputRects(root, hasContent, dispatchProperties)).toEqual(
       expectedRects,
     );
+  });
+
+  it('discards trace rects with zero height or width', () => {
+    buildRectAndSetToNode(node1, 1, 0, 1);
+    buildRectAndSetToNode(node2, 0, 1, 0);
+    buildRectAndSetToNode(node1, 1, 0, 1, false);
+    buildRectAndSetToNode(node2, 0, 1, 0, false);
+
+    expect(makeUiRects(hierarchyRoot)).toEqual([]);
+    expect(makeVcUiRects(hierarchyRoot, 0)).toEqual([]);
+    expect(makeInputRects(hierarchyRoot, hasContent)).toEqual([]);
   });
 
   function hasContent(id: string) {
