@@ -183,7 +183,7 @@ export class RectsComponent implements OnInit, OnDestroy {
       this.updateControlsFromStore();
     }
 
-    this.redrawLargeRectsAndLabels();
+    this.redrawLargeRectsAndLabels(true);
 
     this.miniRectsCanvasElement = canvasContainer.querySelector(
       '.mini-rects-canvas',
@@ -228,6 +228,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     let redrawRects = false;
     let recolorRects = false;
     let recolorLabels = false;
+    let updateBoundingBox = false;
     if (simpleChanges['pinnedItems']) {
       this.largeRectsMapper3d.setPinnedItems(this.pinnedItems);
       recolorRects = true;
@@ -246,6 +247,8 @@ export class RectsComponent implements OnInit, OnDestroy {
       recolorLabels = true;
     }
     if (simpleChanges['rects']) {
+      updateBoundingBox =
+        this.internalRects.length === 0 && this.rects.length > 0;
       this.internalRects = simpleChanges['rects'].currentValue;
       redrawRects = true;
     }
@@ -253,7 +256,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     if (displayChange) {
       this.onDisplaysChange(simpleChanges['displays']);
     } else if (redrawRects) {
-      this.redrawLargeRectsAndLabels();
+      this.redrawLargeRectsAndLabels(updateBoundingBox);
     } else if (recolorRects && recolorLabels) {
       this.updateLargeRectsAndLabelsColors();
     } else if (recolorRects) {
@@ -269,7 +272,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     (this.miniRectsCanvasElement?.getContext('2d') as any)?.reset();
   }
 
-  onDisplaysChange(change: SimpleChange) {
+  private onDisplaysChange(change: SimpleChange) {
     const displays = change.currentValue;
     this.internalDisplays = displays;
     const activeDisplay = this.getActiveDisplay(this.internalDisplays);
@@ -307,7 +310,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     return;
   }
 
-  updateControlsFromStore() {
+  private updateControlsFromStore() {
     this.storeKeyZSpacingFactor = `rectsView.${this.title}.zSpacingFactor`;
     this.storeKeyShadingMode = `rectsView.${this.title}.shadingMode`;
     this.storeKeySelectedDisplays = `rectsView.${this.title}.selectedDisplayId`;
