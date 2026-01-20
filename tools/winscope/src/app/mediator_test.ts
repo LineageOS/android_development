@@ -290,7 +290,7 @@ describe('Mediator', () => {
     await mediator.onWinscopeEvent(new AppFilesUploaded(inputFiles));
     resetSpyCalls();
     await mediator.onWinscopeEvent(new AppTraceViewRequest(true));
-    checkLoadTraceViewEvents(uploadTracesComponent, undefined, undefined, true);
+    checkLoadTraceViewEvents(uploadTracesComponent);
     userNotifierChecker.expectNotified([]);
   });
 
@@ -418,6 +418,7 @@ describe('Mediator', () => {
       wmDumpFile,
     ];
     await loadFiles(dumpFiles);
+    resetSpyCalls();
     await mediator.onWinscopeEvent(new AppTraceViewRequest());
     checkLoadTraceViewEvents(uploadTracesComponent);
 
@@ -1076,10 +1077,12 @@ describe('Mediator', () => {
     progressListener: ProgressListener,
     expectedViewers = viewers,
     notifications: UserWarning[] = [],
-    discardLegacyFiles = false,
   ) {
     expect(progressListener.onProgressUpdate).toHaveBeenCalled();
-    expect(progressListener.onOperationFinished).toHaveBeenCalled();
+    // For successful loading we should never call onOperationFinished. The
+    // UI should reflect the progress of a sequence of operations through calls
+    // to onProgressUpdate before directly rendering the trace view.
+    expect(progressListener.onOperationFinished).not.toHaveBeenCalled();
     expect(timelineData.initialize).toHaveBeenCalledTimes(1);
     expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(
       new ViewersLoaded(expectedViewers),

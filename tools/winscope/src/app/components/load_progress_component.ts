@@ -33,7 +33,7 @@ export class LoadProgressComponent {
   @Input() progressPercentage?: number;
   @Input() message = 'Loading...';
   @Input() icon = 'sync';
-  private static readonly MIN_UI_UPDATE_PERIOD_MS = 200;
+  private static readonly MIN_UI_UPDATE_PERIOD_MS = 100;
 
   static canUpdateComponent(lastUpdateTimeMs: number | undefined): boolean {
     if (lastUpdateTimeMs === undefined) {

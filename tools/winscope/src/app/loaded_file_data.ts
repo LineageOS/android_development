@@ -54,7 +54,6 @@ import {Analytics} from '@logging/analytics';
 import {FrameMapper} from '@trace_api/frame_mapper';
 import {ParserSearch} from '@parsers/search/parser_search';
 import {ProgressListener} from '@messaging/progress_listener';
-import {Timer} from '@common/time/timer';
 import {makeWarningIncompleteFrameMapping} from './warnings';
 
 /**
@@ -67,6 +66,7 @@ import {makeWarningIncompleteFrameMapping} from './warnings';
  */
 export class LoadedFileData {
   private static readonly DEFAULT_DOWNLOAD_ARCHIVE_NAME = 'winscope';
+
   private loadedFiles = new LoadedFiles<FileReaderAndParser>();
   private downloadArchiveFilename =
     LoadedFileData.DEFAULT_DOWNLOAD_ARCHIVE_NAME;
@@ -153,14 +153,8 @@ export class LoadedFileData {
     discardLegacy: boolean,
     progressListener: ProgressListener | undefined,
   ): Promise<boolean> {
-    // timer#sleepMs() allows the UI to update before making the main thread very busy
-    const timer = new Timer(10, 10);
-
     this.filterLoadedFilesWithoutVisualization();
-    await timer.sleepMs();
-
     await this.handleLegacyFileReaders(discardLegacy, progressListener);
-    await timer.sleepMs();
 
     progressListener?.onProgressUpdate('Building traces...', undefined);
     const parsers = [
@@ -172,23 +166,18 @@ export class LoadedFileData {
     }
     const traces = this.buildTracesFromParsers(parsers);
     if (traces.getSize() === 0) {
-      progressListener?.onOperationFinished(false);
       return false;
     }
 
-    await timer.sleepMs();
     try {
       const startTimeMs = Date.now();
       await this.buildFrameMapping(traces);
       Analytics.Loading.logFrameMapBuildTime(Date.now() - startTimeMs);
       Analytics.Memory.logUsage('frame_map_built');
-      progressListener?.onOperationFinished(true);
     } catch (e) {
       UserNotifier.add(makeWarningIncompleteFrameMapping((e as Error).message));
-      progressListener?.onOperationFinished(false);
     }
 
-    await timer.sleepMs();
     this.traces = traces;
     return true;
   }
@@ -404,7 +393,6 @@ export class LoadedFileData {
         undefined,
       );
       await this.convertLegacyTracesToPerfetto();
-      progressListener?.onOperationFinished(true);
     }
   }
 
