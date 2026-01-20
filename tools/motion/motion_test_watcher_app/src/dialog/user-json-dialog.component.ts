@@ -5,6 +5,8 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { MotionGoldenData } from '../model/golden';
+import { parseJSONDataToMotionGolden } from '../util/util';
 
 export interface UserJsonData {
   json: string;
@@ -32,8 +34,10 @@ export interface UserJsonData {
   `]
 })
 export class UserJsonDialogComponent {
-  jsonInput: string = '';
+  jsonInputLeft: string = '';
+  jsonInputRight: string = '';
   nameInput: string = '';
+  errorMessage: string | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<UserJsonDialogComponent>,
@@ -44,7 +48,39 @@ export class UserJsonDialogComponent {
     this.dialogRef.close();
   }
 
+  onInputChange() {
+    this.errorMessage = null;
+  }
+
   onVisualize(): void {
-    this.dialogRef.close({ json: this.jsonInput, name: this.nameInput });
+    let jsonDataLeft: MotionGoldenData | null = null;
+    let jsonDataRight: MotionGoldenData | null = null;
+
+    try {
+      if (this.jsonInputLeft) {
+        jsonDataLeft = parseJSONDataToMotionGolden(this.jsonInputLeft);
+      }
+    } catch (e) {
+      this.errorMessage = `Error parsing Left JSON: ${e}. `;
+    }
+
+    try {
+      if (this.jsonInputRight) {
+        jsonDataRight = parseJSONDataToMotionGolden(this.jsonInputRight);
+      }
+    } catch (e) {
+      this.errorMessage = (this.errorMessage ?? "") + `Error parsing Right JSON: ${e}`;
+    }
+
+    if (this.errorMessage) {
+      console.error(`UserJsonDialogComponent: ${this.errorMessage}`);
+      return;
+    }
+
+    this.dialogRef.close({
+      jsonLeft: jsonDataLeft,
+      jsonRight: jsonDataRight,
+      name: this.nameInput
+    });
   }
 }

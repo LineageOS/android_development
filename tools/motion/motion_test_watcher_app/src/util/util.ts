@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { MotionGoldenData } from "../model/golden";
+
 /** Promise that completes after the specified `timeMs` */
 export function delay(timeMs: number): Promise<void> {
   return new Promise<void>((complete) => setTimeout(complete, timeMs));
@@ -71,4 +73,16 @@ export function asciiStringToBytes(contents: string): Uint8Array {
     throw new Error(`non-ascii characters found in '${contents}'`);
   }
   return result;
+}
+
+/** Parse JSON data to Motion Golden data. Throws error for malformed JSON. */
+export function parseJSONDataToMotionGolden(data: any): MotionGoldenData {
+  const parsedData = JSON.parse(data);
+  if (parsedData.frame_ids && parsedData.features) {
+    return parsedData;
+  } else if (parsedData.data && parsedData.data[0] && parsedData.data[0].frame_ids) {
+    return parsedData.data[0];
+  } else {
+    throw new Error("Invalid JSON format");
+  }
 }
