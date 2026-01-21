@@ -20,7 +20,10 @@ export async function waitToBeCalled(
   timeout = 10000,
 ) {
   return new Promise<void>((resolve, reject) => {
-    let called = 0;
+    let called = spy.calls.count();
+    if (called >= times) {
+      resolve();
+    }
     spy.and.callThrough().and.callFake(() => {
       called++;
       if (called === times) {

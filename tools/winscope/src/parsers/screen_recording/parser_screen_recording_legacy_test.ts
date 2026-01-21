@@ -23,13 +23,17 @@ import {
 } from '@trace/media_based/media_based_trace_entry';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {spyOnThumbnailGenerator} from './test_helpers';
+import {
+  spyOnThumbnailGenerator,
+  waitForThumbnailGeneration,
+} from './test_helpers';
 
 describe('ParserScreenRecordingLegacy', () => {
   let parser: Parser<MediaBasedTraceEntry>;
+  let thumbnailSpy: jasmine.Spy;
 
   beforeAll(async () => {
-    spyOnThumbnailGenerator();
+    thumbnailSpy = spyOnThumbnailGenerator();
     parser = (await new NonPerfettoParserProvider()
       .addFile('traces/elapsed_timestamp/screen_recording.mp4')
       .get()) as Parser<MediaBasedTraceEntry>;
@@ -79,6 +83,7 @@ describe('ParserScreenRecordingLegacy', () => {
   });
 
   it('generates thumbnail', async () => {
+    await waitForThumbnailGeneration(thumbnailSpy);
     const entry0 = await parser.getEntry(0);
     expect(entry0.thumbnail).toBeDefined();
     const entry1 = await parser.getEntry(1);

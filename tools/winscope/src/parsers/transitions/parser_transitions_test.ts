@@ -31,10 +31,12 @@ describe('PerfettoParserTransitions', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = await getPerfettoParser(
-        TraceType.TRANSITION,
-        'traces/perfetto/shell_transitions_trace.perfetto-trace',
-      );
+      parser = (
+        await getPerfettoParser(
+          TraceType.TRANSITION,
+          'traces/perfetto/shell_transitions_trace.perfetto-trace',
+        )
+      ).parser;
     });
 
     it('has expected trace type', () => {

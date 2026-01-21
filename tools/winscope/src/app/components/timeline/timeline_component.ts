@@ -951,6 +951,8 @@ export class TimelineComponent
       this.seekTracePosition = TracePosition.fromTimestamp(
         event.prefetchedEntries.seek,
       );
+    } else {
+      this.seekTracePosition = undefined;
     }
     this.updateTimeInputValuesToCurrentTimestamp();
     await this.updateScreenRecordingVisualization(event.prefetchedEntries);

@@ -36,6 +36,8 @@ import {
   getReaderWithLatestRealToMonotonicTimeOffset,
 } from '@app/file_reader_helpers';
 import {ParserInput} from '@parsers/input/parser_input';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {isZipFile, unzipFile} from '@common/io';
 
 abstract class ProcessedFileProvider<T extends FileReader> {
   protected timestampConverter = getTimestampConverter();
@@ -214,7 +216,7 @@ export async function getTrace<T extends TraceType>(
       .build();
   }
 
-  const perfettoParsers = await getPerfettoParsers(filename);
+  const {parsers: perfettoParsers} = await getPerfettoParsers(filename);
   expect(perfettoParsers.length).toBe(1);
   expect(perfettoParsers[0].getTraceType()).toEqual(type);
   return new TraceBuilder<T>()
@@ -261,12 +263,21 @@ export async function getPerfettoParser(
   traceType: TraceType,
   fixturePath: string,
   withUTCOffset = false,
-): Promise<Parser<HierarchyTreeNode>> {
-  const parsers = await getPerfettoParsers(fixturePath, withUTCOffset);
+  unzippedFileName: string = '',
+): Promise<{
+  parser: Parser<HierarchyTreeNode>;
+  traceGeometryData: TraceGeometryData;
+}> {
+  const {parsers, traceGeometryData} = await getPerfettoParsers(
+    fixturePath,
+    withUTCOffset,
+    undefined,
+    unzippedFileName,
+  );
   const parser = assertDefined(
     parsers.find((parser) => parser.getTraceType() === traceType),
   );
-  return parser;
+  return {parser, traceGeometryData};
 }
 
 /**
@@ -278,22 +289,28 @@ export async function getPerfettoParser(
 export async function getPerfettoParsers(
   fixturePath: string,
   withUTCOffset = false,
-  isPerfetto?: boolean,
-): Promise<Array<Parser<HierarchyTreeNode> & FileReader>> {
-  const file = await getFixtureFile(fixturePath);
+  isPerfetto = true,
+  unzippedFileName: string = '',
+): Promise<{
+  parsers: Array<Parser<HierarchyTreeNode> & FileReader>;
+  traceGeometryData: TraceGeometryData;
+}> {
+  let file = await getFixtureFile(fixturePath);
+  if (await isZipFile(file)) {
+    const subFiles = await unzipFile(file);
+    file = assertDefined(subFiles.find((f) => f.name === unzippedFileName));
+  }
   const traceFile = new TraceFile(file);
   const converter = getTimestampConverter(withUTCOffset);
-  const {parsers, isPerfettoTrace} =
+  const {parsers, isPerfettoTrace, traceGeometryData} =
     await new PerfettoParserFactory().processFile(
       traceFile,
       converter,
       undefined,
     );
-  if (isPerfetto !== undefined) {
-    expect(isPerfettoTrace).toEqual(isPerfetto);
-  }
+  expect(isPerfettoTrace).toEqual(isPerfetto);
   createTimestamps(parsers, true, converter);
-  return parsers;
+  return {parsers, traceGeometryData};
 }
 /**
  * @return The IME trace entries.
@@ -340,7 +357,7 @@ export async function getImeTraceEntries(): Promise<
 }
 
 export async function getParserInput(filename: string): Promise<ParserInput> {
-  const parsers = await getPerfettoParsers(filename);
+  const {parsers} = await getPerfettoParsers(filename);
   const parserKey = parsers.find(
     (p) => p.getTraceType() === TraceType.INPUT_KEY_EVENT,
   );

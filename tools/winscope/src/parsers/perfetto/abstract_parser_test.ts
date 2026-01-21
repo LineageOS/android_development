@@ -18,14 +18,14 @@ import {TraceType} from '@trace_api/trace_type';
 
 describe('PerfettoAbstractParser', () => {
   it('robust to perfetto trace with no trace entries', async () => {
-    const parsers = await getPerfettoParsers(
+    const {parsers} = await getPerfettoParsers(
       'invalid_files/no_winscope_traces.perfetto-trace',
     );
     expect(parsers.length).toBe(0);
   });
 
   it('robust to non-perfetto file', async () => {
-    const parsers = await getPerfettoParsers(
+    const {parsers} = await getPerfettoParsers(
       'traces/screenshot/screenshot.png',
       false,
       false,
@@ -34,7 +34,7 @@ describe('PerfettoAbstractParser', () => {
   });
 
   it('has expected descriptors', async () => {
-    const parser = await getPerfettoParser(
+    const {parser} = await getPerfettoParser(
       TraceType.SURFACE_FLINGER,
       'traces/perfetto/layers_trace.perfetto-trace',
     );

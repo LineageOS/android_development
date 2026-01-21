@@ -36,10 +36,12 @@ describe('ParserCujs', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = (await getPerfettoParser(
-      TraceType.CUJS,
-      'traces/perfetto/cujs.perfetto-trace',
-    )) as Parser<HierarchyTreeNode>;
+    parser = (
+      await getPerfettoParser(
+        TraceType.CUJS,
+        'traces/perfetto/cujs.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {

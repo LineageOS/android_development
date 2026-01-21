@@ -21,12 +21,23 @@ import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/win
 import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/entry_hierarchy_tree_factory';
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {QueryResult} from '@trace_processor/query_result';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
+import {assertDefined} from '@common/assert';
 
-addEventListener('message', async (event) => {
-  const traceGeometryData = new TraceGeometryData(
-    event.data.traceGeometryData.rectsMap,
-    event.data.traceGeometryData.transformMap,
-  );
+interface WorkerMessage {
+  start: number;
+  end: number;
+  snapshotBatches: Uint8Array[] | undefined;
+  nodeBatches: Uint8Array[];
+  type: TraceType;
+  traceGeometryData: TraceGeometryData;
+  visibleRectsMap: RectsForTrace;
+}
+
+addEventListener('message', async (event: MessageEvent<WorkerMessage>) => {
+  const traceGeometryData = event.data.traceGeometryData;
+  Object.setPrototypeOf(traceGeometryData, TraceGeometryData.prototype);
 
   const queries = processQueryResults(
     event.data.start,
@@ -49,15 +60,15 @@ addEventListener('message', async (event) => {
 
 function buildTraceEntryValue(
   traceType: TraceType,
-  snapshotResults: any,
-  nodeResults: any,
-  rectsMap: any,
+  snapshotResults: QueryResult | undefined,
+  nodeResults: QueryResult,
+  rectsMap: RectsForTrace,
   traceGeometryData: TraceGeometryData,
 ) {
   switch (traceType) {
     case TraceType.SURFACE_FLINGER:
       return sfMakeEntryHierarchyTrees(
-        snapshotResults,
+        assertDefined(snapshotResults),
         nodeResults,
         rectsMap,
         undefined,
@@ -85,9 +96,9 @@ function buildTraceEntryValue(
 function processQueryResults(
   start: number,
   end: number,
-  snapshotBatches: any[],
-  nodeBatches: any[],
-) {
+  snapshotBatches: Uint8Array[] | undefined,
+  nodeBatches: Uint8Array[],
+): [QueryResult | undefined, QueryResult] {
   let snapshotQueryResult;
   if (snapshotBatches) {
     const snapshotQueryString = snapshotQuery(start, end);

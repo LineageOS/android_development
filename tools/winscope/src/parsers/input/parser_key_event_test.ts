@@ -30,10 +30,12 @@ describe('PerfettoParserKeyEvent', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await getPerfettoParser(
-      TraceType.INPUT_KEY_EVENT,
-      'traces/perfetto/input-events.perfetto-trace',
-    );
+    parser = (
+      await getPerfettoParser(
+        TraceType.INPUT_KEY_EVENT,
+        'traces/perfetto/input-events.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {

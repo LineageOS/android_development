@@ -77,8 +77,14 @@ export async function runQueryAndGetResult(
   return tp.query(query);
 }
 
-function makeSpyQueryResult(): jasmine.SpyObj<QueryResult> {
-  return jasmine.createSpyObj<QueryResult>('result', ['numRows']);
+export function makeSpyQueryResult(
+  iter?: jasmine.SpyObj<RowIterator>,
+): jasmine.SpyObj<QueryResult> {
+  const qr = jasmine.createSpyObj<QueryResult>('result', ['numRows', 'iter']);
+  if (iter) {
+    qr.iter.and.returnValue(iter);
+  }
+  return qr;
 }
 
 /**

@@ -31,7 +31,6 @@ import {
 } from '@test/unit/time_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
-import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {FilesSource} from './files_source';
 import {FileLoader, FileLoaderResult} from './file_loader';
@@ -39,6 +38,10 @@ import {TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {FileReader} from '@trace_api/file_reader';
 import {TimestampConverter} from '@common/time/timestamp_converter';
+import {
+  makeSpyRowIterator,
+  makeSpyQueryResult,
+} from '@trace_processor/test_utils';
 
 describe('FileLoader', () => {
   let legacySfFile: File;
@@ -239,18 +242,10 @@ describe('FileLoader', () => {
     let result = await loadFiles([perfettoFileProtolog]);
     expect(result.lostPerfettoPackets).toBe(0);
 
-    const queryResultObj = jasmine.createSpyObj<QueryResult>('result', [
-      'numRows',
-      'iter',
-    ]);
-    queryResultObj.numRows.and.returnValue(1);
-    const spyIter = jasmine.createSpyObj<RowIterator>('iter', [
-      'valid',
-      'next',
-      'get',
-    ]);
+    const spyIter = makeSpyRowIterator();
     spyIter.get.withArgs('value').and.returnValue(2n);
-    queryResultObj.iter.and.returnValue(spyIter);
+    const queryResultObj = makeSpyQueryResult(spyIter);
+    queryResultObj.numRows.and.returnValue(1);
 
     const spy = spyOn(TraceProcessorProxy.prototype, 'query').and.callThrough();
     spy

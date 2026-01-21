@@ -48,10 +48,12 @@ describe('PerfettoParserSurfaceFlinger', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      parser = (await getPerfettoParser(
-        TraceType.SURFACE_FLINGER,
-        'traces/perfetto/layers_trace.perfetto-trace',
-      )) as Parser<HierarchyTreeNode>;
+      parser = (
+        await getPerfettoParser(
+          TraceType.SURFACE_FLINGER,
+          'traces/perfetto/layers_trace.perfetto-trace',
+        )
+      ).parser;
     });
 
     it('has expected trace type', () => {
@@ -208,10 +210,12 @@ describe('PerfettoParserSurfaceFlinger', () => {
 
   describe('invalid traces', () => {
     it('is robust to duplicated layer ids', async () => {
-      const parser = await getPerfettoParser(
-        TraceType.SURFACE_FLINGER,
-        'traces/perfetto/layers_trace_with_duplicated_ids.perfetto-trace',
-      );
+      const parser = (
+        await getPerfettoParser(
+          TraceType.SURFACE_FLINGER,
+          'traces/perfetto/layers_trace_with_duplicated_ids.perfetto-trace',
+        )
+      ).parser;
       const entry = await parser.getEntry(0);
       expect(entry.getWarnings()).toEqual([
         makeWarningDuplicateLayerIds([-2147483595]),

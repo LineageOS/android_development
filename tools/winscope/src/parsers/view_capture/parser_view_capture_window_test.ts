@@ -31,10 +31,12 @@ describe('PerfettoParserViewCaptureWindow', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = (await getPerfettoParser(
-      TraceType.VIEW_CAPTURE,
-      'traces/perfetto/viewcapture.perfetto-trace',
-    )) as Parser<HierarchyTreeNode>;
+    parser = (
+      await getPerfettoParser(
+        TraceType.VIEW_CAPTURE,
+        'traces/perfetto/viewcapture.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {

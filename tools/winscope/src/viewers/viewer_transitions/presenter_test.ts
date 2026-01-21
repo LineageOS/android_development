@@ -122,10 +122,12 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
   private positionUpdate: TracePositionUpdate | undefined;
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parser = await getPerfettoParser(
-      TraceType.TRANSITION,
-      'traces/perfetto/shell_transitions_trace.perfetto-trace',
-    );
+    const parser = (
+      await getPerfettoParser(
+        TraceType.TRANSITION,
+        'traces/perfetto/shell_transitions_trace.perfetto-trace',
+      )
+    ).parser;
 
     this.trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.TRANSITION)

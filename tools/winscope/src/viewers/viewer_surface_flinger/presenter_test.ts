@@ -704,7 +704,7 @@ the default for its data type.`,
           'Bounds for - com.android.car.carlauncher/com.android.car.carlauncher.CarLauncher#577',
         );
         presenter.onRectTypeButtonClicked(TraceRectType.INPUT_WINDOWS);
-        expect(uiData.rectsToDraw.length).toBe(15);
+        expect(uiData.rectsToDraw.length).toBe(14);
         expect(uiData.rectsToDraw[6].label).toEqual(
           'com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity#630',
         );

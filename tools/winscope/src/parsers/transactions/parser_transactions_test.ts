@@ -33,10 +33,12 @@ describe('PerfettoParserTransactions', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    parser = await getPerfettoParser(
-      TraceType.TRANSACTIONS,
-      'traces/perfetto/transactions_trace.perfetto-trace',
-    );
+    parser = (
+      await getPerfettoParser(
+        TraceType.TRANSACTIONS,
+        'traces/perfetto/transactions_trace.perfetto-trace',
+      )
+    ).parser;
   });
 
   it('has expected trace type', () => {

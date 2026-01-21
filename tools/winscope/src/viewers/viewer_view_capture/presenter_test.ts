@@ -28,7 +28,6 @@ import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {CustomQueryType} from '@trace_api/custom_query';
-import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
@@ -131,10 +130,12 @@ the default for its data type.`,
   override readonly treeNodeShortName = 'SearchContainerView@53568094';
 
   override async setUpTestEnvironment(): Promise<void> {
-    const parser = (await getPerfettoParser(
-      TraceType.VIEW_CAPTURE,
-      'traces/perfetto/viewcapture.perfetto-trace',
-    )) as Parser<HierarchyTreeNode>;
+    const parser = (
+      await getPerfettoParser(
+        TraceType.VIEW_CAPTURE,
+        'traces/perfetto/viewcapture.perfetto-trace',
+      )
+    ).parser;
 
     const trace = Trace.fromParser(parser);
     this.traces = new Traces();

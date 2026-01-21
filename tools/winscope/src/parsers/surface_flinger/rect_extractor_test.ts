@@ -25,6 +25,7 @@ import {
   RowIterator,
 } from '@trace_processor/query_result';
 import {
+  makeSpyQueryResult,
   makeSpyRowIterator,
   setupMockIteratorWithRows,
 } from '@trace_processor/test_utils';
@@ -71,13 +72,9 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     beforeEach(() => {
       snapshotIter = makeSpyRowIterator();
-      snapshotResult = jasmine.createSpyObj<QueryResult>('snapshotResult', [
-        'iter',
-      ]);
-      snapshotResult.iter.and.returnValue(snapshotIter);
+      snapshotResult = makeSpyQueryResult(snapshotIter);
       rectsIter = makeSpyRowIterator();
-      rectsResult = jasmine.createSpyObj<QueryResult>('rectsResult', ['iter']);
-      rectsResult.iter.and.returnValue(rectsIter);
+      rectsResult = makeSpyQueryResult(rectsIter);
       let snapshotValidCalls = 0;
       snapshotIter.valid.and.callFake(() => snapshotValidCalls === 0);
       snapshotIter.get.and.callFake((key: string) => {
@@ -731,8 +728,7 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     beforeEach(() => {
       snapshotIter = makeSpyRowIterator();
-      snapshotResult = jasmine.createSpyObj<QueryResult>('result', ['iter']);
-      snapshotResult.iter.and.returnValue(snapshotIter);
+      snapshotResult = makeSpyQueryResult(snapshotIter);
       mockTraceGeometryData.getRect.and.returnValue(new Rect(0, 0, 1000, 2000));
       mockTraceGeometryData.getTransform.and.returnValue(expectedMatrix);
       mockTraceGeometryData.getRect

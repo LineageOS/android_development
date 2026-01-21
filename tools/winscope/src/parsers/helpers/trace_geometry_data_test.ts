@@ -16,8 +16,8 @@
 
 import {Rect} from '@common/geometry/rect';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {QueryResult} from '@trace_processor/query_result';
 import {
+  makeSpyQueryResult,
   makeSpyRowIterator,
   setupMockIteratorWithRows,
 } from '@trace_processor/test_utils';
@@ -132,10 +132,6 @@ describe('TraceGeometryData', () => {
   ) {
     const rowIterator = makeSpyRowIterator();
     setupMockIteratorWithRows(rowIterator, rows);
-    const queryResult = jasmine.createSpyObj<QueryResult>('QueryResult', [
-      'iter',
-    ]);
-    queryResult.iter.and.returnValue(rowIterator);
-    return queryResult;
+    return makeSpyQueryResult(rowIterator);
   }
 });

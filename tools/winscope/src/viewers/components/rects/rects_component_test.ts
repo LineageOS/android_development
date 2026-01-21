@@ -138,15 +138,14 @@ describe('RectsComponent', () => {
     component.rects = [rectGroup0];
     dom.detectChanges();
     checkAllSpiesCalled(1);
-    expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
-      boundingBox,
-    );
+    const newBoundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
+    expect(newBoundingBox).not.toEqual(boundingBox);
 
     component.rects = [rectGroup0];
     dom.detectChanges();
     checkAllSpiesCalled(2);
     expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
-      boundingBox,
+      newBoundingBox,
     );
   });
 

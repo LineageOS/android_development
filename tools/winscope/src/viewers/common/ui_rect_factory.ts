@@ -58,9 +58,7 @@ export function makeVcUiRects(
   hierarchyRoot: HierarchyTreeNode,
   groupId: number,
 ): UiRect[] {
-  const traceRects = extractRects(hierarchyRoot).filter((traceRect) => {
-    return traceRect.h > 0 && traceRect.w > 0;
-  });
+  const traceRects = extractRects(hierarchyRoot);
   return traceRects.map((traceRect) => {
     return new UiRectBuilder()
       .setX(traceRect.x)
@@ -136,7 +134,7 @@ function extractRects(
     }
   });
 
-  return rects;
+  return rects.filter((traceRect) => !traceRect.isEmpty());
 }
 
 function extractPointersAndRays(

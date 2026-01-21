@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+import {waitToBeCalled} from '@test/unit/spy_utils';
 import {ThumbnailGenerator} from './thumbnail_generator';
-import {Thumbnail} from '@trace/media_based/thumbnail';
 
-// Karma webpack compilation does not function well with module workers.
-// Since thumbnail generation is offloaded to a module worker, we spy on
-// this for all screen recording parser tests.
 export function spyOnThumbnailGenerator() {
-  spyOn(ThumbnailGenerator.prototype, 'generate').and.returnValue(
-    Promise.resolve(new Thumbnail(1, 10, 10, new Blob(), 10, 10)),
-  );
+  return spyOn(ThumbnailGenerator.prototype, 'generate').and.callThrough();
+}
+
+export async function waitForThumbnailGeneration(spy: jasmine.Spy) {
+  await waitToBeCalled(spy);
+  await spy.calls.mostRecent().returnValue;
 }
