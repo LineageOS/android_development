@@ -216,6 +216,8 @@ the default for its data type.`,
     );
     expect(curatedProperties.translationY).toBe('786.506');
     expect(curatedProperties.translationX).toBe('0');
+    expect(curatedProperties.contentDescription).toBe('description');
+    expect(curatedProperties.text).toBe('text');
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(
@@ -242,6 +244,8 @@ the default for its data type.`,
     expect(curatedProperties.translationY).toBe('210.700');
     expect(curatedProperties.alpha).toBe('0');
     expect(curatedProperties.willNotDraw).toBe('true');
+    expect(curatedProperties.contentDescription).toBe('null');
+    expect(curatedProperties.text).toBe('null');
   }
 
   override executeSpecializedTests() {

@@ -52,6 +52,8 @@ describe('ViewCapturePropertyGroupsComponent', () => {
     section.get('.class-name').checkText('test.package.name');
     section.get('.hashcode').checkText('12345678');
     section.get('.view-id').checkText('package/name');
+    section.get('.content-description').checkText('Description');
+    section.get('.text').checkText('Text');
   });
 
   it('displays geometry coordinates section', () => {
@@ -109,6 +111,8 @@ describe('ViewCapturePropertyGroupsComponent', () => {
       className: 'test.package.name',
       viewId: 'package/name',
       hashcode: '12345678',
+      contentDescription: 'Description',
+      text: 'Text',
       left: '0',
       top: '5',
       elevation: '2',
