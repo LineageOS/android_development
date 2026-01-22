@@ -51,7 +51,11 @@ limitations under the License.
 </div>
 } @if (showPinNodeIcon()) {
 <div class="icon-wrapper">
-  <button mat-icon-button class="icon-button pin-node-btn" (click)="pinNode($event)">
+  <button
+    mat-icon-button
+    class="icon-button pin-node-btn no-touch-target-button"
+    (click)="pinNode($event)"
+  >
     <mat-icon [class.material-symbols-outlined]="!isPinned">push_pin</mat-icon>
   </button>
 </div>
