@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -33,6 +33,7 @@ import {DownloadRequest} from '@common/download';
 describe('WinscopeProxySetupComponent', () => {
   let component: WinscopeProxySetupComponent;
   let dom: DOMTestHelper<WinscopeProxySetupComponent>;
+  let fixture: ComponentFixture<WinscopeProxySetupComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -49,10 +50,10 @@ describe('WinscopeProxySetupComponent', () => {
       ],
       schemas: [],
     }).compileComponents();
-    const fixture = TestBed.createComponent(WinscopeProxySetupComponent);
+    fixture = TestBed.createComponent(WinscopeProxySetupComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.state = ConnectionState.CONNECTING;
+    fixture.componentRef.setInput('state', ConnectionState.CONNECTING);
   });
 
   it('can be created', () => {
@@ -65,7 +66,7 @@ describe('WinscopeProxySetupComponent', () => {
   });
 
   it('correct icon and message displays if no proxy', () => {
-    component.state = ConnectionState.NOT_FOUND;
+    fixture.componentRef.setInput('state', ConnectionState.NOT_FOUND);
     dom.detectChanges();
     dom
       .get('.further-adb-info-text')
@@ -73,7 +74,7 @@ describe('WinscopeProxySetupComponent', () => {
   });
 
   it('correct icon and message displays if invalid proxy', () => {
-    component.state = ConnectionState.INVALID_VERSION;
+    fixture.componentRef.setInput('state', ConnectionState.INVALID_VERSION);
     dom.detectChanges();
     const infoText = dom.get('.further-adb-info-text');
     infoText.checkText(
@@ -86,18 +87,21 @@ describe('WinscopeProxySetupComponent', () => {
   });
 
   it('correct icon and message displays if unauthorized proxy', () => {
-    component.state = ConnectionState.UNAUTH;
+    fixture.componentRef.setInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
     dom.get('.adb-info').checkText('Proxy authorization required.');
     dom.get('.adb-icon').checkTextExact('lock');
   });
 
   it('download proxy button downloads proxy', () => {
-    component.state = ConnectionState.NOT_FOUND;
+    fixture.componentRef.setInput('state', ConnectionState.NOT_FOUND);
     const spy: DownloadRequest = jasmine.createSpy('fromUrl');
-    component.downloadRequest = (url: string, fileName: string) => {
-      spy(url, fileName);
-    };
+    fixture.componentRef.setInput(
+      'downloadRequest',
+      (url: string, fileName: string) => {
+        spy(url, fileName);
+      },
+    );
     dom.detectChanges();
     dom.findAndClick('.download-proxy-btn');
     expect(spy).toHaveBeenCalledWith(
@@ -107,7 +111,7 @@ describe('WinscopeProxySetupComponent', () => {
   });
 
   it('retry button emits event', () => {
-    component.state = ConnectionState.NOT_FOUND;
+    fixture.componentRef.setInput('state', ConnectionState.NOT_FOUND);
     dom.detectChanges();
 
     const spy = spyOn(assertDefined(component.retryConnection), 'emit');
@@ -117,7 +121,7 @@ describe('WinscopeProxySetupComponent', () => {
 
   it('input proxy token saved as expected', () => {
     const spy = spyOn(assertDefined(component.retryConnection), 'emit');
-    component.state = ConnectionState.UNAUTH;
+    fixture.componentRef.setInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
 
     dom.findAndClick('.retry');
@@ -132,7 +136,7 @@ describe('WinscopeProxySetupComponent', () => {
 
   it('emits event on enter key', () => {
     const spy = spyOn(assertDefined(component.retryConnection), 'emit');
-    component.state = ConnectionState.UNAUTH;
+    fixture.componentRef.setInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
 
     dom.findAndDispatchInput('.proxy-token-input-field', '12345');

@@ -15,7 +15,7 @@
  */
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MatCardModule} from '@angular/material/card';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
@@ -51,6 +51,7 @@ describe('UploadTracesComponent', () => {
   const discardLegacySelector = '.discard-legacy-traces input';
   const traceFile = new TraceFile(new File([], ''));
 
+  let fixture: ComponentFixture<UploadTracesComponent>;
   let component: UploadTracesComponent;
   let dom: DOMTestHelper<UploadTracesComponent>;
   let validSfFile: File;
@@ -72,11 +73,11 @@ describe('UploadTracesComponent', () => {
       ],
       providers: [MatSnackBar],
     }).compileComponents();
-    const fixture = TestBed.createComponent(UploadTracesComponent);
+    fixture = TestBed.createComponent(UploadTracesComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.loadedFileReaders = [];
-    component.storage = new InMemoryStorage();
+    fixture.componentRef.setInput('loadedFileReaders', []);
+    fixture.componentRef.setInput('storage', new InMemoryStorage());
     dom.detectChanges();
     validSfFile = await getFixtureFile(
       'traces/elapsed_timestamp/SurfaceFlinger.pb',
@@ -88,7 +89,9 @@ describe('UploadTracesComponent', () => {
   });
 
   it('renders the expected card title', () => {
-    dom.get('.title').checkText('Upload Traces');
+    const titleSelector = '.title';
+    const expectedTitle = 'Upload Traces';
+    dom.get(titleSelector).checkText(expectedTitle);
   });
 
   it('handles file upload via drag and drop', () => {
@@ -133,9 +136,10 @@ describe('UploadTracesComponent', () => {
   });
 
   it('shows progress bar with custom message', () => {
-    component.onProgressUpdate('Updating', undefined);
+    const customMessage = 'Updating';
+    component.onProgressUpdate(customMessage, undefined);
     dom.detectChanges();
-    checkOnlyProgressBarShowing('Updating');
+    checkOnlyProgressBarShowing(customMessage);
   });
 
   it('updates progress bar percentage only if sufficient time has passed', () => {
@@ -216,13 +220,13 @@ describe('UploadTracesComponent', () => {
     loadLegacySfFile();
     dom.findAndClick(discardLegacySelector);
 
-    const fixture = TestBed.createComponent(UploadTracesComponent);
-    const newComponent = fixture.componentInstance;
-    const newDom = new DOMTestHelper(fixture, fixture.nativeElement);
-    newComponent.storage = component.storage;
+    const newFixture = TestBed.createComponent(UploadTracesComponent);
+    const newComponent = newFixture.componentInstance;
+    const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
+    newFixture.componentRef.setInput('storage', component.storage);
     newDom.detectChanges();
 
-    loadLegacySfFile(newComponent, newDom);
+    loadLegacySfFile(newFixture, newDom);
 
     newDom.get(discardLegacySelector).checkInputChecked(false);
     const spy = spyOn(newComponent.viewTracesButtonClick, 'emit');
@@ -416,20 +420,20 @@ describe('UploadTracesComponent', () => {
     expect(dom.findAll(warningBannerSelector).length).toBe(2);
   });
 
-  function loadLegacySfFile(testComponent = component, testDom = dom) {
-    testComponent.loadedFileReaders = [
+  function loadLegacySfFile(testFixture = fixture, testDom = dom) {
+    testFixture.componentRef.setInput('loadedFileReaders', [
       new TestLegacyFileReaderBuilder()
         .setTraceFile(traceFile)
         .setType(TraceType.SURFACE_FLINGER)
         .setTimestamps([])
         .build(),
-    ];
+    ]);
     testDom.detectChanges();
   }
 
   function loadFiles(
     traceTypes: TraceType[],
-    testComponent = component,
+    testFixture = fixture,
     testDom = dom,
   ) {
     const fileReaders = traceTypes.map((traceType) => {
@@ -439,7 +443,7 @@ describe('UploadTracesComponent', () => {
         .setTimestamps([])
         .build();
     });
-    testComponent.loadedFileReaders = fileReaders;
+    testFixture.componentRef.setInput('loadedFileReaders', fileReaders);
     testDom.detectChanges();
   }
 
