@@ -91,7 +91,6 @@ describe('FileLoader', () => {
 
     progressListener = new ProgressListenerStub();
     spyOn(progressListener, 'onProgressUpdate');
-    spyOn(progressListener, 'onOperationFinished');
     fileLoader = new FileLoader(UTC_CONVERTER);
   });
 
@@ -298,9 +297,7 @@ describe('FileLoader', () => {
     files: File[],
     source: FilesSource = FilesSource.TEST,
   ): Promise<FileLoaderResult> {
-    const result = await fileLoader.load(files, source, progressListener);
-    expect(progressListener.onOperationFinished).toHaveBeenCalled();
-    return result;
+    return await fileLoader.load(files, source, progressListener);
   }
 
   function getAllReaders(result: FileLoaderResult): FileReader[] {

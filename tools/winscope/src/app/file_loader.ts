@@ -88,36 +88,32 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
     source: FilesSource,
     progressListener: ProgressListener | undefined,
   ): Promise<FileLoaderResult> {
-    try {
-      const unzippedFiles = await this.unzipFiles(files, progressListener);
-      if (unzippedFiles.length === 0) {
-        UserNotifier.add(makeWarningNoValidFiles());
-        return {
-          legacy: [],
-          lostPerfettoPackets: 0,
-          nonPerfetto: [],
-          perfetto: [],
-          traceGeometryData: this.traceGeometryData,
-          timestampConverter: this.timestampConverter,
-          warnings: [],
-        };
-      }
-
-      const {identifiedFiles, lostPerfettoPackets, warnings} =
-        await this.loadUnzippedFiles(unzippedFiles, source, progressListener);
-
+    const unzippedFiles = await this.unzipFiles(files, progressListener);
+    if (unzippedFiles.length === 0) {
+      UserNotifier.add(makeWarningNoValidFiles());
       return {
-        legacy: identifiedFiles.legacy,
-        lostPerfettoPackets,
-        nonPerfetto: identifiedFiles.nonPerfetto,
-        perfetto: identifiedFiles.perfetto,
+        legacy: [],
+        lostPerfettoPackets: 0,
+        nonPerfetto: [],
+        perfetto: [],
         traceGeometryData: this.traceGeometryData,
         timestampConverter: this.timestampConverter,
-        warnings,
+        warnings: [],
       };
-    } finally {
-      progressListener?.onOperationFinished(true);
     }
+
+    const {identifiedFiles, lostPerfettoPackets, warnings} =
+      await this.loadUnzippedFiles(unzippedFiles, source, progressListener);
+
+    return {
+      legacy: identifiedFiles.legacy,
+      lostPerfettoPackets,
+      nonPerfetto: identifiedFiles.nonPerfetto,
+      perfetto: identifiedFiles.perfetto,
+      traceGeometryData: this.traceGeometryData,
+      timestampConverter: this.timestampConverter,
+      warnings,
+    };
   }
 
   private async loadUnzippedFiles(

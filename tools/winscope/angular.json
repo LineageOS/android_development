@@ -43,7 +43,10 @@
             "scripts": [],
             "sourceMap": true,
             "optimization": false,
-            "webWorkerTsConfig": "tsconfig.worker.json"
+            "webWorkerTsConfig": "tsconfig.worker.json",
+            "allowedCommonJsDependencies": [
+              "jszip"
+            ]
           },
           "configurations": {
             "production": {

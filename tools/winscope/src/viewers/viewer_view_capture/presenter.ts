@@ -287,6 +287,8 @@ the default for its data type.`,
       className: tree.name,
       hashcode: assertDefined(tree.getChildByName('hashcode')).formattedValue(),
       viewId: assertDefined(tree.getChildByName('viewId')).formattedValue(),
+      contentDescription: tree.getChildByName('contentDescription')?.formattedValue() ?? 'null',
+      text: tree.getChildByName('text')?.formattedValue() ?? 'null',
       left: assertDefined(tree.getChildByName('left')).formattedValue(),
       top: assertDefined(tree.getChildByName('top')).formattedValue(),
       elevation: assertDefined(

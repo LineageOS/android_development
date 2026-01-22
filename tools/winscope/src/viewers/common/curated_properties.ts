@@ -65,6 +65,8 @@ export interface VcCuratedProperties {
   className: string;
   viewId: string;
   hashcode: string;
+  contentDescription: string | undefined;
+  text: string | undefined;
   left: string;
   top: string;
   elevation: string;

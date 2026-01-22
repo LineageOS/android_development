@@ -96,6 +96,7 @@ import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {PlaybackPrefetchedEntries} from '@trace/playback_prefetched_entries';
 import {LoadedFileData} from './loaded_file_data';
+import {Timer} from '@common/time/timer';
 
 /**
  * Mediator class for communication between components
@@ -200,6 +201,7 @@ export class Mediator {
   private async onAppFilesUploaded(event: AppFilesUploaded) {
     this.currentProgressListener = this.uploadTracesComponent;
     await this.loadFiles(event.files, FilesSource.UPLOADED);
+    this.currentProgressListener?.onOperationFinished(true);
     UserNotifier.notify();
   }
 
@@ -681,6 +683,7 @@ export class Mediator {
   private async processRemoteFilesReceived(files: File[], source: FilesSource) {
     this.currentProgressListener = this.uploadTracesComponent;
     await this.loadFiles(files, source);
+    this.currentProgressListener?.onOperationFinished(true);
     UserNotifier.notify();
   }
 
@@ -692,9 +695,12 @@ export class Mediator {
       this.currentProgressListener,
     );
     if (!success) {
+      this.currentProgressListener?.onOperationFinished(false);
       return;
     }
 
+    // timer#sleepMs() allows the UI to update before making the main thread very busy
+    await new Timer(10, 100).sleepMs();
     this.currentProgressListener?.onProgressUpdate(
       'Initializing UI...',
       undefined,
