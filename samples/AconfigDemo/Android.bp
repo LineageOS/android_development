@@ -35,6 +35,8 @@ aconfig_declarations {
 java_aconfig_library {
     name: "aconfig_demo_flags_java_lib",
     aconfig_declarations: "aconfig_demo_flags",
+    // Needed to demonstrate dependency injection.
+    preserve_legacy_impl_interface: true,
 }
 
 filegroup {
