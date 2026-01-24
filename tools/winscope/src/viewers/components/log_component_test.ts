@@ -17,7 +17,11 @@
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {Component, ViewChild} from '@angular/core';
-import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
+import {
+  ComponentFixture,
+  ComponentFixtureAutoDetect,
+  TestBed,
+} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatPseudoCheckboxModule} from '@angular/material/core';
@@ -68,6 +72,7 @@ describe('LogComponent', () => {
   const testColumn2: ColumnSpec = {name: 'test2', cssClass: 'test-2'};
   const testColumn3: ColumnSpec = {name: 'test3', cssClass: 'test-3'};
 
+  let fixture: ComponentFixture<TestHostComponent>;
   let component: TestHostComponent;
   let dom: DOMTestHelper<TestHostComponent>;
   let mockCopyText: jasmine.Spy;
@@ -103,7 +108,7 @@ describe('LogComponent', () => {
         VariableHeightScrollDirective,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     setComponentInputData();
@@ -414,6 +419,27 @@ describe('LogComponent', () => {
     component.scrollToIndex = 1;
     dom.detectChanges();
     expect(spy).toHaveBeenCalledOnceWith(0);
+  });
+
+  // TODO: This test should be reviewed since it's very simplistic and does not cover much of the functionality.
+  // Blocking point at the moment of creation: inside onDocumentCopy cannot get isCopyInsideLogComponent = true.
+  it('copies formatted log', () => {
+    const onDocumentCopySpy = spyOn(
+      assertDefined(component.logComponent),
+      'onDocumentCopy',
+    ).and.callThrough();
+
+    component.traceType = TraceType.PROTO_LOG;
+    dom.detectChanges();
+
+    const copyEvent = new ClipboardEvent('copy', {
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(copyEvent);
+
+    expect(onDocumentCopySpy).toHaveBeenCalledTimes(1);
   });
 
   function setComponentInputData(elapsed = true) {
