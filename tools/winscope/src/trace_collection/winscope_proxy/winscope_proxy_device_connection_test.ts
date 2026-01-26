@@ -408,7 +408,7 @@ Request body: undefined`,
         type: 'arraybuffer',
         text: 'True',
         body: new TextEncoder().encode(
-          JSON.stringify({'test_filepath': testFileEncoded}),
+          JSON.stringify({test_filepath: testFileEncoded}),
         ),
         getHeader: getVersionHeader,
       };

@@ -231,9 +231,9 @@ export class LegacyToPerfettoConverter {
 
   private getRealTimestampsForClockSnapshots(
     reader: FileReader,
-  ): Array<bigint> {
+  ): bigint[] {
     const ts = reader.getTimestamps();
-    const realTs: Array<bigint> = [];
+    const realTs: bigint[] = [];
     if (ts.length > 0) {
       realTs.push(ts[0].getValueNs());
     }

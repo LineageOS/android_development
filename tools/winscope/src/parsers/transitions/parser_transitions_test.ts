@@ -84,7 +84,7 @@ describe('PerfettoParserTransitions', () => {
         '528 ms',
       );
 
-      const layerParticipants: Array<bigint> = assertDefined(
+      const layerParticipants: bigint[] = assertDefined(
         entry.getEagerPropertyByName('layers'),
       )
         .getAllChildren()
@@ -94,7 +94,7 @@ describe('PerfettoParserTransitions', () => {
       expect(layerParticipants).toContain(47n);
       expect(layerParticipants).toContain(398n);
 
-      const windowParticipants: Array<bigint> = assertDefined(
+      const windowParticipants: bigint[] = assertDefined(
         entry.getEagerPropertyByName('windows'),
       )
         .getAllChildren()

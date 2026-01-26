@@ -49,7 +49,7 @@ export abstract class AbstractParser<T> implements Parser<T>, FileReader {
 
   private lengthEntries = 0;
   private traceFile: TraceFile;
-  private bootTimeTimestampsNs: Array<bigint> = [];
+  private bootTimeTimestampsNs: bigint[] = [];
   private timestamps: Timestamp[] | undefined;
 
   constructor(
@@ -191,12 +191,12 @@ export abstract class AbstractParser<T> implements Parser<T>, FileReader {
     return entryIndexToRowId;
   }
 
-  protected async queryRowBootTimeTimestamps(): Promise<Array<bigint>> {
+  protected async queryRowBootTimeTimestamps(): Promise<bigint[]> {
     const sql = this.checkInvalidTs
       ? `SELECT ts, has_invalid_elapsed_ts FROM ${this.getTableName()} ORDER BY id;`
       : `SELECT ts FROM ${this.getTableName()} ORDER BY id;`;
     const result = await this.traceProcessor.query(sql);
-    const timestamps: Array<bigint> = [];
+    const timestamps: bigint[] = [];
     for (const it = result.iter({}); it.valid(); it.next()) {
       const ts =
         this.checkInvalidTs && Boolean(it.get('has_invalid_elapsed_ts'))

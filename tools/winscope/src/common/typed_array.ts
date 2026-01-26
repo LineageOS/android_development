@@ -107,7 +107,7 @@ export function binarySearchFirstGreaterOrEqual<T>(
   let low = 0;
   let high = values.length - 1;
 
-  let result: number | undefined = undefined;
+  let result: number | undefined;
 
   while (low <= high) {
     const mid = (low + high) >> 1;
@@ -148,7 +148,7 @@ export function binarySearchFirstGreater<T>(
   let low = 0;
   let high = values.length - 1;
 
-  let result: number | undefined = undefined;
+  let result: number | undefined;
 
   while (low <= high) {
     const mid = (low + high) >> 1;

@@ -31,7 +31,7 @@ export type PropertyValue =
   | boolean
   | object
   | string[]
-  | Array<bigint>
+  | bigint[]
   | number[]
   | boolean[]
   | object[];

@@ -172,7 +172,7 @@ export declare interface CustomQueryParserResultTypeMap {
   /**
    * Result type for this query is an array of bigints
    */
-  [CustomQueryType.VSYNCID]: Array<bigint>;
+  [CustomQueryType.VSYNCID]: bigint[];
   /**
    * Result type for this query is an array of objects with token and title
    */

@@ -38,7 +38,7 @@ export class VideoFrameCache {
   private static readonly PENDING_BATCH_SIZE = 16;
 
   private readonly webCodecData: WebCodecData;
-  private readonly keyFrameRanges: Readonly<KeyFrameRange[]>;
+  private readonly keyFrameRanges: readonly KeyFrameRange[];
 
   private worker: Worker;
   private cache: FrameCache = new Map();

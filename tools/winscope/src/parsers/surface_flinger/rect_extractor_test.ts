@@ -353,10 +353,10 @@ describe('SurfaceFlinger RectExtractor', () => {
       const mockInputRect1 = makeExpectedInputRect();
       const mockInputRect2 = makeExpectedInputRect();
       const layerInputRow2 = layerInputRow({
-        'layer_id': 2n,
-        'id': 2n,
-        'layer_name': 'Layer2',
-        'input_group_id': 5n,
+        layer_id: 2n,
+        id: 2n,
+        layer_name: 'Layer2',
+        input_group_id: 5n,
       });
 
       setupMockIteratorWithRows(layersIter, [layerInputRow(), layerInputRow2]);
@@ -513,14 +513,14 @@ describe('SurfaceFlinger RectExtractor', () => {
       [key: string]: ColumnType | null;
     } {
       const defaults = {
-        'snapshot_id': currSnapshotId,
-        'layer_id': 1n,
-        'id': 1n,
-        'layer_name': 'LayerName',
-        'input_is_visible': 0n,
-        'input_group_id': 4n,
-        'input_depth': 3n,
-        'group_id': null,
+        snapshot_id: currSnapshotId,
+        layer_id: 1n,
+        id: 1n,
+        layer_name: 'LayerName',
+        input_is_visible: 0n,
+        input_group_id: 4n,
+        input_depth: 3n,
+        group_id: null,
       };
       return {...defaults, ...overrides};
     }
@@ -531,15 +531,15 @@ describe('SurfaceFlinger RectExtractor', () => {
       [key: string]: ColumnType | null;
     } {
       const defaults = {
-        'snapshot_id': currSnapshotId,
-        'layer_id': 1n,
-        'id': 1n,
-        'layer_name': 'LayerName',
-        'is_visible': 1n,
-        'group_id': 3n,
-        'input_group_id': null,
-        'rect_id': 1n,
-        'transform_id': 1n,
+        snapshot_id: currSnapshotId,
+        layer_id: 1n,
+        id: 1n,
+        layer_name: 'LayerName',
+        is_visible: 1n,
+        group_id: 3n,
+        input_group_id: null,
+        rect_id: 1n,
+        transform_id: 1n,
       };
       return {...defaults, ...overrides};
     }
@@ -550,14 +550,14 @@ describe('SurfaceFlinger RectExtractor', () => {
       [key: string]: ColumnType | null;
     } {
       const defaults = {
-        'snapshot_id': currSnapshotId,
-        'layer_id': 1n,
-        'id': 1n,
-        'layer_name': 'LayerName',
-        'is_visible': 1n,
-        'group_id': 3n,
-        'input_is_visible': 0n,
-        'input_group_id': 4n,
+        snapshot_id: currSnapshotId,
+        layer_id: 1n,
+        id: 1n,
+        layer_name: 'LayerName',
+        is_visible: 1n,
+        group_id: 3n,
+        input_is_visible: 0n,
+        input_group_id: 4n,
       };
       return {...defaults, ...overrides};
     }
@@ -740,7 +740,7 @@ describe('SurfaceFlinger RectExtractor', () => {
     });
 
     it('skips display with null id', () => {
-      setupMockIteratorWithRows(snapshotIter, [{'display_id': null, 'id': 1n}]);
+      setupMockIteratorWithRows(snapshotIter, [{display_id: null, id: 1n}]);
       checkDisplaysExtracted([]);
     });
 
@@ -767,15 +767,15 @@ describe('SurfaceFlinger RectExtractor', () => {
     it('extracts 2 displays for same snapshot id', () => {
       const display1Values = defaultDisplayRow();
       const display2Values = {
-        'display_id': 456n,
-        'display_name': 'Display 456',
-        'is_on': 1n,
-        'is_virtual': 0n,
-        'rect_id': 2n,
-        'transform_id': 2n,
-        'group_id': 654n,
-        'depth': 2n,
-        'id': 1n,
+        display_id: 456n,
+        display_name: 'Display 456',
+        is_on: 1n,
+        is_virtual: 0n,
+        rect_id: 2n,
+        transform_id: 2n,
+        group_id: 654n,
+        depth: 2n,
+        id: 1n,
       };
       setupMockIteratorWithRows(snapshotIter, [display1Values, display2Values]);
 
@@ -802,19 +802,19 @@ describe('SurfaceFlinger RectExtractor', () => {
     it('stops processing when snapshotId changes', () => {
       setupMockIteratorWithRows(snapshotIter, [
         defaultDisplayRow({
-          'id': 1n,
-          'display_id': 111n,
-          'display_name': 'Display 111',
+          id: 1n,
+          display_id: 111n,
+          display_name: 'Display 111',
         }),
         defaultDisplayRow({
-          'id': 1n,
-          'display_id': 222n,
-          'display_name': 'Display 222',
+          id: 1n,
+          display_id: 222n,
+          display_name: 'Display 222',
         }),
         defaultDisplayRow({
-          'id': 2n,
-          'display_id': 333n,
-          'display_name': 'Display 333',
+          id: 2n,
+          display_id: 333n,
+          display_name: 'Display 333',
         }),
       ]);
       const expectedRect1 = makeExpectedDisplayRect('Display 111', false, 111n);
@@ -836,15 +836,15 @@ describe('SurfaceFlinger RectExtractor', () => {
       [key: string]: ColumnType | null;
     } {
       const defaults = {
-        'display_id': 123n,
-        'display_name': 'Display 123',
-        'is_on': 0,
-        'is_virtual': 0n,
-        'rect_id': 1n,
-        'transform_id': 1n,
-        'group_id': 321n,
-        'depth': 1n,
-        'id': 1n,
+        display_id: 123n,
+        display_name: 'Display 123',
+        is_on: 0,
+        is_virtual: 0n,
+        rect_id: 1n,
+        transform_id: 1n,
+        group_id: 321n,
+        depth: 1n,
+        id: 1n,
       };
       return {...defaults, ...overrides};
     }

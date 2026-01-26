@@ -35,7 +35,7 @@ export function divideAndRound(ns: bigint, div: bigint): bigint {
  * @param values The array of bigints.
  * @return The maximum value in the array, or undefined if the array is empty.
  */
-export function getMax(values: Array<bigint>): bigint | undefined {
+export function getMax(values: bigint[]): bigint | undefined {
   let max: bigint | undefined;
   for (const value of values) {
     if (max === undefined || value > max) {
