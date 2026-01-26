@@ -148,7 +148,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
         TracePositionUpdate.fromTraceEntry(trace.getEntry(0)),
       );
       fail('error should be thrown for corrupted trace');
-    } catch (e) {
+    } catch (_) {
       expect(Object.keys(uiData.hierarchyUserOptions).length).toBeGreaterThan(
         0,
       );

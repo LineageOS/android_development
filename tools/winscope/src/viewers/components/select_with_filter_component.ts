@@ -139,7 +139,7 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
   }
 
   nonHiddenOptions() {
-    return this.options.filter((value, i) => {
+    return this.options.filter((value: string) => {
       return !this.hideOption(value, this.filterString);
     });
   }

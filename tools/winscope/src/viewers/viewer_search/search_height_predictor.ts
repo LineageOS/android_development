@@ -20,7 +20,7 @@ import {InputEntry} from '@viewers/viewer_input/ui_data';
 export class SearchHeightPredictor extends ItemHeightPredictor {
   protected override readonly defaultRowSize = 35;
 
-  override predictHeight(entry: InputEntry): number {
+  override predictHeight(_: InputEntry): number {
     return this.defaultRowSize;
   }
 }

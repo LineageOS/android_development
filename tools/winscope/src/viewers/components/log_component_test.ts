@@ -234,11 +234,11 @@ describe('LogComponent', () => {
 
   it('emits event on arrow key press', () => {
     let downArrowPressedTimes = 0;
-    dom.addEventListener(ViewerEvents.ArrowDownPress, (event) => {
+    dom.addEventListener(ViewerEvents.ArrowDownPress, (_) => {
       downArrowPressedTimes++;
     });
     let upArrowPressedTimes = 0;
-    dom.addEventListener(ViewerEvents.ArrowUpPress, (event) => {
+    dom.addEventListener(ViewerEvents.ArrowUpPress, (_) => {
       upArrowPressedTimes++;
     });
 

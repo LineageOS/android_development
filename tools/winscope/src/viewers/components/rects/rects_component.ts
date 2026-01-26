@@ -60,10 +60,6 @@ import {Canvas} from './canvas';
 import {Mapper3D} from './mapper3d';
 import {ShadingMode} from './shading_mode';
 
-interface CanColor {
-  color: string | undefined;
-}
-
 @Component({
   selector: 'rects-view',
   standalone: true,
@@ -120,14 +116,14 @@ export class RectsComponent implements OnInit, OnDestroy {
   private miniRectsMapper3d = new Mapper3D();
   private largeRectsCanvas?: Canvas;
   private miniRectsCanvas?: Canvas;
-  private resizeObserver = new ResizeObserver((entries) => {
+  private resizeObserver = new ResizeObserver((_) => {
     this.updateLargeRectsPosition();
   });
   private largeRectsCanvasElement?: HTMLCanvasElement;
   private miniRectsCanvasElement?: HTMLCanvasElement;
   private largeRectsLabelsElement?: HTMLElement;
   private mouseMoveListener = (event: MouseEvent) => this.onMouseMove(event);
-  private mouseUpListener = (event: MouseEvent) => this.onMouseUp(event);
+  private mouseUpListener = () => this.onMouseUp();
   private panning = false;
   private defaultRectType: TraceRectType | undefined;
 
@@ -173,8 +169,8 @@ export class RectsComponent implements OnInit, OnDestroy {
       this.largeRectsLabelsElement,
       () => this.isDarkMode,
     );
-    this.largeRectsCanvasElement.addEventListener('mousedown', (event) =>
-      this.onCanvasMouseDown(event),
+    this.largeRectsCanvasElement.addEventListener('mousedown', () =>
+      this.onCanvasMouseDown(),
     );
 
     this.largeRectsMapper3d.increaseZoomFactor(this.zoomFactor - 1);
@@ -387,7 +383,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCanvasMouseDown(event: MouseEvent) {
+  onCanvasMouseDown() {
     document.addEventListener('mousemove', this.mouseMoveListener);
     document.addEventListener('mouseup', this.mouseUpListener);
   }
@@ -399,7 +395,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     this.updateLargeRectsPosition();
   }
 
-  onMouseUp(event: MouseEvent) {
+  onMouseUp() {
     document.removeEventListener('mousemove', this.mouseMoveListener);
     document.removeEventListener('mouseup', this.mouseUpListener);
   }

@@ -363,7 +363,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       },
     );
 
-    htmlElement.addEventListener(ViewerEvents.RectsDblClick, async (event) => {
+    htmlElement.addEventListener(ViewerEvents.RectsDblClick, async (_) => {
       await this.onRectDoubleClick();
     });
 

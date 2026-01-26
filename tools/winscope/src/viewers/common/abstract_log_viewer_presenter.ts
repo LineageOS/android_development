@@ -105,11 +105,11 @@ export abstract class AbstractLogViewerPresenter<
     });
     htmlElement.addEventListener(
       ViewerEvents.ArrowDownPress,
-      async (event) => await this.onArrowDownPress(),
+      async (_) => await this.onArrowDownPress(),
     );
     htmlElement.addEventListener(
       ViewerEvents.ArrowUpPress,
-      async (event) => await this.onArrowUpPress(),
+      async (_) => await this.onArrowUpPress(),
     );
     htmlElement.addEventListener(ViewerEvents.TimestampClick, async (event) => {
       const detail: TimestampClickDetail = (event as CustomEvent).detail;
@@ -315,7 +315,7 @@ export abstract class AbstractLogViewerPresenter<
     }
   }
 
-  protected addViewerSpecificListeners(htmlElement: HTMLElement) {
+  protected addViewerSpecificListeners(_: HTMLElement) {
     // do nothing
   }
 

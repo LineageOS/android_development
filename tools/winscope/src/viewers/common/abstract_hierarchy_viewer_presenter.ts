@@ -364,11 +364,11 @@ export abstract class AbstractHierarchyViewerPresenter<
     await this.onViewerSpecificWinscopeEvent(event);
   }
 
-  protected async onViewerSpecificWinscopeEvent(event: WinscopeEvent) {
+  protected async onViewerSpecificWinscopeEvent(_: WinscopeEvent) {
     // do nothing
   }
 
-  protected addViewerSpecificListeners(htmlElement: HTMLElement) {
+  protected addViewerSpecificListeners(_: HTMLElement) {
     // do nothing;
   }
 
