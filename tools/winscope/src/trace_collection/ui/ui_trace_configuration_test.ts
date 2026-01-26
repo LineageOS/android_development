@@ -29,7 +29,7 @@ describe('updateConfigsFromStore', () => {
 
   beforeEach(() => {
     target = {
-      'test_trace': {
+      test_trace: {
         name: 'Test Trace',
         config: {
           enabled: true,

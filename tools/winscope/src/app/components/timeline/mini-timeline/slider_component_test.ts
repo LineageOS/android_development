@@ -167,7 +167,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -191,7 +191,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -214,7 +214,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -238,7 +238,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -262,7 +262,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -286,7 +286,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -310,7 +310,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;
@@ -334,7 +334,7 @@ describe('SliderComponent', () => {
     dom.detectChanges();
     const initialZoom = assertDefined(component.zoomRange);
 
-    let lastZoomUpdate: TimeRange | undefined = undefined;
+    let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
       (zoom) => {
         lastZoomUpdate = zoom;

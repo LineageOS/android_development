@@ -154,17 +154,17 @@ describe('EntryHierarchyTreeFactory', () => {
       [key: string]: ColumnType | null;
     } {
       const defaults = {
-        'snapshot_id': defaultSnapshotId,
-        'arg_set_id': 2n,
-        'node_id': defaultNodeId,
-        'parent_id': BigInt(UINT32_MAX),
-        'class_name': 'TestClass',
-        'hashcode': 12345n,
-        'view_id': 'TestViewId',
-        'is_visible': 1n,
-        'rect_id': 1n,
-        'group_id': 0n,
-        'depth': 4n,
+        snapshot_id: defaultSnapshotId,
+        arg_set_id: 2n,
+        node_id: defaultNodeId,
+        parent_id: BigInt(UINT32_MAX),
+        class_name: 'TestClass',
+        hashcode: 12345n,
+        view_id: 'TestViewId',
+        is_visible: 1n,
+        rect_id: 1n,
+        group_id: 0n,
+        depth: 4n,
       };
       return {...defaults, ...overrides};
     }

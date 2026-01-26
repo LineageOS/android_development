@@ -65,7 +65,7 @@ export class ParserFilename implements ScreenRecordingParser {
   private async parseTimestampsUsingFilenameOffset(
     videoData: Uint8Array,
     offset: bigint,
-  ): Promise<Array<bigint>> {
+  ): Promise<bigint[]> {
     const timestampsElapsedNs = await parseTimestampsFromMp4VideoTrack(
       videoData,
       offset,

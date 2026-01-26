@@ -31,7 +31,7 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {isVisible} from '@viewers/common/ui_tree_node_helpers';
 
 export class AddChips implements Operation<UiHierarchyTreeNode> {
-  private relZParentIds: Array<bigint> = [];
+  private relZParentIds: bigint[] = [];
 
   apply(node: UiHierarchyTreeNode): void {
     this.addAllChipsExceptRelZParent(node);

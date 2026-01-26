@@ -18,7 +18,7 @@ export function makeFakeWebSocket(): jasmine.SpyObj<WebSocket> {
   const socket = jasmine.createSpyObj<WebSocket>(
     'WebSocket',
     ['onmessage', 'onclose', 'send', 'close', 'onerror'],
-    {'readyState': WebSocket.OPEN, binaryType: 'arraybuffer'},
+    {readyState: WebSocket.OPEN, binaryType: 'arraybuffer'},
   );
   socket.close.and.callFake(() => {
     socket.onclose!(new CloseEvent('close'));
@@ -29,5 +29,5 @@ export function makeFakeWebSocket(): jasmine.SpyObj<WebSocket> {
 export function makeFakeWebSocketMessage(
   data: Blob | ArrayBufferLike | Uint8Array | number | string,
 ): MessageEvent {
-  return jasmine.createSpyObj<MessageEvent>([], {'data': data});
+  return jasmine.createSpyObj<MessageEvent>([], {data});
 }

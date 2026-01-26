@@ -63,7 +63,7 @@ const transformDrawer: AnimationTriggerMetadata =
       style({
         // Avoids the shadow showing up when closed in SSR.
         'box-shadow': 'none',
-        visibility: 'hidden',
+        'visibility': 'hidden',
       }),
     ),
     transition('void => open-instant', animate('0ms')),
@@ -86,7 +86,7 @@ const transformDrawer: AnimationTriggerMetadata =
   styleUrls: ['bottom_drawer_component.css'],
   animations: [transformDrawer],
   host: {
-    class: 'mat-drawer mat-drawer-bottom',
+    'class': 'mat-drawer mat-drawer-bottom',
     // must prevent the browser from aligning text based on value
     '[attr.align]': 'null',
   },
@@ -112,7 +112,7 @@ export class MatDrawer {
   templateUrl: './bottom_drawer_component_mat_drawer_content.ng.html',
   styleUrls: ['bottom_drawer_component_mat_drawer_content.css'],
   host: {
-    class: 'mat-drawer-content',
+    'class': 'mat-drawer-content',
     '[style.margin-top.px]': 'contentMargins.top',
     '[style.margin-bottom.px]': 'contentMargins.bottom',
   },

@@ -164,7 +164,7 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
 
         const {keyRange, motionRange} = this.getSubTraceRanges(entriesRange);
 
-        let keyResult: Array<bigint> = [];
+        let keyResult: bigint[] = [];
         if (keyRange !== undefined) {
           keyResult =
             (await this.parserKey?.customQuery(
@@ -173,7 +173,7 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
             )) ?? [];
         }
 
-        let motionResult: Array<bigint> = [];
+        let motionResult: bigint[] = [];
         if (motionRange !== undefined) {
           motionResult =
             (await this.parserMotion?.customQuery(
@@ -182,7 +182,7 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
             )) ?? [];
         }
 
-        const mergedResult: Array<bigint> = [];
+        const mergedResult: bigint[] = [];
         let curKeyIndex = 0;
         let curMotionIndex = 0;
         for (let i = entriesRange.start; i < entriesRange.end; i++) {

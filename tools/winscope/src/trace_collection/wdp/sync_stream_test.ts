@@ -222,7 +222,7 @@ describe('SyncStream', () => {
 
     webSocket.send.withArgs(expectedSendBuffer).and.callFake(() => {
       const message = jasmine.createSpyObj<MessageEvent<ArrayBuffer>>([], {
-        'data': messageData,
+        data: messageData,
       });
       webSocket.onmessage!(message);
     });
