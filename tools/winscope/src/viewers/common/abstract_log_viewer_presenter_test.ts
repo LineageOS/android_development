@@ -17,7 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {Timer} from '@common/time/timer';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {setNumRowsSpyQueryResult} from '@trace_processor/test_utils';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {

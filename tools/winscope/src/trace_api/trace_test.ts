@@ -20,7 +20,7 @@ import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   makeZeroTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {
   extractEntries,

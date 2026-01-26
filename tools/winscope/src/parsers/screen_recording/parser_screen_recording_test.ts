@@ -17,7 +17,7 @@ import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,

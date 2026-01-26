@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {
   extractEntries as extractTraceEntries,

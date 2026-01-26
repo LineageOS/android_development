@@ -26,7 +26,7 @@ import {
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
 import {TraceType} from '@trace_api/trace_type';

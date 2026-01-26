@@ -33,7 +33,7 @@ import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TransitionStatus} from '@trace/transitions/status';

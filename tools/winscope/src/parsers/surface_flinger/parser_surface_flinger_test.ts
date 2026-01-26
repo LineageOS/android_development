@@ -21,7 +21,7 @@ import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';

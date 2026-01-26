@@ -15,7 +15,7 @@
  */
 
 import {TimeRange} from '@common/time/time';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {Transformer} from './transformer';
 
 describe('Transformer', () => {

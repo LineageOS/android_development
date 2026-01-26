@@ -20,7 +20,7 @@ import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';

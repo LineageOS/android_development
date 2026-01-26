@@ -15,7 +15,7 @@
  */
 
 import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
-import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';

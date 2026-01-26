@@ -18,7 +18,7 @@ import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';

@@ -31,7 +31,7 @@ import {
 import {assertDefined} from '@common/assert';
 import {TimeRange} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TracePosition} from '@trace_api/trace_position';
 import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';
 
