@@ -19,6 +19,7 @@ import {
   TimestampConverter,
   UTC_TIMEZONE_INFO,
 } from '@common/time/timestamp_converter';
+import {getResolvedUTCOffset} from './utc_offset_resolver';
 
 /**
  * Timezone information for Asia/Kolkata.
@@ -38,12 +39,16 @@ const noRTEOffset = new TimestampConverter(UTC_TIMEZONE_INFO);
 /**
  * A TimestampConverter with a UTC offset for Asia/Kolkata timezone.
  */
-export const TIMESTAMP_CONVERTER_WITH_UTC_OFFSET = new TimestampConverter(
-  ASIA_TIMEZONE_INFO,
-  0n,
-  0n,
-  new TimestampConverter(UTC_TIMEZONE_INFO).makeTimestampFromRealNs(0n),
-);
+export const TIMESTAMP_CONVERTER_WITH_UTC_OFFSET: Promise<TimestampConverter> =
+  (async () => {
+    const converter = new TimestampConverter(ASIA_TIMEZONE_INFO, 0n, 0n);
+    const utcOffset = await getResolvedUTCOffset(
+      converter.getTimezoneInfo(),
+      converter.makeTimestampFromRealNs(0n),
+    );
+    converter.setUTCOffset(utcOffset);
+    return converter;
+  })();
 
 /**
  * Creates a real timestamp.
@@ -61,8 +66,12 @@ export function makeRealTimestamp(valueNs: bigint): Timestamp {
  * @param valueNs The timestamp value in nanoseconds.
  * @return A real timestamp with a UTC offset.
  */
-export function makeRealTimestampWithUTCOffset(valueNs: bigint): Timestamp {
-  return TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(valueNs);
+export async function makeRealTimestampWithUTCOffset(
+  valueNs: bigint,
+): Promise<Timestamp> {
+  return (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET).makeTimestampFromRealNs(
+    valueNs,
+  );
 }
 
 /**

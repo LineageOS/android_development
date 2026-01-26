@@ -55,6 +55,7 @@ import {FrameMapper} from '@trace_api/frame_mapper';
 import {ParserSearch} from '@parsers/search/parser_search';
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningIncompleteFrameMapping} from './warnings';
+import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 
 /**
  * A class that stores and transforms trace data.
@@ -448,7 +449,11 @@ export class LoadedFileData {
         continue;
       } else {
         const timestamp = trace.getEntry(0).getTimestamp();
-        this.timestampConverter.initializeUTCOffset(timestamp);
+        const utcOffset = await getResolvedUTCOffset(
+          UTC_TIMEZONE_INFO,
+          timestamp,
+        );
+        this.timestampConverter.setUTCOffset(utcOffset);
         break;
       }
     }

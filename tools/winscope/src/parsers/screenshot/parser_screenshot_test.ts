@@ -63,7 +63,7 @@ describe('ParserScreenshot', () => {
   it('does not apply timezone info', async () => {
     const parserWithTimezoneInfo = new ParserScreenshot(
       new TraceFile(file),
-      TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
+      await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
     );
     await parserWithTimezoneInfo.parse();
 
