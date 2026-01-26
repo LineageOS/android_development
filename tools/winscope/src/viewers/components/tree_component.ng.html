@@ -21,33 +21,35 @@ limitations under the License.
   (visibleRangeChanged)="onVisibleRangeChanged()"
   class="tree-scroll"
 >
-  @for (row of filteredRows; track row.node.id) { @if (isRowVisible($index)) {
-  <tree-node
-    virtualRow
-    [rowIndex]="$index"
-    (click)="onNodeClick($event, row)"
-    [id]="'node'+ row.node.name"
-    [attr.item-id]="$index"
-    [class]="'node ' + row.node.getDiff()"
-    [class.selected]="isHighlighted(row.node, highlightedItem)"
-    [class.child-selected]="hasSelectedChild(row.node)"
-    [class.full-opacity]="showFullOpacity(row.node)"
-    [class.clickable]="isClickable(row.node)"
-    [style]="row.offsetStyle"
-    [node]="row.node"
-    [depth]="row.depth"
-    [childHighlightDepth]="row.childHighlightDepth"
-    [parentHighlightDepth]="row.parentHighlightDepth"
-    [flattened]="isFlattened"
-    [isLeaf]="row.node.isLeaf()"
-    [isExpanded]="isExpanded(row)"
-    [isPinned]="isPinned(row.node)"
-    [isSelected]="isHighlighted(row.node, highlightedItem)"
-    [showStateIcon]="getShowStateIcon(row.node)"
-    (toggleTreeChange)="toggleTree(row)"
-    (rectShowStateChange)="toggleRectShowState(row.node)"
-    (expandTreeChange)="expandTree(row)"
-    (pinNodeChange)="propagateNewPinnedItem($any($event))"
-  ></tree-node>
-  } }
+  @for (row of filteredRows; track row.node.id) {
+    @if (isRowVisible($index)) {
+      <tree-node
+        virtualRow
+        [rowIndex]="$index"
+        (click)="onNodeClick($event, row)"
+        [id]="'node' + row.node.name"
+        [attr.item-id]="$index"
+        [class]="'node ' + row.node.getDiff()"
+        [class.selected]="isHighlighted(row.node, highlightedItem)"
+        [class.child-selected]="hasSelectedChild(row.node)"
+        [class.full-opacity]="showFullOpacity(row.node)"
+        [class.clickable]="isClickable(row.node)"
+        [style]="row.offsetStyle"
+        [node]="row.node"
+        [depth]="row.depth"
+        [childHighlightDepth]="row.childHighlightDepth"
+        [parentHighlightDepth]="row.parentHighlightDepth"
+        [flattened]="isFlattened"
+        [isLeaf]="row.node.isLeaf()"
+        [isExpanded]="isExpanded(row)"
+        [isPinned]="isPinned(row.node)"
+        [isSelected]="isHighlighted(row.node, highlightedItem)"
+        [showStateIcon]="getShowStateIcon(row.node)"
+        (toggleTreeChange)="toggleTree(row)"
+        (rectShowStateChange)="toggleRectShowState(row.node)"
+        (expandTreeChange)="expandTree(row)"
+        (pinNodeChange)="propagateNewPinnedItem($any($event))"
+      ></tree-node>
+    }
+  }
 </virtual-scroll-viewport>

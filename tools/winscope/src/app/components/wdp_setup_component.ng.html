@@ -14,40 +14,51 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@switch (state) { @case (ConnectionState.CONNECTING) {
-<p class="connecting-message mat-body-1">Connecting...</p>
-} @case (ConnectionState.NOT_FOUND) {
-<div class="further-adb-info-text">
-  <p class="mat-body-1">Failed to connect. Web Device Proxy doesn't seem to be running.</p>
-  <p class="mat-body-1">Please check you have Web Device Proxy installed.</p>
-</div>
-<div class="further-adb-info-actions">
-  <button
-    color="primary"
-    mat-stroked-button
-    class="install"
-    (click)="onInstallExternalButtonClick()"
-  >
-    Install (Non-Google users)
-  </button>
-  <button color="primary" mat-stroked-button class="install" (click)="onInstallGoogleButtonClick()">
-    Install (Google employees only)
-  </button>
-  <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
-    Retry
-  </button>
-</div>
-} @case (ConnectionState.UNAUTH) {
-<div class="further-adb-info-text">
-  <p class="icon-information mat-body-1">
-    <mat-icon class="adb-icon">lock</mat-icon>
-    <span class="adb-info">Web Device Proxy not yet authorized. Enable popups and try again.</span>
-  </p>
-</div>
+@switch (state) {
+  @case (ConnectionState.CONNECTING) {
+    <p class="connecting-message mat-body-1">Connecting...</p>
+  }
+  @case (ConnectionState.NOT_FOUND) {
+    <div class="further-adb-info-text">
+      <p class="mat-body-1">Failed to connect. Web Device Proxy doesn't seem to be running.</p>
+      <p class="mat-body-1">Please check you have Web Device Proxy installed.</p>
+    </div>
+    <div class="further-adb-info-actions">
+      <button
+        color="primary"
+        mat-stroked-button
+        class="install"
+        (click)="onInstallExternalButtonClick()"
+      >
+        Install (Non-Google users)
+      </button>
+      <button
+        color="primary"
+        mat-stroked-button
+        class="install"
+        (click)="onInstallGoogleButtonClick()"
+      >
+        Install (Google employees only)
+      </button>
+      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+        Retry
+      </button>
+    </div>
+  }
+  @case (ConnectionState.UNAUTH) {
+    <div class="further-adb-info-text">
+      <p class="icon-information mat-body-1">
+        <mat-icon class="adb-icon">lock</mat-icon>
+        <span class="adb-info"
+          >Web Device Proxy not yet authorized. Enable popups and try again.</span
+        >
+      </p>
+    </div>
 
-<div class="further-adb-info-actions">
-  <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
-    Retry
-  </button>
-</div>
-} }
+    <div class="further-adb-info-actions">
+      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+        Retry
+      </button>
+    </div>
+  }
+}

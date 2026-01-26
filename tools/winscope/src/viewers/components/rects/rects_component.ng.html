@@ -33,11 +33,11 @@ limitations under the License.
         #shadingModeButton
       >
         @if (largeRectsMapper3d.isWireFrame()) {
-        <mat-icon class="material-symbols-outlined" aria-hidden="true"> deployed_code </mat-icon>
+          <mat-icon class="material-symbols-outlined" aria-hidden="true"> deployed_code </mat-icon>
         } @else if (largeRectsMapper3d.isShadedByGradient()) {
-        <mat-icon svgIcon="cube_partial_shade"></mat-icon>
+          <mat-icon svgIcon="cube_partial_shade"></mat-icon>
         } @else if (largeRectsMapper3d.isShadedByOpacity()) {
-        <mat-icon svgIcon="cube_full_shade"></mat-icon>
+          <mat-icon svgIcon="cube_full_shade"></mat-icon>
         }
       </button>
 
@@ -155,26 +155,26 @@ limitations under the License.
 
     <div class="displays-section">
       @if (allRectSpecs) {
-      <mat-button-toggle-group
-        [value]="rectSpec"
-        (change)="onRectTypeButtonClicked($event)"
-        appearance="legacy"
-        class="rect-type-toggle"
-        [hideSingleSelectionIndicator]="true"
-      >
-        @for (spec of allRectSpecs; track $index) {
-        <mat-button-toggle [value]="spec">
-          <mat-icon
-            [color]="spec === rectSpec ? 'primary' : 'accent'"
-            [matTooltip]="'Show ' + spec.type"
-            class="rect-type-icon material-symbols-outlined"
-            >{{spec.icon}}</mat-icon
-          >
-        </mat-button-toggle>
-        }
-      </mat-button-toggle-group>
+        <mat-button-toggle-group
+          [value]="rectSpec"
+          (change)="onRectTypeButtonClicked($event)"
+          appearance="legacy"
+          class="rect-type-toggle"
+          [hideSingleSelectionIndicator]="true"
+        >
+          @for (spec of allRectSpecs; track $index) {
+            <mat-button-toggle [value]="spec">
+              <mat-icon
+                [color]="spec === rectSpec ? 'primary' : 'accent'"
+                [matTooltip]="'Show ' + spec.type"
+                class="rect-type-icon material-symbols-outlined"
+                >{{ spec.icon }}</mat-icon
+              >
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
       }
-      <span class="mat-body-1">{{groupLabel}}:</span>
+      <span class="mat-body-1">{{ groupLabel }}:</span>
       <mat-form-field class="displays-select" subscriptSizing="dynamic" appearance="outline">
         <mat-select
           #displaySelect
@@ -189,22 +189,22 @@ limitations under the License.
             <span> {{ getSelectTriggerValue() }} </span>
           </mat-select-trigger>
           @for (display of internalDisplays; track display.displayId) {
-          <mat-option
-            [value]="display"
-            [matTooltip]="'Display Id: ' + display.displayId"
-            matTooltipPosition="right"
-          >
-            <div class="option-with-chip">
-              <button
-                mat-flat-button
-                class="option-only-button"
-                (click)="onOnlyButtonClick($event, display)"
-              >
-                Only
-              </button>
-              <span class="option-label-text text-no-overflow">{{ display.name }}</span>
-            </div>
-          </mat-option>
+            <mat-option
+              [value]="display"
+              [matTooltip]="'Display Id: ' + display.displayId"
+              matTooltipPosition="right"
+            >
+              <div class="option-with-chip">
+                <button
+                  mat-flat-button
+                  class="option-only-button"
+                  (click)="onOnlyButtonClick($event, display)"
+                >
+                  Only
+                </button>
+                <span class="option-label-text text-no-overflow">{{ display.name }}</span>
+              </div>
+            </mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -213,16 +213,18 @@ limitations under the License.
 </div>
 <mat-divider></mat-divider>
 @if (showRectSpecWarning()) {
-<span class="mat-body-1 warning">
-  <mat-icon class="warning-icon icon-small"> warning </mat-icon>
-  <span class="warning-message text-no-overflow">
-    Showing {{rectSpec?.type}} - change rect type via toggle above
+  <span class="mat-body-1 warning">
+    <mat-icon class="warning-icon icon-small"> warning </mat-icon>
+    <span class="warning-message text-no-overflow">
+      Showing {{ rectSpec?.type }} - change rect type via toggle above
+    </span>
   </span>
-</span>
-} @if (rects.length===0) {
-<span class="mat-body-1 placeholder-text"> No rects found. </span>
-} @if (currentDisplays.length===0) {
-<span class="mat-body-1 placeholder-text"> No displays selected. </span>
+}
+@if (rects.length === 0) {
+  <span class="mat-body-1 placeholder-text"> No rects found. </span>
+}
+@if (currentDisplays.length === 0) {
+  <span class="mat-body-1 placeholder-text"> No displays selected. </span>
 }
 <div class="rects-content">
   <div class="canvas-container">
@@ -241,34 +243,36 @@ limitations under the License.
   </div>
 </div>
 @if (rectSpec) {
-<span class="mat-body-1 rect-legend">
-  <span class="shading-opts" [class.force-show-all]="legendExpanded" #shadingOpts>
-    @for (opt of rectSpec.legend; track opt) { @if (!largeRectsMapper3d.isWireFrame() ||
-    opt.showInWireFrameMode) {
-    <span class="shading-opt">
-      @if (opt.fill === undefined) {
-      <mat-icon [style.border-color]="opt.border" class="square">question_mark</mat-icon>
-      } @if (opt.fill !== undefined) {
-      <div
-        [style.background-color]="opt.fill"
-        [style.border-color]="opt.border"
-        class="square"
-      ></div>
+  <span class="mat-body-1 rect-legend">
+    <span class="shading-opts" [class.force-show-all]="legendExpanded" #shadingOpts>
+      @for (opt of rectSpec.legend; track opt) {
+        @if (!largeRectsMapper3d.isWireFrame() || opt.showInWireFrameMode) {
+          <span class="shading-opt">
+            @if (opt.fill === undefined) {
+              <mat-icon [style.border-color]="opt.border" class="square">question_mark</mat-icon>
+            }
+            @if (opt.fill !== undefined) {
+              <div
+                [style.background-color]="opt.fill"
+                [style.border-color]="opt.border"
+                class="square"
+              ></div>
+            }
+            <span class="mat-body-1 shading-opt-desc">{{ opt.desc }}</span>
+          </span>
+        }
       }
-      <span class="mat-body-1 shading-opt-desc">{{opt.desc}}</span>
     </span>
-    } }
+    @if (showExpandButton(shadingOpts)) {
+      <button
+        mat-icon-button
+        class="rect-legend-expand-button"
+        (click)="legendExpanded = !legendExpanded"
+      >
+        <mat-icon class="material-symbols-outlined">{{
+          legendExpanded ? 'expand_circle_down' : 'more_horiz'
+        }}</mat-icon>
+      </button>
+    }
   </span>
-  @if (showExpandButton(shadingOpts)) {
-  <button
-    mat-icon-button
-    class="rect-legend-expand-button"
-    (click)="legendExpanded = !legendExpanded"
-  >
-    <mat-icon class="material-symbols-outlined"
-      >{{legendExpanded ? 'expand_circle_down' : 'more_horiz'}}</mat-icon
-    >
-  </button>
-  }
-</span>
 }

@@ -23,22 +23,22 @@ limitations under the License.
   </collapsed-sections>
 
   @if (inputData?.rectsToDraw) {
-  <rects-view
-    class="rects-view"
-    [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-    [title]="rectsTitle"
-    [store]="store"
-    [isStackBased]="true"
-    [dependencies]="inputData?.dependencies ?? []"
-    [displays]="inputData?.displays ?? []"
-    [rects]="inputData?.rectsToDraw ?? []"
-    [shadingModes]="shadingModes"
-    [highlightedItem]="inputData?.highlightedRect ?? ''"
-    [userOptions]="inputData?.rectsUserOptions ?? {}"
-    [isDarkMode]="inputData?.isDarkMode ?? false"
-    [rectSpec]="inputData?.rectSpec"
-    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
-  ></rects-view>
+    <rects-view
+      class="rects-view"
+      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
+      [title]="rectsTitle"
+      [store]="store"
+      [isStackBased]="true"
+      [dependencies]="inputData?.dependencies ?? []"
+      [displays]="inputData?.displays ?? []"
+      [rects]="inputData?.rectsToDraw ?? []"
+      [shadingModes]="shadingModes"
+      [highlightedItem]="inputData?.highlightedRect ?? ''"
+      [userOptions]="inputData?.rectsUserOptions ?? {}"
+      [isDarkMode]="inputData?.isDarkMode ?? false"
+      [rectSpec]="inputData?.rectSpec"
+      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
+    ></rects-view>
   }
 
   <log-view
@@ -59,34 +59,40 @@ limitations under the License.
   ></log-view>
 
   @if (!arePropertiesCollapsed()) {
-  <div class="properties">
-    <properties-view
-      class="properties-view event-properties"
-      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-      [title]="eventPropertiesTitle"
-      [nodeRows]="inputData?.propertyNodes"
-      [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-      [traceType]="TraceType.INPUT_EVENT_MERGED"
-      [store]="store"
-      [isProtoDump]="true"
-      [textFilter]="inputData?.propertiesFilter"
-      placeholderText="No selected entry."
-      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
-    ></properties-view>
-    <properties-view
-      class="properties-view dispatch-properties"
-      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)"
-      [title]="dispatchPropertiesTitle"
-      [nodeRows]="inputData?.dispatchPropertyNodes"
-      [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-      [traceType]="TraceType.INPUT_EVENT_MERGED"
-      [store]="store"
-      [isProtoDump]="true"
-      [textFilter]="inputData?.dispatchPropertiesFilter"
-      [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
-      placeholderText="No selected entry."
-      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)"
-    ></properties-view>
-  </div>
+    <div class="properties">
+      <properties-view
+        class="properties-view event-properties"
+        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+        [title]="eventPropertiesTitle"
+        [nodeRows]="inputData?.propertyNodes"
+        [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+        [traceType]="TraceType.INPUT_EVENT_MERGED"
+        [store]="store"
+        [isProtoDump]="true"
+        [textFilter]="inputData?.propertiesFilter"
+        placeholderText="No selected entry."
+        (collapseButtonClicked)="
+          sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
+        "
+      ></properties-view>
+      <properties-view
+        class="properties-view dispatch-properties"
+        [class.collapsed]="
+          sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)
+        "
+        [title]="dispatchPropertiesTitle"
+        [nodeRows]="inputData?.dispatchPropertyNodes"
+        [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+        [traceType]="TraceType.INPUT_EVENT_MERGED"
+        [store]="store"
+        [isProtoDump]="true"
+        [textFilter]="inputData?.dispatchPropertiesFilter"
+        [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
+        placeholderText="No selected entry."
+        (collapseButtonClicked)="
+          sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)
+        "
+      ></properties-view>
+    </div>
   }
 </div>

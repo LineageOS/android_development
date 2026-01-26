@@ -43,7 +43,9 @@ limitations under the License.
     [traceType]="TraceType.TRANSACTIONS"
     [isProtoDump]="false"
     placeholderText="No current or selected transaction with additional properties."
-    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
+    (collapseButtonClicked)="
+      sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
+    "
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
   ></properties-view>
 </div>
