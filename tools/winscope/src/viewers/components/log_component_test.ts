@@ -36,7 +36,7 @@ import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';

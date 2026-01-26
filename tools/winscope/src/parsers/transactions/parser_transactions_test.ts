@@ -19,7 +19,7 @@ import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {TransactionType} from '@trace/transactions/transaction_type';
 import {CoarseVersion} from '@trace_api/coarse_version';

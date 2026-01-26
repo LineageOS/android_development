@@ -34,7 +34,7 @@ import {assertDefined} from '@common/assert';
 import {KeyboardEventCode} from '@common/dom';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TracesBuilder} from '@test/unit/traces_builder';
 import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';

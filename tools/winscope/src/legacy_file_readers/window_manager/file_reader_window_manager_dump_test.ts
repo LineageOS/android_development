@@ -23,7 +23,7 @@ import {
   getTimestampConverter,
   makeElapsedTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import Long from 'long';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';

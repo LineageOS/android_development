@@ -32,7 +32,7 @@ import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 
 describe('DefaultTimelineRowComponent', () => {
   let component: DefaultTimelineRowComponent;

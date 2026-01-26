@@ -26,7 +26,7 @@ import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   makeZeroTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';

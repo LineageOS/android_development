@@ -20,7 +20,7 @@ import {
   makeRealTimestamp,
   makeZeroTimestamp,
   UTC_CONVERTER,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TransitionStatus} from '@trace/transitions/status';
 import {
   convertHexToRgb,

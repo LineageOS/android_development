@@ -15,7 +15,7 @@
  */
 
 import {getFixtureFile} from '@test/unit/io_helpers';
-import {UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {PerfettoParserFactory} from './perfetto_parser_factory';

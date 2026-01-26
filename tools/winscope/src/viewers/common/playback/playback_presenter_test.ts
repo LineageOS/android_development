@@ -22,7 +22,7 @@ import {
   TraceEntryEager,
   TraceEntryLazy,
 } from '@trace_api/trace';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceType} from '@trace_api/trace_type';

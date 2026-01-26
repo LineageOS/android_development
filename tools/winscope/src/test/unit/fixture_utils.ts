@@ -17,7 +17,7 @@
 import {assertDefined, assertTrue} from '@common/assert';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {getFixtureFile} from '@test/unit/io_helpers';
-import {getTimestampConverter} from '@test/unit/time_test_helpers';
+import {getTimestampConverter} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';

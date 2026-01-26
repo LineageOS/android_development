@@ -35,7 +35,7 @@ import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
-import {ASIA_TIMEZONE_INFO} from '@test/unit/time_test_helpers';
+import {ASIA_TIMEZONE_INFO} from '@common/time/test_helpers';
 
 describe('TraceFileIdentifier', () => {
   const identifier = new TraceFileIdentifier<FileReader>();

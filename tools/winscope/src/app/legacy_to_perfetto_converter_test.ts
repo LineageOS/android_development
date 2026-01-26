@@ -22,7 +22,7 @@ import {
   Trace,
   TracePacket,
 } from '@compat/perfetto';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
 import {

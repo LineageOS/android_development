@@ -19,7 +19,7 @@ import {
   makeRealTimestamp,
   timestampEqualityTester,
   UTC_CONVERTER,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
