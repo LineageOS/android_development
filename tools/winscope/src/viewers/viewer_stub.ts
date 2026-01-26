@@ -50,7 +50,7 @@ export class ViewerStub implements Viewer {
     );
   }
 
-  onWinscopeEvent(event: WinscopeEvent): Promise<void> {
+  onWinscopeEvent(_: WinscopeEvent): Promise<void> {
     return Promise.resolve();
   }
 

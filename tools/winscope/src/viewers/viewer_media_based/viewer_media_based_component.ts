@@ -138,7 +138,7 @@ export class ViewerMediaBasedComponent {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(_: Event) {
     this.updateMaxContainerSize();
   }
 

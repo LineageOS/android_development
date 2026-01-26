@@ -194,7 +194,7 @@ the default for its data type.`,
     return new ImeAdditionalProperties(wmProperties, sfProperties);
   }
 
-  protected override keepCalculated(tree: HierarchyTreeNode): boolean {
+  protected override keepCalculated(_: HierarchyTreeNode): boolean {
     return false;
   }
 

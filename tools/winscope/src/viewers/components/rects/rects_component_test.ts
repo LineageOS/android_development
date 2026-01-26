@@ -764,7 +764,7 @@ describe('RectsComponent', () => {
     resetSpies();
 
     let miniRectDoubleClick = false;
-    dom.addEventListener(ViewerEvents.MiniRectsDblClick, (event) => {
+    dom.addEventListener(ViewerEvents.MiniRectsDblClick, (_) => {
       miniRectDoubleClick = true;
     });
 

@@ -108,7 +108,7 @@ export class Presenter extends AbstractLogViewerPresenter<
         .getEagerPropertyByName('endTimestamp')
         ?.getValue();
 
-      let timeDiff: TimeDuration | undefined = undefined;
+      let timeDiff: TimeDuration | undefined;
       if (startTs && endTs) {
         const timeDiffNs = endTs.minus(startTs.getValueNs()).getValueNs();
         timeDiff = new TimeDuration(timeDiffNs);

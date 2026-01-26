@@ -322,9 +322,7 @@ describe('ViewerSearchComponent', () => {
     const spy = jasmine.createSpy();
     dom
       .get('viewer-search')
-      .addEventListener(ViewerEvents.GlobalSearchSectionClick, (event) =>
-        spy(),
-      );
+      .addEventListener(ViewerEvents.GlobalSearchSectionClick, (_) => spy());
     const globalSearch = dom.get('.global-search');
     expect(globalSearch.find('.message-with-spinner')).toBeUndefined();
 

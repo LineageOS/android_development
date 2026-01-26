@@ -139,7 +139,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       if (!header.filter) return;
       this.uniqueFieldValues.set(header.spec, new Set());
     });
-    const transitions = await this.makeTransitions(headers);
+    const transitions = await this.makeTransitions();
     this.sortTransitions(transitions);
     return transitions;
   }
@@ -189,9 +189,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     });
   }
 
-  private async makeTransitions(
-    headers: LogHeader[],
-  ): Promise<TransitionsEntry[]> {
+  private async makeTransitions(): Promise<TransitionsEntry[]> {
     const transitions: TransitionsEntry[] = [];
     const entryNodes = await this.trace.getAllEntryValues();
 

@@ -125,7 +125,7 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
       if (this.rectSpecs[this.rectSpecIndex].type === TraceRectType.LAYERS) {
         return makeUiRects(tree, this.viewCapturePackageNames);
       }
-      return makeInputRects(tree, (id) => false);
+      return makeInputRects(tree, (_) => false);
     },
     (displays: UiRect[]) =>
       makeDisplayIdentifiers(displays, this.wmFocusedDisplayId),

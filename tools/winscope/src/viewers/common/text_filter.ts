@@ -17,6 +17,7 @@
 import {FilterFlag} from '@common/filter_flag';
 import {isAlpha, isDigit} from '@common/string_helpers';
 import {StringFilterPredicate} from '@common/string_filter_predicate';
+import {getLogger} from '@compat/logging';
 
 export class TextFilter {
   constructor(
@@ -41,7 +42,8 @@ export class TextFilter {
           return regex.test(entryString);
         };
       } catch (e) {
-        return (entryString: string) => false;
+        getLogger('TextFilter').error('Invalid regex: ' + this.filterString, e);
+        return (_: string) => false;
       }
     } else {
       const testString = matchCase

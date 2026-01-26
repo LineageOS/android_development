@@ -212,12 +212,9 @@ the default for its data type.`,
   protected override addViewerSpecificListeners(
     htmlElement: HTMLElement,
   ): void {
-    htmlElement.addEventListener(
-      ViewerEvents.MiniRectsDblClick,
-      async (event) => {
-        await this.onMiniRectsDoubleClick();
-      },
-    );
+    htmlElement.addEventListener(ViewerEvents.MiniRectsDblClick, async (_) => {
+      await this.onMiniRectsDoubleClick();
+    });
   }
 
   private async initializePackageNamesIfNeeded() {
@@ -287,7 +284,8 @@ the default for its data type.`,
       className: tree.name,
       hashcode: assertDefined(tree.getChildByName('hashcode')).formattedValue(),
       viewId: assertDefined(tree.getChildByName('viewId')).formattedValue(),
-      contentDescription: tree.getChildByName('contentDescription')?.formattedValue() ?? 'null',
+      contentDescription:
+        tree.getChildByName('contentDescription')?.formattedValue() ?? 'null',
       text: tree.getChildByName('text')?.formattedValue() ?? 'null',
       left: assertDefined(tree.getChildByName('left')).formattedValue(),
       top: assertDefined(tree.getChildByName('top')).formattedValue(),
