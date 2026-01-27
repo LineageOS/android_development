@@ -26,7 +26,7 @@ import {
   makeElapsedTimestamp,
   makeZeroTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 

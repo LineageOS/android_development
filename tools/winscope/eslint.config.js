@@ -44,27 +44,42 @@ module.exports = defineConfig([
 
     rules: {
       '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/array-type': ['error', {default: 'array-simple'}],
       'unused-imports/no-unused-imports': 'error',
       'no-var': 'error',
-
       'prefer-const': [
         'error',
         {
           destructuring: 'all',
         },
       ],
-
       'prefer-rest-params': 'error',
       'prefer-spread': 'error',
-
       'no-restricted-imports': [
         'error',
         {
-          'patterns': ['..*'],
+          patterns: ['..*'],
         },
       ],
+      curly: ['error', 'multi-line'],
+      eqeqeq: ['error', 'always', {null: 'ignore'}],
+      'no-eval': 'error',
+      'no-caller': 'error',
+      'no-throw-literal': 'error',
+      'no-new-wrappers': 'error',
+      'no-undef-init': 'error',
+      radix: 'error',
+      'guard-for-in': 'error',
+      'object-shorthand': 'error',
     },
   },
   globalIgnores(['src/trace_processor/perfetto/', '**/webpack.config.js', '**/*worker.js']),

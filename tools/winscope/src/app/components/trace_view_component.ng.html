@@ -19,25 +19,25 @@ limitations under the License.
   <div class="trace-tabs-wrapper header-items-wrapper">
     <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="tabs-navigation-bar">
       @for (tab of tabs; track tab; let isLast = $last) {
-      <a
-        mat-tab-link
-        [active]="isCurrentActiveTab(tab)"
-        [class.active]="isCurrentActiveTab(tab)"
-        [matTooltip]="getTabTooltip(tab.view)"
-        matTooltipPosition="above"
-        [matTooltipShowDelay]="300"
-        [matTooltipDisabled]="!tab.isTooltipStable"
-        (click)="onTabClick(tab)"
-        (focus)="$any($event.target).blur()"
-        (mouseenter)="onTabHover($event, tab)"
-        [class.last]="isLast"
-        class="tab text-no-overflow"
-      >
-        <mat-icon class="icon" [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
-          {{ getTabIcon(tab) }}
-        </mat-icon>
-        <span class="tab-title"> {{ getTitle(tab.view) }} </span>
-      </a>
+        <a
+          mat-tab-link
+          [active]="isCurrentActiveTab(tab)"
+          [class.active]="isCurrentActiveTab(tab)"
+          [matTooltip]="getTabTooltip(tab.view)"
+          matTooltipPosition="above"
+          [matTooltipShowDelay]="300"
+          [matTooltipDisabled]="!tab.isTooltipStable"
+          (click)="onTabClick(tab)"
+          (focus)="$any($event.target).blur()"
+          (mouseenter)="onTabHover($event, tab)"
+          [class.last]="isLast"
+          class="tab text-no-overflow"
+        >
+          <mat-icon class="icon" [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
+            {{ getTabIcon(tab) }}
+          </mat-icon>
+          <span class="tab-title"> {{ getTitle(tab.view) }} </span>
+        </a>
       }
     </nav>
   </div>
@@ -88,7 +88,7 @@ limitations under the License.
                 (keydown.enter)="savePreset()"
               />
               @if (filterPresetNameControl.invalid && filterPresetNameControl.value) {
-              <mat-error>Preset with that name already exists.</mat-error>
+                <mat-error>Preset with that name already exists.</mat-error>
               }
             </mat-form-field>
             <button
@@ -107,16 +107,17 @@ limitations under the License.
         <div class="overlay-panel-section existing-presets-section">
           <span class="mat-body-2 overlay-panel-section-title"> Apply a preset </span>
           @if (getCurrentFilterPresets().length === 0) {
-          <span class="mat-body-1"> No existing presets found. </span>
-          } @for (preset of getCurrentFilterPresets(); track preset) {
-          <div class="existing-preset inline">
-            <button mat-button color="primary" (click)="onExistingPresetClick(preset)">
-              {{ preset.split(".")[0] }}
-            </button>
-            <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
-              <mat-icon class="material-symbols-outlined"> delete </mat-icon>
-            </button>
-          </div>
+            <span class="mat-body-1"> No existing presets found. </span>
+          }
+          @for (preset of getCurrentFilterPresets(); track preset) {
+            <div class="existing-preset inline">
+              <button mat-button color="primary" (click)="onExistingPresetClick(preset)">
+                {{ preset.split('.')[0] }}
+              </button>
+              <button mat-icon-button class="delete-button" (click)="deletePreset(preset)">
+                <mat-icon class="material-symbols-outlined"> delete </mat-icon>
+              </button>
+            </div>
           }
         </div>
       </div>

@@ -21,7 +21,7 @@ import {Timer} from '@common/time/timer';
 import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {TracePositionUpdate} from '@trace/trace_events';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TracesBuilder} from '@test/unit/traces_builder';
 import {FixedStringFormatter} from '@trace/formatters';

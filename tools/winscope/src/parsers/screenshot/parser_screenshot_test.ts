@@ -23,7 +23,7 @@ import {
   TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
   makeElapsedTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CanvasEntry} from '@trace/media_based/media_based_trace_entry';

@@ -24,7 +24,7 @@ export class FormatDispatchEntry implements Operation<UiPropertyTreeNode> {
 
   apply(node: UiPropertyTreeNode): void {
     node.setDisplayName('TargetWindows');
-    node.getAllChildren().forEach((dispatchEntry, index) => {
+    node.getAllChildren().forEach((dispatchEntry: UiPropertyTreeNode) => {
       const windowName = this.getWindowName(dispatchEntry);
       dispatchEntry.setDisplayName(`${windowName}`);
       this.formatDispatchedPointers(dispatchEntry);

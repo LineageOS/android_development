@@ -15,49 +15,49 @@ limitations under the License.
 -->
 
 @if (textFilter) {
-<mat-form-field
-  [class]="getFormFieldClasses()"
-  [appearance]="appearance"
-  (keydown.esc)="$any($event.target).blur()"
-  (keydown.enter)="$any($event.target).blur()"
-  [matTooltip]="label"
-  matTooltipPosition="above"
-  subscriptSizing="dynamic"
-  [matTooltipDisabled]="disableFormFieldTooltip(formField)"
-  #formField
->
-  <mat-label>{{ label }}</mat-label>
-  <input
-    matInput
-    [(ngModel)]="textFilter.filterString"
-    (ngModelChange)="onFilterChange()"
-    [name]="filterName"
-  />
-  <div class="field-suffix" matTextSuffix>
-    <button
-      mat-icon-button
-      matTooltip="Match case"
-      [color]="hasFlag(FilterFlag.MATCH_CASE) ? 'primary' : undefined"
-      (click)="onFilterFlagClick($event, FilterFlag.MATCH_CASE)"
-    >
-      <mat-icon class="material-symbols-outlined">match_case</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      matTooltip="Match whole word"
-      [color]="hasFlag(FilterFlag.MATCH_WORD) ? 'primary' : undefined"
-      (click)="onFilterFlagClick($event, FilterFlag.MATCH_WORD)"
-    >
-      <mat-icon class="material-symbols-outlined">match_word</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      matTooltip="Use regex"
-      [color]="hasFlag(FilterFlag.USE_REGEX) ? 'primary' : undefined"
-      (click)="onFilterFlagClick($event, FilterFlag.USE_REGEX)"
-    >
-      <mat-icon class="material-symbols-outlined">regular_expression</mat-icon>
-    </button>
-  </div>
-</mat-form-field>
+  <mat-form-field
+    [class]="getFormFieldClasses()"
+    [appearance]="appearance"
+    (keydown.esc)="$any($event.target).blur()"
+    (keydown.enter)="$any($event.target).blur()"
+    [matTooltip]="label"
+    matTooltipPosition="above"
+    subscriptSizing="dynamic"
+    [matTooltipDisabled]="disableFormFieldTooltip(formField)"
+    #formField
+  >
+    <mat-label>{{ label }}</mat-label>
+    <input
+      matInput
+      [(ngModel)]="textFilter.filterString"
+      (ngModelChange)="onFilterChange()"
+      [name]="filterName"
+    />
+    <div class="field-suffix" matTextSuffix>
+      <button
+        mat-icon-button
+        matTooltip="Match case"
+        [color]="hasFlag(FilterFlag.MATCH_CASE) ? 'primary' : undefined"
+        (click)="onFilterFlagClick($event, FilterFlag.MATCH_CASE)"
+      >
+        <mat-icon class="material-symbols-outlined">match_case</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        matTooltip="Match whole word"
+        [color]="hasFlag(FilterFlag.MATCH_WORD) ? 'primary' : undefined"
+        (click)="onFilterFlagClick($event, FilterFlag.MATCH_WORD)"
+      >
+        <mat-icon class="material-symbols-outlined">match_word</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        matTooltip="Use regex"
+        [color]="hasFlag(FilterFlag.USE_REGEX) ? 'primary' : undefined"
+        (click)="onFilterFlagClick($event, FilterFlag.USE_REGEX)"
+      >
+        <mat-icon class="material-symbols-outlined">regular_expression</mat-icon>
+      </button>
+    </div>
+  </mat-form-field>
 }

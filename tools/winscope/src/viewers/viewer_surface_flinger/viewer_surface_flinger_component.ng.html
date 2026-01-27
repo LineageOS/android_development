@@ -58,39 +58,45 @@ limitations under the License.
   ></hierarchy-view>
 
   @if (!arePropertiesCollapsed()) {
-  <div
-    class="properties"
-    [class.disabled-component]="inputData?.isPlaybackPlaying
-        || inputData?.isPlaybackInitializing"
-  >
-    @if (inputData?.isPlaybackPlaying) {
-    <div class="disabled-message user-notification mat-body-1">
-      Properties disabled due to playback
-    </div>
-    }
-    <surface-flinger-property-groups
-      class="property-groups"
-      [class.empty]="!inputData?.curatedProperties && !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
-      [properties]="inputData?.curatedProperties"
-      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)"
-    ></surface-flinger-property-groups>
+    <div
+      class="properties"
+      [class.disabled-component]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
+    >
+      @if (inputData?.isPlaybackPlaying) {
+        <div class="disabled-message user-notification mat-body-1">
+          Properties disabled due to playback
+        </div>
+      }
+      <surface-flinger-property-groups
+        class="property-groups"
+        [class.empty]="
+          !inputData?.curatedProperties &&
+          !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)
+        "
+        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
+        [properties]="inputData?.curatedProperties"
+        (collapseButtonClicked)="
+          sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)
+        "
+      ></surface-flinger-property-groups>
 
-    <properties-view
-      class="properties-view"
-      [class.disabled]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
-      [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-      [title]="propertiesTitle"
-      [userOptions]="inputData?.propertiesUserOptions ?? {}"
-      [nodeRows]="inputData?.propertyNodes"
-      [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-      [traceType]="TraceType.SURFACE_FLINGER"
-      [store]="store"
-      [isProtoDump]="true"
-      placeholderText="No selected entry or layer."
-      [textFilter]="inputData?.propertiesFilter"
-      (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
-    ></properties-view>
-  </div>
+      <properties-view
+        class="properties-view"
+        [class.disabled]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
+        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+        [title]="propertiesTitle"
+        [userOptions]="inputData?.propertiesUserOptions ?? {}"
+        [nodeRows]="inputData?.propertyNodes"
+        [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+        [traceType]="TraceType.SURFACE_FLINGER"
+        [store]="store"
+        [isProtoDump]="true"
+        placeholderText="No selected entry or layer."
+        [textFilter]="inputData?.propertiesFilter"
+        (collapseButtonClicked)="
+          sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
+        "
+      ></properties-view>
+    </div>
   }
 </div>

@@ -36,56 +36,60 @@ limitations under the License.
     [logCallback]="Analytics.Navigation.logHierarchySettingsChanged"
   >
   </user-options>
-  @let treeWarnings = getWarnings(); @if (treeWarnings.length > 0) {
-  <div>
-    @for (warning of treeWarnings; track $index) {
-    <span
-      class="mat-body-1 warning"
-      [matTooltip]="warning.message"
-      [matTooltipDisabled]="disableTooltip(warningEl)"
-    >
-      <mat-icon class="warning-icon icon-small"> warning </mat-icon>
-      <span class="warning-message text-no-overflow" #warningEl>{{warning.message}}</span>
-    </span>
-    }
-  </div>
-  } @if (tableProperties) {
-  <properties-table class="properties-table" [properties]="tableProperties"></properties-table>
-  } @if (pinnedItems.length > 0) {
-  <div class="pinned-items">
-    @for (pinnedItem of pinnedItems; track pinnedItem.id) {
-    <tree-node
-      class="node full-opacity"
-      [class]="pinnedItem.getDiff()"
-      [class.selected]="isHighlighted(pinnedItem, highlightedItem)"
-      [class.clickable]="true"
-      [node]="pinnedItem"
-      [isPinned]="true"
-      [isInPinnedSection]="true"
-      [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
-      (pinNodeChange)="onPinnedItemChange($any($event))"
-      (click)="onPinnedNodeClick($event, pinnedItem)"
-    ></tree-node>
-    }
-  </div>
+  @let treeWarnings = getWarnings();
+  @if (treeWarnings.length > 0) {
+    <div>
+      @for (warning of treeWarnings; track $index) {
+        <span
+          class="mat-body-1 warning"
+          [matTooltip]="warning.message"
+          [matTooltipDisabled]="disableTooltip(warningEl)"
+        >
+          <mat-icon class="warning-icon icon-small"> warning </mat-icon>
+          <span class="warning-message text-no-overflow" #warningEl>{{ warning.message }}</span>
+        </span>
+      }
+    </div>
+  }
+  @if (tableProperties) {
+    <properties-table class="properties-table" [properties]="tableProperties"></properties-table>
+  }
+  @if (pinnedItems.length > 0) {
+    <div class="pinned-items">
+      @for (pinnedItem of pinnedItems; track pinnedItem.id) {
+        <tree-node
+          class="node full-opacity"
+          [class]="pinnedItem.getDiff()"
+          [class.selected]="isHighlighted(pinnedItem, highlightedItem)"
+          [class.clickable]="true"
+          [node]="pinnedItem"
+          [isPinned]="true"
+          [isInPinnedSection]="true"
+          [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
+          (pinNodeChange)="onPinnedItemChange($any($event))"
+          (click)="onPinnedNodeClick($event, pinnedItem)"
+        ></tree-node>
+      }
+    </div>
   }
 </div>
 <mat-divider></mat-divider>
 @if (showPlaceholderText()) {
-<span class="mat-body-1 placeholder-text">{{ getPlaceholderText() }}</span>
-} @if (nodeRows.length > 0) {
-<tree-view
-  class="tree"
-  [nodeRows]="nodeRows"
-  [isFlattened]="isFlattened()"
-  [useStoredExpandedState]="true"
-  [highlightedItem]="highlightedItem"
-  [pinnedItems]="pinnedItems"
-  [itemsClickable]="true"
-  [rectIdToShowState]="rectIdToShowState"
-  [store]="treeStorage"
-  [handleArrowPress]="true"
-  (highlightedChange)="onHighlightedItemChange($any($event))"
-  (pinnedItemChange)="onPinnedItemChange($any($event))"
-></tree-view>
+  <span class="mat-body-1 placeholder-text">{{ getPlaceholderText() }}</span>
+}
+@if (nodeRows.length > 0) {
+  <tree-view
+    class="tree"
+    [nodeRows]="nodeRows"
+    [isFlattened]="isFlattened()"
+    [useStoredExpandedState]="true"
+    [highlightedItem]="highlightedItem"
+    [pinnedItems]="pinnedItems"
+    [itemsClickable]="true"
+    [rectIdToShowState]="rectIdToShowState"
+    [store]="treeStorage"
+    [handleArrowPress]="true"
+    (highlightedChange)="onHighlightedItemChange($any($event))"
+    (pinnedItemChange)="onPinnedItemChange($any($event))"
+  ></tree-view>
 }

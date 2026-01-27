@@ -17,7 +17,7 @@
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 
 describe('TraceEntry', () => {

@@ -193,7 +193,7 @@ export class LogComponent {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(_: Event) {
     this.updateTableMarginEnd();
     this.scrollComponent?.checkViewportSize();
   }

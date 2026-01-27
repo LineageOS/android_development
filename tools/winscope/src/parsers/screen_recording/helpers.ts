@@ -28,7 +28,7 @@ import {MP4FileOnReady, parseMp4} from '@trace/media_based/helpers';
 export type MP4FileOnReadyTimestamps = (
   info: FileInfo,
   mp4File: MP4File,
-  timestamps: Array<bigint>,
+  timestamps: bigint[],
   resolve: (value: void | PromiseLike<void>) => void,
 ) => void;
 
@@ -41,7 +41,7 @@ export interface ScreenRecordingParser {
 }
 
 export interface ParserResult {
-  timestamps: Array<bigint>;
+  timestamps: bigint[];
   realToBootTimeOffsetNs: bigint;
 }
 
@@ -61,11 +61,11 @@ export const WINSCOPE_MAGIC_STRING = [
 export async function parseTimestampsFromMp4VideoTrack(
   videoData: Uint8Array,
   elapsedRealTimeNanos: bigint,
-): Promise<Array<bigint>> {
+): Promise<bigint[]> {
   const samples = await extractSamplesFromMp4Track(videoData, (info) => {
     return info.videoTracks[0];
   });
-  const timestamps: Array<bigint> = [];
+  const timestamps: bigint[] = [];
   let curr = elapsedRealTimeNanos;
   samples.forEach((sample: Sample) => {
     const timeSeconds = sample.duration / sample.timescale;

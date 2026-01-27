@@ -238,7 +238,7 @@ export async function getImeLayers(
 async function getFocusedWindowString(
   entry: HierarchyTreeNode,
 ): Promise<string | undefined> {
-  let focusedWindowString = undefined;
+  let focusedWindowString;
   const focusedWindow = await getFocusedWindow(entry);
   if (focusedWindow) {
     const containerProperties = await focusedWindow.getAllProperties();

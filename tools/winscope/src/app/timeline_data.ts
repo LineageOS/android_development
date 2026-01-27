@@ -124,7 +124,7 @@ export class TimelineData {
       return this.explicitlySetPosition;
     }
 
-    let currentPosition: TracePosition | undefined = undefined;
+    let currentPosition: TracePosition | undefined;
     if (this.firstEntry) {
       currentPosition = TracePosition.fromTraceEntry(this.firstEntry);
     }
@@ -412,7 +412,7 @@ export class TimelineData {
   }
 
   private findLastEntry(): TraceEntry<unknown> | undefined {
-    let last: TraceEntry<unknown> | undefined = undefined;
+    let last: TraceEntry<unknown> | undefined;
 
     this.traces.forEachTrace((trace) => {
       const candidate = trace.getEntry(trace.lengthEntries - 1);

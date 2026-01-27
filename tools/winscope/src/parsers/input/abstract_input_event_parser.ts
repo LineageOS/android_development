@@ -150,7 +150,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
 
     let currEventId: bigint | undefined;
     let currProperties: PropertiesProvider | undefined;
-    let currWindows: Array<bigint> = [];
+    let currWindows: bigint[] = [];
 
     for (const it = queryResult.iter({}); it.valid(); it.next()) {
       const eventId = assertBigInt(it.get('event_id'));
@@ -179,7 +179,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
 
   private makeHierarchyTree(
     properties: PropertiesProvider,
-    windows: Array<bigint>,
+    windows: bigint[],
   ): HierarchyTreeNode {
     const rootId = properties.getEagerProperties().id;
     const formatter = new SetFormatters();

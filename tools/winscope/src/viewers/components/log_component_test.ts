@@ -40,7 +40,7 @@ import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
@@ -234,11 +234,11 @@ describe('LogComponent', () => {
 
   it('emits event on arrow key press', () => {
     let downArrowPressedTimes = 0;
-    dom.addEventListener(ViewerEvents.ArrowDownPress, (event) => {
+    dom.addEventListener(ViewerEvents.ArrowDownPress, (_) => {
       downArrowPressedTimes++;
     });
     let upArrowPressedTimes = 0;
-    dom.addEventListener(ViewerEvents.ArrowUpPress, (event) => {
+    dom.addEventListener(ViewerEvents.ArrowUpPress, (_) => {
       upArrowPressedTimes++;
     });
 

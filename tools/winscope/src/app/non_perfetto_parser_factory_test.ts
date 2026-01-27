@@ -16,7 +16,7 @@
 
 import {getFixtureFile} from '@test/unit/io_helpers';
 import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
-import {UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {TraceType} from '@trace_api/trace_type';

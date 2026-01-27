@@ -28,7 +28,7 @@ import {
   ASIA_TIMEZONE_INFO,
   timestampEqualityTester,
   UTC_CONVERTER,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';

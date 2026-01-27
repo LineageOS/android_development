@@ -36,7 +36,7 @@ export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
 
   protected override async decodeTrace(
     videoData: Uint8Array,
-  ): Promise<Array<bigint>> {
+  ): Promise<bigint[]> {
     const posCount = this.searchMagicString(
       videoData,
       ParserScreenRecordingLegacy.WINSCOPE_META_MAGIC_STRING,
@@ -58,13 +58,13 @@ export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
     videoData: Uint8Array,
     pos: number,
     count: number,
-  ): Array<bigint> {
+  ): bigint[] {
     if (pos + count * 8 > videoData.length) {
       throw new TypeError(
         'Failed to parse timestamps. Video data is too short.',
       );
     }
-    const timestamps: Array<bigint> = [];
+    const timestamps: bigint[] = [];
     for (let i = 0; i < count; ++i) {
       const [newPos, timestamp] = parseLongFromBuffer(videoData, pos);
       pos = newPos;

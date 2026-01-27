@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
-import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {TraceType} from '@trace_api/trace_type';

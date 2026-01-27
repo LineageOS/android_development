@@ -4,7 +4,7 @@ const shared = {
   useTabs: false,
   semi: true,
   singleQuote: true,
-  quoteProps: 'preserve',
+  quoteProps: 'consistent',
   bracketSpacing: false,
   trailingComma: 'all',
   arrowParens: 'always',
@@ -40,6 +40,16 @@ module.exports = {
     {
       files: '*.html',
       options: {
+        printWidth: 100,
+      },
+    },
+    {
+      files: '*.ng.html',
+      options: {
+        parser: 'angular',
+        ...shared,
+        bracketSameLine: false,
+        embeddedLanguageFormatting: 'auto',
         printWidth: 100,
       },
     },

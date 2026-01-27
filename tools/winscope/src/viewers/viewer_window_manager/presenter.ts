@@ -199,7 +199,7 @@ the default for its data type.`,
       ?.at(0);
   }
 
-  protected override keepCalculated(tree: HierarchyTreeNode): boolean {
+  protected override keepCalculated(_: HierarchyTreeNode): boolean {
     return false;
   }
 

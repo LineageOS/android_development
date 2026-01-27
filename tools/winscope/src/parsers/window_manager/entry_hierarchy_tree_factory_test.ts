@@ -177,20 +177,20 @@ describe('EntryHierarchyTreeFactory', () => {
       [key: string]: ColumnType | null;
     } {
       const defaults = {
-        'snapshot_id': defaultSnapshotId,
-        'focused_display_id': 14n,
-        'snapshot_arg_set_id': 1n,
-        'arg_set_id': 2n,
-        'title': defaultContainerTitle,
-        'name_override': null,
-        'token': defaultContainerToken,
-        'parent_token': null,
-        'container_type': ContainerType.WindowState,
-        'is_visible': 1n,
-        'rect_id': null,
-        'group_id': 0n,
-        'depth': 4n,
-        'opacity': 1,
+        snapshot_id: defaultSnapshotId,
+        focused_display_id: 14n,
+        snapshot_arg_set_id: 1n,
+        arg_set_id: 2n,
+        title: defaultContainerTitle,
+        name_override: null,
+        token: defaultContainerToken,
+        parent_token: null,
+        container_type: ContainerType.WindowState,
+        is_visible: 1n,
+        rect_id: null,
+        group_id: 0n,
+        depth: 4n,
+        opacity: 1,
       };
       return {...defaults, ...overrides};
     }

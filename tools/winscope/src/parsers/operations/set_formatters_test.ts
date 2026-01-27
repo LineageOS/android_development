@@ -18,7 +18,7 @@ import {assertDefined} from '@common/assert';
 import {TransformTypeFlags} from '@common/geometry/transform';
 import {SetFormatters} from '@parsers/helpers/set_formatters';
 import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
-import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {
   makeBufferNode,
   makeColorNode,

@@ -17,81 +17,82 @@ limitations under the License.
 <mat-card class="upload-card">
   <mat-card-header class="card-header">
     <mat-card-title class="title">Upload Traces</mat-card-title>
-    @let hasFiles = hasLoadedFiles(); @if (!isLoadingFiles && hasFiles) {
-    <div class="trace-actions-container">
-      <div class="trace-action-buttons trace-action-buttons-top">
-        <button
-          class="clear-all-btn"
-          color="primary"
-          mat-stroked-button
-          [disabled]="viewersLoading"
-          (click)="onClearButtonClick()"
-        >
-          Clear all
-        </button>
+    @let hasFiles = hasLoadedFiles();
+    @if (!isLoadingFiles && hasFiles) {
+      <div class="trace-actions-container">
+        <div class="trace-action-buttons trace-action-buttons-top">
+          <button
+            class="clear-all-btn"
+            color="primary"
+            mat-stroked-button
+            [disabled]="viewersLoading"
+            (click)="onClearButtonClick()"
+          >
+            Clear all
+          </button>
 
-        <button
-          class="download-btn"
-          color="primary"
-          mat-stroked-button
-          (click)="downloadTracesClick.emit()"
-        >
-          Download all
-        </button>
+          <button
+            class="download-btn"
+            color="primary"
+            mat-stroked-button
+            (click)="downloadTracesClick.emit()"
+          >
+            Download all
+          </button>
 
-        <button
-          class="upload-btn"
-          color="primary"
-          mat-stroked-button
-          for="fileDropRef"
-          [disabled]="viewersLoading"
-          (click)="fileDropRef.click()"
-        >
-          Upload another file
-        </button>
+          <button
+            class="upload-btn"
+            color="primary"
+            mat-stroked-button
+            for="fileDropRef"
+            [disabled]="viewersLoading"
+            (click)="fileDropRef.click()"
+          >
+            Upload another file
+          </button>
+        </div>
+        <div class="trace-action-buttons trace-action-buttons-bottom">
+          <button
+            color="primary"
+            mat-raised-button
+            class="load-btn"
+            matTooltip="Upload trace with an associated viewer to visualize"
+            [matTooltipDisabled]="hasLoadedFilesWithViewers()"
+            [disabled]="isViewTracesButtonDisabled()"
+            (click)="onViewTracesButtonClick()"
+          >
+            View traces
+          </button>
+          @let isDiscardTracesDisabled = isDiscardLegacyTracesBoxDisabled();
+          <mat-checkbox
+            class="discard-legacy-traces wrapped-checkbox"
+            color="primary"
+            [checked]="!isDiscardTracesDisabled && discardLegacyFiles"
+            [disabled]="isDiscardTracesDisabled"
+            matTooltip="Discard legacy traces instead of converting to Perfetto to reduce loading time"
+            (change)="updateDiscardLegacyTraces()"
+          >
+            Discard legacy traces
+          </mat-checkbox>
+        </div>
       </div>
-      <div class="trace-action-buttons trace-action-buttons-bottom">
-        <button
-          color="primary"
-          mat-raised-button
-          class="load-btn"
-          matTooltip="Upload trace with an associated viewer to visualize"
-          [matTooltipDisabled]="hasLoadedFilesWithViewers()"
-          [disabled]="isViewTracesButtonDisabled()"
-          (click)="onViewTracesButtonClick()"
-        >
-          View traces
-        </button>
-        @let isDiscardTracesDisabled = isDiscardLegacyTracesBoxDisabled();
-        <mat-checkbox
-          class="discard-legacy-traces wrapped-checkbox"
-          color="primary"
-          [checked]="!isDiscardTracesDisabled && discardLegacyFiles"
-          [disabled]="isDiscardTracesDisabled"
-          matTooltip="Discard legacy traces instead of converting to Perfetto to reduce loading time"
-          (change)="updateDiscardLegacyTraces()"
-        >
-          Discard legacy traces
-        </mat-checkbox>
-      </div>
-    </div>
     }
   </mat-card-header>
 
   @for (message of warningMessages; track message; let i = $index) {
-  <div class="warning-banner">
-    <div class="warning-content">
-      <mat-icon class="warning-icon">warning</mat-icon>
-      <span class="warn-message mat-body-1">{{ message }}</span>
+    <div class="warning-banner">
+      <div class="warning-content">
+        <mat-icon class="warning-icon">warning</mat-icon>
+        <span class="warn-message mat-body-1">{{ message }}</span>
+      </div>
+      <button
+        mat-icon-button
+        (click)="clearWarning(i)"
+        [attr.aria-label]="'Dismiss warning: ' + message"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
-    <button
-      mat-icon-button
-      (click)="clearWarning(i)"
-      [attr.aria-label]="'Dismiss warning: ' + message"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
   }
 
   <mat-card-content class="upload-card-content">
@@ -114,54 +115,62 @@ limitations under the License.
       />
 
       @if (isLoadingFiles) {
-      <load-progress [progressPercentage]="progressPercentage" [message]="progressMessage">
-      </load-progress>
-      } @if (!isLoadingFiles && hasFiles) {
-      <mat-list class="uploaded-files">
-        @for (fileReader of loadedFileReaders; track $index) { @let traceType =
-        fileReader.getTraceType();
-        <mat-list-item [class.no-visualization]="!canVisualizeTrace(traceType)">
-          <mat-icon matListItemIcon [style.color]="TRACE_INFO[traceType].color">
-            {{ TRACE_INFO[traceType].icon }}
-          </mat-icon>
+        <load-progress [progressPercentage]="progressPercentage" [message]="progressMessage">
+        </load-progress>
+      }
+      @if (!isLoadingFiles && hasFiles) {
+        <mat-list class="uploaded-files">
+          @for (fileReader of loadedFileReaders; track $index) {
+            @let traceType = fileReader.getTraceType();
+            <mat-list-item [class.no-visualization]="!canVisualizeTrace(traceType)">
+              <mat-icon matListItemIcon [style.color]="TRACE_INFO[traceType].color">
+                {{ TRACE_INFO[traceType].icon }}
+              </mat-icon>
 
-          <p matListItemTitle>{{ TRACE_INFO[traceType].name }}</p>
-          @let descriptors = fileReader.getDescriptors(); @for (descriptor of descriptors; track
-          $index; let i = $index) {
-          <p matListItemLine [style.margin-bottom]="i < descriptors.length - 1 ? '0' : undefined">
-            {{ descriptor }}
-          </p>
+              <p matListItemTitle>{{ TRACE_INFO[traceType].name }}</p>
+              @let descriptors = fileReader.getDescriptors();
+              @for (descriptor of descriptors; track $index; let i = $index) {
+                <p
+                  matListItemLine
+                  [style.margin-bottom]="i < descriptors.length - 1 ? '0' : undefined"
+                >
+                  {{ descriptor }}
+                </p>
+              }
+
+              <div matListItemMeta [style.margin-top]="'9px'">
+                @if (!canVisualizeTrace(traceType)) {
+                  <mat-icon
+                    class="warning-icon"
+                    [matTooltip]="cannotVisualizeTraceTooltip(traceType)"
+                    >warning</mat-icon
+                  >
+                }
+                @if (isLegacyTrace(fileReader)) {
+                  <mat-icon class="warning-icon" [matTooltip]="legacyTraceWarningTooltip"
+                    >warning</mat-icon
+                  >
+                }
+                <button
+                  class="clear-icon"
+                  mat-icon-button
+                  (click)="onRemoveTrace($event, fileReader)"
+                  [disabled]="viewersLoading"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </mat-list-item>
           }
-
-          <div matListItemMeta [style.margin-top]="'9px'">
-            @if (!canVisualizeTrace(traceType)) {
-            <mat-icon class="warning-icon" [matTooltip]="cannotVisualizeTraceTooltip(traceType)"
-              >warning</mat-icon
-            >
-            } @if (isLegacyTrace(fileReader)) {
-            <mat-icon class="warning-icon" [matTooltip]="legacyTraceWarningTooltip"
-              >warning</mat-icon
-            >
-            }
-            <button
-              class="clear-icon"
-              mat-icon-button
-              (click)="onRemoveTrace($event, fileReader)"
-              [disabled]="viewersLoading"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-        </mat-list-item>
-        }
-      </mat-list>
-      } @if (!isLoadingFiles && !hasFiles) {
-      <div class="drop-info">
-        <p class="icon">
-          <mat-icon inline fontIcon="upload"></mat-icon>
-        </p>
-        <p class="drop-info-text mat-subtitle-2">Drag your Winscope file(s) or click to upload</p>
-      </div>
+        </mat-list>
+      }
+      @if (!isLoadingFiles && !hasFiles) {
+        <div class="drop-info">
+          <p class="icon">
+            <mat-icon inline fontIcon="upload"></mat-icon>
+          </p>
+          <p class="drop-info-text mat-subtitle-2">Drag your Winscope file(s) or click to upload</p>
+        </div>
       }
     </div>
   </mat-card-content>

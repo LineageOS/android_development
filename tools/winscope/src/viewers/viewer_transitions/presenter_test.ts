@@ -20,7 +20,7 @@ import {Timer} from '@common/time/timer';
 import {TracePositionUpdate} from '@trace/trace_events';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {ParserBuilder} from '@test/unit/parser_builder';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {TracesBuilder} from '@test/unit/traces_builder';
 import {Trace} from '@trace_api/trace';

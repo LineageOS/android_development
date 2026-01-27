@@ -23,7 +23,7 @@ import {
   getTimestampConverter,
   makeRealTimestamp,
   timestampEqualityTester,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {IProtoLogViewerConfig} from '@compat/winscope_protos';
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';

@@ -21,41 +21,41 @@ limitations under the License.
         <mat-icon class="drag-icon">drag_indicator</mat-icon>
       </button>
       @if (hasOneOrLessTitles()) {
-      <span
-        #titleText
-        cdkDragHandle
-        class="mat-body-2 overlay-title text-no-overflow draggable"
-        [matTooltip]="titles.at(index)"
-        matTooltipPosition="above"
-        [matTooltipShowDelay]="300"
-      >
-        {{ titles.at(0)?.split('.')?.[0]?.split(' ')?.[0] }}
-      </span>
+        <span
+          #titleText
+          cdkDragHandle
+          class="mat-body-2 overlay-title text-no-overflow draggable"
+          [matTooltip]="titles.at(index)"
+          matTooltipPosition="above"
+          [matTooltipShowDelay]="300"
+        >
+          {{ titles.at(0)?.split('.')?.[0]?.split(' ')?.[0] }}
+        </span>
       } @else {
-      <mat-select
-        class="overlay-title text-no-overflow select-title"
-        [matTooltip]="titles.at(index)"
-        matTooltipPosition="above"
-        [matTooltipShowDelay]="300"
-        (selectionChange)="onSelectChange($event)"
-        [value]="index"
-        [disabled]="isInPlaybackMode"
-      >
-        @for (title of titles; track $index; let i = $index) {
-        <mat-option [value]="i"> {{ titles[i].split(".")[0] }} </mat-option>
-        }
-      </mat-select>
+        <mat-select
+          class="overlay-title text-no-overflow select-title"
+          [matTooltip]="titles.at(index)"
+          matTooltipPosition="above"
+          [matTooltipShowDelay]="300"
+          (selectionChange)="onSelectChange($event)"
+          [value]="index"
+          [disabled]="isInPlaybackMode"
+        >
+          @for (title of titles; track $index; let i = $index) {
+            <mat-option [value]="i"> {{ titles[i].split('.')[0] }} </mat-option>
+          }
+        </mat-select>
       }
 
       <span class="header-end">
         @if (enableDoubleClick) {
-        <mat-icon
-          class="info-icon material-symbols-outlined"
-          matTooltip="Double click overlay when not in playback mode to change active trace to this screen recording"
-          matTooltipPosition="above"
-        >
-          info
-        </mat-icon>
+          <mat-icon
+            class="info-icon material-symbols-outlined"
+            matTooltip="Double click overlay when not in playback mode to change active trace to this screen recording"
+            matTooltipPosition="above"
+          >
+            info
+          </mat-icon>
         }
 
         <button
@@ -70,21 +70,23 @@ limitations under the License.
     </mat-card-title>
     <div class="video-container" cdkDragHandle [style.height]="isMinimized() ? '0px' : ''">
       @if (showFetchingEntriesMessage) {
-      <div class="mat-body-1 fetching-entries-message user-notification">
-        Loading queued frame...
-      </div>
-      } @let currentTime = getCurrentTime(); @if (hasImageToShow()) {
-      <canvas
-        id="frameCanvasElementOverlay"
-        [class.reduce-opacity]="showFetchingEntriesMessage"
-        #frameCanvasElementOverlay
-      ></canvas>
+        <div class="mat-body-1 fetching-entries-message user-notification">
+          Loading queued frame...
+        </div>
+      }
+      @let currentTime = getCurrentTime();
+      @if (hasImageToShow()) {
+        <canvas
+          id="frameCanvasElementOverlay"
+          [class.reduce-opacity]="showFetchingEntriesMessage"
+          #frameCanvasElementOverlay
+        ></canvas>
       } @else if (safeUrl !== undefined && currentTime !== undefined) {
-      <video [currentTime]="currentTime" [src]="safeUrl" preload="auto" #videoElement></video>
+        <video [currentTime]="currentTime" [src]="safeUrl" preload="auto" #videoElement></video>
       } @else {
-      <div class="no-video">
-        <p class="mat-body-2">No frame to show.</p>
-      </div>
+        <div class="no-video">
+          <p class="mat-body-2">No frame to show.</p>
+        </div>
       }
     </div>
   </mat-card>

@@ -30,39 +30,42 @@ limitations under the License.
   </div>
 
   @if (hasUserOptions()) {
-  <user-options
-    class="view-controls"
-    [userOptions]="userOptions"
-    [eventType]="ViewerEvents.PropertiesUserOptionsChange"
-    [traceType]="traceType"
-    [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged"
-  >
-  </user-options>
+    <user-options
+      class="view-controls"
+      [userOptions]="userOptions"
+      [eventType]="ViewerEvents.PropertiesUserOptionsChange"
+      [traceType]="traceType"
+      [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged"
+    >
+    </user-options>
   }
 </div>
 
 @if (hasUserOptions()) {
-<mat-divider></mat-divider>
-} @if (showViewCaptureFormat()) {
-<ng-container>
-  <view-capture-property-groups
-    class="property-groups"
-    [properties]="$any(curatedProperties)"
-  ></view-capture-property-groups>
-
-  @if (showPropertiesTree()) {
   <mat-divider></mat-divider>
-  }
-</ng-container>
-} @if (showPropertiesTree()) {
-<tree-view
-  class="tree"
-  [nodeRows]="$any(nodeRows)"
-  [useStoredExpandedState]="!!store"
-  [itemsClickable]="true"
-  [highlightedItem]="highlightedProperty"
-  (highlightedChange)="onHighlightedPropertyChange($any($event))"
-></tree-view>
-} @if (showPlaceholderText()) {
-<span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
+}
+@if (showViewCaptureFormat()) {
+  <ng-container>
+    <view-capture-property-groups
+      class="property-groups"
+      [properties]="$any(curatedProperties)"
+    ></view-capture-property-groups>
+
+    @if (showPropertiesTree()) {
+      <mat-divider></mat-divider>
+    }
+  </ng-container>
+}
+@if (showPropertiesTree()) {
+  <tree-view
+    class="tree"
+    [nodeRows]="$any(nodeRows)"
+    [useStoredExpandedState]="!!store"
+    [itemsClickable]="true"
+    [highlightedItem]="highlightedProperty"
+    (highlightedChange)="onHighlightedPropertyChange($any($event))"
+  ></tree-view>
+}
+@if (showPlaceholderText()) {
+  <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
 }

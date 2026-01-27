@@ -29,7 +29,7 @@ import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {
@@ -148,7 +148,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
         TracePositionUpdate.fromTraceEntry(trace.getEntry(0)),
       );
       fail('error should be thrown for corrupted trace');
-    } catch (e) {
+    } catch (_) {
       expect(Object.keys(uiData.hierarchyUserOptions).length).toBeGreaterThan(
         0,
       );

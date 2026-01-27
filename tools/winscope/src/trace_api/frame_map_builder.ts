@@ -124,7 +124,7 @@ export class FrameMapBuilder {
   }
 
   private finalizeStartArray(array: Array<number | undefined>) {
-    let firstValidStart: number | undefined = undefined;
+    let firstValidStart: number | undefined;
     for (let i = array.length - 1; i >= 0; --i) {
       if (array[i] === undefined) {
         array[i] = firstValidStart;
@@ -135,7 +135,7 @@ export class FrameMapBuilder {
   }
 
   private finalizeEndArray(array: Array<number | undefined>) {
-    let lastValidEnd: number | undefined = undefined;
+    let lastValidEnd: number | undefined;
     for (let i = 0; i < array.length; ++i) {
       if (array[i] === undefined) {
         array[i] = lastValidEnd;

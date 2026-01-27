@@ -422,13 +422,13 @@ export class AppComponent implements WinscopeEventListener {
     );
   }
 
-  onProgressUpdate(message: string, progressPercentage: number | undefined) {
+  onProgressUpdate(_: string, progressPercentage: number | undefined) {
     this.ngZone.run(() => {
       this.downloadProgress = progressPercentage;
     });
   }
 
-  onOperationFinished(success: boolean) {
+  onOperationFinished(_: boolean) {
     this.ngZone.run(() => {
       this.downloadProgress = undefined;
     });

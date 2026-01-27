@@ -45,7 +45,9 @@ limitations under the License.
     [textFilter]="inputData?.propertiesFilter"
     [isProtoDump]="false"
     placeholderText="No current or selected transition."
-    (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)"
+    (collapseButtonClicked)="
+      sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
+    "
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
   ></properties-view>
 </div>

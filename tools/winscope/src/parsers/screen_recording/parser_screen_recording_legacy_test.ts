@@ -15,7 +15,7 @@
  */
 
 import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
-import {makeElapsedTimestamp} from '@test/unit/time_test_helpers';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
   MediaBasedTraceEntry,

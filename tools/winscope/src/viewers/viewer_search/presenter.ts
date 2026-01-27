@@ -89,7 +89,7 @@ export class Presenter {
     this.viewerElement = htmlElement;
     htmlElement.addEventListener(
       ViewerEvents.GlobalSearchSectionClick,
-      async (event) => {
+      async (_) => {
         this.onGlobalSearchSectionClick();
       },
     );

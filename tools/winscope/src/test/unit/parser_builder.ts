@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import {makeRealTimestamp} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {
   CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,

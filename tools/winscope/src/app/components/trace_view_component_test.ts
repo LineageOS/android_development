@@ -42,7 +42,7 @@ import {
   TabbedViewSwitched,
 } from '@app/tabbed_view_events';
 import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {makeZeroTimestamp} from '@test/unit/time_test_helpers';
+import {makeZeroTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';

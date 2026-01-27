@@ -55,7 +55,7 @@ import {
 } from './playback_events';
 import {ExpandedTimelineToggled} from './timeline_events';
 import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {TracesBuilder} from '@test/unit/traces_builder';

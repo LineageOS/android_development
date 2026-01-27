@@ -16,10 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {
-  makeRealTimestamp,
-  makeZeroTimestamp,
-} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, makeZeroTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {Trace} from '@trace_api/trace';

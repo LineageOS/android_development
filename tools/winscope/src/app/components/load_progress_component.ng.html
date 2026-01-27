@@ -20,9 +20,10 @@ limitations under the License.
   </p>
 
   @if (progressPercentage === undefined) {
-  <mat-progress-bar mode="indeterminate"> </mat-progress-bar>
-  } @if (progressPercentage !== undefined) {
-  <mat-progress-bar mode="determinate" [value]="progressPercentage"> </mat-progress-bar>
+    <mat-progress-bar mode="indeterminate"> </mat-progress-bar>
+  }
+  @if (progressPercentage !== undefined) {
+    <mat-progress-bar mode="determinate" [value]="progressPercentage"> </mat-progress-bar>
   }
 
   <p class="mat-body-1 progress-message">{{ message }}</p>

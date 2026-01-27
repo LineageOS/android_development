@@ -88,7 +88,7 @@ import {
   ASIA_TIMEZONE_INFO,
   makeRealTimestamp,
   makeZeroTimestamp,
-} from '@test/unit/time_test_helpers';
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceEntry} from '@trace_api/trace';

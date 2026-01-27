@@ -19,7 +19,7 @@ import {TimeRange} from '@common/time/time';
 import {makeWarningCannotParseAllTransitions} from './warnings';
 import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
 import {ParserBuilder} from '@test/unit/parser_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from '@test/unit/time_test_helpers';
+import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
 import {TracesBuilder} from '@test/unit/traces_builder';
