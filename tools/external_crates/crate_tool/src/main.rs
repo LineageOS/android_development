@@ -134,6 +134,8 @@ enum Cmd {
         #[command(flatten)]
         crates: CrateList,
     },
+    /// Count the number of update-based commits submitted
+    CountUpdates {},
 }
 
 #[derive(Args)]
@@ -213,5 +215,6 @@ fn main() -> Result<()> {
         Cmd::VerifyChecksum { crates } => {
             managed_repo.verify_checksums(crates.to_list(&managed_repo)?.into_iter())
         }
+        Cmd::CountUpdates {} => managed_repo.count_updates(),
     }
 }
