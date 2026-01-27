@@ -27,6 +27,7 @@ import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyValue} from '@tree_node/property_tree_node';
 
 describe('PerfettoParserTransactions', () => {
   let parser: Parser<HierarchyTreeNode>;
@@ -207,7 +208,7 @@ describe('PerfettoParserTransactions', () => {
     function checkEagerProperty(
       t: HierarchyTreeNode,
       name: string,
-      val: any,
+      val: PropertyValue | undefined,
       formattedValue?: string,
     ) {
       const node = t.getEagerPropertyByName(name);

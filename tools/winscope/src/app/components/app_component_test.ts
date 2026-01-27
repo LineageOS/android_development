@@ -90,10 +90,10 @@ import {TimelineData} from '@app/timeline_data';
   ],
 })
 class MockTraceViewComponent {
-  @Input() viewers: any[] = [];
-  @Input() store: any;
-  setEmitEvent(callback: any) {}
-  async onWinscopeEvent(event: any) {}
+  @Input() viewers: unknown[] = [];
+  @Input() store: unknown;
+  setEmitEvent(_: unknown) {}
+  async onWinscopeEvent(_: unknown) {}
 }
 
 @Component({
@@ -103,14 +103,14 @@ class MockTraceViewComponent {
   providers: [{provide: TimelineComponent, useExisting: MockTimelineComponent}],
 })
 class MockTimelineComponent {
-  @Input() timelineData: any;
-  @Input() availableTraces: any;
-  @Input() allTraces: any;
-  @Input() store: any;
-  @Input() initialTabTraceType: any;
-  bookmarks: any[] = [];
-  setEmitEvent(callback: any) {}
-  async onWinscopeEvent(event: any) {}
+  @Input() timelineData: unknown;
+  @Input() availableTraces: unknown;
+  @Input() allTraces: unknown;
+  @Input() store: unknown;
+  @Input() initialTabTraceType: unknown;
+  bookmarks: unknown[] = [];
+  setEmitEvent(_: unknown) {}
+  async onWinscopeEvent(_: unknown) {}
 }
 
 @Component({
@@ -122,9 +122,9 @@ class MockTimelineComponent {
   ],
 })
 class MockCollectTracesComponent {
-  @Input() storage: any;
-  setEmitEvent(callback: any) {}
-  async onWinscopeEvent(event: any) {}
+  @Input() storage: unknown;
+  setEmitEvent(_: unknown) {}
+  async onWinscopeEvent(_: unknown) {}
 }
 
 @Component({
@@ -137,14 +137,14 @@ class MockCollectTracesComponent {
   ],
 })
 class MockUploadTracesComponent {
-  @Input() traceData: any;
-  @Input() storage: any;
-  @Input() loadedFileReaders: any;
+  @Input() traceData: unknown;
+  @Input() storage: unknown;
+  @Input() loadedFileReaders: unknown;
   @Output() downloadTracesClick = new EventEmitter<void>();
-  @Output() removeTrace = new EventEmitter<any>();
+  @Output() removeTrace = new EventEmitter<unknown>();
   @Output() removeAllTraces = new EventEmitter<void>();
-  setEmitEvent(callback: any) {}
-  async onWinscopeEvent(event: any) {}
+  setEmitEvent(_: unknown) {}
+  async onWinscopeEvent(_: unknown) {}
 }
 @Component({
   selector: 'mat-drawer',
@@ -269,7 +269,7 @@ describe('AppComponent', () => {
 
     const dialog = fixture.debugElement.injector.get(MatDialog);
     spyOn(dialog, 'open').and.callThrough();
-    matDialogSpy = dialog as any;
+    matDialogSpy = dialog as jasmine.SpyObj<MatDialog>;
 
     await dom.detectChangesAndWaitStable();
   });
@@ -691,7 +691,11 @@ describe('AppComponent', () => {
       isSupportedParentOriginSpy.and.returnValue(true);
       dom.detectChanges();
       const postMessageSpy: jasmine.Spy<
-        (message: any, targetOrigin: string, transfer?: Transferable[]) => void
+        (
+          message: string,
+          targetOrigin: string,
+          transfer?: Transferable[],
+        ) => void
       > = spyOn(window.parent, 'postMessage');
       dom.findAndClick('.iframe-settings');
       expect(postMessageSpy).toHaveBeenCalledOnceWith(

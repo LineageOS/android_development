@@ -70,7 +70,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     this.drawSegmentHover(mousePoint);
   }
 
-  override handleMouseOut(e: MouseEvent) {
+  override handleMouseOut(_: MouseEvent) {
     if (this.hoveringEntry) {
       // If undefined there is no current hover effect so no need to clear
       this.redraw();

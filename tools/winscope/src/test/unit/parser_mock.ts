@@ -84,12 +84,12 @@ export class ParserMock<T> implements Parser<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<T[]> {
+  getRangeOfEntries(_: EntriesRange): Promise<T[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   getQueryResults(
-    entriesRange: EntriesRange,
+    _: EntriesRange,
   ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }

@@ -55,6 +55,7 @@ export class PresenterInputMethodManagerService extends AbstractPresenterInputMe
     wmEntry: HierarchyTreeNode | undefined,
     sfEntry: HierarchyTreeNode | undefined,
     wmEntryTimestamp: Timestamp | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     sfEntryTimestamp: Timestamp | undefined,
   ): Promise<ImeAdditionalProperties> {
     return new ImeAdditionalProperties(

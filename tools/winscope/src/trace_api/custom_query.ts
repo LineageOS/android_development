@@ -68,9 +68,9 @@ export const PROCESS_CUSTOM_QUERY_PARSER_RESULT = {
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  [CustomQueryType.SF_LAYERS_ID_AND_NAME]<T>(
+  [CustomQueryType.SF_LAYERS_ID_AND_NAME](
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.SF_LAYERS_ID_AND_NAME],
-  ): CustomQueryResultTypeMap<T>[CustomQueryType.SF_LAYERS_ID_AND_NAME] {
+  ): CustomQueryResultTypeMap[CustomQueryType.SF_LAYERS_ID_AND_NAME] {
     return parserResult;
   },
 
@@ -79,9 +79,9 @@ export const PROCESS_CUSTOM_QUERY_PARSER_RESULT = {
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  [CustomQueryType.VIEW_CAPTURE_METADATA]<T>(
+  [CustomQueryType.VIEW_CAPTURE_METADATA](
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.VIEW_CAPTURE_METADATA],
-  ): CustomQueryResultTypeMap<T>[CustomQueryType.VIEW_CAPTURE_METADATA] {
+  ): CustomQueryResultTypeMap[CustomQueryType.VIEW_CAPTURE_METADATA] {
     return parserResult;
   },
 
@@ -92,13 +92,13 @@ export const PROCESS_CUSTOM_QUERY_PARSER_RESULT = {
    * @param makeTraceEntry A function to create a `CustomQueryTraceEntry` from a vsyncId and index.
    * @return An array of `CustomQueryTraceEntry<bigint>`.
    */
-  [CustomQueryType.VSYNCID]<T>(
+  [CustomQueryType.VSYNCID](
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.VSYNCID],
     makeTraceEntry: (
       index: RelativeEntryIndex,
       vsyncId: bigint,
     ) => CustomQueryTraceEntry<bigint>,
-  ): CustomQueryResultTypeMap<T>[CustomQueryType.VSYNCID] {
+  ): CustomQueryResultTypeMap[CustomQueryType.VSYNCID] {
     return parserResult.map((vsyncId, index) => {
       return makeTraceEntry(index, vsyncId);
     });
@@ -109,9 +109,9 @@ export const PROCESS_CUSTOM_QUERY_PARSER_RESULT = {
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  [CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE]<T>(
+  [CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE](
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE],
-  ): CustomQueryResultTypeMap<T>[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE] {
+  ): CustomQueryResultTypeMap[CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE] {
     return parserResult;
   },
 
@@ -120,9 +120,9 @@ export const PROCESS_CUSTOM_QUERY_PARSER_RESULT = {
    * @param parserResult The raw result from the parser.
    * @return The processed result.
    */
-  [CustomQueryType.LOG_TABLE_FILTER_VALUES]<T>(
+  [CustomQueryType.LOG_TABLE_FILTER_VALUES](
     parserResult: CustomQueryParserResultTypeMap[CustomQueryType.LOG_TABLE_FILTER_VALUES],
-  ): CustomQueryResultTypeMap<T>[CustomQueryType.LOG_TABLE_FILTER_VALUES] {
+  ): CustomQueryResultTypeMap[CustomQueryType.LOG_TABLE_FILTER_VALUES] {
     return parserResult;
   },
 };
@@ -191,7 +191,7 @@ export declare interface CustomQueryParserResultTypeMap {
  * potentially after being handled by `PROCESS_CUSTOM_QUERY_PARSER_RESULT`.
  * @template T A generic type parameter, often used for context.
  */
-export declare interface CustomQueryResultTypeMap<T> {
+export declare interface CustomQueryResultTypeMap {
   /**
    * Result type for this query is an array of objects with id and name
    */

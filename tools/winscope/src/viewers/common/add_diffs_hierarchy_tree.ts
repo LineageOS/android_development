@@ -22,11 +22,14 @@ export class AddDiffsHierarchyTree extends AddDiffs<UiHierarchyTreeNode> {
   protected override addDiffsToNewRoot = true;
 
   protected override processOldNode(oldNode: UiHierarchyTreeNode): void {
-    oldNode.forEachNodeDfs((node: UiHierarchyTreeNode) => node.setIsOldNode(true));
+    oldNode.forEachNodeDfs((node: UiHierarchyTreeNode) =>
+      node.setIsOldNode(true),
+    );
   }
 
   protected override processModifiedNodes(
     newNode: UiHierarchyTreeNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     oldNode: UiHierarchyTreeNode,
   ): void {
     newNode.setDiff(DiffType.MODIFIED);

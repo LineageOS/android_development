@@ -34,6 +34,11 @@ import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {RectExtractor} from './rect_extractor';
 import {SnapshotRects, RectsForTrace} from '@tree_node/rect_extractor_result';
 
+interface MockLayerRects {
+  bounds?: TraceRect;
+  input?: TraceRect;
+}
+
 describe('SurfaceFlinger RectExtractor', () => {
   const expectedMatrix = TransformMatrix.from({
     dsdx: 1,
@@ -264,25 +269,19 @@ describe('SurfaceFlinger RectExtractor', () => {
 
     function checkExtractedMap(
       displayRects: TraceRect[],
-      layerRectsData: Map<bigint, object>,
+      layerRectsData: Map<bigint, MockLayerRects>,
       expectedSnapshotId: bigint,
     ) {
-      extractDisplayRectsSpy.and.callFake(
-        (iter: RowIterator, currentId: bigint) => {
-          iter.next();
-          return {displayRects};
-        },
-      );
+      extractDisplayRectsSpy.and.callFake((iter: RowIterator, _: bigint) => {
+        iter.next();
+        return {displayRects};
+      });
 
       const newLayerRects: SnapshotRects = new Map();
       for (const [layerId, rectData] of layerRectsData.entries()) {
         newLayerRects.set(layerId, {
-          primaryRects: (rectData as any).bounds
-            ? [(rectData as any).bounds]
-            : [],
-          secondaryRects: (rectData as any).input
-            ? [(rectData as any).input]
-            : undefined,
+          primaryRects: rectData.bounds ? [rectData.bounds] : [],
+          secondaryRects: rectData.input ? [rectData.input] : undefined,
         });
       }
 

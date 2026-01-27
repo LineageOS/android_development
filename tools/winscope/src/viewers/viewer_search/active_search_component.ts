@@ -56,7 +56,7 @@ export class ActiveSearchComponent {
   @Input() isSearchInitialized = false;
   @Input() lastTraceFailed = false;
   @Input() executedQuery: string | undefined;
-  @Input() saveQueryField: TemplateRef<any> | undefined;
+  @Input() saveQueryField: TemplateRef<unknown> | undefined;
   @Input() label: string | undefined;
   @Input() lastQueryExecutionTime: string | undefined;
   @Input() saveQueryNameControl: FormControl | undefined;

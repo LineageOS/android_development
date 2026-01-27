@@ -54,6 +54,7 @@ export abstract class AdbWebSocketStream extends WebSocketStream {
           try {
             adbResponse = JSON.parse(e.data);
           } catch (e) {
+            this.logger.error('Failed to decode ADB JSON response: ' + e);
             throw new Error('Failed to decode ADB JSON response');
           }
           if (adbResponse?.response !== undefined) {

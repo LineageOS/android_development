@@ -99,7 +99,7 @@ export class InputCoordinatePropagator implements Operation<PropertyTreeNode> {
   private addPropertyTo(
     parent: PropertyTreeNode,
     name: string,
-    value: any = undefined,
+    value: number | undefined = undefined,
   ): PropertyTreeNode {
     const node = DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
       parent.id,

@@ -35,6 +35,7 @@ import {ViewerTransactions} from './viewer_transactions/viewer_transactions';
 import {ViewerTransitions} from './viewer_transitions/viewer_transitions';
 import {ViewerViewCapture} from './viewer_view_capture/viewer_view_capture';
 import {ViewerWindowManager} from './viewer_window_manager/viewer_window_manager';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 export class ViewerFactory {
   static readonly SINGLE_TRACE_VIEWERS = [
@@ -76,7 +77,9 @@ export class ViewerFactory {
         assertTrue(Viewer.DEPENDENCIES.length === 1);
         const isViewerDepSatisfied = trace.type === Viewer.DEPENDENCIES[0];
         if (isViewerDepSatisfied) {
-          viewers.push(new Viewer(trace as Trace<any>, traces, store));
+          viewers.push(
+            new Viewer(trace as Trace<HierarchyTreeNode>, traces, store),
+          );
         }
       });
     });

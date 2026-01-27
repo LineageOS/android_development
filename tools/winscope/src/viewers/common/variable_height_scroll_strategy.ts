@@ -32,6 +32,7 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
   private scrollItems: object[] = [];
   private itemHeightPredictor: ItemHeightPredictor | undefined;
   private itemHeightCache = new Map<number, ItemHeight>(); // indexed by scrollIndex
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private wrapper: any = undefined;
   private viewport: CdkVirtualScrollViewport | undefined;
   scrolledIndexChangeSubject = new Subject<number>();
@@ -141,16 +142,13 @@ export class VariableHeightScrollStrategy implements VirtualScrollStrategy {
       this.getOffsetByItemIndex(newRange.start),
     );
     this.scrolledIndexChangeSubject.next(firstVisibleIndex);
-    this.updateItemHeightCache(this.wrapper, viewport);
+    this.updateItemHeightCache(viewport);
   }
 
-  private updateItemHeightCache(
-    wrapper: any,
-    viewport: CdkVirtualScrollViewport,
-  ) {
+  private updateItemHeightCache(viewport: CdkVirtualScrollViewport) {
     let cacheUpdated = false;
 
-    for (const node of wrapper.childNodes) {
+    for (const node of this.wrapper.childNodes) {
       if (node && node.nodeName === 'DIV') {
         const id = Number(node.getAttribute('item-id'));
         const cachedHeight = this.itemHeightCache.get(id);

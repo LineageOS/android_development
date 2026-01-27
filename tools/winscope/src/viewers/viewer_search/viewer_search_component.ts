@@ -99,7 +99,7 @@ import {CurrentSearch, ListedSearch, UiData} from './ui_data';
   styleUrls: ['./viewer_search_component.css'],
 })
 export class ViewerSearchComponent extends ViewerComponent<UiData> {
-  @ViewChild('saveQueryField') saveQueryField: TemplateRef<any> | undefined;
+  @ViewChild('saveQueryField') saveQueryField: TemplateRef<unknown> | undefined;
   @ViewChild('globalSearchTitle') globalSearchTitle: ElementRef | undefined;
   @ViewChildren(MatTabGroup) matTabGroups: QueryList<MatTabGroup> | undefined;
   @ViewChildren(ActiveSearchComponent) activeSearchComponents:

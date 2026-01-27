@@ -35,8 +35,8 @@ export function mixin<T extends object, U extends object>(a: T, b: U): T & U {
     for (const methodName of Object.getOwnPropertyNames(
       Object.getPrototypeOf(src),
     )) {
-      const method = (src as any)[methodName];
-      (dst as any)[methodName] = method;
+      const method = (src as Record<string, unknown>)[methodName];
+      (dst as Record<string, unknown>)[methodName] = method;
     }
   };
 

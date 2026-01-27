@@ -101,7 +101,7 @@ export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
 
   override customQuery<Q extends CustomQueryType>(
     type: Q,
-    entriesRange: EntriesRange,
+    _: EntriesRange,
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     return new VisitableParserCustomQuery(type)
       .visit(CustomQueryType.WM_WINDOWS_TOKEN_AND_TITLE, async () => {

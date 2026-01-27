@@ -439,7 +439,7 @@ export class AppComponent implements WinscopeEventListener {
       case ViewersLoaded:
         return await this.onViewersLoaded(event as ViewersLoaded);
       case ViewersUnloaded:
-        return await this.onViewersUnloaded(event as ViewersUnloaded);
+        return await this.onViewersUnloaded();
       case BugreportFileSelectionRequest:
         return await this.onBugreportFileSelectionRequest(
           event as BugreportFileSelectionRequest,
@@ -496,6 +496,10 @@ export class AppComponent implements WinscopeEventListener {
     try {
       return window.self !== window.top;
     } catch (e) {
+      getLogger('AppComponent').error(
+        'Error checking if inside Winscope proxy frame',
+        e,
+      );
       // Catch potential cross-origin errors when accessing window.top
       return true;
     }
@@ -724,7 +728,7 @@ export class AppComponent implements WinscopeEventListener {
     await this.processRequestData();
   }
 
-  private async onViewersUnloaded(event: ViewersUnloaded) {
+  private async onViewersUnloaded() {
     this.loadedFileData.onDestroy();
     this.loadedFileData = this.createNewLoadedFileData();
     this.timelineData = new TimelineData();

@@ -20,7 +20,6 @@ import {Timestamp} from '@common/time/time';
 import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
-  CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
@@ -75,13 +74,15 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
   }
 
   getQueryResults(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     entriesRange: EntriesRange,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     queryRawData: boolean,
   ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<HierarchyTreeNode[]> {
+  getRangeOfEntries(_: EntriesRange): Promise<HierarchyTreeNode[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -156,7 +157,6 @@ export class ParserInput implements Parser<HierarchyTreeNode>, FileReader {
   async customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,
-    param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     return new VisitableParserCustomQuery(type)
       .visit(CustomQueryType.VSYNCID, async () => {

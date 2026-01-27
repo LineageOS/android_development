@@ -67,7 +67,7 @@ export class TamperedMessageType extends ProtobufType {
     try {
       (field as TamperedProtoField).tamperedMessageType =
         field.parent?.lookupType(field.type) as TamperedMessageType;
-    } catch (e) {
+    } catch {
       // swallow
     }
 
@@ -75,7 +75,7 @@ export class TamperedMessageType extends ProtobufType {
       (field as TamperedProtoField).tamperedEnumType = field.parent?.lookupEnum(
         field.type,
       );
-    } catch (e) {
+    } catch {
       // swallow
     }
 

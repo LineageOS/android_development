@@ -40,7 +40,6 @@ export class HierarchyTreeBuilderInputMethod extends HierarchyTreeBuilder<string
   protected override assignParentChildRelationships(
     node: HierarchyTreeNode,
     identifierToChildren: Map<string, HierarchyTreeNode[]>,
-    isRoot?: boolean,
   ): void {
     // only ever one child
     const child: HierarchyTreeNode | undefined = identifierToChildren

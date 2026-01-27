@@ -148,6 +148,7 @@ export const Analytics = {
 
   Memory: {
     logUsage(stage: string, params: object = {}) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const memory: Memory | undefined = (performance as any).memory;
       if (memory) {
         Object.assign(params, {

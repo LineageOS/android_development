@@ -1080,7 +1080,7 @@ export class Canvas {
       : Canvas.RECT_EDGE_COLOR_LIGHT_MODE;
   }
 
-  private disposeMesh(obj: any, rectId: string) {
+  private disposeMesh(obj: THREE.Mesh, rectId: string) {
     this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.fillRegion);
     this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.pointerCircle);
     this.removeAllByName(obj, rectId + Canvas.GRAPHICS_NAMES.pointerCrosshairs);
@@ -1088,6 +1088,7 @@ export class Canvas {
     this.disposeObj(obj);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private disposeObj(obj: any) {
     if (obj.geometry) {
       obj.geometry.dispose();
@@ -1095,6 +1096,7 @@ export class Canvas {
     this.disposeMaterial(obj);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private disposeMaterial(obj: any) {
     if (Array.isArray(obj.material)) {
       obj.material.forEach((m: THREE.Material) => m.dispose());

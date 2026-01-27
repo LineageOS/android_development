@@ -634,7 +634,6 @@ describe('CollectTracesComponent', () => {
   it('changes host type by default if in store', async () => {
     await changeConnection(1);
     const newFixture = TestBed.createComponent(CollectTracesComponent);
-    const newComponent = newFixture.componentInstance;
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
     newFixture.componentRef.setInput('storage', storage);
     await newDom.detectChangesAndWaitStable();

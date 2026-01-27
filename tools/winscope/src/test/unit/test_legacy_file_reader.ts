@@ -46,11 +46,7 @@ export class TestLegacyFileReader extends TestFileReader {
     this.tracePackets = tracePackets;
   }
 
-  convertToPerfettoPackets(
-    sequenceId: number,
-    trustedUid?: number,
-    trustedPid?: number,
-  ): TracePacket[] {
+  convertToPerfettoPackets(): TracePacket[] {
     return this.tracePackets;
   }
 }

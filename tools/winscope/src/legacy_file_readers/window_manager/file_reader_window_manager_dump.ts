@@ -66,7 +66,7 @@ export class FileReaderWindowManagerDump extends AbstractFileReader<DumpProto> {
     return [entryProto];
   }
 
-  protected override getTimestamp(entryProto: DumpProto): Timestamp {
+  protected override getTimestamp(_: DumpProto): Timestamp {
     return this.timestampConverter.makeZeroTimestamp();
   }
 

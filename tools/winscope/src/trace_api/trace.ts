@@ -308,7 +308,7 @@ export class Trace<T> {
       });
 
       return eagerEntries;
-    } catch (e) {
+    } catch {
       const result: Array<Promise<TraceEntryEager<T, T>>> = [];
       for (
         let absoluteIndex = entriesRange.start;
@@ -333,7 +333,7 @@ export class Trace<T> {
   async customQuery<Q extends CustomQueryType>(
     type: Q,
     param?: CustomQueryParamTypeMap[Q],
-  ): Promise<CustomQueryResultTypeMap<T>[Q]> {
+  ): Promise<CustomQueryResultTypeMap[Q]> {
     const makeTraceEntry = <U>(
       index: RelativeEntryIndex,
       value: U,
@@ -344,7 +344,7 @@ export class Trace<T> {
     const processParserResult = PROCESS_CUSTOM_QUERY_PARSER_RESULT[type] as (
       parserResult: CustomQueryParserResultTypeMap[Q],
       make: typeof makeTraceEntry,
-    ) => CustomQueryResultTypeMap<T>[Q];
+    ) => CustomQueryResultTypeMap[Q];
 
     const parserResult = await this.parser.customQuery<Q>(
       type,
@@ -679,6 +679,7 @@ export class Trace<T> {
     try {
       return this.parser.getTimestamps();
     } catch (e) {
+      this.logger.error('Failed to get timestamps for trace', e);
       throw new Error(
         `Timestamps expected to be available for this ${
           TRACE_INFO[this.type].name

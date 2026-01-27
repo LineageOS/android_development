@@ -215,7 +215,7 @@ export class MiniTimelineComponent {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(_: Event) {
     this.makeHiPPICanvas();
     this.drawer?.draw();
   }
@@ -225,7 +225,7 @@ export class MiniTimelineComponent {
     this.updateHoverTimestamp();
   }
 
-  onMouseLeave(event: MouseEvent) {
+  onMouseLeave(_: MouseEvent) {
     this.lastMousePosX = undefined;
     this.updateHoverTimestamp();
   }
