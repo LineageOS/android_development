@@ -170,7 +170,7 @@ impl LicenseState {
 
         if !state.unsatisfied.is_empty() {
             for classifier in file_classifiers {
-                for req in classifier.by_content() {
+                for req in classifier.by_auto() {
                     if state.unsatisfied.remove(req) {
                         state.satisfied.insert(req.clone(), classifier.file_path().to_owned());
                     } else if !state.satisfied.contains_key(req) && !not_required.contains(req) {
@@ -178,25 +178,9 @@ impl LicenseState {
                     }
                 }
                 if classifier.by_content().len() == 1 {
-                    let req = classifier.by_content().first().unwrap();
+                    let req = classifier.by_auto().first().unwrap();
                     if !state.satisfied.contains_key(req) && not_required.contains(req) {
                         state.unneeded.insert(req.clone(), classifier.file_path().to_owned());
-                    }
-                }
-            }
-        }
-
-        if !state.unsatisfied.is_empty() {
-            for classifier in file_classifiers {
-                if classifier.by_name().is_some() || !classifier.by_content().is_empty() {
-                    continue;
-                }
-                if let Some(req) = classifier.by_content_fuzzy() {
-                    if state.unsatisfied.remove(req) {
-                        state.satisfied.insert(req.clone(), classifier.file_path().to_owned());
-                        if state.unsatisfied.is_empty() {
-                            break;
-                        }
                     }
                 }
             }
