@@ -422,6 +422,10 @@ fn main() -> Result<()> {
         + "\n\n\n\nA CL was generated for the following crates\n"
         + line
         + cl_crates_string.join("\n").as_str()
+        + "\n\n\n\nNumber of stalled crates: \n"
+        + line
+        + stalled_crates.len().to_string().as_str()
+        + "\n"
         + "\n\n\n\nHere are the results of running the automatic updater\n"
         + line
         + updates_tried_string.join("\n").as_str();
