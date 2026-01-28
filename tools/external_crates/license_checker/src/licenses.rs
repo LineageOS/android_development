@@ -137,17 +137,42 @@ impl Licenses {
         self.license_file_names.get(&normalize_filename(file))
     }
 
-    /// Classify file contents by exact substring match on the license text.
-    pub fn classify_file_contents(&self, contents: &str) -> BTreeSet<LicenseReq> {
-        let contents = strip_punctuation(contents);
-
-        let mut matches = BTreeSet::new();
-        for license in self.licenses.values() {
-            if license.is_substring_of(contents.as_str()) {
-                matches.insert(license.license_req());
+    /// Classify file contents by prioritizing substring match and falling back to
+    /// fuzzy match if significant content remains afterwards.
+    pub fn classify_file_contents_auto(&self, contents: &str) -> BTreeSet<LicenseReq> {
+        let mut contents = strip_punctuation(contents);
+        let mut reqs = self.exact_licenses(&mut contents);
+        // If there's a full line's worth of content after stripping out licenses, there
+        // might be another one in there, try fuzzy
+        if contents.len() >= 80 {
+            if let Some(req) = self.classify_file_contents_fuzzy(contents.as_str()) {
+                reqs.insert(req);
             }
         }
-        matches
+        reqs
+    }
+
+    /// Classify file contents by exact substring match on the license text, removing
+    /// the license from the contents as we go.
+    fn exact_licenses(&self, contents: &mut String) -> BTreeSet<LicenseReq> {
+        let mut reqs = BTreeSet::new();
+        for license in self.licenses.values() {
+            if license.is_substring_of(contents) {
+                let removed = contents.replace(
+                    license.processed_text().expect("is_substring_of guarantees this is present"),
+                    "",
+                );
+                *contents = removed;
+                reqs.insert(license.license_req());
+            }
+        }
+        reqs
+    }
+
+    /// Classify file contents by exact substring match on the license text.
+    pub fn classify_file_contents(&self, contents: &str) -> BTreeSet<LicenseReq> {
+        let mut contents = strip_punctuation(contents);
+        self.exact_licenses(&mut contents)
     }
 
     pub fn classify_file_contents_fuzzy(&self, contents: &str) -> Option<LicenseReq> {
@@ -169,7 +194,9 @@ impl Licenses {
             })
         {
             if let Some(processed_text) = license.processed_text() {
-                let similarity = ratcliff_obershelp(contents.as_str(), processed_text);
+                let trailing =
+                    &contents.as_str()[contents.len().saturating_sub(processed_text.len())..];
+                let similarity = ratcliff_obershelp(processed_text, trailing);
                 if similarity > 0.95 {
                     return Some(license.license_req());
                 }
@@ -437,6 +464,47 @@ mod tests {
                 Err(Error::MissingLicenseField(_))
             ),
             "No license and no special case"
+        );
+    }
+
+    #[test]
+    fn classify_file_contents_auto() {
+        const LICENSE_A: &str = "This is a license that will be matched exactly. This is a license that will be matched exactly. This is a license that will be matched exactly. This is a license that will be matched exactly. This is a license that will be matched exactly. ";
+        const LICENSE_B: &str = "This is a license that will be matched fuzzy. This is a license that will be matched fuzzy. This is a license that will be matched fuzzy. This is a license that will be matched fuzzy. This is a license that will be matched fuzzy. ";
+
+        // Modify license b slightly in the content
+        let mut license_b_content = LICENSE_B.to_string();
+        license_b_content.replace_range(10..11, "X");
+
+        const LICENSES: &[License] = &[
+            License {
+                name: "MIT",
+                text: Some(LICENSE_A),
+                file_names: &[],
+                module_license_file_name: "MODULE_LICENSE_MIT",
+                license_type: google_metadata::LicenseType::NOTICE,
+            },
+            License {
+                name: "Apache-2.0",
+                text: Some(LICENSE_B),
+                file_names: &[],
+                module_license_file_name: "MODULE_LICENSE_APACHE2",
+                license_type: google_metadata::LicenseType::NOTICE,
+            },
+        ];
+
+        let licenses = Licenses::new(LICENSES, &["MIT", "Apache-2.0"], &[]).unwrap();
+
+        let content = format!("{}\n{}", LICENSE_A, license_b_content);
+        let reqs = licenses.classify_file_contents_auto(&content);
+
+        assert!(
+            reqs.contains(&Licensee::parse("MIT").unwrap().into_req()),
+            "Should contain exact match MIT"
+        );
+        assert!(
+            reqs.contains(&Licensee::parse("Apache-2.0").unwrap().into_req()),
+            "Should contain fuzzy match Apache-2.0"
         );
     }
 }

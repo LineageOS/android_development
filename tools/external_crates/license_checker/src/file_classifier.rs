@@ -26,7 +26,7 @@ pub(crate) struct Classifier {
     file_path: PathBuf,
     contents: String,
     by_content: OnceLock<BTreeSet<spdx::LicenseReq>>,
-    by_content_fuzzy: OnceLock<Option<spdx::LicenseReq>>,
+    by_auto: OnceLock<BTreeSet<spdx::LicenseReq>>,
 }
 
 impl Classifier {
@@ -35,7 +35,7 @@ impl Classifier {
             file_path: file_path.into(),
             contents,
             by_content: OnceLock::new(),
-            by_content_fuzzy: OnceLock::new(),
+            by_auto: OnceLock::new(),
         }
     }
     pub fn new_vec<CP: Into<PathBuf>>(
@@ -61,9 +61,7 @@ impl Classifier {
     pub fn by_content(&self) -> &BTreeSet<spdx::LicenseReq> {
         self.by_content.get_or_init(|| LICENSE_DATA.classify_file_contents(&self.contents))
     }
-    pub fn by_content_fuzzy(&self) -> Option<&spdx::LicenseReq> {
-        self.by_content_fuzzy
-            .get_or_init(|| LICENSE_DATA.classify_file_contents_fuzzy(&self.contents))
-            .as_ref()
+    pub fn by_auto(&self) -> &BTreeSet<spdx::LicenseReq> {
+        self.by_auto.get_or_init(|| LICENSE_DATA.classify_file_contents_auto(&self.contents))
     }
 }

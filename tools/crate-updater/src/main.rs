@@ -305,9 +305,9 @@ fn send_email(body: String, rotation: bool) -> Result<()> {
     if rotation {
         args.extend([
             "--to",
-            "crate-update-rotation@google.com",
-            "--to",
             "crate-update-oncall@rotations.google.com",
+            "--cc",
+            "crate-update-rotation@google.com",
         ])
     } else {
         args.extend(["--to", username.as_str()])
