@@ -314,7 +314,7 @@ export class DOMTestHelper<T> {
 
   checkInputChecked(value: boolean) {
     expect(this.root).toBeInstanceOf(HTMLInputElement);
-    expect((this.root as any).checked).toEqual(value);
+    expect((this.root as HTMLInputElement).checked).toEqual(value);
   }
 
   checkDisabled(value: boolean) {
@@ -322,20 +322,20 @@ export class DOMTestHelper<T> {
       return;
     }
     expect('disabled' in this.root).toBeTrue();
-    expect((this.root as any).disabled).toEqual(value);
+    expect((this.root as HTMLInputElement).disabled).toEqual(value);
   }
 
   checkValue(value: string) {
     const hasValue = 'value' in this.root;
     if (hasValue) {
-      expect((this.root as any).value).toEqual(value);
+      expect((this.root as HTMLInputElement).value).toEqual(value);
     } else {
       expect(value.length).toBe(0);
     }
   }
 
   updateValue(value: string) {
-    (this.root as any).value = value;
+    (this.root as HTMLInputElement).value = value;
   }
 
   checkSectionCollapseAndExpand(selector: string, sectionTitle: string) {

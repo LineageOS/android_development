@@ -60,7 +60,7 @@ export function assertTrue(value: boolean, lazyErrorMessage?: () => string) {
  * @return The value, asserted to be unreachable.
  */
 // tslint:disable-next-line:no-unused-variable
-export function assertUnreachable(value: never): never {
+export function assertUnreachable(_: never): never {
   throw new Error('This line should never execute');
 }
 

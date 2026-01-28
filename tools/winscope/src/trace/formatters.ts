@@ -207,7 +207,7 @@ export class EnumFormatter implements PropertyFormatter {
 export class FixedStringFormatter implements PropertyFormatter {
   constructor(private readonly fixedStringValue: string) {}
 
-  format(node: PropertyTreeNode): string {
+  format(_: PropertyTreeNode): string {
     return this.fixedStringValue;
   }
 }

@@ -315,7 +315,9 @@ export abstract class AbstractHierarchyViewerPresenterTest<
       }
 
       function chipEqualityTester(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         first: any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         second: any,
       ): boolean | undefined {
         if (first instanceof Chip || second instanceof Chip) {

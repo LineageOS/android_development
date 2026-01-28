@@ -43,15 +43,15 @@ export class RawDataQueryResult implements WritableQueryResult, QueryResult {
   );
 
   // QueryResult interface skeleton implementation
-  iter<T extends Row>(spec: T): RowIterator<T> {
+  iter<T extends Row>(_: T): RowIterator<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  firstRow<T extends Row>(spec: T): RowIterator<T> {
+  firstRow<T extends Row>(_: T): RowIterator<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  maybeFirstRow<T extends Row>(spec: T): RowIterator<T> {
+  maybeFirstRow<T extends Row>(_: T): RowIterator<T> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 

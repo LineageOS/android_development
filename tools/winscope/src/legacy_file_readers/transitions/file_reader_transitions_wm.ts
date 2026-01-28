@@ -72,7 +72,7 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
     });
   }
 
-  protected override getTimestamp(entry: LegacyTransition): Timestamp {
+  protected override getTimestamp(_: LegacyTransition): Timestamp {
     // for consistency with all transitions, elapsed nanos are defined as
     // shell dispatch time else INVALID_TIME_NS
     return this.timestampConverter.makeZeroTimestamp();

@@ -35,7 +35,6 @@ import {
   TamperedMessageType,
 } from '@trace/proto_utils/tampered_message_type';
 import {
-  CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
   VisitableParserCustomQuery,
@@ -115,7 +114,6 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
   override async customQuery<Q extends CustomQueryType>(
     type: Q,
     entriesRange: EntriesRange,
-    param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     return new VisitableParserCustomQuery(type)
       .visit(CustomQueryType.VSYNCID, async () => {

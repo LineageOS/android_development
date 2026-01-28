@@ -65,11 +65,10 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
   protected override executeSpecializedTests(): void {
     describe('Specialized tests', () => {
       let dom: DOMTestHelper<ViewerInputComponent>;
-      let viewport: CdkVirtualScrollViewport;
       let component: ViewerInputComponent;
 
       beforeEach(async () => {
-        [dom, viewport, component] = await this.setUpTestEnvironment();
+        [dom, , component] = await this.setUpTestEnvironment();
       });
 
       it('handles collapse/expand', () => {

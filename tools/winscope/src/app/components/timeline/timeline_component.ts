@@ -297,7 +297,7 @@ export class TimelineComponent
       case ActiveTraceChanged:
         return await this.onActiveTraceChanged(event as ActiveTraceChanged);
       case DarkModeToggled:
-        return await this.onDarkModeToggled(event as DarkModeToggled);
+        return await this.onDarkModeToggled();
       case TraceAddRequest:
         return await this.onTraceAddRequest(event as TraceAddRequest);
       case TraceRemoveRequest:
@@ -396,7 +396,7 @@ export class TimelineComponent
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(_: Event) {
     if (this.frameCanvasEntry) {
       this.renderFrameInExpandedTimeline(this.frameCanvasEntry);
     }
@@ -963,7 +963,7 @@ export class TimelineComponent
     this.updateSelectedTraces(event.trace);
   }
 
-  private async onDarkModeToggled(event: DarkModeToggled) {
+  private async onDarkModeToggled() {
     const activeTrace = this.timelineData?.getActiveTrace();
     if (activeTrace === undefined) {
       return;

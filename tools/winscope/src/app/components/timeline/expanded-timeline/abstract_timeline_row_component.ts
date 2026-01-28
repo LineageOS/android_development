@@ -186,7 +186,7 @@ export abstract class AbstractTimelineRowComponent<T> {
     this.onMouseXRatioUpdate.emit(event.offsetX / canvas.offsetWidth);
   }
 
-  onMouseLeave(event: MouseEvent) {
+  onMouseLeave(_: MouseEvent) {
     this.onMouseXRatioUpdate.emit(undefined);
   }
 

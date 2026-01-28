@@ -21,7 +21,6 @@ import {TraceFile} from '@trace/trace_file';
 import {Parser} from '@trace_api/parser';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {
-  CustomQueryParamTypeMap,
   CustomQueryParserResultTypeMap,
   CustomQueryType,
 } from '@trace_api/custom_query';
@@ -58,7 +57,7 @@ export class TestFileReaderAndParser
     return CoarseVersion.MOCK;
   }
 
-  getEntry(index: AbsoluteEntryIndex): Promise<unknown> {
+  getEntry(_: AbsoluteEntryIndex): Promise<unknown> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -66,20 +65,18 @@ export class TestFileReaderAndParser
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<unknown[]> {
+  getRangeOfEntries(_: EntriesRange): Promise<unknown[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   getQueryResults(
-    entriesRange: EntriesRange,
+    _: EntriesRange,
   ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   customQuery<Q extends CustomQueryType>(
-    type: Q,
-    entriesRange: EntriesRange,
-    param?: CustomQueryParamTypeMap[Q],
+    _: Q,
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     throw NOT_IMPLEMENTED_ERROR;
   }

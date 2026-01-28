@@ -84,7 +84,7 @@ async function generateThumbnail(videoBuffer: ArrayBuffer) {
             rotationAngle,
             {x: xOffset, y: yOffset},
             {width: unrotatedSpriteWidth, height: unrotatedSpriteHeight},
-          ).tryDrawOnCanvas(canvas as any, false); // Cast to any if incompatible with HTMLCanvasElement
+          ).tryDrawOnCanvas(canvas, false);
 
           spriteCount++;
           frame.close();
@@ -124,6 +124,7 @@ async function generateThumbnail(videoBuffer: ArrayBuffer) {
 
     const spriteSheetBlob = await canvas.convertToBlob();
     const buffer = await spriteSheetBlob.arrayBuffer();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (postMessage as any)(
       {
         buffer,

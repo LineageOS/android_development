@@ -74,8 +74,11 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
   }
 
   convertToPerfettoPackets(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     sequenceId: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     trustedPid: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     trustedUid: number,
   ): TracePacket[] {
     throw NOT_IMPLEMENTED_ERROR;

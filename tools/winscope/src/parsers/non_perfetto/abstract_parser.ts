@@ -98,20 +98,25 @@ export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
     return this.processDecodedEntry(index);
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<U[]> {
+  getRangeOfEntries(_: EntriesRange): Promise<U[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   getQueryResults(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     entriesRange: EntriesRange,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     queryRawData: boolean,
   ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   customQuery<Q extends CustomQueryType>(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type: Q,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     entriesRange: EntriesRange,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     param?: CustomQueryParamTypeMap[Q],
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     throw NOT_IMPLEMENTED_ERROR;

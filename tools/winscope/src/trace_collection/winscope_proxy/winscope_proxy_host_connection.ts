@@ -25,6 +25,7 @@ import {
   WinscopeProxyDeviceConnection,
   WinscopeProxyDeviceConnectionResponse,
 } from './winscope_proxy_device_connection';
+import {getLogger} from '@compat/logging';
 
 /**
  * A connection to the Winscope Proxy server.
@@ -112,6 +113,10 @@ export class WinscopeProxyHostConnection extends AdbHostConnection<WinscopeProxy
       }
       this.setState(ConnectionState.IDLE);
     } catch (err) {
+      getLogger('WinscopeProxyHostConnection').error(
+        'Could not find devices',
+        err,
+      );
       this.setState(
         ConnectionState.ERROR,
         `Could not find devices. Received:\n${resp.text}`,

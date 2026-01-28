@@ -61,6 +61,7 @@ export async function parseMp4(videoData: Uint8Array, onReady: MP4FileOnReady) {
   // It fails with the error below, use this as a bypass until the library is fixed.
   // ERROR in src/parsers/screen_recording/parser_screen_recording.ts:288:48
   // - error TS2554: Expected 0 arguments, but got 2.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createFileAny = createFile as any;
   const mp4File: MP4File = createFileAny(true, undefined);
   await new Promise<void>((resolve) => {

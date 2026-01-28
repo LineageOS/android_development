@@ -52,7 +52,6 @@ describe('EntryHierarchyTreeFactory', () => {
 
   const layerName1 = 'Layer1';
   const defaultSnapshotId = 100n;
-  let displaysSpy: jasmine.Spy;
   let layerRectsSpy: jasmine.Spy;
   let snapshotResult: jasmine.SpyObj<QueryResult>;
   let snapshotIter: jasmine.SpyObj<RowIterator>;
@@ -75,10 +74,7 @@ describe('EntryHierarchyTreeFactory', () => {
       'TraceGeometryData',
       ['getRect', 'getTransform'],
     );
-    displaysSpy = spyOn(
-      RectExtractor,
-      'extractDisplayRectsForSnapshot',
-    ).and.returnValue({
+    spyOn(RectExtractor, 'extractDisplayRectsForSnapshot').and.returnValue({
       displayRects: [],
     });
     layerRectsSpy = spyOn(RectExtractor, 'extractLayerRects').and.returnValue(

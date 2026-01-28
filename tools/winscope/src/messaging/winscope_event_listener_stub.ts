@@ -21,7 +21,7 @@ import {WinscopeEventListener} from './winscope_event_listener';
  * A stub implementation of the WinscopeEventListener interface.
  */
 export class WinscopeEventListenerStub implements WinscopeEventListener {
-  async onWinscopeEvent(event: WinscopeEvent) {
+  async onWinscopeEvent(_: WinscopeEvent) {
     // do nothing
   }
 }

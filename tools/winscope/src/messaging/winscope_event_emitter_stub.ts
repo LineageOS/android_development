@@ -20,7 +20,7 @@ import {EmitEvent, WinscopeEventEmitter} from './winscope_event_emitter';
  * A stub implementation of the WinscopeEventEmitter interface.
  */
 export class WinscopeEventEmitterStub implements WinscopeEventEmitter {
-  setEmitEvent(callback: EmitEvent) {
+  setEmitEvent(_: EmitEvent) {
     // do nothing
   }
 }

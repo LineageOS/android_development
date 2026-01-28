@@ -92,7 +92,7 @@ async function processProxyResponse(
   }
   try {
     return `${JSON.parse(response.body)}`;
-  } catch (e) {
+  } catch {
     return typeof response.body === 'string' ? response.body : '';
   }
 }

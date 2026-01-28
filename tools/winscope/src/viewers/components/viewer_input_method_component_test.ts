@@ -27,10 +27,8 @@ class ViewerInputMethodComponentTest extends AbstractHierarchyViewerComponentTes
   protected override executeSpecializedTests() {
     describe('Specialized tests', () => {
       let dom: DOMTestHelper<ViewerInputMethodComponent>;
-      let component: ViewerInputMethodComponent;
-
       beforeEach(async () => {
-        [dom, component] = await this.setUpTestEnvironment();
+        [dom] = await this.setUpTestEnvironment();
       });
 
       it('creates additional properties view', () => {

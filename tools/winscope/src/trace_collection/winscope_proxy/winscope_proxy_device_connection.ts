@@ -109,6 +109,10 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
         c.charCodeAt(0),
       );
     } catch (error) {
+      this.logger.error(
+        `Could not fetch file. Received: ${httpResponse.text}`,
+        error,
+      );
       await this.listener.onError(
         `Could not fetch file. Received: ${httpResponse.text}`,
       );
@@ -122,7 +126,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
     await postToProxy(
       `${Endpoint.START_TRACE}${this.encodedId}/`,
       this.securityHeader,
-      (response: HttpResponse) => {
+      (_: HttpResponse) => {
         this.keepTraceAlive(target.traceName);
       },
       (newState, errorText) => this.setState(newState, errorText),
@@ -202,7 +206,7 @@ export class WinscopeProxyDeviceConnection extends AdbDeviceConnection {
           );
         } else {
           const workerExists = this.keepTraceAliveWorkers.some(
-            ({name, worker}) => name === targetName,
+            ({name}) => name === targetName,
           );
           if (!workerExists && this.isTracing) {
             const worker = window.setInterval(

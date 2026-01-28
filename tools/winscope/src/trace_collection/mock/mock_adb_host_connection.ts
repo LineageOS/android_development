@@ -36,7 +36,7 @@ export class MockAdbHostConnection extends AdbHostConnection<MockAdbDeviceConnec
 
   override destroyHost() {}
 
-  override setSecurityToken(token: string) {
+  override setSecurityToken(_: string) {
     // do nothing
   }
 

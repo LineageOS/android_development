@@ -151,7 +151,7 @@ describe('SearchListComponent', () => {
     @ViewChild(SearchListComponent) searchListComponent:
       | SearchListComponent
       | undefined;
-    @ViewChild('testTemplate') testTemplate: TemplateRef<any> | undefined;
+    @ViewChild('testTemplate') testTemplate: TemplateRef<unknown> | undefined;
 
     searches: ListedSearch[] = [];
     placeholderText: string | undefined;

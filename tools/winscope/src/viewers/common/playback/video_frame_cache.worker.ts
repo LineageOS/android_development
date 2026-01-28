@@ -56,22 +56,26 @@ addEventListener('message', async (event) => {
   }
 
   if (event.data.chunks) {
-    return onChunks(event.data);
+    return onChunks(event.data as EncodedVideoChunk);
   }
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onVideoDecoderConfig(data: any) {
   videoDecoderConfig = data.videoDecoderConfig;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onInitialBatchSize(data: any) {
   initialBatchSize = data.initialBatchSize;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onPendingBatchSize(data: any) {
   pendingBatchSize = data.pendingBatchSize;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onCancelFetch(data: any) {
   cancelQueue = cancelQueue.then(async () => {
     trackers.get(data.keyFrameIndex)?.frameDecoder?.close();
@@ -79,6 +83,7 @@ function onCancelFetch(data: any) {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onFetchNextBatch(data: any) {
   const startKeyFrameIndex = data.startKeyFrameIndex;
 
@@ -118,6 +123,7 @@ function onFetchNextBatch(data: any) {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onChunks(data: any) {
   const startKeyFrameIndex = data.startKeyFrameIndex;
   const target = data.target;
@@ -156,6 +162,7 @@ async function startDecodingChunks(
     if (imageIndex >= target) {
       createImageBitmap(frame).then((buffer) => {
         frame.close();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (postMessage as any)({imageIndex, image: buffer}, [buffer]);
       });
     } else {

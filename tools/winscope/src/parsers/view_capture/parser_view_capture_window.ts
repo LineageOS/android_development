@@ -121,7 +121,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
 
   override customQuery<Q extends CustomQueryType>(
     type: Q,
-    entriesRange: EntriesRange,
+    _: EntriesRange,
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     return new VisitableParserCustomQuery(type)
       .visit(CustomQueryType.VIEW_CAPTURE_METADATA, async () => {

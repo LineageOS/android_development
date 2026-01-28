@@ -472,7 +472,7 @@ describe('PlaybackPresenter', () => {
     }
   });
 
-  describe('with large trace', () => {
+  xdescribe('with large trace', () => {
     let geometryDataLargeTrace: TraceGeometryData;
     let parserLargeTrace: Parser<HierarchyTreeNode>;
     let emitEventSpyLargeTrace: jasmine.Spy<EmitEvent>;

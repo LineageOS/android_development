@@ -17,6 +17,7 @@
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Chip} from './chip';
 import {DiffType} from './diff_type';
+import {PropertiesProvider} from '@tree_node/properties_provider';
 import {UiTreeNode} from './ui_tree_node';
 
 export class UiHierarchyTreeNode
@@ -29,7 +30,11 @@ export class UiHierarchyTreeNode
   private isOldNodeInternal = false;
   private showHeading = true;
 
-  constructor(id: string, name: string, propertiesProvider: any) {
+  constructor(
+    id: string,
+    name: string,
+    propertiesProvider: PropertiesProvider,
+  ) {
     super(id, name, propertiesProvider);
   }
 
@@ -40,7 +45,7 @@ export class UiHierarchyTreeNode
     const displayNode = new UiHierarchyTreeNode(
       node.id,
       node.name,
-      (node as any).propertiesProvider,
+      node.propertiesProvider,
     );
     const rects = node.getRects();
     if (rects) displayNode.setRects(rects);
