@@ -50,16 +50,16 @@ export class MockAdbDeviceConnection extends AdbDeviceConnection {
     this.state = value;
   }
 
-  override async startTrace(target: TraceTarget) {}
+  override async startTrace(_: TraceTarget) {}
 
-  override async endTrace(target: TraceTarget): Promise<void> {}
+  override async endTrace(_: TraceTarget): Promise<void> {}
 
   override async tryAuthorize(): Promise<void> {}
-  override async runShellCommand(cmd: string): Promise<string> {
+  override async runShellCommand(_: string): Promise<string> {
     return '';
   }
 
-  override async pullFile(filepath: string): Promise<Uint8Array> {
+  override async pullFile(_: string): Promise<Uint8Array> {
     return Uint8Array.from([]);
   }
 
@@ -67,5 +67,5 @@ export class MockAdbDeviceConnection extends AdbDeviceConnection {
     // do nothing
   }
 
-  protected override updatePropertiesFromResponse(resp: object) {}
+  protected override updatePropertiesFromResponse(_: object) {}
 }

@@ -124,7 +124,7 @@ export class SliderComponent {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(_: Event) {
     this.syncDragPositionTo(assertDefined(this.zoomRange));
     this.syncCursosPositionTo(assertDefined(this.currentPosition).timestamp);
   }
@@ -149,7 +149,7 @@ export class SliderComponent {
     document.body.style.cursor = 'grabbing';
   }
 
-  onSlideEnd(e: CdkDragEnd) {
+  onSlideEnd(_: CdkDragEnd) {
     this.dragging = false;
     this.slideStartX = undefined;
     this.syncDragPositionTo(assertDefined(this.zoomRange));

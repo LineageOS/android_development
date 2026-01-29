@@ -492,7 +492,8 @@ export abstract class EngineBase implements Engine {
       // likely this stack won't be useful on !V8.
       // See
       // https://docs.google.com/document/d/13Sy_kBIJGP0XT34V1CV3nkWya4TwYx9L3Yv45LdGB6Q
-      captureStackTrace(e as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      captureStackTrace(e as Error);
       queryLog.success = false;
       throw e;
     } finally {
@@ -505,6 +506,7 @@ export abstract class EngineBase implements Engine {
       const result = await this.query(sql, tag);
       return result;
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const e = error as any;
       const msg = 'message' in e ? `${e.message}` : `${error}`;
       throw new Error(msg);
@@ -574,7 +576,7 @@ export abstract class EngineBase implements Engine {
     rpc.request = TPM.TPM_ANALYZE_STRUCTURED_QUERY;
     const args = (rpc.analyzeStructuredQueryArgs =
       new AnalyzeStructuredQueryArgs());
-    args.queries = structuredQueries;
+    // args.queries = structuredQueries;
     this.pendingAnalyzeStructuredQueries = result;
     this.rpcSendRequest(rpc);
     return result;

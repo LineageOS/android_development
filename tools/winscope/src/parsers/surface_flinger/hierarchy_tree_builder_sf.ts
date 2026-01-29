@@ -62,7 +62,6 @@ export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder<bigint> {
   protected override assignParentChildRelationships(
     root: HierarchyTreeNode,
     identifierToChildren: Map<bigint, HierarchyTreeNode[]>,
-    isRoot?: boolean,
   ): void {
     let recurLayerRoot: HierarchyTreeNode | undefined;
 

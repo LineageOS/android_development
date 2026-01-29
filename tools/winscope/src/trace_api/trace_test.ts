@@ -1314,7 +1314,7 @@ describe('Trace', () => {
     await expectAsync(trace.getEntry(0).getValue()).toBeRejected();
     try {
       await trace.getEntry(0).getValue();
-    } catch (e) {
+    } catch {
       expect(trace.isCorrupted()).toBeTrue();
       expect(trace.getCorruptedReason()).toEqual(
         'Cannot parse entry at index 0',

@@ -138,14 +138,21 @@ export class PropertyTreeNodeFactory {
   }
 
   private isLongType(value: PropertyValue | undefined): boolean {
-    const typeOfVal = (value as any)?.$type?.name ?? value?.constructor?.name;
+    const typeOfVal =
+      (
+        value as {
+          $type?: {name?: string};
+          constructor?: {name?: string};
+        }
+      )?.$type?.name ??
+      (value as {constructor?: {name?: string}} | undefined)?.constructor?.name;
     if (typeOfVal === 'Long' || typeOfVal === 'BigInt') return true;
     return false;
   }
 
   private addInnerProperties(
     root: PropertyTreeNode,
-    value: PropertyValue,
+    value: object,
     source: PropertySource,
   ): void {
     if (Array.isArray(value)) {
@@ -157,7 +164,7 @@ export class PropertyTreeNodeFactory {
 
   private addArrayProperties(
     root: PropertyTreeNode,
-    value: PropertyValue,
+    value: object,
     source: PropertySource,
   ) {
     for (const [key, val] of Object.entries(value)) {
@@ -167,33 +174,40 @@ export class PropertyTreeNodeFactory {
 
   private addObjectProperties(
     root: PropertyTreeNode,
-    value: any,
+    value: object,
     source: PropertySource,
   ) {
     this.getValidPropertyNames(value).forEach((key) => {
       root.addOrReplaceChild(
-        this.makeProperty(`${root.id}`, key, source, value[key]),
+        this.makeProperty(
+          `${root.id}`,
+          key,
+          source,
+          (value as Record<string, unknown>)[key] as PropertyValue,
+        ),
       );
     });
   }
 
-  private getValidPropertyNames(objProto: any): string[] {
+  private getValidPropertyNames(objProto: object | null | undefined): string[] {
     if (objProto === null || objProto === undefined) {
       return [];
     }
     const props: string[] = [];
-    let obj = objProto;
+    let obj: object | null | undefined = objProto;
 
     do {
       const properties = Object.getOwnPropertyNames(obj).filter((it) => {
-        if (typeof objProto[it] === 'function') return false;
+        if (typeof (objProto as Record<string, unknown>)[it] === 'function') {
+          return false;
+        }
         if (it.includes(`$`)) return false;
         if (it.startsWith(`_`)) return false;
         if (this.denylistProperties.includes(it)) return false;
 
-        const value = objProto[it];
+        const value = (objProto as Record<string, unknown>)[it];
         if (Array.isArray(value) && value.length > 0) {
-          return !value[0].stableId;
+          return !(value[0] as {stableId?: unknown}).stableId;
         }
 
         return value !== undefined;
@@ -201,7 +215,7 @@ export class PropertyTreeNodeFactory {
 
       properties.forEach((prop) => {
         if (
-          typeof objProto[prop] !== 'function' &&
+          typeof (objProto as Record<string, unknown>)[prop] !== 'function' &&
           props.indexOf(prop) === -1
         ) {
           props.push(prop);

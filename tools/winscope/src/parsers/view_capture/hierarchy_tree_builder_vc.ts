@@ -47,7 +47,6 @@ export class HierarchyTreeBuilderVc extends HierarchyTreeBuilder<bigint> {
   protected override assignParentChildRelationships(
     root: HierarchyTreeNode,
     identifierToChildren: Map<bigint, HierarchyTreeNode[]>,
-    isRoot?: boolean,
   ): void {
     const rootId = assertDefined(
       root.getEagerPropertyByName('nodeId')?.getValue<bigint>(),

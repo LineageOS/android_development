@@ -41,6 +41,7 @@ import {createVideoFrameCache} from './video_frame_cache_factory';
 import {VideoFrameCache} from './video_frame_cache';
 
 type WorkerResolve = (value: HierarchyTreeNode[]) => void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WorkerReject = ((reason?: any) => void) | undefined;
 type CreateVideoFrameCacheStrategy = (
   videoData: Uint8Array,
@@ -496,7 +497,7 @@ export class PlaybackPresenter {
       );
   }
 
-  private assignNodePrototypes(node: any) {
+  private assignNodePrototypes(node: HierarchyTreeNode) {
     this.assignPropertyTreeNodePrototype(
       node.propertiesProvider.eagerPropertiesRoot,
     );
@@ -507,27 +508,27 @@ export class PlaybackPresenter {
 
     Object.setPrototypeOf(node, HierarchyTreeNode.prototype);
 
-    node.rects?.forEach((rect: TraceRect) => {
+    node.getRects()?.forEach((rect: TraceRect) => {
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
-      if (rect?.cornerRadii) {
+      if (rect.cornerRadii) {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
       }
     });
 
-    node.secondaryRects?.forEach((rect: TraceRect) => {
+    node.getSecondaryRects()?.forEach((rect: TraceRect) => {
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
-      if (rect?.cornerRadii) {
+      if (rect.cornerRadii) {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
       }
     });
 
     node
       .getAllChildren()
-      .forEach((child: any) => this.assignNodePrototypes(child));
+      .forEach((child: HierarchyTreeNode) => this.assignNodePrototypes(child));
 
     node
       .getRelativeChildren()
-      .forEach((child: any) => this.assignNodePrototypes(child));
+      .forEach((child: HierarchyTreeNode) => this.assignNodePrototypes(child));
   }
 
   private createWorker(): Worker {

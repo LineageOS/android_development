@@ -51,7 +51,6 @@ export class HierarchyTreeBuilderWm extends HierarchyTreeBuilder<number> {
   protected override assignParentChildRelationships(
     root: HierarchyTreeNode,
     identifierToChildren: Map<number, HierarchyTreeNode[]>,
-    isRoot?: boolean,
   ): void {
     let rootWindowContainerToken: number | undefined;
     for (const [identifier, children] of identifierToChildren) {

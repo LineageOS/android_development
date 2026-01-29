@@ -24,7 +24,6 @@ import {SnackBarComponent} from './snack_bar_component';
 
 describe('SnackBarComponent', () => {
   const messages = ['test message 1', 'test message 2'];
-  let component: SnackBarComponent;
   let dom: DOMTestHelper<SnackBarComponent>;
   let mockCopyText: jasmine.Spy;
   let mockSnackbarRef: jasmine.SpyObj<MatSnackBarRef<SnackBarComponent>>;
@@ -46,7 +45,6 @@ describe('SnackBarComponent', () => {
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(SnackBarComponent);
-    component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     dom.detectChanges();
   });

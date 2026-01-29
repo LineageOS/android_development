@@ -35,7 +35,7 @@ import {TraceBuilder} from './trace_builder';
  * @return A promise that resolves to an array containing all trace entry values.
  */
 export async function extractEntries<T>(trace: Trace<T>): Promise<T[]> {
-  const promises = trace.mapEntry(async (entry, index) => {
+  const promises = trace.mapEntry(async (entry) => {
     return await entry.getValue();
   });
   return await Promise.all(promises);

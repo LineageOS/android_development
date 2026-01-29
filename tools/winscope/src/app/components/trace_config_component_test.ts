@@ -564,6 +564,7 @@ describe('TraceConfigComponent', () => {
     d: DOMTestHelper<TraceConfigComponent> = dom,
     c: TraceConfigComponent = component,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (c as any).changeDetectorRef.markForCheck();
     await d.detectChangesAndWaitStable();
     d.detectChanges();

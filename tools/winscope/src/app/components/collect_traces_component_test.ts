@@ -16,8 +16,7 @@
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {Component, QueryList, ViewChildren} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -58,6 +57,7 @@ import {WdpDeviceConnection} from '@trace_collection/wdp/wdp_device_connection';
 import {WdpHostConnection} from '@trace_collection/wdp/wdp_host_connection';
 import {WinscopeProxyDeviceConnection} from '@trace_collection/winscope_proxy/winscope_proxy_device_connection';
 import {CollectTracesComponent} from './collect_traces_component';
+import {WinscopeProxyHostConnection} from '@trace_collection/winscope_proxy/winscope_proxy_host_connection';
 import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
 import {WarningDialogComponent} from './warning_dialog_component';
@@ -65,15 +65,17 @@ import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 
 describe('CollectTracesComponent', () => {
-  let hostComponent: TestHostComponent;
   let component: CollectTracesComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let fixture: ComponentFixture<CollectTracesComponent>;
+  let dom: DOMTestHelper<CollectTracesComponent>;
   let mockDevice: MockAdbDeviceConnection;
   let mockDeviceWatch: MockAdbDeviceConnection;
+  let storage: InMemoryStorage;
   const testFile = new File([], 'test_file');
 
   beforeAll(() => {
     spyOn(WdpHostConnection.prototype, 'requestDevices');
+    spyOn(WinscopeProxyHostConnection.prototype, 'requestDevices');
   });
 
   beforeEach(async () => {
@@ -98,7 +100,6 @@ describe('CollectTracesComponent', () => {
         MatInputModule,
         ClipboardModule,
         OverlayModule,
-        TestHostComponent,
         CollectTracesComponent,
         WinscopeProxySetupComponent,
         WdpSetupComponent,
@@ -109,11 +110,13 @@ describe('CollectTracesComponent', () => {
       providers: [MatSnackBar],
       schemas: [],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
-    hostComponent = fixture.componentInstance;
+    fixture = TestBed.createComponent(CollectTracesComponent);
+    component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    dom.detectChanges();
-    component = assertDefined(hostComponent.components?.get(0));
+    storage = new InMemoryStorage();
+    storage.add('adbConnectionType', AdbConnectionType.MOCK);
+    fixture.componentRef.setInput('storage', storage);
+    await dom.detectChangesAndWaitStable();
     mockDevice = new MockAdbDeviceConnection(
       '35562',
       'Pixel 6',
@@ -380,22 +383,22 @@ describe('CollectTracesComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('displays starting trace elements', () => {
+  it('displays starting trace elements', async () => {
     goToConfigSection();
-    component.onConnectionStateChange(ConnectionState.STARTING_TRACE);
+    await component.onConnectionStateChange(ConnectionState.STARTING_TRACE);
     dom.detectChanges();
     checkTracingProgress('Starting trace...', true);
   });
 
   it('displays tracing elements and ends trace correctly', async () => {
     goToConfigSection();
-    component.onConnectionStateChange(ConnectionState.TRACING);
+    await component.onConnectionStateChange(ConnectionState.TRACING);
     dom.detectChanges();
     checkTracingProgress('Tracing...', false);
 
     const controller = assertDefined(component.controller);
     const endSpy = spyOn(controller, 'endTrace').and.callFake(async () => {
-      component.onConnectionStateChange(ConnectionState.ENDING_TRACE);
+      await component.onConnectionStateChange(ConnectionState.ENDING_TRACE);
     });
     const fetchSpy = spyOn(controller, 'fetchLastSessionData').and.returnValue(
       Promise.resolve([]),
@@ -405,9 +408,9 @@ describe('CollectTracesComponent', () => {
     expect(fetchSpy).toHaveBeenCalled();
   });
 
-  it('displays ending trace elements', () => {
+  it('displays ending trace elements', async () => {
     goToConfigSection();
-    component.onConnectionStateChange(ConnectionState.ENDING_TRACE);
+    await component.onConnectionStateChange(ConnectionState.ENDING_TRACE);
     dom.detectChanges();
     checkTracingProgress('Ending trace...', true);
   });
@@ -415,7 +418,7 @@ describe('CollectTracesComponent', () => {
   it('displays dumping state elements', async () => {
     goToConfigSection();
     await changeTab(1);
-    component.onConnectionStateChange(ConnectionState.DUMPING_STATE);
+    await component.onConnectionStateChange(ConnectionState.DUMPING_STATE);
     dom.detectChanges();
     const progress = dom.get('.dumping-state');
     expect(progress.find('.end-btn button')).toBeUndefined();
@@ -516,11 +519,11 @@ describe('CollectTracesComponent', () => {
     await changeTab(1);
     clickCheckboxAndCheckTraceConfig(UiTraceTarget.WINDOW_MANAGER_DUMP, true);
 
-    hostComponent.showFirstComponent = false;
-    dom.detectChanges();
-    hostComponent.showSecondComponent = true;
-    await dom.detectChangesAndWaitStable();
-    const newComponent = assertDefined(hostComponent.components?.get(0));
+    const newFixture = TestBed.createComponent(CollectTracesComponent);
+    const newComponent = newFixture.componentInstance;
+    const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
+    newFixture.componentRef.setInput('storage', storage);
+    await newDom.detectChangesAndWaitStable();
     const controller = assertDefined(newComponent.controller);
     const spy = spyOn(controller, 'dumpState');
     await newComponent.onWinscopeEvent(new AppRefreshDumpsRequest());
@@ -630,11 +633,10 @@ describe('CollectTracesComponent', () => {
 
   it('changes host type by default if in store', async () => {
     await changeConnection(1);
-    hostComponent.showFirstComponent = false;
-    dom.detectChanges();
-    hostComponent.showSecondComponent = true;
-    await dom.detectChangesAndWaitStable();
-    const component = assertDefined(hostComponent.components?.get(0));
+    const newFixture = TestBed.createComponent(CollectTracesComponent);
+    const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
+    newFixture.componentRef.setInput('storage', storage);
+    await newDom.detectChangesAndWaitStable();
     expect(component.controller?.getConnectionType()).toEqual(
       AdbConnectionType.WDP,
     );
@@ -663,13 +665,15 @@ describe('CollectTracesComponent', () => {
     }
   });
 
-  describe('WinscopeProxyHostConnection', () => {
+  describe('WinscopeProxyHostConnection', async () => {
     beforeEach(async () => {
-      hostComponent.showFirstComponent = false;
-      hostComponent.storage = new InMemoryStorage();
-      hostComponent.showSecondComponent = true;
+      storage.add('adbConnectionType', AdbConnectionType.WINSCOPE_PROXY);
+      fixture.destroy();
+      fixture = TestBed.createComponent(CollectTracesComponent);
+      component = fixture.componentInstance;
+      dom = new DOMTestHelper(fixture, fixture.nativeElement);
+      fixture.componentRef.setInput('storage', storage);
       await dom.detectChangesAndWaitStable();
-      component = assertDefined(hostComponent.components?.get(0));
       component.state = ConnectionState.UNAUTH;
       dom.detectChanges();
     });
@@ -714,11 +718,13 @@ describe('CollectTracesComponent', () => {
 
   describe('WdpHostConnection', () => {
     beforeEach(async () => {
-      hostComponent.showSecondComponent = true;
-      hostComponent.showFirstComponent = false;
+      storage.add('adbConnectionType', AdbConnectionType.WDP);
+      fixture.destroy();
+      fixture = TestBed.createComponent(CollectTracesComponent);
+      component = fixture.componentInstance;
+      dom = new DOMTestHelper(fixture, fixture.nativeElement);
+      fixture.componentRef.setInput('storage', storage);
       await dom.detectChangesAndWaitStable();
-      component = assertDefined(hostComponent.components?.get(0));
-      await changeConnection(1);
       component.state = ConnectionState.UNAUTH;
       dom.detectChanges();
     });
@@ -857,7 +863,7 @@ describe('CollectTracesComponent', () => {
   }
 
   async function openAndReturnDialog(): Promise<
-    DOMTestHelper<TestHostComponent>
+    DOMTestHelper<CollectTracesComponent>
   > {
     updateTraceConfigToInvalidIMEFrameMapping();
     await clickStartTraceButton();
@@ -954,33 +960,5 @@ describe('CollectTracesComponent', () => {
   async function changeTab(index: number) {
     const selector = '.target-tabs .mdc-tab__text-label';
     await dom.clickByIndexAndWaitStable(selector, index);
-  }
-
-  @Component({
-    imports: [CollectTracesComponent, CommonModule],
-    selector: 'host-component',
-    template: `
-      @if (showFirstComponent) {
-        <collect-traces
-          [storage]="storage"></collect-traces>
-      }
-
-      @if (showSecondComponent) {
-        <collect-traces
-          [storage]="storage"></collect-traces>
-      }
-    `,
-  })
-  class TestHostComponent {
-    storage = new InMemoryStorage();
-    showFirstComponent = true;
-    showSecondComponent = false;
-
-    constructor() {
-      this.storage.add('adbConnectionType', AdbConnectionType.MOCK);
-    }
-
-    @ViewChildren(CollectTracesComponent)
-    components: QueryList<CollectTracesComponent> | undefined;
   }
 });

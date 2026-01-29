@@ -333,7 +333,7 @@ describe('TimelineComponent', () => {
       TraceType.VIEW_CAPTURE,
     ];
     loadAllTraces();
-    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100);
+    const [spyQueryResult] = makeSearchTraceSpies(time100);
     const searchTrace = new TraceBuilder<QueryResult>()
       .setEntries([spyQueryResult])
       .setTimestamps([time100])
@@ -359,7 +359,7 @@ describe('TimelineComponent', () => {
     sfOption.checkText('Surface Flinger');
     expect(sfOption.getHTMLElement().ariaDisabled).toBe('true');
     for (const i of [1, 3, 4]) {
-      expect(matOptions[1].getHTMLElement().ariaDisabled).toBe('false');
+      expect(matOptions[i].getHTMLElement().ariaDisabled).toBe('false');
     }
 
     matOptions[3].click();

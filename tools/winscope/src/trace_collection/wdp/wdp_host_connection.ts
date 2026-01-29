@@ -51,7 +51,7 @@ export class WdpHostConnection extends AdbHostConnection<WdpDeviceConnection> {
     this.streamProvider.closeAllStreams();
   }
 
-  override setSecurityToken(token: string) {
+  override setSecurityToken(_: string) {
     // do nothing
   }
 

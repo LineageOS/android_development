@@ -39,7 +39,7 @@ export class HierarchyTreeNode extends TreeNode {
   constructor(
     id: string,
     name: string,
-    protected readonly propertiesProvider: PropertiesProvider,
+    readonly propertiesProvider: PropertiesProvider,
   ) {
     super(id, name);
   }

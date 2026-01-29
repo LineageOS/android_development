@@ -52,7 +52,7 @@ export async function setTimeouts(
 export async function checkServerIsUp(name: string, url: string) {
   try {
     await browser.get(url);
-  } catch (error) {
+  } catch {
     fail(`${name} server (${url}) looks down. Did you start it?`);
   }
 }

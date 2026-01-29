@@ -40,7 +40,9 @@ describe('MediaBasedFrame', () => {
     htmlCanvas = jasmine.createSpyObj<HTMLCanvasElement>('canvas', [
       'getContext',
     ]);
-    (htmlCanvas.getContext as any).withArgs('2d').and.returnValue(htmlCtx);
+    (htmlCanvas.getContext as jasmine.Spy)
+      .withArgs('2d')
+      .and.returnValue(htmlCtx);
 
     offscreenCtx = jasmine.createSpyObj<OffscreenCanvasRenderingContext2D>(
       'ctx',
@@ -49,7 +51,7 @@ describe('MediaBasedFrame', () => {
     offscreenCanvas = jasmine.createSpyObj<OffscreenCanvas>('canvas', [
       'getContext',
     ]);
-    (offscreenCanvas.getContext as any)
+    (offscreenCanvas.getContext as jasmine.Spy)
       .withArgs('2d')
       .and.returnValue(offscreenCtx);
   });

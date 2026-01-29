@@ -37,6 +37,7 @@ export class MediaBasedFrame<T extends ImageBitmap | VideoFrame> {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tryDrawOnCanvas(canvas: any, updateCanvasDimensions = true) {
     if (!this.image) {
       return;

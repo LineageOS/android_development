@@ -77,6 +77,7 @@ export abstract class AbstractLogViewerComponentTest<
     describe('Log viewer component', () => {
       describe('common', () => {
         let dom: DOMTestHelper<T>;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let viewport: CdkVirtualScrollViewport;
         let component: T;
 
@@ -286,7 +287,7 @@ export abstract class AbstractLogViewerComponentTest<
     const fixture = TestBed.createComponent<U>(typeofViewer);
     const component = fixture.componentInstance;
     const dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    (component as any).inputData = initialUiData;
+    component.inputData = initialUiData;
     dom.detectChanges();
     const scrollElement = dom.get('.scroll').getHTMLElement();
     scrollElement.style.minHeight = '720px';

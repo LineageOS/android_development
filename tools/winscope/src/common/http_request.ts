@@ -38,6 +38,7 @@ export declare interface HttpResponse {
   status: HttpRequestStatus;
   type: XMLHttpRequestResponseType;
   text: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
   getHeader: (name: string) => string | undefined;
 }

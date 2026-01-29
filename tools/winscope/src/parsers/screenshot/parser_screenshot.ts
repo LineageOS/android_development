@@ -55,16 +55,16 @@ export class ParserScreenshot extends AbstractParser<
     return undefined;
   }
 
-  protected override getTimestamp(decodedEntry: number): Timestamp {
+  protected override getTimestamp(_: number): Timestamp {
     return this.timestampConverter.makeZeroTimestamp();
   }
 
-  override decodeTrace(screenshotData: Uint8Array): number[] {
+  override decodeTrace(_: Uint8Array): number[] {
     return [0]; // require a non-empty array to be returned so trace can provide timestamps
   }
 
   protected override async processDecodedEntry(
-    index: number,
+    _: number,
   ): Promise<MediaBasedTraceEntry> {
     if (!this.imageBitmap) {
       this.imageBitmap = await createImageBitmap(this.getFiles()[0].file);

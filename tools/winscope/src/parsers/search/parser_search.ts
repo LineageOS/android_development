@@ -71,7 +71,7 @@ export class ParserSearch implements Parser<QueryResult> {
     return this.timestamps;
   }
 
-  async getEntry(index: AbsoluteEntryIndex): Promise<QueryResult> {
+  async getEntry(_: AbsoluteEntryIndex): Promise<QueryResult> {
     return this.validateQueryResult();
   }
 
@@ -79,19 +79,18 @@ export class ParserSearch implements Parser<QueryResult> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
-  getRangeOfEntries(entriesRange: EntriesRange): Promise<QueryResult[]> {
+  getRangeOfEntries(_: EntriesRange): Promise<QueryResult[]> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   getQueryResults(
-    entriesRange: EntriesRange,
+    _: EntriesRange,
   ): Promise<QueryResults<QueryResult | RawDataQueryResult>> {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
   customQuery<Q extends CustomQueryType>(
-    type: Q,
-    entriesRange: EntriesRange,
+    _: Q,
   ): Promise<CustomQueryParserResultTypeMap[Q]> {
     throw NOT_IMPLEMENTED_ERROR;
   }

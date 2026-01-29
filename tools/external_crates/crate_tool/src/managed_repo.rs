@@ -14,10 +14,11 @@
 
 use std::{
     cell::OnceCell,
-    collections::BTreeSet,
+    collections::{BTreeSet, HashMap},
     env,
     fs::{create_dir_all, read_dir, write},
     path::Path,
+    process::Command,
 };
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -31,6 +32,7 @@ use itertools::Itertools;
 use license_checker::find_licenses;
 use log::{debug, error};
 use name_and_version::{NameAndVersion, NameAndVersionRef, NamedAndVersioned};
+use regex::Regex;
 use repo_config::RepoConfig;
 use rooted_path::RootedPath;
 use semver::{Version, VersionReq};
@@ -742,6 +744,34 @@ We apologize for the inconvenience."#,
         for krate in crates {
             println!("Verifying checksums for {}", krate.as_ref());
             checksum::verify(self.managed_dir_for(krate.as_ref()).abs())?;
+        }
+        Ok(())
+    }
+
+    /// Count the number of commits made with Updates
+    pub fn count_updates(&self) -> Result<()> {
+        let output = Command::new("git")
+            .args(["log", "--pretty=format:%ad:%s", "--date=format:%m+%y"])
+            .current_dir(self.path.abs())
+            .output()?
+            .success_or_error()?;
+        let result = String::from_utf8(output.stdout)?;
+        let mut updates: HashMap<String, i32> = HashMap::new();
+        let re_update = Regex::new(r"[uU]pdate|[Uu]pgrade").unwrap();
+        let re_badwords = Regex::new(r"Merge|METADATA|[Rr]evert|cargo_embargo").unwrap();
+        for line in result.lines() {
+            let (date, desc) =
+                line.split_once(':').ok_or(anyhow!("failed to parse git log output"))?;
+            let (month, year) =
+                date.split_once('+').ok_or(anyhow!("failed to parse git log date output"))?;
+            let quarter = (month.trim().parse::<i32>()? - 1) / 3 + 1;
+            if re_update.is_match(desc) & !re_badwords.is_match(desc) {
+                let key = format!("Key_{year}_Q{quarter}");
+                *updates.entry(key).or_insert(1) += 1;
+            }
+        }
+        for (key, value) in updates {
+            println!("{:?}, {:?}", key, value);
         }
         Ok(())
     }

@@ -16,8 +16,7 @@
 
 import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {Component, ViewChild} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -31,7 +30,6 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {
   FilterPresetApplyRequest,
@@ -62,14 +60,16 @@ describe('TraceViewComponent', () => {
   const traceSr = makeEmptyTrace<HierarchyTreeNode>(TraceType.SCREEN_RECORDING);
   const traceProtolog = makeEmptyTrace<HierarchyTreeNode>(TraceType.PROTO_LOG);
 
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: TraceViewComponent;
+  let fixture: ComponentFixture<TraceViewComponent>;
+  let dom: DOMTestHelper<TraceViewComponent>;
+  let viewers: Viewer[];
+  let store: InMemoryStorage;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
         NoopAnimationsModule,
-        TestHostComponent,
         CommonModule,
         MatCardModule,
         MatDividerModule,
@@ -86,15 +86,20 @@ describe('TraceViewComponent', () => {
       ],
       schemas: [],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture = TestBed.createComponent(TraceViewComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.viewers = [
+    store = new InMemoryStorage();
+
+    viewers = [
       new ViewerStub('Title0', 'Content0', traceSf, ViewType.TRACE_TAB),
       new ViewerStub('Title1', 'Content1', traceWm, ViewType.TRACE_TAB),
       new ViewerStub('Title2', 'Content2', traceSr, ViewType.OVERLAY),
       new ViewerStub('Title3', 'Content3', traceProtolog, ViewType.TRACE_TAB),
     ];
+
+    fixture.componentRef.setInput('viewers', viewers);
+    fixture.componentRef.setInput('store', store);
     dom.detectChanges();
   });
 
@@ -116,11 +121,11 @@ describe('TraceViewComponent', () => {
 
   it('throws error if more than one overlay present', () => {
     expect(() => {
-      component.viewers = [
+      fixture.componentRef.setInput('viewers', [
         new ViewerStub('Title0', 'Content0', traceSf, ViewType.TRACE_TAB),
         new ViewerStub('Title1', 'Content1', traceWm, ViewType.OVERLAY),
         new ViewerStub('Title2', 'Content2', traceSr, ViewType.OVERLAY),
-      ];
+      ]);
       dom.detectChanges();
     }).toThrowError();
   });
@@ -149,11 +154,10 @@ describe('TraceViewComponent', () => {
   });
 
   it("emits 'view switched' events", () => {
-    const traceViewComponent = assertDefined(component.traceViewComponent);
     const tabs = getTabs();
 
     const emitAppEvent = jasmine.createSpy();
-    traceViewComponent.setEmitEvent(emitAppEvent);
+    component.setEmitEvent(emitAppEvent);
     expect(emitAppEvent).not.toHaveBeenCalled();
 
     tabs[1].click();
@@ -166,26 +170,20 @@ describe('TraceViewComponent', () => {
   });
 
   it("handles 'view switch' requests", async () => {
-    const traceViewComponent = assertDefined(component.traceViewComponent);
-
     // Initially tab 0
     let visibleTabContents = getVisibleTabContents();
     expect(visibleTabContents.length).toBe(1);
     expect(visibleTabContents[0].innerHTML).toBe('Content0');
 
     // Switch to tab 1
-    await traceViewComponent.onWinscopeEvent(
-      new TabbedViewSwitchRequest(traceWm),
-    );
+    await component.onWinscopeEvent(new TabbedViewSwitchRequest(traceWm));
     dom.detectChanges();
     visibleTabContents = getVisibleTabContents();
     expect(visibleTabContents.length).toBe(1);
     expect(visibleTabContents[0].innerHTML).toBe('Content1');
 
     // Switch to tab 0
-    await traceViewComponent.onWinscopeEvent(
-      new TabbedViewSwitchRequest(traceSf),
-    );
+    await component.onWinscopeEvent(new TabbedViewSwitchRequest(traceSf));
     dom.detectChanges();
     visibleTabContents = getVisibleTabContents();
     expect(visibleTabContents.length).toBe(1);
@@ -193,13 +191,14 @@ describe('TraceViewComponent', () => {
   });
 
   it('emits TabbedViewSwitched event on viewer changes', () => {
-    const traceViewComponent = assertDefined(component.traceViewComponent);
     const emitAppEvent = jasmine.createSpy();
-    traceViewComponent.setEmitEvent(emitAppEvent);
+    component.setEmitEvent(emitAppEvent);
 
     expect(emitAppEvent).not.toHaveBeenCalled();
 
-    component.viewers = [new ViewerStub('Title1', 'Content1', traceWm)];
+    fixture.componentRef.setInput('viewers', [
+      new ViewerStub('Title1', 'Content1', traceWm),
+    ]);
     dom.detectChanges();
 
     expect(emitAppEvent).toHaveBeenCalledTimes(1);
@@ -217,7 +216,7 @@ describe('TraceViewComponent', () => {
 
   it('saves preset by button', () => {
     const emitAppEvent = jasmine.createSpy();
-    component.traceViewComponent?.setEmitEvent(emitAppEvent);
+    component.setEmitEvent(emitAppEvent);
     openFilterPresets();
 
     const overlay = getOverlay();
@@ -243,7 +242,7 @@ describe('TraceViewComponent', () => {
 
   it('saves preset by keydown', () => {
     const emitAppEvent = jasmine.createSpy();
-    component.traceViewComponent?.setEmitEvent(emitAppEvent);
+    component.setEmitEvent(emitAppEvent);
     openFilterPresets();
 
     const overlay = getOverlay();
@@ -266,9 +265,17 @@ describe('TraceViewComponent', () => {
   it('saves preset between sessions', () => {
     savePresetByButton('Test Preset');
 
-    component.showSecondComponent = true;
+    // Simulate switching view or component recreation using same store
+    // Use a new component instance with same store
+    fixture.destroy();
+    fixture = TestBed.createComponent(TraceViewComponent);
+    component = fixture.componentInstance;
+    dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    fixture.componentRef.setInput('viewers', viewers);
+    fixture.componentRef.setInput('store', store); // Same store
     dom.detectChanges();
 
+    // Switch to same view logic if needed, but defaults to first tab (SF)
     openFilterPresets();
     const existingPresets = dom.getInDocument(
       '.overlay-panel .existing-presets-section',
@@ -303,7 +310,7 @@ describe('TraceViewComponent', () => {
 
   it('emits apply preset request', () => {
     const emitAppEvent = jasmine.createSpy();
-    component.traceViewComponent?.setEmitEvent(emitAppEvent);
+    component.setEmitEvent(emitAppEvent);
     savePresetByButton('Test Preset');
 
     dom.findAndClickInDocument('.overlay-panel .existing-preset button');
@@ -316,10 +323,10 @@ describe('TraceViewComponent', () => {
   });
 
   it('does not show global tab first', () => {
-    component.viewers = [
+    fixture.componentRef.setInput('viewers', [
       new ViewerStub('Title0', 'Content0', undefined, ViewType.GLOBAL_SEARCH),
       new ViewerStub('Title1', 'Content1', traceWm, ViewType.TRACE_TAB),
-    ];
+    ]);
     dom.detectChanges();
     const visibleTabContents = getVisibleTabContents();
     expect(visibleTabContents.length).toBe(1);
@@ -360,31 +367,5 @@ describe('TraceViewComponent', () => {
 
   function openFilterPresets() {
     dom.findAndClick('.filter-presets');
-  }
-
-  @Component({
-    imports: [TraceViewComponent, CommonModule],
-    selector: 'host-component',
-    template: `
-      @if (!showSecondComponent) {
-        <trace-view
-          [viewers]="viewers"
-          [store]="store"></trace-view>
-      }
-
-      @if (showSecondComponent) {
-        <trace-view
-          [viewers]="viewers"
-          [store]="store"></trace-view>
-      }
-    `,
-  })
-  class TestHostComponent {
-    viewers: Viewer[] = [];
-    store = new InMemoryStorage();
-    showSecondComponent = false;
-
-    @ViewChild(TraceViewComponent)
-    traceViewComponent: TraceViewComponent | undefined;
   }
 });

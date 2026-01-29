@@ -23,6 +23,7 @@ import {
   makePropertyNode,
   testTreeNodes as baseTestTreeNodes,
 } from './tree_node_test_helpers';
+import {PropertyValue} from '@tree_node/property_tree_node';
 
 /**
  * Creates a UI hierarchy tree node for tests.
@@ -45,7 +46,7 @@ export function makeUiHierarchyNode(proto: object): UiHierarchyTreeNode {
 export function makeUiPropertyNode(
   rootId: string,
   name: string,
-  value: any,
+  value: PropertyValue | undefined,
 ): UiPropertyTreeNode {
   return UiPropertyTreeNode.from(makePropertyNode(rootId, name, value));
 }

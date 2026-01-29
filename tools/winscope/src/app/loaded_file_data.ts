@@ -214,6 +214,7 @@ export class LoadedFileData {
       this.traces.addTrace(trace);
       return trace;
     } catch (e) {
+      this.logger.error('Failed to create search trace', e);
       return undefined;
     }
   }

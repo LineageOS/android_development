@@ -37,6 +37,7 @@ import ProtobufField = protobuf.Field;
  * This object is used to represent the root object of the Perfetto build.
  * It is a compatibility alias for the Perfetto build.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PERFETTO_TRACE_PACKET_ROOT: any = root;
 
 export {ProtobufType, ProtobufEnum, ProtobufField, PERFETTO_TRACE_PACKET_ROOT};

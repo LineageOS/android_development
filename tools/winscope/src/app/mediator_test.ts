@@ -1203,8 +1203,8 @@ describe('Mediator', () => {
   }
 
   function tracePositionUpdateEqualityTester(
-    first: any,
-    second: any,
+    first: unknown,
+    second: unknown,
   ): boolean | undefined {
     if (
       first instanceof TracePositionUpdate &&

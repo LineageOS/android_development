@@ -189,6 +189,7 @@ export function makePositionNode(
  * @return The constructed hierarchy tree node.
  */
 export function makeHierarchyNode(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   proto: any,
   children: ChildHierarchy[] = [],
 ): HierarchyTreeNode {
@@ -231,7 +232,7 @@ export function makePropertyNode(
 export function makeCalculatedPropertyNode(
   rootId: string,
   name: string,
-  value: any,
+  value: PropertyValue | undefined,
 ): PropertyTreeNode {
   return DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
     rootId,

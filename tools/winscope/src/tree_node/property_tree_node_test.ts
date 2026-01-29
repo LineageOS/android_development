@@ -145,7 +145,7 @@ describe('property_tree_node', () => {
 
   it('setFormatter returns the node instance', () => {
     const formatter: PropertyFormatter = {
-      format(nodeToFormat: PropertyTreeNode): string {
+      format(_: PropertyTreeNode): string {
         return '';
       },
     };

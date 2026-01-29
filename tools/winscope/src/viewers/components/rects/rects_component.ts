@@ -264,8 +264,8 @@ export class RectsComponent implements OnInit, OnDestroy {
     this.resizeObserver?.disconnect();
     this.largeRectsCanvas?.onDestroy();
     this.miniRectsCanvas?.onDestroy();
-    (this.largeRectsCanvasElement?.getContext('2d') as any)?.reset();
-    (this.miniRectsCanvasElement?.getContext('2d') as any)?.reset();
+    this.largeRectsCanvasElement?.getContext('2d')?.reset();
+    this.miniRectsCanvasElement?.getContext('2d')?.reset();
   }
 
   private onDisplaysChange(change: SimpleChange) {

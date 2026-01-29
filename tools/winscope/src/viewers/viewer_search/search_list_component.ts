@@ -64,5 +64,5 @@ export interface ListItemOption {
   name: string;
   icon: string;
   onClickCallback?: (search: ListedSearch) => void;
-  menu?: TemplateRef<any>;
+  menu?: TemplateRef<unknown>;
 }

@@ -46,25 +46,27 @@ const ARRAY_KEY_REGEX = new RegExp('(.+)\\[(\\d+)\\]');
  * @param path The path to the property, using dot notation for nested objects.
  * @param value The value to set the property to.
  */
-export function setProperty(obj: object, path: string, value: any) {
+export function setProperty(obj: object, path: string, value: unknown) {
   const keys = parseKeys(path);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let current: Record<string, any> = obj as Record<string, any>;
 
   keys.slice(0, -1).forEach((key) => {
     if (key.isArrayKey()) {
-      initializePropertyArrayIfNeeded(obj, key);
-      obj = (obj as any)[key.key][assertDefined(key.index)];
+      initializePropertyArrayIfNeeded(current, key);
+      current = current[key.key][assertDefined(key.index)];
     } else {
-      initializePropertyIfNeeded(obj, key.key);
-      obj = (obj as any)[key.key];
+      initializePropertyIfNeeded(current, key.key);
+      current = current[key.key];
     }
   });
 
   const lastKey = assertDefined(keys.at(-1));
   if (lastKey.isArrayKey()) {
-    initializePropertyArrayIfNeeded(obj, lastKey);
-    (obj as any)[lastKey.key][assertDefined(lastKey.index)] = value;
+    initializePropertyArrayIfNeeded(current, lastKey);
+    current[lastKey.key][assertDefined(lastKey.index)] = value;
   } else {
-    (obj as any)[lastKey.key] = value;
+    current[lastKey.key] = value;
   }
 }
 
@@ -78,25 +80,21 @@ function parseKeys(path: string): Key[] {
   });
 }
 
-function initializePropertyIfNeeded(obj: object, key: string) {
-  if ((obj as any)[key] === undefined) {
-    (obj as any)[key] = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function initializePropertyIfNeeded(obj: Record<string, any>, key: string) {
+  if (obj[key] === undefined) {
+    obj[key] = {};
   }
-  assertTrue(
-    typeof (obj as any)[key] === 'object',
-    () => 'Expected to be object',
-  );
+  assertTrue(typeof obj[key] === 'object', () => 'Expected to be object');
 }
 
-function initializePropertyArrayIfNeeded(obj: object, key: Key) {
-  if ((obj as any)[key.key] === undefined) {
-    (obj as any)[key.key] = [];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function initializePropertyArrayIfNeeded(obj: Record<string, any>, key: Key) {
+  if (obj[key.key] === undefined) {
+    obj[key.key] = [];
   }
-  if ((obj as any)[key.key][assertDefined(key.index)] === undefined) {
-    (obj as any)[key.key][assertDefined(key.index)] = {};
+  if (obj[key.key][assertDefined(key.index)] === undefined) {
+    obj[key.key][assertDefined(key.index)] = {};
   }
-  assertTrue(
-    Array.isArray((obj as any)[key.key]),
-    () => 'Expected to be array',
-  );
+  assertTrue(Array.isArray(obj[key.key]), () => 'Expected to be array');
 }

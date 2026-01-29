@@ -56,7 +56,7 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
     this.drawEntryHover(mousePoint);
   }
 
-  override handleMouseOut(e: MouseEvent) {
+  override handleMouseOut(_: MouseEvent) {
     if (this.hoveringEntry) {
       // If undefined there is no current hover effect so no need to clear
       this.redraw();

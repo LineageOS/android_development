@@ -382,7 +382,7 @@ fn main() -> Result<()> {
             println!("Skipping {crate_name} (already attempted recently)");
             continue;
         }
-        if stalled_crates.contains_key(crate_name) {
+        if args.rotation && stalled_crates.contains_key(crate_name) {
             println!("Skipping {crate_name} (stalled crate)");
             continue;
         }

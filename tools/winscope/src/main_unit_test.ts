@@ -30,17 +30,6 @@ import {
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing';
 
-declare const require: {
-  context(
-    path: string,
-    deep?: boolean,
-    filter?: RegExp,
-  ): {
-    <T>(id: string): T;
-    keys(): string[];
-  };
-};
-
 TestBed.initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting(),
@@ -48,6 +37,7 @@ TestBed.initTestEnvironment(
 
 // filter matches all "*_test.ts" files that are not within the /test/e2e/ directory
 // Using import.meta.webpackContext for Webpack 5 support
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const context = (import.meta as any).webpackContext('./', {
   recursive: true,
   regExp: /^(?!.*\/e2e\/).*_test\.ts$/,
