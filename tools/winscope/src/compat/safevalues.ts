@@ -29,3 +29,15 @@ export function trySanitizeUrl(url: string): string | undefined {
 
   return url;
 }
+
+/**
+ * Creates an object URL from a Blob.
+ *
+ * Used for compatibility only.
+ *
+ * @param source The Blob to create an object URL from.
+ * @return The object URL.
+ */
+export function objectUrlFromSafeSource(source: Blob): string {
+  return URL.createObjectURL(source);
+}
