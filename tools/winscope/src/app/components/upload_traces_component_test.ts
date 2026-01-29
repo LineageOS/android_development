@@ -29,7 +29,7 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {AppTraceViewRequest, AppTraceViewRequestHandled} from '@app/app_events';
 import {ShowTraceUploadWarning} from '@trace/trace_events';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {getFixtureFile} from '@test/unit/io_helpers';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {LoadProgressComponent} from './load_progress_component';
 import {UploadTracesComponent} from './upload_traces_component';
 import {

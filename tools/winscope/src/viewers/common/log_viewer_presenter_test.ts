@@ -27,8 +27,8 @@ import {
   makeRealTimestamp,
   makeZeroTimestamp,
 } from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';

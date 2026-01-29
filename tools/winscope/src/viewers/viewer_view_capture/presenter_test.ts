@@ -19,13 +19,13 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {getFixtureFile} from '@test/unit/io_helpers';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
   getPerfettoParser,
   parseAndConvertToPerfettoTrace,
 } from '@test/unit/fixture_utils';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';

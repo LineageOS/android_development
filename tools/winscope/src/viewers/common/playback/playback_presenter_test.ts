@@ -23,11 +23,11 @@ import {
   TraceEntryLazy,
 } from '@trace_api/trace';
 import {makeRealTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceType} from '@trace_api/trace_type';
 import {Timer} from '@common/time/timer';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
 import {TracePositionUpdate} from '@trace/trace_events';
 import {PlaybackState} from './playback_state';

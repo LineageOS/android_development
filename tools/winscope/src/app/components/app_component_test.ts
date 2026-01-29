@@ -59,7 +59,7 @@ import {UserNotifier} from '@services/user_notifier';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
-import {TracesBuilder} from '@test/unit/traces_builder';
+import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {AppComponent} from './app_component';
 import {
   MatDrawer,
