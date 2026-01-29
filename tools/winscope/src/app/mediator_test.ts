@@ -83,7 +83,7 @@ import {WinscopeEventEmitterStub} from '@messaging/winscope_event_emitter_stub';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {WinscopeEventListenerStub} from '@messaging/winscope_event_listener_stub';
 import { getFixtureFile } from '@test/unit/common/io_helpers';
-import {mixin} from '@test/unit/mixin_helpers';
+import {mixin} from '@test/unit/common/mixin_helpers';
 import {
   ASIA_TIMEZONE_INFO,
   makeRealTimestamp,

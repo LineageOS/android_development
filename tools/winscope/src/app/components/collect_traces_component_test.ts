@@ -41,7 +41,7 @@ import {makeWarningProxyTraceTimeout} from '@app/warnings';
 import {AppRefreshDumpsRequest} from '@app/app_events';
 import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
 import {

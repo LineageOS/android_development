@@ -27,7 +27,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
 import {TimeRange} from '@common/time/time';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
