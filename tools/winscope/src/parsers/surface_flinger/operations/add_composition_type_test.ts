@@ -18,7 +18,7 @@ import {HwcCompositionType} from '@compat/winscope_protos';
 import {
   makeCalculatedPropertyNode,
   makePropertyNode,
-} from '@test/unit/tree_node_test_helpers';
+} from '@test/unit/tree_node/tree_node_test_helpers';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {AddCompositionType} from './add_composition_type';

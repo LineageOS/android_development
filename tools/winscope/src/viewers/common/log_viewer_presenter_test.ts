@@ -20,7 +20,7 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Timer} from '@common/time/timer';
 import {DarkModeToggled} from '@app/misc_events';
 import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {MockPresenter} from '@test/unit/mock_log_viewer_presenter';
 import {
   makeElapsedTimestamp,

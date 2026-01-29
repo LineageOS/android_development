@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
 import {PropertySource} from '@tree_node/property_tree_node';
 

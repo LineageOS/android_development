@@ -19,7 +19,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {
   DEFAULT_PROPERTY_FORMATTER,
