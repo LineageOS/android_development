@@ -24,7 +24,7 @@ import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {
   ChildHierarchy,
   HierarchyTreeBuilder,
-} from '@test/unit/hierarchy_tree_builder';
+} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';

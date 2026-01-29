@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {android} from 'protos/surfaceflinger/udc/static';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {ZOrderPathsComputation} from './z_order_paths_computation';
 
 describe('ZOrderPathsComputation', () => {

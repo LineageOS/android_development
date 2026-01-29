@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {
   TamperedMessageType,

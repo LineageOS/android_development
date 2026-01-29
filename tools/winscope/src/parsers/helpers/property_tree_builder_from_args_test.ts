@@ -18,7 +18,7 @@ import root from 'protos/test/fake_proto/json';
 import {
   ChildProperty,
   PropertyTreeBuilder,
-} from '@test/unit/property_tree_builder';
+} from '@test/unit/tree_node/property_tree_builder';
 import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
 import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
