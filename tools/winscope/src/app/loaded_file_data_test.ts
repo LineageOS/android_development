@@ -17,7 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {DOWNLOAD_FILENAME_REGEX, unzipFile} from '@common/io';
 import {UserWarning} from '@messaging/user_warning';
-import {getFixtureFile} from '@test/unit/io_helpers';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
   makeRealTimestamp,
   timestampEqualityTester,

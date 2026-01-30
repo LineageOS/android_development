@@ -41,7 +41,7 @@ import {
   makeElapsedTimestamp,
   makeRealTimestamp,
 } from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';

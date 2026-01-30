@@ -25,8 +25,8 @@ import {
   TraceSearchRequest,
 } from '@trace/trace_events';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';

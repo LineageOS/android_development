@@ -17,8 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {TracePositionUpdate} from '@trace/trace_events';
 import {makeRealTimestamp, makeZeroTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';

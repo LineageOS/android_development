@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Timestamp, TimestampFormatter} from '@common/time/time';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 
 import {FramesRange} from './index_types';
 import {TraceEntry} from './trace';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UserNotification} from '@messaging/user_notification';
+import {UserNotification} from './user_notification';
 
 /**
  * The type of notification.

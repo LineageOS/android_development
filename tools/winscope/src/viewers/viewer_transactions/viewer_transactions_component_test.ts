@@ -19,7 +19,7 @@ import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';

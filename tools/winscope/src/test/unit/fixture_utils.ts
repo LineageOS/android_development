@@ -16,7 +16,7 @@
 
 import {assertDefined, assertTrue} from '@common/assert';
 import {TimestampConverter} from '@common/time/timestamp_converter';
-import {getFixtureFile} from '@test/unit/io_helpers';
+import { getFixtureFile } from '@test/unit/common/io_helpers';
 import {getTimestampConverter} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {Parser} from '@trace_api/parser';
@@ -24,7 +24,7 @@ import {Trace} from '@trace_api/trace';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TraceBuilder} from './trace_builder';
+import {TraceBuilder} from './trace_api/trace_builder';
 import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';

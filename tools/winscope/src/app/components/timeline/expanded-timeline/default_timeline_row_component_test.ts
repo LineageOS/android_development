@@ -29,7 +29,7 @@ import {Rect} from '@common/geometry/rect';
 import {TimeRange} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/dom_test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
