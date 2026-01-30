@@ -20,7 +20,7 @@ import {
 } from '@common/time/timestamp_converter';
 import {getFixtureFile} from '@test/unit/io_helpers';
 import {
-  TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
+  createTestConverterWithUtcOffset,
   makeElapsedTimestamp,
   timestampEqualityTester,
 } from '@common/time/test_helpers';
@@ -33,6 +33,7 @@ import {ParserScreenshot} from './parser_screenshot';
 describe('ParserScreenshot', () => {
   let parser: ParserScreenshot;
   let file: File;
+  let converter: TimestampConverter;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
@@ -43,6 +44,7 @@ describe('ParserScreenshot', () => {
     );
     await parser.parse();
     parser.createTimestamps();
+    converter = await createTestConverterWithUtcOffset();
   });
 
   it('has expected trace type', () => {
@@ -63,7 +65,7 @@ describe('ParserScreenshot', () => {
   it('does not apply timezone info', async () => {
     const parserWithTimezoneInfo = new ParserScreenshot(
       new TraceFile(file),
-      await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET,
+      converter,
     );
     await parserWithTimezoneInfo.parse();
 
