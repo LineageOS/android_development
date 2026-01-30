@@ -146,58 +146,62 @@ describe('Timestamp', () => {
       );
     });
 
-    it('real timestamps with timezone info', () => {
+    it('real timestamps with timezone info', async () => {
       const NOV_10_2022 = 1668038400000n * MILLISECOND;
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          0n,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(0n)
+          .format(),
       ).toBe('1970-01-01, 05:30:00.000');
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          NOV_10_2022 +
-            22n * HOUR +
-            4n * MINUTE +
-            54n * SECOND +
-            186n * MILLISECOND +
-            123212n,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(
+            NOV_10_2022 +
+              22n * HOUR +
+              4n * MINUTE +
+              54n * SECOND +
+              186n * MILLISECOND +
+              123212n,
+          )
+          .format(),
       ).toBe('2022-11-11, 03:34:54.186');
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          NOV_10_2022,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(NOV_10_2022)
+          .format(),
       ).toBe('2022-11-10, 05:30:00.000');
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          NOV_10_2022 + 1n,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(NOV_10_2022 + 1n)
+          .format(),
       ).toBe('2022-11-10, 05:30:00.000');
 
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          0n,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(0n)
+          .format(),
       ).toBe('1970-01-01, 05:30:00.000');
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          NOV_10_2022 +
-            22n * HOUR +
-            4n * MINUTE +
-            54n * SECOND +
-            186n * MILLISECOND +
-            123212n,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(
+            NOV_10_2022 +
+              22n * HOUR +
+              4n * MINUTE +
+              54n * SECOND +
+              186n * MILLISECOND +
+              123212n,
+          )
+          .format(),
       ).toBe('2022-11-11, 03:34:54.186');
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          NOV_10_2022,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(NOV_10_2022)
+          .format(),
       ).toBe('2022-11-10, 05:30:00.000');
       expect(
-        TIMESTAMP_CONVERTER_WITH_UTC_OFFSET.makeTimestampFromRealNs(
-          NOV_10_2022 + 1n,
-        ).format(),
+        (await TIMESTAMP_CONVERTER_WITH_UTC_OFFSET)
+          .makeTimestampFromRealNs(NOV_10_2022 + 1n)
+          .format(),
       ).toBe('2022-11-10, 05:30:00.000');
     });
   });

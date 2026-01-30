@@ -76,39 +76,22 @@ export class TimestampConverter
    * @param timezoneInfo The timezone information to use.
    * @param realToMonotonicTimeOffsetNs The offset between real and monotonic time.
    * @param realToBootTimeOffsetNs The offset between real and boottime.
-   * @param utcOffset The UTC offset to use. If set at construction use `initializeUTCOffset`.
    */
   constructor(
     private readonly timezoneInfo: TimezoneInfo,
     private realToMonotonicTimeOffsetNs?: bigint,
     private realToBootTimeOffsetNs?: bigint,
-    utcOffset?: Timestamp,
-  ) {
-    if (utcOffset !== undefined) {
-      this.createdTimestampType = TimestampType.REAL;
-      this.initializeUTCOffset(utcOffset);
-    }
-  }
+  ) {}
 
   /**
-   * Initializes the UTC offset.
+   * Sets the UTC offset.
    *
-   * @param timestamp A timestamp to use for initialization.
+   * @param utcOffset The UTC offset.
    */
-  initializeUTCOffset(timestamp: Timestamp) {
-    if (
-      this.utcOffset.getValueNs() !== undefined ||
-      !this.canMakeRealTimestamps()
-    ) {
-      return;
-    }
-    const utcValueNs = timestamp.getValueNs();
-    const localNs =
-      this.timezoneInfo.timezone !== 'UTC'
-        ? this.addTimezoneOffset(this.timezoneInfo.timezone, utcValueNs)
-        : utcValueNs;
-    const utcOffsetNs = localNs - utcValueNs;
-    this.utcOffset.initialize(utcOffsetNs);
+  setUTCOffset(utcOffset: UTCOffset) {
+    this.utcOffset = utcOffset;
+    this.realTimestampFormatter.setUTCOffset(this.utcOffset);
+    this.createdTimestampType = TimestampType.REAL;
   }
 
   /**
@@ -142,6 +125,15 @@ export class TimestampConverter
    */
   getUTCOffset(): string {
     return this.utcOffset.format();
+  }
+
+  /**
+   * Gets the timezone information.
+   *
+   * @return The timezone information.
+   */
+  getTimezoneInfo(): TimezoneInfo {
+    return this.timezoneInfo;
   }
 
   /**
@@ -352,35 +344,6 @@ export class TimestampConverter
     }
 
     return this.makeElapsedTimestamp(ns);
-  }
-
-  private addTimezoneOffset(timezone: string, timestampNs: bigint): bigint {
-    const utcDate = new Date(Number(timestampNs / 1000000n));
-    const timezoneDateFormatted = utcDate.toLocaleString('en-US', {
-      timeZone: timezone,
-    });
-    const timezoneDate = new Date(timezoneDateFormatted);
-
-    let daysDiff = timezoneDate.getDay() - utcDate.getDay(); // day of the week
-    if (daysDiff > 1) {
-      // Saturday in timezone, Sunday in UTC
-      daysDiff = -1;
-    } else if (daysDiff < -1) {
-      // Sunday in timezone, Saturday in UTC
-      daysDiff = 1;
-    }
-
-    const hoursDiff =
-      timezoneDate.getHours() - utcDate.getHours() + daysDiff * 24;
-    const minutesDiff = timezoneDate.getMinutes() - utcDate.getMinutes();
-    const localTimezoneOffsetMinutes = utcDate.getTimezoneOffset();
-
-    return (
-      timestampNs +
-      BigInt(hoursDiff * 3.6e12) +
-      BigInt(minutesDiff * 6e10) -
-      BigInt(localTimezoneOffsetMinutes * 6e10)
-    );
   }
 }
 
