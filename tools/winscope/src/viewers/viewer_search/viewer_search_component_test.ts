@@ -32,7 +32,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {
   AddQueryClickDetail,

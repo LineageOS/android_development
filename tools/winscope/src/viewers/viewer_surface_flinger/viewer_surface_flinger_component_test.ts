@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {Component} from '@angular/core';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from '@viewers/common/abstract_hierarchy_viewer_component_test';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {SurfaceFlingerPropertyGroupsComponent} from '@viewers/components/surface_flinger_property_groups_component';

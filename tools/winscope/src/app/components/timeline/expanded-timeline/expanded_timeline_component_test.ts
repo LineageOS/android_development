@@ -30,7 +30,7 @@ import {
 } from '@angular/platform-browser/animations';
 import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';

@@ -31,7 +31,7 @@ import {assertDefined} from '@common/assert';
 import {Box3D} from '@common/geometry/box3d';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {PersistentStore} from '@common/store/persistent_store';
-import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceType} from '@trace_api/trace_type';

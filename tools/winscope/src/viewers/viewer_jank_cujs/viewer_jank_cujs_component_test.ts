@@ -15,7 +15,7 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';

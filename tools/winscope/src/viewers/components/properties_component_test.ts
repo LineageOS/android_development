@@ -26,7 +26,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FilterFlag} from '@common/filter_flag';
 import {PersistentStore} from '@common/store/persistent_store';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {TextFilter} from '@viewers/common/text_filter';

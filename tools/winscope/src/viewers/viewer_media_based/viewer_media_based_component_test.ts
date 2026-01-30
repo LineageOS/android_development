@@ -23,7 +23,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import { getFixtureFile } from '@test/unit/common/io_helpers';
 import {
   CanvasEntry,
