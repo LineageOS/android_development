@@ -31,11 +31,11 @@ import {
 import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TransitionStatus} from '@trace/transitions/status';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';

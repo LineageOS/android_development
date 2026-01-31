@@ -25,7 +25,7 @@ import {
   BugreportFileSelectionRequest,
 } from '@app/misc_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {getFixtureFile} from '@test/unit/io_helpers';
+import { getFixtureFile } from '@test/unit/common/io_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';

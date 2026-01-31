@@ -15,8 +15,8 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';

@@ -82,14 +82,14 @@ import {WinscopeEventEmitter} from '@messaging/winscope_event_emitter';
 import {WinscopeEventEmitterStub} from '@messaging/winscope_event_emitter_stub';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {WinscopeEventListenerStub} from '@messaging/winscope_event_listener_stub';
-import {getFixtureFile} from '@test/unit/io_helpers';
-import {mixin} from '@test/unit/mixin_helpers';
+import { getFixtureFile } from '@test/unit/common/io_helpers';
+import {mixin} from '@test/unit/common/mixin_helpers';
 import {
   ASIA_TIMEZONE_INFO,
   makeRealTimestamp,
   makeZeroTimestamp,
 } from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceEntry} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';

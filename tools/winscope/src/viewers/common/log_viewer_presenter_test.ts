@@ -20,15 +20,15 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Timer} from '@common/time/timer';
 import {DarkModeToggled} from '@app/misc_events';
 import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {MockPresenter} from '@test/unit/mock_log_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
   makeZeroTimestamp,
 } from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';

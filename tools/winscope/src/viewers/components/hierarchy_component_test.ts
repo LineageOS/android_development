@@ -31,8 +31,8 @@ import {
   makeWarningMissingLayerIds,
   makeWarningDuplicateLayerIds,
 } from '@parsers/helpers/warnings';
-import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {TextFilter} from '@viewers/common/text_filter';

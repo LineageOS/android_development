@@ -21,7 +21,7 @@ import {
   TracePositionUpdate,
 } from '@trace/trace_events';
 import {makeRealTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {
   CanvasEntry,
   MediaBasedTraceEntry,

@@ -15,8 +15,8 @@
  */
 
 import {UINT32_MAX} from '@common/math';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
-import {treeNodeEqualityTester} from '@test/unit/tree_node_test_helpers';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {treeNodeEqualityTester} from '@test/unit/tree_node/tree_node_test_helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {OperationChain} from '@tree_node/operation_chain';
 import {PropertiesProvider} from '@tree_node/properties_provider';

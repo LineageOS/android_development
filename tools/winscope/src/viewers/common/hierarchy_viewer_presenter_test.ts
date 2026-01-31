@@ -24,14 +24,14 @@ import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {SetFormatters} from '@parsers/helpers/set_formatters';
 import {TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
 } from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {
   makeUiHierarchyNode,
   treeNodeEqualityTester,

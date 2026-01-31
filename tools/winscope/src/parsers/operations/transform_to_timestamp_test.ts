@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {MockLong} from '@test/unit/mock_long';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,

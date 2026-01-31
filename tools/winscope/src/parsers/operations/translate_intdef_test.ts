@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import root from 'protos/test/intdef_translation/json';

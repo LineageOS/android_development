@@ -15,10 +15,10 @@
  */
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';

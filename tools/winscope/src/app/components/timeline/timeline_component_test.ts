@@ -54,11 +54,11 @@ import {
   PlaybackStateChangeRequest,
 } from './playback_events';
 import {ExpandedTimelineToggled} from './timeline_events';
-import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
-import {TracesBuilder} from '@test/unit/traces_builder';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
+import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';

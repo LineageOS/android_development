@@ -15,7 +15,7 @@
  */
 
 import {TimeRange} from '@common/time/time';
-import {HierarchyTreeBuilder} from '@test/unit/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {
   makeRealTimestamp,
   makeZeroTimestamp,

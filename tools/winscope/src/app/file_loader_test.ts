@@ -23,7 +23,7 @@ import {
   makeWarningUnsupportedFileFormat,
 } from './warnings';
 import {BugreportFileSelected} from '@app/misc_events';
-import {getFixtureFile} from '@test/unit/io_helpers';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
   ASIA_TIMEZONE_INFO,
   timestampEqualityTester,

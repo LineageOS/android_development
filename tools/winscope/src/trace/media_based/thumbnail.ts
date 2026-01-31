@@ -16,6 +16,7 @@
 
 import {Point} from '@common/geometry/point';
 import {Size} from '@common/geometry/size';
+import {objectUrlFromSafeSource} from '@compat/safevalues';
 
 /**
  * Represents sprite sheet for thumbnail video preview. Provides css for visualizing
@@ -23,7 +24,8 @@ import {Size} from '@common/geometry/size';
  */
 
 export class Thumbnail {
-  private readonly url: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly url: any;
   private readonly spritesPerRow: number;
   private readonly rows: number;
   private thumbWidth = 150;
@@ -37,7 +39,7 @@ export class Thumbnail {
     sheetHeight: number,
     sheetWidth: number,
   ) {
-    this.url = URL.createObjectURL(blob);
+    this.url = objectUrlFromSafeSource(blob);
     this.spritesPerRow = Math.floor(sheetWidth / spriteWidth);
     this.rows = Math.ceil(sheetHeight / spriteHeight);
     this.setThumbWidth(150);

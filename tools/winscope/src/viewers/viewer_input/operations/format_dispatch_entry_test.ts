@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {FormatDispatchEntry} from './format_dispatch_entry';
 

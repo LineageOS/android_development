@@ -56,10 +56,10 @@ import {TracePositionUpdate, TraceSearchRequest} from '@trace/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {View, Viewer, ViewType} from '@viewers/viewer';
 import {UserNotifier} from '@services/user_notifier';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
-import {TracesBuilder} from '@test/unit/traces_builder';
+import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {AppComponent} from './app_component';
 import {
   MatDrawer,

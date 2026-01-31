@@ -18,7 +18,7 @@ import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {SfCuratedProperties} from '@viewers/common/curated_properties';

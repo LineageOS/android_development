@@ -17,7 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {TransformTypeFlags} from '@common/geometry/transform';
 import {SetFormatters} from '@parsers/helpers/set_formatters';
-import {PropertyTreeBuilder} from '@test/unit/property_tree_builder';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {
   makeBufferNode,
@@ -26,7 +26,7 @@ import {
   makeRectNode,
   makeSizeNode,
   makeTransformNode,
-} from '@test/unit/tree_node_test_helpers';
+} from '@test/unit/tree_node/tree_node_test_helpers';
 import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from '@trace/formatters';
 import {
   TamperedMessageType,

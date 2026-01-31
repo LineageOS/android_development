@@ -39,10 +39,10 @@ import {
   TabbedViewSwitchRequest,
   TabbedViewSwitched,
 } from '@app/tabbed_view_events';
-import {checkTooltips, DOMTestHelper} from '@test/unit/dom_test_helpers';
+import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeZeroTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {Viewer, ViewType} from '@viewers/viewer';
 import {ViewerStub} from '@viewers/viewer_stub';
