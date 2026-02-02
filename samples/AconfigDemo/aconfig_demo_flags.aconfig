@@ -236,3 +236,9 @@ flag {
     description: "A test flag to test new voyager sync hooks and flags db"
     bug: "462193366"
 }
+flag {
+    name: "test_voyager_flag_1"
+    namespace: "gantry"
+    description: "A test flag for the new templaters"
+    bug: "456526598"
+}
