@@ -177,7 +177,12 @@ limitations under the License.
         @let fieldClass = getFieldClass(field, $index);
         <div [class]="fieldClass">
           @if (!showFieldButton(entry, field) && !isClickableArray(field.value)) {
-            <span class="mat-body-1">{{ field.value }}</span>
+            <span
+              class="mat-body-1 field-value"
+              [matTooltip]="field.tooltip"
+              matTooltipPosition="above"
+              >{{ field.value }}</span
+            >
           }
           @if (showFieldButton(entry, field)) {
             <button
