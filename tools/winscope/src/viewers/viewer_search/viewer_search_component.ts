@@ -50,12 +50,15 @@ import {
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
 import {assertDefined} from '@common/assert';
+import {downloadFromUrl} from '@common/download';
+import {Timestamp} from '@common/time/time';
 import {TimeDuration} from '@common/time/time_duration';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {Analytics} from '@logging/analytics';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+import {ClickableProperty} from '@viewers/common/ui_data_log';
 import {
   AddQueryClickDetail,
   ClearQueryClickDetail,
@@ -71,6 +74,12 @@ import {ViewerComponent} from '@viewers/components/viewer_component';
 import {ActiveSearchComponent} from './active_search_component';
 import {ListItemOption, SearchListComponent} from './search_list_component';
 import {CurrentSearch, ListedSearch, UiData} from './ui_data';
+import {UserNotifier} from '@services/user_notifier';
+import {
+  makeWarningExportTooLarge,
+  makeWarningFailedToExportToCsv,
+  makeWarningNoResultsToExport,
+} from '@app/warnings';
 
 @Component({
   standalone: true,
@@ -311,6 +320,79 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
     this.checkScrollViewport = event.index;
     this.changeDetectorRef.detectChanges();
     this.checkScrollViewport = -1;
+  }
+
+  exportToCsv(search: CurrentSearch, download = downloadFromUrl) {
+    try {
+      const result = search.result;
+      if (result == null) return;
+
+      if (result.entries.length === 0) {
+        UserNotifier.add(makeWarningNoResultsToExport()).notify();
+        return;
+      }
+
+      const MAX_ROWS = 100000;
+      if (result.entries.length > MAX_ROWS) {
+        UserNotifier.add(makeWarningExportTooLarge(MAX_ROWS)).notify();
+        return;
+      }
+
+      const headers = result.headers.map((h) => this.escapeCsv(h.spec.name));
+      const rows = result.entries.map((entry) => {
+        return entry.fields.map((field) => {
+          const value = field.value;
+          if (value instanceof Timestamp) {
+            return this.escapeCsv(value.format());
+          }
+          if (Array.isArray(value)) {
+            const stringValue = value
+              .map((item) => {
+                if (
+                  typeof item === 'object' &&
+                  item !== null &&
+                  'propertyValue' in item
+                ) {
+                  return (item as ClickableProperty).propertyValue;
+                }
+                return String(item);
+              })
+              .join(', ');
+            return this.escapeCsv(stringValue);
+          }
+          return this.escapeCsv(String(value ?? ''));
+        });
+      });
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((r) => r.join(',')),
+      ].join('\n');
+
+      const blob = new Blob(['\ufeff' + csvContent], {
+        type: 'text/csv;charset=utf-8;',
+      });
+      const url = window.URL.createObjectURL(blob);
+      download(url, `search_results_${search.uid}.csv`);
+      Analytics.TraceSearch.logQueryExportedToCsv();
+    } catch (e) {
+      UserNotifier.add(
+        makeWarningFailedToExportToCsv(e instanceof Error ? e.message : ''),
+      ).notify();
+      Analytics.TraceSearch.logQueryExportFailed();
+    }
+  }
+
+  private escapeCsv(value: string): string {
+    if (
+      value.includes(',') ||
+      value.includes('"') ||
+      value.includes('\n') ||
+      value.includes('\r')
+    ) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
   }
 
   private updateSearchSections(simpleChanges: SimpleChanges) {

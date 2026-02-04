@@ -32,7 +32,10 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
 import {assertDefined} from '@common/assert';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {
   AddQueryClickDetail,
@@ -42,6 +45,13 @@ import {
   SearchQueryClickDetail,
   ViewerEvents,
 } from '@viewers/common/viewer_events';
+import {Analytics} from '@logging/analytics';
+import {
+  makeWarningExportTooLarge,
+  makeWarningFailedToExportToCsv,
+  makeWarningNoResultsToExport,
+} from '@app/warnings';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {LogComponent} from '@viewers/components/log_component';
@@ -49,12 +59,46 @@ import {ActiveSearchComponent} from './active_search_component';
 import {SearchListComponent} from './search_list_component';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
 import {ViewerSearchComponent} from './viewer_search_component';
+import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
 
 describe('ViewerSearchComponent', () => {
   const testQuery = 'select * from table';
   const accordionItemSelector = '.accordion-item-header';
   const searchQuerySelector = '.query-actions .search-button';
   const listedSearchSelector = '.listed-search-option';
+  const headers: LogHeader[] = [
+    new LogHeader({name: 'Column 1', cssClass: 'col1'}),
+    new LogHeader({name: 'Column, 2', cssClass: 'col2'}),
+  ];
+
+  const trace = new TraceBuilder<PropertyTreeNode>()
+    .setTimestamps([makeRealTimestamp(100n), makeRealTimestamp(200n)])
+    .build();
+
+  const entries: LogEntry[] = [
+    {
+      traceEntry: trace.getEntry(0),
+      fields: [
+        {spec: headers[0].spec, value: 'value 1'},
+        {spec: headers[1].spec, value: 'value "2"'},
+      ],
+      getPropertiesTree: undefined,
+    },
+    {
+      traceEntry: trace.getEntry(1),
+      fields: [
+        {spec: headers[0].spec, value: 'value 3\nwith newline'},
+        {spec: headers[1].spec, value: makeRealTimestamp(300n)},
+      ],
+      getPropertiesTree: undefined,
+    },
+  ];
+
+  const search = new CurrentSearch(
+    1,
+    'query',
+    new SearchResult(headers, entries),
+  );
   let component: TestHostComponent;
   let dom: DOMTestHelper<TestHostComponent>;
 
@@ -184,6 +228,62 @@ describe('ViewerSearchComponent', () => {
     expect(dom.find('.query-execution-time')).toBeDefined();
     expect(dom.find('log-view')).toBeDefined();
     expect(dom.find(placeholderCss)).toBeUndefined();
+    expect(dom.find('.result-actions')).toBeDefined();
+    dom.get('.result-actions').checkTextExact('download Export to CSV');
+  });
+
+  it('exports search results to csv', async () => {
+    const analyticsSpy = spyOn(Analytics.TraceSearch, 'logQueryExportedToCsv');
+    const downloadSpy = jasmine.createSpy();
+    const createObjectURLSpy = spyOn(URL, 'createObjectURL').and.callFake(
+      (_) => 'blob:url',
+    );
+
+    assertDefined(component.searchComponent).exportToCsv(search, downloadSpy);
+
+    const expectedCsv = [
+      'Column 1,"Column, 2"',
+      'value 1,"value ""2"""',
+      '"value 3\nwith newline","1970-01-01, 00:00:00.000"',
+    ].join('\n');
+
+    expect(downloadSpy).toHaveBeenCalledWith(
+      'blob:url',
+      'search_results_1.csv',
+    );
+    expect(analyticsSpy).toHaveBeenCalled();
+
+    const blob = createObjectURLSpy.calls.mostRecent().args[0] as Blob;
+    expect(await blob.text()).toEqual(expectedCsv);
+  });
+
+  it('notifies user on export failure', () => {
+    const userNotifierChecker = new UserNotifierChecker();
+    const analyticsSpy = spyOn(Analytics.TraceSearch, 'logQueryExportFailed');
+    const errorMessage = 'Export error';
+    spyOn(URL, 'createObjectURL').and.throwError(errorMessage);
+
+    assertDefined(component.searchComponent).exportToCsv(search);
+
+    userNotifierChecker.expectNotified([
+      makeWarningFailedToExportToCsv(errorMessage),
+    ]);
+    expect(analyticsSpy).toHaveBeenCalled();
+  });
+
+  it('notifies user on empty results export', () => {
+    const userNotifierChecker = new UserNotifierChecker();
+    const search = new CurrentSearch(1, 'query', new SearchResult([], []));
+    assertDefined(component.searchComponent).exportToCsv(search);
+    userNotifierChecker.expectNotified([makeWarningNoResultsToExport()]);
+  });
+
+  it('notifies user on too large results export', () => {
+    const userNotifierChecker = new UserNotifierChecker();
+    const entries = new Array(100001).fill({});
+    const search = new CurrentSearch(1, 'query', new SearchResult([], entries));
+    assertDefined(component.searchComponent).exportToCsv(search);
+    userNotifierChecker.expectNotified([makeWarningExportTooLarge(100000)]);
   });
 
   it('adds search sections', () => {

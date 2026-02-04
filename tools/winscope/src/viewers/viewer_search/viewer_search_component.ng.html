@@ -146,6 +146,12 @@ limitations under the License.
         @for (curr of getCurrentSearchesWithResults(); track curr.uid) {
           <mat-tab [label]="getQueryLabel(curr.uid)">
             <div class="result">
+              <div class="result-actions">
+                <button mat-stroked-button color="primary" (click)="exportToCsv(curr)">
+                  <mat-icon>download</mat-icon>
+                  Export to CSV
+                </button>
+              </div>
               <div class="results-table">
                 <log-view
                   class="results-log-view"
