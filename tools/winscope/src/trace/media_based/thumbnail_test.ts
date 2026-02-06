@@ -20,7 +20,14 @@ describe('Thumbnail', () => {
   let thumbnail: Thumbnail;
 
   beforeEach(() => {
-    thumbnail = new Thumbnail(10, 2, 4, new Blob([], {type: 'video/mp4'}), 8, 16);
+    thumbnail = new Thumbnail(
+      10,
+      2,
+      4,
+      new Blob([], {type: 'video/mp4'}),
+      8,
+      16,
+    );
   });
 
   afterEach(() => {

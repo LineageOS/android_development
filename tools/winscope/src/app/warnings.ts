@@ -197,3 +197,27 @@ export function makeWarningFailedToConvertLegacyTraces(errorMessage: string) {
 Discarding legacy traces.`,
   );
 }
+
+/**
+ * A warning for when CSV export fails.
+ */
+export function makeWarningFailedToExportToCsv(errorMessage: string) {
+  return new UserWarning('failed to export to CSV', errorMessage);
+}
+
+/**
+ * A warning for when there are no results to export to CSV.
+ */
+export function makeWarningNoResultsToExport() {
+  return new UserWarning('No results to export', 'No results to export');
+}
+
+/**
+ * A warning for when the result set is too large to export to CSV.
+ */
+export function makeWarningExportTooLarge(maxRows: number) {
+  return new UserWarning(
+    'Export too large',
+    `Result set is too large for CSV export (max ${maxRows} rows). Try narrowing your query.`,
+  );
+}

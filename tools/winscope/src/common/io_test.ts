@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getFixtureFile } from '@test/unit/common/io_helpers';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
   createZipArchive,
   decompressGZipFile,

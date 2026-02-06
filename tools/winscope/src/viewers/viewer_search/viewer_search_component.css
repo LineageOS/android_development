@@ -50,6 +50,13 @@ active-search {
   flex-direction: column;
 }
 
+.result-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
 .results-log-view {
   display: flex;
   flex-direction: column;

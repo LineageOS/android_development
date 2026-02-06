@@ -50,6 +50,8 @@ const TP_QUERY_EXECUTION_TIME = 'tp_query_execution_time';
 const TP_QUERY_REQUESTED = 'tp_query_requested';
 const TP_QUERY_FAILED = 'tp_query_failed';
 const TP_QUERY_SAVED = 'tp_query_saved';
+const TP_QUERY_EXPORTED_TO_CSV = 'tp_query_exported_to_csv';
+const TP_QUERY_EXPORT_FAILED = 'tp_query_export_failed';
 const TP_SEARCH_INITIALIZATION_TIME = 'tp_search_initialization_time';
 const TIME_BOOKMARK = 'time_bookmark';
 const TIME_COPIED = 'time_copied';
@@ -331,6 +333,12 @@ export const Analytics = {
     },
     logQuerySaved() {
       analyticsLogEvent(TP_QUERY_SAVED);
+    },
+    logQueryExportedToCsv() {
+      analyticsLogEvent(TP_QUERY_EXPORTED_TO_CSV);
+    },
+    logQueryExportFailed() {
+      analyticsLogEvent(TP_QUERY_EXPORT_FAILED);
     },
   },
 
