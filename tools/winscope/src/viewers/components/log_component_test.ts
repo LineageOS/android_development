@@ -421,8 +421,6 @@ describe('LogComponent', () => {
     expect(spy).toHaveBeenCalledOnceWith(0);
   });
 
-  // TODO: This test should be reviewed since it's very simplistic and does not cover much of the functionality.
-  // Blocking point at the moment of creation: inside onDocumentCopy cannot get isCopyInsideLogComponent = true.
   it('copies formatted log', () => {
     const onDocumentCopySpy = spyOn(
       assertDefined(component.logComponent),
@@ -437,9 +435,16 @@ describe('LogComponent', () => {
       composed: true,
     });
 
-    document.dispatchEvent(copyEvent);
+    const preventDefaultSpy = spyOn(copyEvent, 'preventDefault');
+    const stopPropagationSpy = spyOn(copyEvent, 'stopPropagation');
+
+    const entry = dom.findAndClick('.go-to-first-entry');
+
+    entry.dispatchEvent(copyEvent);
 
     expect(onDocumentCopySpy).toHaveBeenCalledTimes(1);
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+    expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
   });
 
   function setComponentInputData(elapsed = true) {
