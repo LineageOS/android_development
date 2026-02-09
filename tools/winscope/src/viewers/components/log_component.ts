@@ -417,7 +417,7 @@ export class LogComponent {
       if (range.intersectsNode(entryElement)) {
         const itemIdStr = entryElement.getAttribute('item-id');
         if (itemIdStr !== null) {
-          const absoluteIndex = parseInt(itemIdStr, 10);
+          const absoluteIndex = Number(itemIdStr);
           if (!isNaN(absoluteIndex) && this.entries[absoluteIndex]) {
             selectedEntries.push(this.entries[absoluteIndex]);
           }

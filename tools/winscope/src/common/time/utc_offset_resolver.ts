@@ -15,7 +15,6 @@
  */
 
 import {TraceProcessor} from '@trace_processor/trace_processor';
-import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {TimezoneInfo, Timestamp} from './time';
 import {UTCOffset} from './utc_offset';
 
@@ -34,11 +33,13 @@ import {UTCOffset} from './utc_offset';
 export async function getResolvedUTCOffset(
   timezoneInfo: TimezoneInfo,
   fallbackTimestamp: Timestamp,
-  traceProcessor: TraceProcessor = TraceProcessorFactory.getSingleInstance(),
+  traceProcessor?: TraceProcessor,
 ): Promise<UTCOffset> {
   let utcOffsetNs: bigint;
 
-  const perfettoTimezoneNs = await getTimezoneNsFromPerfetto(traceProcessor);
+  const perfettoTimezoneNs = traceProcessor
+    ? await getTimezoneNsFromPerfetto(traceProcessor)
+    : undefined;
 
   if (perfettoTimezoneNs !== undefined) {
     utcOffsetNs = perfettoTimezoneNs;
@@ -78,7 +79,6 @@ async function getTimezoneNsFromPerfetto(
 
   if (result && result.numRows() > 0) {
     const timezoneOffsetMinutes = result.firstRow({int_value: 0}).int_value;
-
     const secondsPerMinute = 60n;
     const nanosecondsPerSecond = 1_000_000_000n;
     return (

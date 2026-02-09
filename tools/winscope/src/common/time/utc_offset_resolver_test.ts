@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 
-import {
-  timestampEqualityTester,
-  ASIA_TIMEZONE_INFO,
-} from '@common/time/test_helpers';
-import {TIME_UNIT_TO_NANO} from './time_units';
+import {timestampEqualityTester} from '@common/time/test_helpers';
 import {UTC_TIMEZONE_INFO, TimestampConverter} from './timestamp_converter';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
+import {makeSpyQueryResult} from '@trace_processor/test_utils';
 
 describe('TimestampConverter', () => {
-  const MILLISECOND = BigInt(TIME_UNIT_TO_NANO.ms);
-  const SECOND = BigInt(TIME_UNIT_TO_NANO.s);
-  const MINUTE = BigInt(TIME_UNIT_TO_NANO.m);
-  const HOUR = BigInt(TIME_UNIT_TO_NANO.h);
-  const DAY = BigInt(TIME_UNIT_TO_NANO.d);
-
-  const testElapsedNs = 100n;
-  const testRealNs = 1659243341051481088n; // Sun, 31 Jul 2022 04:55:41 GMT to test timestamp conversion between different days
-  const testMonotonicTimeOffsetNs = 5n * MILLISECOND;
-  const testRealToBootTimeOffsetNs = MILLISECOND;
+  // Sun, 31 Jul 2022 04:55:41 GMT to test timestamp conversion between different days
+  const testRealNs = 1659243341051481088n;
 
   beforeAll(() => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
@@ -58,21 +47,9 @@ describe('TimestampConverter', () => {
     });
 
     it('check query is correctly sent and received to and from Perfetto', async () => {
-      const mockResult = {
-        numRows: () => 1,
-        columns: () => ['int_value'],
-        iter: () => ({
-          valid: () => false,
-          next: () => {},
-          get: () => null,
-        }),
-        firstRow: () => ({int_value: -60}),
-      };
-      mockTraceProcessor.query.and.returnValue(
-        Promise.resolve(mockResult as any),
-      );
+      setQueryResult(-60);
 
-      const utcOffset = await getResolvedUTCOffset(
+      await getResolvedUTCOffset(
         converter.getTimezoneInfo(),
         converter.makeTimestampFromRealNs(testRealNs),
         mockTraceProcessor,
@@ -83,19 +60,7 @@ describe('TimestampConverter', () => {
     });
 
     it('check utc-1 offset is correctly read and set from Perfetto', async () => {
-      const mockResult = {
-        numRows: () => 1,
-        columns: () => ['int_value'],
-        iter: () => ({
-          valid: () => false,
-          next: () => {},
-          get: () => null,
-        }),
-        firstRow: () => ({int_value: -60}),
-      };
-      mockTraceProcessor.query.and.returnValue(
-        Promise.resolve(mockResult as any),
-      );
+      setQueryResult(-60);
 
       const utcOffset = await getResolvedUTCOffset(
         converter.getTimezoneInfo(),
@@ -108,19 +73,7 @@ describe('TimestampConverter', () => {
     });
 
     it('check utc+7 offset is correctly read and set from Perfetto', async () => {
-      const mockResult = {
-        numRows: () => 1,
-        columns: () => ['int_value'],
-        iter: () => ({
-          valid: () => false,
-          next: () => {},
-          get: () => null,
-        }),
-        firstRow: () => ({int_value: 420}),
-      };
-      mockTraceProcessor.query.and.returnValue(
-        Promise.resolve(mockResult as any),
-      );
+      setQueryResult(420);
 
       const utcOffset = await getResolvedUTCOffset(
         converter.getTimezoneInfo(),
@@ -133,19 +86,7 @@ describe('TimestampConverter', () => {
     });
 
     it('check if utc+15 offset is read from Perfetto, error is raised', async () => {
-      const mockResult = {
-        numRows: () => 1,
-        columns: () => ['int_value'],
-        iter: () => ({
-          valid: () => false,
-          next: () => {},
-          get: () => null,
-        }),
-        firstRow: () => ({int_value: 900}),
-      };
-      mockTraceProcessor.query.and.returnValue(
-        Promise.resolve(mockResult as any),
-      );
+      setQueryResult(900);
 
       await expectAsync(
         getResolvedUTCOffset(
@@ -159,19 +100,7 @@ describe('TimestampConverter', () => {
     });
 
     it('check if utc-13 offset is read from Perfetto, error is raised', async () => {
-      const mockResult = {
-        numRows: () => 1,
-        columns: () => ['int_value'],
-        iter: () => ({
-          valid: () => false,
-          next: () => {},
-          get: () => null,
-        }),
-        firstRow: () => ({int_value: -780}),
-      };
-      mockTraceProcessor.query.and.returnValue(
-        Promise.resolve(mockResult as any),
-      );
+      setQueryResult(-780);
 
       await expectAsync(
         getResolvedUTCOffset(
@@ -183,5 +112,12 @@ describe('TimestampConverter', () => {
         'Failed to set timezone offset greater than UTC-12:00',
       );
     });
+
+    function setQueryResult(intValue: number) {
+      const spyQueryResult = makeSpyQueryResult();
+      spyQueryResult.numRows.and.returnValue(1);
+      spyQueryResult.firstRow.and.returnValue({int_value: intValue});
+      mockTraceProcessor.query.and.returnValue(Promise.resolve(spyQueryResult));
+    }
   });
 });

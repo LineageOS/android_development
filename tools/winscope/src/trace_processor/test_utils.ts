@@ -80,7 +80,11 @@ export async function runQueryAndGetResult(
 export function makeSpyQueryResult(
   iter?: jasmine.SpyObj<RowIterator>,
 ): jasmine.SpyObj<QueryResult> {
-  const qr = jasmine.createSpyObj<QueryResult>('result', ['numRows', 'iter']);
+  const qr = jasmine.createSpyObj<QueryResult>('result', [
+    'numRows',
+    'iter',
+    'firstRow',
+  ]);
   if (iter) {
     qr.iter.and.returnValue(iter);
   }

@@ -56,6 +56,7 @@ import {ParserSearch} from '@parsers/search/parser_search';
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningIncompleteFrameMapping} from './warnings';
 import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 
 /**
  * A class that stores and transforms trace data.
@@ -452,6 +453,7 @@ export class LoadedFileData {
         const utcOffset = await getResolvedUTCOffset(
           UTC_TIMEZONE_INFO,
           timestamp,
+          TraceProcessorFactory.getSingleInstance(),
         );
         this.timestampConverter.setUTCOffset(utcOffset);
         break;
