@@ -34,8 +34,6 @@ import sys
 from typing import Optional, TypedDict
 import xml.etree.ElementTree as ET
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
-
 
 class OperationType(enum.Enum):
     """Represents the type of file operation."""
@@ -100,6 +98,27 @@ def get_parser() -> argparse.ArgumentParser:
         "--dry-run",
         action="store_true",
         help="Log which directories would be removed without actually deleting them.",
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=(
+            "critical",
+            "error",
+            "warning",
+            "notice",
+            "info",
+            "debug",
+        ),
+        default="critical",
+        help="Set the logging level.",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_const",
+        const="info",
+        dest="log_level",
+        help="Alias for --log-level=info",
     )
     return parser
 
@@ -308,6 +327,10 @@ def remove_project_directories(
 def main(argv: Optional[list[str]] = None) -> Optional[int]:
     parser = get_parser()
     opts = parser.parse_args(argv)
+
+    log_format = "%(asctime)s %(levelname)s: %(message)s"
+    log_level = getattr(logging, opts.log_level.upper())
+    logging.basicConfig(level=log_level, format=log_format, force=True)
 
     snapshot_manifest_path = opts.snapshot_manifest
     checkout_root = opts.checkout_root
