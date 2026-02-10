@@ -20,7 +20,10 @@ import {Trace, TraceEntry} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {makeIdMatchFilter, makeNodeFilter} from '@tree_node/helpers';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {
+  DataHierarchyTreeNode,
+  HierarchyTreeNode,
+} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
@@ -49,14 +52,14 @@ export type HierarchyTraceEntry = TraceEntry<
 
 export type GetHierarchyTreeNameType = (
   entry: HierarchyTraceEntry,
-  tree: HierarchyTreeNode,
+  tree: DataHierarchyTreeNode,
 ) => string;
 
 type FormattedTreeIndex = number;
 
 export interface SelectedTree {
   trace: Trace<HierarchyTreeNode>;
-  tree: HierarchyTreeNode;
+  tree: DataHierarchyTreeNode;
   index: FormattedTreeIndex;
 }
 
@@ -103,7 +106,7 @@ export class HierarchyPresenter {
 
   getCurrentHierarchyTreesForTrace(
     trace: Trace<HierarchyTreeNode>,
-  ): HierarchyTreeNode[] | undefined {
+  ): DataHierarchyTreeNode[] | undefined {
     return this.getCurrentTreesByTrace(trace)?.trees;
   }
 
@@ -164,7 +167,7 @@ export class HierarchyPresenter {
 
   getPreviousHierarchyTreeForTrace(
     trace: Trace<HierarchyTreeNode>,
-  ): HierarchyTreeNode | undefined {
+  ): DataHierarchyTreeNode | undefined {
     return this.previousTrees?.find((p) => p.trace === trace)?.trees[0];
   }
 
@@ -360,7 +363,7 @@ export class HierarchyPresenter {
 
   private async formatTreeAndUpdatePinnedItems(
     trace: Trace<HierarchyTreeNode>,
-    hierarchyTree: HierarchyTreeNode,
+    hierarchyTree: DataHierarchyTreeNode,
     hierarchyTreeIndex: number | undefined,
   ): Promise<UiHierarchyTreeNode> {
     const formattedTree = await this.formatTree(
@@ -374,7 +377,7 @@ export class HierarchyPresenter {
 
   private async formatTree(
     trace: Trace<HierarchyTreeNode>,
-    hierarchyTree: HierarchyTreeNode,
+    hierarchyTree: DataHierarchyTreeNode,
     hierarchyTreeIndex: number | undefined,
   ): Promise<UiHierarchyTreeNode> {
     const uiTree = UiHierarchyTreeNode.from(hierarchyTree);
@@ -396,7 +399,7 @@ export class HierarchyPresenter {
       const prev = this.previousTrees?.find((p) => p.trace === trace);
       let prevTree = prev?.trees[0];
       if (this.previousTrees && prev?.entry && !prevTree) {
-        prevTree = (await prev.entry.getValue()) as HierarchyTreeNode;
+        prevTree = await prev.entry.getValue();
         prev.trees = [prevTree];
       }
       const prevEntryUiTree = prevTree
@@ -480,7 +483,7 @@ export class HierarchyPresenter {
       const treesToSearch = searchFormatted
         ? (curr.formattedTrees ?? [])
         : curr.trees;
-      let target: HierarchyTreeNode | undefined;
+      let target: DataHierarchyTreeNode | undefined;
       const treeIndex = treesToSearch.findIndex((t) => {
         target = t.findDfs(idMatchFilter);
         if (target) {

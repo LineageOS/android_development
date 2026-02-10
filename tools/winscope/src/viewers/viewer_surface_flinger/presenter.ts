@@ -32,7 +32,10 @@ import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {
+  DataHierarchyTreeNode,
+  HierarchyTreeNode,
+} from '@tree_node/hierarchy_tree_node';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {
   AbstractHierarchyViewerPresenter,
@@ -323,7 +326,7 @@ the default for its data type.`,
   }
 
   private getCuratedProperties(
-    hTree: HierarchyTreeNode,
+    hTree: DataHierarchyTreeNode,
     pTree: PropertyTreeNode,
     layerIdToNodeId: Map<bigint, string>,
   ): SfCuratedProperties {

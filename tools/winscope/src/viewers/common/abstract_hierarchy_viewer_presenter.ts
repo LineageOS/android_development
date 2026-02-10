@@ -40,7 +40,10 @@ import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {
+  DataHierarchyTreeNode,
+  HierarchyTreeNode,
+} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {RectsPresenter} from '@viewers/common/rects_presenter';
@@ -662,7 +665,7 @@ export abstract class AbstractHierarchyViewerPresenter<
 
   abstract onHighlightedNodeChange(node: UiHierarchyTreeNode): Promise<void>;
   abstract onHighlightedIdChange(id: string): Promise<void>;
-  protected abstract keepCalculated(tree: HierarchyTreeNode): boolean;
+  protected abstract keepCalculated(tree: DataHierarchyTreeNode): boolean;
   protected abstract getOverrideDisplayName(
     selected: SelectedTree,
   ): string | undefined;

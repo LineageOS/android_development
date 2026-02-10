@@ -15,20 +15,28 @@
  */
 
 import {Warning} from '@common/warning';
-import {TraceProcessor} from '@trace_processor/trace_processor';
 
-import {
-  LazyPropertiesStrategyType,
-  PropertiesProvider,
-} from './properties_provider';
+import {PropertiesProvider} from './properties_provider';
 import {PropertyTreeNode} from './property_tree_node';
 import {TraceRect} from './trace_rect';
 import {TreeNode} from './tree_node';
 
+export abstract class DataHierarchyTreeNode extends TreeNode {
+  abstract getAllProperties(): Promise<PropertyTreeNode>;
+  abstract getEagerPropertyByName(name: string): PropertyTreeNode | undefined;
+  abstract getRects(): TraceRect[];
+  abstract getSecondaryRects(): TraceRect[];
+  abstract getZParent(): DataHierarchyTreeNode | undefined;
+  abstract setParent(parent: DataHierarchyTreeNode): void;
+  abstract getParent(): DataHierarchyTreeNode | undefined;
+  abstract getRelativeChildren(): DataHierarchyTreeNode[];
+  abstract getWarnings(): Warning[];
+}
+
 /**
  * A node in a hierarchy tree.
  */
-export class HierarchyTreeNode extends TreeNode {
+export class HierarchyTreeNode extends DataHierarchyTreeNode {
   private rects: TraceRect[] = [];
   private secondaryRects: TraceRect[] = [];
   private zParent: HierarchyTreeNode | undefined;
@@ -39,35 +47,24 @@ export class HierarchyTreeNode extends TreeNode {
   constructor(
     id: string,
     name: string,
-    readonly propertiesProvider: PropertiesProvider,
+    private readonly propertiesProvider: PropertiesProvider,
   ) {
     super(id, name);
   }
 
-  async getAllProperties(): Promise<PropertyTreeNode> {
+  override async getAllProperties(): Promise<PropertyTreeNode> {
     return await this.propertiesProvider.getAll();
   }
 
-  enableLazyPropertiesFetch(
-    strategy: LazyPropertiesStrategyType,
-    tp: TraceProcessor,
-  ) {
-    this.propertiesProvider.enableLazyPropertiesFetch(strategy, tp);
-  }
-
-  getEagerPropertyByName(name: string): PropertyTreeNode | undefined {
+  override getEagerPropertyByName(name: string): PropertyTreeNode | undefined {
     return this.propertiesProvider.getEagerProperties().getChildByName(name);
-  }
-
-  addEagerProperty(property: PropertyTreeNode): void {
-    this.propertiesProvider.addEagerProperty(property);
   }
 
   setRects(value: TraceRect[]) {
     this.rects = value;
   }
 
-  getRects(): TraceRect[] {
+  override getRects(): TraceRect[] {
     return this.rects;
   }
 
@@ -75,7 +72,7 @@ export class HierarchyTreeNode extends TreeNode {
     this.secondaryRects = value;
   }
 
-  getSecondaryRects(): TraceRect[] {
+  override getSecondaryRects(): TraceRect[] {
     return this.secondaryRects;
   }
 
@@ -83,15 +80,15 @@ export class HierarchyTreeNode extends TreeNode {
     this.zParent = value;
   }
 
-  getZParent(): HierarchyTreeNode | undefined {
+  override getZParent(): HierarchyTreeNode | undefined {
     return this.zParent ?? this.parent;
   }
 
-  setParent(parent: this): void {
+  override setParent(parent: this): void {
     this.parent = parent;
   }
 
-  getParent(): this | undefined {
+  override getParent(): this | undefined {
     return this.parent;
   }
 
@@ -99,7 +96,7 @@ export class HierarchyTreeNode extends TreeNode {
     this.relativeChildren.push(value);
   }
 
-  getRelativeChildren(): HierarchyTreeNode[] {
+  override getRelativeChildren(): HierarchyTreeNode[] {
     return this.relativeChildren;
   }
 
@@ -117,7 +114,7 @@ export class HierarchyTreeNode extends TreeNode {
     return ancestor;
   }
 
-  getWarnings(): Warning[] {
+  override getWarnings(): Warning[] {
     return this.warnings;
   }
 

@@ -49,14 +49,6 @@ export class PropertiesProvider {
     );
   }
 
-  enableLazyPropertiesFetch(
-    strategy: LazyPropertiesStrategyType,
-    tp: TraceProcessor,
-  ) {
-    this.lazyPropertiesStrategy = strategy;
-    this.tp = tp;
-  }
-
   getEagerProperties(): PropertyTreeNode {
     return this.eagerPropertiesRoot;
   }
