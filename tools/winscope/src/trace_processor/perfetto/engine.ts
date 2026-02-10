@@ -29,14 +29,11 @@ import TraceProcessorRpcStream = perfetto.protos.TraceProcessorRpcStream;
 import TPM = perfetto.protos.TraceProcessorRpc.TraceProcessorMethod;
 import MetatraceCategories = perfetto.protos.MetatraceCategories;
 import DisableAndReadMetatraceResult = perfetto.protos.DisableAndReadMetatraceResult;
-import PerfettoSqlStructuredQuery = perfetto.protos.PerfettoSqlStructuredQuery;
-import AnalyzeStructuredQueryResult = perfetto.protos.AnalyzeStructuredQueryResult;
 import ComputeMetricResult = perfetto.protos.ComputeMetricResult;
 import ResetTraceProcessorArgs = perfetto.protos.ResetTraceProcessorArgs;
 import ComputeMetricArgs = perfetto.protos.ComputeMetricArgs;
 import QueryArgs = perfetto.protos.QueryArgs;
 import EnableMetatraceArgs = perfetto.protos.EnableMetatraceArgs;
-import AnalyzeStructuredQueryArgs = perfetto.protos.AnalyzeStructuredQueryArgs;
 import TraceSummarySpec = perfetto.protos.TraceSummarySpec;
 import RegisterSqlPackageArgs = perfetto.protos.RegisterSqlPackageArgs;
 
@@ -117,11 +114,6 @@ export interface Engine {
   enableMetatrace(categories?: MetatraceCategories): void;
   stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult>;
 
-  analyzeStructuredQuery(
-    spec: TraceSummarySpec,
-    queryId: string,
-  ): Promise<AnalyzeStructuredQueryResult>;
-
   getProxy(tag: string): EngineProxy;
   readonly numRequestsPending: number;
   readonly failed: string | undefined;
@@ -152,7 +144,6 @@ export abstract class EngineBase implements Engine {
   private pendingComputeMetrics = new Array<Deferred<string | Uint8Array>>();
   private pendingReadMetatrace?: Deferred<DisableAndReadMetatraceResult>;
   private pendingRegisterSqlPackage?: Deferred<void>;
-  private pendingAnalyzeStructuredQueries?: Deferred<AnalyzeStructuredQueryResult>;
   private _isMetatracingEnabled = false;
   private _numRequestsPending = 0;
   private _failed: string | undefined = undefined;
@@ -316,14 +307,6 @@ export abstract class EngineBase implements Engine {
         } else {
           res.resolve();
         }
-        break;
-      case TPM.TPM_ANALYZE_STRUCTURED_QUERY:
-        const analyzeRes = assertExists(
-          rpc.analyzeStructuredQueryResult,
-        ) as {} as AnalyzeStructuredQueryResult;
-        const x = assertExists(this.pendingAnalyzeStructuredQueries);
-        x.resolve(analyzeRes);
-        this.pendingAnalyzeStructuredQueries = undefined;
         break;
       default:
         this.logger.warn(
@@ -566,25 +549,6 @@ export abstract class EngineBase implements Engine {
     return result;
   }
 
-  analyzeStructuredQuery(
-    spec: TraceSummarySpec,
-    queryId: string,
-  ): Promise<AnalyzeStructuredQueryResult> {
-    if (this.pendingAnalyzeStructuredQueries) {
-      return Promise.reject(new Error('Already analyzing structured queries'));
-    }
-    const result = defer<AnalyzeStructuredQueryResult>();
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_ANALYZE_STRUCTURED_QUERY;
-    const args = (rpc.analyzeStructuredQueryArgs =
-      new AnalyzeStructuredQueryArgs());
-    args.spec = spec;
-    args.queryId = queryId;
-    this.pendingAnalyzeStructuredQueries = result;
-    this.rpcSendRequest(rpc);
-    return result;
-  }
-
   // Marshals the TraceProcessorRpc request arguments and sends the request
   // to the concrete Engine (Wasm or HTTP).
   private rpcSendRequest(rpc: TraceProcessorRpc) {
@@ -670,13 +634,6 @@ export class EngineProxy implements Engine {
 
   stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult> {
     return this.engine.stopAndGetMetatrace();
-  }
-
-  analyzeStructuredQuery(
-    spec: TraceSummarySpec,
-    queryId: string,
-  ): Promise<AnalyzeStructuredQueryResult> {
-    return this.engine.analyzeStructuredQuery(spec, queryId);
   }
 
   get engineId(): string {
