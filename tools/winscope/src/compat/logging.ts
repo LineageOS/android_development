@@ -20,23 +20,26 @@ import {globalConfig} from '@common/global_config';
 
 export type Logger = Log;
 
-const isTest = globalConfig.MODE === 'KARMA_TEST';
+let provider: Log4TSProvider | undefined;
 
-let logLevel = LogLevel.Debug;
-if (isTest) {
-  logLevel = LogLevel.Fatal;
+function getLogLevel(): LogLevel {
+  const isTest = globalConfig.MODE === 'KARMA_TEST';
+  return isTest ? LogLevel.Fatal : LogLevel.Debug;
 }
 
-const provider = Log4TSProvider.createProvider('DefaultLogProvider', {
-  /* Specify the various group expressions to match against */
-  groups: [
-    {
-      expression: new RegExp('.*'),
-      level: logLevel,
-    },
-  ],
-});
-
 export function getLogger(name: string): Logger {
+  if (!provider) {
+    // delayed creation of provider to ensure globalConfig.MODE has been
+    // correctly configured first
+    provider = Log4TSProvider.createProvider('DefaultLogProvider', {
+      /* Specify the various group expressions to match against */
+      groups: [
+        {
+          expression: new RegExp('.*'),
+          level: getLogLevel(),
+        },
+      ],
+    });
+  }
   return provider.getLogger(name);
 }
