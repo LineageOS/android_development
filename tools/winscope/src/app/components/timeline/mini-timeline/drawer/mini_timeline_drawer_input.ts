@@ -15,12 +15,11 @@
  */
 
 import {Transformer} from '@app/components/timeline/mini-timeline/transformer';
-import {Segment} from '@app/components/timeline/segment';
+import {TimelineSegment} from '@app/components/timeline/common/segment';
 import {
-  getTimeRangeForTransition,
-  isTransitionWithUnknownEnd,
-  isTransitionWithUnknownStart,
-} from '@app/components/timeline/timeline_utils';
+  convertLifecycle,
+  getLifecycleForTransition,
+} from '@app/components/timeline/common/transition_timeline_helpers';
 import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
 import {TimeRange, Timestamp} from '@common/time/time';
@@ -32,6 +31,7 @@ import {
   TimelineTrace,
   TimelineTraces,
 } from './mini_canvas_drawer_data';
+import {RenderedRange} from './rendered_range';
 
 /**
  * Input data for the mini timeline drawer.
@@ -48,7 +48,7 @@ export class MiniTimelineDrawerInput {
     public isDarkMode: boolean,
   ) {}
 
-  transform(mapToRange: Segment): MiniCanvasDrawerData {
+  transform(mapToRange: RenderedRange): MiniCanvasDrawerData {
     const transformer = new Transformer(
       this.zoomRange,
       mapToRange,
@@ -79,29 +79,19 @@ export class MiniTimelineDrawerInput {
 
       if (trace.type === TraceType.TRANSITION) {
         // Transition trace is a special case, with entries with time ranges
-        transformedTraceSegments.set(trace, {
-          points: [],
-          activePoint: undefined,
-          segments: this.transformTransitionTraceTimestamps(
-            transformer,
-            trace as Trace<HierarchyTreeNode>,
-          ),
-          activeSegment: activeEntry
-            ? this.transformTransitionEntry(
-                transformer,
-                activeEntry as TraceEntry<HierarchyTreeNode>,
-              )
-            : undefined,
-        });
+        const timeline = this.transformTransitionTraceTimestamps(
+          transformer,
+          trace as Trace<HierarchyTreeNode>,
+          activeEntry as TraceEntry<HierarchyTreeNode> | undefined,
+        );
+        transformedTraceSegments.set(trace, timeline);
       } else {
-        transformedTraceSegments.set(trace, {
-          points: this.transformTraceTimestamps(transformer, trace),
-          activePoint: activeEntry
-            ? transformer.transform(activeEntry.getTimestamp())
-            : undefined,
-          segments: [],
-          activeSegment: undefined,
-        });
+        const timeline = this.transformTraceTimestamps(
+          transformer,
+          trace as Trace<HierarchyTreeNode>,
+          activeEntry,
+        );
+        transformedTraceSegments.set(trace, timeline);
       }
     });
 
@@ -111,10 +101,25 @@ export class MiniTimelineDrawerInput {
   private transformTransitionTraceTimestamps(
     transformer: Transformer,
     trace: Trace<HierarchyTreeNode>,
-  ): Segment[] {
-    return trace
-      .mapEntry((entry) => this.transformTransitionEntry(transformer, entry))
-      .filter((it) => it !== undefined) as Segment[];
+    activeEntry: TraceEntry<HierarchyTreeNode> | undefined,
+  ): TimelineTrace {
+    const segments = trace
+      .mapEntry((entry) =>
+        entry !== activeEntry
+          ? this.transformTransitionEntry(transformer, entry)
+          : undefined,
+      )
+      .filter((it) => it !== undefined)
+      .flat();
+    const activeSegments = activeEntry
+      ? this.transformTransitionEntry(transformer, activeEntry)
+      : [];
+    return {
+      segments,
+      activeSegments,
+      points: [],
+      activePoint: undefined,
+    };
   }
 
   private transformBookmarks(transformer: Transformer): number[] {
@@ -126,42 +131,67 @@ export class MiniTimelineDrawerInput {
   private transformTransitionEntry(
     transformer: Transformer,
     entry: TraceEntry<HierarchyTreeNode>,
-  ): Segment | undefined {
+  ): Array<TimelineSegment<RenderedRange>> {
     const transition: HierarchyTreeNode | undefined = this.timelineData
       .getTransitionEntries()
       .at(entry.getIndex());
     if (!transition) {
-      return undefined;
+      return [];
     }
 
-    const timeRange = getTimeRangeForTransition(
+    const lifecycle = getLifecycleForTransition(
       transition,
       this.selection,
       assertDefined(this.timelineData.getTimestampConverter()),
     );
 
-    if (!timeRange) {
-      return undefined;
+    if (!lifecycle) {
+      return [];
     }
 
-    return {
-      from: transformer.transform(timeRange.from),
-      to: transformer.transform(timeRange.to),
-      unknownStart: isTransitionWithUnknownStart(transition),
-      unknownEnd: isTransitionWithUnknownEnd(transition),
+    const convertStageStrategy = (stage: TimelineSegment<TimeRange>) => {
+      return {
+        from: transformer.transform(stage.segment.from),
+        to: transformer.transform(stage.segment.to),
+      };
     };
+
+    const totalDurationStrategy = (
+      stages: Array<TimelineSegment<RenderedRange>>,
+    ) => {
+      const firstStage = stages[0];
+      const lastStage = stages[stages.length - 1];
+      return {
+        from: firstStage.segment.from,
+        to: lastStage.segment.to,
+      };
+    };
+
+    const lifecycleToRender = convertLifecycle(
+      convertStageStrategy,
+      totalDurationStrategy,
+      lifecycle,
+    );
+    return lifecycleToRender.stages;
   }
 
   private transformTraceTimestamps(
     transformer: Transformer,
     trace: Trace<unknown>,
-  ): number[] {
-    const result: number[] = [];
+    activeEntry: TraceEntry<unknown> | undefined,
+  ): TimelineTrace {
+    const points: number[] = [];
+    let activePoint: number | undefined;
 
-    trace.forEachTimestamp((timestamp) => {
-      result.push(transformer.transform(timestamp));
+    trace.forEachEntry((entry) => {
+      const timestamp = entry.getTimestamp();
+      if (activeEntry === entry) {
+        activePoint = transformer.transform(timestamp);
+      } else {
+        points.push(transformer.transform(timestamp));
+      }
     });
 
-    return result;
+    return {points, activePoint, segments: [], activeSegments: []};
   }
 }

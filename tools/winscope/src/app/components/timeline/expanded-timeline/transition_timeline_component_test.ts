@@ -41,6 +41,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TransitionTimelineComponent} from './transition_timeline_component';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {PENDING_TO_PLAY_COLOR} from 'app/components/timeline/common/transition_timeline_helpers';
 
 describe('TransitionTimelineComponent', () => {
   let component: TransitionTimelineComponent;
@@ -135,7 +136,7 @@ describe('TransitionTimelineComponent', () => {
 
     const transitions = [
       makeTransition(time10, time20), // drawn
-      makeTransition(time60, time160), // drawn
+      makeTransition(time60, time160), // drawn at half size
       makeTransition(time120, time160), // not drawn - starts after selection range
       makeTransition(time0, time5), // not drawn - finishes before selection range
       makeTransition(time5, undefined), // not drawn - starts before selection range with unknown finish time
@@ -154,7 +155,7 @@ describe('TransitionTimelineComponent', () => {
     const oneRowHeight = oneRowTotalHeight - padding;
     const width = component.canvasDrawer.getScaledCanvasWidth();
 
-    expect(drawRectSpy).toHaveBeenCalledTimes(2); // does not draw final transition
+    expect(drawRectSpy).toHaveBeenCalledTimes(2);
     expect(drawRectSpy).toHaveBeenCalledWith(
       new Rect(0, padding, Math.floor(width / 10), oneRowHeight),
       component.color,
@@ -163,7 +164,12 @@ describe('TransitionTimelineComponent', () => {
       false,
     );
     expect(drawRectSpy).toHaveBeenCalledWith(
-      new Rect(Math.floor(width / 2), padding, Math.floor(width), oneRowHeight),
+      new Rect(
+        Math.floor(width / 2),
+        padding,
+        Math.floor(width / 2),
+        oneRowHeight,
+      ),
       component.color,
       1,
       false,
@@ -326,7 +332,9 @@ describe('TransitionTimelineComponent', () => {
 
   it('can draw aborted transitions', async () => {
     const drawRectSpy = spyOn(component.canvasDrawer, 'drawRect');
-    const transitions = [makeTransition(time35, undefined, time85)];
+    const transitions = [
+      makeTransition(undefined, undefined, time85, undefined, time35),
+    ];
     await setTraceAndSelectionRange(transitions, [time35]);
 
     const padding = 5;
@@ -342,7 +350,7 @@ describe('TransitionTimelineComponent', () => {
         Math.floor(width / 2),
         oneRowHeight,
       ),
-      component.color,
+      PENDING_TO_PLAY_COLOR,
       0.25,
       false,
       false,
@@ -351,7 +359,7 @@ describe('TransitionTimelineComponent', () => {
 
   it('can draw transition with unknown start time', async () => {
     const drawRectSpy = spyOn(component.canvasDrawer, 'drawRect');
-    const transitions = [makeTransition(undefined, time85)];
+    const transitions = [makeTransition(undefined, undefined, time85)];
     await setTraceAndSelectionRange(transitions, [time0]);
 
     const padding = 5;
@@ -366,8 +374,8 @@ describe('TransitionTimelineComponent', () => {
         oneRowHeight,
         oneRowHeight,
       ),
-      component.color,
-      1,
+      PENDING_TO_PLAY_COLOR,
+      0.25,
       true,
       false,
     );
@@ -395,13 +403,6 @@ describe('TransitionTimelineComponent', () => {
       false,
       true,
     );
-  });
-
-  it('does not render transition with create time but no dispatch time', async () => {
-    const drawRectSpy = spyOn(component.canvasDrawer, 'drawRect');
-    const transitions = [makeTransition(undefined, time85, undefined, time10)];
-    await setTraceAndSelectionRange(transitions, [time10]);
-    expect(drawRectSpy).not.toHaveBeenCalled();
   });
 
   it('handles missing trace entries', async () => {
@@ -467,6 +468,7 @@ describe('TransitionTimelineComponent', () => {
     finishTimeNs: Timestamp | undefined,
     shellAbortTimeNs?: Timestamp,
     createTimeNs?: Timestamp,
+    sendTimeNs?: Timestamp | undefined,
   ): HierarchyTreeNode {
     return new HierarchyTreeBuilder()
       .setRootNodeFormatter(new SetFormatters())
@@ -477,6 +479,7 @@ describe('TransitionTimelineComponent', () => {
         shellAbortTimeNs,
         finishTimeNs,
         createTimeNs,
+        sendTimeNs,
         status:
           shellAbortTimeNs !== undefined ? TransitionStatus.ABORTED : undefined,
       })

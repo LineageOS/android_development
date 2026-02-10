@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Segment} from '@app/components/timeline/segment';
-import {convertHexToRgb} from '@app/components/timeline/timeline_utils';
+import {TimelineSegment} from '@app/components/timeline/common/segment';
+import {convertHexToRgb} from '@app/components/timeline/common/timeline_drawer_helpers';
 import {Point} from '@common/geometry/point';
 import {MouseEventButton} from '@common/mouse_event_button';
 import {Padding} from '@common/padding';
@@ -34,6 +34,7 @@ import {
 } from './mini_canvas_drawer_data';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';
 import {MiniTimelineDrawerInput} from './mini_timeline_drawer_input';
+import {RenderedRange} from './rendered_range';
 
 /**
  * Mini timeline drawer implementation
@@ -155,7 +156,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     return this.canvas.height / this.getYScale();
   }
 
-  getUsableRange() {
+  getUsableRange(): RenderedRange {
     const padding = this.getPadding();
     return {
       from: padding.left,
@@ -167,7 +168,7 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     return this.inputGetter().transform(this.getUsableRange());
   }
 
-  getClickRange(clickPos: Point) {
+  getClickRange(clickPos: Point): RenderedRange {
     const markerHeight = this.getMarkerHeight();
     if (clickPos.y > markerHeight) {
       return {
@@ -296,11 +297,11 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
       this.ctx.fillRect(entry - width / 2, fromTop, width, lineHeight);
     }
 
-    for (const entry of timelineTrace.segments) {
-      this.drawTransitionEntry(
-        entry,
+    for (const segment of timelineTrace.segments) {
+      this.drawSegment(
+        segment,
         fromTop,
-        TRACE_INFO[trace.type].color,
+        segment.color ?? TRACE_INFO[trace.type].color,
         lineHeight,
       );
     }
@@ -312,11 +313,11 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
       this.ctx.fillRect(entry - width / 2, fromTop, width, lineHeight);
     }
 
-    if (timelineTrace.activeSegment) {
-      this.drawTransitionEntry(
-        timelineTrace.activeSegment,
+    for (const segment of timelineTrace.activeSegments) {
+      this.drawSegment(
+        segment,
         fromTop,
-        this.activePointerColor,
+        segment.activeColor ?? this.activePointerColor,
         lineHeight,
       );
     }
@@ -324,15 +325,16 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     this.ctx.globalAlpha = 1.0;
   }
 
-  private drawTransitionEntry(
-    entry: Segment,
+  private drawSegment(
+    seg: TimelineSegment<RenderedRange>,
     fromTop: number,
     hexColor: string,
     lineHeight: number,
   ) {
+    const entry = seg.segment;
     const width = Math.max(entry.to - entry.from, 3);
 
-    if (!(entry.unknownStart || entry.unknownEnd)) {
+    if (!(seg.unknownStart || seg.unknownEnd)) {
       this.ctx.globalAlpha = MiniTimelineDrawerImpl.TRACE_ENTRY_ALPHA;
       this.ctx.fillStyle = hexColor;
       this.ctx.fillRect(entry.from, fromTop, width, lineHeight);
@@ -353,8 +355,8 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     const startGradientx0 = entry.from - gradientWidthOutsideEntry;
     const endGradientx1 = entry.to + gradientWidthOutsideEntry;
 
-    const start = entry.unknownStart ? startGradientx0 : entry.from;
-    const end = entry.unknownEnd ? endGradientx1 : entry.to;
+    const start = seg.unknownStart ? startGradientx0 : entry.from;
+    const end = seg.unknownEnd ? endGradientx1 : entry.to;
 
     const gradient = this.ctx.createLinearGradient(start, 0, end, 0);
     const gradientRatio = Math.max(
@@ -364,8 +366,8 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
         1,
       ),
     );
-    gradient.addColorStop(0, entry.unknownStart ? transparentColor : rgbaColor);
-    gradient.addColorStop(1, entry.unknownEnd ? transparentColor : rgbaColor);
+    gradient.addColorStop(0, seg.unknownStart ? transparentColor : rgbaColor);
+    gradient.addColorStop(1, seg.unknownEnd ? transparentColor : rgbaColor);
     gradient.addColorStop(gradientRatio, rgbaColor);
     gradient.addColorStop(1 - gradientRatio, rgbaColor);
     this.ctx.fillStyle = gradient;
@@ -373,10 +375,10 @@ export class MiniTimelineDrawerImpl implements MiniTimelineDrawer {
     this.ctx.globalAlpha = 1;
     this.ctx.fillRect(start, fromTop, end - start, lineHeight);
 
-    if (entry.unknownStart) {
+    if (seg.unknownStart) {
       this.drawEllipsis(entry.from - 8.5, fromTop, lineHeight);
     }
-    if (entry.unknownEnd) {
+    if (seg.unknownEnd) {
       this.drawEllipsis(entry.from + width + 1.5, fromTop, lineHeight);
     }
   }

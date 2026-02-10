@@ -16,11 +16,12 @@
 
 import {Component, Input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {TimelineSegment} from '@app/components/timeline/common/segment';
 import {
-  getTimeRangeForTransition,
-  isTransitionWithUnknownEnd,
-  isTransitionWithUnknownStart,
-} from '@app/components/timeline/timeline_utils';
+  convertLifecycle,
+  getLifecycleForTransition,
+  TransitionLifecycle,
+} from '@app/components/timeline/common/transition_timeline_helpers';
 import {assertDefined, assertTrue} from '@common/assert';
 import {Point} from '@common/geometry/point';
 import {Rect} from '@common/geometry/rect';
@@ -82,14 +83,14 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     let selectedRect: Rect | undefined;
     assertDefined(this.trace).forEachEntry((entry) => {
       const index = entry.getIndex();
-      const rect = this.getRectFromIndex(entry.getIndex());
-      if (!rect) {
+      const rects = this.getRectsFromIndex(entry.getIndex());
+      if (!rects) {
         return;
       }
       const transition = assertDefined(this.transitionEntries?.at(index));
-      this.drawSegment(rect, transition);
+      this.drawRects(rects, transition);
       if (index === this.selectedEntry?.getIndex()) {
-        selectedRect = rect;
+        selectedRect = rects.totalDuration;
       }
     });
     if (selectedRect) {
@@ -97,7 +98,9 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     }
   }
 
-  private getRectFromIndex(entryIndex: AbsoluteEntryIndex): Rect | undefined {
+  private getRectsFromIndex(
+    entryIndex: AbsoluteEntryIndex,
+  ): TransitionLifecycle<Rect> | undefined {
     if (this.shouldNotRenderEntries.includes(entryIndex)) {
       return undefined;
     }
@@ -105,16 +108,31 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     if (!transition) {
       return undefined;
     }
-    const timeRange = getTimeRangeForTransition(
+    const lifecycle = getLifecycleForTransition(
       transition,
       assertDefined(this.selectionRange),
       assertDefined(this.timestampConverter),
     );
-    if (!timeRange) {
+    if (!lifecycle) {
       return undefined;
     }
     const row = this.getRowToUseFor(entryIndex);
-    return this.getSegmentRect(timeRange.from, timeRange.to, row);
+
+    const totalDurationStrategy = (stages: Array<TimelineSegment<Rect>>) => {
+      const firstRect = stages[0].segment;
+      const lastRect = stages[stages.length - 1].segment;
+      return new Rect(
+        firstRect.x,
+        firstRect.y,
+        lastRect.x + lastRect.w - firstRect.x,
+        firstRect.h,
+      );
+    };
+    return convertLifecycle(
+      (stage) => this.getSegmentRect(stage.segment, row),
+      totalDurationStrategy,
+      lifecycle,
+    );
   }
 
   protected override getEntryAt(
@@ -125,8 +143,8 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     );
 
     for (const entry of transitionEntries) {
-      const rect = this.getRectFromIndex(entry.getIndex());
-      if (rect?.containsPoint(mousePoint)) {
+      const rects = this.getRectsFromIndex(entry.getIndex());
+      if (rects?.totalDuration?.containsPoint(mousePoint)) {
         return entry;
       }
     }
@@ -146,9 +164,9 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
       return;
     }
 
-    const rect = this.getRectFromIndex(this.hoveringEntry.getIndex());
-    if (rect) {
-      this.canvasDrawer.drawRectBorder(rect);
+    const rects = this.getRectsFromIndex(this.hoveringEntry.getIndex());
+    if (rects) {
+      this.canvasDrawer.drawRectBorder(rects.totalDuration);
     }
   }
 
@@ -162,12 +180,8 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     );
   }
 
-  private getSegmentRect(
-    start: Timestamp,
-    end: Timestamp,
-    rowToUse: number,
-  ): Rect {
-    const xPosStart = this.getXPosOf(start);
+  private getSegmentRect(segment: TimeRange, rowToUse: number): Rect {
+    const xPosStart = this.getXPosOf(segment.from);
     const selectionStart = assertDefined(this.selectionRange).startNs;
     const selectionEnd = assertDefined(this.selectionRange).endNs;
 
@@ -188,7 +202,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     const width = Math.max(
       Number(
         (BigInt(this.getAvailableWidth()) *
-          BigInt(end.getValueNs() - start.getValueNs())) /
+          BigInt(segment.endNs - segment.startNs)) /
           BigInt(selectionEnd - selectionStart),
       ),
       rowHeight,
@@ -202,19 +216,24 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     );
   }
 
-  private drawSegment(rect: Rect, transition: HierarchyTreeNode) {
+  private drawRects(
+    lifecycle: TransitionLifecycle<Rect>,
+    transition: HierarchyTreeNode,
+  ) {
     const aborted =
       transition.getEagerPropertyByName('status')?.formattedValue() ===
       TransitionStatus.ABORTED;
     const alpha = aborted ? 0.25 : 1.0;
 
-    this.canvasDrawer.drawRect(
-      rect,
-      this.color,
-      alpha,
-      isTransitionWithUnknownStart(transition),
-      isTransitionWithUnknownEnd(transition),
-    );
+    lifecycle.stages.forEach((rect) => {
+      this.canvasDrawer.drawRect(
+        rect.segment,
+        rect.color ?? this.color,
+        alpha,
+        rect.unknownStart,
+        rect.unknownEnd,
+      );
+    });
   }
 
   private getRowToUseFor(entryIndex: AbsoluteEntryIndex): number {
@@ -234,23 +253,25 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
         return;
       }
 
-      const timeRange = getTimeRangeForTransition(
+      const lifecycle = getLifecycleForTransition(
         transition,
         assertDefined(this.fullRange),
         assertDefined(this.timestampConverter),
       );
 
-      if (timeRange === undefined) {
+      if (lifecycle === undefined) {
         this.shouldNotRenderEntries.push(index);
         return;
       }
 
       let rowToUse = 0;
-      while ((rowAvailableFrom[rowToUse] ?? 0n) > timeRange.startNs) {
+      while (
+        (rowAvailableFrom[rowToUse] ?? 0n) > lifecycle.totalDuration.startNs
+      ) {
         rowToUse++;
       }
 
-      rowAvailableFrom[rowToUse] = timeRange.endNs;
+      rowAvailableFrom[rowToUse] = lifecycle.totalDuration.endNs;
 
       if (rowToUse + 1 > this.maxRowsRequires) {
         this.maxRowsRequires = rowToUse + 1;
