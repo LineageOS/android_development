@@ -310,12 +310,21 @@ impl ManagedCrate<Vendored> {
             let patchname = self.android_crate.name().to_owned()
                 + "/patches/"
                 + &patch.file_name().unwrap_or_default().to_string_lossy();
-            let output_or_error = Command::new("patch")
-                .args(["-p1", "-l", "--no-backup-if-mismatch", "-i"])
-                .arg(&patch)
-                .current_dir(self.temporary_build_directory())
-                .output()?
-                .success_or_error();
+
+            let patch_with_extra_args = |args: &[&str]| {
+                let mut cmd = Command::new("patch");
+                cmd.args(args)
+                    .args(["-p1", "-l", "--no-backup-if-mismatch", "-i"])
+                    .arg(&patch)
+                    .current_dir(self.temporary_build_directory());
+                cmd
+            };
+
+            // Run the patch command first with `--dry-run`. If this fails, we'll error out with the
+            // tree in a clean state, rather than in a state that potentially has a
+            // partially-applied patch.
+            let output_or_error =
+                patch_with_extra_args(&["--dry-run"]).output()?.success_or_error();
             if let Err(success_or_error::Error::CommandFailedwithOutput { ref stdout, .. }) =
                 output_or_error
             {
@@ -323,7 +332,13 @@ impl ManagedCrate<Vendored> {
                     println!("\nTIP: This patch may have landed upstream. Check that it has. If so, try removing {:?} and run the crate_tool again.\n", patchname);
                 }
             }
-            output_or_error.context(format!("Failed to apply patch file {}", patchname))?;
+            output_or_error.with_context(|| {
+                format!("Failed to apply patch file {} with `--dry-run`", patchname)
+            })?;
+
+            patch_with_extra_args(&[]).output()?.success_or_error().with_context(|| {
+                format!("Failed to apply patch file {}, but --dry-run passed", patchname)
+            })?;
         }
         Ok(())
     }
