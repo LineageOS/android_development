@@ -181,9 +181,9 @@ export class FileReaderTransitions implements LegacyFileReader {
   private getTimestampNsFromTransitionProperties(
     transition: PerfettoTransition,
   ): bigint | undefined {
-    // Entry timestamps are defined as shell dispatch time - if this is
-    // null and send time is not null we fall back on send time
-    const ns = transition.dispatchTimeNs ?? transition.sendTimeNs;
+    // Entry timestamps are defined as send time - if this is null and shell
+    // dispatch time is not null we fall back on shell dispatch time
+    const ns = transition.sendTimeNs ?? transition.dispatchTimeNs;
     if (!ns) {
       return undefined;
     }

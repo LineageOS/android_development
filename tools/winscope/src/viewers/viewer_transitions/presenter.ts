@@ -234,13 +234,13 @@ export class Presenter extends AbstractLogViewerPresenter<
         {
           spec: Presenter.COLUMNS.sendTime,
           value: sendTs ?? Presenter.VALUE_NA,
-          propagateEntryTimestamp:
-            dispatchTs === undefined && sendTs !== undefined,
+          propagateEntryTimestamp: sendTs !== undefined,
         },
         {
           spec: Presenter.COLUMNS.dispatchTime,
           value: dispatchTs ?? Presenter.VALUE_NA,
-          propagateEntryTimestamp: dispatchTs !== undefined,
+          propagateEntryTimestamp:
+            sendTs === undefined && dispatchTs !== undefined,
         },
         {
           spec: Presenter.COLUMNS.duration,
