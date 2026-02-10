@@ -36,8 +36,32 @@ import {TextFilter} from '@viewers/common/text_filter';
 import {LogHeader} from '@viewers/common/ui_data_log';
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {Timer} from '@common/time/timer';
 
 class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
+  override executeSpecializedTests() {
+    describe('Specialized tests', () => {
+      let uiData: UiData;
+
+      it('tooltip message correctly set', async () => {
+        await this.setUpTestEnvironment();
+
+        const presenter = await this.createPresenter((newData) => {
+          uiData = newData;
+        });
+
+        await new Timer().wait(() => !uiData.isFetchingData);
+
+        expect(uiData.entries[0].fields[2].tooltip).toBeUndefined();
+        expect(uiData.entries[1].fields[2].tooltip).toBe(
+          'Location information (file and line) is unavailable. This is because ProtoLog entries are only preprocessed to include source locations when logged from Java files with a configured protologtool genrule. Kotlin files are not currently supported for this preprocessing.',
+        );
+        expect(uiData.entries[2].fields[2].tooltip).toBeUndefined();
+        expect(uiData.entries[3].fields[2].tooltip).toBeUndefined();
+      });
+    });
+  }
+
   override readonly expectedHeaders = [
     {
       header: new LogHeader(

@@ -36,7 +36,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {Timestamp} from '@common/time/time';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {
   makeElapsedTimestamp,
   makeRealTimestamp,
@@ -71,6 +71,8 @@ describe('LogComponent', () => {
   const testColumn1: ColumnSpec = {name: 'test1', cssClass: 'test-1'};
   const testColumn2: ColumnSpec = {name: 'test2', cssClass: 'test-2'};
   const testColumn3: ColumnSpec = {name: 'test3', cssClass: 'test-3'};
+
+  const tooltipMessage = 'Test tooltip message';
 
   let fixture: ComponentFixture<TestHostComponent>;
   let component: TestHostComponent;
@@ -446,6 +448,56 @@ describe('LogComponent', () => {
     expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
     expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('tooltip message correctly set', async () => {
+    setTooltipInputData(tooltipMessage);
+
+    dom.detectChanges();
+    await dom.whenStable();
+
+    const entry = dom.get('.field-value');
+    entry.checkTooltip(tooltipMessage);
+  });
+
+  it('tooltip message correctly undefined', async () => {
+    setTooltipInputData(undefined);
+
+    dom.detectChanges();
+    await dom.whenStable();
+
+    const entry = dom.get('.field-value');
+    entry.checkTooltip(undefined);
+  });
+
+  function setTooltipInputData(message: string | undefined) {
+    const entryTime = makeElapsedTimestamp(1n);
+
+    const fields: LogField[] = [
+      {spec: testColumn1, value: 'Test tag 1', tooltip: message},
+    ];
+
+    const trace = new TraceBuilder<PropertyTreeNode>()
+      .setTimestamps([entryTime, entryTime])
+      .build();
+
+    const entry: LogEntry = {
+      traceEntry: trace.getEntry(0),
+      fields,
+      getPropertiesTree: undefined,
+    };
+
+    const headers = [
+      new LogHeader(
+        testColumn1,
+        new LogSelectFilter(['Test tag 1', 'Test tag 2']),
+      ),
+    ];
+
+    component.entries = [entry];
+    component.headers = headers;
+    component.selectedIndex = 0;
+    component.traceType = TraceType.CUJS;
+  }
 
   function setComponentInputData(elapsed = true) {
     let entryTime: Timestamp;
