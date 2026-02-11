@@ -43,7 +43,6 @@ class Updater:
             ["dump-ndk-abi"],
             env={
                 "TARGET_PRODUCT": "ndk",
-                "TARGET_RELEASE": "trunk_staging",
                 # TODO: remove ALLOW_MISSING_DEPENDENCIES=true when all the
                 # riscv64 dependencies exist (currently blocked by
                 # http://b/273792258).
@@ -74,13 +73,14 @@ class Updater:
                 logger().info(f"Copying ABI dump {dump} to {install_path}")
                 shutil.copy2(dump, install_path)
 
-    def run(self) -> None:
+    def run(self, skip_build: bool = False) -> None:
         """Runs the updater.
 
         Cleans the out directory, builds the ABI dumps, and copies the results
         to the prebuilts directory.
         """
-        self.build_abi_dumps()
+        if not skip_build:
+            self.build_abi_dumps()
         self.copy_updated_abi_dumps()
 
 
@@ -135,6 +135,12 @@ class App:
             help="Increase logging verbosity.",
         )
 
+        parser.add_argument(
+            "--skip-build",
+            action="store_true",
+            help="Skip the Soong build step.",
+        )
+
         return parser.parse_args()
 
     def run(self) -> None:
@@ -149,4 +155,4 @@ class App:
                 f"Android source tree: {test_path} does not exist."
             )
 
-        Updater(args.src_dir, args.out_dir).run()
+        Updater(args.src_dir, args.out_dir).run(args.skip_build)

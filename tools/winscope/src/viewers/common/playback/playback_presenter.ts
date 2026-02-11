@@ -498,12 +498,13 @@ export class PlaybackPresenter {
   }
 
   private assignNodePrototypes(node: HierarchyTreeNode) {
-    this.assignPropertyTreeNodePrototype(
-      node.propertiesProvider.eagerPropertiesRoot,
-    );
     Object.setPrototypeOf(
       node.propertiesProvider,
       PropertiesProvider.prototype,
+    );
+
+    this.assignPropertyTreeNodePrototype(
+      node.propertiesProvider.getEagerProperties(),
     );
 
     Object.setPrototypeOf(node, HierarchyTreeNode.prototype);

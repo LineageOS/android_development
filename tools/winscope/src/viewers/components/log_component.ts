@@ -94,7 +94,7 @@ export class LogComponent {
   emptyFilterValue = '';
   private lastClickedTimestamp: Timestamp | undefined;
 
-  readonly selection = new SelectionModel<LogEntry>(false, []);
+  readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
   @Input() title: string | undefined;
   @Input() selectedIndex: number | undefined;
@@ -182,8 +182,8 @@ export class LogComponent {
       // rendered the target index is still fully rendered
       this.scrollComponent?.scrollToIndex(Math.max(0, this.scrollToIndex - 1));
 
-      this.selection.clear();
-      this.selection.toggle(this.entries[this.scrollToIndex]);
+      this.textSelection.clear();
+      this.textSelection.toggle(this.entries[this.scrollToIndex]);
     }
   }
 
@@ -214,8 +214,8 @@ export class LogComponent {
 
   onEntryClicked(index: number) {
     const clickedEntry = assertDefined(this.entries[index]);
-    this.selection.clear();
-    this.selection.toggle(clickedEntry);
+    this.textSelection.clear();
+    this.textSelection.toggle(clickedEntry);
     this.emitEvent(ViewerEvents.LogEntryClick, index);
   }
 
@@ -227,16 +227,16 @@ export class LogComponent {
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(firstEntry.traceEntry),
       );
-      this.selection.clear();
-      this.selection.toggle(firstEntry);
+      this.textSelection.clear();
+      this.textSelection.toggle(firstEntry);
     }
   }
 
   onGoToCurrentEntryClick() {
     if (this.currentIndex !== undefined && this.scrollComponent) {
       this.scrollComponent.scrollToIndex(this.currentIndex);
-      this.selection.clear();
-      this.selection.toggle(this.entries[this.currentIndex]);
+      this.textSelection.clear();
+      this.textSelection.toggle(this.entries[this.currentIndex]);
     }
   }
 
@@ -249,8 +249,8 @@ export class LogComponent {
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(lastEntry.traceEntry),
       );
-      this.selection.clear();
-      this.selection.toggle(lastEntry);
+      this.textSelection.clear();
+      this.textSelection.toggle(lastEntry);
     }
   }
 
@@ -304,8 +304,7 @@ export class LogComponent {
   }
 
   isSelectedEntry(index: number): boolean {
-    const entry = assertDefined(this.entries[index]);
-    return this.selection.isSelected(entry);
+    return this.selectedIndex === index;
   }
 
   isFixedSizeScrollViewport() {
@@ -398,14 +397,10 @@ export class LogComponent {
       return;
     }
 
-    if (this.hasSelectedEntries()) {
-      this.performCustomCopy(event, this.getSelectedLogEntries());
+    if (this.textSelection.hasValue()) {
+      this.performCustomCopy(event, this.textSelection.selected);
       return;
     }
-  }
-
-  private hasSelectedEntries(): boolean {
-    return this.selection.hasValue();
   }
 
   private getEntriesFromBrowserSelection(range: Range): LogEntry[] {
@@ -417,7 +412,7 @@ export class LogComponent {
       if (range.intersectsNode(entryElement)) {
         const itemIdStr = entryElement.getAttribute('item-id');
         if (itemIdStr !== null) {
-          const absoluteIndex = parseInt(itemIdStr, 10);
+          const absoluteIndex = Number(itemIdStr);
           if (!isNaN(absoluteIndex) && this.entries[absoluteIndex]) {
             selectedEntries.push(this.entries[absoluteIndex]);
           }
@@ -441,10 +436,6 @@ export class LogComponent {
     if (event.clipboardData) {
       event.clipboardData.setData('text/plain', clipboardText);
     }
-  }
-
-  private getSelectedLogEntries(): LogEntry[] {
-    return this.selection.selected;
   }
 
   private formatEntriesForClipboard(entries: LogEntry[]): string {

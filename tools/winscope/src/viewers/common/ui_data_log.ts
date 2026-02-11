@@ -64,6 +64,7 @@ export interface LogField {
   icon?: string;
   iconColor?: string;
   propagateEntryTimestamp?: boolean;
+  tooltip?: string;
 }
 
 export type LogFieldValue =

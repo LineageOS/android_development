@@ -37,7 +37,7 @@ export class PropertiesProvider {
   private allPropertiesRoot: PropertyTreeNode | undefined;
 
   constructor(
-    readonly eagerPropertiesRoot: PropertyTreeNode,
+    private readonly eagerPropertiesRoot: PropertyTreeNode,
     private lazyPropertiesStrategy: LazyPropertiesStrategyType | undefined,
     private tp: TraceProcessor | undefined,
     private readonly commonOperations: OperationChain<PropertyTreeNode>,

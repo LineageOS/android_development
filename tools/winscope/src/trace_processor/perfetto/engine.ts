@@ -29,14 +29,12 @@ import TraceProcessorRpcStream = perfetto.protos.TraceProcessorRpcStream;
 import TPM = perfetto.protos.TraceProcessorRpc.TraceProcessorMethod;
 import MetatraceCategories = perfetto.protos.MetatraceCategories;
 import DisableAndReadMetatraceResult = perfetto.protos.DisableAndReadMetatraceResult;
-import PerfettoSqlStructuredQuery = perfetto.protos.PerfettoSqlStructuredQuery;
-import AnalyzeStructuredQueryResult = perfetto.protos.AnalyzeStructuredQueryResult;
 import ComputeMetricResult = perfetto.protos.ComputeMetricResult;
 import ResetTraceProcessorArgs = perfetto.protos.ResetTraceProcessorArgs;
 import ComputeMetricArgs = perfetto.protos.ComputeMetricArgs;
 import QueryArgs = perfetto.protos.QueryArgs;
 import EnableMetatraceArgs = perfetto.protos.EnableMetatraceArgs;
-import AnalyzeStructuredQueryArgs = perfetto.protos.AnalyzeStructuredQueryArgs;
+import TraceSummarySpec = perfetto.protos.TraceSummarySpec;
 import RegisterSqlPackageArgs = perfetto.protos.RegisterSqlPackageArgs;
 
 export type EngineMode = 'WASM' | 'HTTP_RPC';
@@ -116,10 +114,6 @@ export interface Engine {
   enableMetatrace(categories?: MetatraceCategories): void;
   stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult>;
 
-  analyzeStructuredQuery(
-    structuredQueries: PerfettoSqlStructuredQuery[],
-  ): Promise<AnalyzeStructuredQueryResult>;
-
   getProxy(tag: string): EngineProxy;
   readonly numRequestsPending: number;
   readonly failed: string | undefined;
@@ -150,7 +144,6 @@ export abstract class EngineBase implements Engine {
   private pendingComputeMetrics = new Array<Deferred<string | Uint8Array>>();
   private pendingReadMetatrace?: Deferred<DisableAndReadMetatraceResult>;
   private pendingRegisterSqlPackage?: Deferred<void>;
-  private pendingAnalyzeStructuredQueries?: Deferred<AnalyzeStructuredQueryResult>;
   private _isMetatracingEnabled = false;
   private _numRequestsPending = 0;
   private _failed: string | undefined = undefined;
@@ -314,14 +307,6 @@ export abstract class EngineBase implements Engine {
         } else {
           res.resolve();
         }
-        break;
-      case TPM.TPM_ANALYZE_STRUCTURED_QUERY:
-        const analyzeRes = assertExists(
-          rpc.analyzeStructuredQueryResult,
-        ) as {} as AnalyzeStructuredQueryResult;
-        const x = assertExists(this.pendingAnalyzeStructuredQueries);
-        x.resolve(analyzeRes);
-        this.pendingAnalyzeStructuredQueries = undefined;
         break;
       default:
         this.logger.warn(
@@ -492,7 +477,6 @@ export abstract class EngineBase implements Engine {
       // likely this stack won't be useful on !V8.
       // See
       // https://docs.google.com/document/d/13Sy_kBIJGP0XT34V1CV3nkWya4TwYx9L3Yv45LdGB6Q
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       captureStackTrace(e as Error);
       queryLog.success = false;
       throw e;
@@ -561,23 +545,6 @@ export abstract class EngineBase implements Engine {
     args.modules = pkg.modules;
     args.allowOverride = true;
     this.pendingRegisterSqlPackage = result;
-    this.rpcSendRequest(rpc);
-    return result;
-  }
-
-  analyzeStructuredQuery(
-    structuredQueries: PerfettoSqlStructuredQuery[],
-  ): Promise<AnalyzeStructuredQueryResult> {
-    if (this.pendingAnalyzeStructuredQueries) {
-      return Promise.reject(new Error('Already analyzing structured queries'));
-    }
-    const result = defer<AnalyzeStructuredQueryResult>();
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_ANALYZE_STRUCTURED_QUERY;
-    const args = (rpc.analyzeStructuredQueryArgs =
-      new AnalyzeStructuredQueryArgs());
-    // args.queries = structuredQueries;
-    this.pendingAnalyzeStructuredQueries = result;
     this.rpcSendRequest(rpc);
     return result;
   }
@@ -667,12 +634,6 @@ export class EngineProxy implements Engine {
 
   stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult> {
     return this.engine.stopAndGetMetatrace();
-  }
-
-  analyzeStructuredQuery(
-    structuredQueries: PerfettoSqlStructuredQuery[],
-  ): Promise<AnalyzeStructuredQueryResult> {
-    return this.engine.analyzeStructuredQuery(structuredQueries);
   }
 
   get engineId(): string {

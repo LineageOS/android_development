@@ -15,7 +15,7 @@
 use std::{
     cell::OnceCell,
     collections::BTreeSet,
-    fs::{copy, read_dir, read_to_string, remove_dir_all, remove_file, rename, write},
+    fs::{copy, read, read_dir, read_to_string, remove_dir_all, remove_file, rename, write},
     os::unix::fs::symlink,
     path::{Path, PathBuf},
     process::Command,
@@ -310,12 +310,21 @@ impl ManagedCrate<Vendored> {
             let patchname = self.android_crate.name().to_owned()
                 + "/patches/"
                 + &patch.file_name().unwrap_or_default().to_string_lossy();
-            let output_or_error = Command::new("patch")
-                .args(["-p1", "-l", "--no-backup-if-mismatch", "-i"])
-                .arg(&patch)
-                .current_dir(self.temporary_build_directory())
-                .output()?
-                .success_or_error();
+
+            let patch_with_extra_args = |args: &[&str]| {
+                let mut cmd = Command::new("patch");
+                cmd.args(args)
+                    .args(["-p1", "-l", "--no-backup-if-mismatch", "-i"])
+                    .arg(&patch)
+                    .current_dir(self.temporary_build_directory());
+                cmd
+            };
+
+            // Run the patch command first with `--dry-run`. If this fails, we'll error out with the
+            // tree in a clean state, rather than in a state that potentially has a
+            // partially-applied patch.
+            let output_or_error =
+                patch_with_extra_args(&["--dry-run"]).output()?.success_or_error();
             if let Err(success_or_error::Error::CommandFailedwithOutput { ref stdout, .. }) =
                 output_or_error
             {
@@ -323,7 +332,13 @@ impl ManagedCrate<Vendored> {
                     println!("\nTIP: This patch may have landed upstream. Check that it has. If so, try removing {:?} and run the crate_tool again.\n", patchname);
                 }
             }
-            output_or_error.context(format!("Failed to apply patch file {}", patchname))?;
+            output_or_error.with_context(|| {
+                format!("Failed to apply patch file {} with `--dry-run`", patchname)
+            })?;
+
+            patch_with_extra_args(&[]).output()?.success_or_error().with_context(|| {
+                format!("Failed to apply patch file {}, but --dry-run passed", patchname)
+            })?;
         }
         Ok(())
     }
@@ -357,6 +372,25 @@ impl ManagedCrate<Vendored> {
         regenerated.regenerate(run_cargo_embargo, update_imports)?;
         Ok(regenerated)
     }
+}
+
+fn file_contents_identical(a: &Path, b: &Path) -> Result<bool> {
+    let a_len =
+        a.metadata().with_context(|| format!("reading metadata for {}", a.display()))?.len();
+
+    let b_len =
+        b.metadata().with_context(|| format!("reading metadata for {}", b.display()))?.len();
+
+    if a_len != b_len {
+        return Ok(false);
+    }
+
+    let a_contents =
+        read(a).with_context(|| format!("reading contents for {}", a.display()))?.len();
+
+    let b_contents =
+        read(b).with_context(|| format!("reading contents for {}", b.display()))?.len();
+    Ok(a_contents == b_contents)
 }
 
 impl ManagedCrate<CopiedAndPatched> {
@@ -412,10 +446,11 @@ impl ManagedCrate<CopiedAndPatched> {
             );
         }
 
+        let temporary_build_dir: PathBuf = self.temporary_build_directory().abs().into();
         // Per go/thirdparty/licenses#multiple:
         // "Delete any LICENSE files or license texts that were not selected and are not in use."
         for unneeded_license_file in self.extra.licenses.unneeded.values() {
-            remove_file(self.temporary_build_directory().abs().join(unneeded_license_file))?;
+            remove_file(temporary_build_dir.join(unneeded_license_file))?;
         }
 
         // Per http://go/thirdpartyreviewers#license:
@@ -429,20 +464,32 @@ impl ManagedCrate<CopiedAndPatched> {
             .map(|path| path.as_path())
             .collect::<BTreeSet<_>>();
         let canonical_license_file_name = Path::new("LICENSE");
-        let canonical_license_path = self.temporary_build_directory().abs().join("LICENSE");
+        let canonical_license_path = temporary_build_dir.join("LICENSE");
         if license_files.len() == 1 {
             // If there's a single applicable license file, it must either
             // be called LICENSE, or else we need to symlink LICENSE to it.
             let license_file = license_files.first().unwrap();
             if *license_file != canonical_license_file_name {
                 if canonical_license_path.exists() {
-                    // TODO: Maybe just blindly delete LICENSE and replace it with a symlink.
-                    // Currently, we have to use a deletions config in android_config.toml
-                    // to remove it.
-                    bail!("Found a single license file {}, but we can't create a symlink to it because a file named LICENSE already exists", license_file.display());
-                } else {
-                    symlink(license_file, canonical_license_path)?;
+                    let license_path = temporary_build_dir.join(license_file);
+                    if !file_contents_identical(&canonical_license_path, &license_path)
+                        .with_context(|| {
+                            format!(
+                                "comparing {} with {}",
+                                canonical_license_path.display(),
+                                license_file.display()
+                            )
+                        })?
+                    {
+                        // TODO: Maybe just blindly delete LICENSE and replace it with a symlink.
+                        // Currently, we have to use a deletions config in android_config.toml
+                        // to remove it.
+                        bail!("Found a single license file {}, but we can't create a symlink to it because a file named LICENSE already exists", license_file.display());
+                    }
+                    remove_file(&canonical_license_path)
+                        .context("removing existing LICENSE file")?;
                 }
+                symlink(license_file, canonical_license_path)?;
             }
         } else {
             // We found multiple license files. Per go/thirdparty/licenses#multiple they should

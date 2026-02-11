@@ -57,6 +57,8 @@ export class Presenter extends AbstractLogViewerPresenter<
     },
   };
   private static readonly NO_LOCATION = '<NO_LOC>';
+  private static readonly NO_LOCATION_TOOLTIP_MESSAGE =
+    'Location information (file and line) is unavailable. This is because ProtoLog entries are only preprocessed to include source locations when logged from Java files with a configured protologtool genrule. Kotlin files are not currently supported for this preprocessing.';
   protected override logPresenter = new LogPresenter<LogEntry>();
 
   constructor(
@@ -126,6 +128,11 @@ export class Presenter extends AbstractLogViewerPresenter<
           value:
             messageNode.getEagerPropertyByName('location')?.formattedValue() ??
             Presenter.NO_LOCATION,
+          tooltip:
+            messageNode.getEagerPropertyByName('location')?.formattedValue() ==
+            null
+              ? Presenter.NO_LOCATION_TOOLTIP_MESSAGE
+              : undefined,
         },
         {
           spec: Presenter.COLUMNS.text,

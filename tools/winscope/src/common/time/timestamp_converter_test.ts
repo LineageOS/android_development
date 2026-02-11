@@ -20,7 +20,6 @@ import {
 } from '@common/time/test_helpers';
 import {TIME_UNIT_TO_NANO} from './time_units';
 import {UTC_TIMEZONE_INFO, TimestampConverter} from './timestamp_converter';
-import {TraceProcessor} from '@trace_processor/trace_processor';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
 
 describe('TimestampConverter', () => {

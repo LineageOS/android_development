@@ -12,7 +12,7 @@
     "start": "ng serve winscope --open",
     "start:remote_tool_mock": "ng serve remote-tool-mock --open",
     "build:trace_processor": "PERFETTO_TOP=../../../external/perfetto; (cd $PERFETTO_TOP && tools/install-build-deps --ui && ui/node ui/build.js --out trace_processor_build) && rm -rf deps_build/trace_processor && mkdir -p deps_build/trace_processor && rsync -ar $PERFETTO_TOP/trace_processor_build/ deps_build/trace_processor && mkdir deps_build/trace_processor/to_be_served && cp deps_build/trace_processor/ui/dist_version/engine_bundle.js deps_build/trace_processor/to_be_served/ && cp deps_build/trace_processor/wasm_memory64/trace_processor_memory64.wasm deps_build/trace_processor/to_be_served/ && cp deps_build/trace_processor/wasm/trace_processor.wasm deps_build/trace_processor/to_be_served/ && (cd $PERFETTO_TOP && rm -rf trace_processor_build)",
-    "build:prod": "npm run build:trace_processor && npm run build:protos && build:app",
+    "build:prod": "npm run build:trace_processor && npm run build:protos && npm run build:app",
     "build:protos": "node protos/build.js",
     "build:app": "ng build winscope --configuration=production",
     "build:dev": "ng build winscope",

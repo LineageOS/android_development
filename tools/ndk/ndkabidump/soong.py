@@ -31,6 +31,8 @@ class Soong:
     """Interface for interacting with Soong."""
 
     def __init__(self, build_top: Path, out_dir: Path) -> None:
+        if out_dir.is_absolute() and build_top in out_dir.parents:
+            out_dir = out_dir.relative_to(build_top)
         self.out_dir = out_dir
         self.soong_ui_path = build_top / "build/soong/soong_ui.bash"
 
@@ -61,13 +63,15 @@ class Soong:
             env = {}
 
         # Use a (mostly) clean environment to avoid the caller's lunch
-        # environment affecting the build.
+        # environment affecting the build, but inherit TARGET_RELEASE so the
+        # build uses the correct release configuration.
         exec_env = {
             # Newer versions of golang require the go cache, which defaults to somewhere
             # in HOME if not set.
             "HOME": os.environ["HOME"],
-            "OUT_DIR": str(self.out_dir.resolve()),
+            "OUT_DIR": str(self.out_dir),
             "PATH": os.environ["PATH"],
+            "TARGET_RELEASE": os.environ["TARGET_RELEASE"],
         }
         exec_env.update(env)
         env_prefix = " ".join(f"{k}={v}" for k, v in exec_env.items())
