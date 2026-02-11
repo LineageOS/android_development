@@ -47,6 +47,9 @@ import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
+import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
+import {MakeTimestampStrategyType} from '@common/time/time';
+import {RenameProperty} from './operations/rename_property';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected static readonly WRAPPER_PROTO = assertDefined(
@@ -72,7 +75,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
     ];
   private static readonly DISPATCH_TABLE = 'android_input_event_dispatch';
   private static readonly DISPATCH_COLUMNS = ['window_id'];
-  private static readonly DISPATCH_EVENT_OPS = [
+  private static readonly BASE_DISPATCH_EVENT_OPS = [
     new SetFormatters(AbstractInputEventParser.DISPATCH_EVENT_FIELD),
     new TranslateIntDef(AbstractInputEventParser.DISPATCH_EVENT_FIELD),
     new InputCoordinatePropagator(),
@@ -226,10 +229,20 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
       return props;
     };
 
+    const timestampStrategy: MakeTimestampStrategyType = (valueNs: bigint) => {
+      return this.timestampConverter.makeTimestampFromBootTimeNs(valueNs);
+    };
+
+    const dispatchEventOps = [
+      ...AbstractInputEventParser.BASE_DISPATCH_EVENT_OPS,
+      new RenameProperty('eventTimeNanos', 'kernelTimeNanos'),
+      new TransformToTimestamp(['kernelTime', 'downTime'], timestampStrategy),
+    ];
+
     return new PropertiesProviderBuilder()
       .setEagerProperties(eagerProperties)
       .setCommonOperations(this.eventOps)
-      .setLazyOperations(AbstractInputEventParser.DISPATCH_EVENT_OPS)
+      .setLazyOperations(dispatchEventOps)
       .setLazyPropertiesStrategy(lazyPropertiesStrategy)
       .build();
   }

@@ -116,6 +116,32 @@ describe('PerfettoParserKeyEvent', () => {
     expect(keyEvent.getChildByName('scanCode')?.getValue()).toBe(115);
   });
 
+  it('transforms nanosecond fields into timestamps', async () => {
+    const entry = await parser.getEntry(0);
+
+    const properties = await entry.getAllProperties();
+    const keyEvent = assertDefined(properties.getChildByName('event'));
+
+    expect(keyEvent.getChildByName('kernelTime')?.getValue()).toEqual(
+      makeRealTimestamp(1718386904963947081n),
+    );
+    expect(keyEvent.getChildByName('downTime')?.getValue()).toEqual(
+      makeRealTimestamp(1718386904963947081n),
+    );
+  });
+
+  it('renames eventTimeNanos to kernelTimeNanos', async () => {
+    const entry = await parser.getEntry(0);
+
+    const properties = await entry.getAllProperties();
+    const keyEvent = assertDefined(properties.getChildByName('event'));
+
+    expect(keyEvent.getChildByName('eventTimeNanos')).toBeUndefined();
+    expect(keyEvent.getChildByName('kernelTimeNanos')?.getValue()).toEqual(
+      517482680619000n,
+    );
+  });
+
   it('merges key event with all associated dispatch events', async () => {
     const entry = await parser.getEntry(0);
     const properties = await entry.getAllProperties();
