@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TimezoneInfo, Timestamp} from './time';
 import {UTCOffset} from './utc_offset';
+import {TIME_UNIT_TO_NANO} from './time_units';
 
 /**
  * Resolves the UTC offset.
@@ -79,11 +80,7 @@ async function getTimezoneNsFromPerfetto(
 
   if (result && result.numRows() > 0) {
     const timezoneOffsetMinutes = result.firstRow({int_value: 0}).int_value;
-    const secondsPerMinute = 60n;
-    const nanosecondsPerSecond = 1_000_000_000n;
-    return (
-      BigInt(timezoneOffsetMinutes) * secondsPerMinute * nanosecondsPerSecond
-    );
+    return BigInt(timezoneOffsetMinutes * TIME_UNIT_TO_NANO.m);
   }
   return undefined;
 }
@@ -129,8 +126,8 @@ function addTimezoneOffset(timezone: string, timestampNs: bigint): bigint {
 
   return (
     timestampNs +
-    BigInt(hoursDiff * 3.6e12) +
-    BigInt(minutesDiff * 6e10) -
-    BigInt(localTimezoneOffsetMinutes * 6e10)
+    BigInt(hoursDiff * TIME_UNIT_TO_NANO.h) +
+    BigInt(minutesDiff * TIME_UNIT_TO_NANO.m) -
+    BigInt(localTimezoneOffsetMinutes * TIME_UNIT_TO_NANO.m)
   );
 }

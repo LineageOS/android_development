@@ -128,15 +128,6 @@ export class TimestampConverter
   }
 
   /**
-   * Gets the timezone information.
-   *
-   * @return The timezone information.
-   */
-  getTimezoneInfo(): TimezoneInfo {
-    return this.timezoneInfo;
-  }
-
-  /**
    * Creates a timestamp from a monotonic time.
    *
    * @param valueNs The monotonic time in nanoseconds.
