@@ -45,9 +45,9 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
     {
       header: new LogHeader(
         {name: 'Type', cssClass: 'transition-type'},
-        new LogSelectFilter(Array.from({length: 2}, () => '')),
+        new LogSelectFilter(Array.from({length: 3}, () => '')),
       ),
-      options: ['OPEN', 'TO_FRONT'],
+      options: ['NONE', 'OPEN', 'TO_FRONT'],
     },
     {header: new LogHeader({name: 'Send Time', cssClass: 'send-time time'})},
     {
@@ -58,7 +58,7 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
     },
     {
       header: new LogHeader({
-        name: 'Duration',
+        name: 'Play Duration',
         cssClass: 'duration right-align',
       }),
     },
@@ -102,20 +102,20 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
       header: new LogHeader(
         {name: 'Flags', cssClass: 'flags'},
         new LogSelectFilter(
-          Array.from({length: 2}, () => ''),
+          Array.from({length: 3}, () => ''),
           true,
           '250',
           '100%',
         ),
       ),
-      options: ['TRANSIT_FLAG_IS_RECENTS', '0x0'],
+      options: ['N/A', 'TRANSIT_FLAG_IS_RECENTS', '0x0'],
     },
     {
       header: new LogHeader(
         {name: 'Status', cssClass: 'status right-align'},
-        new LogSelectFilter(Array.from({length: 3}, () => '')),
+        new LogSelectFilter(Array.from({length: 4}, () => '')),
       ),
-      options: ['MERGED', 'N/A', 'PLAYED'],
+      options: ['ABORTED', 'MERGED', 'N/A', 'PLAYED'],
     },
   ];
   private trace: Trace<HierarchyTreeNode> | undefined;
@@ -175,7 +175,7 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
   }
 
   override executePropertiesChecksAfterPositionUpdate(uiData: UiDataLog) {
-    expect(uiData.entries.length).toBe(4);
+    expect(uiData.entries.length).toBe(5);
 
     const selectedTransition = assertDefined(uiData.propertyNodes?.at(0)).node;
     expect(selectedTransition.getChildByName('id')?.formattedValue()).toBe(

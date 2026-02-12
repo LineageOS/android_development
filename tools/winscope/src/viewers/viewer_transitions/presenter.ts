@@ -45,7 +45,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     type: {name: 'Type', cssClass: 'transition-type'},
     sendTime: {name: 'Send Time', cssClass: 'send-time time'},
     dispatchTime: {name: 'Dispatch Time', cssClass: 'dispatch-time time'},
-    duration: {name: 'Duration', cssClass: 'duration right-align'},
+    duration: {name: 'Play Duration', cssClass: 'duration right-align'},
     handler: {name: 'Handler', cssClass: 'handler'},
     participants: {name: 'Participants', cssClass: 'participants'},
     flags: {name: 'Flags', cssClass: 'flags'},
