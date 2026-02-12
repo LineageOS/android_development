@@ -44,7 +44,7 @@ const noRTEOffset = new TimestampConverter(UTC_TIMEZONE_INFO);
 export async function createTestConverterWithUtcOffset(): Promise<TimestampConverter> {
   const converter = new TimestampConverter(ASIA_TIMEZONE_INFO, 0n, 0n);
   const utcOffset = await getResolvedUTCOffset(
-    converter.getTimezoneInfo(),
+    ASIA_TIMEZONE_INFO,
     converter.makeTimestampFromRealNs(0n),
   );
   converter.setUTCOffset(utcOffset);

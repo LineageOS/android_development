@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-import {timestampEqualityTester} from '@common/time/test_helpers';
-import {UTC_TIMEZONE_INFO, TimestampConverter} from './timestamp_converter';
+import {
+  ASIA_TIMEZONE_INFO,
+  timestampEqualityTester,
+} from '@common/time/test_helpers';
+import {UTC_TIMEZONE_INFO} from './timestamp_converter';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
 import {makeSpyQueryResult} from '@trace_processor/test_utils';
+import {Timestamp, TimestampFormatter} from './time';
 
-describe('TimestampConverter', () => {
+class MockTimestampFormatter implements TimestampFormatter {
+  format(timestamp: bigint): string {
+    return `MockFormat(${timestamp})`;
+  }
+}
+
+describe('utc_offset_resolver', () => {
   // Sun, 31 Jul 2022 04:55:41 GMT to test timestamp conversion between different days
   const testRealNs = 1659243341051481088n;
+  const testFormatter = new MockTimestampFormatter();
+  const testTimestamp = new Timestamp(testRealNs, testFormatter);
 
   beforeAll(() => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
@@ -39,19 +51,16 @@ describe('TimestampConverter', () => {
     `;
 
     let mockTraceProcessor: jasmine.SpyObj<TraceProcessor>;
-    let converter: TimestampConverter;
     beforeEach(() => {
       mockTraceProcessor = jasmine.createSpyObj<TraceProcessor>(['query']);
-
-      converter = new TimestampConverter(UTC_TIMEZONE_INFO);
     });
 
     it('check query is correctly sent and received to and from Perfetto', async () => {
       setQueryResult(-60);
 
       await getResolvedUTCOffset(
-        converter.getTimezoneInfo(),
-        converter.makeTimestampFromRealNs(testRealNs),
+        UTC_TIMEZONE_INFO,
+        testTimestamp,
         mockTraceProcessor,
       );
 
@@ -63,26 +72,24 @@ describe('TimestampConverter', () => {
       setQueryResult(-60);
 
       const utcOffset = await getResolvedUTCOffset(
-        converter.getTimezoneInfo(),
-        converter.makeTimestampFromRealNs(testRealNs),
+        UTC_TIMEZONE_INFO,
+        testTimestamp,
         mockTraceProcessor,
       );
-      converter.setUTCOffset(utcOffset);
 
-      expect(converter.getUTCOffset()).toBe('UTC-01:00');
+      expect(utcOffset.format()).toBe('UTC-01:00');
     });
 
     it('check utc+7 offset is correctly read and set from Perfetto', async () => {
       setQueryResult(420);
 
       const utcOffset = await getResolvedUTCOffset(
-        converter.getTimezoneInfo(),
-        converter.makeTimestampFromRealNs(testRealNs),
+        UTC_TIMEZONE_INFO,
+        testTimestamp,
         mockTraceProcessor,
       );
-      converter.setUTCOffset(utcOffset);
 
-      expect(converter.getUTCOffset()).toBe('UTC+07:00');
+      expect(utcOffset.format()).toBe('UTC+07:00');
     });
 
     it('check if utc+15 offset is read from Perfetto, error is raised', async () => {
@@ -90,8 +97,8 @@ describe('TimestampConverter', () => {
 
       await expectAsync(
         getResolvedUTCOffset(
-          converter.getTimezoneInfo(),
-          converter.makeTimestampFromRealNs(testRealNs),
+          UTC_TIMEZONE_INFO,
+          testTimestamp,
           mockTraceProcessor,
         ),
       ).toBeRejectedWithError(
@@ -104,8 +111,8 @@ describe('TimestampConverter', () => {
 
       await expectAsync(
         getResolvedUTCOffset(
-          converter.getTimezoneInfo(),
-          converter.makeTimestampFromRealNs(testRealNs),
+          UTC_TIMEZONE_INFO,
+          testTimestamp,
           mockTraceProcessor,
         ),
       ).toBeRejectedWithError(
@@ -119,5 +126,41 @@ describe('TimestampConverter', () => {
       spyQueryResult.firstRow.and.returnValue({int_value: intValue});
       mockTraceProcessor.query.and.returnValue(Promise.resolve(spyQueryResult));
     }
+  });
+
+  it('creates correct offset for different timezones', async () => {
+    const utcOffsetLondon = await getResolvedUTCOffset(
+      {
+        timezone: 'Europe/London',
+        locale: 'en-US',
+      },
+      testTimestamp,
+    );
+
+    expect(utcOffsetLondon.format()).toBe('UTC+01:00');
+
+    const utcOffsetZurich = await getResolvedUTCOffset(
+      {
+        timezone: 'Europe/Zurich',
+        locale: 'en-US',
+      },
+      testTimestamp,
+    );
+    expect(utcOffsetZurich.format()).toBe('UTC+02:00');
+
+    const utcOffsetWestCoast = await getResolvedUTCOffset(
+      {
+        timezone: 'America/Los_Angeles',
+        locale: 'en-US',
+      },
+      testTimestamp,
+    );
+    expect(utcOffsetWestCoast.format()).toBe('UTC-07:00');
+
+    const utcOffsetIndia = await getResolvedUTCOffset(
+      ASIA_TIMEZONE_INFO,
+      testTimestamp,
+    );
+    expect(utcOffsetIndia.format()).toBe('UTC+05:30');
   });
 });
