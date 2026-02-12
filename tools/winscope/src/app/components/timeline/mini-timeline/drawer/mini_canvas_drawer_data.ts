@@ -15,10 +15,11 @@
  */
 
 import {Transformer} from '@app/components/timeline/mini-timeline/transformer';
-import {Segment} from '@app/components/timeline/segment';
+import {TimelineSegment} from '@app/components/timeline/common/segment';
 import {TimeRange} from '@common/time/time';
 import {Trace} from '@trace_api/trace';
 import {MiniTimelineDrawerOutput} from './mini_timeline_drawer_output';
+import {RenderedRange} from './rendered_range';
 
 /**
  * A map of traces to their timeline data.
@@ -30,9 +31,9 @@ export type TimelineTraces = Map<Trace<unknown>, TimelineTrace>;
  */
 export interface TimelineTrace {
   points: number[];
-  segments: Segment[];
+  segments: Array<TimelineSegment<RenderedRange>>;
   activePoint: number | undefined;
-  activeSegment: Segment | undefined;
+  activeSegments: Array<TimelineSegment<RenderedRange>>;
 }
 
 /**
@@ -41,7 +42,7 @@ export interface TimelineTrace {
 export class MiniCanvasDrawerData {
   constructor(
     public selectedPosition: number,
-    public selection: Segment,
+    public selection: RenderedRange,
     private timelineTracesGetter: () => Promise<TimelineTraces>,
     public transformer: Transformer,
     public bookmarks: number[],
