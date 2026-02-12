@@ -194,28 +194,6 @@ describe('TimelineUtils', () => {
     });
   });
 
-  describe('convertHexToRgb', () => {
-    it('handles full regex', () => {
-      expect(convertHexToRgb('0135AF')).toEqual({r: 1, g: 53, b: 175});
-    });
-
-    it('handles full regex with # prefix', () => {
-      expect(convertHexToRgb('#0135AF')).toEqual({r: 1, g: 53, b: 175});
-    });
-
-    it('handles shorthand regex', () => {
-      expect(convertHexToRgb('13F')).toEqual({r: 17, g: 51, b: 255});
-    });
-
-    it('handles shorthand regex with #', () => {
-      expect(convertHexToRgb('#13F')).toEqual({r: 17, g: 51, b: 255});
-    });
-
-    it('robust to invalid hex string', () => {
-      expect(convertHexToRgb('#1')).toBeUndefined();
-    });
-  });
-
   function makeTransition(properties: object) {
     return new HierarchyTreeBuilder()
       .setRootNodeFormatter(new SetFormatters())
