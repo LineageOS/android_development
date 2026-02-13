@@ -30,7 +30,6 @@ import {
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
-import {KeyboardEventCode} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
@@ -272,19 +271,20 @@ describe('TraceConfigComponent', () => {
     checkSelectionConfigValue(optSelectKey, '');
   });
 
-  it('clicking All button selects or clears all options for multiple selection config', async () => {
-    configChangeSpy.calls.reset();
-    const settingsPanel = getAdvancedSettingsPanelForKey(multSelectKey);
-    await settingsPanel.openMatSelect();
+  it('clicking All button toggles all options for multiple selection config', async () => {
+    await checkToggleAllNoFilter(toggleWithButton);
+  });
 
-    const panel = dom.getMatSelectPanel();
-    const allButton = panel.findAndClick('.user-option');
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
-    checkSelectionConfigValue(multSelectKey, ['12345', '67890']);
+  it('clicking All button only toggles non-filtered options', async () => {
+    await checkToggleAllWithFilter(toggleWithButton);
+  });
 
-    allButton.click();
-    expect(configChangeSpy).toHaveBeenCalledTimes(2);
-    checkSelectionConfigValue(multSelectKey, []);
+  it('CTRL+A toggles all options for multiple selection config', async () => {
+    await checkToggleAllNoFilter(() => dom.keydownCtrlAToSelectPanel());
+  });
+
+  it('calls custom select keydown handler for CTRL+A', async () => {
+    await checkToggleAllWithFilter(() => dom.keydownCtrlAToSelectPanel());
   });
 
   it('shows tooltip', async () => {
@@ -390,7 +390,7 @@ describe('TraceConfigComponent', () => {
     checkSelectionConfigValue(optMultSelectKey, ['12345', '67890', '45678']);
   });
 
-  it('calls default select keydown handler', async () => {
+  it('calls default select keydown handler for non CTRL+A events', async () => {
     configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(optMultSelectKey);
     await settingsPanel.openMatSelect();
@@ -400,26 +400,40 @@ describe('TraceConfigComponent', () => {
     expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('calls custom select keydown handler for CTRL+A', async () => {
+  async function checkToggleAllNoFilter(toggle: () => void) {
+    configChangeSpy.calls.reset();
+    const settingsPanel = getAdvancedSettingsPanelForKey(multSelectKey);
+    await settingsPanel.openMatSelect();
+    await dom.whenRenderingDone();
+
+    toggle();
+    expect(configChangeSpy).toHaveBeenCalledTimes(1);
+    checkSelectionConfigValue(multSelectKey, ['12345', '67890']);
+
+    toggle();
+    expect(configChangeSpy).toHaveBeenCalledTimes(2);
+    checkSelectionConfigValue(multSelectKey, []);
+  }
+
+  async function checkToggleAllWithFilter(toggle: () => void) {
     configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(optMultSelectKey);
     await settingsPanel.openMatSelect();
     await dom.whenRenderingDone();
 
-    const panel = dom.getMatSelectPanel();
-    const keydownCtrlA = new KeyboardEvent('keydown', {
-      code: KeyboardEventCode.A,
-      ctrlKey: true,
-    });
-    panel.dispatchEvent(keydownCtrlA);
-    checkSelectionConfigValue(optMultSelectKey, ['12345', '45678', '67890']);
+    toggle();
     expect(configChangeSpy).toHaveBeenCalledTimes(1);
+    checkSelectionConfigValue(optMultSelectKey, ['12345', '45678', '67890']);
 
-    panel.findAndDispatchInput(filterInputField, '45');
-    panel.dispatchEvent(keydownCtrlA);
-    checkSelectionConfigValue(optMultSelectKey, ['67890']);
+    dom.getMatSelectPanel().findAndDispatchInput(filterInputField, '45');
+    toggle();
     expect(configChangeSpy).toHaveBeenCalledTimes(2);
-  });
+    checkSelectionConfigValue(optMultSelectKey, ['67890']);
+  }
+
+  function toggleWithButton() {
+    dom.getMatSelectPanel().findAndClick('.user-option');
+  }
 
   async function setComponentInputs(
     c: TraceConfigComponent,
