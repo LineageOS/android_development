@@ -16,6 +16,7 @@
 
 import {browser, by, element, ExpectedConditions} from 'protractor';
 import {
+  areMessagesEmitted,
   changeRealTimestampInWinscope,
   getWinscopeRealTimestamp,
   loadTraceAndCheckViewer,
@@ -106,6 +107,7 @@ describe('Playback', () => {
     await browser.sleep(1000);
     expect(await getWinscopeRealTimestamp()).toEqual(currTimestamp);
     expect(await getRootNodeText()).toEqual(currRootNodeText);
+    expect(await areMessagesEmitted(1000)).toBeFalsy();
   }
 
   function compareRenderedTimestamps(

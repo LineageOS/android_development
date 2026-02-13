@@ -239,6 +239,22 @@ export async function checkInitialRealTimestamp(timestamp: string) {
 export async function checkFinalRealTimestamp(timestamp: string) {
   await changeRealTimestampInWinscope(timestamp);
   await checkWinscopeRealTimestamp(timestamp.slice(12));
+  await checkNextEntryButtonDisabled();
+}
+
+/**
+ * Check that the final real timestamp is displayed correctly based on
+ * ns final timestamp.
+ *
+ * @param timestamp The expected timestamp.
+ */
+export async function checkFinalNsTimestamp(ns: string, real: string) {
+  await changeNsTimestampInWinscope(ns);
+  await checkWinscopeRealTimestamp(real);
+  await checkNextEntryButtonDisabled();
+}
+
+async function checkNextEntryButtonDisabled() {
   const nextEntryButton = element(by.css('#next_entry_button'));
   const isDisabled = await nextEntryButton.getAttribute('disabled');
   expect(isDisabled).toBe('true');
@@ -250,14 +266,13 @@ export async function checkFinalRealTimestamp(timestamp: string) {
  * @param timestamp The expected timestamp.
  */
 export async function checkWinscopeRealTimestamp(timestamp: string) {
-  let value: string | undefined;
   await browser.wait(
     async () => {
-      value = await getWinscopeRealTimestamp();
+      const value = await getWinscopeRealTimestamp();
       return value === timestamp;
     },
     1000,
-    `Expected '${timestamp}' to equal '${value}'`,
+    `Expected real timestamp to equal '${timestamp}'`,
   );
 }
 
