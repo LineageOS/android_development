@@ -256,7 +256,7 @@ fn get_externs(
     // extern.
     if matches!(target_kinds, [TargetKind::Bin] | [TargetKind::Test]) {
         for target in &package.targets {
-            if target.kind.contains(&TargetKind::Lib) {
+            if target.kind.contains(&TargetKind::Lib) || target.kind.contains(&TargetKind::Rlib) {
                 let lib_name = target.name.replace('-', "_");
                 externs.push(Extern {
                     name: lib_name.clone(),
@@ -278,9 +278,11 @@ fn make_extern(packages: &[PackageMetadata], dependency: &DependencyMetadata) ->
         bail!("package {} not found in metadata", dependency.name);
     };
     let Some(target) = package.targets.iter().find(|target| {
-        target.kind.contains(&TargetKind::Lib) || target.kind.contains(&TargetKind::ProcMacro)
+        target.kind.contains(&TargetKind::Lib)
+            || target.kind.contains(&TargetKind::Rlib)
+            || target.kind.contains(&TargetKind::ProcMacro)
     }) else {
-        bail!("Package {} didn't have any library or proc-macro targets", dependency.name);
+        bail!("Package {} didn't have any library, rlib, or proc-macro targets", dependency.name);
     };
     let lib_name = target.name.replace('-', "_");
     // This is ugly but looking at the source path is the easiest way to tell if the raw
