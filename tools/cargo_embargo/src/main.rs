@@ -809,6 +809,7 @@ fn choose_licenses(license: &str) -> Result<Vec<&str>> {
         "Unlicense/MIT" => vec!["MIT"],
 
         // Multiple licenses.
+        "(Apache-2.0 OR MIT) AND BSD-3-Clause" => vec!["Apache-2.0", "BSD-3-Clause"],
         "(MIT OR Apache-2.0) AND Unicode-DFS-2016" => vec!["Apache-2.0", "Unicode-DFS-2016"],
         "MIT AND BSD-3-Clause" => vec!["BSD-3-Clause", "MIT"],
         // Usually we interpret "/" as "OR", but in the case of libfuzzer-sys, closer
@@ -1413,6 +1414,16 @@ mod tests {
     use std::path::PathBuf;
 
     const TESTDATA_PATH: &str = "testdata";
+
+    #[test]
+    fn choose_licenses_test() {
+        assert_eq!(choose_licenses("Apache-2.0").unwrap(), vec!["Apache-2.0"]);
+        assert_eq!(choose_licenses("MIT OR Apache-2.0").unwrap(), vec!["Apache-2.0"]);
+        assert_eq!(
+            choose_licenses("(Apache-2.0 OR MIT) AND BSD-3-Clause").unwrap(),
+            vec!["Apache-2.0", "BSD-3-Clause"]
+        );
+    }
 
     #[test]
     fn group_variants_by_package() {
