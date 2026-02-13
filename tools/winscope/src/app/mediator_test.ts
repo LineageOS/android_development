@@ -63,6 +63,7 @@ import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
+  RemoteToolInitialized,
   RemoteToolTimestampReceived,
 } from '@cross_tool/remote_tool_events';
 import {
@@ -432,11 +433,20 @@ describe('Mediator', () => {
   //TODO: test "data from ABT chrome extension" when file_utils is fully compatible with Node.js
   //      (b/262269229).
 
+  it('handles initialized event from remote tool', async () => {
+    expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(0);
+
+    await mediator.onWinscopeEvent(new RemoteToolInitialized());
+    expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(1);
+    expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
+  });
+
   it('handles start download event from remote tool', async () => {
     expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(0);
 
     await mediator.onWinscopeEvent(new RemoteToolDownloadStart());
     expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(1);
+    expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
   });
 
   it('handles empty downloaded files from remote tool', async () => {
