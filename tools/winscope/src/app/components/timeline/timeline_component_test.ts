@@ -55,7 +55,6 @@ import {
 } from './playback_events';
 import {ExpandedTimelineToggled} from './timeline_events';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
@@ -84,20 +83,23 @@ import {
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {Thumbnail} from '@trace/media_based/thumbnail';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('TimelineComponent', () => {
-  const time90 = makeRealTimestamp(90n);
-  const time100 = makeRealTimestamp(100n);
-  const time101 = makeRealTimestamp(101n);
-  const time105 = makeRealTimestamp(105n);
-  const time110 = makeRealTimestamp(110n);
-  const time112 = makeRealTimestamp(112n);
+  const converter = makeConverterZeroRteOffsets();
 
-  const time2000 = makeRealTimestamp(2000n);
-  const time3000 = makeRealTimestamp(3000n);
-  const time4000 = makeRealTimestamp(4000n);
-  const time6000 = makeRealTimestamp(6000n);
-  const time8000 = makeRealTimestamp(8000n);
+  const time90 = converter.makeTimestampFromRealNs(90n);
+  const time100 = converter.makeTimestampFromRealNs(100n);
+  const time101 = converter.makeTimestampFromRealNs(101n);
+  const time105 = converter.makeTimestampFromRealNs(105n);
+  const time110 = converter.makeTimestampFromRealNs(110n);
+  const time112 = converter.makeTimestampFromRealNs(112n);
+
+  const time2000 = converter.makeTimestampFromRealNs(2000n);
+  const time3000 = converter.makeTimestampFromRealNs(3000n);
+  const time4000 = converter.makeTimestampFromRealNs(4000n);
+  const time6000 = converter.makeTimestampFromRealNs(6000n);
+  const time8000 = converter.makeTimestampFromRealNs(8000n);
 
   const position90 = TracePosition.fromTimestamp(time90);
   const position100 = TracePosition.fromTimestamp(time100);
@@ -160,7 +162,7 @@ describe('TimelineComponent', () => {
     assertDefined(component.timelineData).initialize(
       traces,
       undefined,
-      UTC_CONVERTER,
+      converter,
     );
     dom.detectChanges();
 
@@ -198,7 +200,7 @@ describe('TimelineComponent', () => {
     assertDefined(assertDefined(component.timelineData)).initialize(
       traces,
       undefined,
-      UTC_CONVERTER,
+      converter,
     );
     dom.detectChanges();
 
@@ -291,7 +293,7 @@ describe('TimelineComponent', () => {
       .build();
 
     const timelineData = assertDefined(component.timelineData);
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     timelineData.setPosition(position100);
     dom.detectChanges();
     const nextEntryButton = dom.get(nextEntrySelector);
@@ -1235,7 +1237,7 @@ describe('TimelineComponent', () => {
     const hoverPreview = dom.get('.hover-preview').getHTMLElement();
     expect(hoverPreview.style.display).toBe('none');
 
-    const ts = makeRealTimestamp(5025789000000n);
+    const ts = converter.makeTimestampFromRealNs(5025789000000n);
     const miniTimeline = assertDefined(component.timeline?.miniTimeline);
     miniTimeline.onHoverPositionUpdate.emit({posX: 10, ts, xRatio: 0.1});
     dom.detectChanges();
@@ -1553,7 +1555,7 @@ describe('TimelineComponent', () => {
       .build();
 
     const timelineData = assertDefined(hostComponent.timelineData);
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     timelineData.setPosition(position100);
     hostComponent.allTraces = hostComponent.timelineData.getTraces();
     domHelper.detectChanges();
@@ -1612,7 +1614,7 @@ describe('TimelineComponent', () => {
     assertDefined(hostComponent.timelineData).initialize(
       timelineDataTraces,
       undefined,
-      UTC_CONVERTER,
+      converter,
     );
     hostComponent.allTraces = traces;
     domHelper.detectChanges();
@@ -1635,7 +1637,7 @@ describe('TimelineComponent', () => {
       .build();
 
     const timelineData = assertDefined(component.timelineData);
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     timelineData.setPosition(position100);
     component.allTraces = timelineData.getTraces();
     dom.detectChanges();
@@ -1657,7 +1659,7 @@ describe('TimelineComponent', () => {
     assertDefined(hostComponent.timelineData).initialize(
       traces,
       undefined,
-      UTC_CONVERTER,
+      converter,
     );
     hostComponent.allTraces = traces;
     await domHelper.detectChangesAndWaitStable();

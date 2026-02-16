@@ -24,7 +24,10 @@ import {
   TraceSearchInitialized,
   TraceSearchRequest,
 } from '@trace/trace_events';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
+import {
+  makeConverterZeroRteOffsets,
+  makeRealTimestamp,
+} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
@@ -46,6 +49,7 @@ import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('PresenterSearch', () => {
+  const timestampConverter = makeConverterZeroRteOffsets();
   let presenter: Presenter;
   let uiData: UiData;
   let userNotifierChecker: UserNotifierChecker;
@@ -62,7 +66,7 @@ describe('PresenterSearch', () => {
       new Traces(),
       new InMemoryStorage(),
       (newData: UiData) => (uiData = newData),
-      UTC_CONVERTER,
+      timestampConverter,
     );
     userNotifierChecker.reset();
     element = document.createElement('div');
@@ -159,7 +163,7 @@ describe('PresenterSearch', () => {
     const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, '123');
     spyIter.get.withArgs('property').and.returnValue('test_time_ns');
     const spyTimestamp = spyOn(
-      UTC_CONVERTER,
+      timestampConverter,
       'makeTimestampFromBootTimeNs',
     ).and.callThrough();
     const trace = new TraceBuilder<QueryResult>()

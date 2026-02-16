@@ -19,7 +19,6 @@ import {TimeRange} from '@common/time/time';
 import {makeWarningCannotParseAllTransitions} from './warnings';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {ParserBuilder} from '@test/unit/trace_api/parser_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
@@ -30,15 +29,17 @@ import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TimelineData} from './timeline_data';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('TimelineData', () => {
   let timelineData: TimelineData;
 
-  const timestamp0 = makeRealTimestamp(0n);
-  const timestamp5 = makeRealTimestamp(5n);
-  const timestamp9 = makeRealTimestamp(9n);
-  const timestamp10 = makeRealTimestamp(10n);
-  const timestamp11 = makeRealTimestamp(11n);
+  const converter = makeConverterZeroRteOffsets();
+  const timestamp0 = converter.makeTimestampFromRealNs(0n);
+  const timestamp5 = converter.makeTimestampFromRealNs(5n);
+  const timestamp9 = converter.makeTimestampFromRealNs(9n);
+  const timestamp10 = converter.makeTimestampFromRealNs(10n);
+  const timestamp11 = converter.makeTimestampFromRealNs(11n);
 
   const traces = new TracesBuilder()
     .setTimestamps(TraceType.PROTO_LOG, [timestamp9])
@@ -72,7 +73,9 @@ describe('TimelineData', () => {
       traces.getTrace<HierarchyTreeNode>(TraceType.WINDOW_MANAGER),
     ).getEntry(0),
   );
-  const position1000 = TracePosition.fromTimestamp(makeRealTimestamp(1000n));
+  const position1000 = TracePosition.fromTimestamp(
+    converter.makeTimestampFromRealNs(1000n),
+  );
 
   beforeEach(() => {
     timelineData = new TimelineData();
@@ -80,27 +83,27 @@ describe('TimelineData', () => {
 
   it('can be initialized without screen recording', () => {
     expect(timelineData.getCurrentPosition()).toBeUndefined();
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     expect(timelineData.getCurrentPosition()).toBeDefined();
     expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr);
   });
 
   it('initializes with screen recording', () => {
-    timelineData.initialize(traces, traceSr2, UTC_CONVERTER);
+    timelineData.initialize(traces, traceSr2, converter);
     expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr2);
   });
 
   it('updates current screen recording', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr);
     timelineData.updateCurrentScreenRecordingTrace(traceSr2);
     expect(timelineData.getCurrentScreenRecordingTrace()).toEqual(traceSr2);
   });
 
   it('can only be initialized once', async () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     await expectAsync(
-      timelineData.initialize(traces, undefined, UTC_CONVERTER),
+      timelineData.initialize(traces, undefined, converter),
     ).toBeRejected();
   });
 
@@ -115,7 +118,7 @@ describe('TimelineData', () => {
     );
 
     it('drops trace if it is a dump (will not display in timeline UI)', () => {
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(
         timelineData.getTraces().getTrace(TraceType.WINDOW_MANAGER),
       ).toBeUndefined();
@@ -124,14 +127,14 @@ describe('TimelineData', () => {
     });
 
     it('is robust to prev/next entry request of a dump', () => {
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.getPreviousEntryFor(dumpWm)).toBeUndefined();
       expect(timelineData.getNextEntryFor(dumpWm)).toBeUndefined();
     });
   });
 
   it('drops empty trace', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     expect(
       timelineData.getTraces().getTrace(TraceType.TRANSACTIONS),
     ).toBeUndefined();
@@ -142,12 +145,12 @@ describe('TimelineData', () => {
       .setTimestamps(TraceType.TRANSITION, [timestamp0, timestamp9])
       .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp9, timestamp10])
       .build();
-    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    await timelineData.initialize(traces, undefined, converter);
     expect(timelineData.getFullTimeRange().from).toEqual(timestamp9);
   });
 
   it('uses first entry of first active trace by default, excluding screen recording', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     expect(timelineData.getActiveTrace()).toEqual(traceSf);
     expect(timelineData.getCurrentPosition()).toEqual(position10);
   });
@@ -155,12 +158,12 @@ describe('TimelineData', () => {
   it('defaults active trace to screen recording if it is the only trace', () => {
     const tracesOnlySr = new Traces();
     tracesOnlySr.addTrace(traceSr);
-    timelineData.initialize(tracesOnlySr, undefined, UTC_CONVERTER);
+    timelineData.initialize(tracesOnlySr, undefined, converter);
     expect(timelineData.getActiveTrace()).toEqual(traceSr);
   });
 
   it('uses explicit position if set and valid within time range', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     expect(timelineData.getCurrentPosition()).toEqual(position10);
 
     timelineData.setPosition(position11);
@@ -177,7 +180,7 @@ describe('TimelineData', () => {
   });
 
   it('crops explicit position to within timeline range', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     timelineData.setPosition(TracePosition.fromTimestamp(timestamp0));
     expect(timelineData.getCurrentPosition()).toEqual(
@@ -189,7 +192,7 @@ describe('TimelineData', () => {
   });
 
   it('sets active trace and update current position accordingly', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     expect(timelineData.getCurrentPosition()).toEqual(position10);
 
@@ -201,7 +204,7 @@ describe('TimelineData', () => {
   });
 
   it('does not set active trace if not present in timeline, or already set', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     expect(timelineData.getCurrentPosition()).toEqual(position10);
 
@@ -224,7 +227,7 @@ describe('TimelineData', () => {
     it('false for no traces', () => {
       expect(timelineData.hasTimestamps()).toBeFalse();
       const traces = new TracesBuilder().build();
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.hasTimestamps()).toBeFalse();
     });
 
@@ -232,7 +235,7 @@ describe('TimelineData', () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [])
         .build();
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.hasTimestamps()).toBeFalse();
     });
 
@@ -240,7 +243,7 @@ describe('TimelineData', () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
         .build();
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.hasTimestamps()).toBeTrue();
     });
   });
@@ -249,7 +252,7 @@ describe('TimelineData', () => {
     it('false for no traces', () => {
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
       const traces = new TracesBuilder().build();
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
     });
 
@@ -258,7 +261,7 @@ describe('TimelineData', () => {
         .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
         .setTimestamps(TraceType.WINDOW_MANAGER, [timestamp10])
         .build();
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeFalse();
     });
 
@@ -267,13 +270,13 @@ describe('TimelineData', () => {
         .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
         .setTimestamps(TraceType.WINDOW_MANAGER, [timestamp11])
         .build();
-      timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      timelineData.initialize(traces, undefined, converter);
       expect(timelineData.hasMoreThanOneDistinctTimestamp()).toBeTrue();
     });
   });
 
   it('getCurrentPosition() returns same object if no change to range', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     expect(timelineData.getCurrentPosition()).toBe(
       timelineData.getCurrentPosition(),
@@ -287,8 +290,8 @@ describe('TimelineData', () => {
   });
 
   it('makePositionFromActiveTrace()', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
-    const time100 = makeRealTimestamp(100n);
+    timelineData.initialize(traces, undefined, converter);
+    const time100 = converter.makeTimestampFromRealNs(100n);
 
     {
       timelineData.trySetActiveTrace(traceSf);
@@ -306,7 +309,7 @@ describe('TimelineData', () => {
   });
 
   it('getFullTimeRange() returns same object if no change to range', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     expect(timelineData.getFullTimeRange()).toBe(
       timelineData.getFullTimeRange(),
@@ -314,7 +317,7 @@ describe('TimelineData', () => {
   });
 
   it('getSelectionTimeRange() returns same object if no change to range', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     expect(timelineData.getSelectionTimeRange()).toBe(
       timelineData.getSelectionTimeRange(),
@@ -328,7 +331,7 @@ describe('TimelineData', () => {
   });
 
   it('getZoomRange() returns same object if no change to range', () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
 
     expect(timelineData.getZoomRange()).toBe(timelineData.getZoomRange());
 
@@ -338,7 +341,7 @@ describe('TimelineData', () => {
   });
 
   it("getCurrentPosition() prioritizes active trace's first entry", () => {
-    timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    timelineData.initialize(traces, undefined, converter);
     timelineData.trySetActiveTrace(traceWm);
 
     expect(timelineData.getCurrentPosition()?.timestamp).toBe(timestamp11);
@@ -364,7 +367,7 @@ describe('TimelineData', () => {
       .build();
     traces.addTrace(trace);
 
-    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    await timelineData.initialize(traces, undefined, converter);
     userNotifierChecker.expectAdded([makeWarningCannotParseAllTransitions()]);
     expect(timelineData.getTransitionEntries()).toEqual([
       transition,

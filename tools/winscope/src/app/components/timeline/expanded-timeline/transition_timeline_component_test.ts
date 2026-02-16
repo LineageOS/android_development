@@ -33,7 +33,6 @@ import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TransitionStatus} from '@trace/transitions/status';
@@ -41,22 +40,24 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TransitionTimelineComponent} from './transition_timeline_component';
 import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('TransitionTimelineComponent', () => {
   let component: TransitionTimelineComponent;
   let dom: DOMTestHelper<TransitionTimelineComponent>;
 
-  const time0 = makeRealTimestamp(0n);
-  const time5 = makeRealTimestamp(5n);
-  const time10 = makeRealTimestamp(10n);
-  const time20 = makeRealTimestamp(20n);
-  const time30 = makeRealTimestamp(30n);
-  const time35 = makeRealTimestamp(35n);
-  const time60 = makeRealTimestamp(60n);
-  const time85 = makeRealTimestamp(85n);
-  const time110 = makeRealTimestamp(110n);
-  const time120 = makeRealTimestamp(120n);
-  const time160 = makeRealTimestamp(160n);
+  const converter = makeConverterZeroRteOffsets();
+  const time0 = converter.makeTimestampFromRealNs(0n);
+  const time5 = converter.makeTimestampFromRealNs(5n);
+  const time10 = converter.makeTimestampFromRealNs(10n);
+  const time20 = converter.makeTimestampFromRealNs(20n);
+  const time30 = converter.makeTimestampFromRealNs(30n);
+  const time35 = converter.makeTimestampFromRealNs(35n);
+  const time60 = converter.makeTimestampFromRealNs(60n);
+  const time85 = converter.makeTimestampFromRealNs(85n);
+  const time110 = converter.makeTimestampFromRealNs(110n);
+  const time120 = converter.makeTimestampFromRealNs(120n);
+  const time160 = converter.makeTimestampFromRealNs(160n);
 
   const range10to110 = new TimeRange(time10, time110);
   const range0to160 = new TimeRange(time0, time160);
@@ -85,7 +86,7 @@ describe('TransitionTimelineComponent', () => {
     const fixture = TestBed.createComponent(TransitionTimelineComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.timestampConverter = UTC_CONVERTER;
+    component.timestampConverter = converter;
     component.fullRange = range0to160;
   });
 

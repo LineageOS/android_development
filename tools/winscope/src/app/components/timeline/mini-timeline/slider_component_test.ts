@@ -31,7 +31,7 @@ import {
 import {assertDefined} from '@common/assert';
 import {TimeRange} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TracePosition} from '@trace_api/trace_position';
 import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';
 
@@ -40,12 +40,13 @@ describe('SliderComponent', () => {
   let dom: DOMTestHelper<SliderComponent>;
   const leftCropperSelector = '.slider .cropper.left';
   const rightCropperSelector = '.slider .cropper.right';
-  const time100 = makeRealTimestamp(100n);
-  const time125 = makeRealTimestamp(125n);
-  const time126 = makeRealTimestamp(126n);
-  const time150 = makeRealTimestamp(150n);
-  const time175 = makeRealTimestamp(175n);
-  const time200 = makeRealTimestamp(200n);
+  const converter = makeConverterZeroRteOffsets();
+  const time100 = converter.makeTimestampFromRealNs(100n);
+  const time125 = converter.makeTimestampFromRealNs(125n);
+  const time126 = converter.makeTimestampFromRealNs(126n);
+  const time150 = converter.makeTimestampFromRealNs(150n);
+  const time175 = converter.makeTimestampFromRealNs(175n);
+  const time200 = converter.makeTimestampFromRealNs(200n);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -74,7 +75,7 @@ describe('SliderComponent', () => {
     component.fullRange = new TimeRange(time100, time200);
     component.zoomRange = new TimeRange(time125, time175);
     component.currentPosition = TracePosition.fromTimestamp(time150);
-    component.timestampConverter = UTC_CONVERTER;
+    component.timestampConverter = converter;
     dom.detectChanges();
   });
 

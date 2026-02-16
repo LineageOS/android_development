@@ -57,7 +57,10 @@ import {TraceType} from '@trace_api/trace_type';
 import {View, Viewer, ViewType} from '@viewers/viewer';
 import {UserNotifier} from '@services/user_notifier';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
+import {
+  makeConverterZeroRteOffsets,
+  makeRealTimestamp,
+} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {AppComponent} from './app_component';
@@ -179,6 +182,8 @@ class MockMatDrawerContent {}
 
 describe('AppComponent', () => {
   const reader = new TestFileReaderBuilder().setTimestamps([]).build();
+  const converter = makeConverterZeroRteOffsets();
+
   let fixture: ComponentFixture<AppComponent>;
   let component: AppComponent;
   let downloadTracesSpy: jasmine.Spy;
@@ -257,7 +262,7 @@ describe('AppComponent', () => {
       0,
     );
     spyOn(TimelineData.prototype, 'getTimestampConverter').and.returnValue(
-      UTC_CONVERTER,
+      converter,
     );
     spyOn(TimelineData.prototype, 'hasTimestamps').and.returnValue(false);
 
@@ -378,7 +383,7 @@ describe('AppComponent', () => {
     expect(pageTitle.getTitle()).toBe('Winscope');
 
     const traces = new Traces();
-    component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    component.timelineData.initialize(traces, undefined, converter);
     component.loadedFileData.getDownloadArchiveFilename = jasmine
       .createSpy()
       .and.returnValue('test_archive');
@@ -874,7 +879,7 @@ describe('AppComponent', () => {
     });
 
     it('processes bookmarks', async () => {
-      component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
+      component.timelineData.initialize(new Traces(), undefined, converter);
       dom.detectChanges();
       const request: RequestData = {
         artifacts: [],
@@ -897,10 +902,10 @@ describe('AppComponent', () => {
     it('processes timestamp', async () => {
       const traces = new TracesBuilder()
         .setTimestamps(TraceType.SURFACE_FLINGER, [
-          UTC_CONVERTER.makeTimestampFromNs(10n),
+          converter.makeTimestampFromNs(10n),
         ])
         .build();
-      component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      component.timelineData.initialize(traces, undefined, converter);
       dom.detectChanges();
       component.timelineData.trySetActiveTrace(
         assertDefined(traces.getTrace(TraceType.SURFACE_FLINGER)),
@@ -930,7 +935,7 @@ describe('AppComponent', () => {
         undefined,
       );
       spyOn(UserNotifier, 'add');
-      component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
+      component.timelineData.initialize(new Traces(), undefined, converter);
       dom.detectChanges();
       const request: RequestData = {
         artifacts: [],
@@ -965,7 +970,7 @@ describe('AppComponent', () => {
       const spy = component.loadedFileData.getTraces as jasmine.Spy;
       spy.and.returnValue(traces);
 
-      component.timelineData.initialize(traces, undefined, UTC_CONVERTER);
+      component.timelineData.initialize(traces, undefined, converter);
       dom.detectChanges();
       const request: RequestData = {
         artifacts: [],
@@ -1002,7 +1007,7 @@ describe('AppComponent', () => {
 
   async function goToTraceView() {
     await buildTraces();
-    component.timelineData.initialize(new Traces(), undefined, UTC_CONVERTER);
+    component.timelineData.initialize(new Traces(), undefined, converter);
     component.dataLoaded = true;
     showDataLoadedElements();
     dom.detectChanges();
@@ -1082,7 +1087,7 @@ describe('AppComponent', () => {
         ],
         perfetto: [],
         lostPerfettoPackets: 0,
-        timestampConverter: UTC_CONVERTER,
+        timezoneInfo: undefined,
         traceGeometryData: new TraceGeometryData(),
         warnings: [],
       },

@@ -16,13 +16,13 @@
 
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
-import {UTC_CONVERTER} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {TraceType} from '@trace_api/trace_type';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
+import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 
 describe('NonPerfettoParserFactory', () => {
   let screenshotFile: TraceFile;
@@ -113,7 +113,7 @@ describe('NonPerfettoParserFactory', () => {
   ) {
     const processedFiles = await new NonPerfettoParserFactory().processFiles(
       files,
-      UTC_CONVERTER,
+      makeConverterNoRteOffsets(),
       {},
     );
     expect(processedFiles.supportedFiles.map((p) => p.getTraceType())).toEqual(

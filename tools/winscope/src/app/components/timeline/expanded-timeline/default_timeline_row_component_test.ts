@@ -32,9 +32,11 @@ import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('DefaultTimelineRowComponent', () => {
+  const converter = makeConverterZeroRteOffsets();
+
   let component: DefaultTimelineRowComponent;
   let dom: DOMTestHelper<DefaultTimelineRowComponent>;
 
@@ -249,17 +251,17 @@ describe('DefaultTimelineRowComponent', () => {
       .setType(TraceType.TRANSITION)
       .setEntries([{}, {}, {}, {}])
       .setTimestamps([
-        makeRealTimestamp(10n),
-        makeRealTimestamp(12n),
-        makeRealTimestamp(15n),
-        makeRealTimestamp(70n),
+        converter.makeTimestampFromRealNs(10n),
+        converter.makeTimestampFromRealNs(12n),
+        converter.makeTimestampFromRealNs(15n),
+        converter.makeTimestampFromRealNs(70n),
       ])
       .build();
     component.selectionRange = new TimeRange(
-      makeRealTimestamp(low),
-      makeRealTimestamp(high),
+      converter.makeTimestampFromRealNs(low),
+      converter.makeTimestampFromRealNs(high),
     );
-    component.timestampConverter = UTC_CONVERTER;
+    component.timestampConverter = converter;
   }
 
   async function drawCorrectEntryOnClick(

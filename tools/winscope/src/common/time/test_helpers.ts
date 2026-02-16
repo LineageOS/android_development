@@ -15,10 +15,7 @@
  */
 
 import {Timestamp, TimezoneInfo} from '@common/time/time';
-import {
-  TimestampConverter,
-  UTC_TIMEZONE_INFO,
-} from '@common/time/timestamp_converter';
+import {TimestampConverter} from '@common/time/timestamp_converter';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
 
 /**
@@ -30,26 +27,39 @@ export const ASIA_TIMEZONE_INFO: TimezoneInfo = {
 };
 
 /**
- * A TimestampConverter for UTC timezone.
+ * A TimestampConverter with zero-set real-to-elapsed offsets. This converter
+ * can make real timestamps.
  */
-export const UTC_CONVERTER = new TimestampConverter(UTC_TIMEZONE_INFO, 0n, 0n);
-
-const noRTEOffset = new TimestampConverter(UTC_TIMEZONE_INFO);
+export function makeConverterZeroRteOffsets() {
+  return new TimestampConverter(0n, 0n);
+}
 
 /**
- * A TimestampConverter with a UTC offset for Asia/Kolkata timezone.
- *
- * @return A promise that resolves to a TimestampConverter with a UTC offset for Asia/Kolkata timezone.
+ * A TimestampConverter with no real-to-elapsed offsets. This converter cannot
+ * make real timestamps until a real-to-elapsed offset is set (either bootttime
+ * or monotonic).
  */
-export async function createTestConverterWithUtcOffset(): Promise<TimestampConverter> {
-  const converter = new TimestampConverter(ASIA_TIMEZONE_INFO, 0n, 0n);
+export function makeConverterNoRteOffsets() {
+  return new TimestampConverter();
+}
+
+/**
+ * A TimestampConverter with a UTC offset for Asia/Kolkata timezone and zero-set
+ * real-to-elapsed offsets, so the converter can make real timestamps that are
+ * formatted to a non-UTC timezone.
+ */
+export async function makeConverterWithUtcOffset(): Promise<TimestampConverter> {
+  const converter = new TimestampConverter();
   const utcOffset = await getResolvedUTCOffset(
     ASIA_TIMEZONE_INFO,
-    converter.makeTimestampFromRealNs(0n),
+    makeRealTimestamp(0n),
   );
   converter.setUTCOffset(utcOffset);
   return converter;
 }
+
+const converterZeroOffsets = makeConverterZeroRteOffsets();
+const converterNoOffsets = makeConverterNoRteOffsets();
 
 /**
  * Creates a real timestamp.
@@ -58,7 +68,7 @@ export async function createTestConverterWithUtcOffset(): Promise<TimestampConve
  * @return A real timestamp.
  */
 export function makeRealTimestamp(valueNs: bigint): Timestamp {
-  return UTC_CONVERTER.makeTimestampFromRealNs(valueNs);
+  return converterZeroOffsets.makeTimestampFromRealNs(valueNs);
 }
 
 /**
@@ -68,7 +78,7 @@ export function makeRealTimestamp(valueNs: bigint): Timestamp {
  * @return An elapsed timestamp.
  */
 export function makeElapsedTimestamp(valueNs: bigint): Timestamp {
-  return noRTEOffset.makeTimestampFromMonotonicNs(valueNs);
+  return converterNoOffsets.makeTimestampFromMonotonicNs(valueNs);
 }
 
 /**
@@ -77,7 +87,7 @@ export function makeElapsedTimestamp(valueNs: bigint): Timestamp {
  * @return A zero timestamp.
  */
 export function makeZeroTimestamp(): Timestamp {
-  return noRTEOffset.makeZeroTimestamp();
+  return converterNoOffsets.makeZeroTimestamp();
 }
 
 /**
@@ -98,18 +108,4 @@ export function timestampEqualityTester(
     );
   }
   return undefined;
-}
-
-/**
- * Gets a TimestampConverter for tests.
- *
- * @param withUTCOffset Whether to create a converter with a UTC offset.
- * @return A TimestampConverter.
- */
-export function getTimestampConverter(
-  withUTCOffset = false,
-): TimestampConverter {
-  return withUTCOffset
-    ? new TimestampConverter(ASIA_TIMEZONE_INFO)
-    : new TimestampConverter(UTC_TIMEZONE_INFO);
 }
