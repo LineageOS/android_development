@@ -26,8 +26,8 @@ import {BugreportFileSelected} from '@app/misc_events';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
   ASIA_TIMEZONE_INFO,
+  makeConverterNoRteOffsets,
   timestampEqualityTester,
-  UTC_CONVERTER,
 } from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
@@ -37,11 +37,11 @@ import {FileLoader, FileLoaderResult} from './file_loader';
 import {TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {FileReader} from '@trace_api/file_reader';
-import {TimestampConverter} from '@common/time/timestamp_converter';
 import {
   makeSpyRowIterator,
   makeSpyQueryResult,
 } from '@trace_processor/test_utils';
+import {TimezoneInfo} from '@common/time/time';
 
 describe('FileLoader', () => {
   let legacySfFile: File;
@@ -91,7 +91,7 @@ describe('FileLoader', () => {
 
     progressListener = new ProgressListenerStub();
     spyOn(progressListener, 'onProgressUpdate');
-    fileLoader = new FileLoader(UTC_CONVERTER);
+    fileLoader = new FileLoader(makeConverterNoRteOffsets());
   });
 
   afterEach(() => {
@@ -166,7 +166,7 @@ describe('FileLoader', () => {
 
     const result = await loadFiles([bugreportArchive, otherFile]);
 
-    expectLoadResult(result, 2, [], new TimestampConverter(ASIA_TIMEZONE_INFO));
+    expectLoadResult(result, 2, [], ASIA_TIMEZONE_INFO);
     checkLoadedFileReaders(result, [
       TraceType.INPUT_METHOD_CLIENTS,
       TraceType.SURFACE_FLINGER,
@@ -181,7 +181,7 @@ describe('FileLoader', () => {
     );
 
     const result = await loadFiles([bugreportArchive]);
-    expectLoadResult(result, 1, [], new TimestampConverter(ASIA_TIMEZONE_INFO));
+    expectLoadResult(result, 1, [], ASIA_TIMEZONE_INFO);
   });
 
   it('forwards winscope events to file identifier', async () => {
@@ -308,12 +308,12 @@ describe('FileLoader', () => {
     result: FileLoaderResult,
     numberOfFileReaders: number,
     expectedWarnings: UserWarning[],
-    converter = UTC_CONVERTER,
+    timezoneInfo?: TimezoneInfo,
   ) {
     userNotifierChecker.expectAdded(expectedWarnings);
     userNotifierChecker.reset();
     expect(getAllReaders(result).length).toBe(numberOfFileReaders);
-    expect(result.timestampConverter).toEqual(converter);
+    expect(result.timezoneInfo).toEqual(timezoneInfo);
   }
 
   function checkLoadedFileReaders(

@@ -57,6 +57,7 @@ import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningIncompleteFrameMapping} from './warnings';
 import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
+import {TimezoneInfo} from '@common/time/time';
 
 /**
  * A class that stores and transforms trace data.
@@ -69,11 +70,12 @@ import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 export class LoadedFileData {
   private static readonly DEFAULT_DOWNLOAD_ARCHIVE_NAME = 'winscope';
 
+  private readonly timestampConverter = new TimestampConverter();
   private loadedFiles = new LoadedFiles<FileReaderAndParser>();
   private downloadArchiveFilename =
     LoadedFileData.DEFAULT_DOWNLOAD_ARCHIVE_NAME;
   private lostPerfettoPackets = 0;
-  private timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO);
+  private timezoneInfo: TimezoneInfo = UTC_TIMEZONE_INFO;
   private traceGeometryData: TraceGeometryData = new TraceGeometryData();
   private traces: Traces | undefined;
 
@@ -102,7 +104,9 @@ export class LoadedFileData {
       this.lostPerfettoPackets = result.lostPerfettoPackets;
       this.traceGeometryData = result.traceGeometryData;
     }
-    this.timestampConverter = result.timestampConverter;
+    if (result.timezoneInfo) {
+      this.timezoneInfo = result.timezoneInfo;
+    }
 
     const {legacy, nonPerfetto} = this.updateTimestamps(
       result.legacy,
@@ -415,7 +419,9 @@ export class LoadedFileData {
 
     this.lostPerfettoPackets = result.lostPerfettoPackets;
     this.traceGeometryData = result.traceGeometryData;
-    this.timestampConverter = result.timestampConverter;
+    if (result.timezoneInfo) {
+      this.timezoneInfo = result.timezoneInfo;
+    }
 
     if (result.perfetto.length === 0) {
       return;
@@ -451,7 +457,7 @@ export class LoadedFileData {
       } else {
         const timestamp = trace.getEntry(0).getTimestamp();
         const utcOffset = await getResolvedUTCOffset(
-          UTC_TIMEZONE_INFO,
+          this.timezoneInfo,
           timestamp,
           TraceProcessorFactory.getSingleInstance(),
         );
