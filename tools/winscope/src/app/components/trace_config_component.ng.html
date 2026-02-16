@@ -106,47 +106,44 @@ limitations under the License.
                             getSelectTriggerValue(matSelect)
                           }}</mat-select-trigger>
 
-                          @if (config.filterString !== undefined) {
-                            <mat-form-field
-                              class="select-config-filter mat-form-field-appearance-none"
-                              subscriptSizing="dynamic"
-                            >
-                              <mat-label>Filter options</mat-label>
-                              <input matInput [(ngModel)]="config.filterString" />
-                            </mat-form-field>
-                          }
-                          @if (matSelect.multiple || config.optional) {
-                            <span class="mat-mdc-option">
-                              @if (matSelect.multiple) {
-                                <button
-                                  mat-flat-button
-                                  class="user-option"
-                                  [color]="
-                                    matSelect.value.length === config.options.length
-                                      ? 'primary'
-                                      : undefined
-                                  "
-                                  [class.not-enabled]="
-                                    matSelect.value.length !== config.options.length
-                                  "
-                                  (click)="onAllButtonClick(matSelect, config)"
-                                >
-                                  All
-                                </button>
-                              }
-                              @if (config.optional && !matSelect.multiple) {
-                                <button
-                                  mat-flat-button
-                                  class="user-option"
-                                  [color]="matSelect.value.length === 0 ? 'primary' : undefined"
-                                  [class.not-enabled]="matSelect.value.length > 0"
-                                  (click)="onNoneButtonClick(matSelect, config)"
-                                >
-                                  None
-                                </button>
-                              }
-                            </span>
-                          }
+                          <div class="select-config-filter-header">
+                            @if (config.filterString !== undefined) {
+                              <mat-form-field
+                                class="select-config-filter mat-form-field-appearance-none"
+                                subscriptSizing="dynamic"
+                              >
+                                <mat-label>Filter options</mat-label>
+                                <input matInput [(ngModel)]="config.filterString" />
+                              </mat-form-field>
+                            }
+                            @if (matSelect.multiple || config.optional) {
+                              <span class="mat-mdc-option">
+                                @if (matSelect.multiple) {
+                                  @let allSelected = allOptionsSelected(matSelect, config);
+                                  <button
+                                    mat-flat-button
+                                    class="user-option"
+                                    [color]="allSelected ? 'primary' : undefined"
+                                    [class.not-enabled]="!allSelected"
+                                    (click)="onAllButtonClick(matSelect, config)"
+                                  >
+                                    All
+                                  </button>
+                                }
+                                @if (config.optional && !matSelect.multiple) {
+                                  <button
+                                    mat-flat-button
+                                    class="user-option"
+                                    [color]="matSelect.value.length === 0 ? 'primary' : undefined"
+                                    [class.not-enabled]="matSelect.value.length > 0"
+                                    (click)="onNoneButtonClick(matSelect, config)"
+                                  >
+                                    None
+                                  </button>
+                                }
+                              </span>
+                            }
+                          </div>
                           @for (option of config.options; track option; let i = $index) {
                             <mat-option
                               #matOption
