@@ -58,7 +58,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
   let traces: Traces;
   let positionUpdate: TracePositionUpdate;
   let secondPositionUpdate: TracePositionUpdate;
-  let selectedTree: UiHierarchyTreeNode;
+  let selectedUiTree: UiHierarchyTreeNode;
   let storage: InMemoryStorage;
 
   beforeAll(async () => {
@@ -98,9 +98,10 @@ describe('AbstractHierarchyViewerPresenter', () => {
       ])
       .setTimestamps([timestamp2, timestamp3])
       .build();
-    selectedTree = UiHierarchyTreeNode.from(
-      assertDefined((await trace.getEntry(0).getValue()).getChildByName('p1')),
+    const selectedTree = assertDefined(
+      (await trace.getEntry(0).getValue()).getChildByName('p1'),
     );
+    selectedUiTree = UiHierarchyTreeNode.from(selectedTree);
     positionUpdate = TracePositionUpdate.fromTraceEntry(trace.getEntry(0));
     secondPositionUpdate = TracePositionUpdate.fromTraceEntry(
       trace.getEntry(1),
@@ -128,7 +129,14 @@ describe('AbstractHierarchyViewerPresenter', () => {
     };
     const trace = new TraceBuilder<HierarchyTreeNode>()
       .setType(TraceType.SURFACE_FLINGER)
-      .setEntries([selectedTree])
+      .setEntries([
+        new HierarchyTreeBuilder()
+          .setRootNodeFormatter(new SetFormatters())
+          .setId('Test Trace')
+          .setName('entry')
+          .setChildren([])
+          .build(),
+      ])
       .setTimestamps([timestamp2])
       .setIsCorrupted(true)
       .build();
@@ -169,7 +177,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
 
   it('processes trace position updates', async () => {
     initializeRectsPresenter();
-    pinNode(selectedTree);
+    pinNode(selectedUiTree);
     await presenter.onAppEvent(positionUpdate);
 
     expect(uiData.highlightedItem?.length).toBe(0);
@@ -183,7 +191,7 @@ describe('AbstractHierarchyViewerPresenter', () => {
     expect(uiData.rectsToDraw?.length).toBeGreaterThan(0);
     expect(uiData.displays?.length).toBeGreaterThan(0);
 
-    await presenter.onHighlightedNodeChange(selectedTree);
+    await presenter.onHighlightedNodeChange(selectedUiTree);
     expect(uiData.propertyNodes?.length).toBeGreaterThan(0);
 
     await presenter.onAppEvent(
@@ -402,15 +410,15 @@ describe('AbstractHierarchyViewerPresenter', () => {
 
   it('sets properties tree and associated ui data from tree node', async () => {
     await presenter.onAppEvent(positionUpdate);
-    await presenter.onHighlightedNodeChange(selectedTree);
+    await presenter.onHighlightedNodeChange(selectedUiTree);
     const propertiesTree = assertDefined(uiData.propertyNodes?.at(0)?.node);
-    expect(propertiesTree.id).toContain(selectedTree.id);
+    expect(propertiesTree.id).toContain(selectedUiTree.id);
     expect(propertiesTree.getAllChildren().length).toBe(2);
   });
 
   it('updates and applies properties user options, calculating diffs from prev hierarchy tree', async () => {
     await presenter.onAppEvent(positionUpdate);
-    await presenter.onHighlightedIdChange(selectedTree.id);
+    await presenter.onHighlightedIdChange(selectedUiTree.id);
     await presenter.onAppEvent(secondPositionUpdate);
     expect(
       uiData.propertyNodes?.at(0)?.node?.getChildByName('testProp')?.getDiff(),

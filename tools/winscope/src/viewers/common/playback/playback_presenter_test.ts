@@ -44,6 +44,7 @@ import {assertDefined} from '@common/assert';
 import {VideoFrameCache} from './video_frame_cache';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {Parser} from '@trace_api/parser';
+import {TraceRect} from '@tree_node/trace_rect';
 
 describe('PlaybackPresenter', () => {
   describe('with small trace', () => {
@@ -185,6 +186,7 @@ describe('PlaybackPresenter', () => {
             .getRects()
             .concat(nodeWithRects.getSecondaryRects())
             .forEach((rect) => {
+              expect(rect).toBeInstanceOf(TraceRect);
               if (rect.cornerRadii) {
                 expect(rect.cornerRadii).toBeInstanceOf(CornerRadii);
               }
@@ -472,7 +474,7 @@ describe('PlaybackPresenter', () => {
     }
   });
 
-  xdescribe('with large trace', () => {
+  describe('with large trace', () => {
     let geometryDataLargeTrace: TraceGeometryData;
     let parserLargeTrace: Parser<HierarchyTreeNode>;
     let emitEventSpyLargeTrace: jasmine.Spy<EmitEvent>;

@@ -22,7 +22,6 @@ import {
   makeIdMatchFilter,
   makeNodeFilter,
 } from '@tree_node/helpers';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
@@ -39,6 +38,7 @@ import {
   TreeNodeFilter,
 } from './ui_tree_node_helpers';
 import {UserOptions} from './user_options';
+import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 export class PropertiesPresenter {
   private propertiesFilter: TreeNodeFilter;
@@ -104,7 +104,7 @@ export class PropertiesPresenter {
   }
 
   async formatPropertiesTree(
-    previousHierarchyTree: HierarchyTreeNode | undefined,
+    previousHierarchyTree: DataHierarchyTreeNode | undefined,
     displayName: string | undefined,
     keepCalculated: boolean,
     traceType?: TraceType,
