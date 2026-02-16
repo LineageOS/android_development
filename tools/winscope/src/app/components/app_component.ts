@@ -316,6 +316,15 @@ export class AppComponent implements WinscopeEventListener {
     window.onunhandledrejection = (evt) => {
       Analytics.Error.logGlobalException(evt.reason);
     };
+
+    if (globalConfig.MODE === 'PROD') {
+      window.addEventListener('beforeunload', (event) => {
+        if (this.dataLoaded) {
+          event.preventDefault();
+          event.returnValue = '';
+        }
+      });
+    }
   }
 
   async ngAfterViewInit() {
