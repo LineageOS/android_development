@@ -26,7 +26,7 @@ export class InputHeightPredictor extends ItemHeightPredictor {
   override predictHeight(entry: InputEntry): number {
     const action = assertString(
       entry.fields.find((f) => f.spec.columnType === InputColumnType.ACTION)
-        ?.value,
+        ?.value ?? '',
     );
     return this.subItemHeight(action, this.actionCharsPerRow);
   }
