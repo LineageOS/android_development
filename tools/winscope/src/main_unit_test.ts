@@ -17,9 +17,7 @@
 // organize-imports-ignore
 import '@app/global_init';
 import {globalConfig} from './common/global_config';
-globalConfig.set({
-  MODE: 'KARMA_TEST',
-});
+globalConfig.set({mode: 'KARMA_TEST'});
 
 // zone.js and zone.js/testing must be imported before any other Angular imports
 import 'zone.js';

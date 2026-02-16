@@ -308,16 +308,17 @@ export class AppComponent implements WinscopeEventListener {
       );
     }
 
-    this.appStorage =
-      globalConfig.MODE === 'PROD'
-        ? new PersistentStore()
-        : new InMemoryStorage();
+    const isProdMode = globalConfig.isProdMode();
+
+    this.appStorage = isProdMode
+      ? new PersistentStore()
+      : new InMemoryStorage();
 
     window.onunhandledrejection = (evt) => {
       Analytics.Error.logGlobalException(evt.reason);
     };
 
-    if (globalConfig.MODE === 'PROD') {
+    if (isProdMode) {
       window.addEventListener('beforeunload', (event) => {
         if (this.dataLoaded) {
           event.preventDefault();
