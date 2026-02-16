@@ -40,10 +40,13 @@ import {getLogger, Logger} from '@compat/logging';
  */
 export class AppComponent {
   static readonly TARGET = 'http://localhost:8080';
+  static readonly TARGET_FROM_ABT =
+    'http://localhost:8080?source=openFromExtension'; // for manual testing only
   static readonly TIMESTAMP_IN_BUGREPORT_MESSAGE = 1670509911000000000n;
   static readonly TIMESTAMP_IN_FILES_MESSAGE = 15725894416n;
 
   private winscope: Window | null = null;
+  private target = AppComponent.TARGET;
   private isWinscopeUp = false;
   private onMessagePongReceived: () => void = () => {};
   private readonly logger: Logger = getLogger('AppComponent');
@@ -57,6 +60,13 @@ export class AppComponent {
   }
 
   async onButtonOpenWinscopeClick() {
+    this.target = AppComponent.TARGET;
+    this.openWinscope();
+    await this.waitWinscopeUp();
+  }
+
+  async onButtonOpenWinscopeFromABTClick() {
+    this.target = AppComponent.TARGET_FROM_ABT;
     this.openWinscope();
     await this.waitWinscopeUp();
   }
@@ -94,7 +104,7 @@ export class AppComponent {
   private openWinscope() {
     this.printStatus('OPENING WINSCOPE');
 
-    this.winscope = window.open(AppComponent.TARGET);
+    this.winscope = window.open(this.target);
     if (!this.winscope) {
       throw new Error('Failed to open winscope');
     }
@@ -116,7 +126,7 @@ export class AppComponent {
       while (!this.isWinscopeUp) {
         assertDefined(this.winscope).postMessage(
           new MessagePing(),
-          AppComponent.TARGET,
+          this.target,
         );
         await new Timer(10).sleepMs();
       }
@@ -132,7 +142,7 @@ export class AppComponent {
 
     assertDefined(this.winscope).postMessage(
       new MessageBugReport(file, AppComponent.TIMESTAMP_IN_BUGREPORT_MESSAGE),
-      AppComponent.TARGET,
+      this.target,
     );
 
     this.printStatus('SENT BUGREPORT');
@@ -147,7 +157,7 @@ export class AppComponent {
         AppComponent.TIMESTAMP_IN_FILES_MESSAGE,
         TimestampType.CLOCK_BOOTTIME,
       ),
-      AppComponent.TARGET,
+      this.target,
     );
 
     this.printStatus('SENT FILES');
@@ -158,7 +168,7 @@ export class AppComponent {
 
     assertDefined(this.winscope).postMessage(
       new MessageTimestamp(value, type),
-      AppComponent.TARGET,
+      this.target,
     );
 
     this.printStatus('SENT TIMESTAMP');

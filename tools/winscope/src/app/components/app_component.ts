@@ -328,14 +328,12 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   async ngAfterViewInit() {
+    this.setComponentsToMediator();
     await this.mediator.onWinscopeEvent(new AppInitialized());
   }
 
   ngAfterViewChecked() {
-    this.mediator.setUploadTracesComponent(this.uploadTracesComponent);
-    this.mediator.setCollectTracesComponent(this.collectTracesComponent);
-    this.mediator.setTraceViewComponent(this.traceViewComponent);
-    this.mediator.setTimelineComponent(this.timelineComponent);
+    this.setComponentsToMediator();
 
     if (this.sendRefreshDumpsRequest) {
       this.sendRefreshDumpsRequest = false;
@@ -755,6 +753,14 @@ export class AppComponent implements WinscopeEventListener {
     this.pageTitle.setTitle('Winscope');
     this.changeDetectorRef.detectChanges();
     this.updateShareState();
+    this.setComponentsToMediator();
+  }
+
+  private setComponentsToMediator() {
+    this.mediator.setUploadTracesComponent(this.uploadTracesComponent);
+    this.mediator.setCollectTracesComponent(this.collectTracesComponent);
+    this.mediator.setTraceViewComponent(this.traceViewComponent);
+    this.mediator.setTimelineComponent(this.timelineComponent);
   }
 
   private async onBugreportFileSelectionRequest(
