@@ -28,7 +28,7 @@ export function analyticsLogEvent(
   eventName: Gtag.EventNames | (string & {}),
   eventParams?: Gtag.ControlParams | Gtag.EventParams | Gtag.CustomParams,
 ) {
-  if (globalConfig.MODE === 'PROD') {
+  if (globalConfig.isProdMode()) {
     gtag('event', eventName, eventParams);
   }
 }

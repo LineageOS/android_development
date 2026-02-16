@@ -21,7 +21,10 @@ import {
   UTC_TIMEZONE_INFO,
 } from '@common/time/timestamp_converter';
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {RemoteToolInitialized, RemoteToolTimestampReceived} from './remote_tool_events';
+import {
+  RemoteToolInitialized,
+  RemoteToolTimestampReceived,
+} from './remote_tool_events';
 import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';
 
@@ -35,11 +38,13 @@ describe('CrossToolProtocol', () => {
   describe('handles debug info', () => {
     beforeEach(() => {
       setUpTestEnvironment();
-      window.dispatchEvent(new MessageEvent('message', {
-        origin: FAKE_ORIGIN,
-        source: window,
-        data: {type: MessageType.PING},
-      }));
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: {type: MessageType.PING},
+        }),
+      );
       expect(emittedEvent).toBeInstanceOf(RemoteToolInitialized);
       emittedEvent = undefined;
     });

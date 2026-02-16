@@ -17,13 +17,28 @@
 /**
  * The schema for the global configuration.
  */
-export type Schema = Omit<GlobalConfig, 'set'>;
+export type Schema = Omit<
+  GlobalConfig,
+  'set' | 'isProdMode' | 'isTestMode' | 'isDevMode'
+>;
 
-class GlobalConfig {
-  readonly MODE: 'KARMA_TEST' | 'DEV' | 'PROD' = 'KARMA_TEST' as const;
+export class GlobalConfig {
+  private readonly mode: 'KARMA_TEST' | 'DEV' | 'PROD' = 'KARMA_TEST' as const;
 
   set(config: Schema) {
     Object.assign(this, config);
+  }
+
+  isProdMode(): boolean {
+    return this.mode === 'PROD';
+  }
+
+  isTestMode(): boolean {
+    return this.mode === 'KARMA_TEST';
+  }
+
+  isDevMode(): boolean {
+    return this.mode === 'DEV';
   }
 }
 
