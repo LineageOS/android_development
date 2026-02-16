@@ -574,7 +574,7 @@ public final class VdmService extends Hilt_VdmService {
             }
         }
 
-        if (VdmCompat.isAtLeastB() && Flags.deviceAwareDisplayPower()) {
+        if (VdmCompat.isAtLeastB()) {
             int displayTimeout = Integer.parseInt(
                     mPreferenceController.getString(R.string.pref_display_timeout));
             virtualDeviceBuilder
@@ -609,7 +609,7 @@ public final class VdmService extends Hilt_VdmService {
                         .setPower(sensor.getPower())
                         .setResolution(sensor.getResolution())
                         .setMaximumRange(sensor.getMaxRange());
-                if (VdmCompat.isAtLeastB() && Flags.deviceAwareDisplayPower()) {
+                if (VdmCompat.isAtLeastB()) {
                     builder.setWakeUpSensor(sensor.getIsWakeUpSensor())
                             .setReportingMode(sensor.getReportingMode());
                 }
@@ -768,7 +768,7 @@ public final class VdmService extends Hilt_VdmService {
     }
 
     void setPowerState(boolean poweredOn) {
-        if (VdmCompat.isAtLeastB() && Flags.deviceAwareDisplayPower() && mVirtualDevice != null) {
+        if (VdmCompat.isAtLeastB() && mVirtualDevice != null) {
             if (poweredOn) {
                 mVirtualDevice.wakeUp();
             } else {

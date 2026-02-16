@@ -102,11 +102,10 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_custom_status_bar, BAKLAVA, Flags::statusBarAndInsets)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
 
-            new StringRule(R.string.pref_display_timeout, BAKLAVA, Flags::deviceAwareDisplayPower)
+            new StringRule(R.string.pref_display_timeout, BAKLAVA)
                     .withDefaultValue(String.valueOf(0)),
 
-            new StringRule(R.string.pref_enable_client_brightness, BAKLAVA,
-                    Flags::deviceAwareDisplayPower),
+            new StringRule(R.string.pref_enable_client_brightness, BAKLAVA),
 
             new BoolRule(R.string.pref_custom_ui_mode, BAKLAVA, Flags::deviceAwareUiMode)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
