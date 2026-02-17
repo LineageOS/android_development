@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import {
-  TimestampConverter,
-  UTC_TIMEZONE_INFO,
-} from '@common/time/timestamp_converter';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
-  createTestConverterWithUtcOffset,
+  makeConverterWithUtcOffset,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   timestampEqualityTester,
+  makeRealTimestamp,
 } from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
@@ -33,18 +31,16 @@ import {ParserScreenshot} from './parser_screenshot';
 describe('ParserScreenshot', () => {
   let parser: ParserScreenshot;
   let file: File;
-  let converter: TimestampConverter;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
     file = await getFixtureFile('traces/screenshot/screenshot.png');
     parser = new ParserScreenshot(
       new TraceFile(file),
-      new TimestampConverter(UTC_TIMEZONE_INFO, 0n),
+      makeConverterNoRteOffsets(),
     );
     await parser.parse();
     parser.createTimestamps();
-    converter = await createTestConverterWithUtcOffset();
   });
 
   it('has expected trace type', () => {
@@ -57,22 +53,21 @@ describe('ParserScreenshot', () => {
 
   it('provides timestamps', () => {
     const timestamps = parser.getTimestamps();
-
     const expected = makeElapsedTimestamp(0n);
-    timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));
+    expect(timestamps).toEqual([expected]);
   });
 
   it('does not apply timezone info', async () => {
     const parserWithTimezoneInfo = new ParserScreenshot(
       new TraceFile(file),
-      converter,
+      await makeConverterWithUtcOffset(),
     );
     await parserWithTimezoneInfo.parse();
+    parserWithTimezoneInfo.createTimestamps();
 
-    const expectedReal = makeElapsedTimestamp(0n);
-    parser
-      .getTimestamps()
-      .forEach((timestamp) => expect(timestamp).toEqual(expectedReal));
+    const timestamps = parserWithTimezoneInfo.getTimestamps();
+    const expected = makeRealTimestamp(0n);
+    expect(timestamps).toEqual([expected]);
   });
 
   it('retrieves entry', async () => {

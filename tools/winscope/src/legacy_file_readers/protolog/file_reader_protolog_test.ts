@@ -20,7 +20,7 @@ import {Timestamp} from '@common/time/time';
 import Long from 'long';
 import {InternedString, TracePacket} from '@compat/perfetto';
 import {
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@common/time/test_helpers';
@@ -141,7 +141,7 @@ abstract class ParserProtologTest {
 
       it('converts to valid perfetto trace', async () => {
         const perfettoParser = (
-          await convertToPerfettoTrace([reader], getTimestampConverter())
+          await convertToPerfettoTrace([reader], makeConverterNoRteOffsets())
         )[0];
 
         expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual(

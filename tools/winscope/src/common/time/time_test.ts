@@ -15,14 +15,12 @@
  */
 
 import {
+  makeConverterWithUtcOffset,
   makeElapsedTimestamp,
   makeRealTimestamp,
-  createTestConverterWithUtcOffset,
-  UTC_CONVERTER,
 } from '@common/time/test_helpers';
 import {TimeRange} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
-import {TimestampConverter} from '@common/time/timestamp_converter';
 
 describe('Timestamp', () => {
   describe('arithmetic', () => {
@@ -62,12 +60,6 @@ describe('Timestamp', () => {
     const MINUTE = BigInt(TIME_UNIT_TO_NANO.m);
     const HOUR = BigInt(TIME_UNIT_TO_NANO.h);
     const DAY = BigInt(TIME_UNIT_TO_NANO.d);
-
-    let converter: TimestampConverter;
-
-    beforeAll(async () => {
-      converter = await createTestConverterWithUtcOffset();
-    });
 
     it('elapsed timestamps', () => {
       expect(makeElapsedTimestamp(0n).format()).toEqual('0ns');
@@ -154,6 +146,7 @@ describe('Timestamp', () => {
     });
 
     it('real timestamps with timezone info', async () => {
+      const converter = await makeConverterWithUtcOffset();
       const NOV_10_2022 = 1668038400000n * MILLISECOND;
       expect(converter.makeTimestampFromRealNs(0n).format()).toBe(
         '1970-01-01, 05:30:00.000',
@@ -205,32 +198,22 @@ describe('Timestamp', () => {
 describe('TimeRange', () => {
   describe('containsTimestamp', () => {
     const range = new TimeRange(
-      UTC_CONVERTER.makeTimestampFromNs(10n),
-      UTC_CONVERTER.makeTimestampFromNs(600n),
+      makeRealTimestamp(10n),
+      makeRealTimestamp(600n),
     );
 
     it('returns true for range containing timestamp', () => {
-      expect(
-        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(10n)),
-      ).toBeTrue();
+      expect(range.containsTimestamp(makeRealTimestamp(10n))).toBeTrue();
 
-      expect(
-        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(600n)),
-      ).toBeTrue();
+      expect(range.containsTimestamp(makeRealTimestamp(600n))).toBeTrue();
 
-      expect(
-        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(300n)),
-      ).toBeTrue();
+      expect(range.containsTimestamp(makeRealTimestamp(300n))).toBeTrue();
     });
 
     it('returns false for range not containing timestamp', () => {
-      expect(
-        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(0n)),
-      ).toBeFalse();
+      expect(range.containsTimestamp(makeRealTimestamp(0n))).toBeFalse();
 
-      expect(
-        range.containsTimestamp(UTC_CONVERTER.makeTimestampFromNs(601n)),
-      ).toBeFalse();
+      expect(range.containsTimestamp(makeRealTimestamp(601n))).toBeFalse();
     });
   });
 });

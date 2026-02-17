@@ -17,7 +17,10 @@
 import {assertDefined, assertTrue} from '@common/assert';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {getTimestampConverter} from '@common/time/test_helpers';
+import {
+  makeConverterNoRteOffsets,
+  makeConverterWithUtcOffset,
+} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
@@ -40,7 +43,7 @@ import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {isZipFile, unzipFile} from '@common/io';
 
 abstract class ProcessedFileProvider<T extends FileReader> {
-  protected timestampConverter = getTimestampConverter();
+  protected timestampConverter = makeConverterNoRteOffsets();
   private files: Array<{src: string; dst?: string}> = [];
   private initializeRealToElapsedTimeOffsetNs = true;
 
@@ -159,7 +162,7 @@ export async function parseAndConvertToPerfettoTrace(
     .get();
   const parsers = await convertToPerfettoTrace(
     [fileReader],
-    getTimestampConverter(),
+    makeConverterNoRteOffsets(),
     existingPerfettoFile,
   );
   return parsers[0];
@@ -202,7 +205,7 @@ export async function getTrace<T extends TraceType>(
   type: T,
   filename: string,
 ): Promise<Trace<T>> {
-  const converter = getTimestampConverter(false);
+  const converter = makeConverterNoRteOffsets();
   const nonPerfettoParsers = await new NonPerfettoParserProvider()
     .addFile(filename)
     .setTimestampConverter(converter)
@@ -301,7 +304,9 @@ export async function getPerfettoParsers(
     file = assertDefined(subFiles.find((f) => f.name === unzippedFileName));
   }
   const traceFile = new TraceFile(file);
-  const converter = getTimestampConverter(withUTCOffset);
+  const converter = withUTCOffset
+    ? await makeConverterWithUtcOffset()
+    : makeConverterNoRteOffsets();
   const {parsers, isPerfettoTrace, traceGeometryData} =
     await new PerfettoParserFactory().processFile(
       traceFile,
@@ -332,7 +337,7 @@ export async function getImeTraceEntries(): Promise<
     serviceParser,
     sfParser,
     wmParser,
-  ] = await convertToPerfettoTrace(fileReaders, getTimestampConverter());
+  ] = await convertToPerfettoTrace(fileReaders, makeConverterNoRteOffsets());
 
   const surfaceFlingerEntry = await sfParser.getEntry(5);
   const imServiceEntry = await serviceParser.getEntry(0);

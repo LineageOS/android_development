@@ -19,7 +19,7 @@ import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flin
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   makeZeroTimestamp,
   timestampEqualityTester,
@@ -170,7 +170,7 @@ describe('ParserSearch', () => {
         )
       ).parser as ParserSurfaceFlinger
     ).parse();
-    parser = new ParserSearch(query, getTimestampConverter());
+    parser = new ParserSearch(query, makeConverterNoRteOffsets());
     await parser.parse();
     return parser;
   }

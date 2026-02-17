@@ -20,9 +20,11 @@ import {
   LegacyFileReaderProvider,
 } from '@test/unit/fixture_utils';
 import {
-  getTimestampConverter,
+  makeConverterWithUtcOffset,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   timestampEqualityTester,
+  makeRealTimestamp,
 } from '@common/time/test_helpers';
 import Long from 'long';
 import {CustomQueryType} from '@trace_api/custom_query';
@@ -53,13 +55,13 @@ describe('FileReaderWindowManagerDump', () => {
   it('does not apply timezone info', async () => {
     const readerWithTimezoneInfo = await new LegacyFileReaderProvider()
       .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
-      .setTimestampConverter(getTimestampConverter(true))
+      .setTimestampConverter(await makeConverterWithUtcOffset())
       .get();
     expect(readerWithTimezoneInfo.getTraceType()).toEqual(
       TraceType.WINDOW_MANAGER,
     );
     expect(readerWithTimezoneInfo.getTimestamps()).toEqual([
-      makeElapsedTimestamp(0n),
+      makeRealTimestamp(0n),
     ]);
   });
 
@@ -85,7 +87,7 @@ describe('FileReaderWindowManagerDump', () => {
 
     beforeAll(async () => {
       perfettoParser = (
-        await convertToPerfettoTrace([reader], getTimestampConverter())
+        await convertToPerfettoTrace([reader], makeConverterNoRteOffsets())
       )[0];
     });
 

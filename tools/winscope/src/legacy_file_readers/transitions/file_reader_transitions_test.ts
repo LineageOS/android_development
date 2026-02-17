@@ -23,7 +23,7 @@ import {
   LegacyFileReaderProvider,
 } from '@test/unit/fixture_utils';
 import {
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@common/time/test_helpers';
@@ -42,7 +42,7 @@ describe('FileReaderTransitions', () => {
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    converter = getTimestampConverter();
+    converter = makeConverterNoRteOffsets();
     [reader, readerShell, readerWm] = await getFileReaderTransitions(converter);
   });
 
@@ -165,7 +165,7 @@ describe('FileReaderTransitions', () => {
 
   it('converts to valid perfetto trace', async () => {
     const perfettoParser = (
-      await convertToPerfettoTrace([reader], getTimestampConverter())
+      await convertToPerfettoTrace([reader], makeConverterNoRteOffsets())
     )[0];
     expect(perfettoParser.getTimestamps()).toEqual([
       makeRealTimestamp(1683188477604336464n),

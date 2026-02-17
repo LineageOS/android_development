@@ -19,7 +19,7 @@ import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
 import {ClockSnapshot} from '@compat/perfetto';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
@@ -91,7 +91,10 @@ describe('FileReaderSurfaceFlinger', () => {
 
       beforeAll(async () => {
         perfettoParser = (
-          await convertToPerfettoTrace([readerRealTs], getTimestampConverter())
+          await convertToPerfettoTrace(
+            [readerRealTs],
+            makeConverterNoRteOffsets(),
+          )
         )[0];
       });
 

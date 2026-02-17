@@ -19,7 +19,7 @@ import {
   makeRealTimestamp,
   makeElapsedTimestamp,
   timestampEqualityTester,
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
 } from '@common/time/test_helpers';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
@@ -79,7 +79,7 @@ describe('FileReaderTransactions', () => {
 
       beforeAll(async () => {
         perfettoParser = (
-          await convertToPerfettoTrace([reader], getTimestampConverter())
+          await convertToPerfettoTrace([reader], makeConverterNoRteOffsets())
         )[0];
       });
 

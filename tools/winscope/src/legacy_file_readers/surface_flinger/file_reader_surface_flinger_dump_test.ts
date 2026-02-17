@@ -22,10 +22,12 @@ import {
 } from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
-  getTimestampConverter,
+  makeConverterWithUtcOffset,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   makeZeroTimestamp,
   timestampEqualityTester,
+  makeRealTimestamp,
 } from '@common/time/test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
@@ -65,9 +67,9 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('does not apply timezone info', async () => {
       const readerWithTimezoneInfo = await new LegacyFileReaderProvider()
         .addFile('traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb')
-        .setTimestampConverter(getTimestampConverter(true))
+        .setTimestampConverter(await makeConverterWithUtcOffset())
         .get();
-      const expected = [makeElapsedTimestamp(0n)];
+      const expected = [makeRealTimestamp(0n)];
       expect(readerWithTimezoneInfo.getTimestamps()).toEqual(expected);
     });
 
@@ -130,7 +132,10 @@ describe('FileReaderSurfaceFlingerDump', () => {
     nodeCount: number,
   ) {
     const perfettoParser = (
-      await convertToPerfettoTrace([readerToConvert], getTimestampConverter())
+      await convertToPerfettoTrace(
+        [readerToConvert],
+        makeConverterNoRteOffsets(),
+      )
     )[0];
     const expected = [makeZeroTimestamp()];
     expect(perfettoParser.getTimestamps()).toEqual(expected);

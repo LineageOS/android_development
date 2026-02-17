@@ -17,9 +17,8 @@
 import {TimeRange} from '@common/time/time';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {
-  makeRealTimestamp,
+  makeConverterZeroRteOffsets,
   makeZeroTimestamp,
-  UTC_CONVERTER,
 } from '@common/time/test_helpers';
 import {TransitionStatus} from '@trace/transitions/status';
 import {
@@ -71,17 +70,17 @@ describe('TimelineUtils', () => {
   });
 
   describe('getTimeRangeForTransition', () => {
-    const ts8 = makeRealTimestamp(8n);
-    const ts9 = makeRealTimestamp(9n);
-    const ts10 = makeRealTimestamp(10n);
-    const ts12 = makeRealTimestamp(12n);
-    const ts16 = makeRealTimestamp(16n);
-    const ts17 = makeRealTimestamp(17n);
-    const ts20 = makeRealTimestamp(20n);
-    const ts21 = makeRealTimestamp(21n);
-    const ts22 = makeRealTimestamp(22n);
+    const converter = makeConverterZeroRteOffsets();
+    const ts8 = converter.makeTimestampFromRealNs(8n);
+    const ts9 = converter.makeTimestampFromRealNs(9n);
+    const ts10 = converter.makeTimestampFromRealNs(10n);
+    const ts12 = converter.makeTimestampFromRealNs(12n);
+    const ts16 = converter.makeTimestampFromRealNs(16n);
+    const ts17 = converter.makeTimestampFromRealNs(17n);
+    const ts20 = converter.makeTimestampFromRealNs(20n);
+    const ts21 = converter.makeTimestampFromRealNs(21n);
+    const ts22 = converter.makeTimestampFromRealNs(22n);
     const fullTimeRange = new TimeRange(ts10, ts20);
-    const converter = UTC_CONVERTER;
 
     it('returns undefined if dispatch, finish and abort times missing', () => {
       const transition = makeTransition({});
