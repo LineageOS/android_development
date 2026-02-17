@@ -182,6 +182,16 @@ describe('SelectWithFilterComponent', () => {
     await checkToggleAll(() => dom.keydownCtrlAToSelectPanel());
   });
 
+  it('shows tooltip for all button', async () => {
+    await dom.openMatSelect();
+    await dom.whenRenderingDone();
+
+    const button = dom.getMatSelectPanel().get('.user-option');
+    await button.checkTooltip(
+      assertDefined(component.selectWithFilterComponent).allButtonTooltip,
+    );
+  });
+
   it('does not emit second change after shift + click for adjacent options', () => {
     dom.openMatSelect();
     const options = getOptions();

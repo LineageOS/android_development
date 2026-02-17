@@ -371,6 +371,9 @@ export class DOMTestHelper<T> {
 
   async checkTooltip(text: string | undefined) {
     this.dispatchEvent(new Event('mouseenter'));
+    await this.detectChangesAndWaitStable();
+    await this.whenRenderingDone();
+
     const panel = this.findMatTooltipPanel();
     if (text !== undefined) {
       assertDefined(panel).checkText(text);
@@ -378,7 +381,20 @@ export class DOMTestHelper<T> {
       expect(panel).toBeUndefined();
     }
     this.dispatchEvent(new Event('mouseleave'));
-    await this.whenStable();
+    await this.detectChangesAndWaitStable();
+    await this.whenRenderingDone();
+
+    if (panel) {
+      // tooltip hide animation must be manually ended for the tooltip to be
+      // removed from the DOM
+      const animationEnd = new AnimationEvent('animationend', {
+        animationName: 'mat-mdc-tooltip-hide',
+      });
+      panel.get('.mat-mdc-tooltip-hide').dispatchEvent(animationEnd);
+      await this.detectChangesAndWaitStable();
+      await this.whenRenderingDone();
+      expect(this.findMatTooltipPanel()).toBeUndefined();
+    }
   }
 
   private dispatchMouseEvent(

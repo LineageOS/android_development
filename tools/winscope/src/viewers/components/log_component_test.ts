@@ -456,7 +456,7 @@ describe('LogComponent', () => {
     await dom.whenStable();
 
     const entry = dom.get('.field-value');
-    entry.checkTooltip(tooltipMessage);
+    await entry.checkTooltip(tooltipMessage);
   });
 
   it('tooltip message correctly undefined', async () => {
@@ -466,7 +466,7 @@ describe('LogComponent', () => {
     await dom.whenStable();
 
     const entry = dom.get('.field-value');
-    entry.checkTooltip(undefined);
+    await entry.checkTooltip(undefined);
   });
 
   function setTooltipInputData(message: string | undefined) {

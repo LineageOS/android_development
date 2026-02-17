@@ -287,7 +287,16 @@ describe('TraceConfigComponent', () => {
     await checkToggleAllWithFilter(() => dom.keydownCtrlAToSelectPanel());
   });
 
-  it('shows tooltip', async () => {
+  it('shows tooltip for all button', async () => {
+    const settingsPanel = getAdvancedSettingsPanelForKey(multSelectKey);
+    await settingsPanel.openMatSelect();
+    await dom.whenRenderingDone();
+
+    const button = dom.getMatSelectPanel().get('.user-option');
+    await button.checkTooltip(component.allButtonTooltip);
+  });
+
+  it('shows tooltip for options', async () => {
     const settingsPanel = getAdvancedSettingsPanelForKey(optSelectKey);
     await settingsPanel.openMatSelect();
 
