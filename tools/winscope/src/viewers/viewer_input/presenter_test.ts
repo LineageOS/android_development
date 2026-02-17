@@ -41,7 +41,6 @@ import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {
-  ClickableProperty,
   LogField,
   LogHeader,
 } from '@viewers/common/ui_data_log';
@@ -131,7 +130,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
       ),
       options: [
         this.wrappedName('win-212'),
-        this.wrappedName('win-64'),
+        this.wrappedName('64'),
         this.wrappedName('win-82'),
         this.wrappedName('win-75'),
         this.wrappedName('win-zero-not-98'),
@@ -145,16 +144,16 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
   private layerIdToName: Array<{id: number; name: string}> = [
     {id: 0, name: 'win-zero-not-98'},
     {id: 212, name: 'win-212'},
-    {id: 64, name: 'win-64'},
     {id: 82, name: 'win-82'},
     {id: 75, name: 'win-75'},
     // The layer name for window with id 98 is omitted to test incomplete mapping.
   ];
-
   private parser: Parser<HierarchyTreeNode> | undefined;
+
   override resetTestEnvironment() {
     jasmine.addCustomEqualityTester(clickablePropertyEqualityTester);
   }
+
   override async setUpTestEnvironment(): Promise<void> {
     if (!this.parser) {
       this.parser = await getParserInput(
@@ -212,18 +211,6 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     return presenter;
   }
 
-  private static createPresenterWithTraces(
-    traces: Traces,
-    callback: NotifyLogViewCallbackType<UiData>,
-  ): Presenter {
-    return new Presenter(
-      traces,
-      assertDefined(traces.getTrace(TraceType.INPUT_EVENT_MERGED)),
-      new InMemoryStorage(),
-      callback,
-    );
-  }
-
   override getPositionUpdate(): TracePositionUpdate {
     return assertDefined(this.positionUpdate);
   }
@@ -261,7 +248,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
           ', ',
           {
             propertyValue: '64',
-            tooltip: this.wrappedName('win-64'),
+            tooltip: undefined,
             onClick: () => {},
           },
           ', ',
@@ -283,7 +270,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         spec: uiData.headers[6].spec,
         value: [
           this.wrappedName('win-212'),
-          this.wrappedName('win-64'),
+          this.wrappedName('64'),
           this.wrappedName('win-82'),
           this.wrappedName('win-75'),
           this.wrappedName('win-zero-not-98'),
@@ -297,22 +284,6 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     const dispatchPropertyNodes = assertDefined(uiData.dispatchPropertyNodes);
     expect(dispatchPropertyNodes.length).toBe(31);
     expect(dispatchPropertyNodes.at(1)?.node.getDisplayName()).toBe('win-212');
-  }
-
-  private expectEventPresented(
-    uiData: UiData,
-    eventId: number,
-    action: string,
-  ) {
-    const propertyNodes = assertDefined(uiData.propertyNodes);
-    expect(
-      propertyNodes.find((row) => row.node.name === 'eventId')?.node.getValue(),
-    ).toBe(eventId);
-    expect(
-      propertyNodes
-        .find((row) => row.node.name === 'action')
-        ?.node.formattedValue(),
-    ).toBe(action);
   }
 
   override executeSpecializedTests() {
@@ -1038,6 +1009,34 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     });
   }
 
+  private expectEventPresented(
+    uiData: UiData,
+    eventId: number,
+    action: string,
+  ) {
+    const propertyNodes = assertDefined(uiData.propertyNodes);
+    expect(
+      propertyNodes.find((row) => row.node.name === 'eventId')?.node.getValue(),
+    ).toBe(eventId);
+    expect(
+      propertyNodes
+        .find((row) => row.node.name === 'action')
+        ?.node.formattedValue(),
+    ).toBe(action);
+  }
+
+  private static createPresenterWithTraces(
+    traces: Traces,
+    callback: NotifyLogViewCallbackType<UiData>,
+  ): Presenter {
+    return new Presenter(
+      traces,
+      assertDefined(traces.getTrace(TraceType.INPUT_EVENT_MERGED)),
+      new InMemoryStorage(),
+      callback,
+    );
+  }
+
   private wrappedName(name: string): string {
     return `\u{200C}${name}\u{200C}`;
   }
@@ -1047,15 +1046,20 @@ describe('PresenterInput', async () => {
   new PresenterInputTest().execute();
 });
 
+// It is appropriate to use 'any' here as the inputs to a jasmine equality
+// tester can be of any type and we must explicitly check properties to
+// see if the inputs match the ClickableProperty interface.
 function clickablePropertyEqualityTester(
-  first: ClickableProperty,
-  second: ClickableProperty,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  first: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  second: any,
 ): boolean | undefined {
   if (
     first?.propertyValue &&
-    first?.tooltip &&
+    first?.onClick &&
     second?.propertyValue &&
-    second?.tooltip
+    second?.onClick
   ) {
     return (
       first.propertyValue === second.propertyValue &&

@@ -75,6 +75,6 @@ export type LogFieldValue =
 
 export interface ClickableProperty {
   propertyValue: string;
-  tooltip: string;
+  tooltip: string | undefined;
   onClick: () => void;
 }

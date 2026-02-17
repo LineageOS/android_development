@@ -498,12 +498,12 @@ export class Presenter extends AbstractLogViewerPresenter<
             type.getValue() === InputEventType.KEY
               ? Presenter.extractKeyDetails(
                   wrapperTree,
-                  (id) => this.getLayerDisplayName(id),
+                  (id) => this.getLayerName(id),
                   onWindowClicked,
                 )
               : Presenter.createDispatchArray(
                   wrapperTree,
-                  (id) => this.getLayerDisplayName(id),
+                  (id) => this.getLayerName(id),
                   onWindowClicked,
                 ),
         },
@@ -523,11 +523,23 @@ export class Presenter extends AbstractLogViewerPresenter<
   }
 
   private getLayerDisplayName(layerId: number): string {
+    return this.wrapLayerName(
+      this.layerIdToName.get(layerId) ?? layerId.toString(),
+    );
+  }
+
+  private getLayerName(layerId: number): string | undefined {
+    const name = this.layerIdToName.get(layerId);
+    if (!name) {
+      return undefined;
+    }
+    return this.wrapLayerName(name);
+  }
+
+  private wrapLayerName(layerName: string): string {
     // Surround the name using the invisible zero-width non-joiner character to ensure
     // the full string is matched while filtering.
-    return `\u{200C}${
-      this.layerIdToName.get(layerId) ?? layerId.toString()
-    }\u{200C}`;
+    return `\u{200C}${layerName}\u{200C}`;
   }
 
   private async updateRects() {
@@ -602,7 +614,7 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   private static extractKeyDetails(
     wrapperTree: HierarchyTreeNode,
-    displayNameGetter: (id: number) => string,
+    displayNameGetter: (id: number) => string | undefined,
     onWindowClick: (windowId: bigint, windowName: string) => void,
   ): Array<string | ClickableProperty> {
     const keyDetails =
@@ -621,7 +633,7 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   private static createDispatchArray(
     wrapperTree: HierarchyTreeNode,
-    displayNameGetter: (id: number) => string,
+    displayNameGetter: (id: number) => string | undefined,
     onWindowClick: (windowId: bigint, windowName: string) => void,
   ): Array<string | ClickableProperty> {
     const windows = Presenter.extractDispatchDetails(
@@ -643,7 +655,7 @@ export class Presenter extends AbstractLogViewerPresenter<
 
   private static extractDispatchDetails(
     wrapperTree: HierarchyTreeNode,
-    displayNameGetter: (id: number) => string,
+    displayNameGetter: (id: number) => string | undefined,
     onWindowClick: (windowId: bigint, windowName: string) => void,
   ): ClickableProperty[] {
     const windows =
