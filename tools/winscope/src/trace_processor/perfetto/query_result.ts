@@ -524,7 +524,7 @@ class QueryResultImpl implements QueryResult, WritableQueryResult {
           break;
 
         default:
-          this.logger.warn(`Unexpected QueryResult field ${tag >>> 3}`);
+          this.logger.trace(`Unexpected QueryResult field ${tag >>> 3}`);
           reader.skipType(tag & 7);
           break;
       } // switch (tag)
@@ -676,7 +676,7 @@ class ResultBatch {
           break;
 
         default:
-          this.logger.warn(`Unexpected QueryResult.CellsBatch field ${tag >>> 3}`);
+          this.logger.trace(`Unexpected QueryResult.CellsBatch field ${tag >>> 3}`);
           reader.skipType(tag & 7);
           break;
       } // switch(tag)

@@ -46,7 +46,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
       it('tooltip message correctly set', async () => {
         await this.setUpTestEnvironment();
 
-        const presenter = await this.createPresenter((newData) => {
+        await this.createPresenter((newData) => {
           uiData = newData;
         });
 

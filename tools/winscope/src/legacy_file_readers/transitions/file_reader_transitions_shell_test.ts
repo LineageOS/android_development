@@ -42,7 +42,7 @@ describe('FileReaderTransitionsShell', () => {
     const zeroTs = makeRealTimestamp(0n);
     const expected = [
       makeRealTimestamp(1683188477607285317n),
-      zeroTs,
+      makeRealTimestamp(1683188477785406289n),
       zeroTs,
       makeRealTimestamp(1683188479256449868n),
       zeroTs,

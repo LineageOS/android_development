@@ -14,62 +14,87 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Chip} from './chip';
 import {DiffType} from './diff_type';
-import {PropertiesProvider} from '@tree_node/properties_provider';
 import {UiTreeNode} from './ui_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
+import {Warning} from '@common/warning';
+import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 export class UiHierarchyTreeNode
-  extends HierarchyTreeNode
+  extends DataHierarchyTreeNode
   implements UiTreeNode
 {
+  private readonly node: DataHierarchyTreeNode;
+  private parent: this | undefined;
   private chips: Chip[] = [];
   private diff: DiffType = DiffType.NONE;
-  private displayName: string = this.name;
+  private displayName: string;
   private isOldNodeInternal = false;
   private showHeading = true;
 
-  constructor(
-    id: string,
-    name: string,
-    propertiesProvider: PropertiesProvider,
-  ) {
-    super(id, name, propertiesProvider);
+  constructor(node: DataHierarchyTreeNode) {
+    super(node.id, node.name);
+    this.node = node;
+    this.displayName = node.name;
   }
 
   static from(
-    node: HierarchyTreeNode,
+    node: DataHierarchyTreeNode,
     parent?: UiHierarchyTreeNode,
   ): UiHierarchyTreeNode {
-    const displayNode = new UiHierarchyTreeNode(
-      node.id,
-      node.name,
-      node.propertiesProvider,
-    );
-    const rects = node.getRects();
-    if (rects) displayNode.setRects(rects);
-
-    const secondaryRects = node.getSecondaryRects();
-    if (secondaryRects) displayNode.setSecondaryRects(secondaryRects);
+    const displayNode = new UiHierarchyTreeNode(node);
 
     if (parent) displayNode.setParent(parent);
-
-    const zParent = node.getZParent();
-    if (zParent) displayNode.setZParent(zParent);
-
-    node
-      .getRelativeChildren()
-      .forEach((zChild) => displayNode.addRelativeChild(zChild));
 
     node.getAllChildren().forEach((child) => {
       displayNode.addOrReplaceChild(
         UiHierarchyTreeNode.from(child, displayNode),
       );
     });
-    node.getWarnings().forEach((warning) => displayNode.addWarning(warning));
 
     return displayNode;
+  }
+
+  override async getAllProperties(): Promise<PropertyTreeNode> {
+    return await this.node.getAllProperties();
+  }
+
+  override getEagerPropertyByName(name: string): PropertyTreeNode | undefined {
+    return this.node.getEagerPropertyByName(name);
+  }
+
+  override getRects(): TraceRect[] {
+    return this.node.getRects();
+  }
+
+  override getSecondaryRects(): TraceRect[] {
+    return this.node.getSecondaryRects();
+  }
+
+  override setParent(parent: this): void {
+    this.parent = parent;
+  }
+
+  override getParent(): this | undefined {
+    return this.parent;
+  }
+
+  override getZParent(): DataHierarchyTreeNode | undefined {
+    return this.node.getZParent();
+  }
+
+  override getRelativeChildren(): DataHierarchyTreeNode[] {
+    return this.node.getRelativeChildren();
+  }
+
+  override isRoot(): boolean {
+    return !this.parent;
+  }
+
+  override getWarnings(): Warning[] {
+    return this.node.getWarnings();
   }
 
   setDiff(diff: DiffType) {

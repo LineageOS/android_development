@@ -63,6 +63,7 @@ const TRACING_COLLECT_DUMP = 'tracing_collect_dump';
 const TRACING_COLLECT_TRACE = 'tracing_collect_trace';
 const TRACING_LOADED_EVENT = 'tracing_trace_loaded';
 const TRACING_OPEN_FROM_ABT = 'tracing_from_abt';
+const TRACING_OPEN_FROM_REMOTE_TOOL = 'tracing_from_remote_tool';
 const TRACING_START_TIME = 'tracing_start_time';
 const USER_WARNING = 'user_warning';
 const VIEWER_INITIALIZATION_TIME = 'viewer_initialization_time';
@@ -374,6 +375,10 @@ export const Analytics = {
 
     logOpenFromABT() {
       analyticsLogEvent(TRACING_OPEN_FROM_ABT);
+    },
+
+    logOpenFromRemoteTool() {
+      analyticsLogEvent(TRACING_OPEN_FROM_REMOTE_TOOL);
     },
 
     logRefreshDumps() {

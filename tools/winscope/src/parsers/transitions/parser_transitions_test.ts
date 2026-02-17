@@ -49,9 +49,9 @@ describe('PerfettoParserTransitions', () => {
 
     it('provides timestamps', () => {
       const expected = [
-        makeRealTimestamp(1700573425448299306n),
-        makeRealTimestamp(1700573426522433299n),
-        makeRealTimestamp(1700573433040642612n),
+        makeRealTimestamp(1700573425441880645n),
+        makeRealTimestamp(1700573426515461660n),
+        makeRealTimestamp(1700573433038142327n),
         makeRealTimestamp(1700573433279358351n),
       ];
       const actual = parser.getTimestamps();
@@ -81,7 +81,7 @@ describe('PerfettoParserTransitions', () => {
         entry.getEagerPropertyByName('dispatchTimeNs')?.formattedValue(),
       ).toBe('2023-11-21, 13:30:25.448');
       expect(entry.getEagerPropertyByName('durationNs')?.formattedValue()).toBe(
-        '528 ms',
+        '522 ms',
       );
 
       const layerParticipants: bigint[] = assertDefined(

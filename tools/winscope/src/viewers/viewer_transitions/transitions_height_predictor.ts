@@ -25,7 +25,7 @@ export class TransitionsHeightPredictor extends ItemHeightPredictor {
 
   override predictHeight(entry: TransitionsEntry): number {
     const participantsHeight = this.subItemHeight(
-      assertString(entry.fields[6].value),
+      assertString(entry.fields[6].value ?? ''),
       this.participantsCharsPerRow,
     );
     const timestampHeight = this.subItemHeight(

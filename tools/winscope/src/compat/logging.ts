@@ -23,7 +23,7 @@ export type Logger = Log;
 let provider: Log4TSProvider | undefined;
 
 function getLogLevel(): LogLevel {
-  const isTest = globalConfig.MODE === 'KARMA_TEST';
+  const isTest = globalConfig.isTestMode();
   return isTest ? LogLevel.Fatal : LogLevel.Debug;
 }
 

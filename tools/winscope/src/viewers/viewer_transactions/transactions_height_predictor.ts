@@ -27,7 +27,7 @@ export class TransactionsHeightPredictor extends ItemHeightPredictor {
     const flags = assertString(
       entry.fields.find(
         (f) => f.spec.columnType === TransactionColumnType.FLAGS,
-      )?.value,
+      )?.value ?? '',
     );
     const flagsHeight =
       Math.max(1, Math.ceil(flags.match(/\|/g)?.length ?? 1) / 2) *

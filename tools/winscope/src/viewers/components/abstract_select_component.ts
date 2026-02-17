@@ -20,7 +20,7 @@ import {KeyboardEventCode} from '@common/dom';
 import {AbstractFormFieldComponent} from './abstract_form_field_component';
 
 export abstract class AbstractSelectComponent<
-  T,
+  T = undefined,
 > extends AbstractFormFieldComponent {
   hideOption(option: string, filterString: string) {
     if (!filterString) {
@@ -35,14 +35,14 @@ export abstract class AbstractSelectComponent<
       if (event.code === KeyboardEventCode.A && event.ctrlKey) {
         event.preventDefault();
         event.stopPropagation();
-        this.onKeydownCtrlA(select, context);
+        this.onToggleAll(select, context);
         return;
       }
       defaultHandleKeydown(event);
     };
   }
 
-  protected handleKeydownCtrlA(
+  protected handleToggleAll(
     select: MatSelect,
     options: string[],
     filterString: string,
@@ -94,7 +94,7 @@ export abstract class AbstractSelectComponent<
     select.value = select.value.filter((o: string) => !opts.includes(o));
   }
 
-  protected abstract onKeydownCtrlA(select: MatSelect, context?: T): void;
+  protected abstract onToggleAll(select: MatSelect, context?: T): void;
 }
 
 interface OptionChangeContext {

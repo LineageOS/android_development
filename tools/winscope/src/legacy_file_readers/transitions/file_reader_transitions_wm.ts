@@ -72,10 +72,14 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
     });
   }
 
-  protected override getTimestamp(_: LegacyTransition): Timestamp {
+  protected override getTimestamp(entry: LegacyTransition): Timestamp {
     // for consistency with all transitions, elapsed nanos are defined as
-    // shell dispatch time else INVALID_TIME_NS
-    return this.timestampConverter.makeZeroTimestamp();
+    // wm send time else INVALID_TIME_NS
+    return entry.sendTimeNs
+      ? this.timestampConverter.makeTimestampFromBootTimeNs(
+          BigInt(entry.sendTimeNs.toString()),
+        )
+      : this.timestampConverter.makeZeroTimestamp();
   }
 
   private convertToPerfettoTransition(

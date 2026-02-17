@@ -15,7 +15,7 @@
  */
 
 import {
-  makeZeroTimestamp,
+  makeRealTimestamp,
   timestampEqualityTester,
 } from '@common/time/test_helpers';
 import {TraceType} from '@trace_api/trace_type';
@@ -38,9 +38,18 @@ describe('FileReaderTransitionsWm', () => {
 
   it('provides timestamps', () => {
     const timestamps = reader.getTimestamps();
-    expect(timestamps.length).toBe(8);
-    const expected = makeZeroTimestamp();
-    timestamps.forEach((timestamp) => expect(timestamp).toEqual(expected));
+    const zeroTs = makeRealTimestamp(0n);
+    const expected = [
+      makeRealTimestamp(1683188477603625811n),
+      zeroTs,
+      zeroTs,
+      zeroTs,
+      makeRealTimestamp(1683188479251408771n),
+      makeRealTimestamp(1683188481345218790n),
+      zeroTs,
+      zeroTs,
+    ];
+    expect(timestamps).toEqual(expected);
   });
 
   it('converst to valid perfetto packets', async () => {

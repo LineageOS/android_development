@@ -18,7 +18,11 @@ import {Type} from '@angular/core';
 import {ComponentFixture} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {assertDefined} from '@common/assert';
-import {KeyboardEventKey, KeyboardEventKeyCode} from '@common/dom';
+import {
+  KeyboardEventCode,
+  KeyboardEventKey,
+  KeyboardEventKeyCode,
+} from '@common/dom';
 
 export class DOMTestHelper<T> {
   constructor(
@@ -239,6 +243,15 @@ export class DOMTestHelper<T> {
 
   keydownArrowDown(toDocument = false) {
     this.keydownByKey(KeyboardEventKey.ARROW_DOWN, toDocument);
+  }
+
+  keydownCtrlAToSelectPanel() {
+    const keydownCtrlA = new KeyboardEvent('keydown', {
+      code: KeyboardEventCode.A,
+      ctrlKey: true,
+    });
+    const panel = this.getMatSelectPanel();
+    panel.dispatchEvent(keydownCtrlA);
   }
 
   private keydownByKey(key: string, toDocument = false) {

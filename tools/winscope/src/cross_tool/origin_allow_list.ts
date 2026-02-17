@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {globalConfig} from '@common/global_config';
+import {GlobalConfig, globalConfig} from '@common/global_config';
 
 const ALLOW_LIST_PROD = [
   new RegExp('^https://([^\\/]*\\.)*googleplex\\.com$'),
@@ -66,11 +66,8 @@ const TIMESTAMP_SYNC_ALLOW_LIST_DEV = [
  * @param mode What mode the app environment is in - included as a function parameter
  * for testing purposes.
  */
-export function isAllowed(
-  originUrl: string,
-  mode = globalConfig.MODE,
-): boolean {
-  const list = getAllowList(mode);
+export function isAllowed(originUrl: string, config = globalConfig): boolean {
+  const list = getAllowList(config);
 
   for (const regex of list) {
     if (regex.test(originUrl)) {
@@ -91,9 +88,9 @@ export function isAllowed(
  */
 export function isUnauthorizedOriginExpected(
   originUrl: string,
-  mode = globalConfig.MODE,
+  config = globalConfig,
 ): boolean {
-  const list = getExpectedDenyList(mode);
+  const list = getExpectedDenyList(config);
 
   for (const regex of list) {
     if (regex.test(originUrl)) {
@@ -113,22 +110,11 @@ export function isUnauthorizedOriginExpected(
  */
 export function isAllowedIframeParentOrigin(
   originUrl: string,
-  mode = globalConfig.MODE,
+  config = globalConfig,
 ): boolean {
-  let allowList: RegExp[];
-
-  switch (mode) {
-    case 'DEV':
-    case 'KARMA_TEST':
-      allowList = IFRAME_PARENT_ALLOW_LIST_DEV;
-      break;
-    case 'PROD':
-      allowList = IFRAME_PARENT_ALLOW_LIST_PROD;
-      break;
-    default:
-      throw new Error(`Unhandled mode: ${globalConfig.MODE}`);
-  }
-
+  const allowList = config.isProdMode()
+    ? IFRAME_PARENT_ALLOW_LIST_PROD
+    : IFRAME_PARENT_ALLOW_LIST_DEV;
   return allowList.some((regex) => regex.test(originUrl));
 }
 
@@ -141,46 +127,24 @@ export function isAllowedIframeParentOrigin(
  */
 export function isOriginAllowedTimestampSync(
   originUrl: string,
-  mode = globalConfig.MODE,
+  config = globalConfig,
 ): boolean {
-  let allowList: RegExp[];
-
-  switch (mode) {
-    case 'DEV':
-    case 'KARMA_TEST':
-      allowList = TIMESTAMP_SYNC_ALLOW_LIST_DEV;
-      break;
-    case 'PROD':
-      allowList = TIMESTAMP_SYNC_ALLOW_LIST_PROD;
-      break;
-    default:
-      throw new Error(`Unhandled mode: ${globalConfig.MODE}`);
-  }
-
+  const allowList = config.isProdMode()
+    ? TIMESTAMP_SYNC_ALLOW_LIST_PROD
+    : TIMESTAMP_SYNC_ALLOW_LIST_DEV;
   return allowList.some((regex) => regex.test(originUrl));
 }
 
-function getAllowList(mode: typeof globalConfig.MODE): RegExp[] {
-  switch (mode) {
-    case 'DEV':
-    case 'KARMA_TEST':
-      return ALLOW_LIST_DEV;
-    case 'PROD':
-      return ALLOW_LIST_PROD;
-    default:
-      throw new Error(`Unhandled mode: ${globalConfig.MODE}`);
-  }
+function getAllowList(config: GlobalConfig): RegExp[] {
+  return config.isProdMode() ? ALLOW_LIST_PROD : ALLOW_LIST_DEV;
 }
 
-function getExpectedDenyList(mode: typeof globalConfig.MODE): RegExp[] {
-  switch (mode) {
-    case 'DEV':
-      return EXPECTED_DENY_LIST_DEV;
-    case 'KARMA_TEST':
-      return EXPECTED_DENY_LIST_KARMA_TEST;
-    case 'PROD':
-      return [];
-    default:
-      throw new Error(`Unhandled mode: ${globalConfig.MODE}`);
+function getExpectedDenyList(config: GlobalConfig): RegExp[] {
+  if (config.isDevMode()) {
+    return EXPECTED_DENY_LIST_DEV;
   }
+  if (config.isTestMode()) {
+    return EXPECTED_DENY_LIST_KARMA_TEST;
+  }
+  return [];
 }

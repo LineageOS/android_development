@@ -19,6 +19,7 @@ import {getLogger, Logger} from '@compat/logging';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
+  RemoteToolInitialized,
 } from '@cross_tool/remote_tool_events';
 import {
   EmitEvent,
@@ -65,7 +66,7 @@ export class AbtChromeExtensionProtocol
       return;
     }
 
-    await this.emitEvent(new RemoteToolDownloadStart());
+    await this.emitEvent(new RemoteToolInitialized());
 
     const openRequestMessage: OpenRequest = {
       action: MessageType.OPEN_REQUEST,
@@ -100,6 +101,8 @@ export class AbtChromeExtensionProtocol
     if (message.attachments.length === 0) {
       this.logger.warn('ABT chrome extension protocol received no attachments');
     }
+
+    await this.emitEvent(new RemoteToolDownloadStart());
 
     const filesBlobPromises = message.attachments.map(async (attachment) => {
       const fileQueryResponse = await fetch(attachment.objectUrl);

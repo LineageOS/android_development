@@ -202,9 +202,13 @@ describe('HierarchyComponent', () => {
     ];
     dom.detectChanges();
     const warning1 = makeWarningDuplicateLayerIds([123]);
-    component.nodeRows[0].node.addWarning(warning1);
+    spyOn(component.nodeRows[0].node, 'getWarnings').and.returnValue([
+      warning1,
+    ]);
     const warning2 = makeWarningMissingLayerIds();
-    component.nodeRows[1].node.addWarning(warning2);
+    spyOn(component.nodeRows[1].node, 'getWarnings').and.returnValue([
+      warning2,
+    ]);
     dom.detectChanges();
     const warnings = dom.findAll('.warning');
     expect(warnings.length).toBe(2);
@@ -214,7 +218,7 @@ describe('HierarchyComponent', () => {
 
   it('shows warning tooltip if text overflowing', () => {
     const warning = makeWarningDuplicateLayerIds([123]);
-    component.nodeRows[0].node.addWarning(warning);
+    spyOn(component.nodeRows[0].node, 'getWarnings').and.returnValue([warning]);
     dom.detectChanges();
 
     const warningEl = dom.get('.warning');

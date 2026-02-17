@@ -498,18 +498,18 @@ export class PlaybackPresenter {
   }
 
   private assignNodePrototypes(node: HierarchyTreeNode) {
-    Object.setPrototypeOf(
-      node.propertiesProvider,
-      PropertiesProvider.prototype,
-    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const propertiesProvider = (node as any).propertiesProvider;
+    Object.setPrototypeOf(propertiesProvider, PropertiesProvider.prototype);
 
     this.assignPropertyTreeNodePrototype(
-      node.propertiesProvider.getEagerProperties(),
+      propertiesProvider.getEagerProperties(),
     );
 
     Object.setPrototypeOf(node, HierarchyTreeNode.prototype);
 
     node.getRects()?.forEach((rect: TraceRect) => {
+      Object.setPrototypeOf(rect, TraceRect.prototype);
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
       if (rect.cornerRadii) {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);
@@ -517,6 +517,7 @@ export class PlaybackPresenter {
     });
 
     node.getSecondaryRects()?.forEach((rect: TraceRect) => {
+      Object.setPrototypeOf(rect, TraceRect.prototype);
       Object.setPrototypeOf(rect.transform, TransformMatrix.prototype);
       if (rect.cornerRadii) {
         Object.setPrototypeOf(rect.cornerRadii, CornerRadii.prototype);

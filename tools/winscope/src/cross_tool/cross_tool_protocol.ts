@@ -19,6 +19,7 @@ import {Timestamp} from '@common/time/time';
 import {RemoteToolTimestampConverter} from '@common/time/timestamp_converter';
 import {
   RemoteToolFilesReceived,
+  RemoteToolInitialized,
   RemoteToolTimestampReceived,
 } from '@cross_tool/remote_tool_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
@@ -153,6 +154,7 @@ export class CrossToolProtocol
     if (!this.remoteTool) {
       this.remoteTool = new RemoteTool(event.source as Window, event.origin);
       this.allowTimestampSync = isOriginAllowedTimestampSync(event.origin);
+      await this.emitEvent(new RemoteToolInitialized());
     }
 
     switch (message.type) {

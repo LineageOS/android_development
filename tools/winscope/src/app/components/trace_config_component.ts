@@ -148,14 +148,18 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   onAllButtonClick(select: MatSelect, config: SelectionConfiguration) {
-    if (config.value.length !== config.options.length) {
-      config.value = config.options.map((o) => o.value);
-      select.value = config.options;
-    } else {
-      config.value = [];
-      select.value = [];
-    }
-    this.onTraceConfigChange();
+    this.onToggleAll(select, config);
+  }
+
+  allOptionsSelected(
+    select: MatSelect,
+    config: SelectionConfiguration,
+  ): boolean {
+    return (
+      config.options.filter((option) => {
+        return !this.hideOption(option.value, config.filterString ?? '');
+      }).length === (select.value?.length ?? 0)
+    );
   }
 
   onOptionClick(
@@ -237,7 +241,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
     return config as CheckboxConfiguration;
   }
 
-  protected override onKeydownCtrlA(
+  protected override onToggleAll(
     select: MatSelect,
     selectionConfig: SelectionConfiguration,
   ) {
@@ -245,11 +249,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
       return o.value;
     });
 
-    this.handleKeydownCtrlA(
-      select,
-      allOpts,
-      selectionConfig.filterString ?? '',
-    );
+    this.handleToggleAll(select, allOpts, selectionConfig.filterString ?? '');
 
     selectionConfig.value = select.value;
     this.onTraceConfigChange();

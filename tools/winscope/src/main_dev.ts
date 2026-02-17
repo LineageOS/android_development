@@ -18,9 +18,7 @@
 import '@angular/compiler';
 import '@app/global_init';
 import {globalConfig} from '@common/global_config';
-globalConfig.set({
-  MODE: 'DEV',
-});
+globalConfig.set({mode: 'DEV'});
 
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {ErrorHandler} from '@angular/core';

@@ -70,6 +70,7 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
+  RemoteToolInitialized,
   RemoteToolTimestampReceived,
 } from '@cross_tool/remote_tool_events';
 import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
@@ -254,19 +255,26 @@ export class Mediator {
     UserNotifier.notify();
   }
 
-  private async onRemoveToolDownloadStart() {
+  private async onRemoteToolInitialized() {
+    Analytics.Tracing.logOpenFromRemoteTool();
+    this.currentProgressListener = this.uploadTracesComponent;
+    this.currentProgressListener?.onProgressUpdate(
+      'Opened from external tool. Waiting for files...',
+      undefined,
+    );
+  }
+
+  private async onRemoteToolDownloadStart() {
     Analytics.Tracing.logOpenFromABT();
-    await this.resetAppToInitialState();
     this.currentProgressListener = this.uploadTracesComponent;
     this.currentProgressListener?.onProgressUpdate(
       'Downloading files...',
       undefined,
     );
-    this.logger.info('App reset for remote tool download.');
   }
 
   private async onRemoveToolFilesReceived(event: RemoteToolFilesReceived) {
-    this.logger.info('Remote tool files received.');
+    this.logger.info('Files received from external tool.');
     await this.processRemoteFilesReceived(event.files, FilesSource.REMOTE_TOOL);
     if (event.deferredTimestamp) {
       await this.processRemoteToolDeferredTimestampReceived(
@@ -458,8 +466,10 @@ export class Mediator {
         );
       case AppTraceViewRequest:
         return await this.onAppTraceViewRequest(event as AppTraceViewRequest);
+      case RemoteToolInitialized:
+        return await this.onRemoteToolInitialized();
       case RemoteToolDownloadStart:
-        return await this.onRemoveToolDownloadStart();
+        return await this.onRemoteToolDownloadStart();
       case RemoteToolFilesReceived:
         return await this.onRemoveToolFilesReceived(
           event as RemoteToolFilesReceived,

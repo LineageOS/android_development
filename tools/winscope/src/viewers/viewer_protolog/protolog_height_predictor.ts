@@ -30,7 +30,7 @@ export class ProtologHeightPredictor extends ItemHeightPredictor {
       assertString(
         entry.fields.find(
           (f) => f.spec.columnType === ProtologColumnType.MESSAGE,
-        )?.value,
+        )?.value ?? '',
       ),
       this.textCharsPerRow,
     );
@@ -42,7 +42,7 @@ export class ProtologHeightPredictor extends ItemHeightPredictor {
       assertString(
         entry.fields.find(
           (f) => f.spec.columnType === ProtologColumnType.LOCATION,
-        )?.value,
+        )?.value ?? '',
       ),
       this.sourceFileCharsPerRow,
     );

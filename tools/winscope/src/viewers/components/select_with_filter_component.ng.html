@@ -35,15 +35,34 @@ limitations under the License.
     panelWidth="''"
     #select
   >
-    <mat-form-field
-      class="select-filter mat-form-field-appearance-none"
-      [style]="getInnerFormFieldStyle()"
-      subscriptSizing="dynamic"
-    >
-      <mat-label>Filter options</mat-label>
-      <input matInput #filter [(ngModel)]="filterString" (ngModelChange)="onFilterStringChange()" />
-    </mat-form-field>
-    @if ((select.value?.length ?? 0) > 0) {
+    @let nonHidden = nonHiddenOptions();
+    @let totalSelected = select.value?.length ?? 0;
+    @let allSelected = totalSelected === nonHidden.length;
+    <div class="select-filter-header">
+      <mat-form-field
+        class="select-filter mat-form-field-appearance-none"
+        [style]="getInnerFormFieldStyle()"
+        subscriptSizing="dynamic"
+      >
+        <mat-label>Filter options</mat-label>
+        <input
+          matInput
+          #filter
+          [(ngModel)]="filterString"
+          (ngModelChange)="onFilterStringChange()"
+        />
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        class="user-option"
+        [color]="allSelected ? 'primary' : undefined"
+        [class.not-enabled]="!allSelected"
+        (click)="onAllButtonClick(select)"
+        >All</button
+      >
+    </div>
+    @if (totalSelected > 0) {
       <div class="selected-options">
         <span class="mat-mdc-option mat-mdc-option-active mdc-list-item mdc-list-item--selected"
           >Selected:</span
@@ -75,7 +94,7 @@ limitations under the License.
       [style.max-width]="'50vw'"
     >
       <mat-option
-        *cdkVirtualFor="let option of nonHiddenOptions(); index as i"
+        *cdkVirtualFor="let option of nonHidden; index as i"
         [value]="option"
         class="option no-focus"
         (click)="onOptClick($event, nonHiddenOptionToIndex[i], select, matOption)"

@@ -308,25 +308,33 @@ export class AppComponent implements WinscopeEventListener {
       );
     }
 
-    this.appStorage =
-      globalConfig.MODE === 'PROD'
-        ? new PersistentStore()
-        : new InMemoryStorage();
+    const isProdMode = globalConfig.isProdMode();
+
+    this.appStorage = isProdMode
+      ? new PersistentStore()
+      : new InMemoryStorage();
 
     window.onunhandledrejection = (evt) => {
       Analytics.Error.logGlobalException(evt.reason);
     };
+
+    if (isProdMode) {
+      window.addEventListener('beforeunload', (event) => {
+        if (this.dataLoaded) {
+          event.preventDefault();
+          event.returnValue = '';
+        }
+      });
+    }
   }
 
   async ngAfterViewInit() {
+    this.setComponentsToMediator();
     await this.mediator.onWinscopeEvent(new AppInitialized());
   }
 
   ngAfterViewChecked() {
-    this.mediator.setUploadTracesComponent(this.uploadTracesComponent);
-    this.mediator.setCollectTracesComponent(this.collectTracesComponent);
-    this.mediator.setTraceViewComponent(this.traceViewComponent);
-    this.mediator.setTimelineComponent(this.timelineComponent);
+    this.setComponentsToMediator();
 
     if (this.sendRefreshDumpsRequest) {
       this.sendRefreshDumpsRequest = false;
@@ -746,6 +754,14 @@ export class AppComponent implements WinscopeEventListener {
     this.pageTitle.setTitle('Winscope');
     this.changeDetectorRef.detectChanges();
     this.updateShareState();
+    this.setComponentsToMediator();
+  }
+
+  private setComponentsToMediator() {
+    this.mediator.setUploadTracesComponent(this.uploadTracesComponent);
+    this.mediator.setCollectTracesComponent(this.collectTracesComponent);
+    this.mediator.setTraceViewComponent(this.traceViewComponent);
+    this.mediator.setTimelineComponent(this.timelineComponent);
   }
 
   private async onBugreportFileSelectionRequest(

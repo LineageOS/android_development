@@ -265,23 +265,13 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     ```
 
 -   **Display timeout**: Whether to keep the displays always awake or to put
-    them to sleep after a timeout. Run the commands below to enable this
-    functionality. \
+    them to sleep after a timeout. \
     *Changing this will recreate the virtual device.*
 
-    ```shell
-    adb shell aflags enable android.companion.virtual.flags.device_aware_display_power && adb reboot
-    ```
-
 -   **Enable client brightness**: Whether to propagate any brightness changes
-    from the virtual display to the client's display. Run the commands below to
-    enable this functionality. \
+    from the virtual display to the client's display. \
     *This can be changed dynamically but only applies to newly created
     displays.*
-
-    ```shell
-    adb shell aflags enable android.companion.virtual.flags.device_aware_display_power && adb reboot
-    ```
 
 -   **Custom UI mode**: Whether to override the UI mode on all virtual displays.
     Run the commands below to enable this functionality. \
@@ -417,11 +407,6 @@ display, if the mouse pointer is currently positioned on a streamed display.
 
 The power menu button acts as a "virtual power button". It will toggle the state
 of the virtual device and all its displays between ON and OFF.
-Run the commands below on the host device to enable this functionality.
-
-```shell
-adb shell aflags enable android.companion.virtual.flags.device_aware_display_power && adb reboot
-```
 
 ### Settings
 

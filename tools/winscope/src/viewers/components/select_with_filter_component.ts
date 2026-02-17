@@ -40,6 +40,7 @@ import {
 } from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {AbstractSelectComponent} from './abstract_select_component';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   selector: 'select-with-filter',
@@ -56,12 +57,13 @@ import {AbstractSelectComponent} from './abstract_select_component';
     MatOptionModule,
     ScrollingModule,
     MatPseudoCheckboxModule,
+    MatButtonModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './select_with_filter_component.ng.html',
   styleUrls: ['select_with_filter_component.css'],
 })
-export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInputElement> {
+export class SelectWithFilterComponent extends AbstractSelectComponent {
   @Input() override label = 'Search';
   @Input() options: string[] = [];
   @Input() outerFilterWidth = '100px';
@@ -109,7 +111,7 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
   }
 
   onSelectOpened(select: MatSelect, filter: HTMLInputElement) {
-    this.handleSelectOpened(select, filter);
+    this.handleSelectOpened(select);
     this.onFilterStringChange();
     filter.focus();
   }
@@ -134,17 +136,17 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
     this.lastClickedIndex = i;
   }
 
-  selectedOptions(select: MatSelect) {
+  selectedOptions(select: MatSelect): string[] {
     return this.options.filter((o) => select.value.includes(o));
   }
 
-  nonHiddenOptions() {
+  nonHiddenOptions(): string[] {
     return this.options.filter((value: string) => {
       return !this.hideOption(value, this.filterString);
     });
   }
 
-  hiddenOptions() {
+  hiddenOptions(): string[] {
     return this.options.filter((value) =>
       this.hideOption(value, this.filterString),
     );
@@ -177,6 +179,10 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
     this.updateNonHiddenOptionToIndex();
   }
 
+  onAllButtonClick(select: MatSelect) {
+    this.onToggleAll(select);
+  }
+
   private updateNonHiddenOptionToIndex() {
     const nonHiddenOptionToIndex: number[] = [];
     this.options.forEach((value, i) => {
@@ -187,8 +193,8 @@ export class SelectWithFilterComponent extends AbstractSelectComponent<HTMLInput
     this.nonHiddenOptionToIndex = nonHiddenOptionToIndex;
   }
 
-  protected override onKeydownCtrlA(select: MatSelect) {
-    this.handleKeydownCtrlA(select, this.options, this.filterString);
+  protected override onToggleAll(select: MatSelect) {
+    this.handleToggleAll(select, this.options, this.filterString);
     this.selectChange.emit(new MatSelectChange(select, select.value));
   }
 }
