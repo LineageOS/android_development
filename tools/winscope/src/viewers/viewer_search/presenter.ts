@@ -265,6 +265,10 @@ export class Presenter {
     const firstEntry =
       newTrace.lengthEntries > 0 ? newTrace.getEntry(0) : undefined;
 
+    // assume all received timestamps are elapsed from boottime
+    const makeTimestampStrategy = (valueNs: bigint) =>
+      this.timestampConverter.makeTimestampFromBootTimeNs(valueNs);
+
     const presenter = new SearchResultPresenter(
       newTrace,
       (result: SearchResult) => {
@@ -276,8 +280,7 @@ export class Presenter {
         }
         this.updateCurrentSearches();
       },
-      (valueNs: bigint) =>
-        this.timestampConverter.makeTimestampFromBootTimeNs(valueNs),
+      makeTimestampStrategy,
       firstEntry ? await firstEntry.getValue() : undefined,
     );
     presenter.addEventListeners(assertDefined(this.viewerElement));

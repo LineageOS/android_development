@@ -29,7 +29,7 @@ import {TraceProcessorFactory} from './trace_processor_factory';
  */
 export function makeSearchTraceSpies(
   ts?: Timestamp,
-  value?: ColumnType | null,
+  additionalColumns: {[key: string]: ColumnType | null} = {},
 ): [jasmine.SpyObj<QueryResult>, jasmine.SpyObj<RowIterator>] {
   const spyQueryResult = jasmine.createSpyObj<QueryResult>('result', [
     'numRows',
@@ -40,7 +40,7 @@ export function makeSearchTraceSpies(
   const columns: string[] = [];
   if (ts !== undefined) columns.push('ts', 'ts_other');
   columns.push('property');
-  if (value !== undefined) columns.push('value');
+  columns.push(...Object.keys(additionalColumns));
   spyQueryResult.columns.and.returnValue(columns);
 
   const spyIter = jasmine.createSpyObj<RowIterator>('iter', [
@@ -53,9 +53,10 @@ export function makeSearchTraceSpies(
     spyIter.get.withArgs('ts_other').and.returnValue(ts.getValueNs() + 100n);
   }
   spyIter.get.withArgs('property').and.returnValue('test_property');
-  if (value !== undefined) {
-    spyIter.get.withArgs('value').and.returnValue(value);
-  }
+  Object.entries(additionalColumns).forEach(([col, val]) => {
+    spyIter.get.withArgs(col).and.returnValue(val);
+  });
+
   spyIter.valid.and.returnValue(true);
   spyIter.next.and.callFake(() =>
     assertDefined(spyIter).valid.and.returnValue(false),

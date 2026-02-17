@@ -28,6 +28,7 @@ import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewe
 import {LogHeader} from '@viewers/common/ui_data_log';
 import {SearchResultPresenter} from './search_result_presenter';
 import {SearchResult} from './ui_data';
+import {Timestamp} from '@common/time/time';
 
 class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchResult> {
   override readonly expectedHeaders = [
@@ -55,6 +56,12 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
         cssClass: 'search-result',
       }),
     },
+    {
+      header: new LogHeader({
+        name: 'some_time_ns',
+        cssClass: 'search-result',
+      }),
+    },
   ];
   private trace: Trace<QueryResult> | undefined;
   private positionUpdate: TracePositionUpdate | undefined;
@@ -62,10 +69,9 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
 
   override async setUpTestEnvironment(): Promise<void> {
     const time100 = makeRealTimestamp(100n);
-    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, 123);
-    this.spyIter = spyIter;
+    const queryResult = this.setQuerySpiesAndGetQueryResult(time100);
     this.trace = new TraceBuilder<QueryResult>()
-      .setEntries([spyQueryResult])
+      .setEntries([queryResult])
       .setTimestamps([time100])
       .setType(TraceType.SEARCH)
       .build();
@@ -82,14 +88,13 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
     callback: NotifyLogViewCallbackType<SearchResult>,
   ): Promise<SearchResultPresenter> {
     const time100 = makeRealTimestamp(100n);
-    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, 123);
-    this.spyIter = spyIter;
+    const queryResult = this.setQuerySpiesAndGetQueryResult(time100);
     const trace = makeEmptyTrace<QueryResult>(TraceType.SEARCH);
     return new SearchResultPresenter(
       trace,
       callback,
       (valueNs: bigint) => makeRealTimestamp(valueNs),
-      spyQueryResult,
+      queryResult,
     );
   }
 
@@ -126,10 +131,14 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
           },
           {
             spec: this.expectedHeaders[1].header.spec,
-            value: makeRealTimestamp(200n),
+            value: makeRealTimestamp(200n), // converts column that starts with 'ts' to Timestamp
           },
           {spec: this.expectedHeaders[2].header.spec, value: 'test_property'},
           {spec: this.expectedHeaders[3].header.spec, value: 123},
+          {
+            spec: this.expectedHeaders[4].header.spec,
+            value: makeRealTimestamp(321n), // converts column that ends with 'time_ns' to Timestamp
+          },
         ],
         getPropertiesTree: undefined,
       },
@@ -191,6 +200,9 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
         });
 
         it('converts value to number if bigint', async () => {
+          this.spyIter?.get
+            .withArgs('property')
+            .and.returnValue('test_property');
           this.spyIter?.get.withArgs('value').and.returnValue(321n);
           await presenter.onAppEvent(assertDefined(this.getPositionUpdate()));
           expect(result.entries[0].fields[3].value).toBe(321);
@@ -203,6 +215,15 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
         });
       });
     });
+  }
+
+  private setQuerySpiesAndGetQueryResult(ts: Timestamp) {
+    const [spyQueryResult, spyIter] = makeSearchTraceSpies(ts, {
+      value: 123,
+      some_time_ns: 321n,
+    });
+    this.spyIter = spyIter;
+    return spyQueryResult;
   }
 }
 

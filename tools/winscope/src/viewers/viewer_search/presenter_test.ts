@@ -160,7 +160,9 @@ describe('PresenterSearch', () => {
     );
 
     const time100 = makeRealTimestamp(100n);
-    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, '123');
+    const [spyQueryResult, spyIter] = makeSearchTraceSpies(time100, {
+      value: '123',
+    });
     spyIter.get.withArgs('property').and.returnValue('test_time_ns');
     const spyTimestamp = spyOn(
       timestampConverter,
