@@ -54,9 +54,9 @@ export interface FileLoaderResult {
   nonPerfetto: FileReaderAndParser[];
   perfetto: FileReaderAndParser[];
   lostPerfettoPackets: number;
-  timestampConverter: TimestampConverter;
   traceGeometryData: TraceGeometryData;
   warnings: UserWarning[];
+  timezoneInfo: TimezoneInfo | undefined;
 }
 
 /**
@@ -69,7 +69,8 @@ export interface FileLoaderResult {
 export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
   private traceFileFilter = new TraceFileIdentifier<FileReaderAndParser>();
   private traceGeometryData = new TraceGeometryData();
-  private timestampConverter: TimestampConverter;
+  private readonly timestampConverter: TimestampConverter;
+  private timezoneInfo: TimezoneInfo | undefined;
 
   constructor(timestampConverter: TimestampConverter) {
     this.timestampConverter = timestampConverter;
@@ -97,7 +98,7 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
         nonPerfetto: [],
         perfetto: [],
         traceGeometryData: this.traceGeometryData,
-        timestampConverter: this.timestampConverter,
+        timezoneInfo: this.timezoneInfo,
         warnings: [],
       };
     }
@@ -111,7 +112,7 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
       nonPerfetto: identifiedFiles.nonPerfetto,
       perfetto: identifiedFiles.perfetto,
       traceGeometryData: this.traceGeometryData,
-      timestampConverter: this.timestampConverter,
+      timezoneInfo: this.timezoneInfo,
       warnings,
     };
   }
@@ -182,7 +183,7 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
     progressListener: ProgressListener | undefined,
   ): Promise<ProcessedFiles<LegacyFileReader>> {
     if (timezoneInfo) {
-      this.timestampConverter = new TimestampConverter(timezoneInfo);
+      this.timezoneInfo = timezoneInfo;
     }
 
     const startTimeMs = Date.now();

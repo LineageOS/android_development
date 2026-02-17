@@ -15,7 +15,7 @@
  */
 
 import {assertDefined, assertTrue} from '@common/assert';
-import {INVALID_TIME_NS, Timestamp, TimezoneInfo} from './time';
+import {INVALID_TIME_NS, Timestamp} from './time';
 import {TIME_UNIT_TO_NANO, TIME_UNITS} from './time_units';
 import {
   ELAPSED_TIMESTAMP_FORMATTER,
@@ -73,12 +73,10 @@ export class TimestampConverter
   );
 
   /**
-   * @param timezoneInfo The timezone information to use.
    * @param realToMonotonicTimeOffsetNs The offset between real and monotonic time.
    * @param realToBootTimeOffsetNs The offset between real and boottime.
    */
   constructor(
-    private readonly timezoneInfo: TimezoneInfo,
     private realToMonotonicTimeOffsetNs?: bigint,
     private realToBootTimeOffsetNs?: bigint,
   ) {}
