@@ -31,6 +31,7 @@ limitations under the License.
           matIconSuffix
           [cdkCopyToClipboard]="proxyCommand"
           matTooltip="Copy command"
+          class="no-touch-target-button"
         >
           <mat-icon>content_copy</mat-icon>
         </button>
@@ -40,14 +41,19 @@ limitations under the License.
 
     <div class="further-adb-info-actions">
       <button
-        class="download-proxy-btn"
+        class="download-proxy-btn no-touch-target-button"
         color="primary"
         mat-stroked-button
         (click)="onDownloadProxyClick()"
       >
         Download Proxy
       </button>
-      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+      <button
+        class="retry no-touch-target-button"
+        color="primary"
+        mat-stroked-button
+        (click)="onRetryButtonClick()"
+      >
         Retry
       </button>
     </div>
@@ -68,6 +74,7 @@ limitations under the License.
           matIconSuffix
           [cdkCopyToClipboard]="proxyCommand"
           matTooltip="Copy command"
+          class="no-touch-target-button"
         >
           <mat-icon>content_copy</mat-icon>
         </button>
@@ -77,14 +84,19 @@ limitations under the License.
 
     <div class="further-adb-info-actions">
       <button
-        class="download-proxy-btn"
+        class="download-proxy-btn no-touch-target-button"
         color="primary"
         mat-stroked-button
         (click)="onDownloadProxyClick()"
       >
         Download Proxy
       </button>
-      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+      <button
+        class="retry no-touch-target-button"
+        color="primary"
+        mat-stroked-button
+        (click)="onRetryButtonClick()"
+      >
         Retry
       </button>
     </div>
@@ -109,7 +121,12 @@ limitations under the License.
     </div>
 
     <div class="further-adb-info-actions">
-      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+      <button
+        class="retry no-touch-target-button"
+        color="primary"
+        mat-stroked-button
+        (click)="onRetryButtonClick()"
+      >
         Connect
       </button>
     </div>

@@ -40,10 +40,7 @@ import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewe
 import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
-import {
-  LogField,
-  LogHeader,
-} from '@viewers/common/ui_data_log';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
