@@ -31,7 +31,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
-import {MatSelectChange, MatSelectModule} from '@angular/material/select';
+import {MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {equal} from '@common/typed_array';
@@ -124,6 +124,7 @@ export class CollectTracesComponent
   lastUiProgressUpdateTimeMs?: number;
   refreshDumps = false;
   targetTabIndex = 0;
+  connectionTabIndex = 0;
   traceConfig: TraceConfigurationMap;
   dumpConfig: TraceConfigurationMap;
   requestedTraceTypes: RequestedTraceTypes[] = [];
@@ -170,7 +171,7 @@ export class CollectTracesComponent
     if (adbConnectionType !== undefined) {
       await this.changeHostConnection(adbConnectionType);
     } else {
-      await this.changeHostConnection(AdbConnectionType.WINSCOPE_PROXY);
+      await this.changeHostConnection(AdbConnectionType.WDP);
     }
   }
 
@@ -188,8 +189,8 @@ export class CollectTracesComponent
     this.emitEvent = callback;
   }
 
-  async onConnectionChange(event: MatSelectChange) {
-    this.changeHostConnection(event.value);
+  async onConnectionChange(adbConnectionType: string) {
+    this.changeHostConnection(adbConnectionType);
   }
 
   onDeviceClick(device: AdbDeviceConnection) {
@@ -561,6 +562,9 @@ export class CollectTracesComponent
       await this.controller?.onDestroy(this.selectedDevice);
     }
     this.controller = new TraceCollectionController(adbConnectionType, this);
+    this.connectionTabIndex =
+      adbConnectionType === AdbConnectionType.WINSCOPE_PROXY ? 1 : 0;
+    this.changeDetectorRef.detectChanges();
     this.storage?.add(this.storeKeyAdbConnectionType, adbConnectionType);
     await this.controller.restartConnection();
   }

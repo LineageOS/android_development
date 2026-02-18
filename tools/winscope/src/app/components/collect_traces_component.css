@@ -22,7 +22,7 @@
 
 .selected-device {
   display: flex;
-  justify-content: space-between;
+  gap: 20px;
 }
 
 .mat-card.collect-card {
@@ -38,6 +38,16 @@
 
 .collect-card-content {
   overflow: auto;
+  position: relative;
+}
+
+.refresh-connection-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  align-content: center;
+  z-index: 10;
+  height: 48px;
 }
 
 .selection {
@@ -51,7 +61,12 @@
 .trace-section,
 .dump-section,
 .tracing-progress,
-trace-config {
+trace-config,
+wdp-setup,
+winscope-proxy-setup,
+.devices-connecting,
+.trace-collection-config,
+.unknown-error {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -102,16 +117,22 @@ trace-config {
   height: 100%;
 }
 
-.no-device-detected p,
-.device-selection p.instruction {
-  padding-top: 1rem;
-  opacity: 0.6;
-  font-size: 1.2rem;
+.no-device-detected .message,
+.device-selection .instruction {
+  font-size: 20px;
+  line-height: normal;
 }
 
 .no-device-detected .icon {
   font-size: 3rem;
   margin: 0 0 0.2rem 0;
+}
+
+.no-device-detected .message,
+.no-device-detected .icon,
+.device-selection .instruction {
+  padding-top: 1rem;
+  opacity: 0.6;
 }
 
 .device-info {
@@ -143,11 +164,13 @@ mat-card-content {
   padding: 1rem 0;
 }
 
-.target-tabs {
+.target-tabs,
+.connection-tabs {
   flex-grow: 1;
 }
 
-.target-tabs .mat-mdc-tab-body-wrapper {
+.target-tabs .mat-mdc-tab-body-wrapper,
+.connection-tabs .mat-mdc-tab-body-wrapper {
   flex-grow: 1;
 }
 
