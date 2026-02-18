@@ -19,9 +19,10 @@ import {DOWNLOAD_FILENAME_REGEX, unzipFile} from '@common/io';
 import {UserWarning} from '@messaging/user_warning';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
+  ASIA_TIMEZONE_INFO,
+  makeConverterNoRteOffsets,
   makeRealTimestamp,
   timestampEqualityTester,
-  UTC_CONVERTER,
 } from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
@@ -42,6 +43,9 @@ import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {Rect} from '@common/geometry/rect';
 import {FrameMapper} from '@trace_api/frame_mapper';
 import {makeWarningIncompleteFrameMapping} from './warnings';
+import {TimezoneInfo} from '@common/time/time';
+import {TraceProcessorProxy} from '@trace_processor/trace_processor';
+import {makeSpyQueryResult} from '@trace_processor/test_utils';
 
 describe('LoadedFileData', () => {
   const emptyTraceGeometryData = new TraceGeometryData();
@@ -205,7 +209,7 @@ describe('LoadedFileData', () => {
       perfetto: [perfettoProtologReader],
       nonPerfetto: [],
       lostPerfettoPackets: 1,
-      timestampConverter: UTC_CONVERTER,
+      timezoneInfo: undefined,
       traceGeometryData: emptyTraceGeometryData,
       warnings: [],
     };
@@ -226,7 +230,7 @@ describe('LoadedFileData', () => {
       perfetto: [perfettoProtologReader],
       nonPerfetto: [],
       lostPerfettoPackets: 1,
-      timestampConverter: UTC_CONVERTER,
+      timezoneInfo: undefined,
       traceGeometryData,
       warnings: [],
     };
@@ -349,6 +353,42 @@ describe('LoadedFileData', () => {
       makeWarningIncompleteFrameMapping(errorMsg),
     ]);
     userNotifierChecker.reset();
+  });
+
+  it('uses timezone info from file loader to initialize UTC offset', async () => {
+    // prevent TraceProcessor from returning a valid timezone offset
+    const result = makeSpyQueryResult();
+    result.numRows.and.returnValue(0);
+    spyOn(TraceProcessorProxy.prototype, 'query').and.returnValue(
+      Promise.resolve(result),
+    );
+
+    const reader = new TestFileReaderAndParserBuilder()
+      .setType(TraceType.SCREEN_RECORDING)
+      .setTimestamps([
+        loadedFileData
+          .getTimestampConverter()
+          .makeTimestampFromRealNs(1000000000000n),
+      ])
+      .setIsPerfetto(false)
+      .build();
+    await addNonLegacyReaders(
+      [],
+      [reader],
+      FilesSource.TEST,
+      ASIA_TIMEZONE_INFO,
+    );
+    expectLoadResult(1, []);
+    const ts = reader.getTimestamps()[0].format();
+    expect(ts).toEqual('1970-01-01, 00:16:40.000');
+
+    const success = await loadedFileData.buildTraces(false, undefined);
+    expect(success).toBeTrue();
+    const trace = loadedFileData
+      .getTraces()
+      .getTrace(TraceType.SCREEN_RECORDING);
+    const tsWithUtcOffset = trace?.getEntry(0).getTimestamp().format();
+    expect(tsWithUtcOffset).toEqual('1970-01-01, 05:46:40.000');
   });
 
   it('can filter traces without visualization', async () => {
@@ -509,7 +549,7 @@ describe('LoadedFileData', () => {
   });
 
   async function loadFiles(files: File[]): Promise<FileLoaderResult> {
-    return await new FileLoader(UTC_CONVERTER).load(
+    return await new FileLoader(makeConverterNoRteOffsets()).load(
       files,
       FilesSource.TEST,
       undefined,
@@ -525,7 +565,7 @@ describe('LoadedFileData', () => {
       perfetto: [],
       nonPerfetto: [],
       lostPerfettoPackets: 0,
-      timestampConverter: UTC_CONVERTER,
+      timezoneInfo: undefined,
       traceGeometryData: emptyTraceGeometryData,
       warnings: [],
     };
@@ -536,14 +576,14 @@ describe('LoadedFileData', () => {
     perfetto: FileReaderAndParser[],
     nonPerfetto: FileReaderAndParser[],
     source: FilesSource = FilesSource.TEST,
-    timestampConverter = UTC_CONVERTER,
+    timezoneInfo?: TimezoneInfo,
   ) {
     const res = {
       legacy: [],
       perfetto,
       nonPerfetto,
       lostPerfettoPackets: 0,
-      timestampConverter,
+      timezoneInfo,
       traceGeometryData: emptyTraceGeometryData,
       warnings: [],
     };
@@ -637,7 +677,7 @@ describe('LoadedFileData', () => {
       warnings: [],
       lostPerfettoPackets: 0,
       traceGeometryData: emptyTraceGeometryData,
-      timestampConverter: UTC_CONVERTER,
+      timezoneInfo: undefined,
     };
     await loadedFileData.addFiles(res, FilesSource.TEST);
     expectLoadResult(2, []);

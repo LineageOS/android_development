@@ -15,7 +15,7 @@
  */
 import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {UTC_CONVERTER} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 import {TraceFile} from '@trace/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 
@@ -37,7 +37,7 @@ describe('LegacyFileReaderFactory', () => {
       const trace = new TraceFile(await getFixtureFile(file), undefined);
       const processed = await new LegacyFileReaderFactory().processFiles(
         [trace],
-        UTC_CONVERTER,
+        makeConverterNoRteOffsets(),
       );
       expect(processed.supportedFiles.length).toBe(0);
       expect(processed.unsupportedFiles).toEqual(unsupported ? [trace] : []);
@@ -152,7 +152,7 @@ describe('LegacyFileReaderFactory', () => {
     ) {
       const processedFiles = await new LegacyFileReaderFactory().processFiles(
         files,
-        UTC_CONVERTER,
+        makeConverterNoRteOffsets(),
       );
       expect(
         processedFiles.supportedFiles.map((p) => p.getTraceType()),

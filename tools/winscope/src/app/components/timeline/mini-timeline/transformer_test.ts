@@ -15,10 +15,15 @@
  */
 
 import {TimeRange} from '@common/time/time';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
+import {
+  makeConverterZeroRteOffsets,
+  makeRealTimestamp,
+} from '@common/time/test_helpers';
 import {Transformer} from './transformer';
 
 describe('Transformer', () => {
+  const converter = makeConverterZeroRteOffsets();
+
   it('can transform', () => {
     const fromRange = new TimeRange(
       makeRealTimestamp(1689763211000000000n),
@@ -28,7 +33,7 @@ describe('Transformer', () => {
       from: 100,
       to: 1100,
     };
-    const transformer = new Transformer(fromRange, toRange, UTC_CONVERTER);
+    const transformer = new Transformer(fromRange, toRange, converter);
 
     const rangeStart = fromRange.startNs;
     const rangeEnd = fromRange.endNs;
@@ -64,7 +69,7 @@ describe('Transformer', () => {
       from: 100,
       to: 1100,
     };
-    const transformer = new Transformer(fromRange, toRange, UTC_CONVERTER);
+    const transformer = new Transformer(fromRange, toRange, converter);
 
     const rangeStart = fromRange.startNs;
     const range = BigInt(fromRange.endNs - fromRange.startNs);

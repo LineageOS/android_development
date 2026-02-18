@@ -19,7 +19,6 @@ import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {
   makeRealTimestamp,
   timestampEqualityTester,
-  UTC_CONVERTER,
 } from '@common/time/test_helpers';
 import {
   DEFAULT_PROPERTY_FORMATTER,
@@ -81,12 +80,12 @@ describe('ParserCujs', () => {
         },
         {
           name: 'ts',
-          value: UTC_CONVERTER.makeTimestampFromNs(1754580962747188031n),
+          value: makeRealTimestamp(1754580962747188031n),
           formatter: TIMESTAMP_NODE_FORMATTER,
         },
         {
           name: 'endTimestamp',
-          value: UTC_CONVERTER.makeTimestampFromNs(1754580963548041327n),
+          value: makeRealTimestamp(1754580963548041327n),
           formatter: TIMESTAMP_NODE_FORMATTER,
         },
         {

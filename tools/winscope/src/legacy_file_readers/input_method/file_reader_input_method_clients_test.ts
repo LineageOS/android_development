@@ -21,7 +21,7 @@ import {
   LegacyFileReaderProvider,
 } from '@test/unit/fixture_utils';
 import {
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
@@ -71,7 +71,7 @@ describe('FileReaderInputMethodClients', () => {
 
     it('converts to valid perfetto trace', async () => {
       const perfettoParser = (
-        await convertToPerfettoTrace([reader], getTimestampConverter())
+        await convertToPerfettoTrace([reader], makeConverterNoRteOffsets())
       )[0];
 
       expect(perfettoParser.getTimestamps().slice(0, 3)).toEqual([

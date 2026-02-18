@@ -34,7 +34,7 @@ import {assertDefined} from '@common/assert';
 import {KeyboardEventCode} from '@common/dom';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';
@@ -54,19 +54,23 @@ describe('MiniTimelineComponent', () => {
   const zoomOutSelector = '#zoom-out-btn';
   const zoomControlSelector = '.zoom-control';
 
-  const timestamp10 = makeRealTimestamp(10n);
-  const timestamp15 = makeRealTimestamp(15n);
-  const timestamp16 = makeRealTimestamp(16n);
-  const timestamp20 = makeRealTimestamp(20n);
-  const timestamp700 = makeRealTimestamp(700n);
-  const timestamp810 = makeRealTimestamp(810n);
-  const timestamp1000 = makeRealTimestamp(10000000n);
-  const timestamp1750 = makeRealTimestamp(17500000n);
-  const timestamp2000 = makeRealTimestamp(20000000n);
-  const timestamp3000 = makeRealTimestamp(30000000n);
-  const timestamp4000 = makeRealTimestamp(40000000n);
+  const converter = makeConverterZeroRteOffsets();
 
-  const position800 = TracePosition.fromTimestamp(makeRealTimestamp(800n));
+  const timestamp10 = converter.makeTimestampFromRealNs(10n);
+  const timestamp15 = converter.makeTimestampFromRealNs(15n);
+  const timestamp16 = converter.makeTimestampFromRealNs(16n);
+  const timestamp20 = converter.makeTimestampFromRealNs(20n);
+  const timestamp700 = converter.makeTimestampFromRealNs(700n);
+  const timestamp810 = converter.makeTimestampFromRealNs(810n);
+  const timestamp1000 = converter.makeTimestampFromRealNs(10000000n);
+  const timestamp1750 = converter.makeTimestampFromRealNs(17500000n);
+  const timestamp2000 = converter.makeTimestampFromRealNs(20000000n);
+  const timestamp3000 = converter.makeTimestampFromRealNs(30000000n);
+  const timestamp4000 = converter.makeTimestampFromRealNs(40000000n);
+
+  const position800 = TracePosition.fromTimestamp(
+    converter.makeTimestampFromRealNs(800n),
+  );
 
   const traces = new TracesBuilder()
     .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
@@ -684,7 +688,7 @@ describe('MiniTimelineComponent', () => {
 
   async function createAndInitializeTimelineData(traces: Traces) {
     timelineData = new TimelineData();
-    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    await timelineData.initialize(traces, undefined, converter);
     return timelineData;
   }
 

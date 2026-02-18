@@ -32,24 +32,26 @@ import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {makeRealTimestamp, UTC_CONVERTER} from '@common/time/test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {ExpandedTimelineComponent} from './expanded_timeline_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('ExpandedTimelineComponent', () => {
+  const converter = makeConverterZeroRteOffsets();
+  const time10 = converter.makeTimestampFromRealNs(10n);
+  const time11 = converter.makeTimestampFromRealNs(11n);
+  const time12 = converter.makeTimestampFromRealNs(12n);
+  const time30 = converter.makeTimestampFromRealNs(30n);
+  const time60 = converter.makeTimestampFromRealNs(60n);
+  const time110 = converter.makeTimestampFromRealNs(110n);
+
   let component: ExpandedTimelineComponent;
   let dom: DOMTestHelper<ExpandedTimelineComponent>;
   let timelineData: TimelineData;
-  const time10 = makeRealTimestamp(10n);
-  const time11 = makeRealTimestamp(11n);
-  const time12 = makeRealTimestamp(12n);
-  const time30 = makeRealTimestamp(30n);
-  const time60 = makeRealTimestamp(60n);
-  const time110 = makeRealTimestamp(110n);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -106,7 +108,7 @@ describe('ExpandedTimelineComponent', () => {
       .setTimestamps(TraceType.TRANSITION, [time10, time60])
       .setTimestamps(TraceType.PROTO_LOG, [time12, time12])
       .build();
-    await timelineData.initialize(traces, undefined, UTC_CONVERTER);
+    await timelineData.initialize(traces, undefined, converter);
     component.timelineData = timelineData;
   });
 

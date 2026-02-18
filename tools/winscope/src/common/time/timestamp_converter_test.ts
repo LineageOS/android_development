@@ -19,7 +19,7 @@ import {
   ASIA_TIMEZONE_INFO,
 } from '@common/time/test_helpers';
 import {TIME_UNIT_TO_NANO} from './time_units';
-import {UTC_TIMEZONE_INFO, TimestampConverter} from './timestamp_converter';
+import {TimestampConverter} from './timestamp_converter';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
 
 describe('TimestampConverter', () => {
@@ -39,24 +39,20 @@ describe('TimestampConverter', () => {
   });
 
   describe('makes timestamps from ns without timezone info', () => {
-    const converterWithMonotonicOffset = new TimestampConverter(
-      UTC_TIMEZONE_INFO,
-    );
+    const converterWithMonotonicOffset = new TimestampConverter();
     converterWithMonotonicOffset.setRealToMonotonicTimeOffsetNs(
       testMonotonicTimeOffsetNs,
     );
 
-    const converterWithBootTimeOffset = new TimestampConverter(
-      UTC_TIMEZONE_INFO,
-    );
+    const converterWithBootTimeOffset = new TimestampConverter();
     converterWithBootTimeOffset.setRealToBootTimeOffsetNs(
       testRealToBootTimeOffsetNs,
     );
 
     it('can create real-formatted timestamp without real-time offset set', () => {
-      const timestamp = new TimestampConverter(
-        UTC_TIMEZONE_INFO,
-      ).makeTimestampFromRealNs(testRealNs);
+      const timestamp = new TimestampConverter().makeTimestampFromRealNs(
+        testRealNs,
+      );
       expect(timestamp.getValueNs()).toBe(testRealNs);
       expect(timestamp.format()).toBe('2022-07-31, 04:55:41.051');
     });
@@ -80,9 +76,9 @@ describe('TimestampConverter', () => {
     });
 
     it('can create elapsed-formatted timestamp', () => {
-      const timestamp = new TimestampConverter(
-        UTC_TIMEZONE_INFO,
-      ).makeTimestampFromMonotonicNs(testElapsedNs);
+      const timestamp = new TimestampConverter().makeTimestampFromMonotonicNs(
+        testElapsedNs,
+      );
       expect(timestamp.getValueNs()).toBe(testElapsedNs);
       expect(timestamp.format()).toBe('100ns');
     });
@@ -103,33 +99,15 @@ describe('TimestampConverter', () => {
 
   describe('makes timestamps from ns with timezone info', () => {
     it('can create real-formatted timestamp without real-time offset set', async () => {
-      const converter = new TimestampConverter(ASIA_TIMEZONE_INFO);
-      const utcOffsetReal = await getResolvedUTCOffset(
-        ASIA_TIMEZONE_INFO,
-        converter.makeTimestampFromRealNs(testRealNs),
-      );
-      converter.setUTCOffset(utcOffsetReal);
-
+      const converter = await makeConverterWithUtcOffset(false, false);
       const timestamp = converter.makeTimestampFromRealNs(testRealNs);
       expect(timestamp.getValueNs()).toBe(testRealNs);
       expect(timestamp.format()).toBe('2022-07-31, 10:25:41.051');
     });
 
     it('can create real-formatted timestamp with monotonic offset', async () => {
-      const converterWithMonotonicOffset = new TimestampConverter(
-        ASIA_TIMEZONE_INFO,
-      );
-      converterWithMonotonicOffset.setRealToMonotonicTimeOffsetNs(
-        testMonotonicTimeOffsetNs,
-      );
-      const utcOffsetMonotonic = await getResolvedUTCOffset(
-        ASIA_TIMEZONE_INFO,
-        converterWithMonotonicOffset.makeTimestampFromRealNs(testRealNs),
-      );
-      converterWithMonotonicOffset.setUTCOffset(utcOffsetMonotonic);
-
-      const timestamp =
-        converterWithMonotonicOffset.makeTimestampFromMonotonicNs(testRealNs);
+      const converter = await makeConverterWithUtcOffset(true, false);
+      const timestamp = converter.makeTimestampFromMonotonicNs(testRealNs);
       expect(timestamp.getValueNs()).toBe(
         testRealNs + testMonotonicTimeOffsetNs,
       );
@@ -137,20 +115,8 @@ describe('TimestampConverter', () => {
     });
 
     it('can create real-formatted timestamp with real to boot time offset', async () => {
-      const converterWithBootTimeOffset = new TimestampConverter(
-        ASIA_TIMEZONE_INFO,
-      );
-      converterWithBootTimeOffset.setRealToBootTimeOffsetNs(
-        testRealToBootTimeOffsetNs,
-      );
-      const utcOffsetBoot = await getResolvedUTCOffset(
-        ASIA_TIMEZONE_INFO,
-        converterWithBootTimeOffset.makeTimestampFromRealNs(testRealNs),
-      );
-      converterWithBootTimeOffset.setUTCOffset(utcOffsetBoot);
-
-      const timestamp =
-        converterWithBootTimeOffset.makeTimestampFromBootTimeNs(testRealNs);
+      const converter = await makeConverterWithUtcOffset(false, true);
+      const timestamp = converter.makeTimestampFromBootTimeNs(testRealNs);
       expect(timestamp.getValueNs()).toBe(
         testRealNs + testRealToBootTimeOffsetNs,
       );
@@ -158,20 +124,17 @@ describe('TimestampConverter', () => {
     });
 
     it('can create elapsed-formatted timestamp', () => {
-      const timestamp = new TimestampConverter(
-        ASIA_TIMEZONE_INFO,
-      ).makeTimestampFromMonotonicNs(testElapsedNs);
+      const timestamp = new TimestampConverter().makeTimestampFromMonotonicNs(
+        testElapsedNs,
+      );
       expect(timestamp.getValueNs()).toBe(testElapsedNs);
       expect(timestamp.format()).toBe('100ns');
     });
   });
 
   describe('makes timestamps from string without timezone info', () => {
-    const converterWithoutOffsets = new TimestampConverter(UTC_TIMEZONE_INFO);
-
-    const converterWithMonotonicOffset = new TimestampConverter(
-      UTC_TIMEZONE_INFO,
-    );
+    const converterWithoutOffsets = new TimestampConverter();
+    const converterWithMonotonicOffset = new TimestampConverter();
     converterWithMonotonicOffset.setRealToMonotonicTimeOffsetNs(
       testMonotonicTimeOffsetNs,
     );
@@ -466,14 +429,7 @@ describe('TimestampConverter', () => {
     });
 
     it('can reverse-date format', async () => {
-      const converter = new TimestampConverter(ASIA_TIMEZONE_INFO);
-      converter.setRealToMonotonicTimeOffsetNs(testMonotonicTimeOffsetNs);
-
-      const utcOffset = await getResolvedUTCOffset(
-        ASIA_TIMEZONE_INFO,
-        converter.makeTimestampFromRealNs(testRealNs),
-      );
-      converter.setUTCOffset(utcOffset);
+      const converter = await makeConverterWithUtcOffset(true, false);
 
       expect(
         converter
@@ -487,18 +443,30 @@ describe('TimestampConverter', () => {
       expectedNs: bigint,
       expectedFormattedTimestamp: string,
     ) {
-      const converter = new TimestampConverter(ASIA_TIMEZONE_INFO);
-      converter.setRealToMonotonicTimeOffsetNs(testMonotonicTimeOffsetNs);
-
-      const utcOffset = await getResolvedUTCOffset(
-        ASIA_TIMEZONE_INFO,
-        converter.makeTimestampFromRealNs(testRealNs),
-      );
-      converter.setUTCOffset(utcOffset);
+      const converter = await makeConverterWithUtcOffset(true, false);
 
       const timestamp = converter.makeTimestampFromHuman(timestampHuman);
       expect(timestamp.getValueNs()).toEqual(expectedNs);
       expect(timestamp.format()).toEqual(expectedFormattedTimestamp);
     }
   });
+
+  async function makeConverterWithUtcOffset(
+    withMonotonic: boolean,
+    withBoottime: boolean,
+  ) {
+    const converter = new TimestampConverter();
+    if (withMonotonic) {
+      converter.setRealToMonotonicTimeOffsetNs(testMonotonicTimeOffsetNs);
+    }
+    if (withBoottime) {
+      converter.setRealToBootTimeOffsetNs(testRealToBootTimeOffsetNs);
+    }
+    const utcOffset = await getResolvedUTCOffset(
+      ASIA_TIMEZONE_INFO,
+      converter.makeTimestampFromRealNs(testRealNs),
+    );
+    converter.setUTCOffset(utcOffset);
+    return converter;
+  }
 });

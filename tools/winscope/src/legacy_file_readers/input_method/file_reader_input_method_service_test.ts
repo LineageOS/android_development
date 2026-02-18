@@ -16,7 +16,7 @@
 import {assertDefined} from '@common/assert';
 import Long from 'long';
 import {
-  getTimestampConverter,
+  makeConverterNoRteOffsets,
   makeElapsedTimestamp,
   makeRealTimestamp,
   timestampEqualityTester,
@@ -66,7 +66,7 @@ describe('FileReaderInputMethodService', () => {
 
     it('converts to valid perfetto trace', async () => {
       const perfettoParser = (
-        await convertToPerfettoTrace([reader], getTimestampConverter())
+        await convertToPerfettoTrace([reader], makeConverterNoRteOffsets())
       )[0];
 
       expect(perfettoParser.getTimestamps()).toEqual([

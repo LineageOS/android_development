@@ -16,10 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {
-  TimestampConverter,
-  UTC_TIMEZONE_INFO,
-} from '@common/time/timestamp_converter';
+import {TimestampConverter} from '@common/time/timestamp_converter';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   RemoteToolInitialized,
@@ -27,6 +24,7 @@ import {
 } from './remote_tool_events';
 import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('CrossToolProtocol', () => {
   const FAKE_ORIGIN = 'http://localhost:8081';
@@ -187,7 +185,7 @@ Check the test run artifacts for trace files
 
   function setUpTestEnvironment() {
     emittedEvent = undefined;
-    timestampConverter = new TimestampConverter(UTC_TIMEZONE_INFO, 0n);
+    timestampConverter = makeConverterZeroRteOffsets();
     protocol = new CrossToolProtocol(timestampConverter);
     protocol.setEmitEvent(async (event) => {
       emittedEvent = event;
