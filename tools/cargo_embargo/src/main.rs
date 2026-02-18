@@ -84,7 +84,7 @@ pub static RENAME_MAP: LazyLock<BTreeMap<&str, &str>> = LazyLock::new(|| {
         ("libsync", "libsync_rust"),
         ("libx86_64", "libx86_64_rust"),
         ("libxml", "libxml_rust"),
-        ("protoc_gen_rust", "protoc-gen-rust"),
+        ("protoc_gen_rust", "protoc-gen-rs"),
     ]
     .into_iter()
     .collect()
