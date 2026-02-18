@@ -27,7 +27,7 @@ limitations under the License.
       <button
         color="primary"
         mat-stroked-button
-        class="install"
+        class="install no-touch-target-button"
         (click)="onInstallExternalButtonClick()"
       >
         Install (Non-Google users)
@@ -35,12 +35,17 @@ limitations under the License.
       <button
         color="primary"
         mat-stroked-button
-        class="install"
+        class="install no-touch-target-button"
         (click)="onInstallGoogleButtonClick()"
       >
         Install (Google employees only)
       </button>
-      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+      <button
+        color="primary"
+        mat-stroked-button
+        class="retry no-touch-target-button"
+        (click)="onRetryButtonClick()"
+      >
         Retry
       </button>
     </div>
@@ -56,7 +61,12 @@ limitations under the License.
     </div>
 
     <div class="further-adb-info-actions">
-      <button color="primary" mat-stroked-button class="retry" (click)="onRetryButtonClick()">
+      <button
+        color="primary"
+        mat-stroked-button
+        class="retry no-touch-target-button"
+        (click)="onRetryButtonClick()"
+      >
         Retry
       </button>
     </div>
