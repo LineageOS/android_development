@@ -24,9 +24,9 @@ limitations under the License.
 
   <div class="horizontal-align vertical-align icon-actions small-icon-container">
     @if (showDataLoadedElements) {
-      @let packetLoss = packetLossWarning();
+      @let parsingWarning = combinedWarning();
       @let showFileWarningStyle =
-        downloadProgress === undefined && !isEditingFilename && packetLoss !== undefined;
+        downloadProgress === undefined && !isEditingFilename && parsingWarning !== undefined;
       <div class="download-files-section">
         <div class="file-descriptor vertical-align" [class.file-warning]="showFileWarningStyle">
           @if (showCrossToolSyncButton()) {
@@ -40,8 +40,13 @@ limitations under the License.
               <mat-icon class="material-symbols-outlined">cloud_sync</mat-icon>
             </button>
           }
-          @if (packetLoss !== undefined) {
-            <mat-icon [matTooltip]="packetLoss" class="warning-icon fixed">warning</mat-icon>
+          @if (parsingWarning) {
+            <mat-icon
+              [matTooltip]="parsingWarning"
+              class="warning-icon fixed"
+              matTooltipClass="multline-tooltip"
+              >warning</mat-icon
+            >
           }
           @if (!isEditingFilename) {
             <span class="download-file-info text-no-overflow mat-body-2">
@@ -240,7 +245,12 @@ limitations under the License.
 >
   <mat-drawer-content>
     @if (dataLoaded) {
-      <trace-view class="viewers" [viewers]="viewers" [store]="persistentStore"></trace-view>
+      <trace-view
+        class="viewers"
+        [viewers]="viewers"
+        [store]="persistentStore"
+        [traceTypesWithParsingErrors]="getTraceTypesWithParsingErrors()"
+      ></trace-view>
 
       <mat-divider></mat-divider>
     } @else {

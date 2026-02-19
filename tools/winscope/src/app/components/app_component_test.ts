@@ -83,6 +83,7 @@ import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {Mediator} from '@app/mediator';
 import {LoadedFileData} from '@app/loaded_file_data';
 import {TimelineData} from '@app/timeline_data';
+import {ParsingErrorType} from '@app/parsing_error_type';
 
 @Component({
   selector: 'trace-view',
@@ -261,6 +262,10 @@ describe('AppComponent', () => {
     spyOn(LoadedFileData.prototype, 'getLostPerfettoPackets').and.returnValue(
       0,
     );
+    spyOn(
+      LoadedFileData.prototype,
+      'getTraceTypesWithParsingErrors',
+    ).and.returnValue(new Map());
     spyOn(TimelineData.prototype, 'getTimestampConverter').and.returnValue(
       converter,
     );
@@ -568,6 +573,84 @@ describe('AppComponent', () => {
     dom.detectChanges();
     await warningIcon.checkTooltip(
       '4 Perfetto packets lost during tracing - data may be incomplete',
+    );
+  });
+
+  it('shows warning icon for trace processor errors', async () => {
+    showDataLoadedElements();
+    const fileDescriptor = dom.get('.file-descriptor');
+    fileDescriptor.checkClassName('file-warning', false);
+    expect(fileDescriptor.find('.warning-icon')).toBeUndefined();
+
+    const spy = component.loadedFileData
+      .getTraceTypesWithParsingErrors as jasmine.Spy;
+    spy.and.returnValue(
+      new Map([[TraceType.PROTO_LOG, ParsingErrorType.DATA_INCOMPLETE]]),
+    );
+    dom.detectChanges();
+    fileDescriptor.checkClassName('file-warning', true);
+    const warningIcon = fileDescriptor.get('.warning-icon');
+    await warningIcon.checkTooltip(
+      'Trace processor errors occurred - data may be incomplete',
+    );
+
+    spy.and.returnValue(
+      new Map([
+        [TraceType.INPUT_METHOD_CLIENTS, ParsingErrorType.DATA_INCORRECT],
+        [TraceType.PROTO_LOG, ParsingErrorType.DATA_INCOMPLETE],
+      ]),
+    );
+    dom.detectChanges();
+    await warningIcon.checkTooltip(
+      'Trace processor errors occurred - data may be incorrect',
+    );
+  });
+
+  it('shows combined warning message for incorrect data', async () => {
+    showDataLoadedElements();
+    const fileDescriptor = dom.get('.file-descriptor');
+    fileDescriptor.checkClassName('file-warning', false);
+    expect(fileDescriptor.find('.warning-icon')).toBeUndefined();
+
+    const spy1 = component.loadedFileData
+      .getTraceTypesWithParsingErrors as jasmine.Spy;
+    spy1.and.returnValue(
+      new Map([[TraceType.PROTO_LOG, ParsingErrorType.DATA_INCORRECT]]),
+    );
+
+    const spy2 = component.loadedFileData.getLostPerfettoPackets as jasmine.Spy;
+    spy2.and.returnValue(1);
+
+    dom.detectChanges();
+
+    fileDescriptor.checkClassName('file-warning', true);
+    const warningIcon = fileDescriptor.get('.warning-icon');
+    await warningIcon.checkTooltip(
+      '1 Perfetto packet lost during tracing and trace processor errors occurred - data may be incorrect',
+    );
+  });
+
+  it('shows combined warning message for incomplete data', async () => {
+    showDataLoadedElements();
+    const fileDescriptor = dom.get('.file-descriptor');
+    fileDescriptor.checkClassName('file-warning', false);
+    expect(fileDescriptor.find('.warning-icon')).toBeUndefined();
+
+    const spy1 = component.loadedFileData
+      .getTraceTypesWithParsingErrors as jasmine.Spy;
+    spy1.and.returnValue(
+      new Map([[TraceType.PROTO_LOG, ParsingErrorType.DATA_INCOMPLETE]]),
+    );
+
+    const spy2 = component.loadedFileData.getLostPerfettoPackets as jasmine.Spy;
+    spy2.and.returnValue(1);
+
+    dom.detectChanges();
+
+    fileDescriptor.checkClassName('file-warning', true);
+    const warningIcon = fileDescriptor.get('.warning-icon');
+    await warningIcon.checkTooltip(
+      '1 Perfetto packet lost during tracing and trace processor errors occurred - data may be incomplete',
     );
   });
 
@@ -1087,6 +1170,7 @@ describe('AppComponent', () => {
         ],
         perfetto: [],
         lostPerfettoPackets: 0,
+        traceTypesWithParsingErrors: new Map(),
         timezoneInfo: undefined,
         traceGeometryData: new TraceGeometryData(),
         warnings: [],

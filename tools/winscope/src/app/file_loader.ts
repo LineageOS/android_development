@@ -23,6 +23,7 @@ import {UserWarning} from '@messaging/user_warning';
 import {
   makeWarningCorruptedArchive,
   makeWarningNoValidFiles,
+  makeWarningTraceProcessorError,
   makeWarningUnsupportedFileFormat,
 } from './warnings';
 
@@ -48,12 +49,15 @@ import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {assertDefined} from '@common/assert';
 import {FileReaderAndParser} from './file_reader_and_parser';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {TraceType} from '@trace_api/trace_type';
+import {ParsingErrorType} from './parsing_error_type';
 
 export interface FileLoaderResult {
   legacy: LegacyFileReader[];
   nonPerfetto: FileReaderAndParser[];
   perfetto: FileReaderAndParser[];
   lostPerfettoPackets: number;
+  traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType>;
   traceGeometryData: TraceGeometryData;
   warnings: UserWarning[];
   timezoneInfo: TimezoneInfo | undefined;
@@ -71,6 +75,8 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
   private traceGeometryData = new TraceGeometryData();
   private readonly timestampConverter: TimestampConverter;
   private timezoneInfo: TimezoneInfo | undefined;
+  private traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType> =
+    new Map();
 
   constructor(timestampConverter: TimestampConverter) {
     this.timestampConverter = timestampConverter;
@@ -97,20 +103,26 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
         lostPerfettoPackets: 0,
         nonPerfetto: [],
         perfetto: [],
+        traceTypesWithParsingErrors: new Map(),
         traceGeometryData: this.traceGeometryData,
         timezoneInfo: this.timezoneInfo,
         warnings: [],
       };
     }
 
-    const {identifiedFiles, lostPerfettoPackets, warnings} =
-      await this.loadUnzippedFiles(unzippedFiles, source, progressListener);
+    const {
+      identifiedFiles,
+      lostPerfettoPackets,
+      traceTypesWithParsingErrors,
+      warnings,
+    } = await this.loadUnzippedFiles(unzippedFiles, source, progressListener);
 
     return {
       legacy: identifiedFiles.legacy,
       lostPerfettoPackets,
       nonPerfetto: identifiedFiles.nonPerfetto,
       perfetto: identifiedFiles.perfetto,
+      traceTypesWithParsingErrors,
       traceGeometryData: this.traceGeometryData,
       timezoneInfo: this.timezoneInfo,
       warnings,
@@ -124,6 +136,7 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
   ): Promise<{
     identifiedFiles: IdentifiedFiles<FileReaderAndParser>;
     lostPerfettoPackets: number;
+    traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType>;
     warnings: UserWarning[];
   }> {
     const warnings: UserWarning[] = [];
@@ -170,10 +183,22 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
     warnings.push(...identifiedFiles.criticalWarnings);
 
     if (identifiedFiles.perfetto.length === 0) {
-      return {lostPerfettoPackets: 0, identifiedFiles, warnings};
+      return {
+        lostPerfettoPackets: 0,
+        traceTypesWithParsingErrors: new Map(),
+        identifiedFiles,
+        warnings,
+      };
     }
     const lostPerfettoPackets = await this.checkForLostPerfettoPackets();
-    return {lostPerfettoPackets, identifiedFiles, warnings};
+    const traceTypesWithParsingErrors =
+      await this.checkForTraceProcessorErrors();
+    return {
+      lostPerfettoPackets,
+      traceTypesWithParsingErrors,
+      identifiedFiles,
+      warnings,
+    };
   }
 
   private async processLegacyFiles(
@@ -306,5 +331,70 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
     progressListener?.onProgressUpdate(progressMessage, 100);
 
     return unzippedFiles;
+  }
+
+  /**
+   * Checks for trace processor errors.
+   * @return A map of the traces that have processor errors and the type of error: incomplete data or incorrect data.
+   */
+  private async checkForTraceProcessorErrors(): Promise<
+    Map<TraceType, ParsingErrorType>
+  > {
+    const traceProcessor = TraceProcessorFactory.getSingleInstance();
+
+    const sql =
+      'SELECT name FROM stats ' +
+      "WHERE (name LIKE '%winscope%' OR name = 'android_input_event_parse_errors') AND value > 0";
+
+    const stats = await traceProcessor.query(sql);
+    const errorKewordsByTraceType = new Map<TraceType, string>([
+      [TraceType.INPUT_METHOD_CLIENTS, 'inputmethod_clients'],
+      [TraceType.INPUT_METHOD_MANAGER_SERVICE, 'inputmethod_manager_service'],
+      [TraceType.INPUT_METHOD_SERVICE, 'inputmethod_service'],
+      [TraceType.PROTO_LOG, 'protolog'],
+      [TraceType.WINDOW_MANAGER, 'windowmanager'],
+      [TraceType.SURFACE_FLINGER, 'sf'],
+      [TraceType.TRANSACTIONS, 'transaction'],
+      [TraceType.TRANSITION, 'transition'],
+      [TraceType.CUJS, 'cuj'],
+      [TraceType.VIEW_CAPTURE, 'viewcapture'],
+      [TraceType.INPUT_MOTION_EVENT, 'input_motion'],
+      [TraceType.INPUT_KEY_EVENT, 'input_key'],
+      [TraceType.INPUT_EVENT_MERGED, 'input_event'],
+      [TraceType.SCREEN_RECORDING, 'screen_recording'],
+    ]);
+
+    if (stats.numRows() > 0) {
+      for (const it = stats.iter({}); it.valid(); it.next()) {
+        const name = it.get('name');
+
+        if (typeof name !== 'string') {
+          continue;
+        }
+
+        for (const [traceType, keyword] of errorKewordsByTraceType.entries()) {
+          if (name.includes(keyword)) {
+            if (name === 'winscope_protolog_view_config_collision') {
+              this.traceTypesWithParsingErrors.set(
+                traceType,
+                ParsingErrorType.DATA_INCORRECT,
+              );
+            } else {
+              this.traceTypesWithParsingErrors.set(
+                traceType,
+                ParsingErrorType.DATA_INCOMPLETE,
+              );
+            }
+            break;
+          }
+        }
+      }
+
+      UserNotifier.add(
+        makeWarningTraceProcessorError(this.traceTypesWithParsingErrors),
+      );
+    }
+
+    return this.traceTypesWithParsingErrors;
   }
 }

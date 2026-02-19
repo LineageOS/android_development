@@ -59,6 +59,7 @@ import {getLogger} from '@compat/logging';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {View, Viewer, ViewType} from '@viewers/viewer';
+import {ParsingErrorType} from '@app/parsing_error_type';
 
 interface Tab {
   view: View;
@@ -92,6 +93,8 @@ export class TraceViewComponent
 {
   @Input() viewers: Viewer[] = [];
   @Input() store: Store | undefined;
+  @Input() traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType> =
+    new Map();
 
   TRACE_INFO = TRACE_INFO;
   tabs: Tab[] = [];
@@ -119,6 +122,8 @@ export class TraceViewComponent
   private emitAppEvent: EmitEvent = () => Promise.resolve();
   private filterPresetsStoreKey = 'filterPresets';
   private allFilterPresets: string[] = [];
+
+  traceTypesWithParsingErrorsWarningTooltip: string = '';
 
   constructor(
     @Inject(ElementRef) private elementRef: ElementRef,
@@ -382,5 +387,28 @@ export class TraceViewComponent
 
   private makeFilterPresetName(input: string, traceType: TraceType) {
     return input + '.' + TRACE_INFO[traceType].name;
+  }
+
+  showTraceTypesWithParsingErrorsWarning(tab: Tab): boolean {
+    const trace = tab.view.traces.at(0);
+    const traceType = trace?.type;
+
+    if (traceType !== undefined) {
+      if (this.traceTypesWithParsingErrors.has(traceType)) {
+        if (
+          this.traceTypesWithParsingErrors.get(traceType) ===
+          ParsingErrorType.DATA_INCORRECT
+        ) {
+          this.traceTypesWithParsingErrorsWarningTooltip =
+            'Trace processor errors occurred - data may be incorrect';
+        } else {
+          this.traceTypesWithParsingErrorsWarningTooltip =
+            'Trace processor errors occurred - data may be incomplete';
+        }
+
+        return true;
+      }
+    }
+    return false;
   }
 }

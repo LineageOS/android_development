@@ -369,6 +369,26 @@ export class DOMTestHelper<T> {
     expect(collapsedSections.find('.collapsed-section')).toBeUndefined();
   }
 
+  async hover(): Promise<void> {
+    this.dispatchEvent(
+      new MouseEvent('mouseenter', {bubbles: true, cancelable: true}),
+    );
+    this.dispatchEvent(
+      new MouseEvent('mouseover', {bubbles: true, cancelable: true}),
+    );
+    await this.detectChangesAndRenderingDone();
+  }
+
+  async unhover(): Promise<void> {
+    this.dispatchEvent(
+      new MouseEvent('mouseleave', {bubbles: true, cancelable: true}),
+    );
+    this.dispatchEvent(
+      new MouseEvent('mouseout', {bubbles: true, cancelable: true}),
+    );
+    await this.detectChangesAndRenderingDone();
+  }
+
   async checkTooltip(text: string | undefined) {
     this.dispatchEvent(new Event('mouseenter'));
     await this.detectChangesAndWaitStable();
