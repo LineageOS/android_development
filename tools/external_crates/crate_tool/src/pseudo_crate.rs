@@ -116,7 +116,7 @@ impl PseudoCrate<CargoVendorClean> {
                 return Ok(krate.path());
             }
         }
-        Err(anyhow!("Couldn't find vendored directory for {} v{}", crate_name, version.to_string()))
+        Err(anyhow!("Couldn't find vendored directory for {} v{}", crate_name, version))
     }
     fn crates(&self) -> &CrateCollection {
         self.extra.crates.get_or_init(|| {

@@ -22,6 +22,8 @@ import {AbstractFormFieldComponent} from './abstract_form_field_component';
 export abstract class AbstractSelectComponent<
   T = undefined,
 > extends AbstractFormFieldComponent {
+  readonly allButtonTooltip = 'You can also use CTRL+A to toggle all options';
+
   hideOption(option: string, filterString: string) {
     if (!filterString) {
       return false;

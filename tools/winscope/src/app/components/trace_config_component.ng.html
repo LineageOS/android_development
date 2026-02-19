@@ -126,6 +126,9 @@ limitations under the License.
                                     [color]="allSelected ? 'primary' : undefined"
                                     [class.not-enabled]="!allSelected"
                                     (click)="onAllButtonClick(matSelect, config)"
+                                    [matTooltip]="allButtonTooltip"
+                                    [matTooltipShowDelay]="500"
+                                    matTooltipPosition="right"
                                   >
                                     All
                                   </button>
