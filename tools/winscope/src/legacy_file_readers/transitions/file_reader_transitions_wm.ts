@@ -15,18 +15,22 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import Long from 'long';
-import {com} from 'protos/transitions/udc/static';
+import {
+  TransitionTraceProto,
+  Transition as LegacyTransition,
+  Target,
+} from 'protos/protos/transitions/udc/windowmanagertransitiontrace_pb';
 import {TraceType} from '@trace_api/trace_type';
-import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
-import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
+import {ShellTransition} from 'protos/protos/perfetto/trace/android/shell_transition_pb';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-import {ClockSnapshot, TracePacket} from '@compat/perfetto';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
+import {assertDefined} from '@common/assert';
 
 /**
  * Parser for WM Transition trace files.
  */
-export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransition> {
+export class FileReaderTransitionsWm extends AbstractFileReader<LegacyTransition> {
   private realToBootTimeOffsetNs: bigint | undefined;
 
   override getTraceType(): TraceType {
@@ -41,20 +45,15 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): PerfettoTransition[] {
-    const decodedProto =
-      com.android.server.wm.shell.TransitionTraceProto.decode(buffer);
+  override decodeTrace(buffer: Uint8Array): LegacyTransition[] {
+    const decodedProto = TransitionTraceProto.deserializeBinary(buffer);
 
     const timeOffset = BigInt(
-      decodedProto.realToElapsedTimeOffsetNanos?.toString() ?? '0',
+      decodedProto.getRealToElapsedTimeOffsetNanos() ?? '0',
     );
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
 
-    return (
-      decodedProto.transitions?.map((transition) => {
-        return this.convertToPerfettoTransition(transition);
-      }) ?? []
-    );
+    return decodedProto.getTransitionsList();
   }
 
   override getMagicNumber(): number[] {
@@ -64,10 +63,63 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
   override convertToPerfettoPackets(): TracePacket[] {
     return this.decodedEntries.map((entry) => {
       const packet = new TracePacket();
-      const ns = entry.sendTimeNs ?? 0n;
-      packet.timestamp = Long.fromString(ns.toString());
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      packet.shellTransition = entry;
+      const ns = entry.getSendTimeNs() ?? 0n;
+      packet.setTimestamp(ns.toString());
+      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
+
+      const shellTransition = new ShellTransition();
+      shellTransition.setId(entry.getId() ?? 0);
+      if (entry.hasCreateTimeNs()) {
+        shellTransition.setCreateTimeNs(assertDefined(entry.getCreateTimeNs()));
+      }
+      if (entry.hasSendTimeNs()) {
+        shellTransition.setSendTimeNs(assertDefined(entry.getSendTimeNs()));
+      }
+      if (entry.hasAbortTimeNs()) {
+        shellTransition.setWmAbortTimeNs(assertDefined(entry.getAbortTimeNs()));
+      }
+      if (entry.hasFinishTimeNs()) {
+        shellTransition.setFinishTimeNs(assertDefined(entry.getFinishTimeNs()));
+      }
+      if (entry.hasStartTransactionId()) {
+        shellTransition.setStartTransactionId(
+          assertDefined(entry.getStartTransactionId()),
+        );
+      }
+      if (entry.hasFinishTransactionId()) {
+        shellTransition.setFinishTransactionId(
+          assertDefined(entry.getFinishTransactionId()),
+        );
+      }
+      if (entry.hasStartingWindowRemoveTimeNs()) {
+        shellTransition.setStartingWindowRemoveTimeNs(
+          assertDefined(entry.getStartingWindowRemoveTimeNs()),
+        );
+      }
+      if (entry.hasType()) {
+        shellTransition.setType(assertDefined(entry.getType()));
+      }
+      if (entry.hasFlags()) {
+        shellTransition.setFlags(assertDefined(entry.getFlags()));
+      }
+      const targets = entry.getTargetsList();
+      if (targets && targets.length > 0) {
+        shellTransition.setChangesList(
+          targets.map((target: Target) => {
+            const t = new ShellTransition.Change();
+            if (target.hasMode()) t.setMode(assertDefined(target.getMode()));
+            if (target.hasLayerId()) {
+              t.setLayerId(assertDefined(target.getLayerId()));
+            }
+            if (target.hasWindowId()) {
+              t.setWindowId(assertDefined(target.getWindowId()));
+            }
+            if (target.hasFlags()) t.setFlags(assertDefined(target.getFlags()));
+            return t;
+          }),
+        );
+      }
+      packet.setShellTransition(shellTransition);
       return packet;
     });
   }
@@ -75,37 +127,10 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
   protected override getTimestamp(entry: LegacyTransition): Timestamp {
     // for consistency with all transitions, elapsed nanos are defined as
     // wm send time else INVALID_TIME_NS
-    return entry.sendTimeNs
+    return entry.hasSendTimeNs()
       ? this.timestampConverter.makeTimestampFromBootTimeNs(
-          BigInt(entry.sendTimeNs.toString()),
+          BigInt(entry.getSendTimeNs() ?? '0'),
         )
       : this.timestampConverter.makeZeroTimestamp();
   }
-
-  private convertToPerfettoTransition(
-    wmTransition: LegacyTransition,
-  ): PerfettoTransition {
-    const perfettoTransition: PerfettoTransition = {
-      id: wmTransition.id,
-      createTimeNs: nullifyIfDefaultValue(wmTransition.createTimeNs),
-      sendTimeNs: nullifyIfDefaultValue(wmTransition.sendTimeNs),
-      wmAbortTimeNs: nullifyIfDefaultValue(wmTransition.abortTimeNs),
-      finishTimeNs: nullifyIfDefaultValue(wmTransition.finishTimeNs),
-      startTransactionId: nullifyIfDefaultValue(
-        wmTransition.startTransactionId,
-      ),
-      finishTransactionId: nullifyIfDefaultValue(
-        wmTransition.finishTransactionId,
-      ),
-      type: nullifyIfDefaultValue(wmTransition.type),
-      changes: nullifyIfDefaultValue(wmTransition.targets),
-      flags: nullifyIfDefaultValue(wmTransition.flags),
-      startingWindowRemoveTimeNs: nullifyIfDefaultValue(
-        wmTransition.startingWindowRemoveTimeNs,
-      ),
-    };
-    return perfettoTransition;
-  }
 }
-
-type LegacyTransition = com.android.server.wm.shell.ITransition;

@@ -32,7 +32,7 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
   ) {}
 
   apply(value: PropertyTreeNode, parentField = this.rootField): void {
-    const protoType = parentField.tamperedMessageType;
+    const protoType = parentField?.resolve();
 
     if (protoType === undefined) {
       return;
@@ -53,6 +53,7 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
         const translation = this.translateIntDefToStringIfNeeded(
           propertyValue,
           field,
+          value.name,
         );
         if (typeof translation === 'string') {
           value.setFormatter(new FixedStringFormatter(translation));
@@ -64,15 +65,17 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
   private translateIntDefToStringIfNeeded(
     value: number,
     field: TamperedProtoField,
+    propertyName: string,
   ): string | number {
     const typeDefSpec = this.getTypeDefSpecFromField(field);
 
-    const translateAsAll = this.translateAsAll.includes(field.name);
+    const translateAsAll = this.translateAsAll.includes(propertyName);
 
-    if (typeDefSpec) {
+    if (typeDefSpec && field.name === propertyName) {
       return this.getIntFlagsAsStrings(value, typeDefSpec, translateAsAll);
     } else {
-      const propertyPath = `${field.parent?.name}.${field.name}`;
+      const parentName = field.name === propertyName ? field.parent?.name : field.resolve()?.name;
+      const propertyPath = `${parentName}.${propertyName}`;
       if (this.intDefColumn[propertyPath]) {
         return this.getIntFlagsAsStrings(
           value,
@@ -159,6 +162,8 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
       'android.content.pm.ActivityInfo.ScreenOrientation',
     'InputWindowInfoProto.inputConfig':
       'android.view.InputWindowHandle.InputConfigFlags',
+    'InputWindowInfoProto.testAndroidTypedef':
+      'android.content.pm.ActivityInfo.ScreenOrientation',
     'InputWindowInfoProto.layoutParamsFlags':
       'android.view.WindowManager.LayoutParams.Flags',
     'InsetsSourceConsumerProto.typeNumber':

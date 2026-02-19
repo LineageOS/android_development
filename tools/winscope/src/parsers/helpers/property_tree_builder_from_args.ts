@@ -25,11 +25,9 @@ import {convertSnakeToCamelCase} from '@common/string_helpers';
 import {
   getDefaultValue,
   LeafValue,
+  stripEnumPrefix,
 } from '@trace/proto_utils/field_value_helpers';
-import {
-  TamperedMessageType,
-  TamperedProtoField,
-} from '@trace/proto_utils/tampered_message_type';
+import {TamperedMessageType, TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {RowIterator} from '@trace_processor/query_result';
 import {
   PropertySource,
@@ -173,10 +171,11 @@ export class PropertyTreeBuilderFromArgs extends AbstractPropertyTreeBuilder<Row
       if (!field) {
         return undefined;
       }
-      if (!field.tamperedMessageType) {
+      const resolvedType = field.resolve();
+      if (!resolvedType) {
         break;
       }
-      messageType = field.tamperedMessageType;
+      messageType = resolvedType;
     }
     return field;
   }
@@ -207,33 +206,27 @@ export class PropertyTreeBuilderFromArgs extends AbstractPropertyTreeBuilder<Row
         case 'bytes':
           return value;
         default:
-        // do nothing
-      }
-    }
-    if (field.tamperedEnumType && typeof value !== 'string') {
-      const enumId = this.tryGetEnumId(value);
-      if (enumId !== undefined) {
-        return enumId;
+          if (this.rootMessageType) {
+            const enumType = this.rootMessageType.lookupEnum(field.type);
+            if (enumType) {
+              if (typeof value === 'string') {
+                return value;
+              }
+              const intVal = Number(value ?? 0);
+              const rawLabel = enumType.valuesById[intVal];
+              return rawLabel ? stripEnumPrefix(enumType, rawLabel) : intVal;
+            }
+          }
       }
     }
     if (field.repeated && value === undefined) {
       return [];
     }
-    return value;
-  }
 
-  private tryGetEnumId(value: LeafValue | undefined): number | undefined {
-    if (value === undefined) {
-      return 0;
+    if (value === undefined || value === null) {
+      return [];
     }
-    switch (typeof value) {
-      case 'number':
-        return value;
-      case 'bigint':
-        return Number(value);
-      default:
-        return undefined;
-    }
+    return value;
   }
 
   private makeValue(

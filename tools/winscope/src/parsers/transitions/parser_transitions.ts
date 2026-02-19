@@ -37,7 +37,7 @@ import {
   TIMESTAMP_NODE_FORMATTER,
   UPPER_CASE_FORMATTER,
 } from '@trace/formatters';
-import {TAMPERED_TRACE_PACKET} from '@trace/proto_utils/tampered_message_type';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {TraceType} from '@trace_api/trace_type';
 import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
@@ -59,7 +59,7 @@ import {SetFormatters} from '@parsers/operations/set_formatters';
  */
 export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TRANSITION_FIELD =
-    TAMPERED_TRACE_PACKET.fields['shellTransition'];
+    assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket')).fields['shellTransition'];
   private static readonly EAGER_COLUMNS = [
     'transition_id',
     'arg_set_id',
@@ -340,7 +340,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
         .setRootId('TransitionTraceEntry')
         .setRootName('Transition')
         .setRootMessageType(
-          assertDefined(ParserTransitions.TRANSITION_FIELD.tamperedMessageType),
+          assertDefined(ParserTransitions.TRANSITION_FIELD.resolve()),
         )
         .build();
     };

@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import {
+  PERFETTO_TRACE_PACKET_ROOT,
+  registerDescriptors,
+  TamperedMessageType,
+  TamperedProtoField
+} from '@trace/proto_utils/tampered_message_type';
 import {assertDefined} from '@common/assert';
+import {descriptors} from 'protos/test/fake_proto/descriptors';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
-import {
-  TamperedMessageType,
-  TamperedProtoField,
-} from '@trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
-import root from 'protos/test/fake_proto/json';
-
 import {AddDefaults} from './add_defaults';
 
 describe('AddDefaults', () => {
+  registerDescriptors(descriptors);
   let propertyRoot: PropertyTreeNode;
   let operation: AddDefaults;
   let rootField: TamperedProtoField;
 
   beforeEach(() => {
-    rootField = TamperedMessageType.tamper(root.lookupType('RootMessage'))
-      .fields['entry'];
+    rootField = (PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      'winscope.test.RootMessage',
+    ) as TamperedMessageType).fields['entry'];
     propertyRoot = new PropertyTreeBuilder()
       .setIsRoot(true)
       .setRootId('test')

@@ -30,10 +30,7 @@ import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_bu
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {EnumFormatter} from '@trace/formatters';
 import {InputEventType} from '@trace/input/input_event_type';
-import {
-  TAMPERED_WINSCOPE_EXTENSIONS,
-  TamperedMessageType,
-} from '@trace/proto_utils/tampered_message_type';
+import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 import {
   CustomQueryParserResultTypeMap,
   CustomQueryType,
@@ -53,10 +50,9 @@ import {RenameProperty} from './operations/rename_property';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected static readonly WRAPPER_PROTO = assertDefined(
-    TAMPERED_WINSCOPE_EXTENSIONS.fields[
+    assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket')).fields['winscopeExtensions'].resolve()?.fields[
       '.perfetto.protos.WinscopeExtensionsImpl.androidInputEvent'
-    ].tamperedMessageType,
-  );
+    ].resolve());
   protected static readonly KEY_EVENT_TABLE = 'android_key_events';
   protected static readonly MOTION_EVENT_TABLE = 'android_motion_events';
   protected static readonly COMMON_EVENT_COLUMNS = [
@@ -300,7 +296,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
         .setUseRootIdWithoutChange(true)
         .setRootMessageType(
           assertDefined(
-            AbstractInputEventParser.DISPATCH_EVENT_FIELD.tamperedMessageType,
+            AbstractInputEventParser.DISPATCH_EVENT_FIELD.resolve(),
           ),
         )
         .setRowValidityCheck(rowValidityCheck)

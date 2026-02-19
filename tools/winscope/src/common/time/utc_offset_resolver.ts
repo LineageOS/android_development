@@ -97,8 +97,8 @@ function addTimezoneOffset(timezone: string, timestampNs: bigint): bigint {
 
   return (
     timestampNs +
-    BigInt(hoursDiff * TIME_UNIT_TO_NANO.h) +
-    BigInt(minutesDiff * TIME_UNIT_TO_NANO.m) -
-    BigInt(localTimezoneOffsetMinutes * TIME_UNIT_TO_NANO.m)
+    BigInt(hoursDiff) * TIME_UNIT_TO_NANO.h +
+    BigInt(minutesDiff) * TIME_UNIT_TO_NANO.m -
+    BigInt(localTimezoneOffsetMinutes) * TIME_UNIT_TO_NANO.m
   );
 }

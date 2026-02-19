@@ -101,7 +101,7 @@ message LayerProto {
   // If it's a buffer layer, indicate if the content is protected
   bool is_protected = 36;
   // Current frame number being rendered.
-  uint64 curr_frame = 37;
+  uint64 curr_frame = 37 [jstype = JS_STRING];
   // A list of barriers that the layer is waiting to update state.
   repeated BarrierLayerProto barrier_layer = 38;
   // If active_buffer is not null, record its transform.
@@ -163,12 +163,12 @@ message ActiveBufferProto {
   uint32 height = 2;
   uint32 stride = 3;
   int32 format = 4;
-  uint64 usage = 5;
+  uint64 usage = 5 [jstype = JS_STRING];
 }
 
 message BarrierLayerProto {
   // layer id the barrier is waiting on.
   int32 id = 1;
   // frame number the barrier is waiting on.
-  uint64 frame_number = 2;
+  uint64 frame_number = 2 [jstype = JS_STRING];
 }

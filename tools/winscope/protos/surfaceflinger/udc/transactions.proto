@@ -35,20 +35,21 @@ message TransactionTraceFile {
     MAGIC_NUMBER_H = 0x45434152; /* RACE (little-endian ASCII) */
   }
 
-  fixed64 magic_number =
-      1; /* Must be the first field, set to value in MagicNumber */
+  fixed64 magic_number = 1 [
+    jstype = JS_STRING
+  ]; /* Must be the first field, set to value in MagicNumber */
   repeated TransactionTraceEntry entry = 2;
 
   /* offset between real-time clock and elapsed time clock in nanoseconds.
      Calculated as: systemTime(SYSTEM_TIME_REALTIME) -
      systemTime(SYSTEM_TIME_MONOTONIC) */
-  fixed64 real_to_elapsed_time_offset_nanos = 3;
+  fixed64 real_to_elapsed_time_offset_nanos = 3 [jstype = JS_STRING];
   uint32 version = 4;
 }
 
 message TransactionTraceEntry {
-  int64 elapsed_realtime_nanos = 1;
-  int64 vsync_id = 2;
+  int64 elapsed_realtime_nanos = 1 [jstype = JS_STRING];
+  int64 vsync_id = 2 [jstype = JS_STRING];
   repeated TransactionState transactions = 3;
   repeated LayerCreationArgs added_layers = 4;
   repeated uint32 destroyed_layers = 5;
@@ -96,13 +97,13 @@ message Transform {
 message TransactionState {
   int32 pid = 1;
   int32 uid = 2;
-  int64 vsync_id = 3;
+  int64 vsync_id = 3 [jstype = JS_STRING];
   int32 input_event_id = 4;
-  int64 post_time = 5;
-  uint64 transaction_id = 6;
+  int64 post_time = 5 [jstype = JS_STRING];
+  uint64 transaction_id = 6 [jstype = JS_STRING];
   repeated LayerState layer_changes = 7;
   repeated DisplayState display_changes = 8;
-  repeated uint64 merged_transaction_ids = 9;
+  repeated uint64 merged_transaction_ids = 9 [jstype = JS_STRING];
 }
 
 // Keep insync with layer_state_t
@@ -170,7 +171,7 @@ message LayerState {
     eTrustedOverlayChanged = 0x4000;
     eDropInputModeChanged = 0x8000;
   }
-  uint64 what = 2;
+  uint64 what = 2 [jstype = JS_STRING];
   float x = 3;
   float y = 4;
   int32 z = 5;
@@ -215,10 +216,10 @@ message LayerState {
   RectProto crop = 21;
 
   message BufferData {
-    uint64 buffer_id = 1;
+    uint64 buffer_id = 1 [jstype = JS_STRING];
     uint32 width = 2;
     uint32 height = 3;
-    uint64 frame_number = 4;
+    uint64 frame_number = 4 [jstype = JS_STRING];
 
     enum BufferDataChange {
       BufferDataChangeNone = 0;
@@ -227,7 +228,7 @@ message LayerState {
       cachedBufferChanged = 0x04;
     }
     uint32 flags = 5;
-    uint64 cached_buffer_id = 6;
+    uint64 cached_buffer_id = 6 [jstype = JS_STRING];
 
     enum PixelFormat {
       PIXEL_FORMAT_UNKNOWN = 0;
@@ -247,7 +248,7 @@ message LayerState {
       PIXEL_FORMAT_R_8 = 0x38;
     }
     PixelFormat pixel_format = 7;
-    uint64 usage = 8;
+    uint64 usage = 8 [jstype = JS_STRING];
   }
   BufferData buffer_data = 22;
   int32 api = 23;
@@ -278,7 +279,7 @@ message LayerState {
   int32 frame_rate_compatibility = 34;
   int32 change_frame_rate_strategy = 35;
   uint32 fixed_transform_hint = 36;
-  uint64 frame_number = 37;
+  uint64 frame_number = 37 [jstype = JS_STRING];
   bool auto_refresh = 38;
   bool is_trusted_overlay = 39;
   RectProto buffer_crop = 40;

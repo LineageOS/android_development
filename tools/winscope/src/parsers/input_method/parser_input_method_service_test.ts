@@ -58,6 +58,8 @@ describe('PerfettoParserInputMethodService', () => {
   it('retrieves trace entry', async () => {
     const entry = await parser.getEntry(0);
     expect(entry).toBeInstanceOf(HierarchyTreeNode);
-    expect(entry.id).toBe('InputMethodServiceTraceProto entry');
+    expect(entry.id).toBe(
+      '.perfetto.protos.InputMethodServiceTraceProto entry',
+    );
   });
 });

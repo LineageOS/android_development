@@ -72,7 +72,7 @@ export class HierarchyTreeFactory {
       .setRootId(rootId)
       .setRootName('entry')
       .setDenyList([assertDefined(this.childField.name)])
-      .setRootMessageType(assertDefined(this.entryField.tamperedMessageType))
+      .setRootMessageType(assertDefined(this.entryField.resolve()))
       .build();
   }
 
@@ -85,7 +85,7 @@ export class HierarchyTreeFactory {
       .setRootId(rootId)
       .setRootName('entry')
       .setDenyList(CHILD_DENYLIST_PROPERTIES)
-      .setRootMessageType(assertDefined(this.entryField.tamperedMessageType))
+      .setRootMessageType(assertDefined(this.entryField.resolve()))
       .build();
     return tree.getChildByName(assertDefined(this.childField.name));
   }

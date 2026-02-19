@@ -35,20 +35,22 @@ message WindowManagerTraceFileProto {
     MAGIC_NUMBER_H = 0x45434152; /* RACE (little-endian ASCII) */
   }
 
-  optional fixed64 magic_number = 1; /* Must be the first field, set to value in MagicNumber */
+  optional fixed64 magic_number = 1 [
+    jstype = JS_STRING
+  ]; /* Must be the first field, set to value in MagicNumber */
   repeated WindowManagerTraceProto entry = 2;
 
   /* offset between real-time clock and elapsed time clock in nanoseconds.
      Calculated as: 1000000 * System.currentTimeMillis() -
      SystemClock.elapsedRealtimeNanos() */
-  optional fixed64 real_to_elapsed_time_offset_nanos = 3;
+  optional fixed64 real_to_elapsed_time_offset_nanos = 3 [jstype = JS_STRING];
 }
 
 /* one window manager trace entry. */
 message WindowManagerTraceProto {
   /* required: elapsed realtime in nanos since boot of when this entry was
    * logged */
-  optional fixed64 elapsed_realtime_nanos = 1;
+  optional fixed64 elapsed_realtime_nanos = 1 [jstype = JS_STRING];
 
   /* where the trace originated */
   optional string where = 2;

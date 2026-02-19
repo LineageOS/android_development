@@ -482,7 +482,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
         Date.now() - assertDefined(section.lastQueryStartTime);
       Analytics.TraceSearch.logQueryExecutionTime(executionTimeMs);
       section.lastQueryExecutionTime = new TimeDuration(
-        BigInt(executionTimeMs * TIME_UNIT_TO_NANO.ms),
+        BigInt(executionTimeMs) * TIME_UNIT_TO_NANO.ms,
       ).format();
       section.lastQueryStartTime = undefined;
 

@@ -18,15 +18,17 @@ import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import Long from 'long';
-import {ViewCapture} from '@compat/winscope_protos';
+import {ViewCapture} from 'protos/protos/perfetto/trace/android/viewcapture_pb';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {InternedData} from 'protos/protos/perfetto/trace/interned_data/interned_data_pb';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
+import {InternedString} from 'protos/protos/perfetto/trace/profiling/profile_common_pb';
+import {WinscopeExtensions} from 'protos/protos/perfetto/trace/android/winscope_extensions_pb';
+import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
 import {
-  ClockSnapshot,
-  InternedData,
-  InternedString,
-  TracePacket,
-} from '@compat/perfetto';
-import {com} from 'protos/viewcapture/udc/static';
+  ViewNode,
+  FrameData,
+} from 'protos/protos/viewcapture/udc/view_capture_pb';
 
 import {TraceType} from '@trace_api/trace_type';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
@@ -97,27 +99,32 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
     }
     const packets = this.frameData.map((frame, index) => {
       const packet = new TracePacket();
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.timestamp = assertDefined(frame.timestamp);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      packet.trustedUid = trustedUid;
-      packet.trustedPid = trustedPid;
-      packet.sequenceFlags =
-        index === 0 ? 3 : TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE;
-      packet.winscopeExtensions = {
-        '.perfetto.protos.WinscopeExtensionsImpl.viewcapture':
-          this.convertToPerfettoViewCapture(frame),
-      };
+      packet.setTrustedPacketSequenceId(sequenceId);
+      packet.setTimestamp(assertDefined(frame.getTimestamp()));
+      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
+      packet.setTrustedUid(trustedUid);
+      packet.setTrustedPid(trustedPid);
+      packet.setSequenceFlags(
+        index === 0 ? 3 : TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+      );
+
+      const winscopeExtensions = new WinscopeExtensions();
+      winscopeExtensions.setExtension(
+        WinscopeExtensionsImpl.viewcapture,
+        this.convertToPerfettoViewCapture(frame),
+      );
+      packet.setWinscopeExtensions(winscopeExtensions);
+
       return packet;
     });
-    packets[0].internedData = this.makeInternedData();
+    packets[0].setInternedData(this.makeInternedData());
     return packets;
   }
 
   private decodeTimestamps(): Timestamp[] {
     return this.frameData.map((entry) =>
       this.timestampConverter.makeTimestampFromBootTimeNs(
-        BigInt(assertDefined(entry.timestamp).toString()),
+        BigInt(assertDefined(entry.getTimestamp())),
       ),
     );
   }
@@ -125,93 +132,99 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
   private convertToPerfettoView(
     node: ViewNode,
     parentId: number,
-    perfettoViews: ViewCapture.IView[],
+    perfettoViews: ViewCapture.View[],
   ) {
-    if (node.id && !this.viewIdToIid.has(node.id)) {
-      this.viewIdToIid.set(node.id, this.viewIdToIid.size + 1);
+    const nodeIdString = node.getId();
+    if (nodeIdString && !this.viewIdToIid.has(nodeIdString)) {
+      this.viewIdToIid.set(nodeIdString, this.viewIdToIid.size + 1);
     }
     const nodeId = perfettoViews.length;
-    const perfettoView: ViewCapture.IView = {
-      id: nodeId,
-      parentId,
-      hashcode: node.hashcode,
-      viewIdIid: node.id ? this.viewIdToIid.get(node.id) : undefined,
-      classNameIid: node.classnameIndex,
-      left: node.left,
-      top: node.top,
-      width: node.width,
-      height: node.height,
-      scrollX: node.scrollX,
-      scrollY: node.scrollY,
-      translationX: node.translationX,
-      translationY: node.translationY,
-      scaleX: node.scaleX,
-      scaleY: node.scaleY,
-      alpha: node.alpha,
-      willNotDraw: node.willNotDraw,
-      clipChildren: node.clipChildren,
-      visibility: node.visibility,
-      elevation: node.elevation,
-    };
+    const perfettoView = new ViewCapture.View();
+    perfettoView.setId(nodeId);
+    perfettoView.setParentId(parentId);
+    perfettoView.setHashcode(node.getHashcode() ?? 0);
+    if (nodeIdString) {
+      perfettoView.setViewIdIid(this.viewIdToIid.get(nodeIdString) ?? 0);
+    }
+    perfettoView.setClassNameIid(node.getClassnameIndex() ?? 0);
+    perfettoView.setLeft(node.getLeft() ?? 0);
+    perfettoView.setTop(node.getTop() ?? 0);
+    perfettoView.setWidth(node.getWidth() ?? 0);
+    perfettoView.setHeight(node.getHeight() ?? 0);
+    perfettoView.setScrollX(node.getScrollx() ?? 0);
+    perfettoView.setScrollY(node.getScrolly() ?? 0);
+    perfettoView.setTranslationX(node.getTranslationx() ?? 0);
+    perfettoView.setTranslationY(node.getTranslationy() ?? 0);
+    perfettoView.setScaleX(node.getScalex() ?? 0);
+    perfettoView.setScaleY(node.getScaley() ?? 0);
+    perfettoView.setAlpha(node.getAlpha() ?? 0);
+    perfettoView.setWillNotDraw(node.getWillnotdraw() ?? false);
+    perfettoView.setClipChildren(node.getClipchildren() ?? false);
+    perfettoView.setVisibility(node.getVisibility() ?? 0);
+    perfettoView.setElevation(node.getElevation() ?? 0);
+
     perfettoViews.push(perfettoView);
 
-    node.children?.forEach((child) => {
+    node.getChildrenList().forEach((child: ViewNode) => {
       this.convertToPerfettoView(child, nodeId, perfettoViews);
     });
   }
 
   private convertToPerfettoViewCapture(frame: FrameData): ViewCapture {
-    const perfettoViews: ViewCapture.IView[] = [];
-    this.convertToPerfettoView(assertDefined(frame.node), -1, perfettoViews);
-    return ViewCapture.fromObject({
-      packageNameIid: FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
-      windowNameIid: FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
-      views: perfettoViews,
-    });
+    const perfettoViews: ViewCapture.View[] = [];
+    this.convertToPerfettoView(
+      assertDefined(frame.getNode()),
+      -1,
+      perfettoViews,
+    );
+    const viewCapture = new ViewCapture();
+    viewCapture.setPackageNameIid(
+      FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
+    );
+    viewCapture.setWindowNameIid(
+      FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
+    );
+    viewCapture.setViewsList(perfettoViews);
+    return viewCapture;
   }
 
   private makeInternedData(): InternedData {
+    const makeInternedString = (iid: number, str: string) => {
+      const internedString = new InternedString();
+      internedString.setIid(iid);
+      internedString.setStr(utf8Encode(str));
+      return internedString;
+    };
+
     const internedWindowNames: InternedString[] = [
-      InternedString.fromObject({
-        iid: Long.fromNumber(FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
-        str: utf8Encode(this.windowName),
-      }),
+      makeInternedString(
+        FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
+        this.windowName,
+      ),
     ];
 
     const internedClassNames: InternedString[] = this.classNames.map(
-      (className, index) => {
-        return InternedString.fromObject({
-          iid: Long.fromNumber(index),
-          str: utf8Encode(className),
-        });
-      },
+      (className, index) => makeInternedString(index, className),
     );
 
     const internedPackageNames: InternedString[] = [
-      InternedString.fromObject({
-        iid: Long.fromNumber(FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID),
-        str: utf8Encode(this.packageName),
-      }),
+      makeInternedString(
+        FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
+        this.packageName,
+      ),
     ];
 
     const internedViewIds: InternedString[] = [];
     assertDefined(this.viewIdToIid).forEach((iid, viewId) => {
-      internedViewIds.push(
-        InternedString.fromObject({
-          iid: Long.fromNumber(iid),
-          str: utf8Encode(viewId),
-        }),
-      );
+      internedViewIds.push(makeInternedString(iid, viewId));
     });
 
-    return InternedData.fromObject({
-      viewcaptureWindowName: internedWindowNames,
-      viewcaptureClassName: internedClassNames,
-      viewcapturePackageName: internedPackageNames,
-      viewcaptureViewId: internedViewIds,
-    });
+    const internedData = new InternedData();
+    internedData.setViewcaptureWindowNameList(internedWindowNames);
+    internedData.setViewcaptureClassNameList(internedClassNames);
+    internedData.setViewcapturePackageNameList(internedPackageNames);
+    internedData.setViewcaptureViewIdList(internedViewIds);
+
+    return internedData;
   }
 }
-
-type FrameData = com.android.app.viewcapture.data.IFrameData;
-type ViewNode = com.android.app.viewcapture.data.IViewNode;

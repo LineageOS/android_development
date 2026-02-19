@@ -30,12 +30,9 @@ import {
 } from '@parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {LayerState} from '@compat/winscope_protos';
+import {LayerState} from 'protos/protos/perfetto/trace/android/surfaceflinger_transactions_pb';
 import {EnumFormatter, FixedStringFormatter} from '@trace/formatters';
-import {
-  TAMPERED_TRACE_PACKET,
-  TamperedProtoField,
-} from '@trace/proto_utils/tampered_message_type';
+import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType, TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {TransactionType} from '@trace/transactions/transaction_type';
 import {
@@ -60,7 +57,7 @@ import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builde
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   private static readonly TransactionsTraceEntryField =
-    TAMPERED_TRACE_PACKET.fields['surfaceflingerTransactions'];
+    (PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket') as TamperedMessageType).fields['surfaceflingerTransactions'];
 
   private static readonly TRANSACTION_COLUMNS = [
     'transaction_id',
@@ -72,6 +69,17 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
     'flags_id',
     'transaction_type',
   ];
+
+  private static readonly LAYER_STATE_FLAGS = Object.keys(
+    LayerState.Flags,
+  ).reduce(
+    (acc, key) => {
+      const value = LayerState.Flags[key as keyof typeof LayerState.Flags];
+      acc[value] = key;
+      return acc;
+    },
+    {} as {[key: number]: string},
+  );
 
   private flags: {[key: number]: string} | undefined;
 
@@ -367,7 +375,7 @@ LEFT JOIN ranked_process_matches AS rpm
       .setData(row)
       .setColumns(ParserTransactions.TRANSACTION_COLUMNS)
       .setRootId(index)
-      .setRootName(field?.type ?? transactionType)
+      .setRootName(field?.type?.split('.').pop() ?? transactionType)
       .build();
 
     const flagsIdFormatter = new EnumFormatter(assertDefined(this.flags), '0');
@@ -382,7 +390,7 @@ LEFT JOIN ranked_process_matches AS rpm
 
     if (argSetId !== undefined && field !== undefined) {
       const customFormatters = new Map<string, PropertyFormatter>([
-        ['flags', new EnumFormatter(LayerState.Flags)],
+        ['flags', new EnumFormatter(ParserTransactions.LAYER_STATE_FLAGS)],
       ]);
       const flagsId = eagerProperties.getChildByName('flagsId');
       if (flagsId !== undefined) {
@@ -401,7 +409,7 @@ LEFT JOIN ranked_process_matches AS rpm
           .setData(argsData.iter({}))
           .setRootId(index)
           .setRootName(assertDefined(field).name)
-          .setRootMessageType(assertDefined(field?.tamperedMessageType))
+          .setRootMessageType(assertDefined(field?.resolve()))
           .build();
       };
 
@@ -419,7 +427,7 @@ LEFT JOIN ranked_process_matches AS rpm
   ): TamperedProtoField | undefined {
     let field: TamperedProtoField | undefined;
     const entryProtoType = assertDefined(
-      ParserTransactions.TransactionsTraceEntryField.tamperedMessageType,
+      ParserTransactions.TransactionsTraceEntryField.resolve(),
     );
     switch (transactionType) {
       case TransactionType.DISPLAY_ADDED:
@@ -431,7 +439,7 @@ LEFT JOIN ranked_process_matches AS rpm
         break;
       case TransactionType.LAYER_CHANGED:
         field = assertDefined(
-          entryProtoType.fields['transactions']?.tamperedMessageType?.fields[
+          entryProtoType.fields['transactions']?.resolve()?.fields[
             'layerChanges'
           ],
         );

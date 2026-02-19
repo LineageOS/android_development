@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Long from 'long';
-import {ProtoLogLevel, ProtoLogViewerConfig} from '@compat/winscope_protos';
+import {ProtoLogLevel} from 'protos/protos/perfetto/common/protolog_common_pb';
+import {ProtoLogViewerConfig} from 'protos/protos/perfetto/trace/android/protolog_pb';
 import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
 import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
 
@@ -39,19 +39,18 @@ function makeProtologViewerConfig(
   const groups: ProtoLogViewerConfig.Group[] = Object.entries(
     configJson.groups,
   ).map(([name, {tag}], index) => {
-    const group = ProtoLogViewerConfig.Group.fromObject({
-      id: index + 1,
-      name,
-      tag,
-    });
-    groupNameToId.set(group.name, group.id);
+    const group = new ProtoLogViewerConfig.Group();
+    group.setId(index + 1);
+    group.setName(name);
+    group.setTag(tag);
+    groupNameToId.set(name, index + 1);
     return group;
   });
 
   const messages: ProtoLogViewerConfig.MessageData[] = Object.entries(
     configJson.messages,
   ).map(([id, {message, level, group, at}]) => {
-    let protologLevel: ProtoLogLevel;
+    let protologLevel: number;
     switch (level) {
       case 'DEBUG':
         protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
@@ -74,18 +73,25 @@ function makeProtologViewerConfig(
       default:
         protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
     }
-    return ProtoLogViewerConfig.MessageData.fromObject({
-      messageId: Long.fromString(id),
-      message,
-      level: protologLevel,
-      groupId: groupNameToId.get(group),
-      location: at,
-    });
+    const msgData = new ProtoLogViewerConfig.MessageData();
+    // ID is string in JSON, protobuf expects string (JS_STRING for fixed64).
+    // The JSON contains signed 64-bit integers as strings, but fixed64 is unsigned.
+    // We need to convert it to unsigned 64-bit integer string.
+    const messageIdBigInt = BigInt(id);
+    const messageIdUnsigned = messageIdBigInt & 0xffffffffffffffffn;
+    msgData.setMessageId(messageIdUnsigned.toString());
+    msgData.setMessage(message);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    msgData.setLevel(protologLevel as any);
+    msgData.setGroupId(groupNameToId.get(group) ?? 0);
+    msgData.setLocation(at);
+    return msgData;
   });
-  return ProtoLogViewerConfig.fromObject({
-    messages,
-    groups,
-  });
+
+  const config = new ProtoLogViewerConfig();
+  config.setMessagesList(messages);
+  config.setGroupsList(groups);
+  return config;
 }
 
 export const CONFIG_32 = makeProtologViewerConfig(configJson32);

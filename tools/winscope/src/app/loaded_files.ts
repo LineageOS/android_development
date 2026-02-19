@@ -48,12 +48,8 @@ import {FileReader} from '@trace_api/file_reader';
  * a confusing visualization.
  */
 export class LoadedFiles<T extends FileReader> {
-  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS = BigInt(
-    5 * TIME_UNIT_TO_NANO.m,
-  ); // 5m
-  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET = BigInt(
-    5 * TIME_UNIT_TO_NANO.s,
-  ); // 5s
+  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS = 5n * TIME_UNIT_TO_NANO.m; // 5m
+  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET = 5n * TIME_UNIT_TO_NANO.s; // 5s
   static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [TraceType.CUJS];
 
   private legacyReaders = new Array<LegacyFileReader>();

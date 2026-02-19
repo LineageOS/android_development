@@ -16,7 +16,6 @@
 
 // organize-imports-ignore
 import '@angular/compiler';
-import '@app/global_init';
 import {globalConfig} from '@common/global_config';
 globalConfig.set({mode: 'DEV'});
 

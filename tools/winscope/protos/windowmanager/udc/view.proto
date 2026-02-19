@@ -242,7 +242,7 @@ message WindowLayoutParamsProto {
   optional uint32 input_feature_flags = 19
       [(.android_common.typedef) =
            "android.view.WindowManager.LayoutParams.InputFeatureFlags"];
-  optional int64 user_activity_timeout = 20;
+  optional int64 user_activity_timeout = 20 [jstype = JS_STRING];
 
   optional DisplayProto.ColorMode color_mode = 23;
   optional uint32 flags = 24

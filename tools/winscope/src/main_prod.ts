@@ -17,9 +17,10 @@
 import {getLogger} from '@compat/logging';
 // organize-imports-ignore
 import '@angular/compiler';
-import '@app/global_init';
-import {globalConfig} from './common/global_config';
-globalConfig.set({mode: 'PROD'});
+import {globalConfig} from '@common/global_config';
+globalConfig.set({
+  MODE: 'PROD',
+});
 
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {enableProdMode, ErrorHandler} from '@angular/core';

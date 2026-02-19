@@ -40,7 +40,7 @@ export class ParserFilename implements ScreenRecordingParser {
 
     if (offsetMs !== undefined) {
       try {
-        const offset = BigInt(offsetMs) * BigInt(TIME_UNIT_TO_NANO.ms);
+        const offset = offsetMs * TIME_UNIT_TO_NANO.ms;
         // set realToBootTimeOffsetNs as 0n as we only have the real
         // start time of the recording
         return {

@@ -16,15 +16,16 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {TransactionTraceEntry} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {android} from 'protos/transactions/udc/static';
+import {
+  TransactionTraceEntry,
+  TransactionTraceFile,
+} from 'protos/protos/perfetto/trace/android/surfaceflinger_transactions_pb';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceType} from '@trace_api/trace_type';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 
-type TraceEntryProto = android.surfaceflinger.proto.ITransactionTraceEntry;
-
-export class FileReaderTransactions extends AbstractFileReader<TraceEntryProto> {
+export class FileReaderTransactions extends AbstractFileReader<TransactionTraceEntry> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x54, 0x4e, 0x58, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .TNXTRACE
@@ -47,36 +48,112 @@ export class FileReaderTransactions extends AbstractFileReader<TraceEntryProto> 
     return this.realToMonotonicTimeOffsetNs;
   }
 
-  override decodeTrace(buffer: Uint8Array): TraceEntryProto[] {
-    const decodedProto =
-      android.surfaceflinger.proto.TransactionTraceFile.decode(buffer);
+  override decodeTrace(buffer: Uint8Array): TransactionTraceEntry[] {
+    const decodedProto = TransactionTraceFile.deserializeBinary(buffer);
 
     const timeOffset = BigInt(
-      decodedProto.realToElapsedTimeOffsetNanos?.toString() ?? '0',
+      decodedProto.getRealToElapsedTimeOffsetNanos() ?? '0',
     );
     this.realToMonotonicTimeOffsetNs =
       timeOffset !== 0n ? timeOffset : undefined;
 
-    return decodedProto.entry ?? [];
+    return decodedProto.getEntryList() || [];
   }
 
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets = [];
+    const packets: TracePacket[] = [];
     for (const entry of this.decodedEntries) {
+      entry.getTransactionsList().forEach((transaction) => {
+        transaction.getLayerChangesList().forEach((layer) => {
+          if (layer.hasLayerId() && layer.getLayerId() === -1) {
+            layer.clearLayerId();
+          }
+          if (layer.hasW() && layer.getW() === -1) {
+            layer.clearW();
+          }
+          if (layer.hasH() && layer.getH() === -1) {
+            layer.clearH();
+          }
+          if (layer.hasParentId() && layer.getParentId() === -1) {
+            layer.clearParentId();
+          }
+          if (
+            layer.hasRelativeParentId() &&
+            layer.getRelativeParentId() === -1
+          ) {
+            layer.clearRelativeParentId();
+          }
+          if (layer.hasLayerStack() && layer.getLayerStack() === -1) {
+            layer.clearLayerStack();
+          }
+          if (layer.hasFlags() && layer.getFlags() === -1) {
+            layer.clearFlags();
+          }
+          if (layer.hasMask() && layer.getMask() === -1) {
+            layer.clearMask();
+          }
+          if (layer.hasTransform() && layer.getTransform() === -1) {
+            layer.clearTransform();
+          }
+          if (
+            layer.hasBackgroundBlurRadius() &&
+            layer.getBackgroundBlurRadius() === -1
+          ) {
+            layer.clearBackgroundBlurRadius();
+          }
+          if (layer.hasWindowInfoHandle()) {
+            const windowInfo = layer.getWindowInfoHandle();
+            if (windowInfo) {
+              if (
+                windowInfo.hasLayoutParamsFlags() &&
+                windowInfo.getLayoutParamsFlags() === -1
+              ) {
+                windowInfo.clearLayoutParamsFlags();
+              }
+              if (
+                windowInfo.hasCropLayerId() &&
+                windowInfo.getCropLayerId() === -1
+              ) {
+                windowInfo.clearCropLayerId();
+              }
+              if (
+                windowInfo.hasInputConfig() &&
+                windowInfo.getInputConfig() === -1
+              ) {
+                windowInfo.clearInputConfig();
+              }
+            }
+          }
+        });
+      });
+
+      entry.getAddedLayersList().forEach((layer) => {
+        if (layer.hasMirrorFromId() && layer.getMirrorFromId() === -1) {
+          layer.clearMirrorFromId();
+        }
+        if (layer.hasParentId() && layer.getParentId() === -1) {
+          layer.clearParentId();
+        }
+        if (
+          layer.hasLayerStackToMirror() &&
+          layer.getLayerStackToMirror() === -1
+        ) {
+          layer.clearLayerStackToMirror();
+        }
+      });
       const packet = new TracePacket();
-      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.surfaceflingerTransactions =
-        TransactionTraceEntry.fromObject(entry);
+      packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
+      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.MONOTONIC);
+      packet.setTrustedPacketSequenceId(sequenceId);
+      packet.setSurfaceflingerTransactions(entry);
       packets.push(packet);
     }
     return packets;
   }
 
-  protected override getTimestamp(entryProto: TraceEntryProto): Timestamp {
+  protected override getTimestamp(entry: TransactionTraceEntry): Timestamp {
     return this.timestampConverter.makeTimestampFromMonotonicNs(
-      BigInt(assertDefined(entryProto.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
   }
 }

@@ -34,7 +34,7 @@ export class UTCOffset {
     if (this.valueNs === undefined) {
       return 'UTC+00:00';
     }
-    const valueHours = Number(this.valueNs / BigInt(TIME_UNIT_TO_NANO.m)) / 60;
+    const valueHours = Number(this.valueNs / TIME_UNIT_TO_NANO.m) / 60;
     const valueHoursAbs = Math.abs(valueHours);
     const hh = Math.floor(valueHoursAbs);
     const mm = (valueHoursAbs - hh) * 60;
@@ -43,10 +43,10 @@ export class UTCOffset {
   }
 
   initialize(valueNs: bigint) {
-    if (valueNs > BigInt(14 * TIME_UNIT_TO_NANO.h)) {
+    if (valueNs > 14n * TIME_UNIT_TO_NANO.h) {
       throw new Error('Failed to set timezone offset greater than UTC+14:00');
     }
-    if (valueNs < BigInt(-12 * TIME_UNIT_TO_NANO.h)) {
+    if (valueNs < -12n * TIME_UNIT_TO_NANO.h) {
       throw new Error('Failed to set timezone offset greater than UTC-12:00');
     }
     this.valueNs = valueNs;

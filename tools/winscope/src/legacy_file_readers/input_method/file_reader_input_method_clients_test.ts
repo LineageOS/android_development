@@ -15,7 +15,6 @@
  */
 
 import {assertDefined} from '@common/assert';
-import Long from 'long';
 import {
   convertToPerfettoTrace,
   LegacyFileReaderProvider,
@@ -29,6 +28,7 @@ import {
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
 
 describe('FileReaderInputMethodClients', () => {
   describe('trace with real timestamps', () => {
@@ -57,16 +57,13 @@ describe('FileReaderInputMethodClients', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(13);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
-      const data =
-        packets[0].winscopeExtensions?.[
-          '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients'
-        ];
-      expect(data?.client).toBeDefined();
-      expect(data?.where).toBe('InsetsSourceConsumer#setControl');
-      const ts = Long.fromString(BigInt(15613638434).toString());
-      ts.unsigned = true;
-      expect(packets[0].timestamp).toEqual(ts);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
+      const data = packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.inputmethodClients);
+      expect(data?.hasClient()).toBeFalse();
+      expect(data?.getWhere()).toBe('InsetsSourceConsumer#setControl');
+      expect(packets[0].getTimestamp()).toEqual('15613638434');
     });
 
     it('converts to valid perfetto trace', async () => {
@@ -118,16 +115,13 @@ describe('FileReaderInputMethodClients', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(33);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
-      const data =
-        packets[0].winscopeExtensions?.[
-          '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients'
-        ];
-      expect(data?.client).toBeDefined();
-      expect(data?.where).toBe('InsetsSourceConsumer#setControl');
-      const ts = Long.fromString(BigInt(1149083651642).toString());
-      ts.unsigned = true;
-      expect(packets[0].timestamp).toEqual(ts);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
+      const data = packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.inputmethodClients);
+      expect(data?.hasClient()).toBeTrue();
+      expect(data?.getWhere()).toBe('InsetsSourceConsumer#setControl');
+      expect(packets[0].getTimestamp()).toEqual('1149083651642');
     });
   });
 });

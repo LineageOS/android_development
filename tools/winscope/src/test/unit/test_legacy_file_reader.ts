@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TracePacket} from '@compat/perfetto';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {Timestamp} from '@common/time/time';
 
 import {TraceType} from '@trace_api/trace_type';

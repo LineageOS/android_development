@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import Long from 'long';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {ClockSnapshot} from '@compat/perfetto';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {
   makeConverterNoRteOffsets,
@@ -74,14 +73,15 @@ describe('FileReaderSurfaceFlinger', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = readerRealTs.convertToPerfettoPackets(10);
       expect(packets.length).toBe(21);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(83);
-      expect(packets[0].timestamp).toEqual(
-        Long.fromString(BigInt(14500282843).toString()),
-      );
-      expect(packets[0].timestampClockId).toEqual(
+      expect(packets[0].getTimestamp()).toEqual('14500282843');
+      expect(packets[0].getTimestampClockId()).toEqual(
         ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
@@ -202,14 +202,15 @@ describe('FileReaderSurfaceFlinger', () => {
     it('converts to valid perfetto packets, without latest offsets', async () => {
       const packets = readerElapsedTs.convertToPerfettoPackets(10);
       expect(packets.length).toBe(3);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(94);
-      expect(packets[0].timestamp).toEqual(
-        Long.fromString(BigInt(850335483446).toString()),
-      );
-      expect(packets[0].timestampClockId).toEqual(
+      expect(packets[0].getTimestamp()).toEqual('850335483446');
+      expect(packets[0].getTimestampClockId()).toEqual(
         ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });

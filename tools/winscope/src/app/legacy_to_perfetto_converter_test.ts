@@ -15,13 +15,10 @@
  */
 
 import {assertDefined} from '@common/assert';
-import Long from 'long';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
-import {
-  ClockSnapshot as PerfettoClockSnapshot,
-  Trace,
-  TracePacket,
-} from '@compat/perfetto';
+import {ClockSnapshot as PerfettoClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {Trace} from 'protos/protos/perfetto/trace/trace_pb';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace/trace_file';
@@ -61,15 +58,21 @@ describe('LegacyToPerfettoConverter', () => {
       legacyReader2,
     ]);
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
-    expect(trace.packet).toEqual([
-      makeExpectedClockSnapshot({
-        realtime: 15n,
-        boottime: 15n,
-        monotonic: undefined,
-      }),
-      packetB1,
-      packetB2,
-    ]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [
+        makeExpectedClockSnapshot({
+          realtime: 15n,
+          boottime: 15n,
+          monotonic: undefined,
+        }),
+        packetB1,
+        packetB2,
+      ].map((p: TracePacket) => p.toObject(false) as unknown),
+    );
   });
 
   it('adds multiple legacy files to existing perfetto file', async () => {
@@ -80,21 +83,24 @@ describe('LegacyToPerfettoConverter', () => {
       existingFile,
     );
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
-    expect(trace.packet).toEqual([
-      perfettoSnapshot,
-      emptyPacket,
-      packetB1,
-      packetM1,
-    ]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [perfettoSnapshot, emptyPacket, packetB1, packetM1].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
   });
 
   it('adds legacy trace without timestamp to existing perfetto file', async () => {
     const packetB0 = makePacketWithBoottimeTs(0);
     const readers = [makeFileReader([packetB0])];
-    expect(packetB0.timestamp).toEqual(Long.fromInt(0, true));
+    expect(packetB0.getTimestamp()).toEqual('0');
 
     const existingPacket = new TracePacket();
-    existingPacket.timestamp = Long.fromInt(50, true);
+    existingPacket.setTimestamp('50');
     const fileWithPacket = makeExistingPerfettoFile(
       perfettoSnapshot,
       existingPacket,
@@ -105,8 +111,16 @@ describe('LegacyToPerfettoConverter', () => {
     );
     const trace = await checkAndDecodePerfettoFile(perfettoFile);
 
-    expect(trace.packet).toEqual([perfettoSnapshot, existingPacket, packetB0]);
-    expect(packetB0.timestamp).toEqual(Long.fromInt(50, true));
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [perfettoSnapshot, existingPacket, packetB0].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
+    expect(packetB0.getTimestamp()).toEqual('50');
   });
 
   it('ignores legacy file that cannot be converted to perfetto format', async () => {
@@ -124,7 +138,15 @@ describe('LegacyToPerfettoConverter', () => {
       existingFile,
     );
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
-    expect(trace.packet).toEqual([perfettoSnapshot, emptyPacket, packetM1]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [perfettoSnapshot, emptyPacket, packetM1].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
   });
 
   it('converts elapsed legacy trace to new perfetto trace', async () => {
@@ -168,19 +190,25 @@ describe('LegacyToPerfettoConverter', () => {
       .setAllFileReaders([readerM, readerB])
       .convert();
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
-    expect(trace.packet).toEqual([
-      makeExpectedClockSnapshot({
-        realtime: 10n,
-        boottime: 8n,
-        monotonic: undefined,
-      }),
-      makeExpectedClockSnapshot({
-        realtime: 14n,
-        boottime: 12n,
-        monotonic: 11n,
-      }),
-      packetM1,
-    ]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [
+        makeExpectedClockSnapshot({
+          realtime: 10n,
+          boottime: 8n,
+          monotonic: undefined,
+        }),
+        makeExpectedClockSnapshot({
+          realtime: 14n,
+          boottime: 12n,
+          monotonic: 11n,
+        }),
+        packetM1,
+      ].map((p: TracePacket) => p.toObject(false) as unknown),
+    );
   });
 
   it('converts legacy trace with zero timestamp', async () => {
@@ -195,7 +223,15 @@ describe('LegacyToPerfettoConverter', () => {
       boottime: 0n,
       monotonic: 0n,
     });
-    expect(trace.packet).toEqual([clockSnapshot, packet]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [clockSnapshot, packet].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
   });
 
   it('converts legacy trace with zero timestamp and non-zero monotonic offset', async () => {
@@ -210,13 +246,21 @@ describe('LegacyToPerfettoConverter', () => {
       boottime: 0n,
       monotonic: 0n,
     });
-    expect(trace.packet).toEqual([clockSnapshot, packet]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [clockSnapshot, packet].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
   });
 
   it('robust to errors in existing trace decoding', async () => {
     const userNotifierChecker = new UserNotifierChecker();
     const readers = [makeFileReader([])];
-    spyOn(Trace, 'decode').and.throwError('decoding failed');
+    spyOn(Trace, 'deserializeBinary').and.throwError('decoding failed');
     const perfettoFile = await convertToPerfetto(
       readers,
       readers,
@@ -249,19 +293,23 @@ describe('LegacyToPerfettoConverter', () => {
   });
 
   function makePacketWithMonotonicTs(ts: number) {
-    return TracePacket.create({
-      trustedPacketSequenceId: 1,
-      timestamp: Long.fromInt(ts, true),
-      timestampClockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
-    });
+    const packet = new TracePacket();
+    packet.setTrustedPacketSequenceId(1);
+    packet.setTimestamp(ts.toString());
+    packet.setTimestampClockId(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+    );
+    return packet;
   }
 
   function makePacketWithBoottimeTs(ts: number) {
-    return TracePacket.create({
-      trustedPacketSequenceId: 1,
-      timestamp: Long.fromInt(ts, true),
-      timestampClockId: PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
-    });
+    const packet = new TracePacket();
+    packet.setTrustedPacketSequenceId(1);
+    packet.setTimestamp(ts.toString());
+    packet.setTimestampClockId(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+    );
+    return packet;
   }
 
   async function convertToPerfetto(
@@ -300,7 +348,15 @@ describe('LegacyToPerfettoConverter', () => {
         }),
       );
     }
-    expect(trace.packet).toEqual([...snapshotPackets, ...packets]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [...snapshotPackets, ...packets].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
   }
 
   async function testBoottimeTraces(packets: TracePacket[]) {
@@ -330,11 +386,21 @@ describe('LegacyToPerfettoConverter', () => {
         makeSnapshotFromPacket(packets[packets.length - 1], isMonotonic),
       );
     }
-    expect(trace.packet).toEqual([...snapshotPackets, ...packets]);
+    expect(
+      trace
+        .getPacketList()
+        .map((p: TracePacket) => p.toObject(false) as unknown),
+    ).toEqual(
+      [...snapshotPackets, ...packets].map(
+        (p: TracePacket) => p.toObject(false) as unknown,
+      ),
+    );
   }
 
   function makeSnapshotFromPacket(packet: TracePacket, isMonotonic = false) {
-    const realtime = BigInt(packet.timestamp?.toString() ?? 0n);
+    const tsFn = packet.getTimestamp();
+    const tsStr = tsFn !== undefined ? tsFn.toString() : '0';
+    const realtime = BigInt(tsStr);
     return makeExpectedClockSnapshot({
       realtime,
       boottime: realtime - 3n,
@@ -346,11 +412,10 @@ describe('LegacyToPerfettoConverter', () => {
     clockSnapshot20: TracePacket,
     emptyPacket: TracePacket,
   ) {
-    const existingTrace = Trace.fromObject({
-      packet: [clockSnapshot20, emptyPacket],
-    });
+    const existingTrace = new Trace();
+    existingTrace.setPacketList([clockSnapshot20, emptyPacket]);
     return new TraceFile(
-      new File([Trace.encode(existingTrace).finish()], 'existing_trace'),
+      new File([existingTrace.serializeBinary() as unknown as ArrayBuffer], 'existing_trace'),
     );
   }
 
@@ -362,7 +427,7 @@ describe('LegacyToPerfettoConverter', () => {
       testPackets.length === 0
         ? [makeRealTimestamp(0n)]
         : testPackets.map((testPacket) => {
-            const ns = BigInt(testPacket?.timestamp.toString() ?? 0n);
+            const ns = BigInt(testPacket?.getTimestamp() ?? '0');
             return makeRealTimestamp(ns);
           });
     const fileReader = new TestLegacyFileReaderBuilder()
@@ -383,56 +448,66 @@ describe('LegacyToPerfettoConverter', () => {
     const expectedPerfettoTraceName = 'combined_winscope_trace.perfetto-trace';
     expect(perfettoFile.getDescriptor()).toEqual(expectedPerfettoTraceName);
     const fileBuffer = new Uint8Array(await perfettoFile.file.arrayBuffer());
-    return Trace.decode(fileBuffer);
+    return Trace.deserializeBinary(fileBuffer);
   }
 
   function makeExpectedClockSnapshot(
     clockSnapshot: ClockSnapshot,
   ): TracePacket {
-    const realtime = Long.fromString(clockSnapshot.realtime.toString());
-    const clocks = [
-      {
-        clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME_COARSE,
-        timestamp: realtime,
-      },
-      {
-        clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME,
-        timestamp: realtime,
-      },
-    ];
+    const realtime = clockSnapshot.realtime.toString();
+
+    const clockRealtimeCoarse = new PerfettoClockSnapshot.Clock();
+    clockRealtimeCoarse.setClockId(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME_COARSE,
+    );
+    clockRealtimeCoarse.setTimestamp(realtime);
+
+    const clockRealtime = new PerfettoClockSnapshot.Clock();
+    clockRealtime.setClockId(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME,
+    );
+    clockRealtime.setTimestamp(realtime);
+
+    const clocks = [clockRealtimeCoarse, clockRealtime];
 
     if (clockSnapshot.boottime !== undefined) {
-      clocks.push({
-        clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
-        timestamp: Long.fromString(clockSnapshot.boottime.toString()),
-      });
+      const clockBoottime = new PerfettoClockSnapshot.Clock();
+      clockBoottime.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      clockBoottime.setTimestamp(clockSnapshot.boottime.toString());
+      clocks.push(clockBoottime);
     }
 
     if (clockSnapshot.monotonic !== undefined) {
-      const monotonic = Long.fromString(clockSnapshot.monotonic.toString());
-      clocks.push(
-        ...[
-          {
-            clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
-            timestamp: monotonic,
-          },
-          {
-            clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_COARSE,
-            timestamp: monotonic,
-          },
-          {
-            clockId: PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_RAW,
-            timestamp: monotonic,
-          },
-        ],
+      const monotonic = clockSnapshot.monotonic.toString();
+
+      const clockMonotonic = new PerfettoClockSnapshot.Clock();
+      clockMonotonic.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
+      clockMonotonic.setTimestamp(monotonic);
+
+      const clockMonotonicCoarse = new PerfettoClockSnapshot.Clock();
+      clockMonotonicCoarse.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_COARSE,
+      );
+      clockMonotonicCoarse.setTimestamp(monotonic);
+
+      const clockMonotonicRaw = new PerfettoClockSnapshot.Clock();
+      clockMonotonicRaw.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_RAW,
+      );
+      clockMonotonicRaw.setTimestamp(monotonic);
+
+      clocks.push(clockMonotonic, clockMonotonicCoarse, clockMonotonicRaw);
     }
 
-    return TracePacket.fromObject({
-      trustedPacketSequenceId: 1,
-      clockSnapshot: {
-        clocks,
-      },
-    });
+    const packet = new TracePacket();
+    packet.setTrustedPacketSequenceId(1);
+    const snapshot = new PerfettoClockSnapshot();
+    snapshot.setClocksList(clocks);
+    packet.setClockSnapshot(snapshot);
+    return packet;
   }
 });

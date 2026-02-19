@@ -51,7 +51,7 @@ export class RealTimestampFormatter implements TimestampFormatter {
 
   format(timestampNs: bigint): string {
     const timestampNanos = timestampNs + (this.utcOffset.getValueNs() ?? 0n);
-    const ms = divideAndRound(timestampNanos, BigInt(TIME_UNIT_TO_NANO.ms));
+    const ms = divideAndRound(timestampNanos, TIME_UNIT_TO_NANO.ms);
     const formattedTimestamp = new Date(Number(ms))
       .toISOString()
       .replace('Z', '')
@@ -74,11 +74,11 @@ export class ElapsedTimestampFormatter {
     const parts: Array<{value: bigint; unit: string}> = TIME_UNITS.slice()
       .reverse()
       .map(({nanosInUnit, unit}) => {
-        let amountOfUnit = BigInt(0);
+        let amountOfUnit = 0n;
         if (leftNanos >= nanosInUnit) {
-          amountOfUnit = leftNanos / BigInt(nanosInUnit);
+          amountOfUnit = leftNanos / nanosInUnit;
         }
-        leftNanos = leftNanos % BigInt(nanosInUnit);
+        leftNanos = leftNanos % nanosInUnit;
         return {value: amountOfUnit, unit};
       });
 

@@ -15,8 +15,9 @@
  */
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
-import Long from 'long';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
 import {
   makeConverterNoRteOffsets,
   makeRealTimestamp,
@@ -65,64 +66,54 @@ describe('FileReaderViewCapture', () => {
   it('converts to valid perfetto packets', async () => {
     const packets = reader.convertToPerfettoPackets(10, 2, 3);
     expect(packets.length).toBe(2000);
-    expect(packets[0].trustedPacketSequenceId).toBe(10);
-    expect(packets[0].timestamp).toEqual(
-      Long.fromString(BigInt(181114412436130).toString()),
-    );
-    expect(packets[0].timestampClockId).toEqual(
+    expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
+    expect(packets[0].getTimestamp()).toEqual('181114412436130');
+    expect(packets[0].getTimestampClockId()).toEqual(
       ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
-    expect(packets[0].trustedUid).toBe(2);
-    expect(packets[0].trustedPid).toBe(3);
-    expect(packets[0].sequenceFlags).toBe(3);
-    expect(packets[1].sequenceFlags).toEqual(
+    expect(packets[0].getTrustedUid()).toBe(2);
+    expect(packets[0].getTrustedPid()).toBe(3);
+    expect(packets[0].getSequenceFlags()).toBe(3);
+    expect(packets[1].getSequenceFlags()).toEqual(
       TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     );
 
     const vcData = assertDefined(
-      packets[0].winscopeExtensions?.[
-        '.perfetto.protos.WinscopeExtensionsImpl.viewcapture'
-      ],
+      packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.viewcapture),
     );
-    expect(vcData.packageNameIid).toBe(1);
-    expect(vcData.windowNameIid).toBe(1);
-    expect(vcData.views?.length).toBe(17);
+    expect(vcData.getPackageNameIid()).toBe(1);
+    expect(vcData.getWindowNameIid()).toBe(1);
+    expect(vcData.getViewsList().length).toBe(17);
 
-    const internedData = assertDefined(packets[0].internedData);
+    const internedData = assertDefined(packets[0].getInternedData());
 
-    expect(internedData.viewcapturePackageName?.length).toBe(1);
-    expect(internedData.viewcapturePackageName?.[0].iid).toEqual(
-      Long.fromNumber(1, true),
-    );
-    expect(internedData.viewcapturePackageName?.[0].str).toEqual(
+    expect(internedData.getViewcapturePackageNameList().length).toBe(1);
+    expect(internedData.getViewcapturePackageNameList()[0].getIid()).toEqual(1);
+    expect(internedData.getViewcapturePackageNameList()[0].getStr()).toEqual(
       utf8Encode('com.google.android.apps.nexuslauncher'),
     );
 
-    expect(internedData.viewcaptureWindowName?.length).toBe(1);
-    expect(internedData.viewcaptureWindowName?.[0].iid).toEqual(
-      Long.fromNumber(1, true),
-    );
-    expect(internedData.viewcaptureWindowName?.[0].str).toEqual(
+    expect(internedData.getViewcaptureWindowNameList().length).toBe(1);
+    expect(internedData.getViewcaptureWindowNameList()[0].getIid()).toEqual(1);
+    expect(internedData.getViewcaptureWindowNameList()[0].getStr()).toEqual(
       utf8Encode('.Taskbar'),
     );
 
-    expect(internedData.viewcaptureClassName?.length).toBe(68);
-    expect(internedData.viewcaptureClassName?.[3].iid).toEqual(
-      Long.fromNumber(3, true),
-    );
-    expect(internedData.viewcaptureClassName?.[3].str).toEqual(
+    expect(internedData.getViewcaptureClassNameList().length).toBe(68);
+    expect(internedData.getViewcaptureClassNameList()[3].getIid()).toEqual(3);
+    expect(internedData.getViewcaptureClassNameList()[3].getStr()).toEqual(
       utf8Encode('com.android.launcher3.views.DoubleShadowBubbleTextView'),
     );
 
-    expect(internedData.viewcaptureViewId?.length).toBe(11);
-    expect(internedData.viewcaptureViewId?.[1].iid).toEqual(
-      Long.fromNumber(2, true),
-    );
-    expect(internedData.viewcaptureViewId?.[1].str).toEqual(
+    expect(internedData.getViewcaptureViewIdList().length).toBe(11);
+    expect(internedData.getViewcaptureViewIdList()[1].getIid()).toEqual(2);
+    expect(internedData.getViewcaptureViewIdList()[1].getStr()).toEqual(
       utf8Encode('id/taskbar_view'),
     );
 
-    expect(packets[1].internedData).toBeNull();
+    expect(packets[1].hasInternedData()).toBeFalse();
   });
 
   it('converts to valid perfetto trace', async () => {

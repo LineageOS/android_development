@@ -34,9 +34,7 @@ export class TransformDuration extends AddOperation<PropertyTreeNode> {
       DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeTpProperty(
         value.id,
         durationNs.name,
-        new TimeDuration(
-          BigInt(assertDefined(durationNs.getValue<bigint>()).toString()),
-        ),
+        new TimeDuration(assertDefined(durationNs.getValue<bigint>())),
       );
     return [transformedDuration];
   }

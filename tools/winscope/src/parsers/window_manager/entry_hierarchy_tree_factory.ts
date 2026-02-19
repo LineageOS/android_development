@@ -283,9 +283,9 @@ function buildHierarchyTree(
 }
 
 const CONTAINER_TYPE = assertDefined(
-  TAMPERED_PROTOS_LATEST.windowContainerChildField.tamperedMessageType,
+  TAMPERED_PROTOS_LATEST.windowContainerChildField.resolve(),
 );
 
 const ENTRY_TYPE = assertDefined(
-  TAMPERED_PROTOS_LATEST.entryField.tamperedMessageType,
+  TAMPERED_PROTOS_LATEST.entryField.resolve(),
 );

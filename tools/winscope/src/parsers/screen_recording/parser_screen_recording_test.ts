@@ -210,8 +210,8 @@ describe('ParserScreenRecording', () => {
   });
 
   describe('start time in filename', () => {
-    const startTimeMs = 1732721670187;
-    const startTimeNs = BigInt(startTimeMs) * BigInt(TIME_UNIT_TO_NANO.ms);
+    const startTimeMs = 1732721670187n;
+    const startTimeNs = startTimeMs * TIME_UNIT_TO_NANO.ms;
 
     describe('with Android screen recording format', () => {
       checkStartTimeInFilename(

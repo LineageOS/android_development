@@ -18,9 +18,9 @@ import {TimeDuration} from './time_duration';
 import {TIME_UNIT_TO_NANO} from './time_units';
 
 describe('TimeDuration', () => {
-  const MILLISECOND = BigInt(TIME_UNIT_TO_NANO.ms);
-  const SECOND = BigInt(TIME_UNIT_TO_NANO.s);
-  const MINUTE = BigInt(TIME_UNIT_TO_NANO.m);
+  const MILLISECOND = TIME_UNIT_TO_NANO.ms;
+  const SECOND = TIME_UNIT_TO_NANO.s;
+  const MINUTE = TIME_UNIT_TO_NANO.m;
 
   it('formats to nearest ms, using locale format for number', () => {
     const expected0 = makeExpectedString(0);

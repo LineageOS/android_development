@@ -31,9 +31,9 @@ import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {HwcCompositionType} from '@compat/winscope_protos';
+import {HwcCompositionType} from 'protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
 import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
-import {TAMPERED_TRACE_PACKET} from '@trace/proto_utils/tampered_message_type';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
@@ -376,7 +376,7 @@ function makeLayerLazyPropertiesStrategy(
       .setRootName(layerName)
       .setDenyList(DENYLIST_PROPERTIES)
       .setDuplicateCount(duplicateCount)
-      .setRootMessageType(assertDefined(LAYER_FIELD.tamperedMessageType))
+      .setRootMessageType(assertDefined(LAYER_FIELD.resolve()))
       .build();
   };
 }
@@ -392,21 +392,29 @@ function makeEntryLazyPropertiesStrategy(): LazyPropertiesStrategyType {
       .setRootId('LayerTraceEntry')
       .setRootName('root')
       .setDenyList(DENYLIST_PROPERTIES)
-      .setRootMessageType(assertDefined(ENTRY_FIELD.tamperedMessageType))
+      .setRootMessageType(assertDefined(ENTRY_FIELD.resolve()))
       .build();
   };
 }
 
 const ENTRY_FIELD =
-  TAMPERED_TRACE_PACKET.fields['surfaceflingerLayersSnapshot'];
+  assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket')).fields['surfaceflingerLayersSnapshot'];
 const LAYER_FIELD = assertDefined(
-  ENTRY_FIELD.tamperedMessageType?.fields['layers'].tamperedMessageType,
+  ENTRY_FIELD.resolve()?.fields['layers']?.resolve(),
 ).fields['layers'];
+
+const HWC_COMPOSITION_TYPE_INVERTED = Object.entries(HwcCompositionType).reduce(
+  (acc, [key, value]) => {
+    acc[value] = key;
+    return acc;
+  },
+  {} as {[key: number]: string},
+);
 
 const CUSTOM_FORMATTERS = new Map([
   ['cropLayerId', LAYER_ID_FORMATTER],
   ['zOrderRelativeOf', LAYER_ID_FORMATTER],
-  ['hwcCompositionType', new EnumFormatter(HwcCompositionType)],
+  ['hwcCompositionType', new EnumFormatter(HWC_COMPOSITION_TYPE_INVERTED)],
 ]);
 
 const Operations = {

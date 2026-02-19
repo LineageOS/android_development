@@ -18,13 +18,13 @@
  * An map for converting time units to nanoseconds.
  */
 export const TIME_UNIT_TO_NANO = {
-  ns: 1,
-  us: 1000,
-  ms: 1000000,
-  s: 1000000 * 1000,
-  m: 1000000 * 1000 * 60,
-  h: 1000000 * 1000 * 60 * 60,
-  d: 1000000 * 1000 * 60 * 60 * 24,
+  ns: 1n,
+  us: 1000n,
+  ms: 1000000n,
+  s: 1000000n * 1000n,
+  m: 1000000n * 1000n * 60n,
+  h: 1000000n * 1000n * 60n * 60n,
+  d: 1000000n * 1000n * 60n * 60n * 24n,
 };
 
 /**

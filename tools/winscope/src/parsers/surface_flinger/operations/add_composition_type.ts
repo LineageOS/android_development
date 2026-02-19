@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HwcCompositionType} from '@compat/winscope_protos';
+import {HwcCompositionType} from 'protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {AddOperation} from '@tree_node/add_operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -53,15 +53,15 @@ export class AddCompositionType extends AddOperation<PropertyTreeNode> {
         ];
   }
 
-  private readonly gpuLayerCompositionTypes = [
+  private readonly gpuLayerCompositionTypes: Array<string | number> = [
     HwcCompositionType.HWC_TYPE_CLIENT,
-    HwcCompositionType[HwcCompositionType.HWC_TYPE_CLIENT],
+    'HWC_TYPE_CLIENT',
   ];
 
-  private readonly hwcLayerCompositionTypes = [
+  private readonly hwcLayerCompositionTypes: Array<string | number> = [
     HwcCompositionType.HWC_TYPE_DEVICE,
-    HwcCompositionType[HwcCompositionType.HWC_TYPE_DEVICE],
+    'HWC_TYPE_DEVICE',
     HwcCompositionType.HWC_TYPE_SOLID_COLOR,
-    HwcCompositionType[HwcCompositionType.HWC_TYPE_SOLID_COLOR],
+    'HWC_TYPE_SOLID_COLOR',
   ];
 }

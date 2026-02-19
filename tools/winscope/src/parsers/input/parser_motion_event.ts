@@ -27,7 +27,7 @@ export class ParserMotionEvent extends AbstractInputEventParser {
     AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherMotionEvent'];
 
   protected override readonly eventMessageType = assertDefined(
-    ParserMotionEvent.MOTION_EVENT_FIELD.tamperedMessageType,
+    ParserMotionEvent.MOTION_EVENT_FIELD.resolve(),
   );
   protected override readonly eventOps = [
     new SetFormatters(ParserMotionEvent.MOTION_EVENT_FIELD),

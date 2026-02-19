@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {ClockSnapshot} from '@compat/perfetto';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
 import {
   convertToPerfettoTrace,
   LegacyFileReaderProvider,
@@ -26,7 +27,6 @@ import {
   timestampEqualityTester,
   makeRealTimestamp,
 } from '@common/time/test_helpers';
-import Long from 'long';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
@@ -68,16 +68,15 @@ describe('FileReaderWindowManagerDump', () => {
   it('converts to valid perfetto packets', async () => {
     const packets = reader.convertToPerfettoPackets(10);
     expect(packets.length).toBe(1);
-    expect(packets[0].trustedPacketSequenceId).toBe(10);
+    expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
     expect(
-      packets[0].winscopeExtensions?.[
-        '.perfetto.protos.WinscopeExtensionsImpl.windowmanager'
-      ]?.windowManagerService,
+      packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.windowmanager)
+        ?.getWindowManagerService(),
     ).toBeDefined();
-    const ts = Long.fromInt(0);
-    ts.unsigned = true;
-    expect(packets[0].timestamp).toEqual(ts);
-    expect(packets[0].timestampClockId).toEqual(
+    expect(packets[0].getTimestamp()).toEqual('0');
+    expect(packets[0].getTimestampClockId()).toEqual(
       ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
   });

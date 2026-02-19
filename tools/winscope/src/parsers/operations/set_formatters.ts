@@ -1,3 +1,4 @@
+import {TamperedProtoField, TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 /*
  * Copyright (C) 2024 The Android Open Source Project
  *
@@ -15,12 +16,10 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import {ProtobufEnum} from '@compat/protobuf';
 import {
   BUFFER_FORMATTER,
   COLOR_FORMATTER,
   DEFAULT_PROPERTY_FORMATTER,
-  EnumFormatter,
   MATRIX_FORMATTER,
   POSITION_FORMATTER,
   RECT_FORMATTER,
@@ -29,10 +28,7 @@ import {
   TIMESTAMP_NODE_FORMATTER,
   TRANSFORM_FORMATTER,
 } from '@trace/formatters';
-import {
-  TamperedMessageType,
-  TamperedProtoField,
-} from '@trace/proto_utils/tampered_message_type';
+
 import {Operation} from '@tree_node/operation';
 import {
   PropertyFormatter,
@@ -49,21 +45,17 @@ export class SetFormatters implements Operation<PropertyTreeNode> {
 
   apply(value: PropertyTreeNode, parentField = this.rootField): void {
     let field: TamperedProtoField | undefined;
-    let enumType: ProtobufEnum | undefined;
 
     if (parentField) {
-      const protoType: TamperedMessageType | undefined =
-        parentField.tamperedMessageType;
+      const protoType = parentField.resolve();
 
       field = parentField;
       if (protoType && field.name !== value.name) {
         field = protoType.fields[value.name] ?? parentField;
       }
-
-      enumType = field.tamperedEnumType;
     }
 
-    const formatter = this.getFormatter(value, enumType?.valuesById);
+    const formatter = this.getFormatter(value);
     if (formatter) {
       value.setFormatter(formatter);
     }
@@ -73,15 +65,10 @@ export class SetFormatters implements Operation<PropertyTreeNode> {
     });
   }
 
-  private getFormatter(
-    node: PropertyTreeNode,
-    valuesById: {[key: number]: string} | undefined,
-  ): PropertyFormatter | undefined {
+  private getFormatter(node: PropertyTreeNode): PropertyFormatter | undefined {
     if (this.customFormatters?.get(node.name)) {
       return this.customFormatters.get(node.name);
     }
-
-    if (valuesById) return new EnumFormatter(valuesById);
 
     if (node.getValue() instanceof Timestamp) return TIMESTAMP_NODE_FORMATTER;
 

@@ -27,7 +27,7 @@ export class ParserKeyEvent extends AbstractInputEventParser {
     AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherKeyEvent'];
 
   protected override readonly eventMessageType = assertDefined(
-    ParserKeyEvent.KEY_EVENT_FIELD.tamperedMessageType,
+    ParserKeyEvent.KEY_EVENT_FIELD.resolve(),
   );
   protected override readonly eventOps = [
     new SetFormatters(ParserKeyEvent.KEY_EVENT_FIELD),

@@ -15,7 +15,7 @@
  */
 
 import {getLogger, Logger} from '@compat/logging';
-import {TracePacket} from '@compat/perfetto';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {Timestamp} from '@common/time/time';

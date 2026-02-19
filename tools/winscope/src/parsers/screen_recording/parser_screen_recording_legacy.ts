@@ -68,7 +68,7 @@ export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
     for (let i = 0; i < count; ++i) {
       const [newPos, timestamp] = parseLongFromBuffer(videoData, pos);
       pos = newPos;
-      timestamps.push(timestamp * BigInt(TIME_UNIT_TO_NANO.us));
+      timestamps.push(timestamp * TIME_UNIT_TO_NANO.us);
     }
     return timestamps;
   }

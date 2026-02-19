@@ -311,8 +311,7 @@ export class TimestampConverter
     timestampHuman += this.utcOffset.format().slice(3);
 
     return this.makeTimestampFromRealNs(
-      BigInt(Date.parse(timestampHuman)) * BigInt(TIME_UNIT_TO_NANO.ms) +
-        BigInt(nanos),
+      BigInt(Date.parse(timestampHuman)) * TIME_UNIT_TO_NANO.ms + nanos,
     );
   }
 
@@ -323,13 +322,13 @@ export class TimestampConverter
       .filter((it) => it !== '')
       .map((it) => Math.floor(Number(it)));
 
-    let ns = BigInt(0);
+    let ns = 0n;
 
     for (let i = 0; i < usedUnits.length; i++) {
       const unit = usedUnits[i];
       const value = usedValues[i];
       const unitData = assertDefined(TIME_UNITS.find((it) => it.unit === unit));
-      ns += BigInt(unitData.nanosInUnit) * BigInt(value);
+      ns += unitData.nanosInUnit * BigInt(value);
     }
 
     return this.makeElapsedTimestamp(ns);

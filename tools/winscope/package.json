@@ -41,10 +41,10 @@
     "auth0": "^5.2.0",
     "dateformat": "^5.0.3",
     "gl-matrix": "^3.4.4",
+    "google-protobuf": "^3.21.2",
     "html2canvas": "^1.4.1",
     "jsbn": "^1.1.0",
     "karma-spec-reporter": "^0.0.36",
-    "protobufjs": "^7.0.0",
     "rxjs": "~7.8.2",
     "three": "^0.182.0",
     "tslib": "^2.8.1",
@@ -59,6 +59,7 @@
     "@angular/compiler-cli": "~19.0.0",
     "@types/chrome": "^0.1.4",
     "@types/dateformat": "^5.0.2",
+    "@types/google-protobuf": "^3.15.6",
     "@types/gtag.js": "^0.0.20",
     "@types/jasmine": "~5.1.4",
     "@types/jquery": "^3.5.30",
@@ -72,6 +73,7 @@
     "eslint-formatter-unix": "^8.40.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-unused-imports": "^4.2.0",
+    "grpc-tools": "^1.12.4",
     "jasmine": "^5.9.0",
     "jasmine-core": "~5.9.0",
     "jszip": "^3.10.1",
@@ -85,8 +87,8 @@
     "mp4box": "^2.3.0",
     "prettier": "^3.7.0",
     "prettier-plugin-organize-imports": "^4.2.0",
-    "protobufjs-cli": "^1.1.2",
     "protractor": "^7.0.0",
-    "sass": "^1.77.8"
+    "sass": "^1.77.8",
+    "ts-protoc-gen": "^0.15.0"
   }
 }

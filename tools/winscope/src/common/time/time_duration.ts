@@ -29,7 +29,7 @@ export class TimeDuration {
   format(): string {
     const msString = divideAndRound(
       this.timeDiffNs,
-      BigInt(TIME_UNIT_TO_NANO.ms),
+      TIME_UNIT_TO_NANO.ms,
     );
     return msString.toLocaleString() + ' ms';
   }

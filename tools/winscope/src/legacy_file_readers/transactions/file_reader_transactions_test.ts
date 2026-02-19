@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Long from 'long';
-import {ClockSnapshot} from '@compat/perfetto';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
 import {
   makeRealTimestamp,
   makeElapsedTimestamp,
@@ -62,14 +61,14 @@ describe('FileReaderTransactions', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(712);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
-      expect(packets[0].surfaceflingerTransactions?.transactions?.length).toBe(
-        2,
-      );
-      expect(packets[0].timestamp).toEqual(
-        Long.fromString(BigInt(2450981445).toString()),
-      );
-      expect(packets[0].timestampClockId).toEqual(
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
+      expect(packets[0].hasSurfaceflingerTransactions()).toBeTrue();
+      expect(
+        packets[0].getSurfaceflingerTransactions()?.getTransactionsList()
+          ?.length,
+      ).toBe(2);
+      expect(packets[0].getTimestamp()).toEqual('2450981445');
+      expect(packets[0].getTimestampClockId()).toEqual(
         ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
@@ -164,14 +163,14 @@ describe('FileReaderTransactions', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(4997);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
-      expect(packets[0].surfaceflingerTransactions?.transactions?.length).toBe(
-        1,
-      );
-      expect(packets[0].timestamp).toEqual(
-        Long.fromString(BigInt(14862317023).toString()),
-      );
-      expect(packets[0].timestampClockId).toEqual(
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
+      expect(packets[0].hasSurfaceflingerTransactions()).toBeTrue();
+      expect(
+        packets[0].getSurfaceflingerTransactions()?.getTransactionsList()
+          ?.length,
+      ).toBe(1);
+      expect(packets[0].getTimestamp()).toEqual('14862317023');
+      expect(packets[0].getTimestampClockId()).toEqual(
         ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });

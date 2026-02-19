@@ -17,7 +17,10 @@
 import {assertDefined} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
-import {com} from 'protos/viewcapture/udc/static';
+import {
+  ExportedData,
+  WindowData,
+} from 'protos/protos/viewcapture/udc/view_capture_pb';
 import {TraceFile} from '@trace/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {FileReaderViewCaptureWindow} from './file_reader_view_capture_window';
@@ -41,28 +44,25 @@ export class FileReaderViewCapture {
       FileReaderViewCapture.MAGIC_NUMBER,
     );
 
-    const exportedData =
-      com.android.app.viewcapture.data.ExportedData.decode(traceBuffer);
+    const exportedData = ExportedData.deserializeBinary(traceBuffer);
 
     const realToBootTimeOffsetNs = BigInt(
-      assertDefined(exportedData.realToElapsedTimeOffsetNanos).toString(),
+      assertDefined(exportedData.getRealToElapsedTimeOffsetNanos()),
     );
 
-    exportedData.windowData?.forEach(
-      (windowData: com.android.app.viewcapture.data.IWindowData) => {
-        this.windowParsers.push(
-          new FileReaderViewCaptureWindow(
-            this.traceFile,
-            windowData.frameData ?? [],
-            realToBootTimeOffsetNs,
-            assertDefined(exportedData.package),
-            assertDefined(windowData.title),
-            assertDefined(exportedData.classname),
-            this.timestampConverter,
-          ),
-        );
-      },
-    );
+    exportedData.getWindowdataList().forEach((windowData: WindowData) => {
+      this.windowParsers.push(
+        new FileReaderViewCaptureWindow(
+          this.traceFile,
+          windowData.getFramedataList(),
+          realToBootTimeOffsetNs,
+          assertDefined(exportedData.getPackage()),
+          assertDefined(windowData.getTitle()),
+          exportedData.getClassnameList(),
+          this.timestampConverter,
+        ),
+      );
+    });
   }
 
   getTraceType(): TraceType {

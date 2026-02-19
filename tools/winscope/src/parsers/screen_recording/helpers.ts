@@ -69,7 +69,7 @@ export async function parseTimestampsFromMp4VideoTrack(
   let curr = elapsedRealTimeNanos;
   samples.forEach((sample: Sample) => {
     const timeSeconds = sample.duration / sample.timescale;
-    const timeNs = BigInt(Math.floor(TIME_UNIT_TO_NANO.s * timeSeconds));
+    const timeNs = BigInt(Math.floor(Number(TIME_UNIT_TO_NANO.s) * timeSeconds));
     curr += timeNs;
     timestamps.push(curr);
   });

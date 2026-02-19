@@ -16,7 +16,7 @@
 
 import {TestLegacyFileReader} from './test_legacy_file_reader';
 import {TraceFile} from '@trace/trace_file';
-import {TracePacket} from '@compat/perfetto';
+import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {TestFileReaderBuilder} from './test_file_reader_builder';
 
 /**

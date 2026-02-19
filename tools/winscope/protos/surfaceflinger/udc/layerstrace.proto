@@ -44,14 +44,14 @@ message LayersTraceFileProto {
   /* offset between real-time clock and elapsed time clock in nanoseconds.
      Calculated as: systemTime(SYSTEM_TIME_REALTIME) -
      systemTime(SYSTEM_TIME_MONOTONIC) */
-  optional fixed64 real_to_elapsed_time_offset_nanos = 3;
+  optional fixed64 real_to_elapsed_time_offset_nanos = 3 [jstype = JS_STRING];
 }
 
 /* one layers trace entry. */
 message LayersTraceProto {
   /* required: elapsed realtime in nanos since boot of when this entry was
    * logged */
-  optional sfixed64 elapsed_realtime_nanos = 1;
+  optional sfixed64 elapsed_realtime_nanos = 1 [jstype = JS_STRING];
 
   /* where the trace originated */
   optional string where = 2;
@@ -70,5 +70,5 @@ message LayersTraceProto {
 
   repeated DisplayProto displays = 7;
 
-  optional int64 vsync_id = 8;
+  optional int64 vsync_id = 8 [jstype = JS_STRING];
 }

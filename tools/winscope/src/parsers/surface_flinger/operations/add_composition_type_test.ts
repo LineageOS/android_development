@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HwcCompositionType} from '@compat/winscope_protos';
+import {HwcCompositionType} from 'protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
 import {
   makeCalculatedPropertyNode,
   makePropertyNode,
@@ -68,7 +68,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType[HwcCompositionType.HWC_TYPE_CLIENT],
+      'HWC_TYPE_CLIENT',
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -108,7 +108,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType[HwcCompositionType.HWC_TYPE_DEVICE],
+      'HWC_TYPE_DEVICE',
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -148,7 +148,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType[HwcCompositionType.HWC_TYPE_SOLID_COLOR],
+      'HWC_TYPE_SOLID_COLOR',
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 

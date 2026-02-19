@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import {
+  PERFETTO_TRACE_PACKET_ROOT,
+  registerDescriptors,
+  TamperedMessageType,
+  TamperedProtoField
+} from '@trace/proto_utils/tampered_message_type';
+import {descriptors} from 'protos/test/fake_proto/descriptors';
 import {assertDefined} from '@common/assert';
 import {TransformTypeFlags} from '@common/geometry/transform';
 import {SetFormatters} from '@parsers/operations/set_formatters';
@@ -28,22 +34,17 @@ import {
   makeTransformNode,
 } from '@test/unit/tree_node/tree_node_test_helpers';
 import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from '@trace/formatters';
-import {
-  TamperedMessageType,
-  TamperedProtoField,
-} from '@trace/proto_utils/tampered_message_type';
+
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import root from 'protos/test/fake_proto/json';
 
 describe('SetFormatters', () => {
+  registerDescriptors(descriptors);
   let propertyRoot: PropertyTreeNode;
   let operation: SetFormatters;
   let field: TamperedProtoField;
 
   beforeEach(() => {
-    field = TamperedMessageType.tamper(root.lookupType('RootMessage')).fields[
-      'entry'
-    ];
+    field = (PERFETTO_TRACE_PACKET_ROOT.lookupType('winscope.test.RootMessage') as TamperedMessageType).fields['entry'];
     operation = new SetFormatters();
   });
 
@@ -58,9 +59,7 @@ describe('SetFormatters', () => {
     operation.apply(propertyRoot);
 
     expect(propertyRoot.formattedValue()).toBe('');
-    expect(propertyRoot.getChildByName('enum0')?.formattedValue()).toEqual(
-      'ENUM0_VALUE_ZERO',
-    );
+    expect(propertyRoot.getChildByName('enum0')?.formattedValue()).toEqual('0');
   });
 
   it('adds correct formatter for color node', () => {

@@ -17,8 +17,8 @@ syntax = "proto2";
 
 package android_common.content;
 
-import "third_party/android/winscope/protos/windowmanager/udc/android.proto";
-import "third_party/android/winscope/protos/windowmanager/udc/app.proto";
+import "protos/windowmanager/udc/android.proto";
+import "protos/windowmanager/udc/app.proto";
 
 option java_multiple_files = true;
 
@@ -98,7 +98,7 @@ message DeviceConfigurationProto {
   optional uint32 stable_screen_height_px = 2;
   optional uint32 stable_density_dpi = 3;
 
-  optional uint64 total_ram = 4;
+  optional uint64 total_ram = 4 [jstype = JS_STRING];
   optional bool low_ram = 5;
   optional uint32 max_cores = 6;
   optional bool has_secure_screen_lock = 7;

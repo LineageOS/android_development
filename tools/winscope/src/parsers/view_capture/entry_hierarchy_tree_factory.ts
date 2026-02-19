@@ -19,7 +19,7 @@ import {AddDefaults} from '@parsers/operations/add_defaults';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
@@ -216,15 +216,15 @@ function makeViewLazyPropertiesStrategy(
       .setData(argsData.iter({}))
       .setRootId(rootId)
       .setRootName(rootName)
-      .setRootMessageType(assertDefined(PROTO_VIEW_FIELD.tamperedMessageType))
+      .setRootMessageType(assertDefined(PROTO_VIEW_FIELD.resolve()))
       .build();
   };
 }
 
 const PROTO_VIEW_FIELD = assertDefined(
-  TAMPERED_WINSCOPE_EXTENSIONS.fields[
+  assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket')?.fields['winscopeExtensions']?.resolve()).fields[
     '.perfetto.protos.WinscopeExtensionsImpl.viewcapture'
-  ]?.tamperedMessageType?.fields['views'],
+  ]?.resolve()?.fields['views'],
 );
 const OPERATIONS = {
   AddDefaults: new AddDefaults(PROTO_VIEW_FIELD),

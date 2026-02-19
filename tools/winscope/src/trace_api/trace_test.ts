@@ -1329,7 +1329,7 @@ describe('Trace', () => {
 
     const traceWithElapsedTimestamps = new TraceBuilder<string>()
       .setEntries(['entry-0', 'entry-1'])
-      .setTimestamps([time0, makeElapsedTimestamp(BigInt(TIME_UNIT_TO_NANO.d))])
+      .setTimestamps([time0, makeElapsedTimestamp(TIME_UNIT_TO_NANO.d)])
       .build();
     expect(traceWithElapsedTimestamps.spansMultipleDates()).toBeFalse();
 
@@ -1342,8 +1342,8 @@ describe('Trace', () => {
     const traceWitMultipleDates = new TraceBuilder<string>()
       .setEntries(['entry-0', 'entry-1'])
       .setTimestamps([
-        makeRealTimestamp(BigInt(TIME_UNIT_TO_NANO.h * 23)),
-        makeRealTimestamp(BigInt(TIME_UNIT_TO_NANO.h * 25)),
+        makeRealTimestamp(TIME_UNIT_TO_NANO.h * 23n),
+        makeRealTimestamp(TIME_UNIT_TO_NANO.h * 25n),
       ])
       .build();
     expect(traceWitMultipleDates.spansMultipleDates()).toBeTrue();

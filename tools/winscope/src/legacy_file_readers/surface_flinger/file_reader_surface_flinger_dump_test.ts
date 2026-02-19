@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import Long from 'long';
-import {ClockSnapshot} from '@compat/perfetto';
+import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
 import {
   convertToPerfettoTrace,
   LegacyFileReaderProvider,
@@ -76,13 +75,16 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].timestamp).toEqual(Long.fromInt(0));
-      expect(packets[0].timestampClockId).toEqual(
+      expect(packets[0].getTimestamp()).toEqual('0');
+      expect(packets[0].getTimestampClockId()).toEqual(
         ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(94);
     });
 
@@ -112,13 +114,16 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].timestamp).toEqual(Long.fromInt(0));
-      expect(packets[0].timestampClockId).toEqual(
+      expect(packets[0].getTimestamp()).toEqual('0');
+      expect(packets[0].getTimestampClockId()).toEqual(
         ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(91);
     });
 
