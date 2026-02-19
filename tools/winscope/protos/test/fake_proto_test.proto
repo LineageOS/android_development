@@ -13,7 +13,7 @@ enum Enum0 {
 }
 
 message NestedMessage {
-  optional int32 property = 0;
+  optional int32 property = 1;
 }
 
 message Entry {

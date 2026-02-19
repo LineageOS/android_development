@@ -15,32 +15,39 @@
  */
 
 syntax = "proto2";
+
 package android_common.app;
+
+import "protos/windowmanager/udc/android.proto";
+import "protos/windowmanager/udc/graphics.proto";
+
 option java_multiple_files = true;
 
-import "graphics.proto";
-
 message StatusBarManagerProto {
-    enum WindowState {
-        WINDOW_STATE_SHOWING = 0;
-        WINDOW_STATE_HIDING = 1;
-        WINDOW_STATE_HIDDEN = 2;
-    }
-    enum TransientWindowState {
-        TRANSIENT_BAR_NONE = 0;
-        TRANSIENT_BAR_SHOW_REQUESTED = 1;
-        TRANSIENT_BAR_SHOWING = 2;
-        TRANSIENT_BAR_HIDING = 3;
-    }
+  enum WindowState {
+    WINDOW_STATE_SHOWING = 0;
+    WINDOW_STATE_HIDING = 1;
+    WINDOW_STATE_HIDDEN = 2;
+  }
+  enum TransientWindowState {
+    TRANSIENT_BAR_NONE = 0;
+    TRANSIENT_BAR_SHOW_REQUESTED = 1;
+    TRANSIENT_BAR_SHOWING = 2;
+    TRANSIENT_BAR_HIDING = 3;
+  }
 }
 
 /** Proto representation for WindowConfiguration.java class. */
 message WindowConfigurationProto {
-    option (android.msg_privacy).dest = DEST_AUTOMATIC;
+  option (android_common.msg_privacy).dest = DEST_AUTOMATIC;
 
-    optional .android_common.graphics.RectProto app_bounds = 1;
-    optional int32 windowing_mode = 2 [(.android_common.typedef) = "android.app.WindowConfiguration.WindowingMode"];
-    optional int32 activity_type = 3 [(.android_common.typedef) = "android.app.WindowConfiguration.ActivityType"];
-    optional .android_common.graphics.RectProto bounds = 4;
-    optional .android_common.graphics.RectProto max_bounds = 5;
+  optional .android_common.graphics.RectProto app_bounds = 1;
+  optional int32 windowing_mode = 2
+      [(.android_common.typedef) =
+           "android.app.WindowConfiguration.WindowingMode"];
+  optional int32 activity_type = 3
+      [(.android_common.typedef) =
+           "android.app.WindowConfiguration.ActivityType"];
+  optional .android_common.graphics.RectProto bounds = 4;
+  optional .android_common.graphics.RectProto max_bounds = 5;
 }

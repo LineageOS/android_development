@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package winscope.test;
+import "protos/test/android.proto";
 
 message RootMessage {
   optional InputWindowInfoProto input_window_info = 1;

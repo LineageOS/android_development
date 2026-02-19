@@ -24,10 +24,10 @@ option java_multiple_files = true;
  * Represents a {@link android.view.inputmethod.EditorInfo} object.
  */
 message EditorInfoProto {
-    optional int32 input_type = 1;
-    optional int32 ime_options = 2;
-    optional string private_ime_options = 3;
-    optional string package_name = 4;
-    optional int32 field_id = 5;
-    optional int32 target_input_method_user_id = 6;
+  optional int32 input_type = 1;
+  optional int32 ime_options = 2;
+  optional string private_ime_options = 3;
+  optional string package_name = 4;
+  optional int32 field_id = 5;
+  optional int32 target_input_method_user_id = 6;
 }
