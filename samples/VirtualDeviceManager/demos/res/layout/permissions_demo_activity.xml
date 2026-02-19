@@ -55,4 +55,11 @@
         android:onClick="onRevokePermissions"
         android:text="@string/revoke_all_permissions" />
 
+    <Button
+        android:id="@+id/show_biometric_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onShowBiometricPrompt"
+        android:text="@string/show_biometric_prompt" />
+
 </LinearLayout>
