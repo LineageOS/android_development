@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MakeTimestampStrategyType} from '@common/time/time';
+import {MakeTimestampStrategyType, Timestamp} from '@common/time/time';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {
   ColumnType,
@@ -89,15 +89,15 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
   private makeLogEntry(
     headers: LogHeader[],
     it: RowIterator,
-    i: number,
+    entryIndex: number,
     traceEntry: TraceEntry<QueryResult>,
   ): LogEntry {
     const fields: LogField[] = [];
     for (const header of headers) {
-      const value = it.get(header.spec.name);
+      const column = header.spec.name;
+      const value = it.get(column);
       const fieldValue =
-        this.tryMakeEntryTsFieldValue(header, i) ??
-        this.tryMakeTsFieldValue(headers, it, header, value) ??
+        this.tryMakeTsFieldValue(column, value, entryIndex, headers, it) ??
         this.convertToLogFieldValue(value);
       fields.push({
         spec: header.spec,
@@ -111,46 +111,75 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
     };
   }
 
-  private tryMakeEntryTsFieldValue(
-    header: LogHeader,
-    entryIndex: number,
-  ): LogFieldValue | undefined {
-    if (header.spec.name === 'ts') {
-      const entry = this.trace.getEntry(entryIndex);
-      if (entry.hasValidTimestamp()) {
-        return entry.getTimestamp();
-      }
-    }
-    return undefined;
-  }
-
   private tryMakeTsFieldValue(
+    columnName: string,
+    value: ColumnType | null | undefined,
+    entryIndex: number,
     headers: LogHeader[],
     it: RowIterator,
-    header: LogHeader,
+  ): Timestamp | undefined {
+    return (
+      this.tryMakeTraceEntryTs(columnName, entryIndex) ??
+      this.tryMakePropertyValueTs(columnName, value, headers, it) ??
+      this.tryMakeColumnTs(columnName, value)
+    );
+  }
+
+  private tryMakeTraceEntryTs(
+    columnName: string,
+    entryIndex: number,
+  ): Timestamp | undefined {
+    // Assume that the 'ts' column is meant to represent trace entry timestamps.
+    if (columnName !== 'ts') {
+      return undefined;
+    }
+    const entry = this.trace.getEntry(entryIndex);
+    if (!entry.hasValidTimestamp()) {
+      return undefined;
+    }
+    return entry.getTimestamp();
+  }
+
+  private tryMakePropertyValueTs(
+    columnName: string,
     value: ColumnType | null | undefined,
-  ): LogFieldValue | undefined {
-    if (
-      header.spec.name === 'value' &&
-      typeof value === 'string' &&
-      Number(value)
-    ) {
-      const propertyHeader = headers.find((h) => h.spec.name === 'property');
-      if (propertyHeader) {
-        const property = it.get(propertyHeader.spec.name);
-        if (typeof property === 'string' && property.endsWith('time_ns')) {
-          return this.makeTimestampStrategy(BigInt(value));
-        }
-      }
+    headers: LogHeader[],
+    it: RowIterator,
+  ): Timestamp | undefined {
+    // For search views, if the 'property' column value indicates the field may
+    // be a timestamp, try to convert the 'value' column value to a timestamp.
+    if (columnName !== 'value') {
+      return undefined;
     }
-    if (
-      header.spec.name.startsWith('ts') &&
-      (typeof value === 'number' || typeof value === 'bigint') &&
-      value > 0
-    ) {
-      return this.makeTimestampStrategy(BigInt(value));
+    const propertyHeader = headers.find((h) => h.spec.name === 'property');
+    if (!propertyHeader) {
+      return undefined;
     }
-    return undefined;
+    const property = it.get(propertyHeader.spec.name);
+    if (typeof property !== 'string' || !property.endsWith('time_ns')) {
+      return undefined;
+    }
+    return this.tryMakeTs(value);
+  }
+
+  private tryMakeColumnTs(
+    columnName: string,
+    value: ColumnType | null | undefined,
+  ): Timestamp | undefined {
+    // For general queries, if the column name starts with 'ts' or ends with 'time_ns',
+    // try to convert its value to a timestamp.
+    if (!columnName.startsWith('ts') && !columnName.endsWith('time_ns')) {
+      return undefined;
+    }
+    return this.tryMakeTs(value);
+  }
+
+  private tryMakeTs(value: ColumnType | null | undefined) {
+    const numberValue = Number(value);
+    if (isNaN(numberValue) || numberValue <= 0) {
+      return undefined;
+    }
+    return this.makeTimestampStrategy(BigInt(numberValue));
   }
 
   private convertToLogFieldValue(value: ColumnType | null): LogFieldValue {
