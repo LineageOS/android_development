@@ -216,7 +216,7 @@ describe('HierarchyComponent', () => {
     warnings[1].checkTextExact('warning ' + warning2.message);
   });
 
-  it('shows warning tooltip if text overflowing', () => {
+  it('shows warning tooltip if text overflowing', async () => {
     const warning = makeWarningDuplicateLayerIds([123]);
     spyOn(component.nodeRows[0].node, 'getWarnings').and.returnValue([warning]);
     dom.detectChanges();
@@ -227,11 +227,11 @@ describe('HierarchyComponent', () => {
     const spy = spyOnProperty(msgEl, 'scrollWidth').and.returnValue(
       msgEl.clientWidth,
     );
-    checkTooltips([warningEl], [undefined]);
+    await checkTooltips([warningEl], [undefined]);
 
     spy.and.returnValue(msgEl.clientWidth + 1);
     dom.detectChanges();
-    checkTooltips([warningEl], [warning.message]);
+    await checkTooltips([warningEl], [warning.message]);
   });
 
   @Component({

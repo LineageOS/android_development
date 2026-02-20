@@ -623,11 +623,11 @@ describe('CollectTracesComponent', () => {
   it('changes host type on mat select change', async () => {
     await changeConnection(1);
     expect(component.controller?.getConnectionType()).toEqual(
-      AdbConnectionType.WDP,
+      AdbConnectionType.WINSCOPE_PROXY,
     );
     await changeConnection(0);
     expect(component.controller?.getConnectionType()).toEqual(
-      AdbConnectionType.WINSCOPE_PROXY,
+      AdbConnectionType.WDP,
     );
   });
 
@@ -638,7 +638,7 @@ describe('CollectTracesComponent', () => {
     newFixture.componentRef.setInput('storage', storage);
     await newDom.detectChangesAndWaitStable();
     expect(component.controller?.getConnectionType()).toEqual(
-      AdbConnectionType.WDP,
+      AdbConnectionType.WINSCOPE_PROXY,
     );
   });
 
@@ -674,14 +674,9 @@ describe('CollectTracesComponent', () => {
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
       fixture.componentRef.setInput('storage', storage);
       await dom.detectChangesAndWaitStable();
+      await dom.whenRenderingDone();
       component.state = ConnectionState.UNAUTH;
       dom.detectChanges();
-    });
-
-    it('defaults to winscope proxy host', () => {
-      expect(component.controller?.getConnectionType()).toEqual(
-        AdbConnectionType.WINSCOPE_PROXY,
-      );
     });
 
     it('displays proxy element if not adb success', () => {
@@ -718,8 +713,8 @@ describe('CollectTracesComponent', () => {
 
   describe('WdpHostConnection', () => {
     beforeEach(async () => {
-      storage.add('adbConnectionType', AdbConnectionType.WDP);
       fixture.destroy();
+      storage.clear('adbConnectionType');
       fixture = TestBed.createComponent(CollectTracesComponent);
       component = fixture.componentInstance;
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
@@ -727,6 +722,12 @@ describe('CollectTracesComponent', () => {
       await dom.detectChangesAndWaitStable();
       component.state = ConnectionState.UNAUTH;
       dom.detectChanges();
+    });
+
+    it('defaults to wdp host', () => {
+      expect(component.controller?.getConnectionType()).toEqual(
+        AdbConnectionType.WDP,
+      );
     });
 
     it('displays proxy element if not adb success', () => {
@@ -951,10 +952,8 @@ describe('CollectTracesComponent', () => {
   }
 
   async function changeConnection(index: number) {
-    await dom.openMatSelect();
-    await dom.whenRenderingDone();
-    const panel = dom.getMatSelectPanel();
-    panel.findAndClickByIndex('mat-option', index);
+    const selector = '.connection-tabs .mdc-tab__text-label';
+    await dom.clickByIndexAndWaitStable(selector, index);
   }
 
   async function changeTab(index: number) {

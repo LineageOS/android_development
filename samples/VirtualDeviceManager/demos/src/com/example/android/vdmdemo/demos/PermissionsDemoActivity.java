@@ -22,8 +22,11 @@ import android.companion.virtual.VirtualDevice;
 import android.companion.virtual.VirtualDeviceManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricManager;
+import android.hardware.biometrics.BiometricPrompt;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.view.View;
 import android.widget.TextView;
 
@@ -99,6 +102,44 @@ public final class PermissionsDemoActivity extends AppCompatActivity {
         revokeSelfPermissionsOnKill(Arrays.asList(DEVICE_AWARE_PERMISSIONS));
         revokeSelfPermissionsOnKill(Arrays.asList(NON_DEVICE_AWARE_PERMISSIONS));
         Snackbar.make(mLayout, "Restart app to take effect", Snackbar.LENGTH_SHORT).show();
+    }
+
+    /** Show biometric prompt. */
+    public void onShowBiometricPrompt(View view) {
+        final BiometricManager biometricManager = getSystemService(BiometricManager.class);
+        final int allowedAuthenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG
+                | BiometricManager.Authenticators.BIOMETRIC_WEAK
+                | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+
+        final int authAvailable = biometricManager.canAuthenticate(allowedAuthenticators);
+        if (authAvailable != BiometricManager.BIOMETRIC_SUCCESS) {
+            Snackbar.make(mLayout, "No biometrics available", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        final BiometricPrompt prompt = new BiometricPrompt.Builder(this)
+                .setTitle("VDM Biometric demo")
+                .setAllowedAuthenticators(allowedAuthenticators)
+                .build();
+
+        final var callback = new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                Snackbar.make(mLayout, errString, Snackbar.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                Snackbar.make(mLayout, "Authentication failed", Snackbar.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                Snackbar.make(mLayout, "Authentication success", Snackbar.LENGTH_SHORT).show();
+            }
+        };
+
+        prompt.authenticate(new CancellationSignal(), getMainExecutor(), callback);
     }
 
     private String parseGrantResults(String[] permissions, int[] grantResults) {

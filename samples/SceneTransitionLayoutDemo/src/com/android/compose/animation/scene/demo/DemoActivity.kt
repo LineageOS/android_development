@@ -39,13 +39,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.disableWindowInsetsRulers
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -63,8 +64,7 @@ class DemoActivity : ComponentActivity() {
     }
 
     init {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.areWindowInsetsRulersEnabled = false
+        @OptIn(ExperimentalComposeUiApi::class) ComposeView.disableWindowInsetsRulers()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
