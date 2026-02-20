@@ -33,7 +33,7 @@ import {ViewerTransactionsComponent} from './viewer_transactions_component';
 
 class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<ViewerTransactionsComponent> {
   protected override readonly testProperties = true;
-  protected override readonly hasCurrentTimeButton = true;
+  protected override readonly hasTimeControls = true;
   protected override readonly testScroll = true;
   protected override readonly initialEntries = 6;
   protected override readonly propertiesSectionTitle =

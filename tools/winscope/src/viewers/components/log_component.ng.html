@@ -31,38 +31,7 @@ limitations under the License.
     <div class="headers table-header">
       @if (showTraceEntryTimes) {
         <div class="time time-controls cell">
-          <button
-            color="primary"
-            mat-icon-button
-            class="time-button go-to-first-entry"
-            (click)="onGoToFirstEntryClick()"
-            matTooltip="Go to first entry"
-            matTooltipPosition="above"
-          >
-            <mat-icon>first_page</mat-icon>
-          </button>
-          @if (showCurrentTimeButton) {
-            <button
-              color="primary"
-              mat-icon-button
-              class="time-button go-to-current-entry"
-              (click)="onGoToCurrentEntryClick()"
-              matTooltip="Go to current entry"
-              matTooltipPosition="above"
-            >
-              <mat-icon>move_down</mat-icon>
-            </button>
-          }
-          <button
-            color="primary"
-            mat-icon-button
-            class="time-button go-to-last-entry"
-            (click)="onGoToLastEntryClick()"
-            matTooltip="Go to last entry"
-            matTooltipPosition="above"
-          >
-            <mat-icon>last_page</mat-icon>
-          </button>
+          <ng-container [ngTemplateOutlet]="timeControls"></ng-container>
         </div>
       }
       @for (header of headers; track $index) {
@@ -76,7 +45,31 @@ limitations under the License.
             [matTooltipDisabled]="disableHeaderTooltip(headerEl)"
             matTooltipPosition="above"
           >
-            {{ header.spec.name }}
+            @if (!showTraceEntryTimes && showTimeControls && $index === 0) {
+              <mat-icon
+                class="time-controls-trigger with-header-text"
+                color="primary"
+                [cdkMenuTriggerFor]="timeControlsMenu"
+                #menuTrigger="cdkMenuTriggerFor"
+                (mouseenter)="menuTrigger.open()"
+                [cdkMenuTriggerData]="{trigger: menuTrigger}"
+                [cdkMenuPosition]="[
+                  {originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom'},
+                ]"
+                >move_down</mat-icon
+              >
+
+              <ng-template let-trigger="trigger" #timeControlsMenu>
+                <div class="context-menu" (mouseleave)="trigger.close()" cdkMenu>
+                  <div class="context-menu-item-container">
+                    <span class="menu-item time-controls" [cdkMenuItemDisabled]="true" cdkMenuItem>
+                      <ng-container [ngTemplateOutlet]="timeControls"></ng-container>
+                    </span>
+                  </div>
+                </div>
+              </ng-template>
+            }
+            <span>{{ header.spec.name }}</span>
           </div>
         } @else if (hasFilter) {
           <div class="filter mat-body-2" [class]="header.spec.cssClass">
@@ -110,6 +103,40 @@ limitations under the License.
       }
     </div>
   }
+
+  <ng-template #timeControls>
+    <button
+      color="primary"
+      mat-icon-button
+      class="time-button go-to-first-entry"
+      (click)="onGoToFirstEntryClick()"
+      matTooltip="Go to first entry"
+      matTooltipPosition="above"
+    >
+      <mat-icon>first_page</mat-icon>
+    </button>
+    <button
+      color="primary"
+      mat-icon-button
+      class="time-button go-to-current-entry"
+      (click)="onGoToCurrentEntryClick()"
+      matTooltip="Go to current entry"
+      matTooltipPosition="above"
+    >
+      <mat-icon>move_down</mat-icon>
+    </button>
+    <button
+      color="primary"
+      mat-icon-button
+      class="time-button go-to-last-entry"
+      (click)="onGoToLastEntryClick()"
+      matTooltip="Go to last entry"
+      matTooltipPosition="above"
+    >
+      <mat-icon>last_page</mat-icon>
+    </button>
+  </ng-template>
+
   @if (!isFetchingData && entries.length === 0) {
     <div class="placeholder-text mat-body-1">No entries found.</div>
   }

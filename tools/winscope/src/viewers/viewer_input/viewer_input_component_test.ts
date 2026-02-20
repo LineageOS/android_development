@@ -36,7 +36,7 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
   protected override readonly testProperties = true;
   protected override readonly testScroll = true;
   protected override readonly initialEntries = 30;
-  protected override readonly hasCurrentTimeButton = false;
+  protected override readonly hasTimeControls = false;
   protected override readonly propertiesSectionTitle = 'EVENT DETAILS';
   protected override readonly propertiesPlaceholder = 'No selected entry.';
 

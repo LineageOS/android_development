@@ -30,7 +30,7 @@ import {ViewerTransitionsComponent} from './viewer_transitions_component';
 
 class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<ViewerTransitionsComponent> {
   protected override readonly testProperties = true;
-  protected override readonly hasCurrentTimeButton = false;
+  protected override readonly hasTimeControls = true;
   protected override readonly testScroll = true;
   protected override readonly initialEntries = 6;
   protected override readonly propertiesSectionTitle = 'SELECTED TRANSITION';
@@ -73,7 +73,10 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
       transitions.push(this.createMockTransition(entry, i));
     }
     const uiData = UiData.createEmpty();
-    uiData.headers = [new LogHeader(this.testSpec, new LogSelectFilter([]))];
+    uiData.headers = [
+      new LogHeader(this.testSpec),
+      new LogHeader(this.testSpec, new LogSelectFilter([])),
+    ];
     uiData.entries = transitions;
     uiData.selectedIndex = 0;
 
