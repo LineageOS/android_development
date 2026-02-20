@@ -60,7 +60,7 @@ CUSTOM_MODULE_CRATES = {
 RENAME_STEM_MAP = {
     # This map includes all changes to the default rust module stem names,
     # which is used for output files when different from the module name.
-    "protoc_gen_rust": "protoc-gen-rust",
+    "protoc_gen_rust": "protoc-gen-rs",
 }
 
 # Header added to all generated rules.mk files.
