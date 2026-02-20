@@ -52,7 +52,7 @@ import {
 } from '@tree_node/property_tree_node';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {getLogger, Logger} from '@compat/logging';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 
 /**
  * Parser for Transitions Perfetto traces.

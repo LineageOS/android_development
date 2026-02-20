@@ -26,7 +26,7 @@ import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';

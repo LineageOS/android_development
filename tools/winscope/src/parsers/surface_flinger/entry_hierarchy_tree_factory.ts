@@ -43,7 +43,7 @@ import {
 } from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {ZOrderPathsComputation} from './computations/z_order_paths_computation';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';

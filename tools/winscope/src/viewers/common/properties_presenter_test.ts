@@ -24,7 +24,7 @@ import {TextFilter} from '@viewers/common/text_filter';
 import {DiffType} from './diff_type';
 import {PropertiesPresenter} from './properties_presenter';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 
 describe('PropertiesPresenter', () => {
   const pTree = new PropertyTreeBuilder()

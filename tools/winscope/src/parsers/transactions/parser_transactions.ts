@@ -55,7 +55,7 @@ import {
   PropertyFormatter,
   PropertyTreeNode,
 } from '@tree_node/property_tree_node';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {

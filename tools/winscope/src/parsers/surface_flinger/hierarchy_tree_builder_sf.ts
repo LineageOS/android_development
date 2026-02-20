@@ -22,7 +22,7 @@ import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 
 export class HierarchyTreeBuilderSf extends HierarchyTreeBuilder<bigint> {
   protected override buildIdentifierToChildrenMap(
