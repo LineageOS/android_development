@@ -46,6 +46,7 @@ export class VideoFrameCache {
 
   private currPlaybackState = PlaybackState.FORWARDS;
   private updatingCache = false;
+  private videoCacheStall = false;
 
   constructor(webCodecData: WebCodecData) {
     this.webCodecData = webCodecData;
@@ -248,7 +249,10 @@ export class VideoFrameCache {
       if (isRetry) {
         throw e;
       }
-      UserNotifier.add(makeWarningVideoFrameCacheStall()).notify();
+      if (!this.videoCacheStall) {
+        UserNotifier.add(makeWarningVideoFrameCacheStall()).notify();
+        this.videoCacheStall = true;
+      }
       this.reset();
       this.get(target, this.currPlaybackState);
       return this.waitForTargetInCache(target, range, true);
