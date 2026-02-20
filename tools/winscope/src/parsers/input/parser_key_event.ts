@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {InputEventType} from '@trace/input/input_event_type';
 import {TraceType} from '@trace_api/trace_type';
 

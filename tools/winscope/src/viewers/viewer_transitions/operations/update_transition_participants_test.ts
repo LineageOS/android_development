@@ -16,7 +16,7 @@
 
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {UpdateTransitionParticipants} from './update_transition_participants';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 
 describe('UpdateTransitionParticipants', () => {
   let operation: UpdateTransitionParticipants;

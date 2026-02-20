@@ -27,7 +27,7 @@ import {queryArgs, queryVsyncId} from '@parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {EnumFormatter} from '@trace/formatters';
 import {InputEventType} from '@trace/input/input_event_type';
 import {

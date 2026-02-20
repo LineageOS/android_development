@@ -39,7 +39,7 @@ import {TransitionStatus} from '@trace/transitions/status';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TransitionTimelineComponent} from './transition_timeline_component';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('TransitionTimelineComponent', () => {
