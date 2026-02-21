@@ -20,7 +20,7 @@ import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_l
 import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';

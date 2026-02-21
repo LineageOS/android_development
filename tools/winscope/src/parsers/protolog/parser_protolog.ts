@@ -20,7 +20,7 @@ import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {getDistinctValues} from '@parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
 import {
   CustomQueryParamTypeMap,

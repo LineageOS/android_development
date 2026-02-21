@@ -93,7 +93,7 @@ describe('PerfettoParserMotionEvent', () => {
     );
   });
 
-  it('transforms fake key event proto built from trace processor args', async () => {
+  it('transforms fake motion event proto built from trace processor args', async () => {
     const entry = await parser.getEntry(0);
 
     const properties = await entry.getAllProperties();
@@ -166,7 +166,33 @@ describe('PerfettoParserMotionEvent', () => {
     ).toBe(624);
   });
 
-  it('merges key event with all associated dispatch events', async () => {
+  it('transforms nanosecond fields into timestamps', async () => {
+    const entry = await parser.getEntry(0);
+
+    const properties = await entry.getAllProperties();
+    const motionEvent = assertDefined(properties.getChildByName('event'));
+
+    expect(motionEvent.getChildByName('kernelTime')?.getValue()).toEqual(
+      makeRealTimestamp(1718386903791203081n),
+    );
+    expect(motionEvent.getChildByName('downTime')?.getValue()).toEqual(
+      makeRealTimestamp(1718386903791203081n),
+    );
+  });
+
+  it('renames eventTimeNanos to kernelTimeNanos', async () => {
+    const entry = await parser.getEntry(0);
+
+    const properties = await entry.getAllProperties();
+    const motionEvent = assertDefined(properties.getChildByName('event'));
+
+    expect(motionEvent.getChildByName('eventTimeNanos')).toBeUndefined();
+    expect(motionEvent.getChildByName('kernelTimeNanos')?.getValue()).toEqual(
+      517481507875000n,
+    );
+  });
+
+  it('merges motion event with all associated dispatch events', async () => {
     const entry = await parser.getEntry(0);
     const properties = await entry.getAllProperties();
 

@@ -33,7 +33,7 @@ import {TraceRect} from '@tree_node/trace_rect';
 import {extractRect} from './rect_extractor';
 import {UINT32_MAX} from '@common/math';
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 

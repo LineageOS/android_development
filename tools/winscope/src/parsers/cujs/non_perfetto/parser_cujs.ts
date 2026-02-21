@@ -25,7 +25,7 @@ import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder'
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {SetFormatters} from '@parsers/helpers/set_formatters';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {CUJ_TYPE_FORMATTER} from '@trace/formatters';
 import {Cuj} from './cuj';
 import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
