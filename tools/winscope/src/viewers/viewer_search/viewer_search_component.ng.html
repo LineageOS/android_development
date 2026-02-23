@@ -165,9 +165,7 @@ limitations under the License.
                   [showCurrentTimeButton]="false"
                   [padEntries]="false"
                   [isFetchingData]="curr.result?.isFetchingData ?? false"
-                  [checkScrollViewport]="
-                    curr.result?.checkScrollViewport || checkScrollViewport === $index
-                  "
+                  [checkScrollViewportCount]="curr.result?.checkScrollViewportCount ?? 0"
                 ></log-view>
               </div>
             </div>

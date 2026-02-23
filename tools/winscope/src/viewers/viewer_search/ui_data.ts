@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
+import {LogEntry, LogHeader, UiDataLog} from '@viewers/common/ui_data_log';
 
 export class UiData {
   currentSearches: CurrentSearch[] = [];
@@ -37,12 +37,12 @@ export class CurrentSearch {
   ) {}
 }
 
-export class SearchResult {
+export class SearchResult implements UiDataLog {
   selectedIndex: undefined | number;
   scrollToIndex: undefined | number;
   currentIndex: undefined | number;
   isFetchingData = false;
-  checkScrollViewport = false;
+  checkScrollViewportCount = 0;
 
   constructor(
     readonly headers: LogHeader[],

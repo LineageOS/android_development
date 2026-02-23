@@ -28,6 +28,7 @@ import {
   Inject,
   Input,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
@@ -107,7 +108,7 @@ export class LogComponent {
   @Input() showTraceEntryTimes = true;
   @Input() padEntries = true;
   @Input() isFetchingData = false;
-  @Input() checkScrollViewport = false;
+  @Input() checkScrollViewportCount = 0;
 
   @Output() collapseButtonClicked = new EventEmitter();
 
@@ -115,7 +116,7 @@ export class LogComponent {
   scrollComponent?: CdkVirtualScrollViewport;
 
   constructor(
-    @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
+    @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
   ) {}
 
   isHeaderWithFilter(header: LogHeader): boolean {
@@ -169,8 +170,8 @@ export class LogComponent {
     return timestamp.format();
   }
 
-  ngOnChanges() {
-    if (this.checkScrollViewport) {
+  ngOnChanges(simpleChanges: SimpleChanges) {
+    if (simpleChanges['checkScrollViewportCount']?.currentValue) {
       this.scrollComponent?.checkViewportSize();
     }
     if (

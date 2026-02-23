@@ -33,7 +33,7 @@ export class UiData implements UiDataLog {
   ) {}
 
   isFetchingData = false;
-  checkScrollViewport = false;
+  checkScrollViewportCount = 0;
 
   static createEmpty(): UiData {
     return new UiData([], [], undefined, undefined, undefined);

@@ -180,9 +180,8 @@ export abstract class AbstractLogViewerPresenter<
   private async onActiveTraceChanged(event: ActiveTraceChanged) {
     this.activeTrace = event.trace;
     if (this.activeTrace === this.trace) {
-      this.uiData.checkScrollViewport = true;
+      this.uiData.checkScrollViewportCount++;
       this.notifyViewChanged();
-      this.uiData.checkScrollViewport = false;
     }
   }
 

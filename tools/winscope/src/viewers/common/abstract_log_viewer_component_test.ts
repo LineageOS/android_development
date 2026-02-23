@@ -117,13 +117,13 @@ export abstract class AbstractLogViewerComponentTest<
         it('passes data to log component', () => {
           const logComponent = assertDefined(component.logComponent);
           expect(logComponent.isFetchingData).toBeFalse();
-          expect(logComponent.checkScrollViewport).toBeFalse();
+          expect(logComponent.checkScrollViewportCount).toBe(0);
           expect(logComponent.selectedIndex).not.toBe(10);
           expect(logComponent.scrollToIndex).not.toBe(20);
           expect(logComponent.currentIndex).not.toBe(30);
 
           const inputData = assertDefined(component.inputData);
-          inputData.checkScrollViewport = true;
+          inputData.checkScrollViewportCount = 1;
           inputData.isFetchingData = true;
           inputData.selectedIndex = 10;
           inputData.scrollToIndex = 20;
@@ -131,7 +131,7 @@ export abstract class AbstractLogViewerComponentTest<
           dom.detectChanges();
 
           expect(logComponent.isFetchingData).toBeTrue();
-          expect(logComponent.checkScrollViewport).toBeTrue();
+          expect(logComponent.checkScrollViewportCount).toBe(1);
           expect(logComponent.selectedIndex).toBe(10);
           expect(logComponent.scrollToIndex).toBe(20);
           expect(logComponent.currentIndex).toBe(30);
