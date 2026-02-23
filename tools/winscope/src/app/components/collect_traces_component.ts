@@ -131,6 +131,7 @@ export class CollectTracesComponent
   controller: TraceCollectionController | undefined;
   state = ConnectionState.CONNECTING;
   errorText = '';
+  isChangingConnection = false;
 
   readonly storeKeyPrefixTraceConfig = 'TraceSettings.';
   readonly storeKeyPrefixDumpConfig = 'DumpSettings.';
@@ -175,7 +176,7 @@ export class CollectTracesComponent
     }
   }
 
-  getConnectionType() {
+  getConnectionType(): AdbConnectionType | undefined {
     return this.controller?.getConnectionType();
   }
 
@@ -190,7 +191,14 @@ export class CollectTracesComponent
   }
 
   async onConnectionChange(adbConnectionType: string) {
-    this.changeHostConnection(adbConnectionType);
+    this.isChangingConnection = true;
+    this.changeDetectorRef.detectChanges();
+    await this.changeHostConnection(adbConnectionType);
+  }
+
+  onConnectionTabAnimationDone() {
+    this.isChangingConnection = false;
+    this.changeDetectorRef.detectChanges();
   }
 
   onDeviceClick(device: AdbDeviceConnection) {
@@ -328,7 +336,7 @@ export class CollectTracesComponent
   }
 
   adbSuccess() {
-    return !this.notConnected.includes(this.state);
+    return this.isChangingConnection || !this.notConnected.includes(this.state);
   }
 
   async startTracing() {

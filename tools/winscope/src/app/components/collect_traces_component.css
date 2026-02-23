@@ -72,6 +72,11 @@ winscope-proxy-setup,
   gap: 10px;
 }
 
+.changing-connection-progress {
+  display: flex;
+  flex-direction: column;
+}
+
 .trace-section,
 .dump-section,
 .tracing-progress {
