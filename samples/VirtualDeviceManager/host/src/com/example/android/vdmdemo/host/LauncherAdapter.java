@@ -18,16 +18,16 @@ package com.example.android.vdmdemo.host;
 
 import android.app.WallpaperColors;
 import android.app.WallpaperManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.ResolveInfoFlags;
-import android.content.pm.ResolveInfo;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.os.Process;
+import android.os.UserHandle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,10 +44,11 @@ final class LauncherAdapter extends BaseAdapter {
     private static final Intent LAUNCHER_INTENT =
             new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
 
-    private final List<ResolveInfo> mAvailableApps = new ArrayList<>();
+    private final List<LauncherActivityInfo> mAvailableApps = new ArrayList<>();
     private final Context mContext;
     private final PreferenceController mPreferenceController;
     private int mTextColor = Color.BLACK;
+    private UserHandle mUser = Process.myUserHandle();
 
     LauncherAdapter(Context context, PreferenceController preferenceController) {
         this(context, preferenceController, null);
@@ -69,7 +70,16 @@ final class LauncherAdapter extends BaseAdapter {
         buildAppList();
     }
 
-    public void update() {
+    void setUser(UserHandle user) {
+        mUser = user;
+        update();
+    }
+
+    UserHandle getUser() {
+        return mUser;
+    }
+
+    void update() {
         buildAppList();
         notifyDataSetChanged();
     }
@@ -80,18 +90,13 @@ final class LauncherAdapter extends BaseAdapter {
             requiredDisplayCategory = mContext.getString(R.string.display_category);
         }
 
-        Intent launchIntent = new Intent(LAUNCHER_INTENT);
-        if (requiredDisplayCategory != null) {
-            launchIntent.addCategory(requiredDisplayCategory);
-        }
-
+        LauncherApps launcherApps = mContext.getSystemService(LauncherApps.class);
         mAvailableApps.clear();
-        for (ResolveInfo resolveInfo : mContext.getPackageManager().queryIntentActivities(
-                launchIntent, ResolveInfoFlags.of(PackageManager.MATCH_ALL))) {
+        for (LauncherActivityInfo info : launcherApps.getActivityList(null, mUser)) {
             // Note: this filtering is not necessary after Android V.
-            if (resolveInfo.activityInfo != null && Objects.equals(
-                    resolveInfo.activityInfo.requiredDisplayCategory, requiredDisplayCategory)) {
-                mAvailableApps.add(resolveInfo);
+            if (info.getActivityInfo() != null && Objects.equals(
+                    info.getActivityInfo().requiredDisplayCategory, requiredDisplayCategory)) {
+                mAvailableApps.add(info);
             }
         }
     }
@@ -113,8 +118,8 @@ final class LauncherAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final ResolveInfo ri = mAvailableApps.get(position);
-        final Drawable img = ri.loadIcon(mContext.getPackageManager());
+        final LauncherActivityInfo info = mAvailableApps.get(position);
+        final Drawable img = info.getIcon(0);
         if (convertView == null) {
             convertView =
                     LayoutInflater.from(parent.getContext())
@@ -126,7 +131,7 @@ final class LauncherAdapter extends BaseAdapter {
         imageView.setImageDrawable(img);
 
         TextView textView = convertView.requireViewById(R.id.app_title);
-        textView.setText(ri.loadLabel(mContext.getPackageManager()));
+        textView.setText(info.getLabel());
         textView.setTextColor(mTextColor);
         return convertView;
     }
@@ -135,12 +140,12 @@ final class LauncherAdapter extends BaseAdapter {
         if (position >= mAvailableApps.size()) {
             return null;
         }
-        ResolveInfo ri = mAvailableApps.get(position);
-        if (ri == null) {
+        LauncherActivityInfo info = mAvailableApps.get(position);
+        if (info == null) {
             return null;
         }
         return new Intent(LAUNCHER_INTENT)
-                .setComponent(new ComponentName(ri.activityInfo.packageName, ri.activityInfo.name))
+                .setComponent(info.getComponentName())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
 }

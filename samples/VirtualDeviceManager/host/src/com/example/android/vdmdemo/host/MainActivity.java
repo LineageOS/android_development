@@ -19,24 +19,32 @@ package com.example.android.vdmdemo.host;
 import android.Manifest;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.Spinner;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -45,6 +53,8 @@ import com.example.android.vdmdemo.common.EdgeToEdgeUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
@@ -58,6 +68,7 @@ public class MainActivity extends Hilt_MainActivity {
 
     private VdmService mVdmService = null;
     private GridView mLauncher = null;
+    private Spinner mUserSpinner = null;
     private Button mHomeDisplayButton = null;
     private Button mMirrorDisplayButton = null;
     private Button mDesktopDisplayButton = null;
@@ -94,6 +105,13 @@ public class MainActivity extends Hilt_MainActivity {
                 }
             };
 
+    private final BroadcastReceiver mUserReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUserList();
+        }
+    };
+
     @Inject
     PreferenceController mPreferenceController;
 
@@ -124,7 +142,7 @@ public class MainActivity extends Hilt_MainActivity {
                     if (intent == null || mVdmService == null) {
                         return;
                     }
-                    mVdmService.startStreaming(intent);
+                    mVdmService.startStreaming(intent, mLauncherAdapter.getUser());
                 });
         mLauncher.setOnItemLongClickListener(
                 (parent, v, position, id) -> {
@@ -149,14 +167,25 @@ public class MainActivity extends Hilt_MainActivity {
                                     .setLaunchDisplayId(Display.DEFAULT_DISPLAY)
                                     .toBundle());
                         } else if (which == remoteDisplayIds.length) {
-                            mVdmService.startStreaming(intent);
+                            mVdmService.startStreaming(intent, mLauncherAdapter.getUser());
                         } else {
-                            mVdmService.startIntentOnDisplayIndex(intent, which);
+                            mVdmService.startIntentOnDisplayIndex(intent,
+                                    mLauncherAdapter.getUser(), which);
                         }
                     });
                     alertDialogBuilder.show();
                     return true;
                 });
+
+        mUserSpinner = requireViewById(R.id.user_spinner);
+        updateUserList();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_USER_ADDED);
+        filter.addAction(Intent.ACTION_USER_REMOVED);
+        filter.addAction(Intent.ACTION_MANAGED_PROFILE_ADDED);
+        filter.addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED);
+        registerReceiver(mUserReceiver, filter, Context.RECEIVER_EXPORTED);
     }
 
     @Override
@@ -181,6 +210,12 @@ public class MainActivity extends Hilt_MainActivity {
             mVdmService.removeVirtualDeviceListener(mVirtualDeviceListener);
         }
         unbindService(mServiceConnection);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mUserReceiver);
     }
 
     private void attemptStartVdmService() {
@@ -236,6 +271,35 @@ public class MainActivity extends Hilt_MainActivity {
                 });
     }
 
+    private void updateUserList() {
+        UserManager userManager = getSystemService(UserManager.class);
+        List<UserHandle> userProfiles = userManager.getUserProfiles();
+        if (userProfiles.size() > 1) {
+            List<UserItem> userItems = new ArrayList<>(userProfiles.size());
+            for (UserHandle userHandle : userProfiles) {
+                userItems.add(new UserItem(userHandle, userManager));
+            }
+            ArrayAdapter<UserItem> adapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, userItems);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mUserSpinner.setAdapter(adapter);
+            mUserSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position,
+                        long id) {
+                    mLauncherAdapter.setUser(userItems.get(position).mUserHandle);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+            mUserSpinner.setVisibility(View.VISIBLE);
+        } else {
+            mUserSpinner.setVisibility(View.GONE);
+        }
+    }
+
     /** Process a home display request. */
     public void onCreateHomeDisplay(View view) {
         mVdmService.startStreamingHome();
@@ -269,6 +333,26 @@ public class MainActivity extends Hilt_MainActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private static final class UserItem {
+        final UserHandle mUserHandle;
+        private final String mLabel;
+
+        UserItem(UserHandle userHandle, UserManager userManager) {
+            this.mUserHandle = userHandle;
+            String name = "User " + userHandle.getIdentifier();
+            if (userManager.isManagedProfile(userHandle.getIdentifier())) {
+                name += " (Work)";
+            }
+            mLabel = name;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return mLabel;
         }
     }
 }

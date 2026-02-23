@@ -1,5 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha08" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha08">
+<issues format="6" by="lint 8.13.0-alpha04" type="baseline" client="" dependencies="true" name="" variant="all" version="8.13.0-alpha04">
+
+    <issue
+        id="FlaggedApi"
+        message="Method `requestPermissions()` is a flagged API and should be inside an `if (flags.deviceAwarePermissionApisEnabled())` check (or annotate the surrounding method `onRequestPermissions` with `@FlaggedApi(flags.device_aware_permission_apis_enabled) to transfer requirement to caller`)"
+        errorLine1="            requestPermissions(DEVICE_AWARE_PERMISSIONS, REQUEST_CODE_PERMISSIONS,"
+        errorLine2="            ^">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/PermissionsDemoActivity.java"
+            line="92"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `requestPermissions()` is a flagged API and should be inside an `if (flags.deviceAwarePermissionApisEnabled())` check (or annotate the surrounding method `onRequestPermissions` with `@FlaggedApi(flags.device_aware_permission_apis_enabled) to transfer requirement to caller`)"
+        errorLine1="            requestPermissions(NON_DEVICE_AWARE_PERMISSIONS, REQUEST_CODE_PERMISSIONS,"
+        errorLine2="            ^">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/PermissionsDemoActivity.java"
+            line="95"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getScrollFrictionAmount()` is a flagged API and should be inside an `if (flags.viewconfigurationApis())` check (or annotate the surrounding method `onCreate` with `@FlaggedApi(flags.viewconfiguration_apis) to transfer requirement to caller`)"
+        errorLine1="                    &quot;Scroll Friction: &quot; + vc.getScrollFrictionAmount());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="46"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getDoubleTapTimeoutMillis()` is a flagged API and should be inside an `if (flags.viewconfigurationApis())` check (or annotate the surrounding method `onCreate` with `@FlaggedApi(flags.viewconfiguration_apis) to transfer requirement to caller`)"
+        errorLine1="                    &quot;Double Tap Timeout (millis): &quot; + vc.getDoubleTapTimeoutMillis());"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="48"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getTapTimeoutMillis()` is a flagged API and should be inside an `if (flags.viewconfigurationApis())` check (or annotate the surrounding method `onCreate` with `@FlaggedApi(flags.viewconfiguration_apis) to transfer requirement to caller`)"
+        errorLine1="                    &quot;Tap Timeout (millis): &quot; + vc.getTapTimeoutMillis());"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="50"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getLongPressTimeoutMillis()` is a flagged API and should be inside an `if (flags.viewconfigurationApis())` check (or annotate the surrounding method `onCreate` with `@FlaggedApi(flags.viewconfiguration_apis) to transfer requirement to caller`)"
+        errorLine1="                    &quot;Long Press Timeout (millis): &quot; + vc.getLongPressTimeoutMillis());"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="52"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getMultiPressTimeoutMillis()` is a flagged API and should be inside an `if (flags.viewconfigurationApis())` check (or annotate the surrounding method `onCreate` with `@FlaggedApi(flags.viewconfiguration_apis) to transfer requirement to caller`)"
+        errorLine1="                    &quot;Multi Press Timeout (millis): &quot; + vc.getMultiPressTimeoutMillis());"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="54"
+            column="56"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -8,7 +85,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/PermissionsDemoActivity.java"
-            line="89"
+            line="92"
             column="13"/>
     </issue>
 
@@ -19,7 +96,359 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/PermissionsDemoActivity.java"
-            line="92"
+            line="95"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="PictureInPictureIssue"
+        message="An activity in this app supports picture-in-picture and the targetSdkVersion is 31 or above; it is therefore strongly recommended to call both `setAutoEnterEnabled(true)` and `setSourceRectHint(...)`"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="./out/soong/.intermediates/development/samples/VirtualDeviceManager/VdmDemos/android_common/manifest_merger/AndroidManifest.xml"
+            line="33"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SelectedPhotoAccess"
+        message="Your app is currently not handling Selected Photos Access introduced in Android 14+"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.READ_MEDIA_IMAGES&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="./out/soong/.intermediates/development/samples/VirtualDeviceManager/VdmDemos/android_common/manifest_merger/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of `scheduleAtFixedRate` is strongly discouraged because it can lead to unexpected behavior when Android processes become cached (tasks may unexpectedly execute hundreds or thousands of times in quick succession when a process changes from cached to uncached); prefer using `scheduleWithFixedDelay`"
+        errorLine1="                mExecutor.scheduleAtFixedRate("
+        errorLine2="                ^">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/LatencyDemoActivity.java"
+            line="48"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of `scheduleAtFixedRate` is strongly discouraged because it can lead to unexpected behavior when Android processes become cached (tasks may unexpectedly execute hundreds or thousands of times in quick succession when a process changes from cached to uncached); prefer using `scheduleWithFixedDelay`"
+        errorLine1="                mExecutor.scheduleAtFixedRate("
+        errorLine2="                ^">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/LatencyDemoActivity.java"
+            line="48"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SystemPermissionTypo"
+        message="Did you mean `android.permission.POST_NOTIFICATIONS`?"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.POST_NOTIFICATION&quot; />"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="./out/soong/.intermediates/development/samples/VirtualDeviceManager/VdmDemos/android_common/manifest_merger/AndroidManifest.xml"
+            line="23"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="Wakelock"
+        message="Wakelocks should be released in `onPause`, not `onDestroy`"
+        errorLine1="            mProximityWakeLock.release();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/DisplayPowerDemoActivity.java"
+            line="87"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="WakelockTimeout"
+        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
+        errorLine1="                    mProximityWakeLock.acquire();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/DisplayPowerDemoActivity.java"
+            line="58"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="MissingApplicationIcon"
+        message="Should explicitly set `android:icon`, there is no default"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="./out/soong/.intermediates/development/samples/VirtualDeviceManager/VdmDemos/android_common/manifest_merger/AndroidManifest.xml"
+            line="33"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `StylusDrawingView` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/StylusDrawingView.java"
+            line="103"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Number formatting does not take into account locale settings. Consider using `String.format` instead."
+        errorLine1="                mTemperature.setText(Float.toString(info.floatValues[0]));"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/SensorDemoActivity.java"
+            line="71"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                &quot;Touch Slop (pixels): &quot; + vc.getScaledTouchSlop());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="38"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                &quot;Touch Slop (pixels): &quot; + vc.getScaledTouchSlop());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="38"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                &quot;Min Fling Velocity (pixels per second): &quot; + vc.getScaledMinimumFlingVelocity());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="40"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                &quot;Min Fling Velocity (pixels per second): &quot; + vc.getScaledMinimumFlingVelocity());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="40"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                &quot;Max Fling Velocity (pixels per second): &quot; + vc.getScaledMaximumFlingVelocity());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="42"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                &quot;Max Fling Velocity (pixels per second): &quot; + vc.getScaledMaximumFlingVelocity());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="42"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                    &quot;Scroll Friction: &quot; + vc.getScrollFrictionAmount());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="46"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    &quot;Scroll Friction: &quot; + vc.getScrollFrictionAmount());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="46"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                    &quot;Double Tap Timeout (millis): &quot; + vc.getDoubleTapTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="48"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    &quot;Double Tap Timeout (millis): &quot; + vc.getDoubleTapTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="48"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                    &quot;Tap Timeout (millis): &quot; + vc.getTapTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="50"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    &quot;Tap Timeout (millis): &quot; + vc.getTapTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="50"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                    &quot;Long Press Timeout (millis): &quot; + vc.getLongPressTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="52"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    &quot;Long Press Timeout (millis): &quot; + vc.getLongPressTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="52"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                    &quot;Multi Press Timeout (millis): &quot; + vc.getMultiPressTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="54"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    &quot;Multi Press Timeout (millis): &quot; + vc.getMultiPressTimeoutMillis());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/src/com/example/android/vdmdemo/demos/ViewConfigurationDemoActivity.java"
+            line="54"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Proximity Lock&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Proximity Lock&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/res/layout/display_power_demo_activity.xml"
+            line="13"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Keep Screen On&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Keep Screen On&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/res/layout/display_power_demo_activity.xml"
+            line="20"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Override Screen Brightness&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Override Screen Brightness&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/res/layout/display_power_demo_activity.xml"
+            line="27"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Launch Turn Screen On Activity&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Launch Turn Screen On Activity&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/res/layout/display_power_demo_activity.xml"
+            line="43"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Launch Turn Screen On Show When Locked Activity&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Launch Turn Screen On Show When Locked Activity&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/res/layout/display_power_demo_activity.xml"
+            line="49"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Internal Sensor Temperature&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Internal Sensor Temperature&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="development/samples/VirtualDeviceManager/demos/res/layout/sensor_demo_activity.xml"
+            line="49"
             column="13"/>
     </issue>
 
