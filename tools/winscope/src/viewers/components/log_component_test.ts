@@ -394,11 +394,11 @@ describe('LogComponent', () => {
       'checkViewportSize',
     ).and.callThrough();
 
-    component.checkScrollViewport = true;
+    component.checkScrollViewportCount = 1;
     dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
 
-    component.checkScrollViewport = false;
+    component.checkScrollViewportCount = 0;
     dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
   });
@@ -576,7 +576,7 @@ describe('LogComponent', () => {
           [scrollToIndex]="scrollToIndex"
           [traceType]="traceType"
           [isFetchingData]="isFetchingData"
-          [checkScrollViewport]="checkScrollViewport"
+          [checkScrollViewportCount]="checkScrollViewportCount"
         ></log-view>
       `,
   })
@@ -588,7 +588,7 @@ describe('LogComponent', () => {
     headers: LogHeader[] = [];
     traceType: TraceType | undefined;
     isFetchingData = false;
-    checkScrollViewport = false;
+    checkScrollViewportCount = 0;
 
     @ViewChild(LogComponent) logComponent: LogComponent | undefined;
   }

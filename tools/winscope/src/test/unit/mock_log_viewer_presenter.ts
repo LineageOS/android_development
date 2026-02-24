@@ -154,7 +154,7 @@ the default for its data type.`,
 
 export class MockData implements UiDataLog {
   isFetchingData = false;
-  checkScrollViewport = false;
+  checkScrollViewportCount = 0;
 
   constructor(
     public headers: LogHeader[],

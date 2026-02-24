@@ -142,7 +142,6 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   private runFromOptions = false;
   private editFromOptions = false;
   private globalSearchTitleHeight = 48;
-  checkScrollViewport = -1;
 
   private readonly editOption: ListItemOption = {
     name: 'Edit',
@@ -317,9 +316,11 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   }
 
   onResultTabChange(event: MatTabChangeEvent) {
-    this.checkScrollViewport = event.index;
-    this.changeDetectorRef.detectChanges();
-    this.checkScrollViewport = -1;
+    const res = this.getCurrentSearchesWithResults().at(event.index)?.result;
+    if (!res) {
+      return;
+    }
+    res.checkScrollViewportCount++;
   }
 
   exportToCsv(search: CurrentSearch, download = downloadFromUrl) {

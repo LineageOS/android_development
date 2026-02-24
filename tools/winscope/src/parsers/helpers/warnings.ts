@@ -154,6 +154,6 @@ export function makeWarningTraceSearchQueryFailed(errorMessage: string) {
 export function makeWarningVideoFrameCacheStall() {
   return new UserWarning(
     'video frame cache stall',
-    'Failed to fully load screen recording due to browser constraints. Trying again.',
+    `Failed to fully load screen recording due to browser constraints.\nIf using Chrome, disable "Hardware-accelerated video decode" at chrome://flags and reload Winscope.`,
   );
 }

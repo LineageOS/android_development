@@ -557,7 +557,7 @@ describe('AbstractLogViewerPresenter', () => {
     expect(uiData.propertiesFilter).toBeDefined();
   });
 
-  it('changes checkScrollViewport flag on active trace change', async () => {
+  it('increments checkScrollViewportCount on active trace change', async () => {
     let copiedUiData: UiDataLog | undefined;
     const presenterWithCopyCallback = new MockPresenter(
       trace,
@@ -566,14 +566,16 @@ describe('AbstractLogViewerPresenter', () => {
         copiedUiData = Object.assign({}, newData);
       },
     );
-    expect(copiedUiData?.checkScrollViewport).toBeFalse();
+    expect(copiedUiData?.checkScrollViewportCount).toBe(0);
     await presenterWithCopyCallback.onAppEvent(new ActiveTraceChanged(trace));
-    expect(copiedUiData?.checkScrollViewport).toBeTrue();
+    expect(copiedUiData?.checkScrollViewportCount).toBe(1);
 
-    // changes flag back to false on original data
-    expect(uiData.checkScrollViewport).toBeFalse();
-    await presenterWithCopyCallback.onAppEvent(new ActiveTraceChanged(trace));
-    expect(uiData.checkScrollViewport).toBeFalse();
+    // does not increment if different trace set as active
+    const newTrace = makeEmptyTrace(TraceType.TRANSACTIONS);
+    await presenterWithCopyCallback.onAppEvent(
+      new ActiveTraceChanged(newTrace),
+    );
+    expect(copiedUiData?.checkScrollViewportCount).toBe(1);
   });
 
   function makeElement(): HTMLElement {
