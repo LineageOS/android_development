@@ -17,16 +17,19 @@
 export async function waitToBeCalled(
   spy: jasmine.Spy,
   times: number = 1,
+  checks?: () => void,
   timeout = 10000,
 ) {
   return new Promise<void>((resolve, reject) => {
     let called = spy.calls.count();
     if (called >= times) {
+      checks?.();
       resolve();
     }
     spy.and.callThrough().and.callFake(() => {
       called++;
       if (called === times) {
+        checks?.();
         resolve();
       }
     });

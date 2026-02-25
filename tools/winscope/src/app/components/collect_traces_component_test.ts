@@ -30,7 +30,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
-import {MatTabsModule} from '@angular/material/tabs';
+import {MatTabGroup, MatTabsModule} from '@angular/material/tabs';
 import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
@@ -63,6 +63,8 @@ import {TraceConfigComponent} from './trace_config_component';
 import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
+import {By} from '@angular/platform-browser';
+import {waitToBeCalled} from '@test/unit/spy_utils';
 
 describe('CollectTracesComponent', () => {
   let component: CollectTracesComponent;
@@ -231,7 +233,7 @@ describe('CollectTracesComponent', () => {
     traceSection.get('trace-config').checkText('Trace targets');
     traceSection.get('.start-btn').checkText('Start trace');
 
-    await changeTab(1);
+    await changeConfigTab(1);
     const dumpSection = dom.get('.dump-section');
     dumpSection.get('trace-config').checkText('Dump targets');
     dumpSection.get('.dump-btn').checkText('Dump state');
@@ -241,7 +243,7 @@ describe('CollectTracesComponent', () => {
     goToConfigSection();
     await dom.detectChangesAndWaitStable();
     clickCheckboxAndCheckTraceConfig(UiTraceTarget.WINDOW_MANAGER_TRACE, false);
-    await changeTab(1);
+    await changeConfigTab(1);
     clickCheckboxAndCheckTraceConfig(UiTraceTarget.WINDOW_MANAGER_DUMP, true);
   });
 
@@ -272,7 +274,7 @@ describe('CollectTracesComponent', () => {
 
   it('dump state button works as expected', async () => {
     goToConfigSection();
-    await changeTab(1);
+    await changeConfigTab(1);
     const filesSpy = spyOn(component.filesCollected, 'emit');
     const controller = assertDefined(component.controller);
     spyOn(controller, 'fetchLastSessionData').and.returnValue(
@@ -292,7 +294,7 @@ describe('CollectTracesComponent', () => {
 
   it('emits event if no dump targets selected', async () => {
     goToConfigSection();
-    await changeTab(1);
+    await changeConfigTab(1);
     let lastEvent: WinscopeEvent | undefined;
     component.setEmitEvent(async (event: WinscopeEvent) => {
       lastEvent = event;
@@ -310,7 +312,7 @@ describe('CollectTracesComponent', () => {
 
   it('does not collect files if dumping fails', async () => {
     goToConfigSection();
-    await changeTab(1);
+    await changeConfigTab(1);
     const filesSpy = spyOn(component.filesCollected, 'emit');
     const controller = assertDefined(component.controller);
     spyOn(controller, 'dumpState').and.callFake(async () => {
@@ -417,7 +419,7 @@ describe('CollectTracesComponent', () => {
 
   it('displays dumping state elements', async () => {
     goToConfigSection();
-    await changeTab(1);
+    await changeConfigTab(1);
     await component.onConnectionStateChange(ConnectionState.DUMPING_STATE);
     dom.detectChanges();
     const progress = dom.get('.dumping-state');
@@ -516,7 +518,7 @@ describe('CollectTracesComponent', () => {
   it('refreshes dumps using stored dump config', async () => {
     goToConfigSection();
     await dom.detectChangesAndWaitStable();
-    await changeTab(1);
+    await changeConfigTab(1);
     clickCheckboxAndCheckTraceConfig(UiTraceTarget.WINDOW_MANAGER_DUMP, true);
 
     const newFixture = TestBed.createComponent(CollectTracesComponent);
@@ -620,15 +622,34 @@ describe('CollectTracesComponent', () => {
     checkProtologConfig(groups);
   });
 
-  it('changes host type on mat select change', async () => {
+  it('changes host type on mat tab change', async () => {
+    const tabGroup = fixture.debugElement.query(By.directive(MatTabGroup));
+    const emitter = tabGroup.componentInstance.animationDone;
+    const animationSpy = spyOn(emitter, 'emit');
+    const checks = () => {
+      expect(dom.find('.changing-connection-progress')).toBeDefined();
+      expect(dom.find('wdp-setup')).toBeUndefined();
+      expect(dom.find('winscope-proxy-setup')).toBeUndefined();
+      component.onConnectionTabAnimationDone();
+      expect(dom.find('.changing-connection-progress')).toBeUndefined();
+    };
+
     await changeConnection(1);
+    await waitToBeCalled(animationSpy, 1, checks);
     expect(component.controller?.getConnectionType()).toEqual(
       AdbConnectionType.WINSCOPE_PROXY,
     );
+    expect(dom.find('winscope-proxy-setup')).toBeDefined();
+    expect(dom.find('wdp-setup')).toBeUndefined();
+
     await changeConnection(0);
+    await waitToBeCalled(animationSpy, 2, checks);
+    expect(animationSpy.calls.count()).toBe(2);
     expect(component.controller?.getConnectionType()).toEqual(
       AdbConnectionType.WDP,
     );
+    expect(dom.find('winscope-proxy-setup')).toBeUndefined();
+    expect(dom.find('wdp-setup')).toBeDefined();
   });
 
   it('changes host type by default if in store', async () => {
@@ -956,7 +977,7 @@ describe('CollectTracesComponent', () => {
     await dom.clickByIndexAndWaitStable(selector, index);
   }
 
-  async function changeTab(index: number) {
+  async function changeConfigTab(index: number) {
     const selector = '.target-tabs .mdc-tab__text-label';
     await dom.clickByIndexAndWaitStable(selector, index);
   }
