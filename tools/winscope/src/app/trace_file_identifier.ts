@@ -139,6 +139,8 @@ export class TraceFileIdentifier<T extends FileReader>
     '.perfetto-trace',
     '.perfetto',
   ];
+  private static readonly PERSISTENT_TRACING_PROPERTY =
+    'persist.debug.perfetto.persistent_sysui_tracing_for_bugreport';
 
   private emitEvent: EmitEvent = () => Promise.resolve();
   private selectedFile: string | undefined;
@@ -300,7 +302,7 @@ export class TraceFileIdentifier<T extends FileReader>
     );
     const persistentTracingFlag = this.extractBugreportProperty(
       fileData,
-      'persist.debug.perfetto.persistent_sysui_tracing_for_bugreport',
+      TraceFileIdentifier.PERSISTENT_TRACING_PROPERTY,
     );
     const isPersistentTracingEnabled = persistentTracingFlag === '1';
 
@@ -453,7 +455,12 @@ export class TraceFileIdentifier<T extends FileReader>
 
     const criticalWarnings: UserWarning[] = [];
     if (!perfettoFile && bugreportData) {
-      criticalWarnings.push(makeWarningMissingPersistentTrace(bugreportData));
+      criticalWarnings.push(
+        makeWarningMissingPersistentTrace(
+          bugreportData,
+          TraceFileIdentifier.PERSISTENT_TRACING_PROPERTY,
+        ),
+      );
     }
 
     return {
