@@ -99,7 +99,7 @@ final class PreferenceController {
             new BoolRule(R.string.pref_enable_custom_home, VANILLA_ICE_CREAM)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
 
-            new BoolRule(R.string.pref_enable_custom_status_bar, BAKLAVA, Flags::statusBarAndInsets)
+            new BoolRule(R.string.pref_enable_custom_status_bar, BAKLAVA)
                     .withRequiredPermissions(ADD_TRUSTED_DISPLAY),
 
             new StringRule(R.string.pref_display_timeout, BAKLAVA)

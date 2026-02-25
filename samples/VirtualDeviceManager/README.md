@@ -255,14 +255,9 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     *Changing this will recreate the virtual device.*
 
 -   **Custom status bar**: Whether to add a custom status bar view on the
-    non-mirror virtual displays. Run the commands below to enable this
-    functionality. \
+    non-mirror virtual displays. \
     *This can be changed dynamically but only applies to newly created
     displays.*
-
-    ```shell
-    adb shell aflags enable android.companion.virtual.flags.status_bar_and_insets && adb reboot
-    ```
 
 -   **Display timeout**: Whether to keep the displays always awake or to put
     them to sleep after a timeout. \
