@@ -14,6 +14,7 @@
     <string name="recorder_demo" translatable="false">VDM Recorder Demo</string>
     <string name="sound_demo" translatable="false">VDM Sound Demo</string>
     <string name="ui_mode_demo" translatable="false">VDM UI Mode Demo</string>
+    <string name="view_configuration_demo" translatable="false">VDM ViewConfiguration Demo</string>
 
     <string name="play_sound_1" translatable="false">Play Sound One</string>
     <string name="play_sound_2" translatable="false">Play Sound Two</string>

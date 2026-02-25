@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.stylus_demo -> startActivity(new Intent(this, StylusDemoActivity.class));
             case R.id.recorder_demo -> startActivity(new Intent(this, RecorderDemoActivity.class));
             case R.id.sound_demo -> startActivity(new Intent(this, SoundDemoActivity.class));
+            case R.id.view_configuration_demo -> startActivity(
+                    new Intent(this, ViewConfigurationDemoActivity.class));
         }
     }
 }

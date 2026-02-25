@@ -22,8 +22,10 @@ import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.companion.virtual.VirtualDeviceManager.VirtualDevice;
 import android.companion.virtualdevice.flags.Flags;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -53,6 +55,7 @@ import android.hardware.input.VirtualStylusMotionEvent;
 import android.hardware.input.VirtualTouchEvent;
 import android.hardware.input.VirtualTouchscreen;
 import android.hardware.input.VirtualTouchscreenConfig;
+import android.os.UserHandle;
 import android.util.Log;
 import android.view.Display;
 import android.view.InputEvent;
@@ -112,6 +115,7 @@ class RemoteDisplay implements AutoCloseable {
     private final Consumer<RemoteEvent> mRemoteEventConsumer = this::processRemoteEvent;
     private final VirtualDisplay mVirtualDisplay;
     private final VirtualDpad mDpad;
+    private final VirtualKeyboard mKeyboard;
     private final int mRemoteDisplayId;
     private final VirtualDevice mVirtualDevice;
     private final @DisplayType int mDisplayType;
@@ -126,7 +130,6 @@ class RemoteDisplay implements AutoCloseable {
     private VirtualTouchscreen mTouchscreen;
     private VirtualMouse mMouse;
     private VirtualNavigationTouchpad mNavigationTouchpad;
-    private VirtualKeyboard mKeyboard;
     private VirtualStylus mStylus;
     private VirtualRotaryEncoder mRotary;
 
@@ -347,7 +350,16 @@ class RemoteDisplay implements AutoCloseable {
         }
     }
 
-    void launchIntent(Intent intent) {
+    void launchIntent(Intent intent, UserHandle user) {
+        if (user != null) {
+            LauncherApps launcherApps = mContext.getSystemService(LauncherApps.class);
+            ComponentName component = intent.getComponent();
+            if (component != null) {
+                launcherApps.startMainActivity(component, user, null,
+                        ActivityOptions.makeBasic().setLaunchDisplayId(getDisplayId()).toBundle());
+                return;
+            }
+        }
         mContext.startActivity(
                 intent, ActivityOptions.makeBasic().setLaunchDisplayId(getDisplayId()).toBundle());
     }
@@ -513,7 +525,6 @@ class RemoteDisplay implements AutoCloseable {
                                     .build());
         }
         mNavigationTouchpad.sendTouchEvent(event);
-
     }
 
     void processVirtualMouseEvent(Object mouseEvent) {
