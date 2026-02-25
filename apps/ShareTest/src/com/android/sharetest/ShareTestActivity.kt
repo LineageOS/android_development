@@ -103,7 +103,7 @@ class ShareTestActivity : Activity() {
                     Toast.makeText(
                             this@ShareTestActivity,
                             "Custom action invoked, isModified: ${!intent.isInitial}",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         )
                         .show()
                 }
@@ -116,7 +116,7 @@ class ShareTestActivity : Activity() {
                     // sharesheet.
                     val activityIntent =
                         Intent(this@ShareTestActivity, RefinementActivity::class.java)
-                    activityIntent.putExtras(intent)
+                    activityIntent.putExtra(Intent.EXTRA_INTENT, intent)
                     startActivity(activityIntent)
                 }
             }
@@ -124,13 +124,13 @@ class ShareTestActivity : Activity() {
         registerReceiver(
             customActionReceiver,
             IntentFilter(CustomActionFactory.BROADCAST_ACTION),
-            Context.RECEIVER_EXPORTED
+            Context.RECEIVER_EXPORTED,
         )
 
         registerReceiver(
             refinementReceiver,
             IntentFilter(REFINEMENT_ACTION),
-            Context.RECEIVER_EXPORTED
+            Context.RECEIVER_EXPORTED,
         )
 
         richText = requireViewById(R.id.use_rich_text)
@@ -175,8 +175,7 @@ class ShareTestActivity : Activity() {
 
         requireViewById<RadioGroup>(R.id.image_get_type_latency).setOnCheckedChangeListener {
             _,
-            checkedId,
-            ->
+            checkedId ->
             ImageContentProvider.getTypeLatency =
                 when (checkedId) {
                     R.id.image_get_type_latency_50 -> 50
@@ -189,8 +188,7 @@ class ShareTestActivity : Activity() {
             .check(R.id.image_get_type_latency_none)
 
         requireViewById<RadioGroup>(R.id.image_query_latency).let { radioGroup ->
-            radioGroup.setOnCheckedChangeListener { _, checkedId,
-                ->
+            radioGroup.setOnCheckedChangeListener { _, checkedId ->
                 ImageContentProvider.queryLatency =
                     when (checkedId) {
                         R.id.image_query_latency_50 -> 50
@@ -204,8 +202,7 @@ class ShareTestActivity : Activity() {
 
         requireViewById<RadioGroup>(R.id.image_load_failure_rate).setOnCheckedChangeListener {
             _,
-            checkedId,
-            ->
+            checkedId ->
             ImageContentProvider.openFailureRate =
                 when (checkedId) {
                     R.id.image_load_failure_rate_50 -> .5f
@@ -238,7 +235,7 @@ class ShareTestActivity : Activity() {
             ArrayAdapter(
                     this,
                     android.R.layout.simple_spinner_item,
-                    arrayOf(TYPE_IMAGE, TYPE_VIDEO, TYPE_PDF)
+                    arrayOf(TYPE_IMAGE, TYPE_VIDEO, TYPE_PDF),
                 )
                 .apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         setMediaTypeVisibility(true)
@@ -256,8 +253,8 @@ class ShareTestActivity : Activity() {
                         TYPE_IMG_VIDEO,
                         TYPE_IMG_PDF,
                         TYPE_VIDEO_PDF,
-                        TYPE_ALL
-                    )
+                        TYPE_ALL,
+                    ),
                 )
                 .apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         setMediaTypeVisibility(true)
@@ -286,7 +283,7 @@ class ShareTestActivity : Activity() {
                         makeItemUri(
                             imageIndex,
                             mimeTypes[imageIndex % mimeTypes.size],
-                            imageSizeMetadataCheck.isChecked
+                            imageSizeMetadataCheck.isChecked,
                         )
                     putExtra(Intent.EXTRA_STREAM, sharedUri)
                     clipData = ClipData("", arrayOf("image/jpg"), ClipData.Item(sharedUri))
@@ -300,7 +297,7 @@ class ShareTestActivity : Activity() {
                                 makeItemUri(
                                     idx,
                                     mimeTypes[idx % mimeTypes.size],
-                                    imageSizeMetadataCheck.isChecked
+                                    imageSizeMetadataCheck.isChecked,
                                 )
                             }
                         )
@@ -339,7 +336,7 @@ class ShareTestActivity : Activity() {
                 this,
                 0,
                 Intent(this, ChosenComponentBroadcastReceiver::class.java),
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
 
         val chooserIntent =
@@ -352,27 +349,27 @@ class ShareTestActivity : Activity() {
         if (sendingImage && altIntentCheck.isChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_ALTERNATE_INTENTS,
-                arrayOf(createAlternateIntent(share))
+                arrayOf(createAlternateIntent(share)),
             )
         }
         if (callerTargetCheck.isChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_TARGETS,
-                arrayOf(createCallerTarget(this, "Initial Direct Target"))
+                arrayOf(createCallerTarget(this, "Initial Direct Target")),
             )
         }
 
         if (excludeSelfCheck.isChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_EXCLUDE_COMPONENTS,
-                arrayOf(ComponentName(packageName, CallerDirectTargetActivity::class.java.name))
+                arrayOf(ComponentName(packageName, CallerDirectTargetActivity::class.java.name)),
             )
         }
 
         if (albumCheck.isChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT,
-                Intent.CHOOSER_CONTENT_TYPE_ALBUM
+                Intent.CHOOSER_CONTENT_TYPE_ALBUM,
             )
         }
 
@@ -383,7 +380,7 @@ class ShareTestActivity : Activity() {
         if (requireViewById<CheckBox>(R.id.use_refinement).isChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER,
-                createRefinementIntentSender(this, true)
+                createRefinementIntentSender(this, true),
             )
         }
 
@@ -391,12 +388,12 @@ class ShareTestActivity : Activity() {
             R.id.one_action ->
                 chooserIntent.putExtra(
                     Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS,
-                    customActionFactory.getCustomActions(1)
+                    customActionFactory.getCustomActions(1),
                 )
             R.id.five_actions ->
                 chooserIntent.putExtra(
                     Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS,
-                    customActionFactory.getCustomActions(5)
+                    customActionFactory.getCustomActions(5),
                 )
         }
 
@@ -418,7 +415,7 @@ class ShareTestActivity : Activity() {
                         mimeTypes.forEach {
                             builder.appendQueryParameter(
                                 AdditionalContentProvider.PARAM_MIME_TYPE,
-                                it
+                                it,
                             )
                         }
                     }
@@ -430,10 +427,7 @@ class ShareTestActivity : Activity() {
             chooserIntent.putExtra(Intent.EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, 0)
             chooserIntent.clipData?.addItem(ClipData.Item(additionalContentUri))
             if (mediaSelection.checkedRadioButtonId == R.id.one_image) {
-                chooserIntent.putExtra(
-                    AdditionalContentProvider.CURSOR_START_POSITION,
-                    imageIndex,
-                )
+                chooserIntent.putExtra(AdditionalContentProvider.CURSOR_START_POSITION, imageIndex)
             }
             val latency =
                 when (selectionLatencyGroup.checkedRadioButtonId) {
@@ -494,7 +488,7 @@ class ShareTestActivity : Activity() {
                     append(
                         createShortText(),
                         BulletSpan(40, color, 20),
-                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE,
                     )
                 }
             }
