@@ -93,10 +93,15 @@ winscope-proxy-setup,
 
 .start-btn,
 .dump-btn,
-.end-btn {
+.end-btn,
+.error-retry-btn {
   margin: auto 0 0 0;
   padding: 1rem 0 0 0;
   height: 48px;
+}
+
+.unknown-error pre {
+  white-space: pre-line;
 }
 
 .error-wrapper {

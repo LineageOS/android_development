@@ -234,14 +234,21 @@ limitations under the License.
           }
           @if (state === ConnectionState.ERROR) {
             <div class="unknown-error">
-              <p class="error-wrapper mat-body-1">
+              <div class="error-wrapper mat-body-1">
                 <mat-icon class="error-icon">error</mat-icon>
                 Error:
-              </p>
+              </div>
               <pre> {{ errorText }} </pre>
-              <button color="primary" class="retry-btn" mat-raised-button (click)="onRetryButton()">
-                Retry
-              </button>
+              <div class="error-retry-btn">
+                <button
+                  color="primary"
+                  class="retry-btn no-touch-target-button"
+                  mat-raised-button
+                  (click)="onRetryButton()"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
           }
         }
