@@ -145,6 +145,11 @@ available devices, build the APKs and install them.
 Once the connection with the client device is established, the Host app will
 show a launcher-like list of installed apps on the host device.
 
+-   **Multi-user support**: If the host device has multiple users (e.g. a work
+    profile), a dropdown will appear above the app list to select the user
+    profile. The app list will update to show apps installed for the selected
+    user.
+
 -   Clicking an app icon will create a new virtual display, launch the app there
     and start streaming the display contents to the client. The client will show
     the surface of that display and render its contents.
@@ -255,14 +260,9 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     *Changing this will recreate the virtual device.*
 
 -   **Custom status bar**: Whether to add a custom status bar view on the
-    non-mirror virtual displays. Run the commands below to enable this
-    functionality. \
+    non-mirror virtual displays. \
     *This can be changed dynamically but only applies to newly created
     displays.*
-
-    ```shell
-    adb shell aflags enable android.companion.virtual.flags.status_bar_and_insets && adb reboot
-    ```
 
 -   **Display timeout**: Whether to keep the displays always awake or to put
     them to sleep after a timeout. \
@@ -472,6 +472,10 @@ of the virtual device and all its displays between ON and OFF.
     This helps test audio recording permissions and concurrent recordings.
 
 -   **Sound**: A simple activity that can play sounds from a SoundPool.
+
+-   **View Configuration**: A simple activity showing the values of various
+    ViewConfiguration parameters. This can be used to verify custom ViewConfiguration
+    values on the virtual device.
 
 The demo activity depends on whether the **Display Category** Host preference is
 enabled or not. If enabled, it becomes equivalent to the **Home** demo activity,

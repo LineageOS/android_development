@@ -63,6 +63,16 @@
                 android:text="@string/create_desktop_display" />
         </LinearLayout>
 
+        <Spinner
+            android:id="@+id/user_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/gray"
+            android:visibility="gone" />
+
         <include layout="@layout/custom_launcher" />
 
     </LinearLayout>

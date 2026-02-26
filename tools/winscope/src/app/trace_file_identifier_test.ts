@@ -39,6 +39,8 @@ import {ASIA_TIMEZONE_INFO} from '@common/time/test_helpers';
 
 describe('TraceFileIdentifier', () => {
   const identifier = new TraceFileIdentifier<FileReader>();
+  const persistentTracingProperty =
+    'persist.debug.perfetto.persistent_sysui_tracing_for_bugreport';
 
   // Could be any file, we just need an instance of File to be used as a fake bugreport archive
   const bugreportArchive = new File([new ArrayBuffer(0)], 'test_bugreport.zip');
@@ -286,7 +288,7 @@ describe('TraceFileIdentifier', () => {
         false,
         [
           'No Winscope Perfetto trace found in bug report.',
-          "The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled",
+          `The persistent tracing property ('${persistentTracingProperty}') seems to be disabled`,
         ],
       );
     });
@@ -294,7 +296,7 @@ describe('TraceFileIdentifier', () => {
     it('warns about missing trace on eng build with persistent flag disabled', async () => {
       await checkMissingPerfettoTraceWarning(BuildType.ENG, '0', false, [
         'No Winscope Perfetto trace found in bug report.',
-        "The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled",
+        `The persistent tracing property ('${persistentTracingProperty}') seems to be disabled`,
       ]);
     });
 
@@ -489,9 +491,7 @@ describe('TraceFileIdentifier', () => {
       'persist.sys.timezone': 'America/Los_Angeles', // Example timezone
     };
     if (persistentFlag !== undefined) {
-      properties[
-        'persist.debug.perfetto.persistent_sysui_tracing_for_bugreport'
-      ] = persistentFlag;
+      properties[persistentTracingProperty] = persistentFlag;
     }
 
     const bugreportFiles = [
@@ -510,10 +510,13 @@ describe('TraceFileIdentifier', () => {
     expect(result.criticalWarnings.length).toBe(1);
     const warning = result.criticalWarnings[0];
     expect(warning).toEqual(
-      makeWarningMissingPersistentTrace({
-        buildType,
-        isPersistentTracingEnabled,
-      }),
+      makeWarningMissingPersistentTrace(
+        {
+          buildType,
+          isPersistentTracingEnabled,
+        },
+        persistentTracingProperty,
+      ),
     );
 
     expectedMessageSubstrings.forEach((substring) => {

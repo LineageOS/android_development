@@ -160,6 +160,11 @@
             android:exported="true"
             android:label="@string/sound_demo" />
 
+        <activity
+            android:name=".ViewConfigurationDemoActivity"
+            android:exported="true"
+            android:label="@string/view_configuration_demo" />
+
     </application>
     <!-- LINT.ThenChange(/samples/VirtualDeviceManager/README.md:demos) -->
 </manifest>

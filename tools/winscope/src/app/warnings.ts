@@ -72,10 +72,14 @@ export function makeWarningIncompleteFrameMapping(errorMessage: string) {
  */
 export function makeWarningMissingPersistentTrace(
   bugreportData: BugreportData,
+  persistentTracingProperty: string,
 ) {
   return new UserWarning(
     'missing persistent trace',
-    makeMissingPersistentTraceErrorMessage(bugreportData),
+    makeMissingPersistentTraceErrorMessage(
+      bugreportData,
+      persistentTracingProperty,
+    ),
   );
 }
 
@@ -91,6 +95,7 @@ export function makeWarningNoTraceTargetsSelected() {
 
 function makeMissingPersistentTraceErrorMessage(
   bugreportData: BugreportData,
+  persistentTracingProperty: string,
 ): string {
   const baseMessage = 'No Winscope Perfetto trace found in bug report.';
 
@@ -99,11 +104,11 @@ function makeMissingPersistentTraceErrorMessage(
   }
 
   if (!bugreportData.isPersistentTracingEnabled) {
-    return `${baseMessage} The persistent tracing property ('persist.debug.perfetto.persistent') seems to be disabled. You can try enabling it via:\n'adb shell setprop persist.debug.perfetto.persistent 1 && adb reboot'\nThen, reproduce the issue and capture a new bug report.`;
+    return `${baseMessage} The persistent tracing property ('${persistentTracingProperty}') seems to be disabled. You can try enabling it via:\n'adb shell setprop ${persistentTracingProperty} 1 && adb reboot'\nThen, reproduce the issue and capture a new bug report.`;
   }
 
   // Unknown issue
-  return `${baseMessage} Ensure the bugreport comes from a device where persistent tracing is enabled (e.g., dogfood devices or using 'adb shell setprop persist.debug.perfetto.persistent 1').`;
+  return `${baseMessage} Ensure the bugreport comes from a device where persistent tracing is enabled (e.g., dogfood devices or using 'adb shell setprop ${persistentTracingProperty} 1').`;
 }
 
 /**
