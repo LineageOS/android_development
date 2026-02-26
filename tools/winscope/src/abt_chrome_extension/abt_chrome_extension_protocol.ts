@@ -20,6 +20,7 @@ import {
   RemoteToolDownloadStart,
   RemoteToolFilesReceived,
   RemoteToolInitialized,
+  RemoteToolWaitingForFiles,
 } from '@cross_tool/remote_tool_events';
 import {
   EmitEvent,
@@ -67,6 +68,7 @@ export class AbtChromeExtensionProtocol
     }
 
     await this.emitEvent(new RemoteToolInitialized());
+    await this.emitEvent(new RemoteToolWaitingForFiles());
 
     const openRequestMessage: OpenRequest = {
       action: MessageType.OPEN_REQUEST,
