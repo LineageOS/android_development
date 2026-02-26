@@ -109,9 +109,10 @@ export abstract class AbstractLogViewerComponentTest<
         });
 
         it('handles go to current time button', () => {
-          expect(dom.find('.go-to-current-entry') !== undefined).toEqual(
-            this.hasCurrentTimeButton,
-          );
+          expect(
+            dom.find('.time-controls') !== undefined ||
+              dom.find('.time-controls-trigger') !== undefined,
+          ).toEqual(this.hasTimeControls);
         });
 
         it('passes data to log component', () => {
@@ -300,7 +301,7 @@ export abstract class AbstractLogViewerComponentTest<
   }
 
   protected abstract readonly testProperties: boolean;
-  protected abstract readonly hasCurrentTimeButton: boolean;
+  protected abstract readonly hasTimeControls: boolean;
   protected abstract readonly testScroll: boolean;
   protected readonly hasFilters: boolean = true;
   protected readonly propertiesSectionTitle?: string;

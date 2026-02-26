@@ -71,6 +71,7 @@ import {
   LogTextFilter,
 } from '@viewers/common/log_filters';
 import {SelectionModel} from '@angular/cdk/collections';
+import {CdkMenuModule} from '@angular/cdk/menu';
 
 @Component({
   selector: 'log-view',
@@ -87,13 +88,16 @@ import {SelectionModel} from '@angular/cdk/collections';
     SelectWithFilterComponent,
     SearchBoxComponent,
     VariableHeightScrollDirective,
+    CdkMenuModule,
   ],
   templateUrl: './log_component.ng.html',
   styleUrls: ['./log_component.css'],
 })
 export class LogComponent {
   emptyFilterValue = '';
+
   private lastClickedTimestamp: Timestamp | undefined;
+  private menuEntered = false;
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
@@ -103,7 +107,7 @@ export class LogComponent {
   @Input() currentIndex: number | undefined;
   @Input() headers: LogHeader[] = [];
   @Input() entries: LogEntry[] = [];
-  @Input() showCurrentTimeButton = true;
+  @Input() showTimeControls = true;
   @Input() traceType: TraceType | undefined;
   @Input() showTraceEntryTimes = true;
   @Input() padEntries = true;
@@ -327,21 +331,6 @@ export class LogComponent {
     }
   }
 
-  private onRawTimestampClick(value: Timestamp) {
-    this.emitEvent(
-      ViewerEvents.TimestampClick,
-      new TimestampClickDetail(undefined, value),
-    );
-  }
-
-  private emitEvent(event: ViewerEvents, data?: object | number) {
-    const customEvent = new CustomEvent(event, {
-      bubbles: true,
-      detail: data,
-    });
-    this.elementRef.nativeElement.dispatchEvent(customEvent);
-  }
-
   isLogSelectFilter(filter: LogFilter): filter is LogSelectFilter {
     return filter instanceof LogSelectFilter;
   }
@@ -402,6 +391,21 @@ export class LogComponent {
       this.performCustomCopy(event, this.textSelection.selected);
       return;
     }
+  }
+
+  private onRawTimestampClick(value: Timestamp) {
+    this.emitEvent(
+      ViewerEvents.TimestampClick,
+      new TimestampClickDetail(undefined, value),
+    );
+  }
+
+  private emitEvent(event: ViewerEvents, data?: object | number) {
+    const customEvent = new CustomEvent(event, {
+      bubbles: true,
+      detail: data,
+    });
+    this.elementRef.nativeElement.dispatchEvent(customEvent);
   }
 
   private getEntriesFromBrowserSelection(range: Range): LogEntry[] {
