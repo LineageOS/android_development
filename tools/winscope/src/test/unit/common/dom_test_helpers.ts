@@ -397,6 +397,10 @@ export class DOMTestHelper<T> {
     }
   }
 
+  setComponentInput(name: string, value: unknown) {
+    this.fixture.componentRef.setInput(name, value);
+  }
+
   private dispatchMouseEvent(
     source: Node,
     type: string,

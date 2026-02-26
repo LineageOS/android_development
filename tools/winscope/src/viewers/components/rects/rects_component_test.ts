@@ -15,8 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, ViewChild} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
@@ -30,19 +29,16 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {Box3D} from '@common/geometry/box3d';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {PersistentStore} from '@common/store/persistent_store';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {VISIBLE_CHIP} from '@viewers/common/chip';
-import {DisplayIdentifier} from '@viewers/common/display_identifier';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {
   RectLegendOption,
-  RectSpec,
   TraceRectType,
 } from '@viewers/components/rects/rect_spec';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
@@ -55,6 +51,8 @@ import {RectLabel} from './rect_label';
 import {ShadingMode} from './shading_mode';
 import {UiRect3D} from './ui_rect3d';
 import {UiRectBuilder} from './ui_rect_builder';
+import {Store} from '@common/store/store';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 
 describe('RectsComponent', () => {
   const rectGroup0 = makeRectWithGroupId(0);
@@ -62,17 +60,16 @@ describe('RectsComponent', () => {
   const rectGroup2 = makeRectWithGroupId(2);
   const zoomInSelector = '.zoom-in-button';
   const largeRectsCanvasSelector = '.large-rects-canvas';
+  const testTitle = 'TestRectsView';
 
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let fixture: ComponentFixture<RectsComponent>;
+  let component: RectsComponent;
+  let dom: DOMTestHelper<RectsComponent>;
   let updateViewPositionSpy: jasmine.Spy<(camera: Camera, box: Box3D) => void>;
   let updateRectsSpy: jasmine.Spy<(rects: UiRect3D[]) => void>;
   let updateLabelsSpy: jasmine.Spy<(labels: RectLabel[]) => void>;
   let renderViewSpy: jasmine.Spy<() => void>;
-
-  beforeAll(() => {
-    localStorage.clear();
-  });
+  let sharedStore: Store;
 
   beforeEach(async () => {
     updateViewPositionSpy = spyOn(Canvas.prototype, 'updateViewPosition');
@@ -93,20 +90,33 @@ describe('RectsComponent', () => {
         BrowserAnimationsModule,
         MatFormFieldModule,
         MatButtonToggleModule,
-        TestHostComponent,
         RectsComponent,
         CollapsibleSectionTitleComponent,
         UserOptionsComponent,
       ],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture = TestBed.createComponent(RectsComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-  });
 
-  afterEach(() => {
-    localStorage.clear();
+    dom.setComponentInput('title', testTitle);
+    sharedStore = new InMemoryStorage();
+    dom.setComponentInput('store', sharedStore);
+    dom.setComponentInput('miniRects', []);
+    dom.setComponentInput('shadingModes', [
+      ShadingMode.GRADIENT,
+      ShadingMode.WIRE_FRAME,
+      ShadingMode.OPACITY,
+    ]);
+    dom.setComponentInput('userOptions', {
+      showOnlyVisible: {
+        name: 'Show only',
+        chip: VISIBLE_CHIP,
+        enabled: false,
+      },
+    });
+    dom.setComponentInput('dependencies', [TraceType.SURFACE_FLINGER]);
   });
 
   it('can be created', () => {
@@ -135,13 +145,13 @@ describe('RectsComponent', () => {
     resetSpies();
 
     checkAllSpiesCalled(0);
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     checkAllSpiesCalled(1);
     const newBoundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     expect(newBoundingBox).not.toEqual(boundingBox);
 
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     checkAllSpiesCalled(2);
     expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
@@ -187,22 +197,22 @@ describe('RectsComponent', () => {
   });
 
   it('renders display selector', async () => {
-    component.rects = [rectGroup0];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('displays', [
       {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
       {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
       {displayId: 2, groupId: 2, name: 'Display 2', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([0], [0]);
   });
 
   it('handles display change by checkbox', async () => {
-    component.rects = [rectGroup0, rectGroup1];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
+    dom.setComponentInput('displays', [
       {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
       {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
       {displayId: 2, groupId: 2, name: 'Display 2', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([0], [0]);
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
 
@@ -224,12 +234,12 @@ describe('RectsComponent', () => {
   });
 
   it('handles display change by "only" button', async () => {
-    component.rects = [rectGroup0, rectGroup1];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
+    dom.setComponentInput('displays', [
       {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
       {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
       {displayId: 2, groupId: 2, name: 'Display 2', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([0], [0]);
 
     dom.openMatSelect();
@@ -251,53 +261,54 @@ describe('RectsComponent', () => {
   });
 
   it('tracks selected display', async () => {
-    component.displays = [
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
       {displayId: 20, groupId: 1, name: 'Display 1', isActive: false},
-    ];
-    component.rects = [rectGroup0, rectGroup1];
+    ]);
+    dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
     await checkSelectedDisplay([0], [0]);
 
-    component.displays = [
+    dom.setComponentInput('displays', [
       {displayId: 20, groupId: 2, name: 'Display 1', isActive: false},
       {displayId: 10, groupId: 1, name: 'Display 0', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([0], [1], false);
   });
 
   it('updates scene on separation slider change', () => {
-    component.rects = [rectGroup0, rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0, rectGroup0]);
     dom.detectChanges();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
+    const rectsBefore = assertDefined(updateRectsSpy.calls.first().args[0]);
+    expect(rectsBefore[0].topLeft.z).toBe(200);
+    resetSpies();
+
     updateSeparationSlider();
 
-    checkAllSpiesCalled(2);
+    checkAllSpiesCalled(1);
     expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
       boundingBox,
     );
-    const rectsBefore = assertDefined(updateRectsSpy.calls.first().args[0]);
     const rectsAfter = assertDefined(updateRectsSpy.calls.mostRecent().args[0]);
-
-    expect(rectsBefore[0].topLeft.z).toBe(200);
     expect(rectsAfter[0].topLeft.z).toBe(12);
   });
 
   it('updates scene on rotation slider change', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
-    updateRotationSlider();
-
-    expect(updateViewPositionSpy).toHaveBeenCalledTimes(2);
-    expect(updateRectsSpy).toHaveBeenCalledTimes(1);
-    expect(updateLabelsSpy).toHaveBeenCalledTimes(2);
-    expect(renderViewSpy).toHaveBeenCalledTimes(2);
-    expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
-      boundingBox,
-    );
-
     const cameraBefore = assertDefined(
       updateViewPositionSpy.calls.first().args[0],
+    );
+    resetSpies();
+
+    updateRotationSlider();
+    expect(updateViewPositionSpy).toHaveBeenCalledTimes(1);
+    expect(updateRectsSpy).toHaveBeenCalledTimes(0);
+    expect(updateLabelsSpy).toHaveBeenCalledTimes(1);
+    expect(renderViewSpy).toHaveBeenCalledTimes(1);
+    expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
+      boundingBox,
     );
     const cameraAfter = assertDefined(
       updateViewPositionSpy.calls.mostRecent().args[0],
@@ -312,60 +323,64 @@ describe('RectsComponent', () => {
   });
 
   it('updates scene on shading mode change', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
-    const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
 
-    updateShadingMode(ShadingMode.GRADIENT, ShadingMode.WIRE_FRAME);
-    updateShadingMode(ShadingMode.WIRE_FRAME, ShadingMode.OPACITY);
-
-    expect(updateViewPositionSpy).toHaveBeenCalledTimes(1);
-    expect(updateRectsSpy).toHaveBeenCalledTimes(3);
-    expect(updateLabelsSpy).toHaveBeenCalledTimes(1);
-    expect(renderViewSpy).toHaveBeenCalledTimes(3);
-    expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
-      boundingBox,
-    );
-
-    const rectsGradient = assertDefined(updateRectsSpy.calls.first().args[0]);
-    const rectsWireFrame = assertDefined(updateRectsSpy.calls.argsFor(1).at(0));
-    const rectsOpacity = assertDefined(
-      updateRectsSpy.calls.mostRecent().args[0],
-    );
-
+    const rectsGradient = updateRectsSpy.calls.argsFor(0)[0];
     expect(rectsGradient[0].colorType).toEqual(ColorType.VISIBLE);
     expect(rectsGradient[0].darkFactor).toBe(1);
 
+    resetSpies();
+
+    updateShadingMode(ShadingMode.GRADIENT, ShadingMode.WIRE_FRAME);
+    expect(updateRectsSpy).toHaveBeenCalledTimes(1);
+    expect(renderViewSpy).toHaveBeenCalledTimes(1);
+
+    const rectsWireFrame = updateRectsSpy.calls.argsFor(0)[0];
     expect(rectsWireFrame[0].colorType).toEqual(ColorType.EMPTY);
     expect(rectsWireFrame[0].darkFactor).toBe(1);
 
+    updateShadingMode(ShadingMode.WIRE_FRAME, ShadingMode.OPACITY);
+    expect(updateRectsSpy).toHaveBeenCalledTimes(2);
+    expect(renderViewSpy).toHaveBeenCalledTimes(2);
+
+    const rectsOpacity = updateRectsSpy.calls.argsFor(1)[0];
     expect(rectsOpacity[0].colorType).toEqual(ColorType.VISIBLE_WITH_OPACITY);
     expect(rectsOpacity[0].darkFactor).toBe(0.5);
 
-    updateShadingMode(ShadingMode.OPACITY, ShadingMode.GRADIENT); // cycles back to original
+    // cycles back to original
+    updateShadingMode(ShadingMode.OPACITY, ShadingMode.GRADIENT);
+    expect(updateViewPositionSpy).toHaveBeenCalledTimes(0);
+    expect(updateLabelsSpy).toHaveBeenCalledTimes(0);
   });
 
-  it('uses stored rects view settings', () => {
-    dom.detectChanges();
-
+  it('uses stored rects view settings', async () => {
+    await dom.detectChangesAndWaitStable();
     updateSeparationSlider();
     updateShadingMode(ShadingMode.GRADIENT, ShadingMode.WIRE_FRAME);
 
-    const newFixture = TestBed.createComponent(TestHostComponent);
-    newFixture.detectChanges();
-    const newRectsComponent = assertDefined(
-      newFixture.componentInstance.rectsComponent,
-    );
+    const newFixture = TestBed.createComponent(RectsComponent);
+    const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
+    newDom.setComponentInput('title', testTitle);
+    newDom.setComponentInput('store', sharedStore);
+    newDom.setComponentInput('shadingModes', [
+      ShadingMode.GRADIENT,
+      ShadingMode.WIRE_FRAME,
+      ShadingMode.OPACITY,
+    ]);
+    await newDom.detectChangesAndWaitStable();
+
+    const newRectsComponent = newFixture.componentInstance;
     expect(newRectsComponent.getZSpacingFactor()).toBe(0.06);
     expect(newRectsComponent.getShadingMode()).toEqual(ShadingMode.WIRE_FRAME);
   });
 
   it('uses stored selected displays if present in new trace', async () => {
-    component.rects = [rectGroup0, rectGroup1];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: true},
       {displayId: 20, groupId: 1, name: 'Display 1', isActive: true},
-    ];
+    ]);
     await checkSelectedDisplay([0], [0]);
 
     dom.openMatSelect();
@@ -373,97 +388,97 @@ describe('RectsComponent', () => {
     options[1].click();
     await checkSelectedDisplay([0, 1], [0, 1]);
 
-    const fixtureSameDisplays = TestBed.createComponent(TestHostComponent);
-    const componentWithSameDisplays = fixtureSameDisplays.componentInstance;
-    componentWithSameDisplays.rects = component.rects;
-    componentWithSameDisplays.displays = component.displays;
-    await checkSelectedDisplay(
-      [0, 1],
-      [0, 1],
-      false,
-      new DOMTestHelper(fixtureSameDisplays, fixtureSameDisplays.nativeElement),
+    const fixtureSameDisplays = TestBed.createComponent(RectsComponent);
+    const domSameDisplays = new DOMTestHelper(
+      fixtureSameDisplays,
+      fixtureSameDisplays.nativeElement,
     );
+    domSameDisplays.setComponentInput('title', testTitle);
+    domSameDisplays.setComponentInput('rects', component.rects());
+    domSameDisplays.setComponentInput('displays', component.displays());
+    domSameDisplays.setComponentInput('store', sharedStore);
+    await checkSelectedDisplay([0, 1], [0, 1], false, domSameDisplays);
 
-    const fixtureWithDisplay1 = TestBed.createComponent(TestHostComponent);
-    const componentWithDisplay1 = fixtureWithDisplay1.componentInstance;
-    componentWithDisplay1.rects = [rectGroup1];
-    componentWithDisplay1.displays = [
-      {displayId: 20, groupId: 1, name: 'Display 1', isActive: true},
-    ];
-    await checkSelectedDisplay(
-      [1],
-      [1],
-      false,
-      new DOMTestHelper(fixtureWithDisplay1, fixtureWithDisplay1.nativeElement),
+    const fixtureWithDisplay1 = TestBed.createComponent(RectsComponent);
+    const domWithDisplay1 = new DOMTestHelper(
+      fixtureWithDisplay1,
+      fixtureWithDisplay1.nativeElement,
     );
+    domWithDisplay1.setComponentInput('title', testTitle);
+    domWithDisplay1.setComponentInput('store', sharedStore);
+    domWithDisplay1.setComponentInput('rects', [rectGroup1]);
+    domWithDisplay1.setComponentInput('displays', [
+      {displayId: 20, groupId: 1, name: 'Display 1', isActive: true},
+    ]);
+    await checkSelectedDisplay([1], [1], false, domWithDisplay1);
   });
 
   it('defaults initial selection to first active display with rects', async () => {
-    component.rects = [rectGroup0, rectGroup1];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 1, name: 'Display 0', isActive: false},
       {displayId: 20, groupId: 0, name: 'Display 1', isActive: true},
-    ];
+    ]);
     await checkSelectedDisplay([1], [0]);
   });
 
   it('defaults initial selection to first display with non-display rects and groupId 0', async () => {
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 1, name: 'Display 0', isActive: true},
       {displayId: 20, groupId: 0, name: 'Display 1', isActive: false},
-    ];
-    component.rects = [rectGroup0];
+    ]);
     await checkSelectedDisplay([1], [0]);
   });
 
   it('defaults initial selection to first display with non-display rects and groupId non-zero', async () => {
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup1]);
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
       {displayId: 20, groupId: 1, name: 'Display 1', isActive: false},
-    ];
-    component.rects = [rectGroup1];
+    ]);
     await checkSelectedDisplay([1], [1]);
   });
 
   it('handles change from zero to one display and back to zero', async () => {
-    component.displays = [];
-    component.rects = [];
+    dom.setComponentInput('displays', []);
+    dom.setComponentInput('rects', []);
     await checkSelectedDisplay([], []);
     const placeholder = dom.get('.placeholder-text');
     placeholder.checkTextExact('No rects found.');
 
-    component.rects = [rectGroup0];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([0], [0], true);
 
-    component.displays = [];
-    component.rects = [];
+    dom.setComponentInput('displays', []);
+    dom.setComponentInput('rects', []);
     await checkSelectedDisplay([], []);
   });
 
   it('handles current display group id no longer present', async () => {
-    component.rects = [rectGroup0];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([0], [0]);
 
-    component.rects = [rectGroup1];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup1]);
+    dom.setComponentInput('displays', [
       {displayId: 20, groupId: 1, name: 'Display 1', isActive: false},
-    ];
+    ]);
     await checkSelectedDisplay([1], [1]);
   });
 
   it('draws mini rects with non-present group id', () => {
-    component.displays = [
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
-    ];
+    ]);
     dom.detectChanges();
-    component.rects = [rectGroup0];
-    component.miniRects = [rectGroup2];
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('miniRects', [rectGroup2]);
     resetSpies();
     dom.detectChanges();
     checkAllSpiesCalled(2);
@@ -475,17 +490,17 @@ describe('RectsComponent', () => {
   });
 
   it('draws mini rects with default spacing, rotation and shading mode', () => {
-    component.displays = [
+    dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
-    ];
+    ]);
     dom.detectChanges();
 
     updateSeparationSlider();
     updateRotationSlider();
     updateShadingMode(ShadingMode.GRADIENT, ShadingMode.WIRE_FRAME);
 
-    component.rects = [rectGroup0, rectGroup0];
-    component.miniRects = [rectGroup0, rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0, rectGroup0]);
+    dom.setComponentInput('miniRects', [rectGroup0, rectGroup0]);
     resetSpies();
     dom.detectChanges();
     checkAllSpiesCalled(2);
@@ -514,35 +529,32 @@ describe('RectsComponent', () => {
   });
 
   it('redraws mini rects on change', () => {
-    component.miniRects = [rectGroup0, rectGroup0];
+    dom.setComponentInput('miniRects', [rectGroup0, rectGroup0]);
     dom.detectChanges();
     resetSpies();
 
-    component.miniRects = [rectGroup0, rectGroup0];
+    dom.setComponentInput('miniRects', [rectGroup0, rectGroup0]);
     dom.detectChanges();
     checkAllSpiesCalled(1);
   });
 
   it('handles collapse button click', () => {
     dom.detectChanges();
-    const spy = spyOn(
-      assertDefined(component.rectsComponent).collapseButtonClicked,
-      'emit',
-    );
+    const spy = spyOn(component.collapseButtonClicked, 'emit');
     dom.findAndClick('collapsible-section-title button');
     expect(spy).toHaveBeenCalled();
   });
 
   it('updates scene on pinned items change', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     resetSpies();
 
-    component.pinnedItems = [
+    dom.setComponentInput('pinnedItems', [
       UiHierarchyTreeNode.from(
         new HierarchyTreeBuilder().setId('test-id').setName('0').build(),
       ),
-    ];
+    ]);
     dom.detectChanges();
     expect(updateViewPositionSpy).toHaveBeenCalledTimes(0);
     expect(updateRectsSpy).toHaveBeenCalledTimes(1);
@@ -552,7 +564,7 @@ describe('RectsComponent', () => {
   });
 
   it('emits rect id on rect click', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
 
     const testString = 'test_id';
@@ -572,7 +584,7 @@ describe('RectsComponent', () => {
   });
 
   it('pans view without emitting rect id', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     const cameraBefore = updateViewPositionSpy.calls.mostRecent().args[0];
     expect(cameraBefore.panScreenDistance.dx).toBe(0);
@@ -607,7 +619,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles window resize', async () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     resetSpies();
@@ -625,12 +637,12 @@ describe('RectsComponent', () => {
   });
 
   it('handles change in dark mode', async () => {
-    component.rects = [rectGroup0];
-    component.miniRects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('miniRects', [rectGroup0]);
     dom.detectChanges();
     resetSpies();
 
-    component.isDarkMode = true;
+    dom.setComponentInput('isDarkMode', true);
     dom.detectChanges();
     expect(updateRectsSpy).toHaveBeenCalledTimes(2);
     expect(updateLabelsSpy).toHaveBeenCalledTimes(2);
@@ -639,7 +651,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles zoom button clicks', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     const zoomFactor =
@@ -663,13 +675,11 @@ describe('RectsComponent', () => {
   });
 
   it('handles zoom change via scroll event', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     const zoomFactor =
       updateViewPositionSpy.calls.mostRecent().args[0].zoomFactor;
     resetSpies();
-
-    const rectsElement = dom.get('rects-view');
 
     const zoomInEvent = new WheelEvent('wheel');
     Object.defineProperty(zoomInEvent, 'target', {
@@ -677,7 +687,7 @@ describe('RectsComponent', () => {
     });
     Object.defineProperty(zoomInEvent, 'deltaY', {value: 0});
     spyOn(zoomInEvent, 'preventDefault').and.callThrough();
-    rectsElement.dispatchEvent(zoomInEvent);
+    dom.dispatchEvent(zoomInEvent);
     expect(zoomInEvent.preventDefault).toHaveBeenCalledTimes(1);
     checkZoomedIn(zoomFactor);
 
@@ -691,13 +701,13 @@ describe('RectsComponent', () => {
     });
     Object.defineProperty(zoomOutEvent, 'deltaY', {value: 1});
     spyOn(zoomOutEvent, 'preventDefault').and.callThrough();
-    rectsElement.dispatchEvent(zoomOutEvent);
+    dom.dispatchEvent(zoomOutEvent);
     expect(zoomOutEvent.preventDefault).toHaveBeenCalledTimes(1);
     checkZoomedOut(zoomedInFactor);
   });
 
   it('handles reset button click', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     const [camera, boundingBox] = updateViewPositionSpy.calls.mostRecent().args;
 
@@ -716,14 +726,14 @@ describe('RectsComponent', () => {
   });
 
   it('handles change in highlighted item', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     expect(updateRectsSpy.calls.mostRecent().args[0][0].colorType).toEqual(
       ColorType.VISIBLE,
     );
     resetSpies();
 
-    component.highlightedItem = rectGroup0.id;
+    dom.setComponentInput('highlightedItem', rectGroup0.id);
     dom.detectChanges();
 
     expect(updateViewPositionSpy).not.toHaveBeenCalled();
@@ -736,7 +746,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles rect double click', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     resetSpies();
 
@@ -759,7 +769,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles mini rect double click', () => {
-    component.rects = [rectGroup0];
+    dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
     resetSpies();
 
@@ -773,31 +783,34 @@ describe('RectsComponent', () => {
   });
 
   it('does not render more that selected label if over 30 rects', () => {
-    component.rects = Array.from({length: 30}, () => rectGroup0);
+    dom.setComponentInput(
+      'rects',
+      Array.from({length: 30}, () => rectGroup0),
+    );
     dom.detectChanges();
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(30);
 
     const newRect = makeRectWithGroupId(0, true, 'new rect');
-    component.rects = component.rects.concat([newRect]);
+    dom.setComponentInput('rects', component.rects().concat([newRect]));
     dom.detectChanges();
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(0);
 
-    component.highlightedItem = newRect.id;
+    dom.setComponentInput('highlightedItem', newRect.id);
     dom.detectChanges();
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(1);
   });
 
   it('does not render more that selected label if multiple group ids', async () => {
-    component.rects = [rectGroup0];
-    component.displays = [
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('displays', [
       {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
       {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
-    ];
+    ]);
     dom.detectChanges();
     await checkSelectedDisplay([0], [0]);
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(1);
 
-    component.rects = component.rects.concat([rectGroup1]);
+    dom.setComponentInput('rects', component.rects().concat([rectGroup1]));
     dom.detectChanges();
     dom.openMatSelect();
     getDisplayOptions()[1].click();
@@ -805,7 +818,7 @@ describe('RectsComponent', () => {
 
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(0);
 
-    component.highlightedItem = rectGroup0.id;
+    dom.setComponentInput('highlightedItem', rectGroup0.id);
     dom.detectChanges();
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(1);
   });
@@ -817,22 +830,22 @@ describe('RectsComponent', () => {
     });
     expect(dom.find('.rect-type-toggle')).toBeUndefined();
 
-    component.rectSpec = {
+    dom.setComponentInput('rectSpec', {
       type: TraceRectType.LAYERS,
       icon: 'layers',
       legend: [],
-    };
+    });
     dom.detectChanges();
     expect(dom.find('.rect-type-toggle')).toBeUndefined();
 
-    component.allRectSpecs = [
-      component.rectSpec,
+    dom.setComponentInput('allRectSpecs', [
+      component.rectSpec(),
       {
         type: TraceRectType.INPUT_WINDOWS,
         icon: 'touch_app',
         legend: [],
       },
-    ];
+    ]);
     dom.detectChanges();
     const buttons = dom.findAll('.rect-type-icon');
     buttons[0].checkTextExact('layers');
@@ -845,19 +858,19 @@ describe('RectsComponent', () => {
   });
 
   it('shows warning for any rect type set after the first', async () => {
-    component.rectSpec = {
+    dom.setComponentInput('rectSpec', {
       type: TraceRectType.LAYERS,
       icon: 'layers',
       legend: [],
-    };
+    });
     dom.detectChanges();
     expect(dom.find('.warning')).toBeUndefined();
 
-    component.rectSpec = {
+    dom.setComponentInput('rectSpec', {
       type: TraceRectType.INPUT_WINDOWS,
       icon: 'touch_app',
       legend: [],
-    };
+    });
     dom.detectChanges();
     const warning = dom.get('.warning');
     warning
@@ -866,11 +879,11 @@ describe('RectsComponent', () => {
         'Showing input windows - change rect type via toggle above',
       );
 
-    component.rectSpec = {
+    dom.setComponentInput('rectSpec', {
       type: TraceRectType.LAYERS,
       icon: 'layers',
       legend: [],
-    };
+    });
     dom.detectChanges();
     expect(dom.find('.warning')).toBeUndefined();
   });
@@ -896,11 +909,11 @@ describe('RectsComponent', () => {
         showInWireFrameMode: true,
       },
     ];
-    component.rectSpec = {
+    dom.setComponentInput('rectSpec', {
       type: TraceRectType.LAYERS,
       icon: 'layers',
       legend,
-    };
+    });
     dom.detectChanges();
     const legendEl = dom.get('.rect-legend');
     expect(legendEl.find('.rect-legend-expand-button')).toBeUndefined();
@@ -976,38 +989,34 @@ describe('RectsComponent', () => {
   }
 
   function checkSliderUnfocusesOnClick(
-    slider: DOMTestHelper<TestHostComponent>,
+    slider: DOMTestHelper<RectsComponent>,
     expectedValue: number,
   ) {
-    const rectsComponent = assertDefined(component.rectsComponent);
     slider.dispatchEvent(new MouseEvent('mousedown'));
     slider.dispatchEvent(new MouseEvent('mouseup'));
-    expect(rectsComponent.getZSpacingFactor()).toBe(expectedValue);
+    expect(component.getZSpacingFactor()).toBe(expectedValue);
     dom.keydownArrowRight();
-    expect(rectsComponent.getZSpacingFactor()).toBe(expectedValue);
+    expect(component.getZSpacingFactor()).toBe(expectedValue);
     dom.keydownArrowLeft();
-    expect(rectsComponent.getZSpacingFactor()).toBe(expectedValue);
+    expect(component.getZSpacingFactor()).toBe(expectedValue);
   }
 
   function updateSeparationSlider() {
-    const rectsComponent = assertDefined(component.rectsComponent);
-    expect(rectsComponent.getZSpacingFactor()).toBe(1);
-    rectsComponent.onSeparationSliderChange(0.06);
+    expect(component.getZSpacingFactor()).toBe(1);
+    component.onSeparationSliderChange(0.06);
     dom.detectChanges();
-    expect(rectsComponent.getZSpacingFactor()).toBe(0.06);
+    expect(component.getZSpacingFactor()).toBe(0.06);
   }
 
   function updateRotationSlider() {
-    const rectsComponent = assertDefined(component.rectsComponent);
-    rectsComponent.onRotationSliderChange(0.5);
+    component.onRotationSliderChange(0.5);
     dom.detectChanges();
   }
 
   function updateShadingMode(before: ShadingMode, after: ShadingMode) {
-    const rectsComponent = assertDefined(component.rectsComponent);
-    expect(rectsComponent.getShadingMode()).toEqual(before);
+    expect(component.getShadingMode()).toEqual(before);
     dom.findAndClick('.right-btn-container button.shading-mode');
-    expect(rectsComponent.getShadingMode()).toEqual(after);
+    expect(component.getShadingMode()).toEqual(after);
   }
 
   function makeRectWithGroupId(
@@ -1086,7 +1095,7 @@ describe('RectsComponent', () => {
   }
 
   function checkShadingOpt(
-    option: DOMTestHelper<TestHostComponent>,
+    option: DOMTestHelper<RectsComponent>,
     i: number,
     l: RectLegendOption[],
   ) {
@@ -1096,55 +1105,5 @@ describe('RectsComponent', () => {
     option.checkTextExact(
       l[i].fill !== undefined ? l[i].desc : 'question_mark' + l[i].desc,
     );
-  }
-
-  @Component({
-    imports: [RectsComponent],
-    selector: 'host-component',
-    template: `
-      <rects-view
-        title="TestRectsView"
-        [store]="store"
-        [rects]="rects"
-        [miniRects]="miniRects"
-        [displays]="displays"
-        [isStackBased]="isStackBased"
-        [shadingModes]="shadingModes"
-        [userOptions]="userOptions"
-        [dependencies]="dependencies"
-        [pinnedItems]="pinnedItems"
-        [isDarkMode]="isDarkMode"
-        [highlightedItem]="highlightedItem"
-        [rectSpec]="rectSpec"
-        [allRectSpecs]="allRectSpecs"></rects-view>
-    `,
-  })
-  class TestHostComponent {
-    store = new PersistentStore();
-    rects: UiRect[] = [];
-    displays: DisplayIdentifier[] = [];
-    miniRects: UiRect[] = [];
-    isStackBased = false;
-    shadingModes = [
-      ShadingMode.GRADIENT,
-      ShadingMode.WIRE_FRAME,
-      ShadingMode.OPACITY,
-    ];
-    userOptions = {
-      showOnlyVisible: {
-        name: 'Show only',
-        chip: VISIBLE_CHIP,
-        enabled: false,
-      },
-    };
-    dependencies = [TraceType.SURFACE_FLINGER];
-    pinnedItems: UiHierarchyTreeNode[] = [];
-    isDarkMode = false;
-    highlightedItem = '';
-    rectSpec: RectSpec | undefined;
-    allRectSpecs: RectSpec[] | undefined;
-
-    @ViewChild(RectsComponent)
-    rectsComponent: RectsComponent | undefined;
   }
 });
