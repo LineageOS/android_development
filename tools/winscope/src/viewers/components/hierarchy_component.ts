@@ -15,14 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Inject,
-  Input,
-  Output,
-} from '@angular/core';
+import {Component, ElementRef, Inject, input, output} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -75,18 +68,18 @@ export class HierarchyComponent {
   Analytics = Analytics;
   readonly treeStorage = new InMemoryStorage();
 
-  @Input() nodeRows: Array<FlattenedTreeRow<UiHierarchyTreeNode>> = [];
-  @Input() tableProperties: TableProperties | undefined;
-  @Input() dependencies: TraceType[] = [];
-  @Input() highlightedItem = '';
-  @Input() pinnedItems: UiHierarchyTreeNode[] = [];
-  @Input() store: PersistentStore | undefined;
-  @Input() userOptions: UserOptions = {};
-  @Input() rectIdToShowState?: Map<string, RectShowState>;
-  @Input() placeholderText = 'No entry found.';
-  @Input() textFilter: TextFilter | undefined;
+  nodeRows = input<Array<FlattenedTreeRow<UiHierarchyTreeNode>>>([]);
+  tableProperties = input<TableProperties>();
+  dependencies = input<TraceType[]>([]);
+  highlightedItem = input('');
+  pinnedItems = input<UiHierarchyTreeNode[]>([]);
+  store = input<PersistentStore>();
+  userOptions = input<UserOptions>({});
+  rectIdToShowState = input<Map<string, RectShowState>>();
+  placeholderText = input('No entry found.');
+  textFilter = input<TextFilter>();
 
-  @Output() collapseButtonClicked = new EventEmitter();
+  collapseButtonClicked = output();
 
   constructor(
     @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
@@ -97,15 +90,15 @@ export class HierarchyComponent {
   }
 
   isFlattened(): boolean {
-    return this.userOptions['flat']?.enabled;
+    return this.userOptions()['flat']?.enabled;
   }
 
   showPlaceholderText(): boolean {
-    return this.nodeRows.length === 0 && !!this.placeholderText;
+    return this.nodeRows().length === 0 && !!this.placeholderText();
   }
 
   getWarnings(): Warning[] {
-    return this.nodeRows.flatMap((row) => {
+    return this.nodeRows().flatMap((row) => {
       return row.node.getWarnings();
     });
   }
@@ -148,10 +141,10 @@ export class HierarchyComponent {
 
   getPlaceholderText(): string {
     return (
-      this.placeholderText +
+      this.placeholderText() +
       ` There may be no ${
-        this.dependencies.length > 0
-          ? TRACE_INFO[this.dependencies[0]].name + ' state'
+        this.dependencies().length > 0
+          ? TRACE_INFO[this.dependencies()[0]].name + ' state'
           : 'state for this trace'
       } associated with the current state in the active trace.` +
       ' Try changing timeline position.'

@@ -15,6 +15,8 @@ limitations under the License.
 -->
 
 <div class="view-header">
+  @let pinned = pinnedItems();
+  @let highlighted = highlightedItem();
   <div class="title-section">
     <collapsible-section-title
       class="hierarchy-title"
@@ -24,15 +26,15 @@ limitations under the License.
     <search-box
       formFieldClass="applied-field mat-form-field-appearance-none"
       subscriptSizing="dynamic"
-      [textFilter]="textFilter"
+      [textFilter]="textFilter()"
       (filterChange)="onFilterChange($event)"
     ></search-box>
   </div>
   <user-options
     class="view-controls"
-    [userOptions]="userOptions"
+    [userOptions]="userOptions()"
     [eventType]="ViewerEvents.HierarchyUserOptionsChange"
-    [traceType]="dependencies[0]"
+    [traceType]="dependencies()[0]"
     [logCallback]="Analytics.Navigation.logHierarchySettingsChanged"
   >
   </user-options>
@@ -51,21 +53,23 @@ limitations under the License.
       }
     </div>
   }
-  @if (tableProperties) {
-    <properties-table class="properties-table" [properties]="tableProperties"></properties-table>
+  @let tableProps = tableProperties() ?? undefined;
+  @if (tableProps !== undefined) {
+    <properties-table class="properties-table" [properties]="tableProps"></properties-table>
   }
-  @if (pinnedItems.length > 0) {
+  @if (pinned.length > 0) {
     <div class="pinned-items">
-      @for (pinnedItem of pinnedItems; track pinnedItem.id) {
+      @for (pinnedItem of pinned; track pinnedItem.id) {
+        @let isItemHighlighted = isHighlighted(pinnedItem, highlighted);
         <tree-node
           class="node full-opacity"
           [class]="pinnedItem.getDiff()"
-          [class.selected]="isHighlighted(pinnedItem, highlightedItem)"
+          [class.selected]="isItemHighlighted"
           [class.clickable]="true"
           [node]="pinnedItem"
           [isPinned]="true"
           [isInPinnedSection]="true"
-          [isSelected]="isHighlighted(pinnedItem, highlightedItem)"
+          [isSelected]="isItemHighlighted"
           (pinNodeChange)="onPinnedItemChange($any($event))"
           (click)="onPinnedNodeClick($event, pinnedItem)"
         ></tree-node>
@@ -77,16 +81,17 @@ limitations under the License.
 @if (showPlaceholderText()) {
   <span class="mat-body-1 placeholder-text">{{ getPlaceholderText() }}</span>
 }
-@if (nodeRows.length > 0) {
+@let rows = nodeRows();
+@if (rows.length > 0) {
   <tree-view
     class="tree"
-    [nodeRows]="nodeRows"
+    [nodeRows]="rows"
     [isFlattened]="isFlattened()"
     [useStoredExpandedState]="true"
-    [highlightedItem]="highlightedItem"
-    [pinnedItems]="pinnedItems"
+    [highlightedItem]="highlighted"
+    [pinnedItems]="pinned"
     [itemsClickable]="true"
-    [rectIdToShowState]="rectIdToShowState"
+    [rectIdToShowState]="rectIdToShowState()"
     [store]="treeStorage"
     [handleArrowPress]="true"
     (highlightedChange)="onHighlightedItemChange($any($event))"
