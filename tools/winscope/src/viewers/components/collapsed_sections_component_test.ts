@@ -34,7 +34,7 @@ describe('CollapsedSectionsComponent', () => {
     const fixture = TestBed.createComponent(CollapsedSectionsComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.sections = new CollapsibleSections([
+    const sections = new CollapsibleSections([
       {
         type: CollapsibleSectionType.RECTS,
         label: 'rects',
@@ -51,6 +51,7 @@ describe('CollapsedSectionsComponent', () => {
         isCollapsed: false,
       },
     ]);
+    dom.setComponentInput('sections', sections);
     dom.detectChanges();
   });
 
@@ -64,7 +65,7 @@ describe('CollapsedSectionsComponent', () => {
     sections[0].checkText('HIERARCHY');
     expect(sections[0].find('.mat-icon')).toBeDefined();
 
-    assertDefined(component.sections).onCollapseStateChange(
+    assertDefined(component.sections()).onCollapseStateChange(
       CollapsibleSectionType.RECTS,
       true,
     );
