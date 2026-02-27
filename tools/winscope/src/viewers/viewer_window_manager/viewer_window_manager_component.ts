@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
@@ -41,7 +41,6 @@ import {UiData} from './ui_data';
   styleUrls: ['./viewer_window_manager_component.css'],
 })
 export class ViewerWindowManagerComponent extends ViewerComponent<UiData> {
-  @Input() active = false;
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
 

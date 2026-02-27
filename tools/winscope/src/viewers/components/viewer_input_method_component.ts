@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
@@ -39,8 +39,6 @@ import {ViewerComponent} from '@viewers/components/viewer_component';
   styleUrls: ['./viewer_input_method_component.css'],
 })
 export class ViewerInputMethodComponent extends ViewerComponent<ImeUiData> {
-  @Input() active = false;
-
   CollapsibleSectionType = CollapsibleSectionType;
   sections = new CollapsibleSections([
     {
