@@ -14,23 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@for (option of objectKeys(userOptions); track option) {
+@let options = userOptions();
+@for (option of objectKeys(options); track option) {
   <button
     mat-flat-button
-    [color]="getUserOptionButtonColor(userOptions[option])"
-    [disabled]="userOptions[option].isUnavailable"
-    [class.not-enabled]="!userOptions[option].enabled"
+    [color]="getUserOptionButtonColor(options[option])"
+    [disabled]="options[option].isUnavailable"
+    [class.not-enabled]="!options[option].enabled"
     class="user-option"
     [style.cursor]="'pointer'"
-    (click)="onUserOptionChange(userOptions[option])"
+    (click)="onUserOptionChange(options[option])"
   >
-    <span class="user-option-label" [class.with-chip]="!!userOptions[option].chip">
-      <span> {{ userOptions[option].name }} </span>
-      @if (userOptions[option].chip) {
-        <div class="user-option-chip">{{ userOptions[option].chip.short }}</div>
+    <span class="user-option-label" [class.with-chip]="!!options[option].chip">
+      <span> {{ options[option].name }} </span>
+      @if (options[option].chip) {
+        <div class="user-option-chip">{{ options[option].chip.short }}</div>
       }
-      @if (userOptions[option].icon) {
-        <mat-icon class="material-symbols-outlined"> {{ userOptions[option].icon }} </mat-icon>
+      @if (options[option].icon) {
+        <mat-icon class="material-symbols-outlined"> {{ options[option].icon }} </mat-icon>
       }
     </span>
   </button>

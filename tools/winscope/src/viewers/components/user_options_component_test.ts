@@ -36,7 +36,7 @@ describe('UserOptionsComponent', () => {
     const fixture = TestBed.createComponent(UserOptionsComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.userOptions = {
+    const userOptions = {
       option1: {
         name: 'option 1',
         enabled: false,
@@ -55,8 +55,9 @@ describe('UserOptionsComponent', () => {
         icon: 'visibility',
       },
     };
-    component.eventType = testEventType;
-    component.traceType = TraceType.SURFACE_FLINGER;
+    dom.setComponentInput('userOptions', userOptions);
+    dom.setComponentInput('eventType', testEventType);
+    dom.setComponentInput('traceType', TraceType.SURFACE_FLINGER);
     dom.detectChanges();
   });
 
@@ -84,7 +85,9 @@ describe('UserOptionsComponent', () => {
   it('disables option if unavailable', () => {
     const option = dom.get('.user-option');
     option.checkDisabled(false);
-    component.userOptions['option1'].isUnavailable = true;
+    const userOptions = component.userOptions();
+    userOptions['option1'].isUnavailable = true;
+    dom.setComponentInput('userOptions', userOptions);
     dom.detectChanges();
     option.checkDisabled(true);
   });
@@ -94,7 +97,8 @@ describe('UserOptionsComponent', () => {
     dom.addEventListener(testEventType, (event) => {
       options = (event as CustomEvent).detail.userOptions;
     });
-    const logSpy = spyOn(component, 'logCallback');
+    const logSpy = jasmine.createSpy();
+    dom.setComponentInput('logCallback', logSpy);
     dom.findAndClick('.user-option');
     expect(assertDefined(options)['option1'].enabled).toBeTrue();
     expect(logSpy).toHaveBeenCalled();
