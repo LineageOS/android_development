@@ -22,20 +22,22 @@ limitations under the License.
   ></collapsible-section-title>
 </div>
 
-@if (!additionalProperties) {
+@let props = additionalProperties();
+
+@if (!props) {
   <span class="mat-body-1 placeholder-text"> No IME entry found. </span>
-}
-@if (additionalProperties) {
+} @else {
   <div class="additional-properties-content">
     @if (isAllPropertiesUndefined()) {
       <div class="group">
         <p class="mat-body-1">
-          There is no corresponding WM / SF additionalProperties for this IME entry – no WM / SF
-          entry is recorded before this IME entry in time. View later frames for WM & SF properties.
+          There is no corresponding WM / SF properties for this IME entry – no WM / SF entry is
+          recorded before this IME entry in time. View later frames for WM & SF properties.
         </p>
       </div>
     }
-    @if (isImeManagerService) {
+    @let isImms = isImeManagerService();
+    @if (isImms) {
       <div class="group ime-manager-service">
         @if (wmHierarchyTree()) {
           <button
@@ -51,10 +53,10 @@ limitations under the License.
           <h3 class="group-header mat-subtitle-1">WMState</h3>
         }
         <div class="left-column wm-state">
-          @if (additionalProperties.wm) {
+          @if (props.wm) {
             <p class="mat-body-1">{{ wmRootLabel() }}</p>
           }
-          @if (!additionalProperties.wm) {
+          @if (!props.wm) {
             <p class="mat-body-1">There is no corresponding WMState entry.</p>
           }
         </div>
@@ -163,8 +165,7 @@ limitations under the License.
           </div>
         </div>
       }
-    }
-    @if (!isImeManagerService) {
+    } @else {
       <!-- Ime Client or Ime Service -->
       <div class="group">
         @if (wmHierarchyTree()) {
@@ -181,7 +182,7 @@ limitations under the License.
           <h3 class="group-header mat-subtitle-1">WMState</h3>
         }
         <div class="left-column wm-state">
-          @if (additionalProperties.wm) {
+          @if (props.wm) {
             <p class="mat-body-1">{{ wmRootLabel() }}</p>
           } @else {
             <p class="mat-body-1">There is no corresponding WMState entry.</p>
@@ -191,30 +192,30 @@ limitations under the License.
       <div class="group">
         <h3 class="group-header mat-subtitle-1">SFLayer</h3>
         <div class="left-column sf-state">
-          @if (additionalProperties.sf) {
+          @if (props.sf) {
             <p class="mat-body-1">{{ sfRootLabel() }}</p>
           } @else {
             <p class="mat-body-1">There is no corresponding SFLayer entry.</p>
           }
         </div>
       </div>
-      @if (additionalProperties.wm) {
+      @if (props.wm) {
         <div class="group focus">
           <h3 class="group-header mat-subtitle-1">Focus</h3>
           <div class="left-column">
             <p class="mat-body-1">
               <span class="mat-body-2">Focused App:</span>
-              &ngsp; {{ additionalProperties.wm.wmStateProperties.focusedApp }}
+              &ngsp; {{ props.wm.wmStateProperties.focusedApp }}
             </p>
             <p class="mat-body-1">
               <span class="mat-body-2">Focused Activity:</span>
-              &ngsp; {{ additionalProperties.wm.wmStateProperties.focusedActivity }}
+              &ngsp; {{ props.wm.wmStateProperties.focusedActivity }}
             </p>
             <p class="mat-body-1">
               <span class="mat-body-2">Focused Window:</span>
-              &ngsp; {{ additionalProperties.wm.wmStateProperties.focusedWindow ?? 'null' }}
+              &ngsp; {{ props.wm.wmStateProperties.focusedWindow ?? 'null' }}
             </p>
-            @if (additionalProperties.sf) {
+            @if (props.sf) {
               <p class="mat-body-1">
                 <span class="mat-body-2">Focused Window Color:</span>
                 &ngsp; {{ formattedWindowColor() }}
@@ -228,23 +229,23 @@ limitations under the License.
       <div class="group visibility">
         <h3 class="group-header mat-subtitle-1">Visibility</h3>
         <div class="left-column">
-          @if (additionalProperties.wm) {
+          @if (props.wm) {
             <p class="mat-body-1">
               <span class="mat-body-2">InputMethod Window:</span>
-              &ngsp; {{ additionalProperties.wm.wmStateProperties.isInputMethodWindowVisible }}
+              &ngsp; {{ props.wm.wmStateProperties.isInputMethodWindowVisible }}
             </p>
           }
-          @if (additionalProperties.sf) {
+          @if (props.sf) {
             <p class="mat-body-1">
               <span class="mat-body-2">InputMethod Surface:</span>
-              &ngsp; {{ additionalProperties.sf.properties.inputMethodSurface?.isVisible ?? false }}
+              &ngsp; {{ props.sf.properties.inputMethodSurface?.isVisible ?? false }}
             </p>
           }
         </div>
       </div>
-      @if (additionalProperties.sf) {
+      @if (props.sf) {
         <div class="group ime-container">
-          @if (additionalProperties.sf.properties.imeContainer; as imeContainer) {
+          @if (props.sf.properties.imeContainer; as imeContainer) {
             <button
               [color]="getButtonColor($any(imeContainer))"
               mat-button
@@ -258,16 +259,16 @@ limitations under the License.
           <div class="left-column">
             <p class="mat-body-1">
               <span class="mat-body-2">ZOrderRelativeOfId:</span>
-              &ngsp; {{ additionalProperties.sf.properties.imeContainer?.zOrderRelativeOfId }}
+              &ngsp; {{ props.sf.properties.imeContainer?.zOrderRelativeOfId }}
             </p>
             <p class="mat-body-1">
               <span class="mat-body-2">Z:</span>
-              &ngsp; {{ additionalProperties.sf.properties.imeContainer?.z }}
+              &ngsp; {{ props.sf.properties.imeContainer?.z }}
             </p>
           </div>
         </div>
         <div class="group input-method-surface">
-          @if (additionalProperties.sf.properties.inputMethodSurface; as inputMethodSurface) {
+          @if (props.sf.properties.inputMethodSurface; as inputMethodSurface) {
             <button
               [color]="getButtonColor($any(inputMethodSurface))"
               mat-button

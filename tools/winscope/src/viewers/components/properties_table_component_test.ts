@@ -39,7 +39,7 @@ describe('PropertiesTableComponent', () => {
   });
 
   it('renders defined table properties', () => {
-    component.properties = {prop1: 'value1', prop2: 'value2'};
+    dom.setComponentInput('properties', {prop1: 'value1', prop2: 'value2'});
     dom.detectChanges();
     const rows = dom.findAll('tr');
     expect(rows.length).toEqual(2);
@@ -50,7 +50,7 @@ describe('PropertiesTableComponent', () => {
   });
 
   it('renders undefined table properties', () => {
-    component.properties = {prop: undefined};
+    dom.setComponentInput('properties', {prop: undefined});
     dom.detectChanges();
     const rows = dom.findAll('tr');
     expect(rows.length).toEqual(1);
