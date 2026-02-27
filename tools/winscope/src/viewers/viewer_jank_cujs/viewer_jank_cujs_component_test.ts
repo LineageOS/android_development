@@ -30,7 +30,7 @@ import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 class ViewerJankCujsComponentTest extends AbstractLogViewerComponentTest<ViewerJankCujsComponent> {
   protected override readonly testProperties = false;
   protected override readonly testScroll = false;
-  protected override readonly hasCurrentTimeButton = false;
+  protected override readonly hasTimeControls = false;
   protected override readonly hasFilters = false;
 
   protected override checkTimestampInTable(

@@ -77,7 +77,7 @@ class TraceConverter:
     else:
       self.width = "{16}"
       self.spacing = "        "
-    self.register_line = re.compile("    (([ ]*\\b(\S*)\\b +[0-9a-f]" + self.width + "){1,5}$)")
+    self.register_line = re.compile("    (([ ]*\\b(\\S*)\\b +[0-9a-f]" + self.width + "){1,5}$)")
 
     # Note that both trace and value line matching allow for variable amounts of
     # whitespace (e.g. \t). This is because the we want to allow for the stack

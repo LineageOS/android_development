@@ -14,12 +14,6 @@ android_sdk_repo_host {
         ":build_tools_runtime_properties",
     ],
 
-    merge_zips: [
-        ":build-tools_renderscript_includes",
-        ":renderscript-clang-include",
-        ":renderscript_sdk_prebuilts",
-    ],
-
     multilib: {
         common: {
             deps: [
@@ -32,8 +26,111 @@ android_sdk_repo_host {
             from: "framework/build-tools_core-lambda-stubs.jar",
             to: "core-lambda-stubs.jar",
         },
+        {
+            from: "bin/*",
+            to: "./",
+        },
+        {
+            from: "framework/*",
+            to: "./lib/",
+        },
     ],
 
+    target: {
+        linux: {
+            strip_files: [
+                "lib64/*.so",
+            ],
+        },
+        linux_glibc: {
+            merge_zips: [":deprecated-renderscript-tools"],
+        },
+        darwin: {
+            merge_zips: [":deprecated-renderscript-tools"],
+            strip_files: [
+                "lib64/*.dylib",
+            ],
+        },
+        not_windows: {
+            deps: [
+                "aapt",
+                "aapt2",
+                "aidl",
+                "apksigner",
+                "d8",
+                "dexdump",
+                "split-select",
+                "zipalign",
+            ],
+            strip_files: [
+                "aapt",
+                "aapt2",
+                "aidl",
+                "split-select",
+                "zipalign",
+            ],
+        },
+        windows: {
+            enabled: true,
+
+            merge_zips: [":deprecated-renderscript-tools"],
+
+            compile_multilib: "both",
+            multilib: {
+                lib32: {
+                    deps: [
+                        "aapt",
+                        "aidl",
+                        "apksigner",
+                        "d8",
+                        "dexdump",
+                        "libwinpthread-1",
+                        "split-select",
+                        "zipalign",
+                    ],
+                },
+                lib64: {
+                    deps: [
+                        "aapt2",
+                        "libwinpthread-1",
+                    ],
+                },
+            },
+            deps_remap: [
+                {
+                    from: "lib/*",
+                    to: "./",
+                },
+            ],
+            strip_files: [
+                "*.dll",
+                "aapt.exe",
+                "aapt2.exe",
+                "aidl.exe",
+                "dexdump.exe",
+                "lib64/*.dll",
+                "split-select.exe",
+                "zipalign.exe",
+            ],
+        },
+    },
+}
+
+android_sdk_repo_host {
+    name: "deprecated-renderscript-tools",
+
+    merge_zips: [
+        ":build-tools_renderscript_includes",
+        ":renderscript-clang-include",
+        ":renderscript_sdk_prebuilts",
+    ],
+
+    deps_remap: [
+        {
+            from: "bin/*",
+            to: "./",
+        },
+    ],
     target: {
         linux: {
             merge_zips: [":build-tools-lld-linux"],
@@ -52,93 +149,41 @@ android_sdk_repo_host {
         },
         not_windows: {
             deps: [
-                "aapt",
-                "aapt2",
-                "aidl",
-                "apksigner",
                 "bcc_compat",
-                "d8",
-                "dexdump",
                 "llvm-rs-cc",
-                "split-select",
-                "zipalign",
-            ],
-            deps_remap: [
-                {
-                    from: "bin/*",
-                    to: "./",
-                },
-                {
-                    from: "framework/*",
-                    to: "./lib/",
-                },
             ],
             strip_files: [
-                "aapt",
-                "aapt2",
-                "aidl",
                 "bcc_compat",
                 "llvm-rs-cc",
-                "split-select",
-                "zipalign",
             ],
         },
         windows: {
             enabled: true,
             merge_zips: [":build-tools-lld-windows"],
 
-            compile_multilib: "both",
+            compile_multilib: "32",
             multilib: {
                 lib32: {
                     deps: [
-                        "aapt",
-                        "aidl",
-                        "apksigner",
                         "bcc_compat",
-                        "d8",
-                        "dexdump",
-                        "libwinpthread-1",
                         "lld",
                         "llvm-rs-cc",
-                        "split-select",
-                        "zipalign",
-                    ],
-                },
-                lib64: {
-                    deps: [
-                        "aapt2",
-                        "libwinpthread-1",
                     ],
                 },
             },
             deps_remap: [
                 {
-                    from: "bin/*",
-                    to: "./",
-                },
-                {
                     from: "lib/*",
                     to: "./",
-                },
-                {
-                    from: "framework/*",
-                    to: "./lib/",
                 },
             ],
             strip_files: [
                 "*.dll",
-                "aapt.exe",
-                "aapt2.exe",
-                "aidl.exe",
                 "bcc_compat.exe",
-                "dexdump.exe",
-                "lib64/*.dll",
                 "lld-bin/*.dll",
                 "lld-bin/*.exe",
                 "lld.exe",
                 "llvm-rs-cc.exe",
-                "split-select.exe",
-                "zipalign.exe",
             ],
         },
     },

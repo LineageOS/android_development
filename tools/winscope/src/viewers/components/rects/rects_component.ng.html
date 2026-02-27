@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+@let currentSpec = rectSpec();
 <div class="view-header">
   <div class="title-section">
     <collapsible-section-title
-      [title]="title"
+      [title]="title()"
       (collapseButtonClicked)="collapseButtonClicked.emit()"
     ></collapsible-section-title>
     <div class="right-btn-container">
@@ -28,7 +29,7 @@ limitations under the License.
         (mouseleave)="onInteractionEnd([shadingModeButton])"
         mat-icon-button
         [matTooltip]="getShadingMode()"
-        [disabled]="shadingModes.length < 2"
+        [disabled]="shadingModes().length < 2"
         (click)="onShadingModeButtonClicked()"
         #shadingModeButton
       >
@@ -146,26 +147,27 @@ limitations under the License.
   <div class="filter-controls view-controls">
     <user-options
       class="block-filter-controls"
-      [userOptions]="userOptions"
+      [userOptions]="userOptions()"
       [eventType]="ViewerEvents.RectsUserOptionsChange"
-      [traceType]="dependencies[0]"
+      [traceType]="dependencies()[0]"
       [logCallback]="Analytics.Navigation.logRectSettingsChanged"
     >
     </user-options>
 
     <div class="displays-section">
-      @if (allRectSpecs) {
+      @let allSpecs = allRectSpecs();
+      @if (allSpecs) {
         <mat-button-toggle-group
-          [value]="rectSpec"
+          [value]="currentSpec"
           (change)="onRectTypeButtonClicked($event)"
           appearance="legacy"
           class="rect-type-toggle"
           [hideSingleSelectionIndicator]="true"
         >
-          @for (spec of allRectSpecs; track $index) {
+          @for (spec of allSpecs; track $index) {
             <mat-button-toggle [value]="spec">
               <mat-icon
-                [color]="spec === rectSpec ? 'primary' : 'accent'"
+                [color]="spec === currentSpec ? 'primary' : 'accent'"
                 [matTooltip]="'Show ' + spec.type"
                 class="rect-type-icon material-symbols-outlined"
                 >{{ spec.icon }}</mat-icon
@@ -174,21 +176,22 @@ limitations under the License.
           }
         </mat-button-toggle-group>
       }
-      <span class="mat-body-1">{{ groupLabel }}:</span>
+      <span class="mat-body-1">{{ groupLabel() }}:</span>
       <mat-form-field class="displays-select" subscriptSizing="dynamic" appearance="outline">
+        @let allDisplays = displays();
         <mat-select
           #displaySelect
           disableOptionCentering
           (selectionChange)="onDisplaySelectChange($event)"
           [value]="currentDisplays"
-          [disabled]="internalDisplays.length === 1"
+          [disabled]="allDisplays.length === 1"
           panelWidth="340px"
           multiple
         >
           <mat-select-trigger>
             <span> {{ getSelectTriggerValue() }} </span>
           </mat-select-trigger>
-          @for (display of internalDisplays; track display.displayId) {
+          @for (display of allDisplays; track display.displayId) {
             <mat-option
               [value]="display"
               [matTooltip]="'Display Id: ' + display.displayId"
@@ -216,11 +219,11 @@ limitations under the License.
   <span class="mat-body-1 warning">
     <mat-icon class="warning-icon icon-small"> warning </mat-icon>
     <span class="warning-message text-no-overflow">
-      Showing {{ rectSpec?.type }} - change rect type via toggle above
+      Showing {{ currentSpec?.type }} - change rect type via toggle above
     </span>
   </span>
 }
-@if (rects.length === 0) {
+@if (rects().length === 0) {
   <span class="mat-body-1 placeholder-text"> No rects found. </span>
 }
 @if (currentDisplays.length === 0) {
@@ -242,10 +245,10 @@ limitations under the License.
     ></canvas>
   </div>
 </div>
-@if (rectSpec) {
+@if (currentSpec !== undefined) {
   <span class="mat-body-1 rect-legend">
     <span class="shading-opts" [class.force-show-all]="legendExpanded" #shadingOpts>
-      @for (opt of rectSpec.legend; track opt) {
+      @for (opt of currentSpec.legend; track opt) {
         @if (!largeRectsMapper3d.isWireFrame() || opt.showInWireFrameMode) {
           <span class="shading-opt">
             @if (opt.fill === undefined) {
