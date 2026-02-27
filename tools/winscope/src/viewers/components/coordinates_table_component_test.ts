@@ -16,8 +16,12 @@
 
 import {TestBed} from '@angular/core/testing';
 import {CoordinatesTableComponent} from './coordinates_table_component';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 
 describe('CoordinatesTableComponent', () => {
+  let dom: DOMTestHelper<CoordinatesTableComponent>;
   let component: CoordinatesTableComponent;
 
   beforeAll(async () => {
@@ -29,9 +33,42 @@ describe('CoordinatesTableComponent', () => {
   beforeEach(() => {
     const fixture = TestBed.createComponent(CoordinatesTableComponent);
     component = fixture.componentInstance;
+    dom = new DOMTestHelper(fixture, fixture.nativeElement);
   });
 
   it('can be created', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('shows null if no coordinates', () => {
+    dom.detectChanges();
+    expect(dom.getText()).toEqual('null');
+  });
+
+  it('shows coordinates', () => {
+    const coordinates = new PropertyTreeBuilder()
+      .setRootId('')
+      .setName('coordinates')
+      .setFormatter(DEFAULT_PROPERTY_FORMATTER)
+      .setChildren([
+        {name: 'left', value: 1, formatter: DEFAULT_PROPERTY_FORMATTER},
+        {name: 'top', value: 2, formatter: DEFAULT_PROPERTY_FORMATTER},
+        {name: 'right', value: 3, formatter: DEFAULT_PROPERTY_FORMATTER},
+        {name: 'bottom', value: 4, formatter: DEFAULT_PROPERTY_FORMATTER},
+      ])
+      .build();
+    dom.setComponentInput('coordinates', coordinates);
+    dom.detectChanges();
+    const headers = dom
+      .get('.header-row')
+      .findAll('td')
+      .map((h) => h.getText());
+    expect(headers).toEqual(['Left', 'Top', 'Right', 'Bottom']);
+
+    const values = dom
+      .get('.values-row')
+      .findAll('td')
+      .map((v) => v.getText());
+    expect(values).toEqual(['1', '2', '3', '4']);
   });
 });

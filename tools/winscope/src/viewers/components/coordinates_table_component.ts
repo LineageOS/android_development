@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 @Component({
@@ -25,14 +25,15 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
   styleUrls: ['coordinates_table_component.css'],
 })
 export class CoordinatesTableComponent {
-  @Input() coordinates: PropertyTreeNode | undefined;
+  coordinates = input<PropertyTreeNode>();
 
   hasCoordinates() {
+    const coordinates = this.coordinates();
     return (
-      this.coordinates?.getChildByName('left') ||
-      this.coordinates?.getChildByName('right') ||
-      this.coordinates?.getChildByName('top') ||
-      this.coordinates?.getChildByName('bottom')
+      coordinates?.getChildByName('left') ||
+      coordinates?.getChildByName('right') ||
+      coordinates?.getChildByName('top') ||
+      coordinates?.getChildByName('bottom')
     );
   }
 }

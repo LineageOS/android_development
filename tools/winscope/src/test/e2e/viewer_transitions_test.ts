@@ -89,7 +89,9 @@ describe('Viewer Transitions', () => {
   }
 
   async function checkSelectedEntry() {
-    const transition35 = element.all(by.css(`${viewerSelector} .scroll .entry`)).get(3);
+    const transition35 = element
+      .all(by.css(`${viewerSelector} .scroll .entry`))
+      .get(3);
     await transition35.click();
     const selected = element(by.css(`${viewerSelector} .scroll .selected`));
     await checkEntryColumns(selected, [
