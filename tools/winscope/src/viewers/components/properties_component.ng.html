@@ -13,42 +13,42 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
+@let hasOptions = hasUserOptions();
 <div class="view-header">
   <div class="title-section">
     <collapsible-section-title
       class="properties-title"
-      [class.padded-title]="!hasUserOptions()"
-      [title]="title"
+      [class.padded-title]="!hasOptions"
+      [title]="title()"
       (collapseButtonClicked)="collapseButtonClicked.emit()"
     ></collapsible-section-title>
     <search-box
       formFieldClass="applied-field mat-form-field-appearance-none"
-      [textFilter]="textFilter"
+      [textFilter]="textFilter()"
       (filterChange)="onFilterChange($event)"
     ></search-box>
   </div>
 
-  @if (hasUserOptions()) {
+  @if (hasOptions) {
     <user-options
       class="view-controls"
-      [userOptions]="userOptions"
+      [userOptions]="userOptions()"
       [eventType]="ViewerEvents.PropertiesUserOptionsChange"
-      [traceType]="traceType"
+      [traceType]="traceType()"
       [logCallback]="Analytics.Navigation.logPropertiesSettingsChanged"
     >
     </user-options>
   }
 </div>
 
-@if (hasUserOptions()) {
+@if (hasOptions) {
   <mat-divider></mat-divider>
 }
 @if (showViewCaptureFormat()) {
   <ng-container>
     <view-capture-property-groups
       class="property-groups"
-      [properties]="$any(curatedProperties)"
+      [properties]="$any(curatedProperties())"
     ></view-capture-property-groups>
 
     @if (showPropertiesTree()) {
@@ -59,13 +59,13 @@ limitations under the License.
 @if (showPropertiesTree()) {
   <tree-view
     class="tree"
-    [nodeRows]="$any(nodeRows)"
-    [useStoredExpandedState]="!!store"
+    [nodeRows]="$any(nodeRows())"
+    [useStoredExpandedState]="!!store()"
     [itemsClickable]="true"
-    [highlightedItem]="highlightedProperty"
+    [highlightedItem]="highlightedProperty()"
     (highlightedChange)="onHighlightedPropertyChange($any($event))"
   ></tree-view>
 }
 @if (showPlaceholderText()) {
-  <span class="mat-body-1 placeholder-text"> {{ placeholderText }} </span>
+  <span class="mat-body-1 placeholder-text"> {{ placeholderText() }} </span>
 }

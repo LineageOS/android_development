@@ -81,16 +81,16 @@ describe('PropertiesComponent', () => {
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
 
-    component.store = new PersistentStore();
-    component.userOptions = {
+    dom.setComponentInput('store', new PersistentStore());
+    dom.setComponentInput('userOptions', {
       showDiff: {
         name: 'Show diff',
         enabled: false,
         isUnavailable: false,
       },
-    };
-    component.textFilter = new TextFilter();
-    component.traceType = TraceType.SURFACE_FLINGER;
+    });
+    dom.setComponentInput('textFilter', new TextFilter());
+    dom.setComponentInput('traceType', TraceType.SURFACE_FLINGER);
 
     dom.detectChanges();
   });
@@ -115,19 +115,17 @@ describe('PropertiesComponent', () => {
       .setValue(undefined)
       .build();
     tree.setIsRoot(true);
-    component.nodeRows = flattenNodesToRows(
-      [UiPropertyTreeNode.from(tree)],
-      false,
-      false,
-      '',
+    dom.setComponentInput(
+      'nodeRows',
+      flattenNodesToRows([UiPropertyTreeNode.from(tree)], false, false, ''),
     );
     dom.detectChanges();
     expect(dom.find('tree-view')).toBeDefined();
   });
 
   it('renders placeholder text', () => {
-    component.nodeRows = undefined;
-    component.placeholderText = 'Placeholder text';
+    dom.setComponentInput('nodeRows', undefined);
+    dom.setComponentInput('placeholderText', 'Placeholder text');
     dom.detectChanges();
     dom.get('.placeholder-text').checkTextExact('Placeholder text');
   });
@@ -139,11 +137,9 @@ describe('PropertiesComponent', () => {
       .setValue(undefined)
       .build();
     tree.setIsRoot(true);
-    component.nodeRows = flattenNodesToRows(
-      [UiPropertyTreeNode.from(tree)],
-      false,
-      false,
-      '',
+    dom.setComponentInput(
+      'nodeRows',
+      flattenNodesToRows([UiPropertyTreeNode.from(tree)], false, false, ''),
     );
     await dom.detectChangesAndWaitStable();
 
