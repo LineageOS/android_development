@@ -33,7 +33,7 @@ import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ColumnSpec, LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {UpdateTransitionParticipants} from './operations/update_transition_participants';
-import {UpdateTransitionTargets} from './operations/update_transition_targets';
+import {UpdateTransitionChanges} from './operations/update_transition_changes';
 import {TransitionsEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<
@@ -59,7 +59,7 @@ export class Presenter extends AbstractLogViewerPresenter<
     this.layerIdToName,
     this.windowTokenToTitle,
   );
-  private updateTransitionTargets = new UpdateTransitionTargets(
+  private updateTransitionChanges = new UpdateTransitionChanges(
     this.layerIdToName,
     this.windowTokenToTitle,
   );
@@ -262,7 +262,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       transitions.push(
         new TransitionsEntry(entry, fields, async () => {
           const properties = await transitionNode.getAllProperties();
-          this.updateTransitionTargets.apply(properties);
+          this.updateTransitionChanges.apply(properties);
           return properties;
         }),
       );

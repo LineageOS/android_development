@@ -175,27 +175,27 @@ describe('PerfettoParserTransitions', () => {
         assertDefined(properties.getChildByName('type')).formattedValue(),
       ).toBe('OPEN');
 
-      const targets = assertDefined(
-        properties.getChildByName('targets'),
+      const changes = assertDefined(
+        properties.getChildByName('changes'),
       ).getAllChildren();
-      expect(targets.length).toBe(2);
+      expect(changes.length).toBe(2);
       expect(
-        assertDefined(targets[0].getChildByName('layerId')).formattedValue(),
+        assertDefined(changes[0].getChildByName('layerId')).formattedValue(),
       ).toBe('398');
       expect(
-        assertDefined(targets[1].getChildByName('layerId')).formattedValue(),
+        assertDefined(changes[1].getChildByName('layerId')).formattedValue(),
       ).toBe('47');
       expect(
-        assertDefined(targets[0].getChildByName('mode')).formattedValue(),
+        assertDefined(changes[0].getChildByName('mode')).formattedValue(),
       ).toBe('TO_FRONT');
       expect(
-        assertDefined(targets[1].getChildByName('mode')).formattedValue(),
+        assertDefined(changes[1].getChildByName('mode')).formattedValue(),
       ).toBe('TO_BACK');
       expect(
-        assertDefined(targets[0].getChildByName('flags')).formattedValue(),
+        assertDefined(changes[0].getChildByName('flags')).formattedValue(),
       ).toBe('FLAG_MOVED_TO_TOP');
       expect(
-        assertDefined(targets[1].getChildByName('flags')).formattedValue(),
+        assertDefined(changes[1].getChildByName('flags')).formattedValue(),
       ).toBe('FLAG_SHOW_WALLPAPER');
 
       expect(

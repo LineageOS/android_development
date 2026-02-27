@@ -98,7 +98,7 @@ export class FileReaderTransitionsWm extends AbstractFileReader<PerfettoTransiti
         wmTransition.finishTransactionId,
       ),
       type: nullifyIfDefaultValue(wmTransition.type),
-      targets: nullifyIfDefaultValue(wmTransition.targets),
+      changes: nullifyIfDefaultValue(wmTransition.targets),
       flags: nullifyIfDefaultValue(wmTransition.flags),
       startingWindowRemoveTimeNs: nullifyIfDefaultValue(
         wmTransition.startingWindowRemoveTimeNs,
