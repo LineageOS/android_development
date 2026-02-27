@@ -14,33 +14,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@if (node) {
+@let n = node();
+@if (n) {
   <div class="node-property">
-    <span class="mat-body-1 property-key"> {{ getKey(node) }} </span>
-    @if (node.formattedValue()) {
+    <span class="mat-body-1 property-key"> {{ getKey(n) }} </span>
+    @if (n.formattedValue()) {
       <div class="property-value" [class]="[timeClass()]">
         @if (isTimestamp()) {
-          <button class="time-button" mat-button color="primary" (click)="onTimestampClicked(node)">
-            {{ node.formattedValue() }}
+          <button class="time-button" mat-button color="primary" (click)="onTimestampClicked(n)">
+            {{ n.formattedValue() }}
           </button>
-        } @else if (!isTimestamp() && !node.hasDiffValueParts()) {
-          @if (node.canPropagate()) {
+        } @else if (!isTimestamp() && !n.hasDiffValueParts()) {
+          @if (n.canPropagate()) {
             <div class="inline">
-              <button mat-button color="primary" (click)="onPropagateButtonClicked(node)">
-                {{ node.formattedValue() }}
+              <button mat-button color="primary" (click)="onPropagateButtonClicked(n)">
+                {{ n.formattedValue() }}
               </button>
             </div>
           } @else {
             <span [class]="valueClass()" class="mat-body-2 value new-value">{{
-              node.formattedValue()
+              n.formattedValue()
             }}</span>
           }
           @if (isModified()) {
-            <s class="mat-body-2 old-value">{{ node.getOldValue() }}</s>
+            <s class="mat-body-2 old-value">{{ n.getOldValue() }}</s>
           }
-        } @else if (node.hasDiffValueParts()) {
+        } @else if (n.hasDiffValueParts()) {
           <span class="value diff-value-parts">
-            @for (part of node.getDiffValueParts(); track $index; let i = $index) {
+            @for (part of n.getDiffValueParts(); track $index; let i = $index) {
               @if (i > 0) {
                 <span>&ngsp; | &ngsp;</span>
               }

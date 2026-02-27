@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  Inject,
-  input,
-  output,
-} from '@angular/core';
+import {Component, ElementRef, Inject, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
