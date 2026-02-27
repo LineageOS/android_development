@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
@@ -28,14 +27,26 @@ import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_
 import {TransformMatrixComponent} from './transform_matrix_component';
 
 describe('SurfaceFlingerPropertyGroupsComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  const transformNode = makeUiPropertyNode('transform', 'transform', {
+    type: 0,
+    matrix: {
+      dsdx: 1,
+      dsdy: 0,
+      dtdx: 0,
+      dtdy: 1,
+      tx: 0,
+      ty: 0,
+    },
+  });
+
+  let component: SurfaceFlingerPropertyGroupsComponent;
+  let dom: DOMTestHelper<SurfaceFlingerPropertyGroupsComponent>;
+  let collapseButtonClicked: boolean;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
-        TestHostComponent,
         MatDividerModule,
         MatTooltipModule,
         MatIconModule,
@@ -44,9 +55,19 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
         CollapsibleSectionTitleComponent,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(
+      SurfaceFlingerPropertyGroupsComponent,
+    );
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+
+    dom.setComponentInput('properties', makeProperties());
+
+    collapseButtonClicked = false;
+    spyOn(component.collapseButtonClicked, 'emit').and.callFake(() => {
+      collapseButtonClicked = true;
+    });
+
     dom.detectChanges();
   });
 
@@ -117,11 +138,13 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
   });
 
   it('emits highlighted id event from layer id in rel z parent', () => {
-    component.properties.relativeParent = {
+    const properties = makeProperties();
+    properties.relativeParent = {
       layerId: '1',
       nodeId: '1 relZParent',
       name: 'relZParent',
     };
+    dom.setComponentInput('properties', properties);
     dom.detectChanges();
     checkHighlightedIdEventEmittedFromButtonClick(
       '.hierarchy-info .rel-parent button',
@@ -130,13 +153,15 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
   });
 
   it('emits highlighted id event from layer id in rel z children', () => {
-    component.properties.relativeChildren = [
+    const properties = makeProperties();
+    properties.relativeChildren = [
       {
         layerId: '2',
         nodeId: '2 relZChild',
         name: 'relZChild',
       },
     ];
+    dom.setComponentInput('properties', properties);
     dom.detectChanges();
     checkHighlightedIdEventEmittedFromButtonClick(
       '.hierarchy-info .rel-children button',
@@ -169,7 +194,9 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
   });
 
   it('displays input window info if available', () => {
-    component.properties.hasInputChannel = true;
+    const properties = makeProperties();
+    properties.hasInputChannel = true;
+    dom.setComponentInput('properties', properties);
     dom.detectChanges();
 
     expect(dom.find('.inputs .left-column transform-matrix')).toBeDefined();
@@ -186,9 +213,9 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
   });
 
   it('handles collapse button click', () => {
-    expect(component.collapseButtonClicked).toBeFalse();
+    expect(collapseButtonClicked).toBeFalse();
     dom.findAndClick('collapsible-section-title button');
-    expect(component.collapseButtonClicked).toBeTrue();
+    expect(collapseButtonClicked).toBeTrue();
   });
 
   function checkHighlightedIdEventEmittedFromButtonClick(
@@ -203,29 +230,8 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
     expect(id).toEqual(expectedId);
   }
 
-  @Component({
-    imports: [SurfaceFlingerPropertyGroupsComponent],
-    selector: 'host-component',
-    template: `
-      <surface-flinger-property-groups
-        [properties]="properties"
-        (collapseButtonClicked)="onCollapseButtonClick()"></surface-flinger-property-groups>
-    `,
-  })
-  class TestHostComponent {
-    transformNode = makeUiPropertyNode('transform', 'transform', {
-      type: 0,
-      matrix: {
-        dsdx: 1,
-        dsdy: 0,
-        dtdx: 0,
-        dtdy: 1,
-        tx: 0,
-        ty: 0,
-      },
-    });
-
-    properties: SfCuratedProperties = {
+  function makeProperties(): SfCuratedProperties {
+    const properties: SfCuratedProperties = {
       summary: [
         {key: 'Invisible due to', simpleValue: 'reason 1, reason 2, reason 3'},
         {
@@ -240,10 +246,10 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
         },
       ],
       flags: 'HIDDEN (0x1)',
-      calcTransform: this.transformNode,
+      calcTransform: transformNode,
       calcCrop: EMPTY_OBJ_STRING,
       finalBounds: EMPTY_OBJ_STRING,
-      reqTransform: this.transformNode,
+      reqTransform: transformNode,
       bufferSize: EMPTY_OBJ_STRING,
       frameNumber: '0',
       bufferTransformType: 'IDENTITY',
@@ -259,7 +265,7 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
       reqColor: `${EMPTY_OBJ_STRING}, alpha: 1`,
       reqCornerRadii: '(4, 3, 2, 1)',
       reqCrop: '(0, 0) - (1, 2)',
-      inputTransform: this.transformNode,
+      inputTransform: transformNode,
       inputRegion: 'null',
       focusable: 'false',
       cropTouchRegionWithItem: 'none',
@@ -268,11 +274,6 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
       hasInputChannel: false,
       ignoreDestinationFrame: true,
     };
-
-    collapseButtonClicked = false;
-
-    onCollapseButtonClick() {
-      this.collapseButtonClicked = true;
-    }
+    return properties;
   }
 });

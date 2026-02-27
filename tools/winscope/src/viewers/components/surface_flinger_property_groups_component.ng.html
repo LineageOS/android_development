@@ -21,7 +21,8 @@ limitations under the License.
   ></collapsible-section-title>
 </div>
 
-@if (!properties) {
+@let props = properties();
+@if (!props) {
   <span class="mat-body-1 placeholder-text"> Layer not selected. </span>
 } @else {
   <div class="property-groups-content">
@@ -30,9 +31,9 @@ limitations under the License.
       <div class="left-column">
         <p class="mat-body-2 flags">
           <span class="mat-body-1">Flags:</span>
-          &ngsp; {{ properties.flags }}
+          &ngsp; {{ props.flags }}
         </p>
-        @for (summaryProperty of properties.summary; track summaryProperty.key) {
+        @for (summaryProperty of props.summary; track summaryProperty.key) {
           <span class="mat-body-2 summary inline">
             <span class="mat-body-1" [matTooltip]="summaryProperty.desc" [matTooltipShowDelay]="400"
               >{{ summaryProperty.key }}:</span
@@ -72,10 +73,10 @@ limitations under the License.
         >
           Transform:
         </p>
-        @if ((properties.calcTransform?.getAllChildren()?.length ?? 0) > 0) {
+        @if ((props.calcTransform?.getAllChildren()?.length ?? 0) > 0) {
           <transform-matrix
-            [matTooltip]="getTransformType(properties.calcTransform)"
-            [matrix]="getTransformMatrix(properties.calcTransform)"
+            [matTooltip]="getTransformType(props.calcTransform)"
+            [matrix]="getTransformMatrix(props.calcTransform)"
           ></transform-matrix>
         }
         <p class="mat-body-2 crop">
@@ -85,7 +86,7 @@ limitations under the License.
                     requested crop, cropped by parent bounds."
             >Crop:</span
           >
-          &ngsp; {{ properties.calcCrop }}
+          &ngsp; {{ props.calcCrop }}
         </p>
 
         <p class="mat-body-2 final-bounds">
@@ -95,7 +96,7 @@ limitations under the License.
                     transformed by calculated transform."
             >Final Bounds:</span
           >
-          &ngsp; {{ properties.finalBounds }}
+          &ngsp; {{ props.finalBounds }}
         </p>
       </div>
       <div class="right-column">
@@ -106,15 +107,15 @@ limitations under the License.
         >
           Transform:
         </p>
-        @if ((properties.reqTransform?.getAllChildren()?.length ?? 0) > 0) {
+        @if ((props.reqTransform?.getAllChildren()?.length ?? 0) > 0) {
           <transform-matrix
-            [matTooltip]="getTransformType(properties.reqTransform)"
-            [matrix]="getTransformMatrix(properties.reqTransform)"
+            [matTooltip]="getTransformType(props.reqTransform)"
+            [matrix]="getTransformMatrix(props.reqTransform)"
           ></transform-matrix>
         }
         <p class="mat-body-2 crop">
           <span class="mat-body-1" matTooltip="Requested crop">Crop:</span>
-          &ngsp; {{ properties.reqCrop }}
+          &ngsp; {{ props.reqCrop }}
         </p>
       </div>
     </div>
@@ -129,11 +130,11 @@ limitations under the License.
           matTooltip="Width, height, stride and format of active buffer, if available."
         >
           <span class="mat-body-1">Size:</span>
-          &ngsp; {{ properties.bufferSize }}
+          &ngsp; {{ props.bufferSize }}
         </p>
         <p class="mat-body-2 frame-number">
           <span class="mat-body-1">Frame Number:</span>
-          &ngsp; {{ properties.frameNumber }}
+          &ngsp; {{ props.frameNumber }}
         </p>
         <p class="mat-body-2 transform">
           <span
@@ -143,7 +144,7 @@ limitations under the License.
                     HWC."
             >Transform:</span
           >
-          &ngsp; {{ properties.bufferTransformType }}
+          &ngsp; {{ props.bufferTransformType }}
         </p>
       </div>
       <div class="right-column">
@@ -154,9 +155,9 @@ limitations under the License.
                     for this item."
             >Destination Frame:</span
           >
-          &ngsp; {{ properties.destinationFrame }}
+          &ngsp; {{ props.destinationFrame }}
         </p>
-        @if (properties.ignoreDestinationFrame) {
+        @if (props.ignoreDestinationFrame) {
           <p class="mat-body-2 ignore-frame">
             Destination Frame ignored because item has eIgnoreDestinationFrame flag set.
           </p>
@@ -171,7 +172,7 @@ limitations under the License.
       <div class="left-column">
         <p class="mat-body-2 z-order">
           <span class="mat-body-1">Z-order:</span>
-          &ngsp; {{ properties.z }}
+          &ngsp; {{ props.z }}
         </p>
         <p class="mat-body-2 rel-parent inline">
           <span
@@ -181,26 +182,26 @@ limitations under the License.
             >Relative Parent:</span
           >
           &ngsp;
-          @if (!isSfLayerSummary(properties.relativeParent)) {
-            {{ properties.relativeParent }}
+          @if (!isSfLayerSummary(props.relativeParent)) {
+            {{ props.relativeParent }}
           } @else {
             <button
               mat-button
               color="primary"
-              [matTooltip]="properties.relativeParent.name"
-              (click)="onIdClicked(properties.relativeParent.nodeId)"
+              [matTooltip]="props.relativeParent.name"
+              (click)="onIdClicked(props.relativeParent.nodeId)"
             >
-              {{ properties.relativeParent.layerId }}
+              {{ props.relativeParent.layerId }}
             </button>
           }
         </p>
         <span class="mat-body-2 rel-children inline">
           <span class="mat-body-1">Relative Children:</span>
           &ngsp;
-          @if (properties.relativeChildren.length === 0) {
+          @if (props.relativeChildren.length === 0) {
             none
           } @else {
-            @for (layer of properties.relativeChildren; track layer.nodeId; let i = $index) {
+            @for (layer of props.relativeChildren; track layer.nodeId; let i = $index) {
               <button
                 mat-button
                 color="primary"
@@ -209,7 +210,7 @@ limitations under the License.
               >
                 {{ layer.layerId }}
               </button>
-              {{ i === properties.relativeChildren.length - 1 ? '' : ', ' }}
+              {{ i === props.relativeChildren.length - 1 ? '' : ', ' }}
             }
           }
         </span>
@@ -228,7 +229,7 @@ limitations under the License.
             matTooltip="Final color - alpha may be inherited from a parent layer."
             >Color:</span
           >
-          &ngsp; {{ properties.calcColor }}
+          &ngsp; {{ props.calcColor }}
         </p>
         <p class="mat-body-2 corner-radius">
           <span
@@ -236,11 +237,11 @@ limitations under the License.
             matTooltip="Final corner radii (<TL>, <TR>, <BL>, <BR>) - may be affected by parent corner radii."
             >Corner Radii:</span
           >
-          &ngsp; {{ properties.calcCornerRadii }}
+          &ngsp; {{ props.calcCornerRadii }}
         </p>
         <p class="mat-body-2 shadow">
           <span class="mat-body-1">Shadow Radius:</span>
-          &ngsp; {{ properties.calcShadowRadius }}
+          &ngsp; {{ props.calcShadowRadius }}
         </p>
         <p class="mat-body-2">
           <span
@@ -250,11 +251,11 @@ limitations under the License.
                     be visible."
             >Corner Radius Crop:</span
           >
-          &ngsp; {{ properties.calcCornerRadiusCrop }}
+          &ngsp; {{ props.calcCornerRadiusCrop }}
         </p>
         <p class="mat-body-2 blur">
           <span class="mat-body-1">Blur Radius:</span>
-          &ngsp; {{ properties.backgroundBlurRadius }}
+          &ngsp; {{ props.backgroundBlurRadius }}
         </p>
       </div>
       <div class="right-column">
@@ -263,7 +264,7 @@ limitations under the License.
           <span class="mat-body-1" matTooltip="Requested color and alpha for this layer."
             >Color:</span
           >
-          &ngsp; {{ properties.reqColor }}
+          &ngsp; {{ props.reqColor }}
         </p>
         <p class="mat-body-2 corner-radius">
           <span
@@ -271,7 +272,7 @@ limitations under the License.
             matTooltip="Requested corner radii (<TL>, <TR>, <BL>, <BR>) not accounting for any parent values."
             >Corner Radii:</span
           >
-          &ngsp; {{ properties.reqCornerRadii }}
+          &ngsp; {{ props.reqCornerRadii }}
         </p>
       </div>
     </div>
@@ -280,37 +281,37 @@ limitations under the License.
 
     <div class="group inputs">
       <h3 class="group-header mat-subtitle-1">Input</h3>
-      @if (properties.hasInputChannel) {
+      @if (props.hasInputChannel) {
         <div class="left-column">
           <p class="property mat-body-1">To Display Transform:</p>
-          @if ((properties.inputTransform?.getAllChildren()?.length ?? 0) > 0) {
+          @if ((props.inputTransform?.getAllChildren()?.length ?? 0) > 0) {
             <transform-matrix
-              [matTooltip]="getTransformType(properties.inputTransform)"
-              [matrix]="getTransformMatrix(properties.inputTransform)"
+              [matTooltip]="getTransformType(props.inputTransform)"
+              [matrix]="getTransformMatrix(props.inputTransform)"
             ></transform-matrix>
           }
           <p class="mat-body-2">
             <span class="mat-body-1">Touchable Region:</span>
-            &ngsp; {{ properties.inputRegion }}
+            &ngsp; {{ props.inputRegion }}
           </p>
         </div>
         <div class="right-column">
           <p class="column-header mat-small">Config</p>
           <p class="mat-body-2 focusable">
             <span class="mat-body-1">Focusable:</span>
-            &ngsp; {{ properties.focusable }}
+            &ngsp; {{ props.focusable }}
           </p>
           <p class="mat-body-2 crop-touch-region">
             <span class="mat-body-1">Crop touch region with item:</span>
-            &ngsp; {{ properties.cropTouchRegionWithItem }}
+            &ngsp; {{ props.cropTouchRegionWithItem }}
           </p>
           <p class="mat-body-2 replace-touch-region">
             <span class="mat-body-1">Replace touch region with crop:</span>
-            &ngsp; {{ properties.replaceTouchRegionWithCrop }}
+            &ngsp; {{ props.replaceTouchRegionWithCrop }}
           </p>
           <p class="mat-body-2 input-config">
             <span class="mat-body-1">Input Config:</span>
-            &ngsp; {{ properties.inputConfig }}
+            &ngsp; {{ props.inputConfig }}
           </p>
         </div>
       } @else {

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -23,8 +22,30 @@ import {TransformMatrixComponent} from './transform_matrix_component';
 import {ViewCapturePropertyGroupsComponent} from './view_capture_property_groups_component';
 
 describe('ViewCapturePropertyGroupsComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  const properties: VcCuratedProperties = {
+    className: 'test.package.name',
+    viewId: 'package/name',
+    hashcode: '12345678',
+    contentDescription: 'Description',
+    text: 'Text',
+    left: '0',
+    top: '5',
+    elevation: '2',
+    height: '86',
+    width: '826',
+    translationX: '0',
+    translationY: '0',
+    scrollX: '1',
+    scrollY: '1',
+    scaleX: '2',
+    scaleY: '2',
+    visibility: '0',
+    alpha: '1',
+    willNotDraw: 'true',
+    clipChildren: 'false',
+  };
+  let component: ViewCapturePropertyGroupsComponent;
+  let dom: DOMTestHelper<ViewCapturePropertyGroupsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -32,14 +53,14 @@ describe('ViewCapturePropertyGroupsComponent', () => {
       imports: [
         ViewCapturePropertyGroupsComponent,
         TransformMatrixComponent,
-        TestHostComponent,
         MatDividerModule,
         MatTooltipModule,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(ViewCapturePropertyGroupsComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('properties', properties);
     dom.detectChanges();
   });
 
@@ -98,36 +119,4 @@ describe('ViewCapturePropertyGroupsComponent', () => {
     const section = dom.get('.effects .misc');
     section.get('.clip-children').checkTextExact('Clip Children:  false');
   });
-
-  @Component({
-    imports: [ViewCapturePropertyGroupsComponent],
-    selector: 'host-component',
-    template: `
-      <view-capture-property-groups [properties]="properties"></view-capture-property-groups>
-    `,
-  })
-  class TestHostComponent {
-    properties: VcCuratedProperties = {
-      className: 'test.package.name',
-      viewId: 'package/name',
-      hashcode: '12345678',
-      contentDescription: 'Description',
-      text: 'Text',
-      left: '0',
-      top: '5',
-      elevation: '2',
-      height: '86',
-      width: '826',
-      translationX: '0',
-      translationY: '0',
-      scrollX: '1',
-      scrollY: '1',
-      scaleX: '2',
-      scaleY: '2',
-      visibility: '0',
-      alpha: '1',
-      willNotDraw: 'true',
-      clipChildren: 'false',
-    };
-  }
 });

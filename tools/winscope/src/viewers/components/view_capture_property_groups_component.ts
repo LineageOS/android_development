@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {VcCuratedProperties} from '@viewers/common/curated_properties';
 
@@ -26,5 +26,5 @@ import {VcCuratedProperties} from '@viewers/common/curated_properties';
   styleUrls: ['view_capture_property_groups_component.css'],
 })
 export class ViewCapturePropertyGroupsComponent {
-  @Input() properties: VcCuratedProperties | undefined;
+  properties = input<VcCuratedProperties>();
 }
