@@ -64,6 +64,7 @@ import {
   RemoteToolFilesReceived,
   RemoteToolInitialized,
   RemoteToolTimestampReceived,
+  RemoteToolWaitingForFiles,
 } from '@cross_tool/remote_tool_events';
 import {
   ActiveTraceChanged,
@@ -436,6 +437,14 @@ describe('Mediator', () => {
     expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(0);
 
     await mediator.onWinscopeEvent(new RemoteToolInitialized());
+    expect(uploadTracesComponent.onProgressUpdate).not.toHaveBeenCalled();
+    expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
+  });
+
+  it('handles waiting for files event from remote tool', async () => {
+    expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(0);
+
+    await mediator.onWinscopeEvent(new RemoteToolWaitingForFiles());
     expect(uploadTracesComponent.onProgressUpdate).toHaveBeenCalledTimes(1);
     expect(appComponent.onWinscopeEvent).not.toHaveBeenCalled();
   });

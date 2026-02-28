@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
@@ -43,7 +43,7 @@ import {UiData} from './ui_data';
 })
 export class ViewerInputComponent extends ViewerComponent<UiData> {
   @ViewChild(LogComponent) logComponent?: LogComponent;
-  @Input() active = false;
+
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
   ViewerEvents = ViewerEvents;

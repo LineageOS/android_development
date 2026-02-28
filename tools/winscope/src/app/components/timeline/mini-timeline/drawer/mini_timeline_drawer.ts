@@ -18,6 +18,7 @@ import {Point} from '@common/geometry/point';
 import {Padding} from '@common/padding';
 import {Trace} from '@trace_api/trace';
 import {CanvasMouseHandler} from './canvas_mouse_handler';
+import {RenderedRange} from './rendered_range';
 
 /**
  * An interface for drawing the mini timeline.
@@ -70,14 +71,14 @@ export interface MiniTimelineDrawer {
   /**
    * Gets the usable range of the canvas.
    */
-  getUsableRange(): {from: number; to: number};
+  getUsableRange(): RenderedRange;
 
   /**
    * Gets the click range for a given position.
    *
    * @param clickPos The position of the click.
    */
-  getClickRange(clickPos: Point): {from: number; to: number};
+  getClickRange(clickPos: Point): RenderedRange;
 
   /**
    * The canvas element.

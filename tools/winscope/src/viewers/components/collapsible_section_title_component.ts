@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -27,9 +27,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
   styleUrls: ['collapsible_section_title_component.css'],
 })
 export class CollapsibleSectionTitleComponent {
-  @Input() title: string | undefined;
+  title = input<string>();
 
-  @Output() collapseButtonClicked = new EventEmitter();
+  collapseButtonClicked = output();
 
   onCollapseButtonClick() {
     this.collapseButtonClicked.emit();

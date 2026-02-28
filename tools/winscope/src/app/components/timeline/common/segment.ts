@@ -17,9 +17,10 @@
 /**
  * An interface for a segment on the timeline.
  */
-export interface Segment {
-  from: number;
-  to: number;
-  unknownStart?: boolean;
-  unknownEnd?: boolean;
+export declare interface TimelineSegment<T> {
+  segment: T;
+  unknownStart: boolean;
+  unknownEnd: boolean;
+  color?: string;
+  activeColor?: string;
 }

@@ -35,7 +35,7 @@ describe('CollapsibleSectionTitleComponent', () => {
     const fixture = TestBed.createComponent(CollapsibleSectionTitleComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.title = 'collapsible section';
+    dom.setComponentInput('title', 'collapsible section');
     dom.detectChanges();
   });
 

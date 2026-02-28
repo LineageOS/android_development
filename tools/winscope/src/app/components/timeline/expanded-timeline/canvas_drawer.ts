@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {convertHexToRgb} from '@app/components/timeline/timeline_utils';
+import {convertHexToRgb} from '@app/components/timeline/common/timeline_drawer_helpers';
 import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
 

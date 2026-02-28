@@ -17,21 +17,23 @@
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
-import {WinscopeEvent} from '@messaging/winscope_event';
 import {
   RemoteToolInitialized,
   RemoteToolTimestampReceived,
+  RemoteToolWaitingForFiles,
 } from './remote_tool_events';
 import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';
 import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {waitToBeCalled} from '@test/unit/spy_utils';
 
 describe('CrossToolProtocol', () => {
   const FAKE_ORIGIN = 'http://localhost:8081';
 
   let protocol: CrossToolProtocol;
   let timestampConverter: TimestampConverter;
-  let emittedEvent: WinscopeEvent | undefined;
+  let emitSpy: jasmine.Spy<EmitEvent>;
 
   describe('handles debug info', () => {
     beforeEach(() => {
@@ -43,11 +45,11 @@ describe('CrossToolProtocol', () => {
           data: {type: MessageType.PING},
         }),
       );
-      expect(emittedEvent).toBeInstanceOf(RemoteToolInitialized);
-      emittedEvent = undefined;
+      expect(emitSpy).toHaveBeenCalledOnceWith(new RemoteToolInitialized());
+      emitSpy.calls.reset();
     });
 
-    it('handles debug info message and extracts timestamp', async () => {
+    it('handles debug info message and extracts timestamp', () => {
       const stackTrace = `
 android.tools.flicker.subject.exceptions.IncorrectVisibilityException: com.android.server.wm.flicker.testapp/com.android.server.wm.flicker.testapp.SimpleActivity# should be visible
 
@@ -101,6 +103,7 @@ Check the test run artifacts for trace files
           data: message,
         }),
       );
+      const emittedEvent = emitSpy.calls.mostRecent().args[0];
       expect(emittedEvent).toBeInstanceOf(RemoteToolTimestampReceived);
       const receivedEvent = emittedEvent as RemoteToolTimestampReceived;
       const timestamp = assertDefined(receivedEvent.deferredTimestamp)();
@@ -121,7 +124,7 @@ Check the test run artifacts for trace files
           data: message,
         }),
       );
-      expect(emittedEvent).toBeUndefined();
+      expect(emitSpy).not.toHaveBeenCalled();
     });
 
     it('handles debug info message with no stacktrace', () => {
@@ -133,7 +136,7 @@ Check the test run artifacts for trace files
           data: message,
         }),
       );
-      expect(emittedEvent).toBeUndefined();
+      expect(emitSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -164,7 +167,7 @@ Check the test run artifacts for trace files
         }),
       );
       expect(protocol.isAllowedTimestampSync()).toBeFalse();
-      expect(emittedEvent).toBeUndefined();
+      expect(emitSpy).not.toHaveBeenCalled();
     });
 
     it('toggles whether timestamp sync is allowed', () => {
@@ -177,19 +180,42 @@ Check the test run artifacts for trace files
         }),
       );
       expect(protocol.getAllowTimestampSync()).toBeTrue();
-      expect(emittedEvent).toBeInstanceOf(RemoteToolInitialized);
+      expect(emitSpy).toHaveBeenCalledOnceWith(new RemoteToolInitialized());
       protocol.setAllowTimestampSync(false);
       expect(protocol.getAllowTimestampSync()).toBeFalse();
     });
   });
 
+  describe('request data', () => {
+    beforeEach(() => {
+      setUpTestEnvironment();
+    });
+
+    it('parses request data from URL params', async () => {
+      spyOn(URLSearchParams.prototype, 'get')
+        .withArgs('request')
+        .and.returnValue(btoa(JSON.stringify({openedWithArtifacts: true})));
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: FAKE_ORIGIN,
+          source: window,
+          data: {type: MessageType.PING},
+        }),
+      );
+      await waitToBeCalled(emitSpy, 2);
+      expect(emitSpy).toHaveBeenCalledTimes(2);
+      expect(emitSpy.calls.argsFor(0)[0]).toBeInstanceOf(RemoteToolInitialized);
+      expect(emitSpy.calls.argsFor(1)[0]).toBeInstanceOf(
+        RemoteToolWaitingForFiles,
+      );
+    });
+  });
+
   function setUpTestEnvironment() {
-    emittedEvent = undefined;
     timestampConverter = makeConverterZeroRteOffsets();
     protocol = new CrossToolProtocol(timestampConverter);
-    protocol.setEmitEvent(async (event) => {
-      emittedEvent = event;
-    });
+    emitSpy = jasmine.createSpy();
+    protocol.setEmitEvent(emitSpy);
     spyOn(window, 'postMessage');
   }
 });

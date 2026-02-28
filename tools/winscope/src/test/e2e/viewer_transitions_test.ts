@@ -16,7 +16,7 @@
 import {browser, by, element, ElementFinder} from 'protractor';
 import {
   changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
+  checkFinalNsTimestamp,
   checkInitialRealTimestamp,
   checkItemInPropertiesTreeByIndex,
   checkSelectFilter,
@@ -28,7 +28,7 @@ import {
 
 describe('Viewer Transitions', () => {
   const viewerSelector = 'viewer-transitions';
-  const totalEntries = 4;
+  const totalEntries = 5;
 
   beforeEach(async () => {
     await setTimeouts(1000);
@@ -42,19 +42,19 @@ describe('Viewer Transitions', () => {
       viewerSelector,
     );
 
-    await checkFinalRealTimestamp('2023-11-21, 13:30:33.279');
-    await checkInitialRealTimestamp('2023-11-21, 13:30:25.448');
+    await checkFinalNsTimestamp('1700573433279359351 ns', '14:30:33.279');
+    await checkInitialRealTimestamp('2023-11-21, 14:30:25.448');
 
-    await changeRealTimestampInWinscope('2023-11-21, 13:30:26.522');
+    await changeRealTimestampInWinscope('2023-11-21, 14:30:26.515');
     await checkCurrentEntry();
     await checkSelectedEntry();
 
     let entry = getEntryForTimeButtonChecks();
     await entry.element(by.css('.send-time .time-button')).click();
-    await checkWinscopeRealTimestamp('13:30:26.515');
+    await checkWinscopeRealTimestamp('14:30:26.515');
     entry = getEntryForTimeButtonChecks();
     await entry.element(by.css('.dispatch-time button')).click();
-    await checkWinscopeRealTimestamp('13:30:26.522');
+    await checkWinscopeRealTimestamp('14:30:26.522');
 
     await checkFilter('.transition-type', ['TO_FRONT'], 1);
     await checkFilter(
@@ -76,9 +76,9 @@ describe('Viewer Transitions', () => {
     await checkEntryColumns(current, [
       '33',
       'TO_FRONT',
-      '13:30:26.515',
-      '13:30:26.522',
-      '2,561 ms',
+      '14:30:26.515',
+      '14:30:26.522',
+      '2,554 ms',
       'com.android.wm.shell.recents.RecentsTransitionHandler',
       'Layers: 47, 398, 67\nWindows: 0x97b5518, 0xb887160, 0xa884527',
       'TRANSIT_FLAG_IS_RECENTS',
@@ -89,14 +89,16 @@ describe('Viewer Transitions', () => {
   }
 
   async function checkSelectedEntry() {
-    const last = element.all(by.css(`${viewerSelector} .scroll .entry`)).last();
-    await last.click();
+    const transition35 = element
+      .all(by.css(`${viewerSelector} .scroll .entry`))
+      .get(3);
+    await transition35.click();
     const selected = element(by.css(`${viewerSelector} .scroll .selected`));
     await checkEntryColumns(selected, [
       '35',
       'OPEN',
-      '13:30:33.279',
       'N/A',
+      '14:30:33.279',
       'N/A',
       'N/A',
       'Layers: 489, 472\nWindows: 0x5ba3da0, 0xc5f6ee4',

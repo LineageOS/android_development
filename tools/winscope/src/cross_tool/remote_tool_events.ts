@@ -17,6 +17,8 @@
 import {Timestamp} from '@common/time/time';
 import {WinscopeEvent} from '@messaging/winscope_event';
 
+export class RemoteToolWaitingForFiles implements WinscopeEvent {}
+
 export class RemoteToolInitialized implements WinscopeEvent {}
 
 export class RemoteToolDownloadStart implements WinscopeEvent {}

@@ -17,10 +17,9 @@ import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
-  EventEmitter,
   Inject,
-  Input,
-  Output,
+  input,
+  output,
   ViewChild,
 } from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
@@ -60,26 +59,26 @@ export class PropertiesComponent {
   CollapsibleSectionType = CollapsibleSectionType;
   ViewerEvents = ViewerEvents;
 
-  @Input() title = 'PROPERTIES';
-  @Input() userOptions: UserOptions = {};
-  @Input() placeholderText = '';
-  @Input() nodeRows: Array<FlattenedTreeRow<UiPropertyTreeNode>> | undefined;
-  @Input() highlightedProperty = '';
-  @Input() curatedProperties: CuratedProperties | undefined;
-  @Input() isProtoDump = false;
-  @Input() traceType: TraceType | undefined;
-  @Input() store: PersistentStore | undefined;
-  @Input() textFilter: TextFilter | undefined;
-  @Input() filterEventName = ViewerEvents.PropertiesFilterChange;
+  title = input('PROPERTIES');
+  userOptions = input<UserOptions>({});
+  placeholderText = input('');
+  nodeRows = input<Array<FlattenedTreeRow<UiPropertyTreeNode>>>();
+  highlightedProperty = input('');
+  curatedProperties = input<CuratedProperties>();
+  isProtoDump = input(false);
+  traceType = input<TraceType>();
+  store = input<PersistentStore>();
+  textFilter = input<TextFilter>();
+  filterEventName = input(ViewerEvents.PropertiesFilterChange);
 
-  @Output() collapseButtonClicked = new EventEmitter();
+  collapseButtonClicked = output();
 
   @ViewChild(SearchBoxComponent) searchBox: SearchBoxComponent | undefined;
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
   onFilterChange(detail: TextFilter) {
-    const event = new CustomEvent(this.filterEventName, {
+    const event = new CustomEvent(this.filterEventName(), {
       bubbles: true,
       detail,
     });
@@ -95,28 +94,28 @@ export class PropertiesComponent {
   }
 
   hasUserOptions() {
-    return Object.keys(this.userOptions).length > 0;
+    return Object.keys(this.userOptions()).length > 0;
   }
 
   showViewCaptureFormat(): boolean {
     return (
-      this.traceType === TraceType.VIEW_CAPTURE &&
-      this.textFilter?.filterString === '' &&
+      this.traceType() === TraceType.VIEW_CAPTURE &&
+      this.textFilter()?.filterString === '' &&
       // Todo: Highlight Inline in formatted ViewCapture Properties Component.
-      !this.userOptions['showDiff']?.enabled &&
-      this.curatedProperties !== undefined
+      !this.userOptions()['showDiff']?.enabled &&
+      this.curatedProperties() !== undefined
     );
   }
 
   showPropertiesTree(): boolean {
-    return (this.nodeRows?.length ?? 0) > 0 && !this.showViewCaptureFormat();
+    return (this.nodeRows()?.length ?? 0) > 0 && !this.showViewCaptureFormat();
   }
 
   showPlaceholderText(): boolean {
     return (
-      (this.nodeRows?.length ?? 0) === 0 &&
-      !this.curatedProperties &&
-      !!this.placeholderText
+      (this.nodeRows()?.length ?? 0) === 0 &&
+      !this.curatedProperties() &&
+      !!this.placeholderText()
     );
   }
 }

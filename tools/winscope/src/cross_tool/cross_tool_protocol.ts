@@ -21,6 +21,7 @@ import {
   RemoteToolFilesReceived,
   RemoteToolInitialized,
   RemoteToolTimestampReceived,
+  RemoteToolWaitingForFiles,
 } from '@cross_tool/remote_tool_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {TracePositionUpdate} from '@trace/trace_events';
@@ -155,6 +156,15 @@ export class CrossToolProtocol
       this.remoteTool = new RemoteTool(event.source as Window, event.origin);
       this.allowTimestampSync = isOriginAllowedTimestampSync(event.origin);
       await this.emitEvent(new RemoteToolInitialized());
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const request = urlParams.get('request');
+      if (request) {
+        const decodedRequest = JSON.parse(atob(request));
+        if (decodedRequest.openedWithArtifacts) {
+          await this.emitEvent(new RemoteToolWaitingForFiles());
+        }
+      }
     }
 
     switch (message.type) {

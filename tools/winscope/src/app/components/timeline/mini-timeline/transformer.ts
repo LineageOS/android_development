@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {Segment} from '@app/components/timeline/segment';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
+import {RenderedRange} from './drawer/rendered_range';
 
 /**
  * A class for transforming timestamps to canvas coordinates and vice versa.
@@ -30,7 +30,7 @@ export class Transformer {
 
   constructor(
     private tsRange: TimeRange,
-    private canvasPosRange: Segment,
+    private canvasPosRange: RenderedRange,
     private timestampConverter: ComponentTimestampConverter,
   ) {
     this.tsRangeWidth = BigInt(this.tsRange.endNs - this.tsRange.startNs);

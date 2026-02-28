@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Segment} from '@app/components/timeline/segment';
 import {MathUtils} from 'three/src/Three';
 import {DraggableCanvasObject} from './draggable_canvas_object';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';
+import {RenderedRange} from './rendered_range';
 
 /**
  * Configuration for drawing a draggable canvas object.
@@ -43,7 +43,7 @@ export class DraggableCanvasObjectImpl implements DraggableCanvasObject {
     private drawConfig: DrawConfig,
     private onDrag: (x: number) => void,
     private onDrop: (x: number) => void,
-    private getRange: () => Segment,
+    private getRange: () => RenderedRange,
   ) {
     this.drawer.handler.registerDraggableObject(
       this,

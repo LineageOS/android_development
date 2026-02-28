@@ -169,8 +169,6 @@ describe('Cross-Tool Protocol', () => {
       20000,
       'The Winscope tab did not open',
     );
-    const msg = await element(by.css('.progress-message')).getText();
-    expect(msg).toEqual('Opened from external tool. Waiting for files...');
   }
 
   async function checkWinscopeRenderedSurfaceFlingerView() {

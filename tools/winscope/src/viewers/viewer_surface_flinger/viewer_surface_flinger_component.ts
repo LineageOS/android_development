@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, Input, SimpleChanges} from '@angular/core';
+import {Component, SimpleChanges} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
@@ -44,7 +44,6 @@ import {UiData} from './ui_data';
   styleUrls: ['./viewer_surface_flinger_component.css'],
 })
 export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
-  @Input() active = false;
   TraceType = TraceType;
   CollapsibleSectionType = CollapsibleSectionType;
 

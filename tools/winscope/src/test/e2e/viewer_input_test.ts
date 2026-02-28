@@ -37,8 +37,8 @@ describe('Viewer Input', () => {
 
   it('processes trace and navigates correctly', async () => {
     await loadTrace('traces/perfetto/input-events.perfetto-trace');
-    await checkFinalRealTimestamp('2024-06-14, 17:41:45.123');
-    await checkInitialRealTimestamp('2024-06-14, 17:41:43.800');
+    await checkFinalRealTimestamp('2024-06-14, 13:41:45.123');
+    await checkInitialRealTimestamp('2024-06-14, 13:41:43.800');
     await checkCurrentEntry();
     await checkSelectedEntry();
 
@@ -52,16 +52,16 @@ describe('Viewer Input', () => {
 
   it('processes trace with only key events', async () => {
     await loadTrace('traces/perfetto/input-key-events.perfetto-trace');
-    await checkFinalRealTimestamp('2024-06-14, 17:41:45.123');
-    await checkInitialRealTimestamp('2024-06-14, 17:41:45.115');
+    await checkFinalRealTimestamp('2024-06-14, 13:41:45.123');
+    await checkInitialRealTimestamp('2024-06-14, 13:41:45.115');
     const entryTypes = getEntryTypes();
     expect(await entryTypes).toEqual(['KEY', 'KEY']);
   });
 
   it('processes trace with only motion events', async () => {
     await loadTrace('traces/perfetto/input-motion-events.perfetto-trace');
-    await checkFinalRealTimestamp('2024-06-14, 17:41:43.842');
-    await checkInitialRealTimestamp('2024-06-14, 17:41:43.800');
+    await checkFinalRealTimestamp('2024-06-14, 13:41:43.842');
+    await checkInitialRealTimestamp('2024-06-14, 13:41:43.800');
     const entryTypes = getEntryTypes();
     expect(await entryTypes).toEqual(Array.from({length: 6}, () => 'MOTION'));
   });

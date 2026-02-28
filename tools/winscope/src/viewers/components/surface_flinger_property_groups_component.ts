@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Inject,
-  Input,
-  Output,
-} from '@angular/core';
+import {Component, ElementRef, Inject, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -51,9 +44,9 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
   styleUrls: ['./surface_flinger_property_groups_component.css'],
 })
 export class SurfaceFlingerPropertyGroupsComponent {
-  @Input() properties: SfCuratedProperties | undefined;
+  properties = input<SfCuratedProperties>();
 
-  @Output() collapseButtonClicked = new EventEmitter();
+  collapseButtonClicked = output<void>();
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 

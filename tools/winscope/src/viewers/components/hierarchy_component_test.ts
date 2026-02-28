@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
-import {Component, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
@@ -52,14 +51,37 @@ import {
 } from './virtual_scroll_viewport_component';
 
 describe('HierarchyComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: HierarchyComponent;
+  let dom: DOMTestHelper<HierarchyComponent>;
+
+  const nodeRows = flattenNodesToRows(
+    [
+      UiHierarchyTreeNode.from(
+        new HierarchyTreeBuilder()
+          .setId('RootNode1')
+          .setName('Root node')
+          .setChildren([{id: 'Child1', name: 'Child node'}])
+          .build(),
+      ),
+    ],
+    false,
+    false,
+    '',
+  );
+
+  const dependencies = [TraceType.SURFACE_FLINGER];
+  const userOptions = {
+    showDiff: {
+      name: 'Show diff',
+      enabled: false,
+      isUnavailable: false,
+    },
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
-        TestHostComponent,
         HierarchyComponent,
         HierarchyTreeNodeDataViewComponent,
         CollapsibleSectionTitleComponent,
@@ -81,9 +103,15 @@ describe('HierarchyComponent', () => {
         ClipboardModule,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(HierarchyComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+
+    dom.setComponentInput('nodeRows', nodeRows);
+    dom.setComponentInput('dependencies', dependencies);
+    dom.setComponentInput('userOptions', userOptions);
+    dom.setComponentInput('textFilter', new TextFilter());
+    dom.setComponentInput('store', new PersistentStore());
     dom.detectChanges();
   });
 
@@ -110,26 +138,26 @@ describe('HierarchyComponent', () => {
 
   it('renders pinned nodes', () => {
     expect(dom.find('.pinned-items')).toBeUndefined();
-    component.pinnedItems = [component.nodeRows[0].node];
+    dom.setComponentInput('pinnedItems', [component.nodeRows()[0].node]);
     dom.detectChanges();
     expect(dom.find('.pinned-items tree-node')).toBeDefined();
   });
 
   it('renders placeholder text', () => {
-    component.nodeRows = [];
-    component.placeholderText = 'Placeholder text.';
+    dom.setComponentInput('nodeRows', []);
+    dom.setComponentInput('placeholderText', 'Placeholder text.');
     dom.detectChanges();
 
     const placeholderText = dom.get('.placeholder-text');
     placeholderText.checkTextExact(
       'Placeholder text.' +
         ` There may be no ${
-          TRACE_INFO[component.dependencies[0]].name
+          TRACE_INFO[component.dependencies()[0]].name
         } state associated with the current state in the active trace.` +
         ' Try changing timeline position.',
     );
 
-    component.dependencies = [];
+    dom.setComponentInput('dependencies', []);
     dom.detectChanges();
     placeholderText.checkTextExact(
       'Placeholder text.' +
@@ -139,8 +167,8 @@ describe('HierarchyComponent', () => {
   });
 
   it('handles pinned node click', () => {
-    const node = component.nodeRows[0].node;
-    component.pinnedItems = [node];
+    const node = component.nodeRows()[0].node;
+    dom.setComponentInput('pinnedItems', [node]);
     dom.detectChanges();
 
     let highlightedItem: UiHierarchyTreeNode | undefined;
@@ -157,8 +185,8 @@ describe('HierarchyComponent', () => {
     dom.addEventListener(ViewerEvents.HierarchyPinnedChange, (event) => {
       pinnedItem = (event as CustomEvent).detail.pinnedItem;
     });
-    const child = component.nodeRows[1].node;
-    component.pinnedItems = [child];
+    const child = component.nodeRows()[1].node;
+    dom.setComponentInput('pinnedItems', [child]);
     dom.detectChanges();
 
     dom.findAndClick('.pinned-items tree-node .pin-node-btn');
@@ -176,15 +204,16 @@ describe('HierarchyComponent', () => {
   });
 
   it('handles collapse button click', () => {
+    const spy = spyOn(component.collapseButtonClicked, 'emit');
     dom.findAndClick('collapsible-section-title button');
-    expect(component.onCollapseButtonClicked).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalled();
   });
 
   it('shows warnings from all trees', () => {
     expect(dom.find('.warning')).toBeUndefined();
 
-    component.nodeRows = [
-      component.nodeRows[0],
+    const newRows = [
+      component.nodeRows()[0],
       ...flattenNodesToRows(
         [
           UiHierarchyTreeNode.from(
@@ -200,13 +229,15 @@ describe('HierarchyComponent', () => {
         '',
       ),
     ];
+    dom.setComponentInput('nodeRows', newRows);
     dom.detectChanges();
+
     const warning1 = makeWarningDuplicateLayerIds([123]);
-    spyOn(component.nodeRows[0].node, 'getWarnings').and.returnValue([
+    spyOn(component.nodeRows()[0].node, 'getWarnings').and.returnValue([
       warning1,
     ]);
     const warning2 = makeWarningMissingLayerIds();
-    spyOn(component.nodeRows[1].node, 'getWarnings').and.returnValue([
+    spyOn(component.nodeRows()[1].node, 'getWarnings').and.returnValue([
       warning2,
     ]);
     dom.detectChanges();
@@ -218,7 +249,9 @@ describe('HierarchyComponent', () => {
 
   it('shows warning tooltip if text overflowing', async () => {
     const warning = makeWarningDuplicateLayerIds([123]);
-    spyOn(component.nodeRows[0].node, 'getWarnings').and.returnValue([warning]);
+    spyOn(component.nodeRows()[0].node, 'getWarnings').and.returnValue([
+      warning,
+    ]);
     dom.detectChanges();
 
     const warningEl = dom.get('.warning');
@@ -233,65 +266,4 @@ describe('HierarchyComponent', () => {
     dom.detectChanges();
     await checkTooltips([warningEl], [warning.message]);
   });
-
-  @Component({
-    imports: [HierarchyComponent],
-    selector: 'host-component',
-    template: `
-      <hierarchy-view
-        class="hierarchy-view"
-        [nodeRows]="nodeRows"
-        [dependencies]="dependencies"
-        [highlightedItem]="highlightedItem"
-        [pinnedItems]="pinnedItems"
-        [textFilter]="textFilter"
-        [store]="store"
-        [userOptions]="userOptions"
-        [placeholderText]="placeholderText"
-        (collapseButtonClicked)="onCollapseButtonClicked()"></hierarchy-view>
-    `,
-    styles: [
-      `
-      .hierarchy-view {
-        display: flex;
-        flex-direction: column;
-        height: 500px;
-      }
-    `,
-    ],
-  })
-  class TestHostComponent {
-    nodeRows = flattenNodesToRows(
-      [
-        UiHierarchyTreeNode.from(
-          new HierarchyTreeBuilder()
-            .setId('RootNode1')
-            .setName('Root node')
-            .setChildren([{id: 'Child1', name: 'Child node'}])
-            .build(),
-        ),
-      ],
-      false,
-      false,
-      '',
-    );
-
-    store = new PersistentStore();
-    userOptions = {
-      showDiff: {
-        name: 'Show diff',
-        enabled: false,
-        isUnavailable: false,
-      },
-    };
-    textFilter = new TextFilter();
-    dependencies = [TraceType.SURFACE_FLINGER];
-    pinnedItems: UiHierarchyTreeNode[] = [];
-    placeholderText: string | undefined;
-    onCollapseButtonClicked = jasmine.createSpy();
-
-    @ViewChild(HierarchyComponent) hierarchyComponent:
-      | HierarchyComponent
-      | undefined;
-  }
 });

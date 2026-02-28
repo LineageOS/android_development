@@ -15,7 +15,11 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatRippleModule} from '@angular/material/core';
 import {MatIconModule} from '@angular/material/icon';
@@ -30,8 +34,8 @@ import {CollapsibleSections} from '@viewers/common/collapsible_sections';
   styleUrls: ['collapsed_sections_component.css'],
 })
 export class CollapsedSectionsComponent {
-  @Input() sections: CollapsibleSections | undefined;
-  @Output() sectionChange = new EventEmitter<CollapsibleSectionType>();
+  sections = input<CollapsibleSections>();
+  sectionChange = output<CollapsibleSectionType>();
 
   onCollapsedSectionClick(sectionType: CollapsibleSectionType) {
     this.sectionChange.emit(sectionType);

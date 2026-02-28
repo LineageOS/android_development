@@ -15,6 +15,7 @@ limitations under the License.
 -->
 
 @if (hasCoordinates()) {
+  @let coords = coordinates();
   <table class="table">
     <tr class="header-row">
       <td>
@@ -30,18 +31,18 @@ limitations under the License.
         <p class="mat-body-1">Bottom</p>
       </td>
     </tr>
-    <tr>
+    <tr class="values-row">
       <td>
-        <p class="mat-body-1">{{ coordinates?.getChildByName('left')?.formattedValue() }}</p>
+        <p class="mat-body-1">{{ coords?.getChildByName('left')?.formattedValue() }}</p>
       </td>
       <td>
-        <p class="mat-body-1">{{ coordinates?.getChildByName('top')?.formattedValue() }}</p>
+        <p class="mat-body-1">{{ coords?.getChildByName('top')?.formattedValue() }}</p>
       </td>
       <td>
-        <p class="mat-body-1">{{ coordinates?.getChildByName('right')?.formattedValue() }}</p>
+        <p class="mat-body-1">{{ coords?.getChildByName('right')?.formattedValue() }}</p>
       </td>
       <td>
-        <p class="mat-body-1">{{ coordinates?.getChildByName('bottom')?.formattedValue() }}</p>
+        <p class="mat-body-1">{{ coords?.getChildByName('bottom')?.formattedValue() }}</p>
       </td>
     </tr>
   </table>
