@@ -16,7 +16,6 @@
 
 package com.android.sharetest.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,13 +23,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,14 +33,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
@@ -173,32 +166,3 @@ private fun ChooserActions(closeChooser: () -> Unit, setTargetsEnabled: (Boolean
         }
     }
 }
-
-@Composable
-private fun LabeledCheckbox(
-    isChecked: Boolean,
-    label: String,
-    onCheckedChange: (Boolean) -> Unit,
-    isEnabled: Boolean = true,
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(LocalSpacing.current.rowSpacing),
-        modifier = if (isEnabled) Modifier.clickable { onCheckedChange(!isChecked) } else Modifier,
-    ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = { onCheckedChange(!isChecked) },
-            modifier = Modifier.align(Alignment.CenterVertically),
-        )
-        Text(text = label, modifier = Modifier.align(Alignment.CenterVertically))
-    }
-}
-
-@Composable
-private fun TextButton(text: String, onClick: () -> Unit, enabled: Boolean = true) {
-    Button(onClick = onClick, enabled = enabled) { Text(text = text) }
-}
-
-private data class Spacing(val rowSpacing: Dp, val columnSpacing: Dp)
-
-private val LocalSpacing = compositionLocalOf { Spacing(rowSpacing = 5.dp, columnSpacing = 5.dp) }
