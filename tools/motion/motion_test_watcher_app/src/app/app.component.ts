@@ -286,10 +286,10 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
           jsonDataRight = result.jsonRight;
         }
         else if (result.jsonLeft) {
-          jsonDataLeft = jsonDataRight = result.jsonRight;
+          jsonDataLeft = jsonDataRight = result.jsonLeft;
         }
         else if (result.jsonRight) {
-          jsonDataLeft = jsonDataRight = result.jsonLeft;
+          jsonDataLeft = jsonDataRight = result.jsonRight;
         }
 
         const goldenName = result.name || `User Content ${new Date().toLocaleString()}`;
