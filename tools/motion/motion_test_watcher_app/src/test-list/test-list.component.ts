@@ -270,6 +270,10 @@ export class TestListComponent implements OnChanges {
       && this.testMode !== TestModes.PRESUBMIT;
   }
 
+  get shouldShowDeleteButton(): boolean {
+    return this.testMode !== TestModes.ATEST;
+  }
+
   filterPresubmitTests(): void {
     if (!this.searchTerm) {
       this.filteredPresubmitTests = [...this.presubmitTests];
