@@ -403,6 +403,45 @@ class SourceTrimmerTest(unittest.TestCase):
                 result = source_trimmer.process_groups_to_keep(raw_groups)
                 self.assertEqual(result, expected, msg=f"Failed test case: {name}")
 
+    def test_generate_filtered_manifest_strict_filtering(self):
+        """Test manifest filtering with extra attributes removed."""
+        manifest_input = """<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <default revision="master" remote="ohd" />
+  <remote name="ohd" fetch=".." />
+  <project groups="keep" name="platform/keep" path="keep" remote="ohd" />
+  <project groups="discard" name="platform/drop" path="drop" remote="ohd" />
+  <repo-hooks in-project="platform/admin" enabled-list="pre-upload" />
+</manifest>
+"""
+        projects_to_keep = {"platform/keep"}
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = pathlib.Path(tmpdir) / "filtered_manifest.xml"
+            source_trimmer.generate_filtered_manifest(
+                manifest_input, projects_to_keep, output_path
+            )
+
+            tree = source_trimmer.ET.parse(output_path)
+            root = tree.getroot()
+            # 1. Verify only 'project' and 'repo-hooks' remain.
+            self.assertEqual(len(list(root)), 2)
+            tags = [child.tag for child in root]
+            self.assertIn("project", tags)
+            self.assertIn("repo-hooks", tags)
+            self.assertNotIn("default", tags)
+            self.assertNotIn("remote", tags)
+
+            # Verify 'remote' attribute is stripped from the kept project
+            project = root.find("project")
+            self.assertEqual(project.get("name"), "platform/keep")
+            self.assertNotIn("remote", project.attrib)
+            # Verify other attributes like 'path' remain
+            self.assertEqual(project.get("path"), "keep")
+            # Verify repo-hooks is preserved
+            hooks = root.find("repo-hooks")
+            self.assertEqual(hooks.get("in-project"), "platform/admin")
+
 
 if __name__ == "__main__":
     unittest.main()
