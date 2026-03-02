@@ -355,9 +355,9 @@ impl ManagedCrate<Vendored> {
         for deletion in self.config().deletions() {
             let dir = self.temporary_build_directory().join(deletion)?;
             if dir.abs().is_dir() {
-                remove_dir_all(dir)?;
+                remove_dir_all(&dir).context(format!("Failed to remove {dir}"))?;
             } else {
-                remove_file(dir)?;
+                remove_file(&dir).context(format!("Failed to remove {dir}"))?;
             }
         }
 
