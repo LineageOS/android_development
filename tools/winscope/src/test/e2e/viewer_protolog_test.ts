@@ -34,7 +34,7 @@ describe('Viewer Protolog', () => {
       viewerSelector,
     );
     await checkScrollPresent(viewerSelector);
-    await checkTotalScrollEntries(viewerSelector, totalEntries, true);
+    await checkTotalScrollEntries(viewerSelector, totalEntries);
     await checkTimelineTraceSelector({
       icon: 'notes',
       color: 'rgba(52, 168, 83, 1)',
