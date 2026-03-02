@@ -22,7 +22,6 @@ import {
 } from '@angular/animations';
 
 import { DialogContentComponent } from '../dialog/dialog.component';
-import { CodeSearchDialogComponent } from '../dialog/code-search-dialog.component';
 import { UserJsonDialogComponent } from '../dialog/user-json-dialog.component';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -242,18 +241,6 @@ export class AppComponent implements DoCheck, OnInit, OnDestroy {
               this.showErrorAlert(err)
             }
           })
-      }
-    });
-  }
-
-  openCodeSearchDialog(): void {
-    const dialogRef = this.dialog.open(CodeSearchDialogComponent, {
-      maxWidth: '55vw'
-    });
-
-    dialogRef.afterClosed().subscribe(url => {
-      if (url) {
-        this.processCodesearchUrl(url);
       }
     });
   }
