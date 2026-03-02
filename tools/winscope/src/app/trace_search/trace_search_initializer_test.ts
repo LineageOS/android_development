@@ -55,6 +55,13 @@ describe('TraceSearchInitializer', () => {
         )
     `);
     expect(queryResultEntry.numRows()).toBe(40);
+
+    const queryResultVisibility = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM sf_layer_search
+        WHERE layer_name LIKE 'Task%'
+        AND is_visible != previous_is_visible
+    `);
+    expect(queryResultVisibility.numRows()).toBe(2);
   });
 
   it('initializes transactions', async () => {
@@ -131,6 +138,13 @@ describe('TraceSearchInitializer', () => {
         AND is_visible = 1
     `);
     expect(queryResult.numRows()).toBe(17);
+
+    const queryResultPrevious = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM wm_search
+        WHERE title LIKE '%LauncherActivity'
+        AND is_visible != previous_is_visible
+    `);
+    expect(queryResultPrevious.numRows()).toBe(2);
   });
 
   async function createViewsAndTestExamples(
