@@ -36,14 +36,14 @@ class UserNotifierImpl {
   }
 
   notify() {
-    if (UserNotifier.notifications.length === 0) return;
-    UserNotifier.notifications.forEach((notif) => {
+    if (this.notifications.length === 0) return;
+    this.notifications.forEach((notif) => {
       Analytics.UserNotification.logUserWarning(
         notif.descriptor,
         notif.message,
       );
     });
-    this.notificationListener?.onNotifications(UserNotifier.notifications);
+    this.notificationListener?.onNotifications(this.notifications);
     this.notifications = [];
   }
 }

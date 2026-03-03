@@ -39,7 +39,7 @@
           </button>
           <mat-spinner class="mx-2" *ngIf="isRefreshing" [diameter]="20" [strokeWidth]="3" matTooltip="Refreshing">
           </mat-spinner>
-          <button mat-icon-button (click)="triggerRefresh(true)" matTooltip="Clear">
+          <button *ngIf="shouldShowDeleteButton" mat-icon-button (click)="triggerRefresh(true)" matTooltip="Clear">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
