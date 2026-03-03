@@ -67,7 +67,7 @@ describe('PropertyTreeNodeDataViewComponent', () => {
         .setFormatter(TIMESTAMP_NODE_FORMATTER)
         .build(),
     );
-    component.node = node;
+    dom.setComponentInput('node', node);
     dom.detectChanges();
 
     dom.get('.time').findAndClick('.time-button');
@@ -90,7 +90,7 @@ describe('PropertyTreeNodeDataViewComponent', () => {
         .build(),
     );
     node.setCanPropagate(true);
-    component.node = node;
+    dom.setComponentInput('node', node);
     dom.detectChanges();
 
     const button = dom.get('.inline button');
@@ -113,7 +113,7 @@ describe('PropertyTreeNodeDataViewComponent', () => {
       {isOld: false, isNew: true, value: 'f2'},
       {isOld: true, isNew: false, value: 'f3'},
     ]);
-    component.node = node;
+    dom.setComponentInput('node', node);
     dom.detectChanges();
 
     const diffValueParts = dom.get('.diff-value-parts');
@@ -134,7 +134,7 @@ describe('PropertyTreeNodeDataViewComponent', () => {
     );
     node.setDiff(DiffType.MODIFIED);
     node.setOldValue('54321');
-    component.node = node;
+    dom.setComponentInput('node', node);
     dom.detectChanges();
     dom.get('.new-value').checkTextExact('12345');
     dom.get('s.old-value').checkTextExact('54321');
@@ -149,7 +149,7 @@ describe('PropertyTreeNodeDataViewComponent', () => {
         .setFormatter(DEFAULT_PROPERTY_FORMATTER)
         .build(),
     );
-    component.node = node;
+    dom.setComponentInput('node', node);
     dom.detectChanges();
     const valueElement = dom.get('.new-value');
     valueElement.checkClassName('number');

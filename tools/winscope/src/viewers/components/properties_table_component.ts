@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {TableProperties} from '@viewers/common/table_properties';
 
 @Component({
@@ -27,5 +27,5 @@ import {TableProperties} from '@viewers/common/table_properties';
 export class PropertiesTableComponent {
   objectEntries = Object.entries;
 
-  @Input() properties: TableProperties | undefined;
+  properties = input<TableProperties>();
 }

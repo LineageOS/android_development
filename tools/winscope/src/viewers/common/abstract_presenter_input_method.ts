@@ -26,7 +26,6 @@ import {
   HierarchyTreeNode,
 } from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {TreeNode} from '@tree_node/tree_node';
 import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
 import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {
@@ -48,7 +47,7 @@ import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_displa
 import {PropertiesPresenter} from './properties_presenter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {isHighlighted} from './ui_tree_node_helpers';
-import {ViewerEvents} from './viewer_events';
+import {AdditionalPropertySelectedDetail, ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {
   protected getHierarchyTreeNameStrategy = (
@@ -144,10 +143,9 @@ the default for its data type.`,
     this.refreshUIData();
   }
 
-  async onAdditionalPropertySelected(selectedItem: {
-    name: string;
-    treeNode: TreeNode;
-  }) {
+  async onAdditionalPropertySelected(
+    selectedItem: AdditionalPropertySelectedDetail,
+  ) {
     this.updateHighlightedItem(selectedItem.treeNode.id);
     if (selectedItem.treeNode instanceof DataHierarchyTreeNode) {
       this.clearOverridePropertiesTreeSelection();
@@ -259,9 +257,7 @@ the default for its data type.`,
     htmlElement.addEventListener(
       ViewerEvents.AdditionalPropertySelected,
       async (event) =>
-        await this.onAdditionalPropertySelected(
-          (event as CustomEvent).detail.selectedItem,
-        ),
+        await this.onAdditionalPropertySelected((event as CustomEvent).detail),
     );
   }
 

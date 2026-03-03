@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, ElementRef, Inject, Input} from '@angular/core';
+import {Component, ElementRef, Inject, input} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
@@ -33,19 +33,19 @@ import {
   styleUrls: ['property_tree_node_data_view_component.css'],
 })
 export class PropertyTreeNodeDataViewComponent {
-  @Input() node?: UiPropertyTreeNode;
+  node = input<UiPropertyTreeNode>();
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
   getKey(node: UiPropertyTreeNode) {
-    if (!this.node?.formattedValue()) {
+    if (!node?.formattedValue()) {
       return node.getDisplayName();
     }
     return node.getDisplayName() + ': ';
   }
 
   isTimestamp() {
-    return this.node?.getValue() instanceof Timestamp;
+    return this.node()?.getValue() instanceof Timestamp;
   }
 
   onTimestampClicked(timestampNode: UiPropertyTreeNode) {
@@ -68,7 +68,7 @@ export class PropertyTreeNodeDataViewComponent {
   }
 
   valueClass(): string | undefined {
-    const property = assertDefined(this.node).formattedValue();
+    const property = assertDefined(this.node()).formattedValue();
     if (property === 'null') {
       return property;
     }
@@ -92,6 +92,6 @@ export class PropertyTreeNodeDataViewComponent {
   }
 
   isModified() {
-    return assertDefined(this.node).getDiff() === DiffType.MODIFIED;
+    return assertDefined(this.node()).getDiff() === DiffType.MODIFIED;
   }
 }

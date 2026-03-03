@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Inject,
-  Input,
-  Output,
-} from '@angular/core';
+import {Component, ElementRef, Inject, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
@@ -32,7 +25,10 @@ import {
   ImeContainerProperties,
   InputMethodSurfaceProperties,
 } from '@viewers/common/ime_utils';
-import {ViewerEvents} from '@viewers/common/viewer_events';
+import {
+  AdditionalPropertySelectedDetail,
+  ViewerEvents,
+} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {CoordinatesTableComponent} from './coordinates_table_component';
 
@@ -49,11 +45,11 @@ import {CoordinatesTableComponent} from './coordinates_table_component';
   styleUrls: ['./ime_additional_properties_component.css'],
 })
 export class ImeAdditionalPropertiesComponent {
-  @Input() additionalProperties: ImeAdditionalProperties | undefined;
-  @Input() isImeManagerService: boolean | undefined;
-  @Input() highlightedItem: string = '';
+  additionalProperties = input<ImeAdditionalProperties>();
+  isImeManagerService = input<boolean>(false);
+  highlightedItem = input<string>('');
 
-  @Output() collapseButtonClicked = new EventEmitter();
+  collapseButtonClicked = output();
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
@@ -64,7 +60,7 @@ export class ImeAdditionalPropertiesComponent {
       | InputMethodSurfaceProperties
       | undefined,
   ): boolean {
-    return item ? item.id === this.highlightedItem : false;
+    return item ? item.id === this.highlightedItem() : false;
   }
 
   getButtonColor(node: TreeNode | undefined) {
@@ -72,41 +68,45 @@ export class ImeAdditionalPropertiesComponent {
   }
 
   formattedWindowColor(): string {
-    const color = this.additionalProperties?.sf?.properties.focusedWindowColor;
+    const color =
+      this.additionalProperties()?.sf?.properties.focusedWindowColor;
     if (!color) return EMPTY_OBJ_STRING;
     return color.formattedValue();
   }
 
   sfRootLabel(): string {
-    const rootProps = this.additionalProperties?.sf?.properties.root;
+    const props = this.additionalProperties();
+    const rootProps = props?.sf?.properties.root;
     if (!rootProps) {
-      return this.additionalProperties?.sf?.name ?? 'root';
+      return props?.sf?.name ?? 'root';
     }
 
     return rootProps.timestamp;
   }
 
   wmRootLabel(): string {
-    const timestamp =
-      this.additionalProperties?.wm?.wmStateProperties.timestamp;
+    const props = this.additionalProperties();
+    const timestamp = props?.wm?.wmStateProperties.timestamp;
     if (!timestamp) {
-      return this.additionalProperties?.wm?.name ?? 'root';
+      return props?.wm?.name ?? 'root';
     }
     return timestamp;
   }
 
   wmHierarchyTree(): HierarchyTreeNode | undefined {
-    return this.additionalProperties?.wm?.hierarchyTree;
+    return this.additionalProperties()?.wm?.hierarchyTree;
   }
 
   wmInsetsSourceProvider(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties
+    return this.additionalProperties()?.wm?.wmStateProperties
       .imeInsetsSourceProvider;
   }
 
   wmControlTargetFrame(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-      ?.getChildByName('insetsSourceProvider')
+    return this.additionalProperties()
+      ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName(
+        'insetsSourceProvider',
+      )
       ?.getChildByName('controlTarget')
       ?.getChildByName('windowFrames')
       ?.getChildByName('frame');
@@ -114,8 +114,10 @@ export class ImeAdditionalPropertiesComponent {
 
   wmInsetsSourceProviderPosition(): string {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-        ?.getChildByName('insetsSourceProvider')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName(
+          'insetsSourceProvider',
+        )
         ?.getChildByName('control')
         ?.getChildByName('position')
         ?.formattedValue() ?? 'null'
@@ -124,8 +126,10 @@ export class ImeAdditionalPropertiesComponent {
 
   wmInsetsSourceProviderIsLeashReady(): string {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-        ?.getChildByName('insetsSourceProvider')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName(
+          'insetsSourceProvider',
+        )
         ?.getChildByName('isLeashReadyForDispatching')
         ?.formattedValue() ?? 'null'
     );
@@ -133,42 +137,48 @@ export class ImeAdditionalPropertiesComponent {
 
   wmInsetsSourceProviderControllable(): string {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-        ?.getChildByName('insetsSourceProvider')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName(
+          'insetsSourceProvider',
+        )
         ?.getChildByName('controllable')
         ?.formattedValue() ?? 'null'
     );
   }
 
   wmInsetsSourceProviderSourceFrame(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-      ?.getChildByName('source')
+    return this.additionalProperties()
+      ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName('source')
       ?.getChildByName('frame');
   }
 
   wmInsetsSourceProviderSourceVisible(): string {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-        ?.getChildByName('source')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName(
+          'source',
+        )
         ?.getChildByName('visible')
         ?.formattedValue() ?? 'null'
     );
   }
 
   wmInsetsSourceProviderSourceVisibleFrame(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties.imeInsetsSourceProvider
-      ?.getChildByName('source')
+    return this.additionalProperties()
+      ?.wm?.wmStateProperties.imeInsetsSourceProvider?.getChildByName('source')
       ?.getChildByName('visibleFrame');
   }
 
   wmImeControlTarget(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties.imeControlTarget;
+    return this.additionalProperties()?.wm?.wmStateProperties.imeControlTarget;
   }
 
   wmImeControlTargetTitle(): string | undefined {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeControlTarget
-        ?.getChildByName('windowContainer')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeControlTarget?.getChildByName(
+          'windowContainer',
+        )
         ?.getChildByName('identifier')
         ?.getChildByName('title')
         ?.formattedValue() ?? undefined
@@ -176,13 +186,15 @@ export class ImeAdditionalPropertiesComponent {
   }
 
   wmImeInputTarget(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties.imeInputTarget;
+    return this.additionalProperties()?.wm?.wmStateProperties.imeInputTarget;
   }
 
   wmImeInputTargetTitle(): string | undefined {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeInputTarget
-        ?.getChildByName('windowContainer')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeInputTarget?.getChildByName(
+          'windowContainer',
+        )
         ?.getChildByName('identifier')
         ?.getChildByName('title')
         ?.formattedValue() ?? undefined
@@ -190,13 +202,15 @@ export class ImeAdditionalPropertiesComponent {
   }
 
   wmImeLayeringTarget(): PropertyTreeNode | undefined {
-    return this.additionalProperties?.wm?.wmStateProperties.imeLayeringTarget;
+    return this.additionalProperties()?.wm?.wmStateProperties.imeLayeringTarget;
   }
 
   wmImeLayeringTargetTitle(): string | undefined {
     return (
-      this.additionalProperties?.wm?.wmStateProperties.imeLayeringTarget
-        ?.getChildByName('windowContainer')
+      this.additionalProperties()
+        ?.wm?.wmStateProperties.imeLayeringTarget?.getChildByName(
+          'windowContainer',
+        )
         ?.getChildByName('identifier')
         ?.getChildByName('title')
         ?.formattedValue() ?? undefined
@@ -205,23 +219,24 @@ export class ImeAdditionalPropertiesComponent {
 
   sfImeContainerScreenBounds(): PropertyTreeNode | undefined {
     return (
-      this.additionalProperties?.sf?.properties.inputMethodSurface
+      this.additionalProperties()?.sf?.properties.inputMethodSurface
         ?.screenBounds ?? undefined
     );
   }
 
   sfImeContainerRect(): PropertyTreeNode | undefined {
     return (
-      this.additionalProperties?.sf?.properties.inputMethodSurface?.rect ??
+      this.additionalProperties()?.sf?.properties.inputMethodSurface?.rect ??
       undefined
     );
   }
 
   isAllPropertiesUndefined(): boolean {
-    if (this.isImeManagerService) {
-      return !this.additionalProperties?.wm;
+    const props = this.additionalProperties();
+    if (this.isImeManagerService()) {
+      return !props?.wm;
     } else {
-      return !(this.additionalProperties?.wm || this.additionalProperties?.sf);
+      return !(props?.wm || props?.sf);
     }
   }
 
@@ -250,15 +265,12 @@ export class ImeAdditionalPropertiesComponent {
   }
 
   private updateAdditionalPropertySelected(item: TreeNode, name: string) {
-    const itemWrapper = {
-      name,
-      treeNode: item,
-    };
+    const detail = new AdditionalPropertySelectedDetail(name, item);
     const event: CustomEvent = new CustomEvent(
       ViewerEvents.AdditionalPropertySelected,
       {
         bubbles: true,
-        detail: {selectedItem: itemWrapper},
+        detail,
       },
     );
     this.elementRef.nativeElement.dispatchEvent(event);

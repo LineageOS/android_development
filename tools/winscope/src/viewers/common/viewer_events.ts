@@ -19,6 +19,7 @@ import {TraceEntry} from '@trace_api/trace';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ListedSearch} from '@viewers/viewer_search/ui_data';
 import {LogHeader} from './ui_data_log';
+import {TreeNode} from '@tree_node/tree_node';
 
 export enum ViewerEvents {
   HighlightedNodeChange = 'HighlightedNodeChange',
@@ -109,4 +110,11 @@ export class SaveQueryClickDetail {
 
 export class DeleteSavedQueryClickDetail {
   constructor(public search: ListedSearch) {}
+}
+
+export class AdditionalPropertySelectedDetail {
+  constructor(
+    public name: string,
+    public treeNode: TreeNode,
+  ) {}
 }
