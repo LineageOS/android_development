@@ -16,7 +16,7 @@
 
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {CommonModule} from '@angular/common';
-import {Component, Input, TemplateRef} from '@angular/core';
+import {Component, input, TemplateRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -38,10 +38,10 @@ import {ListedSearch} from './ui_data';
   styleUrls: ['search_list_component.css'],
 })
 export class SearchListComponent {
-  @Input() searches: ListedSearch[] = [];
-  @Input() placeholderText = '';
-  @Input() listItemOptions: ListItemOption[] = [];
-  @Input() control = new FormControl('');
+  searches = input<ListedSearch[]>([]);
+  placeholderText = input('');
+  listItemOptions = input<ListItemOption[]>([]);
+  control = input(new FormControl(''));
 
   searchOptionsTarget: ListedSearch | undefined;
 
