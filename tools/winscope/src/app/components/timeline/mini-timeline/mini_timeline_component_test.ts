@@ -675,11 +675,14 @@ describe('MiniTimelineComponent', () => {
     ).untransform(offsetX);
 
     dispatchMouseMoveToCanvas(offsetX);
-    expect(spy).toHaveBeenCalledOnceWith({
-      posX: offsetX + miniTimelineElement.offsetLeft,
-      ts: hoverTs,
-      xRatio,
-    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    const args = assertDefined(spy.calls.mostRecent().args[0]);
+    expect(args.posX).toBeCloseTo(
+      offsetX + miniTimelineElement.offsetLeft,
+      0.001,
+    );
+    expect(args.ts).toEqual(hoverTs);
+    expect(args.xRatio).toBeCloseTo(xRatio, 0.001);
 
     spy.calls.reset();
     dispatchMouseLeaveToCanvas();

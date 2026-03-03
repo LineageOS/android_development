@@ -35,6 +35,7 @@ import {
 } from './file_reader_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
+import {INVALID_TIME_NS} from '@common/time/time';
 
 /**
  * An interface for a clock snapshot.
@@ -193,8 +194,10 @@ export class LegacyToPerfettoConverter {
     if (boottimeFileReader) {
       const boottimeOffset = boottimeFileReader.getRealToBootTimeOffsetNs();
       this.getRealTimestampsForClockSnapshots(boottimeFileReader).forEach(
-        (realtime) => {
-          const boottime = realtime - assertDefined(boottimeOffset);
+        (rt) => {
+          const offset = assertDefined(boottimeOffset);
+          const realtime = rt === INVALID_TIME_NS ? offset : rt;
+          const boottime = realtime - offset;
           boottimeSnapshots.push({realtime, boottime, monotonic: undefined});
         },
       );
@@ -204,8 +207,10 @@ export class LegacyToPerfettoConverter {
       const monotonicOffset =
         monotonicFileReader.getRealToMonotonicTimeOffsetNs();
       this.getRealTimestampsForClockSnapshots(monotonicFileReader).forEach(
-        (realtime) => {
-          const monotonic = realtime - assertDefined(monotonicOffset);
+        (rt) => {
+          const offset = assertDefined(monotonicOffset);
+          const realtime = rt === INVALID_TIME_NS ? offset : rt;
+          const monotonic = realtime - offset;
 
           // Monotonic snapshots must contain a boottime timestamp for TP to be able
           // to convert monotonic timestamps to boottime
@@ -229,9 +234,11 @@ export class LegacyToPerfettoConverter {
     return clockSnapshots;
   }
 
-  private getRealTimestampsForClockSnapshots(reader: FileReader): bigint[] {
+  private getRealTimestampsForClockSnapshots(
+    reader: FileReader,
+  ): Array<bigint> {
     const ts = reader.getTimestamps();
-    const realTs: bigint[] = [];
+    const realTs: Array<bigint> = [];
     if (ts.length > 0) {
       realTs.push(ts[0].getValueNs());
     }
