@@ -220,7 +220,7 @@ the default for its data type.`,
 
   override executeSpecializedChecksForPropertiesFromRect(uiData: UiData) {
     const propertyNodes = assertDefined(uiData.propertyNodes);
-    expect(propertyNodes.length).toBe(40);
+    expect(propertyNodes.length).toBe(37);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(uiData: UiData) {

@@ -23,7 +23,7 @@ import {
 import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
 import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceType} from '@trace_api/trace_type';
-import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import { AbstractFileReader } from '@legacy_file_readers/common/abstract_file_reader';
 
 export class FileReaderTransactions extends AbstractFileReader<TransactionTraceEntry> {
   private static readonly MAGIC_NUMBER = [
@@ -63,84 +63,7 @@ export class FileReaderTransactions extends AbstractFileReader<TransactionTraceE
   override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
     const packets: TracePacket[] = [];
     for (const entry of this.decodedEntries) {
-      entry.getTransactionsList().forEach((transaction) => {
-        transaction.getLayerChangesList().forEach((layer) => {
-          if (layer.hasLayerId() && layer.getLayerId() === -1) {
-            layer.clearLayerId();
-          }
-          if (layer.hasW() && layer.getW() === -1) {
-            layer.clearW();
-          }
-          if (layer.hasH() && layer.getH() === -1) {
-            layer.clearH();
-          }
-          if (layer.hasParentId() && layer.getParentId() === -1) {
-            layer.clearParentId();
-          }
-          if (
-            layer.hasRelativeParentId() &&
-            layer.getRelativeParentId() === -1
-          ) {
-            layer.clearRelativeParentId();
-          }
-          if (layer.hasLayerStack() && layer.getLayerStack() === -1) {
-            layer.clearLayerStack();
-          }
-          if (layer.hasFlags() && layer.getFlags() === -1) {
-            layer.clearFlags();
-          }
-          if (layer.hasMask() && layer.getMask() === -1) {
-            layer.clearMask();
-          }
-          if (layer.hasTransform() && layer.getTransform() === -1) {
-            layer.clearTransform();
-          }
-          if (
-            layer.hasBackgroundBlurRadius() &&
-            layer.getBackgroundBlurRadius() === -1
-          ) {
-            layer.clearBackgroundBlurRadius();
-          }
-          if (layer.hasWindowInfoHandle()) {
-            const windowInfo = layer.getWindowInfoHandle();
-            if (windowInfo) {
-              if (
-                windowInfo.hasLayoutParamsFlags() &&
-                windowInfo.getLayoutParamsFlags() === -1
-              ) {
-                windowInfo.clearLayoutParamsFlags();
-              }
-              if (
-                windowInfo.hasCropLayerId() &&
-                windowInfo.getCropLayerId() === -1
-              ) {
-                windowInfo.clearCropLayerId();
-              }
-              if (
-                windowInfo.hasInputConfig() &&
-                windowInfo.getInputConfig() === -1
-              ) {
-                windowInfo.clearInputConfig();
-              }
-            }
-          }
-        });
-      });
-
-      entry.getAddedLayersList().forEach((layer) => {
-        if (layer.hasMirrorFromId() && layer.getMirrorFromId() === -1) {
-          layer.clearMirrorFromId();
-        }
-        if (layer.hasParentId() && layer.getParentId() === -1) {
-          layer.clearParentId();
-        }
-        if (
-          layer.hasLayerStackToMirror() &&
-          layer.getLayerStackToMirror() === -1
-        ) {
-          layer.clearLayerStackToMirror();
-        }
-      });
+      this.convertSignedValuesForUintFields(entry);
       const packet = new TracePacket();
       packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
       packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.MONOTONIC);
@@ -155,5 +78,57 @@ export class FileReaderTransactions extends AbstractFileReader<TransactionTraceE
     return this.timestampConverter.makeTimestampFromMonotonicNs(
       BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
+  }
+
+  private convertSignedValuesForUintFields(entry: TransactionTraceEntry) {
+  // Some legacy transactions traces erroneously contain signed values for fields
+  // that should be unsigned. These must be manually converted to prevent errors
+  // in serialization using google-protobuf.
+    entry.getTransactionsList().forEach((transaction) => {
+        transaction.getLayerChangesList().forEach((layer) => {
+          if (layer.hasLayerId()) {
+            const id = assertDefined(layer.getLayerId());
+            if (id < 0) {
+              layer.setLayerId(id >>> 0);
+            }
+          }
+          if (layer.hasParentId()) {
+            const parentId = assertDefined(layer.getParentId());
+            if (parentId < 0) {
+              layer.setParentId(parentId >>> 0);
+            }
+          }
+          if (layer.hasWindowInfoHandle()) {
+            const windowInfo = assertDefined(layer.getWindowInfoHandle());
+            if (windowInfo.hasCropLayerId()) {
+              const cropLayerId = assertDefined(windowInfo.getCropLayerId());
+              if (cropLayerId < 0) {
+                windowInfo.setCropLayerId(cropLayerId >>> 0);
+              }
+            }
+          }
+        });
+      });
+
+      entry.getAddedLayersList().forEach((layer) => {
+        if (layer.hasLayerId()) {
+          const layerId = assertDefined(layer.getLayerId());
+          if (layerId < 0) {
+            layer.setLayerId(layerId >>> 0);
+          }
+        }
+        if (layer.hasParentId()) {
+          const parentId = assertDefined(layer.getParentId());
+          if (parentId < 0) {
+            layer.setParentId(parentId >>> 0);
+          }
+        }
+        if (layer.hasMirrorFromId()) {
+          const mirrorFromId = assertDefined(layer.getMirrorFromId());
+          if (mirrorFromId < 0) {
+            layer.setMirrorFromId(mirrorFromId >>> 0);
+          }
+        }
+      });
   }
 }

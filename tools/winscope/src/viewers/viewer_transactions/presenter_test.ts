@@ -190,7 +190,7 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         await presenter.onAppEvent(this.getPositionUpdate());
         await new Timer().wait(() => !uiData.isFetchingData);
         await presenter.onLogEntryClick(10);
-        expect(assertDefined(uiData.propertyNodes).length).toBe(17);
+        expect(assertDefined(uiData.propertyNodes).length).toBe(16);
         let properties = assertDefined(uiData.propertyNodes).map(
           (n) => n.node.name,
         );

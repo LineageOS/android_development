@@ -34,7 +34,8 @@ export class HierarchyTreeFactory {
   ) {}
 
   makeHierarchyTree(argsData: QueryResult): HierarchyTreeNode {
-    const rootId = this.entryField.type;
+    const fieldParts = this.entryField.type.split(".");
+    const rootId = fieldParts[fieldParts.length - 1];
 
     const entryProps = this.makeEntryPropertiesTree(argsData, rootId);
     const entry = new PropertiesProviderBuilder()

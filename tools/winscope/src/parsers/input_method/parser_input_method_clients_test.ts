@@ -60,7 +60,7 @@ describe('PerfettoParserInputMethodClients', () => {
     const entry = await parser.getEntry(1);
     expect(entry).toBeInstanceOf(HierarchyTreeNode);
     expect(entry.id).toBe(
-      '.perfetto.protos.InputMethodClientsTraceProto entry',
+      'InputMethodClientsTraceProto entry',
     );
   });
 

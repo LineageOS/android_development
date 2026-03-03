@@ -31,7 +31,7 @@ class PresenterInputMethodClientsTest extends AbstractPresenterInputMethodTest {
   override getSelectedNode(): HierarchyTreeNode {
     return new HierarchyTreeBuilder()
       .setRootNodeFormatter(new SetFormatters())
-      .setId('.perfetto.protos.InputMethodClientsTraceProto')
+      .setId('InputMethodClientsTraceProto')
       .setName('entry')
       .setProperties({where: 'location', elapsedNanos: 0})
       .addChildProperty({

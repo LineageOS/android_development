@@ -61,7 +61,7 @@ describe('PerfettoParserInputMethodManagerService', () => {
     const entry = await parser.getEntry(0);
     expect(entry).toBeInstanceOf(HierarchyTreeNode);
     expect(entry.id).toBe(
-      '.perfetto.protos.InputMethodManagerServiceTraceProto entry',
+      'InputMethodManagerServiceTraceProto entry',
     );
   });
 });

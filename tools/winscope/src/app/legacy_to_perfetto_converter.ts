@@ -88,14 +88,15 @@ export class LegacyToPerfettoConverter {
     // the range of timestamps present in the trace to avoid issues with
     // timestamp syncing. The packets for these traces will be parsed by
     // TP with the "has_invalid_elapsed_ts" column set to true.
+    const hasValidTs = (packet: TracePacket) => {
+      return packet.hasTimestamp() && packet.getTimestamp() !== '0';
+    };
     const nonZeroTs = trace
       .getPacketList()
-      .find((packet) => {
-        return packet.hasTimestamp();
-      })
+      .find((packet) => hasValidTs(packet))
       ?.getTimestamp();
     legacyPackets.forEach((packet) => {
-      if (nonZeroTs && !packet.hasTimestamp()) {
+      if (nonZeroTs && !hasValidTs(packet)) {
         packet.setTimestamp(nonZeroTs);
       }
     });
