@@ -71,13 +71,13 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--groups-to-keep",
         required=True,
-        nargs="*",
+        nargs=1,
         default=[],
         help="Space-separated or comma-separated list of repo groups to KEEP",
     )
     parser.add_argument(
         "--groups-build-only",
-        nargs="*",
+        nargs=1,
         default=[],
         help=(
             "Space-separated or comma-separated list of repo groups to KEEP on "
@@ -86,7 +86,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--projects-to-keep",
-        nargs="*",
+        nargs=1,
         default=[],
         help=(
             "Space-separated list of project names to explicitly KEEP, regardless"
