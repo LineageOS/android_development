@@ -38,10 +38,6 @@
   background-color: var(--background-color);
 }
 
-.download-file-ext {
-  padding-top: 3px;
-}
-
 .download-file-info {
   padding-top: 3px;
   max-width: 650px;
