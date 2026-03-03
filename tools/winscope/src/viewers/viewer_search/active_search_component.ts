@@ -18,12 +18,11 @@ import {CommonModule} from '@angular/common';
 import {
   Component,
   ElementRef,
-  EventEmitter,
   Inject,
-  Input,
-  Output,
+  input,
+  output,
   TemplateRef,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -51,24 +50,24 @@ import {Analytics} from '@logging/analytics';
   styleUrls: ['active_search_component.css'],
 })
 export class ActiveSearchComponent {
-  @Input() canClear = false;
-  @Input() canAdd = false;
-  @Input() isSearchInitialized = false;
-  @Input() lastTraceFailed = false;
-  @Input() executedQuery: string | undefined;
-  @Input() saveQueryField: TemplateRef<unknown> | undefined;
-  @Input() label: string | undefined;
-  @Input() lastQueryExecutionTime: string | undefined;
-  @Input() saveQueryNameControl: FormControl | undefined;
-  @Input() runningQuery = false;
+  canClear = input(false);
+  canAdd = input(false);
+  isSearchInitialized = input(false);
+  lastTraceFailed = input(false);
+  executedQuery = input<string>();
+  saveQueryField = input<TemplateRef<unknown>>();
+  label = input<string>();
+  lastQueryExecutionTime = input<string>();
+  saveQueryNameControl = input<FormControl>();
+  runningQuery = input(false);
 
-  @Output() clearQueryClick = new EventEmitter();
-  @Output() searchQueryClick = new EventEmitter<string>();
-  @Output() addQueryClick = new EventEmitter();
-
-  @ViewChild(HTMLTextAreaElement) textArea: HTMLTextAreaElement | undefined;
+  clearQueryClick = output();
+  searchQueryClick = output<string>();
+  addQueryClick = output();
 
   searchQueryControl = new FormControl('', Validators.required);
+
+  private textArea = viewChild(HTMLTextAreaElement);
 
   constructor(
     @Inject(ElementRef) readonly elementRef: ElementRef<HTMLElement>,
@@ -76,14 +75,14 @@ export class ActiveSearchComponent {
 
   updateText(text: string) {
     this.searchQueryControl.setValue(text);
-    this.textArea?.focus();
+    this.textArea()?.focus();
   }
 
   searchQueryDisabled(): boolean {
     return (
       this.searchQueryControl.invalid ||
-      this.runningQuery ||
-      !this.isSearchInitialized
+      this.runningQuery() ||
+      !this.isSearchInitialized()
     );
   }
 

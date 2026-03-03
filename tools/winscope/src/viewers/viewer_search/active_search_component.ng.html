@@ -15,8 +15,8 @@ limitations under the License.
 -->
 
 <span class="header">
-  <span class="mat-body-2"> {{ label }} </span>
-  @if (canClear || executedQuery) {
+  <span class="mat-body-2"> {{ label() }} </span>
+  @if (canClear() || executedQuery()) {
     <button
       mat-button
       class="query-button end-align-button clear-button"
@@ -28,12 +28,13 @@ limitations under the License.
     </button>
   }
 </span>
+@let currRunningQuery = runningQuery();
 <mat-form-field appearance="outline" class="query-field padded-field">
   <textarea
     matInput
     [formControl]="searchQueryControl"
     (keydown)="onTextAreaKeydown($event)"
-    [readonly]="runningQuery"
+    [readonly]="currRunningQuery"
   ></textarea>
   @if (searchQueryControl.invalid && searchQueryControl.value) {
     <mat-error>Enter valid SQL query.</mat-error>
@@ -41,7 +42,7 @@ limitations under the License.
 </mat-form-field>
 
 <div class="query-actions">
-  @if (runningQuery) {
+  @if (currRunningQuery) {
     <div class="running-query-message text-no-overflow">
       <mat-icon class="material-symbols-outlined"> timer </mat-icon>
       <span class="mat-body-2 message-with-spinner">
@@ -50,9 +51,10 @@ limitations under the License.
       </span>
     </div>
   }
-  @if (lastQueryExecutionTime) {
+  @let lastExecutionTime = lastQueryExecutionTime();
+  @if (lastExecutionTime) {
     <span class="query-execution-time text-no-overflow mat-body-1">
-      Executed in {{ lastQueryExecutionTime }}
+      Executed in {{ lastExecutionTime }}
     </span>
   }
   <button
@@ -65,23 +67,25 @@ limitations under the License.
     Run Search Query
   </button>
 </div>
-@if (executedQuery) {
+@let lastExecutedQuery = executedQuery();
+@let lastFailed = lastTraceFailed();
+@if (lastExecutedQuery) {
   <div class="current-search">
     <span class="query">
       <span class="mat-body-2"> Last executed: </span>
-      <span class="mat-body-1"> {{ executedQuery }} </span>
+      <span class="mat-body-1"> {{ lastExecutedQuery }} </span>
     </span>
-    @if (!lastTraceFailed) {
+    @if (!lastFailed) {
       <ng-container
-        [ngTemplateOutlet]="saveQueryField ?? null"
-        [ngTemplateOutletContext]="{query: executedQuery, control: saveQueryNameControl}"
+        [ngTemplateOutlet]="saveQueryField() ?? null"
+        [ngTemplateOutletContext]="{query: lastExecutedQuery, control: saveQueryNameControl()}"
       ></ng-container>
     }
   </div>
 }
-@if (canAdd) {
+@if (canAdd()) {
   <button
-    [disabled]="!executedQuery || lastTraceFailed"
+    [disabled]="!lastExecutedQuery || lastFailed"
     mat-stroked-button
     class="query-button add-button"
     color="primary"
