@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from '@common/assert';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
 @Component({
@@ -27,12 +26,9 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
   styleUrls: ['transform_matrix_component.css'],
 })
 export class TransformMatrixComponent {
-  @Input() matrix: UiPropertyTreeNode | undefined;
+  matrix = input<UiPropertyTreeNode>();
 
   getVal(name: string): string {
-    return (
-      assertDefined(this.matrix).getChildByName(name)?.formattedValue() ??
-      'null'
-    );
+    return this.matrix()?.getChildByName(name)?.formattedValue() ?? 'null';
   }
 }

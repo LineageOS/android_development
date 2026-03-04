@@ -15,11 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  input,
-  output,
-} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatRippleModule} from '@angular/material/core';
 import {MatIconModule} from '@angular/material/icon';

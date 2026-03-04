@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@if (searches.length === 0) {
-  <span class="mat-body-1"> {{ placeholderText }} </span>
+@let currSearches = searches();
+@if (currSearches.length === 0) {
+  <span class="mat-body-1"> {{ placeholderText() }} </span>
 }
-@for (search of searches; track $index) {
+@for (search of currSearches; track $index) {
   <div class="listed-search">
     <span
       #searchName
@@ -29,7 +30,7 @@ limitations under the License.
       {{ search.name }}
     </span>
     <div class="listed-search-date-options">
-      @for (opt of listItemOptions; track opt.name) {
+      @for (opt of listItemOptions(); track opt.name) {
         @if (opt.onClickCallback) {
           <button
             mat-icon-button
@@ -61,7 +62,7 @@ limitations under the License.
               <span class="menu-item" [cdkMenuItemDisabled]="true" cdkMenuItem>
                 <ng-container
                   [ngTemplateOutlet]="opt.menu ?? null"
-                  [ngTemplateOutletContext]="{query: search.query, control}"
+                  [ngTemplateOutletContext]="{query: search.query, control: control()}"
                 ></ng-container>
               </span>
             </div>

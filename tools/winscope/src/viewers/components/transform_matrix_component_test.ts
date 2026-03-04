@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
+import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TransformMatrixComponent} from './transform_matrix_component';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 
 describe('TransformMatrixComponent', () => {
   let component: TransformMatrixComponent;
+  let dom: DOMTestHelper<TransformMatrixComponent>;
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
@@ -29,9 +33,37 @@ describe('TransformMatrixComponent', () => {
   beforeEach(() => {
     const fixture = TestBed.createComponent(TransformMatrixComponent);
     component = fixture.componentInstance;
+    dom = new DOMTestHelper(fixture, fixture.nativeElement);
   });
 
   it('can be created', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('displays matrix', () => {
+    const matrix = new PropertyTreeBuilder()
+      .setRootId('')
+      .setName('matrix')
+      .setFormatter(DEFAULT_PROPERTY_FORMATTER)
+      .setChildren([
+        {name: 'dsdx', value: 1, formatter: DEFAULT_PROPERTY_FORMATTER},
+        {name: 'dtdx', value: 2, formatter: DEFAULT_PROPERTY_FORMATTER},
+        {name: 'dtdy', value: 3, formatter: DEFAULT_PROPERTY_FORMATTER},
+        {name: 'dsdy', value: 4, formatter: DEFAULT_PROPERTY_FORMATTER},
+      ])
+      .build();
+    dom.setComponentInput('matrix', matrix);
+    dom.detectChanges();
+    expect(dom.findAll('p').map((el) => el.getText())).toEqual([
+      '1',
+      '2',
+      'null',
+      '3',
+      '4',
+      'null',
+      '0',
+      '0',
+      '1',
+    ]);
   });
 });

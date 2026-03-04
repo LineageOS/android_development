@@ -45,13 +45,9 @@ limitations under the License.
           }
           @if (!isEditingFilename) {
             <span class="download-file-info text-no-overflow mat-body-2">
-              {{ filenameFormControl.value }}
+              {{ filenameFormControl.value + '.zip' }}
             </span>
-          }
-          @if (!isEditingFilename) {
-            <span class="download-file-ext mat-body-2">.zip</span>
-          }
-          @if (isEditingFilename) {
+          } @else {
             <mat-form-field
               class="file-name-input-field"
               subscriptSizing="dynamic"

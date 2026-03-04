@@ -14,15 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@if (properties !== undefined) {
+@let props = properties();
+@if (props !== undefined) {
   <table class="table">
-    @for (entry of objectEntries(properties); track entry[0]) {
+    @for (entry of objectEntries(props); track entry[0]) {
       <tr>
         <td class="table-cell-name">
           <p class="mat-body-1">{{ entry[0] }}</p>
         </td>
         <td class="table-cell-value">
-          <p class="mat-body-1">{{ entry[1] != undefined ? entry[1] : 'undefined' }}</p>
+          <p class="mat-body-1">{{ entry[1] !== undefined ? entry[1] : 'undefined' }}</p>
         </td>
       </tr>
     }

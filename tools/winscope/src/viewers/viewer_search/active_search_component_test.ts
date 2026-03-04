@@ -15,7 +15,7 @@
  */
 
 import {CommonModule, NgTemplateOutlet} from '@angular/common';
-import {Component} from '@angular/core';
+import {Component, TemplateRef, viewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -25,7 +25,6 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {
   SearchQueryClickDetail,
@@ -37,6 +36,8 @@ describe('ActiveSearchComponent', () => {
   const testQuery = 'select * from table';
   let component: ActiveSearchComponent;
   let dom: DOMTestHelper<ActiveSearchComponent>;
+  let testTemplate: TemplateRef<unknown>;
+  let saveQueryNameControl: FormControl;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -53,15 +54,22 @@ describe('ActiveSearchComponent', () => {
         CommonModule,
         NgTemplateOutlet,
         ActiveSearchComponent,
-        TestHostComponent,
+        TestTemplateComponent,
       ],
     }).compileComponents();
+    const templateFixture = TestBed.createComponent(TestTemplateComponent);
+    const templateComponent = templateFixture.componentInstance;
+    templateFixture.detectChanges();
+    testTemplate = templateComponent.template();
+
+    saveQueryNameControl = new FormControl();
+
     const fixture = TestBed.createComponent(ActiveSearchComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.isSearchInitialized = true;
-    component.lastTraceFailed = false;
-    component.saveQueryNameControl = new FormControl();
+    dom.setComponentInput('saveQueryField', testTemplate);
+    dom.setComponentInput('saveQueryNameControl', saveQueryNameControl);
+    dom.setComponentInput('isSearchInitialized', true);
     dom.detectChanges();
   });
 
@@ -96,8 +104,8 @@ describe('ActiveSearchComponent', () => {
 
   it('handles running query complete', () => {
     runSearchByQueryButton();
-    component.canAdd = true;
-    component.executedQuery = testQuery;
+    dom.setComponentInput('canAdd', true);
+    dom.setComponentInput('executedQuery', testQuery);
     dom.detectChanges();
     expect(dom.find('.running-query-message')).toBeUndefined();
     dom.get('.add-button').checkDisabled(false);
@@ -105,90 +113,81 @@ describe('ActiveSearchComponent', () => {
 
   it('handles running query failure', () => {
     runSearchByQueryButton();
-    component.canAdd = true;
-    component.lastTraceFailed = true;
+    dom.setComponentInput('canAdd', true);
+    dom.setComponentInput('lastTraceFailed', true);
     dom.detectChanges();
     expect(dom.find('.running-query-message')).toBeUndefined();
     dom.get('.add-button').checkDisabled(true);
   });
 
   it('disables search query until initialized', () => {
-    component.isSearchInitialized = false;
+    dom.setComponentInput('isSearchInitialized', false);
     dom.detectChanges();
     getTextInput().dispatchInput(testQuery);
     getSearchQueryButton().checkDisabled(true);
 
-    component.isSearchInitialized = true;
+    dom.setComponentInput('isSearchInitialized', true);
     dom.detectChanges();
     getSearchQueryButton().checkDisabled(false);
   });
 
   it('clears query - canClear set', () => {
     expect(dom.find('.clear-button')).toBeUndefined();
-    component.canClear = true;
+    dom.setComponentInput('canClear', true);
     dom.detectChanges();
     checkClearQueryEmitted();
   });
 
   it('clears query - query executed', () => {
-    component.executedQuery = testQuery;
+    dom.setComponentInput('executedQuery', testQuery);
     dom.detectChanges();
     checkClearQueryEmitted();
   });
 
   it('adds query', () => {
     expect(dom.find('.add-button')).toBeUndefined();
-    component.canAdd = true;
+    dom.setComponentInput('canAdd', true);
     dom.detectChanges();
     const addButton = dom.get('.add-button');
     addButton.checkText('+ Add Query');
     addButton.checkDisabled(true);
 
     spyOn(component.addQueryClick, 'emit');
-    component.executedQuery = testQuery;
+    dom.setComponentInput('executedQuery', testQuery);
     dom.detectChanges();
     addButton.click();
     expect(component.addQueryClick.emit).toHaveBeenCalledTimes(1);
   });
 
   it('labels section', () => {
-    component.label = 'test label';
+    dom.setComponentInput('label', 'test label');
     dom.detectChanges();
     dom.get('.header').checkText('test label');
   });
 
   it('shows last query execution time', () => {
     expect(dom.find('.query-execution-time')).toBeUndefined();
-    component.lastQueryExecutionTime = '10 ms';
+    dom.setComponentInput('lastQueryExecutionTime', '10 ms');
     dom.detectChanges();
     dom.get('.query-execution-time').checkText('Executed in 10 ms');
   });
 
-  it('shows current search information and save query field', () => {
-    const hostFixture = TestBed.createComponent(TestHostComponent);
-    const hostComponent = hostFixture.componentInstance;
-    const hostElement = hostFixture.nativeElement;
-    hostFixture.detectChanges();
+  it('shows current search information and save query field', async () => {
+    expect(dom.find('.current-search')).toBeUndefined();
+    expect(dom.find('.test-query')).toBeUndefined();
+    expect(dom.find('.test-control-value')).toBeUndefined();
+    saveQueryNameControl.setValue('test name');
+    dom.setComponentInput('executedQuery', 'test query');
+    dom.detectChanges();
 
-    expect(hostElement.querySelector('.current-search')).toBeNull();
-    expect(hostElement.querySelector('.test-query')).toBeNull();
-    expect(hostElement.querySelector('.test-control-value')).toBeNull();
-    hostComponent.control.setValue('test name');
-    hostComponent.executedQuery = 'test query';
-    hostFixture.detectChanges();
-
-    const currentSearch = assertDefined(
-      hostElement.querySelector('.current-search'),
-    );
-    expect(currentSearch.querySelector('.query')?.textContent?.trim()).toEqual(
+    const currentSearch = dom.get('.current-search');
+    expect(currentSearch.get('.query').getText()).toBe(
       'Last executed:  test query',
     );
-    expect(
-      currentSearch.querySelector('.test-query')?.textContent?.trim(),
-    ).toBe('test query');
-    expect(
-      currentSearch.querySelector('.test-control-value')?.textContent?.trim(),
-    ).toBe('test name');
+    expect(currentSearch.get('.test-query').getText()).toBe('test query');
+    expect(currentSearch.get('.test-control-value').getText()).toBe(
+      'test name',
+    );
   });
 
   function getTextInput(): DOMTestHelper<ActiveSearchComponent> {
@@ -207,7 +206,7 @@ describe('ActiveSearchComponent', () => {
   function runSearchAndCheckHandled(runSearch: () => void) {
     spyOn(component.searchQueryClick, 'emit');
     runSearch();
-    component.runningQuery = true;
+    dom.setComponentInput('runningQuery', true);
     dom.detectChanges();
     expect(component.searchQueryClick.emit).toHaveBeenCalledOnceWith(testQuery);
     getSearchQueryButton().checkDisabled(true);
@@ -225,18 +224,15 @@ describe('ActiveSearchComponent', () => {
   }
 
   @Component({
-    imports: [ActiveSearchComponent],
     selector: 'test-component',
     template: `
-      <active-search [saveQueryField]="testTemplate" [executedQuery]=executedQuery [saveQueryNameControl]="control"></active-search>
-      <ng-template #testTemplate let-search="search" let-query="query">
+      <ng-template #testTemplate let-control="control" let-query="query">
         <span class="test-query"> {{query}} </span>
         <span class="test-control-value"> {{control?.value}} </span>
       </ng-template>
     `,
   })
-  class TestHostComponent {
-    control = new FormControl();
-    executedQuery: string | undefined;
+  class TestTemplateComponent {
+    template = viewChild.required<TemplateRef<unknown>>('testTemplate');
   }
 });

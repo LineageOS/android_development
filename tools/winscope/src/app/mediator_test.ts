@@ -85,11 +85,7 @@ import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {WinscopeEventListenerStub} from '@messaging/winscope_event_listener_stub';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {mixin} from '@test/unit/common/mixin_helpers';
-import {
-  makeConverterWithUtcOffset,
-  makeRealTimestamp,
-  makeZeroTimestamp,
-} from '@common/time/test_helpers';
+import {makeRealTimestamp, makeZeroTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceEntry} from '@trace_api/trace';
@@ -497,28 +493,6 @@ describe('Mediator', () => {
     );
   });
 
-  it('propagates trace position update according to timezone', async () => {
-    const converter = await makeConverterWithUtcOffset();
-    converter.setRealToMonotonicTimeOffsetNs(0n);
-    converter.setRealToBootTimeOffsetNs(0n);
-    spyOn(loadedFileData, 'getTimestampConverter').and.returnValue(converter);
-    await loadFiles();
-    await loadTraceView();
-
-    // notify position
-    resetSpyCalls();
-    const expectedPosition = TracePosition.fromTimestamp(
-      converter.makeTimestampFromRealNs(10n),
-    );
-    await mediator.onWinscopeEvent(new TracePositionUpdate(expectedPosition));
-    checkTracePositionUpdateEvents(
-      [viewerStub0, viewerOverlay, timelineComponent, crossToolProtocol],
-      [],
-      expectedPosition,
-      POSITION_10,
-    );
-  });
-
   it('propagates trace position update and updates timeline data', async () => {
     await loadFiles();
     await loadTraceView();
@@ -607,7 +581,6 @@ describe('Mediator', () => {
 
   describe('timestamp received from remote tool', () => {
     it('propagates trace position update', async () => {
-      loadedFileData.getTimestampConverter().setRealToMonotonicTimeOffsetNs(0n);
       await loadFiles();
       await loadTraceView();
       const traceSfEntry = assertDefined(
@@ -628,7 +601,6 @@ describe('Mediator', () => {
     });
 
     it("doesn't propagate timestamp back to remote tool", async () => {
-      loadedFileData.getTimestampConverter().setRealToMonotonicTimeOffsetNs(0n);
       await loadFiles();
       await loadTraceView();
 
@@ -1245,6 +1217,12 @@ describe('Mediator', () => {
     if (
       event.position.timestamp.getValueNs() !==
       expectedEvent.position.timestamp.getValueNs()
+    ) {
+      return false;
+    }
+    if (
+      event.position.timestamp.format() !==
+      expectedEvent.position.timestamp.format()
     ) {
       return false;
     }

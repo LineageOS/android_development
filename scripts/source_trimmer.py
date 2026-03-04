@@ -71,13 +71,22 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--groups-to-keep",
         required=True,
-        nargs="*",
+        nargs=1,
         default=[],
         help="Space-separated or comma-separated list of repo groups to KEEP",
     )
     parser.add_argument(
+        "--groups-build-only",
+        nargs=1,
+        default=[],
+        help=(
+            "Space-separated or comma-separated list of repo groups to KEEP on "
+            "builds but REMOVE from the generated output manifest."
+        ),
+    )
+    parser.add_argument(
         "--projects-to-keep",
-        nargs="*",
+        nargs=1,
         default=[],
         help=(
             "Space-separated list of project names to explicitly KEEP, regardless"
@@ -398,8 +407,10 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
     logging.info("Found %d projects in the manifest.", len(all_projects))
 
     groups_to_keep = process_groups_to_keep(opts.groups_to_keep)
+    groups_build_only = process_groups_to_keep(opts.groups_build_only)
 
-    projects_to_remove = find_projects_to_remove(all_projects, groups_to_keep)
+    all_build_keep_groups = groups_to_keep + groups_build_only
+    projects_to_remove = find_projects_to_remove(all_projects, all_build_keep_groups)
     logging.info(
         "Identified %d projects to potentially remove based on groups.",
         len(projects_to_remove),
@@ -425,13 +436,17 @@ def main(argv: Optional[list[str]] = None) -> Optional[int]:
 
     logging.info("Final count of projects to remove: %d", len(projects_to_remove))
 
-    keep_project_names = {p["name"] for p in all_projects} - {
-        p["name"] for p in projects_to_remove
-    }
+    keep_groups_set = set(groups_to_keep)
+    cli_keep_set = set(opts.projects_to_keep)
+    keep_project_names_for_manifest = set()
+    for p in all_projects:
+        if p not in projects_to_remove:
+            if set(p["groups"]) & keep_groups_set or p["name"] in cli_keep_set:
+                keep_project_names_for_manifest.add(p["name"])
 
     if opts.output_manifest:
         success = generate_arsp_filtered_manifest(
-            manifest_content, keep_project_names, opts.output_manifest
+            manifest_content, keep_project_names_for_manifest, opts.output_manifest
         )
         if not success:
             return 1

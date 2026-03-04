@@ -39,7 +39,7 @@ import {VISIBLE_CHIP} from './chip';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {ViewerEvents} from './viewer_events';
+import {AdditionalPropertySelectedDetail, ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethodTest extends AbstractHierarchyViewerPresenterTest<ImeUiData> {
   private traces: Traces | undefined;
@@ -220,13 +220,13 @@ the default for its data type.`,
           presenter,
           'onAdditionalPropertySelected',
         );
-        const selectedItem = {
-          name: '',
-          treeNode: makePropertyNode('', '', undefined),
-        };
+        const selectedItem = new AdditionalPropertySelectedDetail(
+          '',
+          makePropertyNode('', '', undefined),
+        );
         element.dispatchEvent(
           new CustomEvent(ViewerEvents.AdditionalPropertySelected, {
-            detail: {selectedItem},
+            detail: selectedItem,
           }),
         );
         expect(spy).toHaveBeenCalledWith(selectedItem);

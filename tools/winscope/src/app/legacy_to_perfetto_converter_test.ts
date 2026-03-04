@@ -198,6 +198,21 @@ describe('LegacyToPerfettoConverter', () => {
     expect(trace.packet).toEqual([clockSnapshot, packet]);
   });
 
+  it('converts legacy trace with zero timestamp and non-zero monotonic offset', async () => {
+    const packet = makePacketWithBoottimeTs(0);
+    const reader = makeFileReader([packet]);
+    spyOn(reader, 'getRealToBootTimeOffsetNs').and.returnValue(undefined);
+    spyOn(reader, 'getRealToMonotonicTimeOffsetNs').and.returnValue(10n);
+    const perfettoFile = await convertToPerfetto([reader]);
+    const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
+    const clockSnapshot = makeExpectedClockSnapshot({
+      realtime: 10n,
+      boottime: 0n,
+      monotonic: 0n,
+    });
+    expect(trace.packet).toEqual([clockSnapshot, packet]);
+  });
+
   it('robust to errors in existing trace decoding', async () => {
     const userNotifierChecker = new UserNotifierChecker();
     const readers = [makeFileReader([])];

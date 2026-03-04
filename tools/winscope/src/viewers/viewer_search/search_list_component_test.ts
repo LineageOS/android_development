@@ -15,33 +15,39 @@
  */
 
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {Component, TemplateRef, viewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {ListItemOption, SearchListComponent} from './search_list_component';
+import {SearchListComponent} from './search_list_component';
 import {ListedSearch} from './ui_data';
 
 describe('SearchListComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: SearchListComponent;
+  let dom: DOMTestHelper<SearchListComponent>;
+  let testTemplate: TemplateRef<unknown>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
         CdkMenuModule,
         SearchListComponent,
-        TestHostComponent,
+        TestTemplateComponent,
         BrowserAnimationsModule,
         MatTooltipModule,
         MatIconModule,
         MatButtonModule,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const templateFixture = TestBed.createComponent(TestTemplateComponent);
+    const templateComponent = templateFixture.componentInstance;
+    templateFixture.detectChanges();
+    testTemplate = templateComponent.template();
+
+    const fixture = TestBed.createComponent(SearchListComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     dom.detectChanges();
@@ -54,16 +60,16 @@ describe('SearchListComponent', () => {
   it('shows placeholder text if no searches', () => {
     dom.checkTextExact('');
     const placeholderText = 'placeholder text';
-    component.placeholderText = placeholderText;
+    dom.setComponentInput('placeholderText', placeholderText);
     dom.detectChanges();
     dom.checkTextExact(placeholderText);
   });
 
   it('shows search names with tooltips', async () => {
-    component.searches = [
+    dom.setComponentInput('searches', [
       new ListedSearch('query1', 'name1'),
       new ListedSearch('query2', 'query2'),
-    ];
+    ]);
     dom.detectChanges();
 
     const listedSearches = dom.findAll('.listed-search');
@@ -89,7 +95,7 @@ describe('SearchListComponent', () => {
 
   it('formats search dates', () => {
     spyOn(Date, 'now').and.returnValue(1000);
-    component.searches = [new ListedSearch('query1', 'name1')];
+    dom.setComponentInput('searches', [new ListedSearch('query1', 'name1')]);
     dom.detectChanges();
     const expectedDate = new Date(1000);
     dom
@@ -103,28 +109,28 @@ describe('SearchListComponent', () => {
 
   it('shows options and triggers callback on interaction', async () => {
     let optionClicked: ListedSearch | undefined;
-    component.searches = [new ListedSearch('query1', 'name1')];
+    dom.setComponentInput('searches', [new ListedSearch('query1', 'name1')]);
     dom.detectChanges();
     // does not show menu button if no options
     expect(dom.find('.listed-search-options')).toBeUndefined();
 
     const onClickCallback = (search: ListedSearch) => (optionClicked = search);
-    component.listItemOptions = [
+    dom.setComponentInput('listItemOptions', [
       {name: 'option1', icon: 'test', onClickCallback},
-    ];
+    ]);
     dom.detectChanges();
 
     const option = dom.get('.listed-search-option');
     await option.checkTooltip('option1');
     option.click();
-    expect(optionClicked).toEqual(component.searches[0]);
+    expect(optionClicked).toEqual(component.searches()[0]);
   });
 
   it('shows menu', async () => {
-    component.listItemOptions = [
-      {name: 'option1', icon: 'test', menu: component.testTemplate},
-    ];
-    component.searches = [new ListedSearch('query1', 'name1')];
+    dom.setComponentInput('listItemOptions', [
+      {name: 'option1', icon: 'test', menu: testTemplate},
+    ]);
+    dom.setComponentInput('searches', [new ListedSearch('query1', 'name1')]);
     dom.detectChanges();
     const option = dom.get('.listed-search-option');
     await option.checkTooltip('option1');
@@ -134,27 +140,14 @@ describe('SearchListComponent', () => {
   });
 
   @Component({
-    imports: [SearchListComponent],
-    selector: 'host-component',
+    selector: 'template-component',
     template: `
-      <search-list
-        [searches]="searches"
-        [placeholderText]="placeholderText"
-        [listItemOptions]="listItemOptions"></search-list>
-
       <ng-template #testTemplate>
         <span class="test-menu-item"></span>
       </ng-template>
     `,
   })
-  class TestHostComponent {
-    @ViewChild(SearchListComponent) searchListComponent:
-      | SearchListComponent
-      | undefined;
-    @ViewChild('testTemplate') testTemplate: TemplateRef<unknown> | undefined;
-
-    searches: ListedSearch[] = [];
-    placeholderText: string | undefined;
-    listItemOptions: ListItemOption[] = [];
+  class TestTemplateComponent {
+    template = viewChild.required<TemplateRef<unknown>>('testTemplate');
   }
 });

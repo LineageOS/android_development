@@ -45,7 +45,7 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
   });
 
   it('shows node heading if set', () => {
-    component.node = testNode;
+    dom.setComponentInput('node', testNode);
     dom.detectChanges();
     dom.checkTextExact('1 - test node');
     testNode.setShowHeading(false);
@@ -55,7 +55,7 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
 
   it('shows display name if set, with full name on hover', async () => {
     testNode.setDisplayName('display name');
-    component.node = testNode;
+    dom.setComponentInput('node', testNode);
     dom.detectChanges();
     dom.checkTextExact('1 - display name');
     await dom.get('.display-name').checkTooltip('test node');
@@ -63,7 +63,7 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
 
   it('shows chips with tooltip on hover', async () => {
     testNode.addChip(VISIBLE_CHIP);
-    component.node = testNode;
+    dom.setComponentInput('node', testNode);
     dom.detectChanges();
     dom.checkText(`1 - test node`);
     const chip = dom.get('.tree-view-chip');

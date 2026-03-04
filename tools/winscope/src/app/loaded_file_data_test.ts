@@ -20,7 +20,6 @@ import {UserWarning} from '@messaging/user_warning';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {
   ASIA_TIMEZONE_INFO,
-  makeConverterNoRteOffsets,
   makeRealTimestamp,
   timestampEqualityTester,
 } from '@common/time/test_helpers';
@@ -96,6 +95,12 @@ describe('LoadedFileData', () => {
 
   beforeAll(async () => {
     userNotifierChecker = new UserNotifierChecker();
+  });
+
+  beforeEach(async () => {
+    jasmine.addCustomEqualityTester(timestampEqualityTester);
+
+    loadedFileData = new LoadedFileData();
 
     const wmTransitionFile = await getFixtureFile(
       'traces/elapsed_and_real_timestamp/wm_transition_trace.pb',
@@ -115,12 +120,6 @@ describe('LoadedFileData', () => {
     );
     const resInput = await loadFiles([inputFile]);
     inputTraceReaders = resInput.perfetto;
-  });
-
-  beforeEach(async () => {
-    jasmine.addCustomEqualityTester(timestampEqualityTester);
-
-    loadedFileData = new LoadedFileData();
   });
 
   afterEach(() => {
@@ -549,7 +548,7 @@ describe('LoadedFileData', () => {
   });
 
   async function loadFiles(files: File[]): Promise<FileLoaderResult> {
-    return await new FileLoader(makeConverterNoRteOffsets()).load(
+    return await new FileLoader(loadedFileData.getTimestampConverter()).load(
       files,
       FilesSource.TEST,
       undefined,
