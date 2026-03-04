@@ -17,18 +17,18 @@
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {AbstractUpdateLayersAndWindows} from './abstract_update_layers_and_windows';
 
-export class UpdateTransitionTargets extends AbstractUpdateLayersAndWindows<PropertyTreeNode> {
+export class UpdateTransitionChanges extends AbstractUpdateLayersAndWindows<PropertyTreeNode> {
   apply(node: PropertyTreeNode): void {
     node
-      ?.getChildByName('targets')
+      ?.getChildByName('changes')
       ?.getAllChildren()
-      .forEach((target) => {
-        const layerId = target.getChildByName('layerId');
+      .forEach((change) => {
+        const layerId = change.getChildByName('layerId');
         if (layerId) {
           this.updateLayerId(layerId);
         }
 
-        const windowId = target.getChildByName('windowId');
+        const windowId = change.getChildByName('windowId');
         if (windowId) {
           this.updateWindowId(windowId);
         }

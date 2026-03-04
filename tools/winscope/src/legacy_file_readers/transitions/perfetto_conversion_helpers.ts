@@ -20,7 +20,7 @@ import {ShellTransition} from '@compat/winscope_protos';
 type TransitionProperty =
   | number
   | Long
-  | ShellTransition.ITarget[]
+  | ShellTransition.IChange[]
   | null
   | undefined;
 
