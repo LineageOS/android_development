@@ -45,6 +45,7 @@ import {makeWarningIncompleteFrameMapping} from './warnings';
 import {TimezoneInfo} from '@common/time/time';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {makeSpyQueryResult} from '@trace_processor/test_utils';
+import {ParsingErrorType} from './parsing_error_type';
 
 describe('LoadedFileData', () => {
   const emptyTraceGeometryData = new TraceGeometryData();
@@ -208,6 +209,7 @@ describe('LoadedFileData', () => {
       perfetto: [perfettoProtologReader],
       nonPerfetto: [],
       lostPerfettoPackets: 1,
+      traceTypesWithParsingErrors: new Map<TraceType, ParsingErrorType>(),
       timezoneInfo: undefined,
       traceGeometryData: emptyTraceGeometryData,
       warnings: [],
@@ -220,6 +222,33 @@ describe('LoadedFileData', () => {
     expect(loadedFileData.getLostPerfettoPackets()).toBe(0);
   });
 
+  it('surfaces information about trace processor errors', async () => {
+    const res = {
+      legacy: [],
+      perfetto: [perfettoProtologReader],
+      nonPerfetto: [],
+      lostPerfettoPackets: 0,
+      traceTypesWithParsingErrors: new Map<TraceType, ParsingErrorType>([
+        [TraceType.INPUT_METHOD_CLIENTS, ParsingErrorType.DATA_INCORRECT],
+      ]),
+      timezoneInfo: undefined,
+      traceGeometryData: emptyTraceGeometryData,
+      warnings: [],
+    };
+    await loadedFileData.addFiles(res, FilesSource.TEST);
+    expect(loadedFileData.getTraceTypesWithParsingErrors()).toEqual(
+      new Map<TraceType, ParsingErrorType>([
+        [TraceType.INPUT_METHOD_CLIENTS, ParsingErrorType.DATA_INCORRECT],
+      ]),
+    );
+
+    res.traceTypesWithParsingErrors = new Map<TraceType, ParsingErrorType>();
+    await loadedFileData.addFiles(res, FilesSource.TEST);
+    expect(loadedFileData.getTraceTypesWithParsingErrors()).toEqual(
+      new Map<TraceType, ParsingErrorType>(),
+    );
+  });
+
   it('exposes traceGeometryData', async () => {
     const traceGeometryData = new TraceGeometryData(
       new Map([[1n, new Rect(0, 0, 1, 1)]]),
@@ -229,6 +258,7 @@ describe('LoadedFileData', () => {
       perfetto: [perfettoProtologReader],
       nonPerfetto: [],
       lostPerfettoPackets: 1,
+      traceTypesWithParsingErrors: new Map<TraceType, ParsingErrorType>(),
       timezoneInfo: undefined,
       traceGeometryData,
       warnings: [],
@@ -564,6 +594,7 @@ describe('LoadedFileData', () => {
       perfetto: [],
       nonPerfetto: [],
       lostPerfettoPackets: 0,
+      traceTypesWithParsingErrors: new Map<TraceType, ParsingErrorType>(),
       timezoneInfo: undefined,
       traceGeometryData: emptyTraceGeometryData,
       warnings: [],
@@ -582,6 +613,7 @@ describe('LoadedFileData', () => {
       perfetto,
       nonPerfetto,
       lostPerfettoPackets: 0,
+      traceTypesWithParsingErrors: new Map<TraceType, ParsingErrorType>(),
       timezoneInfo,
       traceGeometryData: emptyTraceGeometryData,
       warnings: [],
@@ -675,6 +707,7 @@ describe('LoadedFileData', () => {
       nonPerfetto: [screenshotReader],
       warnings: [],
       lostPerfettoPackets: 0,
+      traceTypesWithParsingErrors: new Map<TraceType, ParsingErrorType>(),
       traceGeometryData: emptyTraceGeometryData,
       timezoneInfo: undefined,
     };

@@ -48,6 +48,7 @@ import {Viewer, ViewType} from '@viewers/viewer';
 import {ViewerStub} from '@viewers/viewer_stub';
 import {TraceViewComponent} from './trace_view_component';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ParsingErrorType} from '@app/parsing_error_type';
 
 describe('TraceViewComponent', () => {
   const traceSf = makeEmptyTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER);
@@ -65,6 +66,7 @@ describe('TraceViewComponent', () => {
   let dom: DOMTestHelper<TraceViewComponent>;
   let viewers: Viewer[];
   let store: InMemoryStorage;
+  let traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -98,8 +100,18 @@ describe('TraceViewComponent', () => {
       new ViewerStub('Title3', 'Content3', traceProtolog, ViewType.TRACE_TAB),
     ];
 
+    traceTypesWithParsingErrors = new Map<TraceType, ParsingErrorType>();
+    traceTypesWithParsingErrors.set(
+      TraceType.WINDOW_MANAGER,
+      ParsingErrorType.DATA_INCORRECT,
+    );
+
     fixture.componentRef.setInput('viewers', viewers);
     fixture.componentRef.setInput('store', store);
+    fixture.componentRef.setInput(
+      'traceTypesWithParsingErrors',
+      traceTypesWithParsingErrors,
+    );
     dom.detectChanges();
   });
 
@@ -336,7 +348,22 @@ describe('TraceViewComponent', () => {
   it('shows tooltips for tabs with trace descriptors', async () => {
     const tabs = getTabs();
     const wmTab = tabs[1];
-    await checkTooltips([wmTab], ['file_1']);
+    const wmTabContent = wmTab.get('.tab-content');
+    await wmTabContent.hover();
+    await checkTooltips([wmTabContent], ['file_1']);
+
+    await wmTabContent.unhover();
+    expect(wmTabContent.findMatTooltipPanel()).toBeUndefined();
+  });
+
+  it('shows warning sign and tooltip if trace processor errors occurred', async () => {
+    const tabs = getTabs();
+    const wmTab = tabs[1];
+    const wmTabWarningIcon = wmTab.get('.warning-icon');
+    await checkTooltips(
+      [wmTabWarningIcon],
+      ['Trace processor errors occurred - data may be incorrect'],
+    );
   });
 
   function getVisibleTabContents() {
