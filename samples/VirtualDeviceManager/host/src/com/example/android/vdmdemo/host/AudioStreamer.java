@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+@SuppressLint("NewApi")
 @Singleton
 final class AudioStreamer {
     private static final String TAG = AudioStreamer.class.getSimpleName();
@@ -86,6 +87,7 @@ final class AudioStreamer {
     private AudioManager mAudioManager;
     private int mPlaybackSessionId;
     private boolean mUseLegacyPlaybackState;
+    private boolean mUsePersistentMixes;
 
     @Inject
     PreferenceController mPreferenceController;
@@ -158,6 +160,8 @@ final class AudioStreamer {
         // This is consistent per AudioStreamer session, between start and stop
         mUseLegacyPlaybackState =
                 mPreferenceController.getBoolean(R.string.pref_use_legacy_playback_state);
+        mUsePersistentMixes = mPreferenceController.getBoolean(
+                R.string.pref_enable_persistent_audio_policy_mixes);
 
         mAudioManager = mDeviceContext.getSystemService(AudioManager.class);
         if (mAudioManager != null) {
@@ -298,6 +302,7 @@ final class AudioStreamer {
         AudioMix audioMix = new AudioMix.Builder(mixingRule)
                 .setRouteFlags(AudioMix.ROUTE_FLAG_LOOP_BACK)
                 .setFormat(AUDIO_FORMAT)
+                .setPersistent(mUsePersistentMixes)
                 .build();
 
         synchronized (mLock) {
@@ -316,6 +321,17 @@ final class AudioStreamer {
             sessionPolicyBuilder.setIsAudioFocusPolicy(false);
             AudioPolicy sessionPolicy = sessionPolicyBuilder.build();
 
+            // This is a hacky way to determine audio device associated with audio mix.
+            // once audio record for the policy is initialized, audio policy manager
+            // will create remote submix instance so we can compare devices before and after
+            // to determine which device corresponds to this particular mix.
+            // The audio record needs to be kept alive, releasing it would cause
+            // destruction of remote submix instances and potential problems when updating the
+            // UID-based render policy pointing to the remote submix device.
+            // Get the list of the out remote submix devices before registering the policy since
+            // persistent AudioMixes create both device ports at registration.
+            List<AudioDeviceInfo> preexistingRemoteSubmixDevices = getRemoteSubmixDevices();
+
             int ret = mAudioManager.registerAudioPolicy(sessionPolicy);
             if (ret != AudioManager.SUCCESS) {
                 Log.e(TAG, "Failed to register media session audio policy, error code " + ret);
@@ -326,14 +342,6 @@ final class AudioStreamer {
             mSessionIdAudioMix = audioMix;
             mPlaybackSessionId = audioSessionId;
 
-            // This is a hacky way to determine audio device associated with audio mix.
-            // once audio record for the policy is initialized, audio policy manager
-            // will create remote submix instance so we can compare devices before and after
-            // to determine which device corresponds to this particular mix.
-            // The audio record needs to be kept alive, releasing it would cause
-            // destruction of remote submix instances and potential problems when updating the
-            // UID-based render policy pointing to the remote submix device.
-            List<AudioDeviceInfo> preexistingRemoteSubmixDevices = getRemoteSubmixDevices();
             // The AudioRecord is tied to the session audio policy and its assigned audio mix,
             // It is created with the session policy and is always recording
             // as long as the policy exists.
@@ -341,6 +349,7 @@ final class AudioStreamer {
             mHostRecord.startRecording();
 
             mRemoteSubmixDevice = getNewRemoteSubmixAudioDevice(preexistingRemoteSubmixDevices);
+            Log.i(TAG, "Remote Output Submix Device: " + mRemoteSubmixDevice);
         }
 
         Log.i(TAG, "Registered MediaSession audio policy successfully.");
@@ -356,6 +365,9 @@ final class AudioStreamer {
             return;
         }
 
+        // This RENDER type AudioMix redirects to the output remote submix device of the media
+        // session id policy.
+        // RENDER AudioMixes don't support the persistent flag
         AudioMix uidAudioMix = new AudioMix.Builder(createUidMixingRule(uids))
                         .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
                         .setDevice(mRemoteSubmixDevice)

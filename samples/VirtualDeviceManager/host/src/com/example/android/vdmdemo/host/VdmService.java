@@ -835,6 +835,9 @@ public final class VdmService extends Hilt_VdmService {
                     if (mVirtualDevice != null) mVirtualDevice.setShowPointerIcon((Boolean) b);
                 });
         observers.put(R.string.pref_enable_client_audio, b -> handleAudioCapabilities());
+        observers.put(R.string.pref_enable_update_audio_policy_mixes, b -> recreateVirtualDevice());
+        observers.put(R.string.pref_enable_persistent_audio_policy_mixes,
+                b -> recreateVirtualDevice());
         observers.put(R.string.pref_use_legacy_playback_state, b -> recreateVirtualDevice());
         observers.put(R.string.pref_display_ime_policy,
                 s -> {

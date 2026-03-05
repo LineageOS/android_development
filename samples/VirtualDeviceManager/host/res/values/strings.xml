@@ -70,6 +70,7 @@
     <string name="pref_duplicate_back_camera" translatable="false">duplicate_back_camera</string>
     <string name="pref_network_channel" translatable="false">network_channel</string>
     <string name="pref_enable_update_audio_policy_mixes" translatable="false">enable_update_mixing_rules</string>
+    <string name="pref_enable_persistent_audio_policy_mixes" translatable="false">enable_persistent_audio_policy_mixes</string>
     <string name="pref_use_legacy_playback_state" translatable="false">use_legacy_playback_state</string>
 
     <string name="internal_pref_home_displays_supported" translatable="false">home_displays_supported</string>

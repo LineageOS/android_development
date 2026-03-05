@@ -156,6 +156,13 @@
         android:defaultValue="true"
         app:iconSpaceReserved="false" />
     <SwitchPreferenceCompat
+        android:key="@string/pref_enable_persistent_audio_policy_mixes"
+        android:dependency="@string/pref_enable_client_audio"
+        android:title="Use persistent audio policy mixes"
+        android:summary="Sets the audio policy mixes to be persistent."
+        android:defaultValue="false"
+        app:iconSpaceReserved="false" />
+    <SwitchPreferenceCompat
         android:key="@string/pref_use_legacy_playback_state"
         android:dependency="@string/pref_enable_client_audio"
         android:title="Use legacy playback state"

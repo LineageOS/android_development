@@ -20,6 +20,7 @@ import static android.Manifest.permission.ADD_ALWAYS_UNLOCKED_DISPLAY;
 import static android.Manifest.permission.ADD_TRUSTED_DISPLAY;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.BAKLAVA;
+import static android.os.Build.VERSION_CODES.CINNAMON_BUN;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 import static android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM;
@@ -130,6 +131,9 @@ final class PreferenceController {
 
             new BoolRule(R.string.pref_enable_update_audio_policy_mixes, VANILLA_ICE_CREAM)
                     .withDefaultValue(true),
+
+            new BoolRule(R.string.pref_enable_persistent_audio_policy_mixes, CINNAMON_BUN)
+                    .withDefaultValue(false),
 
             new BoolRule(R.string.pref_use_legacy_playback_state, UPSIDE_DOWN_CAKE)
                     .withDefaultValue(false),
