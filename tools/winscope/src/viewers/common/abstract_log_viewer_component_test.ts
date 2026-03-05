@@ -117,11 +117,11 @@ export abstract class AbstractLogViewerComponentTest<
 
         it('passes data to log component', () => {
           const logComponent = assertDefined(component.logComponent);
-          expect(logComponent.isFetchingData).toBeFalse();
-          expect(logComponent.checkScrollViewportCount).toBe(0);
-          expect(logComponent.selectedIndex).not.toBe(10);
-          expect(logComponent.scrollToIndex).not.toBe(20);
-          expect(logComponent.currentIndex).not.toBe(30);
+          expect(logComponent.isFetchingData()).toBeFalse();
+          expect(logComponent.checkScrollViewportCount()).toBe(0);
+          expect(logComponent.selectedIndex()).not.toBe(10);
+          expect(logComponent.scrollToIndex()).not.toBe(20);
+          expect(logComponent.currentIndex()).not.toBe(30);
 
           const inputData = assertDefined(component.inputData);
           inputData.checkScrollViewportCount = 1;
@@ -131,11 +131,11 @@ export abstract class AbstractLogViewerComponentTest<
           inputData.currentIndex = 30;
           dom.detectChanges();
 
-          expect(logComponent.isFetchingData).toBeTrue();
-          expect(logComponent.checkScrollViewportCount).toBe(1);
-          expect(logComponent.selectedIndex).toBe(10);
-          expect(logComponent.scrollToIndex).toBe(20);
-          expect(logComponent.currentIndex).toBe(30);
+          expect(logComponent.isFetchingData()).toBeTrue();
+          expect(logComponent.checkScrollViewportCount()).toBe(1);
+          expect(logComponent.selectedIndex()).toBe(10);
+          expect(logComponent.scrollToIndex()).toBe(20);
+          expect(logComponent.currentIndex()).toBe(30);
         });
 
         if (this.testProperties) {
@@ -296,7 +296,7 @@ export abstract class AbstractLogViewerComponentTest<
     scrollElement.style.minWidth = '1440px';
     scrollElement.style.maxWidth = '1440px';
     dom.detectChanges();
-    const viewport = assertDefined(component.logComponent?.scrollComponent);
+    const viewport = assertDefined(component.logComponent?.scrollComponent());
     return [dom, viewport, component];
   }
 
