@@ -16,7 +16,7 @@
 
 import {Timestamp, TimezoneInfo} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
-import {getResolvedUTCOffset} from './utc_offset_resolver';
+import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 
 /**
  * Timezone information for Asia/Kolkata.

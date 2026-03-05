@@ -58,6 +58,7 @@ import {makeWarningIncompleteFrameMapping} from './warnings';
 import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {TimezoneInfo} from '@common/time/time';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {ParsingErrorType} from './parsing_error_type';
 
 /**
@@ -482,7 +483,7 @@ export class LoadedFileData {
         const utcOffset = await getResolvedUTCOffset(
           this.timezoneInfo,
           timestamp,
-          TraceProcessorFactory.getSingleInstance(),
+          this.getTimezoneNsFromPerfetto,
         );
         this.timestampConverter.setUTCOffset(utcOffset);
         break;
@@ -490,4 +491,30 @@ export class LoadedFileData {
     }
     await new FrameMapper(traces).computeMapping();
   }
-}
+
+  /**
+ * Gets the UTC offset from Perfetto in minutes and converts it in nanoseconds.
+ *
+ * @param traceProcessor TraceProcessor instance used to read from Perfetto.
+ * @return The timezone offset in nanoseconds.
+ */
+    private async getTimezoneNsFromPerfetto(
+    ): Promise<bigint | undefined> {
+      const query = `
+        SELECT
+          int_value
+        FROM
+          metadata
+        WHERE
+          name = 'timezone_off_mins'
+        `;
+
+      const result = await TraceProcessorFactory.getSingleInstance().query(query);
+
+      if (result && result.numRows() > 0) {
+        const timezoneOffsetMinutes = Number(result.firstRow({ int_value: 0n }).int_value);
+        return BigInt(timezoneOffsetMinutes) * TIME_UNIT_TO_NANO.m;
+      }
+      return undefined;
+    }
+  }
