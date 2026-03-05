@@ -103,7 +103,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   );
   private static readonly ADD_DEFAULTS_OPERATION = new AddDefaults(
     ParserTransitions.TRANSITION_FIELD,
-    ['type', 'targets'],
+    ['type', 'changes'],
   );
   private static readonly TRANSITION_TYPE_FORMATTER = new EnumFormatter(
     TransitionType,

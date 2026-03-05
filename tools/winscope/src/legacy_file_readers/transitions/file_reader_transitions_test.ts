@@ -123,7 +123,7 @@ describe('FileReaderTransitions', () => {
     expect(transition6.wmAbortTimeNs).toBeUndefined();
     expect(transition6.finishTimeNs).toEqual(Long.fromString('57650183020323'));
     expect(transition6.type).toBe(1);
-    expect(transition6.targets?.length).toBe(2);
+    expect(transition6.changes?.length).toBe(2);
     expect(transition6.flags).toBeUndefined();
     expect(transition6.startingWindowRemoveTimeNs).toBeUndefined();
     expect(transition6.dispatchTimeNs).toEqual(
@@ -206,18 +206,18 @@ describe('FileReaderTransitions', () => {
     checkPropertyValue(windowParticipants, '0', '179781688');
     checkPropertyValue(windowParticipants, '1', '184699222');
 
-    const targets = assertDefined(
-      entryProperties.getChildByName('targets'),
+    const changes = assertDefined(
+      entryProperties.getChildByName('changes'),
     ).getAllChildren();
-    expect(targets.length).toBe(2);
-    checkPropertyValue(targets[0], 'layerId', '113');
-    checkPropertyValue(targets[0], 'mode', 'TO_FRONT');
+    expect(changes.length).toBe(2);
+    checkPropertyValue(changes[0], 'layerId', '113');
+    checkPropertyValue(changes[0], 'mode', 'TO_FRONT');
     checkPropertyValue(
-      targets[0],
+      changes[0],
       'flags',
       'FLAG_MOVED_TO_TOP | FLAG_SHOW_WALLPAPER',
     );
-    checkPropertyValue(targets[0], 'windowId', '179781688');
+    checkPropertyValue(changes[0], 'windowId', '179781688');
 
     checkEagerPropertyValue(
       entry,

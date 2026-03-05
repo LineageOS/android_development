@@ -109,10 +109,10 @@ mod test {
         )?;
 
         assert!(
-            managed_repo.update("base64", "0.21.123").is_err(),
+            managed_repo.update("base64", "0.21.123", false).is_err(),
             "Update to non-existent version"
         );
-        managed_repo.update("base64", "0.22.1")?;
+        managed_repo.update("base64", "0.22.1", false)?;
 
         #[cfg(not(target_os = "macos"))]
         dump(managed_repo_path.monorepo_path());

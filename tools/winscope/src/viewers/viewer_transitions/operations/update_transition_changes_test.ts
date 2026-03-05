@@ -16,17 +16,17 @@
 
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {UpdateTransitionTargets} from './update_transition_targets';
+import {UpdateTransitionChanges} from './update_transition_changes';
 
-describe('UpdateTransitionTargets', () => {
-  let operation: UpdateTransitionTargets;
+describe('UpdateTransitionChanges', () => {
+  let operation: UpdateTransitionChanges;
 
   beforeEach(() => {
     const layerIdToName = new Map<number, string>([[2, 'testLayer']]);
     const windowTokenToTitle = new Map<number, string>([
       [159077656, 'testTitle'],
     ]);
-    operation = new UpdateTransitionTargets(layerIdToName, windowTokenToTitle);
+    operation = new UpdateTransitionChanges(layerIdToName, windowTokenToTitle);
   });
 
   it('updates layerId and windowToken display names if in maps', () => {
@@ -60,7 +60,7 @@ describe('UpdateTransitionTargets', () => {
       .setName('transition')
       .setChildren([
         {
-          name: 'targets',
+          name: 'changes',
           children: [
             {
               name: '0',
@@ -78,7 +78,7 @@ describe('UpdateTransitionTargets', () => {
   function checkLayerId(root: PropertyTreeNode, value: string) {
     expect(
       root
-        ?.getChildByName('targets')
+        ?.getChildByName('changes')
         ?.getChildByName('0')
         ?.getChildByName('layerId')
         ?.formattedValue(),
@@ -88,7 +88,7 @@ describe('UpdateTransitionTargets', () => {
   function checkWindowId(root: PropertyTreeNode, value: string) {
     expect(
       root
-        ?.getChildByName('targets')
+        ?.getChildByName('changes')
         ?.getChildByName('0')
         ?.getChildByName('windowId')
         ?.formattedValue(),
