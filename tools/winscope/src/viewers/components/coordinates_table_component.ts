@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, input} from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 @Component({
@@ -27,7 +27,7 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
 export class CoordinatesTableComponent {
   coordinates = input<PropertyTreeNode>();
 
-  hasCoordinates() {
+  readonly hasCoordinates = computed(() => {
     const coordinates = this.coordinates();
     return (
       coordinates?.getChildByName('left') ||
@@ -35,5 +35,5 @@ export class CoordinatesTableComponent {
       coordinates?.getChildByName('top') ||
       coordinates?.getChildByName('bottom')
     );
-  }
+  });
 }
