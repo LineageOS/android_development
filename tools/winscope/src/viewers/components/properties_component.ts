@@ -16,11 +16,12 @@
 import {CommonModule} from '@angular/common';
 import {
   Component,
+  computed,
   ElementRef,
   Inject,
   input,
   output,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {PersistentStore} from '@common/store/persistent_store';
@@ -73,7 +74,19 @@ export class PropertiesComponent {
 
   collapseButtonClicked = output();
 
-  @ViewChild(SearchBoxComponent) searchBox: SearchBoxComponent | undefined;
+  readonly hasUserOptions = computed(() => {
+    return Object.keys(this.userOptions()).length > 0;
+  });
+
+  readonly showPlaceholderText = computed(() => {
+    return (
+      (this.nodeRows()?.length ?? 0) === 0 &&
+      !this.curatedProperties() &&
+      !!this.placeholderText()
+    );
+  });
+
+  readonly searchBox = viewChild(SearchBoxComponent);
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
@@ -93,10 +106,6 @@ export class PropertiesComponent {
     this.elementRef.nativeElement.dispatchEvent(event);
   }
 
-  hasUserOptions() {
-    return Object.keys(this.userOptions()).length > 0;
-  }
-
   showViewCaptureFormat(): boolean {
     return (
       this.traceType() === TraceType.VIEW_CAPTURE &&
@@ -109,13 +118,5 @@ export class PropertiesComponent {
 
   showPropertiesTree(): boolean {
     return (this.nodeRows()?.length ?? 0) > 0 && !this.showViewCaptureFormat();
-  }
-
-  showPlaceholderText(): boolean {
-    return (
-      (this.nodeRows()?.length ?? 0) === 0 &&
-      !this.curatedProperties() &&
-      !!this.placeholderText()
-    );
   }
 }

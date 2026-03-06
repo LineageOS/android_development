@@ -38,7 +38,7 @@ limitations under the License.
     [logCallback]="Analytics.Navigation.logHierarchySettingsChanged"
   >
   </user-options>
-  @let treeWarnings = getWarnings();
+  @let treeWarnings = warnings();
   @if (treeWarnings.length > 0) {
     <div>
       @for (warning of treeWarnings; track $index) {
