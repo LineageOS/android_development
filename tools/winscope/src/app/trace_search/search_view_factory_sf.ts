@@ -41,7 +41,7 @@ export class SearchViewFactorySf extends AbstractSearchViewFactory {
       {name: 'is_visible', desc: 'Layer visibility, accounting for occlusion'},
       {
         name: 'previous_is_visible',
-        desc: 'Layer visibility from previous entry,accounting for occlusion'
+        desc: 'Layer visibility from previous entry,accounting for occlusion',
       },
       {
         name: 'property',

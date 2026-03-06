@@ -28,7 +28,7 @@ import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {TransitionStatus} from '@trace/transitions/status';
 import {AbsoluteEntryIndex} from '@trace_api/index_types';
-import { TraceEntry} from '@trace_api/trace';
+import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';

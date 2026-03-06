@@ -285,11 +285,11 @@ export class DOMTestHelper<T> {
   }
 
   checkText(value: string) {
-    expect(this.root.textContent?.trim()).toContain(value);
+    expect(this.getText() ?? '').toContain(value);
   }
 
   checkTextExact(value: string) {
-    expect(this.root.textContent?.trim()).toEqual(value);
+    expect(this.getText()).toEqual(value);
   }
 
   checkInnerHTML(value: string, isPresent = true) {
