@@ -15,13 +15,14 @@
  */
 
 import {
+  computed,
   Directive,
   ElementRef,
-  EventEmitter,
   HostListener,
-  Input,
-  Output,
-  ViewChild,
+  input,
+  model,
+  output,
+  viewChild,
 } from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {Point} from '@common/geometry/point';
@@ -37,44 +38,41 @@ import {CanvasDrawer} from './canvas_drawer';
  */
 @Directive()
 export abstract class AbstractTimelineRowComponent<T> {
-  abstract selectedEntry: TraceEntry<T> | undefined;
-  abstract trace: Trace<unknown> | undefined;
+  selectedEntry = model<TraceEntry<T>>();
+  trace = input<Trace<T>>();
+  color = input<string>('#AF5CF7');
+  isActive = input<boolean>(false);
+  selectionRange = input<TimeRange>();
+  timestampConverter = input<ComponentTimestampConverter>();
 
-  @Input() color = '#AF5CF7';
-  @Input() isActive = false;
-  @Input() selectionRange: TimeRange | undefined;
-  @Input() timestampConverter: ComponentTimestampConverter | undefined;
+  readonly onScrollEvent = output<WheelEvent>();
+  readonly onTraceClicked = output<Trace<unknown>>();
+  readonly onTracePositionUpdate = output<TracePosition>();
+  readonly onMouseXRatioUpdate = output<number | undefined>();
 
-  @Output() readonly onScrollEvent = new EventEmitter<WheelEvent>();
-  @Output() readonly onTraceClicked = new EventEmitter<Trace<unknown>>();
-  @Output() readonly onTracePositionUpdate = new EventEmitter<TracePosition>();
-  @Output() readonly onMouseXRatioUpdate = new EventEmitter<
-    number | undefined
-  >();
+  canvasRef = viewChild<ElementRef>('canvas');
+  wrapperRef = viewChild<ElementRef>('wrapper');
 
-  @ViewChild('canvas', {static: false}) canvasRef: ElementRef | undefined;
-  @ViewChild('wrapper', {static: false}) wrapperRef: ElementRef | undefined;
+  readonly backgroundColor = computed(() => {
+    if (this.isActive()) {
+      return 'var(--selected-element-color)';
+    }
+    if (this.trace()?.type === TraceType.SEARCH) {
+      return 'var(--search-background-color)';
+    }
+    return undefined;
+  });
 
   canvasDrawer = new CanvasDrawer();
   protected viewInitialized = false;
   private observer = new ResizeObserver(() => this.initializeCanvas());
 
   getCanvas(): HTMLCanvasElement {
-    return this.canvasRef?.nativeElement;
-  }
-
-  getBackgroundColor(): string | undefined {
-    if (this.isActive) {
-      return 'var(--selected-element-color)';
-    }
-    if (this.trace?.type === TraceType.SEARCH) {
-      return 'var(--search-background-color)';
-    }
-    return undefined;
+    return this.canvasRef()?.nativeElement;
   }
 
   ngAfterViewInit() {
-    this.observer.observe(assertDefined(this.wrapperRef).nativeElement);
+    this.observer.observe(assertDefined(this.wrapperRef()).nativeElement);
     this.initializeCanvas();
   }
 
@@ -97,7 +95,7 @@ export abstract class AbstractTimelineRowComponent<T> {
     canvas.style.width = 'auto';
     canvas.style.height = 'auto';
 
-    const htmlElement = assertDefined(this.wrapperRef).nativeElement;
+    const htmlElement = assertDefined(this.wrapperRef()).nativeElement;
 
     const computedStyle = getComputedStyle(htmlElement);
     const width = htmlElement.offsetWidth;
@@ -147,13 +145,16 @@ export abstract class AbstractTimelineRowComponent<T> {
     };
 
     const entry = this.getEntryAt(mousePoint);
-    // TODO: This can probably get made better by getting the transition and checking both the end and start timestamps match
-    if (entry && entry !== this.selectedEntry) {
+    const selectedEntry = this.selectedEntry();
+    const trace = this.trace();
+    // TODO: This can probably get made better by getting the transition and checking
+    // both the end and start timestamps match
+    if (entry && entry !== selectedEntry) {
       this.redraw();
-      this.selectedEntry = entry;
+      this.selectedEntry.set(entry);
       this.onTracePositionUpdate.emit(TracePosition.fromTraceEntry(entry));
-    } else if (!entry && this.trace) {
-      this.onTraceClicked.emit(this.trace);
+    } else if (!entry && trace) {
+      this.onTraceClicked.emit(trace);
     }
   }
 
@@ -178,7 +179,7 @@ export abstract class AbstractTimelineRowComponent<T> {
     if ((event.target as HTMLElement).id === 'canvas') {
       return;
     }
-    this.onTraceClicked.emit(assertDefined(this.trace));
+    this.onTraceClicked.emit(assertDefined(this.trace()));
   }
 
   trackMousePos(event: MouseEvent) {
