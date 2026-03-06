@@ -197,9 +197,6 @@ class RemoteDisplay implements AutoCloseable {
         if (mContext.checkCallingOrSelfPermission(ADD_TRUSTED_DISPLAY)
                 == PackageManager.PERMISSION_DENIED) {
             flags &= ~DisplayManager.VIRTUAL_DISPLAY_FLAG_TRUSTED;
-        } else if (mDisplayType == DISPLAY_TYPE_DESKTOP) {
-            // TODO(b/261155110): Use a proper API.
-            flags |= VdmCompat.VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
         }
 
         Set<String> displayCategories;
@@ -229,6 +226,8 @@ class RemoteDisplay implements AutoCloseable {
 
         if (mDisplayType == DISPLAY_TYPE_HOME) {
             virtualDisplayBuilder = VdmCompat.setHomeSupported(virtualDisplayBuilder, flags);
+        } else if (mDisplayType == DISPLAY_TYPE_DESKTOP) {
+            virtualDisplayBuilder = VdmCompat.setDesktopSupported(virtualDisplayBuilder, flags);
         }
 
         mVirtualDisplay =
