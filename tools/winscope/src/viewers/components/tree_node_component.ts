@@ -17,11 +17,12 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
 import {
   Component,
+  computed,
+  effect,
   ElementRef,
-  EventEmitter,
   Inject,
-  Input,
-  Output,
+  input,
+  output,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -49,37 +50,80 @@ import {TreeNode} from '@tree_node/tree_node';
   styleUrls: ['tree_node_component.css'],
 })
 export class TreeNodeComponent {
-  @Input({required: true}) node: UiTreeNode | undefined;
-  @Input() isLeaf?: boolean;
-  @Input() flattened?: boolean;
-  @Input() isExpanded?: boolean;
-  @Input() isPinned = false;
-  @Input() isInPinnedSection = false;
-  @Input() isSelected = false;
-  @Input() showStateIcon?: string;
-  @Input() depth = 0;
-  @Input() childHighlightDepth: number | undefined;
-  @Input() parentHighlightDepth: number | undefined;
+  node = input<UiTreeNode>();
+  isLeaf = input<boolean | undefined>(undefined);
+  flattened = input<boolean | undefined>(undefined);
+  isExpanded = input<boolean | undefined>(undefined);
+  isPinned = input(false);
+  isInPinnedSection = input(false);
+  isSelected = input(false);
+  showStateIcon = input<string | undefined>(undefined);
+  depth = input(0);
+  childHighlightDepth = input<number | undefined>(undefined);
+  parentHighlightDepth = input<number | undefined>(undefined);
 
-  @Output() readonly toggleTreeChange = new EventEmitter<void>();
-  @Output() readonly rectShowStateChange = new EventEmitter<void>();
-  @Output() readonly expandTreeChange = new EventEmitter<void>();
-  @Output() readonly pinNodeChange = new EventEmitter<UiTreeNode>();
-  @Output() readonly scrollChange = new EventEmitter<void>();
+  readonly toggleTreeChange = output<void>();
+  readonly rectShowStateChange = output<void>();
+  readonly expandTreeChange = output<void>();
+  readonly pinNodeChange = output<UiTreeNode>();
+  readonly scrollChange = output<void>();
 
-  collapseDiffClass = '';
+  readonly collapseDiffClass = computed(() => {
+    const node = this.node();
+    if (this.isExpanded() || !node) {
+      return '';
+    }
+
+    const childrenDiffClasses = this.getAllDiffTypesOfChildren(node);
+
+    childrenDiffClasses.delete(DiffType.NONE);
+
+    if (childrenDiffClasses.size === 0) {
+      return '';
+    }
+    if (childrenDiffClasses.size === 1) {
+      const diffType = assertDefined(childrenDiffClasses.values().next().value);
+      return diffType;
+    }
+    return DiffType.MODIFIED;
+  });
+
+  readonly showPinNodeIcon = computed<boolean>(() => {
+    const node = this.node();
+    return node !== undefined && node.canBePinned() && !node.isRoot();
+  });
+
+  readonly isHierarchyTreeNode = computed<boolean>(() => {
+    return this.node() instanceof UiHierarchyTreeNode;
+  });
+
+  readonly isPropertyTreeNode = computed<boolean>(() => {
+    return this.node() instanceof UiPropertyTreeNode;
+  });
+
+  readonly showChevron = computed<boolean>(() => {
+    return !this.isLeaf() && !this.flattened() && !this.isInPinnedSection();
+  });
+
+  readonly showCopyButton = computed<boolean>(() => {
+    const node = this.node();
+    return (
+      node?.getCopyText() !== undefined &&
+      (node?.isRoot() || !this.showChevron())
+    );
+  });
+
   private readonly el: HTMLElement;
 
   constructor(@Inject(ElementRef) elementRef: ElementRef<HTMLElement>) {
     this.el = elementRef.nativeElement;
     this.el?.addEventListener('mousedown', this.nodeMouseDownEventListener);
-  }
 
-  ngOnChanges() {
-    this.collapseDiffClass = this.updateCollapseDiffClass();
-    if (!this.isInPinnedSection && this.isSelected) {
-      this.scrollChange.emit();
-    }
+    effect(() => {
+      if (!this.isInPinnedSection() && this.isSelected()) {
+        this.scrollChange.emit();
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -90,26 +134,12 @@ export class TreeNodeComponent {
     return Array.from({length: depth}, (_, index) => index);
   }
 
-  isHierarchyTreeNode(): boolean {
-    return this.node instanceof UiHierarchyTreeNode;
-  }
-
-  isPropertyTreeNode(): boolean {
-    return this.node instanceof UiPropertyTreeNode;
-  }
-
   toPropertyTreeNode(input: TreeNode): UiPropertyTreeNode {
     return input as UiPropertyTreeNode;
   }
 
   toHierarchyTreeNode(input: TreeNode): UiHierarchyTreeNode {
     return input as UiHierarchyTreeNode;
-  }
-
-  showPinNodeIcon(): boolean {
-    return (
-      this.node !== undefined && this.node.canBePinned() && !this.node.isRoot()
-    );
   }
 
   toggleTree(event: MouseEvent) {
@@ -122,10 +152,6 @@ export class TreeNodeComponent {
     this.rectShowStateChange.emit();
   }
 
-  showChevron(): boolean {
-    return !this.isLeaf && !this.flattened && !this.isInPinnedSection;
-  }
-
   expandTree(event: MouseEvent) {
     event.stopPropagation();
     this.expandTreeChange.emit();
@@ -133,33 +159,7 @@ export class TreeNodeComponent {
 
   pinNode(event: MouseEvent) {
     event.stopPropagation();
-    this.pinNodeChange.emit(assertDefined(this.node));
-  }
-
-  updateCollapseDiffClass(): string {
-    if (this.isExpanded || !this.node) {
-      return '';
-    }
-
-    const childrenDiffClasses = this.getAllDiffTypesOfChildren(this.node);
-
-    childrenDiffClasses.delete(DiffType.NONE);
-
-    if (childrenDiffClasses.size === 0) {
-      return '';
-    }
-    if (childrenDiffClasses.size === 1) {
-      const diffType = assertDefined(childrenDiffClasses.values().next().value);
-      return diffType;
-    }
-    return DiffType.MODIFIED;
-  }
-
-  showCopyButton(): boolean {
-    return (
-      this.node?.getCopyText() !== undefined &&
-      (this.node?.isRoot() || !this.showChevron())
-    );
+    this.pinNodeChange.emit(assertDefined(this.node()));
   }
 
   private getAllDiffTypesOfChildren(node: UiTreeNode): Set<DiffType> {

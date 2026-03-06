@@ -13,40 +13,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-@if (showStateIcon) {
+@let currShowStateIcon = showStateIcon();
+@if (currShowStateIcon) {
   <div class="icon-wrapper-show-state">
     <button
       mat-icon-button
       class="icon-button toggle-rect-show-state-btn .no-touch-target-button"
       (click)="toggleRectShowState($event)"
     >
-      <mat-icon class="material-symbols-outlined"> {{ showStateIcon }} </mat-icon>
+      <mat-icon class="material-symbols-outlined"> {{ currShowStateIcon }} </mat-icon>
     </button>
   </div>
 }
 
 <div class="tree-indentation-container">
-  @for (marker of getIndentMarkers(depth); track $index) {
+  @for (marker of getIndentMarkers(depth()); track $index) {
     <div
       class="indent-spacer"
-      [class.parent-highlight]="parentHighlightDepth === $index"
-      [class.child-highlight]="childHighlightDepth === $index"
+      [class.parent-highlight]="parentHighlightDepth() === $index"
+      [class.child-highlight]="childHighlightDepth() === $index"
     ></div>
   }
 </div>
 
-@if (showChevron()) {
+@let shouldShowChevron = showChevron();
+@let expanded = isExpanded();
+@let pinned = isPinned();
+
+@if (shouldShowChevron) {
   <div class="icon-wrapper">
     <button
       mat-icon-button
       class="icon-button toggle-tree-btn no-touch-target-button"
       (click)="toggleTree($event)"
     >
-      <mat-icon> {{ isExpanded ? 'arrow_drop_down' : 'chevron_right' }} </mat-icon>
+      <mat-icon> {{ expanded ? 'arrow_drop_down' : 'chevron_right' }} </mat-icon>
     </button>
   </div>
 }
-@if (!showChevron() && !isInPinnedSection) {
+@if (!shouldShowChevron && !isInPinnedSection()) {
   <div class="icon-wrapper leaf-node-icon-wrapper">
     <mat-icon class="leaf-node-icon"></mat-icon>
   </div>
@@ -58,27 +63,31 @@ limitations under the License.
       class="icon-button pin-node-btn no-touch-target-button"
       (click)="pinNode($event)"
     >
-      <mat-icon [class.material-symbols-outlined]="!isPinned">push_pin</mat-icon>
+      <mat-icon [class.material-symbols-outlined]="!pinned">push_pin</mat-icon>
     </button>
   </div>
 }
 
+@let currNode = node();
+
 <div class="description">
-  @if (node && isHierarchyTreeNode()) {
+  @if (currNode && isHierarchyTreeNode()) {
     <hierarchy-tree-node-data-view
-      [node]="toHierarchyTreeNode(node)"
+      [node]="toHierarchyTreeNode(currNode)"
     ></hierarchy-tree-node-data-view>
-  } @else if (node && isPropertyTreeNode()) {
-    <property-tree-node-data-view [node]="toPropertyTreeNode(node)"></property-tree-node-data-view>
+  } @else if (currNode && isPropertyTreeNode()) {
+    <property-tree-node-data-view
+      [node]="toPropertyTreeNode(currNode)"
+    ></property-tree-node-data-view>
   }
 </div>
 
-@if (!isLeaf && !isExpanded && !isPinned) {
+@if (!isLeaf() && !expanded && !pinned) {
   <div class="icon-wrapper">
     <button
       mat-icon-button
       class="icon-button expand-tree-btn no-touch-target-button"
-      [class]="collapseDiffClass"
+      [class]="collapseDiffClass()"
       (click)="expandTree($event)"
     >
       <mat-icon aria-hidden="true"> more_horiz </mat-icon>
@@ -90,7 +99,7 @@ limitations under the License.
     <button
       mat-icon-button
       class="icon-button copy-btn no-touch-target-button"
-      [cdkCopyToClipboard]="node?.getCopyText() ?? ''"
+      [cdkCopyToClipboard]="currNode?.getCopyText() ?? ''"
       (click)="$event.stopPropagation()"
     >
       <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
