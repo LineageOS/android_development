@@ -19,6 +19,8 @@ import {TraceType} from '@trace_api/trace_type';
 import {UserWarning} from '@messaging/user_warning';
 import {TimeRange} from '@common/time/time';
 import {TimeDuration} from '@common/time/time_duration';
+import {ParsingErrorType} from './parsing_error_type';
+import {TRACE_INFO} from '@trace_api/trace_info';
 
 /**
  * A warning for when not all transitions in a trace can be parsed.
@@ -64,6 +66,21 @@ export function makeWarningIncompleteFrameMapping(errorMessage: string) {
   return new UserWarning(
     'incomplete frame mapping',
     `Error occurred in frame mapping: ${errorMessage}`,
+  );
+}
+
+/**
+ * A warning to notify the user that trace processor errors are present in the stats table.
+ */
+export function makeWarningTraceProcessorError(
+  traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType>,
+) {
+  const traceTypeNames = Array.from(traceTypesWithParsingErrors)
+    .map(([traceType, _]) => TRACE_INFO[traceType].name)
+    .join(', ');
+  return new UserWarning(
+    'trace processor error',
+    `Trace processor errors were identified on the following traces: ${traceTypeNames}`,
   );
 }
 

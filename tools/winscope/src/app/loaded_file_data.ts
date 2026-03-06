@@ -58,6 +58,7 @@ import {makeWarningIncompleteFrameMapping} from './warnings';
 import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {TimezoneInfo} from '@common/time/time';
+import {ParsingErrorType} from './parsing_error_type';
 
 /**
  * A class that stores and transforms trace data.
@@ -75,6 +76,8 @@ export class LoadedFileData {
   private downloadArchiveFilename =
     LoadedFileData.DEFAULT_DOWNLOAD_ARCHIVE_NAME;
   private lostPerfettoPackets = 0;
+  private traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType> =
+    new Map();
   private timezoneInfo: TimezoneInfo = UTC_TIMEZONE_INFO;
   private traceGeometryData: TraceGeometryData = new TraceGeometryData();
   private traces: Traces | undefined;
@@ -102,6 +105,7 @@ export class LoadedFileData {
     );
     if (result.perfetto.length > 0) {
       this.lostPerfettoPackets = result.lostPerfettoPackets;
+      this.traceTypesWithParsingErrors = result.traceTypesWithParsingErrors;
       this.traceGeometryData = result.traceGeometryData;
     }
     if (result.timezoneInfo) {
@@ -174,6 +178,21 @@ export class LoadedFileData {
     if (traces.getSize() === 0) {
       return false;
     }
+    for (const trace of traces) {
+      if (this.traceTypesWithParsingErrors.has(trace.type)) {
+        if (
+          this.traceTypesWithParsingErrors.get(trace.type) ===
+          ParsingErrorType.DATA_INCORRECT
+        ) {
+          trace.setCorruptedState(true, 'Trace processor error incorrect data');
+        } else {
+          trace.setCorruptedState(
+            true,
+            'Trace processor error incomplete data',
+          );
+        }
+      }
+    }
 
     try {
       const startTimeMs = Date.now();
@@ -203,6 +222,10 @@ export class LoadedFileData {
 
   getLostPerfettoPackets(): number {
     return this.lostPerfettoPackets;
+  }
+
+  getTraceTypesWithParsingErrors(): Map<TraceType, ParsingErrorType> {
+    return this.traceTypesWithParsingErrors;
   }
 
   async tryCreateSearchTrace(
