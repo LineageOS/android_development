@@ -16,6 +16,7 @@ limitations under the License.
 
 <div class="playback-controls-container">
   <div class="controls">
+    @let state = currentState();
     <button
       mat-icon-button
       class="no-touch-target-button"
@@ -25,8 +26,8 @@ limitations under the License.
     >
       <mat-icon
         class="force-icon-flip"
-        [class.material-symbols-outlined]="currentState !== PlaybackState.BACKWARDS"
-        [color]="currentState === PlaybackState.BACKWARDS ? 'primary' : null"
+        [class.material-symbols-outlined]="state !== PlaybackState.BACKWARDS"
+        [color]="state === PlaybackState.BACKWARDS ? 'primary' : null"
       >
         play_arrow
       </mat-icon>
@@ -37,7 +38,7 @@ limitations under the License.
       id="pause-playback-button"
       matTooltip="Pause"
       (click)="changePlaybackState(PlaybackState.PAUSED)"
-      [disabled]="currentState === PlaybackState.PAUSED"
+      [disabled]="state === PlaybackState.PAUSED"
     >
       <mat-icon>pause</mat-icon>
     </button>
@@ -49,8 +50,8 @@ limitations under the License.
       (click)="changePlaybackState(PlaybackState.FORWARDS)"
     >
       <mat-icon
-        [class.material-symbols-outlined]="currentState !== PlaybackState.FORWARDS"
-        [color]="currentState === PlaybackState.FORWARDS ? 'primary' : null"
+        [class.material-symbols-outlined]="state !== PlaybackState.FORWARDS"
+        [color]="state === PlaybackState.FORWARDS ? 'primary' : null"
       >
         play_arrow
       </mat-icon>
