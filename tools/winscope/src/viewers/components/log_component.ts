@@ -22,14 +22,14 @@ import {
 import {CommonModule} from '@angular/common';
 import {
   Component,
+  computed,
+  effect,
   ElementRef,
-  EventEmitter,
   HostListener,
   Inject,
-  Input,
-  Output,
-  SimpleChanges,
-  ViewChild,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -94,34 +94,66 @@ import {CdkMenuModule} from '@angular/cdk/menu';
   styleUrls: ['./log_component.css'],
 })
 export class LogComponent {
-  emptyFilterValue = '';
+  title = input<string>();
+  selectedIndex = input<number>();
+  scrollToIndex = input<number>();
+  currentIndex = input<number>();
+  headers = input<LogHeader[]>([]);
+  entries = input<LogEntry[]>([]);
+  showTimeControls = input<boolean>(true);
+  traceType = input<TraceType>();
+  showTraceEntryTimes = input<boolean>(true);
+  padEntries = input<boolean>(true);
+  isFetchingData = input<boolean>(false);
+  checkScrollViewportCount = input<number>(0);
 
-  private lastClickedTimestamp: Timestamp | undefined;
-  private menuEntered = false;
+  readonly areMultipleDatesPresent = computed<boolean>(() => {
+    return (
+      this.entries().at(0)?.traceEntry.getFullTrace().spansMultipleDates() ??
+      false
+    );
+  });
+
+  readonly isFixedSizeScrollViewport = computed<boolean>(() => {
+    return this.traceType() === TraceType.CUJS;
+  });
+
+  collapseButtonClicked = output();
+
+  scrollComponent = viewChild(CdkVirtualScrollViewport);
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
-  @Input() title: string | undefined;
-  @Input() selectedIndex: number | undefined;
-  @Input() scrollToIndex: number | undefined;
-  @Input() currentIndex: number | undefined;
-  @Input() headers: LogHeader[] = [];
-  @Input() entries: LogEntry[] = [];
-  @Input() showTimeControls = true;
-  @Input() traceType: TraceType | undefined;
-  @Input() showTraceEntryTimes = true;
-  @Input() padEntries = true;
-  @Input() isFetchingData = false;
-  @Input() checkScrollViewportCount = 0;
+  emptyFilterValue = '';
 
-  @Output() collapseButtonClicked = new EventEmitter();
-
-  @ViewChild(CdkVirtualScrollViewport)
-  scrollComponent?: CdkVirtualScrollViewport;
+  private lastClickedTimestamp: Timestamp | undefined;
 
   constructor(
     @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
-  ) {}
+  ) {
+    effect(() => {
+      if (this.checkScrollViewportCount() > 0) {
+        this.scrollComponent()?.checkViewportSize();
+      }
+    });
+
+    effect(() => {
+      const scrollToIndex = this.scrollToIndex();
+      const entries = this.entries();
+      if (
+        scrollToIndex !== undefined &&
+        this.lastClickedTimestamp !==
+          entries.at(scrollToIndex)?.traceEntry.getTimestamp()
+      ) {
+        // scroll previous index to top, so when previous index is partially
+        // rendered the target index is still fully rendered
+        this.scrollComponent()?.scrollToIndex(Math.max(0, scrollToIndex - 1));
+
+        this.textSelection.clear();
+        this.textSelection.toggle(entries[scrollToIndex]);
+      }
+    });
+  }
 
   isHeaderWithFilter(header: LogHeader): boolean {
     return header.filter !== undefined;
@@ -149,13 +181,6 @@ export class LogComponent {
     return field instanceof Timestamp ? this.formatTimestamp(field) : field;
   }
 
-  areMultipleDatesPresent(): boolean {
-    return (
-      this.entries.at(0)?.traceEntry.getFullTrace().spansMultipleDates() ??
-      false
-    );
-  }
-
   getFieldClass(field: LogField, index: number): string {
     return (
       field.spec.cssClass + ' cell' + (index % 2 === 0 ? ' alt-background' : '')
@@ -174,24 +199,6 @@ export class LogComponent {
     return timestamp.format();
   }
 
-  ngOnChanges(simpleChanges: SimpleChanges) {
-    if (simpleChanges['checkScrollViewportCount']?.currentValue) {
-      this.scrollComponent?.checkViewportSize();
-    }
-    if (
-      this.scrollToIndex !== undefined &&
-      this.lastClickedTimestamp !==
-        this.entries.at(this.scrollToIndex)?.traceEntry.getTimestamp()
-    ) {
-      // scroll previous index to top, so when previous index is partially
-      // rendered the target index is still fully rendered
-      this.scrollComponent?.scrollToIndex(Math.max(0, this.scrollToIndex - 1));
-
-      this.textSelection.clear();
-      this.textSelection.toggle(this.entries[this.scrollToIndex]);
-    }
-  }
-
   async ngAfterContentInit() {
     await new Timer(10, 10).sleepMs();
     this.updateTableMarginEnd();
@@ -200,7 +207,7 @@ export class LogComponent {
   @HostListener('window:resize', ['$event'])
   onResize(_: Event) {
     this.updateTableMarginEnd();
-    this.scrollComponent?.checkViewportSize();
+    this.scrollComponent()?.checkViewportSize();
   }
 
   onFilterChange(event: MatSelectChange, header: LogHeader) {
@@ -218,16 +225,16 @@ export class LogComponent {
   }
 
   onEntryClicked(index: number) {
-    const clickedEntry = assertDefined(this.entries[index]);
+    const clickedEntry = assertDefined(this.entries()[index]);
     this.textSelection.clear();
     this.textSelection.toggle(clickedEntry);
     this.emitEvent(ViewerEvents.LogEntryClick, index);
   }
 
   onGoToFirstEntryClick() {
-    const firstEntry = this.entries.at(0);
+    const firstEntry = this.entries().at(0);
     if (firstEntry) {
-      this.scrollComponent?.scrollToIndex(0);
+      this.scrollComponent()?.scrollToIndex(0);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(firstEntry.traceEntry),
@@ -238,18 +245,21 @@ export class LogComponent {
   }
 
   onGoToCurrentEntryClick() {
-    if (this.currentIndex !== undefined && this.scrollComponent) {
-      this.scrollComponent.scrollToIndex(this.currentIndex);
+    const currentIndex = this.currentIndex();
+    const scrollComponent = this.scrollComponent();
+    if (currentIndex !== undefined && scrollComponent) {
+      scrollComponent.scrollToIndex(currentIndex);
       this.textSelection.clear();
-      this.textSelection.toggle(this.entries[this.currentIndex]);
+      this.textSelection.toggle(this.entries()[currentIndex]);
     }
   }
 
   onGoToLastEntryClick() {
-    const lastIndex = this.entries.length - 1;
-    const lastEntry = this.entries.at(lastIndex);
+    const entries = this.entries();
+    const lastIndex = entries.length - 1;
+    const lastEntry = entries.at(lastIndex);
     if (lastEntry) {
-      this.scrollComponent?.scrollToIndex(lastIndex);
+      this.scrollComponent()?.scrollToIndex(lastIndex);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(lastEntry.traceEntry),
@@ -290,30 +300,27 @@ export class LogComponent {
       event.preventDefault();
       this.emitEvent(ViewerEvents.ArrowUpPress);
     }
+    const selectedIndex = this.selectedIndex();
     if (
       event.key === KeyboardEventKey.ENTER &&
       logComponentVisible &&
-      this.selectedIndex !== undefined
+      selectedIndex !== undefined
     ) {
       event.stopPropagation();
       event.preventDefault();
       this.emitEvent(
         ViewerEvents.TimestampClick,
-        new TimestampClickDetail(this.entries[this.selectedIndex].traceEntry),
+        new TimestampClickDetail(this.entries()[selectedIndex].traceEntry),
       );
     }
   }
 
   isCurrentEntry(index: number): boolean {
-    return index === this.currentIndex;
+    return index === this.currentIndex();
   }
 
   isSelectedEntry(index: number): boolean {
-    return this.selectedIndex === index;
-  }
-
-  isFixedSizeScrollViewport() {
-    return this.traceType === TraceType.CUJS;
+    return index === this.selectedIndex();
   }
 
   updateTableMarginEnd() {
@@ -322,7 +329,7 @@ export class LogComponent {
     if (!tableHeader) {
       return;
     }
-    const el = this.scrollComponent?.elementRef.nativeElement;
+    const el = this.scrollComponent()?.elementRef.nativeElement;
     if (el && el.scrollHeight > el.offsetHeight) {
       tableHeader.style.marginInlineEnd =
         el.offsetWidth - el.scrollWidth + 'px';
@@ -348,7 +355,7 @@ export class LogComponent {
       return;
     }
 
-    if (this.traceType !== TraceType.PROTO_LOG) {
+    if (this.traceType() !== TraceType.PROTO_LOG) {
       return;
     }
 
@@ -418,8 +425,9 @@ export class LogComponent {
         const itemIdStr = entryElement.getAttribute('item-id');
         if (itemIdStr !== null) {
           const absoluteIndex = Number(itemIdStr);
-          if (!isNaN(absoluteIndex) && this.entries[absoluteIndex]) {
-            selectedEntries.push(this.entries[absoluteIndex]);
+          const entries = this.entries();
+          if (!isNaN(absoluteIndex) && entries[absoluteIndex]) {
+            selectedEntries.push(entries[absoluteIndex]);
           }
         }
       }

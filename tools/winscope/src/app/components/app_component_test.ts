@@ -96,6 +96,7 @@ import {ParsingErrorType} from '@app/parsing_error_type';
 class MockTraceViewComponent {
   @Input() viewers: unknown[] = [];
   @Input() store: unknown;
+  @Input() traceTypesWithParsingErrors: unknown[] = [];
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }

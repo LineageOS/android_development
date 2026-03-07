@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, ElementRef, Inject, input} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
@@ -37,15 +37,43 @@ export class PropertyTreeNodeDataViewComponent {
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
+  readonly isTimestamp = computed<boolean>(() => {
+    return this.node()?.getValue() instanceof Timestamp;
+  });
+
+  readonly valueClass = computed<string | undefined>(() => {
+    const property = this.node()?.formattedValue();
+    if (property === 'null') {
+      return property;
+    }
+    if (property === 'true') {
+      return property;
+    }
+    if (property === 'false') {
+      return property;
+    }
+    if (!isNaN(Number(property))) {
+      return 'number';
+    }
+    return undefined;
+  });
+
+  readonly timeClass = computed<string | null>(() => {
+    if (this.isTimestamp()) {
+      return 'time';
+    }
+    return null;
+  });
+
+  readonly isModified = computed<boolean>(() => {
+    return this.node()?.getDiff() === DiffType.MODIFIED;
+  });
+
   getKey(node: UiPropertyTreeNode) {
     if (!node?.formattedValue()) {
       return node.getDisplayName();
     }
     return node.getDisplayName() + ': ';
-  }
-
-  isTimestamp() {
-    return this.node()?.getValue() instanceof Timestamp;
   }
 
   onTimestampClicked(timestampNode: UiPropertyTreeNode) {
@@ -65,33 +93,5 @@ export class PropertyTreeNodeDataViewComponent {
       detail: node,
     });
     this.elementRef.nativeElement.dispatchEvent(event);
-  }
-
-  valueClass(): string | undefined {
-    const property = assertDefined(this.node()).formattedValue();
-    if (property === 'null') {
-      return property;
-    }
-    if (property === 'true') {
-      return property;
-    }
-    if (property === 'false') {
-      return property;
-    }
-    if (!isNaN(Number(property))) {
-      return 'number';
-    }
-    return undefined;
-  }
-
-  timeClass() {
-    if (this.isTimestamp()) {
-      return 'time';
-    }
-    return null;
-  }
-
-  isModified() {
-    return assertDefined(this.node()).getDiff() === DiffType.MODIFIED;
   }
 }
