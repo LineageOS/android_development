@@ -19,12 +19,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   ElementRef,
-  EventEmitter,
   Inject,
-  Input,
+  input,
+  model,
   NgZone,
-  Output,
+  output,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -78,12 +79,18 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   advancedSettingsTrigger: CdkOverlayOrigin | undefined;
   advancedSettingsKey: string | undefined;
 
-  @Input() title: string | undefined;
-  @Input() traceConfigStoreKey: string | undefined;
-  @Input() traceConfig: TraceConfigurationMap | undefined;
-  @Input() storage: Store | undefined;
-  @Output() readonly traceConfigChange =
-    new EventEmitter<TraceConfigurationMap>();
+  title = input<string>();
+  traceConfigStoreKey = input<string>();
+  traceConfig = model<TraceConfigurationMap>();
+  storage = input<Store>();
+  readonly traceConfigChange = output<TraceConfigurationMap>();
+
+  getSortedTraceKeys = computed<string[]>(() => {
+    const config = assertDefined(this.traceConfig());
+    return Object.keys(config).sort((a, b) => {
+      return config[a].name < config[b].name ? -1 : 1;
+    });
+  });
 
   private lastClickedIndex = new Map<string, number>();
   private readonly observer = new ResizeObserver((_) => {
@@ -99,14 +106,16 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   ngOnInit() {
-    this.traceConfig = updateConfigsFromStore(
-      assertDefined(
-        JSON.parse(JSON.stringify(assertDefined(this.traceConfig))),
-        () => 'component initialized without config',
-      ),
-      assertDefined(this.storage),
-      assertDefined(this.traceConfigStoreKey),
+    const initialConfig = assertDefined(
+      this.traceConfig(),
+      () => 'component initialized without config',
     );
+    const config = updateConfigsFromStore(
+      JSON.parse(JSON.stringify(initialConfig)),
+      assertDefined(this.storage()),
+      assertDefined(this.traceConfigStoreKey()),
+    );
+    this.traceConfig.set(config);
     this.onTraceConfigChange();
   }
 
@@ -125,13 +134,6 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
       Math.floor(this.elementRef.nativeElement.clientWidth / 160),
     );
     return Math.ceil(Object.keys(config).length / columns) * 36 + 'px';
-  }
-
-  getSortedTraceKeys(): string[] {
-    const config = assertDefined(this.traceConfig);
-    return Object.keys(config).sort((a, b) => {
-      return config[a].name < config[b].name ? -1 : 1;
-    });
   }
 
   getSortedConfigs(configs: AdvancedConfiguration[]): AdvancedConfiguration[] {
@@ -212,7 +214,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   hasAdvancedConfig(traceKey: string): boolean {
-    const config = assertDefined(this.traceConfig?.[traceKey]?.config);
+    const config = assertDefined(this.traceConfig()?.[traceKey]?.config);
     return (
       config.checkboxConfigs.length > 0 || config.selectionConfigs.length > 0
     );
@@ -239,7 +241,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
 
   onTraceConfigChange() {
     this.changeDetectorRef.markForCheck();
-    this.traceConfigChange.emit(this.traceConfig);
+    this.traceConfigChange.emit(assertDefined(this.traceConfig()));
   }
 
   isMultipleSelect(config: SelectionConfiguration): boolean {

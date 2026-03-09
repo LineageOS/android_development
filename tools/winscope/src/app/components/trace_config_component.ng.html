@@ -14,24 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<h3 class="mat-subtitle-1">{{ title }}</h3>
+<h3 class="mat-subtitle-1">{{ title() }}</h3>
 
-@if (traceConfig) {
+@let config = traceConfig();
+@if (config) {
   <div class="checkboxes" [style.height]="getTraceCheckboxContainerHeight()">
     @for (traceKey of getSortedTraceKeys(); track traceKey) {
       <mat-checkbox
         color="primary"
         class="trace-checkbox"
-        [disabled]="!traceConfig[traceKey].available"
-        [(ngModel)]="traceConfig[traceKey].config.enabled"
+        [disabled]="!config[traceKey].available"
+        [(ngModel)]="config[traceKey].config.enabled"
         (ngModelChange)="onTraceConfigChange()"
       >
-        <span>{{ traceConfig[traceKey].name }}</span>
+        <span>{{ config[traceKey].name }}</span>
         @if (hasAdvancedConfig(traceKey)) {
           <button
             mat-icon-button
             class="advanced-settings-button"
-            [disabled]="!traceConfig[traceKey].config.enabled"
+            [disabled]="!config[traceKey].config.enabled"
             cdkOverlayOrigin
             #settingsTrigger="cdkOverlayOrigin"
             (click)="onSettingsOverlayTriggerClick(traceKey, settingsTrigger)"
@@ -51,15 +52,15 @@ limitations under the License.
           @if (advancedSettingsKey) {
             <div class="config-section overlay-panel">
               <h3 class="mat-subtitle-1 config-title">
-                {{ traceConfig[advancedSettingsKey].name }} configuration
+                {{ config[advancedSettingsKey].name }} configuration
               </h3>
 
               <div class="overlay-panel-content">
-                @if (traceConfig[advancedSettingsKey].config.checkboxConfigs.length > 0) {
+                @if (config[advancedSettingsKey].config.checkboxConfigs.length > 0) {
                   <div class="enable-config-opt overlay-panel-section mat-body-1">
                     @for (
                       checkboxConfig of getSortedConfigs(
-                        traceConfig[advancedSettingsKey].config.checkboxConfigs
+                        config[advancedSettingsKey].config.checkboxConfigs
                       );
                       track checkboxConfig.key
                     ) {
@@ -74,11 +75,11 @@ limitations under the License.
                     }
                   </div>
                 }
-                @if (traceConfig[advancedSettingsKey].config.selectionConfigs.length > 0) {
+                @if (config[advancedSettingsKey].config.selectionConfigs.length > 0) {
                   <div class="selection-config-opt overlay-panel-section mat-body-1">
                     @for (
                       selectionConfig of getSortedConfigs(
-                        traceConfig[advancedSettingsKey].config.selectionConfigs
+                        config[advancedSettingsKey].config.selectionConfigs
                       );
                       track selectionConfig.key
                     ) {
@@ -184,9 +185,9 @@ limitations under the License.
                     }
                   </div>
                 }
-                @if (traceConfig[advancedSettingsKey].config.desc) {
+                @if (config[advancedSettingsKey].config.desc) {
                   <span class="config-desc mat-body-1 overlay-panel-section">
-                    {{ traceConfig[advancedSettingsKey].config.desc }}
+                    {{ config[advancedSettingsKey].config.desc }}
                   </span>
                 }
               </div>
