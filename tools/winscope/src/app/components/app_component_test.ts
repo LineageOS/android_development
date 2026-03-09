@@ -16,12 +16,7 @@
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
-import {
-  Component,
-  input,
-  Input,
-  output,
-} from '@angular/core';
+import {Component, input, Input, output} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -99,9 +94,9 @@ import {ParsingErrorType} from '@app/parsing_error_type';
   ],
 })
 class MockTraceViewComponent {
-  @Input() viewers: unknown[] = [];
-  @Input() store: unknown;
-  @Input() traceTypesWithParsingErrors: unknown[] = [];
+  viewers = input<unknown[]>([]);
+  store = input<unknown>();
+  traceTypesWithParsingErrors = input<unknown[]>([]);
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }

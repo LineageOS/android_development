@@ -19,11 +19,11 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   Inject,
-  Input,
+  input,
   NgZone,
-  SimpleChanges,
 } from '@angular/core';
 import {
   FormControl,
@@ -91,10 +91,11 @@ interface Tab {
 export class TraceViewComponent
   implements WinscopeEventEmitter, WinscopeEventListener
 {
-  @Input() viewers: Viewer[] = [];
-  @Input() store: Store | undefined;
-  @Input() traceTypesWithParsingErrors: Map<TraceType, ParsingErrorType> =
-    new Map();
+  viewers = input<Viewer[]>([]);
+  store = input<Store | undefined>();
+  traceTypesWithParsingErrors = input<Map<TraceType, ParsingErrorType>>(
+    new Map(),
+  );
 
   TRACE_INFO = TRACE_INFO;
   tabs: Tab[] = [];
@@ -129,17 +130,23 @@ export class TraceViewComponent
     @Inject(ElementRef) private elementRef: ElementRef,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(NgZone) private ngZone: NgZone,
-  ) {}
+  ) {
+    const firstViewersChange = effect(() => {
+      this.renderViewsTab(this.viewers());
+      this.renderViewsOverlay();
+      firstViewersChange.destroy();
+    });
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['store']?.firstChange) {
-      const storedPresets = this.store?.get(this.filterPresetsStoreKey);
-      if (storedPresets) {
-        this.allFilterPresets = JSON.parse(storedPresets);
+    const firstStoreChange = effect(() => {
+      const store = this.store();
+      if (store) {
+        const storedPresets = store.get(this.filterPresetsStoreKey);
+        if (storedPresets) {
+          this.allFilterPresets = JSON.parse(storedPresets);
+        }
+        firstStoreChange.destroy();
       }
-    }
-    this.renderViewsTab(changes['viewers']?.firstChange ?? false);
-    this.renderViewsOverlay();
+    });
   }
 
   getTabIconColor(tab: Tab): string {
@@ -238,12 +245,10 @@ export class TraceViewComponent
       const presetName = this.makeFilterPresetName(value, currentTabTraceType);
 
       this.allFilterPresets.push(presetName);
-      if (this.store) {
-        this.store?.add(
-          this.filterPresetsStoreKey,
-          JSON.stringify(this.allFilterPresets),
-        );
-      }
+      this.store()?.add(
+        this.filterPresetsStoreKey,
+        JSON.stringify(this.allFilterPresets),
+      );
 
       this.filterPresetNameControl.reset();
       this.changeDetectorRef.detectChanges();
@@ -264,8 +269,9 @@ export class TraceViewComponent
 
   deletePreset(preset: string) {
     this.allFilterPresets = this.allFilterPresets.filter((p) => p !== preset);
-    this.store?.clear(preset);
-    this.store?.add(
+    const store = this.store();
+    store?.clear(preset);
+    store?.add(
       this.filterPresetsStoreKey,
       JSON.stringify(this.allFilterPresets),
     );
@@ -292,8 +298,8 @@ export class TraceViewComponent
     return this.currentActiveTab?.view.traces.at(0)?.type;
   }
 
-  private renderViewsTab(firstToRender: boolean) {
-    this.tabs = this.viewers
+  private renderViewsTab(viewers: Viewer[]) {
+    this.tabs = viewers
       .map((viewer) => viewer.getViews())
       .flat()
       .filter((view) => view.type !== ViewType.OVERLAY)
@@ -309,12 +315,12 @@ export class TraceViewComponent
       const tabToShow = assertDefined(
         this.tabs.find((tab) => tab.view.type !== ViewType.GLOBAL_SEARCH),
       );
-      this.showTab(tabToShow, firstToRender);
+      this.showTab(tabToShow, true);
     }
   }
 
   private renderViewsOverlay() {
-    const views: View[] = this.viewers
+    const views: View[] = this.viewers()
       .map((viewer) => viewer.getViews())
       .flat()
       .filter((view) => view.type === ViewType.OVERLAY);
@@ -394,9 +400,10 @@ export class TraceViewComponent
     const traceType = trace?.type;
 
     if (traceType !== undefined) {
-      if (this.traceTypesWithParsingErrors.has(traceType)) {
+      const traceTypesWithParsingErrors = this.traceTypesWithParsingErrors();
+      if (traceTypesWithParsingErrors.has(traceType)) {
         if (
-          this.traceTypesWithParsingErrors.get(traceType) ===
+          traceTypesWithParsingErrors.get(traceType) ===
           ParsingErrorType.DATA_INCORRECT
         ) {
           this.traceTypesWithParsingErrorsWarningTooltip =
