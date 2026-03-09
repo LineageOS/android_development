@@ -79,14 +79,14 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   advancedSettingsTrigger: CdkOverlayOrigin | undefined;
   advancedSettingsKey: string | undefined;
 
-  title = input<string>();
-  traceConfigStoreKey = input<string>();
-  storage = input<Store>();
+  title = input.required<string>();
+  traceConfigStoreKey = input.required<string>();
+  storage = input.required<Store>();
   traceConfig = model.required<TraceConfigurationMap>();
   readonly traceConfigChange = output<TraceConfigurationMap>();
 
   getSortedTraceKeys = computed<string[]>(() => {
-    const config = assertDefined(this.traceConfig());
+    const config = this.traceConfig();
     return Object.keys(config).sort((a, b) => {
       return config[a].name < config[b].name ? -1 : 1;
     });
@@ -106,14 +106,10 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   ngOnInit() {
-    const initialConfig = assertDefined(
-      this.traceConfig(),
-      () => 'component initialized without config',
-    );
     const config = updateConfigsFromStore(
-      JSON.parse(JSON.stringify(initialConfig)),
-      assertDefined(this.storage()),
-      assertDefined(this.traceConfigStoreKey()),
+      JSON.parse(JSON.stringify(this.traceConfig())),
+      this.storage(),
+      this.traceConfigStoreKey(),
     );
     this.traceConfig.set(config);
     this.onTraceConfigChange();
@@ -128,7 +124,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   getTraceCheckboxContainerHeight(): string {
-    const config = assertDefined(this.traceConfig);
+    const config = this.traceConfig();
     const columns = Math.min(
       3,
       Math.floor(this.elementRef.nativeElement.clientWidth / 160),
@@ -214,7 +210,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   hasAdvancedConfig(traceKey: string): boolean {
-    const config = assertDefined(this.traceConfig()?.[traceKey]?.config);
+    const config = assertDefined(this.traceConfig()[traceKey]?.config);
     return (
       config.checkboxConfigs.length > 0 || config.selectionConfigs.length > 0
     );
@@ -241,7 +237,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
 
   onTraceConfigChange() {
     this.changeDetectorRef.markForCheck();
-    this.traceConfigChange.emit(assertDefined(this.traceConfig()));
+    this.traceConfigChange.emit(this.traceConfig());
   }
 
   isMultipleSelect(config: SelectionConfiguration): boolean {
