@@ -495,7 +495,7 @@ public class Connectivity extends Activity {
         broadcastFilter.addAction(CONNECTIVITY_TEST_ALARM);
         broadcastFilter.addAction(NETWORK_CONDITIONS_MEASURED);
 
-        registerReceiver(mReceiver, broadcastFilter);
+        registerReceiver(mReceiver, broadcastFilter, Context.RECEIVER_EXPORTED);
 
         mLinkStatsResults = (TextView)findViewById(R.id.stats);
         mLinkStatsResults.setVisibility(View.VISIBLE);
