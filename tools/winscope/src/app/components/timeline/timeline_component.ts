@@ -138,9 +138,9 @@ export class TimelineComponent
   readonly MAX_SELECTED_TRACES = 3;
   readonly PlaybackState = PlaybackState;
 
-  timelineData = input<TimelineData>();
-  allTraces = input<Traces>();
-  store = input<Store>();
+  timelineData = input.required<TimelineData>();
+  allTraces = input.required<Traces>();
+  store = input.required<Store>();
   initialTabTraceType = input<TraceType>();
 
   readonly collapsedTimelineSizeChanged = output<number>();
@@ -195,7 +195,7 @@ export class TimelineComponent
   ) {}
 
   ngOnInit() {
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     this.currentTabTraceType = this.initialTabTraceType();
     if (timelineData.hasTimestamps()) {
       this.updateTimeInputValuesToCurrentTimestamp();
@@ -214,7 +214,7 @@ export class TimelineComponent
     // sorted to be displayed in order corresponding to viewer tabs
     this.sortedTraces =
       this.allTraces()
-        ?.mapTrace((trace) => trace)
+        .mapTrace((trace) => trace)
         .sort((a, b) => compareByDisplayOrder(a.type, b.type)) ?? [];
 
     const storedDeselectedTraces = this.getStoredDeselectedTraceTypes();
@@ -256,11 +256,10 @@ export class TimelineComponent
   }
 
   getVideoCurrentTime(): number | undefined {
-    const videoCurrTime = assertDefined(
-      this.timelineData(),
-    ).searchCorrespondingScreenRecordingTimeSeconds(
-      this.getCurrentTracePosition(),
-    );
+    const videoCurrTime =
+      this.timelineData().searchCorrespondingScreenRecordingTimeSeconds(
+        this.getCurrentTracePosition(),
+      );
     return videoCurrTime;
   }
 
@@ -269,7 +268,7 @@ export class TimelineComponent
       return this.seekTracePosition;
     }
 
-    const position = assertDefined(this.timelineData()).getCurrentPosition();
+    const position = this.timelineData().getCurrentPosition();
     if (position === undefined) {
       throw new Error(
         'A trace position should be available by the time the timeline is loaded',
@@ -331,7 +330,7 @@ export class TimelineComponent
   }
 
   async updatePosition(position: TracePosition) {
-    assertDefined(this.timelineData()).setPosition(position);
+    this.timelineData().setPosition(position);
     await this.updateScreenRecordingVisualization();
     if (this.playbackState !== PlaybackState.PAUSED) {
       this.emitEvent(
@@ -348,9 +347,8 @@ export class TimelineComponent
 
   updateSeekTimestamp(timestamp: Timestamp | undefined) {
     if (timestamp) {
-      this.seekTracePosition = assertDefined(
-        this.timelineData(),
-      ).makePositionFromActiveTrace(timestamp);
+      this.seekTracePosition =
+        this.timelineData().makePositionFromActiveTrace(timestamp);
     } else {
       this.seekTracePosition = undefined;
     }
@@ -358,7 +356,7 @@ export class TimelineComponent
   }
 
   isOptionDisabled(trace: Trace<unknown>) {
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     return (
       !timelineData.hasTrace(trace) || timelineData.getActiveTrace() === trace
     );
@@ -373,10 +371,11 @@ export class TimelineComponent
   }
 
   applyNewTraceSelection(clickedTrace: Trace<unknown>) {
+    const timelineData = this.timelineData();
     this.selectedTraces =
       this.selectedTracesFormControl.value ??
       this.sortedTraces.filter((trace) => {
-        return assertDefined(this.timelineData()).hasTrace(trace);
+        return timelineData.hasTrace(trace);
       });
     this.updateStoredDeselectedTraceTypes(clickedTrace);
   }
@@ -417,7 +416,7 @@ export class TimelineComponent
     if (
       this.isDisabled ||
       this.isInputFormFocused ||
-      !assertDefined(this.timelineData()).hasMoreThanOneDistinctTimestamp() ||
+      !this.timelineData().hasMoreThanOneDistinctTimestamp() ||
       this.isProcessingKeyPress
     ) {
       return;
@@ -487,41 +486,39 @@ export class TimelineComponent
 
   hasPrevEntry(): boolean {
     const timelineData = this.timelineData();
-    const activeTrace = timelineData?.getActiveTrace();
+    const activeTrace = timelineData.getActiveTrace();
     if (!activeTrace) {
       return false;
     }
-    return timelineData?.getPreviousEntryFor(activeTrace) !== undefined;
+    return timelineData.getPreviousEntryFor(activeTrace) !== undefined;
   }
 
   hasNextEntry(): boolean {
     const timelineData = this.timelineData();
-    const activeTrace = timelineData?.getActiveTrace();
+    const activeTrace = timelineData.getActiveTrace();
     if (!activeTrace) {
       return false;
     }
-    return timelineData?.getNextEntryFor(activeTrace) !== undefined;
+    return timelineData.getNextEntryFor(activeTrace) !== undefined;
   }
 
   async moveToPreviousEntry() {
-    let timelineData = this.timelineData();
-    const activeTrace = timelineData?.getActiveTrace();
+    const timelineData = this.timelineData();
+    const activeTrace = timelineData.getActiveTrace();
     if (!activeTrace) {
       return;
     }
-    timelineData = assertDefined(timelineData);
     timelineData.moveToPreviousEntryFor(activeTrace);
     const position = assertDefined(timelineData.getCurrentPosition());
     await this.emitEvent(new TracePositionUpdate(position));
   }
 
   async moveToNextEntry() {
-    let timelineData = this.timelineData();
-    const activeTrace = timelineData?.getActiveTrace();
+    const timelineData = this.timelineData();
+    const activeTrace = timelineData.getActiveTrace();
     if (!activeTrace) {
       return;
     }
-    timelineData = assertDefined(timelineData);
     timelineData.moveToNextEntryFor(activeTrace);
     const position = assertDefined(timelineData.getCurrentPosition());
     await this.emitEvent(new TracePositionUpdate(position));
@@ -542,7 +539,7 @@ export class TimelineComponent
       );
       input = new UserTimestamp(date + 'T' + input.timestampHuman);
     }
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     const timestamp = assertDefined(
       timelineData.getTimestampConverter(),
     ).makeTimestampFromHuman(input);
@@ -559,7 +556,7 @@ export class TimelineComponent
       return;
     }
     const target = event.target as HTMLInputElement;
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
 
     const timestamp = assertDefined(
       timelineData.getTimestampConverter(),
@@ -624,7 +621,7 @@ export class TimelineComponent
 
   getUTCOffset(): string {
     return assertDefined(
-      this.timelineData()?.getTimestampConverter(),
+      this.timelineData().getTimestampConverter(),
     ).getUTCOffset();
   }
 
@@ -661,7 +658,7 @@ export class TimelineComponent
     } else {
       this.bookmarks = this.bookmarks.concat([
         assertDefined(
-          this.timelineData()?.getTimestampConverter(),
+          this.timelineData().getTimestampConverter(),
         ).makeTimestampFromNs(clickedNs),
       ]);
     }
@@ -678,7 +675,7 @@ export class TimelineComponent
     const [trace, timestamp] = eventData;
     await this.emitEvent(new ActiveTraceChanged(trace));
     await this.updatePosition(
-      assertDefined(this.timelineData()).makePositionFromActiveTrace(timestamp),
+      this.timelineData().makePositionFromActiveTrace(timestamp),
     );
     this.changeDetectorRef.detectChanges();
   }
@@ -813,20 +810,20 @@ export class TimelineComponent
     const timelineData = this.timelineData();
 
     const currentTrace = timelineData
-      ?.getTraces()
+      .getTraces()
       .getTrace(this.currentTabTraceType);
 
     if (!currentTrace) {
       return undefined;
     }
 
-    return timelineData?.findCurrentEntryFor(currentTrace)?.getIndex() ?? 0;
+    return timelineData.findCurrentEntryFor(currentTrace)?.getIndex() ?? 0;
   }
 
   private updateTimeInputValuesToCurrentTimestamp() {
     const currentTimestampNs =
       this.getCurrentTracePosition().timestamp.getValueNs();
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
 
     const converter = assertDefined(timelineData.getTimestampConverter());
 
@@ -848,7 +845,7 @@ export class TimelineComponent
   }
 
   private getStoredDeselectedTraceTypes(): TraceType[] {
-    const storedDeselectedTraces = this.store()?.get(
+    const storedDeselectedTraces = this.store().get(
       this.storeKeyDeselectedTraces,
     );
     return JSON.parse(storedDeselectedTraces ?? '[]');
@@ -856,9 +853,6 @@ export class TimelineComponent
 
   private updateStoredDeselectedTraceTypes(clickedTrace: Trace<unknown>) {
     const store = this.store();
-    if (!store) {
-      return;
-    }
 
     let storedDeselected = this.getStoredDeselectedTraceTypes();
     if (
@@ -913,7 +907,7 @@ export class TimelineComponent
 
     const lastTrace = this.currentScreenRecordingTrace;
     this.currentScreenRecordingTrace =
-      this.timelineData()?.getCurrentScreenRecordingTrace();
+      this.timelineData().getCurrentScreenRecordingTrace();
     if (!this.currentScreenRecordingTrace) {
       return;
     }
@@ -956,7 +950,7 @@ export class TimelineComponent
   }
 
   private async onDarkModeToggled() {
-    const activeTrace = this.timelineData()?.getActiveTrace();
+    const activeTrace = this.timelineData().getActiveTrace();
     if (activeTrace === undefined) {
       return;
     }
@@ -1021,7 +1015,7 @@ export class TimelineComponent
 
   private async drawScreenRecordingThumbnail(ts: Timestamp) {
     const thumbnailVideo = this.thumbnailVideo()?.nativeElement;
-    const trace = this.timelineData()?.getCurrentScreenRecordingTrace();
+    const trace = this.timelineData().getCurrentScreenRecordingTrace();
     if (!trace || !thumbnailVideo || !this.thumbnail) {
       return;
     }

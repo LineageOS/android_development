@@ -1077,7 +1077,10 @@ describe('Mediator', () => {
     expect(progressListener.onOperationFinished).not.toHaveBeenCalled();
     expect(timelineData.initialize).toHaveBeenCalledTimes(1);
     expect(appComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(
-      new ViewersLoaded(expectedViewers),
+      new ViewersLoaded(
+        expectedViewers,
+        expectedViewers[0].getTraces()[0].type,
+      ),
     );
 
     // Mediator triggers the viewers initialization

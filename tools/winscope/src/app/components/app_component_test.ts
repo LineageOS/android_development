@@ -108,10 +108,9 @@ class MockTraceViewComponent {
   providers: [{provide: TimelineComponent, useExisting: MockTimelineComponent}],
 })
 class MockTimelineComponent {
-  timelineData = input<unknown>();
-  availableTraces = input<unknown>();
-  allTraces = input<unknown>();
-  store = input<unknown>();
+  timelineData = input.required<unknown>();
+  allTraces = input.required<unknown>();
+  store = input.required<unknown>();
   initialTabTraceType = input<unknown>();
   bookmarks: unknown[] = [];
   setEmitEvent(_: unknown) {}
