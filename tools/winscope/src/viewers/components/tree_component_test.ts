@@ -15,7 +15,6 @@
  */
 
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
-import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -26,7 +25,6 @@ import {
   HierarchyTreeBuilder,
 } from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
-import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
@@ -42,8 +40,8 @@ import {
 } from './virtual_scroll_viewport_component';
 
 describe('TreeComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: TreeComponent<UiTreeNode>;
+  let dom: DOMTestHelper<TreeComponent<UiTreeNode>>;
   let mockCopyText: jasmine.Spy;
   let scrollSpy: jasmine.Spy<() => Promise<void>> | undefined;
 
@@ -59,14 +57,20 @@ describe('TreeComponent', () => {
         VirtualScrollViewportComponent,
         TreeComponent,
         TreeNodeComponent,
-        TestHostComponent,
         HierarchyTreeNodeDataViewComponent,
         PropertyTreeNodeDataViewComponent,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(TreeComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('nodeRows', makeNodeRows(makeTree()));
+    spyOn(component.highlightedChange, 'emit').and.callFake(
+      (node: UiTreeNode) => {
+        dom.setComponentInput('highlightedItem', node.id);
+        dom.detectChanges();
+      },
+    );
   });
 
   afterEach(() => {
@@ -87,7 +91,7 @@ describe('TreeComponent', () => {
     await waitForNodeStability();
     const treeNode = dom.get('tree-node');
     treeNode.checkClassName('child-selected', false);
-    component.highlightedItem = '2 Child2';
+    dom.setComponentInput('highlightedItem', '2 Child2');
     dom.detectChanges();
     treeNode.checkClassName('child-selected', true);
   });
@@ -96,9 +100,9 @@ describe('TreeComponent', () => {
     await waitForNodeStability();
     const treeNodes = dom.findAll('tree-node');
     treeNodes[0].click();
-    expect(component.highlightedItem).toBe(component.nodeRows[0].node.id);
+    expect(component.highlightedItem()).toBe(component.nodeRows()[0].node.id);
     treeNodes[1].click();
-    expect(component.highlightedItem).toBe(component.nodeRows[1].node.id);
+    expect(component.highlightedItem()).toBe(component.nodeRows()[1].node.id);
   });
 
   it('toggles tree upon node double click', async () => {
@@ -128,7 +132,7 @@ describe('TreeComponent', () => {
   });
 
   it('does not toggle tree in flat mode on double click', async () => {
-    component.isFlattened = true;
+    dom.setComponentInput('isFlattened', true);
     await waitForNodeStability();
     doubleClickFirstNode();
     checkIsExpanded(true);
@@ -136,10 +140,7 @@ describe('TreeComponent', () => {
 
   it('pins node on click', async () => {
     await waitForNodeStability();
-    const spy = spyOn(
-      assertDefined(component.treeComponent).pinnedItemChange,
-      'emit',
-    );
+    const spy = spyOn(component.pinnedItemChange, 'emit');
     dom.findAndClick('.pin-node-btn');
     expect(spy).toHaveBeenCalled();
   });
@@ -168,25 +169,25 @@ describe('TreeComponent', () => {
     await waitForNodeStability();
     doubleClickFirstNode();
     checkIsExpanded(false);
-    component.highlightedItem = '79 Child79';
+    dom.setComponentInput('highlightedItem', '79 Child79');
     await waitForNodeStability();
     checkIsExpanded(true);
   });
 
   it('scrolls selected node only if not in view', async () => {
+    restrictElementHeight();
     await waitForNodeStability();
     await checkNodeScrolling();
   });
 
   it('scrolls selected node if not in view even if pinned', async () => {
-    component.pinnedItems = [
-      assertDefined(
-        component.nodeRows.find((row) => row.node.name === 'Child78'),
-      ).node,
-      assertDefined(
-        component.nodeRows.find((row) => row.node.name === 'Child79'),
-      ).node,
-    ];
+    restrictElementHeight();
+
+    const nodeRows = component.nodeRows();
+    dom.setComponentInput('pinnedItems', [
+      assertDefined(nodeRows.find((row) => row.node.name === 'Child78')).node,
+      assertDefined(nodeRows.find((row) => row.node.name === 'Child79')).node,
+    ]);
     await waitForNodeStability();
     await checkNodeScrolling();
   });
@@ -195,14 +196,14 @@ describe('TreeComponent', () => {
     await waitForNodeStability();
     checkIsExpanded(true);
     expect(
-      component.nodeRows.every((row) => {
+      component.nodeRows().every((row) => {
         return row.localExpandedState && !row.isHiddenByCollapsedParent;
       }),
     ).toBeTrue();
   });
 
   it('sets initial expanded state to false if collapse state exists in store', async () => {
-    component.useStoredExpandedState = true;
+    dom.setComponentInput('useStoredExpandedState', true);
     await waitForNodeStability();
     // tree expanded by default
     checkIsExpanded(true);
@@ -212,7 +213,7 @@ describe('TreeComponent', () => {
     checkIsExpanded(false);
 
     // tree collapsed state retained
-    component.nodeRows = makeNodeRows(makeTree());
+    dom.setComponentInput('nodeRows', makeNodeRows(makeTree()));
     dom.detectChanges();
     checkIsExpanded(false);
   });
@@ -221,20 +222,28 @@ describe('TreeComponent', () => {
     await waitForNodeStability();
     expect(dom.find('.toggle-rect-show-state-btn')).toBeUndefined();
 
-    const id = component.nodeRows[0].node.id;
-    component.rectIdToShowState = new Map([[id, RectShowState.HIDE]]);
+    const id = component.nodeRows()[0].node.id;
+    dom.setComponentInput(
+      'rectIdToShowState',
+      new Map([[id, RectShowState.HIDE]]),
+    );
     dom.detectChanges();
     dom.get('.toggle-rect-show-state-btn').checkTextExact('visibility_off');
 
-    component.rectIdToShowState = new Map([[id, RectShowState.SHOW]]);
+    dom.setComponentInput(
+      'rectIdToShowState',
+      new Map([[id, RectShowState.SHOW]]),
+    );
     dom.detectChanges();
     dom.get('.toggle-rect-show-state-btn').checkTextExact('visibility');
   });
 
   it('handles show state button click', async () => {
-    component.rectIdToShowState = new Map([
-      [component.nodeRows[0].node.id, RectShowState.HIDE],
-    ]);
+    const nodeRows = component.nodeRows();
+    dom.setComponentInput(
+      'rectIdToShowState',
+      new Map([[nodeRows[0].node.id, RectShowState.HIDE]]),
+    );
     await waitForNodeStability();
     const button = dom.get('.toggle-rect-show-state-btn');
     button.checkTextExact('visibility_off');
@@ -243,22 +252,23 @@ describe('TreeComponent', () => {
     dom.addEventListener(ViewerEvents.RectShowStateChange, (event) => {
       const detail = (event as CustomEvent).detail;
       id = detail.rectId;
-      component.rectIdToShowState?.set(detail.rectId, detail.state);
+      component.rectIdToShowState()?.set(detail.rectId, detail.state);
     });
     button.click();
-    expect(component.rectIdToShowState.get(id)).toEqual(RectShowState.SHOW);
+    expect(component.rectIdToShowState()?.get(id)).toEqual(RectShowState.SHOW);
     button.click();
-    expect(component.rectIdToShowState.get(id)).toEqual(RectShowState.HIDE);
+    expect(component.rectIdToShowState()?.get(id)).toEqual(RectShowState.HIDE);
   });
 
   it('shows node at full opacity when applicable', async () => {
     await waitForNodeStability();
     expect(dom.find('.node.full-opacity')).toBeDefined();
 
-    const hierarchyNode = component.nodeRows[0].node;
-    component.rectIdToShowState = new Map([
-      [hierarchyNode.id, RectShowState.SHOW],
-    ]);
+    const hierarchyNode = component.nodeRows()[0].node;
+    dom.setComponentInput(
+      'rectIdToShowState',
+      new Map([[hierarchyNode.id, RectShowState.SHOW]]),
+    );
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeDefined();
 
@@ -267,101 +277,102 @@ describe('TreeComponent', () => {
       hierarchyNode.name,
       0,
     );
-    component.nodeRows = makeNodeRows(propertiesTree);
+    dom.setComponentInput('nodeRows', makeNodeRows(propertiesTree));
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeDefined();
   });
 
   it('shows node at non-full opacity when applicable', async () => {
-    component.rectIdToShowState = new Map([]);
+    dom.setComponentInput('rectIdToShowState', new Map([]));
     await waitForNodeStability();
     expect(dom.find('.node.full-opacity')).toBeUndefined();
 
-    component.rectIdToShowState = new Map([
-      [component.nodeRows[0].node.id, RectShowState.HIDE],
-    ]);
+    dom.setComponentInput(
+      'rectIdToShowState',
+      new Map([[component.nodeRows()[0].node.id, RectShowState.HIDE]]),
+    );
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeUndefined();
   });
 
   it('copies text via copy button without selecting node', async () => {
-    const hierarchyNode = component.nodeRows[0].node;
+    const hierarchyNode = component.nodeRows()[0].node;
     const propertiesTree = makeUiPropertyNode(
       hierarchyNode.id,
       hierarchyNode.name,
       0,
     );
-    component.nodeRows = makeNodeRows(propertiesTree);
+    dom.setComponentInput('nodeRows', makeNodeRows(propertiesTree));
     await waitForNodeStability();
 
-    const spy = spyOn(assertDefined(component.treeComponent), 'onNodeClick');
+    const spy = spyOn(component, 'onNodeClick');
     dom.findAndClick('.icon-wrapper-copy button');
     expect(mockCopyText).toHaveBeenCalled();
     expect(spy).not.toHaveBeenCalled();
   });
 
   it('handles arrow down press', async () => {
-    component.handleArrowPress = true;
+    dom.setComponentInput('handleArrowPress', true);
     dom.detectChanges();
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('RootNode Root node');
+    expect(component.highlightedItem()).toBe('RootNode Root node');
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('0 Child0');
+    expect(component.highlightedItem()).toBe('0 Child0');
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('1 Child1');
+    expect(component.highlightedItem()).toBe('1 Child1');
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('2 Child2');
+    expect(component.highlightedItem()).toBe('2 Child2');
   });
 
   it('handles arrow down press when on last row', async () => {
-    component.handleArrowPress = true;
-    component.highlightedItem = '79 Child79';
+    dom.setComponentInput('handleArrowPress', true);
+    dom.setComponentInput('highlightedItem', '79 Child79');
     dom.detectChanges();
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('79 Child79');
+    expect(component.highlightedItem()).toBe('79 Child79');
   });
 
   it('handles arrow up press', async () => {
-    component.handleArrowPress = true;
+    dom.setComponentInput('handleArrowPress', true);
     dom.detectChanges();
     dom.keydownArrowUp(true);
-    expect(component.highlightedItem).toBe('79 Child79');
+    expect(component.highlightedItem()).toBe('79 Child79');
     dom.keydownArrowUp(true);
-    expect(component.highlightedItem).toBe('78 Child78');
+    expect(component.highlightedItem()).toBe('78 Child78');
     dom.keydownArrowUp(true);
-    expect(component.highlightedItem).toBe('77 Child77');
+    expect(component.highlightedItem()).toBe('77 Child77');
   });
 
   it('handles arrow up press when on first row', async () => {
-    component.handleArrowPress = true;
-    component.highlightedItem = 'RootNode Root node';
+    dom.setComponentInput('handleArrowPress', true);
+    dom.setComponentInput('highlightedItem', 'RootNode Root node');
     dom.detectChanges();
     dom.keydownArrowUp(true);
-    expect(component.highlightedItem).toBe('RootNode Root node');
+    expect(component.highlightedItem()).toBe('RootNode Root node');
   });
 
   it('arrow press robust to no current trees', () => {
-    component.handleArrowPress = true;
-    component.nodeRows = [];
+    dom.setComponentInput('handleArrowPress', true);
+    dom.setComponentInput('nodeRows', []);
     dom.detectChanges();
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('');
+    expect(component.highlightedItem()).toBe('');
     dom.keydownArrowUp(true);
-    expect(component.highlightedItem).toBe('');
+    expect(component.highlightedItem()).toBe('');
   });
 
   it('arrow press skips nodes hidden by collapsed parent', () => {
-    component.handleArrowPress = true;
+    dom.setComponentInput('handleArrowPress', true);
     dom.detectChanges();
     dom.get('#nodeChild0 .toggle-tree-btn').click();
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('RootNode Root node');
+    expect(component.highlightedItem()).toBe('RootNode Root node');
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('0 Child0');
+    expect(component.highlightedItem()).toBe('0 Child0');
     dom.keydownArrowDown(true);
-    expect(component.highlightedItem).toBe('2 Child2');
+    expect(component.highlightedItem()).toBe('2 Child2');
     dom.keydownArrowUp(true);
-    expect(component.highlightedItem).toBe('0 Child0');
+    expect(component.highlightedItem()).toBe('0 Child0');
   });
 
   function makeNodeRows(tree: UiTreeNode) {
@@ -403,15 +414,15 @@ describe('TreeComponent', () => {
   }
 
   async function checkNodeScrolling() {
-    component.highlightedItem = 'Root node';
+    dom.setComponentInput('highlightedItem', 'Root node');
     await waitForNodeStability();
 
-    component.highlightedItem = '79 Child79';
+    dom.setComponentInput('highlightedItem', '79 Child79');
     await waitForNodeStability();
     const spy = getScrollSpy();
     expect(spy).toHaveBeenCalledTimes(1);
 
-    component.highlightedItem = '78 Child78';
+    dom.setComponentInput('highlightedItem', '78 Child78');
     dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
   }
@@ -419,7 +430,7 @@ describe('TreeComponent', () => {
   function getScrollSpy(): jasmine.Spy<() => Promise<void>> {
     if (!scrollSpy) {
       scrollSpy = spyOn(
-        assertDefined(component.treeComponent?.virtualScrollViewport()),
+        assertDefined(component.virtualScrollViewport()),
         'scrollToIndex',
       ).and.callThrough();
     }
@@ -431,51 +442,11 @@ describe('TreeComponent', () => {
     await getScrollSpy().calls.mostRecent()?.returnValue;
   }
 
-  @Component({
-    imports: [TreeComponent],
-    selector: 'host-component',
-    template: `
-    <div class="tree-wrapper">
-      <tree-view
-        [nodeRows]="nodeRows"
-        [isFlattened]="isFlattened"
-        [pinnedItems]="pinnedItems"
-        [highlightedItem]="highlightedItem"
-        [useStoredExpandedState]="useStoredExpandedState"
-        [itemsClickable]="true"
-        [rectIdToShowState]="rectIdToShowState"
-        [handleArrowPress]="handleArrowPress"
-        (highlightedChange)="onHighlightedChange($event)"></tree-view>
-    </div>
-    `,
-    styles: [
-      `
-      .tree-wrapper {
-        display: flex;
-        flex-direction: column;
-        height: 500px;
-      }
-    `,
-    ],
-  })
-  class TestHostComponent {
-    nodeRows: Array<FlattenedTreeRow<UiTreeNode>>;
-    highlightedItem = '';
-    isFlattened = false;
-    useStoredExpandedState = false;
-    rectIdToShowState: Map<string, RectShowState> | undefined;
-    pinnedItems: UiTreeNode[] = [];
-    handleArrowPress = false;
-
-    constructor() {
-      this.nodeRows = makeNodeRows(makeTree());
-    }
-
-    @ViewChild(TreeComponent)
-    treeComponent: TreeComponent<UiTreeNode> | undefined;
-
-    onHighlightedChange(node: UiTreeNode) {
-      this.highlightedItem = node.id;
-    }
+  function restrictElementHeight() {
+    const htmlElement = dom.getHTMLElement();
+    htmlElement.style.height = '500px';
+    htmlElement.style.display = 'flex';
+    htmlElement.style.flexDirection = 'column';
+    dom.detectChanges();
   }
 });
