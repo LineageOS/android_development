@@ -42,7 +42,7 @@ import {Analytics} from '@logging/analytics';
 export class PlaybackControlsComponent {
   readonly PlaybackState = PlaybackState;
 
-  currentState = input<PlaybackState>(PlaybackState.PAUSED);
+  currentState = input.required<PlaybackState>();
 
   readonly playbackStateChange = output<PlaybackState>();
   readonly speedChange = output<number>();

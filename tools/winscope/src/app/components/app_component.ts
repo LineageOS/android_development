@@ -161,6 +161,7 @@ import {ParsingErrorType} from '@app/parsing_error_type';
 export class AppComponent implements WinscopeEventListener {
   title = 'winscope';
   timelineData = new TimelineData();
+  initialTimelineTabTraceType: TraceType | undefined;
   abtChromeExtensionProtocol = new AbtChromeExtensionProtocol();
   crossToolProtocol: CrossToolProtocol;
   dataLoaded = false;
@@ -762,6 +763,7 @@ export class AppComponent implements WinscopeEventListener {
 
   private async onViewersLoaded(event: ViewersLoaded) {
     this.viewers = event.viewers;
+    this.initialTimelineTabTraceType = event.initialTimelineTabTraceType;
     this.filenameFormControl.setValue(
       this.loadedFileData.getDownloadArchiveFilename(),
     );

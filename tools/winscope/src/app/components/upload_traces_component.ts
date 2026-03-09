@@ -82,8 +82,9 @@ export class UploadTracesComponent
     'Unless "Discard legacy traces" is selected, this trace will be converted ' +
     'to a Perfetto trace when you click "View traces".';
 
-  loadedFileReaders = input<FileReader[]>();
-  storage = input<Store>();
+  loadedFileReaders = input.required<FileReader[]>();
+  storage = input.required<Store>();
+
   filesUploaded = output<File[]>();
   viewTracesButtonClick = output<boolean>();
   downloadTracesClick = output<void>();
@@ -91,7 +92,7 @@ export class UploadTracesComponent
   removeAllTraces = output<void>();
 
   hasLoadedFiles = computed<boolean>(() => {
-    return (this.loadedFileReaders()?.length ?? 0) > 0;
+    return (this.loadedFileReaders().length ?? 0) > 0;
   });
 
   private readonly discardLegacyStoreKey = 'discardLegacyFiles';
@@ -103,18 +104,16 @@ export class UploadTracesComponent
 
   ngOnInit() {
     const storage = this.storage();
-    if (storage) {
-      const storedValue = storage.get(this.discardLegacyStoreKey);
-      this.discardLegacyFiles =
-        storedValue === 'true' || storedValue === undefined;
-    }
+    const storedValue = storage.get(this.discardLegacyStoreKey);
+    this.discardLegacyFiles =
+      storedValue === 'true' || storedValue === undefined;
     this.removeAllTraces.emit();
     this.clearAllWarnings();
   }
 
   updateDiscardLegacyTraces() {
     this.discardLegacyFiles = !this.discardLegacyFiles;
-    this.storage()?.add(
+    this.storage().add(
       this.discardLegacyStoreKey,
       this.discardLegacyFiles.toString(),
     );
@@ -213,7 +212,7 @@ export class UploadTracesComponent
   hasLoadedFilesWithViewers(): boolean {
     return this.ngZone.run(() => {
       return (
-        this.loadedFileReaders()?.some((reader) => {
+        this.loadedFileReaders().some((reader) => {
           return isTraceTypeWithViewer(reader.getTraceType());
         }) ?? false
       );
@@ -224,7 +223,7 @@ export class UploadTracesComponent
     if (this.isViewTracesButtonDisabled()) {
       return true;
     }
-    const isDisabled = !this.loadedFileReaders()?.some((reader) => {
+    const isDisabled = !this.loadedFileReaders().some((reader) => {
       return this.isLegacyTrace(reader);
     });
     return isDisabled;

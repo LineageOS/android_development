@@ -104,7 +104,6 @@ import {Timer} from '@common/time/timer';
  * Mediator class for communication between components
  */
 export class Mediator {
-  initialTimelineTabTraceType: TraceType | undefined;
   private abtChromeExtensionProtocol: WinscopeEventEmitter &
     WinscopeEventListener;
   private crossToolProtocol: CrossToolProtocol;
@@ -778,8 +777,10 @@ export class Mediator {
     // "trace position update" could be processed concurrently within the same viewer.
     // Meaning the viewer could perform twice the initial heavy pre-processing,
     // thus increasing UI initialization times.
-    this.initialTimelineTabTraceType = this.focusedTabView?.traces[0]?.type;
-    await this.appComponent.onWinscopeEvent(new ViewersLoaded(this.viewers));
+    const initialTimelineTabTraceType = this.focusedTabView?.traces[0]?.type;
+    await this.appComponent.onWinscopeEvent(
+      new ViewersLoaded(this.viewers, initialTimelineTabTraceType),
+    );
     Analytics.Loading.logLoadViewersTime(Date.now() - e2eStartTimeMs);
   }
 

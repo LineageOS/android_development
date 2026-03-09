@@ -158,11 +158,7 @@ describe('TimelineComponent', () => {
     const traces = new TracesBuilder()
       .setTimestamps(TraceType.SURFACE_FLINGER, [time100, time110])
       .build();
-    assertDefined(component.timelineData()).initialize(
-      traces,
-      undefined,
-      converter,
-    );
+    component.timelineData().initialize(traces, undefined, converter);
     dom.detectChanges();
 
     // initially not expanded
@@ -192,11 +188,7 @@ describe('TimelineComponent', () => {
     const traces = new TracesBuilder()
       .setEntries(TraceType.SURFACE_FLINGER, [])
       .build();
-    assertDefined(component.timelineData()).initialize(
-      traces,
-      undefined,
-      converter,
-    );
+    component.timelineData().initialize(traces, undefined, converter);
     dom.detectChanges();
 
     expect(dom.find('.time-selector')).toBeUndefined();
@@ -284,7 +276,7 @@ describe('TimelineComponent', () => {
       .setTimestamps(TraceType.WM_TRANSITION, [time100, time110])
       .build();
 
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
     timelineData.initialize(traces, undefined, converter);
     timelineData.setPosition(position100);
     dom.detectChanges();
@@ -404,7 +396,7 @@ describe('TimelineComponent', () => {
 
   it('next button disabled if no next entry', () => {
     loadSfWmTraces();
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
 
     expect(timelineData.getCurrentPosition()?.timestamp.getValueNs()).toEqual(
       100n,
@@ -428,7 +420,7 @@ describe('TimelineComponent', () => {
 
   it('prev button disabled if no prev entry', () => {
     loadSfWmTraces();
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
 
     expect(timelineData.getCurrentPosition()?.timestamp.getValueNs()).toEqual(
       100n,
@@ -463,9 +455,7 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
 
     expect(
-      assertDefined(component.timelineData())
-        .getCurrentPosition()
-        ?.timestamp.getValueNs(),
+      component.timelineData().getCurrentPosition()?.timestamp.getValueNs(),
     ).toBe(100n);
     const nextEntryButton = dom.get(nextEntrySelector);
 
@@ -486,9 +476,7 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
 
     expect(
-      assertDefined(component.timelineData())
-        .getCurrentPosition()
-        ?.timestamp.getValueNs(),
+      component.timelineData().getCurrentPosition()?.timestamp.getValueNs(),
     ).toBe(100n);
     const prevEntryButton = dom.get(prevEntrySelector);
 
@@ -537,9 +525,7 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
 
     expect(
-      assertDefined(component.timelineData())
-        .getCurrentPosition()
-        ?.timestamp.getValueNs(),
+      component.timelineData().getCurrentPosition()?.timestamp.getValueNs(),
     ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.nano');
@@ -581,9 +567,7 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
 
     expect(
-      assertDefined(component.timelineData())
-        .getCurrentPosition()
-        ?.timestamp.getValueNs(),
+      component.timelineData().getCurrentPosition()?.timestamp.getValueNs(),
     ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.human');
@@ -630,9 +614,7 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
 
     expect(
-      assertDefined(component.timelineData())
-        .getCurrentPosition()
-        ?.timestamp.valueOf(),
+      component.timelineData().getCurrentPosition()?.timestamp.valueOf(),
     ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.human');
@@ -649,9 +631,7 @@ describe('TimelineComponent', () => {
     loadSfWmTraces();
 
     expect(
-      assertDefined(component.timelineData())
-        .getCurrentPosition()
-        ?.timestamp.valueOf(),
+      component.timelineData().getCurrentPosition()?.timestamp.valueOf(),
     ).toBe(100n);
 
     const timeInputField = dom.get('.time-input.human');
@@ -687,7 +667,7 @@ describe('TimelineComponent', () => {
       TraceType.SURFACE_FLINGER,
     ]);
 
-    const store = assertDefined(component.store());
+    const store = component.store();
     resetDom(store);
     loadAllTraces();
     expectSelectedTraceTypes([
@@ -729,7 +709,7 @@ describe('TimelineComponent', () => {
       TraceType.PROTO_LOG,
     ]);
 
-    const store = assertDefined(component.store());
+    const store = component.store();
     resetDom(store);
     loadAllTraces();
     expectSelectedTraceTypes([
@@ -746,7 +726,7 @@ describe('TimelineComponent', () => {
     await dom.openMatSelect();
     clickTraceFromSelectPanel(2);
 
-    const store = assertDefined(component.store());
+    const store = component.store();
     resetDom(store);
     await loadTracesWithOneTimestamp();
 
@@ -787,7 +767,7 @@ describe('TimelineComponent', () => {
       TraceType.PROTO_LOG,
     ]);
 
-    const store = assertDefined(component.store());
+    const store = component.store();
     resetDom(store);
     loadAllTraces();
     expectSelectedTraceTypes([
@@ -815,7 +795,7 @@ describe('TimelineComponent', () => {
       TraceType.WINDOW_MANAGER,
     ]);
 
-    const store = assertDefined(component.store());
+    const store = component.store();
     resetDom(store);
     loadSfWmTraces();
     expectSelectedTraceTypes([
@@ -842,7 +822,7 @@ describe('TimelineComponent', () => {
     clickTraceFromSelectPanel(1);
     expectSelectedTraceTypes([TraceType.SURFACE_FLINGER]);
 
-    const store = assertDefined(component.store());
+    const store = component.store();
     resetDom(store);
     loadAllTraces();
     expectSelectedTraceTypes([
@@ -946,7 +926,7 @@ describe('TimelineComponent', () => {
     const trace = assertDefined(
       component
         .timelineData()
-        ?.getTraces()
+        .getTraces()
         .getTrace<HierarchyTreeNode>(TraceType.WINDOW_MANAGER),
     );
     spyOn(
@@ -1415,9 +1395,9 @@ describe('TimelineComponent', () => {
       const trace = assertDefined(
         component
           .allTraces()
-          ?.getTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER),
+          .getTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER),
       );
-      spyOn(assertDefined(component.timelineData()), 'findCurrentEntryFor')
+      spyOn(component.timelineData(), 'findCurrentEntryFor')
         .withArgs(trace)
         .and.returnValue(
           currentIndex !== undefined ? trace.getEntry(currentIndex) : undefined,
@@ -1440,10 +1420,10 @@ describe('TimelineComponent', () => {
       ])
       .build();
 
-    const timelineData = assertDefined(c.timelineData());
+    const timelineData = c.timelineData();
     timelineData.initialize(traces, undefined, converter);
     timelineData.setPosition(position100);
-    domHelper.setComponentInput('allTraces', c.timelineData()?.getTraces());
+    domHelper.setComponentInput('allTraces', c.timelineData().getTraces());
     domHelper.detectChanges();
   }
 
@@ -1495,11 +1475,9 @@ describe('TimelineComponent', () => {
       });
     }
 
-    assertDefined(component.timelineData()).initialize(
-      timelineDataTraces,
-      undefined,
-      converter,
-    );
+    component
+      .timelineData()
+      .initialize(timelineDataTraces, undefined, converter);
     dom.setComponentInput('allTraces', traces);
     dom.detectChanges();
   }
@@ -1520,7 +1498,7 @@ describe('TimelineComponent', () => {
       ])
       .build();
 
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
     timelineData.initialize(traces, undefined, converter);
     timelineData.setPosition(position100);
     dom.setComponentInput('allTraces', timelineData.getTraces());
@@ -1528,7 +1506,7 @@ describe('TimelineComponent', () => {
   }
 
   function getLoadedTrace(type: TraceType): Trace<unknown> {
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
     return assertDefined(timelineData.getTraces().getTrace(type));
   }
 
@@ -1537,7 +1515,7 @@ describe('TimelineComponent', () => {
       .setTimestamps(TraceType.SURFACE_FLINGER, [])
       .setTimestamps(TraceType.WINDOW_MANAGER, [time100])
       .build();
-    assertDefined(c.timelineData()).initialize(traces, undefined, converter);
+    c.timelineData().initialize(traces, undefined, converter);
     domHelper.setComponentInput('allTraces', traces);
     await domHelper.detectChangesAndWaitStable();
     domHelper.detectChanges();
@@ -1545,8 +1523,7 @@ describe('TimelineComponent', () => {
 
   async function updateActiveTrace(type: TraceType) {
     const trace = getLoadedTrace(type);
-    const timelineData = assertDefined(component.timelineData());
-    timelineData.trySetActiveTrace(trace);
+    component.timelineData().trySetActiveTrace(trace);
 
     await component.onWinscopeEvent(new ActiveTraceChanged(trace));
   }
@@ -1564,7 +1541,7 @@ describe('TimelineComponent', () => {
     pos: TracePosition,
     expectedNs: bigint,
   ) {
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
     timelineData.setPosition(pos);
     dom.detectChanges();
     button.click();
@@ -1579,7 +1556,7 @@ describe('TimelineComponent', () => {
     textInput: string,
     expectedNs: bigint,
   ) {
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
     timelineData.setPosition(pos);
     dom.detectChanges();
 

@@ -32,6 +32,7 @@ describe('PlaybackControlsComponent', () => {
     const fixture = TestBed.createComponent(PlaybackControlsComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('currentState', PlaybackState.PAUSED);
     dom.detectChanges();
   });
 
