@@ -109,7 +109,7 @@ describe('ExpandedTimelineComponent', () => {
       .setTimestamps(TraceType.PROTO_LOG, [time12, time12])
       .build();
     await timelineData.initialize(traces, undefined, converter);
-    component.timelineData = timelineData;
+    dom.setComponentInput('timelineData', timelineData);
   });
 
   it('can be created', () => {
@@ -129,63 +129,58 @@ describe('ExpandedTimelineComponent', () => {
   it('passes initial selectedEntry of correct type into each timeline', () => {
     dom.detectChanges();
 
-    const singleTimelines = assertDefined(component.singleTimelines);
+    const singleTimelines = assertDefined(component.singleTimelines());
     expect(singleTimelines.length).toBe(4);
 
     // initially only first entry of SF is set
     singleTimelines.forEach((timeline) => {
-      if (assertDefined(timeline.trace).type === TraceType.SURFACE_FLINGER) {
-        const entry = assertDefined(timeline.selectedEntry);
+      if (assertDefined(timeline.trace()).type === TraceType.SURFACE_FLINGER) {
+        const entry = assertDefined(timeline.selectedEntry());
         expect(entry.getFullTrace().type).toEqual(TraceType.SURFACE_FLINGER);
       } else {
-        expect(timeline.selectedEntry).toBeUndefined();
+        expect(timeline.selectedEntry()).toBeUndefined();
       }
     });
 
-    const transitionTimeline = assertDefined(
-      component.transitionTimelines,
-    ).first;
-    assertDefined(transitionTimeline.selectedEntry);
+    const transitionTimeline = component.transitionTimelines()[0];
+    assertDefined(transitionTimeline.selectedEntry());
   });
 
   it('passes selectedEntry of correct type into each timeline on position change', () => {
     // 3 out of the 5 traces have timestamps before or at 11n
-    assertDefined(component.timelineData).setPosition(
+    assertDefined(component.timelineData()).setPosition(
       TracePosition.fromTimestamp(time11),
     );
     dom.detectChanges();
 
-    const singleTimelines = assertDefined(component.singleTimelines);
+    const singleTimelines = assertDefined(component.singleTimelines());
     expect(singleTimelines.length).toBe(4);
 
     singleTimelines.forEach((timeline) => {
       // protolog and transactions traces have no timestamps before current position
+      const trace = assertDefined(timeline.trace());
       if (
-        assertDefined(timeline.trace).type === TraceType.PROTO_LOG ||
-        assertDefined(timeline.trace).type === TraceType.TRANSACTIONS
+        trace.type === TraceType.PROTO_LOG ||
+        trace.type === TraceType.TRANSACTIONS
       ) {
-        expect(timeline.selectedEntry).toBeUndefined();
+        expect(timeline.selectedEntry()).toBeUndefined();
       } else {
-        const selectedEntry = assertDefined(timeline.selectedEntry);
-        expect(selectedEntry.getFullTrace().type).toEqual(
-          assertDefined(timeline.trace).type,
-        );
+        const selectedEntry = assertDefined(timeline.selectedEntry());
+        expect(selectedEntry.getFullTrace().type).toEqual(trace.type);
       }
     });
 
-    const transitionTimeline = assertDefined(
-      component.transitionTimelines,
-    ).first;
-    const selectedEntry = assertDefined(transitionTimeline.selectedEntry);
+    const transitionTimeline = component.transitionTimelines()[0];
+    const selectedEntry = assertDefined(transitionTimeline.selectedEntry());
     expect(selectedEntry.getFullTrace().type).toEqual(
-      assertDefined(transitionTimeline.trace).type,
+      assertDefined(transitionTimeline.trace()).type,
     );
   });
 
   it('getAllLoadedTraces causes timelines to render in correct order', () => {
     // traces in timelineData are in order of being set in Traces API
     expect(
-      assertDefined(component.timelineData)
+      assertDefined(component.timelineData())
         .getTraces()
         .mapTrace((trace) => trace.type),
     ).toEqual([

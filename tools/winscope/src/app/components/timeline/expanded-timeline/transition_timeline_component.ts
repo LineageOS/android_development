@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TimelineSegment} from '@app/components/timeline/common/segment';
 import {
@@ -28,7 +28,7 @@ import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {TransitionStatus} from '@trace/transitions/status';
 import {AbsoluteEntryIndex} from '@trace_api/index_types';
-import {Trace, TraceEntry} from '@trace_api/trace';
+import { TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
@@ -44,10 +44,8 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
   styleUrls: ['transition_timeline_component.css'],
 })
 export class TransitionTimelineComponent extends AbstractTimelineRowComponent<HierarchyTreeNode> {
-  @Input() selectedEntry: TraceEntry<HierarchyTreeNode> | undefined;
-  @Input() trace: Trace<HierarchyTreeNode> | undefined;
-  @Input() transitionEntries: Array<HierarchyTreeNode | undefined> | undefined;
-  @Input() fullRange: TimeRange | undefined;
+  transitionEntries = input<Array<HierarchyTreeNode | undefined>>();
+  fullRange = input<TimeRange>();
 
   hoveringEntry?: TraceEntry<HierarchyTreeNode>;
   rowsToUse = new Map<number, number>();
@@ -56,7 +54,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   ngOnInit() {
     assertDefined(this.trace);
-    assertTrue(this.trace?.type === TraceType.TRANSITION);
+    assertTrue(this.trace()?.type === TraceType.TRANSITION);
     assertDefined(this.selectionRange);
     assertDefined(this.transitionEntries);
     assertDefined(this.fullRange);
@@ -81,15 +79,15 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   override drawTimeline() {
     let selectedRect: Rect | undefined;
-    assertDefined(this.trace).forEachEntry((entry) => {
+    assertDefined(this.trace()).forEachEntry((entry) => {
       const index = entry.getIndex();
       const rects = this.getRectsFromIndex(entry.getIndex());
       if (!rects) {
         return;
       }
-      const transition = assertDefined(this.transitionEntries?.at(index));
+      const transition = assertDefined(this.transitionEntries()?.at(index));
       this.drawRects(rects, transition);
-      if (index === this.selectedEntry?.getIndex()) {
+      if (index === this.selectedEntry()?.getIndex()) {
         selectedRect = rects.totalDuration;
       }
     });
@@ -104,14 +102,14 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     if (this.shouldNotRenderEntries.includes(entryIndex)) {
       return undefined;
     }
-    const transition = this.transitionEntries?.at(entryIndex);
+    const transition = this.transitionEntries()?.at(entryIndex);
     if (!transition) {
       return undefined;
     }
     const lifecycle = getLifecycleForTransition(
       transition,
-      assertDefined(this.selectionRange),
-      assertDefined(this.timestampConverter),
+      assertDefined(this.selectionRange()),
+      assertDefined(this.timestampConverter()),
     );
     if (!lifecycle) {
       return undefined;
@@ -138,7 +136,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
   protected override getEntryAt(
     mousePoint: Point,
   ): TraceEntry<HierarchyTreeNode> | undefined {
-    const transitionEntries = assertDefined(this.trace).mapEntry(
+    const transitionEntries = assertDefined(this.trace()).mapEntry(
       (entry) => entry,
     );
 
@@ -171,8 +169,9 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
   }
 
   private getXPosOf(entry: Timestamp): number {
-    const start = assertDefined(this.selectionRange).startNs;
-    const end = assertDefined(this.selectionRange).endNs;
+    const selectionRange = assertDefined(this.selectionRange());
+    const start = selectionRange.startNs;
+    const end = selectionRange.endNs;
 
     return Number(
       (BigInt(this.getAvailableWidth()) * (entry.getValueNs() - start)) /
@@ -182,8 +181,9 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   private getSegmentRect(segment: TimeRange, rowToUse: number): Rect {
     const xPosStart = this.getXPosOf(segment.from);
-    const selectionStart = assertDefined(this.selectionRange).startNs;
-    const selectionEnd = assertDefined(this.selectionRange).endNs;
+    const selectionRange = assertDefined(this.selectionRange());
+    const selectionStart = selectionRange.startNs;
+    const selectionEnd = selectionRange.endNs;
 
     const borderPadding = 5;
     let totalRowHeight =
@@ -228,7 +228,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     lifecycle.stages.forEach((rect) => {
       this.canvasDrawer.drawRect(
         rect.segment,
-        rect.color ?? this.color,
+        rect.color ?? this.color(),
         alpha,
         rect.unknownStart,
         rect.unknownEnd,
@@ -246,17 +246,17 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   private computeRowsToUse(): void {
     const rowAvailableFrom: Array<bigint | undefined> = [];
-    assertDefined(this.trace).forEachEntry((entry) => {
+    assertDefined(this.trace()).forEachEntry((entry) => {
       const index = entry.getIndex();
-      const transition = this.transitionEntries?.at(entry.getIndex());
+      const transition = this.transitionEntries()?.at(entry.getIndex());
       if (!transition) {
         return;
       }
 
       const lifecycle = getLifecycleForTransition(
         transition,
-        assertDefined(this.fullRange),
-        assertDefined(this.timestampConverter),
+        assertDefined(this.fullRange()),
+        assertDefined(this.timestampConverter()),
       );
 
       if (lifecycle === undefined) {
