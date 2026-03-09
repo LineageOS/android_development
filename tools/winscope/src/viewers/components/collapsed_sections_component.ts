@@ -30,7 +30,7 @@ import {CollapsibleSections} from '@viewers/common/collapsible_sections';
   styleUrls: ['collapsed_sections_component.css'],
 })
 export class CollapsedSectionsComponent {
-  sections = input<CollapsibleSections>();
+  sections = input.required<CollapsibleSections>();
   sectionChange = output<CollapsibleSectionType>();
 
   onCollapsedSectionClick(sectionType: CollapsibleSectionType) {
