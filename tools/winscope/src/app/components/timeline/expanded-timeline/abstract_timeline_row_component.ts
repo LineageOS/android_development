@@ -51,8 +51,8 @@ export abstract class AbstractTimelineRowComponent<T> {
   readonly onTracePositionUpdate = output<TracePosition>();
   readonly onMouseXRatioUpdate = output<number | undefined>();
 
-  canvasRef = viewChild<ElementRef>('canvas');
-  wrapperRef = viewChild<ElementRef>('wrapper');
+  canvasRef = viewChild.required<ElementRef>('canvas');
+  wrapperRef = viewChild.required<ElementRef>('wrapper');
 
   readonly backgroundColor = computed(() => {
     if (this.isActive()) {
@@ -69,11 +69,11 @@ export abstract class AbstractTimelineRowComponent<T> {
   private observer = new ResizeObserver(() => this.initializeCanvas());
 
   getCanvas(): HTMLCanvasElement {
-    return this.canvasRef()?.nativeElement;
+    return this.canvasRef().nativeElement;
   }
 
   ngAfterViewInit() {
-    this.observer.observe(assertDefined(this.wrapperRef()).nativeElement);
+    this.observer.observe(this.wrapperRef().nativeElement);
     this.initializeCanvas();
   }
 
@@ -96,7 +96,7 @@ export abstract class AbstractTimelineRowComponent<T> {
     canvas.style.width = 'auto';
     canvas.style.height = 'auto';
 
-    const htmlElement = assertDefined(this.wrapperRef()).nativeElement;
+    const htmlElement = this.wrapperRef().nativeElement;
 
     const computedStyle = getComputedStyle(htmlElement);
     const width = htmlElement.offsetWidth;

@@ -232,7 +232,7 @@ describe('DefaultTimelineRowComponent', () => {
     await dom.detectChangesAndRenderingDone();
 
     const spy = spyOn(component.onMouseXRatioUpdate, 'emit');
-    const canvas = assertDefined(component.canvasRef()).nativeElement;
+    const canvas = component.canvasRef().nativeElement;
 
     const mouseMoveEvent = new MouseEvent('mousemove');
     Object.defineProperty(mouseMoveEvent, 'target', {value: canvas});

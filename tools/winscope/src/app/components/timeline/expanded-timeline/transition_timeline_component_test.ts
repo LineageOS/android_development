@@ -28,7 +28,6 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
@@ -441,7 +440,7 @@ describe('TransitionTimelineComponent', () => {
     await setDefaultTraceAndSelectionRange();
 
     const spy = spyOn(component.onMouseXRatioUpdate, 'emit');
-    const canvas = assertDefined(component.canvasRef()).nativeElement;
+    const canvas = component.canvasRef().nativeElement;
 
     const mouseMoveEvent = new MouseEvent('mousemove');
     Object.defineProperty(mouseMoveEvent, 'target', {value: canvas});
