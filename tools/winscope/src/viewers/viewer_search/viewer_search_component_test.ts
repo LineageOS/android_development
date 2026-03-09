@@ -484,8 +484,10 @@ describe('ViewerSearchComponent', () => {
   }
 
   async function changeTab(index: number) {
-    const matTabGroups = assertDefined(component.searchComponent?.matTabGroups);
-    matTabGroups.first.selectedIndex = index;
+    const matTabGroups = assertDefined(
+      component.searchComponent?.matTabGroups(),
+    );
+    matTabGroups[0].selectedIndex = index;
     await dom.detectChangesAndWaitStable();
   }
 
@@ -540,7 +542,7 @@ describe('ViewerSearchComponent', () => {
 
     await changeTabAndClickEdit(tabIndex);
     expect(
-      component.searchComponent?.matTabGroups?.first.selectedIndex,
+      component.searchComponent?.matTabGroups().at(0)?.selectedIndex,
     ).toEqual(tabIndex);
     expect(query).toEqual(testQuery);
 
@@ -548,7 +550,7 @@ describe('ViewerSearchComponent', () => {
     data.currentSearches.push(new CurrentSearch(2, testQuery));
     updateInputDataAndDetectChanges(data);
     await dom.detectChangesAndWaitStable();
-    expect(component.searchComponent?.matTabGroups?.first.selectedIndex).toBe(
+    expect(component.searchComponent?.matTabGroups().at(0)?.selectedIndex).toBe(
       0,
     );
     getTextInput(0).checkValue('');
@@ -560,7 +562,7 @@ describe('ViewerSearchComponent', () => {
     const input = getTextInput();
     expect(input.checkValue(''));
     await changeTabAndClickEdit(tabIndex);
-    expect(component.searchComponent?.matTabGroups?.first.selectedIndex).toBe(
+    expect(component.searchComponent?.matTabGroups().at(0)?.selectedIndex).toBe(
       0,
     );
     expect(input.checkValue(testQuery));

@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, ViewChild} from '@angular/core';
+import {Component, viewChild} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
@@ -38,7 +38,7 @@ import {UiData} from './ui_data';
   styleUrls: ['./viewer_transitions_component.css'],
 })
 export class ViewerTransitionsComponent extends ViewerComponent<UiData> {
-  @ViewChild(LogComponent) logComponent?: LogComponent;
+  logComponent = viewChild(LogComponent);
 
   propertiesTitle = 'SELECTED TRANSITION';
   CollapsibleSectionType = CollapsibleSectionType;

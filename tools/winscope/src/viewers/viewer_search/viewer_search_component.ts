@@ -23,11 +23,10 @@ import {
   ElementRef,
   HostListener,
   Inject,
-  QueryList,
   SimpleChanges,
   TemplateRef,
-  ViewChild,
-  ViewChildren,
+  viewChild,
+  viewChildren,
 } from '@angular/core';
 import {
   FormControl,
@@ -108,12 +107,10 @@ import {
   styleUrls: ['./viewer_search_component.css'],
 })
 export class ViewerSearchComponent extends ViewerComponent<UiData> {
-  @ViewChild('saveQueryField') saveQueryField: TemplateRef<unknown> | undefined;
-  @ViewChild('globalSearchTitle') globalSearchTitle: ElementRef | undefined;
-  @ViewChildren(MatTabGroup) matTabGroups: QueryList<MatTabGroup> | undefined;
-  @ViewChildren(ActiveSearchComponent) activeSearchComponents:
-    | QueryList<ActiveSearchComponent>
-    | undefined;
+  saveQueryField = viewChild<TemplateRef<unknown>>('saveQueryField');
+  globalSearchTitle = viewChild<ElementRef<HTMLElement>>('globalSearchTitle');
+  matTabGroups = viewChildren(MatTabGroup);
+  activeSearchComponents = viewChildren(ActiveSearchComponent);
 
   CollapsibleSectionType = CollapsibleSectionType;
   TraceType = TraceType;
@@ -199,8 +196,8 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
 
   ngAfterViewInit() {
     this.globalSearchTitleHeight =
-      this.globalSearchTitle?.nativeElement.clientHeight ?? 48;
-    this.saveOption.menu = this.saveQueryField;
+      this.globalSearchTitle()?.nativeElement.clientHeight ?? 48;
+    this.saveOption.menu = this.saveQueryField();
     this.changeDetectorRef.detectChanges();
   }
 
@@ -298,9 +295,12 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   }
 
   onSearchTabChanged() {
-    const finalComponent = assertDefined(this.activeSearchComponents).last;
-    if (assertDefined(this.matTabGroups).first.selectedIndex === 0) {
-      finalComponent.elementRef.nativeElement.scrollIntoView();
+    const activeSearchComponents = this.activeSearchComponents();
+    const finalComponent = activeSearchComponents.at(
+      activeSearchComponents.length - 1,
+    );
+    if (this.matTabGroups().at(0)?.selectedIndex === 0) {
+      finalComponent?.elementRef.nativeElement.scrollIntoView();
     }
   }
 
@@ -311,7 +311,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.globalSearchTitleHeight =
-      this.globalSearchTitle?.nativeElement.clientHeight ?? 48;
+      this.globalSearchTitle()?.nativeElement.clientHeight ?? 48;
     this.changeDetectorRef.detectChanges();
   }
 
@@ -436,7 +436,8 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   private tryPropagateEditFromOptions() {
     if (this.editFromOptions) {
       const currentSearches = assertDefined(this.inputData).currentSearches;
-      if (currentSearches.length !== this.activeSearchComponents?.length) {
+      const activeSearchComponents = this.activeSearchComponents();
+      if (currentSearches.length !== activeSearchComponents?.length) {
         return;
       }
       const lastSearch = currentSearches[currentSearches.length - 1];
@@ -449,9 +450,9 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
 
   private updateLastSectionTextAndShowTab(text: string) {
     assertDefined(
-      this.activeSearchComponents?.get(this.searchSections.length - 1),
+      this.activeSearchComponents().at(this.searchSections.length - 1),
     ).updateText(text);
-    assertDefined(this.matTabGroups).first.selectedIndex = 0;
+    assertDefined(this.matTabGroups())[0].selectedIndex = 0;
   }
 
   private tryHandleQueryCompleted() {
@@ -467,13 +468,14 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
       const section = this.searchSections[sectionIndex];
 
       if (!this.inputData?.lastTraceFailed) {
-        this.activeSearchComponents
-          ?.get(sectionIndex)
+        this.activeSearchComponents()
+          ?.at(sectionIndex)
           ?.updateText(currentSearch?.query ?? '');
         section.saveQueryNameControl.setValue(
           this.getQueryLabel(assertDefined(this.runningQueryUid)),
         );
-        assertDefined(this.matTabGroups).last.selectedIndex = sectionIndex;
+        const matTabGroups = this.matTabGroups();
+        matTabGroups[matTabGroups.length - 1].selectedIndex = sectionIndex;
       }
 
       const executionTimeMs =
