@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Directive, Input} from '@angular/core';
+import {Directive, input} from '@angular/core';
 import {
   MatFormField,
   MatFormFieldAppearance,
@@ -23,9 +23,9 @@ import {isElementOverflowing} from '@common/dom';
 
 @Directive()
 export abstract class AbstractFormFieldComponent {
-  @Input() label = 'Search';
-  @Input() appearance: MatFormFieldAppearance = 'fill';
-  @Input() formFieldClass = '';
+  label = input<string>('Search');
+  appearance = input<MatFormFieldAppearance>('fill');
+  formFieldClass = input<string>('');
 
   disableFormFieldTooltip(formField: MatFormField) {
     const el = formField._elementRef.nativeElement;

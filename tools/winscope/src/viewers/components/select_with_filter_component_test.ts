@@ -16,7 +16,6 @@
 
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {Component, ViewChild} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatOptionModule, MatPseudoCheckboxModule} from '@angular/material/core';
@@ -32,8 +31,8 @@ import {SelectWithFilterComponent} from './select_with_filter_component';
 
 describe('SelectWithFilterComponent', () => {
   const filterInputField = '.select-filter';
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: SelectWithFilterComponent;
+  let dom: DOMTestHelper<SelectWithFilterComponent>;
   let selectChangeSpy: jasmine.Spy;
 
   beforeEach(async () => {
@@ -52,17 +51,15 @@ describe('SelectWithFilterComponent', () => {
         MatTooltipModule,
         ScrollingModule,
         SelectWithFilterComponent,
-        TestHostComponent,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(SelectWithFilterComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('label', 'TEST FILTER');
+    dom.setComponentInput('options', ['0', '1', '2']);
     dom.detectChanges();
-    selectChangeSpy = spyOn(
-      assertDefined(component.selectWithFilterComponent).selectChange,
-      'emit',
-    );
+    selectChangeSpy = spyOn(component.selectChange, 'emit');
   });
 
   afterAll(() => {
@@ -187,9 +184,7 @@ describe('SelectWithFilterComponent', () => {
     await dom.whenRenderingDone();
 
     const button = dom.getMatSelectPanel().get('.user-option');
-    await button.checkTooltip(
-      assertDefined(component.selectWithFilterComponent).allButtonTooltip,
-    );
+    await button.checkTooltip(component.allButtonTooltip);
   });
 
   it('does not emit second change after shift + click for adjacent options', () => {
@@ -228,7 +223,8 @@ describe('SelectWithFilterComponent', () => {
   });
 
   it('sets in-between options to value of clicked option, regardless of current state', async () => {
-    component.allOptions.push('3');
+    dom.setComponentInput('options', ['0', '1', '2', '3']);
+    dom.detectChanges();
     await dom.openMatSelect();
     await dom.whenRenderingDone();
     const options = getOptions();
@@ -253,7 +249,8 @@ describe('SelectWithFilterComponent', () => {
   });
 
   it('only toggles non-hidden options between last and current clicks', async () => {
-    component.allOptions.push('10');
+    dom.setComponentInput('options', ['0', '1', '2', '10']);
+    dom.detectChanges();
     await dom.openMatSelect();
     dom.getMatSelectPanel().findAndDispatchInput(filterInputField, '1');
 
@@ -266,12 +263,12 @@ describe('SelectWithFilterComponent', () => {
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
   });
 
-  function getOptions(): Array<DOMTestHelper<TestHostComponent>> {
+  function getOptions(): Array<DOMTestHelper<SelectWithFilterComponent>> {
     return Array.from(dom.getMatSelectPanel().findAll('.option'));
   }
 
   function checkOptions(
-    options: Array<DOMTestHelper<TestHostComponent>>,
+    options: Array<DOMTestHelper<SelectWithFilterComponent>>,
     expectedIndexes: number[],
   ) {
     expect(options.length).toBe(3);
@@ -286,7 +283,7 @@ describe('SelectWithFilterComponent', () => {
     });
   }
 
-  function getPinnedOptions(): Array<DOMTestHelper<TestHostComponent>> {
+  function getPinnedOptions(): Array<DOMTestHelper<SelectWithFilterComponent>> {
     return dom
       .getMatSelectPanel()
       .findAll('.selected-options .selected-option');
@@ -335,22 +332,5 @@ describe('SelectWithFilterComponent', () => {
 
     toggle();
     checkSelectValue(['0', '1', '2']);
-  }
-
-  @Component({
-    imports: [SelectWithFilterComponent],
-    selector: 'host-component',
-    template: `
-      <select-with-filter
-        [label]="label"
-        [options]="allOptions"></select-with-filter>
-    `,
-  })
-  class TestHostComponent {
-    label = 'TEST FILTER';
-    allOptions = ['0', '1', '2'];
-
-    @ViewChild(SelectWithFilterComponent)
-    selectWithFilterComponent: SelectWithFilterComponent | undefined;
   }
 });

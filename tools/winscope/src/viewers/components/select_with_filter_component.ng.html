@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+@let textLabel = label();
 <mat-form-field
-  [style]="getOuterFormFieldStyle()"
+  [style]="outerFormFieldStyle()"
   [style.text-align]="'unset'"
-  [appearance]="appearance"
-  [class]="formFieldClass"
-  [matTooltip]="label"
+  [appearance]="appearance()"
+  [class]="formFieldClass()"
+  [matTooltip]="textLabel"
   matTooltipPosition="above"
   [matTooltipDisabled]="disableFormFieldTooltip(formField)"
   subscriptSizing="dynamic"
   [class.mat-body-2]="!select.value || select.value.length === 0"
   #formField
 >
-  <mat-label>{{ label }}</mat-label>
+  <mat-label>{{ textLabel }}</mat-label>
   <mat-select
     (opened)="onSelectOpened(select, filter)"
     (closed)="onSelectClosed()"
@@ -41,7 +42,7 @@ limitations under the License.
     <div class="select-filter-header">
       <mat-form-field
         class="select-filter mat-form-field-appearance-none"
-        [style]="getInnerFormFieldStyle()"
+        [style]="innerFormFieldStyle()"
         subscriptSizing="dynamic"
       >
         <mat-label>Filter options</mat-label>
@@ -91,8 +92,8 @@ limitations under the License.
       [maxBufferPx]="1000"
       [minBufferPx]="1000"
       [style.height]="'60vh'"
-      [style.max-height]="getScrollMaxHeight()"
-      [style.width]="getScrollWidth()"
+      [style.max-height]="scrollMaxHeight()"
+      [style.width]="scrollWidth()"
       [style.min-width]="'100%'"
       [style.max-width]="'50vw'"
     >
