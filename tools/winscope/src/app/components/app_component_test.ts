@@ -16,7 +16,7 @@
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
-import {Component, input, Input, output} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -108,12 +108,12 @@ class MockTraceViewComponent {
   providers: [{provide: TimelineComponent, useExisting: MockTimelineComponent}],
 })
 class MockTimelineComponent {
-  @Input() timelineData: unknown;
-  @Input() availableTraces: unknown;
-  @Input() allTraces: unknown;
-  @Input() store: unknown;
-  @Input() initialTabTraceType: unknown;
-  bookmarks: unknown[] = [];
+  timelineData = input<unknown>();
+  availableTraces = input<unknown>();
+  allTraces = input<unknown>();
+  store = input<unknown>();
+  initialTabTraceType = input<unknown>();
+  bookmarks = input<unknown[]>([]);
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }
