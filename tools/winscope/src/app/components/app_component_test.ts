@@ -419,7 +419,7 @@ describe('AppComponent', () => {
       'setLoadedFileData',
     ).and.callThrough();
 
-    component.uploadTracesComponent?.removeTrace.emit(reader);
+    component.uploadTracesComponent()?.removeTrace.emit(reader);
     dom.detectChanges();
 
     expect(removeReaderSpy).toHaveBeenCalledOnceWith(reader);
@@ -440,7 +440,7 @@ describe('AppComponent', () => {
       'setLoadedFileData',
     ).and.callThrough();
 
-    component.uploadTracesComponent?.removeTrace.emit(reader);
+    component.uploadTracesComponent()?.removeTrace.emit(reader);
     dom.detectChanges();
 
     expect(removeReaderSpy).toHaveBeenCalledOnceWith(reader);
@@ -457,7 +457,7 @@ describe('AppComponent', () => {
       'setLoadedFileData',
     ).and.callThrough();
 
-    component.uploadTracesComponent?.removeAllTraces.emit();
+    component.uploadTracesComponent()?.removeAllTraces.emit();
     dom.detectChanges();
     expect(spyLoadedFileData).toHaveBeenCalledTimes(1);
     expect(component.loadedFileData).not.toBe(loadedFileData);
@@ -522,7 +522,7 @@ describe('AppComponent', () => {
     );
     dom.findAndClick('upload-traces .download-btn');
     expect(downloadButtonClickSpy).toHaveBeenCalledOnceWith(
-      component.uploadTracesComponent,
+      component.uploadTracesComponent(),
     );
   });
 
@@ -977,7 +977,7 @@ describe('AppComponent', () => {
       expect(bookmarksChangedEvent.bookmarks.length).toEqual(2);
       expect(bookmarksChangedEvent.bookmarks[0].getValueNs()).toEqual(10n);
       expect(bookmarksChangedEvent.bookmarks[1].getValueNs()).toEqual(20n);
-      expect(component.timelineComponent?.bookmarks.length).toEqual(2);
+      expect(component.timelineComponent()?.bookmarks.length).toEqual(2);
     });
 
     it('processes timestamp', async () => {

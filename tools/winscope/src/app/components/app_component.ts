@@ -23,7 +23,7 @@ import {
   Inject,
   Injector,
   NgZone,
-  ViewChild,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import {createCustomElement} from '@angular/elements';
@@ -203,12 +203,10 @@ export class AppComponent implements WinscopeEventListener {
 
   private sendRefreshDumpsRequest = false;
 
-  @ViewChild(UploadTracesComponent)
-  uploadTracesComponent?: UploadTracesComponent;
-  @ViewChild(CollectTracesComponent)
-  collectTracesComponent?: CollectTracesComponent;
-  @ViewChild(TraceViewComponent) traceViewComponent?: TraceViewComponent;
-  @ViewChild(TimelineComponent) timelineComponent?: TimelineComponent;
+  uploadTracesComponent = viewChild(UploadTracesComponent);
+  collectTracesComponent = viewChild(CollectTracesComponent);
+  traceViewComponent = viewChild(TraceViewComponent);
+  timelineComponent = viewChild(TimelineComponent);
 
   constructor(
     @Inject(Injector) injector: Injector,
@@ -562,7 +560,7 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   hasBookmarksToShare(): boolean {
-    return (this.timelineComponent?.bookmarks?.length ?? 0) > 0;
+    return (this.timelineComponent()?.bookmarks?.length ?? 0) > 0;
   }
 
   hasTimestampToShare(): boolean {
@@ -628,7 +626,7 @@ export class AppComponent implements WinscopeEventListener {
 
     if (this.shareOptions.bookmarks) {
       const bookmarks =
-        this.timelineComponent?.bookmarks.map((bookmark) =>
+        this.timelineComponent()?.bookmarks.map((bookmark) =>
           bookmark.getValueNs().toString(),
         ) ?? [];
       if (bookmarks.length > 0) {
@@ -806,10 +804,10 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   private setComponentsToMediator() {
-    this.mediator.setUploadTracesComponent(this.uploadTracesComponent);
-    this.mediator.setCollectTracesComponent(this.collectTracesComponent);
-    this.mediator.setTraceViewComponent(this.traceViewComponent);
-    this.mediator.setTimelineComponent(this.timelineComponent);
+    this.mediator.setUploadTracesComponent(this.uploadTracesComponent());
+    this.mediator.setCollectTracesComponent(this.collectTracesComponent());
+    this.mediator.setTraceViewComponent(this.traceViewComponent());
+    this.mediator.setTimelineComponent(this.timelineComponent());
   }
 
   private async onBugreportFileSelectionRequest(
@@ -824,14 +822,15 @@ export class AppComponent implements WinscopeEventListener {
       return;
     }
 
-    if (request.bookmarks && this.timelineComponent) {
+    const timelineComponent = this.timelineComponent();
+    if (request.bookmarks && timelineComponent) {
       const converter = this.timelineData.getTimestampConverter();
       if (converter) {
-        this.timelineComponent.bookmarks = request.bookmarks.map((b) =>
+        timelineComponent.bookmarks = request.bookmarks.map((b) =>
           converter.makeTimestampFromNs(BigInt(b)),
         );
         await this.mediator.onWinscopeEvent(
-          new BookmarksChanged(this.timelineComponent.bookmarks),
+          new BookmarksChanged(timelineComponent.bookmarks),
         );
       }
     }
