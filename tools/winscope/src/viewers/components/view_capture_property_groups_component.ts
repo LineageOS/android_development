@@ -26,5 +26,5 @@ import {VcCuratedProperties} from '@viewers/common/curated_properties';
   styleUrls: ['view_capture_property_groups_component.css'],
 })
 export class ViewCapturePropertyGroupsComponent {
-  properties = input<VcCuratedProperties>();
+  properties = input.required<VcCuratedProperties>();
 }

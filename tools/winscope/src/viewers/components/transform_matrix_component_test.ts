@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
+import { TestBed} from '@angular/core/testing';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TransformMatrixComponent} from './transform_matrix_component';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
@@ -25,7 +25,6 @@ describe('TransformMatrixComponent', () => {
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
-      providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [TransformMatrixComponent],
     }).compileComponents();
   });
