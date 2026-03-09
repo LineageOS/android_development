@@ -1,4 +1,3 @@
-import {TamperedProtoField, TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 /*
  * Copyright (C) 2024 The Android Open Source Project
  *
@@ -15,6 +14,7 @@ import {TamperedProtoField, TamperedMessageType} from '@trace/proto_utils/tamper
  * limitations under the License.
  */
 
+import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {Timestamp} from '@common/time/time';
 import {
   BUFFER_FORMATTER,

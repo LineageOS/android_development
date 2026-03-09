@@ -55,7 +55,6 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
   private addIsLargeScreenProperty(display: PropertyTreeNode) {
     const dpiX = Number(display.getChildByName('dpiX')?.getValue() ?? 0);
 
-    let isLargeScreen: boolean;
     const size = display.getChildByName('size');
     const width = assertDefined(size?.getChildByName('w')?.getValue<number>() ?? 0);
     const height = assertDefined(
@@ -65,7 +64,7 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
       Math.min(width, height),
       dpiX,
     );
-    isLargeScreen = smallestWidth >= AddDisplayProperties.TABLET_MIN_DPS;
+    const isLargeScreen = smallestWidth >= AddDisplayProperties.TABLET_MIN_DPS;
 
     display.addOrReplaceChild(
       DEFAULT_PROPERTY_TREE_NODE_FACTORY.makeCalculatedProperty(
