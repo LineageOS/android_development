@@ -17,9 +17,11 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   effect,
+  Inject,
   input,
   model,
   output,
@@ -65,8 +67,8 @@ import {MatButtonModule} from '@angular/material/button';
   styleUrls: ['select_with_filter_component.css'],
 })
 export class SelectWithFilterComponent extends AbstractSelectComponent {
-  override label = input<string>('Search');
   options = input<string[]>([]);
+  override label = input<string>('Search');
   outerFilterWidth = input<string>('100px');
   innerFilterWidth = input<string>('100');
   flex = input<string>('none');
@@ -132,7 +134,10 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
   private static readonly SCROLLBAR_WIDTH = 8;
   private static readonly CHAR_WIDTH = 8.5;
 
-  constructor() {
+  constructor(
+    @Inject(ChangeDetectorRef)
+    private readonly changeDetectorRef: ChangeDetectorRef,
+  ) {
     super();
 
     effect(() => {
@@ -152,6 +157,7 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
 
   onSelectClosed() {
     this.filterString.set('');
+    this.changeDetectorRef.detectChanges();
   }
 
   onOptClick(e: MouseEvent, i: number, select: MatSelect, option: MatOption) {

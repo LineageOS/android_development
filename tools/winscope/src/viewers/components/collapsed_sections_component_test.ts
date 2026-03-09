@@ -64,10 +64,9 @@ describe('CollapsedSectionsComponent', () => {
     sections[0].checkText('HIERARCHY');
     expect(sections[0].find('.mat-icon')).toBeDefined();
 
-    component.sections().onCollapseStateChange(
-      CollapsibleSectionType.RECTS,
-      true,
-    );
+    component
+      .sections()
+      .onCollapseStateChange(CollapsibleSectionType.RECTS, true);
     dom.detectChanges();
     sections = dom.findAll('.collapsed-section');
     expect(sections.length).toBe(2);

@@ -94,14 +94,15 @@ import {CdkMenuModule} from '@angular/cdk/menu';
   styleUrls: ['./log_component.css'],
 })
 export class LogComponent {
+  headers = input.required<LogHeader[]>();
+  entries = input.required<LogEntry[]>();
+  traceType = input.required<TraceType>();
+
   title = input<string>();
   selectedIndex = input<number>();
   scrollToIndex = input<number>();
   currentIndex = input<number>();
-  headers = input<LogHeader[]>([]);
-  entries = input<LogEntry[]>([]);
   showTimeControls = input<boolean>(true);
-  traceType = input<TraceType>();
   showTraceEntryTimes = input<boolean>(true);
   padEntries = input<boolean>(true);
   isFetchingData = input<boolean>(false);
@@ -120,7 +121,7 @@ export class LogComponent {
 
   collapseButtonClicked = output();
 
-  scrollComponent = viewChild(CdkVirtualScrollViewport);
+  scrollComponent = viewChild.required(CdkVirtualScrollViewport);
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
@@ -133,7 +134,7 @@ export class LogComponent {
   ) {
     effect(() => {
       if (this.checkScrollViewportCount() > 0) {
-        this.scrollComponent()?.checkViewportSize();
+        this.scrollComponent().checkViewportSize();
       }
     });
 
@@ -147,7 +148,7 @@ export class LogComponent {
       ) {
         // scroll previous index to top, so when previous index is partially
         // rendered the target index is still fully rendered
-        this.scrollComponent()?.scrollToIndex(Math.max(0, scrollToIndex - 1));
+        this.scrollComponent().scrollToIndex(Math.max(0, scrollToIndex - 1));
 
         this.textSelection.clear();
         this.textSelection.toggle(entries[scrollToIndex]);
@@ -207,7 +208,7 @@ export class LogComponent {
   @HostListener('window:resize', ['$event'])
   onResize(_: Event) {
     this.updateTableMarginEnd();
-    this.scrollComponent()?.checkViewportSize();
+    this.scrollComponent().checkViewportSize();
   }
 
   onFilterChange(event: MatSelectChange, header: LogHeader) {
@@ -234,7 +235,7 @@ export class LogComponent {
   onGoToFirstEntryClick() {
     const firstEntry = this.entries().at(0);
     if (firstEntry) {
-      this.scrollComponent()?.scrollToIndex(0);
+      this.scrollComponent().scrollToIndex(0);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(firstEntry.traceEntry),
@@ -246,9 +247,8 @@ export class LogComponent {
 
   onGoToCurrentEntryClick() {
     const currentIndex = this.currentIndex();
-    const scrollComponent = this.scrollComponent();
-    if (currentIndex !== undefined && scrollComponent) {
-      scrollComponent.scrollToIndex(currentIndex);
+    if (currentIndex !== undefined) {
+      this.scrollComponent().scrollToIndex(currentIndex);
       this.textSelection.clear();
       this.textSelection.toggle(this.entries()[currentIndex]);
     }
@@ -259,7 +259,7 @@ export class LogComponent {
     const lastIndex = entries.length - 1;
     const lastEntry = entries.at(lastIndex);
     if (lastEntry) {
-      this.scrollComponent()?.scrollToIndex(lastIndex);
+      this.scrollComponent().scrollToIndex(lastIndex);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(lastEntry.traceEntry),
@@ -329,7 +329,7 @@ export class LogComponent {
     if (!tableHeader) {
       return;
     }
-    const el = this.scrollComponent()?.elementRef.nativeElement;
+    const el = this.scrollComponent().elementRef.nativeElement;
     if (el && el.scrollHeight > el.offsetHeight) {
       tableHeader.style.marginInlineEnd =
         el.offsetWidth - el.scrollWidth + 'px';

@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, input, output} from '@angular/core';
+import {Component, computed, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -25,7 +25,6 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {FilterFlag} from '@common/filter_flag';
 import {TextFilter} from '@viewers/common/text_filter';
 import {AbstractFormFieldComponent} from './abstract_form_field_component';
-import {assertDefined} from '@common/assert';
 
 @Component({
   selector: 'search-box',
@@ -45,15 +44,19 @@ import {assertDefined} from '@common/assert';
 export class SearchBoxComponent extends AbstractFormFieldComponent {
   FilterFlag = FilterFlag;
 
-  textFilter = input<TextFilter | undefined>(new TextFilter());
+  textFilter = input<TextFilter | undefined>();
   filterName = input<string>('filter');
+
+  currentTextFilter = computed<TextFilter>(() => {
+    return this.textFilter() ?? new TextFilter();
+  });
 
   readonly filterChange = output<TextFilter>();
 
   formFieldClasses() {
     return (
       'search-box small-icon-container ' +
-      ((this.textFilter()?.filterString.length ?? 0) > 0
+      ((this.currentTextFilter().filterString.length ?? 0) > 0
         ? 'highlighted '
         : '') +
       this.formFieldClass()
@@ -61,12 +64,12 @@ export class SearchBoxComponent extends AbstractFormFieldComponent {
   }
 
   hasFlag(flag: FilterFlag): boolean {
-    return this.textFilter()?.flags.includes(flag) ?? false;
+    return this.currentTextFilter().flags.includes(flag);
   }
 
   onFilterFlagClick(event: MouseEvent, flag: FilterFlag) {
     event.stopPropagation();
-    const filter = assertDefined(this.textFilter());
+    const filter = this.currentTextFilter();
     if (this.hasFlag(flag)) {
       filter.flags = filter.flags.filter((f) => f !== flag);
     } else {
@@ -76,6 +79,6 @@ export class SearchBoxComponent extends AbstractFormFieldComponent {
   }
 
   onFilterChange() {
-    this.filterChange.emit(assertDefined(this.textFilter()));
+    this.filterChange.emit(this.currentTextFilter());
   }
 }

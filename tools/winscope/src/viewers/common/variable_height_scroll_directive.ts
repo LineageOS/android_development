@@ -33,7 +33,7 @@ export class VariableHeightScrollDirective {
   readonly scrollStrategy = new VariableHeightScrollStrategy();
 
   traceType = input<TraceType>();
-  scrollItems = input<object[]>([]);
+  scrollItems = input.required<object[]>();
 
   constructor() {
     effect(() => {

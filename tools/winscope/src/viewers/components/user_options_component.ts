@@ -34,7 +34,7 @@ type LogCallback = (key: string, state: boolean, name: string) => void;
 export class UserOptionsComponent {
   objectKeys = Object.keys;
 
-  userOptions = input<UserOptions>({});
+  userOptions = input.required<UserOptions>();
   eventType = input('');
   traceType = input<TraceType>();
   logCallback = input<LogCallback>(() => {});

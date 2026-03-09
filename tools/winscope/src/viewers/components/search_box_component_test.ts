@@ -64,10 +64,10 @@ describe('SearchBoxComponent', () => {
 
   it('handles change in filter', () => {
     const spy = spyOn(component.filterChange, 'emit');
-    expect(component.textFilter()?.filterString).toBe('');
+    expect(component.currentTextFilter()?.filterString).toBe('');
     expect(dom.find('.highlighted')).toBeUndefined();
     dom.findAndDispatchInput('.search-box', 'Test');
-    expect(component.textFilter()?.filterString).toBe('Test');
+    expect(component.currentTextFilter()?.filterString).toBe('Test');
     expect(spy).toHaveBeenCalledWith(new TextFilter('Test'));
     expect(dom.find('.highlighted')).toBeDefined();
   });
