@@ -44,8 +44,8 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
   styleUrls: ['transition_timeline_component.css'],
 })
 export class TransitionTimelineComponent extends AbstractTimelineRowComponent<HierarchyTreeNode> {
-  transitionEntries = input<Array<HierarchyTreeNode | undefined>>();
-  fullRange = input<TimeRange>();
+  transitionEntries = input.required<Array<HierarchyTreeNode | undefined>>();
+  fullRange = input.required<TimeRange>();
 
   hoveringEntry?: TraceEntry<HierarchyTreeNode>;
   rowsToUse = new Map<number, number>();
@@ -53,11 +53,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
   shouldNotRenderEntries: number[] = [];
 
   ngOnInit() {
-    assertDefined(this.trace);
-    assertTrue(this.trace()?.type === TraceType.TRANSITION);
-    assertDefined(this.selectionRange);
-    assertDefined(this.transitionEntries);
-    assertDefined(this.fullRange);
+    assertTrue(this.trace().type === TraceType.TRANSITION);
     this.computeRowsToUse();
   }
 
@@ -79,13 +75,13 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   override drawTimeline() {
     let selectedRect: Rect | undefined;
-    assertDefined(this.trace()).forEachEntry((entry) => {
+    this.trace().forEachEntry((entry) => {
       const index = entry.getIndex();
       const rects = this.getRectsFromIndex(entry.getIndex());
       if (!rects) {
         return;
       }
-      const transition = assertDefined(this.transitionEntries()?.at(index));
+      const transition = assertDefined(this.transitionEntries().at(index));
       this.drawRects(rects, transition);
       if (index === this.selectedEntry()?.getIndex()) {
         selectedRect = rects.totalDuration;
@@ -102,14 +98,14 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
     if (this.shouldNotRenderEntries.includes(entryIndex)) {
       return undefined;
     }
-    const transition = this.transitionEntries()?.at(entryIndex);
+    const transition = this.transitionEntries().at(entryIndex);
     if (!transition) {
       return undefined;
     }
     const lifecycle = getLifecycleForTransition(
       transition,
-      assertDefined(this.selectionRange()),
-      assertDefined(this.timestampConverter()),
+      this.selectionRange(),
+      this.timestampConverter(),
     );
     if (!lifecycle) {
       return undefined;
@@ -136,9 +132,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
   protected override getEntryAt(
     mousePoint: Point,
   ): TraceEntry<HierarchyTreeNode> | undefined {
-    const transitionEntries = assertDefined(this.trace()).mapEntry(
-      (entry) => entry,
-    );
+    const transitionEntries = this.trace().mapEntry((entry) => entry);
 
     for (const entry of transitionEntries) {
       const rects = this.getRectsFromIndex(entry.getIndex());
@@ -169,7 +163,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
   }
 
   private getXPosOf(entry: Timestamp): number {
-    const selectionRange = assertDefined(this.selectionRange());
+    const selectionRange = this.selectionRange();
     const start = selectionRange.startNs;
     const end = selectionRange.endNs;
 
@@ -181,7 +175,7 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   private getSegmentRect(segment: TimeRange, rowToUse: number): Rect {
     const xPosStart = this.getXPosOf(segment.from);
-    const selectionRange = assertDefined(this.selectionRange());
+    const selectionRange = this.selectionRange();
     const selectionStart = selectionRange.startNs;
     const selectionEnd = selectionRange.endNs;
 
@@ -246,17 +240,17 @@ export class TransitionTimelineComponent extends AbstractTimelineRowComponent<Hi
 
   private computeRowsToUse(): void {
     const rowAvailableFrom: Array<bigint | undefined> = [];
-    assertDefined(this.trace()).forEachEntry((entry) => {
+    this.trace().forEachEntry((entry) => {
       const index = entry.getIndex();
-      const transition = this.transitionEntries()?.at(entry.getIndex());
+      const transition = this.transitionEntries().at(entry.getIndex());
       if (!transition) {
         return;
       }
 
       const lifecycle = getLifecycleForTransition(
         transition,
-        assertDefined(this.fullRange()),
-        assertDefined(this.timestampConverter()),
+        this.fullRange(),
+        this.timestampConverter(),
       );
 
       if (lifecycle === undefined) {

@@ -25,7 +25,6 @@ import {
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TimelineData} from '@app/timeline_data';
-import {assertDefined} from '@common/assert';
 import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
@@ -50,7 +49,7 @@ import {TransitionTimelineComponent} from './transition_timeline_component';
   styleUrls: ['expanded_timeline_component.css'],
 })
 export class ExpandedTimelineComponent {
-  timelineData = input<TimelineData>();
+  timelineData = input.required<TimelineData>();
   readonly onTracePositionUpdate = output<TracePosition>();
   readonly onScrollEvent = output<WheelEvent>();
   readonly onTraceClicked = output<Trace<unknown>>();
@@ -68,7 +67,7 @@ export class ExpandedTimelineComponent {
   }
 
   getTracesSortedByDisplayOrder(): Array<Trace<unknown>> {
-    const traces = assertDefined(this.timelineData())
+    const traces = this.timelineData()
       .getTraces()
       .mapTrace((trace) => trace);
     return traces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
@@ -79,7 +78,7 @@ export class ExpandedTimelineComponent {
   }
 
   isActiveTrace(trace: Trace<unknown>) {
-    return trace === this.timelineData()?.getActiveTrace();
+    return trace === this.timelineData().getActiveTrace();
   }
 
   private resizeCanvases() {

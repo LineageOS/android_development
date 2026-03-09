@@ -15,7 +15,6 @@
  */
 
 import {Component} from '@angular/core';
-import {assertDefined} from '@common/assert';
 import {Point} from '@common/geometry/point';
 import {Rect} from '@common/geometry/rect';
 import {Timestamp} from '@common/time/time';
@@ -33,11 +32,6 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 })
 export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<unknown> {
   hoveringEntry?: Timestamp;
-
-  ngOnInit() {
-    assertDefined(this.trace);
-    assertDefined(this.selectionRange);
-  }
 
   getEntryWidth() {
     return this.canvasDrawer.getScaledCanvasHeight();
@@ -62,8 +56,8 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
   }
 
   override drawTimeline() {
-    const selectionRange = assertDefined(this.selectionRange());
-    assertDefined(this.trace())
+    const selectionRange = this.selectionRange();
+    this.trace()
       .sliceTime(selectionRange.from, selectionRange.to.add(1n))
       .forEachTimestamp((entry) => {
         this.drawEntry(entry);
@@ -75,9 +69,8 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
     mousePoint: Point,
   ): TraceEntry<unknown> | undefined {
     const timestampOfClick = this.getTimestampOf(mousePoint.x);
-    const candidateEntry = assertDefined(
-      this.trace(),
-    ).findLastLowerOrEqualEntry(timestampOfClick);
+    const candidateEntry =
+      this.trace().findLastLowerOrEqualEntry(timestampOfClick);
 
     if (candidateEntry !== undefined) {
       const timestamp = candidateEntry.getTimestamp();
@@ -126,7 +119,7 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
   }
 
   private getXPosOf(entry: Timestamp): number {
-    const selectionRange = assertDefined(this.selectionRange());
+    const selectionRange = this.selectionRange();
     const start = selectionRange.startNs;
     const end = selectionRange.endNs;
 
@@ -137,14 +130,14 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
   }
 
   private getTimestampOf(x: number): Timestamp {
-    const selectionRange = assertDefined(this.selectionRange());
+    const selectionRange = this.selectionRange();
     const start = selectionRange.startNs;
     const end = selectionRange.endNs;
     const ts =
       (BigInt(Math.floor(x)) * BigInt(end - start)) /
         BigInt(this.getAvailableWidth()) +
       start;
-    return assertDefined(this.timestampConverter()).makeTimestampFromNs(ts);
+    return this.timestampConverter().makeTimestampFromNs(ts);
   }
 
   private drawEntry(entry: Timestamp) {

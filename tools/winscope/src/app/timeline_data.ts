@@ -115,7 +115,10 @@ export class TimelineData {
     return this.transitionEntries;
   }
 
-  getTimestampConverter(): ComponentTimestampConverter | undefined {
+  getTimestampConverter(): ComponentTimestampConverter {
+    if (this.timestampConverter === undefined) {
+      throw new Error('TimestampData is not initialized');
+    }
     return this.timestampConverter;
   }
 

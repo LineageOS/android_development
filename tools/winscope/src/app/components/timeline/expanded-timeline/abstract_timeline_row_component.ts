@@ -38,12 +38,13 @@ import {CanvasDrawer} from './canvas_drawer';
  */
 @Directive()
 export abstract class AbstractTimelineRowComponent<T> {
-  selectedEntry = model<TraceEntry<T>>();
-  trace = input<Trace<T>>();
+  timestampConverter = input.required<ComponentTimestampConverter>();
+  selectionRange = input.required<TimeRange>();
+  trace = input.required<Trace<T>>();
   color = input<string>('#AF5CF7');
   isActive = input<boolean>(false);
-  selectionRange = input<TimeRange>();
-  timestampConverter = input<ComponentTimestampConverter>();
+
+  selectedEntry = model<TraceEntry<T>>();
 
   readonly onScrollEvent = output<WheelEvent>();
   readonly onTraceClicked = output<Trace<unknown>>();
@@ -57,7 +58,7 @@ export abstract class AbstractTimelineRowComponent<T> {
     if (this.isActive()) {
       return 'var(--selected-element-color)';
     }
-    if (this.trace()?.type === TraceType.SEARCH) {
+    if (this.trace().type === TraceType.SEARCH) {
       return 'var(--search-background-color)';
     }
     return undefined;
@@ -146,15 +147,14 @@ export abstract class AbstractTimelineRowComponent<T> {
 
     const entry = this.getEntryAt(mousePoint);
     const selectedEntry = this.selectedEntry();
-    const trace = this.trace();
     // TODO: This can probably get made better by getting the transition and checking
     // both the end and start timestamps match
     if (entry && entry !== selectedEntry) {
       this.redraw();
       this.selectedEntry.set(entry);
       this.onTracePositionUpdate.emit(TracePosition.fromTraceEntry(entry));
-    } else if (!entry && trace) {
-      this.onTraceClicked.emit(trace);
+    } else if (!entry) {
+      this.onTraceClicked.emit(this.trace());
     }
   }
 
@@ -179,7 +179,7 @@ export abstract class AbstractTimelineRowComponent<T> {
     if ((event.target as HTMLElement).id === 'canvas') {
       return;
     }
-    this.onTraceClicked.emit(assertDefined(this.trace()));
+    this.onTraceClicked.emit(this.trace());
   }
 
   trackMousePos(event: MouseEvent) {

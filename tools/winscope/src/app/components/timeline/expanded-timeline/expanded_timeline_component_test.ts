@@ -129,12 +129,12 @@ describe('ExpandedTimelineComponent', () => {
   it('passes initial selectedEntry of correct type into each timeline', () => {
     dom.detectChanges();
 
-    const singleTimelines = assertDefined(component.singleTimelines());
+    const singleTimelines = component.singleTimelines();
     expect(singleTimelines.length).toBe(4);
 
     // initially only first entry of SF is set
     singleTimelines.forEach((timeline) => {
-      if (assertDefined(timeline.trace()).type === TraceType.SURFACE_FLINGER) {
+      if (timeline.trace().type === TraceType.SURFACE_FLINGER) {
         const entry = assertDefined(timeline.selectedEntry());
         expect(entry.getFullTrace().type).toEqual(TraceType.SURFACE_FLINGER);
       } else {
@@ -148,17 +148,15 @@ describe('ExpandedTimelineComponent', () => {
 
   it('passes selectedEntry of correct type into each timeline on position change', () => {
     // 3 out of the 5 traces have timestamps before or at 11n
-    assertDefined(component.timelineData()).setPosition(
-      TracePosition.fromTimestamp(time11),
-    );
+    component.timelineData().setPosition(TracePosition.fromTimestamp(time11));
     dom.detectChanges();
 
-    const singleTimelines = assertDefined(component.singleTimelines());
+    const singleTimelines = component.singleTimelines();
     expect(singleTimelines.length).toBe(4);
 
     singleTimelines.forEach((timeline) => {
       // protolog and transactions traces have no timestamps before current position
-      const trace = assertDefined(timeline.trace());
+      const trace = timeline.trace();
       if (
         trace.type === TraceType.PROTO_LOG ||
         trace.type === TraceType.TRANSACTIONS
@@ -173,14 +171,15 @@ describe('ExpandedTimelineComponent', () => {
     const transitionTimeline = component.transitionTimelines()[0];
     const selectedEntry = assertDefined(transitionTimeline.selectedEntry());
     expect(selectedEntry.getFullTrace().type).toEqual(
-      assertDefined(transitionTimeline.trace()).type,
+      transitionTimeline.trace().type,
     );
   });
 
   it('getAllLoadedTraces causes timelines to render in correct order', () => {
     // traces in timelineData are in order of being set in Traces API
     expect(
-      assertDefined(component.timelineData())
+      component
+        .timelineData()
         .getTraces()
         .mapTrace((trace) => trace.type),
     ).toEqual([

@@ -16,7 +16,7 @@
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ChangeDetectionStrategy} from '@angular/core';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -44,7 +44,6 @@ import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {PENDING_TO_PLAY_COLOR} from 'app/components/timeline/common/transition_timeline_helpers';
 
 describe('TransitionTimelineComponent', () => {
-  let fixture: ComponentFixture<TransitionTimelineComponent>;
   let component: TransitionTimelineComponent;
   let dom: DOMTestHelper<TransitionTimelineComponent>;
 
@@ -85,11 +84,11 @@ describe('TransitionTimelineComponent', () => {
         set: {changeDetection: ChangeDetectionStrategy.Default},
       })
       .compileComponents();
-    fixture = TestBed.createComponent(TransitionTimelineComponent);
+    const fixture = TestBed.createComponent(TransitionTimelineComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    fixture.componentRef.setInput('timestampConverter', converter);
-    fixture.componentRef.setInput('fullRange', range0to160);
+    dom.setComponentInput('timestampConverter', converter);
+    dom.setComponentInput('fullRange', range0to160);
   });
 
   it('can be created', () => {
@@ -421,12 +420,9 @@ describe('TransitionTimelineComponent', () => {
       .setTimestamps([time10, time20])
       .build();
 
-    fixture.componentRef.setInput('trace', trace);
-    fixture.componentRef.setInput('transitionEntries', [
-      transition0,
-      undefined,
-    ]);
-    fixture.componentRef.setInput('selectionRange', range10to110);
+    dom.setComponentInput('trace', trace);
+    dom.setComponentInput('transitionEntries', [transition0, undefined]);
+    dom.setComponentInput('selectionRange', range10to110);
 
     const drawRectSpy = spyOn(component.canvasDrawer, 'drawRect');
 
@@ -469,11 +465,11 @@ describe('TransitionTimelineComponent', () => {
       .setTimestamps([time35])
       .build();
 
-    fixture.componentRef.setInput('trace', trace);
-    fixture.componentRef.setInput('transitionEntries', transitions);
-    fixture.componentRef.setInput('selectionRange', range10to110);
+    dom.setComponentInput('trace', trace);
+    dom.setComponentInput('transitionEntries', transitions);
+    dom.setComponentInput('selectionRange', range10to110);
     if (setSelectedEntry) {
-      fixture.componentRef.setInput('selectedEntry', trace.getEntry(0));
+      dom.setComponentInput('selectedEntry', trace.getEntry(0));
     }
     await dom.detectChangesAndRenderingDone();
   }
@@ -511,9 +507,9 @@ describe('TransitionTimelineComponent', () => {
       .setEntries(transitions)
       .setTimestamps(timestamps)
       .build();
-    fixture.componentRef.setInput('trace', trace);
-    fixture.componentRef.setInput('transitionEntries', transitions);
-    fixture.componentRef.setInput('selectionRange', range);
+    dom.setComponentInput('trace', trace);
+    dom.setComponentInput('transitionEntries', transitions);
+    dom.setComponentInput('selectionRange', range);
     await dom.detectChangesAndRenderingDone();
   }
 
