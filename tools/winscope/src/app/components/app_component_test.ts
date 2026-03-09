@@ -16,7 +16,12 @@
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {
+  Component,
+  input,
+  Input,
+  output,
+} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -127,7 +132,7 @@ class MockTimelineComponent {
   ],
 })
 class MockCollectTracesComponent {
-  @Input() storage: unknown;
+  storage = input<unknown>();
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }
@@ -142,12 +147,12 @@ class MockCollectTracesComponent {
   ],
 })
 class MockUploadTracesComponent {
-  @Input() traceData: unknown;
-  @Input() storage: unknown;
-  @Input() loadedFileReaders: unknown;
-  @Output() downloadTracesClick = new EventEmitter<void>();
-  @Output() removeTrace = new EventEmitter<unknown>();
-  @Output() removeAllTraces = new EventEmitter<void>();
+  traceData = input<unknown>();
+  storage = input<unknown>();
+  loadedFileReaders = input<unknown>();
+  downloadTracesClick = output<void>();
+  removeTrace = output<unknown>();
+  removeAllTraces = output<void>();
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }
@@ -158,11 +163,8 @@ class MockUploadTracesComponent {
   standalone: true,
 })
 class MockMatDrawer {
-  @Input() mode: 'push' | 'overlay' = 'overlay';
-  @Input() baseHeight = 0;
-  getBaseHeight() {
-    return this.baseHeight;
-  }
+  mode = input<'push' | 'overlay'>('overlay');
+  baseHeight = input(0);
 }
 
 @Component({

@@ -15,7 +15,7 @@
  */
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
-import { TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {MatCardModule} from '@angular/material/card';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
@@ -147,17 +147,17 @@ describe('UploadTracesComponent', () => {
     const progressBar = assertDefined(
       dom.findByDirective(LoadProgressComponent),
     );
-    expect(progressBar.progressPercentage).toBe(10);
+    expect(progressBar.progressPercentage()).toBe(10);
 
     component.onProgressUpdate(undefined, 20);
     dom.detectChanges();
-    expect(progressBar.progressPercentage).toBe(10);
+    expect(progressBar.progressPercentage()).toBe(10);
 
     const now = Date.now();
     spyOn(Date, 'now').and.returnValue(now + 500);
     component.onProgressUpdate(undefined, 20);
     dom.detectChanges();
-    expect(progressBar.progressPercentage).toBe(20);
+    expect(progressBar.progressPercentage()).toBe(20);
   });
 
   it('can display uploaded traces', async () => {
