@@ -154,7 +154,7 @@ export class CollectTracesComponent
     ConnectionState.DUMPING_STATE,
   ];
 
-  storage = input<Store>();
+  storage = input.required<Store>();
   readonly filesCollected = output<AdbFiles>();
 
   constructor(
@@ -167,7 +167,7 @@ export class CollectTracesComponent
   }
 
   async ngOnInit() {
-    const adbConnectionType = this.storage()?.get(
+    const adbConnectionType = this.storage().get(
       this.storeKeyAdbConnectionType,
     );
     if (adbConnectionType !== undefined) {
@@ -212,7 +212,7 @@ export class CollectTracesComponent
     }
     this.selectedDevice = device;
     this.onDevicesChange(assertDefined(this.controller).getDevices());
-    this.storage()?.add(this.storeKeyLastDevice, device.id);
+    this.storage().add(this.storeKeyLastDevice, device.id);
     this.changeDetectorRef.detectChanges();
   }
 
@@ -276,7 +276,7 @@ export class CollectTracesComponent
     }
 
     const devices = controller.getDevices();
-    const lastId = this.storage()?.get(this.storeKeyLastDevice) ?? undefined;
+    const lastId = this.storage().get(this.storeKeyLastDevice) ?? undefined;
 
     if (this.selectedDevice) {
       const newDevice = devices.find((d) => d.id === this.selectedDevice?.id);
@@ -292,7 +292,7 @@ export class CollectTracesComponent
       if (device && device.getState() === AdbDeviceState.AVAILABLE) {
         this.selectedDevice = device;
         this.onDevicesChange(devices);
-        this.storage()?.add(this.storeKeyLastDevice, device.id);
+        this.storage().add(this.storeKeyLastDevice, device.id);
         return false;
       }
     }
@@ -316,7 +316,7 @@ export class CollectTracesComponent
   }
 
   async onChangeDeviceButton() {
-    this.storage()?.add(this.storeKeyLastDevice, '');
+    this.storage().add(this.storeKeyLastDevice, '');
     this.selectedDevice = undefined;
     await this.controller?.restartConnection();
   }
@@ -332,7 +332,7 @@ export class CollectTracesComponent
   async startTracing() {
     const requestedTraces = this.getRequests(assertDefined(this.traceConfig));
     const imeReq = requestedTraces.includes(UiTraceTarget.IME);
-    const doNotShowDialog = !!this.storage()?.get(this.storeKeyImeWarning);
+    const doNotShowDialog = !!this.storage().get(this.storeKeyImeWarning);
 
     if (!imeReq || doNotShowDialog) {
       await this.requestTraces(requestedTraces);
@@ -371,9 +371,8 @@ export class CollectTracesComponent
       dialogRef
         .beforeClosed()
         .subscribe((result: WarningDialogResult | undefined) => {
-          const storage = this.storage();
-          if (storage && result?.selectedOptions.includes(optionText)) {
-            storage.add(this.storeKeyImeWarning, 'true');
+          if (result?.selectedOptions.includes(optionText)) {
+            this.storage().add(this.storeKeyImeWarning, 'true');
           }
           if (result?.closeActionText === closeText) {
             this.requestTraces(requestedTraces);
@@ -560,7 +559,7 @@ export class CollectTracesComponent
     this.targetTabIndex = 1;
     this.dumpConfig = updateConfigsFromStore(
       JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
-      assertDefined(this.storage()),
+      this.storage(),
       this.storeKeyPrefixDumpConfig,
     );
     this.refreshDumps = true;
@@ -575,7 +574,7 @@ export class CollectTracesComponent
     this.connectionTabIndex =
       adbConnectionType === AdbConnectionType.WINSCOPE_PROXY ? 1 : 0;
     this.changeDetectorRef.detectChanges();
-    this.storage()?.add(this.storeKeyAdbConnectionType, adbConnectionType);
+    this.storage().add(this.storeKeyAdbConnectionType, adbConnectionType);
     await this.controller.restartConnection();
   }
 

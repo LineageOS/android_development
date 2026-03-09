@@ -18,14 +18,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
-  EventEmitter,
   HostListener,
   Inject,
-  Input,
-  Output,
-  SimpleChanges,
-  ViewChild,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
@@ -58,29 +57,29 @@ import {
 export class TreeComponent<T extends UiTreeNode> {
   readonly isHighlighted = isHighlighted;
   readonly isRowVisible = (index: number) => {
-    return this.virtualScrollViewport?.isIndexVisible(index) ?? false;
+    return this.virtualScrollViewport()?.isIndexVisible(index) ?? false;
   };
   filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
 
-  @Input() nodeRows: Array<FlattenedTreeRow<T>> = [];
-  @Input() store: InMemoryStorage | undefined;
-  @Input() isFlattened? = false;
-  @Input() highlightedItem = '';
-  @Input() pinnedItems?: UiTreeNode[] = [];
-  @Input() itemsClickable?: boolean;
-  @Input() rectIdToShowState?: Map<string, RectShowState>;
-  @Input() handleArrowPress = false;
+  nodeRows = input<Array<FlattenedTreeRow<T>>>([]);
+  store = input<InMemoryStorage>(new InMemoryStorage());
+  isFlattened = input<boolean>(false);
+  highlightedItem = input<string>('');
+  pinnedItems = input<UiTreeNode[]>([]);
+  itemsClickable = input<boolean>(false);
+  rectIdToShowState = input<Map<string, RectShowState>>();
+  handleArrowPress = input<boolean>(false);
 
   // Conditionally use stored states. Some traces (e.g. transactions) do not provide
   // items with the "stable id" field needed to search values in the storage.
-  @Input() useStoredExpandedState = false;
+  useStoredExpandedState = input<boolean>(false);
 
-  @Output() readonly highlightedChange = new EventEmitter<UiTreeNode>();
-  @Output() readonly pinnedItemChange = new EventEmitter<UiTreeNode>();
+  highlightedChange = output<UiTreeNode>();
+  pinnedItemChange = output<UiTreeNode>();
 
-  @ViewChild('treeContainer', {static: true})
-  readonly virtualScrollViewport: VirtualScrollViewportComponent | undefined;
+  readonly virtualScrollViewport =
+    viewChild<VirtualScrollViewportComponent>('treeContainer');
 
   readonly levelOffset = 24;
   readonly heightPredictor = new NodeHeightPredictor(
@@ -88,45 +87,38 @@ export class TreeComponent<T extends UiTreeNode> {
       return this.filteredRows.at(index);
     },
     () => {
-      return this.virtualScrollViewport?.elementRef.nativeElement.clientWidth;
+      return this.virtualScrollViewport()?.elementRef.nativeElement.clientWidth;
     },
   );
 
   constructor(
     @Inject(ElementRef) public elementRef: ElementRef<HTMLElement>,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
-  ) {}
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (!this.store) {
-      this.store = new InMemoryStorage();
-    }
-    const rowsChanged = changes['nodeRows'] !== undefined;
-    if (rowsChanged) {
+  ) {
+    effect(() => {
+      const rows = this.nodeRows();
       let i = 0;
-      while (i < this.nodeRows.length) {
-        const row = this.nodeRows[i];
-        const isExpanded = this.store
-          ? !this.isCollapsedInStore(row.storeKey)
-          : true;
+      while (i < rows.length) {
+        const row = rows[i];
+        const isExpanded = !this.isCollapsedInStore(row.storeKey);
         if (!isExpanded) {
           i = this.setExpandedValue(row, isExpanded, false);
         } else {
           i++;
         }
       }
-    }
+    });
 
-    const highlightedChanged = changes['highlightedItem'];
-    if (highlightedChanged) {
+    effect(() => {
+      this.highlightedItem();
       this.handlingArrowPress = false;
-    }
+    });
 
-    const highlightedRow = this.nodeRows.find(
-      (r) => r.node.id === this.highlightedItem,
-    );
+    effect(() => {
+      const rows = this.nodeRows();
+      const highlightedItem = this.highlightedItem();
 
-    if (rowsChanged || highlightedChanged) {
+      const highlightedRow = rows.find((r) => r.node.id === highlightedItem);
       if (highlightedRow) {
         this.expandParentIfCollapsed(highlightedRow, false);
       }
@@ -134,7 +126,7 @@ export class TreeComponent<T extends UiTreeNode> {
       this.updateRenderedNodes();
 
       const index = this.filteredRows.findIndex(
-        (n) => n.node.id === this.highlightedItem,
+        (n) => n.node.id === highlightedItem,
       );
       if (index === -1) {
         return;
@@ -142,7 +134,7 @@ export class TreeComponent<T extends UiTreeNode> {
       if (!this.isRowVisible(index)) {
         this.scrollToIndex(index - 1);
       }
-    }
+    });
   }
 
   onNodeClick(event: MouseEvent, row: FlattenedTreeRow<T>) {
@@ -152,7 +144,7 @@ export class TreeComponent<T extends UiTreeNode> {
     }
 
     const isDoubleClick = event.detail === 2;
-    if (!this.isFlattened && !row.node.isLeaf() && isDoubleClick) {
+    if (!this.isFlattened() && !row.node.isLeaf() && isDoubleClick) {
       event.preventDefault();
       this.toggleTree(row);
     } else {
@@ -161,8 +153,9 @@ export class TreeComponent<T extends UiTreeNode> {
   }
 
   isPinned(node: T): boolean {
-    if (this.pinnedItems && node.canBePinned()) {
-      return this.pinnedItems.map((item) => item.id).includes(node.id);
+    const pinnedItems = this.pinnedItems();
+    if (pinnedItems && node.canBePinned()) {
+      return pinnedItems.map((item) => item.id).includes(node.id);
     }
     return false;
   }
@@ -172,7 +165,7 @@ export class TreeComponent<T extends UiTreeNode> {
   }
 
   isClickable(node: T): boolean {
-    return !node.isLeaf() || !!this.itemsClickable;
+    return !node.isLeaf() || this.itemsClickable();
   }
 
   toggleTree(row: FlattenedTreeRow<T>) {
@@ -183,7 +176,7 @@ export class TreeComponent<T extends UiTreeNode> {
     const j = this.setExpandedValue(row, true, false);
     let i = row.originalIndex;
     while (i < j) {
-      const innerRow = this.nodeRows[i];
+      const innerRow = this.nodeRows()[i];
       if (!innerRow.localExpandedState) {
         this.setExpandedValue(innerRow, true, false);
       }
@@ -198,7 +191,7 @@ export class TreeComponent<T extends UiTreeNode> {
   ) {
     let prevDepth = row.depth;
     for (let i = row.originalIndex - 1; i >= 0; i--) {
-      const prevRow = this.nodeRows[i];
+      const prevRow = this.nodeRows()[i];
       if (prevRow.depth < prevDepth) {
         prevDepth = prevRow.depth;
         if (!prevRow.localExpandedState) {
@@ -221,14 +214,14 @@ export class TreeComponent<T extends UiTreeNode> {
     }
     return node
       .getAllChildren()
-      .some((child) => this.highlightedItem === child.id);
+      .some((child) => this.highlightedItem() === child.id);
   }
 
   getShowStateIcon(node: T): string | undefined {
     if (!node.hasShowState()) {
       return undefined;
     }
-    const showState = this.rectIdToShowState?.get(node.id);
+    const showState = this.rectIdToShowState()?.get(node.id);
     if (showState === undefined) {
       return undefined;
     }
@@ -237,14 +230,15 @@ export class TreeComponent<T extends UiTreeNode> {
 
   showFullOpacity(node: T): boolean {
     if (!node.hasShowState()) return true;
-    if (this.rectIdToShowState === undefined) return true;
-    const showState = this.rectIdToShowState.get(node.id);
+    const rectIdToShowState = this.rectIdToShowState();
+    if (rectIdToShowState === undefined) return true;
+    const showState = rectIdToShowState.get(node.id);
     return showState === RectShowState.SHOW;
   }
 
   toggleRectShowState(node: T) {
     const currentShowState = assertDefined(
-      this.rectIdToShowState?.get(node.id),
+      this.rectIdToShowState()?.get(node.id),
     );
     const newShowState =
       currentShowState === RectShowState.HIDE
@@ -261,7 +255,7 @@ export class TreeComponent<T extends UiTreeNode> {
     if (index >= this.filteredRows.length) {
       return;
     }
-    this.virtualScrollViewport?.scrollToIndex(index);
+    this.virtualScrollViewport()?.scrollToIndex(index);
     this.changeDetectorRef.markForCheck();
   }
 
@@ -271,7 +265,7 @@ export class TreeComponent<T extends UiTreeNode> {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (!this.handleArrowPress || this.handlingArrowPress) {
+    if (!this.handleArrowPress() || this.handlingArrowPress) {
       return;
     }
     this.handlingArrowPress = true;
@@ -288,32 +282,30 @@ export class TreeComponent<T extends UiTreeNode> {
   }
 
   private onArrowPress(getPrevious: boolean) {
-    if (this.nodeRows.length === 0) {
+    const nodeRows = this.nodeRows();
+    if (nodeRows.length === 0) {
       this.handlingArrowPress = false;
       return;
     }
+    const highlightedItem = this.highlightedItem();
     const currentHighlightedIndex =
-      this.highlightedItem.length > 0
-        ? this.nodeRows.findIndex((n) => n.node.id === this.highlightedItem)
+      highlightedItem.length > 0
+        ? nodeRows.findIndex((n) => n.node.id === highlightedItem)
         : -1;
     let newIndex: number | undefined;
     if (currentHighlightedIndex === -1) {
-      newIndex = getPrevious ? this.nodeRows.length - 1 : 0;
+      newIndex = getPrevious ? nodeRows.length - 1 : 0;
     } else {
       if (getPrevious) {
         for (let i = currentHighlightedIndex - 1; i >= 0; i--) {
-          if (!this.nodeRows[i].isHiddenByCollapsedParent) {
+          if (!nodeRows[i].isHiddenByCollapsedParent) {
             newIndex = i;
             break;
           }
         }
       } else {
-        for (
-          let i = currentHighlightedIndex + 1;
-          i < this.nodeRows.length;
-          i++
-        ) {
-          if (!this.nodeRows[i].isHiddenByCollapsedParent) {
+        for (let i = currentHighlightedIndex + 1; i < nodeRows.length; i++) {
+          if (!nodeRows[i].isHiddenByCollapsedParent) {
             newIndex = i;
             break;
           }
@@ -324,7 +316,7 @@ export class TreeComponent<T extends UiTreeNode> {
       this.handlingArrowPress = false;
       return;
     }
-    const newRow = this.nodeRows[newIndex];
+    const newRow = nodeRows[newIndex];
     if (!newRow) {
       this.handlingArrowPress = false;
       return;
@@ -337,18 +329,20 @@ export class TreeComponent<T extends UiTreeNode> {
     isExpanded: boolean,
     updateRenderedNodes = true,
   ): number {
-    if (this.store && this.useStoredExpandedState) {
+    if (this.useStoredExpandedState()) {
+      const store = this.store();
       if (isExpanded) {
-        this.store.clear(row.storeKey);
+        store.clear(row.storeKey);
       } else {
-        this.store.add(row.storeKey, 'true');
+        store.add(row.storeKey, 'true');
       }
     }
     row.localExpandedState = isExpanded;
     let j = row.originalIndex + 1;
     let lastCollapsedDepth: number | undefined;
-    while (j < this.nodeRows.length) {
-      const nextRow = this.nodeRows[j];
+    const nodeRows = this.nodeRows();
+    while (j < nodeRows.length) {
+      const nextRow = nodeRows[j];
       if (nextRow.depth <= row.depth) {
         break;
       }
@@ -378,14 +372,14 @@ export class TreeComponent<T extends UiTreeNode> {
   }
 
   private updateRenderedNodes() {
-    this.filteredRows = this.nodeRows.filter(
+    this.filteredRows = this.nodeRows().filter(
       (n) => !n.isHiddenByCollapsedParent,
     );
     this.changeDetectorRef.markForCheck();
   }
 
   private isCollapsedInStore(storeKey: string): boolean {
-    return assertDefined(this.store).get(storeKey) !== undefined;
+    return this.store().get(storeKey) !== undefined;
   }
 }
 
