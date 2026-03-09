@@ -113,7 +113,7 @@ class MockTimelineComponent {
   allTraces = input<unknown>();
   store = input<unknown>();
   initialTabTraceType = input<unknown>();
-  bookmarks = input<unknown[]>([]);
+  bookmarks: unknown[] = [];
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }

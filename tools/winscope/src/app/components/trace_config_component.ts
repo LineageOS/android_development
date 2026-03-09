@@ -81,8 +81,8 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
 
   title = input<string>();
   traceConfigStoreKey = input<string>();
-  traceConfig = model<TraceConfigurationMap>();
   storage = input<Store>();
+  traceConfig = model.required<TraceConfigurationMap>();
   readonly traceConfigChange = output<TraceConfigurationMap>();
 
   getSortedTraceKeys = computed<string[]>(() => {

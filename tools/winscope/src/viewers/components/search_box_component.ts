@@ -15,17 +15,17 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {assertDefined} from '@common/assert';
 import {FilterFlag} from '@common/filter_flag';
 import {TextFilter} from '@viewers/common/text_filter';
 import {AbstractFormFieldComponent} from './abstract_form_field_component';
+import {assertDefined} from '@common/assert';
 
 @Component({
   selector: 'search-box',
@@ -45,18 +45,28 @@ import {AbstractFormFieldComponent} from './abstract_form_field_component';
 export class SearchBoxComponent extends AbstractFormFieldComponent {
   FilterFlag = FilterFlag;
 
-  @Input() textFilter: TextFilter | undefined = new TextFilter();
-  @Input() filterName = 'filter';
+  textFilter = input<TextFilter | undefined>(new TextFilter());
+  filterName = input<string>('filter');
 
-  @Output() readonly filterChange = new EventEmitter<TextFilter>();
+  readonly filterChange = output<TextFilter>();
+
+  formFieldClasses() {
+    return (
+      'search-box small-icon-container ' +
+      ((this.textFilter()?.filterString.length ?? 0) > 0
+        ? 'highlighted '
+        : '') +
+      this.formFieldClass()
+    );
+  }
 
   hasFlag(flag: FilterFlag): boolean {
-    return assertDefined(this.textFilter).flags.includes(flag) ?? false;
+    return this.textFilter()?.flags.includes(flag) ?? false;
   }
 
   onFilterFlagClick(event: MouseEvent, flag: FilterFlag) {
     event.stopPropagation();
-    const filter = assertDefined(this.textFilter);
+    const filter = assertDefined(this.textFilter());
     if (this.hasFlag(flag)) {
       filter.flags = filter.flags.filter((f) => f !== flag);
     } else {
@@ -66,14 +76,6 @@ export class SearchBoxComponent extends AbstractFormFieldComponent {
   }
 
   onFilterChange() {
-    this.filterChange.emit(this.textFilter);
-  }
-
-  getFormFieldClasses(): string {
-    return (
-      'search-box small-icon-container ' +
-      ((this.textFilter?.filterString.length ?? 0) > 0 ? 'highlighted ' : '') +
-      this.formFieldClass
-    );
+    this.filterChange.emit(assertDefined(this.textFilter()));
   }
 }
