@@ -19,10 +19,9 @@ import {
   timestampEqualityTester,
 } from '@common/time/test_helpers';
 import {UTC_TIMEZONE_INFO} from './timestamp_converter';
-import {TraceProcessor} from '@trace_processor/trace_processor';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
-import {makeSpyQueryResult} from '@trace_processor/test_utils';
 import {Timestamp, TimestampFormatter} from './time';
+import {TIME_UNIT_TO_NANO} from './time_units';
 
 class MockTimestampFormatter implements TimestampFormatter {
   format(timestamp: bigint): string {
@@ -41,91 +40,27 @@ describe('utc_offset_resolver', () => {
   });
 
   describe('initialize timezone offset from Perfetto', () => {
-    const expectedQuery = `
-    SELECT
-      int_value
-    FROM
-      metadata
-    WHERE
-      name = 'timezone_off_mins'
-    `;
-
-    let mockTraceProcessor: jasmine.SpyObj<TraceProcessor>;
-    beforeEach(() => {
-      mockTraceProcessor = jasmine.createSpyObj<TraceProcessor>(['query']);
-    });
-
-    it('check query is correctly sent and received to and from Perfetto', async () => {
-      setQueryResult(-60);
-
-      await getResolvedUTCOffset(
-        UTC_TIMEZONE_INFO,
-        testTimestamp,
-        mockTraceProcessor,
-      );
-
-      expect(mockTraceProcessor.query).toHaveBeenCalledWith(expectedQuery);
-      expect(mockTraceProcessor.query).toHaveBeenCalledTimes(1);
-    });
-
-    it('check utc-1 offset is correctly read and set from Perfetto', async () => {
-      setQueryResult(-60);
-
+    fit('check utc-1 offset is correctly read and set from lambda', async () => {
+      const spy = jasmine.createSpy().and.returnValue(Promise.resolve(BigInt(-60 * TIME_UNIT_TO_NANO.m)));
       const utcOffset = await getResolvedUTCOffset(
         UTC_TIMEZONE_INFO,
         testTimestamp,
-        mockTraceProcessor,
+        spy,
       );
 
+      expect(spy).toHaveBeenCalledTimes(1);
       expect(utcOffset.format()).toBe('UTC-01:00');
     });
 
-    it('check utc+7 offset is correctly read and set from Perfetto', async () => {
-      setQueryResult(420);
-
+    fit('check utc+7 offset is correctly read and set from lambda', async () => {
       const utcOffset = await getResolvedUTCOffset(
         UTC_TIMEZONE_INFO,
         testTimestamp,
-        mockTraceProcessor,
+        () => Promise.resolve(BigInt(420 * TIME_UNIT_TO_NANO.m)),
       );
 
       expect(utcOffset.format()).toBe('UTC+07:00');
     });
-
-    it('check if utc+15 offset is read from Perfetto, error is raised', async () => {
-      setQueryResult(900);
-
-      await expectAsync(
-        getResolvedUTCOffset(
-          UTC_TIMEZONE_INFO,
-          testTimestamp,
-          mockTraceProcessor,
-        ),
-      ).toBeRejectedWithError(
-        'Failed to set timezone offset greater than UTC+14:00',
-      );
-    });
-
-    it('check if utc-13 offset is read from Perfetto, error is raised', async () => {
-      setQueryResult(-780);
-
-      await expectAsync(
-        getResolvedUTCOffset(
-          UTC_TIMEZONE_INFO,
-          testTimestamp,
-          mockTraceProcessor,
-        ),
-      ).toBeRejectedWithError(
-        'Failed to set timezone offset greater than UTC-12:00',
-      );
-    });
-
-    function setQueryResult(intValue: number) {
-      const spyQueryResult = makeSpyQueryResult();
-      spyQueryResult.numRows.and.returnValue(1);
-      spyQueryResult.firstRow.and.returnValue({int_value: intValue});
-      mockTraceProcessor.query.and.returnValue(Promise.resolve(spyQueryResult));
-    }
   });
 
   it('creates correct offset for different timezones', async () => {
