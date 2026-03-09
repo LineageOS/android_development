@@ -37,9 +37,8 @@ export async function getResolvedUTCOffset(
 ): Promise<UTCOffset> {
   let utcOffsetNs: bigint;
 
-  const perfettoTimezoneNsValue = perfettoTimezoneNs !== undefined
-    ? await perfettoTimezoneNs()
-    : undefined;
+  const perfettoTimezoneNsValue =
+    perfettoTimezoneNs !== undefined ? await perfettoTimezoneNs() : undefined;
 
   if (perfettoTimezoneNsValue !== undefined) {
     utcOffsetNs = perfettoTimezoneNsValue;

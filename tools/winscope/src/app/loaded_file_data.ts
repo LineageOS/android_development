@@ -493,14 +493,13 @@ export class LoadedFileData {
   }
 
   /**
- * Gets the UTC offset from Perfetto in minutes and converts it in nanoseconds.
- *
- * @param traceProcessor TraceProcessor instance used to read from Perfetto.
- * @return The timezone offset in nanoseconds.
- */
-    private async getTimezoneNsFromPerfetto(
-    ): Promise<bigint | undefined> {
-      const query = `
+   * Gets the UTC offset from Perfetto in minutes and converts it in nanoseconds.
+   *
+   * @param traceProcessor TraceProcessor instance used to read from Perfetto.
+   * @return The timezone offset in nanoseconds.
+   */
+  private async getTimezoneNsFromPerfetto(): Promise<bigint | undefined> {
+    const query = `
         SELECT
           int_value
         FROM
@@ -509,12 +508,12 @@ export class LoadedFileData {
           name = 'timezone_off_mins'
         `;
 
-      const result = await TraceProcessorFactory.getSingleInstance().query(query);
+    const result = await TraceProcessorFactory.getSingleInstance().query(query);
 
-      if (result && result.numRows() > 0) {
-        const timezoneOffsetMinutes = Number(result.firstRow({ int_value: 0n }).int_value);
-        return BigInt(timezoneOffsetMinutes) * TIME_UNIT_TO_NANO.m;
-      }
-      return undefined;
+    if (result && result.numRows() > 0) {
+      const timezoneOffsetMin = result.firstRow({int_value: 0n}).int_value;
+      return timezoneOffsetMin * BigInt(TIME_UNIT_TO_NANO.m);
     }
+    return undefined;
   }
+}

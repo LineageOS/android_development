@@ -40,8 +40,10 @@ describe('utc_offset_resolver', () => {
   });
 
   describe('initialize timezone offset from Perfetto', () => {
-    fit('check utc-1 offset is correctly read and set from lambda', async () => {
-      const spy = jasmine.createSpy().and.returnValue(Promise.resolve(BigInt(-60 * TIME_UNIT_TO_NANO.m)));
+    it('check utc-1 offset is correctly read and set from lambda', async () => {
+      const spy = jasmine
+        .createSpy()
+        .and.returnValue(Promise.resolve(BigInt(-60 * TIME_UNIT_TO_NANO.m)));
       const utcOffset = await getResolvedUTCOffset(
         UTC_TIMEZONE_INFO,
         testTimestamp,
@@ -52,7 +54,7 @@ describe('utc_offset_resolver', () => {
       expect(utcOffset.format()).toBe('UTC-01:00');
     });
 
-    fit('check utc+7 offset is correctly read and set from lambda', async () => {
+    it('check utc+7 offset is correctly read and set from lambda', async () => {
       const utcOffset = await getResolvedUTCOffset(
         UTC_TIMEZONE_INFO,
         testTimestamp,
