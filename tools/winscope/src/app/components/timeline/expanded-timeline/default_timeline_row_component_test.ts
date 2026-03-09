@@ -26,13 +26,14 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
+
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 
 describe('DefaultTimelineRowComponent', () => {
   const converter = makeConverterZeroRteOffsets();

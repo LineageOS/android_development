@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {FileReader} from '@trace_api/file_reader';
 
 /**

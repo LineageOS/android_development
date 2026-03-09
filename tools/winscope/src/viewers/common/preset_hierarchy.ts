@@ -16,6 +16,7 @@
 
 import {FilterFlag} from '@common/filter_flag';
 import {UserOptions} from '@viewers/common/user_options';
+
 import {RectShowState} from './rect_show_state';
 import {TextFilter} from './text_filter';
 

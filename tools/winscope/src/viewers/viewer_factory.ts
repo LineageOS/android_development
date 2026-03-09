@@ -18,13 +18,15 @@ import {assertTrue} from '@common/assert';
 import {Store} from '@common/store/store';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {Trace} from '@trace_api/trace';
-import {TraceType, compareByDisplayOrder} from '@trace_api/trace_type';
+import {compareByDisplayOrder, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
 import {Viewer, ViewType} from './viewer';
-import {ViewerInput} from './viewer_input/viewer_input';
 import {ViewerInputMethodClients} from './viewer_input_method_clients/viewer_input_method_clients';
 import {ViewerInputMethodManagerService} from './viewer_input_method_manager_service/viewer_input_method_manager_service';
 import {ViewerInputMethodService} from './viewer_input_method_service/viewer_input_method_service';
+import {ViewerInput} from './viewer_input/viewer_input';
 import {ViewerJankCujs} from './viewer_jank_cujs/viewer_jank_cujs';
 import {ViewerScreenRecording} from './viewer_media_based/viewer_screen_recording';
 import {ViewerScreenshot} from './viewer_media_based/viewer_screenshot';
@@ -35,7 +37,6 @@ import {ViewerTransactions} from './viewer_transactions/viewer_transactions';
 import {ViewerTransitions} from './viewer_transitions/viewer_transitions';
 import {ViewerViewCapture} from './viewer_view_capture/viewer_view_capture';
 import {ViewerWindowManager} from './viewer_window_manager/viewer_window_manager';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 export class ViewerFactory {
   static readonly SINGLE_TRACE_VIEWERS = [

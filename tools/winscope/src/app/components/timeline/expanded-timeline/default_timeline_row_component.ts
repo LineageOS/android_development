@@ -19,6 +19,7 @@ import {Point} from '@common/geometry/point';
 import {Rect} from '@common/geometry/rect';
 import {Timestamp} from '@common/time/time';
 import {TraceEntry} from '@trace_api/trace';
+
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 
 /**

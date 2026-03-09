@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from '@compat/logging';
 import {assertDefined} from '@common/assert';
+import {getLogger, Logger} from '@compat/logging';
 import {TreeNode} from '@tree_node/tree_node';
 import {DiffType} from '@viewers/common/diff_type';
+
 import {UiTreeNode} from './ui_tree_node';
 
 export abstract class AddDiffs<T extends UiTreeNode> {

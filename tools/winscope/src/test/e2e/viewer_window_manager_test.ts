@@ -15,21 +15,8 @@
  */
 
 import {browser} from 'protractor';
-import {
-  changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTree,
-  checkRectLabel,
-  checkTimelineTraceSelector,
-  checkWinscopeRealTimestamp,
-  filterHierarchy,
-  loadTraceAndCheckViewer,
-  scrollDown,
-  selectItemInHierarchy,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {changeRealTimestampInWinscope, checkFinalRealTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTree, checkRectLabel, checkTimelineTraceSelector, checkWinscopeRealTimestamp, filterHierarchy, loadTraceAndCheckViewer, scrollDown, selectItemInHierarchy, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Window Manager', () => {
   const viewerSelector = 'viewer-window-manager';

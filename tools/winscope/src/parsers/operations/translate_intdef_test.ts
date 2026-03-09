@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  PERFETTO_TRACE_PACKET_ROOT,
-  registerDescriptors,
-  TamperedMessageType
-} from '@trace/proto_utils/tampered_message_type';
 import {assertDefined} from '@common/assert';
-import {descriptors} from 'protos/test/intdef_translation/descriptors';
+import {descriptors} from '@protos/test/intdef_translation/descriptors';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors, TamperedMessageType,} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {TranslateIntDef} from './translate_intdef';
 
 describe('TranslateIntDef', () => {
@@ -31,9 +28,9 @@ describe('TranslateIntDef', () => {
 
   beforeAll(() => {
     registerDescriptors(descriptors);
-    rootType = assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType(
-      'RootMessage',
-    ));
+    rootType = assertDefined(
+      PERFETTO_TRACE_PACKET_ROOT.lookupType('RootMessage'),
+    );
   });
 
   it('translates intdef from stored mapping', () => {

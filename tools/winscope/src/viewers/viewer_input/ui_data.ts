@@ -22,12 +22,7 @@ import {DisplayIdentifier} from '@viewers/common/display_identifier';
 import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {TextFilter} from '@viewers/common/text_filter';
-import {
-  LogEntry,
-  LogField,
-  LogHeader,
-  UiDataLog,
-} from '@viewers/common/ui_data_log';
+import {LogEntry, LogField, LogHeader, UiDataLog,} from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UserOptions} from '@viewers/common/user_options';
 import {RectSpec} from '@viewers/components/rects/rect_spec';

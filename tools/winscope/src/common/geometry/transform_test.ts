@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {getDefaultTransform, getTypeFlags, isSimpleTransform, Transform, TransformTypeFlags,} from './transform';
 import {TransformMatrix} from './transform_matrix';
-import {
-  getDefaultTransform,
-  getTypeFlags,
-  isSimpleTransform,
-  Transform,
-  TransformTypeFlags,
-} from './transform';
 
 describe('TransformUtils', () => {
   describe('getTypeFlags', () => {

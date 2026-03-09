@@ -16,22 +16,16 @@
 
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
+import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {InternedString} from 'protos/protos/perfetto/trace/profiling/profile_common_pb';
-import {
-  makeConverterNoRteOffsets,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
-import {ProtoLogViewerConfig} from 'protos/protos/perfetto/trace/android/protolog_pb';
-import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ProtoLogViewerConfig} from '@protos/protos/perfetto/trace/android/protolog_pb';
+import {InternedString} from '@protos/protos/perfetto/trace/profiling/profile_common_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {TraceType} from '@trace_api/trace_type';
+
+import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 interface ExpectedInternedData {
   packetIndex: number;

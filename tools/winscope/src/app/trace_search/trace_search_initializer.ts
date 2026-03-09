@@ -18,6 +18,7 @@ import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {Traces} from '@trace_api/traces';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
+
 import {SearchViewFactoryProtoLog} from './search_view_factory_protolog';
 import {SearchViewFactorySf} from './search_view_factory_sf';
 import {SearchViewFactoryTransactions} from './search_view_factory_transactions';

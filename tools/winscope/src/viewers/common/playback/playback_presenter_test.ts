@@ -14,37 +14,29 @@
  * limitations under the License.
  */
 
-import {PlaybackPresenter} from './playback_presenter';
-import {EmitEvent} from '@messaging/winscope_event_emitter';
-import {
-  CustomTraceEntryLazy,
-  Trace,
-  TraceEntryEager,
-  TraceEntryLazy,
-} from '@trace_api/trace';
-import {makeRealTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TraceType} from '@trace_api/trace_type';
-import {Timer} from '@common/time/timer';
-import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
-import {TracePositionUpdate} from '@trace/trace_events';
-import {PlaybackState} from './playback_state';
-
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {TracePosition} from '@trace_api/trace_position';
-import {CornerRadii} from '@common/geometry/corner_radii';
 import {assertDefined} from '@common/assert';
-import {VideoFrameCache} from './video_frame_cache';
+import {CornerRadii} from '@common/geometry/corner_radii';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {makeRealTimestamp} from '@common/time/test_helpers';
+import {Timer} from '@common/time/timer';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {Parser} from '@trace_api/parser';
+import {CustomTraceEntryLazy, Trace, TraceEntryEager, TraceEntryLazy,} from '@trace_api/trace';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+import {TracePositionUpdate} from '@trace/trace_events';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRect} from '@tree_node/trace_rect';
+
+import {PlaybackPresenter} from './playback_presenter';
+import {PlaybackState} from './playback_state';
+import {VideoFrameCache} from './video_frame_cache';
 
 describe('PlaybackPresenter', () => {
   describe('with small trace', () => {

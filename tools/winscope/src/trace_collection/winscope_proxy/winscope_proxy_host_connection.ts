@@ -16,16 +16,14 @@
 
 import {assertDefined} from '@common/assert';
 import {HttpRequestHeaderType, HttpResponse} from '@common/http_request';
-import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
+import {getLogger} from '@compat/logging';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
+
 import {Endpoint} from './endpoint';
 import {getFromProxy} from './utils';
-import {
-  WinscopeProxyDeviceConnection,
-  WinscopeProxyDeviceConnectionResponse,
-} from './winscope_proxy_device_connection';
-import {getLogger} from '@compat/logging';
+import {WinscopeProxyDeviceConnection, WinscopeProxyDeviceConnectionResponse,} from './winscope_proxy_device_connection';
 
 /**
  * A connection to the Winscope Proxy server.

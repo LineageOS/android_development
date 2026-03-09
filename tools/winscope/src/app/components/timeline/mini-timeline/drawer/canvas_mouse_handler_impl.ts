@@ -17,11 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {Point} from '@common/geometry/point';
 import {Trace} from '@trace_api/trace';
-import {
-  CanvasMouseHandler,
-  DragListener,
-  DropListener,
-} from './canvas_mouse_handler';
+
+import {CanvasMouseHandler, DragListener, DropListener,} from './canvas_mouse_handler';
 import {DraggableCanvasObject} from './draggable_canvas_object';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';
 

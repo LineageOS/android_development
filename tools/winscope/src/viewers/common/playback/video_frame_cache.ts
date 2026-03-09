@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import {Timer} from '@common/time/timer';
-import {KEY_FRAME_TYPE, WebCodecData} from '@trace/media_based/helpers';
-import {UserNotifier} from '@services/user_notifier';
-import {makeWarningVideoFrameCacheStall} from '@parsers/helpers/warnings';
 import {assertDefined} from '@common/assert';
-import {PlaybackState} from './playback_state';
+import {Timer} from '@common/time/timer';
 import {getLogger} from '@compat/logging';
+import {makeWarningVideoFrameCacheStall} from '@parsers/helpers/warnings';
+import {UserNotifier} from '@services/user_notifier';
+import {KEY_FRAME_TYPE, WebCodecData} from '@trace/media_based/helpers';
+
+import {PlaybackState} from './playback_state';
 
 /**
  * Decodes and caches video frames for visualization in the UI. Uses an LRU cache

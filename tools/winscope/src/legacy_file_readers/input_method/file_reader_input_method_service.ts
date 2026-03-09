@@ -16,18 +16,16 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {
-  InputMethodServiceTraceFileProto,
-  InputMethodServiceTraceProto as AndroidInputMethodServiceTraceProto,
-} from 'protos/protos/ime/udc/inputmethodeditortrace_pb';
-import './input_method_service_patch';
-import {InputMethodServiceTraceProto} from 'protos/protos/perfetto/trace/android/inputmethodeditor_pb';
-import {WinscopeExtensions} from 'protos/protos/perfetto/trace/android/winscope_extensions_pb';
-import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {TraceType} from '@trace_api/trace_type';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {InputMethodServiceTraceProto as AndroidInputMethodServiceTraceProto, InputMethodServiceTraceFileProto,} from '@protos/protos/ime/udc/inputmethodeditortrace_pb';
+import {InputMethodServiceTraceProto} from '@protos/protos/perfetto/trace/android/inputmethodeditor_pb';
+import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
+import {WinscopeExtensions} from '@protos/protos/perfetto/trace/android/winscope_extensions_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {TraceType} from '@trace_api/trace_type';
+
+import './input_method_service_patch';
 
 export class FileReaderInputMethodService extends AbstractFileReader<AndroidInputMethodServiceTraceProto> {
   private static readonly MAGIC_NUMBER = [
@@ -55,8 +53,7 @@ export class FileReaderInputMethodService extends AbstractFileReader<AndroidInpu
   override decodeTrace(
     buffer: Uint8Array,
   ): AndroidInputMethodServiceTraceProto[] {
-    const decoded =
-      InputMethodServiceTraceFileProto.deserializeBinary(buffer);
+    const decoded = InputMethodServiceTraceFileProto.deserializeBinary(buffer);
     const timeOffset = BigInt(decoded.getRealToElapsedTimeOffsetNanos() ?? '0');
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
     return decoded.getEntryList();

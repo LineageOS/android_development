@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-import {InputMethodServiceProto} from 'protos/protos/ime/udc/inputmethodservice_pb';
-import {SoftInputWindowProto} from 'protos/protos/ime/udc/softinputwindow_pb';
-import {EditorInfoProto} from 'protos/protos/ime/udc/editorinfo_pb';
-import {InputConnectionCallProto} from 'protos/protos/ime/udc/inputconnection_pb';
+import {EditorInfoProto} from '@protos/protos/ime/udc/editorinfo_pb';
+import {InputConnectionCallProto} from '@protos/protos/ime/udc/inputconnection_pb';
+import {InputMethodServiceProto} from '@protos/protos/ime/udc/inputmethodservice_pb';
+import {SoftInputWindowProto} from '@protos/protos/ime/udc/softinputwindow_pb';
 import {BinaryReader} from 'google-protobuf';
 
 /**
  * Patch InputMethodServiceProto.deserializeBinaryFromReader to handle legacy field 3 mismatch.
  * Field 3 (decor_view_visible) is bool (wire type 0), but some legacy traces use wire type 2.
- * @param message proto to deserialize
- * @param reader reader to read from
- * @returns deserialized proto
  */
-InputMethodServiceProto.deserializeBinaryFromReader = function (
-  message: InputMethodServiceProto, reader: BinaryReader,
-) {
+InputMethodServiceProto.deserializeBinaryFromReader = (
+  message: InputMethodServiceProto,
+  reader: BinaryReader,
+) => {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;

@@ -15,17 +15,8 @@
  */
 
 import {browser, by, element, ElementFinder} from 'protractor';
-import {
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkScrollPresent,
-  checkTimelineTraceSelector,
-  checkTotalScrollEntries,
-  checkWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {checkFinalRealTimestamp, checkInitialRealTimestamp, checkScrollPresent, checkTimelineTraceSelector, checkTotalScrollEntries, checkWinscopeRealTimestamp, loadTraceAndCheckViewer, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Jank CUJs', () => {
   const viewerSelector = 'viewer-jank-cujs';

@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {
-  DEFAULT_PROPERTY_FORMATTER,
-  TIMESTAMP_NODE_FORMATTER,
-} from '@trace/formatters';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
+import {DEFAULT_PROPERTY_FORMATTER, TIMESTAMP_NODE_FORMATTER,} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 

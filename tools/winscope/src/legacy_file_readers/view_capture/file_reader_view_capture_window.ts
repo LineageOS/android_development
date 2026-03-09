@@ -15,25 +15,21 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {ViewCapture} from 'protos/protos/perfetto/trace/android/viewcapture_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {InternedData} from 'protos/protos/perfetto/trace/interned_data/interned_data_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {InternedString} from 'protos/protos/perfetto/trace/profiling/profile_common_pb';
-import {WinscopeExtensions} from 'protos/protos/perfetto/trace/android/winscope_extensions_pb';
-import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {
-  ViewNode,
-  FrameData,
-} from 'protos/protos/viewcapture/udc/view_capture_pb';
-
-import {TraceType} from '@trace_api/trace_type';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ViewCapture} from '@protos/protos/perfetto/trace/android/viewcapture_pb';
+import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
+import {WinscopeExtensions} from '@protos/protos/perfetto/trace/android/winscope_extensions_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {InternedData} from '@protos/protos/perfetto/trace/interned_data/interned_data_pb';
+import {InternedString} from '@protos/protos/perfetto/trace/profiling/profile_common_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {FrameData, ViewNode,} from '@protos/protos/viewcapture/udc/view_capture_pb';
+import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
-import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 
 /**
  * A file reader for a single window in a legacy ViewCapture trace.

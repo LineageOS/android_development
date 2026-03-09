@@ -20,12 +20,10 @@ import {Timestamp} from '@common/time/time';
 import {TimeDuration} from '@common/time/time_duration';
 import {Trace} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  AbstractLogViewerPresenter,
-  NotifyLogViewCallbackType,
-} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@viewers/common/abstract_log_viewer_presenter';
 import {LogPresenter} from '@viewers/common/log_presenter';
 import {LogField, LogHeader} from '@viewers/common/ui_data_log';
+
 import {CujEntry, CujStatus, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<

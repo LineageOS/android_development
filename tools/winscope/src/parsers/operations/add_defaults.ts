@@ -1,4 +1,4 @@
-import {TamperedProtoField, TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
+import {assertDefined} from '@common/assert';
 /*
  * Copyright (C) 2024 The Android Open Source Project
  *
@@ -15,9 +15,8 @@ import {TamperedProtoField, TamperedMessageType} from '@trace/proto_utils/tamper
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
 import {getDefaultValue} from '@trace/proto_utils/field_value_helpers';
-
+import {TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {AddOperation} from '@tree_node/add_operation';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';

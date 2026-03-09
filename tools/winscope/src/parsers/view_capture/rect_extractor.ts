@@ -18,12 +18,8 @@ import {assertBigInt, assertDefined} from '@common/assert';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {TraceRectBuilderFromQueryRow} from '@parsers/helpers/trace_rect_builder_from_query_row';
 import {RowIterator} from '@trace_processor/query_result';
+import {NodeRects, RectsForTrace, SnapshotRects,} from '@tree_node/rect_extractor_result';
 import {TraceRect} from '@tree_node/trace_rect';
-import {
-  RectsForTrace,
-  NodeRects,
-  SnapshotRects,
-} from '@tree_node/rect_extractor_result';
 
 /**
  * Extracts VC rect from a trace processor query result row.

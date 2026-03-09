@@ -20,8 +20,9 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {OperationChain} from '@tree_node/operation_chain';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
+
 import {ContainerType} from './container_type';
+import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
 
 describe('HierarchyTreeBuilderWm', () => {
   let builder: HierarchyTreeBuilderWm;

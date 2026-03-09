@@ -19,10 +19,7 @@ import {TraceProcessor} from '@trace_processor/trace_processor';
 
 import {Operation} from './operation';
 import {OperationChain} from './operation_chain';
-import {
-  LazyPropertiesStrategyType,
-  PropertiesProvider,
-} from './properties_provider';
+import {LazyPropertiesStrategyType, PropertiesProvider,} from './properties_provider';
 import {PropertyTreeNode} from './property_tree_node';
 
 /**

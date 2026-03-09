@@ -41,11 +41,11 @@
  *  (window as any).__Zone_enable_cross_context_check = true;
  *
  */
-import './zone-flags.ts';
+import 'zone.js';
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js'; // Included with Angular CLI.
+import './zone-flags.ts'; // Included with Angular CLI.
 
 /***************************************************************************************************
  * APPLICATION IMPORTS

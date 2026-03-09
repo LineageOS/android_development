@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import '@angular/compiler';
-// organize-imports-ignore
-import {bootstrapApplication} from '@angular/platform-browser';
-import {getLogger} from '@compat/logging';
+// eslint-disable-next-line no-restricted-imports
+import configJson32 from '../../configs/services.core.protolog32.json';
+// eslint-disable-next-line no-restricted-imports
+import configJson64 from '../../configs/services.core.protolog64.json';
 
-import {AppComponent} from './app_component';
-
-bootstrapApplication(AppComponent).catch((e) => getLogger('main').error(e));
+export {configJson32 as ProtologJson32, configJson64 as ProtologJson64};

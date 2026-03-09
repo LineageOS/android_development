@@ -23,15 +23,12 @@ import {Timestamp} from '@common/time/time';
 import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
+
 import {CanvasMouseHandler} from './canvas_mouse_handler';
 import {CanvasMouseHandlerImpl} from './canvas_mouse_handler_impl';
 import {DraggableCanvasObject} from './draggable_canvas_object';
 import {DraggableCanvasObjectImpl} from './draggable_canvas_object_impl';
-import {
-  MiniCanvasDrawerData,
-  TimelineTrace,
-  TimelineTraces,
-} from './mini_canvas_drawer_data';
+import {MiniCanvasDrawerData, TimelineTrace, TimelineTraces,} from './mini_canvas_drawer_data';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';
 import {MiniTimelineDrawerInput} from './mini_timeline_drawer_input';
 import {RenderedRange} from './rendered_range';

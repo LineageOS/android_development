@@ -15,10 +15,7 @@
  */
 
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  AdbDeviceConnectionListener,
-  AdbDeviceState,
-} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
 import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 

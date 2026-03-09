@@ -15,20 +15,18 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeWarningFailedToConvertLegacyTraces} from './warnings';
-import {ClockSnapshot as PerfettoClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {Trace} from 'protos/protos/perfetto/trace/trace_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {makeRealTimestamp} from '@common/time/test_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {TraceFile} from '@trace/trace_file';
-import {
-  ClockSnapshot,
-  LegacyToPerfettoConverter,
-} from './legacy_to_perfetto_converter';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {FileReader} from '@trace_api/file_reader';
+import {ClockSnapshot as PerfettoClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {Trace} from '@protos/protos/perfetto/trace/trace_pb';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace/trace_file';
+
+import {ClockSnapshot, LegacyToPerfettoConverter,} from './legacy_to_perfetto_converter';
+import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 
 describe('LegacyToPerfettoConverter', () => {
   const packetB1 = makePacketWithBoottimeTs(10);
@@ -415,7 +413,10 @@ describe('LegacyToPerfettoConverter', () => {
     const existingTrace = new Trace();
     existingTrace.setPacketList([clockSnapshot20, emptyPacket]);
     return new TraceFile(
-      new File([existingTrace.serializeBinary() as unknown as ArrayBuffer], 'existing_trace'),
+      new File(
+        [existingTrace.serializeBinary() as unknown as ArrayBuffer],
+        'existing_trace',
+      ),
     );
   }
 

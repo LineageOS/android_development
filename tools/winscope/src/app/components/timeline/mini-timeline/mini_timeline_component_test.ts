@@ -25,24 +25,22 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventCode} from '@common/dom';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+
 import {MiniTimelineComponent} from './mini_timeline_component';
 import {SliderComponent} from './slider_component';
 import {Transformer} from './transformer';
-import {Traces} from '@trace_api/traces';
-import {InMemoryStorage} from '@common/store/in_memory_storage';
 
 describe('MiniTimelineComponent', () => {
   let component: MiniTimelineComponent;

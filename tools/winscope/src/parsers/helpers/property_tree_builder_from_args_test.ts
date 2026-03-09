@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  PERFETTO_TRACE_PACKET_ROOT,
-  registerDescriptors,
-} from '@trace/proto_utils/tampered_message_type';
-import {descriptors} from 'protos/test/fake_proto/descriptors';
-import {
-  ChildProperty,
-  PropertyTreeBuilder,
-} from '@test/unit/tree_node/property_tree_builder';
-import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
+import {convertSnakeToCamelCase} from '@common/string_helpers';
+import {descriptors} from '@protos/test/fake_proto/descriptors';
+import {ChildProperty, PropertyTreeBuilder,} from '@test/unit/tree_node/property_tree_builder';
+import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
+import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors,} from '@trace/proto_utils/tampered_message_type';
 import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyValue} from '@tree_node/property_tree_node';
-import {convertSnakeToCamelCase} from '@common/string_helpers';
-import {ColumnType, RowIterator} from '@trace_processor/query_result';
+
+import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
 
 describe('PropertyTreeBuilderFromArgs', () => {
   registerDescriptors(descriptors);

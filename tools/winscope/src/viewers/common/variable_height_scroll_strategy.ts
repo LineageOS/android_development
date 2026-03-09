@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  CdkVirtualScrollViewport,
-  VirtualScrollStrategy,
-} from '@angular/cdk/scrolling';
+import {CdkVirtualScrollViewport, VirtualScrollStrategy,} from '@angular/cdk/scrolling';
 import {assertDefined} from '@common/assert';
-import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {TraceType} from '@trace_api/trace_type';
 import {InputHeightPredictor} from '@viewers/viewer_input/input_height_predictor';
 import {ProtologHeightPredictor} from '@viewers/viewer_protolog/protolog_height_predictor';
 import {SearchHeightPredictor} from '@viewers/viewer_search/search_height_predictor';
 import {TransactionsHeightPredictor} from '@viewers/viewer_transactions/transactions_height_predictor';
 import {TransitionsHeightPredictor} from '@viewers/viewer_transitions/transitions_height_predictor';
+import {distinctUntilChanged, Observable, Subject} from 'rxjs';
+
 import {ItemHeightPredictor} from './item_height_predictor';
 
 export class VariableHeightScrollStrategy implements VirtualScrollStrategy {

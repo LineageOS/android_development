@@ -22,6 +22,7 @@ import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections
 import {LogComponent} from '@viewers/components/log_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
+
 import {UiData} from './ui_data';
 
 @Component({

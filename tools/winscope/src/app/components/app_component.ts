@@ -14,114 +14,76 @@
  * limitations under the License.
  */
 
-import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
+import {AbtChromeExtensionProtocol} from '@abt_chrome_extension/abt_chrome_extension_protocol';
+import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  ErrorHandler,
-  Inject,
-  Injector,
-  NgZone,
-  viewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+import {ChangeDetectorRef, Component, ErrorHandler, Inject, Injector, NgZone, viewChild, ViewEncapsulation,} from '@angular/core';
 import {createCustomElement} from '@angular/elements';
+import {FormControl, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
+import {MatMenuModule} from '@angular/material/menu';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Title} from '@angular/platform-browser';
-import {AbtChromeExtensionProtocol} from '@abt_chrome_extension/abt_chrome_extension_protocol';
+import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest,} from '@app/app_events';
 import {GlobalErrorHandler} from '@app/global_error_handler';
-import {Mediator} from '@app/mediator';
-import {TimelineData} from '@app/timeline_data';
 import {LoadedFileData} from '@app/loaded_file_data';
-import {DownloadRequest, downloadFromUrl} from '@common/download';
-import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
+import {Mediator} from '@app/mediator';
+import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled,} from '@app/misc_events';
+import {ParsingErrorType} from '@app/parsing_error_type';
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
+import {TimelineData} from '@app/timeline_data';
+import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
+import {downloadFromUrl, DownloadRequest} from '@common/download';
 import {globalConfig} from '@common/global_config';
+import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {PersistentStore} from '@common/store/persistent_store';
 import {Store} from '@common/store/store';
 import {Timestamp} from '@common/time/time';
 import {getRootUrl} from '@common/window';
+import {getLogger} from '@compat/logging';
 import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
+import {RequestData} from '@cross_tool/g3_proxy';
+import {isAllowedIframeParentOrigin} from '@cross_tool/origin_allow_list';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
-import {
-  AppFilesCollected,
-  AppFilesUploaded,
-  AppInitialized,
-  AppRefreshDumpsRequest,
-  AppResetRequest,
-  AppTraceViewRequest,
-} from '@app/app_events';
-import {
-  ActiveSearchQueriesUpdate,
-  BookmarksChanged,
-  BugreportFileSelected,
-  BugreportFileSelectionRequest,
-  DarkModeToggled,
-} from '@app/misc_events';
-import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
-import {
-  ActiveTraceChanged,
-  TracePositionUpdate,
-  TraceSearchRequest,
-} from '@trace/trace_events';
-import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceType} from '@trace_api/trace_type';
 import {AdbFiles} from '@trace_collection/adb_files';
+import {ActiveTraceChanged, TracePositionUpdate, TraceSearchRequest,} from '@trace/trace_events';
 import {ViewerInputMethodComponent} from '@viewers/components/viewer_input_method_component';
 import {Viewer} from '@viewers/viewer';
 import {ViewerInputComponent} from '@viewers/viewer_input/viewer_input_component';
 import {ViewerJankCujsComponent} from '@viewers/viewer_jank_cujs/viewer_jank_cujs_component';
 import {ViewerMediaBasedComponent} from '@viewers/viewer_media_based/viewer_media_based_component';
 import {ViewerProtologComponent} from '@viewers/viewer_protolog/viewer_protolog_component';
+import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
 import {ViewerSearchComponent} from '@viewers/viewer_search/viewer_search_component';
 import {ViewerSurfaceFlingerComponent} from '@viewers/viewer_surface_flinger/viewer_surface_flinger_component';
 import {ViewerTransactionsComponent} from '@viewers/viewer_transactions/viewer_transactions_component';
 import {ViewerTransitionsComponent} from '@viewers/viewer_transitions/viewer_transitions_component';
 import {ViewerViewCaptureComponent} from '@viewers/viewer_view_capture/viewer_view_capture_component';
 import {ViewerWindowManagerComponent} from '@viewers/viewer_window_manager/viewer_window_manager_component';
-import {isAllowedIframeParentOrigin} from '@cross_tool/origin_allow_list';
-import {
-  MatDrawer,
-  MatDrawerContainer,
-  MatDrawerContent,
-} from './bottomnav/bottom_drawer_component';
+
+import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from './bottomnav/bottom_drawer_component';
 import {CollectTracesComponent} from './collect_traces_component';
 import {ShortcutsComponent} from './shortcuts_component';
 import {SnackBarOpener} from './snack_bar_opener';
 import {TimelineComponent} from './timeline/timeline_component';
 import {TraceViewComponent} from './trace_view_component';
 import {UploadTracesComponent} from './upload_traces_component';
-import {
-  WarningDialogComponent,
-  WarningDialogData,
-  WarningDialogResult,
-} from './warning_dialog_component';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatMenuModule} from '@angular/material/menu';
-import {ClipboardModule} from '@angular/cdk/clipboard';
-import {RequestData} from '@cross_tool/g3_proxy';
-import {getLogger} from '@compat/logging';
-import {FileReader} from '@trace_api/file_reader';
-import {
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {TraceType} from '@trace_api/trace_type';
-import {ParsingErrorType} from '@app/parsing_error_type';
+import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './warning_dialog_component';
 
 /**
  * The root component of the Winscope app.

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from '@compat/logging';
 import {ArrayBufferBuilder, BufferToken, ResizableBuffer} from '@common/buffer';
 import {utf8Decode} from '@common/string_helpers';
+import {getLogger, Logger} from '@compat/logging';
+
 import {AdbWebSocketStream} from './adb_websocket_stream';
 import {ErrorListener} from './websocket_stream';
 

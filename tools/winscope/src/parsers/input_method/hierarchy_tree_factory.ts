@@ -16,8 +16,8 @@
 
 import {assertDefined} from '@common/assert';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
-import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {QueryResult} from '@trace_processor/query_result';
+import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -34,7 +34,7 @@ export class HierarchyTreeFactory {
   ) {}
 
   makeHierarchyTree(argsData: QueryResult): HierarchyTreeNode {
-    const fieldParts = this.entryField.type.split(".");
+    const fieldParts = this.entryField.type.split('.');
     const rootId = fieldParts[fieldParts.length - 1];
 
     const entryProps = this.makeEntryPropertiesTree(argsData, rootId);

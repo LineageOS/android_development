@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  assertBigInt,
-  assertBigIntOrUndefined,
-  assertNumber,
-  assertNumberOrUndefined,
-} from '@common/assert';
+import {assertBigInt, assertBigIntOrUndefined, assertNumber, assertNumberOrUndefined,} from '@common/assert';
 import {CornerRadii} from '@common/geometry/corner_radii';
 import {Rect} from '@common/geometry/rect';
 import {Region} from '@common/geometry/region';

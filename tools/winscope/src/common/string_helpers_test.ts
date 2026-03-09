@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  convertSnakeToCamelCase,
-  isAlpha,
-  isBlank,
-  isDigit,
-  isNumeric,
-  parseBigIntStrippingUnit,
-} from './string_helpers';
+import {convertSnakeToCamelCase, isAlpha, isBlank, isDigit, isNumeric, parseBigIntStrippingUnit,} from './string_helpers';
 
 describe('StringUtils', () => {
   it('parses bigint', () => {

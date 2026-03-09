@@ -15,24 +15,9 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  Inject,
-  input,
-  OnDestroy,
-  effect,
-  OnInit,
-  output,
-  signal,
-  computed,
-} from '@angular/core';
+import {Component, computed, effect, ElementRef, HostListener, Inject, input, OnDestroy, OnInit, output, signal,} from '@angular/core';
 import {MatButtonModule, MatIconButton} from '@angular/material/button';
-import {
-  MatButtonToggleChange,
-  MatButtonToggleModule,
-} from '@angular/material/button-toggle';
+import {MatButtonToggleChange, MatButtonToggleModule,} from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIcon, MatIconModule, MatIconRegistry} from '@angular/material/icon';
@@ -43,6 +28,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer} from '@angular/platform-browser';
 import {assertDefined} from '@common/assert';
 import {Distance} from '@common/geometry/distance';
+import {Store} from '@common/store/store';
 import {getRootUrl} from '@common/window';
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
@@ -55,10 +41,10 @@ import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_
 import {RectSpec, TraceRectType} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
+
 import {Canvas} from './canvas';
 import {Mapper3D} from './mapper3d';
 import {ShadingMode} from './shading_mode';
-import {Store} from '@common/store/store';
 
 @Component({
   selector: 'rects-view',

@@ -29,31 +29,29 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {Box3D} from '@common/geometry/box3d';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {waitToBeCalled} from '@test/unit/spy_utils';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {VISIBLE_CHIP} from '@viewers/common/chip';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {
-  RectLegendOption,
-  TraceRectType,
-} from '@viewers/components/rects/rect_spec';
+import {RectLegendOption, TraceRectType,} from '@viewers/components/rects/rect_spec';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {UiRect} from '@viewers/components/rects/ui_rect';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
+
 import {Camera} from './camera';
 import {Canvas} from './canvas';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
 import {ShadingMode} from './shading_mode';
-import {UiRect3D} from './ui_rect3d';
 import {UiRectBuilder} from './ui_rect_builder';
-import {Store} from '@common/store/store';
-import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {DisplayIdentifier} from '@viewers/common/display_identifier';
+import {UiRect3D} from './ui_rect3d';
 
 describe('RectsComponent', () => {
   const rectGroup0 = makeRectWithGroupId(0);

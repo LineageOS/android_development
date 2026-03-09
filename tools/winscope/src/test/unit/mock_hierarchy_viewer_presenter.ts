@@ -19,10 +19,7 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  AbstractHierarchyViewerPresenter,
-  NotifyHierarchyViewCallbackType,
-} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';
 import {DisplayIdentifier} from '@viewers/common/display_identifier';
 import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {HierarchyPresenter} from '@viewers/common/hierarchy_presenter';

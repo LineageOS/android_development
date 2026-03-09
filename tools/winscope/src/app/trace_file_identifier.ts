@@ -14,35 +14,25 @@
  * limitations under the License.
  */
 
+import {BugreportFileSelected, BugreportFileSelectionRequest,} from '@app/misc_events';
+import {ProcessedFiles} from '@app/processed_files';
 import {assertDefined} from '@common/assert';
 import {getFileDirectory, isZipFile, unzipFile} from '@common/io';
 import {utf8Decode} from '@common/string_helpers';
 import {TimezoneInfo} from '@common/time/time';
+import {getLogger, Logger} from '@compat/logging';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {Analytics} from '@logging/analytics';
 import {UserWarning} from '@messaging/user_warning';
-import {
-  makeWarningNoValidFiles,
-  makeWarningMissingPersistentTrace,
-  makeWarningTraceOverridden,
-  makeWarningUnsupportedFileFormat,
-} from './warnings';
-import {
-  BugreportFileSelected,
-  BugreportFileSelectionRequest,
-} from '@app/misc_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
-import {getLogger, Logger} from '@compat/logging';
-import {TraceMetadata} from '@trace_api/trace_metadata';
-import {ProcessedFiles} from '@app/processed_files';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReader} from '@trace_api/file_reader';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {TraceFile} from '@trace/trace_file';
+
+import {makeWarningMissingPersistentTrace, makeWarningNoValidFiles, makeWarningTraceOverridden, makeWarningUnsupportedFileFormat,} from './warnings';
 
 /**
  * The build type of the Android device that generated the bugreport.

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {ProtoLogLevel} from 'protos/protos/perfetto/common/protolog_common_pb';
-import {ProtoLogViewerConfig} from 'protos/protos/perfetto/trace/android/protolog_pb';
-import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
-import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
+import {ProtologJson32, ProtologJson64} from '@compat/protolog';
+import {ProtoLogLevel} from '@protos/protos/perfetto/common/protolog_common_pb';
+import {ProtoLogViewerConfig} from '@protos/protos/perfetto/trace/android/protolog_pb';
 
 interface LegacyConfig {
   groups: {[key: string]: {tag: string}};
@@ -94,5 +93,5 @@ function makeProtologViewerConfig(
   return config;
 }
 
-export const CONFIG_32 = makeProtologViewerConfig(configJson32);
-export const CONFIG_64 = makeProtologViewerConfig(configJson64);
+export const CONFIG_32 = makeProtologViewerConfig(ProtologJson32);
+export const CONFIG_64 = makeProtologViewerConfig(ProtologJson64);

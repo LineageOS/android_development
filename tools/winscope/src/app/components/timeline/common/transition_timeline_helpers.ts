@@ -19,6 +19,7 @@ import {getMax, getMin} from '@common/bigint_math';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
 import {TimelineSegment} from './segment';
 
 function getTimestamp(

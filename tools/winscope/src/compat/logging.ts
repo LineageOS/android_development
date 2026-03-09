@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LogLevel} from 'typescript-logging';
-import {Log4TSProvider, Logger as Log} from 'typescript-logging-log4ts-style';
 import {globalConfig} from '@common/global_config';
+import {LogLevel} from 'typescript-logging';
+import {Logger as Log, Log4TSProvider} from 'typescript-logging-log4ts-style';
 
 export type Logger = Log;
 

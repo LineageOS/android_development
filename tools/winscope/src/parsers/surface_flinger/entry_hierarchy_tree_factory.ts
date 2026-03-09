@@ -14,36 +14,27 @@
  * limitations under the License.
  */
 
-import {
-  assertBigInt,
-  assertBigIntOrUndefined,
-  assertDefined,
-  assertString,
-} from '@common/assert';
+import {assertBigInt, assertBigIntOrUndefined, assertDefined, assertString,} from '@common/assert';
 import {UserWarning} from '@messaging/user_warning';
-import {
-  makeWarningMissingLayerIds,
-  makeWarningDuplicateLayerIds,
-  makeWarningRecursiveLayerIds,
-} from '@parsers/helpers/warnings';
-import {AddDefaults} from '@parsers/operations/add_defaults';
-import {TranslateIntDef} from '@parsers/operations/translate_intdef';
-import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {HwcCompositionType} from 'protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
-import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
+import {makeWarningDuplicateLayerIds, makeWarningMissingLayerIds, makeWarningRecursiveLayerIds,} from '@parsers/helpers/warnings';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {SetFormatters} from '@parsers/operations/set_formatters';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {HwcCompositionType} from '@protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
+import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  LazyPropertiesStrategyType,
-  PropertiesProvider,
-} from '@tree_node/properties_provider';
+import {LazyPropertiesStrategyType, PropertiesProvider,} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {SetFormatters} from '@parsers/operations/set_formatters';
+import {NodeRects, RectsForTrace, SnapshotRects,} from '@tree_node/rect_extractor_result';
+
 import {ZOrderPathsComputation} from './computations/z_order_paths_computation';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';
@@ -53,12 +44,6 @@ import {TranslateFlags} from './operations/translate_flags';
 import {UpdateCornerRadii} from './operations/update_corner_radii';
 import {UpdateTransforms} from './operations/update_transforms';
 import {RectExtractor} from './rect_extractor';
-import {
-  SnapshotRects,
-  RectsForTrace,
-  NodeRects,
-} from '@tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 
 export function makeEntryHierarchyTrees(
   snapshotResults: QueryResult,
@@ -397,8 +382,9 @@ function makeEntryLazyPropertiesStrategy(): LazyPropertiesStrategyType {
   };
 }
 
-const ENTRY_FIELD =
-  assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket')).fields['surfaceflingerLayersSnapshot'];
+const ENTRY_FIELD = assertDefined(
+  PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket'),
+).fields['surfaceflingerLayersSnapshot'];
 const LAYER_FIELD = assertDefined(
   ENTRY_FIELD.resolve()?.fields['layers']?.resolve(),
 ).fields['layers'];

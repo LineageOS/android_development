@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-import {equal} from '@common/typed_array';
 import {assertDefined, assertUnreachable} from '@common/assert';
 import {Box3D} from '@common/geometry/box3d';
 import {CornerRadii} from '@common/geometry/corner_radii';
 import {Point3D} from '@common/geometry/point3d';
 import {Rect3D} from '@common/geometry/rect3d';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import * as THREE from 'three';
-import {
-  CSS2DObject,
-  CSS2DRenderer,
-} from 'three/examples/jsm/renderers/CSS2DRenderer';
+import {equal} from '@common/typed_array';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+import * as THREE from 'three';
+import {CSS2DObject, CSS2DRenderer,} from 'three/examples/jsm/renderers/CSS2DRenderer';
+
 import {Camera} from './camera';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';

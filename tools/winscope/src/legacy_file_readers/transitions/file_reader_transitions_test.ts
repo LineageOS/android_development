@@ -15,26 +15,17 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {
-  ShellHandlerMappings,
-  ShellHandlerMapping,
-} from 'protos/protos/perfetto/trace/android/shell_transition_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
-import {
-  makeConverterNoRteOffsets,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ShellHandlerMapping, ShellHandlerMappings,} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {FileReaderTransitions} from './file_reader_transitions';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {TimestampConverter} from '@common/time/timestamp_converter';
 
 describe('FileReaderTransitions', () => {
   let converter: TimestampConverter;

@@ -15,13 +15,10 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('FileReaderTransitionsShell', () => {
   let reader: LegacyFileReader;

@@ -24,6 +24,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {FilterFlag} from '@common/filter_flag';
 import {TextFilter} from '@viewers/common/text_filter';
+
 import {AbstractFormFieldComponent} from './abstract_form_field_component';
 
 @Component({

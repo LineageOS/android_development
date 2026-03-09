@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  makeConverterWithUtcOffset,
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
+import {makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+
 import {TimeRange} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
 

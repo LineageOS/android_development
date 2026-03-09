@@ -15,9 +15,9 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as descriptor_pb from 'google-protobuf/google/protobuf/descriptor_pb';
-import {descriptors} from 'protos/perfetto/trace/descriptors';
+import {descriptors} from '@protos/perfetto/trace/descriptors';
 import * as jspb from 'google-protobuf';
+import * as descriptor_pb from 'google-protobuf/google/protobuf/descriptor_pb';
 
 const typedefExtension = new jspb.ExtensionFieldInfo<string>(
   60001,
@@ -194,6 +194,8 @@ class Registry {
         case descriptor_pb.FieldDescriptorProto.Type.TYPE_SINT64:
           fieldType = 'sint64';
           break;
+        default:
+          throw new Error(`Unknown field type: ${field.getType()}`);
       }
 
       const repeated =
@@ -355,6 +357,8 @@ class Registry {
           case descriptor_pb.FieldDescriptorProto.Type.TYPE_SINT64:
             fieldType = 'sint64';
             break;
+          default:
+            throw new Error(`Unknown field type: ${ext.getType()}`);
         }
 
         const repeated =

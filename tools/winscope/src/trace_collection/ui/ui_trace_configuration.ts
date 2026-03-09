@@ -18,6 +18,7 @@ import {createPersistentStoreProxy} from '@common/store/persistent_store_proxy';
 import {Store} from '@common/store/store';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
+
 import {UiTraceTarget} from './ui_trace_target';
 
 /**

@@ -14,38 +14,26 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  Inject,
-  input,
-  NgZone,
-  output,
-  signal,
-} from '@angular/core';
+import {ChangeDetectorRef, Component, computed, Inject, input, NgZone, output, signal,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {Store} from '@common/store/store';
-import {ProgressListener} from '@messaging/progress_listener';
 import {AppTraceViewRequest, AppTraceViewRequestHandled} from '@app/app_events';
-import {ShowTraceUploadWarning} from '@trace/trace_events';
+import {Store} from '@common/store/store';
+import {getLogger} from '@compat/logging';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ProgressListener} from '@messaging/progress_listener';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
-import {getLogger} from '@compat/logging';
-import {TRACE_INFO} from '@trace_api/trace_info';
-import {
-  isTraceTypeWithViewer,
-  getReasonForNoTraceVisualization,
-  TraceType,
-} from '@trace_api/trace_type';
-import {LoadProgressComponent} from './load_progress_component';
 import {FileReader} from '@trace_api/file_reader';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {TRACE_INFO} from '@trace_api/trace_info';
+import {getReasonForNoTraceVisualization, isTraceTypeWithViewer, TraceType,} from '@trace_api/trace_type';
+import {ShowTraceUploadWarning} from '@trace/trace_events';
+
+import {LoadProgressComponent} from './load_progress_component';
 
 /**
  * A component for uploading traces.

@@ -17,11 +17,7 @@
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {Timestamp} from '@common/time/time';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CustomQueryParamTypeMap,
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-} from '@trace_api/custom_query';
+import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType,} from '@trace_api/custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';

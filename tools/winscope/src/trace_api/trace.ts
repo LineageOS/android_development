@@ -18,31 +18,16 @@ import {assertDefined, assertTrue} from '@common/assert';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {INVALID_TIME_NS, Timestamp} from '@common/time/time';
 import {UserTimestamp} from '@common/time/user_timestamp';
-import {
-  binarySearchFirstGreater,
-  binarySearchFirstGreaterOrEqual,
-} from '@common/typed_array';
+import {binarySearchFirstGreater, binarySearchFirstGreaterOrEqual,} from '@common/typed_array';
 import {getLogger, Logger} from '@compat/logging';
+import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
-import {
-  CustomQueryParamTypeMap,
-  CustomQueryParserResultTypeMap,
-  CustomQueryResultTypeMap,
-  CustomQueryType,
-  PROCESS_CUSTOM_QUERY_PARSER_RESULT,
-} from './custom_query';
+import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryResultTypeMap, CustomQueryType, PROCESS_CUSTOM_QUERY_PARSER_RESULT,} from './custom_query';
 import {FrameMap} from './frame_map';
-import {
-  AbsoluteEntryIndex,
-  AbsoluteFrameIndex,
-  EntriesRange,
-  FramesRange,
-  RelativeEntryIndex,
-} from './index_types';
+import {AbsoluteEntryIndex, AbsoluteFrameIndex, EntriesRange, FramesRange, RelativeEntryIndex,} from './index_types';
 import {Parser} from './parser';
 import {TRACE_INFO} from './trace_info';
 import {TraceType} from './trace_type';
-import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 /**
  * Represents a single entry within a trace. This abstract class provides

@@ -17,23 +17,12 @@ import {Component, Inject} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef,} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {
-  WarningDialogComponent,
-  WarningDialogData,
-  WarningDialogResult,
-} from './warning_dialog_component';
+
+import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './warning_dialog_component';
 
 describe('WarningDialogComponent', () => {
   let component: TestHostComponent;

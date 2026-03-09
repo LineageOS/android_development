@@ -47,12 +47,13 @@
 // the next batch (if any) within the QueryResultImpl.
 // This object is part of the API exposed to tracks / controllers.
 
-import {ProtoReader} from './proto_reader';
+import { getLogger, Logger } from "compat/logging";
+
 import {defer, Deferred} from './deferred';
 import {assertExists, assertFalse, assertTrue} from './logging';
-import { getLogger, Logger } from "compat/logging";
+import {ProtoReader} from './proto_reader';
 import {utf8Decode} from './string_utils';
-import {duration, Time, time} from './time';
+import {duration, time, Time} from './time';
 
 export type SqlValue = string | number | bigint | null | Uint8Array;
 export type ColumnType = SqlValue;
@@ -993,19 +994,19 @@ class WaitableQueryResultImpl
 
   // PromiseLike<QueryResult> implementation.
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   then(onfulfilled: any, onrejected: any): any {
     assertFalse(this.thenCalled);
     this.thenCalled = true;
     return this.impl.ensureAllRowsPromise().then(onfulfilled, onrejected);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   catch(error: any): any {
     return this.impl.ensureAllRowsPromise().catch(error);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   finally(callback: () => void): any {
     return this.impl.ensureAllRowsPromise().finally(callback);
   }

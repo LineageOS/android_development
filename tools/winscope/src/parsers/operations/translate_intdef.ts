@@ -16,11 +16,7 @@
 
 import {INTDEF_MAPPING_JSON} from '@compat/intdef_mapping';
 import {getLogger} from '@compat/logging';
-import {
-  FixedStringFormatter,
-  FLAG_SEPARATOR,
-  formatAsHex,
-} from '@trace/formatters';
+import {FixedStringFormatter, FLAG_SEPARATOR, formatAsHex,} from '@trace/formatters';
 import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -74,7 +70,10 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
     if (typeDefSpec && field.name === propertyName) {
       return this.getIntFlagsAsStrings(value, typeDefSpec, translateAsAll);
     } else {
-      const parentName = field.name === propertyName ? field.parent?.name : field.resolve()?.name;
+      const parentName =
+        field.name === propertyName
+          ? field.parent?.name
+          : field.resolve()?.name;
       const propertyPath = `${parentName}.${propertyName}`;
       if (this.intDefColumn[propertyPath]) {
         return this.getIntFlagsAsStrings(

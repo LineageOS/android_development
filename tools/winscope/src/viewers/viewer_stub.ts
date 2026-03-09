@@ -17,6 +17,7 @@
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {Trace} from '@trace_api/trace';
+
 import {View, Viewer, ViewType} from './viewer';
 
 export class ViewerStub implements Viewer {

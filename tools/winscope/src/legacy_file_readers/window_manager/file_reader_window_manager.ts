@@ -16,17 +16,14 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {
-  WindowManagerTraceFileProto,
-  WindowManagerTraceProto,
-} from 'protos/protos/windowmanager/udc/windowmanagertrace_pb';
-import {TraceType} from '@trace_api/trace_type';
-import {WindowManagerTraceEntry} from 'protos/protos/perfetto/trace/android/windowmanager_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {WinscopeExtensions} from 'protos/protos/perfetto/trace/android/winscope_extensions_pb';
-import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {WindowManagerTraceEntry} from '@protos/protos/perfetto/trace/android/windowmanager_pb';
+import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
+import {WinscopeExtensions} from '@protos/protos/perfetto/trace/android/winscope_extensions_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {WindowManagerTraceFileProto, WindowManagerTraceProto,} from '@protos/protos/windowmanager/udc/windowmanagertrace_pb';
+import {TraceType} from '@trace_api/trace_type';
 
 export class FileReaderWindowManager extends AbstractFileReader<WindowManagerTraceProto> {
   private static readonly MAGIC_NUMBER = [
@@ -52,8 +49,7 @@ export class FileReaderWindowManager extends AbstractFileReader<WindowManagerTra
   }
 
   override decodeTrace(buffer: Uint8Array): WindowManagerTraceProto[] {
-    const decoded =
-      WindowManagerTraceFileProto.deserializeBinary(buffer);
+    const decoded = WindowManagerTraceFileProto.deserializeBinary(buffer);
     const timeOffset = BigInt(decoded.getRealToElapsedTimeOffsetNanos() ?? '0');
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
     return decoded.getEntryList();

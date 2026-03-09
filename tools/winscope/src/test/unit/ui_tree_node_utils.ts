@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
+import {PropertyValue} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
-import {
-  makeHierarchyNode,
-  makePropertyNode,
-  testTreeNodes as baseTestTreeNodes,
-} from './tree_node/tree_node_test_helpers';
-import {PropertyValue} from '@tree_node/property_tree_node';
+
+import {testTreeNodes as baseTestTreeNodes, makeHierarchyNode, makePropertyNode,} from './tree_node/tree_node_test_helpers';
 
 /**
  * Creates a UI hierarchy tree node for tests.

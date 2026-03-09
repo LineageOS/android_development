@@ -26,29 +26,21 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
+import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@app/misc_events';
+import {ParsingErrorType} from '@app/parsing_error_type';
+import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@app/tabbed_view_events';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {
-  FilterPresetApplyRequest,
-  FilterPresetSaveRequest,
-} from '@app/misc_events';
-import {
-  TabbedViewSwitchRequest,
-  TabbedViewSwitched,
-} from '@app/tabbed_view_events';
-import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeZeroTimestamp} from '@common/time/test_helpers';
+import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Viewer, ViewType} from '@viewers/viewer';
 import {ViewerStub} from '@viewers/viewer_stub';
+
 import {TraceViewComponent} from './trace_view_component';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {ParsingErrorType} from '@app/parsing_error_type';
 
 describe('TraceViewComponent', () => {
   const traceSf = makeEmptyTrace<HierarchyTreeNode>(TraceType.SURFACE_FLINGER);

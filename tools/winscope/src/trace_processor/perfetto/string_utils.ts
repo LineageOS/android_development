@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assertTrue} from './logging';
 
-import { getLogger } from "compat/logging";
 
 // TextDecoder/Decoder requires the full DOM and isn't available in all types
 // of tests. Use fallback implementation if needed.

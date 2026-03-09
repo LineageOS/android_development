@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {TimezoneInfo, Timestamp} from './time';
-import {UTCOffset} from './utc_offset';
+import {Timestamp, TimezoneInfo} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
+import {UTCOffset} from './utc_offset';
 
 /**
  * Resolves the UTC offset.

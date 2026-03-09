@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
@@ -58,8 +55,6 @@ describe('PerfettoParserInputMethodService', () => {
   it('retrieves trace entry', async () => {
     const entry = await parser.getEntry(0);
     expect(entry).toBeInstanceOf(HierarchyTreeNode);
-    expect(entry.id).toBe(
-      'InputMethodServiceTraceProto entry',
-    );
+    expect(entry.id).toBe('InputMethodServiceTraceProto entry');
   });
 });

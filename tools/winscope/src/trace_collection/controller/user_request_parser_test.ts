@@ -20,6 +20,7 @@ import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_co
 import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
 import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {UserRequest, UserRequestConfig} from '@trace_collection/user_request';
+
 import {PerfettoSessionModerator} from './perfetto_session_moderator';
 import {TracingSession} from './tracing_session';
 import {UserRequestParser} from './user_request_parser';

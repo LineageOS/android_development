@@ -18,7 +18,6 @@ import {CommonModule} from '@angular/common';
 import {Component, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-
 import {ConnectionState} from '@trace_collection/connection_state';
 
 /**

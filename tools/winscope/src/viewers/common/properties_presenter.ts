@@ -17,28 +17,20 @@
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {
-  makeDenyListFilterByName,
-  makeIdMatchFilter,
-  makeNodeFilter,
-} from '@tree_node/helpers';
+import {makeDenyListFilterByName, makeIdMatchFilter, makeNodeFilter,} from '@tree_node/helpers';
+import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
 import {TextFilter} from '@viewers/common/text_filter';
+
 import {IsModifiedCallbackType} from './add_diffs';
 import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';
 import {Filter} from './operations/filter';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {UiTreeFormatter} from './ui_tree_formatter';
-import {
-  isNotCalculated,
-  isNotFromTP,
-  makeIsNotDefaultFilter,
-  TreeNodeFilter,
-} from './ui_tree_node_helpers';
+import {isNotCalculated, isNotFromTP, makeIsNotDefaultFilter, TreeNodeFilter,} from './ui_tree_node_helpers';
 import {UserOptions} from './user_options';
-import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 export class PropertiesPresenter {
   private propertiesFilter: TreeNodeFilter;

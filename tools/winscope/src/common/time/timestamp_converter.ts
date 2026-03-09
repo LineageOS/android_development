@@ -15,14 +15,10 @@
  */
 
 import {assertDefined, assertTrue} from '@common/assert';
+
 import {INVALID_TIME_NS, Timestamp} from './time';
 import {TIME_UNIT_TO_NANO, TIME_UNITS} from './time_units';
-import {
-  ELAPSED_TIMESTAMP_FORMATTER,
-  REAL_TIMESTAMP_FORMATTER_UTC,
-  RealTimestampFormatter,
-  TimestampType,
-} from './timestamp_formatter';
+import {ELAPSED_TIMESTAMP_FORMATTER, REAL_TIMESTAMP_FORMATTER_UTC, RealTimestampFormatter, TimestampType,} from './timestamp_formatter';
 import {UserTimestamp} from './user_timestamp';
 import {UTCOffset} from './utc_offset';
 

@@ -15,14 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  computed,
-  ElementRef,
-  Inject,
-  input,
-  output,
-} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -37,6 +30,7 @@ import {RectShowState} from '@viewers/common/rect_show_state';
 import {TableProperties} from '@viewers/common/table_properties';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
@@ -47,7 +41,6 @@ import {TreeNodeComponent} from '@viewers/components/tree_node_component';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
 import {TreeComponent} from './tree_component';
-import {UiTreeNode} from '@viewers/common/ui_tree_node';
 
 @Component({
   selector: 'hierarchy-view',

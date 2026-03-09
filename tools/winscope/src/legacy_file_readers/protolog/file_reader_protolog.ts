@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-import {TraceFile} from '@trace/trace_file';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {getLogger, Logger} from '@compat/logging';
-import {TraceMetadata} from '@trace_api/trace_metadata';
-import {ProtoLogMessage as PerfettoProtoLogMessage} from 'protos/protos/perfetto/trace/android/protolog_pb';
-import {
-  ProtoLogFileProto,
-  ProtoLogMessage as UdcProtoLogMessage,
-} from 'protos/protos/protolog/udc/protolog_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {InternedData} from 'protos/protos/perfetto/trace/interned_data/interned_data_pb';
-import {InternedString} from 'protos/protos/perfetto/trace/profiling/profile_common_pb';
-import {TraceType} from '@trace_api/trace_type';
-import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
-import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
-import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
+import {ProtologJson32, ProtologJson64} from '@compat/protolog';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {ProtoLogMessage as PerfettoProtoLogMessage} from '@protos/protos/perfetto/trace/android/protolog_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {InternedData} from '@protos/protos/perfetto/trace/interned_data/interned_data_pb';
+import {InternedString} from '@protos/protos/perfetto/trace/profiling/profile_common_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {ProtoLogFileProto, ProtoLogMessage as UdcProtoLogMessage,} from '@protos/protos/protolog/udc/protolog_pb';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {TraceType} from '@trace_api/trace_type';
+import {TraceFile} from '@trace/trace_file';
+
+import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 type ProtoLogMessage = UdcProtoLogMessage;
 
@@ -79,14 +76,18 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
 
     const firstLog = fileProto.getLogList().at(0);
     if (this.is32BitVersion(firstLog)) {
-      if (configJson32.version !== FileReaderProtoLog.PROTOLOG_32_BIT_VERSION) {
-        const message = `Unsupported ProtoLog JSON config version ${configJson32.version}. Expected ${FileReaderProtoLog.PROTOLOG_32_BIT_VERSION}`;
+      if (
+        ProtologJson32.version !== FileReaderProtoLog.PROTOLOG_32_BIT_VERSION
+      ) {
+        const message = `Unsupported ProtoLog JSON config version ${ProtologJson32.version}. Expected ${FileReaderProtoLog.PROTOLOG_32_BIT_VERSION}`;
         this.logger.error(message);
         throw new TypeError(message);
       }
     } else if (this.is64BitVersion(firstLog)) {
-      if (configJson64.version !== FileReaderProtoLog.PROTOLOG_64_BIT_VERSION) {
-        const message = `Unsupported ProtoLog JSON config version ${configJson64.version}. Expected ${FileReaderProtoLog.PROTOLOG_64_BIT_VERSION}`;
+      if (
+        ProtologJson64.version !== FileReaderProtoLog.PROTOLOG_64_BIT_VERSION
+      ) {
+        const message = `Unsupported ProtoLog JSON config version ${ProtologJson64.version}. Expected ${FileReaderProtoLog.PROTOLOG_64_BIT_VERSION}`;
         this.logger.error(message);
         throw new TypeError(message);
       }

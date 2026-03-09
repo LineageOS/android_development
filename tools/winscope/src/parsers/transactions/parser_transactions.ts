@@ -14,50 +14,36 @@
  * limitations under the License.
  */
 
-import {
-  assertBigInt,
-  assertBigIntOrUndefined,
-  assertDefined,
-  assertString,
-} from '@common/assert';
+import {assertBigInt, assertBigIntOrUndefined, assertDefined, assertString,} from '@common/assert';
 import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
-import {AddDefaults} from '@parsers/operations/add_defaults';
-import {AbstractParser} from '@parsers/perfetto/abstract_parser';
-import {
-  getDistinctValues,
-  queryArgs,
-  queryVsyncId,
-} from '@parsers/perfetto/query_helpers';
+import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {LayerState} from 'protos/protos/perfetto/trace/android/surfaceflinger_transactions_pb';
-import {EnumFormatter, FixedStringFormatter} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType, TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
-import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
-import {TransactionType} from '@trace/transactions/transaction_type';
-import {
-  CustomQueryParamTypeMap,
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-  VisitableParserCustomQuery,
-} from '@trace_api/custom_query';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {SetFormatters} from '@parsers/operations/set_formatters';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {getDistinctValues, queryArgs, queryVsyncId,} from '@parsers/perfetto/query_helpers';
+import {LayerState} from '@protos/protos/perfetto/trace/android/surfaceflinger_transactions_pb';
+import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType, VisitableParserCustomQuery,} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';
 import {TraceType} from '@trace_api/trace_type';
 import {RowIterator} from '@trace_processor/query_result';
+import {EnumFormatter, FixedStringFormatter} from '@trace/formatters';
+import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {TransactionType} from '@trace/transactions/transaction_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
-import {
-  PropertyFormatter,
-  PropertyTreeNode,
-} from '@tree_node/property_tree_node';
-import {SetFormatters} from '@parsers/operations/set_formatters';
-import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
+import {PropertyFormatter, PropertyTreeNode,} from '@tree_node/property_tree_node';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
-  private static readonly TransactionsTraceEntryField =
-    (PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket') as TamperedMessageType).fields['surfaceflingerTransactions'];
+  private static readonly TransactionsTraceEntryField = (
+    PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      'perfetto.protos.TracePacket',
+    ) as TamperedMessageType
+  ).fields['surfaceflingerTransactions'];
 
   private static readonly TRANSACTION_COLUMNS = [
     'transaction_id',

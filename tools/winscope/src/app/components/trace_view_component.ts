@@ -16,23 +16,8 @@
 
 import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  Inject,
-  input,
-  NgZone,
-  signal,
-} from '@angular/core';
-import {
-  FormControl,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import {ChangeDetectorRef, Component, computed, effect, ElementRef, Inject, input, NgZone, signal,} from '@angular/core';
+import {FormControl, ReactiveFormsModule, ValidationErrors, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -40,28 +25,19 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@app/misc_events';
+import {ParsingErrorType} from '@app/parsing_error_type';
+import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@app/tabbed_view_events';
 import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
-import {Analytics} from '@logging/analytics';
-import {
-  FilterPresetApplyRequest,
-  FilterPresetSaveRequest,
-} from '@app/misc_events';
-import {
-  TabbedViewSwitched,
-  TabbedViewSwitchRequest,
-} from '@app/tabbed_view_events';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
-import {WinscopeEvent} from '@messaging/winscope_event';
-import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {getLogger} from '@compat/logging';
+import {Analytics} from '@logging/analytics';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {View, Viewer, ViewType} from '@viewers/viewer';
-import {ParsingErrorType} from '@app/parsing_error_type';
 
 interface Tab {
   view: View;

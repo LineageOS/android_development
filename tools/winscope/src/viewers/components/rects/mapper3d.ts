@@ -23,6 +23,7 @@ import {Size} from '@common/geometry/size';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiRect} from '@viewers/components/rects/ui_rect';
+
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
 import {Scene} from './scene';

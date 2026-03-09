@@ -16,22 +16,11 @@
 
 import {MakeTimestampStrategyType, Timestamp} from '@common/time/time';
 import {Trace, TraceEntry} from '@trace_api/trace';
-import {
-  ColumnType,
-  QueryResult,
-  RowIterator,
-} from '@trace_processor/query_result';
-import {
-  AbstractLogViewerPresenter,
-  NotifyLogViewCallbackType,
-} from '@viewers/common/abstract_log_viewer_presenter';
+import {ColumnType, QueryResult, RowIterator,} from '@trace_processor/query_result';
+import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@viewers/common/abstract_log_viewer_presenter';
 import {LogPresenter} from '@viewers/common/log_presenter';
-import {
-  LogEntry,
-  LogField,
-  LogFieldValue,
-  LogHeader,
-} from '@viewers/common/ui_data_log';
+import {LogEntry, LogField, LogFieldValue, LogHeader,} from '@viewers/common/ui_data_log';
+
 import {SearchResult} from './ui_data';
 
 export class SearchResultPresenter extends AbstractLogViewerPresenter<

@@ -14,52 +14,41 @@
  * limitations under the License.
  */
 
-import {
-  getReaderWithLatestRealToBootTimeOffset,
-  getReaderWithLatestRealToMonotonicTimeOffset,
-} from '@app/file_reader_helpers';
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@app/file_reader_helpers';
 import {assertDefined} from '@common/assert';
-import {
-  DOWNLOAD_FILENAME_REGEX,
-  ILLEGAL_FILENAME_CHARACTERS_REGEX,
-  removeDirFromFileName,
-  removeExtensionFromFilename,
-  OnProgressUpdateType,
-} from '@common/io';
-import {
-  TimestampConverter,
-  UTC_TIMEZONE_INFO,
-} from '@common/time/timestamp_converter';
+import {DOWNLOAD_FILENAME_REGEX, ILLEGAL_FILENAME_CHARACTERS_REGEX, OnProgressUpdateType, removeDirFromFileName, removeExtensionFromFilename,} from '@common/io';
+import {TimezoneInfo} from '@common/time/time';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
+import {TimestampConverter, UTC_TIMEZONE_INFO,} from '@common/time/timestamp_converter';
+import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 import {getLogger, Logger} from '@compat/logging';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReaderTransitions} from '@legacy_file_readers/transitions/file_reader_transitions';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
 import {ParserInput} from '@parsers/input/parser_input';
+import {ParserSearch} from '@parsers/search/parser_search';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
-import {Trace} from '@trace_api/trace';
-import {TraceType, isTraceTypeWithViewer} from '@trace_api/trace_type';
-import {Traces} from '@trace_api/traces';
-import {Parser} from '@trace_api/parser';
 import {FileReader} from '@trace_api/file_reader';
+import {FrameMapper} from '@trace_api/frame_mapper';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {isTraceTypeWithViewer, TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
+import {TraceFile} from '@trace/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
 import {FileLoader, FileLoaderResult} from './file_loader';
-import {FilesSource} from './files_source';
 import {FileReaderAndParser} from './file_reader_and_parser';
+import {FilesSource} from './files_source';
 import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';
 import {LoadedFiles} from './loaded_files';
-import {Analytics} from '@logging/analytics';
-import {FrameMapper} from '@trace_api/frame_mapper';
-import {ParserSearch} from '@parsers/search/parser_search';
-import {ProgressListener} from '@messaging/progress_listener';
-import {makeWarningIncompleteFrameMapping} from './warnings';
-import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
-import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {TimezoneInfo} from '@common/time/time';
-import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {ParsingErrorType} from './parsing_error_type';
+import {makeWarningIncompleteFrameMapping} from './warnings';
 
 /**
  * A class that stores and transforms trace data.
@@ -511,8 +500,10 @@ export class LoadedFileData {
     const result = await TraceProcessorFactory.getSingleInstance().query(query);
 
     if (result && result.numRows() > 0) {
-      const timezoneOffsetMin = result.firstRow({int_value: 0n}).int_value;
-      return timezoneOffsetMin * BigInt(TIME_UNIT_TO_NANO.m);
+      const timezoneOffsetMinutes = Number(
+        result.firstRow({int_value: 0n}).int_value,
+      );
+      return BigInt(timezoneOffsetMinutes) * TIME_UNIT_TO_NANO.m;
     }
     return undefined;
   }

@@ -16,6 +16,7 @@
 
 import {DiffType} from '@viewers/common/diff_type';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+
 import {AddDiffs} from './add_diffs';
 
 export class AddDiffsHierarchyTree extends AddDiffs<UiHierarchyTreeNode> {

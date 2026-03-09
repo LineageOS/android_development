@@ -15,15 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  Inject,
-  input,
-  output,
-  TemplateRef,
-  viewChild,
-} from '@angular/core';
+import {Component, ElementRef, Inject, input, output, TemplateRef, viewChild,} from '@angular/core';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';

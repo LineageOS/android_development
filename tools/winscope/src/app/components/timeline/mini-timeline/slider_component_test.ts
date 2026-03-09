@@ -16,7 +16,7 @@
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ChangeDetectionStrategy} from '@angular/core';
-import {TestBed, discardPeriodicTasks, fakeAsync} from '@angular/core/testing';
+import {discardPeriodicTasks, fakeAsync, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -24,15 +24,13 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TracePosition} from '@trace_api/trace_position';
+
 import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';
 
 describe('SliderComponent', () => {

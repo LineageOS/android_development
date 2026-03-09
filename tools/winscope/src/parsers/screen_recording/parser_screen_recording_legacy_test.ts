@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {
-  spyOnThumbnailGenerator,
-  waitForThumbnailGeneration,
-} from './test_helpers';
+import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+
+import {spyOnThumbnailGenerator, waitForThumbnailGeneration,} from './test_helpers';
 
 describe('ParserScreenRecordingLegacy', () => {
   let parser: Parser<MediaBasedTraceEntry>;

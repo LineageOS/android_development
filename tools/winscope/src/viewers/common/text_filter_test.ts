@@ -15,6 +15,7 @@
  */
 
 import {FilterFlag} from '@common/filter_flag';
+
 import {TextFilter} from './text_filter';
 
 describe('TextFilter', () => {

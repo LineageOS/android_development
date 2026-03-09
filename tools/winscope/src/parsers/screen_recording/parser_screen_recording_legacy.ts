@@ -16,10 +16,10 @@
 
 import {Timestamp} from '@common/time/time';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-
-import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
-import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
 import {CoarseVersion} from '@trace_api/coarse_version';
+
+import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
+import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
 
 export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
   override getMagicNumber(): number[] {

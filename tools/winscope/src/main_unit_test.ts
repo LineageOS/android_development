@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import {globalConfig} from '@common/global_config';
-globalConfig.set({
-  MODE: 'KARMA_TEST',
-});
-
+/* eslint-disable winscope/sort-imports */
 // zone.js and zone.js/testing must be imported before any other Angular imports
 import 'zone.js';
 import 'zone.js/testing';
+/* eslint-enable winscope/sort-imports */
+import {globalConfig} from '@common/global_config';
 import {TestBed} from '@angular/core/testing';
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from '@angular/platform-browser-dynamic/testing';
+import {BrowserDynamicTestingModule, platformBrowserDynamicTesting,} from '@angular/platform-browser-dynamic/testing';
+
+globalConfig.set({
+  MODE: 'KARMA_TEST',
+});
 
 TestBed.initTestEnvironment(
   BrowserDynamicTestingModule,

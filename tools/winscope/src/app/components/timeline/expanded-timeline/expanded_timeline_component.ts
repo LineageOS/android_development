@@ -15,20 +15,15 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  HostListener,
-  input,
-  output,
-  viewChildren,
-} from '@angular/core';
+import {Component, HostListener, input, output, viewChildren,} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TimelineData} from '@app/timeline_data';
 import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
-import {TraceType, compareByDisplayOrder} from '@trace_api/trace_type';
+import {compareByDisplayOrder, TraceType} from '@trace_api/trace_type';
+
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';
 

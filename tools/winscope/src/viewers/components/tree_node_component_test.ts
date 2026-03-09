@@ -26,6 +26,7 @@ import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {DiffType} from '@viewers/common/diff_type';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 import {TreeNodeComponent} from './tree_node_component';

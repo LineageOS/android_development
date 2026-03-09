@@ -31,24 +31,19 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabGroup, MatTabsModule} from '@angular/material/tabs';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
-import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {AppRefreshDumpsRequest} from '@app/app_events';
 import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
+import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {waitToBeCalled} from '@test/unit/spy_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
-import {
-  AdbDeviceConnection,
-  AdbDeviceState,
-} from '@trace_collection/adb/adb_device_connection';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
 import {makeProtologGroupOptions} from '@trace_collection/ui/ui_trace_configuration';
@@ -56,14 +51,14 @@ import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {WdpDeviceConnection} from '@trace_collection/wdp/wdp_device_connection';
 import {WdpHostConnection} from '@trace_collection/wdp/wdp_host_connection';
 import {WinscopeProxyDeviceConnection} from '@trace_collection/winscope_proxy/winscope_proxy_device_connection';
-import {CollectTracesComponent} from './collect_traces_component';
 import {WinscopeProxyHostConnection} from '@trace_collection/winscope_proxy/winscope_proxy_host_connection';
+
+import {CollectTracesComponent} from './collect_traces_component';
 import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
 import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
-import {waitToBeCalled} from '@test/unit/spy_utils';
 
 describe('CollectTracesComponent', () => {
   let component: CollectTracesComponent;

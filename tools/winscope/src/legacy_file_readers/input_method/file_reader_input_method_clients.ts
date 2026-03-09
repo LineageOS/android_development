@@ -16,17 +16,14 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {TraceType} from '@trace_api/trace_type';
-import {
-  InputMethodClientsTraceFileProto,
-  InputMethodClientsTraceProto as AndroidInputMethodClientsTraceProto,
-} from 'protos/protos/ime/udc/inputmethodeditortrace_pb';
-import {InputMethodClientsTraceProto} from 'protos/protos/perfetto/trace/android/inputmethodeditor_pb';
-import {WinscopeExtensions} from 'protos/protos/perfetto/trace/android/winscope_extensions_pb';
-import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {InputMethodClientsTraceProto as AndroidInputMethodClientsTraceProto, InputMethodClientsTraceFileProto,} from '@protos/protos/ime/udc/inputmethodeditortrace_pb';
+import {InputMethodClientsTraceProto} from '@protos/protos/perfetto/trace/android/inputmethodeditor_pb';
+import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
+import {WinscopeExtensions} from '@protos/protos/perfetto/trace/android/winscope_extensions_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {TraceType} from '@trace_api/trace_type';
 
 export class FileReaderInputMethodClients extends AbstractFileReader<AndroidInputMethodClientsTraceProto> {
   private static readonly MAGIC_NUMBER = [

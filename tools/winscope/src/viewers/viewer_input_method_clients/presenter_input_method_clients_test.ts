@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {AbstractPresenterInputMethodTest} from '@viewers/common/abstract_presenter_input_method_test';
+
 import {PresenterInputMethodClients} from './presenter_input_method_clients';
-import {SetFormatters} from '@parsers/operations/set_formatters';
 
 class PresenterInputMethodClientsTest extends AbstractPresenterInputMethodTest {
   protected override readonly PresenterInputMethod =

@@ -15,20 +15,13 @@
  */
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {WinscopeExtensionsImpl} from 'protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {
-  makeConverterNoRteOffsets,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
+import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
+import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('FileReaderViewCapture', () => {
   let reader: LegacyFileReader;

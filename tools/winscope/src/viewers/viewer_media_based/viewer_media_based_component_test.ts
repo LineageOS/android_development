@@ -23,18 +23,15 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
+import {Timer} from '@common/time/timer';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  CanvasEntry,
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {ViewerEvents} from '@viewers/common/viewer_events';
-import {ViewerMediaBasedComponent} from './viewer_media_based_component';
-import {Parser} from '@trace_api/parser';
-import {Timer} from '@common/time/timer';
 import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
+import {Parser} from '@trace_api/parser';
+import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+
+import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 
 describe('ViewerMediaBasedComponent', () => {
   let component: TestHostComponent;

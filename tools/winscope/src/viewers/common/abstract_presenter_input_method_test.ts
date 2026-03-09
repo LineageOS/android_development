@@ -17,7 +17,6 @@
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
-import {TracePositionUpdate} from '@trace/trace_events';
 import {getImeTraceEntries} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
@@ -26,12 +25,14 @@ import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {ImeTraceType, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {TracePositionUpdate} from '@trace/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {PresenterInputMethodClients} from '@viewers/viewer_input_method_clients/presenter_input_method_clients';
 import {PresenterInputMethodManagerService} from '@viewers/viewer_input_method_manager_service/presenter_input_method_manager_service';
 import {PresenterInputMethodService} from '@viewers/viewer_input_method_service/presenter_input_method_service';
+
 import {NotifyHierarchyViewCallbackType} from './abstract_hierarchy_viewer_presenter';
 import {AbstractHierarchyViewerPresenterTest} from './abstract_hierarchy_viewer_presenter_test';
 import {AbstractPresenterInputMethod} from './abstract_presenter_input_method';

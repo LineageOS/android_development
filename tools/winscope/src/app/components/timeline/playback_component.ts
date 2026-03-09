@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatSelectModule, MatSelectChange} from '@angular/material/select';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatTooltipModule} from '@angular/material/tooltip';
 import {CommonModule} from '@angular/common';
-import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSelectChange, MatSelectModule} from '@angular/material/select';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {Analytics} from '@logging/analytics';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 @Component({
   selector: 'playback-controls',

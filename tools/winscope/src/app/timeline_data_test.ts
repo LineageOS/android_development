@@ -15,21 +15,22 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {makeWarningCannotParseAllTransitions} from './warnings';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {ParserBuilder} from '@test/unit/trace_api/parser_builder';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TimelineData} from './timeline_data';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {TimelineData} from './timeline_data';
+import {makeWarningCannotParseAllTransitions} from './warnings';
 
 describe('TimelineData', () => {
   let timelineData: TimelineData;

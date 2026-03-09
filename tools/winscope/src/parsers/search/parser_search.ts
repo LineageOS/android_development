@@ -22,16 +22,13 @@ import {Analytics} from '@logging/analytics';
 import {makeWarningTraceSearchQueryFailed} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-} from '@trace_api/custom_query';
+import {CustomQueryParserResultTypeMap, CustomQueryType,} from '@trace_api/custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
-import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 
 export class ParserSearch implements Parser<QueryResult> {
   private queryResult?: QueryResult;

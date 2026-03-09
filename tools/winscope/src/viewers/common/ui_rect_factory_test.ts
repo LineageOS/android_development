@@ -22,6 +22,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {UiRect} from '@viewers/components/rects/ui_rect';
 import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
+
 import {makeInputRects, makeUiRects, makeVcUiRects} from './ui_rect_factory';
 
 describe('ui_rect_factory', () => {

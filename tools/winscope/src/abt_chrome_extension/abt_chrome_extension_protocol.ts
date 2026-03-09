@@ -16,24 +16,12 @@
 
 import {AppInitialized} from '@app/app_events';
 import {getLogger, Logger} from '@compat/logging';
-import {
-  RemoteToolDownloadStart,
-  RemoteToolFilesReceived,
-  RemoteToolInitialized,
-  RemoteToolWaitingForFiles,
-} from '@cross_tool/remote_tool_events';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
+import {RemoteToolDownloadStart, RemoteToolFilesReceived, RemoteToolInitialized, RemoteToolWaitingForFiles,} from '@cross_tool/remote_tool_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
-import {
-  MessageType,
-  OpenBuganizerResponse,
-  OpenRequest,
-  WebCommandMessage,
-} from './messages';
+
+import {MessageType, OpenBuganizerResponse, OpenRequest, WebCommandMessage,} from './messages';
 
 /**
  * Protocol for communication between Winscope and the ABT Chrome extension.

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {getLogger} from '@compat/logging';
-// organize-imports-ignore
 import '@angular/compiler';
 import {globalConfig} from '@common/global_config';
+import {getLogger} from '@compat/logging';
 globalConfig.set({
   MODE: 'PROD',
 });

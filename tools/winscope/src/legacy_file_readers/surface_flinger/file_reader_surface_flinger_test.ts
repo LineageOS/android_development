@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
+import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {makeIdMatchFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-  parseAndConvertToPerfettoTrace,
-} from '@test/unit/fixture_utils';
 
 describe('FileReaderSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;

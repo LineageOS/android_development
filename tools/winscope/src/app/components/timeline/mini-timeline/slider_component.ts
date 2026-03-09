@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 
-import {
-  CdkDragEnd,
-  CdkDragMove,
-  CdkDragStart,
-  DragDropModule,
-} from '@angular/cdk/drag-drop';
-import {
-  ChangeDetectorRef,
-  Component,
-  effect,
-  ElementRef,
-  HostListener,
-  Inject,
-  input,
-  output,
-  viewChild,
-} from '@angular/core';
+import {CdkDragEnd, CdkDragMove, CdkDragStart, DragDropModule,} from '@angular/cdk/drag-drop';
+import {ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {Point} from '@common/geometry/point';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
 import {TracePosition} from '@trace_api/trace_position';
+
 import {Transformer} from './transformer';
 
 /**

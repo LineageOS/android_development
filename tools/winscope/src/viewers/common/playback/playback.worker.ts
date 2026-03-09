@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
+import {assertDefined} from '@common/assert';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/entry_hierarchy_tree_factory';
+import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/window_manager/entry_hierarchy_tree_factory';
 import {TraceType} from '@trace_api/trace_type';
 import {createQueryResult} from '@trace_processor/perfetto/query_result';
-import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/window_manager/entry_hierarchy_tree_factory';
-import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/entry_hierarchy_tree_factory';
-import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {QueryResult} from '@trace_processor/query_result';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
-import {assertDefined} from '@common/assert';
 
 interface WorkerMessage {
   start: number;

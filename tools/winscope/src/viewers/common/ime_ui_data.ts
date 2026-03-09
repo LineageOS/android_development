@@ -19,9 +19,10 @@ import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties
 import {TableProperties} from '@viewers/common/table_properties';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UserOptions} from '@viewers/common/user_options';
+
+import {FlattenedTreeRow} from './flattened_tree_row';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
-import {FlattenedTreeRow} from './flattened_tree_row';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 export class ImeUiData implements UiDataHierarchy {

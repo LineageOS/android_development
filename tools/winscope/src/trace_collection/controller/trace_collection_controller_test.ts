@@ -15,10 +15,9 @@
  */
 
 import {ProgressListener} from '@messaging/progress_listener';
-import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
@@ -26,6 +25,8 @@ import {MockAdbHostConnection} from '@trace_collection/mock/mock_adb_host_connec
 import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
 import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {UserRequest} from '@trace_collection/user_request';
+import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
+
 import {PerfettoSessionModerator} from './perfetto_session_moderator';
 import {TraceCollectionController} from './trace_collection_controller';
 import {TracingSession} from './tracing_session';

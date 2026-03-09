@@ -16,28 +16,17 @@
 
 import {ArrayBufferBuilder} from '@common/buffer';
 import {binaryEncode} from '@common/string_helpers';
-import {
-  makeWarningProxyTracingWarnings,
-  makeWarningProxyTracingErrors,
-} from '@trace_collection/warnings';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  makeFakeWebSocket,
-  makeFakeWebSocketMessage,
-} from '@test/unit/web_socket_utils';
-import {
-  AdbDeviceConnectionListener,
-  AdbDeviceState,
-} from '@trace_collection/adb/adb_device_connection';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@test/unit/web_socket_utils';
+import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {TraceTarget} from '@trace_collection/trace_target';
+import {makeWarningProxyTracingErrors, makeWarningProxyTracingWarnings,} from '@trace_collection/warnings';
+
 import {AdbWebSocketStream} from './adb_websocket_stream';
 import {ShellStream} from './shell_stream';
 import {StreamProvider} from './stream_provider';
 import {SyncStream} from './sync_stream';
-import {
-  WdpDeviceConnection,
-  WdpDeviceConnectionResponse,
-} from './wdp_device_connection';
+import {WdpDeviceConnection, WdpDeviceConnectionResponse,} from './wdp_device_connection';
 
 describe('WdpDeviceConnection', () => {
   const listener = jasmine.createSpyObj<AdbDeviceConnectionListener>(

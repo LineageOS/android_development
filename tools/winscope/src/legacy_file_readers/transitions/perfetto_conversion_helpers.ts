@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ShellTransition} from 'protos/protos/perfetto/trace/android/shell_transition_pb';
+import {ShellTransition} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
 
 type TransitionProperty =
   | number

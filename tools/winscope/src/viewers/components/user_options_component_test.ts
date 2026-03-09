@@ -22,6 +22,7 @@ import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {UserOptions} from '@viewers/common/user_options';
+
 import {UserOptionsComponent} from './user_options_component';
 
 describe('UserOptionsComponent', () => {

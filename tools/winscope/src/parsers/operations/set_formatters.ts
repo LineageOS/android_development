@@ -14,26 +14,11 @@
  * limitations under the License.
  */
 
-import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {Timestamp} from '@common/time/time';
-import {
-  BUFFER_FORMATTER,
-  COLOR_FORMATTER,
-  DEFAULT_PROPERTY_FORMATTER,
-  MATRIX_FORMATTER,
-  POSITION_FORMATTER,
-  RECT_FORMATTER,
-  REGION_FORMATTER,
-  SIZE_FORMATTER,
-  TIMESTAMP_NODE_FORMATTER,
-  TRANSFORM_FORMATTER,
-} from '@trace/formatters';
-
+import {BUFFER_FORMATTER, COLOR_FORMATTER, DEFAULT_PROPERTY_FORMATTER, MATRIX_FORMATTER, POSITION_FORMATTER, RECT_FORMATTER, REGION_FORMATTER, SIZE_FORMATTER, TIMESTAMP_NODE_FORMATTER, TRANSFORM_FORMATTER,} from '@trace/formatters';
+import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 import {Operation} from '@tree_node/operation';
-import {
-  PropertyFormatter,
-  PropertyTreeNode,
-} from '@tree_node/property_tree_node';
+import {PropertyFormatter, PropertyTreeNode,} from '@tree_node/property_tree_node';
 
 export class SetFormatters implements Operation<PropertyTreeNode> {
   private static readonly TransformRegExp = new RegExp('transform', 'i');

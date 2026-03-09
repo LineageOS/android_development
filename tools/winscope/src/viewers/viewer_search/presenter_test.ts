@@ -15,19 +15,7 @@
  */
 
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {
-  InitializeTraceSearchRequest,
-  TraceAddRequest,
-  TracePositionUpdate,
-  TraceRemoveRequest,
-  TraceSearchFailed,
-  TraceSearchInitialized,
-  TraceSearchRequest,
-} from '@trace/trace_events';
-import {
-  makeConverterZeroRteOffsets,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
+import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
@@ -36,17 +24,12 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
-import {
-  ClearQueryClickDetail,
-  DeleteSavedQueryClickDetail,
-  SaveQueryClickDetail,
-  SearchQueryClickDetail,
-  TimestampClickDetail,
-  ViewerEvents,
-} from '@viewers/common/viewer_events';
+import {InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace/trace_events';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
+
 import {Presenter} from './presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 describe('PresenterSearch', () => {
   const timestampConverter = makeConverterZeroRteOffsets();

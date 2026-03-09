@@ -16,10 +16,8 @@
 
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {TraceType} from '@trace_api/trace_type';
-import {
-  TraceConfigurationMap,
-  updateConfigsFromStore,
-} from './ui_trace_configuration';
+
+import {TraceConfigurationMap, updateConfigsFromStore,} from './ui_trace_configuration';
 
 describe('updateConfigsFromStore', () => {
   const traceKey = 'test_trace';

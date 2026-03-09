@@ -16,6 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+
 import {ZOrderPathsComputation} from './z_order_paths_computation';
 
 interface MockLayerProperties {

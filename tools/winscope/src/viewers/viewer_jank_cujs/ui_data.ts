@@ -16,12 +16,7 @@
 
 import {TraceEntry} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  LogEntry,
-  LogField,
-  LogHeader,
-  UiDataLog,
-} from '@viewers/common/ui_data_log';
+import {LogEntry, LogField, LogHeader, UiDataLog,} from '@viewers/common/ui_data_log';
 
 export class UiData implements UiDataLog {
   constructor(

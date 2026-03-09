@@ -16,21 +16,22 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {makeRealTimestamp} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
-import {TracePositionUpdate} from '@trace/trace_events';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {ParserBuilder} from '@test/unit/trace_api/parser_builder';
-import {makeRealTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {TracePositionUpdate} from '@trace/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader, UiDataLog} from '@viewers/common/ui_data_log';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 

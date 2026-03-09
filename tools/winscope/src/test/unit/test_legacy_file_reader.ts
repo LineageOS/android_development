@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {Timestamp} from '@common/time/time';
-
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
+
 import {TestFileReader} from './test_file_reader';
 
 /**

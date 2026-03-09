@@ -15,17 +15,14 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
-import {TransactionType} from '@trace/transactions/transaction_type';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {TransactionType} from '@trace/transactions/transaction_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyValue} from '@tree_node/property_tree_node';
 

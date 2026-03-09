@@ -13,28 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  PERFETTO_TRACE_PACKET_ROOT,
-  registerDescriptors,
-  TamperedMessageType,
-  TamperedProtoField
-} from '@trace/proto_utils/tampered_message_type';
-import {descriptors} from 'protos/test/fake_proto/descriptors';
 import {assertDefined} from '@common/assert';
 import {TransformTypeFlags} from '@common/geometry/transform';
-import {SetFormatters} from '@parsers/operations/set_formatters';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {
-  makeBufferNode,
-  makeColorNode,
-  makePositionNode,
-  makeRectNode,
-  makeSizeNode,
-  makeTransformNode,
-} from '@test/unit/tree_node/tree_node_test_helpers';
+import {SetFormatters} from '@parsers/operations/set_formatters';
+import {descriptors} from '@protos/test/fake_proto/descriptors';
+import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {makeBufferNode, makeColorNode, makePositionNode, makeRectNode, makeSizeNode, makeTransformNode,} from '@test/unit/tree_node/tree_node_test_helpers';
 import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from '@trace/formatters';
-
+import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 describe('SetFormatters', () => {
@@ -44,7 +31,11 @@ describe('SetFormatters', () => {
   let field: TamperedProtoField;
 
   beforeEach(() => {
-    field = (PERFETTO_TRACE_PACKET_ROOT.lookupType('winscope.test.RootMessage') as TamperedMessageType).fields['entry'];
+    field = (
+      PERFETTO_TRACE_PACKET_ROOT.lookupType(
+        'winscope.test.RootMessage',
+      ) as TamperedMessageType
+    ).fields['entry'];
     operation = new SetFormatters();
   });
 

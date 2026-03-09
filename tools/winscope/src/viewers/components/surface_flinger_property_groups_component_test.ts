@@ -22,6 +22,7 @@ import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {SfCuratedProperties} from '@viewers/common/curated_properties';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';
 import {TransformMatrixComponent} from './transform_matrix_component';

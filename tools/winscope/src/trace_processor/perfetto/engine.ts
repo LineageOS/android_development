@@ -12,23 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  TraceProcessorRpc,
-  TraceProcessorRpcStream,
-  QueryArgs,
-  ResetTraceProcessorArgs,
-  RegisterSqlPackageArgs,
-} from 'protos/protos/perfetto/trace_processor/trace_processor_pb';
-import {defer, Deferred} from './deferred';
-import {getLogger, Logger} from '@compat/logging';
-import {ProtoRingBuffer} from './proto_ring_buffer';
-import {
-  createQueryResult,
-  QueryResult,
-  WritableQueryResult,
-} from './query_result';
-import {ProtoReader} from './proto_reader';
 import {assertDefined} from '@common/assert';
+import {getLogger, Logger} from '@compat/logging';
+import {QueryArgs, RegisterSqlPackageArgs, ResetTraceProcessorArgs, TraceProcessorRpc, TraceProcessorRpcStream,} from '@protos/protos/perfetto/trace_processor/trace_processor_pb';
+
+import {defer, Deferred} from './deferred';
+import {ProtoReader} from './proto_reader';
+import {ProtoRingBuffer} from './proto_ring_buffer';
+import {createQueryResult, QueryResult, WritableQueryResult,} from './query_result';
 
 // Aliases for brevity
 const TPM = TraceProcessorRpc.TraceProcessorMethod;
@@ -108,7 +99,6 @@ export abstract class EngineBase {
     // We'll peek/scan manually.
     try {
       while (reader.pos < reader.len) {
-        const startPos = reader.pos;
         const tag = reader.uint32();
         const fieldId = tag >>> 3;
         const wireType = tag & 7;
@@ -316,7 +306,7 @@ export abstract class EngineBase {
 
   registerSqlPackages(pkg: {
     name: string;
-    modules: {name: string; sql: string}[];
+    modules: Array<{name: string; sql: string}>;
   }): Promise<void> {
     if (this.pendingRegisterSqlPackage) {
       return Promise.reject(new Error('Already registering SQL package'));
@@ -361,7 +351,5 @@ export abstract class EngineBase {
   protected fail(reason: string) {
     throw new Error(reason);
   }
-
-  abstract dispose(): void;
 }
 

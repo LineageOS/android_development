@@ -17,6 +17,7 @@
 import {TimeDuration} from '@common/time/time_duration';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {PropertySource} from '@tree_node/property_tree_node';
+
 import {TransformDuration} from './transform_duration';
 
 describe('TransformDuration', () => {

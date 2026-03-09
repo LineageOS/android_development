@@ -17,8 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {queryArgsForEntry} from '@parsers/perfetto/query_helpers';
-import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {TraceType} from '@trace_api/trace_type';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {HierarchyTreeFactory} from './hierarchy_tree_factory';
@@ -26,7 +26,11 @@ import {makeOperations} from './operations_factory';
 
 export class ParserInputMethodManagerService extends AbstractParser<HierarchyTreeNode> {
   private static readonly ENTRY_FIELD = assertDefined(
-    assertDefined(PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket')?.fields['winscopeExtensions']?.resolve()).fields[
+    assertDefined(
+      PERFETTO_TRACE_PACKET_ROOT.lookupType(
+        'perfetto.protos.TracePacket',
+      )?.fields['winscopeExtensions']?.resolve(),
+    ).fields[
       '.perfetto.protos.WinscopeExtensionsImpl.inputmethodManagerService'
     ],
   );

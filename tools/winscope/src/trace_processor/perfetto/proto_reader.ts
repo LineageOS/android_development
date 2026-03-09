@@ -17,9 +17,9 @@
 import {utf8Decode} from './string_utils';
 
 export class ProtoReader {
-  public pos = 0;
-  public len: number;
-  public readonly buf: Uint8Array;
+  pos = 0;
+  len: number;
+  readonly buf: Uint8Array;
 
   constructor(buf: Uint8Array) {
     this.buf = buf;

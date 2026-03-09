@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
+import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {makeWarningTraceSearchQueryFailed} from '@parsers/helpers/warnings';
 import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
 import {getPerfettoParser} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  makeZeroTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {TraceType} from '@trace_api/trace_type';
+
 import {ParserSearch} from './parser_search';
 
 describe('ParserSearch', () => {

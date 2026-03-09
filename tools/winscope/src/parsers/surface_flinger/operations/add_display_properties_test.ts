@@ -17,6 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {AddDisplayProperties} from './add_display_properties';
 
 describe('AddDisplayProperties', () => {
@@ -123,9 +124,9 @@ describe('AddDisplayProperties', () => {
     const display = assertDefined(
       propertyRoot.getChildByName('displays'),
     ).getAllChildren()[0];
-    expect(
-      display.getChildByName('isLargeScreen')?.getValue(),
-    ).toEqual(isLargeScreen);
+    expect(display.getChildByName('isLargeScreen')?.getValue()).toEqual(
+      isLargeScreen,
+    );
   }
 
   function checkIsOn(isOn: boolean) {

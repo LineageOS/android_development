@@ -15,6 +15,7 @@
  */
 
 import {MathUtils} from 'three/src/Three';
+
 import {DraggableCanvasObject} from './draggable_canvas_object';
 import {MiniTimelineDrawer} from './mini_timeline_drawer';
 import {RenderedRange} from './rendered_range';

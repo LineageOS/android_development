@@ -16,10 +16,11 @@
 
 import {Timestamp} from '@common/time/time';
 import {TraceEntry} from '@trace_api/trace';
+import {TreeNode} from '@tree_node/tree_node';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ListedSearch} from '@viewers/viewer_search/ui_data';
+
 import {LogHeader} from './ui_data_log';
-import {TreeNode} from '@tree_node/tree_node';
 
 export enum ViewerEvents {
   HighlightedNodeChange = 'HighlightedNodeChange',

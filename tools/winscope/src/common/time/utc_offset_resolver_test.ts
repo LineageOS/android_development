@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import {
-  ASIA_TIMEZONE_INFO,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {UTC_TIMEZONE_INFO} from './timestamp_converter';
-import {getResolvedUTCOffset} from './utc_offset_resolver';
+import {ASIA_TIMEZONE_INFO, timestampEqualityTester,} from '@common/time/test_helpers';
+
 import {Timestamp, TimestampFormatter} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
+import {UTC_TIMEZONE_INFO} from './timestamp_converter';
+import {getResolvedUTCOffset} from './utc_offset_resolver';
 
 class MockTimestampFormatter implements TimestampFormatter {
   format(timestamp: bigint): string {

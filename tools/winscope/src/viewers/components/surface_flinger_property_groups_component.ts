@@ -19,15 +19,13 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
-import {
-  SfCuratedProperties,
-  SfLayerSummary,
-} from '@viewers/common/curated_properties';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {SfCuratedProperties, SfLayerSummary,} from '@viewers/common/curated_properties';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {TransformMatrixComponent} from './transform_matrix_component';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 @Component({
   selector: 'surface-flinger-property-groups',

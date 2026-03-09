@@ -16,17 +16,15 @@
 
 import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
-import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
 import {Trace} from '@trace_api/trace';
+import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  AbstractLogViewerPresenter,
-  NotifyLogViewCallbackType,
-} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@viewers/common/abstract_log_viewer_presenter';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {LogPresenter} from '@viewers/common/log_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {LogEntry, LogField, LogHeader} from '@viewers/common/ui_data_log';
+
 import {ProtologEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<

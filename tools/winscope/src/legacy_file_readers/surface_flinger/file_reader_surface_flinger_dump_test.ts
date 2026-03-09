@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  makeConverterWithUtcOffset,
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  makeZeroTimestamp,
-  timestampEqualityTester,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('FileReaderSurfaceFlingerDump', () => {
   let userNotifierChecker: UserNotifierChecker;

@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-import {Timestamp} from '@common/time/time';
-import {
-  TransitionTraceProto,
-  Transition as LegacyTransition,
-  Target,
-} from 'protos/protos/transitions/udc/windowmanagertransitiontrace_pb';
-import {TraceType} from '@trace_api/trace_type';
-import {ShellTransition} from 'protos/protos/perfetto/trace/android/shell_transition_pb';
-import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
 import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {ShellTransition} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {Transition as LegacyTransition, Target, TransitionTraceProto,} from '@protos/protos/transitions/udc/windowmanagertransitiontrace_pb';
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * Parser for WM Transition trace files.

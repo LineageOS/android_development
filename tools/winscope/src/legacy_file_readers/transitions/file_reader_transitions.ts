@@ -16,15 +16,15 @@
 
 import {assertDefined, assertTrue} from '@common/assert';
 import {getMax} from '@common/bigint_math';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {TraceType} from '@trace_api/trace_type';
-import {ShellTransition} from 'protos/protos/perfetto/trace/android/shell_transition_pb';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {Timestamp} from '@common/time/time';
-import {TraceFile} from '@trace/trace_file';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ShellTransition} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {TraceType} from '@trace_api/trace_type';
+import {TraceFile} from '@trace/trace_file';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.

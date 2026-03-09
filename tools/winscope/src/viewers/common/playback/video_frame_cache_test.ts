@@ -15,9 +15,10 @@
  */
 
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {createVideoFrameCache} from './video_frame_cache_factory';
-import {VideoFrameCache} from './video_frame_cache';
+
 import {PlaybackState} from './playback_state';
+import {VideoFrameCache} from './video_frame_cache';
+import {createVideoFrameCache} from './video_frame_cache_factory';
 
 describe('VideoFrameCache', () => {
   let dataOneKeyFrameAndRotation: Uint8Array;

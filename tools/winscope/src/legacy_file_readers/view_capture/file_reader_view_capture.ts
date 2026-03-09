@@ -15,16 +15,14 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
-import {
-  ExportedData,
-  WindowData,
-} from 'protos/protos/viewcapture/udc/view_capture_pb';
-import {TraceFile} from '@trace/trace_file';
-import {TraceType} from '@trace_api/trace_type';
-import {FileReaderViewCaptureWindow} from './file_reader_view_capture_window';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ExportedData, WindowData,} from '@protos/protos/viewcapture/udc/view_capture_pb';
+import {TraceType} from '@trace_api/trace_type';
+import {TraceFile} from '@trace/trace_file';
+
+import {FileReaderViewCaptureWindow} from './file_reader_view_capture_window';
 
 /**
  * A parser for legacy ViewCapture traces.

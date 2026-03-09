@@ -15,18 +15,15 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
-import {
-  RemoteToolInitialized,
-  RemoteToolTimestampReceived,
-  RemoteToolWaitingForFiles,
-} from './remote_tool_events';
-import {CrossToolProtocol} from './cross_tool_protocol';
-import {MessageTestFailureInfo, MessageType} from './messages';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {waitToBeCalled} from '@test/unit/spy_utils';
+
+import {CrossToolProtocol} from './cross_tool_protocol';
+import {MessageTestFailureInfo, MessageType} from './messages';
+import {RemoteToolInitialized, RemoteToolTimestampReceived, RemoteToolWaitingForFiles,} from './remote_tool_events';
 
 describe('CrossToolProtocol', () => {
   const FAKE_ORIGIN = 'http://localhost:8081';

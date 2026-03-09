@@ -15,18 +15,8 @@
  */
 
 import {browser, by, element} from 'protractor';
-import {
-  changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkTimelineTraceSelector,
-  checkWinscopeRealTimestamp,
-  filterHierarchy,
-  loadTraceAndCheckViewer,
-  selectItemInHierarchy,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {changeRealTimestampInWinscope, checkFinalRealTimestamp, checkInitialRealTimestamp, checkTimelineTraceSelector, checkWinscopeRealTimestamp, filterHierarchy, loadTraceAndCheckViewer, selectItemInHierarchy, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer View Capture', () => {
   const viewerSelector = 'viewer-view-capture';

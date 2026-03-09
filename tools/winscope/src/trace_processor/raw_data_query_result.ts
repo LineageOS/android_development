@@ -15,14 +15,10 @@
  */
 
 import {assertTrue} from '@common/assert';
-import {ProtoReader} from './perfetto/proto_reader';
-import {
-  WritableQueryResult,
-  QueryResult,
-  Row,
-  RowIterator,
-} from './perfetto/query_result';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+
+import {ProtoReader} from './perfetto/proto_reader';
+import {QueryResult, Row, RowIterator, WritableQueryResult,} from './perfetto/query_result';
 
 /**
  * Represents a query result where the raw data is received in multiple batches.

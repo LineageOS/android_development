@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 import {browser, by, element, ElementFinder} from 'protractor';
-import {
-  changeRealTimestampInWinscope,
-  checkFinalNsTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTreeByIndex,
-  checkSelectFilter,
-  checkWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {changeRealTimestampInWinscope, checkFinalNsTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTreeByIndex, checkSelectFilter, checkWinscopeRealTimestamp, loadTraceAndCheckViewer, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Transitions', () => {
   const viewerSelector = 'viewer-transitions';

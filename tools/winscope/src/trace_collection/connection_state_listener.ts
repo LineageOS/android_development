@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  AdbDeviceConnection,
-  AdbDeviceConnectionListener,
-} from './adb/adb_device_connection';
+import {AdbDeviceConnection, AdbDeviceConnectionListener,} from './adb/adb_device_connection';
 
 export interface ConnectionStateListener extends AdbDeviceConnectionListener {
   onDevicesChange(devices: AdbDeviceConnection[]): void;

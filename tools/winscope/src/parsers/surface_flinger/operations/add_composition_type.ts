@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HwcCompositionType} from 'protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
+import {HwcCompositionType} from '@protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {AddOperation} from '@tree_node/add_operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';

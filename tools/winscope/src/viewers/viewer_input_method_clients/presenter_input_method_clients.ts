@@ -28,6 +28,7 @@ import {UpdateSfSubtreeDisplayNames} from '@viewers/common/operations/update_sf_
 import {TableProperties} from '@viewers/common/table_properties';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UserOptions} from '@viewers/common/user_options';
+
 import {UpdateDisplayNames} from './operations/update_display_names';
 
 export class PresenterInputMethodClients extends AbstractPresenterInputMethod {

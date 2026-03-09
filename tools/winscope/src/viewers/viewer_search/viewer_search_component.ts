@@ -17,68 +17,38 @@
 import {CdkAccordionItem, CdkAccordionModule} from '@angular/cdk/accordion';
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  HostListener,
-  Inject,
-  SimpleChanges,
-  TemplateRef,
-  viewChild,
-  viewChildren,
-} from '@angular/core';
-import {
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import {ChangeDetectorRef, Component, ElementRef, HostListener, Inject, SimpleChanges, TemplateRef, viewChild, viewChildren,} from '@angular/core';
+import {FormControl, FormsModule, ReactiveFormsModule, ValidationErrors, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {
-  MatTabChangeEvent,
-  MatTabGroup,
-  MatTabsModule,
-} from '@angular/material/tabs';
+import {MatTabChangeEvent, MatTabGroup, MatTabsModule,} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
+import {makeWarningExportTooLarge, makeWarningFailedToExportToCsv, makeWarningNoResultsToExport,} from '@app/warnings';
 import {assertDefined} from '@common/assert';
 import {downloadFromUrl} from '@common/download';
 import {Timestamp} from '@common/time/time';
 import {TimeDuration} from '@common/time/time_duration';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {Analytics} from '@logging/analytics';
+import {UserNotifier} from '@services/user_notifier';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {ClickableProperty} from '@viewers/common/ui_data_log';
-import {
-  AddQueryClickDetail,
-  ClearQueryClickDetail,
-  DeleteSavedQueryClickDetail,
-  SaveQueryClickDetail,
-  SearchQueryClickDetail,
-  ViewerEvents,
-} from '@viewers/common/viewer_events';
+import {AddQueryClickDetail, ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {LogComponent} from '@viewers/components/log_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
+
 import {ActiveSearchComponent} from './active_search_component';
 import {ListItemOption, SearchListComponent} from './search_list_component';
 import {CurrentSearch, ListedSearch, UiData} from './ui_data';
-import {UserNotifier} from '@services/user_notifier';
-import {
-  makeWarningExportTooLarge,
-  makeWarningFailedToExportToCsv,
-  makeWarningNoResultsToExport,
-} from '@app/warnings';
 
 @Component({
   standalone: true,

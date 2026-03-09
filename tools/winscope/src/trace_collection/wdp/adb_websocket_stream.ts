@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {Logger} from '@compat/logging';
 import {base64Decode} from '@common/string_helpers';
+import {Logger} from '@compat/logging';
+
 import {ErrorListener, WebSocketStream} from './websocket_stream';
 
 interface AdbResponse {

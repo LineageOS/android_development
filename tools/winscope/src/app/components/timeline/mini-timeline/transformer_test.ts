@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
+import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {
-  makeConverterZeroRteOffsets,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
+
 import {Transformer} from './transformer';
 
 describe('Transformer', () => {

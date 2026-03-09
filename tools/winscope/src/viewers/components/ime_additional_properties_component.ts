@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  computed,
-  ElementRef,
-  Inject,
-  input,
-  output,
-} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
 import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
-import {
-  ImeContainerProperties,
-  InputMethodSurfaceProperties,
-} from '@viewers/common/ime_utils';
-import {
-  AdditionalPropertySelectedDetail,
-  ViewerEvents,
-} from '@viewers/common/viewer_events';
+import {ImeContainerProperties, InputMethodSurfaceProperties,} from '@viewers/common/ime_utils';
+import {AdditionalPropertySelectedDetail, ViewerEvents,} from '@viewers/common/viewer_events';
+
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {CoordinatesTableComponent} from './coordinates_table_component';
 

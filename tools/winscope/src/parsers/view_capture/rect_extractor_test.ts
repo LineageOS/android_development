@@ -17,13 +17,11 @@
 import {Rect} from '@common/geometry/rect';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {ColumnType} from '@trace_processor/query_result';
-import {
-  makeSpyRowIterator,
-  setupMockIteratorWithRows,
-} from '@trace_processor/test_utils';
-import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
-import {extractAllRects, extractRect} from './rect_extractor';
+import {makeSpyRowIterator, setupMockIteratorWithRows,} from '@trace_processor/test_utils';
 import {RectsForTrace, SnapshotRects} from '@tree_node/rect_extractor_result';
+import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
+
+import {extractAllRects, extractRect} from './rect_extractor';
 
 describe('ViewCapture RectExtractor', () => {
   it('extracts rect', () => {

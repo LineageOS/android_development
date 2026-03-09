@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {UpdateTransitionParticipants} from './update_transition_participants';
 import {SetFormatters} from '@parsers/operations/set_formatters';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+
+import {UpdateTransitionParticipants} from './update_transition_participants';
 
 describe('UpdateTransitionParticipants', () => {
   let operation: UpdateTransitionParticipants;

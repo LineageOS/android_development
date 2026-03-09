@@ -15,20 +15,8 @@
  */
 
 import {browser, by, element} from 'protractor';
-import {
-  applyStateToHierarchyOptions,
-  changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTree,
-  checkTimelineTraceSelector,
-  checkWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  scrollDown,
-  selectItemInHierarchy,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {applyStateToHierarchyOptions, changeRealTimestampInWinscope, checkFinalRealTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTree, checkTimelineTraceSelector, checkWinscopeRealTimestamp, loadTraceAndCheckViewer, scrollDown, selectItemInHierarchy, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Input Method Clients', () => {
   const viewerSelector = 'viewer-input-method';

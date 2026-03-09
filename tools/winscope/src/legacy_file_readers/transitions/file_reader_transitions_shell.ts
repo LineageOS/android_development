@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-import {Timestamp} from '@common/time/time';
-import {
-  ShellHandlerMappings,
-  ShellHandlerMapping,
-  ShellTransition,
-} from 'protos/protos/perfetto/trace/android/shell_transition_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {
-  WmShellTransitionTraceProto,
-  Transition as ShellTransitionProto,
-  HandlerMapping,
-} from 'protos/protos/transitions/udc/wm_shell_transition_trace_pb';
-import {TraceType} from '@trace_api/trace_type';
-import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
-import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 import {assertDefined} from '@common/assert';
+import {Timestamp} from '@common/time/time';
+import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {ShellHandlerMapping, ShellHandlerMappings, ShellTransition,} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {HandlerMapping, Transition as ShellTransitionProto, WmShellTransitionTraceProto,} from '@protos/protos/transitions/udc/wm_shell_transition_trace_pb';
+import {TraceType} from '@trace_api/trace_type';
+
+import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
 
 /**
  * Parser for Shell Transition trace files.

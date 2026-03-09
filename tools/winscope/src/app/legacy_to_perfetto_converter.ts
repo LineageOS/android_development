@@ -15,20 +15,18 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeWarningFailedToConvertLegacyTraces} from './warnings';
-import {UserNotifier} from '@services/user_notifier';
-import {Trace} from 'protos/protos/perfetto/trace/trace_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {ClockSnapshot as PerfettoClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TraceFile} from '@trace/trace_file';
-import {getLogger, Logger} from '@compat/logging';
-import {
-  getReaderWithLatestRealToBootTimeOffset,
-  getReaderWithLatestRealToMonotonicTimeOffset,
-} from './file_reader_helpers';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {FileReader} from '@trace_api/file_reader';
 import {INVALID_TIME_NS} from '@common/time/time';
+import {getLogger, Logger} from '@compat/logging';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ClockSnapshot as PerfettoClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {Trace} from '@protos/protos/perfetto/trace/trace_pb';
+import {UserNotifier} from '@services/user_notifier';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace/trace_file';
+
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from './file_reader_helpers';
+import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 
 /**
  * An interface for a clock snapshot.

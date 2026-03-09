@@ -20,11 +20,7 @@ import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 import {CoarseVersion} from './coarse_version';
-import {
-  CustomQueryParamTypeMap,
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-} from './custom_query';
+import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType,} from './custom_query';
 import {AbsoluteEntryIndex, EntriesRange} from './index_types';
 import {TraceType} from './trace_type';
 

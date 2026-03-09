@@ -63,8 +63,4 @@ export class WasmEngineProxy extends EngineBase {
     // TypedArray for each decode operation would be too expensive).
     this.port.postMessage(data);
   }
-
-  dispose() {
-    this.worker.terminate();
-  }
 }

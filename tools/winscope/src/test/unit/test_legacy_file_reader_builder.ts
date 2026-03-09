@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {TestLegacyFileReader} from './test_legacy_file_reader';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceFile} from '@trace/trace_file';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
+
 import {TestFileReaderBuilder} from './test_file_reader_builder';
+import {TestLegacyFileReader} from './test_legacy_file_reader';
 
 /**
  * Helper class to build `TestLegacyFileReader` instances for testing.

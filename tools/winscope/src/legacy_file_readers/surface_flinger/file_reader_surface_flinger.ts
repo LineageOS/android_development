@@ -16,15 +16,12 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {LayersSnapshotProto} from 'protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
-import {ClockSnapshot} from 'protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from 'protos/protos/perfetto/trace/trace_packet_pb';
-import {
-  LayersTraceFileProto,
-  LayersTraceProto,
-} from 'protos/protos/surfaceflinger/udc/layerstrace_pb';
-import {TraceType} from '@trace_api/trace_type';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {LayersSnapshotProto} from '@protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
+import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
+import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {LayersTraceFileProto, LayersTraceProto,} from '@protos/protos/surfaceflinger/udc/layerstrace_pb';
+import {TraceType} from '@trace_api/trace_type';
 
 export class FileReaderSurfaceFlinger extends AbstractFileReader<LayersTraceProto> {
   private static readonly MAGIC_NUMBER = [

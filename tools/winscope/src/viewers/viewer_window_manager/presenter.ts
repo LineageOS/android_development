@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {assertDefined} from '@common/assert';
 import {createPersistentStoreProxy} from '@common/store/persistent_store_proxy';
 import {Store} from '@common/store/store';
 import {Trace} from '@trace_api/trace';
@@ -21,33 +22,24 @@ import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  AbstractHierarchyViewerPresenter,
-  NotifyHierarchyViewCallbackType,
-} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';
 import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {DisplayIdentifier} from '@viewers/common/display_identifier';
-import {
-  HierarchyPresenter,
-  SelectedTree,
-} from '@viewers/common/hierarchy_presenter';
+import {HierarchyPresenter, SelectedTree,} from '@viewers/common/hierarchy_presenter';
+import {PlaybackPresenter} from '@viewers/common/playback/playback_presenter';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {RectsPresenter} from '@viewers/common/rects_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {makeUiRects} from '@viewers/common/ui_rect_factory';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
-import {
-  RectLegendFactory,
-  TraceRectType,
-} from '@viewers/components/rects/rect_spec';
+import {RectLegendFactory, TraceRectType,} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
+
 import {PropagateHashCodes} from './operations/propagate_hash_codes';
 import {UiData} from './ui_data';
-import {PlaybackPresenter} from '@viewers/common/playback/playback_presenter';
-import {assertDefined} from '@common/assert';
-import {makeUiRects} from '@viewers/common/ui_rect_factory';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
   static readonly DENYLIST_PROPERTY_NAMES = [

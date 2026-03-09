@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 import * as path from 'path';
-import {
-  browser,
-  by,
-  element,
-  ElementFinder,
-  ExpectedConditions,
-  protractor,
-} from 'protractor';
+import {browser, by, element, ElementFinder, ExpectedConditions, protractor,} from 'protractor';
 
 export const WINSCOPE_URL = 'http://localhost:8080';
 export const REMOTE_TOOL_MOCK_URL = 'http://localhost:8081';

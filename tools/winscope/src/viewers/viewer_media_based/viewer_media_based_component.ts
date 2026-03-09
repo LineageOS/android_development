@@ -15,17 +15,7 @@
  */
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  HostListener,
-  Inject,
-  Input,
-  NgZone,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, HostListener, Inject, Input, NgZone, SimpleChanges, ViewChild,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';

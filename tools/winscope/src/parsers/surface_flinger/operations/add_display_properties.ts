@@ -56,14 +56,13 @@ export class AddDisplayProperties implements Operation<PropertyTreeNode> {
     const dpiX = Number(display.getChildByName('dpiX')?.getValue() ?? 0);
 
     const size = display.getChildByName('size');
-    const width = assertDefined(size?.getChildByName('w')?.getValue<number>() ?? 0);
+    const width = assertDefined(
+      size?.getChildByName('w')?.getValue<number>() ?? 0,
+    );
     const height = assertDefined(
       size?.getChildByName('h')?.getValue<number>() ?? 0,
     );
-    const smallestWidth = this.dpiFromPx(
-      Math.min(width, height),
-      dpiX,
-    );
+    const smallestWidth = this.dpiFromPx(Math.min(width, height), dpiX);
     const isLargeScreen = smallestWidth >= AddDisplayProperties.TABLET_MIN_DPS;
 
     display.addOrReplaceChild(

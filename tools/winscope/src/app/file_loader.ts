@@ -14,43 +14,34 @@
  * limitations under the License.
  */
 
+import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
+import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
+import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
+import {ProcessedFiles} from '@app/processed_files';
+import {assertDefined} from '@common/assert';
 import {decompressGZipFile, isGZipFile, isZipFile, unzipFile} from '@common/io';
 import {TimezoneInfo} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
 import {UserWarning} from '@messaging/user_warning';
-import {
-  makeWarningCorruptedArchive,
-  makeWarningNoValidFiles,
-  makeWarningTraceProcessorError,
-  makeWarningUnsupportedFileFormat,
-} from './warnings';
-
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
-import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
-import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
-
-import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
-import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
-import {TraceMetadata} from '@trace_api/trace_metadata';
-import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {FilesSource} from './files_source';
-import {IdentifiedFiles, TraceFileIdentifier} from './trace_file_identifier';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {ProcessedFiles} from '@app/processed_files';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {assertDefined} from '@common/assert';
-import {FileReaderAndParser} from './file_reader_and_parser';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
+import {TraceFile} from '@trace/trace_file';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {FileReaderAndParser} from './file_reader_and_parser';
+import {FilesSource} from './files_source';
 import {ParsingErrorType} from './parsing_error_type';
+import {IdentifiedFiles, TraceFileIdentifier} from './trace_file_identifier';
+import {makeWarningCorruptedArchive, makeWarningNoValidFiles, makeWarningTraceProcessorError, makeWarningUnsupportedFileFormat,} from './warnings';
 
 export interface FileLoaderResult {
   legacy: LegacyFileReader[];

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Thumbnail} from './thumbnail';
 import {MediaBasedFrame} from './media_based_frame';
+import {Thumbnail} from './thumbnail';
 
 /**
  * Represents a single entry in a media-based trace, such as a video or a
