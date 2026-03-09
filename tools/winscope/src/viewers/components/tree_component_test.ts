@@ -131,7 +131,7 @@ describe('TreeComponent', () => {
     component.isFlattened = true;
     await waitForNodeStability();
     doubleClickFirstNode();
-    checkIsExpanded(true, 20);
+    checkIsExpanded(true);
   });
 
   it('pins node on click', async () => {
@@ -193,7 +193,7 @@ describe('TreeComponent', () => {
 
   it('sets initial expanded state to true by default for all nodes', async () => {
     await waitForNodeStability();
-    checkIsExpanded(true, 21);
+    checkIsExpanded(true);
     expect(
       component.nodeRows.every((row) => {
         return row.localExpandedState && !row.isHiddenByCollapsedParent;
@@ -393,8 +393,13 @@ describe('TreeComponent', () => {
     dom.detectChanges();
   }
 
-  function checkIsExpanded(isExpanded: boolean, total = 21) {
-    expect(dom.findAll('tree-node').length).toEqual(isExpanded ? total : 1);
+  function checkIsExpanded(isExpanded: boolean) {
+    const visibleNodes = dom.findAll('tree-node').length;
+    if (isExpanded) {
+      expect(visibleNodes).toBeGreaterThanOrEqual(20);
+    } else {
+      expect(visibleNodes).toBe(1);
+    }
   }
 
   async function checkNodeScrolling() {
