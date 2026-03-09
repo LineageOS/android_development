@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ChangeDetectionStrategy,
-  input,
-  output,
-} from '@angular/core';
+import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule, MatSelectChange} from '@angular/material/select';
