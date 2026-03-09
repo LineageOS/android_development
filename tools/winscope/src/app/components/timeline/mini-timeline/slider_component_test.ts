@@ -72,10 +72,13 @@ describe('SliderComponent', () => {
     const fixture = TestBed.createComponent(SliderComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.fullRange = new TimeRange(time100, time200);
-    component.zoomRange = new TimeRange(time125, time175);
-    component.currentPosition = TracePosition.fromTimestamp(time150);
-    component.timestampConverter = converter;
+    dom.setComponentInput('fullRange', new TimeRange(time100, time200));
+    dom.setComponentInput('zoomRange', new TimeRange(time125, time175));
+    dom.setComponentInput(
+      'currentPosition',
+      TracePosition.fromTimestamp(time150),
+    );
+    dom.setComponentInput('timestampConverter', converter);
     dom.detectChanges();
   });
 
@@ -84,18 +87,7 @@ describe('SliderComponent', () => {
   });
 
   it('reposition properly on zoom', () => {
-    dom.detectChanges();
-    component.ngOnChanges({
-      zoomRange: {
-        firstChange: true,
-        isFirstChange: () => true,
-        previousValue: undefined,
-        currentValue: component.zoomRange,
-      },
-    });
-    dom.detectChanges();
-
-    const sliderWidth = assertDefined(component.sliderBox).nativeElement
+    const sliderWidth = assertDefined(component.sliderBox()).nativeElement
       .offsetWidth;
     expect(component.sliderWidth).toEqual(sliderWidth / 2);
     expect(component.dragPosition.x).toEqual(sliderWidth / 4);
@@ -103,21 +95,11 @@ describe('SliderComponent', () => {
 
   it('has min width', () => {
     dom.getHTMLElement().style.width = '1600px';
-    component.fullRange = new TimeRange(time100, time200);
-    component.zoomRange = new TimeRange(time125, time126);
-
-    dom.detectChanges();
-    component.ngOnChanges({
-      zoomRange: {
-        firstChange: true,
-        isFirstChange: () => true,
-        previousValue: undefined,
-        currentValue: component.zoomRange,
-      },
-    });
+    dom.setComponentInput('fullRange', new TimeRange(time100, time200));
+    dom.setComponentInput('zoomRange', new TimeRange(time125, time126));
     dom.detectChanges();
 
-    const sliderWidth = assertDefined(component.sliderBox).nativeElement
+    const sliderWidth = assertDefined(component.sliderBox()).nativeElement
       .offsetWidth;
     expect(component.sliderWidth).toEqual(MIN_SLIDER_WIDTH);
     expect(component.dragPosition.x).toEqual(
@@ -132,7 +114,7 @@ describe('SliderComponent', () => {
     const initialSliderXPos = slider.getBoundingClientRect().left;
     const initialCursorXPos = cursor.getBoundingClientRect().left;
 
-    const box = assertDefined(component.sliderBox);
+    const box = assertDefined(component.sliderBox());
     spyOnProperty(box.nativeElement, 'offsetWidth', 'get').and.returnValue(100);
     expect(box.nativeElement.offsetWidth).toBe(100);
 
@@ -144,17 +126,6 @@ describe('SliderComponent', () => {
   });
 
   it('draws current position cursor', () => {
-    dom.detectChanges();
-    component.ngOnChanges({
-      currentPosition: {
-        firstChange: true,
-        isFirstChange: () => true,
-        previousValue: undefined,
-        currentValue: component.currentPosition,
-      },
-    });
-    dom.detectChanges();
-
     const sliderBox = dom.get('#timeline-slider-box').getHTMLElement();
     const cursor = dom.get('.cursor').getHTMLElement();
     const sliderBoxRect = sliderBox.getBoundingClientRect();
@@ -166,7 +137,7 @@ describe('SliderComponent', () => {
 
   it('moving slider around updates zoom', () => {
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -190,7 +161,7 @@ describe('SliderComponent', () => {
 
   it('moving slider left pointer around updates zoom', fakeAsync(() => {
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -213,7 +184,7 @@ describe('SliderComponent', () => {
 
   it('moving slider right pointer around updates zoom', fakeAsync(async () => {
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -237,7 +208,7 @@ describe('SliderComponent', () => {
   it('cannot slide left cropper past edges', fakeAsync(() => {
     component.zoomRange = component.fullRange;
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -261,7 +232,7 @@ describe('SliderComponent', () => {
   it('cannot slide right cropper past edges', fakeAsync(() => {
     component.zoomRange = component.fullRange;
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -283,9 +254,9 @@ describe('SliderComponent', () => {
   }));
 
   it('cannot slide left cropper past right cropper', fakeAsync(() => {
-    component.zoomRange = new TimeRange(time125, time125);
+    dom.setComponentInput('zoomRange', new TimeRange(time125, time125));
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -307,9 +278,9 @@ describe('SliderComponent', () => {
   }));
 
   it('cannot slide right cropper past left cropper', fakeAsync(() => {
-    component.zoomRange = new TimeRange(time125, time125);
+    dom.setComponentInput('zoomRange', new TimeRange(time125, time125));
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -331,9 +302,9 @@ describe('SliderComponent', () => {
   }));
 
   it('cannot move slider past edges', () => {
-    component.zoomRange = component.fullRange;
+    dom.setComponentInput('zoomRange', component.fullRange());
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange);
+    const initialZoom = assertDefined(component.zoomRange());
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
