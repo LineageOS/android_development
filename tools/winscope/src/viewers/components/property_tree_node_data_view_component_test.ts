@@ -32,8 +32,6 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 
-
-
 describe('PropertyTreeNodeDataViewComponent', () => {
   let component: PropertyTreeNodeDataViewComponent;
   let dom: DOMTestHelper<PropertyTreeNodeDataViewComponent>;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {
@@ -28,7 +28,6 @@ import {WdpSetupComponent} from './wdp_setup_component';
 
 describe('WdpSetupComponent', () => {
   let component: WdpSetupComponent;
-  let fixture: ComponentFixture<WdpSetupComponent>;
   let dom: DOMTestHelper<WdpSetupComponent>;
 
   beforeEach(async () => {
@@ -43,10 +42,10 @@ describe('WdpSetupComponent', () => {
       ],
       schemas: [],
     }).compileComponents();
-    fixture = TestBed.createComponent(WdpSetupComponent);
+    const fixture = TestBed.createComponent(WdpSetupComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    fixture.componentRef.setInput('state', ConnectionState.CONNECTING);
+    dom.setComponentInput('state', ConnectionState.CONNECTING);
   });
 
   it('can be created', () => {
@@ -61,7 +60,7 @@ describe('WdpSetupComponent', () => {
   });
 
   it('correct icon and message displays if no proxy', () => {
-    fixture.componentRef.setInput('state', ConnectionState.NOT_FOUND);
+    dom.setComponentInput('state', ConnectionState.NOT_FOUND);
     dom.detectChanges();
     const text = dom.get('.further-adb-info-text');
     text.checkText(
@@ -86,7 +85,7 @@ describe('WdpSetupComponent', () => {
   });
 
   it('correct icon and message displays if unauthorized proxy', () => {
-    fixture.componentRef.setInput('state', ConnectionState.UNAUTH);
+    dom.setComponentInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
     dom
       .get('.adb-info')

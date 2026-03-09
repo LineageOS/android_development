@@ -15,7 +15,7 @@
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -47,15 +47,13 @@ import {VERSION} from '@trace_collection/winscope_proxy/utils';
   styleUrls: ['winscope_proxy_setup_component.css'],
 })
 export class WinscopeProxySetupComponent {
-  @Input() state: ConnectionState | undefined;
-  @Input() downloadRequest: DownloadRequest = (
-    url: string,
-    fileName: string,
-  ) => {
-    downloadFromUrl(url, fileName);
-  };
-  @Output() readonly retryConnection = new EventEmitter<string>();
   ConnectionState = ConnectionState;
+
+  state = input<ConnectionState>();
+  downloadRequest = input<DownloadRequest>((url, fileName) => {
+    downloadFromUrl(url, fileName);
+  });
+  retryConnection = output<string>();
 
   readonly downloadProxyUrl: string = getRootUrl() + 'winscope_proxy.py';
   readonly proxyCommand: string =
@@ -64,7 +62,7 @@ export class WinscopeProxySetupComponent {
   proxyToken = '';
 
   onRetryButtonClick() {
-    if (this.state !== ConnectionState.UNAUTH || this.proxyToken.length > 0) {
+    if (this.state() !== ConnectionState.UNAUTH || this.proxyToken.length > 0) {
       this.retryConnection.emit(this.proxyToken);
     }
   }
@@ -75,6 +73,6 @@ export class WinscopeProxySetupComponent {
   }
 
   onDownloadProxyClick() {
-    this.downloadRequest(this.downloadProxyUrl, 'winscope_proxy.py');
+    this.downloadRequest()(this.downloadProxyUrl, 'winscope_proxy.py');
   }
 }
