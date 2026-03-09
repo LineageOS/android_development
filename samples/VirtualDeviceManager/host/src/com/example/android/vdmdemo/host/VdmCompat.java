@@ -23,6 +23,7 @@ import android.companion.virtual.VirtualDeviceManager.VirtualDevice;
 import android.companion.virtualdevice.flags.Flags;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplayConfig;
 import android.hardware.input.InputManager;
 import android.os.Build;
@@ -36,6 +37,21 @@ public class VdmCompat {
     static final int VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS = 1 << 9;
 
     private VdmCompat() {}
+
+    static VirtualDisplayConfig.Builder setDesktopSupported(
+            VirtualDisplayConfig.Builder builder, int flags) {
+        if (com.android.server.display.feature.flags.Flags.virtualDisplaysSupportDesktopMode()
+                && com.android.server.display.feature.flags.Flags.virtualSecondaryDisplays()) {
+            int desktopFlags = flags;
+            desktopFlags &= ~DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY;
+            desktopFlags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_ALLOWS_CONTENT_MODE_SWITCH;
+            return builder
+                    .setUniqueId("vdmdemo-host-desktop-display")
+                    .setFlags(desktopFlags);
+        } else {
+            return builder.setFlags(flags | VIRTUAL_DISPLAY_FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS);
+        }
+    }
 
     static VirtualDisplayConfig.Builder setHomeSupported(
             VirtualDisplayConfig.Builder builder, int flags) {

@@ -20,6 +20,7 @@ android_app {
         "VdmCommonLib",
         "android.companion.flags-aconfig-java",
         "android.companion.virtualdevice.flags-aconfig-java",
+        "display_flags_lib",
         "androidx.annotation_annotation",
         "androidx.appcompat_appcompat",
         "androidx.core_core",
