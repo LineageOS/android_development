@@ -168,7 +168,7 @@ describe('UploadTracesComponent', () => {
 
   it('can remove trace', async () => {
     loadFiles([TraceType.SURFACE_FLINGER, TraceType.WINDOW_MANAGER]);
-    const reader = assertDefined(component.loadedFileReaders()?.[0]);
+    const reader = component.loadedFileReaders()[0];
     const removeTrace = spyOn(component.removeTrace, 'emit');
     const operationFinished = spyOn(component, 'onOperationFinished');
     dom.findAndClick(removeTraceSelector);
@@ -223,6 +223,7 @@ describe('UploadTracesComponent', () => {
     const newComponent = newFixture.componentInstance;
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
     newDom.setComponentInput('storage', component.storage());
+    newDom.setComponentInput('loadedFileReaders', []);
     newDom.detectChanges();
 
     loadLegacySfFile(newDom);

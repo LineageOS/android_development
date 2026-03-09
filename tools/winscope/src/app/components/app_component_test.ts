@@ -94,9 +94,9 @@ import {ParsingErrorType} from '@app/parsing_error_type';
   ],
 })
 class MockTraceViewComponent {
-  viewers = input<unknown[]>([]);
-  store = input<unknown>();
-  traceTypesWithParsingErrors = input<unknown[]>([]);
+  viewers = input.required<unknown[]>();
+  store = input.required<unknown>();
+  traceTypesWithParsingErrors = input<unknown[]>();
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }
@@ -127,7 +127,7 @@ class MockTimelineComponent {
   ],
 })
 class MockCollectTracesComponent {
-  storage = input<unknown>();
+  storage = input.required<unknown>();
   setEmitEvent(_: unknown) {}
   async onWinscopeEvent(_: unknown) {}
 }
@@ -142,9 +142,8 @@ class MockCollectTracesComponent {
   ],
 })
 class MockUploadTracesComponent {
-  traceData = input<unknown>();
-  storage = input<unknown>();
-  loadedFileReaders = input<unknown>();
+  storage = input.required<unknown>();
+  loadedFileReaders = input.required<unknown>();
   downloadTracesClick = output<void>();
   removeTrace = output<unknown>();
   removeAllTraces = output<void>();

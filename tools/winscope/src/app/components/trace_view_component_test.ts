@@ -323,6 +323,7 @@ describe('TraceViewComponent', () => {
       new ViewerStub('Title0', 'Content0', undefined, ViewType.GLOBAL_SEARCH),
       new ViewerStub('Title1', 'Content1', traceWm, ViewType.TRACE_TAB),
     ]);
+    dom.setComponentInput('store', store);
     dom.detectChanges();
     const visibleTabContents = getVisibleTabContents();
     expect(visibleTabContents.length).toBe(1);

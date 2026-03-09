@@ -49,7 +49,7 @@ import {VERSION} from '@trace_collection/winscope_proxy/utils';
 export class WinscopeProxySetupComponent {
   ConnectionState = ConnectionState;
 
-  state = input<ConnectionState>();
+  state = input.required<ConnectionState>();
   downloadRequest = input<DownloadRequest>((url, fileName) => {
     downloadFromUrl(url, fileName);
   });

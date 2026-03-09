@@ -32,7 +32,7 @@ import {ConnectionState} from '@trace_collection/connection_state';
   styleUrls: ['../styles/proxy_setup.css'],
 })
 export class WdpSetupComponent {
-  state = input<ConnectionState>();
+  state = input.required<ConnectionState>();
   retryConnection = output<void>();
   ConnectionState = ConnectionState;
 

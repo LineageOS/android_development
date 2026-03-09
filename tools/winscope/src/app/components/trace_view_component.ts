@@ -91,8 +91,8 @@ interface Tab {
 export class TraceViewComponent
   implements WinscopeEventEmitter, WinscopeEventListener
 {
-  viewers = input<Viewer[]>([]);
-  store = input<Store | undefined>();
+  viewers = input.required<Viewer[]>();
+  store = input.required<Store>();
   traceTypesWithParsingErrors = input<Map<TraceType, ParsingErrorType>>(
     new Map(),
   );
@@ -139,13 +139,11 @@ export class TraceViewComponent
 
     const firstStoreChange = effect(() => {
       const store = this.store();
-      if (store) {
-        const storedPresets = store.get(this.filterPresetsStoreKey);
-        if (storedPresets) {
-          this.allFilterPresets = JSON.parse(storedPresets);
-        }
-        firstStoreChange.destroy();
+      const storedPresets = store.get(this.filterPresetsStoreKey);
+      if (storedPresets) {
+        this.allFilterPresets = JSON.parse(storedPresets);
       }
+      firstStoreChange.destroy();
     });
   }
 
@@ -245,7 +243,7 @@ export class TraceViewComponent
       const presetName = this.makeFilterPresetName(value, currentTabTraceType);
 
       this.allFilterPresets.push(presetName);
-      this.store()?.add(
+      this.store().add(
         this.filterPresetsStoreKey,
         JSON.stringify(this.allFilterPresets),
       );
@@ -270,8 +268,8 @@ export class TraceViewComponent
   deletePreset(preset: string) {
     this.allFilterPresets = this.allFilterPresets.filter((p) => p !== preset);
     const store = this.store();
-    store?.clear(preset);
-    store?.add(
+    store.clear(preset);
+    store.add(
       this.filterPresetsStoreKey,
       JSON.stringify(this.allFilterPresets),
     );
