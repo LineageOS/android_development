@@ -84,6 +84,10 @@ import {Mediator} from '@app/mediator';
 import {LoadedFileData} from '@app/loaded_file_data';
 import {TimelineData} from '@app/timeline_data';
 import {ParsingErrorType} from '@app/parsing_error_type';
+import {Store} from '@common/store/store';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {Timestamp} from '@common/time/time';
 
 @Component({
   selector: 'trace-view',
@@ -94,11 +98,11 @@ import {ParsingErrorType} from '@app/parsing_error_type';
   ],
 })
 class MockTraceViewComponent {
-  viewers = input.required<unknown[]>();
-  store = input.required<unknown>();
-  traceTypesWithParsingErrors = input<unknown[]>();
-  setEmitEvent(_: unknown) {}
-  async onWinscopeEvent(_: unknown) {}
+  viewers = input.required<Viewer[]>();
+  store = input.required<Store>();
+  traceTypesWithParsingErrors = input<TraceType[]>();
+  setEmitEvent(_: EmitEvent) {}
+  async onWinscopeEvent(_: WinscopeEvent) {}
 }
 
 @Component({
@@ -108,13 +112,13 @@ class MockTraceViewComponent {
   providers: [{provide: TimelineComponent, useExisting: MockTimelineComponent}],
 })
 class MockTimelineComponent {
-  timelineData = input.required<unknown>();
-  allTraces = input.required<unknown>();
-  store = input.required<unknown>();
-  initialTabTraceType = input<unknown>();
-  bookmarks: unknown[] = [];
-  setEmitEvent(_: unknown) {}
-  async onWinscopeEvent(_: unknown) {}
+  timelineData = input.required<TimelineData>();
+  allTraces = input.required<Traces>();
+  store = input.required<Store>();
+  initialTabTraceType = input<TraceType>();
+  bookmarks: Timestamp[] = [];
+  setEmitEvent(_: EmitEvent) {}
+  async onWinscopeEvent(_: WinscopeEvent) {}
 }
 
 @Component({
@@ -126,9 +130,9 @@ class MockTimelineComponent {
   ],
 })
 class MockCollectTracesComponent {
-  storage = input.required<unknown>();
-  setEmitEvent(_: unknown) {}
-  async onWinscopeEvent(_: unknown) {}
+  storage = input.required<Store>();
+  setEmitEvent(_: EmitEvent) {}
+  async onWinscopeEvent(_: WinscopeEvent) {}
 }
 
 @Component({
@@ -141,13 +145,13 @@ class MockCollectTracesComponent {
   ],
 })
 class MockUploadTracesComponent {
-  storage = input.required<unknown>();
-  loadedFileReaders = input.required<unknown>();
+  storage = input.required<Store>();
+  loadedFileReaders = input.required<FileReader[]>();
   downloadTracesClick = output<void>();
-  removeTrace = output<unknown>();
+  removeTrace = output<FileReader>();
   removeAllTraces = output<void>();
-  setEmitEvent(_: unknown) {}
-  async onWinscopeEvent(_: unknown) {}
+  setEmitEvent(_: EmitEvent) {}
+  async onWinscopeEvent(_: WinscopeEvent) {}
 }
 @Component({
   selector: 'mat-drawer',
@@ -1069,7 +1073,8 @@ describe('AppComponent', () => {
         onWinscopeEvent: jasmine.createSpy(),
         setEmitEvent: jasmine.createSpy(),
         getName: () => 'MockViewer',
-      } as unknown as Viewer;
+        onDestroy: () => {},
+      } as Viewer;
 
       await sendOnViewersLoadedEvent([mockViewer]);
 
