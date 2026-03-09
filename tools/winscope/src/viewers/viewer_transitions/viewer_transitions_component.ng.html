@@ -39,7 +39,7 @@ limitations under the License.
   <properties-view
     class="properties-view"
     [title]="propertiesTitle"
-    [nodeRows]="inputData?.propertyNodes"
+    [nodeRows]="inputData?.propertyNodes ?? []"
     [traceType]="TraceType.TRANSITION"
     [textFilter]="inputData?.propertiesFilter"
     [isProtoDump]="false"

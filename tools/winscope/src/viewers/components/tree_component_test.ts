@@ -430,7 +430,7 @@ describe('TreeComponent', () => {
   function getScrollSpy(): jasmine.Spy<() => Promise<void>> {
     if (!scrollSpy) {
       scrollSpy = spyOn(
-        assertDefined(component.virtualScrollViewport()),
+        component.virtualScrollViewport(),
         'scrollToIndex',
       ).and.callThrough();
     }

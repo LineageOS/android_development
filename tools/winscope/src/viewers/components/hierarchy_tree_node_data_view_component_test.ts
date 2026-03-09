@@ -33,14 +33,13 @@ describe('HierarchyTreeNodeDataViewComponent', () => {
     const fixture = TestBed.createComponent(HierarchyTreeNodeDataViewComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    dom.detectChanges();
     testNode = makeUiHierarchyNode({
       id: 1,
       name: 'test node',
     });
   });
 
-  it('is robust to no node', () => {
+  it('can be created', () => {
     expect(component).toBeTruthy();
   });
 

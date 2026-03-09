@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
@@ -38,7 +38,6 @@ describe('PropertyTreeNodeDataViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
         MatButtonModule,
         BrowserAnimationsModule,

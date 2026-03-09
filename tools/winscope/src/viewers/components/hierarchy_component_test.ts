@@ -15,7 +15,7 @@
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
@@ -80,7 +80,6 @@ describe('HierarchyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
         HierarchyComponent,
         HierarchyTreeNodeDataViewComponent,

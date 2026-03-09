@@ -15,7 +15,7 @@
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
@@ -52,7 +52,6 @@ describe('PropertiesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [{provide: ComponentFixtureAutoDetect, useValue: true}],
       imports: [
         CommonModule,
         MatInputModule,
@@ -91,6 +90,7 @@ describe('PropertiesComponent', () => {
     });
     dom.setComponentInput('textFilter', new TextFilter());
     dom.setComponentInput('traceType', TraceType.SURFACE_FLINGER);
+    dom.setComponentInput('nodeRows', []);
 
     dom.detectChanges();
   });
@@ -124,7 +124,7 @@ describe('PropertiesComponent', () => {
   });
 
   it('renders placeholder text', () => {
-    dom.setComponentInput('nodeRows', undefined);
+    dom.setComponentInput('nodeRows', []);
     dom.setComponentInput('placeholderText', 'Placeholder text');
     dom.detectChanges();
     dom.get('.placeholder-text').checkTextExact('Placeholder text');

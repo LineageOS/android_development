@@ -21,7 +21,6 @@ import {
   Inject,
   input,
   output,
-  viewChild,
 } from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {PersistentStore} from '@common/store/persistent_store';
@@ -60,10 +59,10 @@ export class PropertiesComponent {
   CollapsibleSectionType = CollapsibleSectionType;
   ViewerEvents = ViewerEvents;
 
+  nodeRows = input.required<Array<FlattenedTreeRow<UiPropertyTreeNode>>>();
   title = input('PROPERTIES');
   userOptions = input<UserOptions>({});
   placeholderText = input('');
-  nodeRows = input<Array<FlattenedTreeRow<UiPropertyTreeNode>>>();
   highlightedProperty = input('');
   curatedProperties = input<CuratedProperties>();
   isProtoDump = input(false);
@@ -80,13 +79,11 @@ export class PropertiesComponent {
 
   readonly showPlaceholderText = computed(() => {
     return (
-      (this.nodeRows()?.length ?? 0) === 0 &&
+      this.nodeRows().length === 0 &&
       !this.curatedProperties() &&
       !!this.placeholderText()
     );
   });
-
-  readonly searchBox = viewChild(SearchBoxComponent);
 
   constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
@@ -117,6 +114,6 @@ export class PropertiesComponent {
   }
 
   showPropertiesTree(): boolean {
-    return (this.nodeRows()?.length ?? 0) > 0 && !this.showViewCaptureFormat();
+    return this.nodeRows().length > 0 && !this.showViewCaptureFormat();
   }
 }

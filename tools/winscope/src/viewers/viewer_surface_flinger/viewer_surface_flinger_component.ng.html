@@ -86,7 +86,7 @@ limitations under the License.
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
         [title]="propertiesTitle"
         [userOptions]="inputData?.propertiesUserOptions ?? {}"
-        [nodeRows]="inputData?.propertyNodes"
+        [nodeRows]="inputData?.propertyNodes ?? []"
         [highlightedProperty]="inputData?.highlightedProperty ?? ''"
         [traceType]="TraceType.SURFACE_FLINGER"
         [store]="store"

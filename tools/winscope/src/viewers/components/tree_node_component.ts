@@ -50,17 +50,18 @@ import {TreeNode} from '@tree_node/tree_node';
   styleUrls: ['tree_node_component.css'],
 })
 export class TreeNodeComponent {
-  node = input<UiTreeNode>();
-  isLeaf = input<boolean | undefined>(undefined);
-  flattened = input<boolean | undefined>(undefined);
-  isExpanded = input<boolean | undefined>(undefined);
+  node = input.required<UiTreeNode>();
+
+  isLeaf = input<boolean>(false);
+  flattened = input<boolean>(false);
+  isExpanded = input<boolean>(false);
   isPinned = input(false);
   isInPinnedSection = input(false);
   isSelected = input(false);
-  showStateIcon = input<string | undefined>(undefined);
-  depth = input(0);
-  childHighlightDepth = input<number | undefined>(undefined);
-  parentHighlightDepth = input<number | undefined>(undefined);
+  depth = input<number>(0);
+  showStateIcon = input<string>();
+  childHighlightDepth = input<number>();
+  parentHighlightDepth = input<number>();
 
   readonly toggleTreeChange = output<void>();
   readonly rectShowStateChange = output<void>();
@@ -108,8 +109,7 @@ export class TreeNodeComponent {
   readonly showCopyButton = computed<boolean>(() => {
     const node = this.node();
     return (
-      node?.getCopyText() !== undefined &&
-      (node?.isRoot() || !this.showChevron())
+      node.getCopyText() !== undefined && (node.isRoot() || !this.showChevron())
     );
   });
 
@@ -159,7 +159,7 @@ export class TreeNodeComponent {
 
   pinNode(event: MouseEvent) {
     event.stopPropagation();
-    this.pinNodeChange.emit(assertDefined(this.node()));
+    this.pinNodeChange.emit(this.node());
   }
 
   private getAllDiffTypesOfChildren(node: UiTreeNode): Set<DiffType> {

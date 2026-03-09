@@ -57,12 +57,12 @@ import {
 export class TreeComponent<T extends UiTreeNode> {
   readonly isHighlighted = isHighlighted;
   readonly isRowVisible = (index: number) => {
-    return this.virtualScrollViewport()?.isIndexVisible(index) ?? false;
+    return this.virtualScrollViewport().isIndexVisible(index) ?? false;
   };
   filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
 
-  nodeRows = input<Array<FlattenedTreeRow<T>>>([]);
+  nodeRows = input.required<Array<FlattenedTreeRow<T>>>();
   store = input<InMemoryStorage>(new InMemoryStorage());
   isFlattened = input<boolean>(false);
   highlightedItem = input<string>('');
@@ -79,7 +79,7 @@ export class TreeComponent<T extends UiTreeNode> {
   pinnedItemChange = output<UiTreeNode>();
 
   readonly virtualScrollViewport =
-    viewChild<VirtualScrollViewportComponent>('treeContainer');
+    viewChild.required<VirtualScrollViewportComponent>('treeContainer');
 
   readonly levelOffset = 24;
   readonly heightPredictor = new NodeHeightPredictor(
@@ -87,7 +87,7 @@ export class TreeComponent<T extends UiTreeNode> {
       return this.filteredRows.at(index);
     },
     () => {
-      return this.virtualScrollViewport()?.elementRef.nativeElement.clientWidth;
+      return this.virtualScrollViewport().elementRef.nativeElement.clientWidth;
     },
   );
 
@@ -255,7 +255,7 @@ export class TreeComponent<T extends UiTreeNode> {
     if (index >= this.filteredRows.length) {
       return;
     }
-    this.virtualScrollViewport()?.scrollToIndex(index);
+    this.virtualScrollViewport().scrollToIndex(index);
     this.changeDetectorRef.markForCheck();
   }
 
