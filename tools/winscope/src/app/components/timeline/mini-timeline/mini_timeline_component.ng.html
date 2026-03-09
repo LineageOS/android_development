@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+@let tData = timelineData();
 
 <div class="mini-timeline-outer-wrapper" #outerWrapper>
   <div class="zoom-buttons">
@@ -38,10 +39,10 @@ limitations under the License.
     ></canvas>
     <div class="zoom-control">
       <slider
-        [fullRange]="timelineData?.getFullTimeRange()"
-        [zoomRange]="timelineData?.getZoomRange()"
-        [currentPosition]="currentTracePosition"
-        [timestampConverter]="timelineData?.getTimestampConverter()"
+        [fullRange]="tData?.getFullTimeRange()"
+        [zoomRange]="tData?.getZoomRange()"
+        [currentPosition]="currentTracePosition()"
+        [timestampConverter]="tData?.getTimestampConverter()"
         (onZoomChanged)="onSliderZoomChanged($event)"
       ></slider>
     </div>
