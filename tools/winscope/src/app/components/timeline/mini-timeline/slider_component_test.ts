@@ -87,8 +87,7 @@ describe('SliderComponent', () => {
   });
 
   it('reposition properly on zoom', () => {
-    const sliderWidth = assertDefined(component.sliderBox()).nativeElement
-      .offsetWidth;
+    const sliderWidth = component.sliderBox().nativeElement.offsetWidth;
     expect(component.sliderWidth).toEqual(sliderWidth / 2);
     expect(component.dragPosition.x).toEqual(sliderWidth / 4);
   });
@@ -99,8 +98,7 @@ describe('SliderComponent', () => {
     dom.setComponentInput('zoomRange', new TimeRange(time125, time126));
     dom.detectChanges();
 
-    const sliderWidth = assertDefined(component.sliderBox()).nativeElement
-      .offsetWidth;
+    const sliderWidth = component.sliderBox().nativeElement.offsetWidth;
     expect(component.sliderWidth).toEqual(MIN_SLIDER_WIDTH);
     expect(component.dragPosition.x).toEqual(
       sliderWidth / 4 - MIN_SLIDER_WIDTH / 2,
@@ -114,7 +112,7 @@ describe('SliderComponent', () => {
     const initialSliderXPos = slider.getBoundingClientRect().left;
     const initialCursorXPos = cursor.getBoundingClientRect().left;
 
-    const box = assertDefined(component.sliderBox());
+    const box = component.sliderBox();
     spyOnProperty(box.nativeElement, 'offsetWidth', 'get').and.returnValue(100);
     expect(box.nativeElement.offsetWidth).toBe(100);
 
@@ -137,7 +135,7 @@ describe('SliderComponent', () => {
 
   it('moving slider around updates zoom', () => {
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -151,7 +149,7 @@ describe('SliderComponent', () => {
 
     slider.dragElement(100, 8);
     expect(zoomChangedSpy).toHaveBeenCalled();
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.from).not.toEqual(initialZoom.from);
     expect(finalZoom.to).not.toEqual(initialZoom.to);
     expect(finalZoom.to.minus(finalZoom.from).getValueNs()).toEqual(
@@ -161,7 +159,7 @@ describe('SliderComponent', () => {
 
   it('moving slider left pointer around updates zoom', fakeAsync(() => {
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -176,7 +174,7 @@ describe('SliderComponent', () => {
     leftCropper.dragElement(5, 0);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.from).not.toBe(initialZoom.from);
     expect(finalZoom.to).toBe(initialZoom.to);
     discardPeriodicTasks();
@@ -184,7 +182,7 @@ describe('SliderComponent', () => {
 
   it('moving slider right pointer around updates zoom', fakeAsync(async () => {
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -199,7 +197,7 @@ describe('SliderComponent', () => {
     rightCropper.dragElement(5, 0);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.from).toBe(initialZoom.from);
     expect(finalZoom.to).not.toBe(initialZoom.to);
     discardPeriodicTasks();
@@ -208,7 +206,7 @@ describe('SliderComponent', () => {
   it('cannot slide left cropper past edges', fakeAsync(() => {
     component.zoomRange = component.fullRange;
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -223,7 +221,7 @@ describe('SliderComponent', () => {
     leftCropper.dragElement(-5, 0);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.startNs).toEqual(initialZoom.startNs);
     expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
@@ -232,7 +230,7 @@ describe('SliderComponent', () => {
   it('cannot slide right cropper past edges', fakeAsync(() => {
     component.zoomRange = component.fullRange;
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -247,7 +245,7 @@ describe('SliderComponent', () => {
     rightCropper.dragElement(5, 0);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.startNs).toEqual(initialZoom.startNs);
     expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
@@ -256,7 +254,7 @@ describe('SliderComponent', () => {
   it('cannot slide left cropper past right cropper', fakeAsync(() => {
     dom.setComponentInput('zoomRange', new TimeRange(time125, time125));
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -271,7 +269,7 @@ describe('SliderComponent', () => {
     leftCropper.dragElement(100, 0);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.startNs).toEqual(initialZoom.startNs);
     expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
@@ -280,7 +278,7 @@ describe('SliderComponent', () => {
   it('cannot slide right cropper past left cropper', fakeAsync(() => {
     dom.setComponentInput('zoomRange', new TimeRange(time125, time125));
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -295,7 +293,7 @@ describe('SliderComponent', () => {
     rightCropper.dragElement(-100, 0);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.startNs).toEqual(initialZoom.startNs);
     expect(finalZoom.endNs).toEqual(initialZoom.endNs);
     discardPeriodicTasks();
@@ -304,7 +302,7 @@ describe('SliderComponent', () => {
   it('cannot move slider past edges', () => {
     dom.setComponentInput('zoomRange', component.fullRange());
     dom.detectChanges();
-    const initialZoom = assertDefined(component.zoomRange());
+    const initialZoom = component.zoomRange();
 
     let lastZoomUpdate: TimeRange | undefined;
     const zoomChangedSpy = spyOn(component.onZoomChanged, 'emit').and.callFake(
@@ -319,7 +317,7 @@ describe('SliderComponent', () => {
     slider.dragElement(100, 8);
     expect(zoomChangedSpy).toHaveBeenCalled();
 
-    const finalZoom = assertDefined<TimeRange>(lastZoomUpdate);
+    const finalZoom = assertDefined(lastZoomUpdate);
     expect(finalZoom.startNs).toEqual(initialZoom.startNs);
     expect(finalZoom.endNs).toEqual(initialZoom.endNs);
   });

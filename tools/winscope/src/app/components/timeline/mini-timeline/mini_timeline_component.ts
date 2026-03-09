@@ -65,14 +65,15 @@ export class MiniTimelineComponent {
   private static readonly SLIDER_HORIZONTAL_STEP = 30;
   private static readonly SENSITIVITY_FACTOR = 5;
 
-  timelineData = input<TimelineData>();
-  currentTracePosition = input<TracePosition>();
-  selectedTraces = input<Array<Trace<unknown>>>();
+  timelineData = input.required<TimelineData>();
+  currentTracePosition = input.required<TracePosition>();
+  selectedTraces = input.required<Array<Trace<unknown>>>();
+  store = input.required<PersistentStore>();
+
   initialZoom = input<TimeRange>();
   expandedTimelineScrollEvent = input<WheelEvent>();
   expandedTimelineMouseXRatio = input<number>();
   bookmarks = input<Timestamp[]>([]);
-  store = input<PersistentStore>();
 
   readonly onTracePositionUpdate = output<TracePosition>();
   readonly onSeekTimestampUpdate = output<Timestamp | undefined>();
@@ -84,16 +85,16 @@ export class MiniTimelineComponent {
   readonly onTraceClicked = output<[Trace<unknown>, Timestamp]>();
   readonly onHoverPositionUpdate = output<HoverPositionUpdate | undefined>();
 
-  outerWrapper = viewChild<ElementRef<HTMLElement>>('outerWrapper');
-  miniTimelineWrapper = viewChild<ElementRef<HTMLElement>>(
+  outerWrapper = viewChild.required<ElementRef<HTMLElement>>('outerWrapper');
+  miniTimelineWrapper = viewChild.required<ElementRef<HTMLElement>>(
     'miniTimelineWrapper',
   );
-  canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+  canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
   getTracesToShow = computed<Array<Trace<unknown>>>(() => {
     return (
       this.selectedTraces()
-        ?.slice()
+        .slice()
         .sort((a, b) => compareByDisplayOrder(a.type, b.type))
         .reverse() ?? []
     ); // reversed to ensure display is ordered top to bottom
@@ -155,9 +156,7 @@ export class MiniTimelineComponent {
     const updateTimestampCallback = (timestamp: Timestamp) => {
       this.onSeekTimestampUpdate.emit(undefined);
       this.onTracePositionUpdate.emit(
-        assertDefined(this.timelineData()).makePositionFromActiveTrace(
-          timestamp,
-        ),
+        this.timelineData().makePositionFromActiveTrace(timestamp),
       );
     };
 
@@ -192,13 +191,13 @@ export class MiniTimelineComponent {
   }
 
   getCanvas(): HTMLCanvasElement {
-    return assertDefined(this.canvasRef()).nativeElement;
+    return this.canvasRef().nativeElement;
   }
 
   recordClickPosition(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
 
     const lastRightClickPos = {x: event.offsetX, y: event.offsetY};
     const drawer = assertDefined(this.drawer);
@@ -208,7 +207,7 @@ export class MiniTimelineComponent {
     const transformer = new Transformer(
       zoomRange,
       usableRange,
-      assertDefined(timelineData.getTimestampConverter()),
+      timelineData.getTimestampConverter(),
     );
     this.lastRightClickTimeRange = new TimeRange(
       transformer.untransform(clickRange.from),
@@ -262,7 +261,7 @@ export class MiniTimelineComponent {
   }
 
   onZoomChanged(zoom: TimeRange) {
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     timelineData.setZoom(zoom);
     timelineData.setSelectionTimeRange(zoom);
     this.drawer?.draw();
@@ -277,8 +276,7 @@ export class MiniTimelineComponent {
   resetZoom() {
     Analytics.Navigation.logZoom('reset', 'timeline');
     this.onZoomChanged(
-      this.initialZoom() ??
-        assertDefined(this.timelineData()).getFullTimeRange(),
+      this.initialZoom() ?? this.timelineData().getFullTimeRange(),
     );
   }
 
@@ -344,16 +342,16 @@ export class MiniTimelineComponent {
   }
 
   private getMiniCanvasDrawerInput() {
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     return new MiniTimelineDrawerInput(
       timelineData.getFullTimeRange(),
-      assertDefined(this.currentTracePosition()).timestamp,
+      this.currentTracePosition().timestamp,
       timelineData.getSelectionTimeRange(),
       timelineData.getZoomRange(),
       this.getTracesToShow(),
       timelineData,
       this.bookmarks(),
-      this.store()?.get('dark-mode') === 'true',
+      this.store().get('dark-mode') === 'true',
     );
   }
 
@@ -365,7 +363,7 @@ export class MiniTimelineComponent {
     canvas.style.width = 'auto';
     canvas.style.height = 'auto';
 
-    const miniTimelineWrapper = assertDefined(this.miniTimelineWrapper());
+    const miniTimelineWrapper = this.miniTimelineWrapper();
     const width = miniTimelineWrapper.nativeElement.clientWidth;
     const height = miniTimelineWrapper.nativeElement.clientHeight;
 
@@ -429,7 +427,7 @@ export class MiniTimelineComponent {
   }
 
   private updateSliderPosition(step: number) {
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     const fullRange = timelineData.getFullTimeRange();
     const zoomRange = timelineData.getZoomRange();
 
@@ -437,7 +435,7 @@ export class MiniTimelineComponent {
     const transformer = new Transformer(
       zoomRange,
       usableRange,
-      assertDefined(timelineData.getTimestampConverter()),
+      timelineData.getTimestampConverter(),
     );
     const shiftAmount = transformer
       .untransform(usableRange.from + step)
@@ -472,7 +470,7 @@ export class MiniTimelineComponent {
     zoomRatio: {nominator: bigint; denominator: bigint},
     zoomOn?: Timestamp,
   ) {
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     const fullRange = timelineData.getFullTimeRange();
     const currentZoomRange = timelineData.getZoomRange();
     const currentZoomWidth = currentZoomRange.to.minus(currentZoomRange.from);
@@ -480,7 +478,7 @@ export class MiniTimelineComponent {
       .times(zoomRatio.nominator)
       .div(zoomRatio.denominator);
 
-    const cursorPosition = this.currentTracePosition()?.timestamp;
+    const cursorPosition = this.currentTracePosition().timestamp;
     const currentMiddle = currentZoomRange.from
       .add(currentZoomRange.to)
       .div(2n);
@@ -528,20 +526,20 @@ export class MiniTimelineComponent {
       this.onHoverPositionUpdate.emit(undefined);
       return;
     }
-    const timelineData = assertDefined(this.timelineData());
+    const timelineData = this.timelineData();
     this.hoverTimestamp = new Transformer(
       timelineData.getZoomRange(),
       assertDefined(this.drawer).getUsableRange(),
-      assertDefined(timelineData.getTimestampConverter()),
+      timelineData.getTimestampConverter(),
     ).untransform(this.lastMousePosX);
     const miniTimelineWrapper = this.miniTimelineWrapper();
     const posX =
-      (miniTimelineWrapper?.nativeElement.offsetLeft ?? 0) + this.lastMousePosX;
+      (miniTimelineWrapper.nativeElement.offsetLeft ?? 0) + this.lastMousePosX;
     this.onHoverPositionUpdate.emit({
       posX,
       xRatio:
         this.lastMousePosX /
-        (miniTimelineWrapper?.nativeElement.clientWidth ?? this.lastMousePosX),
+        (miniTimelineWrapper.nativeElement.clientWidth ?? this.lastMousePosX),
       ts: this.hoverTimestamp,
     });
   }

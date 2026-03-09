@@ -42,6 +42,7 @@ import {MiniTimelineComponent} from './mini_timeline_component';
 import {SliderComponent} from './slider_component';
 import {Transformer} from './transformer';
 import {Traces} from '@trace_api/traces';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 
 describe('MiniTimelineComponent', () => {
   let component: MiniTimelineComponent;
@@ -117,6 +118,7 @@ describe('MiniTimelineComponent', () => {
       timelineData.getCurrentPosition(),
     );
     dom.setComponentInput('selectedTraces', [traceSf]);
+    dom.setComponentInput('store', new InMemoryStorage());
   });
 
   it('can be created', () => {
@@ -188,7 +190,7 @@ describe('MiniTimelineComponent', () => {
     const initialZoom = new TimeRange(timestamp15, timestamp16);
     dom.setComponentInput('initialZoom', initialZoom);
     dom.detectChanges();
-    const timelineData = assertDefined(component.timelineData());
+    const timelineData = component.timelineData();
     const zoomRange = timelineData.getZoomRange();
     expect(zoomRange.from).toEqual(initialZoom.from);
     expect(zoomRange.to).toEqual(initialZoom.to);
@@ -211,7 +213,7 @@ describe('MiniTimelineComponent', () => {
 
   it('getTracesToShow returns traces targeted by selectedTraces', () => {
     dom.detectChanges();
-    const selectedTraces = assertDefined(component.selectedTraces());
+    const selectedTraces = component.selectedTraces();
     const selectedTracesTypes = selectedTraces.map((trace) => trace.type);
 
     const tracesToShow = component.getTracesToShow();
@@ -659,18 +661,15 @@ describe('MiniTimelineComponent', () => {
     );
     dom.detectChanges();
 
-    const miniTimeline = component;
-    const miniTimelineElement = assertDefined(
-      miniTimeline.miniTimelineWrapper()?.nativeElement,
-    );
-    const spy = spyOn(miniTimeline.onHoverPositionUpdate, 'emit');
+    const miniTimelineElement = component.miniTimelineWrapper().nativeElement;
+    const spy = spyOn(component.onHoverPositionUpdate, 'emit');
 
     const xRatio = 0.1;
     const offsetX = xRatio * miniTimelineElement.clientWidth;
     const hoverTs = new Transformer(
       timelineData.getZoomRange(),
-      assertDefined(miniTimeline.drawer).getUsableRange(),
-      assertDefined(timelineData.getTimestampConverter()),
+      assertDefined(component.drawer).getUsableRange(),
+      timelineData.getTimestampConverter(),
     ).untransform(offsetX);
 
     dispatchMouseMoveToCanvas(offsetX);
