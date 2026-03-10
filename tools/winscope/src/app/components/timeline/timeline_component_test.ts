@@ -730,9 +730,7 @@ describe('TimelineComponent', () => {
     resetDom(store);
     await loadTracesWithOneTimestamp();
 
-    const shownSelection = assertDefined(
-      dom.get('#trace-selector .shown-selection'),
-    );
+    const shownSelection = dom.get('#trace-selector .shown-selection');
     expect(shownSelection.getHTMLElement().innerHTML).toContain(
       'Window Manager',
     );

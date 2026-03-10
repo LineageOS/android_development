@@ -102,21 +102,19 @@ export class TraceViewComponent
   isFilterPresetsPanelOpen = false;
   filterPresetNameControl = new FormControl(
     '',
-    assertDefined(
-      Validators.compose([
-        Validators.required,
-        (control: FormControl) =>
-          this.validateFilterPresetName(
-            control,
-            this.allFilterPresets,
-            (input: string) =>
-              this.makeFilterPresetName(
-                input,
-                assertDefined(this.getCurrentTabTraceType()),
-              ),
-          ),
-      ]),
-    ),
+    Validators.compose([
+      Validators.required,
+      (control: FormControl) =>
+        this.validateFilterPresetName(
+          control,
+          this.allFilterPresets,
+          (input: string) =>
+            this.makeFilterPresetName(
+              input,
+              assertDefined(this.getCurrentTabTraceType()),
+            ),
+        ),
+    ]),
   );
 
   private currentActiveTab: undefined | Tab;

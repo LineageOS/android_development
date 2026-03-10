@@ -110,7 +110,7 @@ describe('TraceConfigComponent', () => {
   });
 
   it('applies stored config and emits event on init', async () => {
-    const traceConfig = assertDefined(component.traceConfig());
+    const traceConfig = component.traceConfig();
     traceConfig[windowTraceKey].config.enabled = true;
     await detectNgModelChanges();
 
@@ -124,10 +124,10 @@ describe('TraceConfigComponent', () => {
     const componentStorage = component.storage();
     commonStorage.add(
       storeKey + windowTraceKey,
-      assertDefined(componentStorage?.get(storeKey + windowTraceKey)),
+      assertDefined(componentStorage.get(storeKey + windowTraceKey)),
     );
     const layersConfig: ConfigurationOptions = JSON.parse(
-      assertDefined(componentStorage?.get(storeKey + layersTraceKey)),
+      assertDefined(componentStorage.get(storeKey + layersTraceKey)),
     );
     layersConfig.checkboxConfigs = [];
     commonStorage.add(storeKey + layersTraceKey, JSON.stringify(layersConfig));
@@ -139,7 +139,7 @@ describe('TraceConfigComponent', () => {
     await setComponentInputs(newComponent, newDom, commonStorage);
     expect(spy).toHaveBeenCalledTimes(1);
 
-    const newConfig = assertDefined(newComponent.traceConfig());
+    const newConfig = newComponent.traceConfig();
     // window_trace extra set to true from storage
     expect(newConfig[windowTraceKey].config.checkboxConfigs).toEqual([
       {name: 'extra', key: 'extra', enabled: true},
@@ -168,7 +168,7 @@ describe('TraceConfigComponent', () => {
   it('trace checkbox enabled by default', () => {
     const traceKey = layersTraceKey;
     configChangeSpy.calls.reset();
-    const config = assertDefined(component.traceConfig());
+    const config = component.traceConfig();
 
     const box = getTraceBoxForKey(layersTraceKey);
     const input = box.get('input');
@@ -186,7 +186,7 @@ describe('TraceConfigComponent', () => {
   it('trace checkbox not enabled by default', () => {
     const traceKey = windowTraceKey;
     configChangeSpy.calls.reset();
-    const config = assertDefined(component.traceConfig());
+    const config = component.traceConfig();
 
     const box = getTraceBoxForKey(traceKey);
     const input = box.get('input');
@@ -228,15 +228,13 @@ describe('TraceConfigComponent', () => {
 
   it('changing checkbox config model value causes box to change', async () => {
     const input = getCheckboxConfigSectionForKey(layersTraceKey).get('input');
-    assertDefined(
-      assertDefined(component.traceConfig())[layersTraceKey].config,
-    ).checkboxConfigs[0].enabled = false;
+    component.traceConfig()[layersTraceKey].config.checkboxConfigs[0].enabled =
+      false;
     await detectNgModelChanges();
     input.checkInputChecked(false);
 
-    assertDefined(
-      assertDefined(component.traceConfig())[layersTraceKey].config,
-    ).checkboxConfigs[0].enabled = true;
+    component.traceConfig()[layersTraceKey].config.checkboxConfigs[0].enabled =
+      true;
     await detectNgModelChanges();
     input.checkInputChecked(true);
   });
@@ -314,9 +312,8 @@ describe('TraceConfigComponent', () => {
   });
 
   it('disables selection field if no options', async () => {
-    assertDefined(
-      component.traceConfig()?.[optSelectKey].config,
-    ).selectionConfigs[0].options = [];
+    component.traceConfig()[optSelectKey].config.selectionConfigs[0].options =
+      [];
     await detectNgModelChanges();
 
     const panel = getAdvancedSettingsPanelForKey(optSelectKey);
@@ -336,9 +333,8 @@ describe('TraceConfigComponent', () => {
     const panel = dom.getMatSelectPanel();
     expect(panel.get('.option').find('.user-option')).toBeUndefined();
 
-    const selectionConfig = assertDefined(
-      component.traceConfig()?.[layersTraceKey].config,
-    ).selectionConfigs[0];
+    const selectionConfig =
+      component.traceConfig()[layersTraceKey].config.selectionConfigs[0];
     selectionConfig.options[0] = {
       value: 'verbose',
       chip: {name: 'chip 1', key: 'chip1', enabled: false},

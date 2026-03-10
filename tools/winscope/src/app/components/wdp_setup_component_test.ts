@@ -21,7 +21,6 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {WdpSetupComponent} from './wdp_setup_component';
@@ -98,7 +97,7 @@ describe('WdpSetupComponent', () => {
   });
 
   function checkRetryButton() {
-    const spy = spyOn(assertDefined(component.retryConnection), 'emit');
+    const spy = spyOn(component.retryConnection, 'emit');
     dom.findAndClick('.retry');
     expect(spy).toHaveBeenCalled();
   }

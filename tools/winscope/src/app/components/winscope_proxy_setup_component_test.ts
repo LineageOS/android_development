@@ -24,7 +24,6 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
@@ -113,13 +112,13 @@ describe('WinscopeProxySetupComponent', () => {
     dom.setComponentInput('state', ConnectionState.NOT_FOUND);
     dom.detectChanges();
 
-    const spy = spyOn(assertDefined(component.retryConnection), 'emit');
+    const spy = spyOn(component.retryConnection, 'emit');
     dom.findAndClick('.retry');
     expect(spy).toHaveBeenCalledWith('');
   });
 
   it('input proxy token saved as expected', () => {
-    const spy = spyOn(assertDefined(component.retryConnection), 'emit');
+    const spy = spyOn(component.retryConnection, 'emit');
     dom.setComponentInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
 
@@ -134,7 +133,7 @@ describe('WinscopeProxySetupComponent', () => {
   });
 
   it('emits event on enter key', () => {
-    const spy = spyOn(assertDefined(component.retryConnection), 'emit');
+    const spy = spyOn(component.retryConnection, 'emit');
     dom.setComponentInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
 

@@ -83,8 +83,8 @@ export class AppComponent {
 
   onButtonSendRealtimeTimestampClick() {
     const inputTimestampElement = assertDefined(
-      document.querySelector('.input-timestamp'),
-    ) as HTMLInputElement;
+      document.querySelector<HTMLInputElement>('.input-timestamp'),
+    );
     this.sendTimestamp(
       BigInt(inputTimestampElement.value),
       TimestampType.CLOCK_REALTIME,
@@ -93,8 +93,8 @@ export class AppComponent {
 
   onButtonSendBoottimeTimestampClick() {
     const inputTimestampElement = assertDefined(
-      document.querySelector('.input-timestamp'),
-    ) as HTMLInputElement;
+      document.querySelector<HTMLInputElement>('.input-timestamp'),
+    );
     this.sendTimestamp(
       BigInt(inputTimestampElement.value),
       TimestampType.CLOCK_BOOTTIME,

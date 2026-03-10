@@ -200,7 +200,7 @@ export class TimelineComponent
     if (timelineData.hasTimestamps()) {
       this.updateTimeInputValuesToCurrentTimestamp();
     }
-    const converter = assertDefined(timelineData.getTimestampConverter());
+    const converter = timelineData.getTimestampConverter();
     const validatorFn: ValidatorFn = (control: AbstractControl) => {
       const valid = converter.validateHumanInput(control.value ?? '');
       return !valid ? {invalidInput: control.value} : null;
@@ -540,9 +540,9 @@ export class TimelineComponent
       input = new UserTimestamp(date + 'T' + input.timestampHuman);
     }
     const timelineData = this.timelineData();
-    const timestamp = assertDefined(
-      timelineData.getTimestampConverter(),
-    ).makeTimestampFromHuman(input);
+    const timestamp = timelineData
+      .getTimestampConverter()
+      .makeTimestampFromHuman(input);
 
     Analytics.Navigation.logTimeInput('human');
     await this.updatePosition(
@@ -558,9 +558,9 @@ export class TimelineComponent
     const target = event.target as HTMLInputElement;
     const timelineData = this.timelineData();
 
-    const timestamp = assertDefined(
-      timelineData.getTimestampConverter(),
-    ).makeTimestampFromNs(parseBigIntStrippingUnit(target.value));
+    const timestamp = timelineData
+      .getTimestampConverter()
+      .makeTimestampFromNs(parseBigIntStrippingUnit(target.value));
 
     Analytics.Navigation.logTimeInput('ns');
     await this.updatePosition(
@@ -620,9 +620,7 @@ export class TimelineComponent
   }
 
   getUTCOffset(): string {
-    return assertDefined(
-      this.timelineData().getTimestampConverter(),
-    ).getUTCOffset();
+    return this.timelineData().getTimestampConverter().getUTCOffset();
   }
 
   currentPositionBookmarked(): boolean {
@@ -657,9 +655,9 @@ export class TimelineComponent
       );
     } else {
       this.bookmarks = this.bookmarks.concat([
-        assertDefined(
-          this.timelineData().getTimestampConverter(),
-        ).makeTimestampFromNs(clickedNs),
+        this.timelineData()
+          .getTimestampConverter()
+          .makeTimestampFromNs(clickedNs),
       ]);
     }
     this.emitEvent(new BookmarksChanged(this.bookmarks));
@@ -825,7 +823,7 @@ export class TimelineComponent
       this.getCurrentTracePosition().timestamp.getValueNs();
     const timelineData = this.timelineData();
 
-    const converter = assertDefined(timelineData.getTimestampConverter());
+    const converter = timelineData.getTimestampConverter();
 
     const timestamp = converter.makeTimestampFromNs(currentTimestampNs);
     let formattedCurrentTimestamp = timestamp.format();
