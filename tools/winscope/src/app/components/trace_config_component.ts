@@ -85,7 +85,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   traceConfig = model.required<TraceConfigurationMap>();
   readonly traceConfigChange = output<TraceConfigurationMap>();
 
-  getSortedTraceKeys = computed<string[]>(() => {
+  readonly getSortedTraceKeys = computed<string[]>(() => {
     const config = this.traceConfig();
     return Object.keys(config).sort((a, b) => {
       return config[a].name < config[b].name ? -1 : 1;

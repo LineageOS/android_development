@@ -26,6 +26,7 @@ import {
   Inject,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
@@ -91,7 +92,7 @@ export class MiniTimelineComponent {
   );
   canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
-  getTracesToShow = computed<Array<Trace<unknown>>>(() => {
+  readonly getTracesToShow = computed<Array<Trace<unknown>>>(() => {
     return (
       this.selectedTraces()
         .slice()
@@ -100,11 +101,27 @@ export class MiniTimelineComponent {
     ); // reversed to ensure display is ordered top to bottom
   });
 
+  readonly toggleBookmarkText = computed(() => {
+    const lastRightClickTimeRange = this.lastRightClickTimeRange();
+    if (!lastRightClickTimeRange) {
+      return 'Add/remove bookmark';
+    }
+
+    const rangeContainsBookmark = this.bookmarks().some((bookmark) => {
+      return lastRightClickTimeRange.containsTimestamp(bookmark);
+    });
+    if (rangeContainsBookmark) {
+      return 'Remove bookmark';
+    }
+
+    return 'Add bookmark';
+  });
+
   drawer: MiniTimelineDrawer | undefined = undefined;
   private lastMousePosX: number | undefined;
   private hoverTimestamp: Timestamp | undefined;
   private lastMoves: WheelEvent[] = [];
-  private lastRightClickTimeRange: TimeRange | undefined;
+  private lastRightClickTimeRange = signal<TimeRange | undefined>(undefined);
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
@@ -209,9 +226,11 @@ export class MiniTimelineComponent {
       usableRange,
       timelineData.getTimestampConverter(),
     );
-    this.lastRightClickTimeRange = new TimeRange(
-      transformer.untransform(clickRange.from),
-      transformer.untransform(clickRange.to),
+    this.lastRightClickTimeRange.set(
+      new TimeRange(
+        transformer.untransform(clickRange.from),
+        transformer.untransform(clickRange.to),
+      ),
     );
   }
 
@@ -307,34 +326,16 @@ export class MiniTimelineComponent {
   }
 
   toggleBookmark() {
-    if (!this.lastRightClickTimeRange) {
+    const lastRightClickTimeRange = this.lastRightClickTimeRange();
+    if (!lastRightClickTimeRange) {
       return;
     }
     this.onToggleBookmark.emit({
-      range: this.lastRightClickTimeRange,
+      range: lastRightClickTimeRange,
       rangeContainsBookmark: this.bookmarks().some((bookmark) => {
-        return assertDefined(this.lastRightClickTimeRange).containsTimestamp(
-          bookmark,
-        );
+        return lastRightClickTimeRange.containsTimestamp(bookmark);
       }),
     });
-  }
-
-  getToggleBookmarkText() {
-    if (!this.lastRightClickTimeRange) {
-      return 'Add/remove bookmark';
-    }
-
-    const rangeContainsBookmark = this.bookmarks().some((bookmark) => {
-      return assertDefined(this.lastRightClickTimeRange).containsTimestamp(
-        bookmark,
-      );
-    });
-    if (rangeContainsBookmark) {
-      return 'Remove bookmark';
-    }
-
-    return 'Add bookmark';
   }
 
   removeAllBookmarks() {

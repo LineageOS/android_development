@@ -125,8 +125,6 @@ export class LogComponent {
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
-  emptyFilterValue = '';
-
   private lastClickedTimestamp: Timestamp | undefined;
 
   constructor(

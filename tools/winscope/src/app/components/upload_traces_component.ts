@@ -22,6 +22,7 @@ import {
   input,
   NgZone,
   output,
+  signal,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -73,7 +74,7 @@ export class UploadTracesComponent
   progressMessage = '';
   progressPercentage?: number;
   lastUiProgressUpdateTimeMs?: number;
-  viewersLoading = false;
+  viewersLoading = signal(false);
   warningMessages: string[] = [];
   discardLegacyFiles = false;
 
@@ -91,8 +92,27 @@ export class UploadTracesComponent
   removeTrace = output<FileReader>();
   removeAllTraces = output<void>();
 
-  hasLoadedFiles = computed<boolean>(() => {
+  readonly hasLoadedFiles = computed<boolean>(() => {
     return (this.loadedFileReaders().length ?? 0) > 0;
+  });
+
+  readonly hasLoadedFilesWithViewers = computed<boolean>(() => {
+    return this.loadedFileReaders().some((reader) => {
+      return isTraceTypeWithViewer(reader.getTraceType());
+    });
+  });
+
+  readonly isViewTracesButtonDisabled = computed<boolean>(() => {
+    return this.viewersLoading() || !this.hasLoadedFilesWithViewers();
+  });
+
+  readonly isDiscardLegacyTracesBoxDisabled = computed<boolean>(() => {
+    if (this.isViewTracesButtonDisabled()) {
+      return true;
+    }
+    return !this.loadedFileReaders().some((reader) => {
+      return this.isLegacyTrace(reader);
+    });
   });
 
   private readonly discardLegacyStoreKey = 'discardLegacyFiles';
@@ -163,7 +183,7 @@ export class UploadTracesComponent
   }
 
   onInputFiles(event: Event) {
-    if (this.viewersLoading) {
+    if (this.viewersLoading()) {
       return;
     }
     const files = this.getInputFiles(event);
@@ -192,7 +212,7 @@ export class UploadTracesComponent
   }
 
   onFileDrop(e: DragEvent) {
-    if (this.viewersLoading) {
+    if (this.viewersLoading()) {
       return;
     }
     e.preventDefault();
@@ -207,30 +227,6 @@ export class UploadTracesComponent
     event.stopPropagation();
     this.removeTrace.emit(reader);
     this.onOperationFinished();
-  }
-
-  hasLoadedFilesWithViewers(): boolean {
-    return this.ngZone.run(() => {
-      return (
-        this.loadedFileReaders().some((reader) => {
-          return isTraceTypeWithViewer(reader.getTraceType());
-        }) ?? false
-      );
-    });
-  }
-
-  isDiscardLegacyTracesBoxDisabled(): boolean {
-    if (this.isViewTracesButtonDisabled()) {
-      return true;
-    }
-    const isDisabled = !this.loadedFileReaders().some((reader) => {
-      return this.isLegacyTrace(reader);
-    });
-    return isDisabled;
-  }
-
-  isViewTracesButtonDisabled(): boolean {
-    return this.viewersLoading || !this.hasLoadedFilesWithViewers();
   }
 
   canVisualizeTrace(traceType: TraceType): boolean {
@@ -259,11 +255,11 @@ export class UploadTracesComponent
   }
 
   private async onAppTraceViewRequest() {
-    this.viewersLoading = true;
+    this.viewersLoading.set(true);
   }
 
   private async onAppTraceViewRequestHandled() {
-    this.viewersLoading = false;
+    this.viewersLoading.set(false);
   }
 
   private async onShowTraceUploadWarning(event: ShowTraceUploadWarning) {

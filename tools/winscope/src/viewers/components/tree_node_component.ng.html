@@ -27,7 +27,7 @@ limitations under the License.
 }
 
 <div class="tree-indentation-container">
-  @for (marker of getIndentMarkers(depth()); track $index) {
+  @for (marker of indentMarkers(); track $index) {
     <div
       class="indent-spacer"
       [class.parent-highlight]="parentHighlightDepth() === $index"

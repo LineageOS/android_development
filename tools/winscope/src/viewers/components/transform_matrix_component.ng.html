@@ -15,13 +15,13 @@ limitations under the License.
 -->
 
 <div class="matrix">
-  <p class="mat-body-1">{{ getVal('dsdx') }}</p>
-  <p class="mat-body-1">{{ getVal('dtdx') }}</p>
-  <p class="mat-body-1" matTooltip="Translate x">{{ getVal('tx') }}</p>
+  <p class="mat-body-1">{{ dsdx() }}</p>
+  <p class="mat-body-1">{{ dtdx() }}</p>
+  <p class="mat-body-1" matTooltip="Translate x">{{ tx() }}</p>
 
-  <p class="mat-body-1">{{ getVal('dtdy') }}</p>
-  <p class="mat-body-1">{{ getVal('dsdy') }}</p>
-  <p class="mat-body-1" matTooltip="Translate y">{{ getVal('ty') }}</p>
+  <p class="mat-body-1">{{ dtdy() }}</p>
+  <p class="mat-body-1">{{ dsdy() }}</p>
+  <p class="mat-body-1" matTooltip="Translate y">{{ ty() }}</p>
 
   <p class="mat-body-1">0</p>
   <p class="mat-body-1">0</p>

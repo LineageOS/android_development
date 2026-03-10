@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, input} from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 
@@ -28,7 +28,26 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 export class TransformMatrixComponent {
   matrix = input.required<UiPropertyTreeNode>();
 
-  getVal(name: string): string {
-    return this.matrix().getChildByName(name)?.formattedValue() ?? 'null';
+  readonly dsdx = computed(() => {
+    return this.getVal(this.matrix().getChildByName('dsdx'));
+  });
+  readonly dtdx = computed(() => {
+    return this.getVal(this.matrix().getChildByName('dtdx'));
+  });
+  readonly tx = computed(() => {
+    return this.getVal(this.matrix().getChildByName('tx'));
+  });
+  readonly dtdy = computed(() => {
+    return this.getVal(this.matrix().getChildByName('dtdy'));
+  });
+  readonly dsdy = computed(() => {
+    return this.getVal(this.matrix().getChildByName('dsdy'));
+  });
+  readonly ty = computed(() => {
+    return this.getVal(this.matrix().getChildByName('ty'));
+  });
+
+  private getVal(node: UiPropertyTreeNode | undefined): string {
+    return node?.formattedValue() ?? 'null';
   }
 }

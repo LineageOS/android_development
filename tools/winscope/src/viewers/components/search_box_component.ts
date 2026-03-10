@@ -47,7 +47,7 @@ export class SearchBoxComponent extends AbstractFormFieldComponent {
   textFilter = input<TextFilter | undefined>();
   filterName = input<string>('filter');
 
-  currentTextFilter = computed<TextFilter>(() => {
+  readonly currentTextFilter = computed<TextFilter>(() => {
     return this.textFilter() ?? new TextFilter();
   });
 

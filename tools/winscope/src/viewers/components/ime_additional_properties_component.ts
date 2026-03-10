@@ -187,15 +187,13 @@ export class ImeAdditionalPropertiesComponent {
   });
 
   readonly wmImeControlTargetTitle = computed<string | undefined>(() => {
-    return (
-      this.additionalProperties()
-        ?.wm?.wmStateProperties.imeControlTarget?.getChildByName(
-          'windowContainer',
-        )
-        ?.getChildByName('identifier')
-        ?.getChildByName('title')
-        ?.formattedValue() ?? undefined
-    );
+    return this.additionalProperties()
+      ?.wm?.wmStateProperties.imeControlTarget?.getChildByName(
+        'windowContainer',
+      )
+      ?.getChildByName('identifier')
+      ?.getChildByName('title')
+      ?.formattedValue();
   });
 
   readonly wmImeInputTarget = computed<PropertyTreeNode | undefined>(() => {
@@ -203,15 +201,11 @@ export class ImeAdditionalPropertiesComponent {
   });
 
   readonly wmImeInputTargetTitle = computed<string | undefined>(() => {
-    return (
-      this.additionalProperties()
-        ?.wm?.wmStateProperties.imeInputTarget?.getChildByName(
-          'windowContainer',
-        )
-        ?.getChildByName('identifier')
-        ?.getChildByName('title')
-        ?.formattedValue() ?? undefined
-    );
+    return this.additionalProperties()
+      ?.wm?.wmStateProperties.imeInputTarget?.getChildByName('windowContainer')
+      ?.getChildByName('identifier')
+      ?.getChildByName('title')
+      ?.formattedValue();
   });
 
   readonly wmImeLayeringTarget = computed<PropertyTreeNode | undefined>(() => {
@@ -219,31 +213,24 @@ export class ImeAdditionalPropertiesComponent {
   });
 
   readonly wmImeLayeringTargetTitle = computed<string | undefined>(() => {
-    return (
-      this.additionalProperties()
-        ?.wm?.wmStateProperties.imeLayeringTarget?.getChildByName(
-          'windowContainer',
-        )
-        ?.getChildByName('identifier')
-        ?.getChildByName('title')
-        ?.formattedValue() ?? undefined
-    );
+    return this.additionalProperties()
+      ?.wm?.wmStateProperties.imeLayeringTarget?.getChildByName(
+        'windowContainer',
+      )
+      ?.getChildByName('identifier')
+      ?.getChildByName('title')
+      ?.formattedValue();
   });
 
   readonly sfImeContainerScreenBounds = computed<PropertyTreeNode | undefined>(
     () => {
-      return (
-        this.additionalProperties()?.sf?.properties.inputMethodSurface
-          ?.screenBounds ?? undefined
-      );
+      return this.additionalProperties()?.sf?.properties.inputMethodSurface
+        ?.screenBounds;
     },
   );
 
   readonly sfImeContainerRect = computed<PropertyTreeNode | undefined>(() => {
-    return (
-      this.additionalProperties()?.sf?.properties.inputMethodSurface?.rect ??
-      undefined
-    );
+    return this.additionalProperties()?.sf?.properties.inputMethodSurface?.rect;
   });
 
   readonly isAllPropertiesUndefined = computed<boolean>(() => {
