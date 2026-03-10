@@ -18,10 +18,12 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   Inject,
   input,
   NgZone,
   output,
+  signal,
   ViewEncapsulation,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
@@ -116,21 +118,22 @@ export class CollectTracesComponent
   AdbConnectionType = AdbConnectionType;
   AdbDeviceState = AdbDeviceState;
   ConnectionState = ConnectionState;
-  isExternalOperationInProgress = false;
   progressMessage = 'Fetching...';
   progressIcon = 'sync';
   progressPercentage: number | undefined;
   lastUiProgressUpdateTimeMs?: number;
-  refreshDumps = false;
   targetTabIndex = 0;
   connectionTabIndex = 0;
   traceConfig: TraceConfigurationMap;
   dumpConfig: TraceConfigurationMap;
   requestedTraceTypes: RequestedTraceTypes[] = [];
   controller: TraceCollectionController | undefined;
-  state = ConnectionState.CONNECTING;
   errorText = '';
-  isChangingConnection = false;
+
+  refreshDumps = signal<boolean>(false);
+  state = signal<ConnectionState>(ConnectionState.CONNECTING);
+  isChangingConnection = signal<boolean>(false);
+  private isExternalOperationInProgress = signal<boolean>(false);
 
   readonly storeKeyPrefixTraceConfig = 'TraceSettings.';
   readonly storeKeyPrefixDumpConfig = 'DumpSettings.';
@@ -157,6 +160,39 @@ export class CollectTracesComponent
   storage = input.required<Store>();
   readonly filesCollected = output<AdbFiles>();
 
+  readonly isLoadOperationInProgress = computed<boolean>(() => {
+    return (
+      this.state() === ConnectionState.LOADING_DATA ||
+      this.isExternalOperationInProgress()
+    );
+  });
+
+  readonly isTracing = computed<boolean>(() => {
+    return this.tracingSessionStates.includes(this.state());
+  });
+
+  readonly isTracingOrLoading = computed<boolean>(() => {
+    return this.isTracing() || this.isLoadOperationInProgress();
+  });
+
+  readonly isDumpingState = computed<boolean>(() => {
+    return (
+      this.refreshDumps() ||
+      this.state() === ConnectionState.DUMPING_STATE ||
+      this.isLoadOperationInProgress()
+    );
+  });
+
+  readonly disableTraceSection = computed<boolean>(() => {
+    return this.isTracingOrLoading() || this.refreshDumps();
+  });
+
+  readonly adbSuccess = computed<boolean>(() => {
+    return (
+      this.isChangingConnection() || !this.notConnected.includes(this.state())
+    );
+  });
+
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(MatDialog) private dialog: MatDialog,
@@ -182,8 +218,9 @@ export class CollectTracesComponent
   }
 
   ngOnDestroy() {
-    if (this.selectedDevice) {
-      this.controller?.onDestroy(this.selectedDevice);
+    const selectedDevice = this.selectedDevice;
+    if (selectedDevice) {
+      this.controller?.onDestroy(selectedDevice);
     }
   }
 
@@ -192,14 +229,26 @@ export class CollectTracesComponent
   }
 
   async onConnectionChange(adbConnectionType: string) {
-    this.isChangingConnection = true;
+    this.isChangingConnection.set(true);
     this.changeDetectorRef.detectChanges();
     await this.changeHostConnection(adbConnectionType);
   }
 
   onConnectionTabAnimationDone() {
-    this.isChangingConnection = false;
+    this.isChangingConnection.set(false);
     this.changeDetectorRef.detectChanges();
+  }
+
+  showTraceCollectionConfig(): boolean {
+    if (this.selectedDevice === undefined) {
+      return false;
+    }
+    return this.state() === ConnectionState.IDLE || this.isTracingOrLoading();
+  }
+
+  selectedDeviceName(): string | undefined {
+    const selectedDevice = this.selectedDevice;
+    return selectedDevice ? this.getDeviceName(selectedDevice) : undefined;
   }
 
   onDeviceClick(device: AdbDeviceConnection) {
@@ -238,7 +287,7 @@ export class CollectTracesComponent
     ) {
       return;
     }
-    this.isExternalOperationInProgress = true;
+    this.isExternalOperationInProgress.set(true);
     this.progressMessage = message;
     this.progressPercentage = progressPercentage;
     this.lastUiProgressUpdateTimeMs = Date.now();
@@ -246,19 +295,12 @@ export class CollectTracesComponent
   }
 
   onOperationFinished(success: boolean) {
-    this.isExternalOperationInProgress = false;
+    this.isExternalOperationInProgress.set(false);
     this.lastUiProgressUpdateTimeMs = undefined;
     if (!success) {
       this.controller?.restartConnection();
     }
     this.changeDetectorRef.detectChanges();
-  }
-
-  isLoadOperationInProgress(): boolean {
-    return (
-      this.state === ConnectionState.LOADING_DATA ||
-      this.isExternalOperationInProgress
-    );
   }
 
   async onRetryConnection(token?: string) {
@@ -271,15 +313,16 @@ export class CollectTracesComponent
 
   showAllDevices(): boolean {
     const controller = assertDefined(this.controller);
-    if (this.state !== ConnectionState.IDLE) {
+    if (this.state() !== ConnectionState.IDLE) {
       return false;
     }
 
     const devices = controller.getDevices();
     const lastId = this.storage().get(this.storeKeyLastDevice) ?? undefined;
 
-    if (this.selectedDevice) {
-      const newDevice = devices.find((d) => d.id === this.selectedDevice?.id);
+    const selectedDevice = this.selectedDevice;
+    if (selectedDevice) {
+      const newDevice = devices.find((d) => d.id === selectedDevice.id);
       if (newDevice && newDevice.getState() === AdbDeviceState.AVAILABLE) {
         this.selectedDevice = newDevice;
       } else {
@@ -300,13 +343,6 @@ export class CollectTracesComponent
     return this.selectedDevice === undefined;
   }
 
-  showTraceCollectionConfig(): boolean {
-    if (this.selectedDevice === undefined) {
-      return false;
-    }
-    return this.state === ConnectionState.IDLE || this.isTracingOrLoading();
-  }
-
   onTraceConfigChange(newConfig: TraceConfigurationMap) {
     this.traceConfig = newConfig;
   }
@@ -323,10 +359,6 @@ export class CollectTracesComponent
 
   async onRetryButton() {
     await assertDefined(this.controller).restartConnection();
-  }
-
-  adbSuccess() {
-    return this.isChangingConnection || !this.notConnected.includes(this.state);
   }
 
   async startTracing() {
@@ -420,9 +452,9 @@ export class CollectTracesComponent
     const device = assertDefined(this.selectedDevice);
     await this.setState(ConnectionState.DUMPING_STATE);
     await controller.dumpState(device, requestedDumpsWithConfig);
-    this.refreshDumps = false;
+    this.refreshDumps.set(false);
     this.changeDetectorRef.detectChanges();
-    if (this.state === ConnectionState.DUMPING_STATE) {
+    if (this.state() === ConnectionState.DUMPING_STATE) {
       this.filesCollected.emit({
         requested: requestedTraceTypes,
         collected: await this.fetchLastSessionData(),
@@ -431,13 +463,14 @@ export class CollectTracesComponent
   }
 
   async endTrace() {
-    if (!this.selectedDevice) {
+    const selectedDevice = this.selectedDevice;
+    if (!selectedDevice) {
       return;
     }
     const controller = assertDefined(this.controller);
     await this.setState(ConnectionState.ENDING_TRACE);
-    await controller.endTrace(this.selectedDevice);
-    if (this.state === ConnectionState.ENDING_TRACE) {
+    await controller.endTrace(selectedDevice);
+    if (this.state() === ConnectionState.ENDING_TRACE) {
       this.filesCollected.emit({
         requested: this.requestedTraceTypes,
         collected: await this.fetchLastSessionData(),
@@ -456,10 +489,6 @@ export class CollectTracesComponent
     );
   }
 
-  getSelectedDevice(): string {
-    return this.getDeviceName(assertDefined(this.selectedDevice));
-  }
-
   getDeviceStateIcon(state: AdbDeviceState): string {
     switch (state) {
       case AdbDeviceState.AVAILABLE:
@@ -471,26 +500,6 @@ export class CollectTracesComponent
       default:
         assertUnreachable(state);
     }
-  }
-
-  isTracing(): boolean {
-    return this.tracingSessionStates.includes(this.state);
-  }
-
-  isTracingOrLoading(): boolean {
-    return this.isTracing() || this.isLoadOperationInProgress();
-  }
-
-  isDumpingState(): boolean {
-    return (
-      this.refreshDumps ||
-      this.state === ConnectionState.DUMPING_STATE ||
-      this.isLoadOperationInProgress()
-    );
-  }
-
-  disableTraceSection(): boolean {
-    return this.isTracingOrLoading() || this.refreshDumps;
   }
 
   async fetchExistingTraces() {
@@ -520,12 +529,11 @@ export class CollectTracesComponent
   }
 
   onDevicesChange(devices: AdbDeviceConnection[]) {
-    if (!this.selectedDevice) {
+    const selectedDevice = this.selectedDevice;
+    if (!selectedDevice) {
       return;
     }
-    const device = devices.find(
-      (d) => d.id === assertDefined(this.selectedDevice).id,
-    );
+    const device = devices.find((d) => d.id === selectedDevice.id);
     if (!device) {
       return;
     }
@@ -541,7 +549,7 @@ export class CollectTracesComponent
   async onConnectionStateChange(newState: ConnectionState): Promise<void> {
     switch (newState) {
       case ConnectionState.IDLE:
-        if (this.state === ConnectionState.CONNECTING) {
+        if (this.state() === ConnectionState.CONNECTING) {
           await this.setState(newState);
         }
         return;
@@ -549,7 +557,7 @@ export class CollectTracesComponent
         await this.setState(newState);
         return;
       default:
-        if (newState !== this.state) {
+        if (newState !== this.state()) {
           await this.setState(newState);
         }
     }
@@ -562,13 +570,14 @@ export class CollectTracesComponent
       this.storage(),
       this.storeKeyPrefixDumpConfig,
     );
-    this.refreshDumps = true;
+    this.refreshDumps.set(true);
     this.changeDetectorRef.detectChanges();
   }
 
   private async changeHostConnection(adbConnectionType: string) {
-    if (this.selectedDevice) {
-      await this.controller?.onDestroy(this.selectedDevice);
+    const selectedDevice = this.selectedDevice;
+    if (selectedDevice) {
+      await this.controller?.onDestroy(selectedDevice);
     }
     this.controller = new TraceCollectionController(adbConnectionType, this);
     this.connectionTabIndex =
@@ -617,7 +626,7 @@ export class CollectTracesComponent
       assertDefined(this.selectedDevice),
       requestedTracesWithConfig,
     );
-    if (this.state === ConnectionState.STARTING_TRACE) {
+    if (this.state() === ConnectionState.STARTING_TRACE) {
       Analytics.Tracing.logStartTime(Date.now() - startTimeMs);
       await this.setState(ConnectionState.TRACING);
     }
@@ -744,12 +753,12 @@ export class CollectTracesComponent
 
     const controller = assertDefined(this.controller);
 
-    this.state = newState;
+    this.state.set(newState);
     this.errorText = errorText;
     this.changeDetectorRef.detectChanges();
 
     const maybeRefreshDumps =
-      this.refreshDumps &&
+      this.refreshDumps() &&
       newState !== ConnectionState.LOADING_DATA &&
       newState !== ConnectionState.CONNECTING;
     if (
@@ -761,7 +770,7 @@ export class CollectTracesComponent
     } else if (maybeRefreshDumps) {
       // device is not connected or proxy is not started/invalid/in error state
       // so cannot refresh dump automatically
-      this.refreshDumps = false;
+      this.refreshDumps.set(false);
       this.changeDetectorRef.detectChanges();
     }
 

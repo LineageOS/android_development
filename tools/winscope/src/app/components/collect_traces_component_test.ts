@@ -314,16 +314,15 @@ describe('CollectTracesComponent', () => {
     const filesSpy = spyOn(component.filesCollected, 'emit');
     const controller = assertDefined(component.controller);
     spyOn(controller, 'dumpState').and.callFake(async () => {
-      component.state = ConnectionState.ERROR;
+      component.state.set(ConnectionState.ERROR);
     });
     await clickDumpStateButton();
-
     expect(filesSpy).not.toHaveBeenCalled();
   });
 
   it('change device button works as expected', () => {
     goToConfigSection();
-    expect(component.getSelectedDevice()).toBeDefined();
+    expect(component.selectedDeviceName()).toBeDefined();
 
     const controller = assertDefined(component.controller);
     const spy = spyOn(controller, 'restartConnection');
@@ -366,7 +365,7 @@ describe('CollectTracesComponent', () => {
   });
 
   it('displays unknown error message', () => {
-    component.state = ConnectionState.ERROR;
+    component.state.set(ConnectionState.ERROR);
     dom.detectChanges();
 
     const testErrorMessage = 'bad things are happening';
@@ -491,7 +490,7 @@ describe('CollectTracesComponent', () => {
     goToConfigSection();
     const controller = assertDefined(component.controller);
     const spy = spyOn(controller, 'dumpState');
-    component.refreshDumps = true;
+    component.refreshDumps.set(true);
     await component.onConnectionStateChange(ConnectionState.CONNECTING);
     await dom.detectChangesAndWaitStable();
     expect(spy).toHaveBeenCalledOnceWith(mockDevice, [
@@ -507,7 +506,7 @@ describe('CollectTracesComponent', () => {
   it('does not refresh dumps if no device selected', async () => {
     const controller = assertDefined(component.controller);
     const spy = spyOn(controller, 'dumpState');
-    component.refreshDumps = true;
+    component.refreshDumps.set(true);
     await component.onConnectionStateChange(ConnectionState.CONNECTING);
     await dom.detectChangesAndWaitStable();
     expect(spy).not.toHaveBeenCalled();
@@ -560,7 +559,7 @@ describe('CollectTracesComponent', () => {
   it('sets error state onError', async () => {
     const msg = 'test error message';
     await component.onError(msg);
-    expect(component.state).toEqual(ConnectionState.ERROR);
+    expect(component.state()).toEqual(ConnectionState.ERROR);
     expect(component.errorText).toEqual(msg);
   });
 
@@ -695,7 +694,7 @@ describe('CollectTracesComponent', () => {
       dom.setComponentInput('storage', storage);
       await dom.detectChangesAndWaitStable();
       await dom.whenRenderingDone();
-      component.state = ConnectionState.UNAUTH;
+      component.state.set(ConnectionState.UNAUTH);
       dom.detectChanges();
     });
 
@@ -740,7 +739,7 @@ describe('CollectTracesComponent', () => {
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
       dom.setComponentInput('storage', storage);
       await dom.detectChangesAndWaitStable();
-      component.state = ConnectionState.UNAUTH;
+      component.state.set(ConnectionState.UNAUTH);
       dom.detectChanges();
     });
 
@@ -812,7 +811,7 @@ describe('CollectTracesComponent', () => {
     c = component,
   ): jasmine.Spy {
     const controller = assertDefined(c.controller);
-    c.state = ConnectionState.IDLE;
+    c.state.set(ConnectionState.IDLE);
     const spy = spyOn(controller, 'getDevices').and.returnValue(devices);
     dom.detectChanges();
     return spy;
@@ -880,6 +879,9 @@ describe('CollectTracesComponent', () => {
   }
 
   async function clickDumpStateButton() {
+    await dom.whenRenderingDone();
+    dom.detectChanges();
+    dom.detectChanges();
     await dom.clickAndWaitStable('.dump-btn button');
   }
 
