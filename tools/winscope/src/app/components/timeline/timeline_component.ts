@@ -19,11 +19,13 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   ElementRef,
   HostListener,
   Inject,
   input,
   output,
+  signal,
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
@@ -154,11 +156,62 @@ export class TimelineComponent
     'frameCanvasElementTimeline',
   );
 
+  readonly selectedTraces = signal<Array<Trace<unknown>>>([]);
+  private readonly thumbnail = signal<Thumbnail | undefined>(undefined);
+  private readonly currentTabTraceType = signal<TraceType | undefined>(
+    undefined,
+  );
+  private hoverPosition = signal<HoverPositionUpdate | undefined>(undefined);
+
+  readonly getSelectedTracesToShow = computed<Array<Trace<unknown>>>(() => {
+    const sortedSelectedTraces = this.selectedTraces()
+      .slice()
+      .sort((a, b) => compareByDisplayOrder(a.type, b.type));
+    return sortedSelectedTraces.length > 8
+      ? sortedSelectedTraces.slice(0, 7)
+      : sortedSelectedTraces.slice(0, 8);
+  });
+
+  readonly thumbnailVideoStyle = computed(() => {
+    const thumbnail = this.thumbnail();
+    const size = thumbnail?.getBackgroundSize();
+    return {
+      width: (thumbnail?.getThumbWidth() ?? 0) + 'px',
+      height: (thumbnail?.getThumbHeight() ?? 0) + 'px',
+      display: thumbnail ? undefined : 'none',
+      backgroundImage: thumbnail
+        ? `url(${thumbnail.getBackgroundImageUrl()})`
+        : undefined,
+      backgroundSize: size ? `${size.width}px ${size.height}px` : undefined,
+    };
+  });
+
+  readonly hasVideoThumbnail = computed(() => this.thumbnail() !== undefined);
+
+  readonly traceSupportsPlayback = computed(() => {
+    const currentTabTraceType = this.currentTabTraceType();
+    if (currentTabTraceType === undefined) {
+      return false;
+    }
+    return supportsPlayback(currentTabTraceType);
+  });
+
+  readonly makeHoverTsValue = computed(() => {
+    const ts = this.hoverPosition()?.ts;
+    if (ts === undefined) {
+      return '';
+    }
+    const formatted = ts.format();
+    const lastPart = ts.format().split(' ').at(-1);
+    if (lastPart === 'ns') {
+      return formatted;
+    }
+    return assertDefined(lastPart);
+  });
+
   currentScreenRecordingTrace: Trace<MediaBasedTraceEntry> | undefined;
   videoUrl: SafeUrl | undefined;
-  thumbnail: Thumbnail | undefined;
   initialZoom: TimeRange | undefined = undefined;
-  selectedTraces: Array<Trace<unknown>> = [];
   sortedTraces: Array<Trace<unknown>> = [];
   selectedTracesFormControl = new FormControl<Array<Trace<unknown>>>([]);
   selectedTimeFormControl = new FormControl('undefined');
@@ -184,10 +237,8 @@ export class TimelineComponent
   expandedTimelineMouseXRatio: number | undefined;
   private seekTracePosition?: TracePosition;
   private isProcessingKeyPress = false;
-  private currentTabTraceType: TraceType | undefined;
   private lastPlayState: PlaybackState | undefined;
   frameCanvasEntry: MediaBasedTraceEntry | undefined;
-  private hoverPosition: HoverPositionUpdate | undefined;
 
   constructor(
     @Inject(DomSanitizer) private sanitizer: DomSanitizer,
@@ -196,7 +247,7 @@ export class TimelineComponent
 
   ngOnInit() {
     const timelineData = this.timelineData();
-    this.currentTabTraceType = this.initialTabTraceType();
+    this.currentTabTraceType.set(this.initialTabTraceType());
     if (timelineData.hasTimestamps()) {
       this.updateTimeInputValuesToCurrentTimestamp();
     }
@@ -218,7 +269,7 @@ export class TimelineComponent
         .sort((a, b) => compareByDisplayOrder(a.type, b.type)) ?? [];
 
     const storedDeselectedTraces = this.getStoredDeselectedTraceTypes();
-    this.selectedTraces = this.sortedTraces.filter((trace) => {
+    const selectedTraces = this.sortedTraces.filter((trace) => {
       return (
         timelineData.hasTrace(trace) &&
         (!storedDeselectedTraces.includes(trace.type) ||
@@ -226,11 +277,12 @@ export class TimelineComponent
           !timelineData.hasMoreThanOneDistinctTimestamp())
       );
     });
+    this.selectedTraces.set(selectedTraces);
     this.selectedTracesFormControl = new FormControl<Array<Trace<unknown>>>(
-      this.selectedTraces,
+      selectedTraces,
     );
 
-    const initialTraceToCropZoom = this.selectedTraces.find((trace) => {
+    const initialTraceToCropZoom = selectedTraces.find((trace) => {
       return (
         trace.type !== TraceType.SCREEN_RECORDING &&
         isTraceTypeWithViewer(trace.type) &&
@@ -276,13 +328,6 @@ export class TimelineComponent
     }
 
     return position;
-  }
-
-  getSelectedTracesToShow(): Array<Trace<unknown>> {
-    const sortedSelectedTraces = this.getSelectedTracesSortedByDisplayOrder();
-    return sortedSelectedTraces.length > 8
-      ? sortedSelectedTraces.slice(0, 7)
-      : sortedSelectedTraces.slice(0, 8);
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -335,7 +380,7 @@ export class TimelineComponent
     if (this.playbackState !== PlaybackState.PAUSED) {
       this.emitEvent(
         new PlaybackStateChangeRequest(
-          assertDefined(this.currentTabTraceType),
+          assertDefined(this.currentTabTraceType()),
           this.playbackState,
           this.getPlaybackStartingPosition(),
         ),
@@ -372,11 +417,12 @@ export class TimelineComponent
 
   applyNewTraceSelection(clickedTrace: Trace<unknown>) {
     const timelineData = this.timelineData();
-    this.selectedTraces =
+    const selectedTraces =
       this.selectedTracesFormControl.value ??
       this.sortedTraces.filter((trace) => {
         return timelineData.hasTrace(trace);
       });
+    this.selectedTraces.set(selectedTraces);
     this.updateStoredDeselectedTraceTypes(clickedTrace);
   }
 
@@ -478,7 +524,7 @@ export class TimelineComponent
   onPlaybackSpeedChange(selectedScale: number) {
     this.emitEvent(
       new PlaybackSpeedChange(
-        assertDefined(this.currentTabTraceType),
+        assertDefined(this.currentTabTraceType()),
         selectedScale,
       ),
     );
@@ -698,7 +744,7 @@ export class TimelineComponent
   }
 
   hoverPositionUpdate(update: HoverPositionUpdate | undefined) {
-    this.hoverPosition = update;
+    this.hoverPosition.set(update);
     this.expandedTimelineScrollEvent = undefined;
     this.changeDetectorRef.detectChanges();
     if (update?.ts !== undefined) {
@@ -710,51 +756,15 @@ export class TimelineComponent
     navbarWrapper: HTMLElement,
     hoverPreview: HTMLElement,
   ): object {
-    const hasHover = this.hoverPosition !== undefined;
+    const hoverPosition = this.hoverPosition();
+    const hasHover = hoverPosition !== undefined;
     return {
       bottom: navbarWrapper.clientHeight + 4 + 'px',
       left: hasHover
-        ? `min(${this.hoverPosition?.posX}px, calc(100vw - ${hoverPreview.clientWidth + 4}px))`
+        ? `min(${hoverPosition?.posX}px, calc(100vw - ${hoverPreview.clientWidth + 4}px))`
         : '100px',
       display: hasHover ? undefined : 'none',
     };
-  }
-
-  getThumbnailVideoStyle(): object {
-    const size = this.thumbnail?.getBackgroundSize();
-    return {
-      width: (this.thumbnail?.getThumbWidth() ?? 0) + 'px',
-      height: (this.thumbnail?.getThumbHeight() ?? 0) + 'px',
-      display: this.thumbnail ? undefined : 'none',
-      backgroundImage: this.thumbnail
-        ? `url(${this.thumbnail.getBackgroundImageUrl()})`
-        : undefined,
-      backgroundSize: size ? `${size.width}px ${size.height}px` : undefined,
-    };
-  }
-
-  hasVideoThumbnail(): boolean {
-    return this.thumbnail !== undefined;
-  }
-
-  makeHoverTsValue(): string {
-    const ts = this.hoverPosition?.ts;
-    if (ts === undefined) {
-      return '';
-    }
-    const formatted = ts.format();
-    const lastPart = ts.format().split(' ').at(-1);
-    if (lastPart === 'ns') {
-      return formatted;
-    }
-    return assertDefined(lastPart);
-  }
-
-  traceSupportsPlayback() {
-    if (this.currentTabTraceType === undefined) {
-      return false;
-    }
-    return supportsPlayback(this.currentTabTraceType);
   }
 
   private updateSelectedTraces(trace: Trace<unknown> | undefined) {
@@ -762,15 +772,17 @@ export class TimelineComponent
       return;
     }
 
-    if (!this.selectedTraces.includes(trace)) {
+    const selectedTraces = this.selectedTraces();
+    if (!selectedTraces.includes(trace)) {
       // Create new object to make sure we trigger an update on Mini Timeline child component
-      this.selectedTraces = [...this.selectedTraces, trace];
-      this.selectedTracesFormControl.setValue(this.selectedTraces);
+      this.selectedTraces.set([...selectedTraces, trace]);
+      this.selectedTracesFormControl.setValue(selectedTraces);
     }
   }
 
   async onPlaybackStateChange(state: PlaybackState) {
-    if (this.currentTabTraceType === undefined) {
+    const currentTabTraceType = this.currentTabTraceType();
+    if (currentTabTraceType === undefined) {
       return;
     }
     switch (state) {
@@ -780,7 +792,7 @@ export class TimelineComponent
         this.setIsDisabled(true);
         this.emitEvent(
           new PlaybackStateChangeRequest(
-            assertDefined(this.currentTabTraceType),
+            currentTabTraceType,
             state,
             this.getPlaybackStartingPosition(),
           ),
@@ -789,10 +801,7 @@ export class TimelineComponent
 
       case PlaybackState.PAUSED:
         this.emitEvent(
-          new PlaybackStateChangeRequest(
-            assertDefined(this.currentTabTraceType),
-            state,
-          ),
+          new PlaybackStateChangeRequest(currentTabTraceType, state),
         );
         return;
 
@@ -802,15 +811,14 @@ export class TimelineComponent
   }
 
   private getPlaybackStartingPosition(): number | undefined {
-    if (this.currentTabTraceType === undefined) {
+    const currentTabTraceType = this.currentTabTraceType();
+    if (currentTabTraceType === undefined) {
       return undefined;
     }
 
     const timelineData = this.timelineData();
 
-    const currentTrace = timelineData
-      .getTraces()
-      .getTrace(this.currentTabTraceType);
+    const currentTrace = timelineData.getTraces().getTrace(currentTabTraceType);
 
     if (!currentTrace) {
       return undefined;
@@ -837,12 +845,6 @@ export class TimelineComponent
     this.selectedNsFormControl.setValue(`${currentTimestampNs} ns`);
   }
 
-  private getSelectedTracesSortedByDisplayOrder(): Array<Trace<unknown>> {
-    return this.selectedTraces
-      .slice()
-      .sort((a, b) => compareByDisplayOrder(a.type, b.type));
-  }
-
   private getStoredDeselectedTraceTypes(): TraceType[] {
     const storedDeselectedTraces = this.store().get(
       this.storeKeyDeselectedTraces,
@@ -853,16 +855,17 @@ export class TimelineComponent
   private updateStoredDeselectedTraceTypes(clickedTrace: Trace<unknown>) {
     const store = this.store();
 
+    const selectedTraces = this.selectedTraces();
     let storedDeselected = this.getStoredDeselectedTraceTypes();
     if (
-      this.selectedTraces.includes(clickedTrace) &&
+      selectedTraces.includes(clickedTrace) &&
       storedDeselected.includes(clickedTrace.type)
     ) {
       storedDeselected = storedDeselected.filter(
         (stored) => stored !== clickedTrace.type,
       );
     } else if (
-      !this.selectedTraces.includes(clickedTrace) &&
+      !selectedTraces.includes(clickedTrace) &&
       !storedDeselected.includes(clickedTrace.type)
     ) {
       Analytics.Navigation.logTraceTimelineDeselected(
@@ -912,8 +915,9 @@ export class TimelineComponent
     }
 
     const srChanged = this.currentScreenRecordingTrace !== lastTrace;
+    const thumbnail = this.thumbnail();
 
-    if (srChanged || !this.videoUrl || !this.thumbnail) {
+    if (srChanged || !this.videoUrl || !thumbnail) {
       const video = await this.currentScreenRecordingTrace
         .getEntry(0)
         .getValue();
@@ -921,10 +925,10 @@ export class TimelineComponent
         this.videoUrl = this.sanitizer.bypassSecurityTrustUrl(
           URL.createObjectURL(video.frameData),
         );
-        this.thumbnail = video.thumbnail;
+        this.thumbnail.set(video.thumbnail);
         this.changeDetectorRef.detectChanges();
-      } else if (this.thumbnail === undefined && video.thumbnail) {
-        this.thumbnail = video.thumbnail;
+      } else if (thumbnail === undefined && video.thumbnail) {
+        this.thumbnail.set(video.thumbnail);
         this.changeDetectorRef.detectChanges();
       }
       return;
@@ -996,7 +1000,7 @@ export class TimelineComponent
 
   private async onTabbedViewSwitched(event: TabbedViewSwitched) {
     await this.onPlaybackStateChange(PlaybackState.PAUSED);
-    this.currentTabTraceType = event.newFocusedView.traces[0]?.type;
+    this.currentTabTraceType.set(event.newFocusedView.traces[0]?.type);
     this.changeDetectorRef.detectChanges();
   }
 
@@ -1015,7 +1019,8 @@ export class TimelineComponent
   private async drawScreenRecordingThumbnail(ts: Timestamp) {
     const thumbnailVideo = this.thumbnailVideo()?.nativeElement;
     const trace = this.timelineData().getCurrentScreenRecordingTrace();
-    if (!trace || !thumbnailVideo || !this.thumbnail) {
+    const thumbnail = this.thumbnail();
+    if (!trace || !thumbnailVideo || !thumbnail) {
       return;
     }
     const entry = findCorrespondingEntry(
@@ -1025,7 +1030,7 @@ export class TimelineComponent
     if (!entry) {
       return;
     }
-    const position = this.thumbnail.getBackgroundPosition(
+    const position = thumbnail.getBackgroundPosition(
       entry.getIndex() / trace.lengthEntries,
     );
     thumbnailVideo.style.backgroundPosition = `${position.x}px ${position.y}px`;

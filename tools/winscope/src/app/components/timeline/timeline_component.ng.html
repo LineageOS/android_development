@@ -78,7 +78,7 @@ limitations under the License.
           <div
             class="thumbnail"
             id="thumbnail-video"
-            [style]="getThumbnailVideoStyle()"
+            [style]="thumbnailVideoStyle()"
             #thumbnailVideo
           ></div>
         </div>
@@ -192,6 +192,7 @@ limitations under the License.
             </button>
           </div>
         </div>
+        @let selected = selectedTraces();
         <div id="trace-selector">
           <mat-form-field
             class="mat-form-field-appearance-none no-ripple-field"
@@ -250,7 +251,7 @@ limitations under the License.
                       {{ TRACE_INFO[selectedTrace.type].icon }}
                     </mat-icon>
                   }
-                  @if (selectedTraces.length > 8) {
+                  @if (selected.length > 8) {
                     <mat-icon class="trace-icon"> more_horiz </mat-icon>
                   }
                 </div>
@@ -262,7 +263,7 @@ limitations under the License.
           <mini-timeline
             [timelineData]="tData"
             [currentTracePosition]="getCurrentTracePosition()"
-            [selectedTraces]="selectedTraces"
+            [selectedTraces]="selected"
             [initialZoom]="initialZoom"
             [expandedTimelineScrollEvent]="expandedTimelineScrollEvent"
             [expandedTimelineMouseXRatio]="expandedTimelineMouseXRatio"
