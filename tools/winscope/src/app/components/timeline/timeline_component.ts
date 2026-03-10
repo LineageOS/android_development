@@ -699,6 +699,7 @@ export class TimelineComponent
 
   hoverPositionUpdate(update: HoverPositionUpdate | undefined) {
     this.hoverPosition = update;
+    this.expandedTimelineScrollEvent = undefined;
     this.changeDetectorRef.detectChanges();
     if (update?.ts !== undefined) {
       this.drawThumbnail(update.ts);
