@@ -82,20 +82,21 @@ export class RectsComponent implements OnInit, OnDestroy {
   Analytics = Analytics;
   ViewerEvents = ViewerEvents;
 
-  title = input('title');
+  title = input.required<string>();
+  rects = input.required<UiRect[]>();
+  displays = input.required<DisplayIdentifier[]>();
+  shadingModes = input.required<ShadingMode[]>();
+  userOptions = input.required<UserOptions>();
+  dependencies = input.required<TraceType[]>();
+
   zoomFactor = input(1);
-  store = input<Store | undefined>(undefined);
-  rects = input<UiRect[]>([]);
-  miniRects = input<UiRect[] | undefined>(undefined);
-  displays = input<DisplayIdentifier[]>([]);
+  store = input<Store>();
+  miniRects = input<UiRect[]>();
   highlightedItem = input('');
   groupLabel = input('Displays');
   isStackBased = input(false);
-  shadingModes = input<ShadingMode[]>([ShadingMode.GRADIENT]);
-  rectSpec = input<RectSpec | undefined>(undefined);
-  allRectSpecs = input<RectSpec[] | undefined>(undefined);
-  userOptions = input<UserOptions>({});
-  dependencies = input<TraceType[]>([]);
+  rectSpec = input<RectSpec>();
+  allRectSpecs = input<RectSpec[]>();
   pinnedItems = input<UiHierarchyTreeNode[]>([]);
   isDarkMode = input(false);
 

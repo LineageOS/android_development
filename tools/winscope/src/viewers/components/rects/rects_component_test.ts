@@ -53,6 +53,7 @@ import {UiRect3D} from './ui_rect3d';
 import {UiRectBuilder} from './ui_rect_builder';
 import {Store} from '@common/store/store';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {DisplayIdentifier} from '@viewers/common/display_identifier';
 
 describe('RectsComponent', () => {
   const rectGroup0 = makeRectWithGroupId(0);
@@ -96,14 +97,18 @@ describe('RectsComponent', () => {
       ],
     }).compileComponents();
 
+    sharedStore = new InMemoryStorage();
+    resetDom();
+    dom.setComponentInput('miniRects', []);
+  });
+
+  function resetDom(rects: UiRect[] = [], displays: DisplayIdentifier[] = []) {
     fixture = TestBed.createComponent(RectsComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
 
     dom.setComponentInput('title', testTitle);
-    sharedStore = new InMemoryStorage();
     dom.setComponentInput('store', sharedStore);
-    dom.setComponentInput('miniRects', []);
     dom.setComponentInput('shadingModes', [
       ShadingMode.GRADIENT,
       ShadingMode.WIRE_FRAME,
@@ -117,7 +122,9 @@ describe('RectsComponent', () => {
       },
     });
     dom.setComponentInput('dependencies', [TraceType.SURFACE_FLINGER]);
-  });
+    dom.setComponentInput('displays', displays);
+    dom.setComponentInput('rects', rects);
+  }
 
   it('can be created', () => {
     dom.detectChanges();
@@ -359,20 +366,10 @@ describe('RectsComponent', () => {
     updateSeparationSlider();
     updateShadingMode(ShadingMode.GRADIENT, ShadingMode.WIRE_FRAME);
 
-    const newFixture = TestBed.createComponent(RectsComponent);
-    const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    newDom.setComponentInput('title', testTitle);
-    newDom.setComponentInput('store', sharedStore);
-    newDom.setComponentInput('shadingModes', [
-      ShadingMode.GRADIENT,
-      ShadingMode.WIRE_FRAME,
-      ShadingMode.OPACITY,
-    ]);
-    await newDom.detectChangesAndWaitStable();
-
-    const newRectsComponent = newFixture.componentInstance;
-    expect(newRectsComponent.getZSpacingFactor()).toBe(0.06);
-    expect(newRectsComponent.getShadingMode()).toEqual(ShadingMode.WIRE_FRAME);
+    resetDom();
+    await dom.detectChangesAndWaitStable();
+    expect(component.getZSpacingFactor()).toBe(0.06);
+    expect(component.getShadingMode()).toEqual(ShadingMode.WIRE_FRAME);
   });
 
   it('uses stored selected displays if present in new trace', async () => {
@@ -388,29 +385,14 @@ describe('RectsComponent', () => {
     options[1].click();
     await checkSelectedDisplay([0, 1], [0, 1]);
 
-    const fixtureSameDisplays = TestBed.createComponent(RectsComponent);
-    const domSameDisplays = new DOMTestHelper(
-      fixtureSameDisplays,
-      fixtureSameDisplays.nativeElement,
-    );
-    domSameDisplays.setComponentInput('title', testTitle);
-    domSameDisplays.setComponentInput('rects', component.rects());
-    domSameDisplays.setComponentInput('displays', component.displays());
-    domSameDisplays.setComponentInput('store', sharedStore);
-    await checkSelectedDisplay([0, 1], [0, 1], false, domSameDisplays);
+    resetDom(component.rects(), component.displays());
+    await checkSelectedDisplay([0, 1], [0, 1], false);
 
-    const fixtureWithDisplay1 = TestBed.createComponent(RectsComponent);
-    const domWithDisplay1 = new DOMTestHelper(
-      fixtureWithDisplay1,
-      fixtureWithDisplay1.nativeElement,
+    resetDom(
+      [rectGroup1],
+      [{displayId: 20, groupId: 1, name: 'Display 1', isActive: true}],
     );
-    domWithDisplay1.setComponentInput('title', testTitle);
-    domWithDisplay1.setComponentInput('store', sharedStore);
-    domWithDisplay1.setComponentInput('rects', [rectGroup1]);
-    domWithDisplay1.setComponentInput('displays', [
-      {displayId: 20, groupId: 1, name: 'Display 1', isActive: true},
-    ]);
-    await checkSelectedDisplay([1], [1], false, domWithDisplay1);
+    await checkSelectedDisplay([1], [1], false);
   });
 
   it('defaults initial selection to first active display with rects', async () => {
@@ -963,11 +945,10 @@ describe('RectsComponent', () => {
     displayNumbers: number[],
     testIds: number[],
     changeInBoundingBox?: boolean,
-    d = dom,
   ) {
-    await d.detectChangesAndWaitStable();
-    d.detectChanges();
-    const displaySelect = d.get('.displays-select');
+    await dom.detectChangesAndWaitStable();
+    dom.detectChanges();
+    const displaySelect = dom.get('.displays-select');
     displaySelect.checkTextExact(
       displayNumbers
         .map((displayNumber) => `Display ${displayNumber}`)
