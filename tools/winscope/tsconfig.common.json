@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "protos/*": [
+      "@protos/*": [
         "../deps_build/protos/*"
       ],
       "@abt_chrome_extension/*": [

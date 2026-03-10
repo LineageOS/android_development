@@ -2,7 +2,8 @@
 // Enable non-strict mode to allow comments.
 {
   "rules": {
-    "array-type": [true, "array-simple"],
+    // Needs to be false to avoid converting to Array<BigInt>, eslint rule is correct for it
+    "array-type": false,
     "arrow-return-shorthand": true,
     "ban": [true,
       ["fit"],
