@@ -228,7 +228,7 @@ describe('ActiveSearchComponent', () => {
     template: `
       <ng-template #testTemplate let-control="control" let-query="query">
         <span class="test-query"> {{query}} </span>
-        <span class="test-control-value"> {{control?.value}} </span>
+        <span class="test-control-value"> {{control.value}} </span>
       </ng-template>
     `,
   })

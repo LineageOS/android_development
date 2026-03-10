@@ -38,9 +38,9 @@ import {ListedSearch} from './ui_data';
   styleUrls: ['search_list_component.css'],
 })
 export class SearchListComponent {
-  searches = input<ListedSearch[]>([]);
+  searches = input.required<ListedSearch[]>();
+  listItemOptions = input.required<ListItemOption[]>();
   placeholderText = input('');
-  listItemOptions = input<ListItemOption[]>([]);
   control = input(new FormControl(''));
 
   searchOptionsTarget: ListedSearch | undefined;

@@ -50,15 +50,16 @@ import {Analytics} from '@logging/analytics';
   styleUrls: ['active_search_component.css'],
 })
 export class ActiveSearchComponent {
+  saveQueryField = input.required<TemplateRef<unknown>>();
+  saveQueryNameControl = input.required<FormControl>();
+
   canClear = input(false);
   canAdd = input(false);
   isSearchInitialized = input(false);
   lastTraceFailed = input(false);
   executedQuery = input<string>();
-  saveQueryField = input<TemplateRef<unknown>>();
   label = input<string>();
   lastQueryExecutionTime = input<string>();
-  saveQueryNameControl = input<FormControl>();
   runningQuery = input(false);
 
   clearQueryClick = output();
