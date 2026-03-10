@@ -1408,7 +1408,6 @@ mod tests {
     use super::*;
     use googletest::matchers::eq;
     use googletest::prelude::assert_that;
-    use googletest::GoogleTestSupport;
     use std::env::{current_dir, set_current_dir};
     use std::fs::{self, read_to_string};
     use std::path::PathBuf;
