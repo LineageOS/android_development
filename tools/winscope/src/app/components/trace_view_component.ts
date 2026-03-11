@@ -19,11 +19,13 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   ElementRef,
   Inject,
   input,
   NgZone,
+  signal,
 } from '@angular/core';
 import {
   FormControl,
@@ -97,6 +99,9 @@ export class TraceViewComponent
     new Map(),
   );
 
+  private allFilterPresets = signal<string[]>([]);
+  private currentActiveTab = signal<Tab | undefined>(undefined);
+
   TRACE_INFO = TRACE_INFO;
   tabs: Tab[] = [];
   isFilterPresetsPanelOpen = false;
@@ -107,7 +112,7 @@ export class TraceViewComponent
       (control: FormControl) =>
         this.validateFilterPresetName(
           control,
-          this.allFilterPresets,
+          this.allFilterPresets(),
           (input: string) =>
             this.makeFilterPresetName(
               input,
@@ -117,10 +122,35 @@ export class TraceViewComponent
     ]),
   );
 
-  private currentActiveTab: undefined | Tab;
+  private getCurrentTabTraceType = computed<TraceType | undefined>(() => {
+    return this.currentActiveTab()?.view.traces.at(0)?.type;
+  });
+
+  readonly currentTabHasFilterPresets = computed(() => {
+    const currentTabTraceType = this.getCurrentTabTraceType();
+    return (
+      currentTabTraceType !== undefined &&
+      [
+        TraceType.SURFACE_FLINGER,
+        TraceType.WINDOW_MANAGER,
+        TraceType.INPUT_METHOD_CLIENTS,
+        TraceType.INPUT_METHOD_MANAGER_SERVICE,
+        TraceType.INPUT_METHOD_SERVICE,
+        TraceType.VIEW_CAPTURE,
+      ].includes(currentTabTraceType)
+    );
+  });
+
+  readonly getCurrentFilterPresets = computed(() => {
+    const currentTabTraceType = this.getCurrentTabTraceType();
+    if (currentTabTraceType === undefined) return [];
+    return this.allFilterPresets().filter((preset) =>
+      preset.includes(TRACE_INFO[currentTabTraceType].name),
+    );
+  });
+
   private emitAppEvent: EmitEvent = () => Promise.resolve();
   private filterPresetsStoreKey = 'filterPresets';
-  private allFilterPresets: string[] = [];
 
   traceTypesWithParsingErrorsWarningTooltip: string = '';
 
@@ -130,8 +160,9 @@ export class TraceViewComponent
     @Inject(NgZone) private ngZone: NgZone,
   ) {
     const firstViewersChange = effect(() => {
-      this.renderViewsTab(this.viewers());
-      this.renderViewsOverlay();
+      const viewers = this.viewers();
+      this.renderViewsTab(viewers);
+      this.renderViewsOverlay(viewers);
       firstViewersChange.destroy();
     });
 
@@ -139,7 +170,7 @@ export class TraceViewComponent
       const store = this.store();
       const storedPresets = store.get(this.filterPresetsStoreKey);
       if (storedPresets) {
-        this.allFilterPresets = JSON.parse(storedPresets);
+        this.allFilterPresets.set(JSON.parse(storedPresets));
       }
       firstStoreChange.destroy();
     });
@@ -177,13 +208,6 @@ export class TraceViewComponent
     await this.showTab(tab, false);
   }
 
-  private async onTabbedViewSwitchRequest(event: TabbedViewSwitchRequest) {
-    const tab = this.tabs.find((tab) =>
-      tab.view.traces.some((trace) => trace === event.newActiveTrace),
-    );
-    await this.showTab(assertDefined(tab), false);
-  }
-
   async onWinscopeEvent(event: WinscopeEvent) {
     switch (event.constructor) {
       case TabbedViewSwitchRequest:
@@ -202,7 +226,7 @@ export class TraceViewComponent
   }
 
   isCurrentActiveTab(tab: Tab) {
-    return tab === this.currentActiveTab;
+    return tab === this.currentActiveTab();
   }
 
   getTabTooltip(view: View): string {
@@ -216,14 +240,6 @@ export class TraceViewComponent
   getTitle(view: View): string {
     const isDump = view.traces.length === 1 && view.traces.at(0)?.isDump();
     return view.title + (isDump ? ' Dump' : '');
-  }
-
-  getCurrentFilterPresets(): string[] {
-    const currentTabTraceType = this.getCurrentTabTraceType();
-    if (currentTabTraceType === undefined) return [];
-    return this.allFilterPresets.filter((preset) =>
-      preset.includes(TRACE_INFO[currentTabTraceType].name),
-    );
   }
 
   onFilterPresetsClick() {
@@ -240,10 +256,10 @@ export class TraceViewComponent
       const currentTabTraceType = assertDefined(this.getCurrentTabTraceType());
       const presetName = this.makeFilterPresetName(value, currentTabTraceType);
 
-      this.allFilterPresets.push(presetName);
+      this.allFilterPresets.update((presets) => [...presets, presetName]);
       this.store().add(
         this.filterPresetsStoreKey,
-        JSON.stringify(this.allFilterPresets),
+        JSON.stringify(this.allFilterPresets()),
       );
 
       this.filterPresetNameControl.reset();
@@ -264,34 +280,48 @@ export class TraceViewComponent
   }
 
   deletePreset(preset: string) {
-    this.allFilterPresets = this.allFilterPresets.filter((p) => p !== preset);
+    this.allFilterPresets.update((presets) =>
+      presets.filter((p) => p !== preset),
+    );
     const store = this.store();
     store.clear(preset);
     store.add(
       this.filterPresetsStoreKey,
-      JSON.stringify(this.allFilterPresets),
+      JSON.stringify(this.allFilterPresets()),
     );
     this.filterPresetNameControl.updateValueAndValidity();
     this.changeDetectorRef.detectChanges();
   }
 
-  currentTabHasFilterPresets(): boolean {
-    const currentTabTraceType = this.getCurrentTabTraceType();
-    return (
-      currentTabTraceType !== undefined &&
-      [
-        TraceType.SURFACE_FLINGER,
-        TraceType.WINDOW_MANAGER,
-        TraceType.INPUT_METHOD_CLIENTS,
-        TraceType.INPUT_METHOD_MANAGER_SERVICE,
-        TraceType.INPUT_METHOD_SERVICE,
-        TraceType.VIEW_CAPTURE,
-      ].includes(currentTabTraceType)
-    );
+  showTraceTypesWithParsingErrorsWarning(tab: Tab): boolean {
+    const trace = tab.view.traces.at(0);
+    const traceType = trace?.type;
+
+    if (traceType !== undefined) {
+      const traceTypesWithParsingErrors = this.traceTypesWithParsingErrors();
+      if (traceTypesWithParsingErrors.has(traceType)) {
+        if (
+          traceTypesWithParsingErrors.get(traceType) ===
+          ParsingErrorType.DATA_INCORRECT
+        ) {
+          this.traceTypesWithParsingErrorsWarningTooltip =
+            'Trace processor errors occurred - data may be incorrect';
+        } else {
+          this.traceTypesWithParsingErrorsWarningTooltip =
+            'Trace processor errors occurred - data may be incomplete';
+        }
+
+        return true;
+      }
+    }
+    return false;
   }
 
-  private getCurrentTabTraceType(): TraceType | undefined {
-    return this.currentActiveTab?.view.traces.at(0)?.type;
+  private async onTabbedViewSwitchRequest(event: TabbedViewSwitchRequest) {
+    const tab = this.tabs.find((tab) =>
+      tab.view.traces.some((trace) => trace === event.newActiveTrace),
+    );
+    await this.showTab(assertDefined(tab), false);
   }
 
   private renderViewsTab(viewers: Viewer[]) {
@@ -315,8 +345,8 @@ export class TraceViewComponent
     }
   }
 
-  private renderViewsOverlay() {
-    const views: View[] = this.viewers()
+  private renderViewsOverlay(viewers: Viewer[]) {
+    const views: View[] = viewers
       .map((viewer) => viewer.getViews())
       .flat()
       .filter((view) => view.type === ViewType.OVERLAY);
@@ -341,8 +371,9 @@ export class TraceViewComponent
 
   private async showTab(tab: Tab, firstToRender: boolean) {
     const startTimeMs = Date.now();
-    if (this.currentActiveTab) {
-      this.currentActiveTab.view.htmlElement.style.display = 'none';
+    const currentActiveTab = this.currentActiveTab();
+    if (currentActiveTab) {
+      currentActiveTab.view.htmlElement.style.display = 'none';
     }
 
     const firstSwitch = !tab.addedToDom;
@@ -361,7 +392,7 @@ export class TraceViewComponent
       tab.view.htmlElement.style.display = '';
     }
 
-    this.currentActiveTab = tab;
+    this.currentActiveTab.set(tab);
 
     if (!firstToRender) {
       await this.emitAppEvent(new TabbedViewSwitched(tab.view));
@@ -389,29 +420,5 @@ export class TraceViewComponent
 
   private makeFilterPresetName(input: string, traceType: TraceType) {
     return input + '.' + TRACE_INFO[traceType].name;
-  }
-
-  showTraceTypesWithParsingErrorsWarning(tab: Tab): boolean {
-    const trace = tab.view.traces.at(0);
-    const traceType = trace?.type;
-
-    if (traceType !== undefined) {
-      const traceTypesWithParsingErrors = this.traceTypesWithParsingErrors();
-      if (traceTypesWithParsingErrors.has(traceType)) {
-        if (
-          traceTypesWithParsingErrors.get(traceType) ===
-          ParsingErrorType.DATA_INCORRECT
-        ) {
-          this.traceTypesWithParsingErrorsWarningTooltip =
-            'Trace processor errors occurred - data may be incorrect';
-        } else {
-          this.traceTypesWithParsingErrorsWarningTooltip =
-            'Trace processor errors occurred - data may be incomplete';
-        }
-
-        return true;
-      }
-    }
-    return false;
   }
 }

@@ -15,6 +15,7 @@ limitations under the License.
 -->
 
 <mat-card class="upload-card">
+  @let loading = viewersLoading();
   <mat-card-header class="card-header">
     <mat-card-title class="title">Upload Traces</mat-card-title>
     @let hasFiles = hasLoadedFiles();
@@ -25,7 +26,7 @@ limitations under the License.
             class="clear-all-btn"
             color="primary"
             mat-stroked-button
-            [disabled]="viewersLoading"
+            [disabled]="loading"
             (click)="onClearButtonClick()"
           >
             Clear all
@@ -45,7 +46,7 @@ limitations under the License.
             color="primary"
             mat-stroked-button
             for="fileDropRef"
-            [disabled]="viewersLoading"
+            [disabled]="loading"
             (click)="fileDropRef.click()"
           >
             Upload another file
@@ -155,7 +156,7 @@ limitations under the License.
                   class="clear-icon"
                   mat-icon-button
                   (click)="onRemoveTrace($event, fileReader)"
-                  [disabled]="viewersLoading"
+                  [disabled]="loading"
                 >
                   <mat-icon>close</mat-icon>
                 </button>

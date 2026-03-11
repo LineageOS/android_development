@@ -225,7 +225,7 @@ describe('TimelineComponent', () => {
     const nextEntryButton = dom.get(nextEntrySelector);
     const prevEntryButton = dom.get(prevEntrySelector);
 
-    component.selectedTraces = [getLoadedTrace(TraceType.SURFACE_FLINGER)];
+    component.selectedTraces.set([getLoadedTrace(TraceType.SURFACE_FLINGER)]);
     dom.detectChanges();
     checkActiveTraceSurfaceFlinger(nextEntryButton, prevEntryButton);
 
@@ -1530,7 +1530,7 @@ describe('TimelineComponent', () => {
     expected: TraceType[],
     c: TimelineComponent = component,
   ) {
-    const actual = c.selectedTraces.map((trace) => trace.type);
+    const actual = c.selectedTraces().map((trace) => trace.type);
     expect(actual).toEqual(expected);
   }
 

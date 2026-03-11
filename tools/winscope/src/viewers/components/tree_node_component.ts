@@ -113,6 +113,10 @@ export class TreeNodeComponent {
     );
   });
 
+  readonly indentMarkers = computed<number[]>(() => {
+    return Array.from({length: this.depth()}, (_, index) => index);
+  });
+
   private readonly el: HTMLElement;
 
   constructor(@Inject(ElementRef) elementRef: ElementRef<HTMLElement>) {
@@ -128,10 +132,6 @@ export class TreeNodeComponent {
 
   ngOnDestroy() {
     this.el?.removeEventListener('mousedown', this.nodeMouseDownEventListener);
-  }
-
-  getIndentMarkers(depth: number): number[] {
-    return Array.from({length: depth}, (_, index) => index);
   }
 
   toPropertyTreeNode(input: TreeNode): UiPropertyTreeNode {

@@ -19,6 +19,9 @@ limitations under the License.
     <mat-card-title class="title">Collect Traces</mat-card-title>
   </mat-card-header>
 
+  @let currState = state();
+  @let adbIsSuccessful = adbSuccess();
+
   @if (controller) {
     <mat-card-content class="collect-card-content">
       <mat-tab-group
@@ -33,17 +36,17 @@ limitations under the License.
             <span>{{ AdbConnectionType.WDP }} (Recommended)</span>
           </ng-template>
           <div class="tabbed-section">
-            @if (!adbSuccess()) {
-              <wdp-setup [state]="state" (retryConnection)="onRetryConnection()"></wdp-setup>
+            @if (!adbIsSuccessful) {
+              <wdp-setup [state]="currState" (retryConnection)="onRetryConnection()"></wdp-setup>
             }
             <ng-container [ngTemplateOutlet]="connectionContent"></ng-container>
           </div>
         </mat-tab>
         <mat-tab [disabled]="disableTraceSection()" [label]="AdbConnectionType.WINSCOPE_PROXY">
           <div class="tabbed-section">
-            @if (!adbSuccess()) {
+            @if (!adbIsSuccessful) {
               <winscope-proxy-setup
-                [state]="state"
+                [state]="currState"
                 (retryConnection)="onRetryConnection($event)"
               ></winscope-proxy-setup>
             }
@@ -62,14 +65,15 @@ limitations under the License.
           <mat-icon>refresh</mat-icon>
         </button>
       </div>
-      @if (isChangingConnection) {
+      @let changingConnection = isChangingConnection();
+      @if (changingConnection) {
         <div class="changing-connection-progress">
           <load-progress message="Changing connection..."> </load-progress>
         </div>
       }
 
       <ng-template #connectionContent>
-        @if (!isChangingConnection) {
+        @if (!changingConnection) {
           @if (showAllDevices()) {
             <div class="devices-connecting">
               @if (controller.getDevices().length === 0) {
@@ -116,7 +120,7 @@ limitations under the License.
               <div class="selected-device">
                 <div class="device-info">
                   <mat-icon>smartphone</mat-icon>
-                  <p class="mat-body-1 name text-no-overflow">{{ getSelectedDevice() }}</p>
+                  <p class="mat-body-1 name text-no-overflow">{{ selectedDeviceName() }}</p>
                 </div>
 
                 <div class="device-actions">
@@ -150,7 +154,7 @@ limitations under the License.
               >
                 <mat-tab label="Trace" [disabled]="disableTraceSection()">
                   <div class="tabbed-section">
-                    @if (state === ConnectionState.IDLE) {
+                    @if (currState === ConnectionState.IDLE) {
                       <div class="trace-section">
                         <trace-config
                           title="Trace targets"
@@ -184,7 +188,7 @@ limitations under the License.
                             <button
                               color="primary"
                               mat-raised-button
-                              [disabled]="state !== ConnectionState.TRACING"
+                              [disabled]="currState !== ConnectionState.TRACING"
                               (click)="endTrace()"
                               class="no-touch-target-button"
                             >
@@ -198,7 +202,8 @@ limitations under the License.
                 </mat-tab>
                 <mat-tab label="Dump" [disabled]="isTracingOrLoading()">
                   <div class="tabbed-section">
-                    @if (state === ConnectionState.IDLE && !refreshDumps) {
+                    @let refresh = refreshDumps();
+                    @if (currState === ConnectionState.IDLE && !refresh) {
                       <div class="dump-section">
                         <trace-config
                           title="Dump targets"
@@ -207,7 +212,7 @@ limitations under the License.
                           [traceConfigStoreKey]="storeKeyPrefixDumpConfig"
                           (traceConfigChange)="onDumpConfigChange($event)"
                         ></trace-config>
-                        @if (!refreshDumps) {
+                        @if (!refresh) {
                           <div class="dump-btn">
                             <button
                               color="primary"
@@ -234,7 +239,7 @@ limitations under the License.
               </mat-tab-group>
             </div>
           }
-          @if (state === ConnectionState.ERROR) {
+          @if (currState === ConnectionState.ERROR) {
             <div class="unknown-error">
               <div class="error-wrapper mat-body-1">
                 <mat-icon class="error-icon">error</mat-icon>
