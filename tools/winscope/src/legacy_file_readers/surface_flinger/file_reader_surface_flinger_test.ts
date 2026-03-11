@@ -15,9 +15,9 @@
  */
 import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
 import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CustomQueryType} from '@trace_api/custom_query';
@@ -73,7 +73,7 @@ describe('FileReaderSurfaceFlinger', () => {
       ).toBe(83);
       expect(packets[0].getTimestamp()).toEqual('14500282843');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
 
@@ -202,7 +202,7 @@ describe('FileReaderSurfaceFlinger', () => {
       ).toBe(94);
       expect(packets[0].getTimestamp()).toEqual('850335483446');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
   });

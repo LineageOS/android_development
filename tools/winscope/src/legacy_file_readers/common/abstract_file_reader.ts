@@ -19,7 +19,7 @@ import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {getLogger, Logger} from '@compat/logging';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {PerfettoTracePacket} from '@compat/protobuf';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
@@ -29,7 +29,7 @@ import {LegacyFileReader} from './legacy_file_reader';
 export abstract class AbstractFileReader<T> implements LegacyFileReader {
   private timestamps: Timestamp[] | undefined;
   protected traceFile: TraceFile;
-  protected decodedEntries: T[] = [];
+  protected decodedEntries: readonly T[] = [];
   protected timestampConverter: ParserTimestampConverter;
   protected readonly metadata: TraceMetadata | undefined;
 
@@ -80,7 +80,7 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
     trustedPid: number,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     trustedUid: number,
-  ): TracePacket[] {
+  ): PerfettoTracePacket[] {
     throw NOT_IMPLEMENTED_ERROR;
   }
 
@@ -93,6 +93,8 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
   abstract getTraceType(): TraceType;
 
   protected abstract getMagicNumber(): number[];
-  protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
+  protected abstract decodeTrace(
+    trace: Uint8Array,
+  ): readonly T[] | Promise<readonly T[]>;
   protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }

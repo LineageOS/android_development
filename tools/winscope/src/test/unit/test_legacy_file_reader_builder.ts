@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {PerfettoTracePacket} from '@compat/protobuf';
 import {TraceFile} from '@trace/trace_file';
 
 import {TestFileReaderBuilder} from './test_file_reader_builder';
@@ -29,9 +29,9 @@ import {TestLegacyFileReader} from './test_legacy_file_reader';
  */
 
 export class TestLegacyFileReaderBuilder extends TestFileReaderBuilder {
-  private tracePackets: TracePacket[] = [];
+  private tracePackets: PerfettoTracePacket[] = [];
 
-  setTracePackets(value: TracePacket[]): this {
+  setTracePackets(value: PerfettoTracePacket[]): this {
     this.tracePackets = value;
     return this;
   }

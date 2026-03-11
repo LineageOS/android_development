@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HwcCompositionType} from '@protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
+import {PerfettoHwcCompositionType} from '@compat/protobuf';
 import {makeCalculatedPropertyNode, makePropertyNode,} from '@test/unit/tree_node/tree_node_test_helpers';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -46,7 +46,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType.HWC_TYPE_CLIENT,
+      PerfettoHwcCompositionType.HWC_TYPE_CLIENT,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -86,7 +86,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType.HWC_TYPE_DEVICE,
+      PerfettoHwcCompositionType.HWC_TYPE_DEVICE,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -126,7 +126,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType.HWC_TYPE_SOLID_COLOR,
+      PerfettoHwcCompositionType.HWC_TYPE_SOLID_COLOR,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 

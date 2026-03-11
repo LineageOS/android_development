@@ -16,11 +16,8 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {PerfettoClockSnapshot, PerfettoShellHandlerMapping, PerfettoShellHandlerMappings, PerfettoShellTransition, PerfettoTracePacket, ShellHandlerMappingUdc, ShellTransitionProtoUdc, WmShellTransitionTraceProtoUdc,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-import {ShellHandlerMapping, ShellHandlerMappings, ShellTransition,} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
-import {HandlerMapping, Transition as ShellTransitionProto, WmShellTransitionTraceProto,} from '@protos/protos/transitions/udc/wm_shell_transition_trace_pb';
 import {TraceType} from '@trace_api/trace_type';
 
 import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
@@ -28,9 +25,9 @@ import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
 /**
  * Parser for Shell Transition trace files.
  */
-export class FileReaderTransitionsShell extends AbstractFileReader<ShellTransition> {
+export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoShellTransition> {
   private realToBootTimeOffsetNs: bigint | undefined;
-  private handlerMapping: undefined | HandlerMapping[];
+  private handlerMapping: undefined | ShellHandlerMappingUdc[];
 
   override getTraceType(): TraceType {
     return TraceType.SHELL_TRANSITION;
@@ -44,9 +41,11 @@ export class FileReaderTransitionsShell extends AbstractFileReader<ShellTransiti
     return undefined;
   }
 
-  override decodeTrace(traceBuffer: Uint8Array): ShellTransition[] {
+  override decodeTrace(
+    traceBuffer: Uint8Array,
+  ): readonly PerfettoShellTransition[] {
     const decodedProto =
-      WmShellTransitionTraceProto.deserializeBinary(traceBuffer);
+      WmShellTransitionTraceProtoUdc.deserializeBinary(traceBuffer);
     const timeOffset = BigInt(
       decodedProto.getRealToElapsedTimeOffsetNanos() ?? '0',
     );
@@ -59,15 +58,17 @@ export class FileReaderTransitionsShell extends AbstractFileReader<ShellTransiti
     );
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
     const packets = [this.createHandlerMappingPacket(sequenceId)];
     this.decodedEntries.forEach((entry) => {
-      const packet = new TracePacket();
+      const packet = new PerfettoTracePacket();
       const ns = entry.getDispatchTimeNs() ?? '0';
       packet.setTimestamp(ns);
-      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
 
-      const shellTransition = new ShellTransition();
+      const shellTransition = new PerfettoShellTransition();
       if (entry.hasId()) {
         shellTransition.setId(assertDefined(entry.getId()));
       }
@@ -101,13 +102,13 @@ export class FileReaderTransitionsShell extends AbstractFileReader<ShellTransiti
     return packets;
   }
 
-  private createHandlerMappingPacket(sequenceId: number): TracePacket {
-    const packet = new TracePacket();
+  private createHandlerMappingPacket(sequenceId: number): PerfettoTracePacket {
+    const packet = new PerfettoTracePacket();
     packet.setTrustedPacketSequenceId(sequenceId);
-    const shellHandlerMappings = new ShellHandlerMappings();
+    const shellHandlerMappings = new PerfettoShellHandlerMappings();
     const mapping = assertDefined(this.handlerMapping)
       .map((m) => {
-        const newMap = new ShellHandlerMapping();
+        const newMap = new PerfettoShellHandlerMapping();
         if (!m.hasId() || !m.hasName()) {
           return undefined;
         }
@@ -115,13 +116,13 @@ export class FileReaderTransitionsShell extends AbstractFileReader<ShellTransiti
         newMap.setName(assertDefined(m.getName()));
         return newMap;
       })
-      .filter((m) => m !== undefined) as ShellHandlerMapping[];
+      .filter((m) => m !== undefined) as PerfettoShellHandlerMapping[];
     shellHandlerMappings.setMappingList(mapping);
     packet.setShellHandlerMappings(shellHandlerMappings);
     return packet;
   }
 
-  protected override getTimestamp(entry: ShellTransition): Timestamp {
+  protected override getTimestamp(entry: PerfettoShellTransition): Timestamp {
     return entry.hasDispatchTimeNs()
       ? this.timestampConverter.makeTimestampFromBootTimeNs(
           BigInt(assertDefined(entry.getDispatchTimeNs())),
@@ -134,9 +135,9 @@ export class FileReaderTransitionsShell extends AbstractFileReader<ShellTransiti
   }
 
   private convertToPerfettoTransition(
-    shellTransition: ShellTransitionProto,
-  ): ShellTransition {
-    const perfettoTransition = new ShellTransition();
+    shellTransition: ShellTransitionProtoUdc,
+  ): PerfettoShellTransition {
+    const perfettoTransition = new PerfettoShellTransition();
     perfettoTransition.setId(assertDefined(shellTransition.getId()));
     if (
       shellTransition.hasDispatchTimeNs() &&

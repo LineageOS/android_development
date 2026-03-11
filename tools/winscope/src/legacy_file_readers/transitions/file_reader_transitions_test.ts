@@ -17,9 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
+import {PerfettoClockSnapshot, PerfettoShellHandlerMapping, PerfettoShellHandlerMappings,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ShellHandlerMapping, ShellHandlerMappings,} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
@@ -89,11 +88,11 @@ describe('FileReaderTransitions', () => {
     });
 
     const handlerMappingPacket = packets[0];
-    const shellHandlerMappings = new ShellHandlerMappings();
-    const m1 = new ShellHandlerMapping();
+    const shellHandlerMappings = new PerfettoShellHandlerMappings();
+    const m1 = new PerfettoShellHandlerMapping();
     m1.setId(2);
     m1.setName('com.android.wm.shell.transition.DefaultMixedHandler');
-    const m2 = new ShellHandlerMapping();
+    const m2 = new PerfettoShellHandlerMapping();
     m2.setId(3);
     m2.setName('com.android.wm.shell.recents.RecentsTransitionHandler');
     shellHandlerMappings.addMapping(m1);
@@ -110,7 +109,7 @@ describe('FileReaderTransitions', () => {
     const sendTime6 = '57649646973488';
     expect(transition6Packet.getTimestamp()).toEqual(sendTime6);
     expect(transition6Packet.getTimestampClockId()).toEqual(
-      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(transition6.getCreateTimeNs()).toEqual('57649586217344');
     expect(transition6.getSendTimeNs()).toEqual(sendTime6);
@@ -133,7 +132,7 @@ describe('FileReaderTransitions', () => {
     const dispatchTime7 = '57649828043313';
     expect(transition7Packet.getTimestamp()).toEqual(dispatchTime7);
     expect(transition7Packet.getTimestampClockId()).toEqual(
-      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(transition7.hasSendTimeNs()).toBeFalse();
     expect(transition7.getDispatchTimeNs()).toEqual(dispatchTime7);

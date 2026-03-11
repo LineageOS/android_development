@@ -55,7 +55,7 @@ export class ParserScreenshot extends AbstractParser<
     return this.timestampConverter.makeZeroTimestamp();
   }
 
-  override decodeTrace(_: Uint8Array): number[] {
+  override decodeTrace(_: Uint8Array): readonly number[] {
     return [0]; // require a non-empty array to be returned so trace can provide timestamps
   }
 

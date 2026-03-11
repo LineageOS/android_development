@@ -15,6 +15,7 @@
  */
 
 import {assertBigInt, assertBigIntOrUndefined, assertDefined, assertString,} from '@common/assert';
+import {PerfettoLayerState} from '@compat/protobuf';
 import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
@@ -23,7 +24,6 @@ import {AddDefaults} from '@parsers/operations/add_defaults';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {getDistinctValues, queryArgs, queryVsyncId,} from '@parsers/perfetto/query_helpers';
-import {LayerState} from '@protos/protos/perfetto/trace/android/surfaceflinger_transactions_pb';
 import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType, VisitableParserCustomQuery,} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';
 import {TraceType} from '@trace_api/trace_type';
@@ -57,10 +57,11 @@ export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
   ];
 
   private static readonly LAYER_STATE_FLAGS = Object.keys(
-    LayerState.Flags,
+    PerfettoLayerState.Flags,
   ).reduce(
     (acc, key) => {
-      const value = LayerState.Flags[key as keyof typeof LayerState.Flags];
+      const value =
+        PerfettoLayerState.Flags[key as keyof typeof PerfettoLayerState.Flags];
       acc[value] = key;
       return acc;
     },

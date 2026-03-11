@@ -16,17 +16,14 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {PerfettoClockSnapshot, PerfettoShellTransition, PerfettoTracePacket, TargetUdc, TransitionTraceProtoUdc, TransitionUdc,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-import {ShellTransition} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
-import {Transition as LegacyTransition, Target, TransitionTraceProto,} from '@protos/protos/transitions/udc/windowmanagertransitiontrace_pb';
 import {TraceType} from '@trace_api/trace_type';
 
 /**
  * Parser for WM Transition trace files.
  */
-export class FileReaderTransitionsWm extends AbstractFileReader<LegacyTransition> {
+export class FileReaderTransitionsWm extends AbstractFileReader<TransitionUdc> {
   private realToBootTimeOffsetNs: bigint | undefined;
 
   override getTraceType(): TraceType {
@@ -41,8 +38,8 @@ export class FileReaderTransitionsWm extends AbstractFileReader<LegacyTransition
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): LegacyTransition[] {
-    const decodedProto = TransitionTraceProto.deserializeBinary(buffer);
+  override decodeTrace(buffer: Uint8Array): readonly TransitionUdc[] {
+    const decodedProto = TransitionTraceProtoUdc.deserializeBinary(buffer);
 
     const timeOffset = BigInt(
       decodedProto.getRealToElapsedTimeOffsetNanos() ?? '0',
@@ -56,14 +53,16 @@ export class FileReaderTransitionsWm extends AbstractFileReader<LegacyTransition
     return [0x09, 0x54, 0x52, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45]; // .TRNTRACE
   }
 
-  override convertToPerfettoPackets(): TracePacket[] {
+  override convertToPerfettoPackets(): PerfettoTracePacket[] {
     return this.decodedEntries.map((entry) => {
-      const packet = new TracePacket();
+      const packet = new PerfettoTracePacket();
       const ns = entry.getSendTimeNs() ?? 0n;
       packet.setTimestamp(ns.toString());
-      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
 
-      const shellTransition = new ShellTransition();
+      const shellTransition = new PerfettoShellTransition();
       shellTransition.setId(entry.getId() ?? 0);
       if (entry.hasCreateTimeNs()) {
         shellTransition.setCreateTimeNs(assertDefined(entry.getCreateTimeNs()));
@@ -101,8 +100,8 @@ export class FileReaderTransitionsWm extends AbstractFileReader<LegacyTransition
       const targets = entry.getTargetsList();
       if (targets && targets.length > 0) {
         shellTransition.setChangesList(
-          targets.map((target: Target) => {
-            const t = new ShellTransition.Change();
+          targets.map((target: TargetUdc) => {
+            const t = new PerfettoShellTransition.Change();
             if (target.hasMode()) t.setMode(assertDefined(target.getMode()));
             if (target.hasLayerId()) {
               t.setLayerId(assertDefined(target.getLayerId()));
@@ -120,7 +119,7 @@ export class FileReaderTransitionsWm extends AbstractFileReader<LegacyTransition
     });
   }
 
-  protected override getTimestamp(entry: LegacyTransition): Timestamp {
+  protected override getTimestamp(entry: TransitionUdc): Timestamp {
     // for consistency with all transitions, elapsed nanos are defined as
     // wm send time else INVALID_TIME_NS
     return entry.hasSendTimeNs()

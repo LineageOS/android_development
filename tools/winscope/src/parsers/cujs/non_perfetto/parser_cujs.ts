@@ -64,7 +64,7 @@ export class ParserCujs extends AbstractParser<Cuj, HierarchyTreeNode> {
     return CoarseVersion.LEGACY;
   }
 
-  protected override decodeTrace(buffer: Uint8Array): Cuj[] {
+  protected override decodeTrace(buffer: Uint8Array): readonly Cuj[] {
     const decodedLogs = this.decodeByteArray(buffer);
     const events = this.parseLogs(decodedLogs);
     events.sort((a: Event, b: Event) => {

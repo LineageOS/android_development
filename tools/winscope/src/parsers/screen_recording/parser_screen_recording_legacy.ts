@@ -36,7 +36,7 @@ export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
 
   protected override async decodeTrace(
     videoData: Uint8Array,
-  ): Promise<bigint[]> {
+  ): Promise<readonly bigint[]> {
     const posCount = this.searchMagicString(
       videoData,
       ParserScreenRecordingLegacy.WINSCOPE_META_MAGIC_STRING,

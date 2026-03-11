@@ -15,7 +15,7 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
+import {PerfettoTracePacket} from '@compat/protobuf';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
 
@@ -32,7 +32,7 @@ import {TestFileReader} from './test_file_reader';
  * and efficient.
  */
 export class TestLegacyFileReader extends TestFileReader {
-  private tracePackets: TracePacket[];
+  private tracePackets: PerfettoTracePacket[];
 
   constructor(
     type: TraceType,
@@ -40,13 +40,13 @@ export class TestLegacyFileReader extends TestFileReader {
     descriptors: string[],
     noOffsets: boolean,
     traceFile: TraceFile,
-    tracePackets: TracePacket[],
+    tracePackets: PerfettoTracePacket[],
   ) {
     super(type, timestamps, descriptors, noOffsets, traceFile);
     this.tracePackets = tracePackets;
   }
 
-  convertToPerfettoPackets(): TracePacket[] {
+  convertToPerfettoPackets(): PerfettoTracePacket[] {
     return this.tracePackets;
   }
 }

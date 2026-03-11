@@ -19,10 +19,8 @@ import {getMax} from '@common/bigint_math';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {PerfettoClockSnapshot, PerfettoShellTransition, PerfettoTracePacket,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ShellTransition} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
 
@@ -34,9 +32,9 @@ export class FileReaderTransitions implements LegacyFileReader {
   private readonly parserWm: LegacyFileReader;
   private readonly descriptors: string[];
   private readonly timestampConverter: ParserTimestampConverter;
-  private decodedEntries: ShellTransition[] | undefined;
+  private decodedEntries: PerfettoShellTransition[] | undefined;
   private realToBootTimeOffsetNs: bigint | undefined;
-  private handlerMappingPacket: TracePacket | undefined;
+  private handlerMappingPacket: PerfettoTracePacket | undefined;
   private timestamps: Timestamp[] | undefined;
 
   constructor(
@@ -123,7 +121,7 @@ export class FileReaderTransitions implements LegacyFileReader {
     return this.realToBootTimeOffsetNs;
   }
 
-  convertToPerfettoPackets(sequenceId: number): TracePacket[] {
+  convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
     const packets = [];
 
     const handlerMappingPacket = assertDefined(this.handlerMappingPacket);
@@ -131,12 +129,14 @@ export class FileReaderTransitions implements LegacyFileReader {
     packets.push(handlerMappingPacket);
 
     for (const entry of assertDefined(this.decodedEntries)) {
-      const packet = new TracePacket();
+      const packet = new PerfettoTracePacket();
       packet.setTrustedPacketSequenceId(sequenceId);
       const ns = this.getTimestampNsFromTransitionProperties(entry) ?? 0n;
       packet.setTimestamp(ns.toString());
-      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
-      const shellTransition = new ShellTransition();
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      const shellTransition = new PerfettoShellTransition();
       if (entry.hasId()) shellTransition.setId(assertDefined(entry.getId()));
       if (entry.hasCreateTimeNs()) {
         shellTransition.setCreateTimeNs(assertDefined(entry.getCreateTimeNs()));
@@ -167,18 +167,22 @@ export class FileReaderTransitions implements LegacyFileReader {
       }
       if (entry.getChangesList().length > 0) {
         shellTransition.setChangesList(
-          entry.getChangesList().map((change: ShellTransition.Change) => {
-            const t = new ShellTransition.Change();
-            if (change.hasMode()) t.setMode(assertDefined(change.getMode()));
-            if (change.hasLayerId()) {
-              t.setLayerId(assertDefined(change.getLayerId()));
-            }
-            if (change.hasWindowId()) {
-              t.setWindowId(assertDefined(change.getWindowId()));
-            }
-            if (change.hasFlags()) t.setFlags(assertDefined(change.getFlags()));
-            return t;
-          }),
+          entry
+            .getChangesList()
+            .map((change: PerfettoShellTransition.Change) => {
+              const t = new PerfettoShellTransition.Change();
+              if (change.hasMode()) t.setMode(assertDefined(change.getMode()));
+              if (change.hasLayerId()) {
+                t.setLayerId(assertDefined(change.getLayerId()));
+              }
+              if (change.hasWindowId()) {
+                t.setWindowId(assertDefined(change.getWindowId()));
+              }
+              if (change.hasFlags()) {
+                t.setFlags(assertDefined(change.getFlags()));
+              }
+              return t;
+            }),
         );
       }
       if (entry.hasFlags()) {
@@ -227,8 +231,10 @@ export class FileReaderTransitions implements LegacyFileReader {
     return packets;
   }
 
-  private compressEntries(transitions: ShellTransition[]): ShellTransition[] {
-    const idToTransition = new Map<number, ShellTransition>();
+  private compressEntries(
+    transitions: PerfettoShellTransition[],
+  ): PerfettoShellTransition[] {
+    const idToTransition = new Map<number, PerfettoShellTransition>();
     for (const transition of transitions) {
       const id = assertDefined(transition.getId());
       const accumulatedTransition = idToTransition.get(id);
@@ -246,7 +252,10 @@ export class FileReaderTransitions implements LegacyFileReader {
     return compressedTransitions.sort((a, b) => this.compareByTimestamp(a, b));
   }
 
-  private compareByTimestamp(a: ShellTransition, b: ShellTransition): number {
+  private compareByTimestamp(
+    a: PerfettoShellTransition,
+    b: PerfettoShellTransition,
+  ): number {
     const aNs = this.getTimestampNsFromTransitionProperties(a) ?? 0n;
     const bNs = this.getTimestampNsFromTransitionProperties(b) ?? 0n;
     if (aNs !== bNs) {
@@ -258,7 +267,7 @@ export class FileReaderTransitions implements LegacyFileReader {
   }
 
   private getTimestampNsFromTransitionProperties(
-    transition: ShellTransition,
+    transition: PerfettoShellTransition,
   ): bigint | undefined {
     // Entry timestamps are defined as send time - if this is null and shell
     // dispatch time is not null we fall back on shell dispatch time
@@ -279,9 +288,9 @@ export class FileReaderTransitions implements LegacyFileReader {
   }
 
   private mergePartialTransitions(
-    transition1: ShellTransition,
-    transition2: ShellTransition,
-  ): ShellTransition {
+    transition1: PerfettoShellTransition,
+    transition2: PerfettoShellTransition,
+  ): PerfettoShellTransition {
     assertTrue(transition1.getId() === transition2.getId());
     const mergedTransition = transition1.cloneMessage();
 

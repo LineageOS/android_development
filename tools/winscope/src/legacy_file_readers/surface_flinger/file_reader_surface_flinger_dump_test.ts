@@ -15,8 +15,8 @@
  */
 
 import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
@@ -67,7 +67,7 @@ describe('FileReaderSurfaceFlingerDump', () => {
       expect(packets.length).toBe(1);
       expect(packets[0].getTimestamp()).toEqual('0');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
       expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
@@ -106,7 +106,7 @@ describe('FileReaderSurfaceFlingerDump', () => {
       expect(packets.length).toBe(1);
       expect(packets[0].getTimestamp()).toEqual('0');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
       expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(

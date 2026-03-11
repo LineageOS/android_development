@@ -16,13 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {PerfettoClockSnapshot, PerfettoTracePacket, PerfettoTransactionTraceEntry, PerfettoTransactionTraceFile,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-import {TransactionTraceEntry, TransactionTraceFile,} from '@protos/protos/perfetto/trace/android/surfaceflinger_transactions_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceType} from '@trace_api/trace_type';
 
-export class FileReaderTransactions extends AbstractFileReader<TransactionTraceEntry> {
+export class FileReaderTransactions extends AbstractFileReader<PerfettoTransactionTraceEntry> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x54, 0x4e, 0x58, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .TNXTRACE
@@ -45,8 +43,10 @@ export class FileReaderTransactions extends AbstractFileReader<TransactionTraceE
     return this.realToMonotonicTimeOffsetNs;
   }
 
-  override decodeTrace(buffer: Uint8Array): TransactionTraceEntry[] {
-    const decodedProto = TransactionTraceFile.deserializeBinary(buffer);
+  override decodeTrace(
+    buffer: Uint8Array,
+  ): readonly PerfettoTransactionTraceEntry[] {
+    const decodedProto = PerfettoTransactionTraceFile.deserializeBinary(buffer);
 
     const timeOffset = BigInt(
       decodedProto.getRealToElapsedTimeOffsetNanos() ?? '0',
@@ -57,13 +57,15 @@ export class FileReaderTransactions extends AbstractFileReader<TransactionTraceE
     return decodedProto.getEntryList() || [];
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets: TracePacket[] = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
     for (const entry of this.decodedEntries) {
       this.convertSignedValuesForUintFields(entry);
-      const packet = new TracePacket();
+      const packet = new PerfettoTracePacket();
       packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
-      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.MONOTONIC);
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
       packet.setTrustedPacketSequenceId(sequenceId);
       packet.setSurfaceflingerTransactions(entry);
       packets.push(packet);
@@ -71,13 +73,17 @@ export class FileReaderTransactions extends AbstractFileReader<TransactionTraceE
     return packets;
   }
 
-  protected override getTimestamp(entry: TransactionTraceEntry): Timestamp {
+  protected override getTimestamp(
+    entry: PerfettoTransactionTraceEntry,
+  ): Timestamp {
     return this.timestampConverter.makeTimestampFromMonotonicNs(
       BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
   }
 
-  private convertSignedValuesForUintFields(entry: TransactionTraceEntry) {
+  private convertSignedValuesForUintFields(
+    entry: PerfettoTransactionTraceEntry,
+  ) {
     // Some legacy transactions traces erroneously contain signed values for fields
     // that should be unsigned. These must be manually converted to prevent errors
     // in serialization using google-protobuf.

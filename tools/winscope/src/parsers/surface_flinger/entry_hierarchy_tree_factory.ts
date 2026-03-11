@@ -15,6 +15,7 @@
  */
 
 import {assertBigInt, assertBigIntOrUndefined, assertDefined, assertString,} from '@common/assert';
+import {PerfettoHwcCompositionType} from '@compat/protobuf';
 import {UserWarning} from '@messaging/user_warning';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
@@ -24,7 +25,6 @@ import {AddDefaults} from '@parsers/operations/add_defaults';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
-import {HwcCompositionType} from '@protos/protos/perfetto/trace/android/surfaceflinger_layers_pb';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
@@ -389,7 +389,9 @@ const LAYER_FIELD = assertDefined(
   ENTRY_FIELD.resolve()?.fields['layers']?.resolve(),
 ).fields['layers'];
 
-const HWC_COMPOSITION_TYPE_INVERTED = Object.entries(HwcCompositionType).reduce(
+const HWC_COMPOSITION_TYPE_INVERTED = Object.entries(
+  PerfettoHwcCompositionType,
+).reduce(
   (acc, [key, value]) => {
     acc[value] = key;
     return acc;

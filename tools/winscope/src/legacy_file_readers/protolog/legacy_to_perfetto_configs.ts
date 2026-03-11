@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
+import {PerfettoProtoLogLevel, PerfettoProtoLogViewerConfig,} from '@compat/protobuf';
 import {ProtologJson32, ProtologJson64} from '@compat/protolog';
-import {ProtoLogLevel} from '@protos/protos/perfetto/common/protolog_common_pb';
-import {ProtoLogViewerConfig} from '@protos/protos/perfetto/trace/android/protolog_pb';
 
 interface LegacyConfig {
   groups: {[key: string]: {tag: string}};
@@ -32,13 +31,13 @@ interface LegacyConfig {
 
 function makeProtologViewerConfig(
   configJson: LegacyConfig,
-): ProtoLogViewerConfig {
+): PerfettoProtoLogViewerConfig {
   const groupNameToId = new Map<string, number>();
 
-  const groups: ProtoLogViewerConfig.Group[] = Object.entries(
+  const groups: PerfettoProtoLogViewerConfig.Group[] = Object.entries(
     configJson.groups,
   ).map(([name, {tag}], index) => {
-    const group = new ProtoLogViewerConfig.Group();
+    const group = new PerfettoProtoLogViewerConfig.Group();
     group.setId(index + 1);
     group.setName(name);
     group.setTag(tag);
@@ -46,33 +45,33 @@ function makeProtologViewerConfig(
     return group;
   });
 
-  const messages: ProtoLogViewerConfig.MessageData[] = Object.entries(
+  const messages: PerfettoProtoLogViewerConfig.MessageData[] = Object.entries(
     configJson.messages,
   ).map(([id, {message, level, group, at}]) => {
     let protologLevel: number;
     switch (level) {
       case 'DEBUG':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
         break;
       case 'VERBOSE':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_VERBOSE;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_VERBOSE;
         break;
       case 'INFO':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_INFO;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_INFO;
         break;
       case 'WARN':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_WARN;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_WARN;
         break;
       case 'ERROR':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_ERROR;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_ERROR;
         break;
       case 'WTF':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_WTF;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_WTF;
         break;
       default:
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
     }
-    const msgData = new ProtoLogViewerConfig.MessageData();
+    const msgData = new PerfettoProtoLogViewerConfig.MessageData();
     // ID is string in JSON, protobuf expects string (JS_STRING for fixed64).
     // The JSON contains signed 64-bit integers as strings, but fixed64 is unsigned.
     // We need to convert it to unsigned 64-bit integer string.
@@ -87,7 +86,7 @@ function makeProtologViewerConfig(
     return msgData;
   });
 
-  const config = new ProtoLogViewerConfig();
+  const config = new PerfettoProtoLogViewerConfig();
   config.setMessagesList(messages);
   config.setGroupsList(groups);
   return config;

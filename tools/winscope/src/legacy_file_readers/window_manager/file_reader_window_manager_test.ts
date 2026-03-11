@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot, WinscopeExtensionsImpl} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
@@ -62,7 +61,7 @@ describe('FileReaderWindowManager', () => {
       ).toBeDefined();
       expect(packets[0].getTimestamp()).toEqual('14474594000');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
       );
     });
 
@@ -146,7 +145,7 @@ describe('FileReaderWindowManager', () => {
       ).toBeDefined();
       expect(packets[0].getTimestamp()).toEqual('850254319343');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
       );
     });
   });

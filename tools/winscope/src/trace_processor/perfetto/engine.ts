@@ -14,7 +14,7 @@
 
 import {assertDefined} from '@common/assert';
 import {getLogger, Logger} from '@compat/logging';
-import {QueryArgs, RegisterSqlPackageArgs, ResetTraceProcessorArgs, TraceProcessorRpc, TraceProcessorRpcStream,} from '@protos/protos/perfetto/trace_processor/trace_processor_pb';
+import {PerfettoQueryArgs, PerfettoRegisterSqlPackageArgs, PerfettoResetTraceProcessorArgs, PerfettoTraceProcessorRpc, PerfettoTraceProcessorRpcStream,} from '@compat/protobuf';
 
 import {defer, Deferred} from './deferred';
 import {ProtoReader} from './proto_reader';
@@ -22,7 +22,7 @@ import {ProtoRingBuffer} from './proto_ring_buffer';
 import {createQueryResult, QueryResult, WritableQueryResult,} from './query_result';
 
 // Aliases for brevity
-const TPM = TraceProcessorRpc.TraceProcessorMethod;
+const TPM = PerfettoTraceProcessorRpc.TraceProcessorMethod;
 
 export interface TraceProcessorConfig {
   cropTrackEvents: boolean;
@@ -82,7 +82,7 @@ export abstract class EngineBase {
   // |rpcMsgEncoded| is a sub-array to to the start of a TraceProcessorRpc
   // proto-encoded message (without the proto preamble and varint size).
   private onRpcResponseMessage(rpcMsgEncoded: Uint8Array) {
-    let rpc: TraceProcessorRpc | undefined;
+    let rpc: PerfettoTraceProcessorRpc | undefined;
     let queryResultBytes: Uint8Array | undefined;
 
     // We scan the message primarily to:
@@ -150,7 +150,7 @@ export abstract class EngineBase {
     // For other messages, we need to parse.
     const getRpc = () => {
        if (!rpc) {
-          rpc = TraceProcessorRpc.deserializeBinary(rpcMsgEncoded);
+          rpc = PerfettoTraceProcessorRpc.deserializeBinary(rpcMsgEncoded);
        }
        return rpc;
     };
@@ -224,7 +224,7 @@ export abstract class EngineBase {
   parse(data: Uint8Array): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingParses.push(asyncRes);
-    const rpc = new TraceProcessorRpc();
+    const rpc = new PerfettoTraceProcessorRpc();
     rpc.setRequest(TPM.TPM_APPEND_TRACE_DATA);
     rpc.setAppendTraceData(data);
     this.rpcSendRequest(rpc);
@@ -236,7 +236,7 @@ export abstract class EngineBase {
   notifyEof(): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingEOFs.push(asyncRes);
-    const rpc = new TraceProcessorRpc();
+    const rpc = new PerfettoTraceProcessorRpc();
     rpc.setRequest(TPM.TPM_FINALIZE_TRACE_DATA);
     this.rpcSendRequest(rpc);
     return asyncRes; // Linearize with the worker.
@@ -253,13 +253,13 @@ export abstract class EngineBase {
   }: TraceProcessorConfig): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingResetTraceProcessors.push(asyncRes);
-    const rpc = new TraceProcessorRpc();
+    const rpc = new PerfettoTraceProcessorRpc();
     rpc.setRequest(TPM.TPM_RESET_TRACE_PROCESSOR);
-    const args = new ResetTraceProcessorArgs();
+    const args = new PerfettoResetTraceProcessorArgs();
     args.setDropTrackEventDataBefore(cropTrackEvents
-      ? ResetTraceProcessorArgs.DropTrackEventDataBefore
+      ? PerfettoResetTraceProcessorArgs.DropTrackEventDataBefore
           .TRACK_EVENT_RANGE_OF_INTEREST
-      : ResetTraceProcessorArgs.DropTrackEventDataBefore.NO_DROP);
+      : PerfettoResetTraceProcessorArgs.DropTrackEventDataBefore.NO_DROP);
     args.setIngestFtraceInRawTable(ingestFtraceInRawTable);
     args.setAnalyzeTraceProtoContent(analyzeTraceProtoContent);
     args.setFtraceDropUntilAllCpusValid(ftraceDropUntilAllCpusValid);
@@ -273,7 +273,7 @@ export abstract class EngineBase {
   restoreInitialTables(): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingRestoreTables.push(asyncRes);
-    const rpc = new TraceProcessorRpc();
+    const rpc = new PerfettoTraceProcessorRpc();
     rpc.setRequest(TPM.TPM_RESTORE_INITIAL_TABLES);
     this.rpcSendRequest(rpc);
     return asyncRes; // Linearize with the worker.
@@ -283,9 +283,9 @@ export abstract class EngineBase {
   // NOTE: the only reason why this is public is so that Winscope (which uses a
   // fork of our codebase) can invoke this directly. See commit msg of #3051.
   streamingQuery(result: WritableQueryResult, sqlQuery: string) {
-    const rpc = new TraceProcessorRpc();
+    const rpc = new PerfettoTraceProcessorRpc();
     rpc.setRequest(TPM.TPM_QUERY_STREAMING);
-    const args = new QueryArgs();
+    const args = new PerfettoQueryArgs();
     args.setSqlQuery(sqlQuery);
     rpc.setQueryArgs(args);
     this.pendingQueries.push(result);
@@ -313,12 +313,12 @@ export abstract class EngineBase {
 
     const result = defer<void>();
 
-    const rpc = new TraceProcessorRpc();
+    const rpc = new PerfettoTraceProcessorRpc();
     rpc.setRequest(TPM.TPM_REGISTER_SQL_PACKAGE);
-    const args = new RegisterSqlPackageArgs();
+    const args = new PerfettoRegisterSqlPackageArgs();
     args.setPackageName(pkg.name);
     const modules = pkg.modules.map(m => {
-      const mod = new RegisterSqlPackageArgs.Module();
+      const mod = new PerfettoRegisterSqlPackageArgs.Module();
       mod.setName(m.name);
       mod.setSql(m.sql);
       return mod;
@@ -333,11 +333,11 @@ export abstract class EngineBase {
 
   // Marshals the TraceProcessorRpc request arguments and sends the request
   // to the concrete Engine (Wasm or HTTP).
-  private rpcSendRequest(rpc: TraceProcessorRpc) {
+  private rpcSendRequest(rpc: PerfettoTraceProcessorRpc) {
     rpc.setSeq(this.txSeqId++);
     // Each message is wrapped in a TraceProcessorRpcStream to add the varint
     // preamble with the size, which allows tokenization on the other end.
-    const outerProto = new TraceProcessorRpcStream();
+    const outerProto = new PerfettoTraceProcessorRpcStream();
     outerProto.addMsg(rpc);
     const buf = outerProto.serializeBinary();
     this.rpcSendRequestBytes(buf);
@@ -351,4 +351,3 @@ export abstract class EngineBase {
     throw new Error(reason);
   }
 }
-

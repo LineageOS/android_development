@@ -17,8 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {ExportedDataUdc, WindowDataUdc} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ExportedData, WindowData,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
 
@@ -42,13 +42,13 @@ export class FileReaderViewCapture {
       FileReaderViewCapture.MAGIC_NUMBER,
     );
 
-    const exportedData = ExportedData.deserializeBinary(traceBuffer);
+    const exportedData = ExportedDataUdc.deserializeBinary(traceBuffer);
 
     const realToBootTimeOffsetNs = BigInt(
       assertDefined(exportedData.getRealToElapsedTimeOffsetNanos()),
     );
 
-    exportedData.getWindowdataList().forEach((windowData: WindowData) => {
+    exportedData.getWindowdataList().forEach((windowData: WindowDataUdc) => {
       this.windowParsers.push(
         new FileReaderViewCaptureWindow(
           this.traceFile,

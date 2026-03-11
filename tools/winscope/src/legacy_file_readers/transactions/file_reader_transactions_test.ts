@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
@@ -61,7 +61,7 @@ describe('FileReaderTransactions', () => {
       ).toBe(2);
       expect(packets[0].getTimestamp()).toEqual('2450981445');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
 
@@ -163,7 +163,7 @@ describe('FileReaderTransactions', () => {
       ).toBe(1);
       expect(packets[0].getTimestamp()).toEqual('14862317023');
       expect(packets[0].getTimestampClockId()).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
   });

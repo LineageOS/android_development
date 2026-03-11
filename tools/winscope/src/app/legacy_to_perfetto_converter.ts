@@ -17,10 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {INVALID_TIME_NS} from '@common/time/time';
 import {getLogger, Logger} from '@compat/logging';
+import {PerfettoClockSnapshot, PerfettoTrace, PerfettoTracePacket,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ClockSnapshot as PerfettoClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
-import {Trace} from '@protos/protos/perfetto/trace/trace_pb';
 import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace/trace_file';
@@ -65,7 +63,7 @@ export class LegacyToPerfettoConverter {
   }
 
   async convert(): Promise<TraceFile | undefined> {
-    let trace: Trace;
+    let trace: PerfettoTrace;
     try {
       trace = await this.makePerfettoTrace();
     } catch (e) {
@@ -86,7 +84,7 @@ export class LegacyToPerfettoConverter {
     // the range of timestamps present in the trace to avoid issues with
     // timestamp syncing. The packets for these traces will be parsed by
     // TP with the "has_invalid_elapsed_ts" column set to true.
-    const hasValidTs = (packet: TracePacket) => {
+    const hasValidTs = (packet: PerfettoTracePacket) => {
       return packet.hasTimestamp() && packet.getTimestamp() !== '0';
     };
     const nonZeroTs = trace
@@ -108,11 +106,11 @@ export class LegacyToPerfettoConverter {
     );
   }
 
-  private async makePerfettoTrace(): Promise<Trace> {
-    let trace: Trace;
+  private async makePerfettoTrace(): Promise<PerfettoTrace> {
+    let trace: PerfettoTrace;
     if (!this.perfettoFile) {
       const clockSnapshots = this.makeClockSnapshots();
-      trace = new Trace();
+      trace = new PerfettoTrace();
       if (clockSnapshots.length === 0) {
         throw new Error('no file readers or Perfetto file provided');
       }
@@ -124,7 +122,7 @@ export class LegacyToPerfettoConverter {
       const fileBuffer = new Uint8Array(
         await this.perfettoFile.file.arrayBuffer(),
       );
-      trace = Trace.deserializeBinary(fileBuffer);
+      trace = PerfettoTrace.deserializeBinary(fileBuffer);
     }
 
     return trace;
@@ -217,8 +215,8 @@ export class LegacyToPerfettoConverter {
 
   private makeTracePacketWithClockSnapshot(
     legacySnapshot: ClockSnapshot,
-  ): TracePacket {
-    const packet = new TracePacket();
+  ): PerfettoTracePacket {
+    const packet = new PerfettoTracePacket();
     packet.setTrustedPacketSequenceId(1);
 
     const snapshot = new PerfettoClockSnapshot();
@@ -278,7 +276,7 @@ export class LegacyToPerfettoConverter {
     return packet;
   }
 
-  private makeTraceDataPackets(trace: Trace): TracePacket[] {
+  private makeTraceDataPackets(trace: PerfettoTrace): PerfettoTracePacket[] {
     const [largestUid, largestPid] = trace.getPacketList().reduce(
       ([uid, pid], packet) => {
         return [
@@ -290,7 +288,7 @@ export class LegacyToPerfettoConverter {
     );
     let [trustedUid, trustedPid] = [largestUid + 1, largestPid + 1];
 
-    const packets: TracePacket[] = [];
+    const packets: PerfettoTracePacket[] = [];
     let sequenceId =
       Math.max(
         ...trace

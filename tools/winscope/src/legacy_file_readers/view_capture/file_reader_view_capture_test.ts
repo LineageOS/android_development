@@ -16,10 +16,8 @@
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
 import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot, PerfettoTracePacket, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 
@@ -62,13 +60,13 @@ describe('FileReaderViewCapture', () => {
     expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
     expect(packets[0].getTimestamp()).toEqual('181114412436130');
     expect(packets[0].getTimestampClockId()).toEqual(
-      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(packets[0].getTrustedUid()).toBe(2);
     expect(packets[0].getTrustedPid()).toBe(3);
     expect(packets[0].getSequenceFlags()).toBe(3);
     expect(packets[1].getSequenceFlags()).toEqual(
-      TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+      PerfettoTracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
     );
 
     const vcData = assertDefined(

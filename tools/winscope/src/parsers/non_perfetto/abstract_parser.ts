@@ -34,7 +34,7 @@ import {Logger} from 'typescript-logging-log4ts-style';
 export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
   private timestamps: Timestamp[] | undefined;
   protected traceFile: TraceFile;
-  protected decodedEntries: T[] = [];
+  protected decodedEntries: readonly T[] = [];
   protected timestampConverter: ParserTimestampConverter;
   protected readonly metadata: TraceMetadata | undefined;
 
@@ -129,6 +129,8 @@ export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
 
   protected abstract processDecodedEntry(index: number): Promise<U>;
   protected abstract getMagicNumber(): number[];
-  protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
+  protected abstract decodeTrace(
+    trace: Uint8Array,
+  ): readonly T[] | Promise<readonly T[]>;
   protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }

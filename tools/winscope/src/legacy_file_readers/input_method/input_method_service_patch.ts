@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-import {EditorInfoProto} from '@protos/protos/ime/udc/editorinfo_pb';
-import {InputConnectionCallProto} from '@protos/protos/ime/udc/inputconnection_pb';
-import {InputMethodServiceProto} from '@protos/protos/ime/udc/inputmethodservice_pb';
-import {SoftInputWindowProto} from '@protos/protos/ime/udc/softinputwindow_pb';
+import {EditorInfoProtoUdc, InputConnectionCallProtoUdc, InputMethodServiceProtoUdc, SoftInputWindowProtoUdc,} from '@compat/protobuf';
 import {BinaryReader} from 'google-protobuf';
 
 /**
  * Patch InputMethodServiceProto.deserializeBinaryFromReader to handle legacy field 3 mismatch.
  * Field 3 (decor_view_visible) is bool (wire type 0), but some legacy traces use wire type 2.
  */
-InputMethodServiceProto.deserializeBinaryFromReader = (
-  message: InputMethodServiceProto,
+InputMethodServiceProtoUdc.deserializeBinaryFromReader = (
+  message: InputMethodServiceProtoUdc,
   reader: BinaryReader,
 ) => {
   while (reader.nextField()) {
@@ -35,10 +32,10 @@ InputMethodServiceProto.deserializeBinaryFromReader = (
     const field = reader.getFieldNumber();
     switch (field) {
       case 1: {
-        const value = new SoftInputWindowProto();
+        const value = new SoftInputWindowProtoUdc();
         reader.readMessage(
           value,
-          SoftInputWindowProto.deserializeBinaryFromReader,
+          SoftInputWindowProtoUdc.deserializeBinaryFromReader,
         );
         message.setSoftInputWindow(value);
         break;
@@ -87,8 +84,11 @@ InputMethodServiceProto.deserializeBinaryFromReader = (
         message.setCandidatesViewStarted(reader.readBool());
         break;
       case 13: {
-        const value = new EditorInfoProto();
-        reader.readMessage(value, EditorInfoProto.deserializeBinaryFromReader);
+        const value = new EditorInfoProtoUdc();
+        reader.readMessage(
+          value,
+          EditorInfoProtoUdc.deserializeBinaryFromReader,
+        );
         message.setInputEditorInfo(value);
         break;
       }
@@ -123,10 +123,10 @@ InputMethodServiceProto.deserializeBinaryFromReader = (
         message.setStatusIcon(reader.readInt32());
         break;
       case 26: {
-        const value = new InputMethodServiceProto.InsetsProto();
+        const value = new InputMethodServiceProtoUdc.InsetsProto();
         reader.readMessage(
           value,
-          InputMethodServiceProto.InsetsProto.deserializeBinaryFromReader,
+          InputMethodServiceProtoUdc.InsetsProto.deserializeBinaryFromReader,
         );
         message.setLastComputedInsets(value);
         break;
@@ -135,10 +135,10 @@ InputMethodServiceProto.deserializeBinaryFromReader = (
         message.setSettingsObserver(reader.readString());
         break;
       case 28: {
-        const value = new InputConnectionCallProto();
+        const value = new InputConnectionCallProtoUdc();
         reader.readMessage(
           value,
-          InputConnectionCallProto.deserializeBinaryFromReader,
+          InputConnectionCallProtoUdc.deserializeBinaryFromReader,
         );
         message.setInputConnectionCall(value);
         break;

@@ -16,18 +16,13 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {InputMethodServiceTraceFileProtoUdc, InputMethodServiceTraceProtoUdc, PerfettoClockSnapshot, PerfettoInputMethodServiceTraceProto, PerfettoTracePacket, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-import {InputMethodServiceTraceProto as AndroidInputMethodServiceTraceProto, InputMethodServiceTraceFileProto,} from '@protos/protos/ime/udc/inputmethodeditortrace_pb';
-import {InputMethodServiceTraceProto} from '@protos/protos/perfetto/trace/android/inputmethodeditor_pb';
-import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {WinscopeExtensions} from '@protos/protos/perfetto/trace/android/winscope_extensions_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
 import {TraceType} from '@trace_api/trace_type';
 
 import './input_method_service_patch';
 
-export class FileReaderInputMethodService extends AbstractFileReader<AndroidInputMethodServiceTraceProto> {
+export class FileReaderInputMethodService extends AbstractFileReader<InputMethodServiceTraceProtoUdc> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x49, 0x4d, 0x53, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .IMSTRACE
@@ -52,25 +47,29 @@ export class FileReaderInputMethodService extends AbstractFileReader<AndroidInpu
 
   override decodeTrace(
     buffer: Uint8Array,
-  ): AndroidInputMethodServiceTraceProto[] {
-    const decoded = InputMethodServiceTraceFileProto.deserializeBinary(buffer);
+  ): readonly InputMethodServiceTraceProtoUdc[] {
+    const decoded =
+      InputMethodServiceTraceFileProtoUdc.deserializeBinary(buffer);
     const timeOffset = BigInt(decoded.getRealToElapsedTimeOffsetNanos() ?? '0');
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
     return decoded.getEntryList();
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets: TracePacket[] = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
 
     for (const entry of this.decodedEntries) {
-      const packet = new TracePacket();
+      const packet = new PerfettoTracePacket();
       packet.setTimestamp(entry.getElapsedRealtimeNanos() ?? '0');
-      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
       packet.setTrustedPacketSequenceId(sequenceId);
 
-      const perfettoProto = InputMethodServiceTraceProto.deserializeBinary(
-        entry.serializeBinary(),
-      );
+      const perfettoProto =
+        PerfettoInputMethodServiceTraceProto.deserializeBinary(
+          entry.serializeBinary(),
+        );
       const winscopeExtensions = new WinscopeExtensions();
       winscopeExtensions.setExtension(
         WinscopeExtensionsImpl.inputmethodService,
@@ -84,7 +83,7 @@ export class FileReaderInputMethodService extends AbstractFileReader<AndroidInpu
   }
 
   protected override getTimestamp(
-    entry: AndroidInputMethodServiceTraceProto,
+    entry: InputMethodServiceTraceProtoUdc,
   ): Timestamp {
     return this.timestampConverter.makeTimestampFromBootTimeNs(
       BigInt(assertDefined(entry.getElapsedRealtimeNanos())),

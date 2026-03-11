@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {ShellTransition} from '@protos/protos/perfetto/trace/android/shell_transition_pb';
+import {PerfettoShellTransition} from '@compat/protobuf';
 
 type TransitionProperty =
   | number
   | string
-  | ShellTransition.Change[]
+  | PerfettoShellTransition.Change[]
   | null
   | undefined;
 

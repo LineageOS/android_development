@@ -19,15 +19,8 @@ import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {FrameDataUdc, PerfettoClockSnapshot, PerfettoInternedData, PerfettoInternedString, PerfettoTracePacket, PerfettoViewCapture, ViewNodeUdc, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ViewCapture} from '@protos/protos/perfetto/trace/android/viewcapture_pb';
-import {WinscopeExtensionsImpl} from '@protos/protos/perfetto/trace/android/winscope_extensions_impl_pb';
-import {WinscopeExtensions} from '@protos/protos/perfetto/trace/android/winscope_extensions_pb';
-import {ClockSnapshot} from '@protos/protos/perfetto/trace/clock_snapshot_pb';
-import {InternedData} from '@protos/protos/perfetto/trace/interned_data/interned_data_pb';
-import {InternedString} from '@protos/protos/perfetto/trace/profiling/profile_common_pb';
-import {TracePacket} from '@protos/protos/perfetto/trace/trace_packet_pb';
-import {FrameData, ViewNode,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace/trace_file';
 
@@ -42,11 +35,11 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
 
   constructor(
     private readonly traceFile: TraceFile,
-    private readonly frameData: FrameData[],
+    private readonly frameData: readonly FrameDataUdc[],
     private readonly realToBootTimeOffsetNs: bigint,
     private readonly packageName: string,
     private readonly windowName: string,
-    private readonly classNames: string[],
+    private readonly classNames: readonly string[],
     private readonly timestampConverter: ParserTimestampConverter,
   ) {}
 
@@ -89,19 +82,23 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
     sequenceId: number,
     trustedUid = 1,
     trustedPid = 1,
-  ): TracePacket[] {
+  ): PerfettoTracePacket[] {
     if (this.frameData.length === 0) {
       return [];
     }
     const packets = this.frameData.map((frame, index) => {
-      const packet = new TracePacket();
+      const packet = new PerfettoTracePacket();
       packet.setTrustedPacketSequenceId(sequenceId);
       packet.setTimestamp(assertDefined(frame.getTimestamp()));
-      packet.setTimestampClockId(ClockSnapshot.Clock.BuiltinClocks.BOOTTIME);
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
       packet.setTrustedUid(trustedUid);
       packet.setTrustedPid(trustedPid);
       packet.setSequenceFlags(
-        index === 0 ? 3 : TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+        index === 0
+          ? 3
+          : PerfettoTracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
       );
 
       const winscopeExtensions = new WinscopeExtensions();
@@ -126,16 +123,16 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
   }
 
   private convertToPerfettoView(
-    node: ViewNode,
+    node: ViewNodeUdc,
     parentId: number,
-    perfettoViews: ViewCapture.View[],
+    perfettoViews: PerfettoViewCapture.View[],
   ) {
     const nodeIdString = node.getId();
     if (nodeIdString && !this.viewIdToIid.has(nodeIdString)) {
       this.viewIdToIid.set(nodeIdString, this.viewIdToIid.size + 1);
     }
     const nodeId = perfettoViews.length;
-    const perfettoView = new ViewCapture.View();
+    const perfettoView = new PerfettoViewCapture.View();
     perfettoView.setId(nodeId);
     perfettoView.setParentId(parentId);
     perfettoView.setHashcode(node.getHashcode() ?? 0);
@@ -161,19 +158,21 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
 
     perfettoViews.push(perfettoView);
 
-    node.getChildrenList().forEach((child: ViewNode) => {
+    node.getChildrenList().forEach((child: ViewNodeUdc) => {
       this.convertToPerfettoView(child, nodeId, perfettoViews);
     });
   }
 
-  private convertToPerfettoViewCapture(frame: FrameData): ViewCapture {
-    const perfettoViews: ViewCapture.View[] = [];
+  private convertToPerfettoViewCapture(
+    frame: FrameDataUdc,
+  ): PerfettoViewCapture {
+    const perfettoViews: PerfettoViewCapture.View[] = [];
     this.convertToPerfettoView(
       assertDefined(frame.getNode()),
       -1,
       perfettoViews,
     );
-    const viewCapture = new ViewCapture();
+    const viewCapture = new PerfettoViewCapture();
     viewCapture.setPackageNameIid(
       FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
     );
@@ -184,38 +183,38 @@ export class FileReaderViewCaptureWindow implements LegacyFileReader {
     return viewCapture;
   }
 
-  private makeInternedData(): InternedData {
+  private makeInternedData(): PerfettoInternedData {
     const makeInternedString = (iid: number, str: string) => {
-      const internedString = new InternedString();
+      const internedString = new PerfettoInternedString();
       internedString.setIid(iid);
       internedString.setStr(utf8Encode(str));
       return internedString;
     };
 
-    const internedWindowNames: InternedString[] = [
+    const internedWindowNames: PerfettoInternedString[] = [
       makeInternedString(
         FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
         this.windowName,
       ),
     ];
 
-    const internedClassNames: InternedString[] = this.classNames.map(
+    const internedClassNames: PerfettoInternedString[] = this.classNames.map(
       (className, index) => makeInternedString(index, className),
     );
 
-    const internedPackageNames: InternedString[] = [
+    const internedPackageNames: PerfettoInternedString[] = [
       makeInternedString(
         FileReaderViewCaptureWindow.PACKAGE_OR_WINDOW_IID,
         this.packageName,
       ),
     ];
 
-    const internedViewIds: InternedString[] = [];
+    const internedViewIds: PerfettoInternedString[] = [];
     assertDefined(this.viewIdToIid).forEach((iid, viewId) => {
       internedViewIds.push(makeInternedString(iid, viewId));
     });
 
-    const internedData = new InternedData();
+    const internedData = new PerfettoInternedData();
     internedData.setViewcaptureWindowNameList(internedWindowNames);
     internedData.setViewcaptureClassNameList(internedClassNames);
     internedData.setViewcapturePackageNameList(internedPackageNames);

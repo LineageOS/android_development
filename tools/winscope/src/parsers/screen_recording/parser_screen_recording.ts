@@ -44,7 +44,7 @@ export class ParserScreenRecording extends AbstractParserScreenRecording {
 
   protected override async decodeTrace(
     videoData: Uint8Array,
-  ): Promise<bigint[]> {
+  ): Promise<readonly bigint[]> {
     const posVersion = this.searchMagicString(videoData, WINSCOPE_MAGIC_STRING);
 
     let parser: ScreenRecordingParser;
