@@ -25,6 +25,8 @@ import {
   effect,
   OnInit,
   output,
+  signal,
+  computed,
 } from '@angular/core';
 import {MatButtonModule, MatIconButton} from '@angular/material/button';
 import {
@@ -124,7 +126,17 @@ export class RectsComponent implements OnInit, OnDestroy {
   private mouseMoveListener = (event: MouseEvent) => this.onMouseMove(event);
   private mouseUpListener = () => this.onMouseUp();
   private panning = false;
-  private defaultRectType: TraceRectType | undefined;
+
+  private readonly defaultRectType = signal<TraceRectType | undefined>(
+    undefined,
+  );
+
+  readonly showRectSpecWarning = computed(() => {
+    const defaultRectType = this.defaultRectType();
+    return (
+      defaultRectType !== undefined && defaultRectType !== this.rectSpec()?.type
+    );
+  });
 
   private static readonly ZOOM_SCROLL_RATIO = 0.3;
 
@@ -204,7 +216,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     });
 
     const defaultRectTypeEffect = effect(() => {
-      this.defaultRectType = this.rectSpec()?.type;
+      this.defaultRectType.set(this.rectSpec()?.type);
       defaultRectTypeEffect.destroy();
     });
 
@@ -502,13 +514,6 @@ export class RectsComponent implements OnInit, OnDestroy {
         bubbles: true,
         detail: {type: spec.type},
       }),
-    );
-  }
-
-  showRectSpecWarning(): boolean {
-    return (
-      this.defaultRectType !== undefined &&
-      this.defaultRectType !== this.rectSpec()?.type
     );
   }
 
