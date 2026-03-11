@@ -39,7 +39,7 @@ limitations under the License.
     class="properties-view"
     [title]="propertiesTitle"
     [userOptions]="inputData?.propertiesUserOptions ?? {}"
-    [nodeRows]="inputData?.propertyNodes"
+    [nodeRows]="inputData?.propertyNodes ?? []"
     [traceType]="TraceType.TRANSACTIONS"
     [isProtoDump]="false"
     placeholderText="No current or selected transaction with additional properties."

@@ -17,11 +17,11 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
+  computed,
   Inject,
-  Input,
+  input,
   NgZone,
-  Output,
+  output,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -82,13 +82,18 @@ export class UploadTracesComponent
     'Unless "Discard legacy traces" is selected, this trace will be converted ' +
     'to a Perfetto trace when you click "View traces".';
 
-  @Input() loadedFileReaders: FileReader[] | undefined;
-  @Input() storage: Store | undefined;
-  @Output() filesUploaded = new EventEmitter<File[]>();
-  @Output() viewTracesButtonClick = new EventEmitter<boolean>();
-  @Output() downloadTracesClick = new EventEmitter<void>();
-  @Output() removeTrace = new EventEmitter<FileReader>();
-  @Output() removeAllTraces = new EventEmitter<void>();
+  loadedFileReaders = input.required<FileReader[]>();
+  storage = input.required<Store>();
+
+  filesUploaded = output<File[]>();
+  viewTracesButtonClick = output<boolean>();
+  downloadTracesClick = output<void>();
+  removeTrace = output<FileReader>();
+  removeAllTraces = output<void>();
+
+  hasLoadedFiles = computed<boolean>(() => {
+    return (this.loadedFileReaders().length ?? 0) > 0;
+  });
 
   private readonly discardLegacyStoreKey = 'discardLegacyFiles';
 
@@ -98,22 +103,17 @@ export class UploadTracesComponent
   ) {}
 
   ngOnInit() {
-    if (this.storage) {
-      const storedValue = this.storage.get(this.discardLegacyStoreKey);
-      this.discardLegacyFiles =
-        storedValue === 'true' || storedValue === undefined;
-    }
+    const storage = this.storage();
+    const storedValue = storage.get(this.discardLegacyStoreKey);
+    this.discardLegacyFiles =
+      storedValue === 'true' || storedValue === undefined;
     this.removeAllTraces.emit();
     this.clearAllWarnings();
   }
 
-  hasLoadedFiles(): boolean {
-    return (this.loadedFileReaders?.length ?? 0) > 0;
-  }
-
   updateDiscardLegacyTraces() {
     this.discardLegacyFiles = !this.discardLegacyFiles;
-    this.storage?.add(
+    this.storage().add(
       this.discardLegacyStoreKey,
       this.discardLegacyFiles.toString(),
     );
@@ -121,21 +121,6 @@ export class UploadTracesComponent
 
   clearAllWarnings() {
     this.warningMessages = [];
-  }
-
-  private async onAppTraceViewRequest() {
-    this.viewersLoading = true;
-  }
-
-  private async onAppTraceViewRequestHandled() {
-    this.viewersLoading = false;
-  }
-
-  private async onShowTraceUploadWarning(event: ShowTraceUploadWarning) {
-    if (event.message && !this.warningMessages.includes(event.message)) {
-      this.warningMessages.push(event.message);
-    }
-    this.changeDetectorRef.detectChanges();
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -227,7 +212,7 @@ export class UploadTracesComponent
   hasLoadedFilesWithViewers(): boolean {
     return this.ngZone.run(() => {
       return (
-        this.loadedFileReaders?.some((reader) => {
+        this.loadedFileReaders().some((reader) => {
           return isTraceTypeWithViewer(reader.getTraceType());
         }) ?? false
       );
@@ -238,7 +223,7 @@ export class UploadTracesComponent
     if (this.isViewTracesButtonDisabled()) {
       return true;
     }
-    const isDisabled = !this.loadedFileReaders?.some((reader) => {
+    const isDisabled = !this.loadedFileReaders().some((reader) => {
       return this.isLegacyTrace(reader);
     });
     return isDisabled;
@@ -271,5 +256,20 @@ export class UploadTracesComponent
       return [];
     }
     return Array.from(files);
+  }
+
+  private async onAppTraceViewRequest() {
+    this.viewersLoading = true;
+  }
+
+  private async onAppTraceViewRequestHandled() {
+    this.viewersLoading = false;
+  }
+
+  private async onShowTraceUploadWarning(event: ShowTraceUploadWarning) {
+    if (event.message && !this.warningMessages.includes(event.message)) {
+      this.warningMessages.push(event.message);
+    }
+    this.changeDetectorRef.detectChanges();
   }
 }

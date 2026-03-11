@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, ViewChild} from '@angular/core';
+import {Component, viewChild} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {LogComponent} from '@viewers/components/log_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
@@ -28,6 +28,7 @@ import {UiData} from './ui_data';
   styleUrls: ['./viewer_jank_cujs_component.css'],
 })
 export class ViewerJankCujsComponent extends ViewerComponent<UiData> {
-  @ViewChild(LogComponent) logComponent?: LogComponent;
+  logComponent = viewChild(LogComponent);
+
   TraceType = TraceType;
 }

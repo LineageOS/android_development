@@ -50,6 +50,8 @@ describe('SearchListComponent', () => {
     const fixture = TestBed.createComponent(SearchListComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('searches', []);
+    dom.setComponentInput('listItemOptions', []);
     dom.detectChanges();
   });
 

@@ -21,7 +21,6 @@ import {
   getLifecycleForTransition,
 } from '@app/components/timeline/common/transition_timeline_helpers';
 import {TimelineData} from '@app/timeline_data';
-import {assertDefined} from '@common/assert';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
@@ -52,7 +51,7 @@ export class MiniTimelineDrawerInput {
     const transformer = new Transformer(
       this.zoomRange,
       mapToRange,
-      assertDefined(this.timelineData.getTimestampConverter()),
+      this.timelineData.getTimestampConverter(),
     );
 
     return new MiniCanvasDrawerData(
@@ -142,7 +141,7 @@ export class MiniTimelineDrawerInput {
     const lifecycle = getLifecycleForTransition(
       transition,
       this.selection,
-      assertDefined(this.timelineData.getTimestampConverter()),
+      this.timelineData.getTimestampConverter(),
     );
 
     if (!lifecycle) {

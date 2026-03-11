@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
@@ -22,17 +21,18 @@ import {PlaybackControlsComponent} from './playback_component';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 describe('PlaybackControlsComponent', () => {
-  let hostComponent: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: PlaybackControlsComponent;
+  let dom: DOMTestHelper<PlaybackControlsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent, NoopAnimationsModule],
+      imports: [PlaybackControlsComponent, NoopAnimationsModule],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(TestHostComponent);
-    hostComponent = fixture.componentInstance;
+    const fixture = TestBed.createComponent(PlaybackControlsComponent);
+    component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('currentState', PlaybackState.PAUSED);
     dom.detectChanges();
   });
 
@@ -46,100 +46,70 @@ describe('PlaybackControlsComponent', () => {
   });
 
   it('should create the component', () => {
-    expect(hostComponent.component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 
   it('should have default speed selected', () => {
-    expect(hostComponent.component.selectedScale).toBe(1);
+    expect(component.selectedScale).toBe(1);
   });
 
   it('should emit PlaybackState.FORWARDS when play forwards button is clicked', () => {
-    hostComponent.currentState = PlaybackState.PAUSED;
-    dom.detectChanges();
+    expect(component.currentState()).toEqual(PlaybackState.PAUSED);
+    const spy = spyOn(component.playbackStateChange, 'emit');
     dom.findAndClick('#start-playback-button');
-    expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
-      PlaybackState.FORWARDS,
-    );
+    expect(spy).toHaveBeenCalledOnceWith(PlaybackState.FORWARDS);
   });
 
   it('should emit PlaybackState.BACKWARDS when play backwards button is clicked', () => {
-    hostComponent.currentState = PlaybackState.PAUSED;
-    dom.detectChanges();
+    const spy = spyOn(component.playbackStateChange, 'emit');
     dom.findAndClick('#start-reverse-playback-button');
-    expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
-      PlaybackState.BACKWARDS,
-    );
+    expect(spy).toHaveBeenCalledOnceWith(PlaybackState.BACKWARDS);
   });
 
   it('should emit PlaybackState.PAUSED when pause button is clicked', () => {
-    hostComponent.currentState = PlaybackState.FORWARDS;
+    dom.setComponentInput('currentState', PlaybackState.FORWARDS);
     dom.detectChanges();
+    const spy = spyOn(component.playbackStateChange, 'emit');
 
     const pauseButton = dom.get('#pause-playback-button');
     pauseButton.checkDisabled(false);
+
     pauseButton.click();
-    expect(hostComponent.onPlaybackStateChange).toHaveBeenCalledOnceWith(
-      PlaybackState.PAUSED,
-    );
+    expect(spy).toHaveBeenCalledOnceWith(PlaybackState.PAUSED);
   });
 
   it('should disable pause button when currentState is PAUSED', () => {
-    hostComponent.currentState = PlaybackState.PAUSED;
-    dom.detectChanges();
     const pauseButton = dom.get('#pause-playback-button');
     pauseButton.checkDisabled(true);
   });
 
   it('should enable pause button when currentState is not PAUSED', () => {
-    hostComponent.currentState = PlaybackState.FORWARDS;
+    dom.setComponentInput('currentState', PlaybackState.FORWARDS);
     dom.detectChanges();
     const pauseButton = dom.get('#pause-playback-button');
     pauseButton.checkDisabled(false);
 
-    hostComponent.currentState = PlaybackState.BACKWARDS;
+    dom.setComponentInput('currentState', PlaybackState.BACKWARDS);
     dom.detectChanges();
     pauseButton.checkDisabled(false);
   });
 
   it('should emit speedChange event when speed selection changes', async () => {
+    const spy = spyOn(component.speedChange, 'emit');
     await dom.clickAndWaitStable(
       '.playback-speed-selector .mat-mdc-select-trigger',
     );
 
     const selectPanel = dom.getMatSelectPanel();
     const options = selectPanel.findAll('mat-option');
-    expect(options.length).toBe(
-      hostComponent.component.playbackSpeedSelection.length,
-    );
+    expect(options.length).toBe(component.playbackSpeedSelection.length);
 
     options[3].click();
     await dom.detectChangesAndWaitStable();
 
-    expect(hostComponent.onSpeedChange).toHaveBeenCalledTimes(1);
-    expect(hostComponent.onSpeedChange).toHaveBeenCalledWith(2);
-    expect(hostComponent.component.selectedScale).toBe(2);
+    expect(spy).toHaveBeenCalledOnceWith(2);
+    expect(component.selectedScale).toBe(2);
 
     dom.get('.mat-mdc-select-value-text').checkText('2');
   });
-
-  @Component({
-    selector: 'test-host-component',
-    template: `
-        <playback-controls
-        [currentState]="currentState"
-        (playbackStateChange)="onPlaybackStateChange($event)"
-        (speedChange)="onSpeedChange($event)">
-        </playback-controls>
-  `,
-    standalone: true,
-    imports: [PlaybackControlsComponent],
-  })
-  class TestHostComponent {
-    @ViewChild(PlaybackControlsComponent) component!: PlaybackControlsComponent;
-
-    currentState: PlaybackState = PlaybackState.PAUSED;
-
-    onPlaybackStateChange = jasmine.createSpy('onPlaybackStateChange');
-    onSpeedChange = jasmine.createSpy('onSpeedChange');
-  }
 });

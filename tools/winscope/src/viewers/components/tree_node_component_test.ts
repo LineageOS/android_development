@@ -145,7 +145,7 @@ describe('TreeNodeComponent', () => {
           .build(),
       ),
     );
-    assertDefined(component.node()?.getChildByName('Child 1')).setDiff(
+    assertDefined(component.node().getChildByName('Child 1')).setDiff(
       DiffType.ADDED,
     );
     fixture.detectChanges();
@@ -162,7 +162,7 @@ describe('TreeNodeComponent', () => {
         .build(),
     );
     dom.setComponentInput('node', modifiedNode);
-    const child1 = assertDefined(component.node()?.getChildByName('Child 1'));
+    const child1 = assertDefined(component.node().getChildByName('Child 1'));
     child1.setDiff(DiffType.ADDED);
     assertDefined(child1.getChildByName('Child 2')).setDiff(DiffType.DELETED);
     fixture.detectChanges();

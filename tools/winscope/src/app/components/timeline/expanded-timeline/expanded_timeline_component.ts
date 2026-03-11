@@ -17,22 +17,18 @@
 import {CommonModule} from '@angular/common';
 import {
   Component,
-  EventEmitter,
   HostListener,
-  Input,
-  Output,
-  QueryList,
-  ViewChildren,
+  input,
+  output,
+  viewChildren,
 } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TimelineData} from '@app/timeline_data';
-import {assertDefined} from '@common/assert';
 import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType, compareByDisplayOrder} from '@trace_api/trace_type';
-import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';
 import {TransitionTimelineComponent} from './transition_timeline_component';
 
@@ -53,19 +49,14 @@ import {TransitionTimelineComponent} from './transition_timeline_component';
   styleUrls: ['expanded_timeline_component.css'],
 })
 export class ExpandedTimelineComponent {
-  @Input() timelineData: TimelineData | undefined;
-  @Output() readonly onTracePositionUpdate = new EventEmitter<TracePosition>();
-  @Output() readonly onScrollEvent = new EventEmitter<WheelEvent>();
-  @Output() readonly onTraceClicked = new EventEmitter<Trace<unknown>>();
-  @Output() readonly onMouseXRatioUpdate = new EventEmitter<
-    number | undefined
-  >();
+  timelineData = input.required<TimelineData>();
+  readonly onTracePositionUpdate = output<TracePosition>();
+  readonly onScrollEvent = output<WheelEvent>();
+  readonly onTraceClicked = output<Trace<unknown>>();
+  readonly onMouseXRatioUpdate = output<number | undefined>();
 
-  @ViewChildren(DefaultTimelineRowComponent)
-  singleTimelines: QueryList<DefaultTimelineRowComponent> | undefined;
-
-  @ViewChildren(TransitionTimelineComponent)
-  transitionTimelines: QueryList<TransitionTimelineComponent> | undefined;
+  singleTimelines = viewChildren(DefaultTimelineRowComponent);
+  transitionTimelines = viewChildren(TransitionTimelineComponent);
 
   TRACE_INFO = TRACE_INFO;
   TraceType = TraceType;
@@ -76,7 +67,7 @@ export class ExpandedTimelineComponent {
   }
 
   getTracesSortedByDisplayOrder(): Array<Trace<unknown>> {
-    const traces = assertDefined(this.timelineData)
+    const traces = this.timelineData()
       .getTraces()
       .mapTrace((trace) => trace);
     return traces.sort((a, b) => compareByDisplayOrder(a.type, b.type));
@@ -87,7 +78,7 @@ export class ExpandedTimelineComponent {
   }
 
   isActiveTrace(trace: Trace<unknown>) {
-    return trace === this.timelineData?.getActiveTrace();
+    return trace === this.timelineData().getActiveTrace();
   }
 
   private resizeCanvases() {
@@ -95,12 +86,8 @@ export class ExpandedTimelineComponent {
     // Needs to be done together because otherwise the sizes of each timeline will interfere with
     // each other, since if one timeline is still too big the container will stretch to that size.
     const timelines = [
-      ...(this.transitionTimelines as QueryList<
-        AbstractTimelineRowComponent<unknown>
-      >),
-      ...(this.singleTimelines as QueryList<
-        AbstractTimelineRowComponent<unknown>
-      >),
+      ...this.transitionTimelines(),
+      ...this.singleTimelines(),
     ];
     for (const timeline of timelines) {
       timeline.getCanvas().width = 0;

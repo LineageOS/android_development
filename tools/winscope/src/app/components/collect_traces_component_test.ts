@@ -16,7 +16,7 @@
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -63,12 +63,10 @@ import {TraceConfigComponent} from './trace_config_component';
 import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
-import {By} from '@angular/platform-browser';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 
 describe('CollectTracesComponent', () => {
   let component: CollectTracesComponent;
-  let fixture: ComponentFixture<CollectTracesComponent>;
   let dom: DOMTestHelper<CollectTracesComponent>;
   let mockDevice: MockAdbDeviceConnection;
   let mockDeviceWatch: MockAdbDeviceConnection;
@@ -112,12 +110,12 @@ describe('CollectTracesComponent', () => {
       providers: [MatSnackBar],
       schemas: [],
     }).compileComponents();
-    fixture = TestBed.createComponent(CollectTracesComponent);
+    const fixture = TestBed.createComponent(CollectTracesComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     storage = new InMemoryStorage();
     storage.add('adbConnectionType', AdbConnectionType.MOCK);
-    fixture.componentRef.setInput('storage', storage);
+    dom.setComponentInput('storage', storage);
     await dom.detectChangesAndWaitStable();
     mockDevice = new MockAdbDeviceConnection(
       '35562',
@@ -524,7 +522,7 @@ describe('CollectTracesComponent', () => {
     const newFixture = TestBed.createComponent(CollectTracesComponent);
     const newComponent = newFixture.componentInstance;
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    newFixture.componentRef.setInput('storage', storage);
+    newDom.setComponentInput('storage', storage);
     await newDom.detectChangesAndWaitStable();
     const controller = assertDefined(newComponent.controller);
     const spy = spyOn(controller, 'dumpState');
@@ -623,8 +621,8 @@ describe('CollectTracesComponent', () => {
   });
 
   it('changes host type on mat tab change', async () => {
-    const tabGroup = fixture.debugElement.query(By.directive(MatTabGroup));
-    const emitter = tabGroup.componentInstance.animationDone;
+    const tabGroup = assertDefined(dom.findByDirective(MatTabGroup));
+    const emitter = tabGroup.animationDone;
     const animationSpy = spyOn(emitter, 'emit');
     const checks = () => {
       expect(dom.find('.changing-connection-progress')).toBeDefined();
@@ -656,9 +654,10 @@ describe('CollectTracesComponent', () => {
     await changeConnection(1);
     const newFixture = TestBed.createComponent(CollectTracesComponent);
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    newFixture.componentRef.setInput('storage', storage);
+    newDom.setComponentInput('storage', storage);
     await newDom.detectChangesAndWaitStable();
-    expect(component.controller?.getConnectionType()).toEqual(
+    const newComponent = newFixture.componentInstance;
+    expect(newComponent.controller?.getConnectionType()).toEqual(
       AdbConnectionType.WINSCOPE_PROXY,
     );
   });
@@ -689,11 +688,11 @@ describe('CollectTracesComponent', () => {
   describe('WinscopeProxyHostConnection', async () => {
     beforeEach(async () => {
       storage.add('adbConnectionType', AdbConnectionType.WINSCOPE_PROXY);
-      fixture.destroy();
-      fixture = TestBed.createComponent(CollectTracesComponent);
+      dom.destroy();
+      const fixture = TestBed.createComponent(CollectTracesComponent);
       component = fixture.componentInstance;
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
-      fixture.componentRef.setInput('storage', storage);
+      dom.setComponentInput('storage', storage);
       await dom.detectChangesAndWaitStable();
       await dom.whenRenderingDone();
       component.state = ConnectionState.UNAUTH;
@@ -734,12 +733,12 @@ describe('CollectTracesComponent', () => {
 
   describe('WdpHostConnection', () => {
     beforeEach(async () => {
-      fixture.destroy();
+      dom.destroy();
       storage.clear('adbConnectionType');
-      fixture = TestBed.createComponent(CollectTracesComponent);
+      const fixture = TestBed.createComponent(CollectTracesComponent);
       component = fixture.componentInstance;
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
-      fixture.componentRef.setInput('storage', storage);
+      dom.setComponentInput('storage', storage);
       await dom.detectChangesAndWaitStable();
       component.state = ConnectionState.UNAUTH;
       dom.detectChanges();

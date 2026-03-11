@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {
   BrowserAnimationsModule,
   NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {WdpSetupComponent} from './wdp_setup_component';
 
 describe('WdpSetupComponent', () => {
   let component: WdpSetupComponent;
-  let fixture: ComponentFixture<WdpSetupComponent>;
   let dom: DOMTestHelper<WdpSetupComponent>;
 
   beforeEach(async () => {
@@ -43,10 +41,10 @@ describe('WdpSetupComponent', () => {
       ],
       schemas: [],
     }).compileComponents();
-    fixture = TestBed.createComponent(WdpSetupComponent);
+    const fixture = TestBed.createComponent(WdpSetupComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    fixture.componentRef.setInput('state', ConnectionState.CONNECTING);
+    dom.setComponentInput('state', ConnectionState.CONNECTING);
   });
 
   it('can be created', () => {
@@ -61,7 +59,7 @@ describe('WdpSetupComponent', () => {
   });
 
   it('correct icon and message displays if no proxy', () => {
-    fixture.componentRef.setInput('state', ConnectionState.NOT_FOUND);
+    dom.setComponentInput('state', ConnectionState.NOT_FOUND);
     dom.detectChanges();
     const text = dom.get('.further-adb-info-text');
     text.checkText(
@@ -86,7 +84,7 @@ describe('WdpSetupComponent', () => {
   });
 
   it('correct icon and message displays if unauthorized proxy', () => {
-    fixture.componentRef.setInput('state', ConnectionState.UNAUTH);
+    dom.setComponentInput('state', ConnectionState.UNAUTH);
     dom.detectChanges();
     dom
       .get('.adb-info')
@@ -99,7 +97,7 @@ describe('WdpSetupComponent', () => {
   });
 
   function checkRetryButton() {
-    const spy = spyOn(assertDefined(component.retryConnection), 'emit');
+    const spy = spyOn(component.retryConnection, 'emit');
     dom.findAndClick('.retry');
     expect(spy).toHaveBeenCalled();
   }

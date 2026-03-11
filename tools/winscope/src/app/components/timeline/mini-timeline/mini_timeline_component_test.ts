@@ -16,7 +16,7 @@
 
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {ChangeDetectionStrategy, Component, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -36,17 +36,17 @@ import {TimeRange, Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
-import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {MiniTimelineComponent} from './mini_timeline_component';
 import {SliderComponent} from './slider_component';
 import {Transformer} from './transformer';
 import {Traces} from '@trace_api/traces';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
 
 describe('MiniTimelineComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: MiniTimelineComponent;
+  let dom: DOMTestHelper<MiniTimelineComponent>;
   let timelineData: TimelineData;
 
   const resetButtonSelector = 'button#reset-zoom-btn';
@@ -100,22 +100,25 @@ describe('MiniTimelineComponent', () => {
         CdkMenuModule,
         MiniTimelineComponent,
         SliderComponent,
-        TestHostComponent,
+        MiniTimelineComponent,
       ],
     })
       .overrideComponent(MiniTimelineComponent, {
         set: {changeDetection: ChangeDetectionStrategy.Default},
       })
       .compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(MiniTimelineComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
 
     timelineData = await createAndInitializeTimelineData(traces);
-    component.timelineData = timelineData;
-    expect(timelineData.getCurrentPosition()).toBeDefined();
-    component.currentTracePosition = timelineData.getCurrentPosition()!;
-    component.selectedTraces = [traceSf];
+    dom.setComponentInput('timelineData', timelineData);
+    dom.setComponentInput(
+      'currentTracePosition',
+      timelineData.getCurrentPosition(),
+    );
+    dom.setComponentInput('selectedTraces', [traceSf]);
+    dom.setComponentInput('store', new InMemoryStorage());
   });
 
   it('can be created', () => {
@@ -124,10 +127,7 @@ describe('MiniTimelineComponent', () => {
 
   it('redraws on resize', () => {
     dom.detectChanges();
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    const spy = spyOn(assertDefined(miniTimelineComponent.drawer), 'draw');
+    const spy = spyOn(assertDefined(component.drawer), 'draw');
     expect(spy).not.toHaveBeenCalled();
 
     window.dispatchEvent(new Event('resize'));
@@ -150,7 +150,7 @@ describe('MiniTimelineComponent', () => {
 
   it('resets zoom to initial zoom on reset button click if available', () => {
     const initialZoom = new TimeRange(timestamp15, timestamp16);
-    component.initialZoom = initialZoom;
+    dom.setComponentInput('initialZoom', initialZoom);
     dom.detectChanges();
     expect(timelineData.getZoomRange()).toEqual(initialZoom);
 
@@ -188,9 +188,9 @@ describe('MiniTimelineComponent', () => {
 
   it('loads with initial zoom', () => {
     const initialZoom = new TimeRange(timestamp15, timestamp16);
-    component.initialZoom = initialZoom;
+    dom.setComponentInput('initialZoom', initialZoom);
     dom.detectChanges();
-    const timelineData = assertDefined(component.timelineData);
+    const timelineData = component.timelineData();
     const zoomRange = timelineData.getZoomRange();
     expect(zoomRange.from).toEqual(initialZoom.from);
     expect(zoomRange.to).toEqual(initialZoom.to);
@@ -199,35 +199,37 @@ describe('MiniTimelineComponent', () => {
   it('updates timelineData on zoom changed', () => {
     dom.detectChanges();
     const zoom = new TimeRange(timestamp15, timestamp16);
-    assertDefined(component.miniTimelineComponent).onZoomChanged(zoom);
+    component.onZoomChanged(zoom);
     dom.detectChanges();
     expect(timelineData.getZoomRange()).toBe(zoom);
   });
 
   it('creates an appropriately sized canvas', () => {
     dom.detectChanges();
-    const canvas = assertDefined(component.miniTimelineComponent).getCanvas();
+    const canvas = component.getCanvas();
     expect(canvas.width).toBeGreaterThan(100);
     expect(canvas.height).toBeGreaterThan(10);
   });
 
   it('getTracesToShow returns traces targeted by selectedTraces', () => {
     dom.detectChanges();
-    const selectedTraces = assertDefined(component.selectedTraces);
+    const selectedTraces = component.selectedTraces();
     const selectedTracesTypes = selectedTraces.map((trace) => trace.type);
 
-    const tracesToShow = assertDefined(
-      component.miniTimelineComponent,
-    ).getTracesToShow();
+    const tracesToShow = component.getTracesToShow();
     const tracesToShowTypes = tracesToShow.map((trace) => trace.type);
 
     expect(new Set(tracesToShowTypes)).toEqual(new Set(selectedTracesTypes));
   });
 
   it('getTracesToShow adds traces in correct order', () => {
-    component.selectedTraces = [traceWm, traceSf, traceTransactions];
+    dom.setComponentInput('selectedTraces', [
+      traceWm,
+      traceSf,
+      traceTransactions,
+    ]);
     dom.detectChanges();
-    const tracesToShowTypes = assertDefined(component.miniTimelineComponent)
+    const tracesToShowTypes = component
       .getTracesToShow()
       .map((trace) => trace.type);
     expect(tracesToShowTypes).toEqual([
@@ -240,7 +242,7 @@ describe('MiniTimelineComponent', () => {
   it('updates zoom when slider moved', () => {
     dom.detectChanges();
     const initialZoom = new TimeRange(timestamp15, timestamp16);
-    assertDefined(component.miniTimelineComponent).onZoomChanged(initialZoom);
+    component.onZoomChanged(initialZoom);
     dom.detectChanges();
 
     const slider = dom.get('.slider .handle');
@@ -256,11 +258,8 @@ describe('MiniTimelineComponent', () => {
     await initializeTraces();
 
     const initialZoom = new TimeRange(timestamp700, timestamp810);
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    miniTimelineComponent.onZoomChanged(initialZoom);
-    miniTimelineComponent.currentTracePosition = position800;
+    component.onZoomChanged(initialZoom);
+    dom.setComponentInput('currentTracePosition', position800);
     dom.detectChanges();
 
     dom.findAndClick(zoomInSelector);
@@ -276,7 +275,7 @@ describe('MiniTimelineComponent', () => {
     await initializeTraces();
 
     const initialZoom = new TimeRange(timestamp10, timestamp1000);
-    assertDefined(component.miniTimelineComponent).onZoomChanged(initialZoom);
+    component.onZoomChanged(initialZoom);
 
     timelineData.setPosition(position800);
     dom.detectChanges();
@@ -296,10 +295,7 @@ describe('MiniTimelineComponent', () => {
   it('zooms in/out with scroll wheel', async () => {
     await initializeTraces();
     let initialZoom = new TimeRange(timestamp10, timestamp1000);
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    miniTimelineComponent.onZoomChanged(initialZoom);
+    component.onZoomChanged(initialZoom);
     dom.detectChanges();
     setCanvasZeroXOffset();
 
@@ -322,15 +318,15 @@ describe('MiniTimelineComponent', () => {
     await initializeTraces();
 
     const initialZoom = new TimeRange(timestamp10, timestamp1000);
-    assertDefined(component.miniTimelineComponent).onZoomChanged(initialZoom);
+    component.onZoomChanged(initialZoom);
     dom.detectChanges();
 
-    component.expandedTimelineScrollEvent = {
+    dom.setComponentInput('expandedTimelineScrollEvent', {
       deltaY: -200,
       deltaX: 0,
       x: 10, // scrolling on pos
-      target: component.miniTimelineComponent?.getCanvas(),
-    } as unknown as WheelEvent;
+      target: component.getCanvas(),
+    } as unknown as WheelEvent);
     dom.detectChanges();
 
     const finalZoom = timelineData.getZoomRange();
@@ -341,22 +337,17 @@ describe('MiniTimelineComponent', () => {
     dom.detectChanges();
     expect(dom.findInDocument('.context-menu')).toBeUndefined();
 
-    openContextMenu(assertDefined(component.miniTimelineComponent));
+    openContextMenu(component);
     const options = getContextMenuItems();
     expect(options.length).toBe(2);
   });
 
   it('adds bookmark', () => {
     dom.detectChanges();
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    spyOnProperty(miniTimelineComponent.getCanvas(), 'width').and.returnValue(
-      1732,
-    );
-    const spy = spyOn(miniTimelineComponent.onToggleBookmark, 'emit');
+    spyOnProperty(component.getCanvas(), 'width').and.returnValue(1732);
+    const spy = spyOn(component.onToggleBookmark, 'emit');
 
-    openContextMenu(miniTimelineComponent);
+    openContextMenu(component);
     const options = getContextMenuItems();
     options[0].checkText('Add bookmark');
 
@@ -368,17 +359,12 @@ describe('MiniTimelineComponent', () => {
   });
 
   it('removes bookmark', () => {
-    component.bookmarks = [timestamp10];
+    dom.setComponentInput('bookmarks', [timestamp10]);
     dom.detectChanges();
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    spyOnProperty(miniTimelineComponent.getCanvas(), 'width').and.returnValue(
-      1732,
-    );
-    const spy = spyOn(miniTimelineComponent.onToggleBookmark, 'emit');
+    spyOnProperty(component.getCanvas(), 'width').and.returnValue(1732);
+    const spy = spyOn(component.onToggleBookmark, 'emit');
 
-    openContextMenu(assertDefined(component.miniTimelineComponent));
+    openContextMenu(component);
     const options = getContextMenuItems();
     options[0].checkText('Remove bookmark');
     options[0].click();
@@ -389,14 +375,11 @@ describe('MiniTimelineComponent', () => {
   });
 
   it('removes all bookmarks', () => {
-    component.bookmarks = [timestamp10, timestamp1000];
+    dom.setComponentInput('bookmarks', [timestamp10, timestamp1000]);
     dom.detectChanges();
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    const spy = spyOn(miniTimelineComponent.onRemoveAllBookmarks, 'emit');
+    const spy = spyOn(component.onRemoveAllBookmarks, 'emit');
 
-    openContextMenu(miniTimelineComponent);
+    openContextMenu(component);
     const options = getContextMenuItems();
     options[1].checkText('Remove all bookmarks');
 
@@ -408,7 +391,7 @@ describe('MiniTimelineComponent', () => {
     await initializeTracesForWASDZoom();
 
     const initialZoom = new TimeRange(timestamp1000, timestamp2000);
-    component.initialZoom = initialZoom;
+    dom.setComponentInput('initialZoom', initialZoom);
     dom.detectChanges();
 
     zoomInByKeyW();
@@ -424,7 +407,7 @@ describe('MiniTimelineComponent', () => {
     await initializeTracesForWASDZoom();
 
     const initialZoom = new TimeRange(timestamp1000, timestamp2000);
-    component.initialZoom = initialZoom;
+    dom.setComponentInput('initialZoom', initialZoom);
     dom.detectChanges();
 
     while (timelineData.getZoomRange().to !== timestamp4000) {
@@ -464,8 +447,11 @@ describe('MiniTimelineComponent', () => {
   it('zooms in/out on mouse position if within current range', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
-    component.initialZoom = initialZoom;
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
+    dom.setComponentInput('initialZoom', initialZoom);
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp2000),
+    );
     // fix width to timeline regardless of browser window size, so that test
     // timestamps are correctly calibrated for usable range
     dom.get('#mini-timeline-wrapper').getHTMLElement().style.minWidth =
@@ -473,7 +459,7 @@ describe('MiniTimelineComponent', () => {
     dom.get('#mini-timeline-wrapper').getHTMLElement().style.maxWidth =
       '1000px';
     dom.detectChanges();
-    const drawer = assertDefined(component.miniTimelineComponent?.drawer);
+    const drawer = assertDefined(component.drawer);
     const usableRange = drawer.getUsableRange();
     dispatchMouseMoveToCanvas(
       (usableRange.to - usableRange.from) * 0.25 + drawer.getPadding().left,
@@ -501,8 +487,11 @@ describe('MiniTimelineComponent', () => {
   it('zooms in/out on current position if within current range and mouse position not available', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
-    component.initialZoom = initialZoom;
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp1750);
+    dom.setComponentInput('initialZoom', initialZoom);
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp1750),
+    );
     dom.detectChanges();
 
     const fullRangeQuarterTimestamp = timestamp1750;
@@ -532,14 +521,14 @@ describe('MiniTimelineComponent', () => {
   it('zooms in/out on current position after mouse leaves canvas', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
-    component.initialZoom = initialZoom;
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp1750);
+    dom.setComponentInput('initialZoom', initialZoom);
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp1750),
+    );
     dom.detectChanges();
 
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    const drawer = assertDefined(miniTimelineComponent.drawer);
+    const drawer = assertDefined(component.drawer);
     const usableRange = drawer.getUsableRange();
     dispatchMouseMoveToCanvas((usableRange.to - usableRange.from) * 0.5);
     dispatchMouseLeaveToCanvas();
@@ -571,8 +560,11 @@ describe('MiniTimelineComponent', () => {
   it('zooms in/out on middle of slider bar if current position out of range and mouse position not available', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp2000, timestamp4000);
-    component.initialZoom = initialZoom;
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp1750);
+    dom.setComponentInput('initialZoom', initialZoom);
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp1750),
+    );
     dom.detectChanges();
 
     const fullRangeMiddleTimestamp = timestamp3000;
@@ -611,10 +603,13 @@ describe('MiniTimelineComponent', () => {
   it('zooms in/out on mouse position from expanded timeline', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
-    component.initialZoom = initialZoom;
+    dom.setComponentInput('initialZoom', initialZoom);
     dom.detectChanges();
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
-    component.expandedTimelineMouseXRatio = 0.25;
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp2000),
+    );
+    dom.setComponentInput('expandedTimelineMouseXRatio', 0.25);
     dom.detectChanges();
 
     const fullRangeQuarterTimestamp = timestamp1750;
@@ -641,14 +636,17 @@ describe('MiniTimelineComponent', () => {
   it('draws hover timestamp for mouse position from expanded timeline', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
-    component.initialZoom = initialZoom;
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
+    dom.setComponentInput('initialZoom', initialZoom);
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp2000),
+    );
     dom.detectChanges();
 
-    const drawer = assertDefined(component.miniTimelineComponent?.drawer);
+    const drawer = assertDefined(component.drawer);
     const spy = spyOn(drawer, 'updateHover');
     const ratio = 0.25;
-    component.expandedTimelineMouseXRatio = ratio;
+    dom.setComponentInput('expandedTimelineMouseXRatio', ratio);
     dom.detectChanges();
     expect(spy).toHaveBeenCalledOnceWith({x: ratio * drawer.getWidth(), y: 0});
   });
@@ -656,22 +654,22 @@ describe('MiniTimelineComponent', () => {
   it('emits hover position update', async () => {
     await initializeTracesForWASDZoom();
     const initialZoom = new TimeRange(timestamp1000, timestamp4000);
-    component.initialZoom = initialZoom;
-    component.currentTracePosition = TracePosition.fromTimestamp(timestamp2000);
+    dom.setComponentInput('initialZoom', initialZoom);
+    dom.setComponentInput(
+      'currentTracePosition',
+      TracePosition.fromTimestamp(timestamp2000),
+    );
     dom.detectChanges();
 
-    const miniTimeline = assertDefined(component.miniTimelineComponent);
-    const miniTimelineElement = assertDefined(
-      miniTimeline.miniTimelineWrapper?.nativeElement,
-    );
-    const spy = spyOn(miniTimeline.onHoverPositionUpdate, 'emit');
+    const miniTimelineElement = component.miniTimelineWrapper().nativeElement;
+    const spy = spyOn(component.onHoverPositionUpdate, 'emit');
 
     const xRatio = 0.1;
     const offsetX = xRatio * miniTimelineElement.clientWidth;
     const hoverTs = new Transformer(
       timelineData.getZoomRange(),
-      assertDefined(miniTimeline.drawer).getUsableRange(),
-      assertDefined(timelineData.getTimestampConverter()),
+      assertDefined(component.drawer).getUsableRange(),
+      timelineData.getTimestampConverter(),
     ).untransform(offsetX);
 
     dispatchMouseMoveToCanvas(offsetX);
@@ -700,7 +698,10 @@ describe('MiniTimelineComponent', () => {
       .setTimestamps(TraceType.SURFACE_FLINGER, [timestamp10])
       .setTimestamps(TraceType.WINDOW_MANAGER, [timestamp1000])
       .build();
-    component.timelineData = await createAndInitializeTimelineData(traces);
+    dom.setComponentInput(
+      'timelineData',
+      await createAndInitializeTimelineData(traces),
+    );
     dom.detectChanges();
   }
 
@@ -712,7 +713,10 @@ describe('MiniTimelineComponent', () => {
         timestamp4000,
       ])
       .build();
-    component.timelineData = await createAndInitializeTimelineData(traces);
+    dom.setComponentInput(
+      'timelineData',
+      await createAndInitializeTimelineData(traces),
+    );
   }
 
   function checkZoomDifference(
@@ -756,15 +760,15 @@ describe('MiniTimelineComponent', () => {
     const spy = spyOn(wheelEvent, 'preventDefault').and.callThrough();
     spyOnProperty(wheelEvent, 'deltaX').and.returnValue(0);
 
-    const canvas = assertDefined(component.miniTimelineComponent?.getCanvas());
+    const canvas = component.getCanvas();
     spyOnProperty(wheelEvent, 'target').and.returnValue(canvas);
 
-    dom.get('mini-timeline').dispatchEvent(wheelEvent);
+    dom.dispatchEvent(wheelEvent);
     dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
   }
 
-  function getContextMenuItems(): Array<DOMTestHelper<TestHostComponent>> {
+  function getContextMenuItems(): Array<DOMTestHelper<MiniTimelineComponent>> {
     return dom.getInDocument('.context-menu')?.findAll('.context-menu-item');
   }
 
@@ -817,12 +821,12 @@ describe('MiniTimelineComponent', () => {
   }
 
   function setCanvasZeroXOffset() {
-    const canvas = getCanvas();
+    const canvas = component.getCanvas();
     spyOnProperty(canvas, 'offsetLeft').and.returnValue(0);
   }
 
   function dispatchMouseMoveToCanvas(offsetX: number) {
-    const canvas = getCanvas();
+    const canvas = component.getCanvas();
     const mouseMoveEvent = new MouseEvent('mousemove');
     Object.defineProperty(mouseMoveEvent, 'target', {value: canvas});
     Object.defineProperty(mouseMoveEvent, 'offsetX', {
@@ -833,41 +837,7 @@ describe('MiniTimelineComponent', () => {
   }
 
   function dispatchMouseLeaveToCanvas() {
-    getCanvas().dispatchEvent(new MouseEvent('mouseleave'));
+    component.getCanvas().dispatchEvent(new MouseEvent('mouseleave'));
     dom.detectChanges();
-  }
-
-  function getCanvas() {
-    const miniTimelineComponent = assertDefined(
-      component.miniTimelineComponent,
-    );
-    return miniTimelineComponent.getCanvas();
-  }
-
-  @Component({
-    imports: [MiniTimelineComponent],
-    selector: 'host-component',
-    template: `
-      <mini-timeline
-        [timelineData]="timelineData"
-        [currentTracePosition]="currentTracePosition"
-        [selectedTraces]="selectedTraces"
-        [initialZoom]="initialZoom"
-        [expandedTimelineScrollEvent]="expandedTimelineScrollEvent"
-        [expandedTimelineMouseXRatio]="expandedTimelineMouseXRatio"
-        [bookmarks]="bookmarks"></mini-timeline>
-    `,
-  })
-  class TestHostComponent {
-    timelineData = new TimelineData();
-    currentTracePosition: TracePosition | undefined;
-    selectedTraces: Array<Trace<unknown>> = [];
-    initialZoom: TimeRange | undefined;
-    expandedTimelineScrollEvent: WheelEvent | undefined;
-    expandedTimelineMouseXRatio: number | undefined;
-    bookmarks: Timestamp[] = [];
-
-    @ViewChild(MiniTimelineComponent)
-    miniTimelineComponent: MiniTimelineComponent | undefined;
   }
 });

@@ -15,7 +15,7 @@
  */
 
 import {VIRTUAL_SCROLL_STRATEGY} from '@angular/cdk/scrolling';
-import {Directive, forwardRef, Input} from '@angular/core';
+import {Directive, effect, forwardRef, input} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {VariableHeightScrollStrategy} from './variable_height_scroll_strategy';
 
@@ -32,14 +32,18 @@ import {VariableHeightScrollStrategy} from './variable_height_scroll_strategy';
 export class VariableHeightScrollDirective {
   readonly scrollStrategy = new VariableHeightScrollStrategy();
 
-  @Input() traceType: TraceType | undefined;
+  traceType = input<TraceType>();
+  scrollItems = input.required<object[]>();
 
-  @Input() scrollItems: object[] = [];
-
-  ngOnChanges() {
-    this.scrollStrategy.updateItems(this.scrollItems);
-    if (this.traceType !== undefined) {
-      this.scrollStrategy.updateTraceType(this.traceType);
-    }
+  constructor() {
+    effect(() => {
+      this.scrollStrategy.updateItems(this.scrollItems());
+    });
+    effect(() => {
+      const traceType = this.traceType();
+      if (traceType !== undefined) {
+        this.scrollStrategy.updateTraceType(traceType);
+      }
+    });
   }
 }

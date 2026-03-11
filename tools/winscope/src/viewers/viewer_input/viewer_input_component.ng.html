@@ -64,7 +64,7 @@ limitations under the License.
         class="properties-view event-properties"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
         [title]="eventPropertiesTitle"
-        [nodeRows]="inputData?.propertyNodes"
+        [nodeRows]="inputData?.propertyNodes ?? []"
         [highlightedProperty]="inputData?.highlightedProperty ?? ''"
         [traceType]="TraceType.INPUT_EVENT_MERGED"
         [store]="store"
@@ -81,7 +81,7 @@ limitations under the License.
           sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)
         "
         [title]="dispatchPropertiesTitle"
-        [nodeRows]="inputData?.dispatchPropertyNodes"
+        [nodeRows]="inputData?.dispatchPropertyNodes ?? []"
         [highlightedProperty]="inputData?.highlightedProperty ?? ''"
         [traceType]="TraceType.INPUT_EVENT_MERGED"
         [store]="store"

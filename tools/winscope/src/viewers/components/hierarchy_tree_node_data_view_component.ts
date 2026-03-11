@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, input} from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Chip} from '@viewers/common/chip';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
@@ -27,15 +27,15 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
   styleUrls: ['hierarchy_tree_node_data_view_component.css'],
 })
 export class HierarchyTreeNodeDataViewComponent {
-  node = input<UiHierarchyTreeNode>();
+  node = input.required<UiHierarchyTreeNode>();
 
-  getNameTooltip(): string | undefined {
+  readonly nameTooltip = computed<string | undefined>(() => {
     const n = this.node();
-    if (n?.name !== n?.getDisplayName()) {
-      return n?.name;
+    if (n.name !== n.getDisplayName()) {
+      return n.name;
     }
     return undefined;
-  }
+  });
 
   chipClass(chip: Chip) {
     return [

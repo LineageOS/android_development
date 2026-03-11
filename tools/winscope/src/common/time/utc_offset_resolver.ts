@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TimezoneInfo, Timestamp} from './time';
 import {UTCOffset} from './utc_offset';
 import {TIME_UNIT_TO_NANO} from './time_units';
@@ -34,16 +33,15 @@ import {TIME_UNIT_TO_NANO} from './time_units';
 export async function getResolvedUTCOffset(
   timezoneInfo: TimezoneInfo,
   fallbackTimestamp: Timestamp,
-  traceProcessor?: TraceProcessor,
+  perfettoTimezoneNs?: () => Promise<bigint | undefined>,
 ): Promise<UTCOffset> {
   let utcOffsetNs: bigint;
 
-  const perfettoTimezoneNs = traceProcessor
-    ? await getTimezoneNsFromPerfetto(traceProcessor)
-    : undefined;
+  const perfettoTimezoneNsValue =
+    perfettoTimezoneNs !== undefined ? await perfettoTimezoneNs() : undefined;
 
-  if (perfettoTimezoneNs !== undefined) {
-    utcOffsetNs = perfettoTimezoneNs;
+  if (perfettoTimezoneNsValue !== undefined) {
+    utcOffsetNs = perfettoTimezoneNsValue;
   } else {
     const utcValueNs = fallbackTimestamp.getValueNs();
     const localNs =
@@ -56,33 +54,6 @@ export async function getResolvedUTCOffset(
   const utcOffset = new UTCOffset();
   utcOffset.initialize(utcOffsetNs);
   return utcOffset;
-}
-
-/**
- * Gets the UTC offset from Perfetto in minutes and converts it in nanoseconds.
- *
- * @param traceProcessor TraceProcessor instance used to read from Perfetto.
- * @return The timezone offset in nanoseconds.
- */
-async function getTimezoneNsFromPerfetto(
-  traceProcessor: TraceProcessor,
-): Promise<bigint | undefined> {
-  const query = `
-    SELECT
-      int_value
-    FROM
-      metadata
-    WHERE
-      name = 'timezone_off_mins'
-    `;
-
-  const result = await traceProcessor.query(query);
-
-  if (result && result.numRows() > 0) {
-    const timezoneOffsetMinutes = result.firstRow({int_value: 0}).int_value;
-    return BigInt(timezoneOffsetMinutes * TIME_UNIT_TO_NANO.m);
-  }
-  return undefined;
 }
 
 /**

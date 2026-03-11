@@ -16,7 +16,6 @@
 
 package com.android.sharetest
 
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ClipData
@@ -34,67 +33,111 @@ import android.text.style.BulletSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
-import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import com.android.sharetest.ImageContentProvider.Companion.IMAGE_COUNT
 import com.android.sharetest.ImageContentProvider.Companion.makeItemUri
+import com.android.sharetest.ui.ActionSelection
+import com.android.sharetest.ui.ActionState
+import com.android.sharetest.ui.AdvancedOptionsState
+import com.android.sharetest.ui.MediaSelection
+import com.android.sharetest.ui.MediaState
+import com.android.sharetest.ui.ShareTestScreen
+import com.android.sharetest.ui.TYPE_ALL
+import com.android.sharetest.ui.TYPE_IMG_PDF
+import com.android.sharetest.ui.TYPE_IMG_VIDEO
+import com.android.sharetest.ui.TYPE_PDF
+import com.android.sharetest.ui.TYPE_VIDEO
+import com.android.sharetest.ui.TYPE_VIDEO_PDF
+import com.android.sharetest.ui.TextSelection
+import com.android.sharetest.ui.TextState
 import kotlin.random.Random
 
-private const val TYPE_IMAGE = "Image"
-private const val TYPE_VIDEO = "Video"
-private const val TYPE_PDF = "PDF Doc"
-private const val TYPE_IMG_VIDEO = "Image / Video Mix"
-private const val TYPE_IMG_PDF = "Image / PDF Mix"
-private const val TYPE_VIDEO_PDF = "Video / PDF Mix"
-private const val TYPE_ALL = "All Type Mix"
 private const val ADDITIONAL_ITEM_COUNT = 1_000
 
 @RequiresApi(34)
-class ShareTestActivity : Activity() {
+class ShareTestActivity : ComponentActivity() {
+
+    private lateinit var viewModel: ShareTestViewModel
+
     private lateinit var customActionReceiver: BroadcastReceiver
     private lateinit var refinementReceiver: BroadcastReceiver
-    private lateinit var mediaSelection: RadioGroup
-    private lateinit var textSelection: RadioGroup
-    private lateinit var mediaTypeSelection: Spinner
-    private lateinit var mediaTypeHeader: View
-    private lateinit var richText: CheckBox
-    private lateinit var albumCheck: CheckBox
-    private lateinit var metadata: EditText
-    private lateinit var shareouselCheck: CheckBox
-    private lateinit var altIntentCheck: CheckBox
-    private lateinit var callerTargetCheck: CheckBox
-    private lateinit var excludeSelfCheck: CheckBox
-    private lateinit var selectionLatencyGroup: RadioGroup
-    private lateinit var imageSizeMetadataCheck: CheckBox
+
     private val customActionFactory = CustomActionFactory(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val container = requireViewById<View>(R.id.container)
-        ViewCompat.setOnApplyWindowInsetsListener(container) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<MarginLayoutParams> {
-                leftMargin = insets.left
-                topMargin = insets.top
-                rightMargin = insets.right
-                bottomMargin = insets.bottom
-            }
-
-            WindowInsetsCompat.CONSUMED
+        viewModel = ViewModelProvider(this)[ShareTestViewModel::class.java]
+        setContent {
+            ShareTestScreen(
+                mediaState =
+                    MediaState(
+                        mediaSelection = viewModel.mediaSelection,
+                        onMediaSelectionChange = viewModel::updateMediaSelection,
+                        mediaTypeSelection = viewModel.mediaTypeSelection,
+                        onMediaTypeSelectionChange = { viewModel.mediaTypeSelection = it },
+                        shareouselChecked = viewModel.shareouselChecked,
+                        onShareouselCheckedChange = { viewModel.shareouselChecked = it },
+                        altIntentChecked = viewModel.altIntentChecked,
+                        onAltIntentCheckedChange = { viewModel.altIntentChecked = it },
+                        imageSizeMetadataChecked = viewModel.imageSizeMetadataChecked,
+                        onImageSizeMetadataCheckedChange = {
+                            viewModel.imageSizeMetadataChecked = it
+                        },
+                    ),
+                textState =
+                    TextState(
+                        textSelection = viewModel.textSelection,
+                        onTextSelectionChange = { viewModel.textSelection = it },
+                        includeTitle = viewModel.includeTitle,
+                        onIncludeTitleChange = { viewModel.includeTitle = it },
+                        includeIcon = viewModel.includeIcon,
+                        onIncludeIconChange = { viewModel.includeIcon = it },
+                        richText = viewModel.richText,
+                        onRichTextChange = { viewModel.richText = it },
+                        albumCheck = viewModel.albumCheck,
+                        onAlbumCheckChange = { viewModel.albumCheck = it },
+                    ),
+                actionState =
+                    ActionState(
+                        actionSelection = viewModel.actionSelection,
+                        onActionSelectionChange = { viewModel.actionSelection = it },
+                        includeModifyShare = viewModel.includeModifyShare,
+                        onIncludeModifyShareChange = { viewModel.includeModifyShare = it },
+                    ),
+                metadataText = viewModel.metadataText,
+                onMetadataTextChange = { viewModel.metadataText = it },
+                advancedOptionsState =
+                    AdvancedOptionsState(
+                        imageLatency = viewModel.imageLatency,
+                        onImageLatencyChange = viewModel::updateImageLatency,
+                        imageGetTypeLatency = viewModel.imageGetTypeLatency,
+                        onImageGetTypeLatencyChange = viewModel::updateImageGetTypeLatency,
+                        imageQueryLatency = viewModel.imageQueryLatency,
+                        onImageQueryLatencyChange = viewModel::updateImageQueryLatency,
+                        selectionLatency = viewModel.selectionLatency,
+                        onSelectionLatencyChange = { viewModel.selectionLatency = it },
+                        imageLoadFailureRate = viewModel.imageLoadFailureRate,
+                        onImageLoadFailureRateChange = viewModel::updateImageLoadFailureRate,
+                        useRefinement = viewModel.useRefinement,
+                        onUseRefinementChange = { viewModel.useRefinement = it },
+                        callerTargetChecked = viewModel.callerTargetChecked,
+                        onCallerTargetCheckedChange = { viewModel.callerTargetChecked = it },
+                        excludeSelfChecked = viewModel.excludeSelfChecked,
+                        onExcludeSelfCheckedChange = { viewModel.excludeSelfChecked = it },
+                    ),
+                onShare = { share() },
+                modifier =
+                    Modifier.fillMaxSize().systemBarsPadding().padding(start = 16.dp, end = 16.dp),
+            )
         }
 
         customActionReceiver =
@@ -103,7 +146,7 @@ class ShareTestActivity : Activity() {
                     Toast.makeText(
                             this@ShareTestActivity,
                             "Custom action invoked, isModified: ${!intent.isInitial}",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         )
                         .show()
                 }
@@ -116,7 +159,7 @@ class ShareTestActivity : Activity() {
                     // sharesheet.
                     val activityIntent =
                         Intent(this@ShareTestActivity, RefinementActivity::class.java)
-                    activityIntent.putExtras(intent)
+                    activityIntent.putExtra(Intent.EXTRA_INTENT, intent)
                     startActivity(activityIntent)
                 }
             }
@@ -124,154 +167,17 @@ class ShareTestActivity : Activity() {
         registerReceiver(
             customActionReceiver,
             IntentFilter(CustomActionFactory.BROADCAST_ACTION),
-            Context.RECEIVER_EXPORTED
+            Context.RECEIVER_EXPORTED,
         )
 
         registerReceiver(
             refinementReceiver,
             IntentFilter(REFINEMENT_ACTION),
-            Context.RECEIVER_EXPORTED
+            Context.RECEIVER_EXPORTED,
         )
-
-        richText = requireViewById(R.id.use_rich_text)
-        albumCheck = requireViewById(R.id.album_text)
-        shareouselCheck = requireViewById(R.id.shareousel)
-        altIntentCheck = requireViewById(R.id.alt_intent)
-        callerTargetCheck = requireViewById(R.id.caller_direct_target)
-        excludeSelfCheck = requireViewById(R.id.exclude_self)
-        mediaTypeSelection = requireViewById(R.id.media_type_selection)
-        mediaTypeHeader = requireViewById(R.id.media_type_header)
-        selectionLatencyGroup = requireViewById(R.id.selection_latency)
-        imageSizeMetadataCheck = requireViewById(R.id.image_size_metadata)
-        mediaSelection =
-            requireViewById<RadioGroup>(R.id.media_selection).apply {
-                setOnCheckedChangeListener { _, id -> updateMediaTypesList(id) }
-                check(R.id.no_media)
-            }
-        metadata = requireViewById(R.id.metadata)
-
-        textSelection =
-            requireViewById<RadioGroup>(R.id.text_selection).apply { check(R.id.short_text) }
-        requireViewById<RadioGroup>(R.id.action_selection).check(R.id.no_actions)
-
-        requireViewById<Button>(R.id.share).setOnClickListener(this::share)
-
-        requireViewById<RadioButton>(R.id.no_media).setOnClickListener {
-            if (textSelection.checkedRadioButtonId == R.id.no_text) {
-                textSelection.check(R.id.short_text)
-            }
-        }
-
-        requireViewById<RadioGroup>(R.id.image_latency).setOnCheckedChangeListener { _, checkedId ->
-            ImageContentProvider.openLatency =
-                when (checkedId) {
-                    R.id.image_latency_50 -> 50
-                    R.id.image_latency_200 -> 200
-                    R.id.image_latency_800 -> 800
-                    else -> 0
-                }
-        }
-        requireViewById<RadioGroup>(R.id.image_latency).check(R.id.image_latency_none)
-
-        requireViewById<RadioGroup>(R.id.image_get_type_latency).setOnCheckedChangeListener {
-            _,
-            checkedId,
-            ->
-            ImageContentProvider.getTypeLatency =
-                when (checkedId) {
-                    R.id.image_get_type_latency_50 -> 50
-                    R.id.image_get_type_latency_200 -> 200
-                    R.id.image_get_type_latency_800 -> 800
-                    else -> 0
-                }
-        }
-        requireViewById<RadioGroup>(R.id.image_get_type_latency)
-            .check(R.id.image_get_type_latency_none)
-
-        requireViewById<RadioGroup>(R.id.image_query_latency).let { radioGroup ->
-            radioGroup.setOnCheckedChangeListener { _, checkedId,
-                ->
-                ImageContentProvider.queryLatency =
-                    when (checkedId) {
-                        R.id.image_query_latency_50 -> 50
-                        R.id.image_query_latency_200 -> 200
-                        R.id.image_query_latency_800 -> 800
-                        else -> 0
-                    }
-            }
-            radioGroup.check(R.id.image_query_latency_none)
-        }
-
-        requireViewById<RadioGroup>(R.id.image_load_failure_rate).setOnCheckedChangeListener {
-            _,
-            checkedId,
-            ->
-            ImageContentProvider.openFailureRate =
-                when (checkedId) {
-                    R.id.image_load_failure_rate_50 -> .5f
-                    R.id.image_load_failure_rate_100 -> 1f
-                    else -> 0f
-                }
-        }
-        requireViewById<RadioGroup>(R.id.image_load_failure_rate)
-            .check(R.id.image_load_failure_rate_none)
     }
 
-    private fun updateMediaTypesList(id: Int) {
-        when (id) {
-            R.id.no_media -> removeMediaTypeOptions()
-            R.id.one_image -> setSingleMediaTypeOptions()
-            R.id.many_images -> setAllMediaTypeOptions()
-        }
-    }
-
-    private fun removeMediaTypeOptions() {
-        mediaTypeSelection.adapter =
-            ArrayAdapter(this, android.R.layout.simple_spinner_item, emptyArray<String>()).apply {
-                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-        setMediaTypeVisibility(false)
-    }
-
-    private fun setSingleMediaTypeOptions() {
-        mediaTypeSelection.adapter =
-            ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    arrayOf(TYPE_IMAGE, TYPE_VIDEO, TYPE_PDF)
-                )
-                .apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        setMediaTypeVisibility(true)
-    }
-
-    private fun setAllMediaTypeOptions() {
-        mediaTypeSelection.adapter =
-            ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    arrayOf(
-                        TYPE_IMAGE,
-                        TYPE_VIDEO,
-                        TYPE_PDF,
-                        TYPE_IMG_VIDEO,
-                        TYPE_IMG_PDF,
-                        TYPE_VIDEO_PDF,
-                        TYPE_ALL
-                    )
-                )
-                .apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        setMediaTypeVisibility(true)
-    }
-
-    private fun setMediaTypeVisibility(visible: Boolean) {
-        val visibility = if (visible) View.VISIBLE else View.GONE
-        mediaTypeHeader.visibility = visibility
-        mediaTypeSelection.visibility = visibility
-        shareouselCheck.visibility = visibility
-        altIntentCheck.visibility = visibility
-    }
-
-    private fun share(view: View) {
+    private fun share() {
         val share = Intent(Intent.ACTION_SEND)
         share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
@@ -279,20 +185,20 @@ class ShareTestActivity : Activity() {
 
         val imageIndex = Random.nextInt(ADDITIONAL_ITEM_COUNT)
 
-        when (mediaSelection.checkedRadioButtonId) {
-            R.id.one_image ->
+        when (viewModel.mediaSelection) {
+            MediaSelection.ONE_IMAGE ->
                 share.apply {
                     val sharedUri =
                         makeItemUri(
                             imageIndex,
                             mimeTypes[imageIndex % mimeTypes.size],
-                            imageSizeMetadataCheck.isChecked
+                            viewModel.imageSizeMetadataChecked,
                         )
                     putExtra(Intent.EXTRA_STREAM, sharedUri)
                     clipData = ClipData("", arrayOf("image/jpg"), ClipData.Item(sharedUri))
                     type = if (mimeTypes.size == 1) mimeTypes[0] else "*/*"
                 }
-            R.id.many_images ->
+            MediaSelection.MANY_IMAGES ->
                 share.apply {
                     val imageUris =
                         ArrayList(
@@ -300,7 +206,7 @@ class ShareTestActivity : Activity() {
                                 makeItemUri(
                                     idx,
                                     mimeTypes[idx % mimeTypes.size],
-                                    imageSizeMetadataCheck.isChecked
+                                    viewModel.imageSizeMetadataChecked,
                                 )
                             }
                         )
@@ -314,21 +220,23 @@ class ShareTestActivity : Activity() {
                     type = if (mimeTypes.size == 1) mimeTypes[0] else "*/*"
                     putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
                 }
+            MediaSelection.NO_MEDIA -> {}
         }
 
         val url = "https://developer.android.com/training/sharing/send#adding-rich-content-previews"
 
-        when (textSelection.checkedRadioButtonId) {
-            R.id.short_text -> share.setText(createShortText())
-            R.id.long_text -> share.setText(createLongText())
-            R.id.url_text -> share.setText(url)
+        when (viewModel.textSelection) {
+            TextSelection.SHORT_TEXT -> share.setText(createShortText())
+            TextSelection.LONG_TEXT -> share.setText(createLongText())
+            TextSelection.URL_TEXT -> share.setText(url)
+            else -> {}
         }
 
-        if (requireViewById<CheckBox>(R.id.include_title).isChecked) {
+        if (viewModel.includeTitle) {
             share.putExtra(Intent.EXTRA_TITLE, createTextTitle())
         }
 
-        if (requireViewById<CheckBox>(R.id.include_icon).isChecked) {
+        if (viewModel.includeIcon) {
             share.clipData =
                 ClipData("", arrayOf("image/png"), ClipData.Item(ImageContentProvider.ICON_URI))
             share.data = ImageContentProvider.ICON_URI
@@ -339,71 +247,69 @@ class ShareTestActivity : Activity() {
                 this,
                 0,
                 Intent(this, ChosenComponentBroadcastReceiver::class.java),
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
 
         val chooserIntent =
             Intent.createChooser(share, null, chosenComponentPendingIntent.intentSender)
 
-        val sendingImage =
-            mediaSelection.checkedRadioButtonId.let {
-                it == R.id.one_image || it == R.id.many_images
-            }
-        if (sendingImage && altIntentCheck.isChecked) {
+        val sendingImage = viewModel.mediaSelection != MediaSelection.NO_MEDIA
+        if (sendingImage && viewModel.altIntentChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_ALTERNATE_INTENTS,
-                arrayOf(createAlternateIntent(share))
+                arrayOf(createAlternateIntent(share)),
             )
         }
-        if (callerTargetCheck.isChecked) {
+        if (viewModel.callerTargetChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_TARGETS,
-                arrayOf(createCallerTarget(this, "Initial Direct Target"))
+                arrayOf(createCallerTarget(this, "Initial Direct Target")),
             )
         }
 
-        if (excludeSelfCheck.isChecked) {
+        if (viewModel.excludeSelfChecked) {
             chooserIntent.putExtra(
                 Intent.EXTRA_EXCLUDE_COMPONENTS,
-                arrayOf(ComponentName(packageName, CallerDirectTargetActivity::class.java.name))
+                arrayOf(ComponentName(packageName, CallerDirectTargetActivity::class.java.name)),
             )
         }
 
-        if (albumCheck.isChecked) {
+        if (viewModel.albumCheck) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT,
-                Intent.CHOOSER_CONTENT_TYPE_ALBUM
+                Intent.CHOOSER_CONTENT_TYPE_ALBUM,
             )
         }
 
-        if (requireViewById<CheckBox>(R.id.include_modify_share).isChecked) {
+        if (viewModel.includeModifyShare) {
             chooserIntent.setModifyShareAction(this)
         }
 
-        if (requireViewById<CheckBox>(R.id.use_refinement).isChecked) {
+        if (viewModel.useRefinement) {
             chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER,
-                createRefinementIntentSender(this, true)
+                createRefinementIntentSender(this, true),
             )
         }
 
-        when (requireViewById<RadioGroup>(R.id.action_selection).checkedRadioButtonId) {
-            R.id.one_action ->
+        when (viewModel.actionSelection) {
+            ActionSelection.ONE_ACTION ->
                 chooserIntent.putExtra(
                     Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS,
-                    customActionFactory.getCustomActions(1)
+                    customActionFactory.getCustomActions(1),
                 )
-            R.id.five_actions ->
+            ActionSelection.FIVE_ACTIONS ->
                 chooserIntent.putExtra(
                     Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS,
-                    customActionFactory.getCustomActions(5)
+                    customActionFactory.getCustomActions(5),
                 )
+            else -> {}
         }
 
-        if (metadata.text.isNotEmpty()) {
-            chooserIntent.putExtra(Intent.EXTRA_METADATA_TEXT, metadata.text)
+        if (viewModel.metadataText.isNotEmpty()) {
+            chooserIntent.putExtra(Intent.EXTRA_METADATA_TEXT, viewModel.metadataText)
         }
-        if (shareouselCheck.isChecked) {
+        if (viewModel.shareouselChecked) {
             val additionalContentUri =
                 AdditionalContentProvider.ADDITIONAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(
@@ -412,13 +318,13 @@ class ShareTestActivity : Activity() {
                     )
                     .appendQueryParameter(
                         AdditionalContentProvider.PARAM_SIZE_META,
-                        imageSizeMetadataCheck.isChecked.toString(),
+                        viewModel.imageSizeMetadataChecked.toString(),
                     )
                     .also { builder ->
                         mimeTypes.forEach {
                             builder.appendQueryParameter(
                                 AdditionalContentProvider.PARAM_MIME_TYPE,
-                                it
+                                it,
                             )
                         }
                     }
@@ -429,21 +335,14 @@ class ShareTestActivity : Activity() {
             )
             chooserIntent.putExtra(Intent.EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, 0)
             chooserIntent.clipData?.addItem(ClipData.Item(additionalContentUri))
-            if (mediaSelection.checkedRadioButtonId == R.id.one_image) {
-                chooserIntent.putExtra(
-                    AdditionalContentProvider.CURSOR_START_POSITION,
-                    imageIndex,
-                )
+            if (viewModel.mediaSelection == MediaSelection.ONE_IMAGE) {
+                chooserIntent.putExtra(AdditionalContentProvider.CURSOR_START_POSITION, imageIndex)
             }
-            val latency =
-                when (selectionLatencyGroup.checkedRadioButtonId) {
-                    R.id.selection_latency_50 -> 50
-                    R.id.selection_latency_200 -> 200
-                    R.id.selection_latency_800 -> 800
-                    else -> 0
-                }
-            if (latency > 0) {
-                chooserIntent.putExtra(AdditionalContentProvider.EXTRA_SELECTION_LATENCY, latency)
+            if (viewModel.selectionLatency > 0) {
+                chooserIntent.putExtra(
+                    AdditionalContentProvider.EXTRA_SELECTION_LATENCY,
+                    viewModel.selectionLatency,
+                )
             }
         }
 
@@ -451,17 +350,15 @@ class ShareTestActivity : Activity() {
     }
 
     private fun getSelectedContentTypes(): Array<String> =
-        mediaTypeSelection.selectedItem?.let { types ->
-            when (types) {
-                TYPE_VIDEO -> arrayOf("video/mp4")
-                TYPE_PDF -> arrayOf("application/pdf")
-                TYPE_IMG_VIDEO -> arrayOf("image/jpeg", "video/mp4")
-                TYPE_IMG_PDF -> arrayOf("image/jpeg", "application/pdf")
-                TYPE_VIDEO_PDF -> arrayOf("video/mp4", "application/pdf")
-                TYPE_ALL -> arrayOf("image/jpeg", "video/mp4", "application/pdf")
-                else -> null
-            }
-        } ?: arrayOf("image/jpeg")
+        when (viewModel.mediaTypeSelection) {
+            TYPE_VIDEO -> arrayOf("video/mp4")
+            TYPE_PDF -> arrayOf("application/pdf")
+            TYPE_IMG_VIDEO -> arrayOf("image/jpeg", "video/mp4")
+            TYPE_IMG_PDF -> arrayOf("image/jpeg", "application/pdf")
+            TYPE_VIDEO_PDF -> arrayOf("video/mp4", "application/pdf")
+            TYPE_ALL -> arrayOf("image/jpeg", "video/mp4", "application/pdf")
+            else -> arrayOf("image/jpeg") // Default or TYPE_IMAGE
+        }
 
     private fun createShortText(): CharSequence =
         SpannableStringBuilder()
@@ -472,7 +369,7 @@ class ShareTestActivity : Activity() {
             .append(" to ")
             .append("share", ForegroundColorSpan(Color.GREEN), Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
             .append(".")
-            .let { if (richText.isChecked) it else it.toString() }
+            .let { if (viewModel.richText) it else it.toString() }
 
     private fun createLongText(): CharSequence =
         SpannableStringBuilder("Here is a lot more text to share:")
@@ -494,11 +391,11 @@ class ShareTestActivity : Activity() {
                     append(
                         createShortText(),
                         BulletSpan(40, color, 20),
-                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE,
                     )
                 }
             }
-            .let { if (richText.isChecked) it else it.toString() }
+            .let { if (viewModel.richText) it else it.toString() }
 
     private fun createTextTitle(): CharSequence =
         SpannableStringBuilder()
@@ -506,7 +403,7 @@ class ShareTestActivity : Activity() {
             .append(" the ", StyleSpan(Typeface.ITALIC), Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
             .append("Title", ForegroundColorSpan(Color.RED), Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
             .append("!")
-            .let { if (richText.isChecked) it else it.toString() }
+            .let { if (viewModel.richText) it else it.toString() }
 
     override fun onDestroy() {
         super.onDestroy()

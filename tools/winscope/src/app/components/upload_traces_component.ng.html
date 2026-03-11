@@ -120,7 +120,7 @@ limitations under the License.
       }
       @if (!isLoadingFiles && hasFiles) {
         <mat-list class="uploaded-files">
-          @for (fileReader of loadedFileReaders; track $index) {
+          @for (fileReader of loadedFileReaders(); track $index) {
             @let traceType = fileReader.getTraceType();
             <mat-list-item [class.no-visualization]="!canVisualizeTrace(traceType)">
               <mat-icon matListItemIcon [style.color]="TRACE_INFO[traceType].color">

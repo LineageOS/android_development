@@ -15,18 +15,16 @@ limitations under the License.
 -->
 
 @let n = node();
-@if (n) {
-  <span class="mat-body-1">
-    @let heading = n.heading();
-    @if (heading) {
-      <span class="mat-body-2">{{ heading }}</span>
-      &ngsp;-&ngsp;
-    }
-    <span class="display-name" [matTooltip]="getNameTooltip()" [matTooltipShowDelay]="300">{{
-      n.getDisplayName()
-    }}</span>
-    @for (chip of n.getChips(); track chip.short) {
-      <div [class]="chipClass(chip)" [matTooltip]="chip.long">{{ chip.short }}</div>
-    }
-  </span>
-}
+<span class="mat-body-1">
+  @let heading = n.heading();
+  @if (heading) {
+    <span class="mat-body-2">{{ heading }}</span>
+    &ngsp;-&ngsp;
+  }
+  <span class="display-name" [matTooltip]="nameTooltip()" [matTooltipShowDelay]="300">{{
+    n.getDisplayName()
+  }}</span>
+  @for (chip of n.getChips(); track chip.short) {
+    <div [class]="chipClass(chip)" [matTooltip]="chip.long">{{ chip.short }}</div>
+  }
+</span>

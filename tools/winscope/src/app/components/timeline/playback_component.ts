@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule, MatSelectChange} from '@angular/material/select';
@@ -48,16 +42,16 @@ import {Analytics} from '@logging/analytics';
 export class PlaybackControlsComponent {
   readonly PlaybackState = PlaybackState;
 
-  @Input() currentState: PlaybackState = PlaybackState.PAUSED;
+  currentState = input.required<PlaybackState>();
 
-  @Output() readonly playbackStateChange = new EventEmitter<PlaybackState>();
-  @Output() readonly speedChange = new EventEmitter<number>();
+  readonly playbackStateChange = output<PlaybackState>();
+  readonly speedChange = output<number>();
 
-  playbackSpeedSelection = [0.25, 0.5, 1, 2, 4];
+  readonly playbackSpeedSelection = [0.25, 0.5, 1, 2, 4];
   selectedScale = 1;
 
   changePlaybackState(newState: PlaybackState): void {
-    if (this.currentState !== newState) {
+    if (this.currentState() !== newState) {
       this.playbackStateChange.emit(newState);
       if (newState !== PlaybackState.PAUSED) {
         Analytics.Playback.logStartRequest(

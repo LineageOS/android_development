@@ -27,5 +27,5 @@ import {TableProperties} from '@viewers/common/table_properties';
 export class PropertiesTableComponent {
   objectEntries = Object.entries;
 
-  properties = input<TableProperties>();
+  properties = input.required<TableProperties>();
 }

@@ -18,11 +18,10 @@ import {CommonModule} from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   Inject,
-  Input,
+  input,
   NgZone,
-  Output,
+  output,
   ViewEncapsulation,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
@@ -155,8 +154,8 @@ export class CollectTracesComponent
     ConnectionState.DUMPING_STATE,
   ];
 
-  @Input() storage: Store | undefined;
-  @Output() readonly filesCollected = new EventEmitter<AdbFiles>();
+  storage = input.required<Store>();
+  readonly filesCollected = output<AdbFiles>();
 
   constructor(
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
@@ -168,7 +167,9 @@ export class CollectTracesComponent
   }
 
   async ngOnInit() {
-    const adbConnectionType = this.storage?.get(this.storeKeyAdbConnectionType);
+    const adbConnectionType = this.storage().get(
+      this.storeKeyAdbConnectionType,
+    );
     if (adbConnectionType !== undefined) {
       await this.changeHostConnection(adbConnectionType);
     } else {
@@ -211,24 +212,13 @@ export class CollectTracesComponent
     }
     this.selectedDevice = device;
     this.onDevicesChange(assertDefined(this.controller).getDevices());
-    this.storage?.add(this.storeKeyLastDevice, device.id);
+    this.storage().add(this.storeKeyLastDevice, device.id);
     this.changeDetectorRef.detectChanges();
   }
 
   onAuthorizeButtonClick(event: MouseEvent, device: AdbDeviceConnection) {
     event.stopPropagation();
     device.tryAuthorize();
-  }
-
-  private async onAppRefreshDumpsRequest() {
-    this.targetTabIndex = 1;
-    this.dumpConfig = updateConfigsFromStore(
-      JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
-      assertDefined(this.storage),
-      this.storeKeyPrefixDumpConfig,
-    );
-    this.refreshDumps = true;
-    this.changeDetectorRef.detectChanges();
   }
 
   async onWinscopeEvent(event: WinscopeEvent) {
@@ -286,7 +276,7 @@ export class CollectTracesComponent
     }
 
     const devices = controller.getDevices();
-    const lastId = this.storage?.get(this.storeKeyLastDevice) ?? undefined;
+    const lastId = this.storage().get(this.storeKeyLastDevice) ?? undefined;
 
     if (this.selectedDevice) {
       const newDevice = devices.find((d) => d.id === this.selectedDevice?.id);
@@ -302,7 +292,7 @@ export class CollectTracesComponent
       if (device && device.getState() === AdbDeviceState.AVAILABLE) {
         this.selectedDevice = device;
         this.onDevicesChange(devices);
-        this.storage?.add(this.storeKeyLastDevice, device.id);
+        this.storage().add(this.storeKeyLastDevice, device.id);
         return false;
       }
     }
@@ -326,7 +316,7 @@ export class CollectTracesComponent
   }
 
   async onChangeDeviceButton() {
-    this.storage?.add(this.storeKeyLastDevice, '');
+    this.storage().add(this.storeKeyLastDevice, '');
     this.selectedDevice = undefined;
     await this.controller?.restartConnection();
   }
@@ -342,7 +332,7 @@ export class CollectTracesComponent
   async startTracing() {
     const requestedTraces = this.getRequests(assertDefined(this.traceConfig));
     const imeReq = requestedTraces.includes(UiTraceTarget.IME);
-    const doNotShowDialog = !!this.storage?.get(this.storeKeyImeWarning);
+    const doNotShowDialog = !!this.storage().get(this.storeKeyImeWarning);
 
     if (!imeReq || doNotShowDialog) {
       await this.requestTraces(requestedTraces);
@@ -381,8 +371,8 @@ export class CollectTracesComponent
       dialogRef
         .beforeClosed()
         .subscribe((result: WarningDialogResult | undefined) => {
-          if (this.storage && result?.selectedOptions.includes(optionText)) {
-            this.storage.add(this.storeKeyImeWarning, 'true');
+          if (result?.selectedOptions.includes(optionText)) {
+            this.storage().add(this.storeKeyImeWarning, 'true');
           }
           if (result?.closeActionText === closeText) {
             this.requestTraces(requestedTraces);
@@ -565,6 +555,17 @@ export class CollectTracesComponent
     }
   }
 
+  private async onAppRefreshDumpsRequest() {
+    this.targetTabIndex = 1;
+    this.dumpConfig = updateConfigsFromStore(
+      JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
+      this.storage(),
+      this.storeKeyPrefixDumpConfig,
+    );
+    this.refreshDumps = true;
+    this.changeDetectorRef.detectChanges();
+  }
+
   private async changeHostConnection(adbConnectionType: string) {
     if (this.selectedDevice) {
       await this.controller?.onDestroy(this.selectedDevice);
@@ -573,7 +574,7 @@ export class CollectTracesComponent
     this.connectionTabIndex =
       adbConnectionType === AdbConnectionType.WINSCOPE_PROXY ? 1 : 0;
     this.changeDetectorRef.detectChanges();
-    this.storage?.add(this.storeKeyAdbConnectionType, adbConnectionType);
+    this.storage().add(this.storeKeyAdbConnectionType, adbConnectionType);
     await this.controller.restartConnection();
   }
 

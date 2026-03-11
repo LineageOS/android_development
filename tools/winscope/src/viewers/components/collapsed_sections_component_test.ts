@@ -17,7 +17,6 @@
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
@@ -65,10 +64,9 @@ describe('CollapsedSectionsComponent', () => {
     sections[0].checkText('HIERARCHY');
     expect(sections[0].find('.mat-icon')).toBeDefined();
 
-    assertDefined(component.sections()).onCollapseStateChange(
-      CollapsibleSectionType.RECTS,
-      true,
-    );
+    component
+      .sections()
+      .onCollapseStateChange(CollapsibleSectionType.RECTS, true);
     dom.detectChanges();
     sections = dom.findAll('.collapsed-section');
     expect(sections.length).toBe(2);

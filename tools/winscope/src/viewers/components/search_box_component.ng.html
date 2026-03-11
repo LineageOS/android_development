@@ -14,24 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@if (textFilter) {
+@let tFilter = currentTextFilter();
+@let tLabel = label();
+@if (tFilter) {
   <mat-form-field
-    [class]="getFormFieldClasses()"
-    [appearance]="appearance"
+    [class]="formFieldClasses()"
+    [appearance]="appearance()"
     (keydown.esc)="$any($event.target).blur()"
     (keydown.enter)="$any($event.target).blur()"
-    [matTooltip]="label"
+    [matTooltip]="tLabel"
     matTooltipPosition="above"
     subscriptSizing="dynamic"
     [matTooltipDisabled]="disableFormFieldTooltip(formField)"
     #formField
   >
-    <mat-label>{{ label }}</mat-label>
+    <mat-label>{{ tLabel }}</mat-label>
     <input
       matInput
-      [(ngModel)]="textFilter.filterString"
+      [(ngModel)]="tFilter.filterString"
       (ngModelChange)="onFilterChange()"
-      [name]="filterName"
+      [name]="filterName()"
     />
     <div class="field-suffix" matTextSuffix>
       <button

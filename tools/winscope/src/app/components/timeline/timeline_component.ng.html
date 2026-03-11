@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+@let tData = timelineData();
 @if (isDisabled) {
   <div class="disabled-message user-notification mat-body-1">
     <div>{{ disabledMessage }}</div>
@@ -21,7 +22,7 @@ limitations under the License.
   </div>
 }
 <div [class.disabled-component]="isDisabled">
-  @if (timelineData?.hasMoreThanOneDistinctTimestamp()) {
+  @if (tData?.hasMoreThanOneDistinctTimestamp()) {
     <div id="toggle">
       <button
         mat-icon-button
@@ -40,7 +41,7 @@ limitations under the License.
   }
   @if (expanded) {
     <div id="expanded-nav">
-      @let screenRecording = timelineData?.getCurrentScreenRecordingTrace();
+      @let screenRecording = tData?.getCurrentScreenRecordingTrace();
       @if (screenRecording !== undefined) {
         <div id="video-content">
           @if (frameCanvasEntry !== undefined) {
@@ -56,7 +57,7 @@ limitations under the License.
         </div>
       }
       <expanded-timeline
-        [timelineData]="timelineData"
+        [timelineData]="tData"
         (onTracePositionUpdate)="updatePosition($event)"
         (onScrollEvent)="updateScrollEvent($event)"
         (onTraceClicked)="onExpandedTimelineTraceClicked($event)"
@@ -87,7 +88,7 @@ limitations under the License.
   </div>
   <div class="navbar-wrapper" #navbarWrapper>
     <div class="navbar" #collapsedTimeline>
-      @if (timelineData?.hasTimestamps()) {
+      @if (tData?.hasTimestamps()) {
         <div id="time-selector" class="small-icon-container">
           <form [formGroup]="timestampForm" class="time-selector-form">
             <mat-form-field
@@ -257,16 +258,16 @@ limitations under the License.
             </mat-select>
           </mat-form-field>
         </div>
-        @if (timelineData?.hasMoreThanOneDistinctTimestamp()) {
+        @if (tData?.hasMoreThanOneDistinctTimestamp()) {
           <mini-timeline
-            [timelineData]="timelineData"
+            [timelineData]="tData"
             [currentTracePosition]="getCurrentTracePosition()"
             [selectedTraces]="selectedTraces"
             [initialZoom]="initialZoom"
             [expandedTimelineScrollEvent]="expandedTimelineScrollEvent"
             [expandedTimelineMouseXRatio]="expandedTimelineMouseXRatio"
             [bookmarks]="bookmarks"
-            [store]="store"
+            [store]="store()"
             (onTracePositionUpdate)="updatePosition($event)"
             (onSeekTimestampUpdate)="updateSeekTimestamp($event)"
             (onRemoveAllBookmarks)="removeAllBookmarks()"
@@ -278,10 +279,10 @@ limitations under the License.
           ></mini-timeline>
         }
       }
-      @if (!timelineData?.hasMoreThanOneDistinctTimestamp()) {
+      @if (!tData?.hasMoreThanOneDistinctTimestamp()) {
         <div class="no-timeline-msg">
           <p class="mat-body-2">No timeline to show!</p>
-          @if (timelineData?.hasTimestamps()) {
+          @if (tData?.hasTimestamps()) {
             <p class="mat-body-1">Only a single timestamp has been recorded.</p>
           } @else {
             <p class="mat-body-1">All loaded traces contain no timestamps.</p>

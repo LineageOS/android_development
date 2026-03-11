@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import {Component, Input} from '@angular/core';
-import {assertDefined} from '@common/assert';
+import {Component} from '@angular/core';
 import {Point} from '@common/geometry/point';
 import {Rect} from '@common/geometry/rect';
 import {Timestamp} from '@common/time/time';
-import {Trace, TraceEntry} from '@trace_api/trace';
+import {TraceEntry} from '@trace_api/trace';
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 
 /**
@@ -32,15 +31,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
   styleUrls: ['default_timeline_row_component.css'],
 })
 export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<unknown> {
-  @Input() selectedEntry: TraceEntry<unknown> | undefined;
-  @Input() trace: Trace<unknown> | undefined;
-
   hoveringEntry?: Timestamp;
-
-  ngOnInit() {
-    assertDefined(this.trace);
-    assertDefined(this.selectionRange);
-  }
 
   getEntryWidth() {
     return this.canvasDrawer.getScaledCanvasHeight();
@@ -65,11 +56,9 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
   }
 
   override drawTimeline() {
-    assertDefined(this.trace)
-      .sliceTime(
-        assertDefined(this.selectionRange).from,
-        assertDefined(this.selectionRange).to.add(1n),
-      )
+    const selectionRange = this.selectionRange();
+    this.trace()
+      .sliceTime(selectionRange.from, selectionRange.to.add(1n))
       .forEachTimestamp((entry) => {
         this.drawEntry(entry);
       });
@@ -80,9 +69,8 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
     mousePoint: Point,
   ): TraceEntry<unknown> | undefined {
     const timestampOfClick = this.getTimestampOf(mousePoint.x);
-    const candidateEntry = assertDefined(this.trace).findLastLowerOrEqualEntry(
-      timestampOfClick,
-    );
+    const candidateEntry =
+      this.trace().findLastLowerOrEqualEntry(timestampOfClick);
 
     if (candidateEntry !== undefined) {
       const timestamp = candidateEntry.getTimestamp();
@@ -115,7 +103,7 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
 
     const rect = this.entryRect(this.hoveringEntry);
 
-    this.canvasDrawer.drawRect(rect, this.color, 1.0);
+    this.canvasDrawer.drawRect(rect, this.color(), 1.0);
     this.canvasDrawer.drawRectBorder(rect);
   }
 
@@ -131,8 +119,9 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
   }
 
   private getXPosOf(entry: Timestamp): number {
-    const start = assertDefined(this.selectionRange).startNs;
-    const end = assertDefined(this.selectionRange).endNs;
+    const selectionRange = this.selectionRange();
+    const start = selectionRange.startNs;
+    const end = selectionRange.endNs;
 
     return Number(
       (BigInt(this.getAvailableWidth()) * BigInt(entry.getValueNs() - start)) /
@@ -141,27 +130,28 @@ export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<un
   }
 
   private getTimestampOf(x: number): Timestamp {
-    const start = assertDefined(this.selectionRange).startNs;
-    const end = assertDefined(this.selectionRange).endNs;
+    const selectionRange = this.selectionRange();
+    const start = selectionRange.startNs;
+    const end = selectionRange.endNs;
     const ts =
       (BigInt(Math.floor(x)) * BigInt(end - start)) /
         BigInt(this.getAvailableWidth()) +
       start;
-    return assertDefined(this.timestampConverter).makeTimestampFromNs(ts);
+    return this.timestampConverter().makeTimestampFromNs(ts);
   }
 
   private drawEntry(entry: Timestamp) {
     const rect = this.entryRect(entry);
-    this.canvasDrawer.drawRect(rect, this.color, 0.2);
+    this.canvasDrawer.drawRect(rect, this.color(), 0.2);
   }
 
   private drawSelectedEntry() {
-    if (this.selectedEntry === undefined) {
+    const selectedEntry = this.selectedEntry();
+    if (selectedEntry === undefined) {
       return;
     }
-
-    const rect = this.entryRect(this.selectedEntry.getTimestamp(), 1);
-    this.canvasDrawer.drawRect(rect, this.color, 1.0);
+    const rect = this.entryRect(selectedEntry.getTimestamp(), 1);
+    this.canvasDrawer.drawRect(rect, this.color(), 1.0);
     this.canvasDrawer.drawRectBorder(rect);
   }
 }

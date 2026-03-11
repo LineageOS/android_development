@@ -116,7 +116,7 @@ export abstract class AbstractLogViewerComponentTest<
         });
 
         it('passes data to log component', () => {
-          const logComponent = assertDefined(component.logComponent);
+          const logComponent = assertDefined(component.logComponent());
           expect(logComponent.isFetchingData()).toBeFalse();
           expect(logComponent.checkScrollViewportCount()).toBe(0);
           expect(logComponent.selectedIndex()).not.toBe(10);
@@ -296,7 +296,7 @@ export abstract class AbstractLogViewerComponentTest<
     scrollElement.style.minWidth = '1440px';
     scrollElement.style.maxWidth = '1440px';
     dom.detectChanges();
-    const viewport = assertDefined(component.logComponent?.scrollComponent());
+    const viewport = assertDefined(component.logComponent()?.scrollComponent());
     return [dom, viewport, component];
   }
 

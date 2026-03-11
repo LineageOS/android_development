@@ -74,7 +74,7 @@ export class HierarchyComponent {
   Analytics = Analytics;
   readonly treeStorage = new InMemoryStorage();
 
-  nodeRows = input<Array<FlattenedTreeRow<UiHierarchyTreeNode>>>([]);
+  nodeRows = input.required<Array<FlattenedTreeRow<UiHierarchyTreeNode>>>();
   tableProperties = input<TableProperties>();
   dependencies = input<TraceType[]>([]);
   highlightedItem = input('');

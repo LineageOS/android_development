@@ -55,6 +55,18 @@ describe('TraceSearchInitializer', () => {
         )
     `);
     expect(queryResultEntry.numRows()).toBe(40);
+
+    const queryResultVisibility = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM sf_layer_search
+        WHERE is_visible = 1
+    `);
+    expect(queryResultVisibility.numRows()).toBe(20);
+
+    const queryResultPrevious = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM sf_layer_search
+        WHERE previous_is_visible = 1
+    `);
+    expect(queryResultPrevious.numRows()).toBe(20);
   });
 
   it('initializes transactions', async () => {
@@ -131,6 +143,13 @@ describe('TraceSearchInitializer', () => {
         AND is_visible = 1
     `);
     expect(queryResult.numRows()).toBe(17);
+
+    const queryResultPrevious = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM wm_search
+        WHERE title LIKE '%LauncherActivity'
+        AND previous_is_visible = 1
+    `);
+    expect(queryResultPrevious.numRows()).toBe(17);
   });
 
   async function createViewsAndTestExamples(

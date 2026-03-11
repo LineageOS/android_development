@@ -26,9 +26,9 @@ import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
   styleUrls: ['transform_matrix_component.css'],
 })
 export class TransformMatrixComponent {
-  matrix = input<UiPropertyTreeNode>();
+  matrix = input.required<UiPropertyTreeNode>();
 
   getVal(name: string): string {
-    return this.matrix()?.getChildByName(name)?.formattedValue() ?? 'null';
+    return this.matrix().getChildByName(name)?.formattedValue() ?? 'null';
   }
 }

@@ -21,6 +21,7 @@ limitations under the License.
   (visibleRangeChanged)="onVisibleRangeChanged()"
   class="tree-scroll"
 >
+  @let highlighted = highlightedItem();
   @for (row of filteredRows; track row.node.id) {
     @if (isRowVisible($index)) {
       <tree-node
@@ -30,7 +31,7 @@ limitations under the License.
         [id]="'node' + row.node.name"
         [attr.item-id]="$index"
         [class]="'node ' + row.node.getDiff()"
-        [class.selected]="isHighlighted(row.node, highlightedItem)"
+        [class.selected]="isHighlighted(row.node, highlighted)"
         [class.child-selected]="hasSelectedChild(row.node)"
         [class.full-opacity]="showFullOpacity(row.node)"
         [class.clickable]="isClickable(row.node)"
@@ -39,11 +40,11 @@ limitations under the License.
         [depth]="row.depth"
         [childHighlightDepth]="row.childHighlightDepth"
         [parentHighlightDepth]="row.parentHighlightDepth"
-        [flattened]="isFlattened"
+        [flattened]="isFlattened()"
         [isLeaf]="row.node.isLeaf()"
         [isExpanded]="isExpanded(row)"
         [isPinned]="isPinned(row.node)"
-        [isSelected]="isHighlighted(row.node, highlightedItem)"
+        [isSelected]="isHighlighted(row.node, highlighted)"
         [showStateIcon]="getShowStateIcon(row.node)"
         (toggleTreeChange)="toggleTree(row)"
         (rectShowStateChange)="toggleRectShowState(row.node)"

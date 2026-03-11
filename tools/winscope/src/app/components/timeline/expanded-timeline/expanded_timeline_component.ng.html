@@ -15,6 +15,7 @@ limitations under the License.
 -->
 
 <div id="expanded-timeline-wrapper" #expandedTimelineWrapper>
+  @let tData = timelineData();
   @for (trace of getTracesSortedByDisplayOrder(); track trace) {
     <div class="timeline row">
       <div class="icon-wrapper">
@@ -30,11 +31,11 @@ limitations under the License.
         <transition-timeline
           [color]="TRACE_INFO[trace.type].color"
           [trace]="$any(trace)"
-          [transitionEntries]="timelineData?.getTransitionEntries()"
-          [selectedEntry]="$any(timelineData?.findCurrentEntryFor($any(trace)))"
-          [selectionRange]="timelineData?.getSelectionTimeRange()"
-          [fullRange]="timelineData?.getFullTimeRange()"
-          [timestampConverter]="timelineData?.getTimestampConverter()"
+          [transitionEntries]="tData.getTransitionEntries()"
+          [selectedEntry]="$any(tData.findCurrentEntryFor($any(trace)))"
+          [selectionRange]="tData.getSelectionTimeRange()"
+          [fullRange]="tData.getFullTimeRange()"
+          [timestampConverter]="tData.getTimestampConverter()"
           [isActive]="isActiveTrace(trace)"
           (onTracePositionUpdate)="onTracePositionUpdate.emit($event)"
           (onScrollEvent)="updateScroll($event)"
@@ -47,9 +48,9 @@ limitations under the License.
         <single-timeline
           [color]="TRACE_INFO[trace.type].color"
           [trace]="trace"
-          [selectedEntry]="timelineData?.findCurrentEntryFor($any(trace))"
-          [selectionRange]="timelineData?.getSelectionTimeRange()"
-          [timestampConverter]="timelineData?.getTimestampConverter()"
+          [selectedEntry]="tData.findCurrentEntryFor($any(trace))"
+          [selectionRange]="tData.getSelectionTimeRange()"
+          [timestampConverter]="tData.getTimestampConverter()"
           [isActive]="isActiveTrace(trace)"
           (onTracePositionUpdate)="onTracePositionUpdate.emit($event)"
           (onScrollEvent)="updateScroll($event)"

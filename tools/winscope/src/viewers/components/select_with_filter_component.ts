@@ -17,11 +17,14 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
-  Output,
-  SimpleChanges,
+  computed,
+  effect,
+  Inject,
+  input,
+  model,
+  output,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -64,101 +67,35 @@ import {MatButtonModule} from '@angular/material/button';
   styleUrls: ['select_with_filter_component.css'],
 })
 export class SelectWithFilterComponent extends AbstractSelectComponent {
-  @Input() override label = 'Search';
-  @Input() options: string[] = [];
-  @Input() outerFilterWidth = '100px';
-  @Input() innerFilterWidth = '100';
-  @Input() flex = 'none';
+  options = input<string[]>([]);
+  override label = input<string>('Search');
+  outerFilterWidth = input<string>('100px');
+  innerFilterWidth = input<string>('100');
+  flex = input<string>('none');
 
-  @Output() readonly selectChange = new EventEmitter<MatSelectChange>();
+  readonly selectChange = output<MatSelectChange>();
 
-  filterString: string = '';
-  nonHiddenOptionToIndex: number[] = [];
+  filterString = model<string>('');
 
-  private lastClickedIndex: number | undefined;
-
-  private static readonly CHECKBOX_WIDTH = 34;
-  private static readonly OPTION_PADDING_WIDTH = 32;
-  private static readonly SCROLLBAR_WIDTH = 8;
-  private static readonly CHAR_WIDTH = 8.5;
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['options']) {
-      this.updateNonHiddenOptionToIndex();
-    }
-  }
-
-  onSelectChange(event: MatSelectChange) {
-    this.selectChange.emit(event);
-  }
-
-  getOuterFormFieldStyle() {
-    return {
-      flex: this.flex,
-      width: this.outerFilterWidth,
-    };
-  }
-
-  getInnerFormFieldStyle() {
-    return {
-      flex: 'none',
-      paddingTop: '2px',
-      paddingLeft: '10px',
-      paddingRight: '20px',
-      paddingBottom: '10px',
-      width: this.innerFilterWidth + 'px',
-    };
-  }
-
-  onSelectOpened(select: MatSelect, filter: HTMLInputElement) {
-    this.handleSelectOpened(select);
-    this.onFilterStringChange();
-    filter.focus();
-  }
-
-  onSelectClosed() {
-    this.filterString = '';
-  }
-
-  onOptClick(e: MouseEvent, i: number, select: MatSelect, option: MatOption) {
-    const selectValueChanged = this.handleOptionClick({
-      event: e,
-      i,
-      select,
-      option,
-      lastClickedIndex: this.lastClickedIndex,
-      options: this.options,
-      filterString: this.filterString,
+  nonHiddenOptions = computed<string[]>(() => {
+    return this.options().filter((value: string) => {
+      return !this.hideOption(value, this.filterString());
     });
-    if (selectValueChanged) {
-      this.selectChange.emit(new MatSelectChange(select, select.value));
-    }
-    this.lastClickedIndex = i;
-  }
+  });
 
-  selectedOptions(select: MatSelect): string[] {
-    return this.options.filter((o) => select.value.includes(o));
-  }
-
-  nonHiddenOptions(): string[] {
-    return this.options.filter((value: string) => {
-      return !this.hideOption(value, this.filterString);
-    });
-  }
-
-  hiddenOptions(): string[] {
-    return this.options.filter((value) =>
-      this.hideOption(value, this.filterString),
+  hiddenOptions = computed<string[]>(() => {
+    return this.options().filter((value) =>
+      this.hideOption(value, this.filterString()),
     );
-  }
+  });
 
-  getScrollMaxHeight(): string {
+  scrollMaxHeight = computed<string>(() => {
     return this.nonHiddenOptions().length * 48 + 24 + 'px';
-  }
+  });
 
-  getScrollWidth(): string {
+  scrollWidth = computed<string>(() => {
     let maxOptionLength = 0;
-    this.options.forEach((opt) => {
+    this.options().forEach((opt) => {
       maxOptionLength = Math.max(opt.length, maxOptionLength);
     });
     return (
@@ -168,6 +105,79 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
       SelectWithFilterComponent.SCROLLBAR_WIDTH +
       'px'
     );
+  });
+
+  outerFormFieldStyle = computed(() => {
+    return {
+      flex: this.flex(),
+      width: this.outerFilterWidth(),
+    };
+  });
+
+  innerFormFieldStyle = computed(() => {
+    return {
+      flex: 'none',
+      paddingTop: '2px',
+      paddingLeft: '10px',
+      paddingRight: '20px',
+      paddingBottom: '10px',
+      width: this.innerFilterWidth() + 'px',
+    };
+  });
+
+  nonHiddenOptionToIndex: number[] = [];
+
+  private lastClickedIndex: number | undefined;
+
+  private static readonly CHECKBOX_WIDTH = 34;
+  private static readonly OPTION_PADDING_WIDTH = 32;
+  private static readonly SCROLLBAR_WIDTH = 8;
+  private static readonly CHAR_WIDTH = 8.5;
+
+  constructor(
+    @Inject(ChangeDetectorRef)
+    private readonly changeDetectorRef: ChangeDetectorRef,
+  ) {
+    super();
+
+    effect(() => {
+      this.updateNonHiddenOptionToIndex(this.options());
+    });
+  }
+
+  onSelectChange(event: MatSelectChange) {
+    this.selectChange.emit(event);
+  }
+
+  onSelectOpened(select: MatSelect, filter: HTMLInputElement) {
+    this.handleSelectOpened(select);
+    this.onFilterStringChange();
+    filter.focus();
+  }
+
+  onSelectClosed() {
+    this.filterString.set('');
+    this.changeDetectorRef.detectChanges();
+  }
+
+  onOptClick(e: MouseEvent, i: number, select: MatSelect, option: MatOption) {
+    const selectValueChanged = this.handleOptionClick({
+      event: e,
+      i,
+      select,
+      option,
+      lastClickedIndex: this.lastClickedIndex,
+      options: this.options(),
+      filterString: this.filterString(),
+    });
+    if (selectValueChanged) {
+      this.selectChange.emit(new MatSelectChange(select, select.value));
+    }
+    this.lastClickedIndex = i;
+  }
+
+  selectedOptions(select: MatSelect): string[] {
+    return this.options().filter((o) => select.value.includes(o));
   }
 
   onSelectedOptionClick(option: string, select: MatSelect) {
@@ -176,17 +186,18 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
   }
 
   onFilterStringChange() {
-    this.updateNonHiddenOptionToIndex();
+    this.updateNonHiddenOptionToIndex(this.options());
   }
 
   onAllButtonClick(select: MatSelect) {
     this.onToggleAll(select);
   }
 
-  private updateNonHiddenOptionToIndex() {
+  private updateNonHiddenOptionToIndex(options: string[]) {
     const nonHiddenOptionToIndex: number[] = [];
-    this.options.forEach((value, i) => {
-      if (!this.hideOption(value, this.filterString)) {
+    const filterString = this.filterString();
+    options.forEach((value, i) => {
+      if (!this.hideOption(value, filterString)) {
         nonHiddenOptionToIndex.push(i);
       }
     });
@@ -194,7 +205,7 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
   }
 
   protected override onToggleAll(select: MatSelect) {
-    this.handleToggleAll(select, this.options, this.filterString);
+    this.handleToggleAll(select, this.options(), this.filterString());
     this.selectChange.emit(new MatSelectChange(select, select.value));
   }
 }

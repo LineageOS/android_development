@@ -16,7 +16,7 @@
 
 import {OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -62,7 +62,6 @@ describe('TraceViewComponent', () => {
   const traceProtolog = makeEmptyTrace<HierarchyTreeNode>(TraceType.PROTO_LOG);
 
   let component: TraceViewComponent;
-  let fixture: ComponentFixture<TraceViewComponent>;
   let dom: DOMTestHelper<TraceViewComponent>;
   let viewers: Viewer[];
   let store: InMemoryStorage;
@@ -88,9 +87,7 @@ describe('TraceViewComponent', () => {
       ],
       schemas: [],
     }).compileComponents();
-    fixture = TestBed.createComponent(TraceViewComponent);
-    component = fixture.componentInstance;
-    dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    resetDom();
     store = new InMemoryStorage();
 
     viewers = [
@@ -106,9 +103,9 @@ describe('TraceViewComponent', () => {
       ParsingErrorType.DATA_INCORRECT,
     );
 
-    fixture.componentRef.setInput('viewers', viewers);
-    fixture.componentRef.setInput('store', store);
-    fixture.componentRef.setInput(
+    dom.setComponentInput('viewers', viewers);
+    dom.setComponentInput('store', store);
+    dom.setComponentInput(
       'traceTypesWithParsingErrors',
       traceTypesWithParsingErrors,
     );
@@ -133,7 +130,8 @@ describe('TraceViewComponent', () => {
 
   it('throws error if more than one overlay present', () => {
     expect(() => {
-      fixture.componentRef.setInput('viewers', [
+      resetDom();
+      dom.setComponentInput('viewers', [
         new ViewerStub('Title0', 'Content0', traceSf, ViewType.TRACE_TAB),
         new ViewerStub('Title1', 'Content1', traceWm, ViewType.OVERLAY),
         new ViewerStub('Title2', 'Content2', traceSr, ViewType.OVERLAY),
@@ -202,21 +200,6 @@ describe('TraceViewComponent', () => {
     expect(visibleTabContents[0].innerHTML).toBe('Content0');
   });
 
-  it('emits TabbedViewSwitched event on viewer changes', () => {
-    const emitAppEvent = jasmine.createSpy();
-    component.setEmitEvent(emitAppEvent);
-
-    expect(emitAppEvent).not.toHaveBeenCalled();
-
-    fixture.componentRef.setInput('viewers', [
-      new ViewerStub('Title1', 'Content1', traceWm),
-    ]);
-    dom.detectChanges();
-
-    expect(emitAppEvent).toHaveBeenCalledTimes(1);
-    expect(emitAppEvent).toHaveBeenCalledWith(jasmine.any(TabbedViewSwitched));
-  });
-
   it('disables filter presets button for viewers without presets', () => {
     const filterPresets = dom.get('.filter-presets');
     filterPresets.checkText('Filter Presets');
@@ -279,12 +262,12 @@ describe('TraceViewComponent', () => {
 
     // Simulate switching view or component recreation using same store
     // Use a new component instance with same store
-    fixture.destroy();
-    fixture = TestBed.createComponent(TraceViewComponent);
+    dom.destroy();
+    const fixture = TestBed.createComponent(TraceViewComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    fixture.componentRef.setInput('viewers', viewers);
-    fixture.componentRef.setInput('store', store); // Same store
+    dom.setComponentInput('viewers', viewers);
+    dom.setComponentInput('store', store); // Same store
     dom.detectChanges();
 
     // Switch to same view logic if needed, but defaults to first tab (SF)
@@ -335,10 +318,12 @@ describe('TraceViewComponent', () => {
   });
 
   it('does not show global tab first', () => {
-    fixture.componentRef.setInput('viewers', [
+    resetDom();
+    dom.setComponentInput('viewers', [
       new ViewerStub('Title0', 'Content0', undefined, ViewType.GLOBAL_SEARCH),
       new ViewerStub('Title1', 'Content1', traceWm, ViewType.TRACE_TAB),
     ]);
+    dom.setComponentInput('store', store);
     dom.detectChanges();
     const visibleTabContents = getVisibleTabContents();
     expect(visibleTabContents.length).toBe(1);
@@ -394,5 +379,11 @@ describe('TraceViewComponent', () => {
 
   function openFilterPresets() {
     dom.findAndClick('.filter-presets');
+  }
+
+  function resetDom() {
+    const fixture = TestBed.createComponent(TraceViewComponent);
+    component = fixture.componentInstance;
+    dom = new DOMTestHelper(fixture, fixture.nativeElement);
   }
 });

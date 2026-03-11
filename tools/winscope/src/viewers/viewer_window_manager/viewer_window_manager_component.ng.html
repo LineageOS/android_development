@@ -66,7 +66,7 @@ limitations under the License.
       [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
       [class.disabled-component]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
       [userOptions]="inputData?.propertiesUserOptions ?? {}"
-      [nodeRows]="inputData?.propertyNodes"
+      [nodeRows]="inputData?.propertyNodes ?? []"
       [traceType]="TraceType.WINDOW_MANAGER"
       [textFilter]="inputData?.propertiesFilter"
       [highlightedProperty]="inputData?.highlightedProperty ?? ''"

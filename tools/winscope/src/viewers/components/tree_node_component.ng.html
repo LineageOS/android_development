@@ -71,11 +71,11 @@ limitations under the License.
 @let currNode = node();
 
 <div class="description">
-  @if (currNode && isHierarchyTreeNode()) {
+  @if (isHierarchyTreeNode()) {
     <hierarchy-tree-node-data-view
       [node]="toHierarchyTreeNode(currNode)"
     ></hierarchy-tree-node-data-view>
-  } @else if (currNode && isPropertyTreeNode()) {
+  } @else if (isPropertyTreeNode()) {
     <property-tree-node-data-view
       [node]="toPropertyTreeNode(currNode)"
     ></property-tree-node-data-view>
@@ -99,7 +99,7 @@ limitations under the License.
     <button
       mat-icon-button
       class="icon-button copy-btn no-touch-target-button"
-      [cdkCopyToClipboard]="currNode?.getCopyText() ?? ''"
+      [cdkCopyToClipboard]="currNode.getCopyText() ?? ''"
       (click)="$event.stopPropagation()"
     >
       <mat-icon class="material-symbols-outlined">content_copy</mat-icon>

@@ -18,7 +18,7 @@ limitations under the License.
   class="transition-timeline"
   matTooltip="Some or all transitions will not be rendered in timeline due to unknown dispatch and finish or abort time"
   [matTooltipDisabled]="shouldNotRenderEntries.length === 0"
-  [style.background-color]="getBackgroundColor()"
+  [style.background-color]="backgroundColor()"
   (click)="onTimelineClick($event)"
   #wrapper
 >

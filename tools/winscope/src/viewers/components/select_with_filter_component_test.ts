@@ -16,7 +16,6 @@
 
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {Component, ViewChild} from '@angular/core';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatOptionModule, MatPseudoCheckboxModule} from '@angular/material/core';
@@ -32,8 +31,8 @@ import {SelectWithFilterComponent} from './select_with_filter_component';
 
 describe('SelectWithFilterComponent', () => {
   const filterInputField = '.select-filter';
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: SelectWithFilterComponent;
+  let dom: DOMTestHelper<SelectWithFilterComponent>;
   let selectChangeSpy: jasmine.Spy;
 
   beforeEach(async () => {
@@ -52,17 +51,15 @@ describe('SelectWithFilterComponent', () => {
         MatTooltipModule,
         ScrollingModule,
         SelectWithFilterComponent,
-        TestHostComponent,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(SelectWithFilterComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('label', 'TEST FILTER');
+    dom.setComponentInput('options', ['0', '1', '2']);
     dom.detectChanges();
-    selectChangeSpy = spyOn(
-      assertDefined(component.selectWithFilterComponent).selectChange,
-      'emit',
-    );
+    selectChangeSpy = spyOn(component.selectChange, 'emit');
   });
 
   afterAll(() => {
@@ -73,8 +70,8 @@ describe('SelectWithFilterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('applies filter correctly', () => {
-    dom.openMatSelect();
+  it('applies filter correctly', async () => {
+    await dom.openMatSelect();
 
     checkOptions(getOptions(), [0, 1, 2]);
 
@@ -95,7 +92,7 @@ describe('SelectWithFilterComponent', () => {
     // select '0'
     options[0].click();
     await dom.whenStable();
-    checkSelectValue(['0']);
+    await checkSelectValue(['0']);
 
     // filter options to list just '2'
     const panel = dom.getMatSelectPanel();
@@ -107,48 +104,48 @@ describe('SelectWithFilterComponent', () => {
     // select '2'
     options[0].click();
     await dom.whenStable();
-    checkSelectValue(['2', '0'], ['0', '2']);
+    await checkSelectValue(['2', '0'], ['0', '2']);
 
     // remove filter on options
     input.dispatchInput('');
     await dom.whenStable();
     options = getOptions();
     checkOptions(options, [0, 1, 2]);
-    checkSelectValue(['2', '0'], ['0', '2']);
+    await checkSelectValue(['2', '0'], ['0', '2']);
 
     // select '1'
     options[1].click();
     await dom.whenStable();
-    checkSelectValue(['0', '1', '2']);
+    await checkSelectValue(['0', '1', '2']);
   });
 
-  it('applies selection correctly', () => {
-    dom.openMatSelect();
+  it('applies selection correctly', async () => {
+    await dom.openMatSelect();
     const options = getOptions();
 
     options[0].click();
-    checkSelectValue(['0']);
+    await checkSelectValue(['0']);
 
     options[0].click();
-    checkSelectValue([]);
+    await checkSelectValue([]);
   });
 
-  it('applies deselection from pinned selected options', () => {
-    dom.openMatSelect();
+  it('applies deselection from pinned selected options', async () => {
+    await dom.openMatSelect();
 
     const options = getOptions();
     options[0].click();
-    checkSelectValue(['0']);
+    await checkSelectValue(['0']);
 
     const pinnedOptions = getPinnedOptions();
     expect(pinnedOptions.length).toBe(1);
     pinnedOptions[0].click();
-    checkSelectValue([]);
+    await checkSelectValue([]);
     expect(getPinnedOptions().length).toBe(0);
   });
 
   it('resets filter on close', async () => {
-    dom.openMatSelect();
+    await dom.openMatSelect();
 
     checkOptions(getOptions(), [0, 1, 2]);
 
@@ -159,16 +156,16 @@ describe('SelectWithFilterComponent', () => {
     await dom.whenStable();
     await dom.whenRenderingDone();
 
-    dom.openMatSelect();
+    await dom.openMatSelect();
     checkOptions(getOptions(), [0, 1, 2]);
   });
 
   it('calls default select keydown handler', async () => {
-    dom.openMatSelect();
+    await dom.openMatSelect();
     await dom.detectChangesAndWaitStable();
     await dom.whenRenderingDone();
     dom.getMatSelectPanel().keydownSpace();
-    checkSelectValue(['0']);
+    await checkSelectValue(['0']);
   });
 
   it('toggles all with button', async () => {
@@ -187,13 +184,11 @@ describe('SelectWithFilterComponent', () => {
     await dom.whenRenderingDone();
 
     const button = dom.getMatSelectPanel().get('.user-option');
-    await button.checkTooltip(
-      assertDefined(component.selectWithFilterComponent).allButtonTooltip,
-    );
+    await button.checkTooltip(component.allButtonTooltip);
   });
 
-  it('does not emit second change after shift + click for adjacent options', () => {
-    dom.openMatSelect();
+  it('does not emit second change after shift + click for adjacent options', async () => {
+    await dom.openMatSelect();
     const options = getOptions();
 
     options[0].shiftAndClick();
@@ -219,41 +214,43 @@ describe('SelectWithFilterComponent', () => {
 
     options[2].shiftAndClick();
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
-    checkSelectValue(['0', '2', '1'], ['0', '1', '2']);
+    await checkSelectValue(['0', '2', '1'], ['0', '1', '2']);
     selectChangeSpy.calls.reset();
 
     options[0].shiftAndClick();
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
-    checkSelectValue([]);
+    await checkSelectValue([]);
   });
 
   it('sets in-between options to value of clicked option, regardless of current state', async () => {
-    component.allOptions.push('3');
+    dom.setComponentInput('options', ['0', '1', '2', '3']);
+    dom.detectChanges();
     await dom.openMatSelect();
     await dom.whenRenderingDone();
     const options = getOptions();
 
     options[2].click();
     options[3].click();
-    checkSelectValue(['2', '3']);
+    await checkSelectValue(['2', '3']);
     selectChangeSpy.calls.reset();
 
     options[0].shiftAndClick();
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
-    checkSelectValue(['0', '2', '3', '1'], ['0', '1', '2', '3']);
+    await checkSelectValue(['0', '2', '3', '1'], ['0', '1', '2', '3']);
 
     options[2].click();
     options[3].click();
-    checkSelectValue(['0', '1']);
+    await checkSelectValue(['0', '1']);
     selectChangeSpy.calls.reset();
 
     options[0].shiftAndClick();
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
-    checkSelectValue([]);
+    await checkSelectValue([]);
   });
 
   it('only toggles non-hidden options between last and current clicks', async () => {
-    component.allOptions.push('10');
+    dom.setComponentInput('options', ['0', '1', '2', '10']);
+    dom.detectChanges();
     await dom.openMatSelect();
     dom.getMatSelectPanel().findAndDispatchInput(filterInputField, '1');
 
@@ -262,16 +259,16 @@ describe('SelectWithFilterComponent', () => {
     selectChangeSpy.calls.reset();
 
     options[1].shiftAndClick();
-    checkSelectValue(['1', '10']);
+    await checkSelectValue(['1', '10']);
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
   });
 
-  function getOptions(): Array<DOMTestHelper<TestHostComponent>> {
+  function getOptions(): Array<DOMTestHelper<SelectWithFilterComponent>> {
     return Array.from(dom.getMatSelectPanel().findAll('.option'));
   }
 
   function checkOptions(
-    options: Array<DOMTestHelper<TestHostComponent>>,
+    options: Array<DOMTestHelper<SelectWithFilterComponent>>,
     expectedIndexes: number[],
   ) {
     expect(options.length).toBe(3);
@@ -286,19 +283,19 @@ describe('SelectWithFilterComponent', () => {
     });
   }
 
-  function getPinnedOptions(): Array<DOMTestHelper<TestHostComponent>> {
+  function getPinnedOptions(): Array<DOMTestHelper<SelectWithFilterComponent>> {
     return dom
       .getMatSelectPanel()
       .findAll('.selected-options .selected-option');
   }
 
-  function checkSelectValue(expValues: string[], expOpts = expValues) {
+  async function checkSelectValue(expValues: string[], expOpts = expValues) {
     expect(selectChangeSpy).toHaveBeenCalled();
     expect(
       assertDefined(selectChangeSpy.calls.mostRecent().args[0]).value,
     ).toEqual(expValues);
     if (!dom.isMatSelectOpen()) {
-      dom.openMatSelect();
+      await dom.openMatSelect();
     }
     const pinnedOptions = getPinnedOptions();
     expect(pinnedOptions.length).toEqual(expOpts.length);
@@ -312,10 +309,10 @@ describe('SelectWithFilterComponent', () => {
     await dom.whenRenderingDone();
 
     toggle();
-    checkSelectValue(['0', '1', '2']);
+    await checkSelectValue(['0', '1', '2']);
 
     toggle();
-    checkSelectValue([]);
+    await checkSelectValue([]);
 
     toggle();
     // filters out '0' and '1' while all selected
@@ -324,33 +321,16 @@ describe('SelectWithFilterComponent', () => {
       .findAndDispatchInput(filterInputField, '2');
 
     toggle();
-    checkSelectValue(['0', '1']);
+    await checkSelectValue(['0', '1']);
 
     toggle();
-    checkSelectValue(['0', '1', '2']);
+    await checkSelectValue(['0', '1', '2']);
 
     toggle();
     // removes filter while '0' and '1' selected
     inputEl.dispatchInput('');
 
     toggle();
-    checkSelectValue(['0', '1', '2']);
-  }
-
-  @Component({
-    imports: [SelectWithFilterComponent],
-    selector: 'host-component',
-    template: `
-      <select-with-filter
-        [label]="label"
-        [options]="allOptions"></select-with-filter>
-    `,
-  })
-  class TestHostComponent {
-    label = 'TEST FILTER';
-    allOptions = ['0', '1', '2'];
-
-    @ViewChild(SelectWithFilterComponent)
-    selectWithFilterComponent: SelectWithFilterComponent | undefined;
+    await checkSelectValue(['0', '1', '2']);
   }
 });

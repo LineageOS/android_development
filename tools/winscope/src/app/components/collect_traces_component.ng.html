@@ -141,6 +141,8 @@ limitations under the License.
                 </div>
               </div>
 
+              @let currStorage = storage();
+
               <mat-tab-group
                 [mat-stretch-tabs]="false"
                 [selectedIndex]="targetTabIndex"
@@ -153,7 +155,7 @@ limitations under the License.
                         <trace-config
                           title="Trace targets"
                           [traceConfig]="traceConfig"
-                          [storage]="storage"
+                          [storage]="currStorage"
                           [traceConfigStoreKey]="storeKeyPrefixTraceConfig"
                           (traceConfigChange)="onTraceConfigChange($event)"
                         ></trace-config>
@@ -201,7 +203,7 @@ limitations under the License.
                         <trace-config
                           title="Dump targets"
                           [traceConfig]="dumpConfig"
-                          [storage]="storage"
+                          [storage]="currStorage"
                           [traceConfigStoreKey]="storeKeyPrefixDumpConfig"
                           (traceConfigChange)="onDumpConfigChange($event)"
                         ></trace-config>

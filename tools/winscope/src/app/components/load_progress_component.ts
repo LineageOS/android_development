@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 
@@ -30,9 +30,10 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
   styleUrls: ['load_progress_component.css'],
 })
 export class LoadProgressComponent {
-  @Input() progressPercentage?: number;
-  @Input() message = 'Loading...';
-  @Input() icon = 'sync';
+  progressPercentage = input<number>();
+  message = input<string>('Loading...');
+  icon = input<string>('sync');
+
   private static readonly MIN_UI_UPDATE_PERIOD_MS = 100;
 
   static canUpdateComponent(lastUpdateTimeMs: number | undefined): boolean {

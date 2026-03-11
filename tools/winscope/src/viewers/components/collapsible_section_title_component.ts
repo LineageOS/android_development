@@ -27,7 +27,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
   styleUrls: ['collapsible_section_title_component.css'],
 })
 export class CollapsibleSectionTitleComponent {
-  title = input<string>();
+  title = input.required<string>();
 
   collapseButtonClicked = output();
 
