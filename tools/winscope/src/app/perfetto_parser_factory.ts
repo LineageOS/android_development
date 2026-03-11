@@ -35,7 +35,7 @@ import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager
 import {UserNotifier} from '@services/user_notifier';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FileReaderAndParser} from './file_reader_and_parser';

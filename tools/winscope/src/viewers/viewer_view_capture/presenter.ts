@@ -24,7 +24,7 @@ import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';

@@ -25,7 +25,7 @@ import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 type OriginalTraceIndex = number;

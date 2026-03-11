@@ -19,7 +19,7 @@ import {makeRealTimestamp} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
 import {setNumRowsSpyQueryResult} from '@trace_processor/test_utils';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 
 import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from './abstract_log_viewer_presenter';
 import {LogSelectFilter, LogTextFilter} from './log_filters';

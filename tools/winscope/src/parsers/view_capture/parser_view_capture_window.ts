@@ -23,7 +23,7 @@ import {EntriesRange} from '@trace_api/index_types';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults, RowIterator,} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 

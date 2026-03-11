@@ -17,7 +17,7 @@
 import {Timestamp} from '@common/time/time';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 /**
  * A test implementation of the FileReader interface.

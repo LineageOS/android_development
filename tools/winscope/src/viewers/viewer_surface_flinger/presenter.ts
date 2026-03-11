@@ -26,7 +26,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {EMPTY_OBJ_STRING, FixedStringFormatter} from '@trace/formatters';
 import {LayerFlag} from '@trace/surface_flinger/layer_flag';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';

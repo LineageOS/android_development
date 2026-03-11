@@ -30,7 +30,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T>, FileReader {

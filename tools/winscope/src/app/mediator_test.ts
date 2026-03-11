@@ -44,7 +44,7 @@ import {TraceEntry} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace/trace_events';
+import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {ViewType} from '@viewers/viewer';

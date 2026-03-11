@@ -25,7 +25,7 @@ import {ParserScreenRecordingLegacy} from '@parsers/screen_recording/parser_scre
 import {ParserScreenshot} from '@parsers/screenshot/parser_screenshot';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceMetadata} from '@trace_api/trace_metadata';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {FileReaderAndParser} from './file_reader_and_parser';
 

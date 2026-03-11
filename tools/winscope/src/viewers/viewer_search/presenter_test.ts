@@ -24,7 +24,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
-import {InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace/trace_events';
+import {InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 

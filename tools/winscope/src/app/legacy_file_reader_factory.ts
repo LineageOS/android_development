@@ -31,7 +31,7 @@ import {FileReaderWindowManagerDump} from '@legacy_file_readers/window_manager/f
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 export class LegacyFileReaderFactory {
   static readonly READERS = [

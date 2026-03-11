@@ -22,7 +22,7 @@ import {getLogger, Logger} from '@compat/logging';
 import {PerfettoTracePacket} from '@compat/protobuf';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {LegacyFileReader} from './legacy_file_reader';
 

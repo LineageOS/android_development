@@ -15,7 +15,7 @@
  */
 
 import {PerfettoTracePacket} from '@compat/protobuf';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {TestFileReaderBuilder} from './test_file_reader_builder';
 import {TestLegacyFileReader} from './test_legacy_file_reader';

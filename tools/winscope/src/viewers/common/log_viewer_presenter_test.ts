@@ -29,7 +29,7 @@ import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
-import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {TextFilter} from '@viewers/common/text_filter';

@@ -25,7 +25,7 @@ import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_bu
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {LoadedFiles} from './loaded_files';
 import {makeWarningTraceHasElapsedTimestamps, makeWarningTraceHasOldData, makeWarningTraceOverridden,} from './warnings';

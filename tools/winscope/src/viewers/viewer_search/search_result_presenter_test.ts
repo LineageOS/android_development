@@ -23,7 +23,7 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
 import {LogHeader} from '@viewers/common/ui_data_log';

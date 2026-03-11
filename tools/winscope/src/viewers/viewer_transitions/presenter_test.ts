@@ -25,7 +25,7 @@ import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';

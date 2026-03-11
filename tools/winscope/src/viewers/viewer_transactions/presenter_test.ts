@@ -23,7 +23,7 @@ import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';

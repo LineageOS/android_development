@@ -32,7 +32,7 @@ import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {TraceBuilder} from './trace_api/trace_builder';

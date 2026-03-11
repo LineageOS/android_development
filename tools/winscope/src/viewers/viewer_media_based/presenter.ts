@@ -23,7 +23,7 @@ import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace/trace_events';
+import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 

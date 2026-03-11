@@ -21,7 +21,7 @@ import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {ClockSnapshot, LegacyToPerfettoConverter,} from './legacy_to_perfetto_converter';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';

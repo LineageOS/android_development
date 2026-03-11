@@ -31,7 +31,7 @@ import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {FileReader} from '@trace_api/file_reader';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {getReasonForNoTraceVisualization, isTraceTypeWithViewer, TraceType,} from '@trace_api/trace_type';
-import {ShowTraceUploadWarning} from '@trace/trace_events';
+import {ShowTraceUploadWarning} from '@trace_api/trace_events';
 
 import {LoadProgressComponent} from './load_progress_component';
 

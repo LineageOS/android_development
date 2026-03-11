@@ -34,7 +34,7 @@ import {UserNotifier} from '@services/user_notifier';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FileReaderAndParser} from './file_reader_and_parser';

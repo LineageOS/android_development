@@ -21,7 +21,7 @@ import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
-import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace/trace_events';
+import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 

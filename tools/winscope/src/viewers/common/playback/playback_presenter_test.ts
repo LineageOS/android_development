@@ -30,7 +30,7 @@ import {CustomTraceEntryLazy, Trace, TraceEntryEager, TraceEntryLazy,} from '@tr
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRect} from '@tree_node/trace_rect';
 

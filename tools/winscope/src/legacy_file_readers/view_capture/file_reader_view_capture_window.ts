@@ -22,7 +22,7 @@ import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {FrameDataUdc, PerfettoClockSnapshot, PerfettoInternedData, PerfettoInternedString, PerfettoTracePacket, PerfettoViewCapture, ViewNodeUdc, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 /**
  * A file reader for a single window in a legacy ViewCapture trace.

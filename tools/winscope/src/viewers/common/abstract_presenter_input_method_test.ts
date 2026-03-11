@@ -25,7 +25,7 @@ import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {ImeTraceType, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {ImeUiData} from '@viewers/common/ime_ui_data';

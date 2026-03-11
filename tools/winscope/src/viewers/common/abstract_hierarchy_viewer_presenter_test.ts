@@ -24,7 +24,7 @@ import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {makeNodeFilter} from '@tree_node/helpers';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';

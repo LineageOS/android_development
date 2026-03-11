@@ -36,7 +36,7 @@ import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {EnumFormatter, TIMESTAMP_NODE_FORMATTER, UPPER_CASE_FORMATTER,} from '@trace/formatters';
 import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';

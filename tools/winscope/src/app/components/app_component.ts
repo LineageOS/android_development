@@ -61,7 +61,7 @@ import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceType} from '@trace_api/trace_type';
 import {AdbFiles} from '@trace_collection/adb_files';
-import {ActiveTraceChanged, TracePositionUpdate, TraceSearchRequest,} from '@trace/trace_events';
+import {ActiveTraceChanged, TracePositionUpdate, TraceSearchRequest,} from '@trace_api/trace_events';
 import {ViewerInputMethodComponent} from '@viewers/components/viewer_input_method_component';
 import {Viewer} from '@viewers/viewer';
 import {ViewerInputComponent} from '@viewers/viewer_input/viewer_input_component';

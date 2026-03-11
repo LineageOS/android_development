@@ -30,7 +30,7 @@ import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {ScreenRecordingChange, TracePositionUpdate} from '@trace/trace_events';
+import {ScreenRecordingChange, TracePositionUpdate} from '@trace_api/trace_events';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';

@@ -16,7 +16,7 @@
 
 import {Timestamp} from '@common/time/time';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {TestFileReader} from './test_file_reader';
 

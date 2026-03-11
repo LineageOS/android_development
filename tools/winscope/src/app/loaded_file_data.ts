@@ -39,7 +39,7 @@ import {isTraceTypeWithViewer, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FileLoader, FileLoaderResult} from './file_loader';

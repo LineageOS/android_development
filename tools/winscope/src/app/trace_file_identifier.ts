@@ -30,7 +30,7 @@ import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceMetadata} from '@trace_api/trace_metadata';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {makeWarningMissingPersistentTrace, makeWarningNoValidFiles, makeWarningTraceOverridden, makeWarningUnsupportedFileFormat,} from './warnings';
 

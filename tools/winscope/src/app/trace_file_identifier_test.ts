@@ -25,7 +25,7 @@ import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_bu
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceMetadata} from '@trace_api/trace_metadata';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {ProcessedFiles} from './processed_files';
 import {BuildType, TraceFileIdentifier} from './trace_file_identifier';

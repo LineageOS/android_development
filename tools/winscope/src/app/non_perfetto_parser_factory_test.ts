@@ -21,7 +21,7 @@ import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
 

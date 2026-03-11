@@ -20,7 +20,7 @@ import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {ExportedDataUdc, WindowDataUdc} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {FileReaderViewCaptureWindow} from './file_reader_view_capture_window';
 

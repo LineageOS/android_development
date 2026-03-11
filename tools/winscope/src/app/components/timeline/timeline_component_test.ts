@@ -50,7 +50,7 @@ import {QueryResult} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
 import {Thumbnail} from '@trace/media_based/thumbnail';
-import {ActiveTraceChanged, InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchInitialized, TraceSearchRequest,} from '@trace/trace_events';
+import {ActiveTraceChanged, InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 

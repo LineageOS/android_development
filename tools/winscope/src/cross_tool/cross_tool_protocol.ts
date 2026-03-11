@@ -23,7 +23,7 @@ import {RemoteToolFilesReceived, RemoteToolInitialized, RemoteToolTimestampRecei
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 
 import {Message, MessageBugReport, MessageFiles, MessagePong, MessageTestFailureInfo, MessageTimestamp, MessageType, TimestampType,} from './messages';
 import {isAllowed, isOriginAllowedTimestampSync, isUnauthorizedOriginExpected,} from './origin_allow_list';

@@ -27,7 +27,7 @@ import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
-import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {TextFilter} from '@viewers/common/text_filter';

@@ -30,7 +30,7 @@ import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {makeIdMatchFilter, makeNodeFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';

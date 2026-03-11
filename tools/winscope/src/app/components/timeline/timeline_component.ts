@@ -51,8 +51,8 @@ import {compareByDisplayOrder, isTraceTypeWithViewer, supportsPlayback, TraceTyp
 import {Traces} from '@trace_api/traces';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {Thumbnail} from '@trace/media_based/thumbnail';
-import {PlaybackPrefetchedEntries} from '@trace/playback_prefetched_entries';
-import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchInitialized, TraceSearchRequest,} from '@trace/trace_events';
+import {PlaybackPrefetchedEntries} from '@trace_api/playback_prefetched_entries';
+import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';

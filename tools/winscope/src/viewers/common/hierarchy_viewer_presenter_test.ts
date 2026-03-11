@@ -28,7 +28,7 @@ import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@test/unit/ui_tree_n
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';

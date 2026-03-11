@@ -24,7 +24,7 @@ import {ProtologJson32, ProtologJson64} from '@compat/protolog';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 

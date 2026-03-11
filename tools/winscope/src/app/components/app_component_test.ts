@@ -64,7 +64,7 @@ import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracePositionUpdate, TraceSearchRequest} from '@trace/trace_events';
+import {TracePositionUpdate, TraceSearchRequest} from '@trace_api/trace_events';
 import {View, Viewer, ViewType} from '@viewers/viewer';
 
 import {AppComponent} from './app_component';

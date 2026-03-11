@@ -21,7 +21,7 @@ import {PerfettoClockSnapshot, PerfettoTrace, PerfettoTracePacket,} from '@compa
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 
 import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from './file_reader_helpers';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
