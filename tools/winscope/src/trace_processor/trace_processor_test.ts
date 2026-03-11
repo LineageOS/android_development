@@ -15,8 +15,8 @@
  */
 
 import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {initWasm} from '@trace_processor/perfetto/wasm_engine_proxy';
 
-import {initWasm} from './perfetto/wasm_engine_proxy';
 import {TraceProcessorProxy} from './trace_processor';
 
 describe('TraceProcessorProxy', () => {

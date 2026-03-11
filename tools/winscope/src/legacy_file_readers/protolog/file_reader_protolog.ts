@@ -154,7 +154,7 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
 
       const strParamIids: number[] = [];
 
-      entry.getStrParamsList().forEach((param) => {
+      entry.getStrParamsList().forEach((param: string) => {
         const iid = stringToIid.get(param);
         if (iid !== undefined) {
           strParamIids.push(iid);
@@ -182,7 +182,7 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
       protoLogMessage.setSint64ParamsList(entry.getSint64ParamsList());
       protoLogMessage.setDoubleParamsList(entry.getDoubleParamsList());
       protoLogMessage.setBooleanParamsList(
-        entry.getBooleanParamsList().map((param) => (param ? 1 : 0)),
+        entry.getBooleanParamsList().map((param: boolean) => (param ? 1 : 0)),
       );
 
       packet.setProtologMessage(protoLogMessage);

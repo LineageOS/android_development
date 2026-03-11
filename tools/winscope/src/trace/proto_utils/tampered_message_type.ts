@@ -133,7 +133,9 @@ class Registry {
     for (const field of msg.getFieldList()) {
       let fieldName = field.getName()!;
       if (fieldName.includes('_')) {
-        fieldName = fieldName.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+        fieldName = fieldName.replace(/_([a-z])/g, (g: string) =>
+          g[1].toUpperCase(),
+        );
       }
       const fieldId = field.getNumber()!;
       let fieldType = 'string'; // Default to string if unknown/primitive mapping needed?
@@ -386,7 +388,9 @@ class Registry {
 
         let camelName = name;
         if (camelName.includes('_')) {
-          camelName = camelName.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+          camelName = camelName.replace(/_([a-z])/g, (g: string) =>
+            g[1].toUpperCase(),
+          );
         }
 
         const fullCamelName = parentName

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
+import {TamperedProtoField} from './tampered_message_type';
 
 /**
  * Determines the default value for a proto message field based on available

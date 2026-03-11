@@ -45,3 +45,15 @@ export function setAnchorHref(
     anchor.href = url;
   }
 }
+
+/**
+ * Creates a new {@link Worker} from the given {@link Url}.
+ *
+ * Used for compatibility only.
+ */
+export function createWorker(
+  url: string | URL,
+  options?: WorkerOptions,
+): Worker {
+  return new Worker(url, options);
+}

@@ -207,8 +207,7 @@ export abstract class EngineBase {
         break;
       default:
         this.logger.warn(
-          'Unexpected TraceProcessor response received: ',
-          response,
+          `Unexpected TraceProcessor response received: ${response}`,
         );
         break;
     } // switch(rpc.response);

@@ -47,7 +47,7 @@
 // the next batch (if any) within the QueryResultImpl.
 // This object is part of the API exposed to tracks / controllers.
 
-import { getLogger, Logger } from "compat/logging";
+import {getLogger, Logger} from "@compat/logging";
 
 import {defer, Deferred} from './deferred';
 import {assertExists, assertFalse, assertTrue} from './logging';
@@ -709,7 +709,7 @@ class RowIteratorImpl implements RowIteratorBase {
   // this.resultObj.batch[this.batchIdx].float64Cells.
   // These are re-set every time tryMoveToNextBatch() is called (and succeeds).
   private batchIdx = -1; // The batch index within |result.batches[]|.
-  private batchBytes = new Uint8Array();
+  private batchBytes: Uint8Array = new Uint8Array();
   private columnNames: string[] = [];
   private numColumns = 0;
   private cellTypesEnd = -1; // -1 so the 1st next() hits tryMoveToNextBatch().
@@ -841,7 +841,7 @@ class RowIteratorImpl implements RowIteratorBase {
 
     this.batchIdx = nextBatchIdx;
     const batch = assertExists(this.resultObj.batches[nextBatchIdx]);
-    this.batchBytes = batch.batchBytes as any as Uint8Array;
+    this.batchBytes = batch.batchBytes;
     this.nextCellTypeOff = batch.cellTypesOff;
     this.cellTypesEnd = batch.cellTypesOff + batch.cellTypesLen;
     this.float64Cells = batch.float64Cells;

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line no-restricted-imports
-import configJson32 from '../../configs/services.core.protolog32.json';
-// eslint-disable-next-line no-restricted-imports
-import configJson64 from '../../configs/services.core.protolog64.json';
+import configJson32 from '@configs/services.core.protolog32.json';
+import configJson64 from '@configs/services.core.protolog64.json';
 
 export {configJson32 as ProtologJson32, configJson64 as ProtologJson64};

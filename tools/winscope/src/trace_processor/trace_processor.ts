@@ -16,10 +16,10 @@
 
 import {analyticsLogEvent} from '@common/analytics';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {TraceProcessorConfig} from '@trace_processor/perfetto/engine';
+import {WasmEngineProxy} from '@trace_processor/perfetto/wasm_engine_proxy';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 
-import {TraceProcessorConfig} from './perfetto/engine';
-import {WasmEngineProxy} from './perfetto/wasm_engine_proxy';
 import {QueryResult} from './query_result';
 
 /**

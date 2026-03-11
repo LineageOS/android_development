@@ -41,3 +41,12 @@ export function trySanitizeUrl(url: string): string | undefined {
 export function objectUrlFromSafeSource(source: Blob): string {
   return URL.createObjectURL(source);
 }
+
+/**
+ * Creates a {@link TrustedResourceUrl} from a string.
+ *
+ * Used for compatibility only.
+ */
+export function trustedResourceUrl(url: string): string {
+  return url;
+}

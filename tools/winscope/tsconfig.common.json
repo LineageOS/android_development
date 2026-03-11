@@ -6,6 +6,9 @@
       "@protos/*": [
         "../deps_build/protos/*"
       ],
+      "@configs/*": [
+        "../configs/*"
+      ],
       "@abt_chrome_extension/*": [
         "abt_chrome_extension/*"
       ],
