@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component} from '@angular/core';
+import {Component, computed} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
@@ -58,9 +58,11 @@ export class ViewerInputMethodComponent extends ViewerComponent<ImeUiData> {
     },
   ]);
 
-  isImeManagerService(): boolean {
-    return this.inputData?.traceType === TraceType.INPUT_METHOD_MANAGER_SERVICE;
-  }
+  readonly isImeManagerService = computed(() => {
+    return (
+      this.inputData()?.traceType === TraceType.INPUT_METHOD_MANAGER_SERVICE
+    );
+  });
 
   areLeftViewsCollapsed() {
     return (

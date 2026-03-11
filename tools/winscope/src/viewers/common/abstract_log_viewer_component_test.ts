@@ -118,7 +118,7 @@ export abstract class AbstractLogViewerComponentTest<
           expect(logComponent.scrollToIndex()).not.toBe(20);
           expect(logComponent.currentIndex()).not.toBe(30);
 
-          const inputData = assertDefined(component.inputData);
+          const inputData = assertDefined(component.inputData());
           inputData.checkScrollViewportCount = 1;
           inputData.isFetchingData = true;
           inputData.selectedIndex = 10;
@@ -150,7 +150,7 @@ export abstract class AbstractLogViewerComponentTest<
           });
 
           it('shows message when no entry is selected', () => {
-            const data = assertDefined(component.inputData);
+            const data = assertDefined(component.inputData());
             (data as UiDataLog).propertyNodes = undefined;
             dom.detectChanges();
             dom
