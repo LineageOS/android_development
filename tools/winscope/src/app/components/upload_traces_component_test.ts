@@ -31,9 +31,9 @@ import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
-import {getReasonForNoTraceVisualization, TraceType,} from '@trace_api/trace_type';
 import {ShowTraceUploadWarning} from '@trace_api/trace_events';
 import {TraceFile} from '@trace_api/trace_file';
+import {getReasonForNoTraceVisualization, TraceType,} from '@trace_api/trace_type';
 
 import {LoadProgressComponent} from './load_progress_component';
 import {UploadTracesComponent} from './upload_traces_component';

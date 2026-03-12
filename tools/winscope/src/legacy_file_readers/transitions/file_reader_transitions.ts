@@ -21,8 +21,8 @@ import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {PerfettoClockSnapshot, PerfettoShellTransition, PerfettoTracePacket,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.

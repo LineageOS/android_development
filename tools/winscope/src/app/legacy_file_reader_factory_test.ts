@@ -16,8 +16,8 @@
 import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('LegacyFileReaderFactory', () => {
   describe('is robust to', () => {

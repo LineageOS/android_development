@@ -20,9 +20,9 @@ import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {getLogger, Logger} from '@compat/logging';
 import {PerfettoTracePacket} from '@compat/protobuf';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace_api/trace_file';
 
 import {LegacyFileReader} from './legacy_file_reader';
 

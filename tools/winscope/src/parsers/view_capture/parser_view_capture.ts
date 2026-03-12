@@ -17,8 +17,8 @@
 import {assertString, assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceFile} from '@trace_api/trace_file';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 
 import {ParserViewCaptureWindow} from './parser_view_capture_window';
 

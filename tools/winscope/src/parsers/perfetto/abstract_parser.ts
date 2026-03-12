@@ -25,12 +25,12 @@ import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType
 import {FileReader} from '@trace_api/file_reader';
 import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
+import {TraceFile} from '@trace_api/trace_file';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
-import {TraceFile} from '@trace_api/trace_file';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 export abstract class AbstractParser<T> implements Parser<T>, FileReader {

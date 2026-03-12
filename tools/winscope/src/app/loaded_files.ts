@@ -22,9 +22,9 @@ import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace_api/trace_file';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace_api/trace_file';
 
 import {makeWarningTraceHasElapsedTimestamps, makeWarningTraceHasOldData, makeWarningTraceOverridden,} from './warnings';
 
