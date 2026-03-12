@@ -16,6 +16,7 @@ use std::{
     cell::OnceCell,
     collections::BTreeSet,
     fs::{copy, read, read_dir, read_to_string, remove_dir_all, remove_file, rename, write},
+    io::ErrorKind,
     os::unix::fs::symlink,
     path::{Path, PathBuf},
     process::Command,
@@ -415,8 +416,7 @@ impl ManagedCrate<CopiedAndPatched> {
 
         let android_crate_dir = self.android_crate.path();
         remove_dir_all(android_crate_dir)?;
-        rename(self.temporary_build_directory(), android_crate_dir)?;
-
+        move_dir(self.temporary_build_directory(), android_crate_dir)?;
         Ok(())
     }
     fn update_license_files(&self) -> Result<()> {
@@ -566,4 +566,21 @@ impl ManagedCrate<CopiedAndPatched> {
         }
         Ok(())
     }
+}
+
+/// Moves a directory from `from` to `to`.
+///
+/// Unlike `std::fs::rename`, this works across devices.
+///
+/// If the rename crosses devices, this will copy the file from `from` to `to`
+/// and then remove the file at `from`.
+fn move_dir<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> Result<()> {
+    match rename(&from, &to) {
+        Err(e) if e.kind() == ErrorKind::CrossesDevices => {
+            copy_dir(&from, to)?;
+            remove_dir_all(from)
+        }
+        res => res,
+    }?;
+    Ok(())
 }
