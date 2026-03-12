@@ -175,8 +175,8 @@
                   selected media route.\n
                   Try connecting a secondary display and watch what happens.</string>
     <string name="presentation_with_media_router_play_on">Play on...</string>
-    <string name="presentation_with_media_router_now_playing_locally">Now playing on main display \'%s\'.</string>
-    <string name="presentation_with_media_router_now_playing_remotely">Now playing on secondary display \'%s\'.</string>
+    <string name="presentation_with_media_router_now_playing_locally">Now playing locally on display \'%s\'.</string>
+    <string name="presentation_with_media_router_now_playing_remotely">Now playing remotely on display \'%s\'.</string>
 
     <string name="activity_secure_window">App/Activity/Secure Surfaces/Secure Window</string>
     <string name="secure_window_activity_text">This activity demonstrates how to make an activity
