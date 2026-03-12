@@ -16,9 +16,6 @@
 
 package com.example.android.apis.app;
 
-import com.example.android.apis.R;
-import com.example.android.apis.graphics.CubeRenderer;
-
 import android.app.Activity;
 import android.app.MediaRouteActionProvider;
 import android.app.Presentation;
@@ -36,6 +33,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.android.apis.R;
+import com.example.android.apis.graphics.CubeRenderer;
 
 //BEGIN_INCLUDE(activity)
 /**
@@ -43,7 +44,9 @@ import android.widget.TextView;
  *
  * <p>
  * This demonstrates how to create an activity that shows some content
- * on a secondary display using a {@link Presentation}.
+ * on another display using a {@link Presentation}. Note that showing a
+ * presentation is subject to system policies (such as occlusion rules) and will fail if
+ * these policies are violated.
  * </p><p>
  * The activity uses the {@link MediaRouter} API to automatically detect when
  * a presentation display is available and to allow the user to control the
@@ -72,6 +75,7 @@ public class PresentationWithMediaRouterActivity extends Activity {
     private GLSurfaceView mSurfaceView;
     private TextView mInfoTextView;
     private boolean mPaused;
+    private Display mErrorDisplay;
 
     /**
      * Initialization of the Activity after it is first created.  Must at least
@@ -135,6 +139,7 @@ public class PresentationWithMediaRouterActivity extends Activity {
             Log.i(TAG, "Dismissing presentation because the activity is no longer visible.");
             mPresentation.dismiss();
             mPresentation = null;
+            mErrorDisplay = null;
         }
     }
 
@@ -167,6 +172,7 @@ public class PresentationWithMediaRouterActivity extends Activity {
                     + "has a presentation display.");
             mPresentation.dismiss();
             mPresentation = null;
+            mErrorDisplay = null;
         }
 
         // Show a new presentation if needed.
@@ -177,9 +183,12 @@ public class PresentationWithMediaRouterActivity extends Activity {
             try {
                 mPresentation.show();
             } catch (WindowManager.InvalidDisplayException ex) {
-                Log.w(TAG, "Couldn't show presentation!  Display was removed in "
-                        + "the meantime.", ex);
+                String message = "Couldn't show presentation! Display was removed or the "
+                        + "presentation is not allowed on " + presentationDisplay.getName() + ".";
+                Log.w(TAG, message, ex);
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 mPresentation = null;
+                mErrorDisplay = presentationDisplay;
             }
         }
 
@@ -191,9 +200,9 @@ public class PresentationWithMediaRouterActivity extends Activity {
         // Show either the content in the main activity or the content in the presentation
         // along with some descriptive text about what is happening.
         if (mPresentation != null) {
+            String displayName = mPresentation.getDisplay().getName();
             mInfoTextView.setText(getResources().getString(
-                    R.string.presentation_with_media_router_now_playing_remotely,
-                    mPresentation.getDisplay().getName()));
+                    R.string.presentation_with_media_router_now_playing_remotely, displayName));
             mSurfaceView.setVisibility(View.INVISIBLE);
             mSurfaceView.onPause();
             if (mPaused) {
@@ -202,9 +211,13 @@ public class PresentationWithMediaRouterActivity extends Activity {
                 mPresentation.getSurfaceView().onResume();
             }
         } else {
-            mInfoTextView.setText(getResources().getString(
-                    R.string.presentation_with_media_router_now_playing_locally,
-                    getWindowManager().getDefaultDisplay().getName()));
+            String displayName = getDisplay().getName();
+            String statusText = getResources().getString(
+                    R.string.presentation_with_media_router_now_playing_locally, displayName);
+            if (mErrorDisplay != null) {
+                statusText += "\n(failed to present on " + mErrorDisplay.getName() + ")";
+            }
+            mInfoTextView.setText(statusText);
             mSurfaceView.setVisibility(View.VISIBLE);
             if (mPaused) {
                 mSurfaceView.onPause();
@@ -251,7 +264,7 @@ public class PresentationWithMediaRouterActivity extends Activity {
     };
 
     /**
-     * The presentation to show on the secondary display.
+     * The presentation to show on another display.
      * <p>
      * Note that this display may have different metrics from the display on which
      * the main activity is showing so we must be careful to use the presentation's
