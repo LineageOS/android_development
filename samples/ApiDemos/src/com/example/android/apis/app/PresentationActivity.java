@@ -16,10 +16,6 @@
 
 package com.example.android.apis.app;
 
-// Need the following import to get access to the app resources, since this
-// class is in a sub-package.
-import com.example.android.apis.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Presentation;
@@ -40,17 +36,22 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+// Need the following import to get access to the app resources, since this
+// class is in a sub-package.
+import com.example.android.apis.R;
 
 //BEGIN_INCLUDE(activity)
 /**
@@ -58,7 +59,9 @@ import android.widget.TextView;
  *
  * <p>
  * This demonstrates how to create an activity that shows some content
- * on a secondary display using a {@link Presentation}.
+ * on another display using a {@link Presentation}. Note that showing a
+ * presentation is subject to system policies (such as occlusion rules) and will fail if
+ * these policies are violated.
  * </p><p>
  * The activity uses the {@link DisplayManager} API to enumerate displays.
  * When the user selects a display, the activity opens a {@link Presentation}
@@ -73,7 +76,7 @@ import android.widget.TextView;
  * checkbox to show a presentation on that display.
  * </p><p>
  * See also the {@link PresentationWithMediaRouterActivity} sample which
- * uses the media router to automatically select a secondary display
+ * uses the media router to automatically select another display
  * on which to show content based on the currently selected route.
  * </p>
  */
@@ -206,7 +209,15 @@ public class PresentationActivity extends Activity
                 + " on display #" + displayId + ".");
 
         DemoPresentation presentation = new DemoPresentation(this, display, contents);
-        presentation.show();
+        try {
+            presentation.show();
+        } catch (WindowManager.InvalidDisplayException ex) {
+            String message = "Couldn't show presentation! Display was removed or the "
+                    + "presentation is not allowed on " + display.getName() + ".";
+            Log.w(TAG, message, ex);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            return;
+        }
         presentation.setOnDismissListener(mOnDismissListener);
         mActivePresentations.put(displayId, presentation);
     }
@@ -458,7 +469,7 @@ public class PresentationActivity extends Activity
     }
 
     /**
-     * The presentation to show on the secondary display.
+     * The presentation to show on another display.
      *
      * Note that the presentation display may have different metrics from the display on which
      * the main activity is showing so we must be careful to use the presentation's
