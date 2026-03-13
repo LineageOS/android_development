@@ -55,7 +55,7 @@ describe('FileReaderTransitionsWm', () => {
     expect(packets[0].getShellTransition()).toBeDefined();
     const transition = packets[0].getShellTransition();
     expect(transition?.getId()).toBe(6);
-    expect(transition?.getStartTransactionId()).toBe('13086765351818');
-    expect(transition?.getSendTimeNs()).toBe('57649646973488');
+    expect(transition?.getStartTransactionId()?.toString()).toBe('13086765351818');
+    expect(transition?.getSendTimeNs()?.toString()).toBe('57649646973488');
   });
 });

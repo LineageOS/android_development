@@ -107,19 +107,19 @@ describe('FileReaderTransitions', () => {
     );
     const transition6 = assertDefined(transition6Packet.getShellTransition());
     const sendTime6 = '57649646973488';
-    expect(transition6Packet.getTimestamp()).toEqual(sendTime6);
+    expect(transition6Packet.getTimestamp()?.toString()).toEqual(sendTime6);
     expect(transition6Packet.getTimestampClockId()).toEqual(
       PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
-    expect(transition6.getCreateTimeNs()).toEqual('57649586217344');
-    expect(transition6.getSendTimeNs()).toEqual(sendTime6);
+    expect(transition6.getCreateTimeNs()?.toString()).toEqual('57649586217344');
+    expect(transition6.getSendTimeNs()?.toString()).toEqual(sendTime6);
     expect(transition6.hasWmAbortTimeNs()).toBeFalse();
-    expect(transition6.getFinishTimeNs()).toEqual('57650183020323');
+    expect(transition6.getFinishTimeNs()?.toString()).toEqual('57650183020323');
     expect(transition6.getType()).toBe(1);
     expect(transition6.getChangesList()?.length).toBe(2);
     expect(transition6.hasFlags()).toBeFalse();
     expect(transition6.hasStartingWindowRemoveTimeNs()).toBeFalse();
-    expect(transition6.getDispatchTimeNs()).toEqual('57649649922341');
+    expect(transition6.getDispatchTimeNs()?.toString()).toEqual('57649649922341');
     expect(transition6.hasMergeTimeNs()).toBeFalse();
     expect(transition6.hasMergeRequestTimeNs()).toBeFalse();
     expect(transition6.hasShellAbortTimeNs()).toBeFalse();
@@ -130,15 +130,15 @@ describe('FileReaderTransitions', () => {
     const transition7 = assertDefined(transition7Packet.getShellTransition());
     expect(transition7.getId()).toBe(7);
     const dispatchTime7 = '57649828043313';
-    expect(transition7Packet.getTimestamp()).toEqual(dispatchTime7);
+    expect(transition7Packet.getTimestamp()?.toString()).toEqual(dispatchTime7);
     expect(transition7Packet.getTimestampClockId()).toEqual(
       PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
     expect(transition7.hasSendTimeNs()).toBeFalse();
-    expect(transition7.getDispatchTimeNs()).toEqual(dispatchTime7);
-    expect(transition7.getMergeTimeNs()).toEqual('57649829526223');
+    expect(transition7.getDispatchTimeNs()?.toString()).toEqual(dispatchTime7);
+    expect(transition7.getMergeTimeNs()?.toString()).toEqual('57649829526223');
     expect(transition7.hasShellAbortTimeNs()).toBeTrue();
-    expect(transition7.getShellAbortTimeNs()).toEqual('57649829445249');
+    expect(transition7.getShellAbortTimeNs()?.toString()).toEqual('57649829445249');
     expect(transition7.hasHandler()).toBeFalse();
 
     const transition8 = assertDefined(packets[3].getShellTransition());
@@ -147,7 +147,7 @@ describe('FileReaderTransitions', () => {
 
     const transition9 = assertDefined(packets[4].getShellTransition());
     expect(transition9.getId()).toBe(9);
-    expect(transition9.getMergeRequestTimeNs()).toEqual('57653389780131');
+    expect(transition9.getMergeRequestTimeNs()?.toString()).toEqual('57653389780131');
     expect(transition9.getMergeTarget()).toBe(8);
   });
 

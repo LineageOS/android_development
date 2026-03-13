@@ -50,7 +50,7 @@ describe('FileReaderInputMethodService', () => {
         ?.getExtension(WinscopeExtensionsImpl.inputmethodService);
       expect(data?.hasInputMethodService()).toBeTrue();
       expect(data?.getWhere()).toBe('InputMethodService#doStartInput');
-      expect(packets[0].getTimestamp()).toEqual('16578752896');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('16578752896');
     });
 
     it('converts to valid perfetto trace', async () => {
@@ -102,7 +102,7 @@ describe('FileReaderInputMethodService', () => {
       );
       expect(data.getWhere()).toBe('InputMethodService#doFinishInput');
       expect(data?.hasInputMethodService()).toBeTrue();
-      expect(packets[0].getTimestamp()).toEqual('1149230019887');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('1149230019887');
     });
   });
 });
