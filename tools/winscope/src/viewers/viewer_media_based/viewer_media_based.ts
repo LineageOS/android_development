@@ -27,38 +27,45 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 
-export abstract class ViewerMediaBased extends AbstractViewer<MediaBasedTraceEntry> {
+export abstract class ViewerMediaBased extends AbstractViewer<
+  MediaBasedTraceEntry,
+  UiData
+> {
   private traces: Array<Trace<MediaBasedTraceEntry>> | undefined;
 
   constructor(traces: Traces, store: Store) {
-    super(undefined, traces, 'viewer-media-based', store);
+    super(undefined, traces, ViewerMediaBasedComponent, store);
   }
 
   override getTraces(): Array<Trace<MediaBasedTraceEntry>> {
     return assertDefined(this.traces);
   }
 
-  protected override initializePresenter(
+  protected override createPresenter(
     trace: undefined,
     traces: Traces,
   ): Presenter {
     const type = this.getTraceTypeForViewTitle();
     this.traces = traces.getTraces(type) as Array<Trace<MediaBasedTraceEntry>>;
-    const component = this.htmlElement as unknown as ViewerMediaBasedComponent;
-    if (type === TraceType.SCREEN_RECORDING) {
-      component.enableDoubleClick = true;
-    }
     const notifyViewCallback = (uiData: UiData) => {
-      component.titles = uiData.titles;
-      component.currentTraceEntries = uiData.currentTraceEntries;
-      component.forceMinimize = uiData.forceMinimize;
-      component.isFetchingEntries = uiData.isFetchingEntries;
-      component.isInPlaybackMode = uiData.isInPlaybackMode;
+      const component = this.componentRef;
+      if (!component) {
+        return;
+      }
+      if (type === TraceType.SCREEN_RECORDING) {
+        component.setInput('enableDoubleClick', true);
+      }
+      component.setInput('titles', uiData.titles);
+      component.setInput('currentTraceEntries', uiData.currentTraceEntries);
+      component.setInput('forceMinimize', uiData.forceMinimize);
+      component.setInput('isFetchingEntries', uiData.isFetchingEntries);
+      component.setInput('isInPlaybackMode', uiData.isInPlaybackMode);
+      component.changeDetectorRef.detectChanges();
     };
     return new Presenter(this.traces, notifyViewCallback);
   }
 
-  protected override getViewType(): ViewType {
+  override getViewType(): ViewType {
     return ViewType.OVERLAY;
   }
 }
