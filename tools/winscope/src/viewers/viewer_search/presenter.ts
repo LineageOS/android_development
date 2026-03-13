@@ -119,6 +119,7 @@ export class Presenter {
         this.onClearQueryClick(detail.uid);
       },
     );
+    this.notifyViewCallback(this.uiData);
   }
 
   private async onTraceSearchInitialized(event: TraceSearchInitialized) {
