@@ -14,28 +14,47 @@
  * limitations under the License.
  */
 
+import {ElementRef} from '@angular/core';
 import {assertString} from '@common/assert';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
-import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
-import {TransactionsEntry} from '@viewers/viewer_transactions/ui_data';
+import {LogEntry} from '@viewers/common/ui_data_log';
+import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
 
-export class TransactionsHeightPredictor extends ItemHeightPredictor {
-  protected override readonly defaultRowSize = 24;
-  private readonly timestampCharsPerRow = 20;
+export class TransactionsHeightPredictor extends ItemHeightPredictor<LogEntry> {
+  constructor(
+    elementRef: ElementRef<HTMLElement>,
+    getRow: (index: number) => LogEntry | undefined,
+  ) {
+    super(elementRef, getRow);
+  }
 
-  override predictHeight(entry: TransactionsEntry): number {
+  protected override predictHeight(row: LogEntry): number {
     const flags = assertString(
-      entry.fields.find(
-        (f) => f.spec.columnType === TransactionColumnType.FLAGS,
-      )?.value ?? '',
-    );
-    const flagsHeight =
-      Math.max(1, Math.ceil(flags.match(/\|/g)?.length ?? 1) / 2) *
-      this.defaultRowSize; // we assume there are on average 2 flags listed per row
-    const timestampHeight = this.subItemHeight(
-      entry.traceEntry.getTimestamp().format(),
-      this.timestampCharsPerRow,
-    );
-    return Math.max(flagsHeight, timestampHeight);
+      row.fields.find((f) => f.spec.columnType === TransactionColumnType.FLAGS)
+        ?.value ?? '',
+    ).split(/(?<=\s\|\s)/);
+    const flagsColumnWidth = this.getFlagsColumnWidth();
+    const charsPerRow = Math.ceil(flagsColumnWidth / this.charWidth);
+
+    let currRowRemainder = charsPerRow;
+    let additionalRows = 0;
+
+    for (const flag of flags) {
+      if (flag.length > currRowRemainder) {
+        additionalRows++;
+        currRowRemainder = charsPerRow;
+      }
+      currRowRemainder -= flag.length;
+      if (currRowRemainder < 0) {
+        additionalRows++;
+        currRowRemainder += charsPerRow;
+      }
+    }
+
+    return this.defaultRowHeight + additionalRows * this.additionalRowHeight;
+  }
+
+  private getFlagsColumnWidth(): number {
+    return this.getElementWidth('.headers .flags', 350);
   }
 }
