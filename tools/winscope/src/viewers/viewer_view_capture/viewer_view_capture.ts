@@ -20,31 +20,31 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractViewer} from '@viewers/abstract_viewer';
-import {ViewerComponent} from '@viewers/components/viewer_component';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {ViewerViewCaptureComponent} from './viewer_view_capture_component';
 
-export class ViewerViewCapture extends AbstractViewer<HierarchyTreeNode> {
+export class ViewerViewCapture extends AbstractViewer<
+  HierarchyTreeNode,
+  UiData
+> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.VIEW_CAPTURE];
 
   constructor(traces: Traces, store: Store) {
-    super(undefined, traces, 'viewer-view-capture', store);
+    super(undefined, traces, ViewerViewCaptureComponent, store);
   }
 
   override getTraces(): Array<Trace<HierarchyTreeNode>> {
     return (this.presenter as Presenter).getTraces();
   }
 
-  protected override initializePresenter(
+  protected override createPresenter(
     trace: undefined,
     traces: Traces,
     store: Store,
+    notifyViewCallback: (uiData: UiData) => void,
   ): Presenter {
-    const notifyViewCallback = (uiData: UiData) => {
-      (this.htmlElement as unknown as ViewerComponent<UiData>).inputData =
-        uiData;
-    };
     return new Presenter(traces, store, notifyViewCallback);
   }
 
