@@ -44,6 +44,7 @@ export class Presenter {
   private activeSearchUid = 0;
   private activeSearches: ActiveSearch[] = [];
   private savedSearches: {searches: ListedSearch[]};
+  private recentSearches: {searches: ListedSearch[]};
   private viewerElement: HTMLElement | undefined;
   private runningSearch: CurrentSearch | undefined;
 
@@ -59,7 +60,15 @@ export class Presenter {
       {searches: []},
       this.storage,
     );
-    this.uiData.savedSearches = Array.from(this.savedSearches.searches);
+    this.recentSearches = createPersistentStoreProxy<{
+      searches: ListedSearch[];
+    }>('recentSearches', {searches: []}, this.storage);
+    this.uiData.savedSearches = this.savedSearches.searches.map(
+      (s) => new ListedSearch(s.query, s.name, s.timeMs),
+    );
+    this.uiData.recentSearches = this.recentSearches.searches.map(
+      (s) => new ListedSearch(s.query, s.name, s.timeMs),
+    );
     this.addSearch();
   }
 
@@ -204,10 +213,16 @@ export class Presenter {
 
   private async showQueryResult(newTrace: Trace<QueryResult>) {
     const [traceQuery] = newTrace.getDescriptors();
-    if (this.uiData.recentSearches.length >= 10) {
+    const existingIndex = this.uiData.recentSearches.findIndex(
+      (s) => s.query === traceQuery,
+    );
+    if (existingIndex !== -1) {
+      this.uiData.recentSearches.splice(existingIndex, 1);
+    } else if (this.uiData.recentSearches.length >= 100) {
       this.uiData.recentSearches.pop();
     }
     this.uiData.recentSearches.unshift(new ListedSearch(traceQuery));
+    this.recentSearches.searches = this.uiData.recentSearches;
 
     const activeSearch = assertDefined(
       this.activeSearches.find((a) => a.search.uid === this.runningSearch?.uid),
