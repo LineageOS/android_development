@@ -266,3 +266,9 @@ flag {
     description: "A test flag for the new templaters"
     bug: "456526598"
 }
+flag {
+    name: "test_voyager_denise_flag_1"
+    namespace: "gantry"
+    description: "A flag for Denise to test the voyager infra"
+    bug: "456526598"
+}
