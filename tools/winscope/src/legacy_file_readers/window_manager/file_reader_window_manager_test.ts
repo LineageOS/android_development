@@ -22,6 +22,8 @@ import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
+import {FileReaderWindowManager} from './file_reader_window_manager';
+
 describe('FileReaderWindowManager', () => {
   beforeAll(() => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
@@ -31,7 +33,9 @@ describe('FileReaderWindowManager', () => {
     let readerRealTs: LegacyFileReader;
 
     beforeAll(async () => {
-      readerRealTs = await new LegacyFileReaderProvider()
+      readerRealTs = await new LegacyFileReaderProvider([
+        FileReaderWindowManager.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
         .get();
     });
@@ -115,7 +119,9 @@ describe('FileReaderWindowManager', () => {
     let readerElapsedTs: LegacyFileReader;
 
     beforeAll(async () => {
-      readerElapsedTs = await new LegacyFileReaderProvider()
+      readerElapsedTs = await new LegacyFileReaderProvider([
+        FileReaderWindowManager.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/WindowManager.pb')
         .get();
     });
@@ -154,7 +160,9 @@ describe('FileReaderWindowManager', () => {
     let readerCritical: LegacyFileReader;
 
     beforeAll(async () => {
-      readerCritical = await new LegacyFileReaderProvider()
+      readerCritical = await new LegacyFileReaderProvider([
+        FileReaderWindowManager.createInstance,
+      ])
         .addFile(
           'traces/elapsed_and_real_timestamp/window_trace_critical.winscope',
         )

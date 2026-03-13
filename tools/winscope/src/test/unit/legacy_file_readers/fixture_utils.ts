@@ -13,36 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
 import {LegacyToPerfettoConverter} from '@app/legacy_to_perfetto_converter';
 import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
 import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
+import {FileReaderConstructor} from '@legacy_file_readers/common/file_reader_constructor';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReaderFactory} from '@legacy_file_readers/common/legacy_file_reader_factory';
+import {createTimestamps, ProcessedFileProvider,} from '@test/unit/parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {createTimestamps, ProcessedFileProvider,} from '@test/unit/parsers/fixture_utils';
 
 /**
  * Provides a file reader for a legacy trace file from the test fixtures.
  */
 export class LegacyFileReaderProvider extends ProcessedFileProvider<LegacyFileReader> {
+  constructor(private readonly constructors: FileReaderConstructor[]) {
+    super();
+  }
+
   /**
    * @return The file readers for the specified trace files.
    */
   protected override async processFiles(
     files: TraceFile[],
   ): Promise<LegacyFileReader[]> {
-    const processedFiles = await new LegacyFileReaderFactory().processFiles(
+    const factory = new LegacyFileReaderFactory();
+    for (const constructor of this.constructors) {
+      factory.addConstructor(constructor);
+    }
+    const processedFiles = await factory.processFiles(
       files,
       this.timestampConverter,
     );
     return processedFiles.supportedFiles;
   }
 }
-
 
 /**
  * Parses and converts legacy traces to a single Perfetto trace.
@@ -54,9 +62,10 @@ export class LegacyFileReaderProvider extends ProcessedFileProvider<LegacyFileRe
  */
 export async function parseAndConvertToPerfettoTrace(
   fileName: string,
+  constructors: FileReaderConstructor[],
   existingPerfettoFile?: TraceFile,
 ): Promise<Parser<HierarchyTreeNode>> {
-  const fileReader = await new LegacyFileReaderProvider()
+  const fileReader = await new LegacyFileReaderProvider(constructors)
     .addFile(fileName)
     .get();
   const parsers = await convertToPerfettoTrace(

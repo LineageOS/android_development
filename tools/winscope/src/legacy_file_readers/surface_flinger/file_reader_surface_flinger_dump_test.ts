@@ -21,6 +21,8 @@ import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/lega
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
 
+import {FileReaderSurfaceFlinger} from './file_reader_surface_flinger';
+
 describe('FileReaderSurfaceFlingerDump', () => {
   let userNotifierChecker: UserNotifierChecker;
 
@@ -34,7 +36,9 @@ describe('FileReaderSurfaceFlingerDump', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb')
         .get();
     });
@@ -54,7 +58,9 @@ describe('FileReaderSurfaceFlingerDump', () => {
     });
 
     it('does not apply timezone info', async () => {
-      const readerWithTimezoneInfo = await new LegacyFileReaderProvider()
+      const readerWithTimezoneInfo = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/dump_SurfaceFlinger.pb')
         .setTimestampConverter(await makeConverterWithUtcOffset())
         .get();
@@ -87,7 +93,9 @@ describe('FileReaderSurfaceFlingerDump', () => {
     let reader: LegacyFileReader;
 
     beforeAll(async () => {
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/dump_SurfaceFlinger.pb')
         .get();
     });

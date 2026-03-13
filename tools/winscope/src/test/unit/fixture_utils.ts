@@ -15,14 +15,19 @@
  */
 
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
+import {FileReaderInputMethodManagerService} from '@legacy_file_readers/input_method/file_reader_input_method_manager_service';
+import {FileReaderInputMethodService} from '@legacy_file_readers/input_method/file_reader_input_method_service';
+import {FileReaderSurfaceFlinger} from '@legacy_file_readers/surface_flinger/file_reader_surface_flinger';
+import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
+import {getPerfettoParsers, NonPerfettoParserProvider,} from '@test/unit/parsers/fixture_utils';
+import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {LegacyFileReaderProvider, convertToPerfettoTrace} from '@test/unit/legacy_file_readers/fixture_utils';
-import {getPerfettoParsers, NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
 
 /**
  * @param type The type of the trace to get.
@@ -56,15 +61,19 @@ export async function getTrace<T extends TraceType>(
     .build();
 }
 
-
-
 /**
  * @return The IME trace entries.
  */
 export async function getImeTraceEntries(): Promise<
   [Map<TraceType, HierarchyTreeNode>, Map<TraceType, HierarchyTreeNode>]
 > {
-  const fileReaders = await new LegacyFileReaderProvider()
+  const fileReaders = await new LegacyFileReaderProvider([
+    FileReaderSurfaceFlinger.createInstance,
+    FileReaderInputMethodService.createInstance,
+    FileReaderInputMethodManagerService.createInstance,
+    FileReaderInputMethodClients.createInstance,
+    FileReaderWindowManager.createInstance,
+  ])
     .addFile('traces/ime/SurfaceFlinger_with_IME.pb')
     .addFile('traces/ime/InputMethodService.pb')
     .addFile('traces/ime/InputMethodManagerService.pb')
@@ -101,4 +110,3 @@ export async function getImeTraceEntries(): Promise<
 
   return [entries, secondEntries];
 }
-

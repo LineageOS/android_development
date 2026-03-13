@@ -21,12 +21,12 @@ import {TimestampConverter} from '@common/time/timestamp_converter';
 import {ParserCujs as NonPerfettoParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
 import {buildTraceGeometryData, TraceGeometryData,} from '@parsers/helpers/trace_geometry_data';
-import {ParserInput} from '@parsers/input/parser_input';
-import {ParserKeyEvent} from '@parsers/input/parser_key_event';
-import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
 import {ParserInputMethodClients} from '@parsers/input_method/parser_input_method_clients';
 import {ParserInputMethodManagerService} from '@parsers/input_method/parser_input_method_manager_service';
 import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
+import {ParserInput} from '@parsers/input/parser_input';
+import {ParserKeyEvent} from '@parsers/input/parser_key_event';
+import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
 import {ParserProtolog} from '@parsers/protolog/parser_protolog';
 import {ParserScreenRecording} from '@parsers/screen_recording/parser_screen_recording';
 import {ParserScreenRecordingLegacy} from '@parsers/screen_recording/parser_screen_recording_legacy';
@@ -37,12 +37,12 @@ import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {FileReader} from '@trace_api/file_reader';
 import {Parser} from '@trace_api/parser';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
+import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 function getReaderWithLatestRealToBootTimeOffset(
@@ -186,9 +186,9 @@ export class NonPerfettoParserProvider extends ProcessedFileProvider<
           await parser.parse();
           hasFoundParser = true;
           assertTrue(parser.getLengthEntries() > 0, () => 'Trace is empty');
-          supportedFiles.push(parser as any);
+          supportedFiles.push(parser);
           break;
-        } catch (error) {
+        } catch {
           if (hasFoundParser) break;
         }
       }
@@ -224,7 +224,6 @@ export async function getPerfettoParser(
   const {parsers, traceGeometryData} = await getPerfettoParsers(
     fixturePath,
     withUTCOffset,
-    true,
     unzippedFileName,
   );
   const parser = assertDefined(
@@ -236,7 +235,6 @@ export async function getPerfettoParser(
 export async function getPerfettoParsers(
   fixturePath: string,
   withUTCOffset = false,
-  isPerfetto = true,
   unzippedFileName: string = '',
 ): Promise<{
   parsers: Array<Parser<HierarchyTreeNode> & FileReader>;
@@ -261,7 +259,11 @@ export async function getPerfettoParsers(
   });
 
   const CHUNK_SIZE_BYTES = 50 * 1024 * 1024;
-  for (let chunkStart = 0; chunkStart < file.size; chunkStart += CHUNK_SIZE_BYTES) {
+  for (
+    let chunkStart = 0;
+    chunkStart < file.size;
+    chunkStart += CHUNK_SIZE_BYTES
+  ) {
     const chunkEnd = chunkStart + CHUNK_SIZE_BYTES;
     const data = await file.slice(chunkStart, chunkEnd).arrayBuffer();
     await traceProcessor.parse(new Uint8Array(data));
@@ -299,11 +301,11 @@ export async function getPerfettoParsers(
       );
       await parser.parse();
       if (parser instanceof ParserViewCapture) {
-        parsers.push(...(parser.getWindowParsers() as any));
+        parsers.push(...parser.getWindowParsers());
       } else {
-        parsers.push(parser as any);
+        parsers.push(parser);
       }
-    } catch (error) {
+    } catch {
       // skip
     }
   }

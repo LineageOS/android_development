@@ -26,6 +26,8 @@ import {TraceType} from '@trace_api/trace_type';
 import {makeIdMatchFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
+import {FileReaderSurfaceFlinger} from './file_reader_surface_flinger';
+
 describe('FileReaderSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
 
@@ -43,7 +45,9 @@ describe('FileReaderSurfaceFlinger', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      readerRealTs = await new LegacyFileReaderProvider()
+      readerRealTs = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
         .get();
     });
@@ -136,6 +140,7 @@ describe('FileReaderSurfaceFlinger', () => {
       it('is robust to duplicated layer ids', async () => {
         const parser = await parseAndConvertToPerfettoTrace(
           'traces/elapsed_and_real_timestamp/SurfaceFlinger_with_duplicated_ids.pb',
+          [FileReaderSurfaceFlinger.createInstance],
         );
         const entry = await parser.getEntry(0);
         expect(entry.getWarnings()).toEqual([
@@ -175,7 +180,9 @@ describe('FileReaderSurfaceFlinger', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      readerElapsedTs = await new LegacyFileReaderProvider()
+      readerElapsedTs = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/SurfaceFlinger.pb')
         .get();
     });

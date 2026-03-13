@@ -35,7 +35,16 @@ export class FileReaderViewCapture {
     private readonly timestampConverter: ParserTimestampConverter,
   ) {}
 
-  async read() {
+  static async createInstance(
+    trace: TraceFile,
+    timestampConverter: ParserTimestampConverter,
+  ): Promise<LegacyFileReader[]> {
+    return new FileReaderViewCapture(trace, timestampConverter)
+      .read()
+      .then((reader) => reader.getWindowParsers());
+  }
+
+  async read(): Promise<FileReaderViewCapture> {
     const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
     throwIfMagicNumberDoesNotMatch(
       traceBuffer,
@@ -61,6 +70,7 @@ export class FileReaderViewCapture {
         ),
       );
     });
+    return this;
   }
 
   getTraceType(): TraceType {

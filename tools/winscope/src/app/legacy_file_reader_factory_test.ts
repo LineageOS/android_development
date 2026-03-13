@@ -13,11 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {LegacyFileReaderFactory} from '@legacy_file_readers/common/legacy_file_reader_factory';
+import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
+import {FileReaderInputMethodManagerService} from '@legacy_file_readers/input_method/file_reader_input_method_manager_service';
+import {FileReaderInputMethodService} from '@legacy_file_readers/input_method/file_reader_input_method_service';
+import {FileReaderProtoLog} from '@legacy_file_readers/protolog/file_reader_protolog';
+import {FileReaderSurfaceFlinger} from '@legacy_file_readers/surface_flinger/file_reader_surface_flinger';
+import {FileReaderTransactions} from '@legacy_file_readers/transactions/file_reader_transactions';
+import {FileReaderTransitionsShell} from '@legacy_file_readers/transitions/file_reader_transitions_shell';
+import {FileReaderTransitionsWm} from '@legacy_file_readers/transitions/file_reader_transitions_wm';
+import {FileReaderViewCapture} from '@legacy_file_readers/view_capture/file_reader_view_capture';
+import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
+import {FileReaderWindowManagerDump} from '@legacy_file_readers/window_manager/file_reader_window_manager_dump';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
+
+function createLegacyFileReaderFactory() {
+  return new LegacyFileReaderFactory()
+    .addConstructor(FileReaderInputMethodClients.createInstance)
+    .addConstructor(FileReaderInputMethodManagerService.createInstance)
+    .addConstructor(FileReaderInputMethodService.createInstance)
+    .addConstructor(FileReaderProtoLog.createInstance)
+    .addConstructor(FileReaderSurfaceFlinger.createInstance)
+    .addConstructor(FileReaderTransactions.createInstance)
+    .addConstructor(FileReaderWindowManager.createInstance)
+    .addConstructor(FileReaderWindowManagerDump.createInstance)
+    .addConstructor(FileReaderTransitionsWm.createInstance)
+    .addConstructor(FileReaderTransitionsShell.createInstance)
+    .addConstructor(FileReaderViewCapture.createInstance);
+}
 
 describe('LegacyFileReaderFactory', () => {
   describe('is robust to', () => {
@@ -35,10 +61,8 @@ describe('LegacyFileReaderFactory', () => {
 
     async function checkRobustToFile(file: string, unsupported = false) {
       const trace = new TraceFile(await getFixtureFile(file), undefined);
-      const processed = await new LegacyFileReaderFactory().processFiles(
-        [trace],
-        makeConverterNoRteOffsets(),
-      );
+      const processed = await createLegacyFileReaderFactory()
+        .processFiles([trace], makeConverterNoRteOffsets());
       expect(processed.supportedFiles.length).toBe(0);
       expect(processed.unsupportedFiles).toEqual(unsupported ? [trace] : []);
     }
@@ -150,7 +174,8 @@ describe('LegacyFileReaderFactory', () => {
       types: TraceType[],
       unsupportedFiles: TraceFile[] = [],
     ) {
-      const processedFiles = await new LegacyFileReaderFactory().processFiles(
+      const factory = createLegacyFileReaderFactory();
+      const processedFiles = await factory.processFiles(
         files,
         makeConverterNoRteOffsets(),
       );

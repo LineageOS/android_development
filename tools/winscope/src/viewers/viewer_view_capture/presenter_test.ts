@@ -18,6 +18,8 @@ import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
+import {FileReaderSurfaceFlinger} from '@legacy_file_readers/surface_flinger/file_reader_surface_flinger';
+import {FileReaderViewCapture} from '@legacy_file_readers/view_capture/file_reader_view_capture';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {parseAndConvertToPerfettoTrace} from '@test/unit/legacy_file_readers/fixture_utils';
 import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
@@ -297,6 +299,7 @@ the default for its data type.`,
         );
         const sfParser = await parseAndConvertToPerfettoTrace(
           'traces/elapsed_timestamp/SurfaceFlinger.pb',
+          [FileReaderSurfaceFlinger.createInstance, FileReaderViewCapture.createInstance],
           perfettoFile,
         );
         const sfTrace = Trace.fromParser(sfParser);

@@ -25,6 +25,8 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {FileReaderTransitions} from './file_reader_transitions';
+import {FileReaderTransitionsShell} from './file_reader_transitions_shell';
+import {FileReaderTransitionsWm} from './file_reader_transitions_wm';
 
 describe('FileReaderTransitions', () => {
   let converter: TimestampConverter;
@@ -119,7 +121,9 @@ describe('FileReaderTransitions', () => {
     expect(transition6.getChangesList()?.length).toBe(2);
     expect(transition6.hasFlags()).toBeFalse();
     expect(transition6.hasStartingWindowRemoveTimeNs()).toBeFalse();
-    expect(transition6.getDispatchTimeNs()?.toString()).toEqual('57649649922341');
+    expect(transition6.getDispatchTimeNs()?.toString()).toEqual(
+      '57649649922341',
+    );
     expect(transition6.hasMergeTimeNs()).toBeFalse();
     expect(transition6.hasMergeRequestTimeNs()).toBeFalse();
     expect(transition6.hasShellAbortTimeNs()).toBeFalse();
@@ -138,7 +142,9 @@ describe('FileReaderTransitions', () => {
     expect(transition7.getDispatchTimeNs()?.toString()).toEqual(dispatchTime7);
     expect(transition7.getMergeTimeNs()?.toString()).toEqual('57649829526223');
     expect(transition7.hasShellAbortTimeNs()).toBeTrue();
-    expect(transition7.getShellAbortTimeNs()?.toString()).toEqual('57649829445249');
+    expect(transition7.getShellAbortTimeNs()?.toString()).toEqual(
+      '57649829445249',
+    );
     expect(transition7.hasHandler()).toBeFalse();
 
     const transition8 = assertDefined(packets[3].getShellTransition());
@@ -147,7 +153,9 @@ describe('FileReaderTransitions', () => {
 
     const transition9 = assertDefined(packets[4].getShellTransition());
     expect(transition9.getId()).toBe(9);
-    expect(transition9.getMergeRequestTimeNs()?.toString()).toEqual('57653389780131');
+    expect(transition9.getMergeRequestTimeNs()?.toString()).toEqual(
+      '57653389780131',
+    );
     expect(transition9.getMergeTarget()).toBe(8);
   });
 
@@ -238,7 +246,10 @@ describe('FileReaderTransitions', () => {
   async function getFileReaderTransitions(
     converter: TimestampConverter,
   ): Promise<LegacyFileReader[]> {
-    const [readerShell, readerWm] = await new LegacyFileReaderProvider()
+    const [readerShell, readerWm] = await new LegacyFileReaderProvider([
+      FileReaderTransitionsShell.createInstance,
+      FileReaderTransitionsWm.createInstance,
+    ])
       .addFile('traces/elapsed_and_real_timestamp/shell_transition_trace.pb')
       .addFile('traces/elapsed_and_real_timestamp/wm_transition_trace.pb')
       .getAll();

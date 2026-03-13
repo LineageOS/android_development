@@ -21,13 +21,17 @@ import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/lega
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
+import {FileReaderInputMethodManagerService} from './file_reader_input_method_manager_service';
+
 describe('FileReaderInputMethodManagerService', () => {
   describe('trace with real timestamps', () => {
     let reader: LegacyFileReader;
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderInputMethodManagerService.createInstance,
+      ])
         .addFile(
           'traces/elapsed_and_real_timestamp/InputMethodManagerService.pb',
         )
@@ -82,7 +86,9 @@ describe('FileReaderInputMethodManagerService', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderInputMethodManagerService.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/InputMethodManagerService.pb')
         .get();
     });

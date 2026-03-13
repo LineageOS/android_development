@@ -16,17 +16,21 @@
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
 import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
-import {byteStringAsUint8Array, PerfettoClockSnapshot, PerfettoTracePacket, WinscopeExtensionsImpl} from '@compat/protobuf';
+import {byteStringAsUint8Array, PerfettoClockSnapshot, PerfettoTracePacket, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
+
+import {FileReaderViewCapture} from './file_reader_view_capture';
 
 describe('FileReaderViewCapture', () => {
   let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    reader = await new LegacyFileReaderProvider()
+    reader = await new LegacyFileReaderProvider([
+      FileReaderViewCapture.createInstance,
+    ])
       .addFile(
         'traces/elapsed_and_real_timestamp/com.google.android.apps.nexuslauncher_0.vc',
       )
@@ -83,35 +87,30 @@ describe('FileReaderViewCapture', () => {
 
     expect(packageNameList.length).toBe(1);
     expect(packageNameList[0].getIid()?.toString()).toEqual('1');
-    expect(byteStringAsUint8Array(packageNameList[0].getStr()))
-      .toEqual(
-        utf8Encode('com.google.android.apps.nexuslauncher'),
-      );
+    expect(byteStringAsUint8Array(packageNameList[0].getStr())).toEqual(
+      utf8Encode('com.google.android.apps.nexuslauncher'),
+    );
 
     const windowNameList = internedData.getViewcaptureWindowNameList();
     expect(windowNameList.length).toBe(1);
     expect(windowNameList[0].getIid()?.toString()).toEqual('1');
-    expect(byteStringAsUint8Array(windowNameList[0].getStr()))
-      .toEqual(
-        utf8Encode('.Taskbar'),
-      );
+    expect(byteStringAsUint8Array(windowNameList[0].getStr())).toEqual(
+      utf8Encode('.Taskbar'),
+    );
 
     const classNameList = internedData.getViewcaptureClassNameList();
     expect(classNameList.length).toBe(68);
     expect(classNameList[3].getIid()?.toString()).toEqual('3');
-    expect(byteStringAsUint8Array(classNameList[3].getStr()))
-      .toEqual(
-        utf8Encode(
-          'com.android.launcher3.views.DoubleShadowBubbleTextView'),
-      );
+    expect(byteStringAsUint8Array(classNameList[3].getStr())).toEqual(
+      utf8Encode('com.android.launcher3.views.DoubleShadowBubbleTextView'),
+    );
 
     const viewIdList = internedData.getViewcaptureViewIdList();
     expect(viewIdList.length).toBe(11);
     expect(viewIdList[1].getIid()?.toString()).toEqual('2');
-    expect(byteStringAsUint8Array(viewIdList[1].getStr()))
-      .toEqual(
-        utf8Encode('id/taskbar_view'),
-      );
+    expect(byteStringAsUint8Array(viewIdList[1].getStr())).toEqual(
+      utf8Encode('id/taskbar_view'),
+    );
 
     expect(packets[1].hasInternedData()).toBeFalse();
   });

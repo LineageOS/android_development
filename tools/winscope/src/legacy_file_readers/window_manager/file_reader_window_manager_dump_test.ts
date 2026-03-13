@@ -23,12 +23,16 @@ import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
+import {FileReaderWindowManagerDump} from './file_reader_window_manager_dump';
+
 describe('FileReaderWindowManagerDump', () => {
   let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    reader = await new LegacyFileReaderProvider()
+    reader = await new LegacyFileReaderProvider([
+      FileReaderWindowManagerDump.createInstance,
+    ])
       .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
       .get();
   });
@@ -43,7 +47,9 @@ describe('FileReaderWindowManagerDump', () => {
   });
 
   it('does not apply timezone info', async () => {
-    const readerWithTimezoneInfo = await new LegacyFileReaderProvider()
+    const readerWithTimezoneInfo = await new LegacyFileReaderProvider([
+      FileReaderWindowManagerDump.createInstance,
+    ])
       .addFile('traces/elapsed_timestamp/dump_WindowManager.pb')
       .setTimestampConverter(await makeConverterWithUtcOffset())
       .get();

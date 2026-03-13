@@ -44,10 +44,11 @@ export abstract class AbstractFileReader<T> implements LegacyFileReader {
     this.metadata = metadata;
   }
 
-  async read() {
+  async read(): Promise<LegacyFileReader[]> {
     const traceBuffer = new Uint8Array(await this.traceFile.file.arrayBuffer());
     throwIfMagicNumberDoesNotMatch(traceBuffer, this.getMagicNumber());
     this.decodedEntries = await this.decodeTrace(traceBuffer);
+    return [this];
   }
 
   getFiles(): TraceFile[] {
