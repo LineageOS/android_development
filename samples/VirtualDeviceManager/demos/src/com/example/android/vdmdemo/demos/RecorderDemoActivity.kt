@@ -17,22 +17,31 @@ package com.example.android.vdmdemo.demos
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.AudioRecordingConfiguration
+import android.media.AudioTrack
 import android.media.MediaRecorder.AudioSource
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.ByteArrayOutputStream
 import kotlin.concurrent.thread
+import kotlin.math.sqrt
 import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
 
@@ -46,18 +55,29 @@ class RecorderDemoActivity :
 
     private var audioManager: AudioManager? = null
 
-    private val recorders =
-        List(NUMBER_OF_RECORDERS) {
-            AudioRecorder(
-                it,
-                // some fancy coloring based on the hash of the recorded audio data
-                // to have a visual (colorful) UI representation of it
-                { color -> buttons[it].setBackgroundColor(color) },
-            )
-        }
+    private data class RecorderUi(
+        val button: Button,
+        val playButton: Button,
+        val status: TextView,
+        val progressBar: ProgressBar,
+        val histogram: HistogramView,
+    )
 
-    private lateinit var buttons: List<Button>
-    private lateinit var recorderStatusTextViews: List<TextView>
+    private lateinit var recorderUis: List<RecorderUi>
+
+    private val recorders =
+        RECORDERS_SETTINGS.indices.map { index ->
+            AudioRecorder(RECORDERS_SETTINGS[index]) { level ->
+                val color = interpolateColor(level)
+                runOnUiThread {
+                    with(recorderUis[index]) {
+                        button.setBackgroundColor(color)
+                        progressBar.progress = level
+                        histogram.addSample(level)
+                    }
+                }
+            }
+        }
 
     private val audioRecordingCallback =
         object : AudioManager.AudioRecordingCallback() {
@@ -74,16 +94,22 @@ class RecorderDemoActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.recorder_demo_activity)
 
-        buttons =
+        recorderUis =
             listOf(
-                requireViewById(R.id.first_recorder_button),
-                requireViewById(R.id.second_recorder_button),
-            )
-
-        recorderStatusTextViews =
-            listOf(
-                requireViewById(R.id.first_recorder_status),
-                requireViewById(R.id.second_recorder_status),
+                RecorderUi(
+                    requireViewById(R.id.first_recorder_button),
+                    requireViewById(R.id.first_play_button),
+                    requireViewById(R.id.first_recorder_status),
+                    requireViewById(R.id.first_recorder_level),
+                    requireViewById(R.id.first_recorder_histogram),
+                ),
+                RecorderUi(
+                    requireViewById(R.id.second_recorder_button),
+                    requireViewById(R.id.second_play_button),
+                    requireViewById(R.id.second_recorder_status),
+                    requireViewById(R.id.second_recorder_level),
+                    requireViewById(R.id.second_recorder_histogram),
+                ),
             )
 
         audioManager = getSystemService(AudioManager::class.java)
@@ -98,50 +124,54 @@ class RecorderDemoActivity :
         audioManager?.unregisterAudioRecordingCallback(audioRecordingCallback)
     }
 
-    fun onFirstButtonClick(view: View) {
-        onButtonClick(0 /* first recorder index */)
-    }
+    fun onFirstRecordButtonClick(view: View) = onRecordButtonClick(0)
 
-    fun onSecondButtonClick(view: View) {
-        onButtonClick(1 /* second recorder index */)
-    }
+    fun onSecondRecordButtonClick(view: View) = onRecordButtonClick(1)
 
-    private fun onButtonClick(index: Int) {
-        if (index < 0 || index > recorders.size) {
-            Log.w(TAG, "Recorder index ($index) out of range (0 - $NUMBER_OF_RECORDERS).")
-            return
+    fun onFirstPlayButtonClick(view: View) = onPlayButtonClick(0)
+
+    fun onSecondPlayButtonClick(view: View) = onPlayButtonClick(1)
+
+    private fun onRecordButtonClick(index: Int) {
+        if (index in recorders.indices) {
+            recorders[index].toggleRecording()
         }
+    }
 
-        recorders[index].toggleRecording()
-        // just toggle the recording, the UI will be later updated by the recording config callback
+    private fun onPlayButtonClick(index: Int) {
+        if (index in recorders.indices) {
+            recorders[index].playLastRecording()
+        }
     }
 
     private fun updateAllRecordersUi() {
-        for (i in 0 until NUMBER_OF_RECORDERS) {
-            updateRecorderUi(i)
-        }
+        recorders.indices.forEach { updateRecorderUi(it) }
     }
 
     private fun updateRecorderUi(index: Int) {
-        recorders[index].run {
-            val isRecording = isRecording()
-            val buttonText =
-                if (isRecording) {
-                    R.string.stop_record
-                } else {
-                    R.string.start_record
-                }
-            val textColor =
-                if (isRecording) {
-                    Color.RED
-                } else {
-                    Color.GRAY
-                }
+        val recorder = recorders[index]
+        val ui = recorderUis[index]
+        val isRecording = recorder.isRecording()
 
-            buttons[index].setText(buttonText)
-            buttons[index].setTextColor(textColor)
-            recorderStatusTextViews[index].text = getRecorderStatus()
+        ui.button.setText(if (isRecording) R.string.stop_record else R.string.start_record)
+        ui.button.setTextColor(if (isRecording) Color.RED else Color.GRAY)
+        ui.playButton.isEnabled = !isRecording && recorder.hasRecording()
+        ui.status.text = recorder.getRecorderStatus()
+    }
+
+    private fun interpolateColor(level: Int): Int {
+        return when {
+            level < 33 -> interpolate(Color.BLUE, Color.GREEN, level, 33)
+            level < 66 -> interpolate(Color.GREEN, Color.YELLOW, level - 33, 33)
+            else -> interpolate(Color.YELLOW, Color.RED, level - 66, 34)
         }
+    }
+
+    private fun interpolate(c1: Int, c2: Int, value: Int, max: Int): Int {
+        val r = Color.red(c1) + (Color.red(c2) - Color.red(c1)) * value / max
+        val g = Color.green(c1) + (Color.green(c2) - Color.green(c1)) * value / max
+        val b = Color.blue(c1) + (Color.blue(c2) - Color.blue(c1)) * value / max
+        return Color.rgb(r, g, b)
     }
 
     override fun onRequestPermissionsResult(
@@ -167,22 +197,23 @@ class RecorderDemoActivity :
         }
 
     /**
-     * Utility class managing creation and reading from an AudioRecord. Sends a hash of the recorded
-     * audio data in onDataReceived for UI feedback.
+     * Utility class managing creation and reading from an AudioRecord. Sends the sound level of the
+     * recorded audio data in onDataReceived for UI feedback.
      */
     private inner class AudioRecorder(
-        private val index: Int,
+        private val settings: RecorderSettings,
         private val onDataReceived: (Int) -> Unit,
     ) {
-        private var isRunning: AtomicBoolean = atomic(false)
+        private var isRunning: AtomicBoolean = atomic(initial = false)
         private var audioRecord: AudioRecord? = null
+        private var recordedData: ByteArray? = null
 
         private fun createAndReadAudioRecord() {
-            createRecorder(index)?.let { record ->
+            createRecorder(settings)?.let { record ->
                 audioRecord = record
 
                 if (record.state != AudioRecord.STATE_INITIALIZED) {
-                    Log.e(TAG, "Can NOT start recording for UNINITIALIZED AudioRecord $index.")
+                    Log.e(TAG, "Can NOT start recording for UNINITIALIZED AudioRecord.")
                     return
                 }
 
@@ -190,28 +221,29 @@ class RecorderDemoActivity :
                     (AUDIO_RECORDER_BUFFER_SIZE_MS * record.sampleRate * record.channelCount / 1000)
                 val buffer = ByteArray(bufferSize)
 
-                Log.d(TAG, "AudioRecord $index start recording...")
+                Log.d(TAG, "AudioRecord start recording to memory...")
+                val outputStream = ByteArrayOutputStream()
+
                 try {
                     record.startRecording()
                 } catch (e: Exception) {
-                    Log.e(TAG, "Exception starting AudioRecord $index.", e)
+                    Log.e(TAG, "Exception starting AudioRecord.", e)
                     return
                 }
-                Log.d(TAG, "AudioRecord $index recording started.")
+                Log.d(TAG, "AudioRecord recording started.")
 
                 isRunning.value = true
 
                 while (isRunning.value) {
                     val ret = record.read(buffer, 0, buffer.size, AudioRecord.READ_BLOCKING)
                     if (ret < 0) {
-                        Log.e(
-                            TAG,
-                            "Error calling read on AudioRecord $index, read call returned $ret",
-                        )
+                        Log.e(TAG, "Error calling read on AudioRecord, read call returned $ret")
                         break
                     }
-                    // send a hash of the recorded audio data for some UI representation
-                    onDataReceived(buffer.contentHashCode())
+                    outputStream.write(buffer, 0, ret)
+                    // compute the level of the recorded audio data for some UI representation
+                    val level = calculateSoundLevel(buffer, ret)
+                    onDataReceived(level)
                 }
 
                 // No longer running, recording should stop and be released,
@@ -219,21 +251,24 @@ class RecorderDemoActivity :
                 record.stop()
                 record.release()
                 audioRecord = null
+                recordedData = outputStream.toByteArray()
 
-                Log.d(TAG, "AudioRecord $index stopped recording.")
-            } ?: Log.e(TAG, "Can NOT start recording for NULL AudioRecord $index.")
+                Log.d(TAG, "AudioRecord stopped recording.")
+                runOnUiThread { updateAllRecordersUi() }
+            } ?: Log.e(TAG, "Can NOT start recording for NULL AudioRecord.")
         }
 
         fun isRecording() = isRunning.value
 
-        fun startRecording() {
-            Log.d(TAG, "startRecording() for AudioRecord $index.")
+        fun hasRecording() = recordedData != null
 
+        fun startRecording() {
+            Log.d(TAG, "startRecording()")
             thread { createAndReadAudioRecord() }
         }
 
         fun stopRecording() {
-            Log.d(TAG, "stopRecording() for AudioRecord $index.")
+            Log.d(TAG, "stopRecording()")
             isRunning.value = false
         }
 
@@ -243,6 +278,66 @@ class RecorderDemoActivity :
             } else {
                 startRecording()
             }
+        }
+
+        fun playLastRecording() {
+            val data = recordedData
+            if (isRecording()) {
+                Log.w(TAG, "Cannot play while recording.")
+                return
+            }
+            if (data == null) {
+                Log.w(TAG, "No recording found to play.")
+                return
+            }
+
+            val outChannel =
+                if (settings.channels == AudioFormat.CHANNEL_IN_MONO) AudioFormat.CHANNEL_OUT_MONO
+                else AudioFormat.CHANNEL_OUT_STEREO
+
+            val bufferSize =
+                AudioTrack.getMinBufferSize(settings.sampleRate, outChannel, settings.encoding)
+
+            val audioTrack =
+                AudioTrack.Builder()
+                    .setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build()
+                    )
+                    .setAudioFormat(
+                        AudioFormat.Builder()
+                            .setEncoding(settings.encoding)
+                            .setSampleRate(settings.sampleRate)
+                            .setChannelMask(outChannel)
+                            .build()
+                    )
+                    .setBufferSizeInBytes(bufferSize)
+                    .setTransferMode(AudioTrack.MODE_STREAM)
+                    .build()
+
+            thread {
+                try {
+                    audioTrack.play()
+                    audioTrack.write(data, 0, data.size)
+                    audioTrack.stop()
+                    audioTrack.release()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error playing back recording", e)
+                }
+            }
+        }
+
+        private fun calculateSoundLevel(buffer: ByteArray, bytesRead: Int): Int {
+            var sum = 0.0
+            for (i in 0 until bytesRead step 2) {
+                val sample =
+                    ((buffer[i + 1].toInt() shl 8) or (buffer[i].toInt() and 0xFF)).toShort()
+                sum += sample.toDouble() * sample.toDouble()
+            }
+            val rms = if (bytesRead > 0) sqrt(sum / (bytesRead / 2)) else 0.0
+            return (rms * 100 / MAX_SOUND_LEVEL).toInt().coerceIn(0, 100)
         }
 
         fun getRecorderStatus() =
@@ -262,15 +357,7 @@ class RecorderDemoActivity :
             } ?: "Recorder not created!"
 
         @SuppressLint("MissingPermission")
-        private fun createRecorder(index: Int): AudioRecord? {
-            if (index < 0 || index > RECORDERS_SETTINGS.size) {
-                Log.w(
-                    TAG,
-                    "Settings for recorder index ($index) out of range (0 - ${RECORDERS_SETTINGS.size}).",
-                )
-                return null
-            }
-
+        private fun createRecorder(settings: RecorderSettings): AudioRecord? {
             if (
                 ContextCompat.checkSelfPermission(
                     this@RecorderDemoActivity,
@@ -285,7 +372,7 @@ class RecorderDemoActivity :
                 )
                 return null
             } else {
-                with(RECORDERS_SETTINGS[index]) {
+                with(settings) {
                     return AudioRecord(
                         source,
                         sampleRate,
@@ -312,6 +399,7 @@ class RecorderDemoActivity :
         const val NUMBER_OF_RECORDERS = 2
 
         const val AUDIO_RECORDER_BUFFER_SIZE_MS = 50
+        const val MAX_SOUND_LEVEL = 16384
 
         // some defaults for easy instantiation of AudioRecorder objects
         const val FIRST_RECORDER_SOURCE = AudioSource.DEFAULT
@@ -360,5 +448,35 @@ class RecorderDemoActivity :
                 -1 -> "AUDIO_SOURCE_INVALID" /* AudioSource.AUDIO_SOURCE_INVALID */
                 else -> "unknown source $source"
             }
+    }
+}
+
+/** Custom view to display a histogram of audio levels. */
+class HistogramView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+    private val paint =
+        Paint().apply {
+            color = Color.BLUE
+            style = Paint.Style.FILL
+        }
+    private val samples = IntArray(100)
+    private var index = 0
+
+    fun addSample(sample: Int) {
+        samples[index] = sample
+        index = (index + 1) % samples.size
+        postInvalidate()
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        val w = width.toFloat()
+        val h = height.toFloat()
+        val barWidth = w / samples.size
+
+        for (i in samples.indices) {
+            val s = samples[(index + i) % samples.size]
+            val barHeight = (s.toFloat() / 100f) * h
+            canvas.drawRect(i * barWidth, h - barHeight, (i + 1) * barWidth, h, paint)
+        }
     }
 }

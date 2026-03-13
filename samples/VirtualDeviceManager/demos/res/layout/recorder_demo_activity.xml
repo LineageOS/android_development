@@ -1,47 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="10dp">
 
-    <Button
-        android:id="@+id/first_recorder_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:onClick="onFirstButtonClick"
-        android:text="@string/start_record" />
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/first_recorder_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:onClick="onFirstRecordButtonClick"
+            android:text="@string/start_record" />
+        <Button
+            android:id="@+id/first_play_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:onClick="onFirstPlayButtonClick"
+            android:text="@string/play_last" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/first_recorder_status"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
         android:text="@string/recorder_status"
         android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/first_recorder_level"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:max="100" />
+
+    <com.example.android.vdmdemo.demos.HistogramView
+        android:id="@+id/first_recorder_histogram"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:background="#EEEEEE" />
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="50dp" />
+        android:layout_height="20dp" />
 
-    <Button
-        android:id="@+id/second_recorder_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:onClick="onSecondButtonClick"
-        android:text="@string/start_record" />
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/second_recorder_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:onClick="onSecondRecordButtonClick"
+            android:text="@string/start_record" />
+        <Button
+            android:id="@+id/second_play_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+            android:onClick="onSecondPlayButtonClick"
+            android:text="@string/play_last" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/second_recorder_status"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
         android:text="@string/recorder_status"
         android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/second_recorder_level"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:max="100" />
+
+    <com.example.android.vdmdemo.demos.HistogramView
+        android:id="@+id/second_recorder_histogram"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:background="#EEEEEE" />
 
 </LinearLayout>
