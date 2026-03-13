@@ -349,6 +349,7 @@ def generate_arsp_filtered_manifest(
         return False
 
     allowed_tags = {"remote", "default", "repo-hooks", "project"}
+    kept_projects = set()
     for child in list(root):
         if child.tag not in allowed_tags:
             root.remove(child)
@@ -363,10 +364,33 @@ def generate_arsp_filtered_manifest(
         elif child.tag == "project":
             project_name = child.get("name")
             if project_name in projects_to_keep_names:
+                kept_projects.add(child.get("path"))
                 if "remote" in child.attrib:
                     del child.attrib["remote"]
             else:
                 root.remove(child)
+
+    # TODO(b/492541439): Make this not terrible.
+    if "vendor/google/certs" not in kept_projects:
+        ET.SubElement(
+            root,
+            "project",
+            attrib={
+                "path": "vendor/google/dev-keystore",
+                "name": "platform/vendor/google_shared/desktop/al-dev-keystore",
+                "revision": "main",
+            },
+        )
+    if "vendor/google/dev-keystore" not in kept_projects:
+        ET.SubElement(
+            root,
+            "project",
+            attrib={
+                "path": "vendor/google/certs",
+                "name": "platform/vendor/google_shared/desktop/certs",
+                "revision": "main",
+            },
+        )
 
     tree = ET.ElementTree(root)
     logging.info("Writing filtered manifest to: %s", output_path)
