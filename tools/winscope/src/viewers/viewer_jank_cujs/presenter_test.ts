@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
+import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {Parser} from '@trace_api/parser';

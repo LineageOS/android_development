@@ -18,7 +18,7 @@ import {Rect} from '@common/geometry/rect';
 import {Region} from '@common/geometry/region';
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';

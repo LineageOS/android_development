@@ -22,7 +22,7 @@ import {makeRealTimestamp} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {Parser} from '@trace_api/parser';

@@ -15,7 +15,7 @@
  */
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
+import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {FileReader} from '@trace_api/file_reader';
 import {Parser} from '@trace_api/parser';

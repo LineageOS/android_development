@@ -18,7 +18,7 @@ import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
-import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
 import {ParserBuilder} from '@test/unit/trace_api/parser_builder';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';

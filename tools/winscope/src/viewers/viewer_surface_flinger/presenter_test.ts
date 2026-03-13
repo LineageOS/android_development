@@ -19,7 +19,7 @@ import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
