@@ -15,7 +15,7 @@
  */
 
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
-import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {Parser} from '@trace_api/parser';

@@ -16,8 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {PerfettoClockSnapshot, PerfettoTracePacket, PerfettoWindowManagerTraceEntry, WindowManagerTraceFileProtoUdc, WindowManagerTraceProtoUdc, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 
 export class FileReaderWindowManager extends AbstractFileReader<WindowManagerTraceProtoUdc> {
@@ -26,6 +29,13 @@ export class FileReaderWindowManager extends AbstractFileReader<WindowManagerTra
   ]; // .WINTRACE
 
   private realToBootTimeOffsetNs: bigint | undefined;
+
+  static async createInstance(
+    trace: TraceFile,
+    timestampConverter: ParserTimestampConverter,
+  ): Promise<LegacyFileReader[]> {
+    return new FileReaderWindowManager(trace, timestampConverter).read();
+  }
 
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;

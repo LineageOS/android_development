@@ -16,8 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {PerfettoClockSnapshot, PerfettoShellHandlerMapping, PerfettoShellHandlerMappings, PerfettoShellTransition, PerfettoTracePacket, ShellHandlerMappingUdc, ShellTransitionProtoUdc, WmShellTransitionTraceProtoUdc,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 
 import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
@@ -28,6 +31,13 @@ import {nullifyIfDefaultValue} from './perfetto_conversion_helpers';
 export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoShellTransition> {
   private realToBootTimeOffsetNs: bigint | undefined;
   private handlerMapping: undefined | ShellHandlerMappingUdc[];
+
+  static async createInstance(
+    trace: TraceFile,
+    timestampConverter: ParserTimestampConverter,
+  ): Promise<LegacyFileReader[]> {
+    return new FileReaderTransitionsShell(trace, timestampConverter).read();
+  }
 
   override getTraceType(): TraceType {
     return TraceType.SHELL_TRANSITION;

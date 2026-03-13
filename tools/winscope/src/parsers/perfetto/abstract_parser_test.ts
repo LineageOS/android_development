@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getPerfettoParser, getPerfettoParsers} from '@test/unit/fixture_utils';
+import {getPerfettoParser, getPerfettoParsers} from '@test/unit/parsers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 
 describe('PerfettoAbstractParser', () => {
   it('robust to perfetto trace with no trace entries', async () => {
     const {parsers} = await getPerfettoParsers(
       'invalid_files/no_winscope_traces.perfetto-trace',
-    );
-    expect(parsers.length).toBe(0);
-  });
-
-  it('robust to non-perfetto file', async () => {
-    const {parsers} = await getPerfettoParsers(
-      'traces/screenshot/screenshot.png',
-      false,
-      false,
     );
     expect(parsers.length).toBe(0);
   });

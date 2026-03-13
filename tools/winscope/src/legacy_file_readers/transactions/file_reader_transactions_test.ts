@@ -16,11 +16,13 @@
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {FileReaderTransactions} from './file_reader_transactions';
 
 describe('FileReaderTransactions', () => {
   describe('trace with real timestamps', () => {
@@ -28,7 +30,9 @@ describe('FileReaderTransactions', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderTransactions.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/Transactions.pb')
         .get();
     });
@@ -130,7 +134,9 @@ describe('FileReaderTransactions', () => {
     let reader: LegacyFileReader;
 
     beforeAll(async () => {
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderTransactions.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/Transactions.pb')
         .get();
     });

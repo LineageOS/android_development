@@ -17,9 +17,11 @@ import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {WinscopeExtensionsImpl} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {FileReaderInputMethodService} from './file_reader_input_method_service';
 
 describe('FileReaderInputMethodService', () => {
   describe('trace with real timestamps', () => {
@@ -27,7 +29,9 @@ describe('FileReaderInputMethodService', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderInputMethodService.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/InputMethodService.pb')
         .get();
     });
@@ -75,7 +79,9 @@ describe('FileReaderInputMethodService', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      reader = await new LegacyFileReaderProvider()
+      reader = await new LegacyFileReaderProvider([
+        FileReaderInputMethodService.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/InputMethodService.pb')
         .get();
     });

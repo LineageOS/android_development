@@ -26,7 +26,7 @@ import {assertDefined} from '@common/assert';
 import {Timer} from '@common/time/timer';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
+import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
 import {ViewerEvents} from '@viewers/common/viewer_events';

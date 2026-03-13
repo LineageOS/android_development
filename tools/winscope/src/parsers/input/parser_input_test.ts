@@ -15,7 +15,7 @@
  */
 
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
-import {getParserInput} from '@test/unit/fixture_utils';
+import {getParserInput} from '@test/unit/parsers/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';

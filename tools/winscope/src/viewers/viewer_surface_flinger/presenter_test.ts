@@ -18,8 +18,9 @@ import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
+import {FileReaderSurfaceFlinger} from '@legacy_file_readers/surface_flinger/file_reader_surface_flinger';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
@@ -178,6 +179,7 @@ the default for its data type.`,
   override async setUpTestEnvironment(): Promise<void> {
     const parser = await parseAndConvertToPerfettoTrace(
       'traces/elapsed_and_real_timestamp/SurfaceFlinger_multidisplay.pb',
+      [FileReaderSurfaceFlinger.createInstance],
     );
 
     this.traceSf = new TraceBuilder<HierarchyTreeNode>()

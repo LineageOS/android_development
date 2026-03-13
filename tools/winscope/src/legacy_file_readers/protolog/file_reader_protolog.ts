@@ -22,6 +22,7 @@ import {getLogger, Logger} from '@compat/logging';
 import {PerfettoClockSnapshot, PerfettoInternedData, PerfettoInternedString, PerfettoProtoLogMessage, PerfettoTracePacket, ProtoLogFileProtoUdc, ProtoLogMessageUdc,} from '@compat/protobuf';
 import {ProtologJson32, ProtologJson64} from '@compat/protolog';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
@@ -44,6 +45,13 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessageUdc> {
     logger: Logger = getLogger('ParserProtoLog'),
   ) {
     super(traceFile, timestampConverter, metadata, logger);
+  }
+
+  static async createInstance(
+    trace: TraceFile,
+    timestampConverter: ParserTimestampConverter,
+  ): Promise<LegacyFileReader[]> {
+    return new FileReaderProtoLog(trace, timestampConverter).read();
   }
 
   override getTraceType(): TraceType {

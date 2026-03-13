@@ -13,40 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ProcessedFiles} from '@app/processed_files';
 import {assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
-import {FileReaderInputMethodManagerService} from '@legacy_file_readers/input_method/file_reader_input_method_manager_service';
-import {FileReaderInputMethodService} from '@legacy_file_readers/input_method/file_reader_input_method_service';
-import {FileReaderProtoLog} from '@legacy_file_readers/protolog/file_reader_protolog';
-import {FileReaderSurfaceFlinger} from '@legacy_file_readers/surface_flinger/file_reader_surface_flinger';
-import {FileReaderTransactions} from '@legacy_file_readers/transactions/file_reader_transactions';
-import {FileReaderTransitionsShell} from '@legacy_file_readers/transitions/file_reader_transitions_shell';
-import {FileReaderTransitionsWm} from '@legacy_file_readers/transitions/file_reader_transitions_wm';
-import {FileReaderViewCapture} from '@legacy_file_readers/view_capture/file_reader_view_capture';
-import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
-import {FileReaderWindowManagerDump} from '@legacy_file_readers/window_manager/file_reader_window_manager_dump';
+import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace_api/trace_file';
 
+import {FileReaderConstructor} from './file_reader_constructor';
+
+/**
+ * Factory for creating legacy file readers.
+ * Used by {@link FileLoader} to instantiate readers capable of parsing a specific {@link TraceFile}.
+ */
 export class LegacyFileReaderFactory {
-  static readonly READERS = [
-    FileReaderInputMethodClients,
-    FileReaderInputMethodManagerService,
-    FileReaderInputMethodService,
-    FileReaderProtoLog,
-    FileReaderSurfaceFlinger,
-    FileReaderTransactions,
-    FileReaderWindowManager,
-    FileReaderWindowManagerDump,
-    FileReaderTransitionsWm,
-    FileReaderTransitionsShell,
-    FileReaderViewCapture,
-  ];
+  private readonly constructors: FileReaderConstructor[] = [];
+
+  addConstructor(ctor: FileReaderConstructor) {
+    this.constructors.push(ctor);
+    return this;
+  }
 
   async processFiles(
     traceFiles: TraceFile[],
@@ -64,21 +52,11 @@ export class LegacyFileReaderFactory {
 
       let hasFoundFileReader = false;
 
-      for (const FileReaderType of LegacyFileReaderFactory.READERS) {
+      for (const constructor of this.constructors) {
         try {
-          const fileReader = new FileReaderType(traceFile, timestampConverter);
-          await fileReader.read();
+          const fileReaders = await constructor(traceFile, timestampConverter);
           hasFoundFileReader = true;
-
-          if (fileReader instanceof FileReaderViewCapture) {
-            fileReader.getWindowParsers().forEach((subReader) => {
-              assertTrue(
-                subReader.getLengthEntries() > 0,
-                () => 'Trace is empty',
-              );
-              supportedFiles.push(subReader);
-            });
-          } else {
+          for (const fileReader of fileReaders) {
             assertTrue(
               fileReader.getLengthEntries() > 0,
               () => 'Trace is empty',

@@ -129,6 +129,17 @@ describe('PerfettoParserFactory', () => {
       ]);
     });
 
+    it('robust to non-perfetto file', async () => {
+      let file = await getFixtureFile('traces/screenshot/screenshot.png');
+      const processedFiles =
+        await new PerfettoParserFactory().processFile(
+          new TraceFile(file),
+          makeConverterNoRteOffsets(),
+          undefined,
+        );
+      expect(processedFiles.parsers.length).toBe(0);
+    });
+
     async function createsReaderForFile(
       filepath: string,
       types: TraceType[],

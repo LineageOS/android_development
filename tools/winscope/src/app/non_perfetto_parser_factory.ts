@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {ProcessedFiles} from '@app/processed_files';
 import {assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
 import {ProgressListener} from '@messaging/progress_listener';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';

@@ -93,7 +93,7 @@ describe('LegacyToPerfettoConverter', () => {
   it('adds legacy trace without timestamp to existing perfetto file', async () => {
     const packetB0 = makePacketWithBoottimeTs(0);
     const readers = [makeFileReader([packetB0])];
-    expect(packetB0.getTimestamp()).toEqual('0');
+    expect(packetB0.getTimestamp()?.toString()).toEqual('0');
 
     const existingPacket = new PerfettoTracePacket();
     existingPacket.setTimestamp('50');
@@ -116,7 +116,7 @@ describe('LegacyToPerfettoConverter', () => {
         (p: PerfettoTracePacket) => p.toObject(false) as unknown,
       ),
     );
-    expect(packetB0.getTimestamp()).toEqual('50');
+    expect(packetB0.getTimestamp()?.toString()).toEqual('50');
   });
 
   it('ignores legacy file that cannot be converted to perfetto format', async () => {

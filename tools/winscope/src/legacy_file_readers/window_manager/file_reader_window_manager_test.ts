@@ -16,11 +16,13 @@
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {PerfettoClockSnapshot, WinscopeExtensionsImpl} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {FileReaderWindowManager} from './file_reader_window_manager';
 
 describe('FileReaderWindowManager', () => {
   beforeAll(() => {
@@ -31,7 +33,9 @@ describe('FileReaderWindowManager', () => {
     let readerRealTs: LegacyFileReader;
 
     beforeAll(async () => {
-      readerRealTs = await new LegacyFileReaderProvider()
+      readerRealTs = await new LegacyFileReaderProvider([
+        FileReaderWindowManager.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/WindowManager.pb')
         .get();
     });
@@ -115,7 +119,9 @@ describe('FileReaderWindowManager', () => {
     let readerElapsedTs: LegacyFileReader;
 
     beforeAll(async () => {
-      readerElapsedTs = await new LegacyFileReaderProvider()
+      readerElapsedTs = await new LegacyFileReaderProvider([
+        FileReaderWindowManager.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/WindowManager.pb')
         .get();
     });
@@ -154,7 +160,9 @@ describe('FileReaderWindowManager', () => {
     let readerCritical: LegacyFileReader;
 
     beforeAll(async () => {
-      readerCritical = await new LegacyFileReaderProvider()
+      readerCritical = await new LegacyFileReaderProvider([
+        FileReaderWindowManager.createInstance,
+      ])
         .addFile(
           'traces/elapsed_and_real_timestamp/window_trace_critical.winscope',
         )

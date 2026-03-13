@@ -16,15 +16,19 @@
 
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
+import {LegacyFileReaderProvider} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
+
+import {FileReaderTransitionsWm} from './file_reader_transitions_wm';
 
 describe('FileReaderTransitionsWm', () => {
   let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    reader = await new LegacyFileReaderProvider()
+    reader = await new LegacyFileReaderProvider([
+      FileReaderTransitionsWm.createInstance,
+    ])
       .addFile('traces/elapsed_and_real_timestamp/wm_transition_trace.pb')
       .get();
   });
@@ -55,7 +59,9 @@ describe('FileReaderTransitionsWm', () => {
     expect(packets[0].getShellTransition()).toBeDefined();
     const transition = packets[0].getShellTransition();
     expect(transition?.getId()).toBe(6);
-    expect(transition?.getStartTransactionId()?.toString()).toBe('13086765351818');
+    expect(transition?.getStartTransactionId()?.toString()).toBe(
+      '13086765351818',
+    );
     expect(transition?.getSendTimeNs()?.toString()).toBe('57649646973488');
   });
 });
