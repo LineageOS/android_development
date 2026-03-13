@@ -22,9 +22,9 @@ import {getLogger, Logger} from '@compat/logging';
 import {PerfettoClockSnapshot, PerfettoInternedData, PerfettoInternedString, PerfettoProtoLogMessage, PerfettoTracePacket, ProtoLogFileProtoUdc, ProtoLogMessageUdc,} from '@compat/protobuf';
 import {ProtologJson32, ProtologJson64} from '@compat/protolog';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace_api/trace_file';
 
 import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
@@ -142,7 +142,7 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessageUdc> {
       );
 
       // needs to be any because of compatibility with BigInt type
-      // eslint-disable-next-line no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let messageId: any;
       if (this.is64BitVersion(entry)) {
         messageId = assertDefined(entry.getMessageHash());

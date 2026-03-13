@@ -31,10 +31,10 @@ import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitte
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FileReaderAndParser} from './file_reader_and_parser';

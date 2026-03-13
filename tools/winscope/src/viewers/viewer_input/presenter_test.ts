@@ -27,13 +27,13 @@ import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder'
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {FixedStringFormatter} from '@trace/formatters';
 import {InputColumnType} from '@trace/input/input_column_type';
 import {InputEventType} from '@trace/input/input_event_type';
-import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';

@@ -30,9 +30,9 @@ import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {FileReader} from '@trace_api/file_reader';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceFile} from '@trace_api/trace_file';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {TraceBuilder} from './trace_api/trace_builder';

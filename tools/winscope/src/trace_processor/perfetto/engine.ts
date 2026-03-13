@@ -142,8 +142,6 @@ export abstract class EngineBase {
 
     this.rxSeqId = seq;
 
-    let isFinalResponse = true;
-
     // Helper to fully parse RPC if we haven't already extracted what we need.
     // Only parse if not skipping query result or if we need other fields.
     // Actually we only extracted seq and response and queryResultBytes.
@@ -190,8 +188,6 @@ export abstract class EngineBase {
         pendingQuery.appendResultBatch(qResRaw);
         if (pendingQuery.isComplete()) {
           this.pendingQueries.shift();
-        } else {
-          isFinalResponse = false;
         }
         break;
 

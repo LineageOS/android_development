@@ -20,8 +20,8 @@ import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 
 import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
 

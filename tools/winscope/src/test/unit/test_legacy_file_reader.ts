@@ -16,8 +16,8 @@
 
 import {Timestamp} from '@common/time/time';
 import {PerfettoTracePacket} from '@compat/protobuf';
-import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 
 import {TestFileReader} from './test_file_reader';
 

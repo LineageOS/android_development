@@ -26,11 +26,11 @@ import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder'
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
-import {TracePositionUpdate} from '@trace_api/trace_events';
 import {makeIdMatchFilter, makeNodeFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';

@@ -21,9 +21,9 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 

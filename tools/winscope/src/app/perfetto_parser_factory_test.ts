@@ -19,8 +19,8 @@ import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {TraceType} from '@trace_api/trace_type';
 import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 
 import {PerfettoParserFactory} from './perfetto_parser_factory';
 

@@ -27,10 +27,10 @@ import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {Parser} from '@trace_api/parser';
 import {CustomTraceEntryLazy, Trace, TraceEntryEager, TraceEntryLazy,} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
-import {TracePositionUpdate} from '@trace_api/trace_events';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRect} from '@tree_node/trace_rect';
 

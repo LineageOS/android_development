@@ -31,10 +31,10 @@ import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {FrameMapper} from '@trace_api/frame_mapper';
 import {Parser} from '@trace_api/parser';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {makeSpyQueryResult} from '@trace_processor/test_utils';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
-import {TraceFile} from '@trace_api/trace_file';
 
 import {FileLoader, FileLoaderResult} from './file_loader';
 import {FileReaderAndParser} from './file_reader_and_parser';

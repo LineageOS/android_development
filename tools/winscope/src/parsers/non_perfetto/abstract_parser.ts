@@ -24,11 +24,11 @@ import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType
 import {FileReader} from '@trace_api/file_reader';
 import {EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {TraceFile} from '@trace_api/trace_file';
 import {Logger} from 'typescript-logging-log4ts-style';
 
 export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
