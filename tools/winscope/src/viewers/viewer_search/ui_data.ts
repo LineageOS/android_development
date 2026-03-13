@@ -55,7 +55,8 @@ export class ListedSearch {
   constructor(
     readonly query: string,
     readonly name = query,
+    timeMs?: number,
   ) {
-    this.timeMs = Date.now();
+    this.timeMs = timeMs ?? Date.now();
   }
 }

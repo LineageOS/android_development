@@ -38,6 +38,7 @@ describe('PresenterSearch', () => {
   let userNotifierChecker: UserNotifierChecker;
   let element: HTMLElement;
   let emitEventSpy: jasmine.Spy;
+  let storage: InMemoryStorage;
 
   beforeAll(() => {
     userNotifierChecker = new UserNotifierChecker();
@@ -45,9 +46,10 @@ describe('PresenterSearch', () => {
   });
 
   beforeEach(() => {
+    storage = new InMemoryStorage();
     presenter = new Presenter(
       new Traces(),
-      new InMemoryStorage(),
+      storage,
       (newData: UiData) => (uiData = newData),
       timestampConverter,
     );
@@ -125,6 +127,23 @@ describe('PresenterSearch', () => {
     emitEventSpy.calls.reset();
     await presenter.onGlobalSearchSectionClick();
     expect(emitEventSpy).not.toHaveBeenCalled();
+  });
+
+  it('loads recent searches from storage', () => {
+    const testStorage = new InMemoryStorage();
+    const recentSearches = [new ListedSearch('stored query')];
+    testStorage.add(
+      'recentSearches',
+      JSON.stringify({searches: recentSearches}),
+    );
+
+    presenter = new Presenter(
+      new Traces(),
+      testStorage,
+      (newData: UiData) => (uiData = newData),
+      timestampConverter,
+    );
+    expect(uiData.recentSearches).toEqual(recentSearches);
   });
 
   it('handles search for successful query with zero rows', async () => {
@@ -304,9 +323,9 @@ describe('PresenterSearch', () => {
     expect(uiData.currentSearches[0].result).toBeUndefined();
   });
 
-  it('retains at most 10 recent searches', async () => {
-    for (let i = 0; i < 12; i++) {
-      const testQuery = 'recent query';
+  it('retains at most 100 recent searches and saves to storage', async () => {
+    for (let i = 0; i < 110; i++) {
+      const testQuery = `recent query ${i}`;
       const trace = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [
         testQuery,
         '1',
@@ -315,7 +334,44 @@ describe('PresenterSearch', () => {
       await presenter.onAppEvent(new TraceAddRequest(trace));
     }
     expect(uiData.currentSearches.length).toBe(1);
-    expect(uiData.recentSearches.length).toBe(10);
+    expect(uiData.recentSearches.length).toBe(100);
+    const saved = JSON.parse(storage.get('recentSearches') ?? '{}');
+    expect(saved.searches.length).toBe(100);
+  });
+
+  it('moves duplicate recent search to the top', async () => {
+    const query1 = 'query 1';
+    const query2 = 'query 2';
+
+    // First query
+    const trace1 = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [query1, '1']);
+    await presenter.onSearchQueryClick(query1, 1);
+    await presenter.onAppEvent(new TraceAddRequest(trace1));
+
+    // Second query
+    const trace2 = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [query2, '1']);
+    await presenter.onSearchQueryClick(query2, 1);
+    await presenter.onAppEvent(new TraceAddRequest(trace2));
+
+    expect(uiData.recentSearches).toEqual([
+      new ListedSearch(query2),
+      new ListedSearch(query1),
+    ]);
+
+    // Repeat first query
+    const trace1Again = makeEmptyTrace<QueryResult>(TraceType.SEARCH, [
+      query1,
+      '1',
+    ]);
+    await presenter.onSearchQueryClick(query1, 1);
+    await presenter.onAppEvent(new TraceAddRequest(trace1Again));
+
+    // Verify it moved to the top and didn't duplicate
+    expect(uiData.recentSearches.length).toBe(2);
+    expect(uiData.recentSearches).toEqual([
+      new ListedSearch(query1),
+      new ListedSearch(query2),
+    ]);
   });
 
   function searchEqualityTester(
