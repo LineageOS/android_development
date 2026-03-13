@@ -57,7 +57,7 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [
         makeExpectedClockSnapshot({
@@ -67,7 +67,7 @@ describe('LegacyToPerfettoConverter', () => {
         }),
         packetB1,
         packetB2,
-      ].map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+      ].map((p: PerfettoTracePacket) => p.toObject()),
     );
   });
 
@@ -82,10 +82,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [perfettoSnapshot, emptyPacket, packetB1, packetM1].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
   });
@@ -110,10 +110,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [perfettoSnapshot, existingPacket, packetB0].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
     expect(packetB0.getTimestamp()?.toString()).toEqual('50');
@@ -137,10 +137,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [perfettoSnapshot, emptyPacket, packetM1].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
   });
@@ -189,7 +189,7 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [
         makeExpectedClockSnapshot({
@@ -203,7 +203,7 @@ describe('LegacyToPerfettoConverter', () => {
           monotonic: 11n,
         }),
         packetM1,
-      ].map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+      ].map((p: PerfettoTracePacket) => p.toObject()),
     );
   });
 
@@ -222,10 +222,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [clockSnapshot, packet].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
   });
@@ -245,10 +245,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [clockSnapshot, packet].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
   });
@@ -347,10 +347,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [...snapshotPackets, ...packets].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
   }
@@ -385,10 +385,10 @@ describe('LegacyToPerfettoConverter', () => {
     expect(
       trace
         .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject(false) as unknown),
+        .map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [...snapshotPackets, ...packets].map(
-        (p: PerfettoTracePacket) => p.toObject(false) as unknown,
+        (p: PerfettoTracePacket) => p.toObject(),
       ),
     );
   }

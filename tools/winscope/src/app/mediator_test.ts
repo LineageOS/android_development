@@ -52,7 +52,7 @@ import {ViewerFactory} from '@viewers/viewer_factory';
 import {ViewerStub} from '@viewers/viewer_stub';
 
 import {FileLoader} from './file_loader';
-import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';
+import {LegacyToPerfettoConverter} from '../legacy_file_readers/common/legacy_to_perfetto_converter';
 import {LoadedFileData} from './loaded_file_data';
 import {Mediator} from './mediator';
 import {TimelineData} from './timeline_data';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@app/file_reader_helpers';
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@legacy_file_readers/common/file_reader_helpers';
 import {assertDefined} from '@common/assert';
 import {createZipArchive, getFileExtension, OnProgressUpdateType, removeDirFromFileName, removeExtensionFromFilename,} from '@common/io';
 import {INVALID_TIME_NS, TimeRange, Timestamp} from '@common/time/time';

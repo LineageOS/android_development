@@ -85,7 +85,7 @@ export class LegacyToPerfettoConverter {
     // timestamp syncing. The packets for these traces will be parsed by
     // TP with the "has_invalid_elapsed_ts" column set to true.
     const hasValidTs = (packet: PerfettoTracePacket) => {
-      return packet.hasTimestamp() && packet.getTimestamp() !== '0';
+      return packet.hasTimestamp() && packet.getTimestamp()?.toString() !== '0';
     };
     const nonZeroTs = trace
       .getPacketList()

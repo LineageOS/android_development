@@ -211,17 +211,6 @@ export function makeWarningUnsupportedFileFormat(descriptor: string) {
 }
 
 /**
- * A warning for when legacy to perfetto trace conversion fails.
- */
-export function makeWarningFailedToConvertLegacyTraces(errorMessage: string) {
-  return new UserWarning(
-    'failed to convert legacy trace',
-    `Legacy to perfetto conversion failed: ${errorMessage}
-Discarding legacy traces.`,
-  );
-}
-
-/**
  * A warning for when CSV export fails.
  */
 export function makeWarningFailedToExportToCsv(errorMessage: string) {

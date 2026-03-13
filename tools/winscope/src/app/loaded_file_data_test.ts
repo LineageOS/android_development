@@ -39,7 +39,7 @@ import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {FileLoader, FileLoaderResult} from './file_loader';
 import {FileReaderAndParser} from './file_reader_and_parser';
 import {FilesSource} from './files_source';
-import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';
+import {LegacyToPerfettoConverter} from '../legacy_file_readers/common/legacy_to_perfetto_converter';
 import {LoadedFileData} from './loaded_file_data';
 import {ParsingErrorType} from './parsing_error_type';
 import {makeWarningIncompleteFrameMapping} from './warnings';

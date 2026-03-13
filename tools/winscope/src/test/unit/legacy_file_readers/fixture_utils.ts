@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LegacyToPerfettoConverter} from '@app/legacy_to_perfetto_converter';
+import {LegacyToPerfettoConverter} from '@legacy_file_readers/common/legacy_to_perfetto_converter';
 import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
 import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
