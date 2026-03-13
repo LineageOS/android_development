@@ -18,7 +18,7 @@ import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {getLogger} from '@compat/logging';
+import {getLogger, Logger} from '@compat/logging';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType,} from '@trace_api/custom_query';
 import {FileReader} from '@trace_api/file_reader';
@@ -29,7 +29,6 @@ import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {Logger} from 'typescript-logging-log4ts-style';
 
 export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
   private timestamps: Timestamp[] | undefined;

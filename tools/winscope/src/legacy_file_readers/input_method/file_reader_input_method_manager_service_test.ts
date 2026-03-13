@@ -57,7 +57,7 @@ describe('FileReaderInputMethodManagerService', () => {
       expect(data?.getWhere()).toBe(
         'InputMethodManagerService#startInputOrWindowGainedFocus',
       );
-      expect(packets[0].getTimestamp()).toEqual('15963782518');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('15963782518');
     });
 
     it('converts to valid perfetto trace', async () => {
@@ -110,7 +110,7 @@ describe('FileReaderInputMethodManagerService', () => {
       expect(data?.getWhere()).toBe(
         'InputMethodManagerService#startInputOrWindowGainedFocus',
       );
-      expect(packets[0].getTimestamp()).toEqual('1149226290110');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('1149226290110');
     });
   });
 });

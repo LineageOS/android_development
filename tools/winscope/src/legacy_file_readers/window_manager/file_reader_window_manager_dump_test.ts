@@ -65,7 +65,7 @@ describe('FileReaderWindowManagerDump', () => {
         ?.getExtension(WinscopeExtensionsImpl.windowmanager)
         ?.getWindowManagerService(),
     ).toBeDefined();
-    expect(packets[0].getTimestamp()).toEqual('0');
+    expect(packets[0].getTimestamp()?.toString()).toEqual('0');
     expect(packets[0].getTimestampClockId()).toEqual(
       PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );

@@ -59,7 +59,7 @@ describe('FileReaderTransactions', () => {
         packets[0].getSurfaceflingerTransactions()?.getTransactionsList()
           ?.length,
       ).toBe(2);
-      expect(packets[0].getTimestamp()).toEqual('2450981445');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('2450981445');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
@@ -161,7 +161,7 @@ describe('FileReaderTransactions', () => {
         packets[0].getSurfaceflingerTransactions()?.getTransactionsList()
           ?.length,
       ).toBe(1);
-      expect(packets[0].getTimestamp()).toEqual('14862317023');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('14862317023');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );

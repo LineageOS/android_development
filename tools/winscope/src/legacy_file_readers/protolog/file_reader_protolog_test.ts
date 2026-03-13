@@ -176,8 +176,8 @@ abstract class ParserProtologTest {
         expect(packet.getSequenceFlags()).toEqual(expectedMsg.sequenceFlags);
         expect(packet.getTrustedUid()).toEqual(trustedUid);
         expect(packet.getTrustedPid()).toEqual(trustedPid);
-        expect(packet.getTimestamp()).toEqual(expectedMsg.timestamp);
-        expect(packet.getProtologMessage()?.getMessageId()).toEqual(
+        expect(packet.getTimestamp()?.toString()).toEqual(expectedMsg.timestamp);
+        expect(packet.getProtologMessage()?.getMessageId()?.toString()).toEqual(
           expectedMsg.messageId,
         );
         expect(packet.getProtologMessage()?.getStrParamIidsList()).toEqual(
@@ -189,8 +189,11 @@ abstract class ParserProtologTest {
         expect(packet.getProtologMessage()?.getDoubleParamsList()).toEqual(
           expectedMsg.doubleParams,
         );
-        expect(packet.getProtologMessage()?.getSint64ParamsList()).toEqual(
-          expectedMsg.sint64Params,
+        expect(packet.getProtologMessage()?.getSint64ParamsList()?.map(
+          // eslint-disable-next-line @typescript/no-explicit-any
+          (param: any) => param.toString()))
+          .toEqual(
+            expectedMsg.sint64Params,
         );
         expect(packet.hasProtologViewerConfig()).toBeFalse();
         expect(packet.hasInternedData()).toBeFalse();

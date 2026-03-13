@@ -59,7 +59,7 @@ describe('FileReaderWindowManager', () => {
           ?.getExtension(WinscopeExtensionsImpl.windowmanager)
           ?.getWindowManagerService(),
       ).toBeDefined();
-      expect(packets[0].getTimestamp()).toEqual('14474594000');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('14474594000');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
       );
@@ -143,7 +143,7 @@ describe('FileReaderWindowManager', () => {
           ?.getExtension(WinscopeExtensionsImpl.windowmanager)
           ?.getWindowManagerService(),
       ).toBeDefined();
-      expect(packets[0].getTimestamp()).toEqual('850254319343');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('850254319343');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
       );

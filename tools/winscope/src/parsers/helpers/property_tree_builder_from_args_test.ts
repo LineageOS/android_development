@@ -15,7 +15,7 @@
  */
 
 import {convertSnakeToCamelCase} from '@common/string_helpers';
-import {descriptors} from '@protos/test/fake_proto/descriptors';
+import {fakeProtoDescriptors} from '@compat/test/protobuf';
 import {ChildProperty, PropertyTreeBuilder,} from '@test/unit/tree_node/property_tree_builder';
 import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
@@ -26,7 +26,7 @@ import {PropertySource, PropertyValue} from '@tree_node/property_tree_node';
 import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
 
 describe('PropertyTreeBuilderFromArgs', () => {
-  registerDescriptors(descriptors);
+  registerDescriptors(fakeProtoDescriptors);
   const messageType = PERFETTO_TRACE_PACKET_ROOT.lookupType(
     'winscope.test.Entry',
   )! as TamperedMessageType;

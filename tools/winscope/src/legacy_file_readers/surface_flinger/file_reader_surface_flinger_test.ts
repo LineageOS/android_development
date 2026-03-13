@@ -71,7 +71,7 @@ describe('FileReaderSurfaceFlinger', () => {
           ?.getLayers()
           ?.getLayersList()?.length,
       ).toBe(83);
-      expect(packets[0].getTimestamp()).toEqual('14500282843');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('14500282843');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
@@ -200,7 +200,7 @@ describe('FileReaderSurfaceFlinger', () => {
           ?.getLayers()
           ?.getLayersList()?.length,
       ).toBe(94);
-      expect(packets[0].getTimestamp()).toEqual('850335483446');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('850335483446');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );

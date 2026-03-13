@@ -65,7 +65,7 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].getTimestamp()).toEqual('0');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('0');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
@@ -104,7 +104,7 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].getTimestamp()).toEqual('0');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('0');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );

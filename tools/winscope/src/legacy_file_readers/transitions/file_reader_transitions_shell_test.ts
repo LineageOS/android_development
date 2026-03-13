@@ -70,7 +70,7 @@ describe('FileReaderTransitionsShell', () => {
     expect(packets[1].getShellTransition()).toBeDefined();
     const transition = packets[1].getShellTransition();
     expect(transition?.getId()).toBe(6);
-    expect(transition?.getDispatchTimeNs()).toBe('57649649922341');
+    expect(transition?.getDispatchTimeNs()?.toString()).toBe('57649649922341');
     expect(transition?.getHandler()).toBe(2);
   });
 });
