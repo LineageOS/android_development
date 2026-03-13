@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ComponentRef, Type} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
 import {TimestampConverter} from '@common/time/timestamp_converter';
@@ -24,8 +25,7 @@ import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 
-import {ViewerComponent} from './components/viewer_component';
-import {View, Viewer, ViewType} from './viewer';
+import {Viewer, ViewerComponent, ViewType} from './viewer';
 
 interface Presenter {
   onAppEvent(event: WinscopeEvent): Promise<void>;
@@ -34,35 +34,61 @@ interface Presenter {
   onDestroy(): void;
 }
 
-export abstract class AbstractViewer<T extends object> implements Viewer {
+export abstract class AbstractViewer<T, U> implements Viewer {
   protected readonly trace: Trace<T> | undefined;
-  protected readonly htmlElement: HTMLElement;
   protected readonly presenter: Presenter;
-  private readonly view: View;
+  private readonly title: string;
+  private readonly componentType: Type<ViewerComponent>;
+  protected componentRef: ComponentRef<ViewerComponent> | undefined;
 
   constructor(
     trace: Trace<T> | undefined,
     traces: Traces,
-    componentSelector: string,
+    componentType: Type<ViewerComponent>,
     store: Store,
     timestampConverter?: TimestampConverter,
   ) {
     this.trace = trace;
-    this.htmlElement = document.createElement(componentSelector);
-    (this.htmlElement as unknown as ViewerComponent<T>).store = store;
-    this.presenter = this.initializePresenter(
+    this.title = TRACE_INFO[this.getTraceTypeForViewTitle()].name;
+    this.componentType = componentType;
+    const notifyViewCallback = (uiData: U) => {
+      const component = this.componentRef;
+      if (!component) {
+        return;
+      }
+      component.setInput('inputData', uiData);
+      component.setInput('store', store);
+    };
+    this.presenter = this.createPresenter(
       trace,
       traces,
       store,
+      notifyViewCallback,
       timestampConverter,
     );
-    this.presenter.addEventListeners(this.htmlElement);
-    this.view = new View(
-      this.getViewType(),
-      this.getTraces(),
-      this.htmlElement,
-      TRACE_INFO[this.getTraceTypeForViewTitle()].name,
+  }
+
+  setComponentRef(componentRef: ComponentRef<ViewerComponent>) {
+    this.componentRef = componentRef;
+    this.presenter.addEventListeners(
+      componentRef.instance.elementRef.nativeElement,
     );
+  }
+
+  onShow() {
+    if (!this.componentRef) {
+      return;
+    }
+    this.componentRef.instance.elementRef.nativeElement.style.display = '';
+    this.componentRef.changeDetectorRef.detectChanges();
+  }
+
+  onHide() {
+    if (!this.componentRef) {
+      return;
+    }
+    this.componentRef.instance.elementRef.nativeElement.style.display = 'none';
+    this.componentRef.changeDetectorRef.detectChanges();
   }
 
   setEmitEvent(callback: EmitEvent) {
@@ -73,8 +99,12 @@ export abstract class AbstractViewer<T extends object> implements Viewer {
     await this.presenter.onAppEvent(event);
   }
 
-  getViews(): View[] {
-    return [this.view];
+  getTitle(): string {
+    return this.title;
+  }
+
+  getComponentType(): Type<ViewerComponent> {
+    return this.componentType;
   }
 
   getTraces(): Array<Trace<unknown>> {
@@ -89,14 +119,15 @@ export abstract class AbstractViewer<T extends object> implements Viewer {
     return assertDefined(this.trace).type;
   }
 
-  protected getViewType(): ViewType {
+  getViewType(): ViewType {
     return ViewType.TRACE_TAB;
   }
 
-  protected abstract initializePresenter(
+  protected abstract createPresenter(
     trace: Trace<T> | undefined,
     traces: Traces,
     store: Store,
+    notifyViewCallback: (uiData: U) => void,
     timestampConverter?: TimestampConverter,
   ): Presenter;
 }

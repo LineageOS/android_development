@@ -43,7 +43,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {RequestedTraceTypes} from '@trace_collection/adb_files';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
-import {View, Viewer, ViewType} from '@viewers/viewer';
+import {Viewer, ViewType} from '@viewers/viewer';
 import {ViewerFactory} from '@viewers/viewer_factory';
 
 import {FileLoader} from './file_loader';
@@ -72,7 +72,7 @@ export class Mediator {
   private activeFileLoader: FileLoader | undefined;
   private timelineData: TimelineData;
   private viewers: Viewer[] = [];
-  private focusedTabView: undefined | View;
+  private focusedTabView: undefined | Viewer;
   private areViewersLoaded = false;
   private lastRemoteToolDeferredTimestampReceived?: () => Timestamp | undefined;
   private currentProgressListener?: ProgressListener;
@@ -252,7 +252,7 @@ export class Mediator {
   }
 
   private async onTabbedViewSwitched(event: TabbedViewSwitched) {
-    const newActiveTrace = event.newFocusedView.traces[0];
+    const newActiveTrace = event.newFocusedView.getTraces()[0];
     if (this.timelineData.trySetActiveTrace(newActiveTrace)) {
       const activeTraceChanged = new ActiveTraceChanged(newActiveTrace);
       await this.timelineComponent?.onWinscopeEvent(activeTraceChanged);
@@ -328,7 +328,7 @@ export class Mediator {
   private async onTraceSearchRequest(event: TraceSearchRequest) {
     await this.timelineComponent?.onWinscopeEvent(event);
     const searchViewer = this.viewers.find(
-      (viewer) => viewer.getViews()[0].type === ViewType.GLOBAL_SEARCH,
+      (viewer) => viewer.getViewType() === ViewType.GLOBAL_SEARCH,
     );
     const trace = await this.loadedFileData.tryCreateSearchTrace(event.query);
     this.timelineComponent?.onWinscopeEvent(new TraceSearchCompleted());
@@ -357,7 +357,7 @@ export class Mediator {
     const traces = this.loadedFileData.getTraces();
     const views = await TraceSearchInitializer.createSearchViews(traces);
     const searchViewer = this.viewers.find(
-      (viewer) => viewer.getViews()[0].type === ViewType.GLOBAL_SEARCH,
+      (viewer) => viewer.getViewType() === ViewType.GLOBAL_SEARCH,
     );
     const initializedEvent = new TraceSearchInitialized(views);
     await searchViewer?.onWinscopeEvent(initializedEvent);
@@ -506,7 +506,7 @@ export class Mediator {
   }
 
   getActiveTraceType(): TraceType | undefined {
-    return this.focusedTabView?.traces[0]?.type;
+    return this.focusedTabView?.getTraces()[0]?.type;
   }
 
   getCurrentTimestamp(): Timestamp | undefined {
@@ -612,16 +612,14 @@ export class Mediator {
       return true;
     }
 
-    return viewer.getViews().some((view) => {
-      if (view === this.focusedTabView) {
-        return true;
-      }
-      if (view.type === ViewType.OVERLAY) {
-        // Nice to have: update viewer only if overlay view is actually visible (not minimized)
-        return true;
-      }
-      return false;
-    });
+    if (viewer === this.focusedTabView) {
+      return true;
+    }
+    if (viewer.getViewType() === ViewType.OVERLAY) {
+      // Nice to have: update viewer only if overlay view is actually visible (not minimized)
+      return true;
+    }
+    return false;
   }
 
   private async processRemoteToolDeferredTimestampReceived(
@@ -711,9 +709,9 @@ export class Mediator {
     await this.propagateTracePosition(initialPosition, true, source);
     Analytics.Memory.logUsage('viewers_initialized');
 
-    this.focusedTabView = this.viewers
-      .find((v) => v.getViews()[0].type === ViewType.TRACE_TAB)
-      ?.getViews()[0];
+    this.focusedTabView = this.viewers.find(
+      (v) => v.getViewType() === ViewType.TRACE_TAB,
+    );
     this.areViewersLoaded = true;
 
     // Notify app component (i.e. render viewers), only after all viewers have been initialized
@@ -730,7 +728,8 @@ export class Mediator {
     // "trace position update" could be processed concurrently within the same viewer.
     // Meaning the viewer could perform twice the initial heavy pre-processing,
     // thus increasing UI initialization times.
-    const initialTimelineTabTraceType = this.focusedTabView?.traces[0]?.type;
+    const initialTimelineTabTraceType =
+      this.focusedTabView?.getTraces()[0]?.type;
     await this.appComponent.onWinscopeEvent(
       new ViewersLoaded(this.viewers, initialTimelineTabTraceType),
     );
@@ -849,8 +848,8 @@ export class Mediator {
   }
 
   private async propagateToOverlays(event: WinscopeEvent) {
-    const overlayViewers = this.viewers.filter((viewer) =>
-      viewer.getViews().some((view: View) => view.type === ViewType.OVERLAY),
+    const overlayViewers = this.viewers.filter(
+      (viewer) => viewer.getViewType() === ViewType.OVERLAY,
     );
     for (const overlay of overlayViewers) {
       await overlay.onWinscopeEvent(event);
