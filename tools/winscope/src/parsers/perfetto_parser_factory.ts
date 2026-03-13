@@ -18,27 +18,15 @@ import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {getLogger, Logger} from '@compat/logging';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
-import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
+import {FileReaderAndParser} from '@parsers/file_reader_and_parser';
 import {buildTraceGeometryData, TraceGeometryData,} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
-import {ParserInputMethodClients} from '@parsers/input_method/parser_input_method_clients';
-import {ParserInputMethodManagerService} from '@parsers/input_method/parser_input_method_manager_service';
-import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
-import {ParserKeyEvent} from '@parsers/input/parser_key_event';
-import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
-import {ParserProtolog} from '@parsers/protolog/parser_protolog';
-import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
-import {ParserTransactions} from '@parsers/transactions/parser_transactions';
-import {ParserTransitions} from '@parsers/transitions/parser_transitions';
-import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
-import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
+import {ParserConstructor} from '@parsers/perfetto/parser_constructor';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-
-import {FileReaderAndParser} from './file_reader_and_parser';
 
 export interface ProcessedFile {
   parsers: Array<FileReaderAndParser<HierarchyTreeNode>>;
@@ -47,24 +35,17 @@ export interface ProcessedFile {
 }
 
 export class PerfettoParserFactory {
-  private static readonly PARSERS = [
-    ParserInputMethodClients,
-    ParserInputMethodManagerService,
-    ParserInputMethodService,
-    ParserProtolog,
-    ParserSurfaceFlinger,
-    ParserTransactions,
-    ParserTransitions,
-    ParserViewCapture,
-    ParserWindowManager,
-    ParserMotionEvent,
-    ParserKeyEvent,
-    ParserCujs,
-  ];
   private static readonly CHUNK_SIZE_BYTES = 50 * 1024 * 1024;
   private static readonly NO_ENTRIES_ERROR_REGEX =
     /Perfetto trace has no \w+(\w|\s)* entries/;
+  private readonly parserConstructors: ParserConstructor[] = [];
+
   constructor(private readonly logger: Logger = getLogger('ParserFactory')) {}
+
+  addParser(parserConstructor: ParserConstructor): PerfettoParserFactory {
+    this.parserConstructors.push(parserConstructor);
+    return this;
+  }
 
   async processFile(
     traceFile: TraceFile,
@@ -92,25 +73,23 @@ export class PerfettoParserFactory {
     await this.processGeometryTables(traceProcessor);
     const traceGeometryData = await buildTraceGeometryData(traceProcessor);
 
-    const parsers = [];
+    const parsers: Array<FileReaderAndParser<HierarchyTreeNode>> = [];
     let hasFoundParser = false;
     const errors: string[] = [];
 
-    for (const ParserType of PerfettoParserFactory.PARSERS) {
+    for (const parserConstructor of this.parserConstructors) {
       try {
-        const parser = new ParserType(
+        const parserInstances = await parserConstructor(
           traceFile,
           traceProcessor,
           timestampConverter,
           traceGeometryData,
         );
-        await parser.parse();
-        if (parser instanceof ParserViewCapture) {
-          parsers.push(...parser.getWindowParsers());
-        } else {
+        for (const parser of parserInstances) {
+          await parser.parse();
           parsers.push(parser);
+          hasFoundParser = true;
         }
-        hasFoundParser = true;
       } catch (error) {
         // skip current parser
         const msg = (error as Error).message;

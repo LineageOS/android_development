@@ -151,7 +151,8 @@ export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoShell
     perfettoTransition.setId(assertDefined(shellTransition.getId()));
     if (
       shellTransition.hasDispatchTimeNs() &&
-      nullifyIfDefaultValue(shellTransition.getDispatchTimeNs()?.toString()) !== null
+      nullifyIfDefaultValue(shellTransition.getDispatchTimeNs()?.toString()) !==
+        null
     ) {
       perfettoTransition.setDispatchTimeNs(
         assertDefined(shellTransition.getDispatchTimeNs()),
@@ -159,7 +160,8 @@ export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoShell
     }
     if (
       shellTransition.hasMergeTimeNs() &&
-      nullifyIfDefaultValue(shellTransition.getMergeTimeNs()?.toString()) !== null
+      nullifyIfDefaultValue(shellTransition.getMergeTimeNs()?.toString()) !==
+        null
     ) {
       perfettoTransition.setMergeTimeNs(
         assertDefined(shellTransition.getMergeTimeNs()),
@@ -167,7 +169,9 @@ export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoShell
     }
     if (
       shellTransition.hasMergeRequestTimeNs() &&
-      nullifyIfDefaultValue(shellTransition.getMergeRequestTimeNs()?.toString()) !== null
+      nullifyIfDefaultValue(
+        shellTransition.getMergeRequestTimeNs()?.toString(),
+      ) !== null
     ) {
       perfettoTransition.setMergeRequestTimeNs(
         assertDefined(shellTransition.getMergeRequestTimeNs()),
@@ -175,7 +179,8 @@ export class FileReaderTransitionsShell extends AbstractFileReader<PerfettoShell
     }
     if (
       shellTransition.hasAbortTimeNs() &&
-      nullifyIfDefaultValue(shellTransition.getAbortTimeNs()?.toString()s) !== null
+      nullifyIfDefaultValue(shellTransition.getAbortTimeNs()?.toString()) !==
+        null
     ) {
       perfettoTransition.setShellAbortTimeNs(
         assertDefined(shellTransition.getAbortTimeNs()),

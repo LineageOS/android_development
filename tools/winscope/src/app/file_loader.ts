@@ -15,7 +15,6 @@
  */
 
 import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
-import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
 import {assertDefined} from '@common/assert';
 import {decompressGZipFile, isGZipFile, isZipFile, unzipFile} from '@common/io';
 import {TimezoneInfo} from '@common/time/time';
@@ -40,7 +39,21 @@ import {UserWarning} from '@messaging/user_warning';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
+import {FileReaderAndParser} from '@parsers/file_reader_and_parser';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {ParserInputMethodClients} from '@parsers/input_method/parser_input_method_clients';
+import {ParserInputMethodManagerService} from '@parsers/input_method/parser_input_method_manager_service';
+import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
+import {ParserKeyEvent} from '@parsers/input/parser_key_event';
+import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
+import {PerfettoParserFactory} from '@parsers/perfetto_parser_factory';
+import {ParserProtolog} from '@parsers/protolog/parser_protolog';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
+import {ParserTransactions} from '@parsers/transactions/parser_transactions';
+import {ParserTransitions} from '@parsers/transitions/parser_transitions';
+import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
+import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
@@ -48,7 +61,6 @@ import {TraceType} from '@trace_api/trace_type';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
-import {FileReaderAndParser} from './file_reader_and_parser';
 import {FilesSource} from './files_source';
 import {ParsingErrorType} from './parsing_error_type';
 import {IdentifiedFiles, TraceFileIdentifier} from './trace_file_identifier';
@@ -261,7 +273,7 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
     onFailureWarning: UserWarning,
   ): Promise<Array<FileReaderAndParser<HierarchyTreeNode>>> {
     const startTimeMs = Date.now();
-    const processedFile = await new PerfettoParserFactory().processFile(
+    const processedFile = await this.createPerfettoParserFactory().processFile(
       file,
       assertDefined(this.timestampConverter),
       progressListener,
@@ -413,5 +425,21 @@ export class FileLoader implements WinscopeEventListener, WinscopeEventEmitter {
       .addConstructor(FileReaderTransitionsWm.createInstance)
       .addConstructor(FileReaderTransitionsShell.createInstance)
       .addConstructor(FileReaderViewCapture.createInstance);
+  }
+
+  private createPerfettoParserFactory(): PerfettoParserFactory {
+    return new PerfettoParserFactory()
+      .addParser(ParserInputMethodClients.createInstance)
+      .addParser(ParserInputMethodManagerService.createInstance)
+      .addParser(ParserInputMethodService.createInstance)
+      .addParser(ParserProtolog.createInstance)
+      .addParser(ParserSurfaceFlinger.createInstance)
+      .addParser(ParserTransactions.createInstance)
+      .addParser(ParserTransitions.createInstance)
+      .addParser(ParserViewCapture.createInstance)
+      .addParser(ParserWindowManager.createInstance)
+      .addParser(ParserMotionEvent.createInstance)
+      .addParser(ParserKeyEvent.createInstance)
+      .addParser(ParserCujs.createInstance);
   }
 }

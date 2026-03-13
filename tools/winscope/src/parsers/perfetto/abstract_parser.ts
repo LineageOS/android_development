@@ -42,9 +42,9 @@ export abstract class AbstractParser<T> implements Parser<T>, FileReader {
   protected entryIndexToRowIdMap: number[] = [];
   protected preProcessTrace?(): Promise<void>;
   protected traceGeometryData: TraceGeometryData;
+  protected traceFile: TraceFile;
 
   private lengthEntries = 0;
-  private traceFile: TraceFile;
   private bootTimeTimestampsNs: bigint[] = [];
   private timestamps: Timestamp[] | undefined;
 

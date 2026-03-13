@@ -55,9 +55,7 @@ describe('LegacyToPerfettoConverter', () => {
     ]);
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [
         makeExpectedClockSnapshot({
@@ -80,9 +78,7 @@ describe('LegacyToPerfettoConverter', () => {
     );
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [perfettoSnapshot, emptyPacket, packetB1, packetM1].map(
         (p: PerfettoTracePacket) => p.toObject(),
@@ -108,9 +104,7 @@ describe('LegacyToPerfettoConverter', () => {
     const trace = await checkAndDecodePerfettoFile(perfettoFile);
 
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [perfettoSnapshot, existingPacket, packetB0].map(
         (p: PerfettoTracePacket) => p.toObject(),
@@ -135,12 +129,10 @@ describe('LegacyToPerfettoConverter', () => {
     );
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
-      [perfettoSnapshot, emptyPacket, packetM1].map(
-        (p: PerfettoTracePacket) => p.toObject(),
+      [perfettoSnapshot, emptyPacket, packetM1].map((p: PerfettoTracePacket) =>
+        p.toObject(),
       ),
     );
   });
@@ -187,9 +179,7 @@ describe('LegacyToPerfettoConverter', () => {
       .convert();
     const trace = await checkAndDecodePerfettoFile(assertDefined(perfettoFile));
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
       [
         makeExpectedClockSnapshot({
@@ -220,13 +210,9 @@ describe('LegacyToPerfettoConverter', () => {
       monotonic: 0n,
     });
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
-      [clockSnapshot, packet].map(
-        (p: PerfettoTracePacket) => p.toObject(),
-      ),
+      [clockSnapshot, packet].map((p: PerfettoTracePacket) => p.toObject()),
     );
   });
 
@@ -243,13 +229,9 @@ describe('LegacyToPerfettoConverter', () => {
       monotonic: 0n,
     });
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
-      [clockSnapshot, packet].map(
-        (p: PerfettoTracePacket) => p.toObject(),
-      ),
+      [clockSnapshot, packet].map((p: PerfettoTracePacket) => p.toObject()),
     );
   });
 
@@ -345,12 +327,10 @@ describe('LegacyToPerfettoConverter', () => {
       );
     }
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
-      [...snapshotPackets, ...packets].map(
-        (p: PerfettoTracePacket) => p.toObject(),
+      [...snapshotPackets, ...packets].map((p: PerfettoTracePacket) =>
+        p.toObject(),
       ),
     );
   }
@@ -383,12 +363,10 @@ describe('LegacyToPerfettoConverter', () => {
       );
     }
     expect(
-      trace
-        .getPacketList()
-        .map((p: PerfettoTracePacket) => p.toObject()),
+      trace.getPacketList().map((p: PerfettoTracePacket) => p.toObject()),
     ).toEqual(
-      [...snapshotPackets, ...packets].map(
-        (p: PerfettoTracePacket) => p.toObject(),
+      [...snapshotPackets, ...packets].map((p: PerfettoTracePacket) =>
+        p.toObject(),
       ),
     );
   }
