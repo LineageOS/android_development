@@ -88,7 +88,7 @@ export class LogComponent {
 
   collapseButtonClicked = output();
 
-  scrollComponent = viewChild.required(CdkVirtualScrollViewport);
+  scrollComponent = viewChild(CdkVirtualScrollViewport);
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
@@ -99,7 +99,7 @@ export class LogComponent {
   ) {
     effect(() => {
       if (this.checkScrollViewportCount() > 0) {
-        this.scrollComponent().checkViewportSize();
+        this.scrollComponent()?.checkViewportSize();
       }
     });
 
@@ -113,7 +113,7 @@ export class LogComponent {
       ) {
         // scroll previous index to top, so when previous index is partially
         // rendered the target index is still fully rendered
-        this.scrollComponent().scrollToIndex(Math.max(0, scrollToIndex - 1));
+        this.scrollComponent()?.scrollToIndex(Math.max(0, scrollToIndex - 1));
 
         this.textSelection.clear();
         this.textSelection.toggle(entries[scrollToIndex]);
@@ -173,7 +173,7 @@ export class LogComponent {
   @HostListener('window:resize', ['$event'])
   onResize(_: Event) {
     this.updateTableMarginEnd();
-    this.scrollComponent().checkViewportSize();
+    this.scrollComponent()?.checkViewportSize();
   }
 
   onFilterChange(event: MatSelectChange, header: LogHeader) {
@@ -200,7 +200,7 @@ export class LogComponent {
   onGoToFirstEntryClick() {
     const firstEntry = this.entries().at(0);
     if (firstEntry) {
-      this.scrollComponent().scrollToIndex(0);
+      this.scrollComponent()?.scrollToIndex(0);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(firstEntry.traceEntry),
@@ -213,7 +213,7 @@ export class LogComponent {
   onGoToCurrentEntryClick() {
     const currentIndex = this.currentIndex();
     if (currentIndex !== undefined) {
-      this.scrollComponent().scrollToIndex(currentIndex);
+      this.scrollComponent()?.scrollToIndex(currentIndex);
       this.textSelection.clear();
       this.textSelection.toggle(this.entries()[currentIndex]);
     }
@@ -224,7 +224,7 @@ export class LogComponent {
     const lastIndex = entries.length - 1;
     const lastEntry = entries.at(lastIndex);
     if (lastEntry) {
-      this.scrollComponent().scrollToIndex(lastIndex);
+      this.scrollComponent()?.scrollToIndex(lastIndex);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(lastEntry.traceEntry),
@@ -294,7 +294,7 @@ export class LogComponent {
     if (!tableHeader) {
       return;
     }
-    const el = this.scrollComponent().elementRef.nativeElement;
+    const el = this.scrollComponent()?.elementRef.nativeElement;
     if (el && el.scrollHeight > el.offsetHeight) {
       tableHeader.style.marginInlineEnd =
         el.offsetWidth - el.scrollWidth + 'px';

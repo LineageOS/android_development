@@ -49,6 +49,8 @@ export class TreeComponent<T extends UiTreeNode> {
   filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
 
+  private viewInitialized = false;
+
   nodeRows = input.required<Array<FlattenedTreeRow<T>>>();
   store = input<InMemoryStorage>(new InMemoryStorage());
   isFlattened = input<boolean>(false);
@@ -74,9 +76,16 @@ export class TreeComponent<T extends UiTreeNode> {
       return this.filteredRows.at(index);
     },
     () => {
+      if (!this.viewInitialized) {
+        return undefined;
+      }
       return this.virtualScrollViewport().elementRef.nativeElement.clientWidth;
     },
   );
+
+  ngAfterViewInit() {
+    this.viewInitialized = true;
+  }
 
   constructor(
     @Inject(ElementRef) public elementRef: ElementRef<HTMLElement>,

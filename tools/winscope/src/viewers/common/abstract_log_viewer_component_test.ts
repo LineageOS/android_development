@@ -283,7 +283,7 @@ export abstract class AbstractLogViewerComponentTest<
     const fixture = TestBed.createComponent<U>(typeofViewer);
     const component = fixture.componentInstance;
     const dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    component.inputData = initialUiData;
+    dom.setComponentInput('inputData', initialUiData);
     dom.detectChanges();
     const scrollElement = dom.get('.scroll').getHTMLElement();
     scrollElement.style.minHeight = '720px';

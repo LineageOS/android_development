@@ -16,7 +16,7 @@
 
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {ScrollingModule} from '@angular/cdk/scrolling';
+import {CdkVirtualScrollViewport, ScrollingModule,} from '@angular/cdk/scrolling';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -115,7 +115,7 @@ describe('LogComponent', () => {
   });
 
   it('emits event and scrolls to first entry on button click', () => {
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(getScrollComponent(), 'scrollToIndex');
     let clicked: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       clicked = (event as CustomEvent).detail.entry;
@@ -128,13 +128,13 @@ describe('LogComponent', () => {
   it('scrolls to current entry on button click', () => {
     dom.setComponentInput('currentIndex', 1);
     dom.detectChanges();
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(getScrollComponent(), 'scrollToIndex');
     dom.findAndClick('.go-to-current-entry');
     expect(spy).toHaveBeenCalledWith(1);
   });
 
   it('emits event and scrolls to last entry on button click', () => {
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(getScrollComponent(), 'scrollToIndex');
     let clicked: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       clicked = (event as CustomEvent).detail.entry;
@@ -283,7 +283,7 @@ describe('LogComponent', () => {
     // Force viewport layout update
     dom.detectChanges();
     await dom.whenRenderingDone();
-    component.scrollComponent().checkViewportSize();
+    getScrollComponent().checkViewportSize();
     dom.detectChanges();
     await dom.whenRenderingDone();
 
@@ -319,7 +319,7 @@ describe('LogComponent', () => {
 
     const entry = dom.get('.entry[item-id="1"]');
     entry.checkClassName('selected', false);
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(getScrollComponent(), 'scrollToIndex');
     entry.click();
     expect(spy).not.toHaveBeenCalled();
     entry.checkClassName('selected', true);
@@ -396,7 +396,7 @@ describe('LogComponent', () => {
 
   it('checks scroll viewport size if flag set', () => {
     const spy = spyOn(
-      component.scrollComponent(),
+      getScrollComponent(),
       'checkViewportSize',
     ).and.callThrough();
 
@@ -411,7 +411,7 @@ describe('LogComponent', () => {
 
   it('checks scroll viewport size on window resize', () => {
     const spy = spyOn(
-      component.scrollComponent(),
+      getScrollComponent(),
       'checkViewportSize',
     ).and.callThrough();
     window.dispatchEvent(new Event('resize'));
@@ -419,10 +419,7 @@ describe('LogComponent', () => {
   });
 
   it('scrolls to scrollToIndex - 1', () => {
-    const spy = spyOn(
-      component.scrollComponent(),
-      'scrollToIndex',
-    ).and.callThrough();
+    const spy = spyOn(getScrollComponent(), 'scrollToIndex').and.callThrough();
 
     dom.setComponentInput('scrollToIndex', 1);
     dom.detectChanges();
@@ -569,5 +566,9 @@ describe('LogComponent', () => {
     });
     button.click();
     expect(entry).toBeDefined();
+  }
+
+  function getScrollComponent(): CdkVirtualScrollViewport {
+    return assertDefined(component.scrollComponent());
   }
 });
