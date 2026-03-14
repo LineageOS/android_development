@@ -15,31 +15,29 @@
  */
 
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {getLogger, Logger} from '@compat/logging';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
+import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
+import {buildTraceGeometryData, TraceGeometryData,} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
-import {ParserKeyEvent} from '@parsers/input/parser_key_event';
-import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
 import {ParserInputMethodClients} from '@parsers/input_method/parser_input_method_clients';
 import {ParserInputMethodManagerService} from '@parsers/input_method/parser_input_method_manager_service';
 import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
+import {ParserKeyEvent} from '@parsers/input/parser_key_event';
+import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
 import {ParserProtolog} from '@parsers/protolog/parser_protolog';
 import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
-import {
-  buildTraceGeometryData,
-  TraceGeometryData,
-} from '@parsers/helpers/trace_geometry_data';
 import {ParserTransactions} from '@parsers/transactions/parser_transactions';
 import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
-import {getLogger, Logger} from '@compat/logging';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
+
 import {FileReaderAndParser} from './file_reader_and_parser';
 
 export interface ProcessedFile {

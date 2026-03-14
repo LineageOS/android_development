@@ -18,10 +18,7 @@ import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
 import {Trace} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  AbstractLogViewerPresenter,
-  NotifyLogViewCallbackType,
-} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@viewers/common/abstract_log_viewer_presenter';
 import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {LogPresenter} from '@viewers/common/log_presenter';

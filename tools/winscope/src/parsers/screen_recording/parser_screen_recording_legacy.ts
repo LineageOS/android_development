@@ -16,10 +16,10 @@
 
 import {Timestamp} from '@common/time/time';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-
-import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
-import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
 import {CoarseVersion} from '@trace_api/coarse_version';
+
+import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
+import {parseIntFromBuffer, parseLongFromBuffer} from './helpers';
 
 export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
   override getMagicNumber(): number[] {
@@ -36,7 +36,7 @@ export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
 
   protected override async decodeTrace(
     videoData: Uint8Array,
-  ): Promise<bigint[]> {
+  ): Promise<readonly bigint[]> {
     const posCount = this.searchMagicString(
       videoData,
       ParserScreenRecordingLegacy.WINSCOPE_META_MAGIC_STRING,
@@ -68,7 +68,7 @@ export class ParserScreenRecordingLegacy extends AbstractParserScreenRecording {
     for (let i = 0; i < count; ++i) {
       const [newPos, timestamp] = parseLongFromBuffer(videoData, pos);
       pos = newPos;
-      timestamps.push(timestamp * BigInt(TIME_UNIT_TO_NANO.us));
+      timestamps.push(timestamp * TIME_UNIT_TO_NANO.us);
     }
     return timestamps;
   }

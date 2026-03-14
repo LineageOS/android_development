@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-import {getLogger, Logger} from '@compat/logging';
 import {removeDirFromFileName} from '@common/io';
 import {Timer} from '@common/time/timer';
+import {getLogger, Logger} from '@compat/logging';
 import {ProgressListener} from '@messaging/progress_listener';
-import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
 import {UserNotifier} from '@services/user_notifier';
+import {AdbConnectionType} from '@trace_collection/adb_connection_type';
 import {AdbDeviceConnection} from '@trace_collection/adb/adb_device_connection';
 import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
-import {AdbConnectionType} from '@trace_collection/adb_connection_type';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {MockAdbHostConnection} from '@trace_collection/mock/mock_adb_host_connection';
 import {UserRequest} from '@trace_collection/user_request';
+import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
 import {WdpHostConnection} from '@trace_collection/wdp/wdp_host_connection';
 import {WinscopeProxyHostConnection} from '@trace_collection/winscope_proxy/winscope_proxy_host_connection';
+
 import {PerfettoSessionModerator} from './perfetto_session_moderator';
 import {TracingSession} from './tracing_session';
 import {UserRequestParser} from './user_request_parser';

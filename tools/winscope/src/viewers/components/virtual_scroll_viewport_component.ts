@@ -15,21 +15,9 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Directive,
-  effect,
-  ElementRef,
-  Inject,
-  InjectionToken,
-  input,
-  NgZone,
-  output,
-  ViewChild,
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Directive, effect, ElementRef, Inject, InjectionToken, input, NgZone, output, ViewChild,} from '@angular/core';
 import {assertDefined} from '@common/assert';
-import {Observable, ReplaySubject, Subject, fromEvent} from 'rxjs';
+import {fromEvent, Observable, ReplaySubject, Subject} from 'rxjs';
 import {debounceTime, map, takeUntil} from 'rxjs/operators';
 
 interface VirtualScrollViewportHost {

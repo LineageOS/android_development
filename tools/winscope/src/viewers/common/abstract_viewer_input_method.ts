@@ -22,6 +22,7 @@ import {AbstractViewer} from '@viewers/abstract_viewer';
 import {AbstractPresenterInputMethod} from '@viewers/common/abstract_presenter_input_method';
 import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {ViewerComponent} from '@viewers/components/viewer_component';
+
 import {NotifyHierarchyViewCallbackType} from './abstract_hierarchy_viewer_presenter';
 
 export abstract class AbstractViewerInputMethod extends AbstractViewer<HierarchyTreeNode> {

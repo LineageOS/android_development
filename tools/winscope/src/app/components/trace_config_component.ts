@@ -15,18 +15,7 @@
  */
 import {CdkOverlayOrigin, OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  ElementRef,
-  Inject,
-  input,
-  model,
-  NgZone,
-  output,
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, Inject, input, model, NgZone, output,} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -34,23 +23,12 @@ import {MatOption} from '@angular/material/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
-import {
-  MatSelect,
-  MatSelectChange,
-  MatSelectModule,
-} from '@angular/material/select';
+import {MatSelect, MatSelectChange, MatSelectModule,} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
 import {isElementOverflowing} from '@common/dom';
 import {Store} from '@common/store/store';
-import {
-  AdvancedConfiguration,
-  CheckboxConfiguration,
-  SelectionConfiguration,
-  SelectionOption,
-  TraceConfigurationMap,
-  updateConfigsFromStore,
-} from '@trace_collection/ui/ui_trace_configuration';
+import {AdvancedConfiguration, CheckboxConfiguration, SelectionConfiguration, SelectionOption, TraceConfigurationMap, updateConfigsFromStore,} from '@trace_collection/ui/ui_trace_configuration';
 import {AbstractSelectComponent} from '@viewers/components/abstract_select_component';
 
 /**

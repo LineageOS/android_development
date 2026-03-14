@@ -15,16 +15,8 @@
  */
 
 import {browser, by, element} from 'protractor';
-import {
-  areMessagesEmitted,
-  clickClearAllButton,
-  clickCloseIcon,
-  clickViewTracesButton,
-  loadBugReport,
-  setTimeouts,
-  uploadFixture,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {areMessagesEmitted, clickClearAllButton, clickCloseIcon, clickViewTracesButton, loadBugReport, setTimeouts, uploadFixture, WINSCOPE_URL,} from './helpers';
 
 describe('Upload traces', () => {
   const DEFAULT_TIMEOUT_MS = 40000;

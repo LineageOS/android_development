@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {assertDefined} from '@common/assert';
 import {Transform} from '@common/geometry/transform';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {Timer} from '@common/time/timer';
-import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
-import {TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeRealTimestamp} from '@common/time/test_helpers';
+import {Timer} from '@common/time/timer';
+import {getParserInput} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
-import {FixedStringFormatter} from '@trace/formatters';
-import {InputColumnType} from '@trace/input/input_column_type';
-import {InputEventType} from '@trace/input/input_event_type';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {FixedStringFormatter} from '@trace/formatters';
+import {InputColumnType} from '@trace/input/input_column_type';
+import {InputEventType} from '@trace/input/input_event_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
@@ -44,9 +45,9 @@ import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {getParserInput} from '@test/unit/fixture_utils';
 
 class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
   override readonly expectedHeaders = [

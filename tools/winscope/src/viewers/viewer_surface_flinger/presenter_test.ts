@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
-import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
-import {TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+import {SetFormatters} from '@parsers/operations/set_formatters';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
-import {SetFormatters} from '@parsers/operations/set_formatters';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {makeIdMatchFilter, makeNodeFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
@@ -41,9 +42,9 @@ import {UiDataHierarchy} from '@viewers/common/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 
 class PresenterSurfaceFlingerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traceSf: Trace<HierarchyTreeNode> | undefined;

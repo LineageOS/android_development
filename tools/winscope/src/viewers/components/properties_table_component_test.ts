@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {TestBed} from '@angular/core/testing';
-import {PropertiesTableComponent} from './properties_table_component';
 import {CommonModule} from '@angular/common';
+import {TestBed} from '@angular/core/testing';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+
+import {PropertiesTableComponent} from './properties_table_component';
 
 describe('PropertiesTableComponent', () => {
   let component: PropertiesTableComponent;

@@ -15,45 +15,44 @@
  */
 syntax = "proto3";
 
-import "android.proto";
-
-option optimize_for = LITE_RUNTIME;
 package android_common.graphics;
 
+import "protos/windowmanager/udc/android.proto";
+
 message RectProto {
-  int32 left   = 1;
-  int32 top    = 2;
-  int32 right  = 3;
+  int32 left = 1;
+  int32 top = 2;
+  int32 right = 3;
   int32 bottom = 4;
 }
 
 message PointProto {
-    option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
+  option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
 
-    optional int32 x = 1;
-    optional int32 y = 2;
+  optional int32 x = 1;
+  optional int32 y = 2;
 }
 
 message InsetsProto {
-    option (android.msg_privacy).dest = DEST_AUTOMATIC;
+  option (android_common.msg_privacy).dest = DEST_AUTOMATIC;
 
-    optional int32 left = 1;
-    optional int32 top = 2;
-    optional int32 right = 3;
-    optional int32 bottom = 4;
+  optional int32 left = 1;
+  optional int32 top = 2;
+  optional int32 right = 3;
+  optional int32 bottom = 4;
 }
 
 message PixelFormatProto {
-    enum Format {
-        UNKNOWN      = 0;
-        TRANSLUCENT  = -3;
-        TRANSPARENT  = -2;
-        OPAQUE       = -1;
-        RGBA_8888    = 1;
-        RGBX_8888    = 2;
-        RGB_888      = 3;
-        RGB_565      = 4;
-        RGBA_F16     = 0x16;
-        RGBA_1010102 = 0x2B;
-    }
+  enum Format {
+    UNKNOWN = 0;
+    TRANSLUCENT = -3;
+    TRANSPARENT = -2;
+    OPAQUE = -1;
+    RGBA_8888 = 1;
+    RGBX_8888 = 2;
+    RGB_888 = 3;
+    RGB_565 = 4;
+    RGBA_F16 = 0x16;
+    RGBA_1010102 = 0x2B;
+  }
 }

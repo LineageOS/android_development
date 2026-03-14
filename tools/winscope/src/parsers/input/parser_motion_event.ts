@@ -15,10 +15,10 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {InputEventType} from '@trace/input/input_event_type';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {TraceType} from '@trace_api/trace_type';
+import {InputEventType} from '@trace/input/input_event_type';
 
 import {AbstractInputEventParser} from './abstract_input_event_parser';
 
@@ -27,7 +27,7 @@ export class ParserMotionEvent extends AbstractInputEventParser {
     AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherMotionEvent'];
 
   protected override readonly eventMessageType = assertDefined(
-    ParserMotionEvent.MOTION_EVENT_FIELD.tamperedMessageType,
+    ParserMotionEvent.MOTION_EVENT_FIELD.resolve(),
   );
   protected override readonly eventOps = [
     new SetFormatters(ParserMotionEvent.MOTION_EVENT_FIELD),

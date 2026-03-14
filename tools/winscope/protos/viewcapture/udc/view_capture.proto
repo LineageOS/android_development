@@ -30,14 +30,14 @@ message ExportedData {
     MAGIC_NUMBER_H = 0x68658273;  /* DARI (ASCII) */
   }
 
-  optional fixed64 magic_number = 1;  /* Must be the first field, set to value in MagicNumber */
+  optional fixed64 magic_number = 1 [jstype = JS_STRING];  /* Must be the first field, set to value in MagicNumber */
   repeated WindowData windowData = 2;
   optional string package = 3;
   repeated string classname = 4;
 
   /* offset between real-time clock and elapsed time clock in nanoseconds.
      Calculated as: 1000000 * System.currentTimeMillis() - SystemClock.elapsedRealtimeNanos() */
-  optional fixed64 real_to_elapsed_time_offset_nanos = 5;
+  optional fixed64 real_to_elapsed_time_offset_nanos = 5 [jstype = JS_STRING];
 }
 
 message WindowData {
@@ -51,7 +51,7 @@ message MotionWindowData {
 }
 
 message FrameData {
-  optional int64 timestamp = 1; // unit is elapsed realtime nanos
+  optional int64 timestamp = 1 [jstype = JS_STRING]; // unit is elapsed realtime nanos
   optional ViewNode node = 2;
 }
 

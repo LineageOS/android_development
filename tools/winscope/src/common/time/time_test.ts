@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  makeConverterWithUtcOffset,
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
+import {makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+
 import {TimeRange} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
 
@@ -55,11 +52,11 @@ describe('Timestamp', () => {
   });
 
   describe('formatting', () => {
-    const MILLISECOND = BigInt(TIME_UNIT_TO_NANO.ms);
-    const SECOND = BigInt(TIME_UNIT_TO_NANO.s);
-    const MINUTE = BigInt(TIME_UNIT_TO_NANO.m);
-    const HOUR = BigInt(TIME_UNIT_TO_NANO.h);
-    const DAY = BigInt(TIME_UNIT_TO_NANO.d);
+    const MILLISECOND = TIME_UNIT_TO_NANO.ms;
+    const SECOND = TIME_UNIT_TO_NANO.s;
+    const MINUTE = TIME_UNIT_TO_NANO.m;
+    const HOUR = TIME_UNIT_TO_NANO.h;
+    const DAY = TIME_UNIT_TO_NANO.d;
 
     it('elapsed timestamps', () => {
       expect(makeElapsedTimestamp(0n).format()).toEqual('0ns');

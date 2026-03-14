@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {getLogger} from '@compat/logging';
 import {analyticsLogEvent} from '@common/analytics';
+import {getLogger} from '@compat/logging';
 
 import {Trace, TraceEntry} from './trace';
 import {TracePosition} from './trace_position';

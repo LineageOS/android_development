@@ -16,20 +16,21 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
+import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
 import {LogHeader} from '@viewers/common/ui_data_log';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {Parser} from '@trace_api/parser';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 
 class PresenterJankCujsTest extends AbstractLogViewerPresenterTest<UiData> {
   override readonly expectedHeaders = [

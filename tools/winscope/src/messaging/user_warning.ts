@@ -15,6 +15,7 @@
  */
 
 import {Warning} from '@common/warning';
+
 import {NotificationType, UserNotification} from './user_notification';
 
 /**

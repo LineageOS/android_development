@@ -15,6 +15,7 @@
  */
 
 import {TextFilter} from '@viewers/common/text_filter';
+
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 
 describe('LogFilters', () => {

@@ -15,55 +15,60 @@
  */
 
 syntax = "proto2";
-option optimize_for = LITE_RUNTIME;
-
-import "protos/surfaceflinger/udc/layers.proto";
-import "protos/surfaceflinger/udc/display.proto";
 
 package android.surfaceflinger;
 
+import "protos/surfaceflinger/udc/display.proto";
+import "protos/surfaceflinger/udc/layers.proto";
+
+option optimize_for = LITE_RUNTIME;
+
 /* represents a file full of surface flinger trace entries.
-   Encoded, it should start with 0x4c 0x59 0x52 0x54 0x52 0x41 0x43 0x45 (.LYRTRACE), such
-   that they can be easily identified. */
+   Encoded, it should start with 0x4c 0x59 0x52 0x54 0x52 0x41 0x43 0x45
+   (.LYRTRACE), such that they can be easily identified. */
 message LayersTraceFileProto {
+  /* constant; MAGIC_NUMBER = (long) MAGIC_NUMBER_H << 32 |
+     MagicNumber.MAGIC_NUMBER_L (this is needed because enums have to be 32 bits
+     and there's no nice way to put 64bit constants into .proto files. */
+  enum MagicNumber {
+    INVALID = 0;
+    MAGIC_NUMBER_L = 0x5452594c; /* LYRT (little-endian ASCII) */
+    MAGIC_NUMBER_H = 0x45434152; /* RACE (little-endian ASCII) */
+  }
 
-    /* constant; MAGIC_NUMBER = (long) MAGIC_NUMBER_H << 32 | MagicNumber.MAGIC_NUMBER_L
-       (this is needed because enums have to be 32 bits and there's no nice way to put 64bit
-        constants into .proto files. */
-    enum MagicNumber {
-        INVALID = 0;
-        MAGIC_NUMBER_L = 0x5452594c;  /* LYRT (little-endian ASCII) */
-        MAGIC_NUMBER_H = 0x45434152;  /* RACE (little-endian ASCII) */
-    }
+  optional fixed64 magic_number = 1 [
+    jstype = JS_STRING
+  ]; /* Must be the first field, set to value in MagicNumber */
+  repeated LayersTraceProto entry = 2;
 
-    optional fixed64 magic_number = 1;  /* Must be the first field, set to value in MagicNumber */
-    repeated LayersTraceProto entry = 2;
-
-    /* offset between real-time clock and elapsed time clock in nanoseconds.
-       Calculated as: systemTime(SYSTEM_TIME_REALTIME) - systemTime(SYSTEM_TIME_MONOTONIC) */
-    optional fixed64 real_to_elapsed_time_offset_nanos = 3;
+  /* offset between real-time clock and elapsed time clock in nanoseconds.
+     Calculated as: systemTime(SYSTEM_TIME_REALTIME) -
+     systemTime(SYSTEM_TIME_MONOTONIC) */
+  optional fixed64 real_to_elapsed_time_offset_nanos = 3 [jstype = JS_STRING];
 }
 
 /* one layers trace entry. */
 message LayersTraceProto {
-    /* required: elapsed realtime in nanos since boot of when this entry was logged */
-    optional sfixed64 elapsed_realtime_nanos = 1;
+  /* required: elapsed realtime in nanos since boot of when this entry was
+   * logged */
+  optional sfixed64 elapsed_realtime_nanos = 1 [jstype = JS_STRING];
 
-    /* where the trace originated */
-    optional string where = 2;
+  /* where the trace originated */
+  optional string where = 2;
 
-    optional LayersProto layers = 3;
+  optional LayersProto layers = 3;
 
-    // Blob for the current HWC information for all layers, reported by dumpsys.
-    optional string hwc_blob = 4;
+  // Blob for the current HWC information for all layers, reported by dumpsys.
+  optional string hwc_blob = 4;
 
-    /* Includes state sent during composition like visible region and composition type. */
-    optional bool excludes_composition_state = 5;
+  /* Includes state sent during composition like visible region and composition
+   * type. */
+  optional bool excludes_composition_state = 5;
 
-    /* Number of missed entries since the last entry was recorded. */
-    optional uint32 missed_entries = 6;
+  /* Number of missed entries since the last entry was recorded. */
+  optional uint32 missed_entries = 6;
 
-    repeated DisplayProto displays = 7;
+  repeated DisplayProto displays = 7;
 
-    optional int64 vsync_id = 8;
+  optional int64 vsync_id = 8 [jstype = JS_STRING];
 }

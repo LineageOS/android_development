@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CanvasEntry,
-  MediaBasedTraceEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {TraceType} from '@trace_api/trace_type';
-
-import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
 import {Timestamp} from '@common/time/time';
+import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {TraceType} from '@trace_api/trace_type';
+import {CanvasEntry, MediaBasedTraceEntry,} from '@trace/media_based/media_based_trace_entry';
 
 export class ParserScreenshot extends AbstractParser<
   number,
@@ -59,7 +55,7 @@ export class ParserScreenshot extends AbstractParser<
     return this.timestampConverter.makeZeroTimestamp();
   }
 
-  override decodeTrace(_: Uint8Array): number[] {
+  override decodeTrace(_: Uint8Array): readonly number[] {
     return [0]; // require a non-empty array to be returned so trace can provide timestamps
   }
 

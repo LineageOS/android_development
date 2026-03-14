@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
+import {Timestamp} from '@common/time/time';
+import {makeWarningMonotonicScreenRecording} from '@parsers/helpers/warnings';
+import {UserNotifier} from '@services/user_notifier';
 import {CoarseVersion} from '@trace_api/coarse_version';
 
 import {AbstractParserScreenRecording} from './abstract_parser_screen_recording';
-import {
-  parseIntFromBuffer,
-  ScreenRecordingParser,
-  WINSCOPE_MAGIC_STRING,
-} from './helpers';
+import {parseIntFromBuffer, ScreenRecordingParser, WINSCOPE_MAGIC_STRING,} from './helpers';
 import {ParserExternalMetadata} from './parser_external_metadata';
 import {ParserFilename} from './parser_filename';
-import {Timestamp} from '@common/time/time';
-import {ParserMetadataV3} from './parser_metadata_v3';
 import {ParserMetadataV1Or2} from './parser_metadata_v1_or_v2';
-import {makeWarningMonotonicScreenRecording} from '@parsers/helpers/warnings';
-import {UserNotifier} from '@services/user_notifier';
+import {ParserMetadataV3} from './parser_metadata_v3';
 
 export class ParserScreenRecording extends AbstractParserScreenRecording {
   private realToBootTimeOffsetNs: bigint | undefined;
@@ -48,7 +44,7 @@ export class ParserScreenRecording extends AbstractParserScreenRecording {
 
   protected override async decodeTrace(
     videoData: Uint8Array,
-  ): Promise<bigint[]> {
+  ): Promise<readonly bigint[]> {
     const posVersion = this.searchMagicString(videoData, WINSCOPE_MAGIC_STRING);
 
     let parser: ScreenRecordingParser;

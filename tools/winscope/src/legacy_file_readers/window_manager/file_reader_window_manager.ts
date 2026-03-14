@@ -16,19 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {com} from 'protos/windowmanager/udc/static';
-
-import {TraceType} from '@trace_api/trace_type';
-import {WindowManagerTraceEntry} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
+import {PerfettoClockSnapshot, PerfettoTracePacket, PerfettoWindowManagerTraceEntry, WindowManagerTraceFileProtoUdc, WindowManagerTraceProtoUdc, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {TraceType} from '@trace_api/trace_type';
 
-type WindowManagerProto = com.android.server.wm.IWindowManagerTraceProto;
-
-/**
- * Parser for WindowManager trace files.
- */
-export class FileReaderWindowManager extends AbstractFileReader<WindowManagerProto> {
+export class FileReaderWindowManager extends AbstractFileReader<WindowManagerTraceProtoUdc> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x57, 0x49, 0x4e, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .WINTRACE
@@ -51,33 +43,44 @@ export class FileReaderWindowManager extends AbstractFileReader<WindowManagerPro
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): WindowManagerProto[] {
-    const decoded =
-      com.android.server.wm.WindowManagerTraceFileProto.decode(buffer);
-    const timeOffset = BigInt(
-      decoded.realToElapsedTimeOffsetNanos?.toString() ?? '0',
-    );
+  override decodeTrace(
+    buffer: Uint8Array,
+  ): readonly WindowManagerTraceProtoUdc[] {
+    const decoded = WindowManagerTraceFileProtoUdc.deserializeBinary(buffer);
+    const timeOffset = BigInt(decoded.getRealToElapsedTimeOffsetNanos() ?? '0');
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
-    return decoded.entry ?? [];
+    return decoded.getEntryList();
   }
 
-  protected override getTimestamp(entry: WindowManagerProto): Timestamp {
+  protected override getTimestamp(
+    entry: WindowManagerTraceProtoUdc,
+  ): Timestamp {
     return this.timestampConverter.makeTimestampFromBootTimeNs(
-      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
     for (const entry of this.decodedEntries) {
-      const packet = new TracePacket();
-      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.winscopeExtensions = {
-        '.perfetto.protos.WinscopeExtensionsImpl.windowmanager':
-          WindowManagerTraceEntry.fromObject(entry),
-      };
+      const packet = new PerfettoTracePacket();
+      packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      packet.setTrustedPacketSequenceId(sequenceId);
+
+      const perfettoProto = PerfettoWindowManagerTraceEntry.deserializeBinary(
+        entry.serializeBinary(),
+      );
+      const extensions = new WinscopeExtensions();
+      extensions.setExtension(
+        WinscopeExtensionsImpl.windowmanager,
+        perfettoProto,
+      );
+
+      packet.setWinscopeExtensions(extensions);
+
       packets.push(packet);
     }
     return packets;

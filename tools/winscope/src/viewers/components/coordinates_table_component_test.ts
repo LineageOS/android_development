@@ -15,10 +15,11 @@
  */
 
 import {TestBed} from '@angular/core/testing';
-import {CoordinatesTableComponent} from './coordinates_table_component';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+
+import {CoordinatesTableComponent} from './coordinates_table_component';
 
 describe('CoordinatesTableComponent', () => {
   let dom: DOMTestHelper<CoordinatesTableComponent>;

@@ -22,6 +22,7 @@ import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertyTreeNodeFactory} from '@tree_node/property_tree_node_factory';
 import {TraceRect} from '@tree_node/trace_rect';
+
 import {ChildProperty, PropertyTreeBuilder} from './property_tree_builder';
 import {TreeBuilder} from './tree_builder';
 

@@ -17,11 +17,7 @@
 import {Timestamp} from '@common/time/time';
 import {TimeDuration} from '@common/time/time_duration';
 
-import {
-  PropertySource,
-  PropertyTreeNode,
-  PropertyValue,
-} from './property_tree_node';
+import {PropertySource, PropertyTreeNode, PropertyValue,} from './property_tree_node';
 
 /**
  * A factory for creating property tree nodes.

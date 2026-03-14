@@ -15,9 +15,18 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {android} from 'protos/surfaceflinger/udc/static';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+
 import {ZOrderPathsComputation} from './z_order_paths_computation';
+
+interface MockLayerProperties {
+  layerId: number;
+  name: string;
+  parent: number;
+  children: number[];
+  z: number;
+  zOrderRelativeOf: number;
+}
 
 describe('ZOrderPathsComputation', () => {
   let computation: ZOrderPathsComputation;
@@ -45,7 +54,7 @@ describe('ZOrderPathsComputation', () => {
             children: [2, 4],
             z: 0,
             zOrderRelativeOf: -1,
-          } as android.surfaceflinger.ILayerProto,
+          } as MockLayerProperties,
           children: [
             {
               id: 2,
@@ -57,7 +66,7 @@ describe('ZOrderPathsComputation', () => {
                 children: [3],
                 z: 1,
                 zOrderRelativeOf: -1,
-              } as android.surfaceflinger.ILayerProto,
+              } as MockLayerProperties,
               children: [
                 {
                   id: 3,
@@ -69,7 +78,7 @@ describe('ZOrderPathsComputation', () => {
                     children: [],
                     z: 1,
                     zOrderRelativeOf: -1,
-                  } as android.surfaceflinger.ILayerProto,
+                  } as MockLayerProperties,
                 },
               ],
             },
@@ -83,7 +92,7 @@ describe('ZOrderPathsComputation', () => {
                 children: [],
                 z: 2,
                 zOrderRelativeOf: -1,
-              } as android.surfaceflinger.ILayerProto,
+              } as MockLayerProperties,
             },
           ],
         },
@@ -122,7 +131,7 @@ describe('ZOrderPathsComputation', () => {
             children: [2, 4],
             z: 0,
             zOrderRelativeOf: -1,
-          } as android.surfaceflinger.ILayerProto,
+          } as MockLayerProperties,
           children: [
             {
               id: 2,
@@ -134,7 +143,7 @@ describe('ZOrderPathsComputation', () => {
                 children: [3],
                 z: 1,
                 zOrderRelativeOf: -1,
-              } as android.surfaceflinger.ILayerProto,
+              } as MockLayerProperties,
             },
             {
               id: 4,
@@ -146,7 +155,7 @@ describe('ZOrderPathsComputation', () => {
                 children: [],
                 z: 2,
                 zOrderRelativeOf: 2,
-              } as android.surfaceflinger.ILayerProto,
+              } as MockLayerProperties,
             },
             {
               id: 5,
@@ -158,7 +167,7 @@ describe('ZOrderPathsComputation', () => {
                 children: [],
                 z: 2,
                 zOrderRelativeOf: 2,
-              } as android.surfaceflinger.ILayerProto,
+              } as MockLayerProperties,
             },
             {
               id: 6,
@@ -170,7 +179,7 @@ describe('ZOrderPathsComputation', () => {
                 children: [],
                 z: 2,
                 zOrderRelativeOf: 7,
-              } as android.surfaceflinger.ILayerProto,
+              } as MockLayerProperties,
             },
           ],
         },

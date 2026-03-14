@@ -15,6 +15,7 @@
  */
 
 import {parseWebCodecData} from '@trace/media_based/helpers';
+
 import {VideoFrameCache} from './video_frame_cache';
 
 /**

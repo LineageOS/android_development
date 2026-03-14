@@ -19,6 +19,7 @@ import {PersistentStore} from '@common/store/persistent_store';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
+
 import {AdbDeviceConnection} from './adb_device_connection';
 
 export abstract class AdbHostConnection<

@@ -18,6 +18,7 @@ import {AbsoluteFrameIndex} from '@trace_api/index_types';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+
 import {extractEntries as extractTraceEntries} from './trace_test_helpers';
 
 /**

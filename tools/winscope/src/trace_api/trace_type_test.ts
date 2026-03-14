@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  TraceType,
-  compareByDisplayOrder,
-  compareByUiPipelineOrder,
-  getReasonForNoTraceVisualization,
-  isTraceTypeWithViewer,
-  supportsPlayback,
-} from './trace_type';
+import {compareByDisplayOrder, compareByUiPipelineOrder, getReasonForNoTraceVisualization, isTraceTypeWithViewer, supportsPlayback, TraceType,} from './trace_type';
 
 describe('TraceType', () => {
   it('supportsPlayback', () => {

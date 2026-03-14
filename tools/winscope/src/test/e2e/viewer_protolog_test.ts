@@ -15,18 +15,8 @@
  */
 
 import {browser} from 'protractor';
-import {
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkScrollPresent,
-  checkSelectFilter,
-  checkTimelineTraceSelector,
-  checkTotalScrollEntries,
-  loadTraceAndCheckViewer,
-  setTimeouts,
-  updateInputField,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {checkFinalRealTimestamp, checkInitialRealTimestamp, checkScrollPresent, checkSelectFilter, checkTimelineTraceSelector, checkTotalScrollEntries, loadTraceAndCheckViewer, setTimeouts, updateInputField, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Protolog', () => {
   const viewerSelector = 'viewer-protolog';
@@ -44,7 +34,7 @@ describe('Viewer Protolog', () => {
       viewerSelector,
     );
     await checkScrollPresent(viewerSelector);
-    await checkTotalScrollEntries(viewerSelector, totalEntries, true);
+    await checkTotalScrollEntries(viewerSelector, totalEntries);
     await checkTimelineTraceSelector({
       icon: 'notes',
       color: 'rgba(52, 168, 83, 1)',

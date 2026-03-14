@@ -18,6 +18,7 @@ import {Component, viewChild} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {LogComponent} from '@viewers/components/log_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
+
 import {UiData} from './ui_data';
 
 @Component({

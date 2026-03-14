@@ -14,31 +14,21 @@
  * limitations under the License.
  */
 
-import {TraceFile} from '@trace/trace_file';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {getLogger, Logger} from '@compat/logging';
-import {TraceMetadata} from '@trace_api/trace_metadata';
-import Long from 'long';
-import {ProtoLogMessage as PerfettoProtoLogMessage} from '@compat/winscope_protos';
-import {
-  ClockSnapshot,
-  InternedData,
-  InternedString,
-  TracePacket,
-} from '@compat/perfetto';
-import {com} from 'protos/protolog/udc/static';
-import {TraceType} from '@trace_api/trace_type';
-import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
-import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
-import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
+import {PerfettoClockSnapshot, PerfettoInternedData, PerfettoInternedString, PerfettoProtoLogMessage, PerfettoTracePacket, ProtoLogFileProtoUdc, ProtoLogMessageUdc,} from '@compat/protobuf';
+import {ProtologJson32, ProtologJson64} from '@compat/protolog';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+import {TraceType} from '@trace_api/trace_type';
 
-type ProtoLogMessage = com.android.internal.protolog.IProtoLogMessage;
+import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
-export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
+export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessageUdc> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x4c, 0x4f, 0x47,
   ]; // .PROTOLOG
@@ -72,19 +62,25 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
     return this.realToBootTimeOffsetNs;
   }
 
-  override decodeTrace(buffer: Uint8Array): ProtoLogMessage[] {
-    const fileProto =
-      com.android.internal.protolog.ProtoLogFileProto.decode(buffer);
+  override decodeTrace(buffer: Uint8Array): readonly ProtoLogMessageUdc[] {
+    const offset = 9;
+    const strippedBuffer = buffer.subarray(offset);
+    const fileProto = ProtoLogFileProtoUdc.deserializeBinary(strippedBuffer);
 
-    if (this.is32BitVersion(fileProto.log?.at(0))) {
-      if (configJson32.version !== FileReaderProtoLog.PROTOLOG_32_BIT_VERSION) {
-        const message = `Unsupported ProtoLog JSON config version ${configJson32.version}. Expected ${FileReaderProtoLog.PROTOLOG_32_BIT_VERSION}`;
+    const firstLog = fileProto.getLogList().at(0);
+    if (this.is32BitVersion(firstLog)) {
+      if (
+        ProtologJson32.version !== FileReaderProtoLog.PROTOLOG_32_BIT_VERSION
+      ) {
+        const message = `Unsupported ProtoLog JSON config version ${ProtologJson32.version}. Expected ${FileReaderProtoLog.PROTOLOG_32_BIT_VERSION}`;
         this.logger.error(message);
         throw new TypeError(message);
       }
-    } else if (this.is64BitVersion(fileProto.log?.at(0))) {
-      if (configJson64.version !== FileReaderProtoLog.PROTOLOG_64_BIT_VERSION) {
-        const message = `Unsupported ProtoLog JSON config version ${configJson64.version}. Expected ${FileReaderProtoLog.PROTOLOG_64_BIT_VERSION}`;
+    } else if (this.is64BitVersion(firstLog)) {
+      if (
+        ProtologJson64.version !== FileReaderProtoLog.PROTOLOG_64_BIT_VERSION
+      ) {
+        const message = `Unsupported ProtoLog JSON config version ${ProtologJson64.version}. Expected ${FileReaderProtoLog.PROTOLOG_64_BIT_VERSION}`;
         this.logger.error(message);
         throw new TypeError(message);
       }
@@ -95,41 +91,43 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
     }
 
     this.realToBootTimeOffsetNs =
-      BigInt(
-        assertDefined(fileProto.realTimeToElapsedTimeOffsetMillis).toString(),
-      ) * 1000000n;
+      BigInt(assertDefined(fileProto.getRealtimetoelapsedtimeoffsetmillis())) *
+      1000000n;
 
-    if (!fileProto.log) {
+    const logs = fileProto.getLogList();
+    if (logs.length === 0) {
       return [];
     }
 
-    fileProto.log.sort((a: ProtoLogMessage, b: ProtoLogMessage) => {
-      return Number(a.elapsedRealtimeNanos) - Number(b.elapsedRealtimeNanos);
+    const mutableLogs = [...logs];
+    mutableLogs.sort((a: ProtoLogMessageUdc, b: ProtoLogMessageUdc) => {
+      const aTime = BigInt(a.getElapsedRealtimeNanos() ?? '0');
+      const bTime = BigInt(b.getElapsedRealtimeNanos() ?? '0');
+      return aTime < bTime ? -1 : aTime > bTime ? 1 : 0;
     });
 
-    return fileProto.log;
+    return mutableLogs;
   }
 
-  private is32BitVersion(entry: ProtoLogMessage | undefined): boolean {
-    return (entry?.messageHashLegacy ?? 0) > 0;
+  private is32BitVersion(entry: ProtoLogMessageUdc | undefined): boolean {
+    return (entry?.getMessageHashLegacy() ?? 0) > 0;
   }
 
-  private is64BitVersion(entry: ProtoLogMessage | undefined): boolean {
-    return (
-      entry?.messageHash instanceof Long &&
-      (entry.messageHash.toString() ?? '0') !== '0'
-    );
+  private is64BitVersion(entry: ProtoLogMessageUdc | undefined): boolean {
+    const hash = entry?.getMessageHash();
+    return hash !== undefined && hash.toString() !== '0';
   }
 
   override convertToPerfettoPackets(
     sequenceId: number,
     trustedUid = 1,
     trustedPid = 1,
-  ): TracePacket[] {
+  ): PerfettoTracePacket[] {
     const packets = [];
     const firstPacket = this.createPacket(sequenceId, trustedUid, trustedPid);
-    firstPacket.sequenceFlags =
-      TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED;
+    firstPacket.setSequenceFlags(
+      PerfettoTracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED,
+    );
     packets.push(firstPacket);
     packets.push(this.makeViewerConfigPacket(sequenceId, trustedUid));
 
@@ -138,19 +136,23 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
 
     for (const entry of this.decodedEntries) {
       const packet = this.createPacket(sequenceId, trustedUid, trustedPid);
-      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
+      packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
 
-      let messageId: Long;
+      // needs to be any because of compatibility with BigInt type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let messageId: any;
       if (this.is64BitVersion(entry)) {
-        messageId = assertDefined(entry.messageHash);
+        messageId = assertDefined(entry.getMessageHash());
       } else {
-        messageId = Long.fromNumber(assertDefined(entry.messageHashLegacy));
+        messageId = assertDefined(entry.getMessageHashLegacy());
       }
 
       const strParamIids: number[] = [];
 
-      entry.strParams?.forEach((param) => {
+      entry.getStrParamsList().forEach((param: string) => {
         const iid = stringToIid.get(param);
         if (iid !== undefined) {
           strParamIids.push(iid);
@@ -165,56 +167,61 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
       });
 
       if (strParamIids.length > 0) {
-        packet.sequenceFlags =
-          TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE;
+        packet.setSequenceFlags(
+          PerfettoTracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+        );
       }
 
-      packet.protologMessage = PerfettoProtoLogMessage.create({
-        messageId,
-        strParamIids,
-        sint64Params: entry.sint64Params,
-        doubleParams: entry.doubleParams,
-        booleanParams: entry.booleanParams?.map((param) => {
-          return param ? 1 : 0;
-        }),
-      });
+      const protoLogMessage = new PerfettoProtoLogMessage();
+      protoLogMessage.setMessageId(
+        BigInt.asUintN(64, BigInt(messageId)).toString(),
+      );
+      protoLogMessage.setStrParamIidsList(strParamIids);
+      protoLogMessage.setSint64ParamsList(entry.getSint64ParamsList());
+      protoLogMessage.setDoubleParamsList(entry.getDoubleParamsList());
+      protoLogMessage.setBooleanParamsList(
+        entry.getBooleanParamsList().map((param: boolean) => (param ? 1 : 0)),
+      );
+
+      packet.setProtologMessage(protoLogMessage);
       packets.push(packet);
     }
 
     return packets;
   }
 
-  protected override getTimestamp(entry: ProtoLogMessage): Timestamp {
+  protected override getTimestamp(entry: ProtoLogMessageUdc): Timestamp {
     return this.timestampConverter.makeTimestampFromBootTimeNs(
-      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
   }
 
   private makeViewerConfigPacket(
     sequenceId: number,
     trustedUid: number,
-  ): TracePacket {
+  ): PerfettoTracePacket {
     const packet = this.createPacket(sequenceId, trustedUid, undefined);
     if (this.is64BitVersion(this.decodedEntries[0])) {
-      packet.protologViewerConfig = CONFIG_64;
+      packet.setProtologViewerConfig(CONFIG_64);
     } else {
-      packet.protologViewerConfig = CONFIG_32;
+      packet.setProtologViewerConfig(CONFIG_32);
     }
     return packet;
   }
 
   private updateInternedDataPacket(
-    packet: TracePacket,
+    packet: PerfettoTracePacket,
     str: string,
     iid: number,
-  ): TracePacket {
-    const internedString = InternedString.fromObject({
-      iid: Long.fromNumber(iid),
-      str: utf8Encode(str),
-    });
-    packet.internedData = InternedData.fromObject({
-      protologStringArgs: [internedString],
-    });
+  ): PerfettoTracePacket {
+    const internedString = new PerfettoInternedString();
+    internedString.setIid(iid);
+    internedString.setStr(utf8Encode(str));
+
+    const internedData = new PerfettoInternedData();
+    internedData.setProtologStringArgsList([internedString]);
+
+    packet.setInternedData(internedData);
     return packet;
   }
 
@@ -222,12 +229,14 @@ export class FileReaderProtoLog extends AbstractFileReader<ProtoLogMessage> {
     sequenceId: number,
     trustedUid: number | undefined,
     trustedPid: number | undefined,
-  ): TracePacket {
-    const packet = new TracePacket();
-    packet.trustedPacketSequenceId = sequenceId;
-    packet.trustedUid = trustedUid;
-    if (trustedPid) {
-      packet.trustedPid = trustedPid;
+  ): PerfettoTracePacket {
+    const packet = new PerfettoTracePacket();
+    packet.setTrustedPacketSequenceId(sequenceId);
+    if (trustedUid !== undefined) {
+      packet.setTrustedUid(trustedUid);
+    }
+    if (trustedPid !== undefined) {
+      packet.setTrustedPid(trustedPid);
     }
     return packet;
   }

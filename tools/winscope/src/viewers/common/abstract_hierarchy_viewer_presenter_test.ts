@@ -14,37 +14,29 @@
  * limitations under the License.
  */
 
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@app/components/timeline/playback_events';
 import {assertDefined} from '@common/assert';
+import {Rect} from '@common/geometry/rect';
+import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
-
-import {
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangePropagate,
-  PlaybackStateChangeRequest,
-} from '@app/components/timeline/playback_events';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TracePositionUpdate} from '@trace_api/trace_events';
+import {TraceType} from '@trace_api/trace_type';
 import {makeNodeFilter} from '@tree_node/helpers';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {
-  AbstractHierarchyViewerPresenter,
-  NotifyHierarchyViewCallbackType,
-} from '@viewers/common/abstract_hierarchy_viewer_presenter';
+import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UserOptions} from '@viewers/common/user_options';
 import {RectSpec} from '@viewers/components/rects/rect_spec';
+
 import {Chip} from './chip';
-import {UiDataHierarchy} from './ui_data_hierarchy';
 import {PlaybackPresenter} from './playback/playback_presenter';
 import {PlaybackState} from './playback/playback_state';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {Rect} from '@common/geometry/rect';
-import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {TraceType} from '@trace_api/trace_type';
+import {UiDataHierarchy} from './ui_data_hierarchy';
 
 export abstract class AbstractHierarchyViewerPresenterTest<
   UiData extends UiDataHierarchy,

@@ -16,27 +16,25 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {
-  makeRealTimestamp,
-  makeElapsedTimestamp,
-} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {Timer} from '@common/time/timer';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
+import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {LogHeader} from '@viewers/common/ui_data_log';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {Timer} from '@common/time/timer';
 
 class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
   override executeSpecializedTests() {

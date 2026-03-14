@@ -15,12 +15,13 @@
  */
 
 import {BugreportData, BuildType} from '@app/trace_file_identifier';
-import {TraceType} from '@trace_api/trace_type';
-import {UserWarning} from '@messaging/user_warning';
 import {TimeRange} from '@common/time/time';
 import {TimeDuration} from '@common/time/time_duration';
-import {ParsingErrorType} from './parsing_error_type';
+import {UserWarning} from '@messaging/user_warning';
 import {TRACE_INFO} from '@trace_api/trace_info';
+import {TraceType} from '@trace_api/trace_type';
+
+import {ParsingErrorType} from './parsing_error_type';
 
 /**
  * A warning for when not all transitions in a trace can be parsed.

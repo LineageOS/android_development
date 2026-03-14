@@ -16,6 +16,7 @@
 
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+
 import {SimplifyNamesVc} from './simplify_names';
 
 describe('SimplifyNames', () => {

@@ -15,9 +15,8 @@
  */
 
 import {ErrorHandler, Injectable} from '@angular/core';
-import {Analytics} from '@logging/analytics';
-
 import {getLogger, Logger} from '@compat/logging';
+import {Analytics} from '@logging/analytics';
 
 /**
  * A global error handler for the application.

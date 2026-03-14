@@ -15,10 +15,7 @@
  */
 
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {Trace} from '@trace_api/trace';
 

@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
+import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
 import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
-import {
-  ActiveTraceChanged,
-  ScreenRecordingChange,
-  TracePositionUpdate,
-} from '@trace/trace_events';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {
-  CanvasEntry,
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
+import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
+import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
+import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {TracePosition} from '@trace_api/trace_position';
-import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
-import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 describe('PresenterMediaBased', () => {
   const entries = [

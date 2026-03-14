@@ -15,15 +15,10 @@
  */
 
 import {assertTrue} from '@common/assert';
-import {Sample} from 'mp4box';
 import {startsWithMagicNumber} from '@common/magic_number_helpers';
-import {
-  parseLongFromBuffer,
-  ParserResult,
-  extractSamplesFromMp4Track,
-  ScreenRecordingParser,
-  WINSCOPE_MAGIC_STRING,
-} from './helpers';
+import {Sample} from 'mp4box';
+
+import {extractSamplesFromMp4Track, parseLongFromBuffer, ParserResult, ScreenRecordingParser, WINSCOPE_MAGIC_STRING,} from './helpers';
 
 // Metadata v3 is written sample-by-sample. Each sample contains:
 // - Realtime-to-elapsed time offset in ns (8B little endian)

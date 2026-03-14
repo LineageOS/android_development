@@ -15,27 +15,16 @@
  */
 
 import {assertDefined} from '@common/assert';
-// TODO(b/311642700): Not compatible with google3
-import Long from 'long';
-import {makeWarningFailedToConvertLegacyTraces} from './warnings';
-import {UserNotifier} from '@services/user_notifier';
-// TODO(b/311642700): Not compatible with google3
-import {Writer} from 'protobufjs';
-import {
-  Trace,
-  TracePacket,
-  ITracePacket,
-  ClockSnapshot as PerfettoClockSnapshot,
-} from '@compat/perfetto';
-import {TraceFile} from '@trace/trace_file';
-import {getLogger, Logger} from '@compat/logging';
-import {
-  getReaderWithLatestRealToBootTimeOffset,
-  getReaderWithLatestRealToMonotonicTimeOffset,
-} from './file_reader_helpers';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {FileReader} from '@trace_api/file_reader';
 import {INVALID_TIME_NS} from '@common/time/time';
+import {getLogger, Logger} from '@compat/logging';
+import {PerfettoClockSnapshot, PerfettoTrace, PerfettoTracePacket,} from '@compat/protobuf';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {UserNotifier} from '@services/user_notifier';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace_api/trace_file';
+
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from './file_reader_helpers';
+import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 
 /**
  * An interface for a clock snapshot.
@@ -74,7 +63,7 @@ export class LegacyToPerfettoConverter {
   }
 
   async convert(): Promise<TraceFile | undefined> {
-    let trace: Trace;
+    let trace: PerfettoTrace;
     try {
       trace = await this.makePerfettoTrace();
     } catch (e) {
@@ -89,75 +78,51 @@ export class LegacyToPerfettoConverter {
     if (legacyPackets.length === 0) {
       return undefined;
     }
-    trace.packet.push(...legacyPackets);
+    legacyPackets.forEach((p) => trace.addPacket(p));
 
     // Packets with zero timestamps must be assigned a timestamp within
     // the range of timestamps present in the trace to avoid issues with
     // timestamp syncing. The packets for these traces will be parsed by
     // TP with the "has_invalid_elapsed_ts" column set to true.
-    const nonZeroTs = trace.packet.find((packet) => {
-      return packet.timestamp && !packet.timestamp.isZero();
-    })?.timestamp;
+    const hasValidTs = (packet: PerfettoTracePacket) => {
+      return packet.hasTimestamp() && packet.getTimestamp() !== '0';
+    };
+    const nonZeroTs = trace
+      .getPacketList()
+      .find((packet) => hasValidTs(packet))
+      ?.getTimestamp();
     legacyPackets.forEach((packet) => {
-      if (nonZeroTs && packet.timestamp.isZero()) {
-        packet.timestamp = nonZeroTs;
+      if (nonZeroTs && !hasValidTs(packet)) {
+        packet.setTimestamp(nonZeroTs);
       }
     });
 
-    // To avoid out-of-memory crashes with larger traces, we add encoded
-    // packets to size-limited chunks. TraceProcessor can load files in
-    // arbitrary chunks so we don't need to worry about how/where the
-    // encoded packets are split into chunks.
-    const chunks: BlobPart[] = [];
-    let currBuffer: Uint8Array[] = [];
-    let currSize = 0;
-
-    for (const packet of trace.packet) {
-      const encodedPacket = this.encodePacket(packet);
-
-      if (
-        currSize + encodedPacket.byteLength >
-        LegacyToPerfettoConverter.MAX_BUFFER_SIZE
-      ) {
-        if (currBuffer.length > 0) {
-          const chunk = this.createChunk(currSize, currBuffer);
-          chunks.push(chunk);
-        }
-        currBuffer = [encodedPacket];
-        currSize = encodedPacket.byteLength;
-      } else {
-        currBuffer.push(encodedPacket);
-        currSize += encodedPacket.byteLength;
-      }
-    }
-
-    if (currBuffer.length > 0) {
-      const chunk = this.createChunk(currSize, currBuffer);
-      chunks.push(chunk);
-    }
-
+    const serializedTrace = trace.serializeBinary();
     return new TraceFile(
-      new File(chunks, 'combined_winscope_trace.perfetto-trace'),
+      new File(
+        [serializedTrace as unknown as BlobPart],
+        'combined_winscope_trace.perfetto-trace',
+      ),
     );
   }
 
-  private async makePerfettoTrace(): Promise<Trace> {
-    let trace: Trace;
+  private async makePerfettoTrace(): Promise<PerfettoTrace> {
+    let trace: PerfettoTrace;
     if (!this.perfettoFile) {
       const clockSnapshots = this.makeClockSnapshots();
-      trace = new Trace();
+      trace = new PerfettoTrace();
       if (clockSnapshots.length === 0) {
         throw new Error('no file readers or Perfetto file provided');
       }
       clockSnapshots.forEach((snapshot) => {
         const clockSnapshot = this.makeTracePacketWithClockSnapshot(snapshot);
-        trace.packet.push(clockSnapshot);
+        trace.addPacket(clockSnapshot);
       });
     } else {
       const fileBuffer = new Uint8Array(
         await this.perfettoFile.file.arrayBuffer(),
       );
-      trace = Trace.decode(fileBuffer);
+      trace = PerfettoTrace.deserializeBinary(fileBuffer);
     }
 
     return trace;
@@ -250,76 +215,85 @@ export class LegacyToPerfettoConverter {
 
   private makeTracePacketWithClockSnapshot(
     legacySnapshot: ClockSnapshot,
-  ): TracePacket {
-    const packet = new TracePacket();
-    packet.trustedPacketSequenceId = 1;
+  ): PerfettoTracePacket {
+    const packet = new PerfettoTracePacket();
+    packet.setTrustedPacketSequenceId(1);
 
     const snapshot = new PerfettoClockSnapshot();
 
-    const realtime = Long.fromString(legacySnapshot.realtime.toString());
+    const realtime = legacySnapshot.realtime.toString();
 
     const clockRealtimeCoarse = new PerfettoClockSnapshot.Clock();
-    clockRealtimeCoarse.clockId =
-      PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME_COARSE;
-    clockRealtimeCoarse.timestamp = realtime;
-    snapshot.clocks.push(clockRealtimeCoarse);
+    clockRealtimeCoarse.setClockId(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME_COARSE,
+    );
+    clockRealtimeCoarse.setTimestamp(realtime);
+    snapshot.addClocks(clockRealtimeCoarse);
 
     const clockRealtime = new PerfettoClockSnapshot.Clock();
-    clockRealtime.clockId = PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME;
-    clockRealtime.timestamp = realtime;
-    snapshot.clocks.push(clockRealtime);
+    clockRealtime.setClockId(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.REALTIME,
+    );
+    clockRealtime.setTimestamp(realtime);
+    snapshot.addClocks(clockRealtime);
 
     if (legacySnapshot.boottime !== undefined) {
-      const boottime = Long.fromString(legacySnapshot.boottime.toString());
+      const boottime = legacySnapshot.boottime.toString();
       const clockBoottime = new PerfettoClockSnapshot.Clock();
-      clockBoottime.clockId =
-        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      clockBoottime.timestamp = boottime;
-      snapshot.clocks.push(clockBoottime);
+      clockBoottime.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      clockBoottime.setTimestamp(boottime);
+      snapshot.addClocks(clockBoottime);
     }
 
     if (legacySnapshot.monotonic !== undefined) {
-      const monotonic = Long.fromString(legacySnapshot.monotonic.toString());
+      const monotonic = legacySnapshot.monotonic.toString();
       const clockMonotonic = new PerfettoClockSnapshot.Clock();
-      clockMonotonic.clockId =
-        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
-      clockMonotonic.timestamp = monotonic;
-      snapshot.clocks.push(clockMonotonic);
+      clockMonotonic.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
+      clockMonotonic.setTimestamp(monotonic);
+      snapshot.addClocks(clockMonotonic);
 
       const clockMonotonicCoarse = new PerfettoClockSnapshot.Clock();
-      clockMonotonicCoarse.clockId =
-        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_COARSE;
-      clockMonotonicCoarse.timestamp = monotonic;
-      snapshot.clocks.push(clockMonotonicCoarse);
+      clockMonotonicCoarse.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_COARSE,
+      );
+      clockMonotonicCoarse.setTimestamp(monotonic);
+      snapshot.addClocks(clockMonotonicCoarse);
 
       const clockMonotonicRaw = new PerfettoClockSnapshot.Clock();
-      clockMonotonicRaw.clockId =
-        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_RAW;
-      clockMonotonicRaw.timestamp = monotonic;
-      snapshot.clocks.push(clockMonotonicRaw);
+      clockMonotonicRaw.setClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC_RAW,
+      );
+      clockMonotonicRaw.setTimestamp(monotonic);
+      snapshot.addClocks(clockMonotonicRaw);
     }
 
-    packet.clockSnapshot = snapshot;
+    packet.setClockSnapshot(snapshot);
 
     return packet;
   }
 
-  private makeTraceDataPackets(trace: Trace): TracePacket[] {
-    const [largestUid, largestPid] = trace.packet.reduce(
+  private makeTraceDataPackets(trace: PerfettoTrace): PerfettoTracePacket[] {
+    const [largestUid, largestPid] = trace.getPacketList().reduce(
       ([uid, pid], packet) => {
         return [
-          Math.max(packet.trustedUid ?? 0, uid),
-          Math.max(packet.trustedPid ?? 0, pid),
+          Math.max(packet.getTrustedUid() ?? 0, uid),
+          Math.max(packet.getTrustedPid() ?? 0, pid),
         ];
       },
       [0, 0],
     );
     let [trustedUid, trustedPid] = [largestUid + 1, largestPid + 1];
 
-    const packets: TracePacket[] = [];
+    const packets: PerfettoTracePacket[] = [];
     let sequenceId =
       Math.max(
-        ...trace.packet.map((packet) => packet.trustedPacketSequenceId ?? 0),
+        ...trace
+          .getPacketList()
+          .map((packet) => packet.getTrustedPacketSequenceId() ?? 0),
       ) + 1;
     for (const reader of this.legacyReaders) {
       try {
@@ -330,7 +304,7 @@ export class LegacyToPerfettoConverter {
         );
 
         if (legacyPackets.length > 0) {
-          legacyPackets[0].firstPacketOnSequence = true;
+          legacyPackets[0].setFirstPacketOnSequence(true);
           packets.push(...legacyPackets);
           sequenceId++;
           trustedUid++;
@@ -342,49 +316,4 @@ export class LegacyToPerfettoConverter {
     }
     return packets;
   }
-
-  // Since larger traces cannot be encoded using the Trace.encode function
-  // provided by protobufjs as this causes an out-of-memory crash, we
-  // manually encode the packet. The encoded packet should have the following
-  // protobuf format:
-  // [<field_tag>][<packet_length>][<packet_bytes>]
-  // where field tag is given by (field_number << 3) | wire_type.
-
-  // Trace proto from external/perfetto/protos/perfetto/trace/trace.proto:
-  // message Trace {
-  //   repeated TracePacket packet = 1;
-  // }
-
-  // TracePacket has field number 1 and wire type 2 (LEN = length-delimited).
-
-  private encodePacket(packet: ITracePacket): Uint8Array {
-    const encodedPacket = TracePacket.encode(packet).finish();
-    const prefix = this.createPacketPrefix(encodedPacket.byteLength);
-    const packetWithPrefix = new Uint8Array(
-      prefix.byteLength + encodedPacket.byteLength,
-    );
-    packetWithPrefix.set(prefix, 0);
-    packetWithPrefix.set(encodedPacket, prefix.length);
-    return packetWithPrefix;
-  }
-
-  private createPacketPrefix(packetLength: number): Uint8Array {
-    const writer = new Writer();
-    writer.uint32(LegacyToPerfettoConverter.FIELD_TAG);
-    writer.uint32(packetLength);
-    return writer.finish();
-  }
-
-  private createChunk(size: number, buffers: Uint8Array[]): BlobPart {
-    const chunk = new Uint8Array(size);
-    let offset = 0;
-    for (const buffer of buffers) {
-      chunk.set(buffer, offset);
-      offset += buffer.byteLength;
-    }
-    return chunk;
-  }
-
-  private static readonly FIELD_TAG = 0x0a; // (1 << 3) | 2
-  private static readonly MAX_BUFFER_SIZE = 2 ** 31 - 1;
 }

@@ -15,6 +15,7 @@
  */
 
 import {GlobalConfig} from '@common/global_config';
+
 import {isAllowed, isAllowedIframeParentOrigin} from './origin_allow_list';
 
 describe('OriginAllowList', () => {

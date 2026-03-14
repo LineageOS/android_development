@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
+import {makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp,} from '@common/time/test_helpers';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {ParserBuilder} from '@test/unit/trace_api/parser_builder';
-import {
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-  makeZeroTimestamp,
-} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {
-  extractEntries,
-  extractFrames,
-  extractTimestamps,
-  makeEmptyTrace,
-} from '@test/unit/trace_api/trace_test_helpers';
+import {extractEntries, extractFrames, extractTimestamps, makeEmptyTrace,} from '@test/unit/trace_api/trace_test_helpers';
 
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';
@@ -1329,7 +1320,7 @@ describe('Trace', () => {
 
     const traceWithElapsedTimestamps = new TraceBuilder<string>()
       .setEntries(['entry-0', 'entry-1'])
-      .setTimestamps([time0, makeElapsedTimestamp(BigInt(TIME_UNIT_TO_NANO.d))])
+      .setTimestamps([time0, makeElapsedTimestamp(TIME_UNIT_TO_NANO.d)])
       .build();
     expect(traceWithElapsedTimestamps.spansMultipleDates()).toBeFalse();
 
@@ -1342,8 +1333,8 @@ describe('Trace', () => {
     const traceWitMultipleDates = new TraceBuilder<string>()
       .setEntries(['entry-0', 'entry-1'])
       .setTimestamps([
-        makeRealTimestamp(BigInt(TIME_UNIT_TO_NANO.h * 23)),
-        makeRealTimestamp(BigInt(TIME_UNIT_TO_NANO.h * 25)),
+        makeRealTimestamp(TIME_UNIT_TO_NANO.h * 23n),
+        makeRealTimestamp(TIME_UNIT_TO_NANO.h * 25n),
       ])
       .build();
     expect(traceWitMultipleDates.spansMultipleDates()).toBeTrue();

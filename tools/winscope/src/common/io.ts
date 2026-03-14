@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import * as jSZip from 'jszip';
+
 import {equal} from './typed_array';
 
 /**

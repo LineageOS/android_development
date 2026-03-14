@@ -15,19 +15,14 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import {com} from 'protos/windowmanager/udc/static';
-import Long from 'long';
-import {TraceType} from '@trace_api/trace_type';
-import {WindowManagerTraceEntry} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
+import {PerfettoClockSnapshot, PerfettoTracePacket, PerfettoWindowManagerServiceDumpProto, PerfettoWindowManagerTraceEntry, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
-
-type DumpProto = com.android.server.wm.IWindowManagerServiceDumpProto;
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * Parser for WindowManager dump files.
  */
-export class FileReaderWindowManagerDump extends AbstractFileReader<DumpProto> {
+export class FileReaderWindowManagerDump extends AbstractFileReader<PerfettoWindowManagerServiceDumpProto> {
   override getTraceType(): TraceType {
     return TraceType.WINDOW_MANAGER;
   }
@@ -44,47 +39,42 @@ export class FileReaderWindowManagerDump extends AbstractFileReader<DumpProto> {
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): DumpProto[] {
-    const entryProto =
-      com.android.server.wm.WindowManagerServiceDumpProto.decode(buffer);
-
-    // This parser is prone to accepting invalid inputs because it lacks a magic
-    // number. Reduce the chances of accepting invalid inputs by ensuring that the
-    // decoded proto actually contains all valid DumpProto keys and is not empty.
-    const objKeys = Object.getOwnPropertyNames(entryProto);
-    if (
-      objKeys.length === 0 ||
-      !objKeys.every((key) => {
-        return (
-          key in com.android.server.wm.WindowManagerServiceDumpProto.prototype
-        );
-      })
-    ) {
-      throw new Error('Entry does not contain any WM dump data');
+  override decodeTrace(
+    buffer: Uint8Array,
+  ): readonly PerfettoWindowManagerServiceDumpProto[] {
+    if (buffer.length === 0) {
+      throw new TypeError('Empty buffer');
     }
-
-    return [entryProto];
+    const decoded =
+      PerfettoWindowManagerServiceDumpProto.deserializeBinary(buffer);
+    return [decoded];
   }
 
-  protected override getTimestamp(_: DumpProto): Timestamp {
+  protected override getTimestamp(
+    _: PerfettoWindowManagerServiceDumpProto,
+  ): Timestamp {
     return this.timestampConverter.makeZeroTimestamp();
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
     for (const entry of this.decodedEntries) {
-      const packet = new TracePacket();
-      packet.timestamp = Long.fromInt(0);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.winscopeExtensions = {
-        '.perfetto.protos.WinscopeExtensionsImpl.windowmanager':
-          WindowManagerTraceEntry.fromObject({
-            elapsedRealtimeNanos: 0,
-            where: null,
-            windowManagerService: entry,
-          }),
-      };
+      const packet = new PerfettoTracePacket();
+      packet.setTimestamp('0');
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      packet.setTrustedPacketSequenceId(sequenceId);
+
+      const wmEntry = new PerfettoWindowManagerTraceEntry();
+      wmEntry.setElapsedRealtimeNanos('0');
+      wmEntry.setWhere('dump');
+      wmEntry.setWindowManagerService(entry);
+
+      const extensions = new WinscopeExtensions();
+      extensions.setExtension(WinscopeExtensionsImpl.windowmanager, wmEntry);
+
+      packet.setWinscopeExtensions(extensions);
       packets.push(packet);
     }
     return packets;

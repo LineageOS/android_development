@@ -28,66 +28,53 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatListModule} from '@angular/material/list';
+import {MatMenuModule} from '@angular/material/menu';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSliderModule} from '@angular/material/slider';
-import {MatMenuModule} from '@angular/material/menu';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
-import {RequestData} from '@cross_tool/g3_proxy';
-import {
-  makeWarningNoValidFiles,
-  makeWarningFailedToInitializeTimelineData,
-} from '@app/warnings';
 import {AppRefreshDumpsRequest, AppResetRequest} from '@app/app_events';
-import {
-  BookmarksChanged,
-  BugreportFileSelected,
-  BugreportFileSelectionRequest,
-} from '@app/misc_events';
+import {FilesSource} from '@app/files_source';
+import {LoadedFileData} from '@app/loaded_file_data';
+import {Mediator} from '@app/mediator';
+import {BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest,} from '@app/misc_events';
+import {ParsingErrorType} from '@app/parsing_error_type';
 import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
+import {TimelineData} from '@app/timeline_data';
 import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
-import {TracePositionUpdate, TraceSearchRequest} from '@trace/trace_events';
-import {TraceType} from '@trace_api/trace_type';
-import {View, Viewer, ViewType} from '@viewers/viewer';
+import {makeWarningFailedToInitializeTimelineData, makeWarningNoValidFiles,} from '@app/warnings';
+import {assertDefined} from '@common/assert';
+import {Store} from '@common/store/store';
+import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/test_helpers';
+import {Timestamp} from '@common/time/time';
+import {RequestData} from '@cross_tool/g3_proxy';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {UserNotifier} from '@services/user_notifier';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {
-  makeConverterZeroRteOffsets,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
+import {TestFileReaderAndParserBuilder} from '@test/unit/test_file_reader_and_parser_builder';
+import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
+import {TracePositionUpdate, TraceSearchRequest} from '@trace_api/trace_events';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {View, Viewer, ViewType} from '@viewers/viewer';
+
 import {AppComponent} from './app_component';
-import {
-  MatDrawer,
-  MatDrawerContainer,
-  MatDrawerContent,
-} from './bottomnav/bottom_drawer_component';
+import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from './bottomnav/bottom_drawer_component';
 import {CollectTracesComponent} from './collect_traces_component';
 import {TimelineComponent} from './timeline/timeline_component';
 import {TraceViewComponent} from './trace_view_component';
 import {UploadTracesComponent} from './upload_traces_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
-import {Traces} from '@trace_api/traces';
-import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
-import {FilesSource} from '@app/files_source';
-import {TestFileReaderAndParserBuilder} from '@test/unit/test_file_reader_and_parser_builder';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {Mediator} from '@app/mediator';
-import {LoadedFileData} from '@app/loaded_file_data';
-import {TimelineData} from '@app/timeline_data';
-import {ParsingErrorType} from '@app/parsing_error_type';
-import {Store} from '@common/store/store';
-import {EmitEvent} from '@messaging/winscope_event_emitter';
-import {WinscopeEvent} from '@messaging/winscope_event';
-import {Timestamp} from '@common/time/time';
 
 @Component({
   selector: 'trace-view',

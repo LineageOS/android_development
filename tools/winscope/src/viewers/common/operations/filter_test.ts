@@ -18,6 +18,7 @@ import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder'
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {TreeNode} from '@tree_node/tree_node';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+
 import {Filter} from './filter';
 
 describe('Filter', () => {

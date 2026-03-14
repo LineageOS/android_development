@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  assertBigInt,
-  assertBigIntOrUndefined,
-  assertString,
-  assertTrue,
-} from '@common/assert';
+import {assertBigInt, assertBigIntOrUndefined, assertString, assertTrue,} from '@common/assert';
 import {makeWarningMissingVsyncId} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
 import {AbsoluteEntryIndex, EntriesRange} from '@trace_api/index_types';

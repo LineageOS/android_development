@@ -12,59 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO(b/311642700): Necessary for google3 migration
-import {
-  decode as b64Decode,
-  encode as b64Encode,
-  length as b64Len,
-} from '@protobufjs/base64';
-import {
-  length as utf8Len,
-  read as utf8Read,
-  write as utf8Write,
-} from '@protobufjs/utf8';
-import {assertTrue} from './logging';
 
-import { getLogger } from "compat/logging";
 
 // TextDecoder/Decoder requires the full DOM and isn't available in all types
-// of tests. Use fallback implementation from protbufjs.
+// of tests. Use fallback implementation if needed.
 let Utf8Decoder: {decode: (buf: Uint8Array) => string};
 let Utf8Encoder: {encode: (str: string) => Uint8Array};
-try {
+
+if (typeof TextDecoder !== 'undefined' && typeof TextEncoder !== 'undefined') {
   Utf8Decoder = new TextDecoder('utf-8');
   Utf8Encoder = new TextEncoder();
-} catch (_) {
-  if (typeof process === 'undefined') {
-    // Silence the warning when we know we are running under NodeJS.
-    getLogger('string_utils').warn(
-      'Using fallback UTF8 Encoder/Decoder, This should happen only in ' +
-        'tests and NodeJS-based environments, not in browsers.',
-    );
-  }
-  Utf8Decoder = {decode: (buf: Uint8Array) => utf8Read(buf, 0, buf.length)};
-  Utf8Encoder = {
-    encode: (str: string) => {
-      const arr = new Uint8Array(utf8Len(str));
-      const written = utf8Write(str, arr, 0);
-      assertTrue(written === arr.length);
-      return arr;
-    },
-  };
+} else {
+  throw new Error('TextEncoder/TextDecoder not available');
 }
 
-// TODO(b/311642700): Remove dependency on protobufjs.
 export function base64Encode(buffer: Uint8Array): string {
-  return b64Encode(buffer, 0, buffer.length);
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(buffer).toString('base64');
+  } else {
+    let binary = '';
+    const len = buffer.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(buffer[i]);
+    }
+    return btoa(binary);
+  }
 }
 
 export function base64Decode(str: string): Uint8Array {
   // if the string is in base64url format, convert to base64
   const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  const arr = new Uint8Array(b64Len(b64));
-  const written = b64Decode(b64, arr, 0);
-  assertTrue(written === arr.length);
-  return arr;
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(Buffer.from(b64, 'base64'));
+  } else {
+    const binary_string = atob(b64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes;
+  }
 }
 
 // encode binary array to hex string

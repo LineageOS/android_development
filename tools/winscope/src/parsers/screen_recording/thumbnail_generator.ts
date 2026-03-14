@@ -15,8 +15,8 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {Thumbnail} from '@trace/media_based/thumbnail';
 import {getLogger} from '@compat/logging';
+import {Thumbnail} from '@trace/media_based/thumbnail';
 
 class ThumbnailBuilder {
   private spriteSheet: Blob | undefined;

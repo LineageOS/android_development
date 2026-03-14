@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TracePacket} from '@compat/perfetto';
+import {PerfettoTracePacket} from '@compat/protobuf';
 import {FileReader} from '@trace_api/file_reader';
 
 /**
@@ -28,5 +28,5 @@ export interface LegacyFileReader extends FileReader {
     sequenceId: number,
     trustedUid?: number,
     trustedPid?: number,
-  ): TracePacket[];
+  ): PerfettoTracePacket[];
 }

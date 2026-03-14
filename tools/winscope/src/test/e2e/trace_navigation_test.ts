@@ -15,14 +15,8 @@
  */
 
 import {browser, by, element, ElementFinder} from 'protractor';
-import {
-  clickUploadNewButton,
-  clickViewTracesButton,
-  closeSnackBar,
-  setTimeouts,
-  uploadFixture,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {clickUploadNewButton, clickViewTracesButton, closeSnackBar, setTimeouts, uploadFixture, WINSCOPE_URL,} from './helpers';
 
 describe('Trace navigation', () => {
   const DEFAULT_TIMEOUT_MS = 5000;

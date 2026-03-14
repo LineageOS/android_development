@@ -50,6 +50,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 
+@SuppressLint("NewApi")
 @Singleton
 public final class AudioInjector implements Consumer<RemoteEvent> {
     private static final String TAG = AudioInjector.class.getSimpleName();
@@ -81,6 +82,7 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
     private final Context mApplicationContext;
     private Context mDeviceContext;
     private AudioManager mAudioManager;
+    private boolean mUsePersistentMixes;
 
     private final AudioManager.AudioRecordingCallback mAudioRecordingCallback =
             new AudioManager.AudioRecordingCallback() {
@@ -199,6 +201,8 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
         mRemoteIo.addMessageConsumer(this);
 
         mAudioManager = mDeviceContext.getSystemService(AudioManager.class);
+        mUsePersistentMixes = mPreferenceController.getBoolean(
+                R.string.pref_enable_persistent_audio_policy_mixes);
         if (mAudioManager != null) {
             mAudioManager.registerAudioRecordingCallback(mAudioRecordingCallback, null);
             mAudioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
@@ -332,8 +336,9 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
                 return;
             }
 
-            AudioMix sessionIdAudioMix = getSessionIdAudioMix(mRecordingSessionId);
-            AudioMix uidAudioMix = getUidAudioMix(uids);
+            AudioMix sessionIdAudioMix = getSessionIdAudioMix(mRecordingSessionId,
+                    mUsePersistentMixes);
+            AudioMix uidAudioMix = getUidAudioMix(uids, mUsePersistentMixes);
 
             AudioPolicy.Builder audioPolicyBuilder = new AudioPolicy.Builder(mDeviceContext)
                     .addMix(sessionIdAudioMix);
@@ -377,9 +382,10 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
             if (audioTrack.getState() != STATE_INITIALIZED) {
                 throw new IllegalStateException("Set an uninitialized AudioTrack.");
             }
-            mAudioTracks.add(new SilentAudioTrack(audioTrack));
+            mAudioTracks.add(new SilentAudioTrack(audioTrack, !mUsePersistentMixes));
 
-            Log.d(TAG, "Added source audio track: " + audioTrack);
+            Log.d(TAG, "Added source audio track: " + audioTrack + " activeSilence: "
+                    + !mUsePersistentMixes);
         }
     }
 
@@ -396,21 +402,28 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
 
     /**
      * Utility class that keeps an AudioTrack "alive" and always provided with silence in absence
-     * of real audio data. Wraps around an AudioTrack and activates the silence mode when 'stop()'
+     * of real audio data if the "activeSilence" parameter is set to true.
+     * Wraps around an AudioTrack and activates the silence mode when 'stop()'
      * is called and allows for real data to be written (and stops the silence) when 'play()' is
      * called.
+     * Setting the "activeSilence" to false means the app is using persistent mixes and the
+     * silence injection is done at the mix / audio framework level. For this case the class
+     * is just a passthrough wrapper to a regular AudioTrack and is not using a Thread for
+     * active silence injection.
      */
     private class SilentAudioTrack {
         private final AudioTrack mAudioTrack;
+        private final boolean mActiveSilence;
         private final byte[] mSilenceBuffer;
         private Thread mSilenceAudioThread;
         private volatile boolean mRunSilence = false;
 
-        SilentAudioTrack(AudioTrack audioTrack) {
+        SilentAudioTrack(AudioTrack audioTrack, boolean activeSilence) {
             mAudioTrack = audioTrack;
+            mActiveSilence = activeSilence;
             // Taken from AUDIO_FORMAT_IN channel count (1) and sample rate (2 bytesPerSample)
             mSilenceBuffer = new byte[audioTrack.getBufferSizeInFrames() * 2];
-            if (!mIsPlaying) {
+            if (mActiveSilence && !mIsPlaying) {
                 startSilenceThread();
             }
             // start playing when created
@@ -419,21 +432,29 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
 
         // Switch to write "real data" mode, stop the silence
         public void play() {
-            stopSilenceThread();
-            // empty any silence already written to the audio track
-            mAudioTrack.pause();
-            mAudioTrack.flush();
+            if (mActiveSilence) {
+                stopSilenceThread();
+                // empty any silence already written to the audio track
+                mAudioTrack.pause();
+                mAudioTrack.flush();
+            }
             mAudioTrack.play();
         }
 
         // Switch to write "silence" mode
         public void stop() {
-            startSilenceThread();
+            if (mActiveSilence) {
+                startSilenceThread();
+            } else {
+                mAudioTrack.stop();
+            }
         }
 
         // Stop and release the audio track and silence Thread
         public void release() {
-            stopSilenceThread();
+            if (mActiveSilence) {
+                stopSilenceThread();
+            }
             mAudioTrack.stop();
             mAudioTrack.release();
         }
@@ -493,7 +514,7 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
         }
     }
 
-    private static AudioMix getSessionIdAudioMix(int sessionId) {
+    private static AudioMix getSessionIdAudioMix(int sessionId, boolean persistent) {
         AudioMixingRule sessionIdMixingRule =
                 new AudioMixingRule.Builder()
                         .setTargetMixRole(AudioMixingRule.MIX_ROLE_INJECTOR)
@@ -504,10 +525,11 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
         return new AudioMix.Builder(sessionIdMixingRule)
                 .setRouteFlags(AudioMix.ROUTE_FLAG_LOOP_BACK)
                 .setFormat(AUDIO_FORMAT_IN)
+                .setPersistent(persistent)
                 .build();
     }
 
-    private static AudioMix getUidAudioMix(ImmutableSet<Integer> reroutedUids) {
+    private static AudioMix getUidAudioMix(ImmutableSet<Integer> reroutedUids, boolean persistent) {
         if (reroutedUids.isEmpty()) {
             return null;
         }
@@ -515,6 +537,7 @@ public final class AudioInjector implements Consumer<RemoteEvent> {
         return new AudioMix.Builder(createUidMixingRule(reroutedUids))
                 .setRouteFlags(AudioMix.ROUTE_FLAG_LOOP_BACK)
                 .setFormat(AUDIO_FORMAT_IN)
+                .setPersistent(persistent)
                 .build();
     }
 

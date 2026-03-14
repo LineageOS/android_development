@@ -15,16 +15,8 @@
  */
 
 import {assertUnreachable} from '@common/assert';
-import {
-  HttpRequest,
-  HttpRequestHeaderType,
-  HttpRequestStatus,
-  HttpResponse,
-} from '@common/http_request';
-import {
-  AdbResponse,
-  OnRequestSuccessCallback,
-} from '@trace_collection/adb/adb_host_connection';
+import {HttpRequest, HttpRequestHeaderType, HttpRequestStatus, HttpResponse,} from '@common/http_request';
+import {AdbResponse, OnRequestSuccessCallback,} from '@trace_collection/adb/adb_host_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 
 export const WINSCOPE_PROXY_URL = 'http://localhost:5544';

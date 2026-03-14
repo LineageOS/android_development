@@ -20,6 +20,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+
 import {SnackBarComponent} from './snack_bar_component';
 
 describe('SnackBarComponent', () => {

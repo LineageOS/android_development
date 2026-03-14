@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import Long from 'long';
-import {ShellTransition} from '@compat/winscope_protos';
+import {PerfettoShellTransition} from '@compat/protobuf';
 
 type TransitionProperty =
   | number
-  | Long
-  | ShellTransition.IChange[]
+  | string
+  | PerfettoShellTransition.Change[]
   | null
   | undefined;
 
@@ -34,9 +33,9 @@ export function nullifyIfDefaultValue<T extends TransitionProperty>(
 }
 
 function isDefaultValue(value: TransitionProperty): boolean {
-  if (value instanceof Long && value.isZero()) {
+  if (typeof value === 'number' && value === 0) {
     return true;
-  } else if (typeof value === 'number' && value === 0) {
+  } else if (typeof value === 'string' && (value === '0' || value === '')) {
     return true;
   } else if (Array.isArray(value) && value.length === 0) {
     return true;

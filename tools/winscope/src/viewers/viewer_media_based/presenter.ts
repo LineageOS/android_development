@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-import {
-  ActiveTraceChanged,
-  ScreenRecordingChange,
-  TracePositionUpdate,
-} from '@trace/trace_events';
-import {WinscopeEvent} from '@messaging/winscope_event';
+import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
 import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
-import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {getLogger, Logger} from '@compat/logging';
-import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
-import {ViewerEvents} from '@viewers/common/viewer_events';
-import {UiData} from './ui_data';
+import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
-import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
+import {ViewerEvents} from '@viewers/common/viewer_events';
+
+import {UiData} from './ui_data';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 

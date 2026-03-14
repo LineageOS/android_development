@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
-import {TraceFile} from '@trace/trace_file';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 
 describe('LegacyFileReaderFactory', () => {

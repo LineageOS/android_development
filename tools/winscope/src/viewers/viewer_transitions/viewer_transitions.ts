@@ -20,6 +20,7 @@ import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractViewer} from '@viewers/abstract_viewer';
 import {ViewerComponent} from '@viewers/components/viewer_component';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 

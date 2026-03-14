@@ -15,11 +15,7 @@
  */
 
 import {getLogger, Logger} from '@compat/logging';
-import {
-  AdbDeviceConnection,
-  AdbDeviceConnectionListener,
-  AdbDeviceState,
-} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnection, AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {TraceTarget} from '@trace_collection/trace_target';
 
 /**

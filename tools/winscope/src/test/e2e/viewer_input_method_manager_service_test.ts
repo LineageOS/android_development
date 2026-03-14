@@ -15,19 +15,8 @@
  */
 
 import {browser, by, element} from 'protractor';
-import {
-  applyStateToHierarchyOptions,
-  changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTree,
-  checkTimelineTraceSelector,
-  checkWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  selectItemInHierarchy,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {applyStateToHierarchyOptions, changeRealTimestampInWinscope, checkFinalRealTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTreeByName, checkTimelineTraceSelector, checkWinscopeRealTimestamp, collapseAdditionalProperties, loadTraceAndCheckViewer, selectItemInHierarchy, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Input Method Manager Service', () => {
   const viewerSelector = 'viewer-input-method';
@@ -58,6 +47,7 @@ describe('Viewer Input Method Manager Service', () => {
     await checkWmStateProperties();
 
     await applyStateToHierarchyOptions(viewerSelector, false);
+    await collapseAdditionalProperties(viewerSelector);
     await selectItemInHierarchy(viewerSelector, 'inputMethodManagerService');
     await checkManagerServiceProperties();
   });
@@ -106,13 +96,13 @@ describe('Viewer Input Method Manager Service', () => {
   }
 
   async function checkWmStateProperties() {
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'interactiveState',
       'interactiveState:\nINTERACTIVE_STATE_AWAKE',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'windowFramesValid',
       'windowFramesValid:\ntrue',
@@ -120,25 +110,25 @@ describe('Viewer Input Method Manager Service', () => {
   }
 
   async function checkManagerServiceProperties() {
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'fieldId',
       'fieldId:\n2131430027',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'curToken',
       'curToken:\nandroid.os.Binder@a75e797',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'curFocusedWindowSoftInputMode',
       'curFocusedWindowSoftInputMode:\nSTATE_UNSPECIFIED|ADJUST_RESIZE',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'inputShown',
       'inputShown:\ntrue',

@@ -17,6 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {AddDisplayProperties} from './add_display_properties';
 
 describe('AddDisplayProperties', () => {
@@ -40,12 +41,7 @@ describe('AddDisplayProperties', () => {
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
-    const displayWithProperties = assertDefined(
-      propertyRoot.getChildByName('displays'),
-    ).getAllChildren()[0];
-    expect(
-      displayWithProperties.getChildByName('isLargeScreen')?.getValue(),
-    ).toEqual(true);
+    checkIsLargeScreen(true);
   });
 
   it('adds isLargeScreen false', () => {
@@ -60,12 +56,7 @@ describe('AddDisplayProperties', () => {
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
-    const displayWithProperties = assertDefined(
-      propertyRoot.getChildByName('displays'),
-    ).getAllChildren()[0];
-    expect(
-      displayWithProperties.getChildByName('isLargeScreen')?.getValue(),
-    ).toEqual(false);
+    checkIsLargeScreen(false);
   });
 
   it('adds isOn true', () => {
@@ -80,12 +71,7 @@ describe('AddDisplayProperties', () => {
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
-    const displayWithProperties = assertDefined(
-      propertyRoot.getChildByName('displays'),
-    ).getAllChildren()[0];
-    expect(displayWithProperties.getChildByName('isOn')?.getValue()).toEqual(
-      true,
-    );
+    checkIsOn(true);
   });
 
   it('adds isOn false', () => {
@@ -100,32 +86,53 @@ describe('AddDisplayProperties', () => {
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
-    const displayWithProperties = assertDefined(
-      propertyRoot.getChildByName('displays'),
-    ).getAllChildren()[0];
-    expect(displayWithProperties.getChildByName('isOn')?.getValue()).toEqual(
-      false,
-    );
+    checkIsOn(false);
   });
 
-  it('handles missing properties', () => {
+  it('handles missing size properties', () => {
     expect(() => operation.apply(propertyRoot)).not.toThrowError();
 
     const displays = makePropertyNode(propertyRoot.id, 'displays', [
       {
         dpiX: 0,
-        size: {w: 1080, h: 2340},
-        layerStack: 4294967295,
-      },
-      {
-        dpiY: 0,
-        size: {w: 1080, h: 2340},
         layerStack: 4294967295,
       },
     ]);
     propertyRoot.addOrReplaceChild(displays);
 
     operation.apply(propertyRoot);
-    expect(() => operation.apply(propertyRoot)).not.toThrowError();
+    checkIsLargeScreen(false);
+    checkIsOn(false);
   });
+
+  it('handles missing dpi and layer stack properties', () => {
+    expect(() => operation.apply(propertyRoot)).not.toThrowError();
+
+    const displays = makePropertyNode(propertyRoot.id, 'displays', [
+      {
+        size: {w: 1080, h: 2340},
+      },
+    ]);
+    propertyRoot.addOrReplaceChild(displays);
+
+    operation.apply(propertyRoot);
+    checkIsLargeScreen(true);
+    checkIsOn(true);
+  });
+
+  function checkIsLargeScreen(isLargeScreen: boolean) {
+    const display = assertDefined(
+      propertyRoot.getChildByName('displays'),
+    ).getAllChildren()[0];
+    expect(display.getChildByName('isLargeScreen')?.getValue()).toEqual(
+      isLargeScreen,
+    );
+  }
+
+  function checkIsOn(isOn: boolean) {
+    const display = assertDefined(
+      propertyRoot.getChildByName('displays'),
+    ).getAllChildren()[0];
+    expect(display.getChildByName('isOn')?.getValue()).toEqual(isOn);
+  }
 });

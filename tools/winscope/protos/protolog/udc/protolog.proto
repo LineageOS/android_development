@@ -18,53 +18,54 @@ syntax = "proto2";
 
 package com.android.internal.protolog;
 
-import "privacy.proto";
+import "protos/protolog/udc/privacy.proto";
 
 option java_multiple_files = true;
 
 /* represents a single log entry */
 message ProtoLogMessage {
-    option (.android_common.msg_privacy).dest = DEST_LOCAL;
+  option (.android.msg_privacy).dest = DEST_LOCAL;
 
-    /* log statement identifier, created from message string and log level. */
-    optional sfixed32 message_hash_legacy = 1 [deprecated = true];
-    /* log time, relative to the elapsed system time clock. */
-    optional fixed64 elapsed_realtime_nanos = 2;
-    /* string parameters passed to the log call. */
-    repeated string str_params = 3;
-    /* integer parameters passed to the log call. */
-    repeated sint64 sint64_params = 4 [packed=true];
-    /* floating point parameters passed to the log call. */
-    repeated double double_params = 5 [packed=true];
-    /* boolean parameters passed to the log call. */
-    repeated bool boolean_params = 6 [packed=true];
+  /* log statement identifier, created from message string and log level. */
+  optional sfixed32 message_hash_legacy = 1 [deprecated = true];
+  /* log time, relative to the elapsed system time clock. */
+  optional fixed64 elapsed_realtime_nanos = 2 [jstype = JS_STRING];
+  /* string parameters passed to the log call. */
+  repeated string str_params = 3;
+  /* integer parameters passed to the log call. */
+  repeated sint64 sint64_params = 4 [packed = true, jstype = JS_STRING];
+  /* floating point parameters passed to the log call. */
+  repeated double double_params = 5 [packed = true];
+  /* boolean parameters passed to the log call. */
+  repeated bool boolean_params = 6 [packed = true];
 
-    /* log statement identifier, created from message string and log level. */
-    optional sfixed64 message_hash = 7;
+  /* log statement identifier, created from message string and log level. */
+  optional sfixed64 message_hash = 7 [jstype = JS_STRING];
 }
 
 /* represents a log file containing ProtoLog log entries.
-   Encoded, it should start with 0x9 0x50 0x52 0x4f 0x54 0x4f 0x4c 0x4f 0x47 (.PROTOLOG), such
-   that they can be easily identified. */
+   Encoded, it should start with 0x9 0x50 0x52 0x4f 0x54 0x4f 0x4c 0x4f 0x47
+   (.PROTOLOG), such that they can be easily identified. */
 message ProtoLogFileProto {
-    option (.android_common.msg_privacy).dest = DEST_LOCAL;
+  option (.android.msg_privacy).dest = DEST_LOCAL;
 
-    /* constant; MAGIC_NUMBER = (long) MAGIC_NUMBER_H << 32 | MagicNumber.MAGIC_NUMBER_L
-       (this is needed because enums have to be 32 bits and there's no nice way to put 64bit
-        constants into .proto files. */
-    enum MagicNumber {
-        INVALID = 0;
-        MAGIC_NUMBER_L = 0x544f5250; /* PROT (little-endian ASCII) */
-        MAGIC_NUMBER_H = 0x474f4c4f; /* OLOG (little-endian ASCII) */
-    }
+  /* constant; MAGIC_NUMBER = (long) MAGIC_NUMBER_H << 32 |
+     MagicNumber.MAGIC_NUMBER_L (this is needed because enums have to be 32 bits
+     and there's no nice way to put 64bit constants into .proto files. */
+  enum MagicNumber {
+    INVALID = 0;
+    MAGIC_NUMBER_L = 0x544f5250; /* PROT (little-endian ASCII) */
+    MAGIC_NUMBER_H = 0x474f4c4f; /* OLOG (little-endian ASCII) */
+  }
 
-    /* the magic number header */
-    optional fixed64 magic_number = 1;
-    /* log proto version. */
-    optional string version = 2;
-    /* offset between real-time clock and elapsed system time clock in milliseconds.
-       Calculated as: (System.currentTimeMillis() - (SystemClock.elapsedRealtimeNanos() / 1000000) */
-    optional fixed64 realTimeToElapsedTimeOffsetMillis = 3;
-    /* log entries */
-    repeated ProtoLogMessage log = 4;
+  /* the magic number header */
+  optional fixed64 magic_number = 1 [jstype = JS_STRING];
+  /* log proto version. */
+  optional string version = 2;
+  /* offset between real-time clock and elapsed system time clock in
+     milliseconds. Calculated as: (System.currentTimeMillis() -
+     (SystemClock.elapsedRealtimeNanos() / 1000000) */
+  optional fixed64 realTimeToElapsedTimeOffsetMillis = 3 [jstype = JS_STRING];
+  /* log entries */
+  repeated ProtoLogMessage log = 4;
 }

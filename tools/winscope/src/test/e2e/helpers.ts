@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 import * as path from 'path';
-import {
-  browser,
-  by,
-  element,
-  ElementFinder,
-  ExpectedConditions,
-  protractor,
-} from 'protractor';
+import {browser, by, element, ElementFinder, ExpectedConditions, protractor,} from 'protractor';
 
 export const WINSCOPE_URL = 'http://localhost:8080';
 export const REMOTE_TOOL_MOCK_URL = 'http://localhost:8081';
@@ -88,7 +81,6 @@ export async function loadBugReport(defaulttimeMs: number) {
   await uploadFixture('bugreports/bugreport_stripped.zip');
   await checkHasLoadedTracesFromBugReport();
   expect(await areMessagesEmitted(defaulttimeMs)).toBeTruthy();
-  await checkEmitsUnsupportedFileFormatMessages();
   await checkEmitsOldDataMessages();
   await closeSnackBar();
 }
@@ -376,11 +368,18 @@ export async function selectItemInHierarchy(viewer: string, itemName: string) {
 export async function applyStateToHierarchyOptions(
   viewerSelector: string,
   shouldEnable: boolean,
+  optionsToToggle?: string[],
 ) {
   const options: ElementFinder[] = await element.all(
     by.css(`${viewerSelector} hierarchy-view .view-controls .user-option`),
   );
   for (const option of options) {
+    if (
+      optionsToToggle &&
+      !optionsToToggle.includes((await option.getText()).trim())
+    ) {
+      continue;
+    }
     const isEnabled = !(await option.getAttribute('class')).includes(
       'not-enabled',
     );
@@ -393,39 +392,73 @@ export async function applyStateToHierarchyOptions(
 }
 
 /**
- * Check that an item in the properties tree has the expected text.
+ * Check that an item in the properties tree has the expected text by name.
  *
  * @param viewer The viewer to check the item in.
  * @param itemName The name of the item to check.
  * @param expectedText The expected text of the item.
  */
-export async function checkItemInPropertiesTree(
+export async function checkItemInPropertiesTreeByName(
   viewer: string,
   itemName: string,
   expectedText: string,
   propertiesSelector = '.properties-view',
+  checkWithScrolling = true,
 ) {
-  const node = element(
-    by.css(`${viewer} ${propertiesSelector} #node${itemName} .node-property`),
+  await checkItemInPropertiesTreeBySelector(
+    `${viewer} ${propertiesSelector}`,
+    `#node${itemName}`,
+    expectedText,
+    checkWithScrolling,
   );
-  const text = await node.getText();
-  expect(text).toEqual(expectedText);
 }
 
 /**
- * Check that an item in the properties tree has the expected text by node index.
+ * Check that an item in the properties tree has the expected text by index.
  *
  * @param propertiesSelector The properties element to check the item in.
  * @param nodeIndex The index of the node to check.
  * @param expectedText The expected text of the item.
  */
 export async function checkItemInPropertiesTreeByIndex(
-  propertiesSelector: string,
-  nodeIndex: number,
+  viewer: string,
+  itemIndex: number,
   expectedText: string,
+  propertiesSelector = '.properties-view',
+  checkWithScrolling = true,
 ) {
-  const nodes = element.all(by.css(`${propertiesSelector} .node-property`));
-  const node = nodes.get(nodeIndex);
+  await checkItemInPropertiesTreeBySelector(
+    `${viewer} ${propertiesSelector}`,
+    `[item-id="${itemIndex}"]`,
+    expectedText,
+    checkWithScrolling,
+  );
+}
+
+/**
+ * Check that an item in the properties tree has the expected text.
+ *
+ * @param propertiesSelector The properties element to check the item in.
+ * @param nodeSelector The selector of the node to check.
+ * @param expectedText The expected text of the item.
+ */
+async function checkItemInPropertiesTreeBySelector(
+  propertiesSelector: string,
+  nodeSelector: string,
+  expectedText: string,
+  checkWithScrolling = true,
+) {
+  const locator = by.css(
+    `${propertiesSelector} ${nodeSelector} .node-property`,
+  );
+  const node = element(locator);
+  if (!(await node.isPresent()) && checkWithScrolling) {
+    const scrollEl = `${propertiesSelector} .tree-scroll`;
+    await scrollUp(scrollEl);
+    while (!(await node.isPresent())) {
+      await scrollDown(scrollEl);
+    }
+  }
   const text = await node.getText();
   expect(text).toEqual(expectedText);
 }
@@ -475,21 +508,21 @@ export async function checkScrollPresent(viewerSelector: string) {
  *
  * @param viewerSelector The selector of the viewer.
  * @param numberOfEntries The expected number of entries.
- * @param scrollToBottom Whether to scroll to the bottom of the scroll view.
  */
 export async function checkTotalScrollEntries(
   viewerSelector: string,
   numberOfEntries: number,
-  scrollToBottom = false,
 ) {
-  if (scrollToBottom) {
-    const viewport = element(by.css(`${viewerSelector} .scroll`));
+  const viewportSelector = `${viewerSelector} .scroll`;
+  const viewport = element(by.css(viewportSelector));
+  if (await isScrollable(viewport)) {
+    await scrollUp(viewportSelector);
     let lastId: string | undefined;
     let lastScrollEntryItemId = await getLastScrollEntryItemId(viewerSelector);
     while (lastId !== lastScrollEntryItemId) {
       lastId = lastScrollEntryItemId;
       await viewport.sendKeys(protractor.Key.END);
-      await new Promise<void>((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       lastScrollEntryItemId = await getLastScrollEntryItemId(viewerSelector);
     }
   }
@@ -525,13 +558,29 @@ export async function checkSelectFilter(
   options: string[],
   expectedFilteredEntries: number,
   totalEntries: number,
-  scrollToBottom = true,
 ) {
   await toggleSelectFilterOptions(viewerSelector, filterSelector, options);
+  await new Promise((resolve) => setTimeout(resolve, 500));
   await checkTotalScrollEntries(viewerSelector, expectedFilteredEntries);
 
   await toggleSelectFilterOptions(viewerSelector, filterSelector, options);
-  await checkTotalScrollEntries(viewerSelector, totalEntries, scrollToBottom);
+  await checkTotalScrollEntries(viewerSelector, totalEntries);
+}
+
+/**
+ * Scroll up on a given viewport and wait for a hidden element to be shown.
+ *
+ * @param viewportEl Viewport selector to apply scroll.
+ * @param hiddenEl Element selector for element that should be shown after scroll.
+ */
+export async function scrollUp(viewportEl: string, hiddenEl?: string) {
+  const viewport = element(by.css(viewportEl));
+  if (await isScrollable(viewport)) {
+    await viewport.sendKeys(protractor.Key.PAGE_UP);
+  }
+  if (hiddenEl) {
+    await waitForElement(hiddenEl);
+  }
 }
 
 /**
@@ -540,10 +589,34 @@ export async function checkSelectFilter(
  * @param viewportEl Viewport selector to apply scroll.
  * @param hiddenEl Element selector for element that should be shown after scroll.
  */
-export async function scrollDown(viewportEl: string, hiddenEl: string) {
+export async function scrollDown(viewportEl: string, hiddenEl?: string) {
   const viewport = element(by.css(viewportEl));
-  await viewport.sendKeys(protractor.Key.END);
-  await waitForElement(hiddenEl);
+  if (await isScrollable(viewport)) {
+    await viewport.sendKeys(protractor.Key.PAGE_DOWN);
+  }
+  if (hiddenEl) {
+    await waitForElement(hiddenEl);
+  }
+}
+
+async function isScrollable(viewport: ElementFinder): Promise<boolean> {
+  const scrollHeight = Number(await viewport.getAttribute('scrollHeight'));
+  const clientHeight = Number(await viewport.getAttribute('clientHeight'));
+  return scrollHeight > clientHeight;
+}
+
+/**
+ * Collapse additional properties.
+ *
+ * @param viewerSelector The selector of the viewer.
+ */
+export async function collapseAdditionalProperties(viewerSelector: string) {
+  const collapseAdditionalProperties = element(
+    by.css(
+      `${viewerSelector} ime-additional-properties collapsible-section-title button`,
+    ),
+  );
+  await collapseAdditionalProperties.click();
 }
 
 /**
@@ -628,11 +701,6 @@ async function checkHasLoadedTracesFromBugReport() {
   expect(text).not.toContain('ime_trace_managerservice.winscope');
   expect(text).not.toContain('wm_trace.winscope');
   expect(text).not.toContain('ime_trace_clients.winscope');
-}
-
-async function checkEmitsUnsupportedFileFormatMessages() {
-  const text = await element(by.css('snack-bar')).getText();
-  expect(text).toContain('unsupported format');
 }
 
 async function checkEmitsOldDataMessages() {

@@ -16,20 +16,21 @@
 
 syntax = "proto2";
 
-import "android.proto";
-import "animationadapter.proto";
-import "view.proto";
-
 package com.android.server.wm;
+
+import "protos/windowmanager/udc/android.proto";
+import "protos/windowmanager/udc/animationadapter.proto";
+import "protos/windowmanager/udc/view.proto";
+
 option java_multiple_files = true;
 
 /**
  * Represents a {@link com.android.server.wm.SurfaceAnimator} object.
  */
 message SurfaceAnimatorProto {
-    option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
+  option (.android_common.msg_privacy).dest = DEST_AUTOMATIC;
 
-    optional .android_common.view.SurfaceControlProto leash = 1;
-    optional bool animation_start_delayed = 2;
-    optional AnimationAdapterProto animation_adapter = 3;
+  optional .android_common.view.SurfaceControlProto leash = 1;
+  optional bool animation_start_delayed = 2;
+  optional AnimationAdapterProto animation_adapter = 3;
 }

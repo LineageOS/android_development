@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {TraceFile} from '@trace/trace_file';
+import {TraceFile} from '@trace_api/trace_file';
+
 import {TestFileReaderAndParser} from './test_file_reader_and_parser';
 import {TestFileReaderBuilder} from './test_file_reader_builder';
 

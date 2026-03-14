@@ -17,20 +17,17 @@
 import {Component, input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TimelineSegment} from '@app/components/timeline/common/segment';
-import {
-  convertLifecycle,
-  getLifecycleForTransition,
-  TransitionLifecycle,
-} from '@app/components/timeline/common/transition_timeline_helpers';
+import {convertLifecycle, getLifecycleForTransition, TransitionLifecycle,} from '@app/components/timeline/common/transition_timeline_helpers';
 import {assertDefined, assertTrue} from '@common/assert';
 import {Point} from '@common/geometry/point';
 import {Rect} from '@common/geometry/rect';
 import {TimeRange, Timestamp} from '@common/time/time';
-import {TransitionStatus} from '@trace/transitions/status';
 import {AbsoluteEntryIndex} from '@trace_api/index_types';
 import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
+import {TransitionStatus} from '@trace/transitions/status';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
 import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
 
 /**

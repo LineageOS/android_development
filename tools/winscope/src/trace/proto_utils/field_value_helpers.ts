@@ -27,7 +27,10 @@ export function getDefaultValue(
   field: TamperedProtoField,
 ): LeafValue | undefined {
   let defaultValue = field.repeated ? [] : field.defaultValue;
-  if (!field.repeated && defaultValue === null) {
+  if (
+    !field.repeated &&
+    (defaultValue === null || defaultValue === undefined)
+  ) {
     switch (field.type) {
       case 'double':
       case 'float':
@@ -49,13 +52,42 @@ export function getDefaultValue(
         defaultValue = false;
         break;
       default: {
-        if (field.tamperedEnumType) {
-          defaultValue = 0;
+        const enumType = field.parent?.lookupEnum(field.type);
+        if (enumType) {
+          const rawValue = enumType.valuesById[0];
+          defaultValue = rawValue ? stripEnumPrefix(enumType, rawValue) : 0;
         }
       }
     }
   }
   return defaultValue ?? undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function stripEnumPrefix(enumType: any, value: string): string {
+  const values = Object.keys(enumType.values);
+  if (values.length < 2) return value;
+
+  // Find common prefix
+  let prefix = values[0];
+  for (let i = 1; i < values.length; i++) {
+    const s = values[i];
+    while (s.indexOf(prefix) !== 0) {
+      prefix = prefix.substring(0, prefix.length - 1);
+      if (prefix === '') return value;
+    }
+  }
+
+  // Only strip if prefix ends with _ and is not the whole value
+  if (
+    prefix.length > 0 &&
+    prefix.endsWith('_') &&
+    value.startsWith(prefix) &&
+    value !== prefix
+  ) {
+    return value.substring(prefix.length);
+  }
+  return value;
 }
 
 export type LeafValue = string | bigint | number | boolean | unknown[];

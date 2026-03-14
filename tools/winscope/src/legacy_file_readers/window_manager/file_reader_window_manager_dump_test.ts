@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-import {ClockSnapshot} from '@compat/perfetto';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
-import {
-  makeConverterWithUtcOffset,
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  timestampEqualityTester,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
-import Long from 'long';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot, WinscopeExtensionsImpl} from '@compat/protobuf';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 
 describe('FileReaderWindowManagerDump', () => {
   let reader: LegacyFileReader;
@@ -68,17 +58,16 @@ describe('FileReaderWindowManagerDump', () => {
   it('converts to valid perfetto packets', async () => {
     const packets = reader.convertToPerfettoPackets(10);
     expect(packets.length).toBe(1);
-    expect(packets[0].trustedPacketSequenceId).toBe(10);
+    expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
     expect(
-      packets[0].winscopeExtensions?.[
-        '.perfetto.protos.WinscopeExtensionsImpl.windowmanager'
-      ]?.windowManagerService,
+      packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.windowmanager)
+        ?.getWindowManagerService(),
     ).toBeDefined();
-    const ts = Long.fromInt(0);
-    ts.unsigned = true;
-    expect(packets[0].timestamp).toEqual(ts);
-    expect(packets[0].timestampClockId).toEqual(
-      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+    expect(packets[0].getTimestamp()).toEqual('0');
+    expect(packets[0].getTimestampClockId()).toEqual(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
   });
 

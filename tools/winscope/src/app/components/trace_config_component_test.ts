@@ -25,17 +25,15 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
-import {TraceConfigComponent} from './trace_config_component';
 import {ConfigurationOptions} from '@trace_collection/ui/ui_trace_configuration';
+
+import {TraceConfigComponent} from './trace_config_component';
 
 describe('TraceConfigComponent', () => {
   const storeKey = 'TestConfigSettings';

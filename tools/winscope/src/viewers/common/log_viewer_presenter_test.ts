@@ -14,38 +14,30 @@
  * limitations under the License.
  */
 
+import {DarkModeToggled} from '@app/misc_events';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp,} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
-import {DarkModeToggled} from '@app/misc_events';
-import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {MockPresenter} from '@test/unit/mock_log_viewer_presenter';
-import {
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-  makeZeroTimestamp,
-} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {Trace} from '@trace_api/trace';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
+import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {TextFilter} from '@viewers/common/text_filter';
+
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogHeader, UiDataLog} from './ui_data_log';
 import {UserOptions} from './user_options';
-import {
-  LogFilterChangeDetail,
-  LogTextFilterChangeDetail,
-  TimestampClickDetail,
-  ViewerEvents,
-} from './viewer_events';
-import {SetFormatters} from '@parsers/operations/set_formatters';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from './viewer_events';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;

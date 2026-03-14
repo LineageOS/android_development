@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import {Warning} from '@common/warning';
+import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
+
 import {Chip} from './chip';
 import {DiffType} from './diff_type';
 import {UiTreeNode} from './ui_tree_node';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {TraceRect} from '@tree_node/trace_rect';
-import {Warning} from '@common/warning';
-import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 export class UiHierarchyTreeNode
   extends DataHierarchyTreeNode

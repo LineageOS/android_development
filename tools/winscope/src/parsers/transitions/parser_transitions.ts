@@ -14,52 +14,42 @@
  * limitations under the License.
  */
 
-import {
-  assertBigIntOrUndefined,
-  assertDefined,
-  assertString,
-} from '@common/assert';
+import {assertBigIntOrUndefined, assertDefined, assertString,} from '@common/assert';
 import {MakeTimestampStrategyType} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {getLogger, Logger} from '@compat/logging';
 import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
+import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
+import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {AddDefaults} from '@parsers/operations/add_defaults';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
-import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
-import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {TransformDuration} from '@parsers/transitions/operations/transform_duration';
 import {TransitionType} from '@parsers/transitions/transition_type';
-import {
-  EnumFormatter,
-  TIMESTAMP_NODE_FORMATTER,
-  UPPER_CASE_FORMATTER,
-} from '@trace/formatters';
-import {TAMPERED_TRACE_PACKET} from '@trace/proto_utils/tampered_message_type';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {ColumnType, RowIterator} from '@trace_processor/query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {EnumFormatter, TIMESTAMP_NODE_FORMATTER, UPPER_CASE_FORMATTER,} from '@trace/formatters';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
-import {TraceFile} from '@trace/trace_file';
-import {TraceProcessor} from '@trace_processor/trace_processor';
-import {
-  PropertyFormatter,
-  PropertyTreeNode,
-} from '@tree_node/property_tree_node';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {getLogger, Logger} from '@compat/logging';
-import {SetFormatters} from '@parsers/operations/set_formatters';
+import {PropertyFormatter, PropertyTreeNode,} from '@tree_node/property_tree_node';
 
 /**
  * Parser for Transitions Perfetto traces.
  */
 export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
-  private static readonly TRANSITION_FIELD =
-    TAMPERED_TRACE_PACKET.fields['shellTransition'];
+  private static readonly TRANSITION_FIELD = assertDefined(
+    PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket'),
+  ).fields['shellTransition'];
   private static readonly EAGER_COLUMNS = [
     'transition_id',
     'arg_set_id',
@@ -340,7 +330,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
         .setRootId('TransitionTraceEntry')
         .setRootName('Transition')
         .setRootMessageType(
-          assertDefined(ParserTransitions.TRANSITION_FIELD.tamperedMessageType),
+          assertDefined(ParserTransitions.TRANSITION_FIELD.resolve()),
         )
         .build();
     };

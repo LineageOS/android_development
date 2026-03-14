@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {Transformer} from '@app/components/timeline/mini-timeline/transformer';
 import {TimelineSegment} from '@app/components/timeline/common/segment';
+import {Transformer} from '@app/components/timeline/mini-timeline/transformer';
 import {TimeRange} from '@common/time/time';
 import {Trace} from '@trace_api/trace';
+
 import {MiniTimelineDrawerOutput} from './mini_timeline_drawer_output';
 import {RenderedRange} from './rendered_range';
 

@@ -15,6 +15,7 @@
  */
 
 import {divideAndRound} from '@common/bigint_math';
+
 import {TIME_UNIT_TO_NANO} from './time_units';
 
 /**
@@ -27,10 +28,7 @@ export class TimeDuration {
   }
 
   format(): string {
-    const msString = divideAndRound(
-      this.timeDiffNs,
-      BigInt(TIME_UNIT_TO_NANO.ms),
-    );
+    const msString = divideAndRound(this.timeDiffNs, TIME_UNIT_TO_NANO.ms);
     return msString.toLocaleString() + ' ms';
   }
 }

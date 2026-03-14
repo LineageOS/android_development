@@ -15,6 +15,7 @@
  */
 
 import {waitToBeCalled} from '@test/unit/spy_utils';
+
 import {ThumbnailGenerator} from './thumbnail_generator';
 
 export function spyOnThumbnailGenerator() {

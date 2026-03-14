@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TraceFile} from '@trace/trace_file';
 import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace_api/trace_file';
 
 export interface ProcessedFiles<T extends FileReader> {
   supportedFiles: T[];

@@ -15,11 +15,7 @@
  */
 
 import {FrameMap} from './frame_map';
-import {
-  AbsoluteEntryIndex,
-  AbsoluteFrameIndex,
-  FramesRange,
-} from './index_types';
+import {AbsoluteEntryIndex, AbsoluteFrameIndex, FramesRange,} from './index_types';
 
 /**
  * Builds a FrameMap incrementally.

@@ -25,6 +25,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FilterFlag} from '@common/filter_flag';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TextFilter} from '@viewers/common/text_filter';
+
 import {SearchBoxComponent} from './search_box_component';
 
 describe('SearchBoxComponent', () => {

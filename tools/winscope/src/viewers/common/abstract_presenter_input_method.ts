@@ -21,26 +21,16 @@ import {Timestamp} from '@common/time/time';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {ImeTraceType, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {
-  DataHierarchyTreeNode,
-  HierarchyTreeNode,
-} from '@tree_node/hierarchy_tree_node';
+import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
 import {ImeUiData} from '@viewers/common/ime_ui_data';
-import {
-  getImeLayers,
-  ImeLayers,
-  processWindowManagerTraceEntry,
-  ProcessedWindowManagerState,
-} from '@viewers/common/ime_utils';
+import {getImeLayers, ImeLayers, ProcessedWindowManagerState, processWindowManagerTraceEntry,} from '@viewers/common/ime_utils';
 import {TableProperties} from '@viewers/common/table_properties';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UserOptions} from '@viewers/common/user_options';
-import {
-  AbstractHierarchyViewerPresenter,
-  NotifyHierarchyViewCallbackType,
-} from './abstract_hierarchy_viewer_presenter';
+
+import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from './abstract_hierarchy_viewer_presenter';
 import {VISIBLE_CHIP} from './chip';
 import {HierarchyPresenter, HierarchyTraceEntry} from './hierarchy_presenter';
 import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_display_names';

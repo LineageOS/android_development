@@ -16,16 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import Long from 'long';
-import {LayersSnapshotProto} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {android} from 'protos/surfaceflinger/udc/static';
-import {TraceType} from '@trace_api/trace_type';
+import {LayersTraceFileProtoUdc, LayersTraceProtoUdc, PerfettoClockSnapshot, PerfettoLayersSnapshotProto, PerfettoTracePacket,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {TraceType} from '@trace_api/trace_type';
 
-type LayerTraceProto = android.surfaceflinger.ILayersTraceProto;
-
-export class FileReaderSurfaceFlinger extends AbstractFileReader<LayerTraceProto> {
+export class FileReaderSurfaceFlinger extends AbstractFileReader<LayersTraceProtoUdc> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x4c, 0x59, 0x52, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .LYRTRACE
@@ -49,45 +44,51 @@ export class FileReaderSurfaceFlinger extends AbstractFileReader<LayerTraceProto
     return this.realToMonotonicTimeOffsetNs;
   }
 
-  override decodeTrace(buffer: Uint8Array): LayerTraceProto[] {
-    const decoded = android.surfaceflinger.LayersTraceFileProto.decode(buffer);
+  override decodeTrace(buffer: Uint8Array): readonly LayersTraceProtoUdc[] {
+    const decoded = LayersTraceFileProtoUdc.deserializeBinary(buffer);
 
-    const timeOffset = BigInt(
-      decoded.realToElapsedTimeOffsetNanos?.toString() ?? '0',
-    );
+    const timeOffset = BigInt(decoded.getRealToElapsedTimeOffsetNanos() ?? '0');
     this.realToMonotonicTimeOffsetNs =
       timeOffset !== 0n ? timeOffset : undefined;
-    this.isDump =
-      decoded.entry?.length === 1 &&
-      !Object.prototype.hasOwnProperty.call(
-        decoded.entry[0],
-        'elapsedRealtimeNanos',
-      );
-    return decoded.entry ?? [];
+
+    const entries = decoded.getEntryList();
+    this.isDump = entries.length === 1 && !entries[0].hasElapsedRealtimeNanos();
+
+    return entries;
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
     for (const entry of this.decodedEntries) {
-      const packet = new TracePacket();
-      packet.timestamp = this.isDump
-        ? Long.fromInt(0)
-        : assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.surfaceflingerLayersSnapshot =
-        LayersSnapshotProto.fromObject(entry);
+      const packet = new PerfettoTracePacket();
+      if (this.isDump) {
+        packet.setTimestamp('0');
+      } else {
+        packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
+      }
+      if (BigInt(assertDefined(entry.getElapsedRealtimeNanos())) < 0n) {
+        throw new Error('negative time offset');
+      }
+
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
+      packet.clearClockSnapshot();
+      packet.setTrustedPacketSequenceId(sequenceId);
+      packet.setSurfaceflingerLayersSnapshot(
+        PerfettoLayersSnapshotProto.deserializeBinary(entry.serializeBinary()),
+      );
       packets.push(packet);
     }
     return packets;
   }
 
-  protected override getTimestamp(entry: LayerTraceProto): Timestamp {
+  protected override getTimestamp(entry: LayersTraceProtoUdc): Timestamp {
     if (this.isDump) {
       return this.timestampConverter.makeZeroTimestamp();
     }
     return this.timestampConverter.makeTimestampFromMonotonicNs(
-      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
   }
 }

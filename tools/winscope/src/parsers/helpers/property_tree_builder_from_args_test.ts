@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-import root from 'protos/test/fake_proto/json';
-import {
-  ChildProperty,
-  PropertyTreeBuilder,
-} from '@test/unit/tree_node/property_tree_builder';
-import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
+import {convertSnakeToCamelCase} from '@common/string_helpers';
+import {descriptors} from '@protos/test/fake_proto/descriptors';
+import {ChildProperty, PropertyTreeBuilder,} from '@test/unit/tree_node/property_tree_builder';
+import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
+import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors,} from '@trace/proto_utils/tampered_message_type';
 import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyValue} from '@tree_node/property_tree_node';
-import {convertSnakeToCamelCase} from '@common/string_helpers';
-import {ColumnType, RowIterator} from '@trace_processor/query_result';
+
+import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
 
 describe('PropertyTreeBuilderFromArgs', () => {
-  const messageType = TamperedMessageType.tamper(root.lookupType('Entry'));
+  registerDescriptors(descriptors);
+  const messageType = PERFETTO_TRACE_PACKET_ROOT.lookupType(
+    'winscope.test.Entry',
+  )! as TamperedMessageType;
   const keyCol = 'key';
   const valueTypeCol = 'value_type';
   const realValueCol = 'real_value';
@@ -375,7 +377,7 @@ describe('PropertyTreeBuilderFromArgs', () => {
 
     it('enum type', () => {
       const iter = setUpIterator('int', 'enum0');
-      checkDefaultValueReceived(iter, 0, 'enum0');
+      checkDefaultValueReceived(iter, 'ZERO', 'enum0');
     });
 
     function checkAddedAsDefaultNumberValue(key: string) {

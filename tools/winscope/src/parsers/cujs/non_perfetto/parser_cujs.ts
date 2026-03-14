@@ -19,17 +19,17 @@ import {isBlank, utf8Decode, utf8Encode} from '@common/string_helpers';
 import {Timestamp} from '@common/time/time';
 import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
+import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
+import {SetFormatters} from '@parsers/operations/set_formatters';
+import {CoarseVersion} from '@trace_api/coarse_version';
 import {TraceType} from '@trace_api/trace_type';
+import {CUJ_TYPE_FORMATTER} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {SetFormatters} from '@parsers/operations/set_formatters';
-import {CUJ_TYPE_FORMATTER} from '@trace/formatters';
-import {Cuj} from './cuj';
-import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
 import {AddCujProperties} from './add_cuj_properties';
+import {Cuj} from './cuj';
 import {EventTag} from './event_tag';
 
 export class ParserCujs extends AbstractParser<Cuj, HierarchyTreeNode> {
@@ -64,7 +64,7 @@ export class ParserCujs extends AbstractParser<Cuj, HierarchyTreeNode> {
     return CoarseVersion.LEGACY;
   }
 
-  protected override decodeTrace(buffer: Uint8Array): Cuj[] {
+  protected override decodeTrace(buffer: Uint8Array): readonly Cuj[] {
     const decodedLogs = this.decodeByteArray(buffer);
     const events = this.parseLogs(decodedLogs);
     events.sort((a: Event, b: Event) => {

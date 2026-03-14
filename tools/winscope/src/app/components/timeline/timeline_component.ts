@@ -16,96 +16,48 @@
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  ElementRef,
-  HostListener,
-  Inject,
-  input,
-  output,
-  signal,
-  viewChild,
-  ViewEncapsulation,
-} from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import {ChangeDetectorRef, Component, computed, ElementRef, HostListener, Inject, input, output, signal, viewChild, ViewEncapsulation,} from '@angular/core';
+import {AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatRippleModule} from '@angular/material/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@app/components/timeline/playback_events';
+import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
+import {BookmarksChanged, DarkModeToggled} from '@app/misc_events';
+import {TabbedViewSwitched} from '@app/tabbed_view_events';
 import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
-import {WinscopeEvent} from '@messaging/winscope_event';
-import {BookmarksChanged, DarkModeToggled} from '@app/misc_events';
-import {
-  isInputTextField,
-  KeyboardEventKey,
-  KeyboardEventKeyCode,
-} from '@common/dom';
+import {isInputTextField, KeyboardEventKey, KeyboardEventKeyCode,} from '@common/dom';
+import {Store} from '@common/store/store';
 import {parseBigIntStrippingUnit} from '@common/string_helpers';
 import {TimeRange, Timestamp} from '@common/time/time';
-import {Analytics} from '@logging/analytics';
-import {
-  ActiveTraceChanged,
-  ScreenRecordingChange,
-  TracePositionUpdate,
-  TraceAddRequest,
-  TraceRemoveRequest,
-  InitializeTraceSearchRequest,
-  TraceSearchRequest,
-  TraceSearchInitialized,
-  TraceSearchCompleted,
-} from '@trace/trace_events';
-import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
-import {
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangeRequest,
-} from '@app/components/timeline/playback_events';
-import {TabbedViewSwitched} from '@app/tabbed_view_events';
+import {UserTimestamp} from '@common/time/user_timestamp';
 import {getLogger} from '@compat/logging';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
+import {Analytics} from '@logging/analytics';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {PlaybackPrefetchedEntries} from '@trace_api/playback_prefetched_entries';
 import {Trace} from '@trace_api/trace';
+import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
-import {
-  TraceType,
-  compareByDisplayOrder,
-  isTraceTypeWithViewer,
-  supportsPlayback,
-} from '@trace_api/trace_type';
+import {compareByDisplayOrder, isTraceTypeWithViewer, supportsPlayback, TraceType,} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
-import {
-  HoverPositionUpdate,
-  MiniTimelineComponent,
-} from './mini-timeline/mini_timeline_component';
-import {UserTimestamp} from '@common/time/user_timestamp';
-import {PlaybackControlsComponent} from './playback_component';
-import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {PlaybackPrefetchedEntries} from '@trace/playback_prefetched_entries';
 import {Thumbnail} from '@trace/media_based/thumbnail';
-import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
-import {Store} from '@common/store/store';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+
+import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
+import {HoverPositionUpdate, MiniTimelineComponent,} from './mini-timeline/mini_timeline_component';
+import {PlaybackControlsComponent} from './playback_component';
 
 /**
  * A component for displaying the timeline view.

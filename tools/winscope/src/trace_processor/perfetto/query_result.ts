@@ -47,12 +47,13 @@
 // the next batch (if any) within the QueryResultImpl.
 // This object is part of the API exposed to tracks / controllers.
 
-import protobuf from 'protobufjs/minimal';
+import {getLogger, Logger} from "@compat/logging";
+
 import {defer, Deferred} from './deferred';
 import {assertExists, assertFalse, assertTrue} from './logging';
-import { getLogger, Logger } from "compat/logging";
+import {ProtoReader} from './proto_reader';
 import {utf8Decode} from './string_utils';
-import {duration, Time, time} from './time';
+import {duration, time, Time} from './time';
 
 export type SqlValue = string | number | bigint | null | Uint8Array;
 export type ColumnType = SqlValue;
@@ -455,7 +456,7 @@ class QueryResultImpl implements QueryResult, WritableQueryResult {
   // ProtoRingBuffer does the slice() for us (or passes through the buffer
   // coming from postMessage() (Wasm case) of fetch() (HTTP+RPC case).
   appendResultBatch(resBytes: Uint8Array) {
-    const reader = protobuf.Reader.create(resBytes);
+    const reader = ProtoReader.create(resBytes);
     assertTrue(reader.pos === 0);
     const columnNamesEmptyAtStartOfBatch = this.columnNames.length === 0;
     const columnNamesSet = new Set<string>();
@@ -588,7 +589,7 @@ class ResultBatch {
     private readonly logger: Logger = getLogger('ResultBatch'),
   ) {
     this.batchBytes = batchBytes;
-    const reader = protobuf.Reader.create(batchBytes);
+    const reader = ProtoReader.create(batchBytes);
     assertTrue(reader.pos === 0);
     const end = reader.len;
 
@@ -633,7 +634,7 @@ class ResultBatch {
           const f64Off = batchBytes.byteOffset + reader.pos;
           if (f64Off % 8 === 0) {
             this.float64Cells = new Float64Array(
-              batchBytes.buffer,
+              batchBytes.buffer as ArrayBuffer,
               f64Off,
               f64Words,
             );
@@ -641,7 +642,7 @@ class ResultBatch {
             // When using the production code in trace_processor's rpc.cc, the
             // float64 should be 8-bytes aligned. The slow-path case is only for
             // tests.
-            const slice = batchBytes.buffer.slice(f64Off, f64Off + f64Len);
+            const slice = (batchBytes.buffer as ArrayBuffer).slice(f64Off, f64Off + f64Len);
             this.float64Cells = new Float64Array(slice);
           }
           reader.pos += f64Len;
@@ -708,12 +709,12 @@ class RowIteratorImpl implements RowIteratorBase {
   // this.resultObj.batch[this.batchIdx].float64Cells.
   // These are re-set every time tryMoveToNextBatch() is called (and succeeds).
   private batchIdx = -1; // The batch index within |result.batches[]|.
-  private batchBytes = new Uint8Array();
+  private batchBytes: Uint8Array = new Uint8Array();
   private columnNames: string[] = [];
   private numColumns = 0;
   private cellTypesEnd = -1; // -1 so the 1st next() hits tryMoveToNextBatch().
   private float64Cells = new Float64Array();
-  private varIntReader = protobuf.Reader.create(this.batchBytes);
+  private varIntReader = ProtoReader.create(this.batchBytes);
   private blobCells: Uint8Array[] = [];
   private stringCells: string[] = [];
 
@@ -805,7 +806,7 @@ class RowIteratorImpl implements RowIteratorBase {
               this.varIntReader.pos,
             );
             rowData[colName] = value;
-            this.varIntReader.skip(); // Skips a varint
+            this.varIntReader.skipVarint(); // Skips a varint
           }
           break;
 
@@ -846,7 +847,7 @@ class RowIteratorImpl implements RowIteratorBase {
     this.float64Cells = batch.float64Cells;
     this.blobCells = batch.blobCells;
     this.stringCells = batch.stringCells;
-    this.varIntReader = protobuf.Reader.create(batch.batchBytes);
+    this.varIntReader = ProtoReader.create(batch.batchBytes);
     this.varIntReader.pos = batch.varintOff;
     this.varIntReader.len = batch.varintOff + batch.varintLen;
     this.nextFloat64Cell = 0;
@@ -993,19 +994,19 @@ class WaitableQueryResultImpl
 
   // PromiseLike<QueryResult> implementation.
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   then(onfulfilled: any, onrejected: any): any {
     assertFalse(this.thenCalled);
     this.thenCalled = true;
     return this.impl.ensureAllRowsPromise().then(onfulfilled, onrejected);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   catch(error: any): any {
     return this.impl.ensureAllRowsPromise().catch(error);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   finally(callback: () => void): any {
     return this.impl.ensureAllRowsPromise().finally(callback);
   }

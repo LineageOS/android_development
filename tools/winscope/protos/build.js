@@ -14,136 +14,254 @@
  * limitations under the License.
  */
 const {exec} = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
-const ANDROID_BUILD_TOP = __dirname + '/../../../../';
-const WINSCOPE_TOP = __dirname + '/..';
-const PERFETTO_TOP = ANDROID_BUILD_TOP + '/external/perfetto';
-const OUT_TOP = __dirname + '/../deps_build/protos';
+const ANDROID_BUILD_TOP = path.resolve(__dirname, '../../../../');
+const WINSCOPE_TOP = path.resolve(__dirname, '..');
+const PERFETTO_TOP = path.join(ANDROID_BUILD_TOP, 'external/perfetto');
+const OUT_TOP = path.join(__dirname, '../deps_build/protos');
+
+const PROTOC_PATH = path.resolve(WINSCOPE_TOP, 'node_modules/grpc-tools/bin/protoc');
+const PROTOC_PLUGIN_PATH = path.resolve(WINSCOPE_TOP, 'node_modules/ts-protoc-gen/bin/protoc-gen-ts');
 
 build();
 
 async function build() {
-    await runCommand(`rm -rf ${OUT_TOP}`);
+  await runCommand(`rm -rf ${OUT_TOP}`);
+  await runCommand(`mkdir -p ${OUT_TOP}`);
+
+  const clockSnapshotPath = path.join(PERFETTO_TOP, 'protos/perfetto/trace/clock_snapshot.proto');
+  const tracePacketPath = path.join(PERFETTO_TOP, 'protos/perfetto/trace/trace_packet.proto');
+
+  const origClockSnapshot = fs.readFileSync(clockSnapshotPath, 'utf8');
+  const origTracePacket = fs.readFileSync(tracePacketPath, 'utf8');
+
+  let modifiedClockSnapshot = origClockSnapshot.replace(
+    'optional uint64 timestamp = 2;',
+    'optional uint64 timestamp = 2 [jstype = JS_STRING];'
+  ).replace(
+    'optional uint64 unit_multiplier_ns = 4;',
+    'optional uint64 unit_multiplier_ns = 4 [jstype = JS_STRING];'
+  );
+
+  let modifiedTracePacket = origTracePacket.replace(
+    'optional uint64 timestamp = 8;',
+    'optional uint64 timestamp = 8 [jstype = JS_STRING];'
+  );
+
+  try {
+    fs.writeFileSync(clockSnapshotPath, modifiedClockSnapshot);
+    fs.writeFileSync(tracePacketPath, modifiedTracePacket);
 
     const promises = [
-        // IME udc
-        buildProtos([
-            'ime/udc/inputmethodeditortrace.proto'
-        ], 'ime/udc'),
+      // IME udc
+      buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/ime/udc')),
+      'ime/udc'
+    ),
 
-        // ProtoLog udc
-        buildProtos([
-            'protolog/udc/protolog.proto'
-        ], 'protolog/udc'),
+    // ProtoLog udc
+    buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/protolog/udc')),
+      'protolog/udc'
+    ),
 
-        // SurfaceFlinger udc
-        buildProtos([
-            'surfaceflinger/udc/layerstrace.proto',
-        ], 'surfaceflinger/udc'),
+    // SurfaceFlinger udc
+    buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/surfaceflinger/udc')),
+      'surfaceflinger/udc'
+    ),
 
-        // Transactions udc
-        buildProtos([
-            'surfaceflinger/udc/transactions.proto',
-        ], 'transactions/udc'),
+    // Transactions udc
+    buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/surfaceflinger/udc')),
+      'surfaceflinger/udc'
+    ),
 
-        // Transitions udc
-        buildProtos([
-            'transitions/udc/windowmanagertransitiontrace.proto',
-            'transitions/udc/wm_shell_transition_trace.proto'
-        ], 'transitions/udc'),
+    // Transitions udc
+    buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/transitions/udc')),
+      'transitions/udc'
+    ),
 
-        // ViewCapture udc
-        buildProtos([
-            'viewcapture/udc/view_capture.proto'
-        ], 'viewcapture/udc'),
+    // ViewCapture udc
+    buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/viewcapture/udc')),
+      'viewcapture/udc'
+    ),
 
-        // WindowManager udc
-        buildProtos([
-            'windowmanager/udc/windowmanagertrace.proto',
-        ], 'windowmanager/udc'),
+    // WindowManager udc
+    buildProtos(
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/windowmanager/udc')),
+      'windowmanager/udc'
+    ),
 
-        // Test proto fields
-        buildProtos([
-            'test/fake_proto_test.proto',
-        ], 'test/fake_proto'),
+    // Test proto fields
+    buildProtos(
+      ['test/fake_proto_test.proto'],
+      'test/fake_proto'
+    ),
 
-        // Test intdef translation
-        buildProtos([
-            'test/intdef_translation_test.proto',
-        ], 'test/intdef_translation'),
+    // Test intdef translation
+    buildProtos(
+      ['test/intdef_translation_test.proto'],
+      'test/intdef_translation',
+      true
+    ),
 
-        // Perfetto trace
-        buildProtos([
-            '../../../../external/perfetto/protos/perfetto/trace/trace.proto',
-            '../../../../external/perfetto/protos/perfetto/trace/android/winscope_extensions_impl.proto'
-        ], 'perfetto/trace'),
-    ];
+    // Perfetto trace
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/trace')),
+      'perfetto/trace',
+      true // generate descriptor set for reflection
+    ),
+
+    // Perfetto trace_processor
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/trace_processor')),
+      'perfetto/trace_processor'
+    ),
+
+    // Perfetto metrics
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/metrics')),
+      'perfetto/metrics'
+    ),
+
+    // Perfetto common
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/common')),
+      'perfetto/common'
+    ),
+
+    // Perfetto config
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/config')),
+      'perfetto/config'
+    ),
+
+    // Perfetto trace_summary
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/trace_summary')),
+      'perfetto/trace_summary'
+    ),
+
+    // Perfetto perfetto_sql
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/perfetto_sql')),
+      'perfetto/perfetto_sql'
+    ),
+
+    // Perfetto protovm
+    buildProtos(
+      getProtoFiles(path.join(PERFETTO_TOP, 'protos/perfetto/protovm')),
+      'perfetto/protovm'
+    ),
+
+    // Test proto fields and intdef
+    buildProtos(
+      ['test/fake_proto_test.proto'],
+      'test/fake_proto',
+      true // generate descriptor set
+    ),
+    buildProtos(
+      ['test/intdef_translation_test.proto'],
+      'test/intdef_translation'
+    ),
+  ];
 
     await Promise.all(promises);
+  } finally {
+    fs.writeFileSync(clockSnapshotPath, origClockSnapshot);
+    fs.writeFileSync(tracePacketPath, origTracePacket);
+  }
 }
 
-async function buildProtos(protoPaths, outSubdir) {
-    const outDir = OUT_TOP + '/' + outSubdir;
-    const protoFullPaths = protoPaths.map((path) => __dirname + '/' + path);
-    const rootName = outSubdir.replaceAll('/', '_');
+function getProtoFiles(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  list.forEach(function(file) {
+    file = path.resolve(dir, file);
+    const stat = fs.statSync(file);
+    if (stat && stat.isDirectory()) {
+      /* Recurse into a subdirectory */
+      results = results.concat(getProtoFiles(file));
+    } else {
+      /* Is a file */
+      if (file.endsWith('.proto')) {
+        // kfree.proto, kmalloc.proto, and print.proto are definitions that are also present in other files
+        // (kmem.proto, ftrace.proto) and cause duplicate definition errors.
+        // perfetto_trace.proto is a monolithic file that conflicts with individual proto files.
+        if (
+          file.endsWith('ftrace/kfree.proto') ||
+          file.endsWith('ftrace/kmalloc.proto') ||
+          file.endsWith('ftrace/print.proto') ||
+          file.endsWith('/perfetto_trace.proto') ||
+          file.endsWith('/perfetto_merged_metrics.proto') ||
+          file.endsWith('/perfetto_config.proto')
+        ) {
+          return;
+        }
+        results.push(file);
+      }
+    }
+  });
+  return results;
+}
 
-    const commandBuildJson = [
-        'npx',
-        'pbjs',
-        //TODO(b/318480413): for perfetto traces use '--force-bigint' as soon as available,
-        // i.e. when this PR is merged https://github.com/protobufjs/protobuf.js/pull/1557
-        '--force-long',
-        '--target json-module',
-        '--wrap es6',
-        `--out ${outDir}/json.js`,
-        `--root ${rootName}`,
-        `--path ${PERFETTO_TOP}`,
-        `--path ${WINSCOPE_TOP}`,
-        protoFullPaths.join(' ')
-    ].join(' ');
+async function buildProtos(protoPaths, outSubdir, generateDescriptorSet = false) {
+  const outDir = path.join(OUT_TOP, outSubdir);
+  const protoFullPaths = protoPaths.map((p) => path.isAbsolute(p) ? p : path.join(__dirname, p));
 
-    const commandBuildJs = [
-        'npx',
-        'pbjs',
-        '--force-long',
-        '--target static-module',
-        '--wrap es6',
-        `--root ${outSubdir.replace('/', '')}`,
-        `--out ${outDir}/static.js`,
-        `--path ${PERFETTO_TOP}`,
-        `--path ${WINSCOPE_TOP}`,
-        protoFullPaths.join(' '),
-    ].join(' ');
+  // Ensure output directory exists
+  await runCommand(`mkdir -p ${outDir}`);
 
-    const commandBuildTs = [
-        'npx',
-        'pbts',
-        `--out ${outDir}/static.d.ts`,
-        `${outDir}/static.js`
-    ].join(' ');
+  const protoDirs = [...new Set(protoFullPaths.map((p) => path.dirname(p)))];
+  const command = [
+    PROTOC_PATH,
+    `--plugin="protoc-gen-ts=${PROTOC_PLUGIN_PATH}"`,
+    `--js_out="import_style=commonjs,binary:${OUT_TOP}"`,
+    `--ts_out="${OUT_TOP}"`,
+    `--proto_path=${PERFETTO_TOP}`,
+    `--proto_path=${WINSCOPE_TOP}`,
+    ...protoDirs.map((dir) => `--proto_path=${dir}`),
+    generateDescriptorSet ? `--descriptor_set_out=${outDir}/descriptors.bin` : '',
+    generateDescriptorSet ? '--include_imports' : '',
+    ...protoFullPaths,
+  ].filter(Boolean).join(' ');
 
-    await runCommand(`mkdir -p ${outDir}`)
-    await runCommand(commandBuildJson);
-    await runCommand(commandBuildJs);
-    await runCommand(commandBuildTs);
+  console.log(`Command for ${outSubdir}:`, command);
 
-    // Fix proto compilation error because of Winscope extensions
-    await runCommand(`sed -i 's/interface IWinscopeExtensions/class IWinscopeExtensions/g' ${outDir}/static.d.ts`);
-    await runCommand(`sed -i 's/class WinscopeExtensions implements IWinscopeExtensions/class WinscopeExtensions extends IWinscopeExtensions/g' ${outDir}/static.d.ts`);
+
+  await runCommand(command);
+
+  if (generateDescriptorSet) {
+    const fs = require('fs');
+    const binPath = `${outDir}/descriptors.bin`;
+    const tsPath = `${outDir}/descriptors.ts`;
+    if (fs.existsSync(binPath)) {
+      const buffer = fs.readFileSync(binPath);
+      const uint8Array = new Uint8Array(buffer);
+      const tsContent = `export const descriptors = new Uint8Array([${uint8Array.toString()}]);`;
+      fs.writeFileSync(tsPath, tsContent);
+      console.log(`Generated ${tsPath}`);
+    }
+  }
 }
 
 function runCommand(command) {
-    return new Promise((resolve, reject) => {
-        exec(command, (err, stdout, stderr) => {
-            if (err) {
-                const errorMessage =
-                    "Failed to execute command" +
-                    `\n\ncommand: ${command}` +
-                    `\n\nstdout: ${stdout}` +
-                    `\n\nstderr: ${stderr}`;
-                reject(errorMessage);
-            }
-            resolve();
-        });
+  return new Promise((resolve, reject) => {
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        const errorMessage =
+          'Failed to execute command' +
+          `\n\ncommand: ${command}` +
+          `\n\nstdout: ${stdout}` +
+          `\n\nstderr: ${stderr}`;
+        reject(errorMessage);
+      }
+      resolve();
     });
+  });
 }

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {TraceFile} from '@trace/trace_file';
-import {TraceType} from '@trace_api/trace_type';
-import {PerfettoParserFactory} from './perfetto_parser_factory';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
+
+import {PerfettoParserFactory} from './perfetto_parser_factory';
 
 describe('PerfettoParserFactory', () => {
   const emptyGeometryData = new TraceGeometryData();

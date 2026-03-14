@@ -15,25 +15,18 @@
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  Inject,
-  input,
-  output,
-} from '@angular/core';
+import {Component, computed, effect, ElementRef, Inject, input, output,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {assertDefined} from '@common/assert';
+import {TreeNode} from '@tree_node/tree_node';
 import {DiffType} from '@viewers/common/diff_type';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
+
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
-import {TreeNode} from '@tree_node/tree_node';
 
 @Component({
   selector: 'tree-node',

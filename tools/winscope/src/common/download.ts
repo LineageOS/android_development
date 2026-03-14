@@ -16,6 +16,7 @@
 
 import {trySanitizeUrl} from '@compat/safevalues';
 import {setAnchorHref} from '@compat/safevalues/dom';
+
 import {assertDefined} from './assert';
 
 /**

@@ -15,8 +15,9 @@
  */
 
 import {Timestamp} from '@common/time/time';
+
+import {TraceFile} from './trace_file';
 import {TraceType} from './trace_type';
-import {TraceFile} from '@trace/trace_file';
 
 /**
  * Interface for a file reader.

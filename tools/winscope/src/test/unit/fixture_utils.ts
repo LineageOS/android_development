@@ -14,33 +14,28 @@
  * limitations under the License.
  */
 
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@app/file_reader_helpers';
+import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
+import {LegacyToPerfettoConverter} from '@app/legacy_to_perfetto_converter';
+import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
+import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
 import {assertDefined, assertTrue} from '@common/assert';
+import {isZipFile, unzipFile} from '@common/io';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset,} from '@common/time/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {ParserInput} from '@parsers/input/parser_input';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  makeConverterNoRteOffsets,
-  makeConverterWithUtcOffset,
-} from '@common/time/test_helpers';
-import {TraceFile} from '@trace/trace_file';
+import {FileReader} from '@trace_api/file_reader';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
 import {TraceBuilder} from './trace_api/trace_builder';
-import {LegacyFileReaderFactory} from '@app/legacy_file_reader_factory';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
-import {LegacyToPerfettoConverter} from '@app/legacy_to_perfetto_converter';
-import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
-import {FileReader} from '@trace_api/file_reader';
-import {
-  getReaderWithLatestRealToBootTimeOffset,
-  getReaderWithLatestRealToMonotonicTimeOffset,
-} from '@app/file_reader_helpers';
-import {ParserInput} from '@parsers/input/parser_input';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {isZipFile, unzipFile} from '@common/io';
 
 abstract class ProcessedFileProvider<T extends FileReader> {
   protected timestampConverter = makeConverterNoRteOffsets();

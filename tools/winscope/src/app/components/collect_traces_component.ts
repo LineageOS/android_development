@@ -15,17 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  Inject,
-  input,
-  NgZone,
-  output,
-  signal,
-  ViewEncapsulation,
-} from '@angular/core';
+import {ChangeDetectorRef, Component, computed, Inject, input, NgZone, output, signal, ViewEncapsulation,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatDialog} from '@angular/material/dialog';
@@ -35,50 +25,32 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {equal} from '@common/typed_array';
-import {assertDefined, assertTrue, assertUnreachable} from '@common/assert';
-import {Store} from '@common/store/store';
-import {Analytics} from '@logging/analytics';
-import {ProgressListener} from '@messaging/progress_listener';
-import {makeWarningProxyTraceTimeout} from '@app/warnings';
 import {AppRefreshDumpsRequest} from '@app/app_events';
 import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
-import {
-  EmitEvent,
-  WinscopeEventEmitter,
-} from '@messaging/winscope_event_emitter';
-import {WinscopeEvent} from '@messaging/winscope_event';
-import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {assertDefined, assertTrue, assertUnreachable} from '@common/assert';
+import {Store} from '@common/store/store';
+import {equal} from '@common/typed_array';
 import {getLogger} from '@compat/logging';
+import {Analytics} from '@logging/analytics';
+import {ProgressListener} from '@messaging/progress_listener';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
+import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
-import {
-  AdbDeviceConnection,
-  AdbDeviceState,
-} from '@trace_collection/adb/adb_device_connection';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
 import {AdbFiles, RequestedTraceTypes} from '@trace_collection/adb_files';
+import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {TraceCollectionController} from '@trace_collection/controller/trace_collection_controller';
-import {
-  CheckboxConfiguration,
-  makeDefaultDumpConfigMap,
-  makeDefaultTraceConfigMap,
-  makeProtologGroupOptions,
-  makeScreenRecordingSelectionConfigs,
-  SelectionConfiguration,
-  TraceConfigurationMap,
-  updateConfigsFromStore,
-} from '@trace_collection/ui/ui_trace_configuration';
+import {CheckboxConfiguration, makeDefaultDumpConfigMap, makeDefaultTraceConfigMap, makeProtologGroupOptions, makeScreenRecordingSelectionConfigs, SelectionConfiguration, TraceConfigurationMap, updateConfigsFromStore,} from '@trace_collection/ui/ui_trace_configuration';
 import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {UserRequest, UserRequestConfig} from '@trace_collection/user_request';
+
 import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
-import {
-  WarningDialogComponent,
-  WarningDialogData,
-  WarningDialogResult,
-} from './warning_dialog_component';
+import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 

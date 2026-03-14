@@ -15,63 +15,30 @@
  */
 
 import {ClipboardModule} from '@angular/cdk/clipboard';
-import {
-  CdkVirtualScrollViewport,
-  ScrollingModule,
-} from '@angular/cdk/scrolling';
+import {SelectionModel} from '@angular/cdk/collections';
+import {CdkMenuModule} from '@angular/cdk/menu';
+import {CdkVirtualScrollViewport, ScrollingModule,} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  HostListener,
-  Inject,
-  input,
-  output,
-  viewChild,
-} from '@angular/core';
+import {Component, computed, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectChange} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-
-import {
-  isElementOverflowing,
-  isElementVisible,
-  KeyboardEventKey,
-} from '@common/dom';
+import {assertDefined} from '@common/assert';
+import {isElementOverflowing, isElementVisible, KeyboardEventKey,} from '@common/dom';
 import {Timestamp} from '@common/time/time';
 import {Timer} from '@common/time/timer';
+import {UserTimestamp} from '@common/time/user_timestamp';
 import {TraceType} from '@trace_api/trace_type';
+import {LogFilter, LogSelectFilter, LogTextFilter,} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
-import {
-  LogEntry,
-  LogField,
-  LogFieldValue,
-  LogHeader,
-  ClickableProperty,
-} from '@viewers/common/ui_data_log';
+import {ClickableProperty, LogEntry, LogField, LogFieldValue, LogHeader,} from '@viewers/common/ui_data_log';
 import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
-import {
-  LogFilterChangeDetail,
-  LogTextFilterChangeDetail,
-  TimestampClickDetail,
-  ViewerEvents,
-} from '@viewers/common/viewer_events';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {SearchBoxComponent} from '@viewers/components/search_box_component';
 import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
-import {assertDefined} from '@common/assert';
-import {UserTimestamp} from '@common/time/user_timestamp';
-import {
-  LogFilter,
-  LogSelectFilter,
-  LogTextFilter,
-} from '@viewers/common/log_filters';
-import {SelectionModel} from '@angular/cdk/collections';
-import {CdkMenuModule} from '@angular/cdk/menu';
 
 @Component({
   selector: 'log-view',

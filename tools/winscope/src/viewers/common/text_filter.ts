@@ -15,8 +15,8 @@
  */
 
 import {FilterFlag} from '@common/filter_flag';
-import {isAlpha, isDigit} from '@common/string_helpers';
 import {StringFilterPredicate} from '@common/string_filter_predicate';
+import {isAlpha, isDigit} from '@common/string_helpers';
 import {getLogger} from '@compat/logging';
 
 export class TextFilter {

@@ -14,18 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  effect,
-  ElementRef,
-  HostListener,
-  Inject,
-  input,
-  output,
-  viewChild,
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
@@ -35,11 +24,9 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+
 import {TreeNodeComponent} from './tree_node_component';
-import {
-  VirtualRow,
-  VirtualScrollViewportComponent,
-} from './virtual_scroll_viewport_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 @Component({
   selector: 'tree-view',

@@ -14,27 +14,17 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import Long from 'long';
+import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot} from '@compat/protobuf';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {ClockSnapshot} from '@compat/perfetto';
+import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@test/unit/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {makeIdMatchFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-  parseAndConvertToPerfettoTrace,
-} from '@test/unit/fixture_utils';
 
 describe('FileReaderSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -74,15 +64,16 @@ describe('FileReaderSurfaceFlinger', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = readerRealTs.convertToPerfettoPackets(10);
       expect(packets.length).toBe(21);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(83);
-      expect(packets[0].timestamp).toEqual(
-        Long.fromString(BigInt(14500282843).toString()),
-      );
-      expect(packets[0].timestampClockId).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      expect(packets[0].getTimestamp()).toEqual('14500282843');
+      expect(packets[0].getTimestampClockId()).toEqual(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
 
@@ -202,15 +193,16 @@ describe('FileReaderSurfaceFlinger', () => {
     it('converts to valid perfetto packets, without latest offsets', async () => {
       const packets = readerElapsedTs.convertToPerfettoPackets(10);
       expect(packets.length).toBe(3);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(94);
-      expect(packets[0].timestamp).toEqual(
-        Long.fromString(BigInt(850335483446).toString()),
-      );
-      expect(packets[0].timestampClockId).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      expect(packets[0].getTimestamp()).toEqual('850335483446');
+      expect(packets[0].getTimestampClockId()).toEqual(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
     });
   });

@@ -27,6 +27,7 @@ import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
 import {SurfaceFlingerPropertyGroupsComponent} from '@viewers/components/surface_flinger_property_groups_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
+
 import {UiData} from './ui_data';
 
 @Component({

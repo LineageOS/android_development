@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
+import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {
-  makeConverterZeroRteOffsets,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
+
 import {Transformer} from './transformer';
 
 describe('Transformer', () => {
@@ -37,7 +35,7 @@ describe('Transformer', () => {
 
     const rangeStart = fromRange.startNs;
     const rangeEnd = fromRange.endNs;
-    const range = BigInt(fromRange.endNs - fromRange.startNs);
+    const range = fromRange.endNs - fromRange.startNs;
 
     expect(transformer.transform(fromRange.from)).toBe(toRange.from);
     expect(transformer.transform(fromRange.to)).toBe(toRange.to);
@@ -72,7 +70,7 @@ describe('Transformer', () => {
     const transformer = new Transformer(fromRange, toRange, converter);
 
     const rangeStart = fromRange.startNs;
-    const range = BigInt(fromRange.endNs - fromRange.startNs);
+    const range = fromRange.endNs - fromRange.startNs;
 
     expect(transformer.untransform(toRange.from).getValueNs()).toBe(
       fromRange.startNs,

@@ -21,6 +21,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {OperationChain} from '@tree_node/operation_chain';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
 
 describe('HierarchyTreeBuilderVc', () => {

@@ -15,28 +15,29 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 
 const entryField = assertDefined(
-  TAMPERED_WINSCOPE_EXTENSIONS.fields[
-    '.perfetto.protos.WinscopeExtensionsImpl.windowmanager'
-  ],
+  assertDefined(
+    PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      'perfetto.protos.TracePacket',
+    )?.fields['winscopeExtensions']?.resolve(),
+  ).fields['.perfetto.protos.WinscopeExtensionsImpl.windowmanager'],
 );
 
-const windowManagerServiceField = assertDefined(entryField.tamperedMessageType)
-  .fields['windowManagerService'];
+const windowManagerServiceField = assertDefined(entryField.resolve()).fields[
+  'windowManagerService'
+];
 
 const rootWindowContainerField = assertDefined(
-  windowManagerServiceField.tamperedMessageType,
+  windowManagerServiceField.resolve(),
 ).fields['rootWindowContainer'];
 
-const windowContainerField = assertDefined(
-  rootWindowContainerField.tamperedMessageType,
-).fields['windowContainer'];
+const windowContainerField = assertDefined(rootWindowContainerField.resolve())
+  .fields['windowContainer'];
 
-const windowContainerChildField = assertDefined(
-  windowContainerField.tamperedMessageType,
-).fields['children'];
+const windowContainerChildField = assertDefined(windowContainerField.resolve())
+  .fields['children'];
 
 export const TAMPERED_PROTOS_LATEST = {
   entryField,

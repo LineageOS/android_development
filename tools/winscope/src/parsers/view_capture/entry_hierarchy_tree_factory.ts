@@ -15,27 +15,25 @@
  */
 
 import {assertBigInt, assertDefined, assertString} from '@common/assert';
-import {AddDefaults} from '@parsers/operations/add_defaults';
-import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {UINT32_MAX} from '@common/math';
+import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
+import {AddDefaults} from '@parsers/operations/add_defaults';
+import {SetFormatters} from '@parsers/operations/set_formatters';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  LazyPropertiesStrategyType,
-  PropertiesProvider,
-} from '@tree_node/properties_provider';
+import {LazyPropertiesStrategyType, PropertiesProvider,} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {TraceRect} from '@tree_node/trace_rect';
-import {extractRect} from './rect_extractor';
-import {UINT32_MAX} from '@common/math';
-import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
-import {SetFormatters} from '@parsers/operations/set_formatters';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
+import {TraceRect} from '@tree_node/trace_rect';
+
+import {HierarchyTreeBuilderVc} from './hierarchy_tree_builder_vc';
+import {extractRect} from './rect_extractor';
 
 /**
  * Creates node id for a ViewCapture view. Used to construct nodes and rects
@@ -216,15 +214,18 @@ function makeViewLazyPropertiesStrategy(
       .setData(argsData.iter({}))
       .setRootId(rootId)
       .setRootName(rootName)
-      .setRootMessageType(assertDefined(PROTO_VIEW_FIELD.tamperedMessageType))
+      .setRootMessageType(assertDefined(PROTO_VIEW_FIELD.resolve()))
       .build();
   };
 }
 
 const PROTO_VIEW_FIELD = assertDefined(
-  TAMPERED_WINSCOPE_EXTENSIONS.fields[
-    '.perfetto.protos.WinscopeExtensionsImpl.viewcapture'
-  ]?.tamperedMessageType?.fields['views'],
+  assertDefined(
+    PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      'perfetto.protos.TracePacket',
+    )?.fields['winscopeExtensions']?.resolve(),
+  ).fields['.perfetto.protos.WinscopeExtensionsImpl.viewcapture']?.resolve()
+    ?.fields['views'],
 );
 const OPERATIONS = {
   AddDefaults: new AddDefaults(PROTO_VIEW_FIELD),

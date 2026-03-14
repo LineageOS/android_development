@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 
+import {BugreportFileSelected} from '@app/misc_events';
 import {createZipArchive} from '@common/io';
+import {ASIA_TIMEZONE_INFO, makeConverterNoRteOffsets, timestampEqualityTester,} from '@common/time/test_helpers';
+import {TimezoneInfo} from '@common/time/time';
 import {ProgressListenerStub} from '@messaging/progress_listener_stub';
 import {UserWarning} from '@messaging/user_warning';
-import {
-  makeWarningCorruptedArchive,
-  makeWarningNoValidFiles,
-  makeWarningTraceProcessorError,
-  makeWarningUnsupportedFileFormat,
-} from './warnings';
-import {BugreportFileSelected} from '@app/misc_events';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  ASIA_TIMEZONE_INFO,
-  makeConverterNoRteOffsets,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {TraceType} from '@trace_api/trace_type';
-import {TraceProcessorProxy} from '@trace_processor/trace_processor';
-import {FilesSource} from './files_source';
-import {FileLoader, FileLoaderResult} from './file_loader';
-import {TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
-import {
-  makeSpyRowIterator,
-  makeSpyQueryResult,
-} from '@trace_processor/test_utils';
-import {TimezoneInfo} from '@common/time/time';
+import {TraceType} from '@trace_api/trace_type';
+import {makeSpyQueryResult, makeSpyRowIterator,} from '@trace_processor/test_utils';
+import {TraceProcessorProxy} from '@trace_processor/trace_processor';
+
+import {FileLoader, FileLoaderResult} from './file_loader';
+import {FilesSource} from './files_source';
 import {ParsingErrorType} from './parsing_error_type';
+import {TraceFileIdentifier} from './trace_file_identifier';
+import {makeWarningCorruptedArchive, makeWarningNoValidFiles, makeWarningTraceProcessorError, makeWarningUnsupportedFileFormat,} from './warnings';
 
 describe('FileLoader', () => {
   let legacySfFile: File;

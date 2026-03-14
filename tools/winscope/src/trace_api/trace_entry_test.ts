@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 
 describe('TraceEntry', () => {

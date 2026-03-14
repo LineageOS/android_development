@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
+import {FileReader} from '@trace_api/file_reader';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {
-  spyOnThumbnailGenerator,
-  waitForThumbnailGeneration,
-} from './test_helpers';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
-import {FileReader} from '@trace_api/file_reader';
+import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+
+import {spyOnThumbnailGenerator, waitForThumbnailGeneration,} from './test_helpers';
 
 describe('ParserScreenRecording', () => {
   let parser: Parser<MediaBasedTraceEntry> & FileReader;
@@ -210,8 +202,8 @@ describe('ParserScreenRecording', () => {
   });
 
   describe('start time in filename', () => {
-    const startTimeMs = 1732721670187;
-    const startTimeNs = BigInt(startTimeMs) * BigInt(TIME_UNIT_TO_NANO.ms);
+    const startTimeMs = 1732721670187n;
+    const startTimeNs = startTimeMs * TIME_UNIT_TO_NANO.ms;
 
     describe('with Android screen recording format', () => {
       checkStartTimeInFilename(

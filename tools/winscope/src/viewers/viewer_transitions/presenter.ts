@@ -17,23 +17,21 @@
 import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
 import {Timestamp} from '@common/time/time';
-import {TransitionStatus} from '@trace/transitions/status';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {TransitionStatus} from '@trace/transitions/status';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  AbstractLogViewerPresenter,
-  NotifyLogViewCallbackType,
-} from '@viewers/common/abstract_log_viewer_presenter';
+import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@viewers/common/abstract_log_viewer_presenter';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogPresenter} from '@viewers/common/log_presenter';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ColumnSpec, LogField, LogHeader} from '@viewers/common/ui_data_log';
-import {UpdateTransitionParticipants} from './operations/update_transition_participants';
+
 import {UpdateTransitionChanges} from './operations/update_transition_changes';
+import {UpdateTransitionParticipants} from './operations/update_transition_participants';
 import {TransitionsEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<

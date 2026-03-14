@@ -14,34 +14,25 @@
  * limitations under the License.
  */
 
-import {
-  DarkModeToggled,
-  FilterPresetApplyRequest,
-  FilterPresetSaveRequest,
-} from '@app/misc_events';
+import {DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@app/misc_events';
 import {assertDefined} from '@common/assert';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {TracePositionUpdate} from '@trace/trace_events';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';
-import {
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {
-  makeUiHierarchyNode,
-  treeNodeEqualityTester,
-} from '@test/unit/ui_tree_node_utils';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@test/unit/ui_tree_node_utils';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
+
 import {DiffType} from './diff_type';
 import {RectShowState} from './rect_show_state';
 import {UiDataHierarchy} from './ui_data_hierarchy';

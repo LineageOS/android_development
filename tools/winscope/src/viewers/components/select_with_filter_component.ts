@@ -15,35 +15,18 @@
  */
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  Inject,
-  input,
-  model,
-  output,
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, Inject, input, model, output,} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import {
-  MatOption,
-  MatOptionModule,
-  MatPseudoCheckboxModule,
-} from '@angular/material/core';
+import {MatOption, MatOptionModule, MatPseudoCheckboxModule,} from '@angular/material/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {
-  MatSelect,
-  MatSelectChange,
-  MatSelectModule,
-} from '@angular/material/select';
+import {MatSelect, MatSelectChange, MatSelectModule,} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
+
 import {AbstractSelectComponent} from './abstract_select_component';
-import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   selector: 'select-with-filter',

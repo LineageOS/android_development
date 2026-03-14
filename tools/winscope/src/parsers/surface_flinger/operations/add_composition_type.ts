@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HwcCompositionType} from '@compat/winscope_protos';
+import {PerfettoHwcCompositionType} from '@compat/protobuf';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {AddOperation} from '@tree_node/add_operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -53,15 +53,15 @@ export class AddCompositionType extends AddOperation<PropertyTreeNode> {
         ];
   }
 
-  private readonly gpuLayerCompositionTypes = [
-    HwcCompositionType.HWC_TYPE_CLIENT,
-    HwcCompositionType[HwcCompositionType.HWC_TYPE_CLIENT],
+  private readonly gpuLayerCompositionTypes: Array<string | number> = [
+    PerfettoHwcCompositionType.HWC_TYPE_CLIENT,
+    'HWC_TYPE_CLIENT',
   ];
 
-  private readonly hwcLayerCompositionTypes = [
-    HwcCompositionType.HWC_TYPE_DEVICE,
-    HwcCompositionType[HwcCompositionType.HWC_TYPE_DEVICE],
-    HwcCompositionType.HWC_TYPE_SOLID_COLOR,
-    HwcCompositionType[HwcCompositionType.HWC_TYPE_SOLID_COLOR],
+  private readonly hwcLayerCompositionTypes: Array<string | number> = [
+    PerfettoHwcCompositionType.HWC_TYPE_DEVICE,
+    'HWC_TYPE_DEVICE',
+    PerfettoHwcCompositionType.HWC_TYPE_SOLID_COLOR,
+    'HWC_TYPE_SOLID_COLOR',
   ];
 }

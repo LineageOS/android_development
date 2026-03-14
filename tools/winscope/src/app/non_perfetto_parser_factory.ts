@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
+import {ProcessedFiles} from '@app/processed_files';
 import {assertTrue} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {ProgressListener} from '@messaging/progress_listener';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
-import {ParserScreenRecording} from '@parsers/screen_recording/parser_screen_recording';
-import {ParserScreenshot} from '@parsers/screenshot/parser_screenshot';
-import {ParserScreenRecordingLegacy} from '@parsers/screen_recording/parser_screen_recording_legacy';
-import {ProcessedFiles} from '@app/processed_files';
-import {TraceFile} from '@trace/trace_file';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {TraceMetadata} from '@trace_api/trace_metadata';
-import {UserNotifier} from '@services/user_notifier';
 import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
+import {ParserScreenRecording} from '@parsers/screen_recording/parser_screen_recording';
+import {ParserScreenRecordingLegacy} from '@parsers/screen_recording/parser_screen_recording_legacy';
+import {ParserScreenshot} from '@parsers/screenshot/parser_screenshot';
+import {UserNotifier} from '@services/user_notifier';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+
 import {FileReaderAndParser} from './file_reader_and_parser';
 
 export class NonPerfettoParserFactory {

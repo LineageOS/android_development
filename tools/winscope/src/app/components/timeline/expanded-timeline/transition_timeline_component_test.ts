@@ -24,23 +24,21 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {Rect} from '@common/geometry/rect';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange, Timestamp} from '@common/time/time';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {waitToBeCalled} from '@test/unit/spy_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {TransitionStatus} from '@trace/transitions/status';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TraceType} from '@trace_api/trace_type';
+import {TransitionStatus} from '@trace/transitions/status';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TransitionTimelineComponent} from './transition_timeline_component';
-import {SetFormatters} from '@parsers/operations/set_formatters';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {PENDING_TO_PLAY_COLOR} from 'app/components/timeline/common/transition_timeline_helpers';
+
+import {TransitionTimelineComponent} from './transition_timeline_component';
 
 describe('TransitionTimelineComponent', () => {
   let component: TransitionTimelineComponent;

@@ -17,6 +17,7 @@
 import {VIRTUAL_SCROLL_STRATEGY} from '@angular/cdk/scrolling';
 import {Directive, effect, forwardRef, input} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
+
 import {VariableHeightScrollStrategy} from './variable_height_scroll_strategy';
 
 @Directive({

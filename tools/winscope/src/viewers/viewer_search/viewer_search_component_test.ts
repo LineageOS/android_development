@@ -31,35 +31,25 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SEARCH_VIEWS} from '@app/trace_search/trace_search_initializer';
+import {makeWarningExportTooLarge, makeWarningFailedToExportToCsv, makeWarningNoResultsToExport,} from '@app/warnings';
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp} from '@common/time/test_helpers';
+import {Analytics} from '@logging/analytics';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
-import {
-  AddQueryClickDetail,
-  ClearQueryClickDetail,
-  DeleteSavedQueryClickDetail,
-  SaveQueryClickDetail,
-  SearchQueryClickDetail,
-  ViewerEvents,
-} from '@viewers/common/viewer_events';
-import {Analytics} from '@logging/analytics';
-import {
-  makeWarningExportTooLarge,
-  makeWarningFailedToExportToCsv,
-  makeWarningNoResultsToExport,
-} from '@app/warnings';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
+import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
+import {AddQueryClickDetail, ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {LogComponent} from '@viewers/components/log_component';
+
 import {ActiveSearchComponent} from './active_search_component';
 import {SearchListComponent} from './search_list_component';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
 import {ViewerSearchComponent} from './viewer_search_component';
-import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
 
 describe('ViewerSearchComponent', () => {
   const testQuery = 'select * from table';

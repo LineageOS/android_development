@@ -16,8 +16,8 @@
 
 import {globalConfig} from '@common/global_config';
 import {getRootUrl} from '@common/window';
+import {initWasm} from '@trace_processor/perfetto/wasm_engine_proxy';
 
-import {initWasm} from './perfetto/wasm_engine_proxy';
 import {TraceProcessor, TraceProcessorProxy} from './trace_processor';
 
 export class TraceProcessorFactory {

@@ -15,27 +15,25 @@
  */
 
 import {assertBigInt, assertDefined, assertString} from '@common/assert';
-import {
-  LazyPropertiesStrategyType,
-  PropertiesProvider,
-} from '@tree_node/properties_provider';
+import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
+import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {QueryResult, RowIterator} from '@trace_processor/query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {LazyPropertiesStrategyType, PropertiesProvider,} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {DENYLIST_PROPERTIES} from './denylist_properties';
-import {ContainerType} from './container_type';
-import {QueryResult, RowIterator} from '@trace_processor/query_result';
-import {extractRect} from './rect_extractor';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TraceRect} from '@tree_node/trace_rect';
-import {queryArgs} from '@parsers/perfetto/query_helpers';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
-import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
-import {TraceProcessor} from '@trace_processor/trace_processor';
-import {WM_OPERATION_LISTS} from './operation_lists';
-import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
-import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
+import {TraceRect} from '@tree_node/trace_rect';
+
+import {ContainerType} from './container_type';
+import {DENYLIST_PROPERTIES} from './denylist_properties';
+import {HierarchyTreeBuilderWm} from './hierarchy_tree_builder_wm';
+import {WM_OPERATION_LISTS} from './operation_lists';
+import {extractRect} from './rect_extractor';
+import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
 
 /**
  * Creates HierarchyTreeNode objects for a WM trace.
@@ -283,9 +281,7 @@ function buildHierarchyTree(
 }
 
 const CONTAINER_TYPE = assertDefined(
-  TAMPERED_PROTOS_LATEST.windowContainerChildField.tamperedMessageType,
+  TAMPERED_PROTOS_LATEST.windowContainerChildField.resolve(),
 );
 
-const ENTRY_TYPE = assertDefined(
-  TAMPERED_PROTOS_LATEST.entryField.tamperedMessageType,
-);
+const ENTRY_TYPE = assertDefined(TAMPERED_PROTOS_LATEST.entryField.resolve());

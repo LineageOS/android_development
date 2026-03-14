@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
+import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
-import {TabbedViewSwitchRequest} from '@app/tabbed_view_events';
-import {TracePositionUpdate} from '@trace/trace_events';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  getPerfettoParser,
-  parseAndConvertToPerfettoTrace,
-} from '@test/unit/fixture_utils';
+import {getPerfettoParser, parseAndConvertToPerfettoTrace,} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {TraceFile} from '@trace/trace_file';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
+import {TraceFile} from '@trace_api/trace_file';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';

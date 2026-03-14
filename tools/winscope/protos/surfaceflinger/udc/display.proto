@@ -15,27 +15,28 @@
  */
 
 syntax = "proto3";
-option optimize_for = LITE_RUNTIME;
-
-import "protos/surfaceflinger/udc/common.proto";
 
 package android.surfaceflinger;
 
+import "protos/surfaceflinger/udc/common.proto";
+
+option optimize_for = LITE_RUNTIME;
+
 message DisplayProto {
-    uint64 id = 1;
+  uint64 id = 1 [jstype = JS_STRING];
 
-    string name = 2;
+  string name = 2;
 
-    uint32 layer_stack = 3;
+  uint32 layer_stack = 3;
 
-    SizeProto size = 4;
+  SizeProto size = 4;
 
-    RectProto layer_stack_space_rect = 5;
+  RectProto layer_stack_space_rect = 5;
 
-    TransformProto transform = 6;
+  TransformProto transform = 6;
 
-    bool is_virtual = 7;
+  bool is_virtual = 7;
 
-    double dpi_x = 8;
-    double dpi_y = 9;
+  double dpi_x = 8;
+  double dpi_y = 9;
 }

@@ -15,24 +15,16 @@
  */
 
 import {assertDefined} from '@common/assert';
-import Long from 'long';
-import {ShellHandlerMappings} from '@compat/winscope_protos';
-import {ClockSnapshot} from '@compat/perfetto';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
-import {
-  makeConverterNoRteOffsets,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {TimestampConverter} from '@common/time/timestamp_converter';
+import {PerfettoClockSnapshot, PerfettoShellHandlerMapping, PerfettoShellHandlerMappings,} from '@compat/protobuf';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {FileReaderTransitions} from './file_reader_transitions';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {TimestampConverter} from '@common/time/timestamp_converter';
 
 describe('FileReaderTransitions', () => {
   let converter: TimestampConverter;
@@ -70,13 +62,13 @@ describe('FileReaderTransitions', () => {
 
   it('sets zero timestamp if both dispatch and send time unavailable', async () => {
     const shellPackets = readerShell.convertToPerfettoPackets(0);
-    assertDefined(shellPackets[2].shellTransition).dispatchTimeNs = undefined;
+    assertDefined(shellPackets[2].getShellTransition()).clearDispatchTimeNs();
     spyOn(readerShell, 'convertToPerfettoPackets').and.returnValue(
       shellPackets,
     );
 
     const wmPackets = readerWm.convertToPerfettoPackets(0);
-    assertDefined(wmPackets[1].shellTransition).sendTimeNs = undefined;
+    assertDefined(wmPackets[1].getShellTransition()).clearSendTimeNs();
     spyOn(readerWm, 'convertToPerfettoPackets').and.returnValue(wmPackets);
 
     const mergedReader = new FileReaderTransitions(
@@ -92,75 +84,71 @@ describe('FileReaderTransitions', () => {
     const packets = reader.convertToPerfettoPackets(10);
     expect(packets.length).toBe(5);
     packets.forEach((packet) => {
-      expect(packet.trustedPacketSequenceId).toBe(10);
+      expect(packet.getTrustedPacketSequenceId()).toBe(10);
     });
 
     const handlerMappingPacket = packets[0];
-    const shellHandlerMappings = ShellHandlerMappings.fromObject({
-      mapping: [
-        {id: 2, name: 'com.android.wm.shell.transition.DefaultMixedHandler'},
-        {
-          id: 3,
-          name: 'com.android.wm.shell.recents.RecentsTransitionHandler',
-        },
-      ],
-    });
-    expect(handlerMappingPacket.shellHandlerMappings).toEqual(
+    const shellHandlerMappings = new PerfettoShellHandlerMappings();
+    const m1 = new PerfettoShellHandlerMapping();
+    m1.setId(2);
+    m1.setName('com.android.wm.shell.transition.DefaultMixedHandler');
+    const m2 = new PerfettoShellHandlerMapping();
+    m2.setId(3);
+    m2.setName('com.android.wm.shell.recents.RecentsTransitionHandler');
+    shellHandlerMappings.addMapping(m1);
+    shellHandlerMappings.addMapping(m2);
+
+    expect(handlerMappingPacket.getShellHandlerMappings()).toEqual(
       shellHandlerMappings,
     );
 
     const transition6Packet = assertDefined(
-      packets.find((p) => p.shellTransition?.id === 6),
+      packets.find((p) => p.getShellTransition()?.getId() === 6),
     );
-    const transition6 = assertDefined(transition6Packet.shellTransition);
-    const sendTime6 = Long.fromString('57649646973488');
-    expect(transition6Packet.timestamp).toEqual(sendTime6);
-    expect(transition6Packet.timestampClockId).toEqual(
-      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+    const transition6 = assertDefined(transition6Packet.getShellTransition());
+    const sendTime6 = '57649646973488';
+    expect(transition6Packet.getTimestamp()).toEqual(sendTime6);
+    expect(transition6Packet.getTimestampClockId()).toEqual(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
-    expect(transition6.createTimeNs).toEqual(Long.fromString('57649586217344'));
-    expect(transition6.sendTimeNs).toEqual(sendTime6);
-    expect(transition6.wmAbortTimeNs).toBeUndefined();
-    expect(transition6.finishTimeNs).toEqual(Long.fromString('57650183020323'));
-    expect(transition6.type).toBe(1);
-    expect(transition6.changes?.length).toBe(2);
-    expect(transition6.flags).toBeUndefined();
-    expect(transition6.startingWindowRemoveTimeNs).toBeUndefined();
-    expect(transition6.dispatchTimeNs).toEqual(
-      Long.fromString('57649649922341'),
-    );
-    expect(transition6.mergeTimeNs).toBeUndefined();
-    expect(transition6.mergeRequestTimeNs).toBeUndefined();
-    expect(transition6.shellAbortTimeNs).toBeUndefined();
-    expect(transition6.handler).toBe(2);
-    expect(transition6.mergeTarget).toBeUndefined();
+    expect(transition6.getCreateTimeNs()).toEqual('57649586217344');
+    expect(transition6.getSendTimeNs()).toEqual(sendTime6);
+    expect(transition6.hasWmAbortTimeNs()).toBeFalse();
+    expect(transition6.getFinishTimeNs()).toEqual('57650183020323');
+    expect(transition6.getType()).toBe(1);
+    expect(transition6.getChangesList()?.length).toBe(2);
+    expect(transition6.hasFlags()).toBeFalse();
+    expect(transition6.hasStartingWindowRemoveTimeNs()).toBeFalse();
+    expect(transition6.getDispatchTimeNs()).toEqual('57649649922341');
+    expect(transition6.hasMergeTimeNs()).toBeFalse();
+    expect(transition6.hasMergeRequestTimeNs()).toBeFalse();
+    expect(transition6.hasShellAbortTimeNs()).toBeFalse();
+    expect(transition6.getHandler()).toBe(2);
+    expect(transition6.hasMergeTarget()).toBeFalse();
 
     const transition7Packet = packets[2];
-    const transition7 = assertDefined(transition7Packet.shellTransition);
-    expect(transition7.id).toBe(7);
-    const dispatchTime7 = Long.fromString('57649828043313');
-    expect(transition7Packet.timestamp).toEqual(dispatchTime7);
-    expect(transition7Packet.timestampClockId).toEqual(
-      ClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+    const transition7 = assertDefined(transition7Packet.getShellTransition());
+    expect(transition7.getId()).toBe(7);
+    const dispatchTime7 = '57649828043313';
+    expect(transition7Packet.getTimestamp()).toEqual(dispatchTime7);
+    expect(transition7Packet.getTimestampClockId()).toEqual(
+      PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
     );
-    expect(transition7.sendTimeNs).toBeUndefined();
-    expect(transition7.dispatchTimeNs).toEqual(dispatchTime7);
-    expect(transition7.mergeTimeNs).toEqual(Long.fromString('57649829526223'));
-    expect(transition7.shellAbortTimeNs).toEqual(
-      Long.fromString('57649829445249'),
-    );
-    expect(transition7.handler).toBeUndefined();
+    expect(transition7.hasSendTimeNs()).toBeFalse();
+    expect(transition7.getDispatchTimeNs()).toEqual(dispatchTime7);
+    expect(transition7.getMergeTimeNs()).toEqual('57649829526223');
+    expect(transition7.hasShellAbortTimeNs()).toBeTrue();
+    expect(transition7.getShellAbortTimeNs()).toEqual('57649829445249');
+    expect(transition7.hasHandler()).toBeFalse();
 
-    const transition8 = assertDefined(packets[3].shellTransition);
-    expect(transition8.id).toBe(8);
-    expect(transition8.flags).toBe(128);
+    const transition8 = assertDefined(packets[3].getShellTransition());
+    expect(transition8.getId()).toBe(8);
+    expect(transition8.getFlags()).toBe(128);
 
-    const transition9 = assertDefined(packets[4].shellTransition);
-    expect(transition9.id).toBe(9);
-    expect(transition9.mergeRequestTimeNs).toEqual(
-      Long.fromString('57653389780131'),
-    );
-    expect(transition9.mergeTarget).toBe(8);
+    const transition9 = assertDefined(packets[4].getShellTransition());
+    expect(transition9.getId()).toBe(9);
+    expect(transition9.getMergeRequestTimeNs()).toEqual('57653389780131');
+    expect(transition9.getMergeTarget()).toBe(8);
   });
 
   it('converts to valid perfetto trace', async () => {

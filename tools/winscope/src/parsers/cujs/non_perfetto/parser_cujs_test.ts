@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
+import {CUJ_TYPE_FORMATTER, DEFAULT_PROPERTY_FORMATTER, TIMESTAMP_NODE_FORMATTER,} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {
-  CUJ_TYPE_FORMATTER,
-  DEFAULT_PROPERTY_FORMATTER,
-  TIMESTAMP_NODE_FORMATTER,
-} from '@trace/formatters';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
 
 describe('ParserCujs', () => {
   describe('trace with monotonically increasing timestamps', () => {

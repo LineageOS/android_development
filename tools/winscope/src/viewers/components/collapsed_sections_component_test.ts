@@ -20,6 +20,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
+
 import {CollapsedSectionsComponent} from './collapsed_sections_component';
 
 describe('CollapsedSectionsComponent', () => {

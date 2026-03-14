@@ -15,15 +15,13 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {Timer} from '@common/time/timer';
-import {TracePositionUpdate} from '@trace/trace_events';
 import {makeRealTimestamp} from '@common/time/test_helpers';
+import {Timer} from '@common/time/timer';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {setNumRowsSpyQueryResult} from '@trace_processor/test_utils';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
-import {
-  AbstractLogViewerPresenter,
-  NotifyLogViewCallbackType,
-} from './abstract_log_viewer_presenter';
+
+import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from './abstract_log_viewer_presenter';
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogHeader, UiDataLog} from './ui_data_log';
 

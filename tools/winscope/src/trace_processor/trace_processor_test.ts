@@ -15,7 +15,8 @@
  */
 
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {initWasm} from './perfetto/wasm_engine_proxy';
+import {initWasm} from '@trace_processor/perfetto/wasm_engine_proxy';
+
 import {TraceProcessorProxy} from './trace_processor';
 
 describe('TraceProcessorProxy', () => {
@@ -42,7 +43,7 @@ describe('TraceProcessorProxy', () => {
       'SELECT count(*) as count FROM surfaceflinger_layers_snapshot',
     );
     expect(result.numRows()).toBe(1);
-    const row = result.firstRow({count: 0});
-    expect(row.count).toBeGreaterThan(0);
+    const row = result.firstRow({count: 0n});
+    expect(Number(row.count)).toBeGreaterThan(0);
   });
 });

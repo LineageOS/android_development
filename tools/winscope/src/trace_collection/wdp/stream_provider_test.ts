@@ -16,10 +16,8 @@
 
 import {binaryEncode} from '@common/string_helpers';
 import {waitToBeCalled} from '@test/unit/spy_utils';
-import {
-  makeFakeWebSocket,
-  makeFakeWebSocketMessage,
-} from '@test/unit/web_socket_utils';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@test/unit/web_socket_utils';
+
 import {StreamProvider} from './stream_provider';
 
 describe('StreamProvider', () => {

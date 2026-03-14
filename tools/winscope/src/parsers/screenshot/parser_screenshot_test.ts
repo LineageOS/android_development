@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  makeConverterWithUtcOffset,
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  timestampEqualityTester,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
-import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {CanvasEntry} from '@trace/media_based/media_based_trace_entry';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
+import {CanvasEntry} from '@trace/media_based/media_based_trace_entry';
+
 import {ParserScreenshot} from './parser_screenshot';
 
 describe('ParserScreenshot', () => {

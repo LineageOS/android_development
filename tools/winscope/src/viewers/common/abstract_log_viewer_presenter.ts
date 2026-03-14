@@ -14,40 +14,32 @@
  * limitations under the License.
  */
 
-import {assertDefined} from '@common/assert';
-import {
-  isElementVisible,
-  isInputTextField,
-  KeyboardEventKey,
-} from '@common/dom';
-import {Timestamp} from '@common/time/time';
-import {Analytics} from '@logging/analytics';
 import {DarkModeToggled} from '@app/misc_events';
-import {WinscopeEvent} from '@messaging/winscope_event';
-import {ActiveTraceChanged, TracePositionUpdate} from '@trace/trace_events';
-import {EmitEvent} from '@messaging/winscope_event_emitter';
+import {assertDefined} from '@common/assert';
+import {isElementVisible, isInputTextField, KeyboardEventKey,} from '@common/dom';
+import {Timestamp} from '@common/time/time';
 import {getLogger, Logger} from '@compat/logging';
+import {Analytics} from '@logging/analytics';
+import {WinscopeEvent} from '@messaging/winscope_event';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UserOptions} from '@viewers/common/user_options';
+
+import {FlattenedTreeRow} from './flattened_tree_row';
 import {LogSelectFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';
 import {LogEntry, LogHeader, UiDataLog} from './ui_data_log';
-import {
-  LogFilterChangeDetail,
-  LogTextFilterChangeDetail,
-  TimestampClickDetail,
-  ViewerEvents,
-} from './viewer_events';
-import {flattenNodesToRows} from './ui_tree_node_helpers';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {FlattenedTreeRow} from './flattened_tree_row';
+import {flattenNodesToRows} from './ui_tree_node_helpers';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from './viewer_events';
 
 export type NotifyLogViewCallbackType<UiData> = (uiData: UiData) => void;
 export type FilterOptionSorter = (a: string, b: string) => number;

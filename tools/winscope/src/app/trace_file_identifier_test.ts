@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
+import {BugreportFileSelected, BugreportFileSelectionRequest,} from '@app/misc_events';
+import {ASIA_TIMEZONE_INFO} from '@common/time/test_helpers';
 import {TimezoneInfo} from '@common/time/time';
-import {
-  makeWarningNoValidFiles,
-  makeWarningMissingPersistentTrace,
-  makeWarningTraceOverridden,
-} from './warnings';
-import {
-  BugreportFileSelected,
-  BugreportFileSelectionRequest,
-} from '@app/misc_events';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {TraceFile} from '@trace/trace_file';
-import {TraceMetadata} from '@trace_api/trace_metadata';
-import {BuildType, TraceFileIdentifier} from './trace_file_identifier';
-import {ProcessedFiles} from './processed_files';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {FileReader} from '@trace_api/file_reader';
 import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
 import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
-import {ASIA_TIMEZONE_INFO} from '@common/time/test_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceMetadata} from '@trace_api/trace_metadata';
+
+import {ProcessedFiles} from './processed_files';
+import {BuildType, TraceFileIdentifier} from './trace_file_identifier';
+import {makeWarningMissingPersistentTrace, makeWarningNoValidFiles, makeWarningTraceOverridden,} from './warnings';
 
 describe('TraceFileIdentifier', () => {
   const identifier = new TraceFileIdentifier<FileReader>();

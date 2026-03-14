@@ -15,30 +15,26 @@
  */
 
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
-import {getLogger} from '@compat/logging';
 import {throwIfMagicNumberDoesNotMatch} from '@common/magic_number_helpers';
 import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {getLogger} from '@compat/logging';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CustomQueryParamTypeMap,
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-} from '@trace_api/custom_query';
+import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType,} from '@trace_api/custom_query';
+import {FileReader} from '@trace_api/file_reader';
 import {EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {FileReader} from '@trace_api/file_reader';
-import {TraceFile} from '@trace/trace_file';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {TraceMetadata} from '@trace_api/trace_metadata';
 import {Logger} from 'typescript-logging-log4ts-style';
 
 export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
   private timestamps: Timestamp[] | undefined;
   protected traceFile: TraceFile;
-  protected decodedEntries: T[] = [];
+  protected decodedEntries: readonly T[] = [];
   protected timestampConverter: ParserTimestampConverter;
   protected readonly metadata: TraceMetadata | undefined;
 
@@ -133,6 +129,8 @@ export abstract class AbstractParser<T, U> implements Parser<U>, FileReader {
 
   protected abstract processDecodedEntry(index: number): Promise<U>;
   protected abstract getMagicNumber(): number[];
-  protected abstract decodeTrace(trace: Uint8Array): T[] | Promise<T[]>;
+  protected abstract decodeTrace(
+    trace: Uint8Array,
+  ): readonly T[] | Promise<readonly T[]>;
   protected abstract getTimestamp(decodedEntry: T): Timestamp;
 }

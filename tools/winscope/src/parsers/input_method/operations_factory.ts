@@ -15,8 +15,8 @@
  */
 
 import {AddDefaults} from '@parsers/operations/add_defaults';
-import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {SetFormatters} from '@parsers/operations/set_formatters';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {TamperedProtoField} from '@trace/proto_utils/tampered_message_type';
 
 import {CHILD_DENYLIST_PROPERTIES} from './child_denylist_properties';

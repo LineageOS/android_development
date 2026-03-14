@@ -14,31 +14,19 @@
  * limitations under the License.
  */
 
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@app/file_reader_helpers';
 import {assertDefined} from '@common/assert';
-import {
-  createZipArchive,
-  getFileExtension,
-  removeDirFromFileName,
-  removeExtensionFromFilename,
-  OnProgressUpdateType,
-} from '@common/io';
+import {createZipArchive, getFileExtension, OnProgressUpdateType, removeDirFromFileName, removeExtensionFromFilename,} from '@common/io';
 import {INVALID_TIME_NS, TimeRange, Timestamp} from '@common/time/time';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {
-  makeWarningTraceHasOldData,
-  makeWarningTraceOverridden,
-  makeWarningTraceHasElapsedTimestamps,
-} from './warnings';
-import {
-  getReaderWithLatestRealToBootTimeOffset,
-  getReaderWithLatestRealToMonotonicTimeOffset,
-} from '@app/file_reader_helpers';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
+import {FileReader} from '@trace_api/file_reader';
+import {TraceFile} from '@trace_api/trace_file';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {FileReader} from '@trace_api/file_reader';
+
+import {makeWarningTraceHasElapsedTimestamps, makeWarningTraceHasOldData, makeWarningTraceOverridden,} from './warnings';
 
 /**
  * A collection of file readers loaded from user-provided files.
@@ -48,12 +36,10 @@ import {FileReader} from '@trace_api/file_reader';
  * a confusing visualization.
  */
 export class LoadedFiles<T extends FileReader> {
-  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS = BigInt(
-    5 * TIME_UNIT_TO_NANO.m,
-  ); // 5m
-  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET = BigInt(
-    5 * TIME_UNIT_TO_NANO.s,
-  ); // 5s
+  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_TRACES_NS =
+    5n * TIME_UNIT_TO_NANO.m; // 5m
+  static readonly MAX_ALLOWED_TIME_GAP_BETWEEN_RTE_OFFSET =
+    5n * TIME_UNIT_TO_NANO.s; // 5s
   static readonly REAL_TIME_TRACES_WITHOUT_RTE_OFFSET = [TraceType.CUJS];
 
   private legacyReaders = new Array<LegacyFileReader>();

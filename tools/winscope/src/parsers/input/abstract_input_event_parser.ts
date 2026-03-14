@@ -14,48 +14,42 @@
  * limitations under the License.
  */
 
-import {
-  assertBigInt,
-  assertBigIntOrUndefined,
-  assertDefined,
-} from '@common/assert';
+import {assertBigInt, assertBigIntOrUndefined, assertDefined,} from '@common/assert';
+import {MakeTimestampStrategyType} from '@common/time/time';
 import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
-import {InputCoordinatePropagator} from '@parsers/input/operations/input_coordinate_propagator';
-import {TranslateIntDef} from '@parsers/operations/translate_intdef';
-import {AbstractParser} from '@parsers/perfetto/abstract_parser';
-import {queryArgs, queryVsyncId} from '@parsers/perfetto/query_helpers';
 import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builder_from_args';
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
+import {InputCoordinatePropagator} from '@parsers/input/operations/input_coordinate_propagator';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {EnumFormatter} from '@trace/formatters';
-import {InputEventType} from '@trace/input/input_event_type';
-import {
-  TAMPERED_WINSCOPE_EXTENSIONS,
-  TamperedMessageType,
-} from '@trace/proto_utils/tampered_message_type';
-import {
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-  VisitableParserCustomQuery,
-} from '@trace_api/custom_query';
+import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
+import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {queryArgs, queryVsyncId} from '@parsers/perfetto/query_helpers';
+import {CustomQueryParserResultTypeMap, CustomQueryType, VisitableParserCustomQuery,} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';
 import {RowIterator} from '@trace_processor/query_result';
+import {EnumFormatter} from '@trace/formatters';
+import {InputEventType} from '@trace/input/input_event_type';
+import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType,} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
-import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
-import {MakeTimestampStrategyType} from '@common/time/time';
+
 import {RenameProperty} from './operations/rename_property';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected static readonly WRAPPER_PROTO = assertDefined(
-    TAMPERED_WINSCOPE_EXTENSIONS.fields[
-      '.perfetto.protos.WinscopeExtensionsImpl.androidInputEvent'
-    ].tamperedMessageType,
+    assertDefined(
+      PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket'),
+    )
+      .fields['winscopeExtensions'].resolve()
+      ?.fields[
+        '.perfetto.protos.WinscopeExtensionsImpl.androidInputEvent'
+      ].resolve(),
   );
   protected static readonly KEY_EVENT_TABLE = 'android_key_events';
   protected static readonly MOTION_EVENT_TABLE = 'android_motion_events';
@@ -300,7 +294,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
         .setUseRootIdWithoutChange(true)
         .setRootMessageType(
           assertDefined(
-            AbstractInputEventParser.DISPATCH_EVENT_FIELD.tamperedMessageType,
+            AbstractInputEventParser.DISPATCH_EVENT_FIELD.resolve(),
           ),
         )
         .setRowValidityCheck(rowValidityCheck)

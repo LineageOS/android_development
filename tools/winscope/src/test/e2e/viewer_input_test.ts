@@ -15,16 +15,8 @@
  */
 
 import {browser, by, element, ElementFinder} from 'protractor';
-import {
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTreeByIndex,
-  checkSelectFilter,
-  checkTimelineTraceSelector,
-  loadTraceAndCheckViewer,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {checkFinalRealTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTreeByIndex, checkItemInPropertiesTreeByName, checkSelectFilter, checkTimelineTraceSelector, loadTraceAndCheckViewer, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Input', () => {
   const viewerSelector = 'viewer-input';
@@ -76,20 +68,23 @@ describe('Viewer Input', () => {
       '0',
       '[\n212\n,\n64\n,\n82\n,\n75\n]',
     ]);
-    await checkItemInPropertiesTreeByIndex(
-      '.event-properties',
-      2,
+    await checkItemInPropertiesTreeByName(
+      viewerSelector,
+      'classification',
       'classification:\nCLASSIFICATION_NONE',
-    );
-    await checkItemInPropertiesTreeByIndex(
       '.event-properties',
-      11,
+    );
+    await checkItemInPropertiesTreeByName(
+      viewerSelector,
+      'metaState',
       'metaState:\n0x0',
+      '.event-properties',
     );
     await checkItemInPropertiesTreeByIndex(
-      '.dispatch-properties',
+      viewerSelector,
       3,
       '0 - Pointer:\nID: 0, XY: (1936.00, 431.00), RawXY: (1936.00, 431.00)',
+      '.dispatch-properties',
     );
   }
 
@@ -105,15 +100,17 @@ describe('Viewer Input', () => {
       '-1',
       'Keycode: VOLUME_UP [\n212\n]',
     ]);
-    await checkItemInPropertiesTreeByIndex(
-      '.event-properties',
-      7,
+    await checkItemInPropertiesTreeByName(
+      viewerSelector,
+      'flags',
       'flags:\nFLAG_FROM_SYSTEM',
+      '.event-properties',
     );
     await checkItemInPropertiesTreeByIndex(
-      '.dispatch-properties',
+      viewerSelector,
       2,
       'resolvedFlags:\n8',
+      '.dispatch-properties',
     );
   }
 
@@ -158,7 +155,6 @@ describe('Viewer Input', () => {
       options,
       expected,
       totalEntries,
-      false,
     );
   }
 

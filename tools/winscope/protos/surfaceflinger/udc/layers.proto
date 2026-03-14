@@ -1,11 +1,12 @@
 // Definitions for SurfaceFlinger layers.
 
 syntax = "proto3";
-option optimize_for = LITE_RUNTIME;
+
+package android.surfaceflinger;
 
 import "protos/surfaceflinger/udc/common.proto";
 
-package android.surfaceflinger;
+option optimize_for = LITE_RUNTIME;
 
 // Contains a list of all layers.
 message LayersProto {
@@ -14,21 +15,21 @@ message LayersProto {
 
 // Must match definition in the IComposerClient HAL
 enum HwcCompositionType {
-    // Invalid composition type
-    INVALID = 0;
-    // Layer was composited by the client into the client target buffer
-    CLIENT = 1;
-    // Layer was composited by the device through hardware overlays
-    DEVICE = 2;
-    // Layer was composited by the device using a color
-    SOLID_COLOR = 3;
-    // Similar to DEVICE, but the layer position may have been asynchronously set
-    // through setCursorPosition
-    CURSOR = 4;
-    // Layer was composited by the device via a sideband stream
-    SIDEBAND = 5;
-    // Layer was composited by hardware optimized for display decoration
-    DISPLAY_DECORATION = 6;
+  // Invalid composition type
+  INVALID = 0;
+  // Layer was composited by the client into the client target buffer
+  CLIENT = 1;
+  // Layer was composited by the device through hardware overlays
+  DEVICE = 2;
+  // Layer was composited by the device using a color
+  SOLID_COLOR = 3;
+  // Similar to DEVICE, but the layer position may have been asynchronously set
+  // through setCursorPosition
+  CURSOR = 4;
+  // Layer was composited by the device via a sideband stream
+  SIDEBAND = 5;
+  // Layer was composited by hardware optimized for display decoration
+  DISPLAY_DECORATION = 6;
 }
 
 // Information about each layer.
@@ -59,7 +60,7 @@ message LayerProto {
   // The layer's crop in it's own bounds.
   RectProto crop = 14;
   // The layer's crop in it's parent's bounds.
-  RectProto final_crop = 15 [deprecated=true];
+  RectProto final_crop = 15 [deprecated = true];
   bool is_opaque = 16;
   bool invalidate = 17;
   string dataspace = 18;
@@ -79,7 +80,8 @@ message LayerProto {
   TransformProto requested_transform = 24;
   // The parent layer. This value can be null if there is no parent.
   int32 parent = 25;
-  // The layer that this layer has a z order relative to. This value can be null.
+  // The layer that this layer has a z order relative to. This value can be
+  // null.
   int32 z_order_relative_of = 26;
   // This value can be null if there's nothing to draw.
   ActiveBufferProto active_buffer = 27;
@@ -92,14 +94,14 @@ message LayerProto {
   FloatRectProto hwc_crop = 31;
   // The layer's composer backend transform
   int32 hwc_transform = 32;
-  int32 window_type = 33 [deprecated=true];
-  int32 app_id = 34 [deprecated=true];
+  int32 window_type = 33 [deprecated = true];
+  int32 app_id = 34 [deprecated = true];
   // The layer's composition type
   HwcCompositionType hwc_composition_type = 35;
   // If it's a buffer layer, indicate if the content is protected
   bool is_protected = 36;
   // Current frame number being rendered.
-  uint64 curr_frame = 37;
+  uint64 curr_frame = 37 [jstype = JS_STRING];
   // A list of barriers that the layer is waiting to update state.
   repeated BarrierLayerProto barrier_layer = 38;
   // If active_buffer is not null, record its transform.
@@ -161,13 +163,12 @@ message ActiveBufferProto {
   uint32 height = 2;
   uint32 stride = 3;
   int32 format = 4;
-  uint64 usage = 5;
+  uint64 usage = 5 [jstype = JS_STRING];
 }
 
 message BarrierLayerProto {
   // layer id the barrier is waiting on.
   int32 id = 1;
   // frame number the barrier is waiting on.
-  uint64 frame_number = 2;
+  uint64 frame_number = 2 [jstype = JS_STRING];
 }
-

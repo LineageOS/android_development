@@ -15,10 +15,7 @@
  */
 
 import {Directive, input} from '@angular/core';
-import {
-  MatFormField,
-  MatFormFieldAppearance,
-} from '@angular/material/form-field';
+import {MatFormField, MatFormFieldAppearance,} from '@angular/material/form-field';
 import {isElementOverflowing} from '@common/dom';
 
 @Directive()

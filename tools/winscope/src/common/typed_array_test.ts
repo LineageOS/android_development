@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  binarySearchFirstGreater,
-  binarySearchFirstGreaterOrEqual,
-  equal,
-  searchSubarray,
-} from './typed_array';
+import {binarySearchFirstGreater, binarySearchFirstGreaterOrEqual, equal, searchSubarray,} from './typed_array';
 
 describe('typed_array_test', () => {
   it('equal', () => {

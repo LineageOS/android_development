@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {
-  Component,
-  computed,
-  ElementRef,
-  Inject,
-  input,
-  output,
-} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {PersistentStore} from '@common/store/persistent_store';
 import {Analytics} from '@logging/analytics';
@@ -36,6 +29,7 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 import {ViewCapturePropertyGroupsComponent} from '@viewers/components/view_capture_property_groups_component';
+
 import {SearchBoxComponent} from './search_box_component';
 import {TreeComponent} from './tree_component';
 

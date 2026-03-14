@@ -20,10 +20,7 @@ import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
 import {DiffType} from '@viewers/common/diff_type';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
-import {
-  TimestampClickDetail,
-  ViewerEvents,
-} from '@viewers/common/viewer_events';
+import {TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 
 @Component({
   selector: 'property-tree-node-data-view',

@@ -15,20 +15,21 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {TextFilter} from '@viewers/common/text_filter';
+
 import {DiffType} from './diff_type';
 import {HierarchyPresenter} from './hierarchy_presenter';
 import {SimplifyNames} from './operations/simplify_names';
-import {UserOptions} from './user_options';
-import {SetFormatters} from '@parsers/operations/set_formatters';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
+import {UserOptions} from './user_options';
 
 describe('HierarchyPresenter', () => {
   const timestamp1 = makeElapsedTimestamp(1n);

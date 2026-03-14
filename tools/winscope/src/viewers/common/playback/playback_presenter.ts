@@ -14,31 +14,29 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {CustomTraceEntryLazy, Trace, TraceEntry} from '@trace_api/trace';
-import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {PlaybackStateChangeHandled} from '@app/components/timeline/playback_events';
-import {TracePositionUpdate} from '@trace/trace_events';
-import {TracePosition} from '@trace_api/trace_position';
-import {Timer} from '@common/time/timer';
-import {PlaybackState} from './playback_state';
-import {
-  CanvasEntry,
-  MediaBasedTraceEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
-import {PlaybackPrefetchedEntries} from '@trace/playback_prefetched_entries';
-import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {PropertiesProvider} from '@tree_node/properties_provider';
-import {TraceRect} from '@tree_node/trace_rect';
+import {assertDefined, assertTrue} from '@common/assert';
 import {CornerRadii} from '@common/geometry/corner_radii';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {Timer} from '@common/time/timer';
+import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
-import {assertDefined, assertTrue} from '@common/assert';
 import {EntriesRange} from '@trace_api/index_types';
-import {createVideoFrameCache} from './video_frame_cache_factory';
+import {PlaybackPrefetchedEntries} from '@trace_api/playback_prefetched_entries';
+import {CustomTraceEntryLazy, Trace, TraceEntry} from '@trace_api/trace';
+import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {TracePositionUpdate} from '@trace_api/trace_events';
+import {TracePosition} from '@trace_api/trace_position';
+import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
+import {CanvasEntry, MediaBasedTraceEntry,} from '@trace/media_based/media_based_trace_entry';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertiesProvider} from '@tree_node/properties_provider';
+import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {TraceRect} from '@tree_node/trace_rect';
+
+import {PlaybackState} from './playback_state';
 import {VideoFrameCache} from './video_frame_cache';
+import {createVideoFrameCache} from './video_frame_cache_factory';
 
 type WorkerResolve = (value: HierarchyTreeNode[]) => void;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -16,15 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {TransactionTraceEntry} from '@compat/winscope_protos';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {android} from 'protos/transactions/udc/static';
-import {TraceType} from '@trace_api/trace_type';
+import {PerfettoClockSnapshot, PerfettoTracePacket, PerfettoTransactionTraceEntry, PerfettoTransactionTraceFile,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {TraceType} from '@trace_api/trace_type';
 
-type TraceEntryProto = android.surfaceflinger.proto.ITransactionTraceEntry;
-
-export class FileReaderTransactions extends AbstractFileReader<TraceEntryProto> {
+export class FileReaderTransactions extends AbstractFileReader<PerfettoTransactionTraceEntry> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x54, 0x4e, 0x58, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .TNXTRACE
@@ -47,36 +43,95 @@ export class FileReaderTransactions extends AbstractFileReader<TraceEntryProto> 
     return this.realToMonotonicTimeOffsetNs;
   }
 
-  override decodeTrace(buffer: Uint8Array): TraceEntryProto[] {
-    const decodedProto =
-      android.surfaceflinger.proto.TransactionTraceFile.decode(buffer);
+  override decodeTrace(
+    buffer: Uint8Array,
+  ): readonly PerfettoTransactionTraceEntry[] {
+    const decodedProto = PerfettoTransactionTraceFile.deserializeBinary(buffer);
 
     const timeOffset = BigInt(
-      decodedProto.realToElapsedTimeOffsetNanos?.toString() ?? '0',
+      decodedProto.getRealToElapsedTimeOffsetNanos() ?? '0',
     );
     this.realToMonotonicTimeOffsetNs =
       timeOffset !== 0n ? timeOffset : undefined;
 
-    return decodedProto.entry ?? [];
+    return decodedProto.getEntryList() || [];
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
     for (const entry of this.decodedEntries) {
-      const packet = new TracePacket();
-      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.MONOTONIC;
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.surfaceflingerTransactions =
-        TransactionTraceEntry.fromObject(entry);
+      this.convertSignedValuesForUintFields(entry);
+      const packet = new PerfettoTracePacket();
+      packet.setTimestamp(assertDefined(entry.getElapsedRealtimeNanos()));
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      );
+      packet.setTrustedPacketSequenceId(sequenceId);
+      packet.setSurfaceflingerTransactions(entry);
       packets.push(packet);
     }
     return packets;
   }
 
-  protected override getTimestamp(entryProto: TraceEntryProto): Timestamp {
+  protected override getTimestamp(
+    entry: PerfettoTransactionTraceEntry,
+  ): Timestamp {
     return this.timestampConverter.makeTimestampFromMonotonicNs(
-      BigInt(assertDefined(entryProto.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
+  }
+
+  private convertSignedValuesForUintFields(
+    entry: PerfettoTransactionTraceEntry,
+  ) {
+    // Some legacy transactions traces erroneously contain signed values for fields
+    // that should be unsigned. These must be manually converted to prevent errors
+    // in serialization using google-protobuf.
+    entry.getTransactionsList().forEach((transaction) => {
+      transaction.getLayerChangesList().forEach((layer) => {
+        if (layer.hasLayerId()) {
+          const id = assertDefined(layer.getLayerId());
+          if (id < 0) {
+            layer.setLayerId(id >>> 0);
+          }
+        }
+        if (layer.hasParentId()) {
+          const parentId = assertDefined(layer.getParentId());
+          if (parentId < 0) {
+            layer.setParentId(parentId >>> 0);
+          }
+        }
+        if (layer.hasWindowInfoHandle()) {
+          const windowInfo = assertDefined(layer.getWindowInfoHandle());
+          if (windowInfo.hasCropLayerId()) {
+            const cropLayerId = assertDefined(windowInfo.getCropLayerId());
+            if (cropLayerId < 0) {
+              windowInfo.setCropLayerId(cropLayerId >>> 0);
+            }
+          }
+        }
+      });
+    });
+
+    entry.getAddedLayersList().forEach((layer) => {
+      if (layer.hasLayerId()) {
+        const layerId = assertDefined(layer.getLayerId());
+        if (layerId < 0) {
+          layer.setLayerId(layerId >>> 0);
+        }
+      }
+      if (layer.hasParentId()) {
+        const parentId = assertDefined(layer.getParentId());
+        if (parentId < 0) {
+          layer.setParentId(parentId >>> 0);
+        }
+      }
+      if (layer.hasMirrorFromId()) {
+        const mirrorFromId = assertDefined(layer.getMirrorFromId());
+        if (mirrorFromId < 0) {
+          layer.setMirrorFromId(mirrorFromId >>> 0);
+        }
+      }
+    });
   }
 }

@@ -16,11 +16,12 @@
 
 import {PropertySource} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
+
 import {DiffType} from './diff_type';
+import {FlattenedTreeRow} from './flattened_tree_row';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {UiTreeNode} from './ui_tree_node';
-import {FlattenedTreeRow} from './flattened_tree_row';
 
 export type TreeNodeFilter = (node: TreeNode) => boolean;
 

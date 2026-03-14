@@ -15,8 +15,8 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {MediaBasedFrame} from '@trace/media_based/media_based_frame';
 import {parseWebCodecData} from '@trace/media_based/helpers';
+import {MediaBasedFrame} from '@trace/media_based/media_based_frame';
 
 addEventListener('message', async (event) => {
   const thumbnail = await generateThumbnail(event.data);

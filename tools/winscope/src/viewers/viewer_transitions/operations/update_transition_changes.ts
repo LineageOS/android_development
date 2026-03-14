@@ -15,6 +15,7 @@
  */
 
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {AbstractUpdateLayersAndWindows} from './abstract_update_layers_and_windows';
 
 export class UpdateTransitionChanges extends AbstractUpdateLayersAndWindows<PropertyTreeNode> {

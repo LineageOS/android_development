@@ -15,8 +15,8 @@
  */
 
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {FileInfo, MP4File, Sample, Track} from 'mp4box';
 import {MP4FileOnReady, parseMp4} from '@trace/media_based/helpers';
+import {FileInfo, MP4File, Sample, Track} from 'mp4box';
 
 /**
  * Callback to parse an MP4 and retrieve timestamps.
@@ -69,7 +69,9 @@ export async function parseTimestampsFromMp4VideoTrack(
   let curr = elapsedRealTimeNanos;
   samples.forEach((sample: Sample) => {
     const timeSeconds = sample.duration / sample.timescale;
-    const timeNs = BigInt(Math.floor(TIME_UNIT_TO_NANO.s * timeSeconds));
+    const timeNs = BigInt(
+      Math.floor(Number(TIME_UNIT_TO_NANO.s) * timeSeconds),
+    );
     curr += timeNs;
     timestamps.push(curr);
   });

@@ -28,7 +28,6 @@ export function initWasm(root: string) {
  * worker thread. The entrypoint of the worker thread is engine/index.ts.
  */
 export class WasmEngineProxy extends EngineBase {
-  readonly mode = 'WASM';
   readonly id: string;
   private port: MessagePort;
   private worker: Worker;
@@ -63,9 +62,5 @@ export class WasmEngineProxy extends EngineBase {
     // same buffer when encoding messages (which is good, because creating a new
     // TypedArray for each decode operation would be too expensive).
     this.port.postMessage(data);
-  }
-
-  dispose() {
-    this.worker.terminate();
   }
 }

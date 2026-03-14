@@ -16,17 +16,15 @@
 
 syntax = "proto2";
 
-import "graphics.proto";
-
 package android.inputmethodservice;
 
 option java_multiple_files = true;
 
 message SoftInputWindowProto {
-    reserved 1;  // name
-    reserved 2;  // window_type
-    reserved 3;  // gravity
-    reserved 4;  // takes_focus
-    reserved 5;  // bounds
-    optional int32 window_state = 6;
+  reserved 1;  // name
+  reserved 2;  // window_type
+  reserved 3;  // gravity
+  reserved 4;  // takes_focus
+  reserved 5;  // bounds
+  optional int32 window_state = 6;
 }

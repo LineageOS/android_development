@@ -16,6 +16,7 @@
 
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from '@viewers/common/abstract_hierarchy_viewer_component_test';
+
 import {ViewerViewCaptureComponent} from './viewer_view_capture_component';
 
 class ViewerViewCaptureComponentTest extends AbstractHierarchyViewerComponentTest<ViewerViewCaptureComponent> {

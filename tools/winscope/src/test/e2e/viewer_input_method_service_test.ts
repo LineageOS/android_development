@@ -15,19 +15,8 @@
  */
 
 import {browser, by, element} from 'protractor';
-import {
-  applyStateToHierarchyOptions,
-  changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTree,
-  checkTimelineTraceSelector,
-  checkWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  selectItemInHierarchy,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {applyStateToHierarchyOptions, changeRealTimestampInWinscope, checkFinalRealTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTreeByName, checkTimelineTraceSelector, checkWinscopeRealTimestamp, collapseAdditionalProperties, loadTraceAndCheckViewer, selectItemInHierarchy, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Input Method Service', () => {
   const viewerSelector = 'viewer-input-method';
@@ -64,6 +53,7 @@ describe('Viewer Input Method Service', () => {
   });
 
   async function checkHierarchy() {
+    await collapseAdditionalProperties(viewerSelector);
     const nodes = await element.all(
       by.css(`${viewerSelector} hierarchy-view .node`),
     );
@@ -81,25 +71,25 @@ describe('Viewer Input Method Service', () => {
   }
 
   async function checkProperties() {
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'damageRegion',
       'damageRegion:\nSkRegion((398, 42, 615, 1596))',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'color',
       'color:\n{empty}, alpha: 0.589',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'destinationFrame',
       'destinationFrame:\n(0, 0) - (2204, 1080)',
     );
 
-    await checkItemInPropertiesTree(
+    await checkItemInPropertiesTreeByName(
       viewerSelector,
       'layoutParamsFlags',
       'layoutParamsFlags:\nFLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS | FLAG_HARDWARE_ACCELERATED | FLAG_SPLIT_TOUCH | FLAG_LAYOUT_INSET_DECOR | FLAG_LAYOUT_IN_SCREEN | FLAG_NOT_TOUCH_MODAL',

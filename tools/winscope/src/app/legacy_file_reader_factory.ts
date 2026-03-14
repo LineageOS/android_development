@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {ProcessedFiles} from '@app/processed_files';
 import {assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {ProgressListener} from '@messaging/progress_listener';
-import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
 import {FileReaderInputMethodManagerService} from '@legacy_file_readers/input_method/file_reader_input_method_manager_service';
 import {FileReaderInputMethodService} from '@legacy_file_readers/input_method/file_reader_input_method_service';
@@ -28,10 +28,10 @@ import {FileReaderTransitionsWm} from '@legacy_file_readers/transitions/file_rea
 import {FileReaderViewCapture} from '@legacy_file_readers/view_capture/file_reader_view_capture';
 import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
 import {FileReaderWindowManagerDump} from '@legacy_file_readers/window_manager/file_reader_window_manager_dump';
+import {ProgressListener} from '@messaging/progress_listener';
+import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceFile} from '@trace/trace_file';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ProcessedFiles} from '@app/processed_files';
+import {TraceFile} from '@trace_api/trace_file';
 
 export class LegacyFileReaderFactory {
   static readonly READERS = [

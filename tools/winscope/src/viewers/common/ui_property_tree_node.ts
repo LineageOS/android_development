@@ -16,6 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {DiffType} from './diff_type';
 import {UiTreeNode} from './ui_tree_node';
 

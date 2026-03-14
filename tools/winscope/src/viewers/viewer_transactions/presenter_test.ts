@@ -17,21 +17,22 @@
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Timer} from '@common/time/timer';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
+import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader} from '@viewers/common/ui_data_log';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 
 class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
   override readonly expectedHeaders = [
@@ -190,7 +191,7 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         await presenter.onAppEvent(this.getPositionUpdate());
         await new Timer().wait(() => !uiData.isFetchingData);
         await presenter.onLogEntryClick(10);
-        expect(assertDefined(uiData.propertyNodes).length).toBe(17);
+        expect(assertDefined(uiData.propertyNodes).length).toBe(16);
         let properties = assertDefined(uiData.propertyNodes).map(
           (n) => n.node.name,
         );

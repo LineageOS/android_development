@@ -17,11 +17,8 @@
 import {removeDirFromFileName, removeExtensionFromFilename} from '@common/io';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {getLogger, Logger} from '@compat/logging';
-import {
-  ParserResult,
-  parseTimestampsFromMp4VideoTrack,
-  ScreenRecordingParser,
-} from './helpers';
+
+import {ParserResult, parseTimestampsFromMp4VideoTrack, ScreenRecordingParser,} from './helpers';
 
 export class ParserFilename implements ScreenRecordingParser {
   constructor(
@@ -40,7 +37,7 @@ export class ParserFilename implements ScreenRecordingParser {
 
     if (offsetMs !== undefined) {
       try {
-        const offset = BigInt(offsetMs) * BigInt(TIME_UNIT_TO_NANO.ms);
+        const offset = offsetMs * TIME_UNIT_TO_NANO.ms;
         // set realToBootTimeOffsetNs as 0n as we only have the real
         // start time of the recording
         return {

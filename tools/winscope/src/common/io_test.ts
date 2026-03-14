@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  createZipArchive,
-  decompressGZipFile,
-  DOWNLOAD_FILENAME_REGEX,
-  getFileDirectory,
-  getFileExtension,
-  removeDirFromFileName,
-  removeExtensionFromFilename,
-  unzipFile,
-} from './io';
+
+import {createZipArchive, decompressGZipFile, DOWNLOAD_FILENAME_REGEX, getFileDirectory, getFileExtension, removeDirFromFileName, removeExtensionFromFilename, unzipFile,} from './io';
 
 describe('file_utils', () => {
   it('extracts file extensions', () => {

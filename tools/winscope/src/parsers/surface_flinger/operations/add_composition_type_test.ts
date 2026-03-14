@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import {HwcCompositionType} from '@compat/winscope_protos';
-import {
-  makeCalculatedPropertyNode,
-  makePropertyNode,
-} from '@test/unit/tree_node/tree_node_test_helpers';
+import {PerfettoHwcCompositionType} from '@compat/protobuf';
+import {makeCalculatedPropertyNode, makePropertyNode,} from '@test/unit/tree_node/tree_node_test_helpers';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
+
 import {AddCompositionType} from './add_composition_type';
 
 describe('AddCompositionType', () => {
@@ -48,7 +46,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType.HWC_TYPE_CLIENT,
+      PerfettoHwcCompositionType.HWC_TYPE_CLIENT,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -68,7 +66,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType[HwcCompositionType.HWC_TYPE_CLIENT],
+      'HWC_TYPE_CLIENT',
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -88,7 +86,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType.HWC_TYPE_DEVICE,
+      PerfettoHwcCompositionType.HWC_TYPE_DEVICE,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -108,7 +106,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType[HwcCompositionType.HWC_TYPE_DEVICE],
+      'HWC_TYPE_DEVICE',
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -128,7 +126,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType.HWC_TYPE_SOLID_COLOR,
+      PerfettoHwcCompositionType.HWC_TYPE_SOLID_COLOR,
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 
@@ -148,7 +146,7 @@ describe('AddCompositionType', () => {
     const hwcCompositionType = makePropertyNode(
       propertyRoot.id,
       'hwcCompositionType',
-      HwcCompositionType[HwcCompositionType.HWC_TYPE_SOLID_COLOR],
+      'HWC_TYPE_SOLID_COLOR',
     );
     propertyRoot.addOrReplaceChild(hwcCompositionType);
 

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import {
-  ASIA_TIMEZONE_INFO,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {UTC_TIMEZONE_INFO} from './timestamp_converter';
-import {getResolvedUTCOffset} from './utc_offset_resolver';
+import {ASIA_TIMEZONE_INFO, timestampEqualityTester,} from '@common/time/test_helpers';
+
 import {Timestamp, TimestampFormatter} from './time';
 import {TIME_UNIT_TO_NANO} from './time_units';
+import {UTC_TIMEZONE_INFO} from './timestamp_converter';
+import {getResolvedUTCOffset} from './utc_offset_resolver';
 
 class MockTimestampFormatter implements TimestampFormatter {
   format(timestamp: bigint): string {
@@ -39,11 +37,11 @@ describe('utc_offset_resolver', () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
   });
 
-  describe('initialize timezone offset from Perfetto', () => {
+  describe('initialize timezone offset from lambda', () => {
     it('check utc-1 offset is correctly read and set from lambda', async () => {
       const spy = jasmine
         .createSpy()
-        .and.returnValue(Promise.resolve(BigInt(-60 * TIME_UNIT_TO_NANO.m)));
+        .and.returnValue(Promise.resolve(-60n * TIME_UNIT_TO_NANO.m));
       const utcOffset = await getResolvedUTCOffset(
         UTC_TIMEZONE_INFO,
         testTimestamp,
@@ -58,7 +56,7 @@ describe('utc_offset_resolver', () => {
       const utcOffset = await getResolvedUTCOffset(
         UTC_TIMEZONE_INFO,
         testTimestamp,
-        () => Promise.resolve(BigInt(420 * TIME_UNIT_TO_NANO.m)),
+        () => Promise.resolve(420n * TIME_UNIT_TO_NANO.m),
       );
 
       expect(utcOffset.format()).toBe('UTC+07:00');

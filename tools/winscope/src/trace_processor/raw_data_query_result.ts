@@ -15,14 +15,10 @@
  */
 
 import {assertTrue} from '@common/assert';
-import protobuf from 'protobufjs/minimal';
-import {
-  WritableQueryResult,
-  QueryResult,
-  Row,
-  RowIterator,
-} from './perfetto/query_result';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+
+import {ProtoReader} from './perfetto/proto_reader';
+import {QueryResult, Row, RowIterator, WritableQueryResult,} from './perfetto/query_result';
 
 /**
  * Represents a query result where the raw data is received in multiple batches.
@@ -100,7 +96,7 @@ export class RawDataQueryResult implements WritableQueryResult, QueryResult {
   appendResultBatch(resBytes: Uint8Array): void {
     this.batches.push(resBytes);
     // We need to do enough decoding to determine if this is the last batch
-    const reader = protobuf.Reader.create(resBytes);
+    const reader = ProtoReader.create(resBytes);
     assertTrue(reader.pos === 0);
     while (reader.pos < reader.len) {
       const tag = reader.uint32();
@@ -123,7 +119,7 @@ export class RawDataQueryResult implements WritableQueryResult, QueryResult {
   }
 
   private extractIsLastBatch(batchBytes: Uint8Array): boolean {
-    const reader = protobuf.Reader.create(batchBytes);
+    const reader = ProtoReader.create(batchBytes);
     assertTrue(reader.pos === 0);
     const end = reader.len;
     let result = false;

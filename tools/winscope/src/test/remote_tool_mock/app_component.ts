@@ -18,16 +18,8 @@ import {CommonModule} from '@angular/common';
 import {ChangeDetectorRef, Component, Inject} from '@angular/core';
 import {assertDefined, assertUnreachable} from '@common/assert';
 import {Timer} from '@common/time/timer';
-import {
-  Message,
-  MessageBugReport,
-  MessageFiles,
-  MessagePing,
-  MessageTimestamp,
-  MessageType,
-  TimestampType,
-} from '@cross_tool/messages';
 import {getLogger, Logger} from '@compat/logging';
+import {Message, MessageBugReport, MessageFiles, MessagePing, MessageTimestamp, MessageType, TimestampType,} from '@cross_tool/messages';
 
 @Component({
   selector: 'app-root',

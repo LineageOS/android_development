@@ -16,14 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {
-  AvcCBox,
-  createFile,
-  FileInfo,
-  MP4ArrayBuffer,
-  MP4File,
-  Sample,
-} from 'mp4box';
+import {AvcCBox, createFile, FileInfo, MP4ArrayBuffer, MP4File, Sample,} from 'mp4box';
 
 /**
  * Callback to parse an MP4 for an arbitrary purpose.

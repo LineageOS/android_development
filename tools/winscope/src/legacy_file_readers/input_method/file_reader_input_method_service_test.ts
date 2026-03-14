@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import Long from 'long';
-import {
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {WinscopeExtensionsImpl} from '@compat/protobuf';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
 
 describe('FileReaderInputMethodService', () => {
   describe('trace with real timestamps', () => {
@@ -52,16 +44,13 @@ describe('FileReaderInputMethodService', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
-      const data =
-        packets[0].winscopeExtensions?.[
-          '.perfetto.protos.WinscopeExtensionsImpl.inputmethodService'
-        ];
-      expect(data?.inputMethodService).toBeDefined();
-      expect(data?.where).toBe('InputMethodService#doStartInput');
-      const ts = Long.fromString(BigInt(16578752896).toString());
-      ts.unsigned = true;
-      expect(packets[0].timestamp).toEqual(ts);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
+      const data = packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.inputmethodService);
+      expect(data?.hasInputMethodService()).toBeTrue();
+      expect(data?.getWhere()).toBe('InputMethodService#doStartInput');
+      expect(packets[0].getTimestamp()).toEqual('16578752896');
     });
 
     it('converts to valid perfetto trace', async () => {
@@ -104,18 +93,16 @@ describe('FileReaderInputMethodService', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(7);
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
 
       const data = assertDefined(
-        packets[0].winscopeExtensions?.[
-          '.perfetto.protos.WinscopeExtensionsImpl.inputmethodService'
-        ],
+        packets[0]
+          .getWinscopeExtensions()
+          ?.getExtension(WinscopeExtensionsImpl.inputmethodService),
       );
-      expect(data.where).toBe('InputMethodService#doFinishInput');
-      expect(data?.inputMethodService).toBeDefined();
-      const ts = Long.fromString(BigInt(1149230019887).toString());
-      ts.unsigned = true;
-      expect(packets[0].timestamp).toEqual(ts);
+      expect(data.getWhere()).toBe('InputMethodService#doFinishInput');
+      expect(data?.hasInputMethodService()).toBeTrue();
+      expect(packets[0].getTimestamp()).toEqual('1149230019887');
     });
   });
 });

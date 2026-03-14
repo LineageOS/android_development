@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
-import {TraceFile} from '@trace/trace_file';
-import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
-import {TraceType} from '@trace_api/trace_type';
-import {CoarseVersion} from '@trace_api/coarse_version';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
+import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {CoarseVersion} from '@trace_api/coarse_version';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
+
+import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
 
 describe('NonPerfettoParserFactory', () => {
   let screenshotFile: TraceFile;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-// TODO(b/311642700): Not google3 compatible
-import Long from 'long';
-import * as protobuf from 'protobufjs';
+syntax = "proto2";
 
-protobuf.util.Long = Long; // otherwise 64-bit types would be decoded as 'number' (only 53-bits precision)
-protobuf.configure();
+package perfetto.protos;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  optional string typedef = 60001;
+}

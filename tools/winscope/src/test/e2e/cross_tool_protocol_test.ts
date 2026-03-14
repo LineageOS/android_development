@@ -15,16 +15,8 @@
  */
 
 import {browser, by, element, ElementFinder} from 'protractor';
-import {
-  changeNsTimestampInWinscope,
-  checkServerIsUp,
-  checkWinscopeNsTimestamp,
-  clickViewTracesButton,
-  closeSnackBar,
-  getFixturePath,
-  REMOTE_TOOL_MOCK_URL,
-  setTimeouts,
-} from './helpers';
+
+import {changeNsTimestampInWinscope, checkServerIsUp, checkWinscopeNsTimestamp, clickViewTracesButton, closeSnackBar, getFixturePath, REMOTE_TOOL_MOCK_URL, setTimeouts,} from './helpers';
 
 describe('Cross-Tool Protocol', () => {
   const TIMESTAMP_IN_FILES_MESSAGE_REALTIME = '1659107090327674405';

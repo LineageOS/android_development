@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-import Long from 'long';
-import {ClockSnapshot} from '@compat/perfetto';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {
-  makeConverterWithUtcOffset,
-  makeConverterNoRteOffsets,
-  makeElapsedTimestamp,
-  makeZeroTimestamp,
-  timestampEqualityTester,
-  makeRealTimestamp,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('FileReaderSurfaceFlingerDump', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -76,13 +65,16 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].timestamp).toEqual(Long.fromInt(0));
-      expect(packets[0].timestampClockId).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      expect(packets[0].getTimestamp()).toEqual('0');
+      expect(packets[0].getTimestampClockId()).toEqual(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(94);
     });
 
@@ -112,13 +104,16 @@ describe('FileReaderSurfaceFlingerDump', () => {
     it('converts to valid perfetto packets', async () => {
       const packets = reader.convertToPerfettoPackets(10);
       expect(packets.length).toBe(1);
-      expect(packets[0].timestamp).toEqual(Long.fromInt(0));
-      expect(packets[0].timestampClockId).toEqual(
-        ClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
+      expect(packets[0].getTimestamp()).toEqual('0');
+      expect(packets[0].getTimestampClockId()).toEqual(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
-      expect(packets[0].trustedPacketSequenceId).toBe(10);
+      expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
       expect(
-        packets[0].surfaceflingerLayersSnapshot?.layers?.layers?.length,
+        packets[0]
+          .getSurfaceflingerLayersSnapshot()
+          ?.getLayers()
+          ?.getLayersList()?.length,
       ).toBe(91);
     });
 

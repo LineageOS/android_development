@@ -16,6 +16,7 @@
 
 import {TimeRange, Timestamp} from '@common/time/time';
 import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
+
 import {RenderedRange} from './drawer/rendered_range';
 
 /**

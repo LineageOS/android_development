@@ -12,111 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {perfetto} from '../../../deps_build/trace_processor/ui/tsc/gen/protos';
+import {assertDefined} from '@common/assert';
+import {getLogger, Logger} from '@compat/logging';
+import {PerfettoQueryArgs, PerfettoRegisterSqlPackageArgs, PerfettoResetTraceProcessorArgs, PerfettoTraceProcessorRpc, PerfettoTraceProcessorRpcStream,} from '@compat/protobuf';
+
 import {defer, Deferred} from './deferred';
-import {assertExists, assertTrue} from './logging';
-import { getLogger, Logger } from "compat/logging";
+import {ProtoReader} from './proto_reader';
 import {ProtoRingBuffer} from './proto_ring_buffer';
-import {
-  createQueryResult,
-  QueryError,
-  QueryResult,
-  WritableQueryResult,
-} from './query_result';
+import {createQueryResult, QueryResult, WritableQueryResult,} from './query_result';
 
-import TraceProcessorRpc = perfetto.protos.TraceProcessorRpc;
-import TraceProcessorRpcStream = perfetto.protos.TraceProcessorRpcStream;
-import TPM = perfetto.protos.TraceProcessorRpc.TraceProcessorMethod;
-import MetatraceCategories = perfetto.protos.MetatraceCategories;
-import DisableAndReadMetatraceResult = perfetto.protos.DisableAndReadMetatraceResult;
-import ComputeMetricResult = perfetto.protos.ComputeMetricResult;
-import ResetTraceProcessorArgs = perfetto.protos.ResetTraceProcessorArgs;
-import ComputeMetricArgs = perfetto.protos.ComputeMetricArgs;
-import QueryArgs = perfetto.protos.QueryArgs;
-import EnableMetatraceArgs = perfetto.protos.EnableMetatraceArgs;
-import TraceSummarySpec = perfetto.protos.TraceSummarySpec;
-import RegisterSqlPackageArgs = perfetto.protos.RegisterSqlPackageArgs;
-
-export type EngineMode = 'WASM' | 'HTTP_RPC';
-export type NewEngineMode = 'USE_HTTP_RPC_IF_AVAILABLE' | 'FORCE_BUILTIN_WASM';
-
-// This is used to skip the decoding of queryResult from protobufjs and deal
-// with it ourselves. See the comment below around `QueryResult.decode = ...`.
-interface QueryResultBypass {
-  rawQueryResult: Uint8Array;
-}
+// Aliases for brevity
+const TPM = PerfettoTraceProcessorRpc.TraceProcessorMethod;
 
 export interface TraceProcessorConfig {
   cropTrackEvents: boolean;
   ingestFtraceInRawTable: boolean;
   analyzeTraceProtoContent: boolean;
   ftraceDropUntilAllCpusValid: boolean;
-}
-
-const QUERY_LOG_BUFFER_SIZE = 100;
-
-interface QueryLog {
-  readonly tag?: string;
-  readonly query: string;
-  readonly startTime: number;
-  readonly endTime?: number;
-  readonly success?: boolean;
-}
-
-export interface Engine {
-  readonly mode: EngineMode;
-  readonly engineId: string;
-
-  /**
-   * A list of the most recent queries along with their start times, end times
-   * and success status (if completed).
-   */
-  readonly queryLog: ReadonlyArray<QueryLog>;
-
-  /**
-   * Execute a query against the database, returning a promise that resolves
-   * when the query has completed but rejected when the query fails for whatever
-   * reason. On success, the promise will only resolve once all the resulting
-   * rows have been received.
-   *
-   * The promise will be rejected if the query fails.
-   *
-   * @param sql The query to execute.
-   * @param tag An optional tag used to trace the origin of the query.
-   */
-  query(sql: string, tag?: string): Promise<QueryResult>;
-
-  /**
-   * Execute a query against the database, returning a promise that resolves
-   * when the query has completed or failed. The promise will never get
-   * rejected, it will always successfully resolve. Use the returned wrapper
-   * object to determine whether the query completed successfully.
-   *
-   * The promise will only resolve once all the resulting rows have been
-   * received.
-   *
-   * @param sql The query to execute.
-   * @param tag An optional tag used to trace the origin of the query.
-   */
-  tryQuery(sql: string, tag?: string): Promise<QueryResult>;
-
-  /**
-   * Execute one or more metric and get the result.
-   *
-   * @param metrics The metrics to run.
-   * @param format The format of the response.
-   */
-  computeMetric(
-    metrics: string[],
-    format: 'json' | 'prototext' | 'proto',
-  ): Promise<string | Uint8Array>;
-
-  enableMetatrace(categories?: MetatraceCategories): void;
-  stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult>;
-
-  getProxy(tag: string): EngineProxy;
-  readonly numRequestsPending: number;
-  readonly failed: string | undefined;
 }
 
 // Abstract interface of a trace proccessor.
@@ -130,9 +42,8 @@ export interface Engine {
 // 1. Implement the abstract rpcSendRequestBytes() function, sending the
 //    proto-encoded TraceProcessorRpc requests to the TraceProcessor instance.
 // 2. Call onRpcResponseBytes() when response data is received.
-export abstract class EngineBase implements Engine {
+export abstract class EngineBase {
   abstract readonly id: string;
-  abstract readonly mode: EngineMode;
   private txSeqId = 0;
   private rxSeqId = 0;
   private rxBuf = new ProtoRingBuffer();
@@ -141,18 +52,8 @@ export abstract class EngineBase implements Engine {
   private pendingResetTraceProcessors = new Array<Deferred<void>>();
   private pendingQueries = new Array<WritableQueryResult>();
   private pendingRestoreTables = new Array<Deferred<void>>();
-  private pendingComputeMetrics = new Array<Deferred<string | Uint8Array>>();
-  private pendingReadMetatrace?: Deferred<DisableAndReadMetatraceResult>;
   private pendingRegisterSqlPackage?: Deferred<void>;
-  private _isMetatracingEnabled = false;
-  private _numRequestsPending = 0;
-  private _failed: string | undefined = undefined;
-  private _queryLog: Array<QueryLog> = [];
   constructor(private readonly logger: Logger = getLogger('EngineBase')) {}
-
-  get queryLog(): ReadonlyArray<QueryLog> {
-    return this._queryLog;
-  }
 
   // TraceController sets this to raf.scheduleFullRedraw().
   onResponseReceived?: () => void;
@@ -181,144 +82,131 @@ export abstract class EngineBase implements Engine {
   // |rpcMsgEncoded| is a sub-array to to the start of a TraceProcessorRpc
   // proto-encoded message (without the proto preamble and varint size).
   private onRpcResponseMessage(rpcMsgEncoded: Uint8Array) {
-    // Here we override the protobufjs-generated code to skip the parsing of the
-    // new streaming QueryResult and instead passing it through like a buffer.
-    // This is the overall problem: All trace processor responses are wrapped
-    // into a TraceProcessorRpc proto message. In all cases %
-    // TPM_QUERY_STREAMING, we want protobufjs to decode the proto bytes and
-    // give us a structured object. In the case of TPM_QUERY_STREAMING, instead,
-    // we want to deal with the proto parsing ourselves using the new
-    // QueryResult.appendResultBatch() method, because that handled streaming
-    // results more efficiently and skips several copies.
-    // By overriding the decode method below, we achieve two things:
-    // 1. We avoid protobufjs decoding the TraceProcessorRpc.query_result field.
-    // 2. We stash (a view of) the original buffer into the |rawQueryResult| so
-    //    the `case TPM_QUERY_STREAMING` below can take it.
-    perfetto.protos.QueryResult.decode = (
-      reader: protobuf.Reader,
-      length: number,
-    ) => {
-      const res =
-        perfetto.protos.QueryResult.create() as {} as QueryResultBypass;
-      res.rawQueryResult = reader.buf.subarray(reader.pos, reader.pos + length);
-      // All this works only if protobufjs returns the original ArrayBuffer
-      // from |rpcMsgEncoded|. It should be always the case given the
-      // current implementation. This check mainly guards against future
-      // behavioral changes of protobufjs. We don't want to accidentally
-      // hold onto some internal protobufjs buffer. We are fine holding
-      // onto |rpcMsgEncoded| because those come from ProtoRingBuffer which
-      // is buffer-retention-friendly.
-      assertTrue(res.rawQueryResult.buffer === rpcMsgEncoded.buffer);
-      reader.pos += length;
-      return res as {} as perfetto.protos.QueryResult;
-    };
+    let rpc: PerfettoTraceProcessorRpc | undefined;
+    let queryResultBytes: Uint8Array | undefined;
 
-    const rpc = perfetto.protos.TraceProcessorRpc.decode(rpcMsgEncoded);
+    // We scan the message primarily to:
+    // 1. Check if it's a TPM_QUERY_STREAMING response (field 3 == 3).
+    // 2. If so, extract the queryResult bytes (field 203) without parsing it.
+    // 3. Otherwise, parse the whole message using the standard decoder.
+    const reader = new ProtoReader(rpcMsgEncoded);
+    let seq = 0;
+    let fatalError: string | undefined;
+    let response = 0;
 
-    if (rpc.fatalError !== undefined && rpc.fatalError.length > 0) {
-      this.fail(`${rpc.fatalError}`);
+    // We can't use ProtoReader loop easily to *just* find fields because we need to handle all wire types
+    // to skip correctly. ProtoReader has skipType() which is good.
+    // We'll peek/scan manually.
+    try {
+      while (reader.pos < reader.len) {
+        const tag = reader.uint32();
+        const fieldId = tag >>> 3;
+        const wireType = tag & 7;
+
+        if (fieldId === 1) { // seq
+           seq = reader.int64().low; // Assuming standard int64 or varint logic
+        } else if (fieldId === 5) { // fatalError
+           fatalError = reader.string();
+        } else if (fieldId === 3) { // response
+           response = reader.uint32();
+        } else if (fieldId === 203) { // queryResult
+           const len = reader.uint32();
+           const payloadStart = reader.pos;
+           reader.pos += len;
+           if (reader.pos > reader.len) throw new Error('Truncated message');
+           queryResultBytes = reader.buf.subarray(payloadStart, reader.pos);
+        } else {
+           reader.skipType(wireType);
+        }
+      }
+    } catch (e) {
+      this.fail(`Failed to parse RPC: ${e}`);
+      return;
+    }
+
+    if (fatalError !== undefined && fatalError.length > 0) {
+      this.fail(`${fatalError}`);
+      return;
     }
 
     // Allow restarting sequences from zero (when reloading the browser).
-    if (rpc.seq !== this.rxSeqId + 1 && this.rxSeqId !== 0 && rpc.seq !== 0) {
+    if (seq !== this.rxSeqId + 1 && this.rxSeqId !== 0 && seq !== 0) {
       // "(ERR:rpc_seq)" is intercepted by error_dialog.ts to show a more
       // graceful and actionable error.
       this.fail(
         `RPC sequence id mismatch ` +
-          `cur=${rpc.seq} last=${this.rxSeqId} (ERR:rpc_seq)`,
+          `cur=${seq} last=${this.rxSeqId} (ERR:rpc_seq)`,
       );
+      return;
     }
 
-    this.rxSeqId = rpc.seq;
+    this.rxSeqId = seq;
 
-    let isFinalResponse = true;
+    // Helper to fully parse RPC if we haven't already extracted what we need.
+    // Only parse if not skipping query result or if we need other fields.
+    // Actually we only extracted seq and response and queryResultBytes.
+    // For other messages, we need to parse.
+    const getRpc = () => {
+       if (!rpc) {
+          rpc = PerfettoTraceProcessorRpc.deserializeBinary(rpcMsgEncoded);
+       }
+       return rpc;
+    };
 
-    switch (rpc.response) {
+    switch (response) {
       case TPM.TPM_APPEND_TRACE_DATA: {
-        const appendResult = assertExists(rpc.appendResult);
-        const pendingPromise = assertExists(this.pendingParses.shift());
-        if (appendResult.error && appendResult.error.length > 0) {
-          pendingPromise.reject(appendResult.error);
+        const appendResult = assertDefined(getRpc().getAppendResult());
+        const pendingPromise = assertDefined(this.pendingParses.shift());
+        const error = appendResult.getError();
+        if (error && error.length > 0) {
+          pendingPromise.reject(error);
         } else {
           pendingPromise.resolve();
         }
         break;
       }
       case TPM.TPM_FINALIZE_TRACE_DATA: {
-        const finalizeResult = assertExists(rpc.finalizeDataResult);
-        const pendingPromise = assertExists(this.pendingEOFs.shift());
-        if (finalizeResult.error && finalizeResult.error.length > 0) {
-          pendingPromise.reject(finalizeResult.error);
+        const finalizeResult = assertDefined(getRpc().getFinalizeDataResult());
+        const pendingPromise = assertDefined(this.pendingEOFs.shift());
+        const error = finalizeResult.getError();
+        if (error && error.length > 0) {
+          pendingPromise.reject(error);
         } else {
           pendingPromise.resolve();
         }
         break;
       }
       case TPM.TPM_RESET_TRACE_PROCESSOR:
-        assertExists(this.pendingResetTraceProcessors.shift()).resolve();
+        assertDefined(this.pendingResetTraceProcessors.shift()).resolve();
         break;
       case TPM.TPM_RESTORE_INITIAL_TABLES:
-        assertExists(this.pendingRestoreTables.shift()).resolve();
+        assertDefined(this.pendingRestoreTables.shift()).resolve();
         break;
       case TPM.TPM_QUERY_STREAMING:
-        const qRes = assertExists(rpc.queryResult) as {} as QueryResultBypass;
-        const pendingQuery = assertExists(this.pendingQueries[0]);
-        pendingQuery.appendResultBatch(qRes.rawQueryResult);
+        const qResRaw = assertDefined(queryResultBytes);
+        const pendingQuery = assertDefined(this.pendingQueries[0]);
+        pendingQuery.appendResultBatch(qResRaw);
         if (pendingQuery.isComplete()) {
           this.pendingQueries.shift();
-        } else {
-          isFinalResponse = false;
         }
         break;
-      case TPM.TPM_COMPUTE_METRIC:
-        const metricRes = assertExists(rpc.metricResult) as ComputeMetricResult;
-        const pendingComputeMetric = assertExists(
-          this.pendingComputeMetrics.shift(),
-        );
-        if (metricRes.error && metricRes.error.length > 0) {
-          const error = new QueryError(
-            `ComputeMetric() error: ${metricRes.error}`,
-            {
-              query: 'COMPUTE_METRIC',
-            },
-          );
-          pendingComputeMetric.reject(error);
-        } else {
-          const result =
-            metricRes.metricsAsPrototext ??
-            metricRes.metricsAsJson ??
-            metricRes.metrics ??
-            '';
-          pendingComputeMetric.resolve(result);
-        }
-        break;
-      case TPM.TPM_DISABLE_AND_READ_METATRACE:
-        const metatraceRes = assertExists(
-          rpc.metatrace,
-        ) as DisableAndReadMetatraceResult;
-        assertExists(this.pendingReadMetatrace).resolve(metatraceRes);
-        this.pendingReadMetatrace = undefined;
-        break;
+
       case TPM.TPM_REGISTER_SQL_PACKAGE:
-        const registerResult = assertExists(rpc.registerSqlPackageResult);
-        const res = assertExists(this.pendingRegisterSqlPackage);
-        if (registerResult.error && registerResult.error.length > 0) {
-          res.reject(registerResult.error);
+        const registerResult = assertDefined(getRpc().getRegisterSqlPackageResult());
+        const res = assertDefined(this.pendingRegisterSqlPackage);
+        const err = registerResult.getError();
+        if (err && err.length > 0) {
+          res.reject(err);
         } else {
           res.resolve();
         }
         break;
       default:
         this.logger.warn(
-          'Unexpected TraceProcessor response received: ',
-          rpc.response,
+          `Unexpected TraceProcessor response received: ${response}`,
         );
         break;
     } // switch(rpc.response);
-
-    if (isFinalResponse) {
-      --this._numRequestsPending;
-    }
 
     this.onResponseReceived?.();
   }
@@ -332,9 +220,9 @@ export abstract class EngineBase implements Engine {
   parse(data: Uint8Array): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingParses.push(asyncRes);
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_APPEND_TRACE_DATA;
-    rpc.appendTraceData = data;
+    const rpc = new PerfettoTraceProcessorRpc();
+    rpc.setRequest(TPM.TPM_APPEND_TRACE_DATA);
+    rpc.setAppendTraceData(data);
     this.rpcSendRequest(rpc);
     return asyncRes; // Linearize with the worker.
   }
@@ -344,8 +232,8 @@ export abstract class EngineBase implements Engine {
   notifyEof(): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingEOFs.push(asyncRes);
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_FINALIZE_TRACE_DATA;
+    const rpc = new PerfettoTraceProcessorRpc();
+    rpc.setRequest(TPM.TPM_FINALIZE_TRACE_DATA);
     this.rpcSendRequest(rpc);
     return asyncRes; // Linearize with the worker.
   }
@@ -361,16 +249,17 @@ export abstract class EngineBase implements Engine {
   }: TraceProcessorConfig): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingResetTraceProcessors.push(asyncRes);
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_RESET_TRACE_PROCESSOR;
-    const args = (rpc.resetTraceProcessorArgs = new ResetTraceProcessorArgs());
-    args.dropTrackEventDataBefore = cropTrackEvents
-      ? ResetTraceProcessorArgs.DropTrackEventDataBefore
+    const rpc = new PerfettoTraceProcessorRpc();
+    rpc.setRequest(TPM.TPM_RESET_TRACE_PROCESSOR);
+    const args = new PerfettoResetTraceProcessorArgs();
+    args.setDropTrackEventDataBefore(cropTrackEvents
+      ? PerfettoResetTraceProcessorArgs.DropTrackEventDataBefore
           .TRACK_EVENT_RANGE_OF_INTEREST
-      : ResetTraceProcessorArgs.DropTrackEventDataBefore.NO_DROP;
-    args.ingestFtraceInRawTable = ingestFtraceInRawTable;
-    args.analyzeTraceProtoContent = analyzeTraceProtoContent;
-    args.ftraceDropUntilAllCpusValid = ftraceDropUntilAllCpusValid;
+      : PerfettoResetTraceProcessorArgs.DropTrackEventDataBefore.NO_DROP);
+    args.setIngestFtraceInRawTable(ingestFtraceInRawTable);
+    args.setAnalyzeTraceProtoContent(analyzeTraceProtoContent);
+    args.setFtraceDropUntilAllCpusValid(ftraceDropUntilAllCpusValid);
+    rpc.setResetTraceProcessorArgs(args);
     this.rpcSendRequest(rpc);
     return asyncRes;
   }
@@ -380,157 +269,39 @@ export abstract class EngineBase implements Engine {
   restoreInitialTables(): Promise<void> {
     const asyncRes = defer<void>();
     this.pendingRestoreTables.push(asyncRes);
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_RESTORE_INITIAL_TABLES;
+    const rpc = new PerfettoTraceProcessorRpc();
+    rpc.setRequest(TPM.TPM_RESTORE_INITIAL_TABLES);
     this.rpcSendRequest(rpc);
     return asyncRes; // Linearize with the worker.
   }
 
-  // Shorthand for sending a compute metrics request to the engine.
-  async computeMetric(
-    metrics: string[],
-    format: 'json' | 'prototext' | 'proto',
-  ): Promise<string | Uint8Array> {
-    const asyncRes = defer<string | Uint8Array>();
-    this.pendingComputeMetrics.push(asyncRes);
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_COMPUTE_METRIC;
-    const args = (rpc.computeMetricArgs = new ComputeMetricArgs());
-    args.metricNames = metrics;
-    if (format === 'json') {
-      args.format = ComputeMetricArgs.ResultFormat.JSON;
-    } else if (format === 'prototext') {
-      args.format = ComputeMetricArgs.ResultFormat.TEXTPROTO;
-    } else if (format === 'proto') {
-      args.format = ComputeMetricArgs.ResultFormat.BINARY_PROTOBUF;
-    } else {
-      throw new Error(`Unknown compute metric format ${format}`);
-    }
-    this.rpcSendRequest(rpc);
-    return asyncRes;
-  }
-
-  // Issues a streaming query and retrieve results in batches.
-  // The returned QueryResult object will be populated over time with batches
-  // of rows (each batch conveys ~128KB of data and a variable number of rows).
-  // The caller can decide whether to wait that all batches have been received
-  // (by awaiting the returned object or calling result.waitAllRows()) or handle
-  // the rows incrementally.
   //
-  // Example usage:
-  // const res = engine.execute('SELECT foo, bar FROM table');
-  // this.logger.debug(res.numRows());  // Will print 0 because we didn't await.
-  // await(res.waitAllRows());
-  // this.logger.debug(res.numRows());  // Will print the total number of rows.
-  //
-  // for (const it = res.iter({foo: NUM, bar:STR}); it.valid(); it.next()) {
-  //   this.logger.debug(it.foo, it.bar);
-  // }
-  //
-  // Optional |tag| (usually a component name) can be provided to allow
-  // attributing trace processor workload to different UI components.
   // NOTE: the only reason why this is public is so that Winscope (which uses a
   // fork of our codebase) can invoke this directly. See commit msg of #3051.
-  streamingQuery(result: WritableQueryResult, sqlQuery: string, tag?: string) {
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_QUERY_STREAMING;
-    rpc.queryArgs = new QueryArgs();
-    rpc.queryArgs.sqlQuery = sqlQuery;
-    if (tag) {
-      rpc.queryArgs.tag = tag;
-    }
+  streamingQuery(result: WritableQueryResult, sqlQuery: string) {
+    const rpc = new PerfettoTraceProcessorRpc();
+    rpc.setRequest(TPM.TPM_QUERY_STREAMING);
+    const args = new PerfettoQueryArgs();
+    args.setSqlQuery(sqlQuery);
+    rpc.setQueryArgs(args);
     this.pendingQueries.push(result);
     this.rpcSendRequest(rpc);
-  }
-
-  private logQueryStart(
-    query: string,
-    tag?: string,
-  ): {
-    endTime?: number;
-    success?: boolean;
-  } {
-    const startTime = performance.now();
-    const queryLog: QueryLog = {query, tag, startTime};
-    this._queryLog.push(queryLog);
-    if (this._queryLog.length > QUERY_LOG_BUFFER_SIZE) {
-      this._queryLog.shift();
-    }
-    return queryLog;
   }
 
   // Wraps .streamingQuery(), captures errors and re-throws with current stack.
   //
   // Note: This function is less flexible than .execute() as it only returns a
   // promise which must be unwrapped before the QueryResult may be accessed.
-  async query(sqlQuery: string, tag?: string): Promise<QueryResult> {
-    const queryLog = this.logQueryStart(sqlQuery);
-    try {
-      const result = createQueryResult({query: sqlQuery});
-      this.streamingQuery(result, sqlQuery, tag);
-      const resolvedResult = await result;
-      queryLog.success = true;
-      return resolvedResult;
-    } catch (e) {
-      // Replace the error's stack trace with the one from here
-      // Note: It seems only V8 can trace the stack up the promise chain, so its
-      // likely this stack won't be useful on !V8.
-      // See
-      // https://docs.google.com/document/d/13Sy_kBIJGP0XT34V1CV3nkWya4TwYx9L3Yv45LdGB6Q
-      captureStackTrace(e as Error);
-      queryLog.success = false;
-      throw e;
-    } finally {
-      queryLog.endTime = performance.now();
-    }
-  }
-
-  async tryQuery(sql: string, tag?: string): Promise<QueryResult> {
-    try {
-      const result = await this.query(sql, tag);
-      return result;
-    } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const e = error as any;
-      const msg = 'message' in e ? `${e.message}` : `${error}`;
-      throw new Error(msg);
-    }
-  }
-
-  isMetatracingEnabled(): boolean {
-    return this._isMetatracingEnabled;
-  }
-
-  enableMetatrace(categories?: MetatraceCategories) {
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_ENABLE_METATRACE;
-    if (categories !== undefined && categories !== MetatraceCategories.NONE) {
-      rpc.enableMetatraceArgs = new EnableMetatraceArgs();
-      rpc.enableMetatraceArgs.categories = categories;
-    }
-    this._isMetatracingEnabled = true;
-    this.rpcSendRequest(rpc);
-  }
-
-  stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult> {
-    // If we are already finalising a metatrace, ignore the request.
-    if (this.pendingReadMetatrace) {
-      return Promise.reject(new Error('Already finalising a metatrace'));
-    }
-
-    const result = defer<DisableAndReadMetatraceResult>();
-
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_DISABLE_AND_READ_METATRACE;
-    this._isMetatracingEnabled = false;
-    this.pendingReadMetatrace = result;
-    this.rpcSendRequest(rpc);
-    return result;
+  async query(sqlQuery: string): Promise<QueryResult> {
+    const result = createQueryResult({query: sqlQuery});
+    this.streamingQuery(result, sqlQuery);
+    const resolvedResult = await result;
+    return resolvedResult;
   }
 
   registerSqlPackages(pkg: {
     name: string;
-    modules: {name: string; sql: string}[];
+    modules: Array<{name: string; sql: string}>;
   }): Promise<void> {
     if (this.pendingRegisterSqlPackage) {
       return Promise.reject(new Error('Already registering SQL package'));
@@ -538,12 +309,19 @@ export abstract class EngineBase implements Engine {
 
     const result = defer<void>();
 
-    const rpc = TraceProcessorRpc.create();
-    rpc.request = TPM.TPM_REGISTER_SQL_PACKAGE;
-    const args = (rpc.registerSqlPackageArgs = new RegisterSqlPackageArgs());
-    args.packageName = pkg.name;
-    args.modules = pkg.modules;
-    args.allowOverride = true;
+    const rpc = new PerfettoTraceProcessorRpc();
+    rpc.setRequest(TPM.TPM_REGISTER_SQL_PACKAGE);
+    const args = new PerfettoRegisterSqlPackageArgs();
+    args.setPackageName(pkg.name);
+    const modules = pkg.modules.map(m => {
+      const mod = new PerfettoRegisterSqlPackageArgs.Module();
+      mod.setName(m.name);
+      mod.setSql(m.sql);
+      return mod;
+    });
+    args.setModulesList(modules);
+    args.setAllowOverride(true);
+    rpc.setRegisterSqlPackageArgs(args);
     this.pendingRegisterSqlPackage = result;
     this.rpcSendRequest(rpc);
     return result;
@@ -551,14 +329,13 @@ export abstract class EngineBase implements Engine {
 
   // Marshals the TraceProcessorRpc request arguments and sends the request
   // to the concrete Engine (Wasm or HTTP).
-  private rpcSendRequest(rpc: TraceProcessorRpc) {
-    rpc.seq = this.txSeqId++;
+  private rpcSendRequest(rpc: PerfettoTraceProcessorRpc) {
+    rpc.setSeq(this.txSeqId++);
     // Each message is wrapped in a TraceProcessorRpcStream to add the varint
     // preamble with the size, which allows tokenization on the other end.
-    const outerProto = TraceProcessorRpcStream.create();
-    outerProto.msg.push(rpc);
-    const buf = TraceProcessorRpcStream.encode(outerProto).finish();
-    ++this._numRequestsPending;
+    const outerProto = new PerfettoTraceProcessorRpcStream();
+    outerProto.addMsg(rpc);
+    const buf = outerProto.serializeBinary();
     this.rpcSendRequestBytes(buf);
   }
 
@@ -566,118 +343,7 @@ export abstract class EngineBase implements Engine {
     return this.id;
   }
 
-  get numRequestsPending(): number {
-    return this._numRequestsPending;
-  }
-
-  getProxy(tag: string): EngineProxy {
-    return new EngineProxy(this, tag);
-  }
-
   protected fail(reason: string) {
-    this._failed = reason;
     throw new Error(reason);
   }
-
-  get failed(): string | undefined {
-    return this._failed;
-  }
-
-  abstract dispose(): void;
-}
-
-// Lightweight engine proxy which annotates all queries with a tag
-export class EngineProxy implements Engine {
-  private engine: EngineBase;
-  private tag: string;
-  private disposed = false;
-
-  get queryLog() {
-    return this.engine.queryLog;
-  }
-
-  constructor(engine: EngineBase, tag: string) {
-    this.engine = engine;
-    this.tag = tag;
-  }
-
-  async query(query: string, tag?: string): Promise<QueryResult> {
-    if (this.disposed) {
-      // If we are disposed (the trace was closed), return an empty QueryResult
-      // that will never see any data or EOF. We can't do otherwise or it will
-      // cause crashes to code calling firstRow() and expecting data.
-      return createQueryResult({query});
-    }
-    return await this.engine.query(query, tag);
-  }
-
-  async tryQuery(query: string, tag?: string): Promise<QueryResult> {
-    if (this.disposed) {
-      throw new Error(`EngineProxy ${this.tag} was disposed`);
-    }
-    return await this.engine.tryQuery(query, tag);
-  }
-
-  async computeMetric(
-    metrics: string[],
-    format: 'json' | 'prototext' | 'proto',
-  ): Promise<string | Uint8Array> {
-    if (this.disposed) {
-      return defer<string>(); // Return a promise that will hang forever.
-    }
-    return this.engine.computeMetric(metrics, format);
-  }
-
-  enableMetatrace(categories?: MetatraceCategories): void {
-    this.engine.enableMetatrace(categories);
-  }
-
-  stopAndGetMetatrace(): Promise<DisableAndReadMetatraceResult> {
-    return this.engine.stopAndGetMetatrace();
-  }
-
-  get engineId(): string {
-    return this.engine.id;
-  }
-
-  getProxy(tag: string): EngineProxy {
-    return this.engine.getProxy(`${this.tag}/${tag}`);
-  }
-
-  get numRequestsPending() {
-    return this.engine.numRequestsPending;
-  }
-
-  get mode() {
-    return this.engine.mode;
-  }
-
-  get failed() {
-    return this.engine.failed;
-  }
-
-  dispose() {
-    this.disposed = true;
-  }
-}
-
-// Capture stack trace and attach to the given error object
-function captureStackTrace(e: Error): void {
-  const stack = new Error().stack;
-  if ('captureStackTrace' in Error) {
-    // V8 specific
-    Error.captureStackTrace(e, captureStackTrace);
-  } else {
-    // Generic
-    Object.defineProperty(e, 'stack', {
-      value: stack,
-      writable: true,
-      configurable: true,
-    });
-  }
-}
-
-// A convenience interface to inject the App in Mithril components.
-export interface EngineAttrs {
-  engine: Engine;
 }

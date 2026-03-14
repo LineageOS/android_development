@@ -328,7 +328,12 @@ Each input screen has a "Back", "Home" and "Forward" buttons.
     *This can be changed dynamically.*
 
 -   **Use AudioPolicy.updateMixingRules**: Updates the dynamic AudiPolicy mixing rules
-    instead of unregistering and re-registering the AudioPolicy.
+    instead of unregistering and re-registering the AudioPolicy. \
+    *Changing this will recreate the virtual device.*
+
+-   **Use persistent audio policy mixes**: Sets the audio policy mixes to be
+    persistent. \
+    *Changing this will recreate the virtual device.*
 
 -   **Use legacy playback state**: Audio playback streaming to remote device is based on the
     playback state changes of the apps running on the virtual device. When disabled,

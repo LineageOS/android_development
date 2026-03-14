@@ -16,16 +16,12 @@
 
 import {searchSubarray} from '@common/typed_array';
 import {AbstractParser} from '@parsers/non_perfetto/abstract_parser';
-
 import {TraceType} from '@trace_api/trace_type';
-import {Thumbnail} from '@trace/media_based/thumbnail';
-import {ThumbnailGenerator} from './thumbnail_generator';
-
-import {
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
 import {timestampToVideoTimeSeconds} from '@trace/media_based/helpers';
+import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+import {Thumbnail} from '@trace/media_based/thumbnail';
+
+import {ThumbnailGenerator} from './thumbnail_generator';
 
 export abstract class AbstractParserScreenRecording extends AbstractParser<
   bigint,

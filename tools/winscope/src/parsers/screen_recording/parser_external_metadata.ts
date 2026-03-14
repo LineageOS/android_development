@@ -15,11 +15,8 @@
  */
 
 import {ScreenRecordingOffsets} from '@trace_api/trace_metadata';
-import {
-  ParserResult,
-  parseTimestampsFromMp4VideoTrack,
-  ScreenRecordingParser,
-} from './helpers';
+
+import {ParserResult, parseTimestampsFromMp4VideoTrack, ScreenRecordingParser,} from './helpers';
 
 export class ParserExternalMetadata implements ScreenRecordingParser {
   private offsets: ScreenRecordingOffsets;

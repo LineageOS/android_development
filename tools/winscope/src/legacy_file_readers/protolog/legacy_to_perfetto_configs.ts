@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import Long from 'long';
-import {ProtoLogLevel, ProtoLogViewerConfig} from '@compat/winscope_protos';
-import configJson32 from '../../../configs/services.core.protolog32.json'; // eslint-disable-line no-restricted-imports
-import configJson64 from '../../../configs/services.core.protolog64.json'; // eslint-disable-line no-restricted-imports
+import {PerfettoProtoLogLevel, PerfettoProtoLogViewerConfig,} from '@compat/protobuf';
+import {ProtologJson32, ProtologJson64} from '@compat/protolog';
 
 interface LegacyConfig {
   groups: {[key: string]: {tag: string}};
@@ -33,60 +31,66 @@ interface LegacyConfig {
 
 function makeProtologViewerConfig(
   configJson: LegacyConfig,
-): ProtoLogViewerConfig {
+): PerfettoProtoLogViewerConfig {
   const groupNameToId = new Map<string, number>();
 
-  const groups: ProtoLogViewerConfig.Group[] = Object.entries(
+  const groups: PerfettoProtoLogViewerConfig.Group[] = Object.entries(
     configJson.groups,
   ).map(([name, {tag}], index) => {
-    const group = ProtoLogViewerConfig.Group.fromObject({
-      id: index + 1,
-      name,
-      tag,
-    });
-    groupNameToId.set(group.name, group.id);
+    const group = new PerfettoProtoLogViewerConfig.Group();
+    group.setId(index + 1);
+    group.setName(name);
+    group.setTag(tag);
+    groupNameToId.set(name, index + 1);
     return group;
   });
 
-  const messages: ProtoLogViewerConfig.MessageData[] = Object.entries(
+  const messages: PerfettoProtoLogViewerConfig.MessageData[] = Object.entries(
     configJson.messages,
   ).map(([id, {message, level, group, at}]) => {
-    let protologLevel: ProtoLogLevel;
+    let protologLevel: number;
     switch (level) {
       case 'DEBUG':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_DEBUG;
         break;
       case 'VERBOSE':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_VERBOSE;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_VERBOSE;
         break;
       case 'INFO':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_INFO;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_INFO;
         break;
       case 'WARN':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_WARN;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_WARN;
         break;
       case 'ERROR':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_ERROR;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_ERROR;
         break;
       case 'WTF':
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_WTF;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_WTF;
         break;
       default:
-        protologLevel = ProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
+        protologLevel = PerfettoProtoLogLevel.PROTOLOG_LEVEL_UNDEFINED;
     }
-    return ProtoLogViewerConfig.MessageData.fromObject({
-      messageId: Long.fromString(id),
-      message,
-      level: protologLevel,
-      groupId: groupNameToId.get(group),
-      location: at,
-    });
+    const msgData = new PerfettoProtoLogViewerConfig.MessageData();
+    // ID is string in JSON, protobuf expects string (JS_STRING for fixed64).
+    // The JSON contains signed 64-bit integers as strings, but fixed64 is unsigned.
+    // We need to convert it to unsigned 64-bit integer string.
+    const messageIdBigInt = BigInt(id);
+    const messageIdUnsigned = messageIdBigInt & 0xffffffffffffffffn;
+    msgData.setMessageId(messageIdUnsigned.toString());
+    msgData.setMessage(message);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    msgData.setLevel(protologLevel as any);
+    msgData.setGroupId(groupNameToId.get(group) ?? 0);
+    msgData.setLocation(at);
+    return msgData;
   });
-  return ProtoLogViewerConfig.fromObject({
-    messages,
-    groups,
-  });
+
+  const config = new PerfettoProtoLogViewerConfig();
+  config.setMessagesList(messages);
+  config.setGroupsList(groups);
+  return config;
 }
 
-export const CONFIG_32 = makeProtologViewerConfig(configJson32);
-export const CONFIG_64 = makeProtologViewerConfig(configJson64);
+export const CONFIG_32 = makeProtologViewerConfig(ProtologJson32);
+export const CONFIG_64 = makeProtologViewerConfig(ProtologJson64);

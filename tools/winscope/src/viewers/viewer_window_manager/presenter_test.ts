@@ -17,14 +17,16 @@
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
-import {TracePositionUpdate} from '@trace/trace_events';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {Trace} from '@trace_api/trace';
+import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
+import {makeNodeFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {NotifyHierarchyViewCallbackType} from '@viewers/common/abstract_hierarchy_viewer_presenter';
 import {AbstractHierarchyViewerPresenterTest} from '@viewers/common/abstract_hierarchy_viewer_presenter_test';
@@ -32,12 +34,11 @@ import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
-import {makeNodeFilter} from '@tree_node/helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
+
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
-import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
 
 class PresenterWindowManagerTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private trace: Trace<HierarchyTreeNode> | undefined;
@@ -220,7 +221,7 @@ the default for its data type.`,
 
   override executeSpecializedChecksForPropertiesFromRect(uiData: UiData) {
     const propertyNodes = assertDefined(uiData.propertyNodes);
-    expect(propertyNodes.length).toBe(40);
+    expect(propertyNodes.length).toBe(37);
   }
 
   override executePropertiesChecksAfterSecondPositionUpdate(uiData: UiData) {

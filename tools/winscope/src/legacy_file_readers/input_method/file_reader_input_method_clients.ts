@@ -16,15 +16,11 @@
 
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {ClockSnapshot, TracePacket} from '@compat/perfetto';
-import {InputMethodClientsTraceProto} from '@compat/winscope_protos';
-import {TraceType} from '@trace_api/trace_type';
-import {android} from 'protos/ime/udc/static';
+import {InputMethodClientsTraceFileProtoUdc, InputMethodClientsTraceProtoUdc, PerfettoClockSnapshot, PerfettoInputMethodClientsTraceProto, PerfettoTracePacket, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
+import {TraceType} from '@trace_api/trace_type';
 
-type ImeProto = android.view.inputmethod.IInputMethodClientsTraceProto;
-
-export class FileReaderInputMethodClients extends AbstractFileReader<ImeProto> {
+export class FileReaderInputMethodClients extends AbstractFileReader<InputMethodClientsTraceProtoUdc> {
   private static readonly MAGIC_NUMBER = [
     0x09, 0x49, 0x4d, 0x43, 0x54, 0x52, 0x41, 0x43, 0x45,
   ]; // .IMCTRACE
@@ -47,36 +43,48 @@ export class FileReaderInputMethodClients extends AbstractFileReader<ImeProto> {
     return undefined;
   }
 
-  override decodeTrace(buffer: Uint8Array): ImeProto[] {
+  override decodeTrace(
+    buffer: Uint8Array,
+  ): readonly InputMethodClientsTraceProtoUdc[] {
     const decoded =
-      android.view.inputmethod.InputMethodClientsTraceFileProto.decode(buffer);
-    const timeOffset = BigInt(
-      decoded.realToElapsedTimeOffsetNanos?.toString() ?? '0',
-    );
+      InputMethodClientsTraceFileProtoUdc.deserializeBinary(buffer);
+    const timeOffset = BigInt(decoded.getRealToElapsedTimeOffsetNanos() ?? '0');
     this.realToBootTimeOffsetNs = timeOffset !== 0n ? timeOffset : undefined;
-    return decoded.entry ?? [];
+    return decoded.getEntryList();
   }
 
-  override convertToPerfettoPackets(sequenceId: number): TracePacket[] {
-    const packets = [];
+  override convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
+    const packets: PerfettoTracePacket[] = [];
 
     for (const entry of this.decodedEntries) {
-      const packet = new TracePacket();
-      packet.timestamp = assertDefined(entry.elapsedRealtimeNanos);
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      packet.trustedPacketSequenceId = sequenceId;
-      packet.winscopeExtensions = {
-        '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients':
-          InputMethodClientsTraceProto.fromObject(entry),
-      };
+      const packet = new PerfettoTracePacket();
+      packet.setTimestamp(entry.getElapsedRealtimeNanos() ?? '0');
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      packet.setTrustedPacketSequenceId(sequenceId);
+
+      const perfettoProto =
+        PerfettoInputMethodClientsTraceProto.deserializeBinary(
+          entry.serializeBinary(),
+        );
+      const winscopeExtensions = new WinscopeExtensions();
+      winscopeExtensions.setExtension(
+        WinscopeExtensionsImpl.inputmethodClients,
+        perfettoProto,
+      );
+
+      packet.setWinscopeExtensions(winscopeExtensions);
       packets.push(packet);
     }
     return packets;
   }
 
-  protected override getTimestamp(entry: ImeProto): Timestamp {
+  protected override getTimestamp(
+    entry: InputMethodClientsTraceProtoUdc,
+  ): Timestamp {
     return this.timestampConverter.makeTimestampFromBootTimeNs(
-      BigInt(assertDefined(entry.elapsedRealtimeNanos).toString()),
+      BigInt(assertDefined(entry.getElapsedRealtimeNanos())),
     );
   }
 }

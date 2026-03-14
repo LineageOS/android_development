@@ -17,8 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {queryArgsForEntry} from '@parsers/perfetto/query_helpers';
-import {TAMPERED_WINSCOPE_EXTENSIONS} from '@trace/proto_utils/tampered_message_type';
 import {TraceType} from '@trace_api/trace_type';
+import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {HierarchyTreeFactory} from './hierarchy_tree_factory';
@@ -26,12 +26,14 @@ import {makeOperations} from './operations_factory';
 
 export class ParserInputMethodClients extends AbstractParser<HierarchyTreeNode> {
   private static readonly ENTRY_FIELD = assertDefined(
-    TAMPERED_WINSCOPE_EXTENSIONS.fields[
-      '.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients'
-    ],
+    assertDefined(
+      PERFETTO_TRACE_PACKET_ROOT.lookupType(
+        'perfetto.protos.TracePacket',
+      )?.fields['winscopeExtensions']?.resolve(),
+    ).fields['.perfetto.protos.WinscopeExtensionsImpl.inputmethodClients'],
   );
   private static readonly CLIENT_FIELD = assertDefined(
-    ParserInputMethodClients.ENTRY_FIELD.tamperedMessageType,
+    ParserInputMethodClients.ENTRY_FIELD.resolve(),
   ).fields['client'];
   private static readonly HIERARCHY_TREE_FACTORY = new HierarchyTreeFactory(
     ParserInputMethodClients.ENTRY_FIELD,

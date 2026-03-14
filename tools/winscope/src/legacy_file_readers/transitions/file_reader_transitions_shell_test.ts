@@ -15,13 +15,10 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
-import {
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
+import {TraceType} from '@trace_api/trace_type';
 
 describe('FileReaderTransitionsShell', () => {
   let reader: LegacyFileReader;
@@ -56,22 +53,24 @@ describe('FileReaderTransitionsShell', () => {
     expect(packets.length).toBe(7);
     const handlerPacket = packets[0];
 
-    const mapping = assertDefined(handlerPacket.shellHandlerMappings?.mapping);
+    const mapping = assertDefined(
+      handlerPacket.getShellHandlerMappings()?.getMappingList(),
+    );
 
     expect(mapping.length).toBe(2);
-    expect(mapping[0].id).toBe(2);
-    expect(mapping[0].name).toBe(
+    expect(mapping[0].getId()).toBe(2);
+    expect(mapping[0].getName()).toBe(
       'com.android.wm.shell.transition.DefaultMixedHandler',
     );
-    expect(mapping[1].id).toBe(3);
-    expect(mapping[1].name).toBe(
+    expect(mapping[1].getId()).toBe(3);
+    expect(mapping[1].getName()).toBe(
       'com.android.wm.shell.recents.RecentsTransitionHandler',
     );
 
-    expect(packets[1].shellTransition).toBeDefined();
-    const transition = packets[1].shellTransition;
-    expect(transition?.id).toBe(6);
-    expect(transition?.dispatchTimeNs?.toString()).toBe('57649649922341');
-    expect(transition?.handler).toBe(2);
+    expect(packets[1].getShellTransition()).toBeDefined();
+    const transition = packets[1].getShellTransition();
+    expect(transition?.getId()).toBe(6);
+    expect(transition?.getDispatchTimeNs()).toBe('57649649922341');
+    expect(transition?.getHandler()).toBe(2);
   });
 });

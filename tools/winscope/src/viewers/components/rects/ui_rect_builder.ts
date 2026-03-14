@@ -18,6 +18,7 @@ import {CornerRadii} from '@common/geometry/corner_radii';
 import {Point} from '@common/geometry/point';
 import {Region} from '@common/geometry/region';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
+
 import {UiRect} from './ui_rect';
 
 export class UiRectBuilder {

@@ -15,14 +15,8 @@
  */
 
 import {browser, by, element, ExpectedConditions} from 'protractor';
-import {
-  areMessagesEmitted,
-  changeRealTimestampInWinscope,
-  getWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {areMessagesEmitted, changeRealTimestampInWinscope, getWinscopeRealTimestamp, loadTraceAndCheckViewer, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Playback', () => {
   beforeEach(async () => {

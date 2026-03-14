@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangePropagate,
-  PlaybackStateChangeRequest,
-} from '@app/components/timeline/playback_events';
-import {
-  FilterPresetApplyRequest,
-  FilterPresetSaveRequest,
-  DarkModeToggled,
-} from '@app/misc_events';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@app/components/timeline/playback_events';
+import {DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@app/misc_events';
 import {assertDefined} from '@common/assert';
 import {parseMap, stringifyMap} from '@common/store/persistent_store_proxy';
 import {Store} from '@common/store/store';
@@ -33,37 +24,31 @@ import {Analytics} from '@logging/analytics';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {ScreenRecordingChange, TracePositionUpdate} from '@trace/trace_events';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
+import {ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {
-  DataHierarchyTreeNode,
-  HierarchyTreeNode,
-} from '@tree_node/hierarchy_tree_node';
+import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
+import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {RectsPresenter} from '@viewers/common/rects_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UserOption, UserOptions} from '@viewers/common/user_options';
-import {
-  HierarchyPresenter,
-  HierarchyTraceEntry,
-  SelectedTree,
-} from './hierarchy_presenter';
+
+import {FlattenedTreeRow} from './flattened_tree_row';
+import {HierarchyPresenter, HierarchyTraceEntry, SelectedTree,} from './hierarchy_presenter';
+import {PlaybackPresenter} from './playback/playback_presenter';
+import {PlaybackState} from './playback/playback_state';
 import {PresetHierarchy, TextFilterValues} from './preset_hierarchy';
 import {RectShowState} from './rect_show_state';
 import {UiDataHierarchy} from './ui_data_hierarchy';
-import {ViewerEvents} from './viewer_events';
-import {PlaybackPresenter} from './playback/playback_presenter';
-import {PlaybackState} from './playback/playback_state';
-import {flattenNodesToRows} from './ui_tree_node_helpers';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {FlattenedTreeRow} from './flattened_tree_row';
+import {flattenNodesToRows} from './ui_tree_node_helpers';
+import {ViewerEvents} from './viewer_events';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 

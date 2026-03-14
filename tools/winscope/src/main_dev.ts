@@ -16,7 +16,6 @@
 
 // organize-imports-ignore
 import '@angular/compiler';
-import '@app/global_init';
 import {globalConfig} from '@common/global_config';
 globalConfig.set({mode: 'DEV'});
 
@@ -26,7 +25,6 @@ import {bootstrapApplication} from '@angular/platform-browser';
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {AppComponent} from '@app/components/app_component';
 import {GlobalErrorHandler} from '@app/global_error_handler';
-
 import {getLogger} from '@compat/logging';
 
 bootstrapApplication(AppComponent, {

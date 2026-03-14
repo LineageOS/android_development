@@ -15,11 +15,8 @@
  */
 
 import {Timestamp} from '@common/time/time';
-import {
-  AbsoluteEntryIndex,
-  FramesRange,
-  RelativeEntryIndex,
-} from './index_types';
+
+import {AbsoluteEntryIndex, FramesRange, RelativeEntryIndex,} from './index_types';
 
 /**
  * Enum representing the different types of custom queries available.

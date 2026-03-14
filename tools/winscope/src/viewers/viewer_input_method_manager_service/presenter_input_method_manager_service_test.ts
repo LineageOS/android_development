@@ -20,6 +20,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {AbstractPresenterInputMethodTest} from '@viewers/common/abstract_presenter_input_method_test';
+
 import {PresenterInputMethodManagerService} from './presenter_input_method_manager_service';
 
 class PresenterInputMethodManagerServiceTest extends AbstractPresenterInputMethodTest {

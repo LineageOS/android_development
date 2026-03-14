@@ -24,46 +24,36 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-  MatDrawer,
-  MatDrawerContainer,
-  MatDrawerContent,
-} from '@app/components/bottomnav/bottom_drawer_component';
+import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from '@app/components/bottomnav/bottom_drawer_component';
+import {BookmarksChanged} from '@app/misc_events';
 import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
+import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {Store} from '@common/store/store';
+import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {BookmarksChanged} from '@app/misc_events';
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {
-  ActiveTraceChanged,
-  InitializeTraceSearchRequest,
-  TraceAddRequest,
-  TracePositionUpdate,
-  TraceRemoveRequest,
-  TraceSearchCompleted,
-  TraceSearchInitialized,
-  TraceSearchRequest,
-} from '@trace/trace_events';
-import {
-  PlaybackSpeedChange,
-  PlaybackStateChangeHandled,
-  PlaybackStateChangeRequest,
-} from './playback_events';
-import {ExpandedTimelineToggled} from './timeline_events';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {Trace, TraceEntry} from '@trace_api/trace';
+import {ActiveTraceChanged, InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
+import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+import {Thumbnail} from '@trace/media_based/thumbnail';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
+
 import {CanvasDrawer} from './expanded-timeline/canvas_drawer';
 import {DefaultTimelineRowComponent} from './expanded-timeline/default_timeline_row_component';
 import {ExpandedTimelineComponent} from './expanded-timeline/expanded_timeline_component';
@@ -71,20 +61,10 @@ import {TransitionTimelineComponent} from './expanded-timeline/transition_timeli
 import {MiniTimelineDrawerImpl} from './mini-timeline/drawer/mini_timeline_drawer_impl';
 import {MiniTimelineComponent} from './mini-timeline/mini_timeline_component';
 import {SliderComponent} from './mini-timeline/slider_component';
-import {TimelineComponent} from './timeline_component';
-import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {PlaybackControlsComponent} from './playback_component';
-import {
-  CanvasEntry,
-  MediaBasedTraceEntry,
-  VideoEntry,
-} from '@trace/media_based/media_based_trace_entry';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {Thumbnail} from '@trace/media_based/thumbnail';
-import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
-import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {Store} from '@common/store/store';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from './playback_events';
+import {TimelineComponent} from './timeline_component';
+import {ExpandedTimelineToggled} from './timeline_events';
 
 describe('TimelineComponent', () => {
   const converter = makeConverterZeroRteOffsets();

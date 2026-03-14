@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 import {browser, by, element, ElementFinder} from 'protractor';
-import {
-  changeRealTimestampInWinscope,
-  checkFinalNsTimestamp,
-  checkInitialRealTimestamp,
-  checkItemInPropertiesTreeByIndex,
-  checkSelectFilter,
-  checkWinscopeRealTimestamp,
-  loadTraceAndCheckViewer,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {changeRealTimestampInWinscope, checkFinalNsTimestamp, checkInitialRealTimestamp, checkItemInPropertiesTreeByIndex, checkItemInPropertiesTreeByName, checkSelectFilter, checkWinscopeRealTimestamp, loadTraceAndCheckViewer, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Transitions', () => {
   const viewerSelector = 'viewer-transitions';
@@ -84,8 +75,16 @@ describe('Viewer Transitions', () => {
       'TRANSIT_FLAG_IS_RECENTS',
       'PLAYED\ncheck',
     ]);
-    await checkProperty(4, 'finishTransactionId:\n5811090758257');
-    await checkProperty(12, 'flags:\nFLAG_MOVED_TO_TOP | FLAG_SHOW_WALLPAPER');
+    await checkItemInPropertiesTreeByName(
+      viewerSelector,
+      'finishTransactionId',
+      'finishTransactionId:\n5811090758257',
+    );
+    await checkItemInPropertiesTreeByIndex(
+      viewerSelector,
+      3,
+      'flags:\nFLAG_MOVED_TO_TOP | FLAG_SHOW_WALLPAPER',
+    );
   }
 
   async function checkSelectedEntry() {
@@ -105,8 +104,16 @@ describe('Viewer Transitions', () => {
       '0x0',
       'MERGED\nmerge',
     ]);
-    await checkProperty(8, 'startTransactionId:\n5811090759955');
-    await checkProperty(14, 'windowId:\n0x5ba3da0');
+    await checkItemInPropertiesTreeByName(
+      viewerSelector,
+      'startTransactionId',
+      'startTransactionId:\n5811090759955',
+    );
+    await checkItemInPropertiesTreeByIndex(
+      viewerSelector,
+      6,
+      'windowId:\n0x5ba3da0',
+    );
   }
 
   async function checkEntryColumns(entry: ElementFinder, columns: string[]) {
@@ -140,14 +147,6 @@ describe('Viewer Transitions', () => {
     expect(await status.getText()).toBe(columns[8]);
   }
 
-  async function checkProperty(index: number, prop: string) {
-    await checkItemInPropertiesTreeByIndex(
-      `${viewerSelector} .properties-view`,
-      index,
-      prop,
-    );
-  }
-
   async function checkFilter(
     filter: string,
     options: string[],
@@ -159,7 +158,6 @@ describe('Viewer Transitions', () => {
       options,
       expected,
       totalEntries,
-      false,
     );
   }
 });

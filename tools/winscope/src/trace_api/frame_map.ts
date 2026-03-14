@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  AbsoluteEntryIndex,
-  AbsoluteFrameIndex,
-  EntriesRange,
-  FramesRange,
-} from './index_types';
+import {AbsoluteEntryIndex, AbsoluteFrameIndex, EntriesRange, FramesRange,} from './index_types';
 
 /**
  * Provides efficient (O(1)) conversions between ranges of trace entries and

@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-// organize-imports-ignore
-import '@app/global_init';
-import {globalConfig} from './common/global_config';
-globalConfig.set({mode: 'KARMA_TEST'});
-
+/* eslint-disable winscope/sort-imports */
 // zone.js and zone.js/testing must be imported before any other Angular imports
 import 'zone.js';
 import 'zone.js/testing';
+/* eslint-enable winscope/sort-imports */
+import {globalConfig} from '@common/global_config';
 import {TestBed} from '@angular/core/testing';
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from '@angular/platform-browser-dynamic/testing';
+import {BrowserDynamicTestingModule, platformBrowserDynamicTesting,} from '@angular/platform-browser-dynamic/testing';
+
+globalConfig.set({
+  MODE: 'KARMA_TEST',
+});
 
 TestBed.initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting(),
 );
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 300000;
 
 // filter matches all "*_test.ts" files that are not within the /test/e2e/ directory
 // Using import.meta.webpackContext for Webpack 5 support

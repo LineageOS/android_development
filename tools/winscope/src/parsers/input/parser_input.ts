@@ -17,17 +17,12 @@
 import {assertDefined, assertTrue} from '@common/assert';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {Timestamp} from '@common/time/time';
-import {TraceFile} from '@trace/trace_file';
 import {CoarseVersion} from '@trace_api/coarse_version';
-import {
-  CustomQueryParserResultTypeMap,
-  CustomQueryType,
-  VisitableParserCustomQuery,
-} from '@trace_api/custom_query';
-
+import {CustomQueryParserResultTypeMap, CustomQueryType, VisitableParserCustomQuery,} from '@trace_api/custom_query';
 import {FileReader} from '@trace_api/file_reader';
 import {EntriesRange} from '@trace_api/index_types';
 import {Parser} from '@trace_api/parser';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults} from '@trace_processor/query_result';
 import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';

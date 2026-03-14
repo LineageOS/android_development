@@ -26,10 +26,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FilterFlag} from '@common/filter_flag';
 import {PersistentStore} from '@common/store/persistent_store';
-import {
-  makeWarningMissingLayerIds,
-  makeWarningDuplicateLayerIds,
-} from '@parsers/helpers/warnings';
+import {makeWarningDuplicateLayerIds, makeWarningMissingLayerIds,} from '@parsers/helpers/warnings';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TRACE_INFO} from '@trace_api/trace_info';
@@ -40,15 +37,13 @@ import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {HierarchyTreeNodeDataViewComponent} from '@viewers/components/hierarchy_tree_node_data_view_component';
 import {TreeNodeComponent} from '@viewers/components/tree_node_component';
+
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {HierarchyComponent} from './hierarchy_component';
 import {SearchBoxComponent} from './search_box_component';
-import {UserOptionsComponent} from './user_options_component';
 import {TreeComponent} from './tree_component';
-import {
-  VirtualRow,
-  VirtualScrollViewportComponent,
-} from './virtual_scroll_viewport_component';
+import {UserOptionsComponent} from './user_options_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 describe('HierarchyComponent', () => {
   let component: HierarchyComponent;

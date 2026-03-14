@@ -14,28 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  animate,
-  AnimationTriggerMetadata,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import {animate, AnimationTriggerMetadata, state, style, transition, trigger,} from '@angular/animations';
 import {CommonModule} from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ContentChild,
-  ElementRef,
-  forwardRef,
-  Inject,
-  Injectable,
-  input,
-  NgZone,
-  ViewEncapsulation,
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, ElementRef, forwardRef, Inject, Injectable, input, NgZone, ViewEncapsulation,} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {Subject} from 'rxjs';
 import {debounceTime, takeUntil} from 'rxjs/operators';

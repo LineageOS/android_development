@@ -15,18 +15,8 @@
  */
 
 import {browser, by, element} from 'protractor';
-import {
-  changeRealTimestampInWinscope,
-  checkFinalRealTimestamp,
-  checkInitialRealTimestamp,
-  checkTimelineTraceSelector,
-  checkWinscopeRealTimestamp,
-  filterHierarchy,
-  loadTraceAndCheckViewer,
-  selectItemInHierarchy,
-  setTimeouts,
-  WINSCOPE_URL,
-} from './helpers';
+
+import {applyStateToHierarchyOptions, changeRealTimestampInWinscope, checkFinalRealTimestamp, checkInitialRealTimestamp, checkTimelineTraceSelector, checkWinscopeRealTimestamp, filterHierarchy, loadTraceAndCheckViewer, selectItemInHierarchy, setTimeouts, WINSCOPE_URL,} from './helpers';
 
 describe('Viewer Surface Flinger', () => {
   const viewerSelector = 'viewer-surface-flinger';
@@ -47,6 +37,7 @@ describe('Viewer Surface Flinger', () => {
 
     await changeRealTimestampInWinscope('2022-11-21, 18:05:11.314');
     await checkWinscopeRealTimestamp('18:05:11.314');
+    await applyStateToHierarchyOptions(viewerSelector, true, ['Flat']);
     await filterHierarchy(viewerSelector, 'ConversationListActivity#632');
     await selectItemInHierarchy(
       viewerSelector,

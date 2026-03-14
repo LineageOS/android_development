@@ -20,24 +20,19 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {
-  ChildHierarchy,
-  HierarchyTreeBuilder,
-} from '@test/unit/tree_node/hierarchy_tree_builder';
+import {ChildHierarchy, HierarchyTreeBuilder,} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
-import {TreeNodeComponent} from './tree_node_component';
 import {TreeComponent} from './tree_component';
-import {
-  VirtualRow,
-  VirtualScrollViewportComponent,
-} from './virtual_scroll_viewport_component';
+import {TreeNodeComponent} from './tree_node_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 describe('TreeComponent', () => {
   let component: TreeComponent<UiTreeNode>;

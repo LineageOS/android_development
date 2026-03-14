@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Karma Tests",
+      "sourceMaps": true,
+      "webRoot": "${workspaceRoot}",
+      "url": "http://localhost:9876/debug.html",
+      "pathMapping": {
+        "/": "${workspaceRoot}",
+        "/base/": "${workspaceRoot}/"
+      },
+    }
+  ]
+}

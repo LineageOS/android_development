@@ -16,22 +16,14 @@
 
 import {assertDefined} from '@common/assert';
 import {utf8Encode} from '@common/string_helpers';
+import {makeConverterNoRteOffsets, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
-import Long from 'long';
-import {InternedString, TracePacket} from '@compat/perfetto';
-import {
-  makeConverterNoRteOffsets,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {TraceType} from '@trace_api/trace_type';
-import {IProtoLogViewerConfig} from '@compat/winscope_protos';
-import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
-import {
-  convertToPerfettoTrace,
-  LegacyFileReaderProvider,
-} from '@test/unit/fixture_utils';
+import {PerfettoInternedString, PerfettoProtoLogViewerConfig, PerfettoTracePacket,} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/fixture_utils';
+import {TraceType} from '@trace_api/trace_type';
+
+import {CONFIG_32, CONFIG_64} from './legacy_to_perfetto_configs';
 
 interface ExpectedInternedData {
   packetIndex: number;
@@ -41,11 +33,11 @@ interface ExpectedInternedData {
 
 interface ExpectedMessagePacket {
   packetIndex: number;
-  sequenceFlags: TracePacket.SequenceFlags;
-  timestamp: Long;
-  messageId: Long;
+  sequenceFlags: number;
+  timestamp: string;
+  messageId: string;
   strParamIids: number[];
-  sint64Params: Long[];
+  sint64Params: string[];
   doubleParams: number[];
   booleanParams: number[];
 }
@@ -62,7 +54,7 @@ abstract class ParserProtologTest {
   abstract readonly traceFile: string;
   abstract readonly timestampCount: number;
   abstract readonly first3ExpectedRealTimestamps: Timestamp[];
-  abstract readonly expectedConfig: IProtoLogViewerConfig;
+  abstract readonly expectedConfig: PerfettoProtoLogViewerConfig;
   abstract readonly internedData1: ExpectedInternedData;
   abstract readonly internedData2: ExpectedInternedData;
   abstract readonly messagePacketWithInternedStrings: ExpectedMessagePacket;
@@ -72,7 +64,7 @@ abstract class ParserProtologTest {
   execute() {
     describe('FileReaderProtologTest', () => {
       const [sequenceId, trustedUid, trustedPid] = [10, 3, 5];
-      let reader: LegacyFileReader;
+      let reader!: LegacyFileReader;
 
       beforeAll(async () => {
         jasmine.addCustomEqualityTester(timestampEqualityTester);
@@ -105,32 +97,34 @@ abstract class ParserProtologTest {
           trustedPid,
         );
         expect(
-          packets.filter((packet) => packet.protologMessage).length,
+          packets.filter((packet) => packet.getProtologMessage()).length,
         ).toEqual(this.timestampCount);
 
         const firstPacket = packets[0];
-        expect(firstPacket.trustedPacketSequenceId).toEqual(sequenceId);
-        expect(firstPacket.sequenceFlags).toEqual(
-          TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED,
+        expect(firstPacket.getTrustedPacketSequenceId()).toEqual(sequenceId);
+        expect(firstPacket.getSequenceFlags()).toEqual(
+          PerfettoTracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED,
         );
-        expect(firstPacket.trustedUid).toEqual(trustedUid);
-        expect(firstPacket.trustedPid).toEqual(trustedPid);
-        expect(firstPacket.internedData).toBeNull();
-        expect(firstPacket.protologViewerConfig).toBeNull();
-        expect(firstPacket.protologMessage).toBeNull();
+        expect(firstPacket.getTrustedUid()).toEqual(trustedUid);
+        expect(firstPacket.getTrustedPid()).toEqual(trustedPid);
+        expect(firstPacket.hasInternedData()).toBeFalse();
+        expect(firstPacket.hasProtologViewerConfig()).toBeFalse();
+        expect(firstPacket.hasProtologMessage()).toBeFalse();
 
         const viewerConfigPacket = packets[1];
-        expect(viewerConfigPacket.trustedPacketSequenceId).toEqual(sequenceId);
-        expect(viewerConfigPacket.sequenceFlags).toEqual(
-          TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+        expect(viewerConfigPacket.getTrustedPacketSequenceId()).toEqual(
+          sequenceId,
         );
-        expect(viewerConfigPacket.protologViewerConfig).toEqual(
+        expect(viewerConfigPacket.getSequenceFlags()).toEqual(
+          PerfettoTracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+        );
+        expect(viewerConfigPacket.getProtologViewerConfig()).toEqual(
           this.expectedConfig,
         );
-        expect(viewerConfigPacket.trustedUid).toEqual(trustedUid);
-        expect(viewerConfigPacket.trustedPid).toBe(0);
-        expect(viewerConfigPacket.internedData).toBeNull();
-        expect(viewerConfigPacket.protologMessage).toBeNull();
+        expect(viewerConfigPacket.getTrustedUid()).toEqual(trustedUid);
+        expect(viewerConfigPacket.getTrustedPid()).toBe(0);
+        expect(viewerConfigPacket.hasInternedData()).toBeFalse();
+        expect(viewerConfigPacket.hasProtologMessage()).toBeFalse();
 
         checkInternedDataPacket(packets, this.internedData1);
         checkInternedDataPacket(packets, this.internedData2);
@@ -174,55 +168,52 @@ abstract class ParserProtologTest {
       });
 
       function checkMessagePacket(
-        packets: TracePacket[],
+        packets: PerfettoTracePacket[],
         expectedMsg: ExpectedMessagePacket,
       ) {
         const packet = packets[expectedMsg.packetIndex];
-        expect(packet.trustedPacketSequenceId).toEqual(sequenceId);
-        expect(packet.sequenceFlags).toEqual(expectedMsg.sequenceFlags);
-        expect(packet.trustedUid).toEqual(trustedUid);
-        expect(packet.trustedPid).toEqual(trustedPid);
-        const ts1 = expectedMsg.timestamp;
-        ts1.unsigned = true;
-        expect(packet.timestamp).toEqual(ts1);
-        expect(packet.protologMessage?.messageId).toEqual(
+        expect(packet.getTrustedPacketSequenceId()).toEqual(sequenceId);
+        expect(packet.getSequenceFlags()).toEqual(expectedMsg.sequenceFlags);
+        expect(packet.getTrustedUid()).toEqual(trustedUid);
+        expect(packet.getTrustedPid()).toEqual(trustedPid);
+        expect(packet.getTimestamp()).toEqual(expectedMsg.timestamp);
+        expect(packet.getProtologMessage()?.getMessageId()).toEqual(
           expectedMsg.messageId,
         );
-        expect(packet.protologMessage?.strParamIids).toEqual(
+        expect(packet.getProtologMessage()?.getStrParamIidsList()).toEqual(
           expectedMsg.strParamIids,
         );
-        expect(packet.protologMessage?.booleanParams).toEqual(
+        expect(packet.getProtologMessage()?.getBooleanParamsList()).toEqual(
           expectedMsg.booleanParams,
         );
-        expect(packet.protologMessage?.doubleParams).toEqual(
+        expect(packet.getProtologMessage()?.getDoubleParamsList()).toEqual(
           expectedMsg.doubleParams,
         );
-        expect(packet.protologMessage?.sint64Params).toEqual(
+        expect(packet.getProtologMessage()?.getSint64ParamsList()).toEqual(
           expectedMsg.sint64Params,
         );
-        expect(packet.protologViewerConfig).toBeNull();
-        expect(packet.internedData).toBeNull();
+        expect(packet.hasProtologViewerConfig()).toBeFalse();
+        expect(packet.hasInternedData()).toBeFalse();
       }
 
       function checkInternedDataPacket(
-        packets: TracePacket[],
+        packets: PerfettoTracePacket[],
         expectedData: ExpectedInternedData,
       ) {
         const packet = packets[expectedData.packetIndex];
-        expect(packet.trustedPacketSequenceId).toEqual(sequenceId);
-        expect(packet.sequenceFlags).toEqual(
-          TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
-        );
-        expect(packet.trustedUid).toEqual(trustedUid);
-        expect(packet.trustedPid).toEqual(trustedPid);
-        expect(packet.internedData?.protologStringArgs).toEqual([
-          InternedString.fromObject({
-            iid: Long.fromNumber(expectedData.iid),
-            str: utf8Encode(expectedData.str),
-          }),
+        expect(packet.getTrustedPacketSequenceId()).toEqual(sequenceId);
+        expect(packet.getSequenceFlags()).toEqual(0);
+        expect(packet.getTrustedUid()).toEqual(trustedUid);
+        expect(packet.getTrustedPid()).toEqual(trustedPid);
+        const internedString = new PerfettoInternedString();
+        internedString.setIid(expectedData.iid);
+        internedString.setStr(utf8Encode(expectedData.str));
+
+        expect(packet.getInternedData()?.getProtologStringArgsList()).toEqual([
+          internedString,
         ]);
-        expect(packet.protologViewerConfig).toBeNull();
-        expect(packet.protologMessage).toBeNull();
+        expect(packet.hasProtologViewerConfig()).toBeFalse();
+        expect(packet.hasProtologMessage()).toBeFalse();
       }
     });
   }
@@ -250,9 +241,9 @@ class ParserProtolog32Test extends ParserProtologTest {
   };
   override readonly messagePacketNoInternedStrings: ExpectedMessagePacket = {
     packetIndex: 50,
-    sequenceFlags: TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
-    timestamp: Long.fromNumber(850755642097),
-    messageId: Long.fromNumber(1984782949),
+    sequenceFlags: PerfettoTracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+    timestamp: '850755642097',
+    messageId: '1984782949',
     strParamIids: [],
     sint64Params: [],
     booleanParams: [],
@@ -260,9 +251,10 @@ class ParserProtolog32Test extends ParserProtologTest {
   };
   override readonly messagePacketWithInternedStrings: ExpectedMessagePacket = {
     packetIndex: 4,
-    sequenceFlags: TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
-    timestamp: Long.fromNumber(850746266486),
-    messageId: Long.fromNumber(2070726247),
+    sequenceFlags:
+      PerfettoTracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+    timestamp: '850746266486',
+    messageId: '2070726247',
     strParamIids: [1, 2, 2],
     sint64Params: [],
     booleanParams: [],
@@ -300,9 +292,9 @@ class ParserProtolog64Test extends ParserProtologTest {
   };
   override readonly messagePacketNoInternedStrings: ExpectedMessagePacket = {
     packetIndex: 2,
-    sequenceFlags: TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
-    timestamp: Long.fromNumber(1315553529939),
-    messageId: Long.fromString('1665699123574159131'),
+    sequenceFlags: PerfettoTracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+    timestamp: '1315553529939',
+    messageId: '1665699123574159131',
     strParamIids: [],
     sint64Params: [],
     booleanParams: [0],
@@ -310,9 +302,10 @@ class ParserProtolog64Test extends ParserProtologTest {
   };
   override readonly messagePacketWithInternedStrings: ExpectedMessagePacket = {
     packetIndex: 9,
-    sequenceFlags: TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
-    timestamp: Long.fromNumber(1315574594310),
-    messageId: Long.fromString('-6873410057142191118'),
+    sequenceFlags:
+      PerfettoTracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+    timestamp: '1315574594310',
+    messageId: '11573334016567360498',
     strParamIids: [1, 2, 3, 4],
     sint64Params: [],
     booleanParams: [],
@@ -349,19 +342,20 @@ class ParserProtologMissingConfigTest extends ParserProtologTest {
   };
   override readonly messagePacketNoInternedStrings: ExpectedMessagePacket = {
     packetIndex: 92,
-    sequenceFlags: TracePacket.SequenceFlags.SEQ_UNSPECIFIED,
-    timestamp: Long.fromNumber(24398203599667),
-    messageId: Long.fromString('1381227466'),
+    sequenceFlags: PerfettoTracePacket.SequenceFlags.SEQ_UNSPECIFIED,
+    timestamp: '24398203599667',
+    messageId: '1381227466',
     strParamIids: [],
-    sint64Params: [Long.fromNumber(2), Long.fromNumber(0)],
+    sint64Params: ['2', '0'],
     booleanParams: [],
     doubleParams: [],
   };
   override readonly messagePacketWithInternedStrings: ExpectedMessagePacket = {
     packetIndex: 3,
-    sequenceFlags: TracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
-    timestamp: Long.fromNumber(24398190144978),
-    messageId: Long.fromNumber(585096182),
+    sequenceFlags:
+      PerfettoTracePacket.SequenceFlags.SEQ_NEEDS_INCREMENTAL_STATE,
+    timestamp: '24398190144978',
+    messageId: '585096182',
     strParamIids: [1],
     sint64Params: [],
     booleanParams: [1],

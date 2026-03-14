@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  parseIntFromBuffer,
-  parseLongFromBuffer,
-  ParserResult,
-  ScreenRecordingParser,
-} from './helpers';
+import {parseIntFromBuffer, parseLongFromBuffer, ParserResult, ScreenRecordingParser,} from './helpers';
 
 //  Metadata v2 is written as a binary array with the following format:
 //  - Winscope magic string

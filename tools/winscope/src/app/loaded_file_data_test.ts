@@ -15,37 +15,34 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {DOWNLOAD_FILENAME_REGEX, unzipFile} from '@common/io';
-import {UserWarning} from '@messaging/user_warning';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {
-  ASIA_TIMEZONE_INFO,
-  makeRealTimestamp,
-  timestampEqualityTester,
-} from '@common/time/test_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {TraceFile} from '@trace/trace_file';
-import {TraceType} from '@trace_api/trace_type';
-import {FilesSource} from './files_source';
-import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
-import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';
-import {FileReader} from '@trace_api/file_reader';
-import {Parser} from '@trace_api/parser';
-import {AbstractParser} from '@parsers/perfetto/abstract_parser';
-import {LoadedFileData} from './loaded_file_data';
-import {FileLoader, FileLoaderResult} from './file_loader';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
-import {FileReaderAndParser} from './file_reader_and_parser';
-import {TestFileReaderAndParserBuilder} from '@test/unit/test_file_reader_and_parser_builder';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {Rect} from '@common/geometry/rect';
-import {FrameMapper} from '@trace_api/frame_mapper';
-import {makeWarningIncompleteFrameMapping} from './warnings';
+import {DOWNLOAD_FILENAME_REGEX, unzipFile} from '@common/io';
+import {ASIA_TIMEZONE_INFO, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {TimezoneInfo} from '@common/time/time';
-import {TraceProcessorProxy} from '@trace_processor/trace_processor';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {UserWarning} from '@messaging/user_warning';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {TestFileReaderAndParserBuilder} from '@test/unit/test_file_reader_and_parser_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {FileReader} from '@trace_api/file_reader';
+import {FrameMapper} from '@trace_api/frame_mapper';
+import {Parser} from '@trace_api/parser';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 import {makeSpyQueryResult} from '@trace_processor/test_utils';
+import {TraceProcessorProxy} from '@trace_processor/trace_processor';
+
+import {FileLoader, FileLoaderResult} from './file_loader';
+import {FileReaderAndParser} from './file_reader_and_parser';
+import {FilesSource} from './files_source';
+import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';
+import {LoadedFileData} from './loaded_file_data';
 import {ParsingErrorType} from './parsing_error_type';
+import {makeWarningIncompleteFrameMapping} from './warnings';
 
 describe('LoadedFileData', () => {
   const emptyTraceGeometryData = new TraceGeometryData();

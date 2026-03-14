@@ -16,15 +16,13 @@
 
 import {assertDefined, assertTrue} from '@common/assert';
 import {getMax} from '@common/bigint_math';
-import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import Long from 'long';
-import {TracePacket, ClockSnapshot} from '@compat/perfetto';
-import {TraceType} from '@trace_api/trace_type';
-import {IShellTransition as PerfettoTransition} from '@compat/winscope_protos';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {Timestamp} from '@common/time/time';
-import {TraceFile} from '@trace/trace_file';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
+import {Timestamp} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {PerfettoClockSnapshot, PerfettoShellTransition, PerfettoTracePacket,} from '@compat/protobuf';
+import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {TraceFile} from '@trace_api/trace_file';
+import {TraceType} from '@trace_api/trace_type';
 
 /**
  * A parser that processes and merges WM and Shell transition traces.
@@ -34,9 +32,9 @@ export class FileReaderTransitions implements LegacyFileReader {
   private readonly parserWm: LegacyFileReader;
   private readonly descriptors: string[];
   private readonly timestampConverter: ParserTimestampConverter;
-  private decodedEntries: PerfettoTransition[] | undefined;
+  private decodedEntries: PerfettoShellTransition[] | undefined;
   private realToBootTimeOffsetNs: bigint | undefined;
-  private handlerMappingPacket: TracePacket | undefined;
+  private handlerMappingPacket: PerfettoTracePacket | undefined;
   private timestamps: Timestamp[] | undefined;
 
   constructor(
@@ -69,11 +67,11 @@ export class FileReaderTransitions implements LegacyFileReader {
     this.handlerMappingPacket = shellPackets[0];
     const shellTransitions = shellPackets
       .slice(1)
-      .map((packet) => assertDefined(packet.shellTransition));
+      .map((packet) => assertDefined(packet.getShellTransition()));
 
     const wmTransitions = this.parserWm
       .convertToPerfettoPackets(0)
-      .map((packet) => assertDefined(packet.shellTransition));
+      .map((packet) => assertDefined(packet.getShellTransition()));
 
     this.decodedEntries = this.compressEntries(
       wmTransitions.concat(shellTransitions),
@@ -123,20 +121,110 @@ export class FileReaderTransitions implements LegacyFileReader {
     return this.realToBootTimeOffsetNs;
   }
 
-  convertToPerfettoPackets(sequenceId: number): TracePacket[] {
+  convertToPerfettoPackets(sequenceId: number): PerfettoTracePacket[] {
     const packets = [];
 
     const handlerMappingPacket = assertDefined(this.handlerMappingPacket);
-    handlerMappingPacket.trustedPacketSequenceId = sequenceId;
+    handlerMappingPacket.setTrustedPacketSequenceId(sequenceId);
     packets.push(handlerMappingPacket);
 
     for (const entry of assertDefined(this.decodedEntries)) {
-      const packet = new TracePacket();
-      packet.trustedPacketSequenceId = sequenceId;
+      const packet = new PerfettoTracePacket();
+      packet.setTrustedPacketSequenceId(sequenceId);
       const ns = this.getTimestampNsFromTransitionProperties(entry) ?? 0n;
-      packet.timestamp = Long.fromString(ns.toString());
-      packet.timestampClockId = ClockSnapshot.Clock.BuiltinClocks.BOOTTIME;
-      packet.shellTransition = entry;
+      packet.setTimestamp(ns.toString());
+      packet.setTimestampClockId(
+        PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
+      );
+      const shellTransition = new PerfettoShellTransition();
+      if (entry.hasId()) shellTransition.setId(assertDefined(entry.getId()));
+      if (entry.hasCreateTimeNs()) {
+        shellTransition.setCreateTimeNs(assertDefined(entry.getCreateTimeNs()));
+      }
+      if (entry.hasSendTimeNs()) {
+        shellTransition.setSendTimeNs(assertDefined(entry.getSendTimeNs()));
+      }
+      if (entry.hasWmAbortTimeNs()) {
+        shellTransition.setWmAbortTimeNs(
+          assertDefined(entry.getWmAbortTimeNs()),
+        );
+      }
+      if (entry.hasFinishTimeNs()) {
+        shellTransition.setFinishTimeNs(assertDefined(entry.getFinishTimeNs()));
+      }
+      if (entry.hasStartTransactionId()) {
+        shellTransition.setStartTransactionId(
+          assertDefined(entry.getStartTransactionId()),
+        );
+      }
+      if (entry.hasFinishTransactionId()) {
+        shellTransition.setFinishTransactionId(
+          assertDefined(entry.getFinishTransactionId()),
+        );
+      }
+      if (entry.hasType()) {
+        shellTransition.setType(assertDefined(entry.getType()));
+      }
+      if (entry.getChangesList().length > 0) {
+        shellTransition.setChangesList(
+          entry
+            .getChangesList()
+            .map((change: PerfettoShellTransition.Change) => {
+              const t = new PerfettoShellTransition.Change();
+              if (change.hasMode()) t.setMode(assertDefined(change.getMode()));
+              if (change.hasLayerId()) {
+                t.setLayerId(assertDefined(change.getLayerId()));
+              }
+              if (change.hasWindowId()) {
+                t.setWindowId(assertDefined(change.getWindowId()));
+              }
+              if (change.hasFlags()) {
+                t.setFlags(assertDefined(change.getFlags()));
+              }
+              return t;
+            }),
+        );
+      }
+      if (entry.hasFlags()) {
+        shellTransition.setFlags(assertDefined(entry.getFlags()));
+      }
+      if (
+        entry.hasStartingWindowRemoveTimeNs() &&
+        entry.getStartingWindowRemoveTimeNs() !== '0'
+      ) {
+        shellTransition.setStartingWindowRemoveTimeNs(
+          assertDefined(entry.getStartingWindowRemoveTimeNs()),
+        );
+      }
+      if (entry.hasDispatchTimeNs() && entry.getDispatchTimeNs() !== '0') {
+        shellTransition.setDispatchTimeNs(
+          assertDefined(entry.getDispatchTimeNs()),
+        );
+      }
+      if (entry.hasMergeTimeNs() && entry.getMergeTimeNs() !== '0') {
+        shellTransition.setMergeTimeNs(assertDefined(entry.getMergeTimeNs()));
+      }
+      if (
+        entry.hasMergeRequestTimeNs() &&
+        entry.getMergeRequestTimeNs() !== '0'
+      ) {
+        shellTransition.setMergeRequestTimeNs(
+          assertDefined(entry.getMergeRequestTimeNs()),
+        );
+      }
+      if (entry.hasShellAbortTimeNs() && entry.getShellAbortTimeNs() !== '0') {
+        shellTransition.setShellAbortTimeNs(
+          assertDefined(entry.getShellAbortTimeNs()),
+        );
+      }
+      if (entry.hasHandler()) {
+        shellTransition.setHandler(assertDefined(entry.getHandler()));
+      }
+      if (entry.hasMergeTarget()) {
+        shellTransition.setMergeTarget(assertDefined(entry.getMergeTarget()));
+      }
+
+      packet.setShellTransition(shellTransition);
       packets.push(packet);
     }
 
@@ -144,11 +232,11 @@ export class FileReaderTransitions implements LegacyFileReader {
   }
 
   private compressEntries(
-    transitions: PerfettoTransition[],
-  ): PerfettoTransition[] {
-    const idToTransition = new Map<number, PerfettoTransition>();
+    transitions: PerfettoShellTransition[],
+  ): PerfettoShellTransition[] {
+    const idToTransition = new Map<number, PerfettoShellTransition>();
     for (const transition of transitions) {
-      const id = assertDefined(transition.id);
+      const id = assertDefined(transition.getId());
       const accumulatedTransition = idToTransition.get(id);
       if (!accumulatedTransition) {
         idToTransition.set(id, transition);
@@ -165,8 +253,8 @@ export class FileReaderTransitions implements LegacyFileReader {
   }
 
   private compareByTimestamp(
-    a: PerfettoTransition,
-    b: PerfettoTransition,
+    a: PerfettoShellTransition,
+    b: PerfettoShellTransition,
   ): number {
     const aNs = this.getTimestampNsFromTransitionProperties(a) ?? 0n;
     const bNs = this.getTimestampNsFromTransitionProperties(b) ?? 0n;
@@ -174,33 +262,138 @@ export class FileReaderTransitions implements LegacyFileReader {
       return aNs < bNs ? -1 : 1;
     }
     // fallback to id
-    assertTrue(a.id !== b.id);
-    return assertDefined(a.id) < assertDefined(b.id) ? -1 : 1;
+    assertTrue(a.getId() !== b.getId());
+    return assertDefined(a.getId()) < assertDefined(b.getId()) ? -1 : 1;
   }
 
   private getTimestampNsFromTransitionProperties(
-    transition: PerfettoTransition,
+    transition: PerfettoShellTransition,
   ): bigint | undefined {
     // Entry timestamps are defined as send time - if this is null and shell
     // dispatch time is not null we fall back on shell dispatch time
-    const ns = transition.sendTimeNs ?? transition.dispatchTimeNs;
+    let ns: string | undefined;
+    if (transition.hasSendTimeNs() && transition.getSendTimeNs() !== '0') {
+      ns = transition.getSendTimeNs();
+    } else if (
+      transition.hasDispatchTimeNs() &&
+      transition.getDispatchTimeNs() !== '0'
+    ) {
+      ns = transition.getDispatchTimeNs();
+    }
+
     if (!ns) {
       return undefined;
     }
-    return BigInt(ns.toString());
+    return BigInt(ns);
   }
 
   private mergePartialTransitions(
-    transition1: PerfettoTransition,
-    transition2: PerfettoTransition,
-  ): PerfettoTransition {
-    assertTrue(transition1.id === transition2.id);
-    const mergedTransition = Object.assign({}, transition1);
-    Object.entries(transition2).forEach(([key, value]) => {
-      if (value !== undefined) {
-        Object.assign(mergedTransition, {[key]: value});
-      }
-    });
+    transition1: PerfettoShellTransition,
+    transition2: PerfettoShellTransition,
+  ): PerfettoShellTransition {
+    assertTrue(transition1.getId() === transition2.getId());
+    const mergedTransition = transition1.cloneMessage();
+
+    if (
+      transition2.hasCreateTimeNs() &&
+      transition2.getCreateTimeNs() !== '0'
+    ) {
+      mergedTransition.setCreateTimeNs(
+        assertDefined(transition2.getCreateTimeNs()),
+      );
+    }
+    if (transition2.hasSendTimeNs() && transition2.getSendTimeNs() !== '0') {
+      mergedTransition.setSendTimeNs(
+        assertDefined(transition2.getSendTimeNs()),
+      );
+    }
+    if (
+      transition2.hasDispatchTimeNs() &&
+      transition2.getDispatchTimeNs() !== '0'
+    ) {
+      mergedTransition.setDispatchTimeNs(
+        assertDefined(transition2.getDispatchTimeNs()),
+      );
+    }
+    if (transition2.hasMergeTimeNs() && transition2.getMergeTimeNs() !== '0') {
+      mergedTransition.setMergeTimeNs(
+        assertDefined(transition2.getMergeTimeNs()),
+      );
+    }
+    if (
+      transition2.hasMergeRequestTimeNs() &&
+      transition2.getMergeRequestTimeNs() !== '0'
+    ) {
+      mergedTransition.setMergeRequestTimeNs(
+        assertDefined(transition2.getMergeRequestTimeNs()),
+      );
+    }
+    if (
+      transition2.hasShellAbortTimeNs() &&
+      transition2.getShellAbortTimeNs() !== '0'
+    ) {
+      mergedTransition.setShellAbortTimeNs(
+        assertDefined(transition2.getShellAbortTimeNs()),
+      );
+    }
+    if (
+      transition2.hasWmAbortTimeNs() &&
+      transition2.getWmAbortTimeNs() !== '0'
+    ) {
+      mergedTransition.setWmAbortTimeNs(
+        assertDefined(transition2.getWmAbortTimeNs()),
+      );
+    }
+    if (
+      transition2.hasFinishTimeNs() &&
+      transition2.getFinishTimeNs() !== '0'
+    ) {
+      mergedTransition.setFinishTimeNs(
+        assertDefined(transition2.getFinishTimeNs()),
+      );
+    }
+    if (
+      transition2.hasStartTransactionId() &&
+      transition2.getStartTransactionId() !== '0'
+    ) {
+      mergedTransition.setStartTransactionId(
+        assertDefined(transition2.getStartTransactionId()),
+      );
+    }
+    if (
+      transition2.hasFinishTransactionId() &&
+      transition2.getFinishTransactionId() !== '0'
+    ) {
+      mergedTransition.setFinishTransactionId(
+        assertDefined(transition2.getFinishTransactionId()),
+      );
+    }
+    if (transition2.hasType() && transition2.getType() !== 0) {
+      mergedTransition.setType(assertDefined(transition2.getType()));
+    }
+    if (transition2.getChangesList().length > 0) {
+      mergedTransition.setChangesList(transition2.getChangesList());
+    }
+    if (transition2.hasFlags() && transition2.getFlags() !== 0) {
+      mergedTransition.setFlags(assertDefined(transition2.getFlags()));
+    }
+    if (
+      transition2.hasStartingWindowRemoveTimeNs() &&
+      transition2.getStartingWindowRemoveTimeNs() !== '0'
+    ) {
+      mergedTransition.setStartingWindowRemoveTimeNs(
+        assertDefined(transition2.getStartingWindowRemoveTimeNs()),
+      );
+    }
+    if (transition2.hasHandler() && transition2.getHandler() !== 0) {
+      mergedTransition.setHandler(assertDefined(transition2.getHandler()));
+    }
+    if (transition2.hasMergeTarget() && transition2.getMergeTarget() !== 0) {
+      mergedTransition.setMergeTarget(
+        assertDefined(transition2.getMergeTarget()),
+      );
+    }
+
     return mergedTransition;
   }
 }
