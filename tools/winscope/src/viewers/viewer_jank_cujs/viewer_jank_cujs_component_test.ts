@@ -16,7 +16,7 @@
 
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {NonPerfettoParserProvider} from '@test/unit/fixture_utils';
+import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {Parser} from '@trace_api/parser';
 import {TraceEntry} from '@trace_api/trace';

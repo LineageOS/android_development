@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import intDefMapping from '@configs/intDefMapping.json';
+import {descriptors as fakeProtoDescriptors} from '@protos/test/fake_proto/descriptors';
+import {descriptors as intdefDescriptors} from '@protos/test/intdef_translation/descriptors';
 
-/*
- * Wrapper for IntDef json file for easier interop with google3
- */
-export const INTDEF_MAPPING_JSON = intDefMapping;
+export {fakeProtoDescriptors, intdefDescriptors};

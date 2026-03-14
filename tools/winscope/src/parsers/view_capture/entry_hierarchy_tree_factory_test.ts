@@ -157,7 +157,7 @@ describe('EntryHierarchyTreeFactory', () => {
       return {...defaults, ...overrides};
     }
 
-    function makeHierarchyTrees(visibleRects = new Map()): HierarchyTreeNode[] {
+    function makeHierarchyTrees(visibleRects: RectsForTrace = new Map()): HierarchyTreeNode[] {
       return makeEntryHierarchyTrees(
         viewResult,
         visibleRects,

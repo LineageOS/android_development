@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {getPerfettoParser} from '@test/unit/fixture_utils';
+import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';

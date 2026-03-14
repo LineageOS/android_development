@@ -17,15 +17,19 @@
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {LegacyFileReaderProvider} from '@test/unit/fixture_utils';
+import {LegacyFileReaderProvider} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
+
+import {FileReaderTransitionsShell} from './file_reader_transitions_shell';
 
 describe('FileReaderTransitionsShell', () => {
   let reader: LegacyFileReader;
 
   beforeAll(async () => {
     jasmine.addCustomEqualityTester(timestampEqualityTester);
-    reader = await new LegacyFileReaderProvider()
+    reader = await new LegacyFileReaderProvider([
+      FileReaderTransitionsShell.createInstance,
+    ])
       .addFile('traces/elapsed_and_real_timestamp/shell_transition_trace.pb')
       .get();
   });
@@ -70,7 +74,7 @@ describe('FileReaderTransitionsShell', () => {
     expect(packets[1].getShellTransition()).toBeDefined();
     const transition = packets[1].getShellTransition();
     expect(transition?.getId()).toBe(6);
-    expect(transition?.getDispatchTimeNs()).toBe('57649649922341');
+    expect(transition?.getDispatchTimeNs()?.toString()).toBe('57649649922341');
     expect(transition?.getHandler()).toBe(2);
   });
 });

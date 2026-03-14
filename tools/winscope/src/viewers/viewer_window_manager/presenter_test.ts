@@ -17,7 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
-import {parseAndConvertToPerfettoTrace} from '@test/unit/fixture_utils';
+import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
+import {parseAndConvertToPerfettoTrace} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
@@ -134,6 +135,7 @@ the default for its data type.`,
   override async setUpTestEnvironment(): Promise<void> {
     const parser = await parseAndConvertToPerfettoTrace(
       'traces/elapsed_and_real_timestamp/WindowManager.pb',
+      [FileReaderWindowManager.createInstance],
     );
 
     this.trace = new TraceBuilder<HierarchyTreeNode>()

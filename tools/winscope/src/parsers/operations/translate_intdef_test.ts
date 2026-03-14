@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {descriptors} from '@protos/test/intdef_translation/descriptors';
+import {intdefDescriptors} from '@compat/test/protobuf';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors, TamperedMessageType,} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -27,7 +27,7 @@ describe('TranslateIntDef', () => {
   let rootType: TamperedMessageType;
 
   beforeAll(() => {
-    registerDescriptors(descriptors);
+    registerDescriptors(intdefDescriptors);
     rootType = assertDefined(
       PERFETTO_TRACE_PACKET_ROOT.lookupType('RootMessage'),
     );

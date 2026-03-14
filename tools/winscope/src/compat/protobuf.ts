@@ -51,6 +51,13 @@ import {ExportedData as ExportedDataUdc, WindowData as WindowDataUdc,} from '@pr
 import {FrameData as FrameDataUdc, ViewNode as ViewNodeUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {WindowManagerTraceFileProto as WindowManagerTraceFileProtoUdc, WindowManagerTraceProto as WindowManagerTraceProtoUdc,} from '@protos/protos/windowmanager/udc/windowmanagertrace_pb';
 
+export function byteStringAsUint8Array(data: string | Uint8Array): Uint8Array {
+  if (data instanceof Uint8Array) {
+    return data;
+  }
+  return new TextEncoder().encode(data);
+}
+
 export {
   PerfettoTracePacket,
   PerfettoClockSnapshot,

@@ -18,13 +18,15 @@ import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, time
 import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@test/unit/fixture_utils';
+import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@test/unit/legacy_file_readers/fixture_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 import {makeIdMatchFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {FileReaderSurfaceFlinger} from './file_reader_surface_flinger';
 
 describe('FileReaderSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
@@ -43,7 +45,9 @@ describe('FileReaderSurfaceFlinger', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      readerRealTs = await new LegacyFileReaderProvider()
+      readerRealTs = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_and_real_timestamp/SurfaceFlinger.pb')
         .get();
     });
@@ -71,7 +75,7 @@ describe('FileReaderSurfaceFlinger', () => {
           ?.getLayers()
           ?.getLayersList()?.length,
       ).toBe(83);
-      expect(packets[0].getTimestamp()).toEqual('14500282843');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('14500282843');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );
@@ -136,6 +140,7 @@ describe('FileReaderSurfaceFlinger', () => {
       it('is robust to duplicated layer ids', async () => {
         const parser = await parseAndConvertToPerfettoTrace(
           'traces/elapsed_and_real_timestamp/SurfaceFlinger_with_duplicated_ids.pb',
+          [FileReaderSurfaceFlinger.createInstance],
         );
         const entry = await parser.getEntry(0);
         expect(entry.getWarnings()).toEqual([
@@ -175,7 +180,9 @@ describe('FileReaderSurfaceFlinger', () => {
 
     beforeAll(async () => {
       jasmine.addCustomEqualityTester(timestampEqualityTester);
-      readerElapsedTs = await new LegacyFileReaderProvider()
+      readerElapsedTs = await new LegacyFileReaderProvider([
+        FileReaderSurfaceFlinger.createInstance,
+      ])
         .addFile('traces/elapsed_timestamp/SurfaceFlinger.pb')
         .get();
     });
@@ -200,7 +207,7 @@ describe('FileReaderSurfaceFlinger', () => {
           ?.getLayers()
           ?.getLayersList()?.length,
       ).toBe(94);
-      expect(packets[0].getTimestamp()).toEqual('850335483446');
+      expect(packets[0].getTimestamp()?.toString()).toEqual('850335483446');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.MONOTONIC,
       );

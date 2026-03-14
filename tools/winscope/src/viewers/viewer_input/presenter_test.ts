@@ -20,7 +20,7 @@ import {Transform} from '@common/geometry/transform';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
-import {getParserInput} from '@test/unit/fixture_utils';
+import {getParserInput} from '@test/unit/parsers/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';

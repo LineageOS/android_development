@@ -15,13 +15,13 @@
  */
 
 import {BugreportFileSelected, BugreportFileSelectionRequest,} from '@app/misc_events';
-import {ProcessedFiles} from '@app/processed_files';
 import {assertDefined} from '@common/assert';
 import {getFileDirectory, isZipFile, unzipFile} from '@common/io';
 import {utf8Decode} from '@common/string_helpers';
 import {TimezoneInfo} from '@common/time/time';
 import {getLogger, Logger} from '@compat/logging';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
 import {Analytics} from '@logging/analytics';
 import {UserWarning} from '@messaging/user_warning';
 import {WinscopeEvent} from '@messaging/winscope_event';
