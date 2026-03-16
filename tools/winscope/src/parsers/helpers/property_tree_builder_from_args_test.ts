@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
+import {assertDefined} from '@common/assert';
 import {convertSnakeToCamelCase} from '@common/string_helpers';
-import {fakeProtoDescriptors} from '@compat/test/protobuf';
+import {getFakeProtoDescriptors} from '@compat/test/protobuf';
 import {ChildProperty, PropertyTreeBuilder,} from '@test/unit/tree_node/property_tree_builder';
 import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
-import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors,} from '@trace/proto_utils/tampered_message_type';
+import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyValue} from '@tree_node/property_tree_node';
 
 import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
 
 describe('PropertyTreeBuilderFromArgs', () => {
-  registerDescriptors(fakeProtoDescriptors);
-  const messageType = PERFETTO_TRACE_PACKET_ROOT.lookupType(
-    'winscope.test.Entry',
-  )! as TamperedMessageType;
+  let messageType: TamperedMessageType;
   const keyCol = 'key';
   const valueTypeCol = 'value_type';
   const realValueCol = 'real_value';
   const stringValueCol = 'string_value';
   const intValueCol = 'int_value';
 
+  beforeAll(async () => {
+    const registry = Registry.getInstance();
+    registry.parseDescriptors(await getFakeProtoDescriptors());
+    messageType = assertDefined(registry.getType('winscope.test.Entry'));
+  });
   describe('without transformation', () => {
     it('makes bool properties', () => {
       checkBoolValueReceived(1n, true);

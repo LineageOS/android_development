@@ -39,26 +39,64 @@ const commonFormatters = new Map([
   ['parentFrame', RECT_FORMATTER],
 ]);
 
-const commonContainerOperations = [
-  new SetFormatters(
-    TAMPERED_PROTOS_LATEST.windowContainerChildField,
-    commonFormatters,
-  ),
-  new TranslateIntDef(TAMPERED_PROTOS_LATEST.windowContainerChildField, [
-    'requestedVisibleTypes',
-  ]),
-];
+export class WmOperationLists {
+  private static commonContainerOperationsCache:
+    | Array<Operation<PropertyTreeNode>>
+    | undefined;
+  private static wmOperationListsCache:
+    | Map<ContainerType, OperationLists>
+    | undefined;
 
-/**
- * Creates operation lists for all proto types found in a WM trace.
- */
-export const WM_OPERATION_LISTS: Map<ContainerType, OperationLists> = new Map<
-  ContainerType,
-  OperationLists
->([
-  [
-    ContainerType.WindowManagerService,
-    {
+  static get(key: ContainerType): OperationLists | undefined {
+    return WmOperationLists.getMap().get(key);
+  }
+
+  private static getMap(): Map<ContainerType, OperationLists> {
+    if (!WmOperationLists.wmOperationListsCache) {
+      WmOperationLists.wmOperationListsCache = new Map<
+        ContainerType,
+        OperationLists
+      >([
+        [
+          ContainerType.WindowManagerService,
+          WmOperationLists.getWindowManagerService(),
+        ],
+        [
+          ContainerType.RootWindowContainer,
+          WmOperationLists.getRootWindowContainer(),
+        ],
+        [ContainerType.WindowContainer, WmOperationLists.getWindowContainer()],
+        [ContainerType.DisplayContent, WmOperationLists.getDisplayContent()],
+        [ContainerType.DisplayArea, WmOperationLists.getDisplayArea()],
+        [ContainerType.Task, WmOperationLists.getTask()],
+        [ContainerType.Activity, WmOperationLists.getActivity()],
+        [ContainerType.WindowToken, WmOperationLists.getWindowToken()],
+        [ContainerType.WindowState, WmOperationLists.getWindowState()],
+        [ContainerType.TaskFragment, WmOperationLists.getTaskFragment()],
+      ]);
+    }
+    return WmOperationLists.wmOperationListsCache;
+  }
+
+  private static getCommonContainerOperations(): Array<
+    Operation<PropertyTreeNode>
+  > {
+    if (!WmOperationLists.commonContainerOperationsCache) {
+      WmOperationLists.commonContainerOperationsCache = [
+        new SetFormatters(
+          TAMPERED_PROTOS_LATEST.windowContainerChildField,
+          commonFormatters,
+        ),
+        new TranslateIntDef(TAMPERED_PROTOS_LATEST.windowContainerChildField, [
+          'requestedVisibleTypes',
+        ]),
+      ];
+    }
+    return WmOperationLists.commonContainerOperationsCache;
+  }
+
+  private static getWindowManagerService(): OperationLists {
+    return {
       common: [],
       eager: [],
       lazy: [
@@ -70,12 +108,11 @@ export const WM_OPERATION_LISTS: Map<ContainerType, OperationLists> = new Map<
         new SetFormatters(TAMPERED_PROTOS_LATEST.entryField, commonFormatters),
         new TranslateIntDef(TAMPERED_PROTOS_LATEST.entryField),
       ],
-    },
-  ],
+    };
+  }
 
-  [
-    ContainerType.RootWindowContainer,
-    {
+  private static getRootWindowContainer(): OperationLists {
+    return {
       common: [
         new SetFormatters(
           TAMPERED_PROTOS_LATEST.rootWindowContainerField,
@@ -91,191 +128,123 @@ export const WM_OPERATION_LISTS: Map<ContainerType, OperationLists> = new Map<
           DENYLIST_PROPERTIES,
         ),
       ],
-    },
-  ],
+    };
+  }
 
-  [
-    ContainerType.WindowContainer,
-    {
-      common: commonContainerOperations,
+  private static getContainerWithDenyList(
+    extraDenyList: string[],
+    extraLazy: Array<Operation<PropertyTreeNode>> = [],
+  ): OperationLists {
+    return {
+      common: WmOperationLists.getCommonContainerOperations(),
       eager: [],
       lazy: [
         new AddDefaults(
           TAMPERED_PROTOS_LATEST.windowContainerChildField,
           undefined,
-          DENYLIST_PROPERTIES.concat([
-            'displayContent',
-            'displayArea',
-            'task',
-            'activity',
-            'windowToken',
-            'window',
-            'taskFragment',
-          ]),
+          DENYLIST_PROPERTIES.concat(extraDenyList),
         ),
+        ...extraLazy,
       ],
-    },
-  ],
+    };
+  }
 
-  [
-    ContainerType.DisplayContent,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayArea',
-            'task',
-            'activity',
-            'windowToken',
-            'window',
-            'taskFragment',
-          ]),
-        ),
-      ],
-    },
-  ],
+  private static getWindowContainer(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'displayContent',
+      'displayArea',
+      'task',
+      'activity',
+      'windowToken',
+      'window',
+      'taskFragment',
+    ]);
+  }
 
-  [
-    ContainerType.DisplayArea,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayContent',
-            'task',
-            'activity',
-            'windowToken',
-            'window',
-            'taskFragment',
-          ]),
-        ),
-      ],
-    },
-  ],
+  private static getDisplayContent(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'windowContainer',
+      'displayArea',
+      'task',
+      'activity',
+      'windowToken',
+      'window',
+      'taskFragment',
+    ]);
+  }
 
-  [
-    ContainerType.Task,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayContent',
-            'displayArea',
-            'activity',
-            'windowToken',
-            'window',
-            'taskFragment',
-          ]),
-        ),
-      ],
-    },
-  ],
+  private static getDisplayArea(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'windowContainer',
+      'displayContent',
+      'task',
+      'activity',
+      'windowToken',
+      'window',
+      'taskFragment',
+    ]);
+  }
 
-  [
-    ContainerType.Activity,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayContent',
-            'task',
-            'displayArea',
-            'windowToken',
-            'window',
-            'taskFragment',
-          ]),
-        ),
-      ],
-    },
-  ],
+  private static getTask(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'windowContainer',
+      'displayContent',
+      'displayArea',
+      'activity',
+      'windowToken',
+      'window',
+      'taskFragment',
+    ]);
+  }
 
-  [
-    ContainerType.WindowToken,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayContent',
-            'task',
-            'displayArea',
-            'activity',
-            'window',
-            'taskFragment',
-          ]),
-        ),
-      ],
-    },
-  ],
+  private static getActivity(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'windowContainer',
+      'displayContent',
+      'task',
+      'displayArea',
+      'windowToken',
+      'window',
+      'taskFragment',
+    ]);
+  }
 
-  [
-    ContainerType.WindowState,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayContent',
-            'task',
-            'displayArea',
-            'activity',
-            'windowToken',
-            'taskFragment',
-          ]),
-        ),
-        new AddWindowType(),
-      ],
-    },
-  ],
+  private static getWindowToken(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'windowContainer',
+      'displayContent',
+      'task',
+      'displayArea',
+      'activity',
+      'window',
+      'taskFragment',
+    ]);
+  }
 
-  [
-    ContainerType.TaskFragment,
-    {
-      common: commonContainerOperations,
-      eager: [],
-      lazy: [
-        new AddDefaults(
-          TAMPERED_PROTOS_LATEST.windowContainerChildField,
-          undefined,
-          DENYLIST_PROPERTIES.concat([
-            'windowContainer',
-            'displayContent',
-            'task',
-            'displayArea',
-            'activity',
-            'windowToken',
-            'window',
-          ]),
-        ),
+  private static getWindowState(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList(
+      [
+        'windowContainer',
+        'displayContent',
+        'task',
+        'displayArea',
+        'activity',
+        'windowToken',
+        'taskFragment',
       ],
-    },
-  ],
-]);
+      [new AddWindowType()],
+    );
+  }
+
+  private static getTaskFragment(): OperationLists {
+    return WmOperationLists.getContainerWithDenyList([
+      'windowContainer',
+      'displayContent',
+      'task',
+      'displayArea',
+      'activity',
+      'windowToken',
+      'window',
+    ]);
+  }
+}

@@ -28,7 +28,7 @@ import {queryArgs} from '@parsers/perfetto/query_helpers';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
+import {Registry, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType, PropertiesProvider,} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
@@ -361,7 +361,7 @@ function makeLayerLazyPropertiesStrategy(
       .setRootName(layerName)
       .setDenyList(DENYLIST_PROPERTIES)
       .setDuplicateCount(duplicateCount)
-      .setRootMessageType(assertDefined(LAYER_FIELD.resolve()))
+      .setRootMessageType(assertDefined(getLayerField().resolve()))
       .build();
   };
 }
@@ -377,17 +377,21 @@ function makeEntryLazyPropertiesStrategy(): LazyPropertiesStrategyType {
       .setRootId('LayerTraceEntry')
       .setRootName('root')
       .setDenyList(DENYLIST_PROPERTIES)
-      .setRootMessageType(assertDefined(ENTRY_FIELD.resolve()))
+      .setRootMessageType(assertDefined(getEntryField().resolve()))
       .build();
   };
 }
 
-const ENTRY_FIELD = assertDefined(
-  PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket'),
-).fields['surfaceflingerLayersSnapshot'];
-const LAYER_FIELD = assertDefined(
-  ENTRY_FIELD.resolve()?.fields['layers']?.resolve(),
-).fields['layers'];
+function getEntryField(): TamperedProtoField {
+  return Registry.getInstance().getTracePacketType().fields[
+    'surfaceflingerLayersSnapshot'
+  ];
+}
+
+function getLayerField(): TamperedProtoField {
+  return assertDefined(getEntryField().resolve()?.fields['layers']?.resolve())
+    .fields['layers'];
+}
 
 const HWC_COMPOSITION_TYPE_INVERTED = Object.entries(
   PerfettoHwcCompositionType,
@@ -405,24 +409,38 @@ const CUSTOM_FORMATTERS = new Map([
   ['hwcCompositionType', new EnumFormatter(HWC_COMPOSITION_TYPE_INVERTED)],
 ]);
 
-const Operations = {
-  SetFormattersLayer: new SetFormatters(LAYER_FIELD, CUSTOM_FORMATTERS),
-  TranslateIntDefLayer: new TranslateIntDef(LAYER_FIELD),
-  AddDefaultsLayer: new AddDefaults(
-    LAYER_FIELD,
-    undefined,
-    DENYLIST_PROPERTIES,
-  ),
-  SetFormattersEntry: new SetFormatters(ENTRY_FIELD, CUSTOM_FORMATTERS),
-  TranslateIntDefEntry: new TranslateIntDef(ENTRY_FIELD),
-  AddDefaultsEntry: new AddDefaults(
-    ENTRY_FIELD,
-    undefined,
-    DENYLIST_PROPERTIES,
-  ),
-  UpdateTransforms: new UpdateTransforms(),
-  TranslateFlags: new TranslateFlags(),
-  AddDisplayProperties: new AddDisplayProperties(),
-  AddCompositionType: new AddCompositionType(),
-  UpdateCornerRadii: new UpdateCornerRadii(),
-};
+class Operations {
+  static get SetFormattersLayer() {
+    return new SetFormatters(getLayerField(), CUSTOM_FORMATTERS);
+  }
+  static get TranslateIntDefLayer() {
+    return new TranslateIntDef(getLayerField());
+  }
+  static get AddDefaultsLayer() {
+    return new AddDefaults(getLayerField(), undefined, DENYLIST_PROPERTIES);
+  }
+  static get SetFormattersEntry() {
+    return new SetFormatters(getEntryField(), CUSTOM_FORMATTERS);
+  }
+  static get TranslateIntDefEntry() {
+    return new TranslateIntDef(getEntryField());
+  }
+  static get AddDefaultsEntry() {
+    return new AddDefaults(getEntryField(), undefined, DENYLIST_PROPERTIES);
+  }
+  static get UpdateTransforms() {
+    return new UpdateTransforms();
+  }
+  static get TranslateFlags() {
+    return new TranslateFlags();
+  }
+  static get AddDisplayProperties() {
+    return new AddDisplayProperties();
+  }
+  static get AddCompositionType() {
+    return new AddCompositionType();
+  }
+  static get UpdateCornerRadii() {
+    return new UpdateCornerRadii();
+  }
+}

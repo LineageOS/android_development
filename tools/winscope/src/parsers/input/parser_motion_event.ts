@@ -29,8 +29,8 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractInputEventParser} from './abstract_input_event_parser';
 
 export class ParserMotionEvent extends AbstractInputEventParser {
-  private static readonly MOTION_EVENT_FIELD =
-    AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherMotionEvent'];
+  private readonly motionEventField =
+    this.wrapperProto.fields['dispatcherMotionEvent'];
 
   static async createInstance(
     traceFile: TraceFile,
@@ -49,11 +49,11 @@ export class ParserMotionEvent extends AbstractInputEventParser {
   }
 
   protected override readonly eventMessageType = assertDefined(
-    ParserMotionEvent.MOTION_EVENT_FIELD.resolve(),
+    this.motionEventField.resolve(),
   );
   protected override readonly eventOps = [
-    new SetFormatters(ParserMotionEvent.MOTION_EVENT_FIELD),
-    new TranslateIntDef(ParserMotionEvent.MOTION_EVENT_FIELD),
+    new SetFormatters(this.motionEventField),
+    new TranslateIntDef(this.motionEventField),
   ];
   protected override readonly hierarchyTreeRootId = 'AndroidMotionEvent';
   protected override readonly eventType = InputEventType.MOTION;

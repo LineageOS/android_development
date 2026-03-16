@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {descriptors as perfettoTraceDescriptorsBin} from '@protos/perfetto/trace/descriptors';
 import {EditorInfoProto as EditorInfoProtoUdc} from '@protos/protos/ime/udc/editorinfo_pb';
 import {InputConnectionCallProto as InputConnectionCallProtoUdc} from '@protos/protos/ime/udc/inputconnection_pb';
 import {InputMethodServiceTraceFileProto as InputMethodServiceTraceFileProtoUdc, InputMethodServiceTraceProto as InputMethodServiceTraceProtoUdc,} from '@protos/protos/ime/udc/inputmethodeditortrace_pb';
@@ -50,10 +51,9 @@ import {HandlerMapping as ShellHandlerMappingUdc, Transition as ShellTransitionP
 import {ExportedData as ExportedDataUdc, WindowData as WindowDataUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {FrameData as FrameDataUdc, ViewNode as ViewNodeUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {WindowManagerTraceFileProto as WindowManagerTraceFileProtoUdc, WindowManagerTraceProto as WindowManagerTraceProtoUdc,} from '@protos/protos/windowmanager/udc/windowmanagertrace_pb';
-import {FileDescriptorSet} from 'google-protobuf/google/protobuf/descriptor_pb';
-import {descriptors as perfettoTraceDescriptorsBin} from '@protos/perfetto/trace/descriptors';
+import {DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, FileDescriptorSet,} from 'google-protobuf/google/protobuf/descriptor_pb';
 
-export function getPerfettoTraceDescriptors() {
+export async function getPerfettoTraceDescriptors(): Promise<FileDescriptorSet> {
   return FileDescriptorSet.deserializeBinary(perfettoTraceDescriptorsBin);
 }
 
@@ -120,4 +120,8 @@ export {
   TransitionUdc,
   TargetUdc,
   TransitionTraceProtoUdc,
+  FileDescriptorSet,
+  FieldDescriptorProto,
+  DescriptorProto,
+  EnumDescriptorProto,
 };

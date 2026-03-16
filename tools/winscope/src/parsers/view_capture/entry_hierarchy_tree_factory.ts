@@ -24,7 +24,7 @@ import {SetFormatters} from '@parsers/operations/set_formatters';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
-import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
+import {Registry, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType, PropertiesProvider,} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
@@ -218,20 +218,26 @@ function makeViewLazyPropertiesStrategy(
       .setData(argsData.iter({}))
       .setRootId(rootId)
       .setRootName(rootName)
-      .setRootMessageType(assertDefined(PROTO_VIEW_FIELD.resolve()))
+      .setRootMessageType(assertDefined(getProtoViewField()?.resolve()))
       .build();
   };
 }
 
-const PROTO_VIEW_FIELD = assertDefined(
-  assertDefined(
-    PERFETTO_TRACE_PACKET_ROOT.lookupType(
-      'perfetto.protos.TracePacket',
-    )?.fields['winscopeExtensions']?.resolve(),
-  ).fields['.perfetto.protos.WinscopeExtensionsImpl.viewcapture']?.resolve()
-    ?.fields['views'],
-);
+function getProtoViewField(): TamperedProtoField {
+  const winscopeExtensions = Registry.getInstance().getWinscopeExtensionsType();
+  const viewcapture = assertDefined(
+    winscopeExtensions.fields[
+      '.perfetto.protos.WinscopeExtensionsImpl.viewcapture'
+    ]?.resolve(),
+  );
+  return assertDefined(viewcapture.fields['views']);
+}
+
 const OPERATIONS = {
-  AddDefaults: new AddDefaults(PROTO_VIEW_FIELD),
-  SetFormatters: new SetFormatters(PROTO_VIEW_FIELD),
+  get AddDefaults() {
+    return new AddDefaults(getProtoViewField());
+  },
+  get SetFormatters() {
+    return new SetFormatters(getProtoViewField());
+  },
 };

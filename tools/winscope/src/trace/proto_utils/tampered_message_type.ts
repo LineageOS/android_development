@@ -17,8 +17,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assertDefined} from '@common/assert';
 import {getPerfettoTraceDescriptors} from '@compat/protobuf';
+import {DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, FileDescriptorSet,} from '@compat/protobuf';
 import * as jspb from 'google-protobuf';
-import {DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, FileDescriptorSet,} from 'google-protobuf/google/protobuf/descriptor_pb';
 
 const typedefExtension = new jspb.ExtensionFieldInfo<string>(
   60001,
@@ -57,11 +57,11 @@ export class TamperedMessageType {
   ) {}
 
   lookupType(name: string): TamperedMessageType | undefined {
-    return registry.getType(name);
+    return Registry.getInstance().getType(name);
   }
 
   lookupEnum(name: string): ProtobufEnum | undefined {
-    return registry.getEnum(name);
+    return Registry.getInstance().getEnum(name);
   }
 }
 
@@ -75,13 +75,26 @@ export class ProtobufEnum {
   ) {}
 }
 
-class Registry {
+export class Registry {
+  private static instance: Registry | undefined;
   types = new Map<string, TamperedMessageType>();
   enums = new Map<string, ProtobufEnum>();
 
-  constructor() {
-    const descriptors = getPerfettoTraceDescriptors();
+  private defaultDescriptorsLoaded = false;
+
+  async loadDefaultDescriptors() {
+    if (this.defaultDescriptorsLoaded) return;
+    const descriptors = await getPerfettoTraceDescriptors();
     this.parseDescriptors(descriptors);
+    this.defaultDescriptorsLoaded = true;
+  }
+
+  static getInstance(): Registry {
+    const instance = Registry.instance ?? new Registry();
+    if (!Registry.instance) {
+      Registry.instance = instance;
+    }
+    return instance;
   }
 
   parseDescriptors(fileDescriptorSet: FileDescriptorSet) {
@@ -279,7 +292,7 @@ class Registry {
   }
 
   private parseExtensions(
-    extensions: FieldDescriptorProto[],
+    extensions: readonly FieldDescriptorProto[],
     parentName: string,
   ) {
     for (const ext of extensions) {
@@ -388,22 +401,19 @@ class Registry {
     return undefined;
   }
 
+  getTracePacketType(): TamperedMessageType {
+    return assertDefined(this.getType('perfetto.protos.TracePacket'));
+  }
+
+  getWinscopeExtensionsType(): TamperedMessageType {
+    const tracePacket = this.getTracePacketType();
+    return assertDefined(tracePacket.fields['winscopeExtensions']?.resolve());
+  }
+
   getEnum(name: string): ProtobufEnum | undefined {
     if (name.startsWith('.')) return this.enums.get(name);
     if (this.enums.has(name)) return this.enums.get(name);
     if (this.enums.has('.' + name)) return this.enums.get('.' + name);
     return undefined;
   }
-}
-
-const registry = new Registry();
-
-export const PERFETTO_TRACE_PACKET_ROOT = {
-  lookupType(name: string): TamperedMessageType | undefined {
-    return registry.getType(name);
-  },
-};
-
-export function registerDescriptors(fileDescriptorSet: FileDescriptorSet) {
-  registry.parseDescriptors(fileDescriptorSet);
 }

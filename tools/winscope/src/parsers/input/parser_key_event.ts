@@ -29,8 +29,8 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractInputEventParser} from './abstract_input_event_parser';
 
 export class ParserKeyEvent extends AbstractInputEventParser {
-  private static readonly KEY_EVENT_FIELD =
-    AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherKeyEvent'];
+  private readonly keyEventField =
+    this.wrapperProto.fields['dispatcherKeyEvent'];
 
   static async createInstance(
     traceFile: TraceFile,
@@ -49,11 +49,11 @@ export class ParserKeyEvent extends AbstractInputEventParser {
   }
 
   protected override readonly eventMessageType = assertDefined(
-    ParserKeyEvent.KEY_EVENT_FIELD.resolve(),
+    this.keyEventField.resolve(),
   );
   protected override readonly eventOps = [
-    new SetFormatters(ParserKeyEvent.KEY_EVENT_FIELD),
-    new TranslateIntDef(ParserKeyEvent.KEY_EVENT_FIELD),
+    new SetFormatters(this.keyEventField),
+    new TranslateIntDef(this.keyEventField),
   ];
   protected override readonly hierarchyTreeRootId = 'AndroidKeyEvent';
   protected override readonly eventType = InputEventType.KEY;

@@ -36,7 +36,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {EnumFormatter, TIMESTAMP_NODE_FORMATTER, UPPER_CASE_FORMATTER,} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
+import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';
@@ -47,8 +47,8 @@ import {PropertyFormatter, PropertyTreeNode,} from '@tree_node/property_tree_nod
  * Parser for Transitions Perfetto traces.
  */
 export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
-  private static readonly TRANSITION_FIELD = assertDefined(
-    PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket'),
+  private readonly transitionField = assertDefined(
+    Registry.getInstance().getType('perfetto.protos.TracePacket'),
   ).fields['shellTransition'];
   private static readonly EAGER_COLUMNS = [
     'transition_id',
@@ -88,11 +88,11 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
   ];
   private static readonly TRANSFORM_DURATION_OPERATION =
     new TransformDuration();
-  private static readonly TRANSLATE_INTDEF_OPERATION = new TranslateIntDef(
-    ParserTransitions.TRANSITION_FIELD,
+  private readonly translateIntDefOperation = new TranslateIntDef(
+    this.transitionField,
   );
-  private static readonly ADD_DEFAULTS_OPERATION = new AddDefaults(
-    ParserTransitions.TRANSITION_FIELD,
+  private readonly addDefaultsOperation = new AddDefaults(
+    this.transitionField,
     ['type', 'changes'],
   );
   private static readonly TRANSITION_TYPE_FORMATTER = new EnumFormatter(
@@ -309,11 +309,8 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     return [
       transformToTimestampEager,
       ParserTransitions.TRANSFORM_DURATION_OPERATION,
-      new SetFormatters(
-        ParserTransitions.TRANSITION_FIELD,
-        customFormattersEager,
-      ),
-      ParserTransitions.TRANSLATE_INTDEF_OPERATION,
+      new SetFormatters(this.transitionField, customFormattersEager),
+      this.translateIntDefOperation,
     ];
   }
 
@@ -330,10 +327,10 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
     ]);
 
     return [
-      ParserTransitions.ADD_DEFAULTS_OPERATION,
+      this.addDefaultsOperation,
       transformToTimestamp,
-      new SetFormatters(ParserTransitions.TRANSITION_FIELD, customFormatters),
-      ParserTransitions.TRANSLATE_INTDEF_OPERATION,
+      new SetFormatters(this.transitionField, customFormatters),
+      this.translateIntDefOperation,
     ];
   }
 
@@ -345,9 +342,7 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
         .setData(argsData.iter({}))
         .setRootId('TransitionTraceEntry')
         .setRootName('Transition')
-        .setRootMessageType(
-          assertDefined(ParserTransitions.TRANSITION_FIELD.resolve()),
-        )
+        .setRootMessageType(assertDefined(this.transitionField.resolve()))
         .build();
     };
   }

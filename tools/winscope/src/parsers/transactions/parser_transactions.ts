@@ -33,7 +33,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {EnumFormatter, FixedStringFormatter} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
+import {Registry, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {TransactionType} from '@trace/transactions/transaction_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
@@ -43,8 +43,8 @@ import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder'
 import {PropertyFormatter, PropertyTreeNode,} from '@tree_node/property_tree_node';
 
 export class ParserTransactions extends AbstractParser<HierarchyTreeNode> {
-  private static readonly TransactionsTraceEntryField = (
-    PERFETTO_TRACE_PACKET_ROOT.lookupType(
+  private readonly transactionsTraceEntryField = (
+    Registry.getInstance().getType(
       'perfetto.protos.TracePacket',
     ) as TamperedMessageType
   ).fields['surfaceflingerTransactions'];
@@ -434,7 +434,7 @@ LEFT JOIN ranked_process_matches AS rpm
   ): TamperedProtoField | undefined {
     let field: TamperedProtoField | undefined;
     const entryProtoType = assertDefined(
-      ParserTransactions.TransactionsTraceEntryField.resolve(),
+      this.transactionsTraceEntryField.resolve(),
     );
     switch (transactionType) {
       case TransactionType.DISPLAY_ADDED:
