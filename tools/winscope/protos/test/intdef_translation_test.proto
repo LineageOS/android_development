@@ -16,6 +16,8 @@
 
 syntax = "proto2";
 
+package winscope.test2;
+
 import "protos/test/typedef.proto";
 
 message RootMessage {

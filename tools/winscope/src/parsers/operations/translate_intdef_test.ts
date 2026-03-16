@@ -29,7 +29,7 @@ describe('TranslateIntDef', () => {
   beforeAll(() => {
     registerDescriptors(intdefDescriptors);
     rootType = assertDefined(
-      PERFETTO_TRACE_PACKET_ROOT.lookupType('RootMessage'),
+      PERFETTO_TRACE_PACKET_ROOT.lookupType('winscope.test2.RootMessage'),
     );
   });
 

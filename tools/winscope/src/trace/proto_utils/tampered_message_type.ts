@@ -16,7 +16,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assertDefined} from '@common/assert';
-import {descriptors} from '@protos/perfetto/trace/descriptors';
+import {getPerfettoTraceDescriptors} from '@compat/protobuf';
 import * as jspb from 'google-protobuf';
 import {DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, FileDescriptorSet,} from 'google-protobuf/google/protobuf/descriptor_pb';
 
@@ -80,7 +80,8 @@ class Registry {
   enums = new Map<string, ProtobufEnum>();
 
   constructor() {
-    this.parseDescriptors(FileDescriptorSet.deserializeBinary(descriptors));
+    const descriptors = getPerfettoTraceDescriptors();
+    this.parseDescriptors(descriptors);
   }
 
   parseDescriptors(fileDescriptorSet: FileDescriptorSet) {

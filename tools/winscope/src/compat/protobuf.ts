@@ -50,6 +50,12 @@ import {HandlerMapping as ShellHandlerMappingUdc, Transition as ShellTransitionP
 import {ExportedData as ExportedDataUdc, WindowData as WindowDataUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {FrameData as FrameDataUdc, ViewNode as ViewNodeUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {WindowManagerTraceFileProto as WindowManagerTraceFileProtoUdc, WindowManagerTraceProto as WindowManagerTraceProtoUdc,} from '@protos/protos/windowmanager/udc/windowmanagertrace_pb';
+import {FileDescriptorSet} from 'google-protobuf/google/protobuf/descriptor_pb';
+import {descriptors as perfettoTraceDescriptorsBin} from '@protos/perfetto/trace/descriptors';
+
+export function getPerfettoTraceDescriptors() {
+  return FileDescriptorSet.deserializeBinary(perfettoTraceDescriptorsBin);
+}
 
 export function byteStringAsUint8Array(data: string | Uint8Array): Uint8Array {
   if (data instanceof Uint8Array) {

@@ -18,13 +18,13 @@ syntax = "proto2";
 
 package com.android.server.wm;
 
-import "protos/windowmanager/udc/android.proto";
-import "protos/windowmanager/udc/app.proto";
+import "protos/common/app.proto";
+import "protos/common/graphics.proto";
+import "protos/common/privacy.proto";
+import "protos/common/view.proto";
 import "protos/windowmanager/udc/content.proto";
 import "protos/windowmanager/udc/enums.proto";
-import "protos/windowmanager/udc/graphics.proto";
 import "protos/windowmanager/udc/surfaceanimator.proto";
-import "protos/windowmanager/udc/view.proto";
 import "protos/windowmanager/udc/windowcontainerthumbnail.proto";
 
 option java_multiple_files = true;
