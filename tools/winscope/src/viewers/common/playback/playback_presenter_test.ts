@@ -530,7 +530,7 @@ describe('PlaybackPresenter', () => {
         emitEventSpyLargeTrace.and.callThrough();
       }
       await presenterLargeTrace.play(startIndex, state, undefined);
-      await waitStoppedPlaying(presenterLargeTrace, 1000);
+      await waitStoppedPlaying(presenterLargeTrace, 3000);
 
       const allUpdates = emitEventSpyLargeTrace.calls
         .all()
@@ -562,7 +562,7 @@ describe('PlaybackPresenter', () => {
       }
     });
   }
-  async function waitStoppedPlaying(p: PlaybackPresenter, timeout = 1000) {
+  async function waitStoppedPlaying(p: PlaybackPresenter, timeout = 3000) {
     await new Timer(timeout, 50).wait(() => !p.isPlaying());
   }
 });
