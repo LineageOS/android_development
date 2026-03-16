@@ -153,7 +153,12 @@ the default for its data type.`,
     this.selectedTree = UiHierarchyTreeNode.from(
       assertDefined(
         firstEntryDataTree
-          .findDfs(makeIdMatchFilter('ViewNode44 ' + this.treeNodeLongName))
+          .findDfs(
+            makeIdMatchFilter(
+              'com.android.internal.policy.PhoneWindow@4f9be60ViewNode44 ' +
+                this.treeNodeLongName,
+            ),
+          )
           ?.getParent(),
       ),
     ).getChildByName(this.treeNodeLongName);

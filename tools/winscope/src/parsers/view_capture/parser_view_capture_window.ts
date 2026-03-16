@@ -85,6 +85,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       visibleRects,
       this.traceProcessor,
       this.traceGeometryData,
+      this.windowName,
     );
   }
 
@@ -156,7 +157,7 @@ export class ParserViewCaptureWindow extends AbstractParser<HierarchyTreeNode> {
       this.visibleRects = extractAllRects(
         visibleRectsResult.iter({}),
         this.traceGeometryData,
-        (row: RowIterator) => makeTreeNodeId(row),
+        (row: RowIterator) => makeTreeNodeId(row, this.windowName),
         (row: RowIterator) => makeTreeNodeName(row),
       );
     }
