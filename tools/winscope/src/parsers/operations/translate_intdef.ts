@@ -113,8 +113,9 @@ export class TranslateIntDef implements Operation<PropertyTreeNode> {
       .map((x) => Math.floor(Number(x)));
 
     if (knownFlagValues.length === 0) {
-      getLogger('TranslateIntDef')
-          .warn(`No mapping for type ${annotationType}`);
+      getLogger('TranslateIntDef').warn(
+        `No mapping for type ${annotationType}`,
+      );
       return intFlags + '';
     }
 

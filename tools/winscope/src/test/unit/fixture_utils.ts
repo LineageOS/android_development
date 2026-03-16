@@ -25,7 +25,6 @@ import {getPerfettoParsers, NonPerfettoParserProvider,} from '@test/unit/parsers
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
-import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 

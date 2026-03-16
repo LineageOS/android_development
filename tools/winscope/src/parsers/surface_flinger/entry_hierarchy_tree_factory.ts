@@ -389,18 +389,15 @@ const LAYER_FIELD = assertDefined(
   ENTRY_FIELD.resolve()?.fields['layers']?.resolve(),
 ).fields['layers'];
 
-const HWC_COMPOSITION_TYPE_INVERTED =
-  Object
-    .entries(
-      PerfettoHwcCompositionType,
-    )
-    .reduce(
-      (acc, [key, value]: [string, any]) => {
-        acc[value] = key;
-        return acc;
-      },
-      {} as {[key: number]: string},
-    );
+const HWC_COMPOSITION_TYPE_INVERTED = Object.entries(
+  PerfettoHwcCompositionType,
+).reduce(
+  (acc, [key, value]: [string, number]) => {
+    acc[value] = key;
+    return acc;
+  },
+  {} as {[key: number]: string},
+);
 
 const CUSTOM_FORMATTERS = new Map([
   ['cropLayerId', LAYER_ID_FORMATTER],
