@@ -73,7 +73,10 @@ export class ShowTraceUploadWarning implements WinscopeEvent {
 }
 
 export class ActiveTraceChanged implements WinscopeEvent {
-  constructor(readonly trace: Trace<unknown>) {}
+  constructor(
+    readonly trace: Trace<unknown>,
+    readonly metadata?: unknown,
+  ) {}
 }
 
 export class ScreenRecordingChange implements WinscopeEvent {

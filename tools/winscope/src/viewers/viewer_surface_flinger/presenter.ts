@@ -162,6 +162,7 @@ the default for its data type.`,
     },
   ];
   private rectSpecIndex = 0;
+  private currPositionHasViewCapture = false;
 
   constructor(
     trace: Trace<HierarchyTreeNode>,
@@ -175,7 +176,7 @@ the default for its data type.`,
   }
 
   async onRectDoubleClick(rectId: string) {
-    if (!this.viewCapturePackageNames) {
+    if (!this.viewCapturePackageNames || !this.currPositionHasViewCapture) {
       return;
     }
     const rectHasViewCapture = this.viewCapturePackageNames.some(
@@ -187,7 +188,9 @@ the default for its data type.`,
     const newActiveTrace = assertDefined(
       this.traces.getTrace<HierarchyTreeNode>(TraceType.VIEW_CAPTURE),
     );
-    await this.emitWinscopeEvent(new TabbedViewSwitchRequest(newActiveTrace));
+    await this.emitWinscopeEvent(
+      new TabbedViewSwitchRequest(newActiveTrace, {sfRectId: rectId}),
+    );
   }
 
   override async onHighlightedNodeChange(item: UiHierarchyTreeNode) {
@@ -240,12 +243,23 @@ the default for its data type.`,
     await this.setInitialWmActiveDisplay(event);
   }
 
-  protected override async processDataAfterPositionUpdate(): Promise<void> {
+  protected override async processDataAfterPositionUpdate(
+    event: TracePositionUpdate,
+  ): Promise<void> {
     if (this.playbackPresenter.isPlaying()) {
       this.hierarchyPresenter.setShowDiffAvailability(false);
     } else {
       this.updateCuratedProperties();
     }
+
+    const vcTrace = this.traces.getTrace<HierarchyTreeNode>(
+      TraceType.VIEW_CAPTURE,
+    );
+    if (!vcTrace) {
+      return;
+    }
+    const vcEntry = findCorrespondingEntry(vcTrace, event.position);
+    this.currPositionHasViewCapture = vcEntry !== undefined;
   }
 
   protected override refreshUIData() {

@@ -254,7 +254,10 @@ export class Mediator {
   private async onTabbedViewSwitched(event: TabbedViewSwitched) {
     const newActiveTrace = event.newFocusedView.getTraces()[0];
     if (this.timelineData.trySetActiveTrace(newActiveTrace)) {
-      const activeTraceChanged = new ActiveTraceChanged(newActiveTrace);
+      const activeTraceChanged = new ActiveTraceChanged(
+        newActiveTrace,
+        event.metadata,
+      );
       await this.timelineComponent?.onWinscopeEvent(activeTraceChanged);
       for (const viewer of this.viewers) {
         await viewer.onWinscopeEvent(activeTraceChanged);

@@ -181,6 +181,19 @@ describe('TraceViewComponent', () => {
     await checkTabSwitches(switchTab0, switchTab1);
   });
 
+  it('passes metadata from tab view switch request to tab view switched event', async () => {
+    const emitAppEvent = jasmine.createSpy();
+    component.setEmitEvent(emitAppEvent);
+    await component.onWinscopeEvent(
+      new TabbedViewSwitchRequest(traceWm, 'metadata'),
+    );
+    dom.detectChanges();
+    expect(emitAppEvent).toHaveBeenCalledOnceWith(
+      jasmine.any(TabbedViewSwitched),
+    );
+    expect(emitAppEvent.calls.mostRecent().args[0].metadata).toBe('metadata');
+  });
+
   it('disables filter presets button for viewers without presets', () => {
     const filterPresets = dom.get('.filter-presets');
     filterPresets.checkText('Filter Presets');
