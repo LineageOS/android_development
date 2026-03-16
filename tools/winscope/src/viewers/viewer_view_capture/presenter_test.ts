@@ -299,7 +299,10 @@ the default for its data type.`,
         );
         const sfParser = await parseAndConvertToPerfettoTrace(
           'traces/elapsed_timestamp/SurfaceFlinger.pb',
-          [FileReaderSurfaceFlinger.createInstance, FileReaderViewCapture.createInstance],
+          [
+            FileReaderSurfaceFlinger.createInstance,
+            FileReaderViewCapture.createInstance,
+          ],
           perfettoFile,
         );
         const sfTrace = Trace.fromParser(sfParser);

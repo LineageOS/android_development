@@ -61,8 +61,10 @@ describe('LegacyFileReaderFactory', () => {
 
     async function checkRobustToFile(file: string, unsupported = false) {
       const trace = new TraceFile(await getFixtureFile(file), undefined);
-      const processed = await createLegacyFileReaderFactory()
-        .processFiles([trace], makeConverterNoRteOffsets());
+      const processed = await createLegacyFileReaderFactory().processFiles(
+        [trace],
+        makeConverterNoRteOffsets(),
+      );
       expect(processed.supportedFiles.length).toBe(0);
       expect(processed.unsupportedFiles).toEqual(unsupported ? [trace] : []);
     }
