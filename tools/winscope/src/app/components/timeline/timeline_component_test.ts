@@ -543,6 +543,20 @@ describe('TimelineComponent', () => {
     );
   });
 
+  it('treats small ns values as boottime and uses makeTimestampFromBootTimeNs', () => {
+    loadSfWmTraces();
+
+    const timeInputField = dom.get('.time-input.nano');
+    const spy = spyOn(
+      component.timelineData().getTimestampConverter(),
+      'makeTimestampFromBootTimeNs',
+    ).and.callThrough();
+
+    testCurrentTimestampOnTimeInput(timeInputField, position105, '10 ns', 90n);
+
+    expect(spy).toHaveBeenCalledWith(10n);
+  });
+
   it('updates position based on human time input field using date time format', () => {
     loadSfWmTraces();
 

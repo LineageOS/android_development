@@ -37,6 +37,7 @@ import {isInputTextField, KeyboardEventKey, KeyboardEventKeyCode,} from '@common
 import {Store} from '@common/store/store';
 import {parseBigIntStrippingUnit} from '@common/string_helpers';
 import {TimeRange, Timestamp} from '@common/time/time';
+import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {UserTimestamp} from '@common/time/user_timestamp';
 import {getLogger} from '@compat/logging';
 import {Analytics} from '@logging/analytics';
@@ -556,9 +557,14 @@ export class TimelineComponent
     const target = event.target as HTMLInputElement;
     const timelineData = this.timelineData();
 
-    const timestamp = timelineData
-      .getTimestampConverter()
-      .makeTimestampFromNs(parseBigIntStrippingUnit(target.value));
+    const valueNs = parseBigIntStrippingUnit(target.value);
+    const isBoottime = valueNs < TIME_UNIT_TO_NANO.d * 365n * 3n; // ~ 3 years, no Android smartphone had winscope traces back in 1973 yet.
+
+    const timestamp = isBoottime
+      ? timelineData
+          .getTimestampConverter()
+          .makeTimestampFromBootTimeNs(valueNs)
+      : timelineData.getTimestampConverter().makeTimestampFromNs(valueNs);
 
     Analytics.Navigation.logTimeInput('ns');
     await this.updatePosition(
