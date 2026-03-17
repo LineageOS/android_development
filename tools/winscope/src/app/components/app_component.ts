@@ -18,7 +18,6 @@ import {AbtChromeExtensionProtocol} from '@abt_chrome_extension/abt_chrome_exten
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
 import {ChangeDetectorRef, Component, ErrorHandler, Inject, Injector, NgZone, viewChild, ViewEncapsulation,} from '@angular/core';
-import {createCustomElement} from '@angular/elements';
 import {FormControl, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -62,19 +61,8 @@ import {FileReader} from '@trace_api/file_reader';
 import {ActiveTraceChanged, TracePositionUpdate, TraceSearchRequest,} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {AdbFiles} from '@trace_collection/adb_files';
-import {ViewerInputMethodComponent} from '@viewers/components/viewer_input_method_component';
 import {Viewer} from '@viewers/viewer';
-import {ViewerInputComponent} from '@viewers/viewer_input/viewer_input_component';
-import {ViewerJankCujsComponent} from '@viewers/viewer_jank_cujs/viewer_jank_cujs_component';
-import {ViewerMediaBasedComponent} from '@viewers/viewer_media_based/viewer_media_based_component';
-import {ViewerProtologComponent} from '@viewers/viewer_protolog/viewer_protolog_component';
 import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
-import {ViewerSearchComponent} from '@viewers/viewer_search/viewer_search_component';
-import {ViewerSurfaceFlingerComponent} from '@viewers/viewer_surface_flinger/viewer_surface_flinger_component';
-import {ViewerTransactionsComponent} from '@viewers/viewer_transactions/viewer_transactions_component';
-import {ViewerTransitionsComponent} from '@viewers/viewer_transitions/viewer_transitions_component';
-import {ViewerViewCaptureComponent} from '@viewers/viewer_view_capture/viewer_view_capture_component';
-import {ViewerWindowManagerComponent} from '@viewers/viewer_window_manager/viewer_window_manager_component';
 
 import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from './bottomnav/bottom_drawer_component';
 import {CollectTracesComponent} from './collect_traces_component';
@@ -203,73 +191,6 @@ export class AppComponent implements WinscopeEventListener {
     this.setDarkMode(
       storeDarkMode ? storeDarkMode === 'true' : prefersDarkQuery.matches,
     );
-
-    if (!customElements.get('viewer-input-method')) {
-      customElements.define(
-        'viewer-input-method',
-        createCustomElement(ViewerInputMethodComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-protolog')) {
-      customElements.define(
-        'viewer-protolog',
-        createCustomElement(ViewerProtologComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-media-based')) {
-      customElements.define(
-        'viewer-media-based',
-        createCustomElement(ViewerMediaBasedComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-surface-flinger')) {
-      customElements.define(
-        'viewer-surface-flinger',
-        createCustomElement(ViewerSurfaceFlingerComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-transactions')) {
-      customElements.define(
-        'viewer-transactions',
-        createCustomElement(ViewerTransactionsComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-window-manager')) {
-      customElements.define(
-        'viewer-window-manager',
-        createCustomElement(ViewerWindowManagerComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-transitions')) {
-      customElements.define(
-        'viewer-transitions',
-        createCustomElement(ViewerTransitionsComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-view-capture')) {
-      customElements.define(
-        'viewer-view-capture',
-        createCustomElement(ViewerViewCaptureComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-jank-cujs')) {
-      customElements.define(
-        'viewer-jank-cujs',
-        createCustomElement(ViewerJankCujsComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-input')) {
-      customElements.define(
-        'viewer-input',
-        createCustomElement(ViewerInputComponent, {injector}),
-      );
-    }
-    if (!customElements.get('viewer-search')) {
-      customElements.define(
-        'viewer-search',
-        createCustomElement(ViewerSearchComponent, {injector}),
-      );
-    }
 
     const isProdMode = globalConfig.isProdMode();
 

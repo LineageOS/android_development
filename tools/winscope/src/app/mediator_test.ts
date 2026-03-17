@@ -611,17 +611,15 @@ describe('Mediator', () => {
       await loadTraceView();
       resetSpyCalls();
 
-      const view = viewerStub1.getViews()[0];
-      await mediator.onWinscopeEvent(new TabbedViewSwitched(view));
+      await mediator.onWinscopeEvent(new TabbedViewSwitched(viewerStub1));
       expect(timelineComponent.onWinscopeEvent).toHaveBeenCalledWith(
-        new ActiveTraceChanged(view.traces[0]),
+        new ActiveTraceChanged(viewerStub1.getTraces()[0]),
       );
       userNotifierChecker.expectNotified([]);
       userNotifierChecker.reset();
-      const viewDump = viewerDump.getViews()[0];
-      await mediator.onWinscopeEvent(new TabbedViewSwitched(viewDump));
+      await mediator.onWinscopeEvent(new TabbedViewSwitched(viewerDump));
       expect(timelineComponent.onWinscopeEvent).not.toHaveBeenCalledWith(
-        new ActiveTraceChanged(viewDump.traces[0]),
+        new ActiveTraceChanged(viewerDump.getTraces()[0]),
       );
       userNotifierChecker.expectNotified([]);
     });
@@ -658,13 +656,11 @@ describe('Mediator', () => {
     // Tab switch -> update only newly visible viewers
     // Note: overlay viewer is considered always visible
     resetSpyCalls();
-    await mediator.onWinscopeEvent(
-      new TabbedViewSwitched(viewerStub1.getViews()[0]),
-    );
+    await mediator.onWinscopeEvent(new TabbedViewSwitched(viewerStub1));
     userNotifierChecker.expectNone();
     const tracePositionUpdate = makeExpectedTracePositionUpdate(undefined);
     const activeTraceChanged = new ActiveTraceChanged(
-      viewerStub1.getViews()[0].traces[0],
+      viewerStub1.getTraces()[0],
     );
     expect(viewerStub0.onWinscopeEvent).toHaveBeenCalledOnceWith(
       activeTraceChanged,
@@ -726,7 +722,7 @@ describe('Mediator', () => {
     });
 
     const activeTraceChanged = new ActiveTraceChanged(
-      viewerStub1.getViews()[0].traces[0],
+      viewerStub1.getTraces()[0],
     );
     await mediator.onWinscopeEvent(activeTraceChanged);
     expect(timelineComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(
@@ -999,9 +995,7 @@ describe('Mediator', () => {
 
     // Simulate notification of TraceViewComponent about initially selected/focused tab
     resetSpyCalls();
-    await mediator.onWinscopeEvent(
-      new TabbedViewSwitched(viewerStub0.getViews()[0]),
-    );
+    await mediator.onWinscopeEvent(new TabbedViewSwitched(viewerStub0));
 
     expect(viewerStub0.onWinscopeEvent).toHaveBeenCalledOnceWith(
       makeExpectedTracePositionUpdate(),
@@ -1011,7 +1005,7 @@ describe('Mediator', () => {
   }
 
   function reassignViewerStubTrace(viewerStub: ViewerStub) {
-    const viewerStubTraces = viewerStub.getViews()[0].traces;
+    const viewerStubTraces = viewerStub.getTraces();
     viewerStubTraces[0] = assertDefined(
       loadedFileData.getTraces().getTrace(viewerStubTraces[0].type),
     );

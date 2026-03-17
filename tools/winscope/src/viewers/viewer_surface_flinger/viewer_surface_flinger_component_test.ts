@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Component} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from '@viewers/common/abstract_hierarchy_viewer_component_test';
@@ -23,17 +22,7 @@ import {SurfaceFlingerPropertyGroupsComponent} from '@viewers/components/surface
 import {UiData} from './ui_data';
 import {ViewerSurfaceFlingerComponent} from './viewer_surface_flinger_component';
 
-@Component({
-  imports: [ViewerSurfaceFlingerComponent],
-  selector: 'host-component',
-  template:
-    '<viewer-surface-flinger [inputData]="inputData"></viewer-surface-flinger>',
-})
-class TestHostComponent {
-  inputData: UiData | undefined;
-}
-
-class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponentTest<TestHostComponent> {
+class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponentTest<ViewerSurfaceFlingerComponent> {
   protected override readonly testRects = true;
   protected override readonly hierarchyTitle = 'HIERARCHY';
   protected override readonly propertiesTitle = 'PROTO DUMP';
@@ -41,11 +30,10 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
 
   protected override executeSpecializedTests() {
     describe('Specialized tests', () => {
-      let dom: DOMTestHelper<TestHostComponent>;
-      let component: TestHostComponent;
+      let dom: DOMTestHelper<ViewerSurfaceFlingerComponent>;
 
       beforeEach(async () => {
-        [dom, component] = await this.setUpTestEnvironment();
+        [dom] = await this.setUpTestEnvironment();
       });
 
       it('creates property groups view', () => {
@@ -59,7 +47,7 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
       it('disables properties while playback is playing', async () => {
         let uiData = new UiData(undefined);
         uiData.isPlaybackPlaying = true;
-        component.inputData = uiData;
+        dom.setComponentInput('inputData', uiData);
         dom.detectChanges();
         const properties = dom.find('.properties');
         expect(properties).toBeDefined();
@@ -67,7 +55,7 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
 
         uiData = new UiData(undefined);
         uiData.isPlaybackPlaying = false;
-        component.inputData = uiData;
+        dom.setComponentInput('inputData', uiData);
         dom.detectChanges();
         expect(properties).toBeDefined();
         assertDefined(properties).checkClassName('disabled-component', false);
@@ -78,7 +66,7 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
         uiData = new UiData(undefined);
         uiData.isPlaybackPlaying = false;
         uiData.isPlaybackInitializing = true;
-        component.inputData = uiData;
+        dom.setComponentInput('inputData', uiData);
         dom.detectChanges();
 
         const properties = dom.get('.properties');
@@ -93,7 +81,7 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
         uiData = new UiData(undefined);
         uiData.isPlaybackPlaying = true;
         uiData.isPlaybackInitializing = false;
-        component.inputData = uiData;
+        dom.setComponentInput('inputData', uiData);
         dom.detectChanges();
 
         properties.checkClassName('disabled-component', true);
@@ -108,7 +96,7 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
           icon: '',
           legend: [],
         };
-        component.inputData = uiData;
+        dom.setComponentInput('inputData', uiData);
         dom.detectChanges();
 
         dom.checkSectionCollapseAndExpand(
@@ -122,7 +110,7 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
           icon: '',
           legend: [],
         };
-        component.inputData = uiData;
+        dom.setComponentInput('inputData', uiData);
         dom.detectChanges();
         dom.checkSectionCollapseAndExpand(
           '.rects-view',
@@ -133,9 +121,12 @@ class ViewerSurfaceFlingerComponentTest extends AbstractHierarchyViewerComponent
   }
 
   protected async setUpTestEnvironment(): Promise<
-    [DOMTestHelper<TestHostComponent>, TestHostComponent]
+    [
+      DOMTestHelper<ViewerSurfaceFlingerComponent>,
+      ViewerSurfaceFlingerComponent,
+    ]
   > {
-    return this.initializeTestEnvironment(TestHostComponent, [
+    return this.initializeTestEnvironment(ViewerSurfaceFlingerComponent, [
       ViewerSurfaceFlingerComponent,
       SurfaceFlingerPropertyGroupsComponent,
     ]);

@@ -20,26 +20,24 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractViewer} from '@viewers/abstract_viewer';
-import {ViewerComponent} from '@viewers/components/viewer_component';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {ViewerJankCujsComponent} from './viewer_jank_cujs_component';
 
-export class ViewerJankCujs extends AbstractViewer<HierarchyTreeNode> {
+export class ViewerJankCujs extends AbstractViewer<HierarchyTreeNode, UiData> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.CUJS];
 
   constructor(trace: Trace<HierarchyTreeNode>, traces: Traces, store: Store) {
-    super(trace, traces, 'viewer-jank-cujs', store);
+    super(trace, traces, ViewerJankCujsComponent, store);
   }
 
-  protected override initializePresenter(
+  protected override createPresenter(
     trace: Trace<HierarchyTreeNode>,
     traces: Traces,
     store: Store,
+    notifyViewCallback: (uiData: UiData) => void,
   ): Presenter {
-    const notifyViewCallback = (data: UiData) => {
-      (this.htmlElement as unknown as ViewerComponent<UiData>).inputData = data;
-    };
     return new Presenter(trace, store, notifyViewCallback);
   }
 }

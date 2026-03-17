@@ -141,6 +141,7 @@ export abstract class AbstractLogViewerPresenter<
     });
 
     this.addViewerSpecificListeners(htmlElement);
+    this.notifyViewChanged();
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {

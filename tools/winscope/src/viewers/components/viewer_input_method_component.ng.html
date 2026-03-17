@@ -22,18 +22,21 @@ limitations under the License.
   >
   </collapsed-sections>
 
+  @let data = inputData();
+  @let currStore = store();
+
   @if (!areLeftViewsCollapsed()) {
     <div class="left-views">
       <hierarchy-view
         class="hierarchy-view"
-        [nodeRows]="this.inputData?.hierarchyNodes ?? []"
-        [dependencies]="inputData ? [inputData.traceType] : []"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [pinnedItems]="inputData?.pinnedItems ?? []"
-        [tableProperties]="inputData?.hierarchyTableProperties"
-        [textFilter]="inputData?.hierarchyFilter"
-        [store]="store"
-        [userOptions]="inputData?.hierarchyUserOptions ?? {}"
+        [nodeRows]="data?.hierarchyNodes ?? []"
+        [dependencies]="data ? [data.traceType] : []"
+        [highlightedItem]="data?.highlightedItem ?? ''"
+        [pinnedItems]="data?.pinnedItems ?? []"
+        [tableProperties]="data?.hierarchyTableProperties"
+        [textFilter]="data?.hierarchyFilter"
+        [store]="currStore"
+        [userOptions]="data?.hierarchyUserOptions ?? {}"
         (collapseButtonClicked)="
           sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)
         "
@@ -43,8 +46,8 @@ limitations under the License.
       <ime-additional-properties
         class="ime-additional-properties"
         [isImeManagerService]="isImeManagerService()"
-        [highlightedItem]="inputData?.highlightedItem ?? ''"
-        [additionalProperties]="inputData?.additionalProperties"
+        [highlightedItem]="data?.highlightedItem ?? ''"
+        [additionalProperties]="data?.additionalProperties"
         (collapseButtonClicked)="
           sections.onCollapseStateChange(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES, true)
         "
@@ -57,11 +60,11 @@ limitations under the License.
 
   <properties-view
     class="properties-view"
-    [store]="store"
-    [userOptions]="inputData?.propertiesUserOptions ?? {}"
-    [nodeRows]="inputData?.propertyNodes ?? []"
-    [traceType]="inputData?.traceType"
-    [textFilter]="inputData?.propertiesFilter"
+    [store]="currStore"
+    [userOptions]="data?.propertiesUserOptions ?? {}"
+    [nodeRows]="data?.propertyNodes ?? []"
+    [traceType]="data?.traceType"
+    [textFilter]="data?.propertiesFilter"
     (collapseButtonClicked)="
       sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
     "

@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import {Directive, Input} from '@angular/core';
+import {Directive, ElementRef, Inject, input} from '@angular/core';
 import {PersistentStore} from '@common/store/persistent_store';
 
 @Directive()
 export class ViewerComponent<T> {
-  @Input() inputData: T | undefined;
-  @Input() store: PersistentStore | undefined;
+  constructor(@Inject(ElementRef) readonly elementRef: ElementRef) {}
+
+  readonly inputData = input<T>();
+  readonly store = input<PersistentStore>();
 }

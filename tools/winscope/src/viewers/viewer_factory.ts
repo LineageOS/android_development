@@ -101,28 +101,28 @@ export class ViewerFactory {
     // the final order of tabs/views in the UI corresponds the order of the
     // respective viewers below
     return viewers.sort((a, b) => {
-      const aView = a.getViews()[0];
-      const bView = b.getViews()[0];
+      const aViewType = a.getViewType();
+      const bViewType = b.getViewType();
       if (
-        aView.type === ViewType.TRACE_TAB &&
-        bView.type === ViewType.TRACE_TAB
+        aViewType === ViewType.TRACE_TAB &&
+        bViewType === ViewType.TRACE_TAB
       ) {
         return compareByDisplayOrder(
           a.getTraces()[0].type,
           b.getTraces()[0].type,
         );
       } else if (
-        aView.type === ViewType.GLOBAL_SEARCH &&
-        bView.type !== ViewType.GLOBAL_SEARCH
+        aViewType === ViewType.GLOBAL_SEARCH &&
+        bViewType !== ViewType.GLOBAL_SEARCH
       ) {
         return -1;
       } else if (
-        aView.type !== ViewType.GLOBAL_SEARCH &&
-        bView.type === ViewType.GLOBAL_SEARCH
+        aViewType !== ViewType.GLOBAL_SEARCH &&
+        bViewType === ViewType.GLOBAL_SEARCH
       ) {
         return 1;
       } else {
-        return aView.title < bView.title ? -1 : 1;
+        return a.getTitle() < b.getTitle() ? -1 : 1;
       }
     });
   }

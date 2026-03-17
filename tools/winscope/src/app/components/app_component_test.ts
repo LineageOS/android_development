@@ -65,7 +65,7 @@ import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
 import {TracePositionUpdate, TraceSearchRequest} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {View, Viewer, ViewType} from '@viewers/viewer';
+import {Viewer, ViewType} from '@viewers/viewer';
 
 import {AppComponent} from './app_component';
 import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from './bottomnav/bottom_drawer_component';
@@ -1048,20 +1048,18 @@ describe('AppComponent', () => {
       };
       getReportedRequestSpy.and.returnValue(request);
 
-      const mockView: View = {
-        title: 'Mock View',
-        type: ViewType.TRACE_TAB,
-        traces: [trace],
-        htmlElement: document.createElement('div'),
-      };
-      const mockViewer = {
-        getViews: () => [mockView],
+      const mockViewer: Viewer = {
         getTraces: () => [trace],
         onWinscopeEvent: jasmine.createSpy(),
         setEmitEvent: jasmine.createSpy(),
-        getName: () => 'MockViewer',
+        getTitle: () => 'Mock View',
         onDestroy: () => {},
-      } as Viewer;
+        getViewType: () => ViewType.TRACE_TAB,
+        setComponentRef: jasmine.createSpy(),
+        onShow: () => {},
+        onHide: () => {},
+        getComponentType: jasmine.createSpy(),
+      };
 
       await sendOnViewersLoadedEvent([mockViewer]);
 

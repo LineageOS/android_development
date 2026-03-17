@@ -83,20 +83,23 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
       });
 
       it('shows rects view when rects are defined', () => {
-        assertDefined(component.inputData).rectsToDraw = [];
+        const inputData = assertDefined(component.inputData());
+        inputData.rectsToDraw = [];
         dom.detectChanges();
         expect(dom.find('.rects-view')).toBeDefined();
       });
 
       it('hides rects view when rects are not defined', () => {
-        assertDefined(component.inputData).rectsToDraw = undefined;
+        const inputData = assertDefined(component.inputData());
+        inputData.rectsToDraw = undefined;
         dom.detectChanges();
         expect(dom.find('.rects-view')).toBeUndefined();
       });
 
       it('shows message when no event is selected', () => {
-        assertDefined(component.inputData).propertyNodes = undefined;
-        assertDefined(component.inputData).dispatchPropertyNodes = undefined;
+        const inputData = assertDefined(component.inputData());
+        inputData.propertyNodes = undefined;
+        inputData.dispatchPropertyNodes = undefined;
         dom.detectChanges();
         dom
           .get('.event-properties .placeholder-text')

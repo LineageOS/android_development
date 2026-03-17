@@ -15,7 +15,7 @@
  */
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CommonModule} from '@angular/common';
-import {ChangeDetectorRef, Component, ElementRef, HostListener, Inject, Input, NgZone, SimpleChanges, ViewChild,} from '@angular/core';
+import {ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, NgZone, viewChild,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
@@ -49,74 +49,63 @@ export class ViewerMediaBasedComponent {
   shouldMinimize = false;
   index = 0;
 
-  @ViewChild('videoElement') private videoElement:
-    | ElementRef<HTMLVideoElement>
-    | undefined;
-
-  @ViewChild('frameCanvasElementOverlay') private canvasElement:
-    | ElementRef<HTMLCanvasElement>
-    | undefined;
+  private videoElement =
+    viewChild<ElementRef<HTMLVideoElement>>('videoElement');
+  private canvasElement = viewChild<ElementRef<HTMLCanvasElement>>(
+    'frameCanvasElementOverlay',
+  );
 
   constructor(
     @Inject(DomSanitizer) private sanitizer: DomSanitizer,
-    @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
+    @Inject(ElementRef) readonly elementRef: ElementRef<HTMLElement>,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(NgZone) private ngZone: NgZone,
-  ) {}
-
-  @Input() currentTraceEntries: MediaBasedTraceEntry[] = [];
-  @Input() titles: string[] = [];
-  @Input() forceMinimize = false;
-  @Input() enableDoubleClick = false;
-  @Input() isFetchingEntries = false;
-  @Input() isInPlaybackMode = false;
-
-  private frameSize: Size = {width: 720, height: 1280}; // default for Flicker
-  private frameSizeWorker: number | undefined;
-
-  private calls = 0;
-
-  ngOnChanges(changes: SimpleChanges) {
-    this.calls++;
-    const currCall = this.calls;
-
-    if (changes['isFetchingEntries']) {
-      if (changes['isFetchingEntries'].currentValue) {
-        this.ngZone.run(() => {
-          new Timer(1000).sleepMs().then(() => {
-            if (!this.isFetchingEntries || currCall !== this.calls) {
-              return;
-            }
-            this.showFetchingEntriesMessage = true;
-            this.changeDetectorRef.detectChanges();
-          });
+  ) {
+    effect(() => {
+      this.calls++;
+      const currCall = this.calls;
+      const isFetchingEntries = this.isFetchingEntries();
+      if (isFetchingEntries) {
+        new Timer(1000).sleepMs().then(() => {
+          if (!this.isFetchingEntries() || currCall !== this.calls) {
+            return;
+          }
+          this.showFetchingEntriesMessage = true;
+          this.changeDetectorRef.detectChanges();
         });
       } else {
         this.showFetchingEntriesMessage = false;
         this.changeDetectorRef.detectChanges();
       }
-      if (Object.keys(changes).length === 1) {
-        // Do not trigger change detection if isFetchingEntries is the
-        // only input to have changed.
+    });
+
+    effect(() => {
+      const currentTraceEntries = this.currentTraceEntries();
+      if (currentTraceEntries.length === 0) {
         return;
       }
-    }
-
-    this.changeDetectorRef.detectChanges();
-
-    if (
-      !changes['currentTraceEntries'] ||
-      this.currentTraceEntries.length === 0
-    ) {
-      return;
-    }
-
-    if (this.safeUrl === undefined) {
-      this.tryUpdateSafeUrl();
-    }
-
-    this.tryUpdateRenderedFrame();
+      if (this.safeUrl === undefined) {
+        this.tryUpdateSafeUrl();
+      }
+      this.tryUpdateRenderedFrame();
+    });
   }
+
+  currentTraceEntries = input<MediaBasedTraceEntry[]>([]);
+  titles = input<string[]>([]);
+  forceMinimize = input<boolean>(false);
+  enableDoubleClick = input<boolean>(false);
+  isFetchingEntries = input<boolean>(false);
+  isInPlaybackMode = input<boolean>(false);
+
+  readonly hasOneOrLessTitles = computed(() => {
+    return this.titles().length <= 1;
+  });
+
+  private frameSize: Size = {width: 720, height: 1280}; // default for Flicker
+  private frameSizeWorker: number | undefined;
+
+  private calls = 0;
 
   ngAfterViewInit() {
     this.resetFrameSizeWorker();
@@ -137,20 +126,16 @@ export class ViewerMediaBasedComponent {
   }
 
   isMinimized(): boolean {
-    return this.forceMinimize || this.shouldMinimize;
+    return this.forceMinimize() || this.shouldMinimize;
   }
 
   hasImageToShow(): boolean {
-    const curr = this.currentTraceEntries.at(this.index);
+    const curr = this.currentTraceEntries().at(this.index);
     return curr !== undefined && curr.frame !== undefined;
   }
 
-  hasOneOrLessTitles(): boolean {
-    return this.titles.length <= 1;
-  }
-
   getCurrentTime(): number | undefined {
-    return this.currentTraceEntries.at(this.index)?.videoTimeSeconds;
+    return this.currentTraceEntries().at(this.index)?.videoTimeSeconds;
   }
 
   onSelectChange(event: MatSelectChange) {
@@ -170,7 +155,7 @@ export class ViewerMediaBasedComponent {
   }
 
   onOverlayDblClick() {
-    if (this.enableDoubleClick && !this.isInPlaybackMode) {
+    if (this.enableDoubleClick() && !this.isInPlaybackMode()) {
       const event = new CustomEvent(ViewerEvents.OverlayDblClick, {
         detail: this.index,
         bubbles: true,
@@ -180,11 +165,15 @@ export class ViewerMediaBasedComponent {
   }
 
   private tryUpdateRenderedFrame() {
-    const entry = this.currentTraceEntries.at(this.index);
+    const canvasElement = this.canvasElement();
+    if (!canvasElement) {
+      return;
+    }
+    const entry = this.currentTraceEntries().at(this.index);
     if (!entry?.frame) {
       return;
     }
-    const canvas = assertDefined(this.canvasElement?.nativeElement);
+    const canvas = canvasElement.nativeElement;
     entry.frame.tryDrawOnCanvas(canvas);
   }
 
@@ -198,7 +187,7 @@ export class ViewerMediaBasedComponent {
   }
 
   private updateFrameSize() {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (video && video.readyState > 0) {
       this.frameSize = {
         width: video.videoWidth,
@@ -208,7 +197,7 @@ export class ViewerMediaBasedComponent {
       this.updateMaxContainerSize();
       return;
     }
-    const canvas = this.canvasElement?.nativeElement;
+    const canvas = this.canvasElement()?.nativeElement;
     if (canvas) {
       this.frameSize = {
         width: canvas.width,
@@ -245,7 +234,7 @@ export class ViewerMediaBasedComponent {
   }
 
   private tryUpdateSafeUrl() {
-    const curr = this.currentTraceEntries.at(this.index);
+    const curr = this.currentTraceEntries().at(this.index);
     if (curr !== undefined && curr.frameData !== undefined) {
       this.safeUrl = this.sanitizer.bypassSecurityTrustUrl(
         URL.createObjectURL(curr.frameData),
