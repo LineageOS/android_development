@@ -14,24 +14,58 @@
  * limitations under the License.
  */
 
+import {ElementRef} from '@angular/core';
 import {assertString} from '@common/assert';
-import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
-import {TransitionsEntry} from '@viewers/viewer_transitions/ui_data';
+import {LogEntry} from '@viewers/common/ui_data_log';
+import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
 
-export class TransitionsHeightPredictor extends ItemHeightPredictor {
-  protected override readonly defaultRowSize = 36;
-  private readonly participantsCharsPerRow = 25;
-  private readonly timestampCharsPerRow = 20;
+export class TransitionsHeightPredictor extends ItemHeightPredictor<LogEntry> {
+  constructor(
+    elementRef: ElementRef<HTMLElement>,
+    getRow: (index: number) => LogEntry | undefined,
+  ) {
+    super(elementRef, getRow);
+  }
 
-  override predictHeight(entry: TransitionsEntry): number {
-    const participantsHeight = this.subItemHeight(
-      assertString(entry.fields[6].value ?? ''),
-      this.participantsCharsPerRow,
-    );
+  override predictHeight(entry: LogEntry): number {
+    const participantsHeight = this.predictParticipantsHeight(entry);
     const timestampHeight = this.subItemHeight(
       entry.traceEntry.getTimestamp().format(),
-      this.timestampCharsPerRow,
+      this.getTimestampColumnWidth(),
     );
     return Math.max(participantsHeight, timestampHeight);
+  }
+
+  private predictParticipantsHeight(entry: LogEntry) {
+    const participants = assertString(entry.fields[6].value ?? '');
+    const words = participants.split(/\s/);
+
+    const participantsColumnWidth = this.getParticipantsColumnWidth();
+    const charsPerRow = Math.ceil(participantsColumnWidth / this.charWidth);
+
+    let additionalRows = 0;
+    let currRowRemainder = charsPerRow;
+
+    for (const word of words) {
+      if (word === 'Windows:' || word.length > currRowRemainder) {
+        additionalRows++;
+        currRowRemainder = charsPerRow;
+      }
+      currRowRemainder -= word.length;
+      if (currRowRemainder < 0) {
+        additionalRows++;
+        currRowRemainder += charsPerRow;
+      }
+    }
+
+    return this.defaultRowHeight + additionalRows * this.additionalRowHeight;
+  }
+
+  private getParticipantsColumnWidth(): number {
+    return this.getElementWidth('.headers .participants', 100);
+  }
+
+  private getTimestampColumnWidth(): number {
+    return this.getElementWidth('.headers .time', 135);
   }
 }

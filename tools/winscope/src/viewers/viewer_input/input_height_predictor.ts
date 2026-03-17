@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
+import {ElementRef} from '@angular/core';
 import {assertString} from '@common/assert';
 import {InputColumnType} from '@trace/input/input_column_type';
-import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
-import {InputEntry} from '@viewers/viewer_input/ui_data';
+import {LogEntry} from '@viewers/common/ui_data_log';
+import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
 
-export class InputHeightPredictor extends ItemHeightPredictor {
-  protected override readonly defaultRowSize = 24;
-  private readonly actionCharsPerRow = 11;
+export class InputHeightPredictor extends ItemHeightPredictor<LogEntry> {
+  constructor(
+    elementRef: ElementRef<HTMLElement>,
+    getRow: (index: number) => LogEntry | undefined,
+  ) {
+    super(elementRef, getRow);
+  }
 
-  override predictHeight(entry: InputEntry): number {
-    const action = assertString(
-      entry.fields.find((f) => f.spec.columnType === InputColumnType.ACTION)
+  override predictHeight(entry: LogEntry): number {
+    const source = assertString(
+      entry.fields.find((f) => f.spec.columnType === InputColumnType.SOURCE)
         ?.value ?? '',
     );
-    return this.subItemHeight(action, this.actionCharsPerRow);
+    return this.subItemHeight(source, this.getSourceColumnWidth());
+  }
+
+  private getSourceColumnWidth(): number {
+    return this.getElementWidth('.headers .input-source', 50);
   }
 }

@@ -22,21 +22,24 @@ limitations under the License.
   >
   </collapsed-sections>
 
-  @if (inputData?.rectsToDraw) {
+  @let data = inputData();
+  @let currStore = store();
+
+  @if (data !== undefined && data.rectsToDraw !== undefined) {
     <rects-view
       class="rects-view"
       [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
       [title]="rectsTitle"
-      [store]="store"
+      [store]="currStore"
       [isStackBased]="true"
-      [dependencies]="inputData?.dependencies ?? []"
-      [displays]="inputData?.displays ?? []"
-      [rects]="inputData?.rectsToDraw ?? []"
+      [dependencies]="data.dependencies"
+      [displays]="data.displays"
+      [rects]="data.rectsToDraw"
       [shadingModes]="shadingModes"
-      [highlightedItem]="inputData?.highlightedRect ?? ''"
-      [userOptions]="inputData?.rectsUserOptions ?? {}"
-      [isDarkMode]="inputData?.isDarkMode ?? false"
-      [rectSpec]="inputData?.rectSpec"
+      [highlightedItem]="data.highlightedRect"
+      [userOptions]="data.rectsUserOptions ?? {}"
+      [isDarkMode]="data.isDarkMode"
+      [rectSpec]="data.rectSpec"
       (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
     ></rects-view>
   }
@@ -45,16 +48,17 @@ limitations under the License.
     class="log-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.LOG)"
     [title]="eventLogTitle"
-    [selectedIndex]="inputData?.selectedIndex"
-    [scrollToIndex]="inputData?.scrollToIndex"
-    [currentIndex]="inputData?.currentIndex"
-    [entries]="inputData?.entries ?? []"
-    [headers]="inputData?.headers ?? []"
+    [selectedIndex]="data?.selectedIndex"
+    [scrollToIndex]="data?.scrollToIndex"
+    [currentIndex]="data?.currentIndex"
+    [entries]="data?.entries ?? []"
+    [headers]="data?.headers ?? []"
     [traceType]="TraceType.INPUT_EVENT_MERGED"
     [showTraceEntryTimes]="false"
     [showTimeControls]="false"
-    [isFetchingData]="inputData?.isFetchingData ?? false"
-    [checkScrollViewportCount]="inputData?.checkScrollViewportCount ?? 0"
+    [isFetchingData]="data?.isFetchingData ?? false"
+    [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
+    [heightPredictor]="heightPredictor"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.LOG, true)"
   ></log-view>
 
@@ -64,12 +68,12 @@ limitations under the License.
         class="properties-view event-properties"
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
         [title]="eventPropertiesTitle"
-        [nodeRows]="inputData?.propertyNodes ?? []"
-        [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+        [nodeRows]="data?.propertyNodes ?? []"
+        [highlightedProperty]="data?.highlightedProperty ?? ''"
         [traceType]="TraceType.INPUT_EVENT_MERGED"
-        [store]="store"
+        [store]="currStore"
         [isProtoDump]="true"
-        [textFilter]="inputData?.propertiesFilter"
+        [textFilter]="data?.propertiesFilter"
         placeholderText="No selected entry."
         (collapseButtonClicked)="
           sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
@@ -81,12 +85,12 @@ limitations under the License.
           sections.isSectionCollapsed(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES)
         "
         [title]="dispatchPropertiesTitle"
-        [nodeRows]="inputData?.dispatchPropertyNodes ?? []"
-        [highlightedProperty]="inputData?.highlightedProperty ?? ''"
+        [nodeRows]="data?.dispatchPropertyNodes ?? []"
+        [highlightedProperty]="data?.highlightedProperty ?? ''"
         [traceType]="TraceType.INPUT_EVENT_MERGED"
-        [store]="store"
+        [store]="currStore"
         [isProtoDump]="true"
-        [textFilter]="inputData?.dispatchPropertiesFilter"
+        [textFilter]="data?.dispatchPropertiesFilter"
         [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
         placeholderText="No selected entry."
         (collapseButtonClicked)="

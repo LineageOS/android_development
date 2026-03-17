@@ -17,7 +17,7 @@
 import {CdkAccordionItem, CdkAccordionModule} from '@angular/cdk/accordion';
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {CommonModule} from '@angular/common';
-import {ChangeDetectorRef, Component, ElementRef, HostListener, Inject, SimpleChanges, TemplateRef, viewChild, viewChildren,} from '@angular/core';
+import {ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, TemplateRef, viewChild, viewChildren,} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule, ValidationErrors, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
@@ -110,6 +110,8 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   private editFromOptions = false;
   private globalSearchTitleHeight = 48;
 
+  private currentSearches: CurrentSearch[] | undefined = [];
+
   private readonly editOption: ListItemOption = {
     name: 'Edit',
     icon: 'edit',
@@ -158,10 +160,22 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   readonly SEARCH_VIEWS = SEARCH_VIEWS;
 
   constructor(
-    @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
+    @Inject(ElementRef) elementRef: ElementRef<HTMLElement>,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
   ) {
-    super();
+    super(elementRef);
+
+    effect(() => {
+      const data = this.inputData();
+      if (this.initializing && data?.initialized) {
+        this.initializing = false;
+      }
+      this.updateSearchSections();
+      if (this.tryPropagateRunFromOptions()) {
+        return;
+      }
+      this.tryHandleQueryCompleted();
+    });
   }
 
   ngAfterViewInit() {
@@ -171,23 +185,12 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
     this.changeDetectorRef.detectChanges();
   }
 
-  ngOnChanges(simpleChanges: SimpleChanges) {
-    if (this.initializing && this.inputData?.initialized) {
-      this.initializing = false;
-    }
-    this.updateSearchSections(simpleChanges);
-    if (this.tryPropagateRunFromOptions()) {
-      return;
-    }
-    this.tryHandleQueryCompleted();
-  }
-
   ngAfterContentChecked() {
     this.tryPropagateEditFromOptions();
   }
 
   onGlobalSearchClick() {
-    if (!this.initializing && !this.inputData?.initialized) {
+    if (!this.initializing && !this.inputData()?.initialized) {
       this.initializing = true;
       const event = new CustomEvent(ViewerEvents.GlobalSearchSectionClick);
       this.elementRef.nativeElement.dispatchEvent(event);
@@ -238,13 +241,15 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   }
 
   getCurrentSearchesWithResults(): CurrentSearch[] {
-    return assertDefined(this.inputData).currentSearches.filter(
+    return assertDefined(this.inputData()).currentSearches.filter(
       (search) => search.result !== undefined,
     );
   }
 
   getCurrentSearchByUid(uid: number): CurrentSearch | undefined {
-    return this.inputData?.currentSearches.find((search) => search.uid === uid);
+    return this.inputData()?.currentSearches.find(
+      (search) => search.uid === uid,
+    );
   }
 
   getExecutedQueryForSearchSection(uid: number): string | undefined {
@@ -366,10 +371,9 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
     return value;
   }
 
-  private updateSearchSections(simpleChanges: SimpleChanges) {
-    const currentSearches = this.inputData?.currentSearches;
-    const previousSearches: CurrentSearch[] | undefined =
-      simpleChanges['inputData']?.previousValue?.currentSearches;
+  private updateSearchSections() {
+    const currentSearches = this.inputData()?.currentSearches;
+    const previousSearches: CurrentSearch[] | undefined = this.currentSearches;
     currentSearches?.forEach((search) => {
       if (!this.searchSections.some((s) => s.uid === search.uid)) {
         this.searchSections.push({
@@ -384,18 +388,18 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
         this.searchSections.splice(i, 1);
       }
     });
+    this.currentSearches = currentSearches;
   }
 
   private tryPropagateRunFromOptions(): boolean {
+    const inputData = this.inputData();
     if (
       this.runFromOptions &&
       this.runningQueryUid === undefined &&
-      this.inputData?.currentSearches
+      inputData?.currentSearches
     ) {
       const lastSearch =
-        this.inputData.currentSearches[
-          this.inputData.currentSearches.length - 1
-        ];
+        inputData.currentSearches[inputData.currentSearches.length - 1];
       this.searchQuery(assertDefined(lastSearch.query), lastSearch.uid);
       this.runFromOptions = false;
       return true;
@@ -405,7 +409,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
 
   private tryPropagateEditFromOptions() {
     if (this.editFromOptions) {
-      const currentSearches = assertDefined(this.inputData).currentSearches;
+      const currentSearches = assertDefined(this.inputData()).currentSearches;
       const activeSearchComponents = this.activeSearchComponents();
       if (currentSearches.length !== activeSearchComponents?.length) {
         return;
@@ -437,7 +441,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
       );
       const section = this.searchSections[sectionIndex];
 
-      if (!this.inputData?.lastTraceFailed) {
+      if (!this.inputData()?.lastTraceFailed) {
         this.activeSearchComponents()
           ?.at(sectionIndex)
           ?.updateText(currentSearch?.query ?? '');
@@ -475,7 +479,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   }
 
   private onEditQueryClick(search: ListedSearch) {
-    const currentSearches = assertDefined(this.inputData).currentSearches;
+    const currentSearches = assertDefined(this.inputData()).currentSearches;
     const lastCurrentSearch = currentSearches[currentSearches.length - 1];
     if (lastCurrentSearch.result !== undefined) {
       this.editFromOptions = true;
@@ -501,7 +505,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
           (control: FormControl) =>
             this.validateSearchQuerySaveName(
               control,
-              this.inputData?.savedSearches ?? [],
+              this.inputData()?.savedSearches ?? [],
             ),
         ]),
       ),

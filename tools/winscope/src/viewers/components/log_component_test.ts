@@ -16,7 +16,7 @@
 
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {ScrollingModule} from '@angular/cdk/scrolling';
+import {CdkVirtualScrollViewport, ScrollingModule, } from '@angular/cdk/scrolling';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -31,7 +31,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
-import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp, } from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
@@ -40,9 +40,8 @@ import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
-import {ColumnSpec, LogEntry, LogField, LogHeader,} from '@viewers/common/ui_data_log';
-import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
+import {ColumnSpec, LogEntry, LogField, LogHeader, } from '@viewers/common/ui_data_log';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents, } from '@viewers/common/viewer_events';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
@@ -50,6 +49,7 @@ import {SearchBoxComponent} from '@viewers/components/search_box_component';
 import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 
 import {LogComponent} from './log_component';
+import {VirtualRow, VirtualScrollViewportComponent, } from './scroll/virtual_scroll_viewport_component';
 
 describe('LogComponent', () => {
   const testColumn1: ColumnSpec = {name: 'test1', cssClass: 'test-1'};
@@ -88,7 +88,9 @@ describe('LogComponent', () => {
         CollapsibleSectionTitleComponent,
         PropertiesComponent,
         SearchBoxComponent,
-        VariableHeightScrollDirective,
+        VirtualScrollViewportComponent,
+        VirtualRow,
+        CdkVirtualScrollViewport,
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(LogComponent);
@@ -115,7 +117,7 @@ describe('LogComponent', () => {
   });
 
   it('emits event and scrolls to first entry on button click', () => {
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(component.virtualScrollViewport(), 'scrollToIndex');
     let clicked: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       clicked = (event as CustomEvent).detail.entry;
@@ -128,13 +130,13 @@ describe('LogComponent', () => {
   it('scrolls to current entry on button click', () => {
     dom.setComponentInput('currentIndex', 1);
     dom.detectChanges();
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(component.virtualScrollViewport(), 'scrollToIndex');
     dom.findAndClick('.go-to-current-entry');
     expect(spy).toHaveBeenCalledWith(1);
   });
 
   it('emits event and scrolls to last entry on button click', () => {
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(component.virtualScrollViewport(), 'scrollToIndex');
     let clicked: TraceEntry<unknown> | undefined;
     dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
       clicked = (event as CustomEvent).detail.entry;
@@ -283,7 +285,7 @@ describe('LogComponent', () => {
     // Force viewport layout update
     dom.detectChanges();
     await dom.whenRenderingDone();
-    component.scrollComponent().checkViewportSize();
+    component.virtualScrollViewport().checkViewportSize();
     dom.detectChanges();
     await dom.whenRenderingDone();
 
@@ -319,7 +321,7 @@ describe('LogComponent', () => {
 
     const entry = dom.get('.entry[item-id="1"]');
     entry.checkClassName('selected', false);
-    const spy = spyOn(component.scrollComponent(), 'scrollToIndex');
+    const spy = spyOn(component.virtualScrollViewport(), 'scrollToIndex');
     entry.click();
     expect(spy).not.toHaveBeenCalled();
     entry.checkClassName('selected', true);
@@ -343,21 +345,21 @@ describe('LogComponent', () => {
   });
 
   it('formats timestamp without date unless multiple dates present', async () => {
-    const entry = dom.get('.scroll .entry');
-    entry.checkTextExact('1ns Test tag 1123 2ns');
-
     const spy = spyOn(component, 'areMultipleDatesPresent').and.returnValue(
       true,
     );
     dom.detectChanges();
+    const entry = dom.get('.scroll .entry');
     entry.checkTextExact('1ns Test tag 1123 2ns');
 
     await setComponentInputData(false);
-    entry.checkTextExact('1970-01-01, 00:00:00.000 Test tag 21234 N/A');
+    entry.checkTextExact(
+      '1970-01-01, 00:00:00.000 Test tag 1123 1970-01-01, 00:00:00.000',
+    );
 
     spy.and.returnValue(false);
-    dom.detectChanges();
-    entry.checkTextExact('00:00:00.000 Test tag 21234 N/A');
+    await setComponentInputData(false);
+    entry.checkTextExact('00:00:00.000 Test tag 1123 00:00:00.000');
   });
 
   it('shows copy button for spec that can be copied', () => {
@@ -396,7 +398,7 @@ describe('LogComponent', () => {
 
   it('checks scroll viewport size if flag set', () => {
     const spy = spyOn(
-      component.scrollComponent(),
+      component.virtualScrollViewport(),
       'checkViewportSize',
     ).and.callThrough();
 
@@ -409,18 +411,9 @@ describe('LogComponent', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('checks scroll viewport size on window resize', () => {
-    const spy = spyOn(
-      component.scrollComponent(),
-      'checkViewportSize',
-    ).and.callThrough();
-    window.dispatchEvent(new Event('resize'));
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
   it('scrolls to scrollToIndex - 1', () => {
     const spy = spyOn(
-      component.scrollComponent(),
+      component.virtualScrollViewport(),
       'scrollToIndex',
     ).and.callThrough();
 

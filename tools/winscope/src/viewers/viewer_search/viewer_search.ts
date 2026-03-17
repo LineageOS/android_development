@@ -28,7 +28,7 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerSearchComponent} from './viewer_search_component';
 
-export class ViewerSearch extends AbstractViewer<QueryResult> {
+export class ViewerSearch extends AbstractViewer<QueryResult, UiData> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.SEARCH];
 
   private traces: Traces | undefined;
@@ -38,23 +38,21 @@ export class ViewerSearch extends AbstractViewer<QueryResult> {
     store: Store,
     timestampConverter: TimestampConverter,
   ) {
-    super(undefined, traces, 'viewer-search', store, timestampConverter);
+    super(undefined, traces, ViewerSearchComponent, store, timestampConverter);
   }
 
   override getTraces(): Array<Trace<QueryResult>> {
     return assertDefined(this.traces).getTraces(TraceType.SEARCH);
   }
 
-  protected override initializePresenter(
+  protected override createPresenter(
     trace: Trace<QueryResult> | undefined,
     traces: Traces,
     store: Store,
+    notifyViewCallback: (uiData: UiData) => void,
     timestampConverter: TimestampConverter,
   ): Presenter {
     this.traces = traces;
-    const notifyViewCallback = (data: UiData) => {
-      (this.htmlElement as unknown as ViewerSearchComponent).inputData = data;
-    };
     return new Presenter(traces, store, notifyViewCallback, timestampConverter);
   }
 
@@ -62,7 +60,7 @@ export class ViewerSearch extends AbstractViewer<QueryResult> {
     return TraceType.SEARCH;
   }
 
-  protected override getViewType(): ViewType {
+  override getViewType(): ViewType {
     return ViewType.GLOBAL_SEARCH;
   }
 }

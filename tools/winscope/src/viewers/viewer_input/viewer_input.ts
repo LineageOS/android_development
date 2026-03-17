@@ -26,24 +26,22 @@ import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerInputComponent} from './viewer_input_component';
 
-export class ViewerInput extends AbstractViewer<HierarchyTreeNode> {
+export class ViewerInput extends AbstractViewer<HierarchyTreeNode, UiData> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.INPUT_EVENT_MERGED];
 
   constructor(traces: Traces, store: Store) {
     const trace = assertDefined(
       traces.getTrace<HierarchyTreeNode>(TraceType.INPUT_EVENT_MERGED),
     );
-    super(trace, traces, 'viewer-input', store);
+    super(trace, traces, ViewerInputComponent, store);
   }
 
-  protected override initializePresenter(
+  protected override createPresenter(
     trace: Trace<HierarchyTreeNode>,
     traces: Traces,
     store: Store,
+    notifyViewCallback: (uiData: UiData) => void,
   ): Presenter {
-    const notifyViewCallback = (uiData: UiData) => {
-      (this.htmlElement as unknown as ViewerInputComponent).inputData = uiData;
-    };
     return new Presenter(traces, trace, store, notifyViewCallback);
   }
 }

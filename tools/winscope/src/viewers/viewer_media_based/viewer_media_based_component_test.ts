@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import {Component, ViewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {assertDefined} from '@common/assert';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {Timer} from '@common/time/timer';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
@@ -34,8 +32,8 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 
 describe('ViewerMediaBasedComponent', () => {
-  let component: TestHostComponent;
-  let dom: DOMTestHelper<TestHostComponent>;
+  let component: ViewerMediaBasedComponent;
+  let dom: DOMTestHelper<ViewerMediaBasedComponent>;
   let screenshotImage: ImageBitmap;
   let screenRecordingParser: Parser<MediaBasedTraceEntry>;
 
@@ -59,14 +57,14 @@ describe('ViewerMediaBasedComponent', () => {
         MatButtonModule,
         MatIconModule,
         MatSelectModule,
-        BrowserAnimationsModule,
-        TestHostComponent,
+        NoopAnimationsModule,
         ViewerMediaBasedComponent,
       ],
     }).compileComponents();
-    const fixture = TestBed.createComponent(TestHostComponent);
+    const fixture = TestBed.createComponent(ViewerMediaBasedComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    dom.setComponentInput('titles', ['Screen recording']);
     dom.detectChanges();
   });
 
@@ -78,19 +76,19 @@ describe('ViewerMediaBasedComponent', () => {
     const title = dom.get('.overlay-title');
     title.checkText('Screen');
 
-    component.titles = ['Screenshot'];
+    dom.setComponentInput('titles', ['Screenshot']);
     dom.detectChanges();
     title.checkTextExact('Screenshot');
 
-    component.titles = ['Screenshot.png'];
+    dom.setComponentInput('titles', ['Screenshot.png']);
     dom.detectChanges();
     title.checkTextExact('Screenshot');
 
-    component.titles = ['Screenshot.png (parent.zip)'];
+    dom.setComponentInput('titles', ['Screenshot.png (parent.zip)']);
     dom.detectChanges();
     title.checkTextExact('Screenshot');
 
-    component.titles = ['Screenshot (parent.zip)'];
+    dom.setComponentInput('titles', ['Screenshot (parent.zip)']);
     dom.detectChanges();
     title.checkTextExact('Screenshot');
   });
@@ -108,7 +106,7 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('forces minimized state', () => {
-    component.forceMinimize = true;
+    dom.setComponentInput('forceMinimize', true);
     dom.detectChanges();
 
     const buttonMinimize = dom.get('.button-minimize');
@@ -116,7 +114,7 @@ describe('ViewerMediaBasedComponent', () => {
     expect(videoContainer.style.height).toBe('0px');
     buttonMinimize.checkDisabled(true);
 
-    component.forceMinimize = false;
+    dom.setComponentInput('forceMinimize', false);
     dom.detectChanges();
     expect(videoContainer.style.height).toBe('');
     buttonMinimize.checkDisabled(false);
@@ -125,7 +123,7 @@ describe('ViewerMediaBasedComponent', () => {
   it('shows video', async () => {
     const initialMaxWidth = getContainerMaxWidth();
     const firstFrame = await screenRecordingParser.getEntry(0);
-    component.currentTraceEntries = [firstFrame];
+    dom.setComponentInput('currentTraceEntries', [firstFrame]);
     await dom.detectChangesAndWaitStable();
 
     const videoContainer = dom.get('.video-container');
@@ -137,13 +135,13 @@ describe('ViewerMediaBasedComponent', () => {
     dom.get('.video-container').checkTextExact('No frame to show.');
   });
 
-  it('image updated on selector entry change', () => {
+  it('image updated on selector entry change', async () => {
     const entry0 = new CanvasEntry(makeSpyImage());
     const spy0 = spyOn(entry0.frame, 'tryDrawOnCanvas');
     const entry1 = new CanvasEntry(makeSpyImage());
     const spy1 = spyOn(entry1.frame, 'tryDrawOnCanvas');
-    component.currentTraceEntries = [entry0, entry1];
-    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    dom.setComponentInput('currentTraceEntries', [entry0, entry1]);
+    dom.setComponentInput('titles', ['Screenshot 1', 'Screenshot 2']);
     dom.detectChanges();
     expect(spy0).toHaveBeenCalledTimes(1);
     expect(spy1).not.toHaveBeenCalled();
@@ -177,8 +175,8 @@ describe('ViewerMediaBasedComponent', () => {
     const spy0 = spyOn(entry0.frame, 'tryDrawOnCanvas');
     const entry1 = new CanvasEntry(makeSpyImage());
     const spy1 = spyOn(entry1.frame, 'tryDrawOnCanvas');
-    component.currentTraceEntries = [entry0, entry1];
-    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    dom.setComponentInput('currentTraceEntries', [entry0, entry1]);
+    dom.setComponentInput('titles', ['Screenshot 1', 'Screenshot 2']);
     dom.detectChanges();
     expect(spy0).toHaveBeenCalledTimes(1);
     expect(spy1).not.toHaveBeenCalled();
@@ -190,50 +188,51 @@ describe('ViewerMediaBasedComponent', () => {
     expect(spy1).toHaveBeenCalledTimes(1);
   });
 
-  it('video frame updated on selector entry change', async () => {
-    component.currentTraceEntries = [
+  it('video frame updated on selector entry change', () => {
+    dom.setComponentInput('currentTraceEntries', [
       new VideoEntry(new Blob(), 0),
       new VideoEntry(new Blob(), 0),
-    ];
-    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    ]);
+    dom.setComponentInput('titles', ['Screenshot 1', 'Screenshot 2']);
     dom.detectChanges();
 
-    const screenComponent = assertDefined(component.screenComponent);
-    let url = screenComponent.safeUrl;
+    let url = component.safeUrl;
 
     dom.openMatSelect();
     const options = dom.getMatSelectPanel().findAll('mat-option');
 
     options[1].click();
-    expect(screenComponent.safeUrl).not.toEqual(url);
-    url = screenComponent.safeUrl;
+    expect(component.safeUrl).not.toEqual(url);
+    url = component.safeUrl;
 
     options[1].click();
-    expect(screenComponent.safeUrl).toEqual(url);
+    expect(component.safeUrl).toEqual(url);
 
     options[0].click();
-    expect(screenComponent.safeUrl).not.toEqual(url);
-    url = screenComponent.safeUrl;
+    expect(component.safeUrl).not.toEqual(url);
+    url = component.safeUrl;
 
     options[0].click();
-    expect(screenComponent.safeUrl).toEqual(url);
+    expect(component.safeUrl).toEqual(url);
   });
 
-  it('does not update frame if trace entries do not change', async () => {
+  it('does not update frame if trace entries do not change', () => {
     const entry = new CanvasEntry(screenshotImage);
     const spy = spyOn(entry.frame, 'tryDrawOnCanvas');
-    component.currentTraceEntries = [entry];
-    component.titles = ['Screenshot 1'];
+    dom.setComponentInput('currentTraceEntries', [entry]);
+    dom.setComponentInput('titles', ['Screenshot 1']);
     dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
 
-    component.titles = ['Screenshot 1', 'Screenshot 2'];
+    dom.setComponentInput('titles', ['Screenshot 1', 'Screenshot 2']);
     dom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('updates max container size on window resize', async () => {
-    component.currentTraceEntries = [new CanvasEntry(screenshotImage)];
+    dom.setComponentInput('currentTraceEntries', [
+      new CanvasEntry(screenshotImage),
+    ]);
     await dom.detectChangesAndWaitStable();
 
     const initialMaxWidth = getContainerMaxWidth();
@@ -259,7 +258,7 @@ describe('ViewerMediaBasedComponent', () => {
     container.doubleClick();
     expect(index).toBeUndefined();
 
-    assertDefined(component.screenComponent).enableDoubleClick = true;
+    dom.setComponentInput('enableDoubleClick', true);
     dom.detectChanges();
     expect(dom.find('.info-icon')).toBeDefined();
     container.doubleClick();
@@ -271,8 +270,8 @@ describe('ViewerMediaBasedComponent', () => {
     dom.addEventListener(ViewerEvents.OverlayDblClick, (event) => {
       index = (event as CustomEvent).detail;
     });
-    assertDefined(component.screenComponent).enableDoubleClick = true;
-    assertDefined(component.screenComponent).isInPlaybackMode = true;
+    dom.setComponentInput('enableDoubleClick', true);
+    dom.setComponentInput('isInPlaybackMode', true);
     dom.detectChanges();
     const container = dom.get('.container');
     container.doubleClick();
@@ -280,21 +279,21 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('shows loading message', async () => {
-    component.isFetchingEntries = true;
+    dom.setComponentInput('isFetchingEntries', true);
     dom.detectChanges();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
     await new Timer(1000).sleepMs();
     expect(dom.find('.fetching-entries-message')).toBeDefined();
-    component.isFetchingEntries = false;
+    dom.setComponentInput('isFetchingEntries', false);
     dom.detectChanges();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
   });
 
   it('does not show loading message if update is too fast', async () => {
-    component.isFetchingEntries = true;
+    dom.setComponentInput('isFetchingEntries', true);
     dom.detectChanges();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
-    component.isFetchingEntries = false;
+    dom.setComponentInput('isFetchingEntries', false);
     dom.detectChanges();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
     await new Timer(500).sleepMs();
@@ -302,22 +301,26 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('does not show loading message if update is not sequential', async () => {
-    component.isFetchingEntries = true;
+    dom.setComponentInput('isFetchingEntries', true);
     dom.detectChanges();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
-    component.isInPlaybackMode = true;
+    dom.setComponentInput('isFetchingEntries', false);
+    dom.detectChanges();
+    dom.setComponentInput('isFetchingEntries', true);
+    dom.detectChanges();
+    dom.setComponentInput('isFetchingEntries', false);
     dom.detectChanges();
     await new Timer(1000).sleepMs();
     expect(dom.find('.fetching-entries-message')).toBeUndefined();
   });
 
   it('disables select if in playback mode', () => {
-    component.currentTraceEntries = [
+    dom.setComponentInput('currentTraceEntries', [
       new VideoEntry(new Blob(), 0),
       new VideoEntry(new Blob(), 0),
-    ];
-    component.titles = ['Screenshot 1', 'Screenshot 2'];
-    component.isInPlaybackMode = true;
+    ]);
+    dom.setComponentInput('titles', ['Screenshot 1', 'Screenshot 2']);
+    dom.setComponentInput('isInPlaybackMode', true);
     dom.detectChanges();
     dom.openMatSelect();
     expect(dom.isMatSelectOpen()).toBeFalse();
@@ -335,28 +338,5 @@ describe('ViewerMediaBasedComponent', () => {
 
   function makeSpyImage(): jasmine.SpyObj<ImageBitmap> {
     return jasmine.createSpyObj<ImageBitmap>('image', ['close']);
-  }
-
-  @Component({
-    imports: [ViewerMediaBasedComponent],
-    selector: 'host-component',
-    template: `
-      <viewer-media-based
-        [currentTraceEntries]="currentTraceEntries"
-        [titles]="titles"
-        [forceMinimize]="forceMinimize"
-        [isFetchingEntries]="isFetchingEntries"
-        [isInPlaybackMode]="isInPlaybackMode"></viewer-media-based>
-    `,
-  })
-  class TestHostComponent {
-    currentTraceEntries: MediaBasedTraceEntry[] = [];
-    titles: string[] = ['Screen recording'];
-    forceMinimize = false;
-    isFetchingEntries = false;
-    isInPlaybackMode = false;
-
-    @ViewChild(ViewerMediaBasedComponent)
-    screenComponent: ViewerMediaBasedComponent | undefined;
   }
 });

@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, SimpleChanges} from '@angular/core';
+import {Component, effect, ElementRef, Inject} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
@@ -77,6 +77,25 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
     ShadingMode.WIRE_FRAME,
   ];
 
+  constructor(@Inject(ElementRef) elementRef: ElementRef) {
+    super(elementRef);
+
+    effect(() => {
+      const data = this.inputData();
+      const rectSpecType = data?.rectSpec?.type.toUpperCase();
+      if (rectSpecType === undefined) {
+        return;
+      }
+      const rectsSection = assertDefined(
+        this.sections.getSection(CollapsibleSectionType.RECTS),
+      );
+      if (rectsSection.label === rectSpecType) {
+        return;
+      }
+      rectsSection.label = rectSpecType;
+    });
+  }
+
   arePropertiesCollapsed(): boolean {
     return (
       this.sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES) &&
@@ -84,18 +103,6 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
         CollapsibleSectionType.CURATED_PROPERTIES,
       )
     );
-  }
-
-  ngOnChanges(simpleChanges: SimpleChanges) {
-    const data = simpleChanges['inputData'];
-    if (data?.currentValue?.rectSpec !== data?.previousValue?.rectSpec) {
-      const rectsSection = assertDefined(
-        this.sections.getSection(CollapsibleSectionType.RECTS),
-      );
-      rectsSection.label = assertDefined(
-        this.inputData?.rectSpec,
-      ).type.toUpperCase();
-    }
   }
 
   getRectsTitle(): string {

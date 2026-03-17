@@ -152,6 +152,7 @@ export abstract class AbstractHierarchyViewerPresenter<
       },
     );
     this.addViewerSpecificListeners(htmlElement);
+    this.copyUiDataAndNotifyView();
   }
 
   onPinnedItemChange(pinnedItem: UiHierarchyTreeNode) {

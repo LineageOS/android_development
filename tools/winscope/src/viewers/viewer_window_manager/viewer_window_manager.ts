@@ -20,27 +20,27 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractViewer} from '@viewers/abstract_viewer';
-import {ViewerComponent} from '@viewers/components/viewer_component';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
+import {ViewerWindowManagerComponent} from './viewer_window_manager_component';
 
-export class ViewerWindowManager extends AbstractViewer<HierarchyTreeNode> {
+export class ViewerWindowManager extends AbstractViewer<
+  HierarchyTreeNode,
+  UiData
+> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.WINDOW_MANAGER];
 
   constructor(trace: Trace<HierarchyTreeNode>, traces: Traces, store: Store) {
-    super(trace, traces, 'viewer-window-manager', store);
+    super(trace, traces, ViewerWindowManagerComponent, store);
   }
 
-  protected override initializePresenter(
+  protected override createPresenter(
     trace: Trace<HierarchyTreeNode>,
     traces: Traces,
     store: Store,
+    notifyViewCallback: (uiData: UiData) => void,
   ): Presenter {
-    const notifyViewCallback = (uiData: UiData) => {
-      (this.htmlElement as unknown as ViewerComponent<UiData>).inputData =
-        uiData;
-    };
     return new Presenter(trace, traces, store, notifyViewCallback);
   }
 }

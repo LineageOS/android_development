@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
@@ -24,6 +23,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader} from '@viewers/common/ui_data_log';
+import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {ProtologEntry, UiData} from './ui_data';
 import {ViewerProtologComponent} from './viewer_protolog_component';
@@ -32,7 +32,7 @@ class ViewerProtologComponentTest extends AbstractLogViewerComponentTest<ViewerP
   protected override readonly testProperties = false;
   protected override readonly hasTimeControls = true;
   protected override readonly testScroll = true;
-  protected override readonly initialEntries = 23;
+  protected override readonly initialEntries = 7;
 
   protected override checkTimestampInTable(
     dom: DOMTestHelper<ViewerProtologComponent>,
@@ -44,7 +44,7 @@ class ViewerProtologComponentTest extends AbstractLogViewerComponentTest<ViewerP
   protected async setUpTestEnvironment(): Promise<
     [
       DOMTestHelper<ViewerProtologComponent>,
-      CdkVirtualScrollViewport,
+      VirtualScrollViewportComponent,
       ViewerProtologComponent,
     ]
   > {
@@ -71,7 +71,7 @@ class ViewerProtologComponentTest extends AbstractLogViewerComponentTest<ViewerP
           {
             spec: {
               name: 'Test Column Text',
-              cssClass: 'test-class-text',
+              cssClass: 'text',
               columnType: ProtologColumnType.MESSAGE,
             },
             value: i % 2 === 0 ? shortMessage : longMessage,
@@ -79,7 +79,7 @@ class ViewerProtologComponentTest extends AbstractLogViewerComponentTest<ViewerP
           {
             spec: {
               name: 'Test Column Location',
-              cssClass: 'test-class-location',
+              cssClass: 'source-file',
               columnType: ProtologColumnType.LOCATION,
             },
             value: 'file1',

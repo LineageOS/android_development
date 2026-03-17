@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-@if (inputData) {
+@let data = inputData();
+
+@if (data) {
   <div class="card-grid">
     <collapsed-sections
       [class.empty]="sections.areAllSectionsExpanded()"
@@ -59,10 +61,10 @@ limitations under the License.
               }
               <active-search
                 [canClear]="searchSections.length > 1"
-                [isSearchInitialized]="inputData.initialized"
+                [isSearchInitialized]="data.initialized"
                 [executedQuery]="getExecutedQueryForSearchSection(section.uid)"
                 [saveQueryField]="saveQueryField"
-                [lastTraceFailed]="inputData.lastTraceFailed"
+                [lastTraceFailed]="data.lastTraceFailed"
                 [canAdd]="i === searchSections.length - 1"
                 [label]="getQueryLabel(section.uid)"
                 [saveQueryNameControl]="section.saveQueryNameControl"
@@ -79,7 +81,7 @@ limitations under the License.
         <mat-tab label="Saved">
           <search-list
             class="body"
-            [searches]="inputData.savedSearches"
+            [searches]="data.savedSearches"
             placeholderText="Saved queries will appear here."
             [listItemOptions]="savedSearchOptions"
           ></search-list>
@@ -88,7 +90,7 @@ limitations under the License.
         <mat-tab label="Recent">
           <search-list
             class="body"
-            [searches]="inputData.recentSearches"
+            [searches]="data.recentSearches"
             placeholderText="Recent queries will appear here."
             [listItemOptions]="recentSearchOptions"
             [control]="menuSaveQueryNameControl"

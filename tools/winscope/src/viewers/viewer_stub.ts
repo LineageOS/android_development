@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
+import {Component, ComponentRef, ElementRef, Inject, Type} from '@angular/core';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {Trace} from '@trace_api/trace';
 
-import {View, Viewer, ViewType} from './viewer';
+import {Viewer, ViewerComponent, ViewType} from './viewer';
+
+@Component({
+  selector: 'viewer-stub',
+  template: `<div>{{text}}</div>`,
+})
+class ViewerStubComponent implements ViewerComponent {
+  text = '';
+  constructor(
+    @Inject(ElementRef) readonly elementRef: ElementRef<HTMLElement>,
+  ) {}
+}
 
 export class ViewerStub implements Viewer {
   private readonly traces: Array<Trace<unknown>> = [];
-  private htmlElement: HTMLElement;
   private title: string;
-  private view: View;
+  private viewContent?: string;
+  private viewType: ViewType;
   private emitAppEvent: EmitEvent = () => Promise.resolve();
 
   constructor(
@@ -34,21 +46,10 @@ export class ViewerStub implements Viewer {
     viewType?: ViewType,
   ) {
     this.title = title;
-
-    if (viewContent !== undefined) {
-      this.htmlElement = document.createElement('div');
-      this.htmlElement.innerText = viewContent;
-    } else {
-      this.htmlElement = undefined as unknown as HTMLElement;
-    }
+    this.viewContent = viewContent;
     if (trace) this.traces = [trace];
 
-    this.view = new View(
-      viewType ?? ViewType.TRACE_TAB,
-      this.getTraces(),
-      this.htmlElement,
-      this.title,
-    );
+    this.viewType = viewType ?? ViewType.TRACE_TAB;
   }
 
   onWinscopeEvent(_: WinscopeEvent): Promise<void> {
@@ -59,12 +60,33 @@ export class ViewerStub implements Viewer {
     this.emitAppEvent = callback;
   }
 
+  setComponentRef(componentRef: ComponentRef<ViewerStubComponent>): void {
+    componentRef.instance.text = this.viewContent ?? '';
+    componentRef.changeDetectorRef.detectChanges();
+  }
+
+  onShow(): void {
+    // do nothing
+  }
+
+  onHide(): void {
+    // do nothing
+  }
+
   async emitAppEventForTesting(event: WinscopeEvent) {
     await this.emitAppEvent(event);
   }
 
-  getViews(): View[] {
-    return [this.view];
+  getTitle(): string {
+    return this.title;
+  }
+
+  getComponentType(): Type<ViewerComponent> {
+    return ViewerStubComponent;
+  }
+
+  getViewType(): ViewType {
+    return this.viewType ?? ViewType.TRACE_TAB;
   }
 
   getTraces(): Array<Trace<unknown>> {

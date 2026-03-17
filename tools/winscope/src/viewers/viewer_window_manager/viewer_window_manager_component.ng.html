@@ -21,42 +21,46 @@ limitations under the License.
     (sectionChange)="sections.onCollapseStateChange($event, false)"
   >
   </collapsed-sections>
+
+  @let data = inputData();
+  @let currStore = store();
+
   <rects-view
     class="rects-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.RECTS)"
-    [class.disabled-component]="inputData?.isPlaybackInitializing"
+    [class.disabled-component]="data?.isPlaybackInitializing"
     [title]="getRectsTitle()"
-    [store]="store"
-    [rects]="inputData?.rectsToDraw ?? []"
-    [displays]="inputData?.displays ?? []"
-    [highlightedItem]="inputData?.highlightedItem ?? ''"
+    [store]="currStore"
+    [rects]="data?.rectsToDraw ?? []"
+    [displays]="data?.displays ?? []"
+    [highlightedItem]="data?.highlightedItem ?? ''"
     [shadingModes]="shadingModes"
-    [dependencies]="inputData?.dependencies ?? []"
-    [userOptions]="inputData?.rectsUserOptions ?? {}"
-    [pinnedItems]="inputData?.pinnedItems ?? []"
-    [isDarkMode]="inputData?.isDarkMode ?? false"
-    [rectSpec]="inputData?.rectSpec"
+    [dependencies]="data?.dependencies ?? []"
+    [userOptions]="data?.rectsUserOptions ?? {}"
+    [pinnedItems]="data?.pinnedItems ?? []"
+    [isDarkMode]="data?.isDarkMode ?? false"
+    [rectSpec]="data?.rectSpec"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
   ></rects-view>
   <hierarchy-view
     class="hierarchy-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
-    [class.disabled-component]="inputData?.isPlaybackInitializing"
-    [nodeRows]="inputData?.hierarchyNodes ?? []"
-    [dependencies]="inputData?.dependencies ?? []"
-    [highlightedItem]="inputData?.highlightedItem ?? ''"
-    [pinnedItems]="inputData?.pinnedItems ?? []"
-    [textFilter]="inputData?.hierarchyFilter"
-    [store]="store"
-    [userOptions]="inputData?.hierarchyUserOptions ?? {}"
-    [rectIdToShowState]="inputData?.rectIdToShowState"
+    [class.disabled-component]="data?.isPlaybackInitializing"
+    [nodeRows]="data?.hierarchyNodes ?? []"
+    [dependencies]="data?.dependencies ?? []"
+    [highlightedItem]="data?.highlightedItem ?? ''"
+    [pinnedItems]="data?.pinnedItems ?? []"
+    [textFilter]="data?.hierarchyFilter"
+    [store]="currStore"
+    [userOptions]="data?.hierarchyUserOptions ?? {}"
+    [rectIdToShowState]="data?.rectIdToShowState"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
   ></hierarchy-view>
   <div
     class="properties"
-    [class.disabled-component]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
+    [class.disabled-component]="data?.isPlaybackPlaying || data?.isPlaybackInitializing"
   >
-    @if (inputData?.isPlaybackPlaying) {
+    @if (data?.isPlaybackPlaying) {
       <div class="disabled-message user-notification mat-body-1">
         Properties disabled due to playback
       </div>
@@ -64,13 +68,13 @@ limitations under the License.
     <properties-view
       class="properties-view"
       [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
-      [class.disabled-component]="inputData?.isPlaybackPlaying || inputData?.isPlaybackInitializing"
-      [userOptions]="inputData?.propertiesUserOptions ?? {}"
-      [nodeRows]="inputData?.propertyNodes ?? []"
+      [class.disabled-component]="data?.isPlaybackPlaying || data?.isPlaybackInitializing"
+      [userOptions]="data?.propertiesUserOptions ?? {}"
+      [nodeRows]="data?.propertyNodes ?? []"
       [traceType]="TraceType.WINDOW_MANAGER"
-      [textFilter]="inputData?.propertiesFilter"
-      [highlightedProperty]="inputData?.highlightedProperty ?? ''"
-      [store]="store"
+      [textFilter]="data?.propertiesFilter"
+      [highlightedProperty]="data?.highlightedProperty ?? ''"
+      [store]="currStore"
       [isProtoDump]="false"
       placeholderText="No selected item."
       (collapseButtonClicked)="

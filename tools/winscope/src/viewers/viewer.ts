@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ComponentRef, ElementRef, Type} from '@angular/core';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
@@ -25,19 +26,19 @@ export enum ViewType {
   GLOBAL_SEARCH,
 }
 
-export class View {
-  constructor(
-    public type: ViewType,
-    public traces: Array<Trace<unknown>>,
-    public htmlElement: HTMLElement,
-    public title: string,
-  ) {}
+export interface ViewerComponent {
+  elementRef: ElementRef<HTMLElement>;
 }
 
 export interface Viewer extends WinscopeEventListener, WinscopeEventEmitter {
   onWinscopeEvent(event: WinscopeEvent): Promise<void>;
   setEmitEvent(callback: EmitEvent): void;
-  getViews(): View[];
   getTraces(): Array<Trace<unknown>>;
   onDestroy(): void;
+  setComponentRef(componentRef: ComponentRef<ViewerComponent>): void;
+  onShow(): void;
+  onHide(): void;
+  getViewType(): ViewType;
+  getComponentType(): Type<ViewerComponent>;
+  getTitle(): string;
 }

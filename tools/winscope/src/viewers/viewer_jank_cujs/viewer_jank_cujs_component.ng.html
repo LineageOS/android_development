@@ -14,19 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+@let data = inputData();
+
 <div class="card-grid">
   <log-view
     class="log-view"
-    [selectedIndex]="inputData?.selectedIndex"
-    [scrollToIndex]="inputData?.scrollToIndex"
-    [currentIndex]="inputData?.currentIndex"
-    [entries]="inputData?.entries ?? []"
-    [headers]="inputData?.headers ?? []"
+    [selectedIndex]="data?.selectedIndex"
+    [scrollToIndex]="data?.scrollToIndex"
+    [currentIndex]="data?.currentIndex"
+    [entries]="data?.entries ?? []"
+    [headers]="data?.headers ?? []"
     [traceType]="TraceType.CUJS"
     [showTraceEntryTimes]="false"
     [showTimeControls]="false"
-    [isFetchingData]="inputData?.isFetchingData ?? false"
-    [checkScrollViewportCount]="inputData?.checkScrollViewportCount ?? 0"
+    [isFetchingData]="data?.isFetchingData ?? false"
+    [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
   >
   </log-view>
 </div>

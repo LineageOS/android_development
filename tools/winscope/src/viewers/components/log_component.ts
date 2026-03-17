@@ -17,9 +17,9 @@
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {SelectionModel} from '@angular/cdk/collections';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {CdkVirtualScrollViewport, ScrollingModule,} from '@angular/cdk/scrolling';
+import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {Component, computed, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -34,11 +34,13 @@ import {TraceType} from '@trace_api/trace_type';
 import {LogFilter, LogSelectFilter, LogTextFilter,} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ClickableProperty, LogEntry, LogField, LogFieldValue, LogHeader,} from '@viewers/common/ui_data_log';
-import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
 import {SearchBoxComponent} from '@viewers/components/search_box_component';
 import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
+
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 
 @Component({
   selector: 'log-view',
@@ -54,13 +56,17 @@ import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_
     CollapsibleSectionTitleComponent,
     SelectWithFilterComponent,
     SearchBoxComponent,
-    VariableHeightScrollDirective,
+    VirtualScrollViewportComponent,
+    VirtualRow,
     CdkMenuModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './log_component.ng.html',
   styleUrls: ['./log_component.css'],
 })
 export class LogComponent {
+  Array = Array;
+
   headers = input.required<LogHeader[]>();
   entries = input.required<LogEntry[]>();
   traceType = input.required<TraceType>();
@@ -74,6 +80,11 @@ export class LogComponent {
   padEntries = input<boolean>(true);
   isFetchingData = input<boolean>(false);
   checkScrollViewportCount = input<number>(0);
+  heightPredictor = input<ItemHeightPredictor<unknown>>(
+    new ItemHeightPredictor(this.elementRef, (index: number) => {
+      return this.entries().at(index);
+    }),
+  );
 
   readonly areMultipleDatesPresent = computed<boolean>(() => {
     return (
@@ -86,9 +97,14 @@ export class LogComponent {
     return this.traceType() === TraceType.CUJS;
   });
 
+  readonly isRowVisible = (index: number) => {
+    return this.virtualScrollViewport()?.isIndexVisible(index) ?? false;
+  };
+
   collapseButtonClicked = output();
 
-  scrollComponent = viewChild.required(CdkVirtualScrollViewport);
+  readonly virtualScrollViewport =
+    viewChild.required<VirtualScrollViewportComponent>('logContainer');
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
@@ -96,10 +112,12 @@ export class LogComponent {
 
   constructor(
     @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+    @Inject(ChangeDetectorRef)
+    private readonly changeDetectorRef: ChangeDetectorRef,
   ) {
     effect(() => {
       if (this.checkScrollViewportCount() > 0) {
-        this.scrollComponent().checkViewportSize();
+        this.virtualScrollViewport().checkViewportSize();
       }
     });
 
@@ -113,7 +131,9 @@ export class LogComponent {
       ) {
         // scroll previous index to top, so when previous index is partially
         // rendered the target index is still fully rendered
-        this.scrollComponent().scrollToIndex(Math.max(0, scrollToIndex - 1));
+        this.virtualScrollViewport().scrollToIndex(
+          Math.max(0, scrollToIndex - 1),
+        );
 
         this.textSelection.clear();
         this.textSelection.toggle(entries[scrollToIndex]);
@@ -121,8 +141,8 @@ export class LogComponent {
     });
   }
 
-  isHeaderWithFilter(header: LogHeader): boolean {
-    return header.filter !== undefined;
+  onVisibleRangeChanged() {
+    this.changeDetectorRef.markForCheck();
   }
 
   disableHeaderTooltip(header: HTMLElement): boolean {
@@ -133,7 +153,7 @@ export class LogComponent {
     return Array.isArray(value);
   }
 
-  isString(item: LogFieldValue) {
+  isString(item: string | ClickableProperty) {
     return typeof item === 'string';
   }
 
@@ -143,8 +163,12 @@ export class LogComponent {
     return field.value instanceof Timestamp || propagateEntryTimestamp;
   }
 
-  formatFieldButton(field: string | number | Timestamp): string | number {
-    return field instanceof Timestamp ? this.formatTimestamp(field) : field;
+  formatFieldButton(field: LogField): string | number {
+    const value = field.value;
+    if (value instanceof Timestamp) {
+      return this.formatTimestamp(value);
+    }
+    return value as string | number;
   }
 
   getFieldClass(field: LogField, index: number): string {
@@ -173,7 +197,7 @@ export class LogComponent {
   @HostListener('window:resize', ['$event'])
   onResize(_: Event) {
     this.updateTableMarginEnd();
-    this.scrollComponent().checkViewportSize();
+    this.virtualScrollViewport().checkViewportSize();
   }
 
   onFilterChange(event: MatSelectChange, header: LogHeader) {
@@ -200,7 +224,7 @@ export class LogComponent {
   onGoToFirstEntryClick() {
     const firstEntry = this.entries().at(0);
     if (firstEntry) {
-      this.scrollComponent().scrollToIndex(0);
+      this.virtualScrollViewport().scrollToIndex(0);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(firstEntry.traceEntry),
@@ -213,7 +237,7 @@ export class LogComponent {
   onGoToCurrentEntryClick() {
     const currentIndex = this.currentIndex();
     if (currentIndex !== undefined) {
-      this.scrollComponent().scrollToIndex(currentIndex);
+      this.virtualScrollViewport().scrollToIndex(currentIndex);
       this.textSelection.clear();
       this.textSelection.toggle(this.entries()[currentIndex]);
     }
@@ -224,7 +248,7 @@ export class LogComponent {
     const lastIndex = entries.length - 1;
     const lastEntry = entries.at(lastIndex);
     if (lastEntry) {
-      this.scrollComponent().scrollToIndex(lastIndex);
+      this.virtualScrollViewport().scrollToIndex(lastIndex);
       this.emitEvent(
         ViewerEvents.TimestampClick,
         new TimestampClickDetail(lastEntry.traceEntry),
@@ -294,7 +318,7 @@ export class LogComponent {
     if (!tableHeader) {
       return;
     }
-    const el = this.scrollComponent().elementRef.nativeElement;
+    const el = this.virtualScrollViewport().elementRef.nativeElement;
     if (el && el.scrollHeight > el.offsetHeight) {
       tableHeader.style.marginInlineEnd =
         el.offsetWidth - el.scrollWidth + 'px';

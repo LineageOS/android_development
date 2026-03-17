@@ -70,6 +70,7 @@ export class Presenter {
         }
       },
     );
+    this.notifyViewCallback(this.uiData);
   }
 
   async onAppEvent(event: WinscopeEvent) {

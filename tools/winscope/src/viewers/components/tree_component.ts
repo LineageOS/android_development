@@ -25,8 +25,9 @@ import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 
+import {ItemHeightPredictor} from './scroll/item_height_predictor';
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {TreeNodeComponent} from './tree_node_component';
-import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 @Component({
   selector: 'tree-view',
@@ -49,6 +50,8 @@ export class TreeComponent<T extends UiTreeNode> {
   filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
 
+  private viewInitialized = false;
+
   nodeRows = input.required<Array<FlattenedTreeRow<T>>>();
   store = input<InMemoryStorage>(new InMemoryStorage());
   isFlattened = input<boolean>(false);
@@ -70,13 +73,21 @@ export class TreeComponent<T extends UiTreeNode> {
 
   readonly levelOffset = 24;
   readonly heightPredictor = new NodeHeightPredictor(
+    this.elementRef,
     (index: number) => {
       return this.filteredRows.at(index);
     },
     () => {
+      if (!this.viewInitialized) {
+        return undefined;
+      }
       return this.virtualScrollViewport().elementRef.nativeElement.clientWidth;
     },
   );
+
+  ngAfterViewInit() {
+    this.viewInitialized = true;
+  }
 
   constructor(
     @Inject(ElementRef) public elementRef: ElementRef<HTMLElement>,
@@ -370,27 +381,26 @@ export class TreeComponent<T extends UiTreeNode> {
   }
 }
 
-class NodeHeightPredictor {
-  private readonly defaultRowHeight = 24;
-  private readonly charWidth = 9;
+class NodeHeightPredictor extends ItemHeightPredictor<
+  FlattenedTreeRow<UiTreeNode>
+> {
+  protected override readonly defaultRowHeight = 24;
+  protected override readonly charWidth = 9;
+  protected override readonly additionalRowHeight = 16;
   private readonly nodeIconWidth = 24;
   private readonly chipPaddingWidth = 30;
-  private readonly additionalRowHeight = 16;
   private readonly defaultRowWidth = 480;
   private readonly rowPaddingWidth = 12;
 
   constructor(
-    private readonly getRow: (
-      index: number,
-    ) => FlattenedTreeRow<UiTreeNode> | undefined,
+    elementRef: ElementRef<HTMLElement>,
+    getRow: (index: number) => FlattenedTreeRow<UiTreeNode> | undefined,
     private readonly getViewportWidth: () => number | undefined,
-  ) {}
+  ) {
+    super(elementRef, getRow);
+  }
 
-  predict(index: number): number {
-    const row = this.getRow(index);
-    if (!row) {
-      return this.defaultRowHeight;
-    }
+  protected override predictHeight(row: FlattenedTreeRow<UiTreeNode>): number {
     const displayName = row.node.getDisplayName();
     let textWidth = displayName.length * this.charWidth;
 

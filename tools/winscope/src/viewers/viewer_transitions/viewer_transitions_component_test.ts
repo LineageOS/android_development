@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
@@ -25,6 +24,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader} from '@viewers/common/ui_data_log';
+import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {TransitionsEntry, UiData} from './ui_data';
 import {ViewerTransitionsComponent} from './viewer_transitions_component';
@@ -33,7 +33,7 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
   protected override readonly testProperties = true;
   protected override readonly hasTimeControls = true;
   protected override readonly testScroll = true;
-  protected override readonly initialEntries = 6;
+  protected override readonly initialEntries = 8;
   protected override readonly propertiesSectionTitle = 'SELECTED TRANSITION';
   protected override readonly propertiesPlaceholder =
     'No current or selected transition.';
@@ -58,7 +58,7 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
   protected async setUpTestEnvironment(): Promise<
     [
       DOMTestHelper<ViewerTransitionsComponent>,
-      CdkVirtualScrollViewport,
+      VirtualScrollViewportComponent,
       ViewerTransitionsComponent,
     ]
   > {

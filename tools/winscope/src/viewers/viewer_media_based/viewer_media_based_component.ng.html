@@ -20,35 +20,36 @@ limitations under the License.
       <button mat-button class="button-drag draggable" cdkDragHandle>
         <mat-icon class="drag-icon">drag_indicator</mat-icon>
       </button>
+      @let currTitles = titles();
       @if (hasOneOrLessTitles()) {
         <span
           #titleText
           cdkDragHandle
           class="mat-body-2 overlay-title text-no-overflow draggable"
-          [matTooltip]="titles.at(index)"
+          [matTooltip]="currTitles.at(index)"
           matTooltipPosition="above"
           [matTooltipShowDelay]="300"
         >
-          {{ titles.at(0)?.split('.')?.[0]?.split(' ')?.[0] }}
+          {{ currTitles.at(0)?.split('.')?.[0]?.split(' ')?.[0] }}
         </span>
       } @else {
         <mat-select
           class="overlay-title text-no-overflow select-title"
-          [matTooltip]="titles.at(index)"
+          [matTooltip]="currTitles.at(index)"
           matTooltipPosition="above"
           [matTooltipShowDelay]="300"
           (selectionChange)="onSelectChange($event)"
           [value]="index"
-          [disabled]="isInPlaybackMode"
+          [disabled]="isInPlaybackMode()"
         >
-          @for (title of titles; track $index; let i = $index) {
-            <mat-option [value]="i"> {{ titles[i].split('.')[0] }} </mat-option>
+          @for (title of currTitles; track $index; let i = $index) {
+            <mat-option [value]="i"> {{ currTitles[i].split('.')[0] }} </mat-option>
           }
         </mat-select>
       }
 
       <span class="header-end">
-        @if (enableDoubleClick) {
+        @if (enableDoubleClick()) {
           <mat-icon
             class="info-icon material-symbols-outlined"
             matTooltip="Double click overlay when not in playback mode to change active trace to this screen recording"
@@ -61,7 +62,7 @@ limitations under the License.
         <button
           mat-button
           class="button-minimize"
-          [disabled]="forceMinimize"
+          [disabled]="forceMinimize()"
           (click)="onMinimizeButtonClick()"
         >
           <mat-icon> {{ isMinimized() ? 'maximize' : 'minimize' }} </mat-icon>

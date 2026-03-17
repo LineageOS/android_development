@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<div class="overlay-container"></div>
+<div class="overlay-container" [style.pointer-events]="'all'"></div>
 <div class="header-items-wrapper">
   <div class="trace-tabs-wrapper header-items-wrapper">
     <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="tabs-navigation-bar">
@@ -30,7 +30,7 @@ limitations under the License.
         >
           <div
             class="tab-content"
-            [matTooltip]="getTabTooltip(tab.view)"
+            [matTooltip]="getTabTooltip(tab.viewer)"
             matTooltipPosition="above"
             [matTooltipShowDelay]="300"
             [matTooltipDisabled]="!tab.isTooltipStable"
@@ -39,7 +39,7 @@ limitations under the License.
             <mat-icon class="icon" [style]="{color: getTabIconColor(tab), marginRight: '0.5rem'}">
               {{ getTabIcon(tab) }}
             </mat-icon>
-            <span class="tab-title"> {{ getTitle(tab.view) }} </span>
+            <span class="tab-title"> {{ getTitle(tab.viewer) }} </span>
           </div>
           @if (showTraceTypesWithParsingErrorsWarning(tab)) {
             <mat-icon

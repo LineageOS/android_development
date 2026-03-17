@@ -22,24 +22,27 @@ limitations under the License.
   >
   </collapsed-sections>
 
+  @let data = inputData();
+
   <log-view
     class="log-view"
-    [selectedIndex]="inputData?.selectedIndex"
-    [scrollToIndex]="inputData?.scrollToIndex"
-    [currentIndex]="inputData?.currentIndex"
-    [entries]="inputData?.entries ?? []"
-    [headers]="inputData?.headers ?? []"
+    [selectedIndex]="data?.selectedIndex"
+    [scrollToIndex]="data?.scrollToIndex"
+    [currentIndex]="data?.currentIndex"
+    [entries]="data?.entries ?? []"
+    [headers]="data?.headers ?? []"
     [traceType]="TraceType.TRANSACTIONS"
-    [isFetchingData]="inputData?.isFetchingData ?? false"
-    [checkScrollViewportCount]="inputData?.checkScrollViewportCount ?? 0"
+    [isFetchingData]="data?.isFetchingData ?? false"
+    [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
+    [heightPredictor]="heightPredictor"
   >
   </log-view>
 
   <properties-view
     class="properties-view"
     [title]="propertiesTitle"
-    [userOptions]="inputData?.propertiesUserOptions ?? {}"
-    [nodeRows]="inputData?.propertyNodes ?? []"
+    [userOptions]="data?.propertiesUserOptions ?? {}"
+    [nodeRows]="data?.propertyNodes ?? []"
     [traceType]="TraceType.TRANSACTIONS"
     [isProtoDump]="false"
     placeholderText="No current or selected transaction with additional properties."

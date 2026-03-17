@@ -952,7 +952,7 @@ export class TimelineComponent
 
   private async onTabbedViewSwitched(event: TabbedViewSwitched) {
     await this.onPlaybackStateChange(PlaybackState.PAUSED);
-    this.currentTabTraceType.set(event.newFocusedView.traces[0]?.type);
+    this.currentTabTraceType.set(event.newFocusedView.getTraces()[0]?.type);
     this.changeDetectorRef.detectChanges();
   }
 

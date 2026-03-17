@@ -40,10 +40,10 @@ import {TreeNodeComponent} from '@viewers/components/tree_node_component';
 
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {HierarchyComponent} from './hierarchy_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {SearchBoxComponent} from './search_box_component';
 import {TreeComponent} from './tree_component';
 import {UserOptionsComponent} from './user_options_component';
-import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 describe('HierarchyComponent', () => {
   let component: HierarchyComponent;

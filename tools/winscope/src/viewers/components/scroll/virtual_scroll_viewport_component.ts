@@ -98,7 +98,6 @@ export class VirtualScrollViewportComponent {
     effect(() => {
       const itemCount = this.itemCount();
       const heightPredictor = this.heightPredictor();
-
       if (this.heights.length > itemCount) {
         this.heights.splice(itemCount);
       } else if (this.heights.length < itemCount) {
@@ -116,6 +115,10 @@ export class VirtualScrollViewportComponent {
     this.resizeObserver = new ResizeObserver(() => resized.next());
     resized.pipe(takeUntil(this.destroyed), debounceTime(1)).subscribe(() => {
       this.ngZone.run(() => {
+        const heightPredictor = this.heightPredictor();
+        for (let i = 0; i < this.itemCount(); i++) {
+          this.heights[i] = heightPredictor.predict(i);
+        }
         this.updateSpacer();
         this.handleChanges();
       });
@@ -168,6 +171,7 @@ export class VirtualScrollViewportComponent {
   updateHeight(index: number, elementRef: ElementRef<HTMLElement>) {
     const height = elementRef.nativeElement.offsetHeight + 1;
     const offset = height - this.heights[index];
+    const heightChanged = Math.abs(this.heights[index] - height) > 5;
     this.heights[index] = height;
 
     if (offset !== 0) {
@@ -178,8 +182,18 @@ export class VirtualScrollViewportComponent {
       const notInRange = index > 0 && index <= this.visibleRange.start;
       if (beforeVisibleAnchor || notInRange) {
         this.scrollTo(this.targetScrollTop + offset);
+        return;
       }
     }
+
+    if (heightChanged) {
+      this.checkViewportSize();
+    }
+  }
+
+  checkViewportSize() {
+    this.handleChanges();
+    this.updateSpacer();
   }
 
   private handleChanges() {

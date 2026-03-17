@@ -38,8 +38,7 @@ limitations under the License.
         </div>
       }
       @for (header of currHeaders; track $index) {
-        @let hasFilter = isHeaderWithFilter(header);
-        @if (!hasFilter) {
+        @if (header.filter === undefined) {
           <div
             #headerEl
             class="mat-body-2 header text-no-overflow"
@@ -74,9 +73,9 @@ limitations under the License.
             }
             <span>{{ header.spec.name }}</span>
           </div>
-        } @else if (hasFilter) {
+        } @else {
           <div class="filter mat-body-2" [class]="header.spec.cssClass">
-            @if (isLogSelectFilter(header.filter!)) {
+            @if (isLogSelectFilter(header.filter)) {
               <select-with-filter
                 [label]="header.spec.name"
                 [options]="header.filter.options"
@@ -88,7 +87,7 @@ limitations under the License.
               >
               </select-with-filter>
             }
-            @if (isLogTextFilter(header.filter!)) {
+            @if (isLogTextFilter(header.filter)) {
               <search-box
                 [textFilter]="header.filter.textFilter"
                 [label]="header.spec.name"
@@ -153,113 +152,96 @@ limitations under the License.
       </span>
     </div>
   }
-  @if (!isFixedSizeScrollViewport()) {
-    <cdk-virtual-scroll-viewport
-      variableHeightScroll
-      class="scroll"
-      [traceType]="traceType()"
-      [scrollItems]="currEntries"
-    >
-      <ng-container
-        *cdkVirtualFor="let entry of currEntries; let i = index"
-        [ngTemplateOutlet]="content"
-        [ngTemplateOutletContext]="{entry: entry, i: i}"
-      >
-      </ng-container>
-    </cdk-virtual-scroll-viewport>
-  } @else {
-    <cdk-virtual-scroll-viewport
-      [itemSize]="36"
-      [minBufferPx]="1000"
-      [maxBufferPx]="2000"
-      class="scroll"
-    >
-      <ng-container
-        *cdkVirtualFor="let entry of currEntries; let i = index"
-        [ngTemplateOutlet]="content"
-        [ngTemplateOutletContext]="{entry: entry, i: i}"
-      >
-      </ng-container>
-    </cdk-virtual-scroll-viewport>
-  }
-
-  <ng-template #content let-entry="entry" let-i="i">
-    <div
-      class="entry"
-      [attr.item-id]="i"
-      [class.current]="isCurrentEntry(i)"
-      [class.selected]="isSelectedEntry(i)"
-      (click)="onEntryClicked(i)"
-    >
-      @if (showTraceTimes) {
-        <div class="time cell">
-          <button
-            mat-button
-            class="time-button"
-            color="primary"
-            (click)="onTraceEntryTimestampClick($event, entry)"
-            [disabled]="!entry.traceEntry.hasValidTimestamp()"
-          >
-            {{ formatTimestamp(entry.traceEntry.getTimestamp()) }}
-          </button>
-        </div>
-      }
-      @for (field of entry.fields; track $index) {
-        @let fieldClass = getFieldClass(field, $index);
-        <div [class]="fieldClass">
-          @if (!showFieldButton(entry, field) && !isClickableArray(field.value)) {
-            <span
-              class="mat-body-1 field-value"
-              [matTooltip]="field.tooltip"
-              matTooltipPosition="above"
-              >{{ field.value }}</span
-            >
+  <virtual-scroll-viewport
+    #logContainer
+    [itemCount]="currEntries.length"
+    [heightPredictor]="heightPredictor()"
+    (visibleRangeChanged)="onVisibleRangeChanged()"
+    class="scroll"
+  >
+    @for (entry of currEntries; track $index) {
+      @let i = $index;
+      @if (isRowVisible(i)) {
+        <div
+          class="entry"
+          [attr.item-id]="i"
+          [class.current]="isCurrentEntry(i)"
+          [class.selected]="isSelectedEntry(i)"
+          (click)="onEntryClicked(i)"
+          virtualRow
+          [rowIndex]="i"
+        >
+          @if (showTraceTimes) {
+            <div class="time cell">
+              <button
+                mat-button
+                class="time-button"
+                color="primary"
+                (click)="onTraceEntryTimestampClick($event, entry)"
+                [disabled]="!entry.traceEntry.hasValidTimestamp()"
+              >
+                {{ formatTimestamp(entry.traceEntry.getTimestamp()) }}
+              </button>
+            </div>
           }
-          @if (showFieldButton(entry, field)) {
-            <button
-              mat-button
-              class="time-button"
-              color="primary"
-              (click)="onFieldButtonClick($event, entry, field)"
-            >
-              {{ formatFieldButton(field.value) }}
-            </button>
-          }
-          @if (isClickableArray(field.value)) {
-            @for (item of field.value; track $index) {
-              @if (isString(item)) {
-                <span class="mat-body-1">{{ item }}</span>
-              } @else {
+          @for (field of entry.fields; track $index) {
+            @let fieldClass = getFieldClass(field, $index);
+            <div [class]="fieldClass">
+              @if (!showFieldButton(entry, field) && !Array.isArray(field.value)) {
+                <span
+                  class="mat-body-1 field-value"
+                  [matTooltip]="field.tooltip"
+                  matTooltipPosition="above"
+                  >{{ field.value }}</span
+                >
+              }
+              @if (showFieldButton(entry, field)) {
                 <button
                   mat-button
-                  class="window-button"
+                  class="time-button"
                   color="primary"
-                  [matTooltip]="item.tooltip"
-                  matTooltipPosition="above"
-                  matTooltipShowDelay="100"
-                  (click)="item.onClick()"
+                  (click)="onFieldButtonClick($event, entry, field)"
                 >
-                  {{ item.propertyValue }}
+                  {{ formatFieldButton(field) }}
                 </button>
               }
-            }
-          }
-          @if (field.icon) {
-            <mat-icon aria-hidden="false" class="icon-small" [style]="{color: field.iconColor}">
-              {{ field.icon }}
-            </mat-icon>
-          }
-          @if (field.spec.canCopy) {
-            <button
-              mat-icon-button
-              class="copy-button icon-button-small"
-              [cdkCopyToClipboard]="field.value.toString()"
-            >
-              <mat-icon>content_copy</mat-icon>
-            </button>
+              @if (Array.isArray(field.value)) {
+                @for (item of field.value; track $index) {
+                  @if (isString(item)) {
+                    <span class="mat-body-1">{{ item }}</span>
+                  } @else {
+                    <button
+                      mat-button
+                      class="window-button"
+                      color="primary"
+                      [matTooltip]="item.tooltip"
+                      matTooltipPosition="above"
+                      matTooltipShowDelay="100"
+                      (click)="item.onClick()"
+                    >
+                      {{ item.propertyValue }}
+                    </button>
+                  }
+                }
+              }
+              @if (field.icon) {
+                <mat-icon aria-hidden="false" class="icon-small" [style]="{color: field.iconColor}">
+                  {{ field.icon }}
+                </mat-icon>
+              }
+              @if (field.spec.canCopy) {
+                <button
+                  mat-icon-button
+                  class="copy-button icon-button-small"
+                  [cdkCopyToClipboard]="field.value.toString()"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              }
+            </div>
           }
         </div>
       }
-    </div>
-  </ng-template>
+    }
+  </virtual-scroll-viewport>
 </div>

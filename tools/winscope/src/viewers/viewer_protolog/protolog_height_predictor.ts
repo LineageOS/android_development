@@ -14,38 +14,42 @@
  * limitations under the License.
  */
 
+import {ElementRef} from '@angular/core';
 import {assertString} from '@common/assert';
 import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
-import {ItemHeightPredictor} from '@viewers/common/item_height_predictor';
-import {ProtologEntry} from '@viewers/viewer_protolog/ui_data';
+import {LogEntry} from '@viewers/common/ui_data_log';
+import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
 
-export class ProtologHeightPredictor extends ItemHeightPredictor {
-  protected override readonly defaultRowSize = 16;
-  private readonly textCharsPerRow = 150;
-  private readonly timestampCharsPerRow = 20;
-  private readonly sourceFileCharsPerRow = 50;
+export class ProtologHeightPredictor extends ItemHeightPredictor<LogEntry> {
+  constructor(
+    elementRef: ElementRef<HTMLElement>,
+    getRow: (index: number) => LogEntry | undefined,
+  ) {
+    super(elementRef, getRow);
+  }
 
-  override predictHeight(entry: ProtologEntry): number {
-    const textHeight = this.subItemHeight(
-      assertString(
-        entry.fields.find(
-          (f) => f.spec.columnType === ProtologColumnType.MESSAGE,
-        )?.value ?? '',
-      ),
-      this.textCharsPerRow,
+  override predictHeight(row: LogEntry): number {
+    const text = assertString(
+      row.fields.find((f) => f.spec.columnType === ProtologColumnType.MESSAGE)
+        ?.value ?? '',
     );
-    const timestampHeight = this.subItemHeight(
-      entry.traceEntry.getTimestamp().format(),
-      this.timestampCharsPerRow,
+    const sourceFile = assertString(
+      row.fields.find((f) => f.spec.columnType === ProtologColumnType.LOCATION)
+        ?.value ?? '',
     );
+    const textHeight = this.subItemHeight(text, this.getTextColumnWidth());
     const sourceFileHeight = this.subItemHeight(
-      assertString(
-        entry.fields.find(
-          (f) => f.spec.columnType === ProtologColumnType.LOCATION,
-        )?.value ?? '',
-      ),
-      this.sourceFileCharsPerRow,
+      sourceFile,
+      this.getSourceFileColumnWidth(),
     );
-    return Math.max(textHeight, timestampHeight, sourceFileHeight);
+    return Math.max(textHeight, sourceFileHeight);
+  }
+
+  private getTextColumnWidth(): number {
+    return this.getElementWidth('.headers .text', 350);
+  }
+
+  private getSourceFileColumnWidth(): number {
+    return this.getElementWidth('.headers .source-file', 150);
   }
 }

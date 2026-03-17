@@ -30,6 +30,7 @@ import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-
 import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@app/misc_events';
 import {ParsingErrorType} from '@app/parsing_error_type';
 import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@app/tabbed_view_events';
+import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {makeZeroTimestamp} from '@common/time/test_helpers';
 import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
@@ -115,6 +116,15 @@ describe('TraceViewComponent', () => {
     tabs[1].checkText('Title1 Dump');
   });
 
+  it('explicitly triggers on show for first tab to be shown', () => {
+    resetDom();
+    viewers[0].onShow = jasmine.createSpy();
+    dom.setComponentInput('viewers', viewers);
+    dom.setComponentInput('store', store);
+    dom.detectChanges();
+    expect(viewers[0].onShow).toHaveBeenCalledTimes(1);
+  });
+
   it('creates viewer overlay', () => {
     const overlayContainer = dom.get('.overlay-container');
     overlayContainer.checkText('Content2');
@@ -132,27 +142,15 @@ describe('TraceViewComponent', () => {
     }).toThrowError();
   });
 
-  it('switches view on click', () => {
+  it('switches view on click', async () => {
     const tabs = getTabs();
-
-    // Initially tab 0
-    dom.detectChanges();
-    let visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content0');
-
-    // Switch to tab 1
-    tabs[1].click();
-    visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content1');
-
-    // Switch to tab 0
-    tabs[1].click();
-    tabs[0].click();
-    visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content0');
+    const switchTab0 = async () => {
+      tabs[0].click();
+    };
+    const switchTab1 = async () => {
+      tabs[1].click();
+    };
+    await checkTabSwitches(switchTab0, switchTab1);
   });
 
   it("emits 'view switched' events", () => {
@@ -172,24 +170,15 @@ describe('TraceViewComponent', () => {
   });
 
   it("handles 'view switch' requests", async () => {
-    // Initially tab 0
-    let visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content0');
-
-    // Switch to tab 1
-    await component.onWinscopeEvent(new TabbedViewSwitchRequest(traceWm));
-    dom.detectChanges();
-    visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content1');
-
-    // Switch to tab 0
-    await component.onWinscopeEvent(new TabbedViewSwitchRequest(traceSf));
-    dom.detectChanges();
-    visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content0');
+    const switchTab0 = async () => {
+      await component.onWinscopeEvent(new TabbedViewSwitchRequest(traceSf));
+      dom.detectChanges();
+    };
+    const switchTab1 = async () => {
+      await component.onWinscopeEvent(new TabbedViewSwitchRequest(traceWm));
+      dom.detectChanges();
+    };
+    await checkTabSwitches(switchTab0, switchTab1);
   });
 
   it('disables filter presets button for viewers without presets', () => {
@@ -317,9 +306,7 @@ describe('TraceViewComponent', () => {
     ]);
     dom.setComponentInput('store', store);
     dom.detectChanges();
-    const visibleTabContents = getVisibleTabContents();
-    expect(visibleTabContents.length).toBe(1);
-    expect(visibleTabContents[0].innerHTML).toBe('Content1');
+    expect(getVisibleTabContents()).toEqual(['Content1']);
   });
 
   it('shows tooltips for tabs with trace descriptors', async () => {
@@ -343,15 +330,50 @@ describe('TraceViewComponent', () => {
     );
   });
 
-  function getVisibleTabContents() {
-    const contents: HTMLElement[] = [];
-    dom.findAll('.trace-view-content div').forEach((content) => {
-      const element = content.getHTMLElement();
-      if (element.style.display !== 'none') {
-        contents.push(element);
-      }
-    });
-    return contents;
+  async function checkTabSwitches(
+    switchTab0: () => Promise<void>,
+    switchTab1: () => Promise<void>,
+  ) {
+    // Initially tab 0
+    expect(getVisibleTabContents()).toEqual(['Content0']);
+
+    const viewers = component.viewers();
+    const showTab0 = spyOn(viewers[0], 'onShow');
+    const showTab1 = spyOn(viewers[1], 'onShow');
+    const hideTab0 = spyOn(viewers[0], 'onHide');
+    const hideTab1 = spyOn(viewers[1], 'onHide');
+
+    // Switch to tab 1
+    await switchTab1();
+    expect(getVisibleTabContents()).toEqual(['Content0', 'Content1']);
+    expect(showTab0).not.toHaveBeenCalled();
+    expect(showTab1).toHaveBeenCalledTimes(1);
+    expect(hideTab0).toHaveBeenCalledTimes(1);
+    expect(hideTab1).not.toHaveBeenCalled();
+    showTab1.calls.reset();
+    hideTab0.calls.reset();
+
+    // Stay on tab 1
+    await switchTab1();
+    expect(getVisibleTabContents()).toEqual(['Content0', 'Content1']);
+    expect(showTab0).not.toHaveBeenCalled();
+    expect(showTab1).not.toHaveBeenCalled();
+    expect(hideTab0).not.toHaveBeenCalled();
+    expect(hideTab1).not.toHaveBeenCalled();
+
+    // Switch to tab 0
+    await switchTab0();
+    expect(getVisibleTabContents()).toEqual(['Content0', 'Content1']);
+    expect(showTab0).toHaveBeenCalledTimes(1);
+    expect(showTab1).not.toHaveBeenCalled();
+    expect(hideTab0).not.toHaveBeenCalled();
+    expect(hideTab1).toHaveBeenCalledTimes(1);
+  }
+
+  function getVisibleTabContents(): string[] {
+    return dom
+      .findAll('.trace-view-content viewer-stub')
+      .map((stub) => assertDefined(stub.getText()));
   }
 
   function getTabs() {
