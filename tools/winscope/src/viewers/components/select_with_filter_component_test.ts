@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ScrollingModule} from '@angular/cdk/scrolling';
+import {CdkVirtualScrollViewport, ScrollingModule,} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
 import {ComponentFixtureAutoDetect, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
@@ -52,6 +52,7 @@ describe('SelectWithFilterComponent', () => {
         MatTooltipModule,
         ScrollingModule,
         SelectWithFilterComponent,
+        CdkVirtualScrollViewport,
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(SelectWithFilterComponent);

@@ -19,6 +19,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {LogComponent} from '@viewers/components/log_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
 
+import {ProtologHeightPredictor} from './protolog_height_predictor';
 import {UiData} from './ui_data';
 
 @Component({
@@ -32,4 +33,9 @@ export class ViewerProtologComponent extends ViewerComponent<UiData> {
   logComponent = viewChild(LogComponent);
 
   TraceType = TraceType;
+
+  heightPredictor = new ProtologHeightPredictor(
+    this.elementRef,
+    (index: number) => this.inputData()?.entries[index],
+  );
 }

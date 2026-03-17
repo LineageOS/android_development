@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
@@ -28,6 +27,7 @@ import {LogSelectFilter} from '@viewers/common/log_filters';
 import {LogHeader} from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
+import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {TransactionsEntry, UiData} from './ui_data';
 import {ViewerTransactionsComponent} from './viewer_transactions_component';
@@ -36,7 +36,7 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
   protected override readonly testProperties = true;
   protected override readonly hasTimeControls = true;
   protected override readonly testScroll = true;
-  protected override readonly initialEntries = 6;
+  protected override readonly initialEntries = 8;
   protected override readonly propertiesSectionTitle =
     'PROPERTIES - PROTO DUMP';
   protected override readonly propertiesPlaceholder =
@@ -52,7 +52,7 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
   protected async setUpTestEnvironment(): Promise<
     [
       DOMTestHelper<ViewerTransactionsComponent>,
-      CdkVirtualScrollViewport,
+      VirtualScrollViewportComponent,
       ViewerTransactionsComponent,
     ]
   > {
@@ -107,7 +107,11 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
   }
 
   protected override async setUpTestEnvironmentForScroll(): Promise<
-    [DOMTestHelper<ViewerTransactionsComponent>, CdkVirtualScrollViewport]
+    [
+      DOMTestHelper<ViewerTransactionsComponent>,
+      VirtualScrollViewportComponent,
+      ViewerTransactionsComponent,
+    ]
   > {
     const hierarchyTree = new HierarchyTreeBuilder()
       .setId('Transactions')
@@ -165,11 +169,10 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
       uiData.entries.push(entry);
     }
 
-    const [dom, viewport] = await this.initializeTestEnvironment(
+    return await this.initializeTestEnvironment(
       uiData,
       ViewerTransactionsComponent,
     );
-    return [dom, viewport];
   }
 }
 

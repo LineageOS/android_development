@@ -37,12 +37,12 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {PropertiesComponent} from './properties_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {SearchBoxComponent} from './search_box_component';
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';
 import {TreeComponent} from './tree_component';
 import {TreeNodeComponent} from './tree_node_component';
 import {UserOptionsComponent} from './user_options_component';
-import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 describe('PropertiesComponent', () => {
   let component: PropertiesComponent;

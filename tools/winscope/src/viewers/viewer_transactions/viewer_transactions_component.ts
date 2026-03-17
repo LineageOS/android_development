@@ -23,6 +23,7 @@ import {LogComponent} from '@viewers/components/log_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {ViewerComponent} from '@viewers/components/viewer_component';
 
+import {TransactionsHeightPredictor} from './transactions_height_predictor';
 import {UiData} from './ui_data';
 
 @Component({
@@ -51,4 +52,9 @@ export class ViewerTransactionsComponent extends ViewerComponent<UiData> {
       isCollapsed: false,
     },
   ]);
+
+  heightPredictor = new TransactionsHeightPredictor(
+    this.elementRef,
+    (index: number) => this.inputData()?.entries[index],
+  );
 }

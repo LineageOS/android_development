@@ -30,9 +30,9 @@ import {ViewerEvents} from '@viewers/common/viewer_events';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {TreeComponent} from './tree_component';
 import {TreeNodeComponent} from './tree_node_component';
-import {VirtualRow, VirtualScrollViewportComponent,} from './virtual_scroll_viewport_component';
 
 describe('TreeComponent', () => {
   let component: TreeComponent<UiTreeNode>;

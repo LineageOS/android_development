@@ -16,7 +16,7 @@
 
 import {CdkAccordionModule} from '@angular/cdk/accordion';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {ScrollingModule} from '@angular/cdk/scrolling';
+import {CdkVirtualScrollViewport, ScrollingModule,} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
 import {TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -39,11 +39,11 @@ import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
-import {VariableHeightScrollDirective} from '@viewers/common/variable_height_scroll_directive';
 import {AddQueryClickDetail, ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {LogComponent} from '@viewers/components/log_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {ActiveSearchComponent} from './active_search_component';
 import {SearchListComponent} from './search_list_component';
@@ -105,7 +105,6 @@ describe('ViewerSearchComponent', () => {
         MatTabsModule,
         CdkMenuModule,
         MatProgressSpinnerModule,
-        ScrollingModule,
         MatTooltipModule,
         CdkAccordionModule,
         MatDividerModule,
@@ -115,7 +114,10 @@ describe('ViewerSearchComponent', () => {
         ActiveSearchComponent,
         SearchListComponent,
         LogComponent,
-        VariableHeightScrollDirective,
+        VirtualRow,
+        VirtualScrollViewportComponent,
+        ScrollingModule,
+        CdkVirtualScrollViewport,
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(ViewerSearchComponent);
