@@ -24,6 +24,7 @@ class ViewerWindowManagerComponentTest extends AbstractHierarchyViewerComponentT
   protected override readonly hierarchyTitle = 'HIERARCHY';
   protected override readonly propertiesTitle = 'PROPERTIES';
   protected override readonly rectsTitle = 'WINDOWS';
+  protected override readonly propertiesSelector = '.properties';
 
   protected async setUpTestEnvironment(): Promise<
     [DOMTestHelper<ViewerWindowManagerComponent>, ViewerWindowManagerComponent]

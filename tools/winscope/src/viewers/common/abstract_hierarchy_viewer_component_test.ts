@@ -64,7 +64,7 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
 
       it('handles properties section collapse/expand', () => {
         dom.checkSectionCollapseAndExpand(
-          '.properties-view',
+          this.propertiesSelector,
           this.propertiesTitle,
         );
       });
@@ -124,6 +124,7 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
   protected abstract readonly hierarchyTitle: string;
   protected abstract readonly propertiesTitle: string;
   protected readonly rectsTitle?: string;
+  protected readonly propertiesSelector: string = '.properties-view';
 
   protected abstract setUpTestEnvironment(): Promise<[DOMTestHelper<T>, T]>;
   protected executeSpecializedTests?(): void;
