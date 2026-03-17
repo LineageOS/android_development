@@ -171,6 +171,7 @@ limitations under the License.
           virtualRow
           [rowIndex]="i"
         >
+          @let timeOnly = !areMultipleDatesPresent();
           @if (showTraceTimes) {
             <div class="time cell">
               <button
@@ -180,7 +181,7 @@ limitations under the License.
                 (click)="onTraceEntryTimestampClick($event, entry)"
                 [disabled]="!entry.traceEntry.hasValidTimestamp()"
               >
-                {{ formatTimestamp(entry.traceEntry.getTimestamp()) }}
+                {{ entry.traceEntry.getTimestamp().format(timeOnly) }}
               </button>
             </div>
           }
@@ -192,7 +193,7 @@ limitations under the License.
                   class="mat-body-1 field-value"
                   [matTooltip]="field.tooltip"
                   matTooltipPosition="above"
-                  >{{ field.value }}</span
+                  >{{ field.format(timeOnly) }}</span
                 >
               }
               @if (showFieldButton(entry, field)) {
@@ -202,7 +203,7 @@ limitations under the License.
                   color="primary"
                   (click)="onFieldButtonClick($event, entry, field)"
                 >
-                  {{ formatFieldButton(field) }}
+                  {{ field.format(timeOnly) }}
                 </button>
               }
               @if (Array.isArray(field.value)) {

@@ -24,7 +24,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
-import {LogHeader} from '@viewers/common/ui_data_log';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {LogTextFilterChangeDetail} from '@viewers/common/viewer_event_details';
 import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
@@ -92,22 +92,22 @@ class ViewerProtologComponentTest extends AbstractLogViewerComponentTest<ViewerP
           this.testField,
           this.testField,
           this.testField,
-          {
-            spec: {
+          new LogField(
+            {
               name: 'Test Column Text',
               cssClass: 'text',
               columnType: ProtologColumnType.MESSAGE,
             },
-            value: i % 2 === 0 ? shortMessage : longMessage,
-          },
-          {
-            spec: {
+            i % 2 === 0 ? shortMessage : longMessage,
+          ),
+          new LogField(
+            {
               name: 'Test Column Location',
               cssClass: 'source-file',
               columnType: ProtologColumnType.LOCATION,
             },
-            value: 'file1',
-          },
+            'file1',
+          ),
         ]),
       );
     }

@@ -26,7 +26,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
-import {LogHeader} from '@viewers/common/ui_data_log';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
@@ -205,21 +205,17 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
     return new InputEntry(
       this.entry,
       [
-        {
-          spec: this.testSpec,
-          value: 'VALUE',
-          propagateEntryTimestamp: true,
-        },
+        new LogField(this.testSpec, 'VALUE', undefined, undefined, true),
         this.testField,
         this.testField,
-        {
-          spec: {
+        new LogField(
+          {
             name: 'Test Column Action',
             cssClass: 'test-class-action',
             columnType: InputColumnType.ACTION,
           },
-          value: 'VALUE',
-        },
+          'VALUE',
+        ),
         this.testField,
         this.testField,
         this.testField,

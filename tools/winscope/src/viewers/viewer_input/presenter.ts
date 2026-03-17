@@ -35,7 +35,7 @@ import {LogPresenter} from '@viewers/common/log_presenter';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {RectsPresenter} from '@viewers/common/rects_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
-import {ClickableProperty, ColumnSpec, LogEntry, LogHeader,} from '@viewers/common/ui_data_log';
+import {ClickableProperty, ColumnSpec, LogEntry, LogField, LogHeader,} from '@viewers/common/ui_data_log';
 import {makeInputRects} from '@viewers/common/ui_rect_factory';
 import {UserOptions} from '@viewers/common/user_options';
 import {RectLegendFactory, TraceRectType,} from '@viewers/components/rects/rect_spec';
@@ -419,60 +419,61 @@ export class Presenter extends AbstractLogViewerPresenter<
     return new InputEntry(
       traceEntry,
       [
-        {
-          spec: Presenter.COLUMNS.type,
-          value: type.formattedValue(),
-          propagateEntryTimestamp: true,
-        },
-        {
-          spec: Presenter.COLUMNS.source,
-          value: assertDefined(wrapperTree.getEagerPropertyByName('source'))
+        new LogField(
+          Presenter.COLUMNS.type,
+          type.formattedValue(),
+          undefined,
+          undefined,
+          true,
+        ),
+        new LogField(
+          Presenter.COLUMNS.source,
+          assertDefined(wrapperTree.getEagerPropertyByName('source'))
             .formattedValue()
             .replace('SOURCE_', ''),
-        },
-        {
-          spec: Presenter.COLUMNS.action,
-          value: Presenter.getInputAction(wrapperTree),
-        },
-        {
-          spec: Presenter.COLUMNS.deviceId,
-          value: Number(
+        ),
+        new LogField(
+          Presenter.COLUMNS.action,
+          Presenter.getInputAction(wrapperTree),
+        ),
+        new LogField(
+          Presenter.COLUMNS.deviceId,
+          Number(
             assertBigInt(
               wrapperTree.getEagerPropertyByName('deviceId')?.getValue(),
             ),
           ),
-        },
-        {
-          spec: Presenter.COLUMNS.displayId,
-          value: Number(
+        ),
+        new LogField(
+          Presenter.COLUMNS.displayId,
+          Number(
             assertBigInt(
               wrapperTree.getEagerPropertyByName('displayId')?.getValue(),
             ),
           ),
-        },
-        {
-          spec: Presenter.COLUMNS.details,
-          value:
-            type.getValue() === InputEventType.KEY
-              ? Presenter.extractKeyDetails(
-                  wrapperTree,
-                  (id) => this.getLayerName(id),
-                  onWindowClicked,
-                )
-              : Presenter.createDispatchArray(
-                  wrapperTree,
-                  (id) => this.getLayerName(id),
-                  onWindowClicked,
-                ),
-        },
-        {
-          spec: Presenter.COLUMNS.dispatchWindows,
-          value: windows
+        ),
+        new LogField(
+          Presenter.COLUMNS.details,
+          type.getValue() === InputEventType.KEY
+            ? Presenter.extractKeyDetails(
+                wrapperTree,
+                (id) => this.getLayerName(id),
+                onWindowClicked,
+              )
+            : Presenter.createDispatchArray(
+                wrapperTree,
+                (id) => this.getLayerName(id),
+                onWindowClicked,
+              ),
+        ),
+        new LogField(
+          Presenter.COLUMNS.dispatchWindows,
+          windows
             ?.map((window) => {
               return this.getLayerDisplayName(window);
             })
             .join(', '),
-        },
+        ),
       ],
       getPropertiesTree,
       getDispatchPropertiesTree,

@@ -38,7 +38,7 @@ import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {LogEntry, LogHeader} from '@viewers/common/ui_data_log';
+import {LogEntry, LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {SaveQueryClickDetail, SearchQueryClickDetail,} from '@viewers/common/viewer_event_details';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
@@ -68,16 +68,16 @@ describe('ViewerSearchComponent', () => {
     {
       traceEntry: trace.getEntry(0),
       fields: [
-        {spec: headers[0].spec, value: 'value 1'},
-        {spec: headers[1].spec, value: 'value "2"'},
+        new LogField(headers[0].spec, 'value 1'),
+        new LogField(headers[1].spec, 'value "2"'),
       ],
       getPropertiesTree: undefined,
     },
     {
       traceEntry: trace.getEntry(1),
       fields: [
-        {spec: headers[0].spec, value: 'value 3\nwith newline'},
-        {spec: headers[1].spec, value: makeRealTimestamp(300n)},
+        new LogField(headers[0].spec, 'value 3\nwith newline'),
+        new LogField(headers[1].spec, makeRealTimestamp(300n)),
       ],
       getPropertiesTree: undefined,
     },

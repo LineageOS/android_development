@@ -212,50 +212,48 @@ export class Presenter extends AbstractLogViewerPresenter<
       const [status, statusIcon, statusIconColor] =
         this.extractAndFormatStatus(transitionNode);
 
-      const sendTs: Timestamp | undefined = transitionNode
+      const sendTs = transitionNode
         .getEagerPropertyByName('sendTimeNs')
-        ?.getValue();
-      const dispatchTs: Timestamp | undefined = transitionNode
+        ?.getValue<Timestamp>();
+      const dispatchTs = transitionNode
         .getEagerPropertyByName('dispatchTimeNs')
-        ?.getValue();
+        ?.getValue<Timestamp>();
+      const transitionId = assertDefined(
+        transitionNode
+          .getEagerPropertyByName('transitionId')
+          ?.getValue<number>(),
+      );
+      const duration =
+        transitionNode.getEagerPropertyByName('durationNs')?.formattedValue() ??
+        Presenter.VALUE_NA;
 
       const fields: LogField[] = [
-        {
-          spec: Presenter.COLUMNS.id,
-          value: assertDefined(
-            transitionNode
-              .getEagerPropertyByName('transitionId')
-              ?.getValue<number>(),
-          ),
-        },
-        {spec: Presenter.COLUMNS.type, value: transitionType},
-        {
-          spec: Presenter.COLUMNS.sendTime,
-          value: sendTs ?? Presenter.VALUE_NA,
-          propagateEntryTimestamp: sendTs !== undefined,
-        },
-        {
-          spec: Presenter.COLUMNS.dispatchTime,
-          value: dispatchTs ?? Presenter.VALUE_NA,
-          propagateEntryTimestamp:
-            sendTs === undefined && dispatchTs !== undefined,
-        },
-        {
-          spec: Presenter.COLUMNS.duration,
-          value:
-            transitionNode
-              .getEagerPropertyByName('durationNs')
-              ?.formattedValue() ?? Presenter.VALUE_NA,
-        },
-        {spec: Presenter.COLUMNS.handler, value: handler},
-        {spec: Presenter.COLUMNS.participants, value: participants},
-        {spec: Presenter.COLUMNS.flags, value: flags},
-        {
-          spec: Presenter.COLUMNS.status,
-          value: status,
-          icon: statusIcon,
-          iconColor: statusIconColor,
-        },
+        new LogField(Presenter.COLUMNS.id, transitionId),
+        new LogField(Presenter.COLUMNS.type, transitionType),
+        new LogField(
+          Presenter.COLUMNS.sendTime,
+          sendTs ?? Presenter.VALUE_NA,
+          undefined,
+          undefined,
+          sendTs !== undefined,
+        ),
+        new LogField(
+          Presenter.COLUMNS.dispatchTime,
+          dispatchTs ?? Presenter.VALUE_NA,
+          undefined,
+          undefined,
+          sendTs === undefined && dispatchTs !== undefined,
+        ),
+        new LogField(Presenter.COLUMNS.duration, duration),
+        new LogField(Presenter.COLUMNS.handler, handler),
+        new LogField(Presenter.COLUMNS.participants, participants),
+        new LogField(Presenter.COLUMNS.flags, flags),
+        new LogField(
+          Presenter.COLUMNS.status,
+          status,
+          statusIcon,
+          statusIconColor,
+        ),
       ];
       transitions.push(
         new TransitionsEntry(entry, fields, async () => {

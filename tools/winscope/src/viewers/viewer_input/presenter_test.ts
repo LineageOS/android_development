@@ -224,55 +224,54 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
     expect(uiData.selectedIndex).toBeUndefined();
     const curEntry = uiData.entries[0];
     const expectedFields: LogField[] = [
-      {
-        spec: uiData.headers[0].spec,
-        value: 'MOTION',
-        propagateEntryTimestamp: true,
-      },
-      {spec: uiData.headers[1].spec, value: 'TOUCHSCREEN'},
-      {spec: uiData.headers[2].spec, value: 'DOWN'},
-      {spec: uiData.headers[3].spec, value: 4},
-      {spec: uiData.headers[4].spec, value: 0},
-      {
-        spec: uiData.headers[5].spec,
-        value: [
-          '[',
-          {
-            propertyValue: '212',
-            tooltip: this.wrappedName('win-212'),
-            onClick: () => {},
-          },
-          ', ',
-          {
-            propertyValue: '64',
-            tooltip: undefined,
-            onClick: () => {},
-          },
-          ', ',
-          {
-            propertyValue: '82',
-            tooltip: this.wrappedName('win-82'),
-            onClick: () => {},
-          },
-          ', ',
-          {
-            propertyValue: '75',
-            tooltip: this.wrappedName('win-75'),
-            onClick: () => {},
-          },
-          ']',
-        ],
-      },
-      {
-        spec: uiData.headers[6].spec,
-        value: [
+      new LogField(
+        uiData.headers[0].spec,
+        'MOTION',
+        undefined,
+        undefined,
+        true,
+      ),
+      new LogField(uiData.headers[1].spec, 'TOUCHSCREEN'),
+      new LogField(uiData.headers[2].spec, 'DOWN'),
+      new LogField(uiData.headers[3].spec, 4),
+      new LogField(uiData.headers[4].spec, 0),
+      new LogField(uiData.headers[5].spec, [
+        '[',
+        {
+          propertyValue: '212',
+          tooltip: this.wrappedName('win-212'),
+          onClick: () => {},
+        },
+        ', ',
+        {
+          propertyValue: '64',
+          tooltip: undefined,
+          onClick: () => {},
+        },
+        ', ',
+        {
+          propertyValue: '82',
+          tooltip: this.wrappedName('win-82'),
+          onClick: () => {},
+        },
+        ', ',
+        {
+          propertyValue: '75',
+          tooltip: this.wrappedName('win-75'),
+          onClick: () => {},
+        },
+        ']',
+      ]),
+      new LogField(
+        uiData.headers[6].spec,
+        [
           this.wrappedName('win-212'),
           this.wrappedName('64'),
           this.wrappedName('win-82'),
           this.wrappedName('win-75'),
           this.wrappedName('win-zero-not-98'),
         ].join(', '),
-      },
+      ),
     ];
     expectedFields.forEach((field) => {
       expect(curEntry.fields).toContain(field);

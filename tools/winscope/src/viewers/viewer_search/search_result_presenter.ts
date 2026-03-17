@@ -88,10 +88,7 @@ export class SearchResultPresenter extends AbstractLogViewerPresenter<
       const fieldValue =
         this.tryMakeTsFieldValue(column, value, entryIndex, headers, it) ??
         this.convertToLogFieldValue(value);
-      fields.push({
-        spec: header.spec,
-        value: fieldValue,
-      });
+      fields.push(new LogField(header.spec, fieldValue));
     }
     return {
       traceEntry,

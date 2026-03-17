@@ -26,7 +26,7 @@ import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
 import {NotifyLogViewCallbackType} from '@viewers/common/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@viewers/common/abstract_log_viewer_presenter_test';
-import {LogHeader} from '@viewers/common/ui_data_log';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 
 import {SearchResultPresenter} from './search_result_presenter';
 import {SearchResult} from './ui_data';
@@ -126,20 +126,20 @@ class SearchResultPresenterTest extends AbstractLogViewerPresenterTest<SearchRes
       {
         traceEntry: firstEntry,
         fields: [
-          {
-            spec: this.expectedHeaders[0].header.spec,
-            value: firstEntry.getTimestamp(),
-          },
-          {
-            spec: this.expectedHeaders[1].header.spec,
-            value: makeRealTimestamp(200n), // converts column that starts with 'ts' to Timestamp
-          },
-          {spec: this.expectedHeaders[2].header.spec, value: 'test_property'},
-          {spec: this.expectedHeaders[3].header.spec, value: 123},
-          {
-            spec: this.expectedHeaders[4].header.spec,
-            value: makeRealTimestamp(321n), // converts column that ends with 'time_ns' to Timestamp
-          },
+          new LogField(
+            this.expectedHeaders[0].header.spec,
+            firstEntry.getTimestamp(),
+          ),
+          new LogField(
+            this.expectedHeaders[1].header.spec,
+            makeRealTimestamp(200n), // converts column that starts with 'ts' to Timestamp
+          ),
+          new LogField(this.expectedHeaders[2].header.spec, 'test_property'),
+          new LogField(this.expectedHeaders[3].header.spec, 123),
+          new LogField(
+            this.expectedHeaders[4].header.spec,
+            makeRealTimestamp(321n), // converts column that ends with 'time_ns' to Timestamp
+          ),
         ],
         getPropertiesTree: undefined,
       },

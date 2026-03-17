@@ -51,7 +51,7 @@ import {ViewerTransactionsComponent} from '@viewers/viewer_transactions/viewer_t
 import {ViewerTransitionsComponent} from '@viewers/viewer_transitions/viewer_transitions_component';
 
 import {TextFilter} from './text_filter';
-import {ColumnSpec, LogHeader, UiDataLog} from './ui_data_log';
+import {ColumnSpec, LogField, LogHeader, UiDataLog} from './ui_data_log';
 import {LogFilterChangeDetail, TimestampClickDetail,} from './viewer_event_details';
 
 type LogViewerComponent =
@@ -68,7 +68,7 @@ export abstract class AbstractLogViewerComponentTest<
     name: 'Test Column',
     cssClass: 'test-class',
   };
-  protected readonly testField = {spec: this.testSpec, value: 'VALUE'};
+  protected readonly testField = new LogField(this.testSpec, 'VALUE');
 
   execute() {
     describe('Log viewer component', () => {

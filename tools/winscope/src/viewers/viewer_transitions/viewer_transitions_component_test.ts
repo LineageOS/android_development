@@ -23,7 +23,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
-import {LogHeader} from '@viewers/common/ui_data_log';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {TransitionsEntry, UiData} from './ui_data';
@@ -100,10 +100,7 @@ class ViewerTransitionsComponentTest extends AbstractLogViewerComponentTest<View
         this.testField,
         this.testField,
         this.testField,
-        {
-          spec: this.testSpec,
-          value: i % 2 === 0 ? 'VALUE' : 'VALUE'.repeat(40),
-        },
+        new LogField(this.testSpec, i % 2 === 0 ? 'VALUE' : 'VALUE'.repeat(40)),
       ],
       async () => this.transitionProperties,
     );

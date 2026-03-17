@@ -29,8 +29,6 @@ import {assertDefined} from '@common/assert';
 import {isElementOverflowing, isElementVisible, KeyboardEventKey,} from '@common/dom';
 import {Timestamp} from '@common/time/time';
 import {Timer} from '@common/time/timer';
-import {UserTimestamp} from '@common/time/user_timestamp';
-import {TraceType} from '@trace_api/trace_type';
 import {LogFilter, LogSelectFilter, LogTextFilter,} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ClickableProperty, LogEntry, LogField, LogFieldValue, LogHeader,} from '@viewers/common/ui_data_log';
@@ -69,7 +67,6 @@ export class LogComponent {
 
   headers = input.required<LogHeader[]>();
   entries = input.required<LogEntry[]>();
-  traceType = input.required<TraceType>();
 
   title = input<string>();
   selectedIndex = input<number>();
@@ -91,10 +88,6 @@ export class LogComponent {
       this.entries().at(0)?.traceEntry.getFullTrace().spansMultipleDates() ??
       false
     );
-  });
-
-  readonly isFixedSizeScrollViewport = computed<boolean>(() => {
-    return this.traceType() === TraceType.CUJS;
   });
 
   readonly isRowVisible = (index: number) => {
@@ -169,30 +162,10 @@ export class LogComponent {
     return field.value instanceof Timestamp || propagateEntryTimestamp;
   }
 
-  formatFieldButton(field: LogField): string | number {
-    const value = field.value;
-    if (value instanceof Timestamp) {
-      return this.formatTimestamp(value);
-    }
-    return value as string | number;
-  }
-
   getFieldClass(field: LogField, index: number): string {
     return (
       field.spec.cssClass + ' cell' + (index % 2 === 0 ? ' alt-background' : '')
     );
-  }
-
-  formatTimestamp(timestamp: Timestamp) {
-    if (!this.areMultipleDatesPresent()) {
-      const fmtTime = timestamp.format();
-      const parsedTime = new UserTimestamp(fmtTime).extractTime();
-      if (!parsedTime) {
-        return fmtTime;
-      }
-      return assertDefined(parsedTime);
-    }
-    return timestamp.format();
   }
 
   async ngAfterContentInit() {
@@ -336,7 +309,7 @@ export class LogComponent {
       return;
     }
 
-    if (this.traceType() !== TraceType.PROTO_LOG) {
+    if (this.entries()[0].formatForClipboard === undefined) {
       return;
     }
 
@@ -422,46 +395,11 @@ export class LogComponent {
   }
 
   private formatEntriesForClipboard(entries: LogEntry[]): string {
-    if (entries.length === 0) {
-      return '';
-    }
-
-    const formattedLines = entries.map((entry) => {
-      const timestamp = this.formatTimestamp(entry.traceEntry.getTimestamp());
-
-      const fieldValues = entry.fields.map((field) => {
-        const value = field.value;
-        let stringValue: string;
-
-        if (value === null || value === undefined) {
-          stringValue = ' ';
-        } else if (Array.isArray(value)) {
-          stringValue = value
-            .map((item) => {
-              if (
-                typeof item === 'object' &&
-                item !== null &&
-                'propertyValue' in item
-              ) {
-                return String((item as ClickableProperty).propertyValue);
-              }
-              return String(item ?? '');
-            })
-            .join(', ');
-        } else if (value instanceof Timestamp) {
-          stringValue = this.formatTimestamp(value);
-        } else {
-          stringValue = String(value);
-        }
-
-        return stringValue.replace(/\n/g, '\t');
-      });
-
-      const allColumns = [timestamp, ...fieldValues];
-
-      return allColumns.join('\t');
-    });
-
-    return formattedLines.join('\n');
+    const timeOnly = !this.areMultipleDatesPresent();
+    return entries
+      .map((entry) => {
+        return entry.formatForClipboard?.(timeOnly) ?? '';
+      })
+      .join('\n');
   }
 }

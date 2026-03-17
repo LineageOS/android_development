@@ -24,7 +24,7 @@ import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {LogPresenter} from '@viewers/common/log_presenter';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
-import {LogEntry, LogHeader, UiDataLog} from '@viewers/common/ui_data_log';
+import {LogEntry, LogField, LogHeader, UiDataLog,} from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UserOptions} from '@viewers/common/user_options';
 
@@ -73,12 +73,12 @@ the default for its data type.`,
       {
         traceEntry: this.trace.getEntry(0),
         fields: [
-          {spec: this.stringColumn, value: 'stringValue'},
-          {spec: this.numberColumn, value: 0},
-          {
-            spec: this.timestampColumn,
-            value: this.trace.getEntry(0).getTimestamp(),
-          },
+          new LogField(this.stringColumn, 'stringValue'),
+          new LogField(this.numberColumn, 0),
+          new LogField(
+            this.timestampColumn,
+            this.trace.getEntry(0).getTimestamp(),
+          ),
         ],
         getPropertiesTree: async () =>
           (await this.trace.getEntry(0).getValue()).getAllProperties(),
@@ -86,12 +86,12 @@ the default for its data type.`,
       {
         traceEntry: this.trace.getEntry(1),
         fields: [
-          {spec: this.stringColumn, value: 'differentValue'},
-          {spec: this.numberColumn, value: 1},
-          {
-            spec: this.timestampColumn,
-            value: this.trace.getEntry(1).getTimestamp(),
-          },
+          new LogField(this.stringColumn, 'differentValue'),
+          new LogField(this.numberColumn, 1),
+          new LogField(
+            this.timestampColumn,
+            this.trace.getEntry(1).getTimestamp(),
+          ),
         ],
         getPropertiesTree: async () =>
           (await this.trace.getEntry(1).getValue()).getAllProperties(),
@@ -99,12 +99,12 @@ the default for its data type.`,
       {
         traceEntry: this.trace.getEntry(2),
         fields: [
-          {spec: this.stringColumn, value: 'stringValue'},
-          {spec: this.numberColumn, value: 2},
-          {
-            spec: this.timestampColumn,
-            value: this.trace.getEntry(2).getTimestamp(),
-          },
+          new LogField(this.stringColumn, 'stringValue'),
+          new LogField(this.numberColumn, 2),
+          new LogField(
+            this.timestampColumn,
+            this.trace.getEntry(2).getTimestamp(),
+          ),
         ],
         getPropertiesTree: async () =>
           (await this.trace.getEntry(2).getValue()).getAllProperties(),
@@ -112,12 +112,12 @@ the default for its data type.`,
       {
         traceEntry: this.trace.getEntry(3),
         fields: [
-          {spec: this.stringColumn, value: 'differentValue'},
-          {spec: this.numberColumn, value: 3},
-          {
-            spec: this.timestampColumn,
-            value: this.trace.getEntry(3).getTimestamp(),
-          },
+          new LogField(this.stringColumn, 'differentValue'),
+          new LogField(this.numberColumn, 3),
+          new LogField(
+            this.timestampColumn,
+            this.trace.getEntry(3).getTimestamp(),
+          ),
         ],
         getPropertiesTree: async () =>
           (await this.trace.getEntry(3).getValue()).getAllProperties(),
