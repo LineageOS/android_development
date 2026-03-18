@@ -18,12 +18,12 @@ syntax = "proto2";
 
 package android.view.inputmethod;
 
+import "protos/common/view.proto";
 import "protos/ime/udc/editorinfo.proto";
 import "protos/ime/udc/inputconnection.proto";
 import "protos/ime/udc/inputmethodmanager.proto";
 import "protos/ime/udc/inputmethodmanagerservice.proto";
 import "protos/ime/udc/inputmethodservice.proto";
-import "protos/ime/udc/view.proto";
 
 option java_outer_classname = "InputMethodEditorTraceProto";
 

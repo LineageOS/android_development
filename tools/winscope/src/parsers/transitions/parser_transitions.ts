@@ -101,6 +101,22 @@ export class ParserTransitions extends AbstractParser<HierarchyTreeNode> {
 
   private handlerIdToName: {[id: number]: string} | undefined = undefined;
 
+  static async createInstance(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
+  ): Promise<Array<AbstractParser<HierarchyTreeNode>>> {
+    return [
+      new ParserTransitions(
+        traceFile,
+        traceProcessor,
+        timestampConverter,
+        traceGeometryData,
+      ),
+    ];
+  }
+
   constructor(
     traceFile: TraceFile,
     traceProcessor: TraceProcessor,

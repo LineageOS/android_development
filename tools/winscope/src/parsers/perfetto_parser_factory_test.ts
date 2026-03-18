@@ -15,8 +15,20 @@
  */
 
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
+import {ParserInputMethodClients} from '@parsers/input_method/parser_input_method_clients';
+import {ParserInputMethodManagerService} from '@parsers/input_method/parser_input_method_manager_service';
+import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
+import {ParserKeyEvent} from '@parsers/input/parser_key_event';
+import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
+import {ParserProtolog} from '@parsers/protolog/parser_protolog';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
+import {ParserTransactions} from '@parsers/transactions/parser_transactions';
+import {ParserTransitions} from '@parsers/transitions/parser_transitions';
+import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
+import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TraceFile} from '@trace_api/trace_file';
@@ -53,7 +65,7 @@ describe('PerfettoParserFactory', () => {
 
     async function checkRobustToFile(filepath: string, isPerfettoTrace = true) {
       const file = new TraceFile(await getFixtureFile(filepath));
-      const processed = await new PerfettoParserFactory().processFile(
+      const processed = await createPerfettoParserFactory().processFile(
         file,
         makeConverterNoRteOffsets(),
       );
@@ -131,7 +143,7 @@ describe('PerfettoParserFactory', () => {
 
     it('robust to non-perfetto file', async () => {
       const file = await getFixtureFile('traces/screenshot/screenshot.png');
-      const processedFiles = await new PerfettoParserFactory().processFile(
+      const processedFiles = await createPerfettoParserFactory().processFile(
         new TraceFile(file),
         makeConverterNoRteOffsets(),
         undefined,
@@ -153,7 +165,7 @@ describe('PerfettoParserFactory', () => {
       types: TraceType[],
       hasGeometryData: boolean,
     ) {
-      const processedFiles = await new PerfettoParserFactory().processFile(
+      const processedFiles = await createPerfettoParserFactory().processFile(
         file,
         makeConverterNoRteOffsets(),
       );
@@ -168,4 +180,20 @@ describe('PerfettoParserFactory', () => {
       }
     }
   });
+
+  function createPerfettoParserFactory(): PerfettoParserFactory {
+    return new PerfettoParserFactory()
+      .addParser(ParserInputMethodClients.createInstance)
+      .addParser(ParserInputMethodManagerService.createInstance)
+      .addParser(ParserInputMethodService.createInstance)
+      .addParser(ParserProtolog.createInstance)
+      .addParser(ParserSurfaceFlinger.createInstance)
+      .addParser(ParserTransactions.createInstance)
+      .addParser(ParserTransitions.createInstance)
+      .addParser(ParserViewCapture.createInstance)
+      .addParser(ParserWindowManager.createInstance)
+      .addParser(ParserMotionEvent.createInstance)
+      .addParser(ParserKeyEvent.createInstance)
+      .addParser(ParserCujs.createInstance);
+  }
 });

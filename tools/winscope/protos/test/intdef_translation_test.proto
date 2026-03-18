@@ -16,9 +16,9 @@
 
 syntax = "proto2";
 
-import "protos/test/android.proto";
+package winscope.test2;
+
 import "protos/test/typedef.proto";
-import "protos/test/android_typedef.proto";
 
 message RootMessage {
   optional InputWindowInfoProto input_window_info = 1;
@@ -28,6 +28,6 @@ message RootMessage {
 message InputWindowInfoProto {
   optional int32 layout_params_flags = 1;
   optional int32 input_config = 2 [(.perfetto.protos.typedef) =  "android.view.WindowInsets.Side.InsetsSide"];
-  optional int32 test_android_typedef = 3 [(.android.typedef) =  "android.content.pm.ActivityInfo.ScreenOrientation"];
-  optional int32 test_android_common_typedef = 4 [(.android_common.typedef) =  "android.view.WindowManager.TransitionFlags"];
+  optional int32 test_android_typedef = 3 [(.perfetto.protos.typedef) =  "android.content.pm.ActivityInfo.ScreenOrientation"];
+  optional int32 test_android_common_typedef = 4 [(.perfetto.protos.typedef) =  "android.view.WindowManager.TransitionFlags"];
 }

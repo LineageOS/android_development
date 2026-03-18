@@ -15,9 +15,13 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {queryArgsForEntry} from '@parsers/perfetto/query_helpers';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {PERFETTO_TRACE_PACKET_ROOT} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
@@ -44,6 +48,22 @@ export class ParserInputMethodClients extends AbstractParser<HierarchyTreeNode> 
       ['viewRootImpl', 'inputMethodManager', 'editorInfo'],
     ),
   );
+
+  static async createInstance(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
+  ): Promise<Array<AbstractParser<HierarchyTreeNode>>> {
+    return [
+      new ParserInputMethodClients(
+        traceFile,
+        traceProcessor,
+        timestampConverter,
+        traceGeometryData,
+      ),
+    ];
+  }
 
   override getTraceType(): TraceType {
     return TraceType.INPUT_METHOD_CLIENTS;

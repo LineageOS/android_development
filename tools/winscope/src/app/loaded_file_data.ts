@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@app/file_reader_helpers';
 import {assertDefined} from '@common/assert';
 import {DOWNLOAD_FILENAME_REGEX, ILLEGAL_FILENAME_CHARACTERS_REGEX, OnProgressUpdateType, removeDirFromFileName, removeExtensionFromFilename,} from '@common/io';
 import {TimezoneInfo} from '@common/time/time';
@@ -22,10 +21,13 @@ import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {TimestampConverter, UTC_TIMEZONE_INFO,} from '@common/time/timestamp_converter';
 import {getResolvedUTCOffset} from '@common/time/utc_offset_resolver';
 import {getLogger, Logger} from '@compat/logging';
+import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from '@legacy_file_readers/common/file_reader_helpers';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
+import {LegacyToPerfettoConverter} from '@legacy_file_readers/common/legacy_to_perfetto_converter';
 import {FileReaderTransitions} from '@legacy_file_readers/transitions/file_reader_transitions';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
+import {FileReaderAndParser} from '@parsers/file_reader_and_parser';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
 import {ParserInput} from '@parsers/input/parser_input';
@@ -43,9 +45,7 @@ import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FileLoader, FileLoaderResult} from './file_loader';
-import {FileReaderAndParser} from './file_reader_and_parser';
 import {FilesSource} from './files_source';
-import {LegacyToPerfettoConverter} from './legacy_to_perfetto_converter';
 import {LoadedFiles} from './loaded_files';
 import {ParsingErrorType} from './parsing_error_type';
 import {makeWarningIncompleteFrameMapping} from './warnings';

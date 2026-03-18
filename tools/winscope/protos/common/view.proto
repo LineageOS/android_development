@@ -18,27 +18,27 @@ syntax = "proto2";
 
 package android_common.view;
 
-import "protos/windowmanager/udc/android.proto";
-import "protos/windowmanager/udc/app.proto";
-import "protos/windowmanager/udc/graphics.proto";
+import "protos/common/app.proto";
+import "protos/common/graphics.proto";
+import "protos/common/privacy.proto";
 
 option java_multiple_files = true;
 
 message DisplayProto {
-    enum ColorMode {
-        // The default or native gamut of the display.
-        COLOR_MODE_DEFAULT = 0;
-        COLOR_MODE_BT601_625 = 1;
-        COLOR_MODE_BT601_625_UNADJUSTED = 2;
-        COLOR_MODE_BT601_525 = 3;
-        COLOR_MODE_BT601_525_UNADJUSTED = 4;
-        COLOR_MODE_BT709 = 5;
-        COLOR_MODE_DCI_P3 = 6;
-        COLOR_MODE_SRGB = 7;
-        COLOR_MODE_ADOBE_RGB = 8;
-        COLOR_MODE_DISPLAY_P3 = 9;
-        COLOR_MODE_INVALID = -1;
-    }
+  enum ColorMode {
+    COLOR_MODE_INVALID = -1;
+    // The default or native gamut of the display.
+    COLOR_MODE_DEFAULT = 0;
+    COLOR_MODE_BT601_625 = 1;
+    COLOR_MODE_BT601_625_UNADJUSTED = 2;
+    COLOR_MODE_BT601_525 = 3;
+    COLOR_MODE_BT601_525_UNADJUSTED = 4;
+    COLOR_MODE_BT709 = 5;
+    COLOR_MODE_DCI_P3 = 6;
+    COLOR_MODE_SRGB = 7;
+    COLOR_MODE_ADOBE_RGB = 8;
+    COLOR_MODE_DISPLAY_P3 = 9;
+  }
 }
 
 message DisplayCutoutProto {
@@ -228,14 +228,13 @@ message WindowLayoutParamsProto {
   optional float screen_brightness = 13;
   optional float button_brightness = 14;
 
-    enum RotationAnimation {
-        ROTATION_ANIMATION_NONE = 0;
-        ROTATION_ANIMATION_UNSPECIFIED = -1;
-        ROTATION_ANIMATION_CROSSFADE = 1;
-        ROTATION_ANIMATION_JUMPCUT = 2;
-        ROTATION_ANIMATION_SEAMLESS = 3;
-    }
-    optional RotationAnimation rotation_animation = 15;
+  enum RotationAnimation {
+    ROTATION_ANIMATION_UNSPECIFIED = -1;
+    ROTATION_ANIMATION_CROSSFADE = 1;
+    ROTATION_ANIMATION_JUMPCUT = 2;
+    ROTATION_ANIMATION_SEAMLESS = 3;
+  }
+  optional RotationAnimation rotation_animation = 15;
 
   optional float preferred_refresh_rate = 16;
   optional int32 preferred_display_mode_id = 17;

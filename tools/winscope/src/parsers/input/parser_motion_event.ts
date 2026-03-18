@@ -15,16 +15,38 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {InputEventType} from '@trace/input/input_event_type';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {AbstractInputEventParser} from './abstract_input_event_parser';
 
 export class ParserMotionEvent extends AbstractInputEventParser {
   private static readonly MOTION_EVENT_FIELD =
     AbstractInputEventParser.WRAPPER_PROTO.fields['dispatcherMotionEvent'];
+
+  static async createInstance(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
+  ): Promise<Array<AbstractParser<HierarchyTreeNode>>> {
+    return [
+      new ParserMotionEvent(
+        traceFile,
+        traceProcessor,
+        timestampConverter,
+        traceGeometryData,
+      ),
+    ];
+  }
 
   protected override readonly eventMessageType = assertDefined(
     ParserMotionEvent.MOTION_EVENT_FIELD.resolve(),

@@ -16,16 +16,36 @@
 
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {MakeTimestampStrategyType} from '@common/time/time';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {HierarchyTreeBuilderLog} from '@parsers/helpers/hierarchy_tree_builder_log';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 
 export class ParserCujs extends AbstractParser<HierarchyTreeNode> {
+  static async createInstance(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
+  ): Promise<Array<AbstractParser<HierarchyTreeNode>>> {
+    return [
+      new ParserCujs(
+        traceFile,
+        traceProcessor,
+        timestampConverter,
+        traceGeometryData,
+      ),
+    ];
+  }
+
   override getTraceType(): TraceType {
     return TraceType.CUJS;
   }

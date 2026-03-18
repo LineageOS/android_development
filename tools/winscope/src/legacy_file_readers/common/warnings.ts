@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-syntax = "proto2";
+import {UserWarning} from '@messaging/user_warning';
 
-package android_common;
-
-import "google/protobuf/descriptor.proto";
-
-extend google.protobuf.FieldOptions {
-  optional string typedef = 60001;
+/**
+ * A warning for when legacy to perfetto trace conversion fails.
+ */
+export function makeWarningFailedToConvertLegacyTraces(errorMessage: string) {
+  return new UserWarning(
+    'failed to convert legacy trace',
+    `Legacy to perfetto conversion failed: ${errorMessage}
+Discarding legacy traces.`,
+  );
 }

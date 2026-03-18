@@ -17,7 +17,7 @@ syntax = "proto3";
 
 package android_common.graphics;
 
-import "protos/windowmanager/udc/android.proto";
+import "protos/common/privacy.proto";
 
 message RectProto {
   int32 left = 1;

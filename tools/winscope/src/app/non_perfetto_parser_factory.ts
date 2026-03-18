@@ -19,6 +19,7 @@ import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
 import {ProgressListener} from '@messaging/progress_listener';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
+import {FileReaderAndParser} from '@parsers/file_reader_and_parser';
 import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
 import {ParserScreenRecording} from '@parsers/screen_recording/parser_screen_recording';
 import {ParserScreenRecordingLegacy} from '@parsers/screen_recording/parser_screen_recording_legacy';
@@ -26,8 +27,6 @@ import {ParserScreenshot} from '@parsers/screenshot/parser_screenshot';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
-
-import {FileReaderAndParser} from './file_reader_and_parser';
 
 export class NonPerfettoParserFactory {
   static readonly PARSERS = [

@@ -17,8 +17,10 @@
 import {assertString, assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceProcessor} from '@trace_processor/trace_processor';
+import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {ParserViewCaptureWindow} from './parser_view_capture_window';
 
@@ -39,6 +41,22 @@ export class ParserViewCapture {
   private windowParsers: ParserViewCaptureWindow[] = [];
 
   private static readonly STDLIB_MODULE_NAME = 'android.winscope.viewcapture';
+
+  static async createInstance(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
+  ): Promise<Array<AbstractParser<HierarchyTreeNode>>> {
+    const parser = new ParserViewCapture(
+      traceFile,
+      traceProcessor,
+      timestampConverter,
+      traceGeometryData,
+    );
+    await parser.parse();
+    return parser.getWindowParsers();
+  }
 
   constructor(
     traceFile: TraceFile,

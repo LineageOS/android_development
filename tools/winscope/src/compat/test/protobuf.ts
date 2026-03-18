@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import {descriptors as fakeProtoDescriptors} from '@protos/test/fake_proto/descriptors';
-import {descriptors as intdefDescriptors} from '@protos/test/intdef_translation/descriptors';
+import {descriptors as fakeProtoDescriptorsBin} from '@protos/test/fake_proto/descriptors';
+import {descriptors as intdefDescriptorsBin} from '@protos/test/intdef_translation/descriptors';
+import {FileDescriptorSet} from 'google-protobuf/google/protobuf/descriptor_pb';
+
+const fakeProtoDescriptors = FileDescriptorSet.deserializeBinary(
+  fakeProtoDescriptorsBin,
+);
+const intdefDescriptors =
+  FileDescriptorSet.deserializeBinary(intdefDescriptorsBin);
 
 export {fakeProtoDescriptors, intdefDescriptors};
