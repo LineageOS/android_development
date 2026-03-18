@@ -33,7 +33,7 @@ limitations under the License.
   <user-options
     class="view-controls"
     [userOptions]="userOptions()"
-    [eventType]="ViewerEvents.HierarchyUserOptionsChange"
+    (optionsChange)="optionsChange.emit($event)"
     [traceType]="dependencies()[0]"
     [logCallback]="Analytics.Navigation.logHierarchySettingsChanged"
   >
@@ -94,7 +94,8 @@ limitations under the License.
     [rectIdToShowState]="rectIdToShowState()"
     [store]="treeStorage"
     [handleArrowPress]="true"
-    (highlightedChange)="onHighlightedItemChange($any($event))"
+    (highlightedChange)="onHighlightedItemChange($event)"
     (pinnedItemChange)="onPinnedItemChange($any($event))"
+    (rectShowStateChange)="onRectShowStateChange($event)"
   ></tree-view>
 }

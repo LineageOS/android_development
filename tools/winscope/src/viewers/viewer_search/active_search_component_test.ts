@@ -26,7 +26,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {SearchQueryClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 
 import {ActiveSearchComponent} from './active_search_component';
 
@@ -89,15 +88,11 @@ describe('ActiveSearchComponent', () => {
   });
 
   it('does not handle search on enter key without ctrl key', () => {
-    let query: string | undefined;
-    dom.addEventListener(ViewerEvents.SearchQueryClick, (event) => {
-      const detail: SearchQueryClickDetail = (event as CustomEvent).detail;
-      query = detail.query;
-    });
+    const spy = spyOn(component.searchQueryClick, 'emit');
     const textInput = getTextInput();
     textInput.dispatchInput(testQuery);
     textInput.keydownEnter();
-    expect(query).toBeUndefined();
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('handles running query complete', () => {

@@ -21,7 +21,6 @@ import {Point3D} from '@common/geometry/point3d';
 import {getDefaultTransform, TransformTypeFlags,} from '@common/geometry/transform';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {equal} from '@common/typed_array';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import * as THREE from 'three';
 import {CSS2DObject} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
@@ -767,12 +766,19 @@ describe('Canvas', () => {
     let canvas: Canvas;
     let isDarkMode: boolean;
     let graphicsScene: THREE.Scene;
+    let propagateHighlightedItem: jasmine.Spy;
 
     beforeEach(() => {
       isDarkMode = false;
       const canvasRects = document.createElement('canvas');
       const canvasLabels = document.createElement('canvas');
-      canvas = new Canvas(canvasRects, canvasLabels, () => isDarkMode);
+      propagateHighlightedItem = jasmine.createSpy();
+      canvas = new Canvas(
+        canvasRects,
+        canvasLabels,
+        () => isDarkMode,
+        propagateHighlightedItem,
+      );
       graphicsScene = canvas.renderView()[0];
     });
 
@@ -941,15 +947,8 @@ describe('Canvas', () => {
       canvas.updateLabels([label]);
       const text = getText(rectId);
 
-      let id: string | undefined;
-      text.element.addEventListener(
-        ViewerEvents.HighlightedIdChange,
-        (event) => {
-          id = (event as CustomEvent).detail.id;
-        },
-      );
       text.element.click();
-      expect(id).toEqual(rectId);
+      expect(propagateHighlightedItem).toHaveBeenCalledOnceWith(rectId);
     });
 
     function getCircleMesh(id: string): THREE.Mesh {

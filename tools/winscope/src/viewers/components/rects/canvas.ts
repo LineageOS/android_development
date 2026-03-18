@@ -21,7 +21,6 @@ import {Point3D} from '@common/geometry/point3d';
 import {Rect3D} from '@common/geometry/rect3d';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {equal} from '@common/typed_array';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import * as THREE from 'three';
 import {CSS2DObject, CSS2DRenderer,} from 'three/examples/jsm/renderers/CSS2DRenderer';
 
@@ -90,6 +89,7 @@ export class Canvas {
     private canvasRects: HTMLElement,
     private canvasLabels?: HTMLElement,
     private isDarkMode = () => false,
+    private propagateUpdateHighlightedItem = (_: string) => {},
   ) {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -945,9 +945,9 @@ export class Canvas {
     }
     div.style.pointerEvents = 'auto';
     div.style.cursor = 'pointer';
-    div.addEventListener('click', (event) =>
-      this.propagateUpdateHighlightedItem(event, label.rectId),
-    );
+    div.addEventListener('click', () => {
+      this.propagateUpdateHighlightedItem(label.rectId);
+    });
 
     const labelCss = new CSS2DObject(div);
     labelCss.position.set(
@@ -1013,18 +1013,6 @@ export class Canvas {
     }
 
     return {label: newLabel, circle, line, text};
-  }
-
-  private propagateUpdateHighlightedItem(event: MouseEvent, newId: string) {
-    event.preventDefault();
-    const highlightedChangeEvent = new CustomEvent(
-      ViewerEvents.HighlightedIdChange,
-      {
-        bubbles: true,
-        detail: {id: newId},
-      },
-    );
-    event.target?.dispatchEvent(highlightedChangeEvent);
   }
 
   private clearLabels(labels: RectLabel[]) {

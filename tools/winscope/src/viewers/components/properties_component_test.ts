@@ -32,12 +32,11 @@ import {TraceType} from '@trace_api/trace_type';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
-import {ViewerEvents} from '@viewers/common/viewer_events';
-import {VirtualRow, VirtualScrollViewportComponent,} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {PropertiesComponent} from './properties_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {SearchBoxComponent} from './search_box_component';
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';
 import {TreeComponent} from './tree_component';
@@ -135,29 +134,26 @@ describe('PropertiesComponent', () => {
       .setValue(undefined)
       .build();
     tree.setIsRoot(true);
+    const uiTree = UiPropertyTreeNode.from(tree);
     dom.setComponentInput(
       'nodeRows',
-      flattenNodesToRows([UiPropertyTreeNode.from(tree)], false, false, ''),
+      flattenNodesToRows([uiTree], false, false, ''),
     );
     await dom.detectChangesAndWaitStable();
 
-    let highlightedItem: string | undefined;
-    dom.addEventListener(ViewerEvents.HighlightedPropertyChange, (event) => {
-      highlightedItem = (event as CustomEvent).detail.id;
-    });
+    const spy = spyOn(component.highlightedPropertyChange, 'emit');
 
     dom.findAndClick('tree-node');
-    expect(highlightedItem).toEqual(tree.id);
+    expect(spy).toHaveBeenCalledOnceWith(uiTree.id);
   });
 
   it('handles change in filter', () => {
-    let textFilter: TextFilter | undefined;
-    dom.addEventListener(ViewerEvents.PropertiesFilterChange, (event) => {
-      textFilter = (event as CustomEvent).detail;
-    });
+    const spy = spyOn(component.filterChange, 'emit');
     dom.findAndClick('.search-box button');
     dom.findAndDispatchInput('.title-section', 'Root');
-    expect(textFilter).toEqual(new TextFilter('Root', [FilterFlag.MATCH_CASE]));
+    expect(spy).toHaveBeenCalledWith(
+      new TextFilter('Root', [FilterFlag.MATCH_CASE]),
+    );
   });
 
   it('handles collapse button click', () => {
