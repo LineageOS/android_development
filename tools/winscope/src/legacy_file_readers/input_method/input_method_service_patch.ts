@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {EditorInfoProtoUdc, InputConnectionCallProtoUdc, InputMethodServiceProtoUdc, SoftInputWindowProtoUdc,} from '@compat/protobuf';
-import {BinaryReader} from 'google-protobuf';
+import {BinaryReader, EditorInfoProtoUdc, InputConnectionCallProtoUdc, InputMethodServiceProtoUdc, SoftInputWindowProtoUdc,} from '@compat/protobuf';
 
 /**
  * Patch InputMethodServiceProto.deserializeBinaryFromReader to handle legacy field 3 mismatch.

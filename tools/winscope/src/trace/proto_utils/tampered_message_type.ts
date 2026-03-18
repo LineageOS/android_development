@@ -18,16 +18,19 @@
 import {assertDefined} from '@common/assert';
 import {getPerfettoTraceDescriptors} from '@compat/protobuf';
 import {DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, FileDescriptorSet,} from '@compat/protobuf';
-import * as jspb from 'google-protobuf';
 
-const typedefExtension = new jspb.ExtensionFieldInfo<string>(
-  60001,
-  {typedef: 0}, // pseudo-object to hold field info, key doesn't matter much for binary?
+// Avoid ExtensionFieldInfo as its constructor is private in some platforms and fails to build
 
-  null as any,
-  null as any,
-  0,
-);
+const typedefExtension = {
+  ma: 60001,
+  Ba: {typedef: 0},
+  la: null,
+  Na: null,
+  na: 0,
+  F() {
+    return false;
+  },
+} as any;
 
 export class TamperedProtoField {
   constructor(
@@ -217,7 +220,7 @@ export class Registry {
         try {
           const val = fieldOptions.getExtension(typedefExtension);
           if (val) {
-            intDefType = val;
+            intDefType = val as string;
           }
         } catch {
           // ignore

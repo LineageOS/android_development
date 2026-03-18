@@ -396,7 +396,8 @@ function getLayerField(): TamperedProtoField {
 const HWC_COMPOSITION_TYPE_INVERTED = Object.entries(
   PerfettoHwcCompositionType,
 ).reduce(
-  (acc, [key, value]: [string, number]) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (acc, [key, value]: [string, any]) => {
     acc[value] = key;
     return acc;
   },
