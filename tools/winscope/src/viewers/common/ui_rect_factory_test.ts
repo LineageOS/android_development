@@ -88,6 +88,61 @@ describe('ui_rect_factory', () => {
     expect(makeUiRects(hierarchyRoot)).toEqual(expectedRects);
   });
 
+  it('makes rect with content', () => {
+    const root = new HierarchyTreeBuilder()
+      .setId('TreeEntry')
+      .setName('root')
+      .setChildren([
+        {id: 1, name: 'VRI-package1/node1'},
+        {id: 2, name: 'package1/node2'},
+      ])
+      .build();
+    const [nodeVRI, node] = root.getAllChildren();
+    buildRectAndSetToNode(nodeVRI, 0);
+    buildRectAndSetToNode(node, 0);
+
+    const expectedUiRect1 = new UiRectBuilder()
+      .setX(0)
+      .setY(0)
+      .setWidth(1)
+      .setHeight(1)
+      .setId('1 VRI-package1/node1')
+      .setLabel('VRI-package1/node1')
+      .setGroupId(0)
+      .setTransform(Transform.EMPTY.matrix)
+      .setIsVisible(true)
+      .setIsDisplay(false)
+      .setIsActiveDisplay(false)
+      .setIsClickable(true)
+      .setHasContent(true)
+      .setDepth(0)
+      .setOpacity(0.5)
+      .build();
+
+    const expectedUiRect2 = new UiRectBuilder()
+      .setX(0)
+      .setY(0)
+      .setWidth(1)
+      .setHeight(1)
+      .setId('2 package1/node2')
+      .setLabel('package1/node2')
+      .setGroupId(0)
+      .setTransform(Transform.EMPTY.matrix)
+      .setIsVisible(true)
+      .setIsDisplay(false)
+      .setIsActiveDisplay(false)
+      .setIsClickable(true)
+      .setHasContent(true)
+      .setDepth(0)
+      .setOpacity(0.5)
+      .build();
+
+    expect(makeUiRects(root, ['package1'])).toEqual([
+      expectedUiRect1,
+      expectedUiRect2,
+    ]);
+  });
+
   it('makes rects with data from trace rect', () => {
     buildRectAndSetToNode(node2, 1, 5, 10, true, true, false, true);
 

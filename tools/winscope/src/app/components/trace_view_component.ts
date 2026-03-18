@@ -314,7 +314,7 @@ export class TraceViewComponent
     const tab = this.tabs.find((tab) =>
       tab.viewer.getTraces().some((trace) => trace === event.newActiveTrace),
     );
-    await this.showTab(assertDefined(tab), false);
+    await this.showTab(assertDefined(tab), false, event.metadata);
   }
 
   private renderViewsTab(viewers: Viewer[]) {
@@ -360,7 +360,7 @@ export class TraceViewComponent
     });
   }
 
-  private async showTab(tab: Tab, firstToRender: boolean) {
+  private async showTab(tab: Tab, firstToRender: boolean, metadata?: unknown) {
     const startTimeMs = Date.now();
     const currentActiveTab = this.currentActiveTab();
     if (tab === currentActiveTab) {
@@ -384,7 +384,7 @@ export class TraceViewComponent
     this.currentActiveTab.set(tab);
 
     if (!firstToRender) {
-      await this.emitAppEvent(new TabbedViewSwitched(tab.viewer));
+      await this.emitAppEvent(new TabbedViewSwitched(tab.viewer, metadata));
       Analytics.Navigation.logTabSwitched(
         tab.viewer.getTitle(),
         Date.now() - startTimeMs,

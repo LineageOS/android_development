@@ -39,8 +39,8 @@ import {extractRect} from './rect_extractor';
  * Creates node id for a ViewCapture view. Used to construct nodes and rects
  * in separate operations.
  */
-export function makeTreeNodeId(row: RowIterator) {
-  return 'ViewNode' + assertBigInt(row.get('node_id'));
+export function makeTreeNodeId(row: RowIterator, windowName: string) {
+  return windowName + 'ViewNode' + assertBigInt(row.get('node_id'));
 }
 
 /**
@@ -61,6 +61,7 @@ export function makeEntryHierarchyTrees(
   visibleRects: RectsForTrace,
   traceProcessor: TraceProcessor | undefined,
   traceGeometryData: TraceGeometryData,
+  windowName: string,
 ): HierarchyTreeNode[] {
   const trees: HierarchyTreeNode[] = [];
 
@@ -86,6 +87,7 @@ export function makeEntryHierarchyTrees(
       visibleRect,
       traceProcessor,
       traceGeometryData,
+      windowName,
     );
     currViews.push(viewAndRect.view);
     currRects.set(nodeId, viewAndRect.rect);
@@ -103,8 +105,9 @@ function makeViewAndRect(
   visibleRect: TraceRect | undefined,
   traceProcessor: TraceProcessor | undefined,
   traceGeometryData: TraceGeometryData,
+  windowName: string,
 ): {view: PropertiesProvider; rect: TraceRect} {
-  const view = makeViewPropertyProvider(viewRow, traceProcessor);
+  const view = makeViewPropertyProvider(viewRow, windowName, traceProcessor);
   const viewProperties = view.getEagerProperties();
   const rect =
     visibleRect ??
@@ -151,9 +154,10 @@ function buildHierarchyTree(
 
 function makeViewPropertyProvider(
   row: RowIterator,
+  windowName: string,
   traceProcessor: TraceProcessor | undefined,
 ): PropertiesProvider {
-  const rootId = makeTreeNodeId(row);
+  const rootId = makeTreeNodeId(row, windowName);
   const rootName = makeTreeNodeName(row);
 
   const eagerProperties = makeViewEagerPropertiesTree(row, rootId, rootName);

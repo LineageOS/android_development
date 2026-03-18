@@ -630,10 +630,10 @@ describe('Mediator', () => {
       expect(traceViewComponent.onWinscopeEvent).not.toHaveBeenCalled();
 
       await viewerStub0.emitAppEventForTesting(
-        new TabbedViewSwitchRequest(traceSf),
+        new TabbedViewSwitchRequest(traceSf, 'metadata'),
       );
       expect(traceViewComponent.onWinscopeEvent).toHaveBeenCalledOnceWith(
-        new TabbedViewSwitchRequest(traceSf),
+        new TabbedViewSwitchRequest(traceSf, 'metadata'),
       );
       userNotifierChecker.expectNotified([]);
     });
