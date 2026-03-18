@@ -18,12 +18,14 @@ import {descriptors as fakeProtoDescriptorsBin} from '@protos/test/fake_proto/de
 import {descriptors as intdefDescriptorsBin} from '@protos/test/intdef_translation/descriptors';
 import {FileDescriptorSet} from 'google-protobuf/google/protobuf/descriptor_pb';
 
-async function getFakeProtoDescriptors(): Promise<FileDescriptorSet> {
+export function setupJspbTesting() {
+  // no-op, only for compat
+}
+
+export async function getFakeProtoDescriptors(): Promise<FileDescriptorSet> {
   return FileDescriptorSet.deserializeBinary(fakeProtoDescriptorsBin);
 }
 
-async function getIntdefDescriptors(): Promise<FileDescriptorSet> {
+export async function getIntdefDescriptors(): Promise<FileDescriptorSet> {
   return FileDescriptorSet.deserializeBinary(intdefDescriptorsBin);
 }
-
-export {getFakeProtoDescriptors, getIntdefDescriptors};

@@ -72,17 +72,17 @@ describe('ParserInput', () => {
 
     it('provides correct entries from individual event traces', async () => {
       const keyEvent = await parser.getEntry(6);
-      expect(keyEvent.getEagerPropertyByName('eventId')?.getValue()).toEqual(
-        759309047n,
-      );
+      expect(
+        keyEvent.getEagerPropertyByName('eventId')?.getValue()?.toString(),
+      ).toEqual('759309047');
       expect(keyEvent.getEagerPropertyByName('type')?.formattedValue()).toEqual(
         'KEY',
       );
 
       const motionEvent = await parser.getEntry(0);
-      expect(motionEvent.getEagerPropertyByName('eventId')?.getValue()).toEqual(
-        330184796n,
-      );
+      expect(
+        motionEvent.getEagerPropertyByName('eventId')?.getValue()?.toString(),
+      ).toEqual('330184796');
       expect(motionEvent.getEagerPropertyByName('type')?.formattedValue()).toBe(
         'MOTION',
       );

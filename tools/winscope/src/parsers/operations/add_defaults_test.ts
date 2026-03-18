@@ -50,7 +50,7 @@ describe('AddDefaults', () => {
     const defaultNode = assertDefined(
       propertyRoot.getChildByName('number_32bit'),
     );
-    expect(defaultNode.getValue()).toBe(0);
+    expect(defaultNode.getValue<number>()).toBe(0);
     checkAllNodesAreDefault(propertyRoot);
   });
 
@@ -60,14 +60,18 @@ describe('AddDefaults', () => {
     expect(propertyRoot.getAllChildren().length).toBe(24);
     checkAllNodesAreDefault(propertyRoot);
     expect(
-      assertDefined(propertyRoot.getChildByName('array')).getValue(),
+      assertDefined(propertyRoot.getChildByName('array')).getValue<number[]>(),
     ).toEqual([]);
     expect(
-      assertDefined(propertyRoot.getChildByName('number_32bit')).getValue(),
+      assertDefined(
+        propertyRoot.getChildByName('number_32bit'),
+      ).getValue<number>(),
     ).toBe(0);
     expect(
-      assertDefined(propertyRoot.getChildByName('number_64bit')).getValue(),
-    ).toBe(0n);
+      assertDefined(propertyRoot.getChildByName('number_64bit'))
+        .getValue()
+        ?.toString(),
+    ).toBe('0');
     expect(
       assertDefined(propertyRoot.getChildByName('boolValue')).getValue(),
     ).toBeFalse();
@@ -99,7 +103,7 @@ describe('AddDefaults', () => {
     const defaultNode = assertDefined(
       propertyRoot.getChildByName('number_32bit'),
     );
-    expect(defaultNode.getValue()).toBe(0);
+    expect(defaultNode.getValue<number>()).toBe(0);
     checkAllNodesAreDefault(propertyRoot);
   });
 

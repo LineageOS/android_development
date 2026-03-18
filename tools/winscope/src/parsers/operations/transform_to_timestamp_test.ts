@@ -16,6 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {Timestamp} from '@common/time/time';
 import {MockLong} from '@test/unit/mock_long';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
@@ -46,10 +47,14 @@ describe('TransformToTimestamp', () => {
     );
     operation.apply(propertyRoot);
     expect(
-      assertDefined(propertyRoot.getChildByName('timestamp')).getValue(),
+      assertDefined(
+        propertyRoot.getChildByName('timestamp'),
+      ).getValue<Timestamp>(),
     ).toEqual(makeRealTimestamp(10n));
     expect(
-      assertDefined(propertyRoot.getChildByName('otherTimestamp')).getValue(),
+      assertDefined(
+        propertyRoot.getChildByName('otherTimestamp'),
+      ).getValue<MockLong>(),
     ).toEqual(longTimestamp);
   });
 
@@ -60,10 +65,14 @@ describe('TransformToTimestamp', () => {
     );
     operation.apply(propertyRoot);
     expect(
-      assertDefined(propertyRoot.getChildByName('timestamp')).getValue(),
+      assertDefined(
+        propertyRoot.getChildByName('timestamp'),
+      ).getValue<Timestamp>(),
     ).toEqual(makeElapsedTimestamp(10n));
     expect(
-      assertDefined(propertyRoot.getChildByName('otherTimestamp')).getValue(),
+      assertDefined(
+        propertyRoot.getChildByName('otherTimestamp'),
+      ).getValue<MockLong>(),
     ).toEqual(longTimestamp);
   });
 
