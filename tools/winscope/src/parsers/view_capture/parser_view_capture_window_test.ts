@@ -65,6 +65,9 @@ describe('PerfettoParserViewCaptureWindow', () => {
   it('builds trace entry', async () => {
     const root = await parser.getEntry(1);
     expect(root).toBeInstanceOf(HierarchyTreeNode);
+    expect(root.id).toBe(
+      'com.android.internal.policy.PhoneWindow@4f9be60ViewNode0 com.android.internal.policy.DecorView@203589466',
+    );
     expect(root.name).toBe('com.android.internal.policy.DecorView@203589466');
     expect(root.getRects().length).toBe(1);
 

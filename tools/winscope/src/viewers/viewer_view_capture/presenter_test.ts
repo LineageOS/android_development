@@ -27,7 +27,7 @@ import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Trace} from '@trace_api/trace';
-import {TracePositionUpdate} from '@trace_api/trace_events';
+import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceFile} from '@trace_api/trace_file';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
@@ -153,7 +153,12 @@ the default for its data type.`,
     this.selectedTree = UiHierarchyTreeNode.from(
       assertDefined(
         firstEntryDataTree
-          .findDfs(makeIdMatchFilter('ViewNode44 ' + this.treeNodeLongName))
+          .findDfs(
+            makeIdMatchFilter(
+              'com.android.internal.policy.PhoneWindow@4f9be60ViewNode44 ' +
+                this.treeNodeLongName,
+            ),
+          )
           ?.getParent(),
       ),
     ).getChildByName(this.treeNodeLongName);
@@ -314,6 +319,36 @@ the default for its data type.`,
           assertDefined(this.positionUpdate),
         );
         expect(assertDefined(uiData.sfRects).length).toBeGreaterThan(0);
+      });
+
+      it('extracts only SF rects with groupId matching clicked rect', async () => {
+        const perfettoFile = new TraceFile(
+          await getFixtureFile('traces/perfetto/viewcapture.perfetto-trace'),
+        );
+        const sfParser = await parseAndConvertToPerfettoTrace(
+          'traces/elapsed_timestamp/SurfaceFlinger.pb',
+          [
+            FileReaderSurfaceFlinger.createInstance,
+            FileReaderViewCapture.createInstance,
+          ],
+          perfettoFile,
+        );
+        const sfTrace = Trace.fromParser(sfParser);
+        const traces = assertDefined(this.traces);
+        const presenterWithSfTrace = createPresenterWithSfTrace(
+          traces,
+          sfTrace,
+        );
+        await presenterWithSfTrace.onAppEvent(
+          new ActiveTraceChanged(
+            assertDefined(traces.getTrace(TraceType.VIEW_CAPTURE)),
+            {sfRectId: 'Display - -6917529023416015222'},
+          ),
+        );
+        await presenterWithSfTrace.onAppEvent(
+          assertDefined(this.positionUpdate),
+        );
+        expect(assertDefined(uiData.sfRects).length).toBe(1);
       });
 
       it('handles double click if SF trace present', async () => {

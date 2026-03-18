@@ -16,7 +16,7 @@
 
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 import {CdkMenuModule} from '@angular/cdk/menu';
-import {CdkVirtualScrollViewport, ScrollingModule, } from '@angular/cdk/scrolling';
+import {CdkVirtualScrollViewport, ScrollingModule,} from '@angular/cdk/scrolling';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -31,7 +31,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
-import {makeElapsedTimestamp, makeRealTimestamp, } from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
@@ -40,8 +40,8 @@ import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
-import {ColumnSpec, LogEntry, LogField, LogHeader, } from '@viewers/common/ui_data_log';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents, } from '@viewers/common/viewer_events';
+import {ColumnSpec, LogEntry, LogField, LogHeader,} from '@viewers/common/ui_data_log';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
@@ -49,7 +49,7 @@ import {SearchBoxComponent} from '@viewers/components/search_box_component';
 import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 
 import {LogComponent} from './log_component';
-import {VirtualRow, VirtualScrollViewportComponent, } from './scroll/virtual_scroll_viewport_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 
 describe('LogComponent', () => {
   const testColumn1: ColumnSpec = {name: 'test1', cssClass: 'test-1'};

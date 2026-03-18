@@ -18,7 +18,6 @@ import {assertDefined} from '@common/assert';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeEntryHierarchyTrees as sfMakeEntryHierarchyTrees} from '@parsers/surface_flinger/entry_hierarchy_tree_factory';
-import {makeEntryHierarchyTrees as vcMakeEntryHierarchyTrees} from '@parsers/view_capture/entry_hierarchy_tree_factory';
 import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/window_manager/entry_hierarchy_tree_factory';
 import {TraceType} from '@trace_api/trace_type';
 import {createQueryResult} from '@trace_processor/perfetto/query_result';
@@ -76,13 +75,6 @@ function buildTraceEntryValue(
       );
     case TraceType.WINDOW_MANAGER:
       return wmMakeEntryHierarchyTrees(
-        nodeResults,
-        rectsMap,
-        undefined,
-        traceGeometryData,
-      );
-    case TraceType.VIEW_CAPTURE:
-      return vcMakeEntryHierarchyTrees(
         nodeResults,
         rectsMap,
         undefined,
