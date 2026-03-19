@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
-@import url("../components/styles/viewer_card_style.css");
-
-.properties:not(.collapsed) {
-  flex: 1;
+:host {
   display: flex;
-  flex-direction: column;
-  overflow: auto;
-  position: relative;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.resizer {
+  display: flex;
+  align-items: center;
+}
+
+.resizer.drag-vertical {
+  height: 8px;
+  min-width: fit-content;
+}
+
+.resizer:not(.drag-vertical) {
+  transform: rotate(90deg);
+  height: fit-content;
+  min-width: 8px;
 }

@@ -70,23 +70,34 @@ limitations under the License.
           Properties disabled due to playback
         </div>
       }
+      @let curatedCollapsed = sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES);
+      @let dumpCollapsed = sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES);
       <surface-flinger-property-groups
+        #propertyGroups
         class="property-groups"
-        [class.empty]="
-          !data?.curatedProperties &&
-          !sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)
-        "
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES)"
+        [class.empty]="!data?.curatedProperties && !dumpCollapsed"
+        [class.collapsed]="curatedCollapsed"
         [properties]="data?.curatedProperties"
         (collapseButtonClicked)="
           sections.onCollapseStateChange(CollapsibleSectionType.CURATED_PROPERTIES, true)
         "
       ></surface-flinger-property-groups>
 
+      @if (!curatedCollapsed && !dumpCollapsed) {
+        <resizer
+          class="small-icon-container"
+          dragAxis="vertical"
+          [dependentView]="propertyGroups.elementRef.nativeElement"
+          [store]="currStore"
+          [storeKey]="'sfPropertiesHeight'"
+        >
+        </resizer>
+      }
+
       <properties-view
         class="properties-view"
         [class.disabled]="data?.isPlaybackPlaying || data?.isPlaybackInitializing"
-        [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+        [class.collapsed]="dumpCollapsed"
         [title]="propertiesTitle"
         [userOptions]="data?.propertiesUserOptions ?? {}"
         [nodeRows]="data?.propertyNodes ?? []"
