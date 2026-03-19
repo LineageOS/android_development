@@ -17,7 +17,7 @@
 // organize-imports-ignore
 import '@angular/compiler';
 import {globalConfig} from '@common/global_config';
-globalConfig.set({mode: 'DEV'});
+globalConfig.enableDevMode();
 
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {ErrorHandler} from '@angular/core';

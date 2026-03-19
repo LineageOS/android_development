@@ -17,7 +17,7 @@
 // organize-imports-ignore
 import '@angular/compiler';
 import {globalConfig} from '@common/global_config';
-globalConfig.set({mode: 'PROD'});
+globalConfig.enableProdMode();
 
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {enableProdMode, ErrorHandler} from '@angular/core';
