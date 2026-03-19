@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {BinaryReader} from 'google-protobuf';
 import {descriptors as perfettoTraceDescriptorsBin} from '@protos/perfetto/trace/descriptors';
 import {EditorInfoProto as EditorInfoProtoUdc} from '@protos/protos/ime/udc/editorinfo_pb';
 import {InputConnectionCallProto as InputConnectionCallProtoUdc} from '@protos/protos/ime/udc/inputconnection_pb';
@@ -124,4 +125,5 @@ export {
   FieldDescriptorProto,
   DescriptorProto,
   EnumDescriptorProto,
+  BinaryReader,
 };
