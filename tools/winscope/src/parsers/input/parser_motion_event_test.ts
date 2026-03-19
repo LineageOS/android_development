@@ -15,6 +15,8 @@
  */
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {Timestamp} from '@common/time/time';
+import {setupJspbTesting} from '@compat/test/protobuf';
 import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
@@ -26,6 +28,7 @@ describe('PerfettoParserMotionEvent', () => {
   let parser: Parser<HierarchyTreeNode>;
 
   beforeAll(async () => {
+    setupJspbTesting();
     jasmine.addCustomEqualityTester(timestampEqualityTester);
     parser = (
       await getPerfettoParser(
@@ -73,9 +76,9 @@ describe('PerfettoParserMotionEvent', () => {
   it('retrieves and translates eager property values', async () => {
     const entry = await parser.getEntry(0);
 
-    expect(entry.getEagerPropertyByName('eventId')?.getValue()).toBe(
-      330184796n,
-    );
+    expect(
+      entry.getEagerPropertyByName('eventId')?.getValue()?.toString(),
+    ).toEqual('330184796');
     expect(entry.getEagerPropertyByName('action')?.formattedValue()).toBe(
       'ACTION_DOWN',
     );
@@ -105,8 +108,8 @@ describe('PerfettoParserMotionEvent', () => {
     expect(motionEvent.getChildByName('source')?.formattedValue()).toBe(
       'SOURCE_TOUCHSCREEN',
     );
-    expect(motionEvent.getChildByName('deviceId')?.getValue()).toBe(4);
-    expect(motionEvent.getChildByName('displayId')?.getValue()).toBe(0);
+    expect(motionEvent.getChildByName('deviceId')?.getValue<number>()).toBe(4);
+    expect(motionEvent.getChildByName('displayId')?.getValue<number>()).toBe(0);
     expect(motionEvent.getChildByName('classification')?.formattedValue()).toBe(
       'CLASSIFICATION_NONE',
     );
@@ -124,7 +127,9 @@ describe('PerfettoParserMotionEvent', () => {
       ?.getChildByName('pointer')
       ?.getChildByName('0');
 
-    expect(firstPointer?.getChildByName('pointerId')?.getValue()).toBe(0);
+    expect(firstPointer?.getChildByName('pointerId')?.getValue<number>()).toBe(
+      0,
+    );
 
     expect(firstPointer?.getChildByName('toolType')?.formattedValue()).toBe(
       'TOOL_TYPE_FINGER',
@@ -143,7 +148,7 @@ describe('PerfettoParserMotionEvent', () => {
         ?.getChildByName('axisValue')
         ?.getChildByName('0')
         ?.getChildByName('value')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(431);
 
     expect(
@@ -159,7 +164,7 @@ describe('PerfettoParserMotionEvent', () => {
         ?.getChildByName('axisValue')
         ?.getChildByName('1')
         ?.getChildByName('value')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(624);
   });
 
@@ -169,12 +174,12 @@ describe('PerfettoParserMotionEvent', () => {
     const properties = await entry.getAllProperties();
     const motionEvent = assertDefined(properties.getChildByName('event'));
 
-    expect(motionEvent.getChildByName('kernelTime')?.getValue()).toEqual(
-      makeRealTimestamp(1718386903791203081n),
-    );
-    expect(motionEvent.getChildByName('downTime')?.getValue()).toEqual(
-      makeRealTimestamp(1718386903791203081n),
-    );
+    expect(
+      motionEvent.getChildByName('kernelTime')?.getValue<Timestamp>(),
+    ).toEqual(makeRealTimestamp(1718386903791203081n));
+    expect(
+      motionEvent.getChildByName('downTime')?.getValue<Timestamp>(),
+    ).toEqual(makeRealTimestamp(1718386903791203081n));
   });
 
   it('renames eventTimeNanos to kernelTimeNanos', async () => {
@@ -184,9 +189,9 @@ describe('PerfettoParserMotionEvent', () => {
     const motionEvent = assertDefined(properties.getChildByName('event'));
 
     expect(motionEvent.getChildByName('eventTimeNanos')).toBeUndefined();
-    expect(motionEvent.getChildByName('kernelTimeNanos')?.getValue()).toEqual(
-      517481507875000n,
-    );
+    expect(
+      motionEvent.getChildByName('kernelTimeNanos')?.getValue()?.toString(),
+    ).toEqual('517481507875000');
   });
 
   it('merges motion event with all associated dispatch events', async () => {
@@ -202,31 +207,31 @@ describe('PerfettoParserMotionEvent', () => {
       windowDispatchEvents
         ?.getChildByName('0')
         ?.getChildByName('windowId')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(212);
     expect(
       windowDispatchEvents
         ?.getChildByName('1')
         ?.getChildByName('windowId')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(64);
     expect(
       windowDispatchEvents
         ?.getChildByName('2')
         ?.getChildByName('windowId')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(82);
     expect(
       windowDispatchEvents
         ?.getChildByName('3')
         ?.getChildByName('windowId')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(75);
     expect(
       windowDispatchEvents
         ?.getChildByName('4')
         ?.getChildByName('windowId')
-        ?.getValue(),
+        ?.getValue<number>(),
     ).toBe(0);
   });
 

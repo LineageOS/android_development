@@ -16,6 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {LegacyFileReaderProvider} from '@test/unit/legacy_file_readers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
@@ -26,6 +27,7 @@ describe('FileReaderTransitionsShell', () => {
   let reader: LegacyFileReader;
 
   beforeAll(async () => {
+    setupJspbTesting();
     jasmine.addCustomEqualityTester(timestampEqualityTester);
     reader = await new LegacyFileReaderProvider([
       FileReaderTransitionsShell.createInstance,

@@ -16,6 +16,7 @@
 import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {PerfettoClockSnapshot} from '@compat/protobuf';
+import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
 import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@test/unit/legacy_file_readers/fixture_utils';
@@ -32,6 +33,7 @@ describe('FileReaderSurfaceFlinger', () => {
   let userNotifierChecker: UserNotifierChecker;
 
   beforeAll(() => {
+    setupJspbTesting();
     userNotifierChecker = new UserNotifierChecker();
   });
 

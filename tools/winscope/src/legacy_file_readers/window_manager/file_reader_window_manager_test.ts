@@ -15,6 +15,7 @@
  */
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {PerfettoClockSnapshot, WinscopeExtensionsImpl} from '@compat/protobuf';
+import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
 import {CustomQueryType} from '@trace_api/custom_query';
@@ -26,6 +27,7 @@ import {FileReaderWindowManager} from './file_reader_window_manager';
 
 describe('FileReaderWindowManager', () => {
   beforeAll(() => {
+    setupJspbTesting();
     jasmine.addCustomEqualityTester(timestampEqualityTester);
   });
 
@@ -55,14 +57,12 @@ describe('FileReaderWindowManager', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = readerRealTs.convertToPerfettoPackets(10);
+      const data = packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.windowmanager);
       expect(packets.length).toBe(27);
       expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
-      expect(
-        packets[0]
-          .getWinscopeExtensions()
-          ?.getExtension(WinscopeExtensionsImpl.windowmanager)
-          ?.getWindowManagerService(),
-      ).toBeDefined();
+      expect(data?.getWindowManagerService()).toBeDefined();
       expect(packets[0].getTimestamp()?.toString()).toEqual('14474594000');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
@@ -97,7 +97,7 @@ describe('FileReaderWindowManager', () => {
           (await entry.getAllProperties())
             .getChildByName('windowManagerService')
             ?.getChildByName('focusedApp')
-            ?.getValue(),
+            ?.getValue<string>(),
         ).toBe('com.google.android.apps.nexuslauncher/.NexusLauncherActivity');
       });
 
@@ -141,14 +141,12 @@ describe('FileReaderWindowManager', () => {
 
     it('converts to valid perfetto packets', async () => {
       const packets = readerElapsedTs.convertToPerfettoPackets(10);
+      const data = packets[0]
+        .getWinscopeExtensions()
+        ?.getExtension(WinscopeExtensionsImpl.windowmanager);
       expect(packets.length).toBe(3);
       expect(packets[0].getTrustedPacketSequenceId()).toBe(10);
-      expect(
-        packets[0]
-          .getWinscopeExtensions()
-          ?.getExtension(WinscopeExtensionsImpl.windowmanager)
-          ?.getWindowManagerService(),
-      ).toBeDefined();
+      expect(data?.getWindowManagerService()).toBeDefined();
       expect(packets[0].getTimestamp()?.toString()).toEqual('850254319343');
       expect(packets[0].getTimestampClockId()).toEqual(
         PerfettoClockSnapshot.Clock.BuiltinClocks.BOOTTIME,
