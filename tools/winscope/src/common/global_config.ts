@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-/**
- * The schema for the global configuration.
- */
-export type Schema = Omit<
-  GlobalConfig,
-  'set' | 'isProdMode' | 'isTestMode' | 'isDevMode'
->;
+type GlobalConfigMode = 'KARMA_TEST' | 'DEV' | 'PROD';
 
 export class GlobalConfig {
-  private readonly mode: 'KARMA_TEST' | 'DEV' | 'PROD' = 'KARMA_TEST' as const;
+  private mode: GlobalConfigMode = 'KARMA_TEST';
 
-  set(config: Schema) {
-    Object.assign(this, config);
+  enableProdMode() {
+    this.mode = 'PROD';
+  }
+
+  enableDevMode() {
+    this.mode = 'DEV';
   }
 
   isProdMode(): boolean {

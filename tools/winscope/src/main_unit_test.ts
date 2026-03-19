@@ -19,14 +19,9 @@
 import 'zone.js';
 import 'zone.js/testing';
 /* eslint-enable winscope/sort-imports */
-import {globalConfig} from '@common/global_config';
 import {TestBed} from '@angular/core/testing';
 import {BrowserDynamicTestingModule, platformBrowserDynamicTesting,} from '@angular/platform-browser-dynamic/testing';
 import {Registry} from '@trace/proto_utils/tampered_message_type';
-
-globalConfig.set({
-  MODE: 'KARMA_TEST',
-});
 
 TestBed.initTestEnvironment(
   BrowserDynamicTestingModule,
