@@ -34,7 +34,7 @@ describe('Viewer Protolog', () => {
       viewerSelector,
     );
     await checkScrollPresent(viewerSelector);
-    await checkTotalScrollEntries(viewerSelector, totalEntries);
+    await checkTotalScrollEntries(viewerSelector, totalEntries, true);
     await checkTimelineTraceSelector({
       icon: 'notes',
       color: 'rgba(52, 168, 83, 1)',
@@ -48,6 +48,7 @@ describe('Viewer Protolog', () => {
       ['com/android/server/wm/ActivityStarter.java'],
       1,
       totalEntries,
+      true,
     );
 
     await checkSelectFilter(
@@ -59,10 +60,11 @@ describe('Viewer Protolog', () => {
       ],
       4,
       totalEntries,
+      true,
     );
 
     await filterByText('FREEZE');
-    await checkTotalScrollEntries(viewerSelector, 4);
+    await checkTotalScrollEntries(viewerSelector, 4, true);
   });
 
   async function filterByText(filterString: string) {

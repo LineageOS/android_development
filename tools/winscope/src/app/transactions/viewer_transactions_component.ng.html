@@ -19,8 +19,7 @@ limitations under the License.
     [class.empty]="sections.areAllSectionsExpanded()"
     [sections]="sections"
     (sectionChange)="sections.onCollapseStateChange($event, false)"
-  >
-  </collapsed-sections>
+  ></collapsed-sections>
 
   @let data = inputData();
 
@@ -39,8 +38,7 @@ limitations under the License.
     (timestampClick)="onTimestampClick.emit($event)"
     (arrowDownPress)="onArrowDownPress.emit()"
     (arrowUpPress)="onArrowUpPress.emit()"
-  >
-  </log-view>
+  ></log-view>
 
   <properties-view
     class="properties-view"
