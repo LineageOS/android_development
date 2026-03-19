@@ -19,6 +19,7 @@ import {ComponentFixture} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventCode, KeyboardEventKey, KeyboardEventKeyCode,} from '@common/dom';
+import {MouseEventButton} from '@common/mouse_event_button';
 
 export class DOMTestHelper<T> {
   constructor(
@@ -254,12 +255,28 @@ export class DOMTestHelper<T> {
     this.dispatchEvent(new FocusEvent('focusout'));
   }
 
-  dragElement(x: number, y: number) {
+  dragElement(x: number, y: number, button = MouseEventButton.MAIN) {
     const {left, top} = this.root.getBoundingClientRect();
-    this.dispatchMouseEvent(this.root, 'mousedown', left, top, 0, 0);
-    this.dispatchMouseEvent(document, 'mousemove', left + 1, top + 0, 1, y);
-    this.dispatchMouseEvent(document, 'mousemove', left + x, top + y, x, y);
-    this.dispatchMouseEvent(document, 'mouseup', left + x, top + y, x, y);
+    this.dispatchMouseEvent(this.root, 'mousedown', left, top, 0, 0, button);
+    this.dispatchMouseEvent(document, 'mousemove', left + 1, top, 1, y, button);
+    this.dispatchMouseEvent(
+      document,
+      'mousemove',
+      left + x,
+      top + y,
+      x,
+      y,
+      button,
+    );
+    this.dispatchMouseEvent(
+      document,
+      'mouseup',
+      left + x,
+      top + y,
+      x,
+      y,
+      button,
+    );
   }
 
   dispatchEvent(event: Event) {
@@ -419,6 +436,7 @@ export class DOMTestHelper<T> {
     screenY: number,
     clientX: number,
     clientY: number,
+    button = MouseEventButton.MAIN,
   ) {
     const event = new MouseEvent(type, {
       bubbles: true,
@@ -431,6 +449,7 @@ export class DOMTestHelper<T> {
       clientX,
       clientY,
       buttons: 1,
+      button,
     });
     source.dispatchEvent(event);
     this.detectChanges();

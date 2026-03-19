@@ -531,6 +531,7 @@ describe('PlaybackPresenter', () => {
       }
       await presenterLargeTrace.play(startIndex, state, undefined);
       await waitStoppedPlaying(presenterLargeTrace, 3000);
+      await new Timer(undefined, 500).sleepMs();
 
       const allUpdates = emitEventSpyLargeTrace.calls
         .all()

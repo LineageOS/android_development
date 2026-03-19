@@ -15,11 +15,15 @@
  */
 
 import {assertBigIntOrUndefined, assertStringOrUndefined} from '@common/assert';
+import {ParserTimestampConverter} from '@common/time/timestamp_converter';
+import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {CustomQueryParserResultTypeMap, CustomQueryType, VisitableParserCustomQuery,} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';
+import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, QueryResults, RowIterator,} from '@trace_processor/query_result';
+import {TraceProcessor} from '@trace_processor/trace_processor';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
@@ -32,6 +36,22 @@ import {extractAllRects} from './rect_extractor';
 export class ParserWindowManager extends AbstractParser<HierarchyTreeNode> {
   protected override readonly checkInvalidTs = true;
   private visibleAndDisplayRects: RectsForTrace | undefined;
+
+  static async createInstance(
+    traceFile: TraceFile,
+    traceProcessor: TraceProcessor,
+    timestampConverter: ParserTimestampConverter,
+    traceGeometryData: TraceGeometryData,
+  ): Promise<Array<AbstractParser<HierarchyTreeNode>>> {
+    return [
+      new ParserWindowManager(
+        traceFile,
+        traceProcessor,
+        timestampConverter,
+        traceGeometryData,
+      ),
+    ];
+  }
 
   override async getRectsMap() {
     if (!this.visibleAndDisplayRects) {

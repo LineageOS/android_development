@@ -18,9 +18,9 @@ syntax = "proto2";
 
 package com.android.server.wm;
 
-import "protos/windowmanager/udc/android.proto";
+import "protos/common/privacy.proto";
+import "protos/common/view.proto";
 import "protos/windowmanager/udc/animationadapter.proto";
-import "protos/windowmanager/udc/view.proto";
 
 option java_multiple_files = true;
 

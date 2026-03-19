@@ -46,7 +46,9 @@ export class SurfaceFlingerPropertyGroupsComponent {
 
   collapseButtonClicked = output<void>();
 
-  constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
+  constructor(
+    @Inject(ElementRef) readonly elementRef: ElementRef<HTMLElement>,
+  ) {}
 
   getTransformType(transformNode: PropertyTreeNode | undefined): string {
     const typeFlags = transformNode?.formattedValue() ?? 'null';

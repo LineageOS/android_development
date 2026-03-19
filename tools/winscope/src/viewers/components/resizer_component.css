@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
-syntax = "proto2";
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
 
-package android_common;
+.resizer {
+  display: flex;
+  align-items: center;
+}
 
-import "google/protobuf/descriptor.proto";
+.resizer.drag-vertical {
+  height: 8px;
+  min-width: fit-content;
+}
 
-extend google.protobuf.FieldOptions {
-  optional string typedef = 60001;
+.resizer:not(.drag-vertical) {
+  transform: rotate(90deg);
+  height: fit-content;
+  min-width: 8px;
 }

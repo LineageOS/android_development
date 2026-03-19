@@ -13,14 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LegacyToPerfettoConverter} from '@app/legacy_to_perfetto_converter';
-import {PerfettoParserFactory} from '@app/perfetto_parser_factory';
 import {assertDefined} from '@common/assert';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {FileReaderConstructor} from '@legacy_file_readers/common/file_reader_constructor';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {LegacyFileReaderFactory} from '@legacy_file_readers/common/legacy_file_reader_factory';
+import {LegacyToPerfettoConverter} from '@legacy_file_readers/common/legacy_to_perfetto_converter';
+import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
+import {ParserInputMethodClients} from '@parsers/input_method/parser_input_method_clients';
+import {ParserInputMethodManagerService} from '@parsers/input_method/parser_input_method_manager_service';
+import {ParserInputMethodService} from '@parsers/input_method/parser_input_method_service';
+import {ParserKeyEvent} from '@parsers/input/parser_key_event';
+import {ParserMotionEvent} from '@parsers/input/parser_motion_event';
+import {PerfettoParserFactory} from '@parsers/perfetto_parser_factory';
+import {ParserProtolog} from '@parsers/protolog/parser_protolog';
+import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
+import {ParserTransactions} from '@parsers/transactions/parser_transactions';
+import {ParserTransitions} from '@parsers/transitions/parser_transitions';
+import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
+import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {createTimestamps, ProcessedFileProvider,} from '@test/unit/parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {TraceFile} from '@trace_api/trace_file';
@@ -96,10 +108,26 @@ export async function convertToPerfettoTrace(
     converter.setPerfettoFile(existingPerfettoFile);
   }
   const perfettoTrace = assertDefined(await converter.convert());
-  const processed = await new PerfettoParserFactory().processFile(
+  const processed = await createPerfettoParserFactory().processFile(
     perfettoTrace,
     timestampConverter,
   );
   createTimestamps(processed.parsers, true, timestampConverter);
   return processed.parsers;
+}
+
+function createPerfettoParserFactory(): PerfettoParserFactory {
+  return new PerfettoParserFactory()
+    .addParser(ParserInputMethodClients.createInstance)
+    .addParser(ParserInputMethodManagerService.createInstance)
+    .addParser(ParserInputMethodService.createInstance)
+    .addParser(ParserProtolog.createInstance)
+    .addParser(ParserSurfaceFlinger.createInstance)
+    .addParser(ParserTransactions.createInstance)
+    .addParser(ParserTransitions.createInstance)
+    .addParser(ParserViewCapture.createInstance)
+    .addParser(ParserWindowManager.createInstance)
+    .addParser(ParserMotionEvent.createInstance)
+    .addParser(ParserKeyEvent.createInstance)
+    .addParser(ParserCujs.createInstance);
 }

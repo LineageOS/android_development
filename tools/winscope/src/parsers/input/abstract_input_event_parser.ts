@@ -31,7 +31,7 @@ import {EntriesRange} from '@trace_api/index_types';
 import {RowIterator} from '@trace_processor/query_result';
 import {EnumFormatter} from '@trace/formatters';
 import {InputEventType} from '@trace/input/input_event_type';
-import {PERFETTO_TRACE_PACKET_ROOT, TamperedMessageType,} from '@trace/proto_utils/tampered_message_type';
+import {Registry, TamperedMessageType,} from '@trace/proto_utils/tampered_message_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';
@@ -42,10 +42,8 @@ import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_
 import {RenameProperty} from './operations/rename_property';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
-  protected static readonly WRAPPER_PROTO = assertDefined(
-    assertDefined(
-      PERFETTO_TRACE_PACKET_ROOT.lookupType('perfetto.protos.TracePacket'),
-    )
+  protected readonly wrapperProto = assertDefined(
+    assertDefined(Registry.getInstance().getType('perfetto.protos.TracePacket'))
       .fields['winscopeExtensions'].resolve()
       ?.fields[
         '.perfetto.protos.WinscopeExtensionsImpl.androidInputEvent'
@@ -63,15 +61,13 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
     'display_id',
   ];
 
-  private static readonly DISPATCH_EVENT_FIELD =
-    AbstractInputEventParser.WRAPPER_PROTO.fields[
-      'dispatcherWindowDispatchEvent'
-    ];
+  private readonly dispatchEventField =
+    this.wrapperProto.fields['dispatcherWindowDispatchEvent'];
   private static readonly DISPATCH_TABLE = 'android_input_event_dispatch';
   private static readonly DISPATCH_COLUMNS = ['window_id'];
-  private static readonly BASE_DISPATCH_EVENT_OPS = [
-    new SetFormatters(AbstractInputEventParser.DISPATCH_EVENT_FIELD),
-    new TranslateIntDef(AbstractInputEventParser.DISPATCH_EVENT_FIELD),
+  private readonly baseDispatchEventOps = [
+    new SetFormatters(this.dispatchEventField),
+    new TranslateIntDef(this.dispatchEventField),
     new InputCoordinatePropagator(),
   ];
   private static readonly EVENT_TYPE_FORMATTER = new EnumFormatter(
@@ -228,7 +224,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
     };
 
     const dispatchEventOps = [
-      ...AbstractInputEventParser.BASE_DISPATCH_EVENT_OPS,
+      ...this.baseDispatchEventOps,
       new RenameProperty('eventTimeNanos', 'kernelTimeNanos'),
       new TransformToTimestamp(['kernelTime', 'downTime'], timestampStrategy),
     ];
@@ -292,11 +288,7 @@ export abstract class AbstractInputEventParser extends AbstractParser<HierarchyT
         .setRootId(`${dispatchEvents.id}.${eventIndex}`)
         .setRootName(eventIndex)
         .setUseRootIdWithoutChange(true)
-        .setRootMessageType(
-          assertDefined(
-            AbstractInputEventParser.DISPATCH_EVENT_FIELD.resolve(),
-          ),
-        )
+        .setRootMessageType(assertDefined(this.dispatchEventField.resolve()))
         .setRowValidityCheck(rowValidityCheck)
         .build();
       dispatchEvents.addOrReplaceChild(dispatchEvent);

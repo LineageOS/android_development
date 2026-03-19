@@ -22,6 +22,7 @@ import {makeEntryHierarchyTrees as wmMakeEntryHierarchyTrees} from '@parsers/win
 import {TraceType} from '@trace_api/trace_type';
 import {createQueryResult} from '@trace_processor/perfetto/query_result';
 import {QueryResult} from '@trace_processor/query_result';
+import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {RectsForTrace} from '@tree_node/rect_extractor_result';
 
 interface WorkerMessage {
@@ -35,6 +36,8 @@ interface WorkerMessage {
 }
 
 addEventListener('message', async (event: MessageEvent<WorkerMessage>) => {
+  await Registry.getInstance().loadDefaultDescriptors();
+
   const traceGeometryData = event.data.traceGeometryData;
   Object.setPrototypeOf(traceGeometryData, TraceGeometryData.prototype);
 

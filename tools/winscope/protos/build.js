@@ -54,46 +54,49 @@ async function build() {
     fs.writeFileSync(clockSnapshotPath, modifiedClockSnapshot);
     fs.writeFileSync(tracePacketPath, modifiedTracePacket);
 
+    // Common protos
+    const commonFiles = getProtoFiles(path.join(WINSCOPE_TOP, 'protos/common'));
+
     const promises = [
       // IME udc
       buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/ime/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/ime/udc')).concat(commonFiles),
       'ime/udc'
     ),
 
     // ProtoLog udc
     buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/protolog/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/protolog/udc')).concat(commonFiles),
       'protolog/udc'
     ),
 
     // SurfaceFlinger udc
     buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/surfaceflinger/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/surfaceflinger/udc')).concat(commonFiles),
       'surfaceflinger/udc'
     ),
 
     // Transactions udc
     buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/surfaceflinger/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/surfaceflinger/udc')).concat(commonFiles),
       'surfaceflinger/udc'
     ),
 
     // Transitions udc
     buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/transitions/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/transitions/udc')).concat(commonFiles),
       'transitions/udc'
     ),
 
     // ViewCapture udc
     buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/viewcapture/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/viewcapture/udc')).concat(commonFiles),
       'viewcapture/udc'
     ),
 
     // WindowManager udc
     buildProtos(
-      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/windowmanager/udc')),
+      getProtoFiles(path.join(WINSCOPE_TOP, 'protos/windowmanager/udc')).concat(commonFiles),
       'windowmanager/udc'
     ),
 
@@ -166,8 +169,9 @@ async function build() {
       true // generate descriptor set
     ),
     buildProtos(
-      ['test/intdef_translation_test.proto'],
-      'test/intdef_translation'
+      ['test/intdef_translation_test.proto', 'test/typedef.proto'],
+      'test/intdef_translation',
+      true // generate descriptor set
     ),
   ];
 

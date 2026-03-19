@@ -61,6 +61,7 @@ import {FileReader} from '@trace_api/file_reader';
 import {ActiveTraceChanged, TracePositionUpdate, TraceSearchRequest,} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {AdbFiles} from '@trace_collection/adb_files';
+import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {Viewer} from '@viewers/viewer';
 import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
 
@@ -213,6 +214,7 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   async ngAfterViewInit() {
+    await Registry.getInstance().loadDefaultDescriptors();
     this.setComponentsToMediator();
     await this.mediator.onWinscopeEvent(new AppInitialized());
   }

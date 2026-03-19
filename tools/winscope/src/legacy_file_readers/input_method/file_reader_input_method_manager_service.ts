@@ -17,7 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {InputMethodManagerServiceTraceFileProtoUdc, InputMethodManagerServiceTraceProtoUdc, PerfettoClockSnapshot, PerfettoTracePacket, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
+import {InputMethodManagerServiceTraceFileProtoUdc, InputMethodManagerServiceTraceProtoUdc, PerfettoClockSnapshot, PerfettoInputMethodManagerServiceTraceProto, PerfettoTracePacket, WinscopeExtensions, WinscopeExtensionsImpl,} from '@compat/protobuf';
 import {AbstractFileReader} from '@legacy_file_readers/common/abstract_file_reader';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceFile} from '@trace_api/trace_file';
@@ -78,7 +78,7 @@ export class FileReaderInputMethodManagerService extends AbstractFileReader<Inpu
       packet.setTrustedPacketSequenceId(sequenceId);
 
       const perfettoProto =
-        InputMethodManagerServiceTraceProtoUdc.deserializeBinary(
+        PerfettoInputMethodManagerServiceTraceProto.deserializeBinary(
           entry.serializeBinary(),
         );
       const winscopeExtensions = new WinscopeExtensions();

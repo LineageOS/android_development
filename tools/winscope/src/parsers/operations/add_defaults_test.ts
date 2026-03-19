@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {fakeProtoDescriptors} from '@compat/test/protobuf';
+import {getFakeProtoDescriptors} from '@compat/test/protobuf';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
+import {Registry, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {AddDefaults} from './add_defaults';
 
 describe('AddDefaults', () => {
-  registerDescriptors(fakeProtoDescriptors);
   let propertyRoot: PropertyTreeNode;
   let operation: AddDefaults;
   let rootField: TamperedProtoField;
 
+  beforeAll(async () => {
+    Registry.getInstance().parseDescriptors(await getFakeProtoDescriptors());
+  });
   beforeEach(() => {
     rootField = (
-      PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      Registry.getInstance().getType(
         'winscope.test.RootMessage',
       ) as TamperedMessageType
     ).fields['entry'];

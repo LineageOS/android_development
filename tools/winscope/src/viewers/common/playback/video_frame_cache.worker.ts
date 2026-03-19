@@ -160,11 +160,15 @@ async function startDecodingChunks(
 
     const imageIndex = tracker.absoluteDecodedFrameIndex;
     if (imageIndex >= target) {
-      createImageBitmap(frame).then((buffer) => {
-        frame.close();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (postMessage as any)({imageIndex, image: buffer}, [buffer]);
-      });
+      createImageBitmap(frame)
+        .then((buffer) => {
+          frame.close();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (postMessage as any)({imageIndex, image: buffer}, [buffer]);
+        })
+        .catch((e) =>
+          postMessage({error: e.stack || e.message || e.toString()}),
+        );
     } else {
       frame.close();
     }

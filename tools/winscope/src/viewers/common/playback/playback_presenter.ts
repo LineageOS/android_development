@@ -537,10 +537,14 @@ export class PlaybackPresenter {
     });
 
     worker.onmessage = (event: MessageEvent) => {
-      const {trees} = event.data;
+      const {trees, error} = event.data;
 
       try {
-        this.workerPromiseResolve?.(trees);
+        if (error) {
+          this.workerPromiseReject?.(new Error(`Worker error: ${error}`));
+        } else {
+          this.workerPromiseResolve?.(trees);
+        }
       } catch (error) {
         this.workerPromiseReject?.(error);
       } finally {

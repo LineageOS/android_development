@@ -16,23 +16,26 @@
 import {assertDefined} from '@common/assert';
 import {TransformTypeFlags} from '@common/geometry/transform';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {fakeProtoDescriptors} from '@compat/test/protobuf';
+import {getFakeProtoDescriptors} from '@compat/test/protobuf';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {makeBufferNode, makeColorNode, makePositionNode, makeRectNode, makeSizeNode, makeTransformNode,} from '@test/unit/tree_node/tree_node_test_helpers';
 import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from '@trace/formatters';
-import {PERFETTO_TRACE_PACKET_ROOT, registerDescriptors, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
+import {Registry, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 describe('SetFormatters', () => {
-  registerDescriptors(fakeProtoDescriptors);
   let propertyRoot: PropertyTreeNode;
   let operation: SetFormatters;
   let field: TamperedProtoField;
 
+  beforeAll(async () => {
+    Registry.getInstance().parseDescriptors(await getFakeProtoDescriptors());
+  });
+
   beforeEach(() => {
     field = (
-      PERFETTO_TRACE_PACKET_ROOT.lookupType(
+      Registry.getInstance().getType(
         'winscope.test.RootMessage',
       ) as TamperedMessageType
     ).fields['entry'];
