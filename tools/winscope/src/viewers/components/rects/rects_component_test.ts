@@ -40,16 +40,16 @@ import {DisplayIdentifier} from '@viewers/common/display_identifier';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {RectLegendOption, TraceRectType,} from '@viewers/components/rects/rect_spec';
-import {RectsComponent} from '@viewers/components/rects/rects_component';
-import {UiRect} from '@viewers/components/rects/ui_rect';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
 import {Camera} from './camera';
 import {Canvas} from './canvas';
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
+import {RectLegendOption, TraceRectType} from './rect_spec';
+import {RectsComponent} from './rects_component';
 import {ShadingMode} from './shading_mode';
+import {UiRect} from './ui_rect';
 import {UiRectBuilder} from './ui_rect_builder';
 import {UiRect3D} from './ui_rect3d';
 

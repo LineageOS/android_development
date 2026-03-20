@@ -19,6 +19,9 @@ import {CommonModule} from '@angular/common';
 import {ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, output, signal, viewChild,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {MiniTimelineDrawer} from '@app/components/timeline/mini-timeline/drawer/mini_timeline_drawer';
+import {MiniTimelineDrawerImpl} from '@app/components/timeline/mini-timeline/drawer/mini_timeline_drawer_impl';
+import {MiniTimelineDrawerInput} from '@app/components/timeline/mini-timeline/drawer/mini_timeline_drawer_input';
 import {TimelineData} from '@app/timeline_data';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventCode} from '@common/dom';
@@ -29,9 +32,6 @@ import {Trace} from '@trace_api/trace';
 import {TracePosition} from '@trace_api/trace_position';
 import {compareByDisplayOrder} from '@trace_api/trace_type';
 
-import {MiniTimelineDrawer} from './drawer/mini_timeline_drawer';
-import {MiniTimelineDrawerImpl} from './drawer/mini_timeline_drawer_impl';
-import {MiniTimelineDrawerInput} from './drawer/mini_timeline_drawer_input';
 import {SliderComponent} from './slider_component';
 import {Transformer} from './transformer';
 

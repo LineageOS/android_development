@@ -37,8 +37,8 @@ import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {RectLegendFactory, TraceRectType,} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
+import {PropagateHashCodes} from '@viewers/viewer_window_manager/operations/propagate_hash_codes';
 
-import {PropagateHashCodes} from './operations/propagate_hash_codes';
 import {UiData} from './ui_data';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {

@@ -15,14 +15,14 @@
  */
 import {assertTrue} from '@common/assert';
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
 import {ProgressListener} from '@messaging/progress_listener';
 import {makeWarningInvalidLegacyTrace} from '@parsers/helpers/warnings';
 import {UserNotifier} from '@services/user_notifier';
 import {TraceFile} from '@trace_api/trace_file';
 
 import {FileReaderConstructor} from './file_reader_constructor';
+import {LegacyFileReader} from './legacy_file_reader';
+import {ProcessedFiles} from './processed_files';
 
 /**
  * Factory for creating legacy file readers.

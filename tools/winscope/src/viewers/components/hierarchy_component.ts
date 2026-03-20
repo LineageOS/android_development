@@ -34,13 +34,13 @@ import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {PropertiesTableComponent} from '@viewers/components/properties_table_component';
-import {SearchBoxComponent} from '@viewers/components/search_box_component';
-import {TreeNodeComponent} from '@viewers/components/tree_node_component';
-import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
+import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
+import {PropertiesTableComponent} from './properties_table_component';
+import {SearchBoxComponent} from './search_box_component';
 import {TreeComponent} from './tree_component';
+import {TreeNodeComponent} from './tree_node_component';
+import {UserOptionsComponent} from './user_options_component';
 
 @Component({
   selector: 'hierarchy-view',

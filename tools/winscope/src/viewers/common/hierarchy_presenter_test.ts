@@ -23,11 +23,11 @@ import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {TextFilter} from '@viewers/common/text_filter';
+import {SimplifyNames} from '@viewers/common/operations/simplify_names';
 
 import {DiffType} from './diff_type';
 import {HierarchyPresenter} from './hierarchy_presenter';
-import {SimplifyNames} from './operations/simplify_names';
+import {TextFilter} from './text_filter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UserOptions} from './user_options';
 

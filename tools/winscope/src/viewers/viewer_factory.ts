@@ -21,22 +21,22 @@ import {Trace} from '@trace_api/trace';
 import {compareByDisplayOrder, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {ViewerInputMethodClients} from '@viewers/viewer_input_method_clients/viewer_input_method_clients';
+import {ViewerInputMethodManagerService} from '@viewers/viewer_input_method_manager_service/viewer_input_method_manager_service';
+import {ViewerInputMethodService} from '@viewers/viewer_input_method_service/viewer_input_method_service';
+import {ViewerInput} from '@viewers/viewer_input/viewer_input';
+import {ViewerJankCujs} from '@viewers/viewer_jank_cujs/viewer_jank_cujs';
+import {ViewerScreenRecording} from '@viewers/viewer_media_based/viewer_screen_recording';
+import {ViewerScreenshot} from '@viewers/viewer_media_based/viewer_screenshot';
+import {ViewerProtoLog} from '@viewers/viewer_protolog/viewer_protolog';
+import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
+import {ViewerSurfaceFlinger} from '@viewers/viewer_surface_flinger/viewer_surface_flinger';
+import {ViewerTransactions} from '@viewers/viewer_transactions/viewer_transactions';
+import {ViewerTransitions} from '@viewers/viewer_transitions/viewer_transitions';
+import {ViewerViewCapture} from '@viewers/viewer_view_capture/viewer_view_capture';
+import {ViewerWindowManager} from '@viewers/viewer_window_manager/viewer_window_manager';
 
 import {Viewer, ViewType} from './viewer';
-import {ViewerInputMethodClients} from './viewer_input_method_clients/viewer_input_method_clients';
-import {ViewerInputMethodManagerService} from './viewer_input_method_manager_service/viewer_input_method_manager_service';
-import {ViewerInputMethodService} from './viewer_input_method_service/viewer_input_method_service';
-import {ViewerInput} from './viewer_input/viewer_input';
-import {ViewerJankCujs} from './viewer_jank_cujs/viewer_jank_cujs';
-import {ViewerScreenRecording} from './viewer_media_based/viewer_screen_recording';
-import {ViewerScreenshot} from './viewer_media_based/viewer_screenshot';
-import {ViewerProtoLog} from './viewer_protolog/viewer_protolog';
-import {ViewerSearch} from './viewer_search/viewer_search';
-import {ViewerSurfaceFlinger} from './viewer_surface_flinger/viewer_surface_flinger';
-import {ViewerTransactions} from './viewer_transactions/viewer_transactions';
-import {ViewerTransitions} from './viewer_transitions/viewer_transitions';
-import {ViewerViewCapture} from './viewer_view_capture/viewer_view_capture';
-import {ViewerWindowManager} from './viewer_window_manager/viewer_window_manager';
 
 export class ViewerFactory {
   static readonly SINGLE_TRACE_VIEWERS = [

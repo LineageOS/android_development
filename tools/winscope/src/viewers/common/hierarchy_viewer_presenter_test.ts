@@ -30,11 +30,11 @@ import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TextFilter} from '@viewers/common/text_filter';
 import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 
 import {DiffType} from './diff_type';
 import {RectShowState} from './rect_show_state';
+import {TextFilter} from './text_filter';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UserOptions} from './user_options';

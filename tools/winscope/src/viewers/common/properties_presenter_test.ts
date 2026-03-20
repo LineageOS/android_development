@@ -21,10 +21,10 @@ import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {TextFilter} from '@viewers/common/text_filter';
 
 import {DiffType} from './diff_type';
 import {PropertiesPresenter} from './properties_presenter';
+import {TextFilter} from './text_filter';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 describe('PropertiesPresenter', () => {

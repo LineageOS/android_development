@@ -70,7 +70,8 @@ limitations under the License.
           Properties disabled due to playback
         </div>
       }
-      @let curatedCollapsed = sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES);
+      @let curatedCollapsed =
+        sections.isSectionCollapsed(CollapsibleSectionType.CURATED_PROPERTIES);
       @let dumpCollapsed = sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES);
       <surface-flinger-property-groups
         #propertyGroups

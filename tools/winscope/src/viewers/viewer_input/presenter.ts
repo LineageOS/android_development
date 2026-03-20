@@ -40,9 +40,9 @@ import {makeInputRects} from '@viewers/common/ui_rect_factory';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {RectLegendFactory, TraceRectType,} from '@viewers/components/rects/rect_spec';
+import {FormatDispatchEntry} from '@viewers/viewer_input/operations/format_dispatch_entry';
 import {convertRectIdToLayerorDisplayName, makeDisplayIdentifiers,} from '@viewers/viewer_surface_flinger/presenter';
 
-import {FormatDispatchEntry} from './operations/format_dispatch_entry';
 import {InputEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<

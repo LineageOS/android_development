@@ -33,21 +33,21 @@ import {Traces} from '@trace_api/traces';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {PropertiesPresenter} from '@viewers/common/properties_presenter';
-import {RectsPresenter} from '@viewers/common/rects_presenter';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-import {UserOption, UserOptions} from '@viewers/common/user_options';
+import {PlaybackPresenter} from '@viewers/common/playback/playback_presenter';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 import {FlattenedTreeRow} from './flattened_tree_row';
 import {HierarchyPresenter, HierarchyTraceEntry, SelectedTree,} from './hierarchy_presenter';
-import {PlaybackPresenter} from './playback/playback_presenter';
-import {PlaybackState} from './playback/playback_state';
 import {PresetHierarchy, TextFilterValues} from './preset_hierarchy';
+import {PropertiesPresenter} from './properties_presenter';
 import {RectShowState} from './rect_show_state';
+import {RectsPresenter} from './rects_presenter';
+import {TextFilter} from './text_filter';
 import {UiDataHierarchy} from './ui_data_hierarchy';
+import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {flattenNodesToRows} from './ui_tree_node_helpers';
+import {UserOption, UserOptions} from './user_options';
 import {ViewerEvents} from './viewer_events';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;

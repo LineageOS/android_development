@@ -17,13 +17,13 @@
 import {AddDefaults} from '@parsers/operations/add_defaults';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
+import {AddWindowType} from '@parsers/window_manager/operations/add_window_type';
 import {HEX_FORMATTER, HEX_NO_PREFIX_FORMATTER, RECT_FORMATTER,} from '@trace/formatters';
 import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {ContainerType} from './container_type';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
-import {AddWindowType} from './operations/add_window_type';
 import {TAMPERED_PROTOS_LATEST} from './tampered_protos_latest';
 
 interface OperationLists {

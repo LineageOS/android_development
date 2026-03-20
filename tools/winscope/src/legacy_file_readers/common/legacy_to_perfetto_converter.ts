@@ -18,12 +18,12 @@ import {assertDefined} from '@common/assert';
 import {INVALID_TIME_NS} from '@common/time/time';
 import {getLogger, Logger} from '@compat/logging';
 import {PerfettoClockSnapshot, PerfettoTrace, PerfettoTracePacket,} from '@compat/protobuf';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 
 import {getReaderWithLatestRealToBootTimeOffset, getReaderWithLatestRealToMonotonicTimeOffset,} from './file_reader_helpers';
+import {LegacyFileReader} from './legacy_file_reader';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 
 /**

@@ -41,8 +41,9 @@ import {UiDataHierarchy} from '@viewers/common/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
-import {Presenter} from '@viewers/viewer_view_capture/presenter';
-import {UiData} from '@viewers/viewer_view_capture/ui_data';
+
+import {Presenter} from './presenter';
+import {UiData} from './ui_data';
 
 class PresenterViewCaptureTest extends AbstractHierarchyViewerPresenterTest<UiData> {
   private traces: Traces | undefined;

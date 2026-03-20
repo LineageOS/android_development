@@ -27,10 +27,10 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+import {VirtualRow, VirtualScrollViewportComponent,} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
-import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {TreeComponent} from './tree_component';
 import {TreeNodeComponent} from './tree_node_component';
 

@@ -35,14 +35,14 @@ import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
-import {HierarchyTreeNodeDataViewComponent} from '@viewers/components/hierarchy_tree_node_data_view_component';
-import {TreeNodeComponent} from '@viewers/components/tree_node_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {HierarchyComponent} from './hierarchy_component';
-import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
+import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {SearchBoxComponent} from './search_box_component';
 import {TreeComponent} from './tree_component';
+import {TreeNodeComponent} from './tree_node_component';
 import {UserOptionsComponent} from './user_options_component';
 
 describe('HierarchyComponent', () => {

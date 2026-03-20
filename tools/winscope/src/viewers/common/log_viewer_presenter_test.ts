@@ -32,9 +32,9 @@ import {TraceType} from '@trace_api/trace_type';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {TextFilter} from '@viewers/common/text_filter';
 
 import {LogSelectFilter, LogTextFilter} from './log_filters';
+import {TextFilter} from './text_filter';
 import {LogHeader, UiDataLog} from './ui_data_log';
 import {UserOptions} from './user_options';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from './viewer_events';

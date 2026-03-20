@@ -38,13 +38,13 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UserOptions} from '@viewers/common/user_options';
 import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {RectSpec, TraceRectType} from '@viewers/components/rects/rect_spec';
-import {UiRect} from '@viewers/components/rects/ui_rect';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
 import {Canvas} from './canvas';
 import {Mapper3D} from './mapper3d';
+import {RectSpec, TraceRectType} from './rect_spec';
 import {ShadingMode} from './shading_mode';
+import {UiRect} from './ui_rect';
 
 @Component({
   selector: 'rects-view',

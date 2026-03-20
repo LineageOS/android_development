@@ -25,6 +25,12 @@ import {AddDefaults} from '@parsers/operations/add_defaults';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
+import {ZOrderPathsComputation} from '@parsers/surface_flinger/computations/z_order_paths_computation';
+import {AddCompositionType} from '@parsers/surface_flinger/operations/add_composition_type';
+import {AddDisplayProperties} from '@parsers/surface_flinger/operations/add_display_properties';
+import {TranslateFlags} from '@parsers/surface_flinger/operations/translate_flags';
+import {UpdateCornerRadii} from '@parsers/surface_flinger/operations/update_corner_radii';
+import {UpdateTransforms} from '@parsers/surface_flinger/operations/update_transforms';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {EnumFormatter, LAYER_ID_FORMATTER} from '@trace/formatters';
@@ -35,14 +41,8 @@ import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder'
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {NodeRects, RectsForTrace, SnapshotRects,} from '@tree_node/rect_extractor_result';
 
-import {ZOrderPathsComputation} from './computations/z_order_paths_computation';
 import {DENYLIST_PROPERTIES} from './denylist_properties';
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';
-import {AddCompositionType} from './operations/add_composition_type';
-import {AddDisplayProperties} from './operations/add_display_properties';
-import {TranslateFlags} from './operations/translate_flags';
-import {UpdateCornerRadii} from './operations/update_corner_radii';
-import {UpdateTransforms} from './operations/update_transforms';
 import {RectExtractor} from './rect_extractor';
 
 export function makeEntryHierarchyTrees(

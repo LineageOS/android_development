@@ -28,7 +28,6 @@ import {ImeTraceType, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {PresenterInputMethodClients} from '@viewers/viewer_input_method_clients/presenter_input_method_clients';
 import {PresenterInputMethodManagerService} from '@viewers/viewer_input_method_manager_service/presenter_input_method_manager_service';
 import {PresenterInputMethodService} from '@viewers/viewer_input_method_service/presenter_input_method_service';
@@ -37,6 +36,7 @@ import {NotifyHierarchyViewCallbackType} from './abstract_hierarchy_viewer_prese
 import {AbstractHierarchyViewerPresenterTest} from './abstract_hierarchy_viewer_presenter_test';
 import {AbstractPresenterInputMethod} from './abstract_presenter_input_method';
 import {VISIBLE_CHIP} from './chip';
+import {ImeUiData} from './ime_ui_data';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';

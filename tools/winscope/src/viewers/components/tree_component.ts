@@ -24,9 +24,9 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
 import {ViewerEvents} from '@viewers/common/viewer_events';
+import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
+import {VirtualRow, VirtualScrollViewportComponent,} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
-import {ItemHeightPredictor} from './scroll/item_height_predictor';
-import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
 import {TreeNodeComponent} from './tree_node_component';
 
 @Component({

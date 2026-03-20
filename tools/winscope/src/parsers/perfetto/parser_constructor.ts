@@ -16,10 +16,11 @@
 
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
-import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {AbstractParser} from './abstract_parser';
 
 /**
  * Function type for creating parsers.

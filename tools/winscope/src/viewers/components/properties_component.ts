@@ -26,12 +26,12 @@ import {TextFilter} from '@viewers/common/text_filter';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UserOptions} from '@viewers/common/user_options';
 import {ViewerEvents} from '@viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {UserOptionsComponent} from '@viewers/components/user_options_component';
-import {ViewCapturePropertyGroupsComponent} from '@viewers/components/view_capture_property_groups_component';
 
+import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {SearchBoxComponent} from './search_box_component';
 import {TreeComponent} from './tree_component';
+import {UserOptionsComponent} from './user_options_component';
+import {ViewCapturePropertyGroupsComponent} from './view_capture_property_groups_component';
 
 @Component({
   selector: 'properties-view',

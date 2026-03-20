@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {BugreportFileSelected, BugreportFileSelectionRequest,} from '@app/misc_events';
 import {assertDefined} from '@common/assert';
 import {getFileDirectory, isZipFile, unzipFile} from '@common/io';
 import {utf8Decode} from '@common/string_helpers';
@@ -32,6 +31,7 @@ import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 
+import {BugreportFileSelected, BugreportFileSelectionRequest,} from './misc_events';
 import {makeWarningMissingPersistentTrace, makeWarningNoValidFiles, makeWarningTraceOverridden, makeWarningUnsupportedFileFormat,} from './warnings';
 
 /**

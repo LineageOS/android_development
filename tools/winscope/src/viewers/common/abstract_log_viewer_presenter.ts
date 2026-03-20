@@ -29,16 +29,16 @@ import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {PropertiesPresenter} from '@viewers/common/properties_presenter';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UserOptions} from '@viewers/common/user_options';
 
 import {FlattenedTreeRow} from './flattened_tree_row';
 import {LogSelectFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';
+import {PropertiesPresenter} from './properties_presenter';
+import {TextFilter} from './text_filter';
 import {LogEntry, LogHeader, UiDataLog} from './ui_data_log';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {flattenNodesToRows} from './ui_tree_node_helpers';
+import {UserOptions} from './user_options';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from './viewer_events';
 
 export type NotifyLogViewCallbackType<UiData> = (uiData: UiData) => void;

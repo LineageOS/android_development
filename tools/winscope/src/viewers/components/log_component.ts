@@ -35,12 +35,12 @@ import {LogFilter, LogSelectFilter, LogTextFilter,} from '@viewers/common/log_fi
 import {TextFilter} from '@viewers/common/text_filter';
 import {ClickableProperty, LogEntry, LogField, LogFieldValue, LogHeader,} from '@viewers/common/ui_data_log';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
-import {SearchBoxComponent} from '@viewers/components/search_box_component';
-import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
+import {VirtualRow, VirtualScrollViewportComponent,} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 
-import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
+import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
+import {SearchBoxComponent} from './search_box_component';
+import {SelectWithFilterComponent} from './select_with_filter_component';
 
 @Component({
   selector: 'log-view',

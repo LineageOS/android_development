@@ -39,6 +39,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {AppRefreshDumpsRequest, AppResetRequest} from '@app/app_events';
+import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from '@app/components/bottomnav/bottom_drawer_component';
+import {TimelineComponent} from '@app/components/timeline/timeline_component';
 import {FilesSource} from '@app/files_source';
 import {LoadedFileData} from '@app/loaded_file_data';
 import {Mediator} from '@app/mediator';
@@ -68,9 +70,7 @@ import {Traces} from '@trace_api/traces';
 import {Viewer, ViewType} from '@viewers/viewer';
 
 import {AppComponent} from './app_component';
-import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from './bottomnav/bottom_drawer_component';
 import {CollectTracesComponent} from './collect_traces_component';
-import {TimelineComponent} from './timeline/timeline_component';
 import {TraceViewComponent} from './trace_view_component';
 import {UploadTracesComponent} from './upload_traces_component';
 import {WdpSetupComponent} from './wdp_setup_component';

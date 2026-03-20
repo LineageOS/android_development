@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {DiffType} from '@viewers/common/diff_type';
-import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-
 import {AddDiffs} from './add_diffs';
+import {DiffType} from './diff_type';
+import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 export class AddDiffsHierarchyTree extends AddDiffs<UiHierarchyTreeNode> {
   protected override addDiffsToNewRoot = true;

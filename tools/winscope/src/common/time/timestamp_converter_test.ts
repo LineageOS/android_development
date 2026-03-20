@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {ASIA_TIMEZONE_INFO, timestampEqualityTester,} from '@common/time/test_helpers';
-
+import {ASIA_TIMEZONE_INFO, timestampEqualityTester} from './test_helpers';
 import {TIME_UNIT_TO_NANO} from './time_units';
 import {TimestampConverter} from './timestamp_converter';
 import {getResolvedUTCOffset} from './utc_offset_resolver';
