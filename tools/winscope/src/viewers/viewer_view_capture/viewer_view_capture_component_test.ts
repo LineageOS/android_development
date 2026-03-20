@@ -14,18 +14,44 @@
  * limitations under the License.
  */
 
+import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from '@viewers/common/abstract_hierarchy_viewer_component_test';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
 
+import {UiData} from './ui_data';
 import {ViewerViewCaptureComponent} from './viewer_view_capture_component';
 
-class ViewerViewCaptureComponentTest extends AbstractHierarchyViewerComponentTest<ViewerViewCaptureComponent> {
+class ViewerViewCaptureComponentTest extends AbstractHierarchyViewerComponentTest<
+  UiData,
+  ViewerViewCaptureComponent
+> {
   protected override readonly testRects = true;
+  protected override readonly canPropagateProperties = true;
+  protected override readonly supportsPlayback = false;
   protected override readonly hierarchyTitle = 'HIERARCHY';
   protected override readonly propertiesTitle = 'PROPERTIES';
   protected override readonly rectsTitle = 'SKETCH';
 
-  protected async setUpTestEnvironment(): Promise<
+  protected override executeSpecializedTests() {
+    describe('Specialized tests', () => {
+      let dom: DOMTestHelper<ViewerViewCaptureComponent>;
+      let component: ViewerViewCaptureComponent;
+
+      beforeEach(async () => {
+        [dom, component] = await this.setUpTestEnvironment();
+      });
+
+      it('binds rects view events to output signals', () => {
+        const rects = assertDefined(dom.findByDirective(RectsComponent));
+        const miniRectSpy = spyOn(component.onMiniRectsDblClick, 'emit');
+        rects.miniRectsDblClick.emit();
+        expect(miniRectSpy).toHaveBeenCalledTimes(1);
+      });
+    });
+  }
+
+  protected override async setUpTestEnvironment(): Promise<
     [DOMTestHelper<ViewerViewCaptureComponent>, ViewerViewCaptureComponent]
   > {
     return this.initializeTestEnvironment(ViewerViewCaptureComponent);

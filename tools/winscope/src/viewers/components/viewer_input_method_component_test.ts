@@ -14,27 +14,57 @@
  * limitations under the License.
  */
 
+import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from '@viewers/common/abstract_hierarchy_viewer_component_test';
+import {ImeUiData} from '@viewers/common/ime_ui_data';
+import {AdditionalPropertySelectedDetail} from '@viewers/common/viewer_event_details';
 
 import {ImeAdditionalPropertiesComponent} from './ime_additional_properties_component';
 import {ViewerInputMethodComponent} from './viewer_input_method_component';
 
-class ViewerInputMethodComponentTest extends AbstractHierarchyViewerComponentTest<ViewerInputMethodComponent> {
+class ViewerInputMethodComponentTest extends AbstractHierarchyViewerComponentTest<
+  ImeUiData,
+  ViewerInputMethodComponent
+> {
   protected override readonly testRects = false;
+  protected override readonly canPropagateProperties = false;
+  protected override readonly supportsPlayback = false;
   protected override readonly hierarchyTitle = 'HIERARCHY';
   protected override readonly propertiesTitle = 'PROPERTIES';
 
   protected override executeSpecializedTests() {
     describe('Specialized tests', () => {
       let dom: DOMTestHelper<ViewerInputMethodComponent>;
+      let component: ViewerInputMethodComponent;
 
       beforeEach(async () => {
-        [dom] = await this.setUpTestEnvironment();
+        [dom, component] = await this.setUpTestEnvironment();
       });
 
       it('creates additional properties view', () => {
         expect(dom.find('.ime-additional-properties')).toBeDefined();
+      });
+
+      it('binds ime additional properties view events to output signals', () => {
+        const imeAdditionalProperties = assertDefined(
+          dom.findByDirective(ImeAdditionalPropertiesComponent),
+        );
+
+        const highlightedSpy = spyOn(component.onHighlightedIdChange, 'emit');
+        const id = 'test';
+        imeAdditionalProperties.highlightedIdChange.emit(id);
+        expect(highlightedSpy).toHaveBeenCalledOnceWith(id);
+
+        const additionalPropertySpy = spyOn(
+          component.onAdditionalPropertySelected,
+          'emit',
+        );
+        const node = makePropertyNode('id', 'name', 'value');
+        const detail = new AdditionalPropertySelectedDetail('', node);
+        imeAdditionalProperties.additionalPropertySelected.emit(detail);
+        expect(additionalPropertySpy).toHaveBeenCalledOnceWith(detail);
       });
 
       it('handles ime additional properties section collapse/expand', () => {
@@ -46,7 +76,7 @@ class ViewerInputMethodComponentTest extends AbstractHierarchyViewerComponentTes
     });
   }
 
-  protected async setUpTestEnvironment(): Promise<
+  protected override async setUpTestEnvironment(): Promise<
     [DOMTestHelper<ViewerInputMethodComponent>, ViewerInputMethodComponent]
   > {
     return this.initializeTestEnvironment(ViewerInputMethodComponent, [
