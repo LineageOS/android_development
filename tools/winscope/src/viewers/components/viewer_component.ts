@@ -14,13 +14,33 @@
  * limitations under the License.
  */
 
-import {Directive, ElementRef, Inject, input} from '@angular/core';
+import {Directive, ElementRef, Inject, input, output} from '@angular/core';
 import {PersistentStore} from '@common/store/persistent_store';
+import {TraceType} from '@trace_api/trace_type';
+import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
+import {TextFilter} from '@viewers/common/text_filter';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
+import {UserOptions} from '@viewers/common/user_options';
+import {RectShowStateChangeDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
 
 @Directive()
 export class ViewerComponent<T> {
+  TraceType = TraceType;
+  CollapsibleSectionType = CollapsibleSectionType;
+
   constructor(@Inject(ElementRef) readonly elementRef: ElementRef) {}
 
   readonly inputData = input<T>();
   readonly store = input<PersistentStore>();
+
+  readonly onTimestampClick = output<TimestampClickDetail>();
+  readonly onPropagatePropertyClick = output<UiPropertyTreeNode>();
+
+  readonly onHighlightedIdChange = output<string>();
+  readonly onRectsUserOptionsChange = output<UserOptions>();
+  readonly onRectShowStateChange = output<RectShowStateChangeDetail>();
+
+  readonly onPropertiesFilterChange = output<TextFilter>();
+  readonly onPropertiesUserOptionsChange = output<UserOptions>();
+  readonly onHighlightedPropertyChange = output<string>();
 }
