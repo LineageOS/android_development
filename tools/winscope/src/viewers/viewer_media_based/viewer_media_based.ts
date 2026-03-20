@@ -29,7 +29,8 @@ import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 
 export abstract class ViewerMediaBased extends AbstractViewer<
   MediaBasedTraceEntry,
-  UiData
+  UiData,
+  Presenter
 > {
   private traces: Array<Trace<MediaBasedTraceEntry>> | undefined;
 
@@ -67,5 +68,16 @@ export abstract class ViewerMediaBased extends AbstractViewer<
 
   override getViewType(): ViewType {
     return ViewType.OVERLAY;
+  }
+
+  protected override addOutputListeners(component: ViewerMediaBasedComponent) {
+    component.onOverlayDblClick.subscribe((detail) => {
+      this.presenter.onOverlayDblClick(detail);
+    });
+    this.addViewerSpecificListeners(component);
+  }
+
+  protected addViewerSpecificListeners(_: ViewerMediaBasedComponent) {
+    // do nothing
   }
 }

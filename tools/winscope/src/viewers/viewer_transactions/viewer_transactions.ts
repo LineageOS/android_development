@@ -19,15 +19,16 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {AbstractViewer} from '@viewers/abstract_viewer';
+import {AbstractLogViewer} from '@viewers/abstract_log_viewer';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerTransactionsComponent} from './viewer_transactions_component';
 
-export class ViewerTransactions extends AbstractViewer<
+export class ViewerTransactions extends AbstractLogViewer<
   HierarchyTreeNode,
-  UiData
+  UiData,
+  Presenter
 > {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.TRANSACTIONS];
 

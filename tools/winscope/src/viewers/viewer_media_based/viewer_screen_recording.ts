@@ -19,6 +19,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 
 import {ViewerMediaBased} from './viewer_media_based';
+import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 
 export class ViewerScreenRecording extends ViewerMediaBased {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.SCREEN_RECORDING];
@@ -29,5 +30,13 @@ export class ViewerScreenRecording extends ViewerMediaBased {
 
   protected override getTraceTypeForViewTitle(): TraceType {
     return TraceType.SCREEN_RECORDING;
+  }
+
+  protected override addViewerSpecificListeners(
+    component: ViewerMediaBasedComponent,
+  ) {
+    component.onOverlayMediaBasedTraceChange.subscribe((detail) => {
+      this.presenter.onOverlayScreenRecordingChange(detail);
+    });
   }
 }
