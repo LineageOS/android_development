@@ -25,7 +25,9 @@ import {InputColumnType} from '@trace/input/input_column_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
+import {TextFilter} from '@viewers/common/text_filter';
 import {LogHeader} from '@viewers/common/ui_data_log';
+import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
@@ -107,6 +109,50 @@ class ViewerInputComponentTest extends AbstractLogViewerComponentTest<ViewerInpu
         dom
           .get('.dispatch-properties .placeholder-text')
           .checkTextExact('No selected entry.');
+      });
+
+      it('binds rect view events to output signals', () => {
+        const rects = assertDefined(dom.findByDirective(RectsComponent));
+
+        const highlightedSpy = spyOn(component.onHighlightedIdChange, 'emit');
+        const id = 'test';
+        rects.highlightedIdChange.emit(id);
+        expect(highlightedSpy).toHaveBeenCalledOnceWith(id);
+
+        const optionsSpy = spyOn(component.onRectsUserOptionsChange, 'emit');
+        const options = {opt: {name: 'opt', enabled: true}};
+        rects.optionsChange.emit(options);
+        expect(optionsSpy).toHaveBeenCalledOnceWith(options);
+
+        const dblClickSpy = spyOn(component.onRectsDblClick, 'emit');
+        rects.rectsDblClick.emit(id);
+        expect(dblClickSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('binds input event properties highlighted property event to output signal', () => {
+        const properties = dom.findAllByDirective(PropertiesComponent)[0];
+        const spy = spyOn(component.onHighlightedPropertyChange, 'emit');
+        const id = 'test';
+        properties.highlightedPropertyChange.emit(id);
+        expect(spy).toHaveBeenCalledOnceWith(id);
+      });
+
+      it('binds dispatched properties events to output signals', () => {
+        const dispatchProperties =
+          dom.findAllByDirective(PropertiesComponent)[1];
+
+        const filterSpy = spyOn(
+          component.onDispatchPropertiesFilterChange,
+          'emit',
+        );
+        const filter = new TextFilter();
+        dispatchProperties.filterChange.emit(filter);
+        expect(filterSpy).toHaveBeenCalledOnceWith(filter);
+
+        const spy = spyOn(component.onHighlightedPropertyChange, 'emit');
+        const id = 'test';
+        dispatchProperties.highlightedPropertyChange.emit(id);
+        expect(spy).toHaveBeenCalledOnceWith(id);
       });
     });
   }

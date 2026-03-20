@@ -32,6 +32,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
@@ -49,7 +50,9 @@ import {ViewerProtologComponent} from '@viewers/viewer_protolog/viewer_protolog_
 import {ViewerTransactionsComponent} from '@viewers/viewer_transactions/viewer_transactions_component';
 import {ViewerTransitionsComponent} from '@viewers/viewer_transitions/viewer_transitions_component';
 
-import {ColumnSpec, UiDataLog} from './ui_data_log';
+import {TextFilter} from './text_filter';
+import {ColumnSpec, LogHeader, UiDataLog} from './ui_data_log';
+import {LogFilterChangeDetail, TimestampClickDetail,} from './viewer_event_details';
 
 type LogViewerComponent =
   | ViewerProtologComponent
@@ -85,6 +88,40 @@ export abstract class AbstractLogViewerComponentTest<
 
         it('renders log component', () => {
           expect(dom.find('.log-view')).toBeDefined();
+        });
+
+        it('binds log viewer events to output signals', () => {
+          const logComponent = assertDefined(component.logComponent());
+
+          const logFilterSpy = spyOn(component.onLogFilterChange, 'emit');
+          const filterDetail = new LogFilterChangeDetail(
+            new LogHeader(this.testSpec),
+            [],
+          );
+          logComponent.logFilterChange.emit(filterDetail);
+          if (this.hasFilters) {
+            expect(logFilterSpy).toHaveBeenCalledOnceWith(filterDetail);
+          } else {
+            expect(logFilterSpy).not.toHaveBeenCalled();
+          }
+
+          const clickSpy = spyOn(component.onLogEntryClick, 'emit');
+          logComponent.logEntryClick.emit(0);
+          expect(clickSpy).toHaveBeenCalledOnceWith(0);
+
+          const timestampClickSpy = spyOn(component.onTimestampClick, 'emit');
+          const ts = makeElapsedTimestamp(2n);
+          const tsDetail = new TimestampClickDetail(undefined, ts);
+          logComponent.timestampClick.emit(tsDetail);
+          expect(timestampClickSpy).toHaveBeenCalledOnceWith(tsDetail);
+
+          const arrowDownSpy = spyOn(component.onArrowDownPress, 'emit');
+          logComponent.arrowDownPress.emit();
+          expect(arrowDownSpy).toHaveBeenCalledOnceWith();
+
+          const arrowUpSpy = spyOn(component.onArrowUpPress, 'emit');
+          logComponent.arrowUpPress.emit();
+          expect(arrowUpSpy).toHaveBeenCalledOnceWith();
         });
 
         it('render headers as filters', () => {
@@ -135,6 +172,24 @@ export abstract class AbstractLogViewerComponentTest<
         if (this.testProperties) {
           it('renders properties', () => {
             expect(dom.find('.properties-view')).toBeDefined();
+          });
+
+          it('binds properties events to output signals', () => {
+            const propertiesComponent = assertDefined(
+              dom.findByDirective(PropertiesComponent),
+            );
+            const filterSpy = spyOn(component.onPropertiesFilterChange, 'emit');
+            const filter = new TextFilter('');
+            propertiesComponent.filterChange.emit(filter);
+            expect(filterSpy).toHaveBeenCalledOnceWith(filter);
+
+            const optionsSpy = spyOn(
+              component.onPropertiesUserOptionsChange,
+              'emit',
+            );
+            const options = {opt: {name: 'opt', enabled: true}};
+            propertiesComponent.optionsChange.emit(options);
+            expect(optionsSpy).toHaveBeenCalledOnceWith(options);
           });
 
           it('creates collapsed sections with no buttons', () => {

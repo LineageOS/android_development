@@ -69,6 +69,14 @@ export class DOMTestHelper<T> {
     );
   }
 
+  findAllByDirective<T>(component: Type<T>): T[] {
+    return this.fixture.debugElement
+      .queryAll(By.directive(component))
+      .map((el) => {
+        return el.componentInstance;
+      });
+  }
+
   findInDocument(selector: string): DOMTestHelper<T> | undefined {
     const element = document.querySelector<HTMLElement>(selector);
     return element ? new DOMTestHelper(this.fixture, element) : undefined;
