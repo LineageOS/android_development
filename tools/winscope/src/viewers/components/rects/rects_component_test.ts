@@ -914,6 +914,16 @@ describe('RectsComponent', () => {
     expect(legendEl.find('.rect-legend-expand-button')).toBeUndefined();
   });
 
+  it('handles change in user options', () => {
+    const userOptions = assertDefined(
+      dom.findByDirective(UserOptionsComponent),
+    );
+    const spy = spyOn(component.optionsChange, 'emit');
+    const options = {opt: {name: 'opt', enabled: true}};
+    userOptions.optionsChange.emit(options);
+    expect(spy).toHaveBeenCalledOnceWith(options);
+  });
+
   function resetSpies() {
     [
       updateViewPositionSpy,
