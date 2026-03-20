@@ -168,6 +168,10 @@ limitations under the License.
                   [padEntries]="false"
                   [isFetchingData]="curr.result?.isFetchingData ?? false"
                   [checkScrollViewportCount]="curr.result?.checkScrollViewportCount ?? 0"
+                  (logEntryClick)="onLogEntryClick.emit({detail: $event, uid: curr.uid})"
+                  (timestampClick)="onResultTimestampClick.emit({detail: $event, uid: curr.uid})"
+                  (arrowDownPress)="onArrowDownPress.emit(curr.uid)"
+                  (arrowUpPress)="onArrowUpPress.emit(curr.uid)"
                 ></log-view>
               </div>
             </div>

@@ -43,6 +43,9 @@ limitations under the License.
     [isDarkMode]="data?.isDarkMode ?? false"
     [rectSpec]="data?.rectSpec"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
+    (miniRectsDblClick)="onMiniRectsDblClick.emit()"
+    (highlightedIdChange)="onHighlightedIdChange.emit($event)"
+    (optionsChange)="onRectsUserOptionsChange.emit($event)"
   ></rects-view>
   <hierarchy-view
     class="hierarchy-view"
@@ -56,6 +59,11 @@ limitations under the License.
     [userOptions]="data?.hierarchyUserOptions ?? {}"
     [rectIdToShowState]="data?.rectIdToShowState"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.HIERARCHY, true)"
+    (filterChange)="onHierarchyFilterChange.emit($event)"
+    (highlightedNodeChange)="onHighlightedNodeChange.emit($event)"
+    (pinnedItemChange)="onHierarchyPinnedChange.emit($event)"
+    (optionsChange)="onHierarchyUserOptionsChange.emit($event)"
+    (rectShowStateChange)="onRectShowStateChange.emit($event)"
   ></hierarchy-view>
   <properties-view
     class="properties-view"
@@ -71,5 +79,10 @@ limitations under the License.
     (collapseButtonClicked)="
       sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
     "
+    (filterChange)="onPropertiesFilterChange.emit($event)"
+    (optionsChange)="onPropertiesUserOptionsChange.emit($event)"
+    (highlightedPropertyChange)="onHighlightedPropertyChange.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
+    (propagatePropertyClick)="onPropagatePropertyClick.emit($event)"
   ></properties-view>
 </div>

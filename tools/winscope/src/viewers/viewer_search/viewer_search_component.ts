@@ -17,7 +17,7 @@
 import {CdkAccordionItem, CdkAccordionModule} from '@angular/cdk/accordion';
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {CommonModule} from '@angular/common';
-import {ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, TemplateRef, viewChild, viewChildren,} from '@angular/core';
+import {ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, output, TemplateRef, viewChild, viewChildren,} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule, ValidationErrors, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
@@ -36,11 +36,10 @@ import {TimeDuration} from '@common/time/time_duration';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {Analytics} from '@logging/analytics';
 import {UserNotifier} from '@services/user_notifier';
-import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {ClickableProperty} from '@viewers/common/ui_data_log';
-import {AddQueryClickDetail, ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
 import {LogComponent} from '@viewers/components/log_component';
@@ -82,8 +81,29 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   matTabGroups = viewChildren(MatTabGroup);
   activeSearchComponents = viewChildren(ActiveSearchComponent);
 
-  CollapsibleSectionType = CollapsibleSectionType;
-  TraceType = TraceType;
+  readonly onLogFilterChange = output<{
+    detail: LogFilterChangeDetail;
+    uid: number;
+  }>();
+  readonly onLogTextFilterChange = output<{
+    detail: LogTextFilterChangeDetail;
+    uid: number;
+  }>();
+  readonly onLogEntryClick = output<{detail: number; uid: number}>();
+  readonly onResultTimestampClick = output<{
+    detail: TimestampClickDetail;
+    uid: number;
+  }>();
+  readonly onArrowDownPress = output<number>();
+  readonly onArrowUpPress = output<number>();
+
+  readonly globalSearchSectionClick = output<void>();
+  readonly searchQueryChange = output<SearchQueryClickDetail>();
+  readonly saveQuery = output<SaveQueryClickDetail>();
+  readonly clearQueryChange = output<number>();
+  readonly addQueryChange = output<string | undefined>();
+  readonly deleteSavedQuery = output<ListedSearch>();
+
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.GLOBAL_SEARCH,
@@ -192,8 +212,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   onGlobalSearchClick() {
     if (!this.initializing && !this.inputData()?.initialized) {
       this.initializing = true;
-      const event = new CustomEvent(ViewerEvents.GlobalSearchSectionClick);
-      this.elementRef.nativeElement.dispatchEvent(event);
+      this.globalSearchSectionClick.emit();
     }
   }
 
@@ -204,20 +223,16 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
     );
     section.lastQueryExecutionTime = undefined;
     section.lastQueryStartTime = Date.now();
-    const event = new CustomEvent(ViewerEvents.SearchQueryClick, {
-      detail: new SearchQueryClickDetail(query, uid),
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.searchQueryChange.emit(new SearchQueryClickDetail(query, uid));
   }
 
   onSaveQueryClick(query: string, control: FormControl) {
     if (control.invalid) {
       return;
     }
-    const event = new CustomEvent(ViewerEvents.SaveQueryClick, {
-      detail: new SaveQueryClickDetail(query, assertDefined(control.value)),
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.saveQuery.emit(
+      new SaveQueryClickDetail(query, assertDefined(control.value)),
+    );
     Analytics.TraceSearch.logQuerySaved();
     control.reset();
   }
@@ -227,17 +242,11 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   }
 
   clearQuery(uid: number) {
-    const event = new CustomEvent(ViewerEvents.ClearQueryClick, {
-      detail: new ClearQueryClickDetail(uid),
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.clearQueryChange.emit(uid);
   }
 
   addQuery(query?: string) {
-    const event = new CustomEvent(ViewerEvents.AddQueryClick, {
-      detail: query ? new AddQueryClickDetail(query) : undefined,
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.addQueryChange.emit(query);
   }
 
   getCurrentSearchesWithResults(): CurrentSearch[] {
@@ -490,10 +499,7 @@ export class ViewerSearchComponent extends ViewerComponent<UiData> {
   }
 
   private onDeleteQueryClick(search: ListedSearch) {
-    const event = new CustomEvent(ViewerEvents.DeleteSavedQueryClick, {
-      detail: new DeleteSavedQueryClickDetail(search),
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.deleteSavedQuery.emit(search);
   }
 
   private makeSaveQueryNameControl() {

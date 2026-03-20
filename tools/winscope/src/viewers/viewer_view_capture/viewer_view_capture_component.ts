@@ -15,16 +15,15 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {TraceType} from '@trace_api/trace_type';
+import {ChangeDetectionStrategy, Component, output} from '@angular/core';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {HierarchyViewerComponent} from '@viewers/components/hierarchy_viewer_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
-import {ViewerComponent} from '@viewers/components/viewer_component';
 
 import {UiData} from './ui_data';
 
@@ -45,10 +44,7 @@ import {UiData} from './ui_data';
   templateUrl: './viewer_view_capture_component.ng.html',
   styleUrls: ['./viewer_view_capture_component.css'],
 })
-export class ViewerViewCaptureComponent extends ViewerComponent<UiData> {
-  CollapsibleSectionType = CollapsibleSectionType;
-  TraceType = TraceType;
-
+export class ViewerViewCaptureComponent extends HierarchyViewerComponent<UiData> {
   rectsTitle = 'SKETCH';
   sections = new CollapsibleSections([
     {
@@ -72,4 +68,6 @@ export class ViewerViewCaptureComponent extends ViewerComponent<UiData> {
     ShadingMode.OPACITY,
     ShadingMode.WIRE_FRAME,
   ];
+
+  readonly onMiniRectsDblClick = output();
 }

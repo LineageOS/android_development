@@ -28,6 +28,12 @@ limitations under the License.
     [isFetchingData]="data?.isFetchingData ?? false"
     [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
     [heightPredictor]="heightPredictor"
+    (logFilterChange)="onLogFilterChange.emit($event)"
+    (logTextFilterChange)="onLogTextFilterChange.emit($event)"
+    (logEntryClick)="onLogEntryClick.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
+    (arrowDownPress)="onArrowDownPress.emit()"
+    (arrowUpPress)="onArrowUpPress.emit()"
   >
   </log-view>
 </div>

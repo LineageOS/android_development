@@ -41,6 +41,9 @@ limitations under the License.
       [isDarkMode]="data.isDarkMode"
       [rectSpec]="data.rectSpec"
       (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
+      (highlightedIdChange)="onHighlightedIdChange.emit($event)"
+      (optionsChange)="onRectsUserOptionsChange.emit($event)"
+      (rectsDblClick)="onRectsDblClick.emit()"
     ></rects-view>
   }
 
@@ -60,6 +63,11 @@ limitations under the License.
     [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
     [heightPredictor]="heightPredictor"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.LOG, true)"
+    (logFilterChange)="onLogFilterChange.emit($event)"
+    (logEntryClick)="onLogEntryClick.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
+    (arrowDownPress)="onArrowDownPress.emit()"
+    (arrowUpPress)="onArrowUpPress.emit()"
   ></log-view>
 
   @if (!arePropertiesCollapsed()) {
@@ -78,6 +86,9 @@ limitations under the License.
         (collapseButtonClicked)="
           sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
         "
+        (filterChange)="onPropertiesFilterChange.emit($event)"
+        (optionsChange)="onPropertiesUserOptionsChange.emit($event)"
+        (highlightedPropertyChange)="onHighlightedPropertyChange.emit($event)"
       ></properties-view>
       <properties-view
         class="properties-view dispatch-properties"
@@ -91,11 +102,12 @@ limitations under the License.
         [store]="currStore"
         [isProtoDump]="true"
         [textFilter]="data?.dispatchPropertiesFilter"
-        [filterEventName]="ViewerEvents.DispatchPropertiesFilterChange"
         placeholderText="No selected entry."
         (collapseButtonClicked)="
           sections.onCollapseStateChange(CollapsibleSectionType.INPUT_DISPATCH_PROPERTIES, true)
         "
+        (filterChange)="onDispatchPropertiesFilterChange.emit($event)"
+        (highlightedPropertyChange)="onHighlightedPropertyChange.emit($event)"
       ></properties-view>
     </div>
   }
