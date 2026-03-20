@@ -153,41 +153,35 @@ export class TimelineComponent implements OnChanges {
   }
 
   processData(data: MotionGoldenData) {
-    const newFeatures: MotionGoldenFeature[] = [];
+    data.features = this.flattenFeatures(data.features);
+  }
 
-    data.features.forEach((feature) => {
-      if (
-        feature.data_points &&
-        Array.isArray(feature.data_points) &&
-        feature.data_points.length > 0
-      ) {
-        let firstValidDataPoint: any = null;
-        for (const dataPoint of feature.data_points) {
-          if (typeof dataPoint === 'object' && !isNotFound(dataPoint)) {
-            firstValidDataPoint = dataPoint;
-            break;
-          }
+  private flattenFeatures(features: MotionGoldenFeature[]): MotionGoldenFeature[] {
+    const result: MotionGoldenFeature[] = [];
+    features.forEach(feature => {
+      let firstValidObject: any = null;
+      for (const point of feature.data_points) {
+        if (point && typeof point === 'object' && !isNotFound(point) && !Array.isArray(point) && Object.keys(point).length > 0) {
+          firstValidObject = point;
+          break;
         }
+      }
 
-        if (firstValidDataPoint) {
-          const keys = Object.keys(firstValidDataPoint);
-          keys.forEach((key) => {
-            newFeatures.push({
-              name: `${feature.name}.${key}`,
-              type: feature.type,
-              data_points: feature.data_points.map((point: any) =>
-                point && typeof point === 'object' ? point[key] : undefined
-              ),
-            });
-          });
-        } else {
-          newFeatures.push(feature);
-        }
+      if (firstValidObject) {
+        const keys = Object.keys(firstValidObject);
+        const subFeatures: MotionGoldenFeature[] = keys.map(key => ({
+          name: `${feature.name}.${key}`,
+          type: feature.type,
+          data_points: feature.data_points.map((point: any) =>
+            point && typeof point === 'object' && !isNotFound(point) ? point[key] : undefined
+          )
+        }));
+        result.push(...this.flattenFeatures(subFeatures));
       } else {
-        newFeatures.push(feature);
+        result.push(feature);
       }
     });
-    data.features = newFeatures;
+    return result;
   }
 
   toggleGraph(name: string) {
