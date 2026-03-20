@@ -20,7 +20,6 @@ import {Store} from '@common/store/store';
 import {getImeTraceEntries} from '@test/unit/fixture_utils';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {TracePositionUpdate} from '@trace_api/trace_events';
@@ -40,7 +39,6 @@ import {ImeUiData} from './ime_ui_data';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
-import {AdditionalPropertySelectedDetail, ViewerEvents} from './viewer_events';
 
 export abstract class AbstractPresenterInputMethodTest extends AbstractHierarchyViewerPresenterTest<ImeUiData> {
   private traces: Traces | undefined;
@@ -210,27 +208,6 @@ the default for its data type.`,
       afterEach(() => {
         userNotifierChecker.expectNone();
         userNotifierChecker.reset();
-      });
-
-      it('adds event listeners', async () => {
-        setUpPresenter([imeTraceType]);
-        const element = document.createElement('div');
-        presenter.addEventListeners(element);
-
-        const spy: jasmine.Spy = spyOn(
-          presenter,
-          'onAdditionalPropertySelected',
-        );
-        const selectedItem = new AdditionalPropertySelectedDetail(
-          '',
-          makePropertyNode('', '', undefined),
-        );
-        element.dispatchEvent(
-          new CustomEvent(ViewerEvents.AdditionalPropertySelected, {
-            detail: selectedItem,
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(selectedItem);
       });
 
       it('is robust to traces without SF', async () => {

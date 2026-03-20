@@ -34,7 +34,6 @@ import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {makeUiRects} from '@viewers/common/ui_rect_factory';
 import {UserOptions} from '@viewers/common/user_options';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import {RectLegendFactory, TraceRectType,} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
 import {PropagateHashCodes} from '@viewers/viewer_window_manager/operations/propagate_hash_codes';
@@ -158,16 +157,6 @@ the default for its data type.`,
     if (target) {
       await this.onHighlightedNodeChange(target.node as UiHierarchyTreeNode);
     }
-  }
-
-  protected override addViewerSpecificListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(
-      ViewerEvents.PropagatePropertyClick,
-      async (event) => {
-        const node = (event as CustomEvent).detail;
-        await this.onPropagatePropertyClick(node);
-      },
-    );
   }
 
   override async onHighlightedNodeChange(item: UiHierarchyTreeNode) {

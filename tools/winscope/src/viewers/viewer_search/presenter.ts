@@ -27,7 +27,7 @@ import {InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, Trac
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
-import {AddQueryClickDetail, ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
 
 import {SearchResultPresenter} from './search_result_presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
@@ -80,58 +80,11 @@ export class Presenter {
     // do nothing
   }
 
-  addEventListeners(htmlElement: HTMLElement) {
-    this.viewerElement = htmlElement;
-    htmlElement.addEventListener(
-      ViewerEvents.GlobalSearchSectionClick,
-      async (_) => {
-        this.onGlobalSearchSectionClick();
-      },
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.SearchQueryClick,
-      async (event) => {
-        const detail: SearchQueryClickDetail = (event as CustomEvent).detail;
-        this.onSearchQueryClick(detail.query, detail.uid);
-      },
-    );
-    htmlElement.addEventListener(ViewerEvents.SaveQueryClick, async (event) => {
-      const detail: SaveQueryClickDetail = (event as CustomEvent).detail;
-      this.onSaveQueryClick(detail.query, detail.name);
-    });
-    htmlElement.addEventListener(
-      ViewerEvents.DeleteSavedQueryClick,
-      async (event) => {
-        const detail: DeleteSavedQueryClickDetail = (event as CustomEvent)
-          .detail;
-        this.onDeleteSavedQueryClick(detail.search);
-      },
-    );
-    htmlElement.addEventListener(ViewerEvents.AddQueryClick, async (event) => {
-      const detail: AddQueryClickDetail | undefined = (event as CustomEvent)
-        .detail;
-      this.addSearch(detail?.query);
-    });
-    htmlElement.addEventListener(
-      ViewerEvents.ClearQueryClick,
-      async (event) => {
-        const detail: ClearQueryClickDetail = (event as CustomEvent).detail;
-        this.onClearQueryClick(detail.uid);
-      },
-    );
-    this.notifyViewCallback(this.uiData);
-  }
-
-  private async onTraceSearchInitialized(event: TraceSearchInitialized) {
-    this.uiData.searchViews = event.views;
-    this.uiData.initialized = true;
-    this.copyUiDataAndNotifyView();
-  }
-
-  private async onTraceAddRequest(event: TraceAddRequest) {
-    if (event.trace.type === TraceType.SEARCH) {
-      return this.showQueryResult(event.trace as Trace<QueryResult>);
-    }
+  notifyViewChanged() {
+    // Create a shallow copy of the data, otherwise the Angular OnPush change detection strategy
+    // won't detect the new input
+    const copy = Object.assign({}, this.uiData);
+    this.notifyViewCallback(copy);
   }
 
   async onAppEvent(event: WinscopeEvent) {
@@ -160,9 +113,7 @@ export class Presenter {
   }
 
   async onSearchQueryClick(query: string, uid: number) {
-    const activeSearch = assertDefined(
-      this.activeSearches.find((a) => a.search.uid === uid),
-    );
+    const activeSearch = assertDefined(this.findActiveSearch(uid));
     this.resetActiveSearch(activeSearch, query);
     this.runningSearch = activeSearch.search;
     this.emitWinscopeEvent(new TraceSearchRequest(query));
@@ -194,7 +145,7 @@ export class Presenter {
   onSaveQueryClick(query: string, name: string) {
     this.uiData.savedSearches.unshift(new ListedSearch(query, name));
     this.savedSearches.searches = this.uiData.savedSearches;
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   onDeleteSavedQueryClick(savedSearch: ListedSearch) {
@@ -202,13 +153,43 @@ export class Presenter {
       (s) => s !== savedSearch,
     );
     this.savedSearches.searches = this.uiData.savedSearches;
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
+  }
+
+  async onSelectFilterChange(uid: number, detail: LogFilterChangeDetail) {
+    return this.findResultPresenter(uid)?.onSelectFilterChange(
+      detail.header,
+      detail.value,
+    );
+  }
+
+  async onLogTextFilterChange(uid: number, detail: LogTextFilterChangeDetail) {
+    return this.findResultPresenter(uid)?.onTextFilterChange(
+      detail.header,
+      detail.filter,
+    );
+  }
+
+  async onLogEntryClick(uid: number, index: number) {
+    return this.findResultPresenter(uid)?.onLogEntryClick(index);
+  }
+
+  async onTimestampClick(uid: number, detail: TimestampClickDetail) {
+    return this.findResultPresenter(uid)?.onTimestampClick(detail);
+  }
+
+  async onArrowDownPress(uid: number) {
+    return this.findResultPresenter(uid)?.onArrowDownPress();
+  }
+
+  async onArrowUpPress(uid: number) {
+    return this.findResultPresenter(uid)?.onArrowUpPress();
   }
 
   private onTraceSearchFailed() {
     this.runningSearch = undefined;
     this.uiData.lastTraceFailed = true;
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
     this.uiData.lastTraceFailed = false;
   }
 
@@ -226,11 +207,11 @@ export class Presenter {
     this.recentSearches.searches = this.uiData.recentSearches;
 
     const activeSearch = assertDefined(
-      this.activeSearches.find((a) => a.search.uid === this.runningSearch?.uid),
+      this.findActiveSearch(assertDefined(this.runningSearch?.uid)),
     );
     this.resetActiveSearch(activeSearch, traceQuery);
     this.runningSearch = undefined;
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
     this.initializeResultPresenter(activeSearch, newTrace);
   }
 
@@ -243,7 +224,7 @@ export class Presenter {
           .filter((q) => q !== undefined) as string[],
       ),
     );
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   private resetActiveSearch(activeSearch: ActiveSearch, newQuery?: string) {
@@ -285,7 +266,6 @@ export class Presenter {
       makeTimestampStrategy,
       firstEntry ? await firstEntry.getValue() : undefined,
     );
-    presenter.addEventListeners(assertDefined(this.viewerElement));
     presenter.setEmitEvent(async (event) => this.emitWinscopeEvent(event));
     activeSearch.resultPresenter = presenter;
 
@@ -299,10 +279,23 @@ export class Presenter {
     }
   }
 
-  private copyUiDataAndNotifyView() {
-    // Create a shallow copy of the data, otherwise the Angular OnPush change detection strategy
-    // won't detect the new input
-    const copy = Object.assign({}, this.uiData);
-    this.notifyViewCallback(copy);
+  private async onTraceSearchInitialized(event: TraceSearchInitialized) {
+    this.uiData.searchViews = event.views;
+    this.uiData.initialized = true;
+    this.notifyViewChanged();
+  }
+
+  private async onTraceAddRequest(event: TraceAddRequest) {
+    if (event.trace.type === TraceType.SEARCH) {
+      return this.showQueryResult(event.trace as Trace<QueryResult>);
+    }
+  }
+
+  private findResultPresenter(uid: number) {
+    return this.findActiveSearch(uid)?.resultPresenter;
+  }
+
+  private findActiveSearch(uid: number) {
+    return this.activeSearches.find((s) => s.search.uid === uid);
   }
 }

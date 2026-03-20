@@ -37,7 +37,7 @@ import {TextFilter} from './text_filter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {isHighlighted} from './ui_tree_node_helpers';
 import {UserOptions} from './user_options';
-import {AdditionalPropertySelectedDetail, ViewerEvents} from './viewer_events';
+import {AdditionalPropertySelectedDetail} from './viewer_event_details';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {
   protected getHierarchyTreeNameStrategy = (
@@ -241,14 +241,6 @@ the default for its data type.`,
         }
       }
     }
-  }
-
-  protected override addViewerSpecificListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(
-      ViewerEvents.AdditionalPropertySelected,
-      async (event) =>
-        await this.onAdditionalPropertySelected((event as CustomEvent).detail),
-    );
   }
 
   private async makeSfSubtrees(

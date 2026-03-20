@@ -26,7 +26,6 @@ import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {ClearQueryClickDetail, DeleteSavedQueryClickDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
 
 import {Presenter} from './presenter';
 import {CurrentSearch, ListedSearch, SearchResult, UiData} from './ui_data';
@@ -36,7 +35,6 @@ describe('PresenterSearch', () => {
   let presenter: Presenter;
   let uiData: UiData;
   let userNotifierChecker: UserNotifierChecker;
-  let element: HTMLElement;
   let emitEventSpy: jasmine.Spy;
   let storage: InMemoryStorage;
 
@@ -54,63 +52,8 @@ describe('PresenterSearch', () => {
       timestampConverter,
     );
     userNotifierChecker.reset();
-    element = document.createElement('div');
-    presenter.addEventListeners(element);
     emitEventSpy = jasmine.createSpy();
     presenter.setEmitEvent(emitEventSpy);
-  });
-
-  it('adds event listeners', () => {
-    let spy: jasmine.Spy = spyOn(presenter, 'onGlobalSearchSectionClick');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.GlobalSearchSectionClick),
-    );
-    expect(spy).toHaveBeenCalled();
-
-    spy = spyOn(presenter, 'onSearchQueryClick');
-    const testQuery = 'search query';
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.SearchQueryClick, {
-        detail: new SearchQueryClickDetail(testQuery, 1),
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(testQuery, 1);
-
-    spy = spyOn(presenter, 'onSaveQueryClick');
-    const saveQueryDetail = new SaveQueryClickDetail('save query', 'foo');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.SaveQueryClick, {
-        detail: saveQueryDetail,
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(
-      saveQueryDetail.query,
-      saveQueryDetail.name,
-    );
-
-    spy = spyOn(presenter, 'onDeleteSavedQueryClick');
-    const deleteQueryDetail = new DeleteSavedQueryClickDetail(
-      new ListedSearch('delete query', 'bar'),
-    );
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.DeleteSavedQueryClick, {
-        detail: deleteQueryDetail,
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(deleteQueryDetail.search);
-
-    spy = spyOn(presenter, 'addSearch');
-    element.dispatchEvent(new CustomEvent(ViewerEvents.AddQueryClick));
-    expect(spy).toHaveBeenCalled();
-
-    spy = spyOn(presenter, 'onClearQueryClick');
-    const clickQueryDetail = new ClearQueryClickDetail(2);
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.ClearQueryClick, {
-        detail: clickQueryDetail,
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(2);
   });
 
   it('handles trace search initialization', async () => {
@@ -194,17 +137,6 @@ describe('PresenterSearch', () => {
     expect(spyTimestamp).toHaveBeenCalledWith(123n);
     expect(uiData.lastTraceFailed).toEqual(false);
     expect(uiData.recentSearches).toEqual([new ListedSearch(testQuery)]);
-
-    // adds event listeners and emit event for search presenter
-    emitEventSpy.calls.reset();
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.TimestampClick, {
-        detail: new TimestampClickDetail(undefined, time100),
-      }),
-    );
-    expect(emitEventSpy).toHaveBeenCalledOnceWith(
-      TracePositionUpdate.fromTimestamp(time100, true),
-    );
   });
 
   it('runs same query twice with separate uids', async () => {
@@ -267,7 +199,7 @@ describe('PresenterSearch', () => {
     emitEventSpy.calls.reset();
 
     // check removed presenter cannot still affect ui data
-    element.dispatchEvent(new CustomEvent(ViewerEvents.ArrowDownPress));
+    await presenter.onArrowDownPress(1);
     expect(uiData.currentSearches.length).toBe(1);
 
     await presenter.onSearchQueryClick(newQuery, 1);
