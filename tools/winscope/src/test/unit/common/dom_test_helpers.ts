@@ -226,16 +226,16 @@ export class DOMTestHelper<T> {
     this.keydownByKey(KeyboardEventKey.MEDIA_TRACK_PREVIOUS, toDocument);
   }
 
-  keydownArrowLeft(toDocument = false) {
-    this.keydownByKey(KeyboardEventKey.ARROW_LEFT, toDocument);
+  keydownArrowLeft(toDocument = false, target?: HTMLElement) {
+    this.keydownByKey(KeyboardEventKey.ARROW_LEFT, toDocument, target);
   }
 
-  keydownArrowRight(toDocument = false) {
-    this.keydownByKey(KeyboardEventKey.ARROW_RIGHT, toDocument);
+  keydownArrowRight(toDocument = false, target?: HTMLElement) {
+    this.keydownByKey(KeyboardEventKey.ARROW_RIGHT, toDocument, target);
   }
 
-  keydownArrowUp(toDocument = false) {
-    this.keydownByKey(KeyboardEventKey.ARROW_UP, toDocument);
+  keydownArrowUp(toDocument = false, target?: HTMLElement) {
+    this.keydownByKey(KeyboardEventKey.ARROW_UP, toDocument, target);
   }
 
   keydownArrowDown(toDocument = false) {
@@ -455,8 +455,11 @@ export class DOMTestHelper<T> {
     this.detectChanges();
   }
 
-  private keydownByKey(key: string, toDocument = false) {
+  private keydownByKey(key: string, toDocument = false, target?: HTMLElement) {
     const event = new KeyboardEvent('keydown', {key});
+    if (target) {
+      spyOnProperty(event, 'target').and.returnValue(target);
+    }
     if (toDocument) {
       this.dispatchEventInDocument(event);
     } else {
