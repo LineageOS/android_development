@@ -19,15 +19,16 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {AbstractViewer} from '@viewers/abstract_viewer';
+import {AbstractHierarchyViewer} from '@viewers/abstract_hierarchy_viewer';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerWindowManagerComponent} from './viewer_window_manager_component';
 
-export class ViewerWindowManager extends AbstractViewer<
+export class ViewerWindowManager extends AbstractHierarchyViewer<
   HierarchyTreeNode,
-  UiData
+  UiData,
+  Presenter
 > {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.WINDOW_MANAGER];
 

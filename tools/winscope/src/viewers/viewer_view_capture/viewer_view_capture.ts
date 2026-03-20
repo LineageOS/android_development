@@ -19,15 +19,16 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {AbstractViewer} from '@viewers/abstract_viewer';
+import {AbstractHierarchyViewer} from '@viewers/abstract_hierarchy_viewer';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerViewCaptureComponent} from './viewer_view_capture_component';
 
-export class ViewerViewCapture extends AbstractViewer<
+export class ViewerViewCapture extends AbstractHierarchyViewer<
   HierarchyTreeNode,
-  UiData
+  UiData,
+  Presenter
 > {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.VIEW_CAPTURE];
 
@@ -50,5 +51,13 @@ export class ViewerViewCapture extends AbstractViewer<
 
   protected override getTraceTypeForViewTitle(): TraceType {
     return TraceType.VIEW_CAPTURE;
+  }
+
+  protected override addViewerSpecificListeners(
+    component: ViewerViewCaptureComponent,
+  ) {
+    component.onMiniRectsDblClick.subscribe(async () => {
+      await this.presenter.onMiniRectsDoubleClick();
+    });
   }
 }
