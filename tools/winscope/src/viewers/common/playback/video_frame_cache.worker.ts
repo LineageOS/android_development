@@ -108,7 +108,7 @@ function onFetchNextBatch(data: any) {
       }
 
       if (lim === tracker.chunks.length) {
-        tracker.frameDecoder.flush();
+        await tracker.frameDecoder.flush();
       }
 
       if (end > tracker.chunks.length) {
