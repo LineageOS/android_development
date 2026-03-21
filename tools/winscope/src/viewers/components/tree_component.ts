@@ -21,9 +21,10 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {FlattenedTreeRow} from '@viewers/common/flattened_tree_row';
 import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
+import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {isHighlighted} from '@viewers/common/ui_tree_node_helpers';
-import {ViewerEvents} from '@viewers/common/viewer_events';
+import {RectShowStateChangeDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
 
 import {ItemHeightPredictor} from './scroll/item_height_predictor';
 import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
@@ -67,6 +68,10 @@ export class TreeComponent<T extends UiTreeNode> {
 
   highlightedChange = output<UiTreeNode>();
   pinnedItemChange = output<UiTreeNode>();
+  readonly rectShowStateChange = output<RectShowStateChangeDetail>();
+
+  readonly timestampClick = output<TimestampClickDetail>();
+  readonly propagatePropertyClick = output<UiPropertyTreeNode>();
 
   readonly virtualScrollViewport =
     viewChild.required<VirtualScrollViewportComponent>('treeContainer');
@@ -162,6 +167,14 @@ export class TreeComponent<T extends UiTreeNode> {
     this.pinnedItemChange.emit(newPinnedItem);
   }
 
+  propagateTimestampClick(event: TimestampClickDetail) {
+    this.timestampClick.emit(event);
+  }
+
+  propagatePropertyClicked(node: UiPropertyTreeNode) {
+    this.propagatePropertyClick.emit(node);
+  }
+
   isClickable(node: T): boolean {
     return !node.isLeaf() || this.itemsClickable();
   }
@@ -242,11 +255,9 @@ export class TreeComponent<T extends UiTreeNode> {
       currentShowState === RectShowState.HIDE
         ? RectShowState.SHOW
         : RectShowState.HIDE;
-    const event = new CustomEvent(ViewerEvents.RectShowStateChange, {
-      bubbles: true,
-      detail: {rectId: node.id, state: newShowState},
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.rectShowStateChange.emit(
+      new RectShowStateChangeDetail(node.id, newShowState),
+    );
   }
 
   scrollToIndex(index: number) {

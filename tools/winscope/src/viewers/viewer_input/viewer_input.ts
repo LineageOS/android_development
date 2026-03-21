@@ -20,13 +20,17 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {AbstractViewer} from '@viewers/abstract_viewer';
+import {AbstractLogViewer} from '@viewers/abstract_log_viewer';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerInputComponent} from './viewer_input_component';
 
-export class ViewerInput extends AbstractViewer<HierarchyTreeNode, UiData> {
+export class ViewerInput extends AbstractLogViewer<
+  HierarchyTreeNode,
+  UiData,
+  Presenter
+> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.INPUT_EVENT_MERGED];
 
   constructor(traces: Traces, store: Store) {
@@ -43,5 +47,26 @@ export class ViewerInput extends AbstractViewer<HierarchyTreeNode, UiData> {
     notifyViewCallback: (uiData: UiData) => void,
   ): Presenter {
     return new Presenter(traces, trace, store, notifyViewCallback);
+  }
+
+  protected override addViewerSpecificListeners(
+    component: ViewerInputComponent,
+  ) {
+    component.onHighlightedIdChange.subscribe(async (detail) => {
+      await this.presenter.onHighlightedIdChange(detail);
+    });
+    component.onRectsUserOptionsChange.subscribe(async (detail) => {
+      await this.presenter.onRectsUserOptionsChange(detail);
+    });
+    component.onRectsDblClick.subscribe(async () => {
+      await this.presenter.onRectDoubleClick();
+    });
+
+    component.onHighlightedPropertyChange.subscribe((detail) => {
+      this.presenter.onHighlightedPropertyChange(detail, false);
+    });
+    component.onDispatchPropertiesFilterChange.subscribe(async (detail) => {
+      await this.presenter.onDispatchPropertiesFilterChange(detail);
+    });
   }
 }

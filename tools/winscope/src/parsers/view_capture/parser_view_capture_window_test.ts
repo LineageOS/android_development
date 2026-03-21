@@ -81,7 +81,7 @@ describe('PerfettoParserViewCaptureWindow', () => {
     const root = await parser.getEntry(1);
     const properties = await root.getAllProperties();
     const defaultProperty = assertDefined(properties.getChildByName('left'));
-    expect(defaultProperty.getValue()).toBe(0);
+    expect(defaultProperty.getValue<number>()).toBe(0);
     expect(defaultProperty.formattedValue()).toBe('0');
   });
 
@@ -109,14 +109,18 @@ describe('PerfettoParserViewCaptureWindow', () => {
 
   it('provides eager properties', async () => {
     const entry = await parser.getEntry(0);
-    expect(entry.getEagerPropertyByName('nodeId')?.getValue()).toEqual(0n);
-    expect(entry.getEagerPropertyByName('className')?.getValue()).toEqual(
-      'com.android.internal.policy.DecorView',
-    );
-    expect(entry.getEagerPropertyByName('hashcode')?.getValue()).toEqual(
-      203589466n,
-    );
+    expect(
+      entry.getEagerPropertyByName('nodeId')?.getValue()?.toString(),
+    ).toEqual('0');
+    expect(
+      entry.getEagerPropertyByName('className')?.getValue<string>(),
+    ).toEqual('com.android.internal.policy.DecorView');
+    expect(
+      entry.getEagerPropertyByName('hashcode')?.getValue()?.toString(),
+    ).toEqual('203589466');
     expect(entry.getEagerPropertyByName('isVisible')?.getValue()).toBeTrue();
-    expect(entry.getEagerPropertyByName('viewId')?.getValue()).toEqual('NO_ID');
+    expect(entry.getEagerPropertyByName('viewId')?.getValue<string>()).toEqual(
+      'NO_ID',
+    );
   });
 });

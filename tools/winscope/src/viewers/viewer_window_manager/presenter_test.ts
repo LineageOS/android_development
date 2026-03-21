@@ -35,7 +35,6 @@ import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 
 import {Presenter} from './presenter';
@@ -252,19 +251,6 @@ the default for its data type.`,
           notifyViewCallback as NotifyHierarchyViewCallbackType<UiData>,
           new InMemoryStorage(),
         );
-      });
-
-      it('adds event listeners', async () => {
-        const el = document.createElement('div');
-        presenter.addEventListeners(el);
-
-        const spy: jasmine.Spy = spyOn(presenter, 'onPropagatePropertyClick');
-        el.dispatchEvent(
-          new CustomEvent(ViewerEvents.PropagatePropertyClick, {
-            detail: invalidNode,
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(invalidNode);
       });
 
       it('does not propagate hashcode if name does not match', async () => {

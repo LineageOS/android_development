@@ -27,16 +27,16 @@ import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {makeNodeFilter} from '@tree_node/helpers';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@viewers/common/abstract_hierarchy_viewer_presenter';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-import {UserOptions} from '@viewers/common/user_options';
+import {PlaybackPresenter} from '@viewers/common/playback/playback_presenter';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 import {RectSpec} from '@viewers/components/rects/rect_spec';
 
+import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from './abstract_hierarchy_viewer_presenter';
 import {Chip} from './chip';
-import {PlaybackPresenter} from './playback/playback_presenter';
-import {PlaybackState} from './playback/playback_state';
+import {TextFilter} from './text_filter';
 import {UiDataHierarchy} from './ui_data_hierarchy';
+import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
+import {UserOptions} from './user_options';
 
 export abstract class AbstractHierarchyViewerPresenterTest<
   UiData extends UiDataHierarchy,

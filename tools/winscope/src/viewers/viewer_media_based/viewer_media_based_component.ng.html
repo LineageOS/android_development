@@ -15,7 +15,12 @@ limitations under the License.
 -->
 
 <div class="overlay">
-  <mat-card class="container" cdkDrag cdkDragBoundary=".overlay" (dblclick)="onOverlayDblClick()">
+  <mat-card
+    class="container"
+    cdkDrag
+    cdkDragBoundary=".overlay"
+    (dblclick)="onOverlayDoubleClicked()"
+  >
     <mat-card-title class="header">
       <button mat-button class="button-drag draggable" cdkDragHandle>
         <mat-icon class="drag-icon">drag_indicator</mat-icon>

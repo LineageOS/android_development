@@ -33,22 +33,21 @@ import {Traces} from '@trace_api/traces';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {PropertiesPresenter} from '@viewers/common/properties_presenter';
-import {RectsPresenter} from '@viewers/common/rects_presenter';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-import {UserOption, UserOptions} from '@viewers/common/user_options';
+import {PlaybackPresenter} from '@viewers/common/playback/playback_presenter';
+import {PlaybackState} from '@viewers/common/playback/playback_state';
 
 import {FlattenedTreeRow} from './flattened_tree_row';
 import {HierarchyPresenter, HierarchyTraceEntry, SelectedTree,} from './hierarchy_presenter';
-import {PlaybackPresenter} from './playback/playback_presenter';
-import {PlaybackState} from './playback/playback_state';
 import {PresetHierarchy, TextFilterValues} from './preset_hierarchy';
+import {PropertiesPresenter} from './properties_presenter';
 import {RectShowState} from './rect_show_state';
+import {RectsPresenter} from './rects_presenter';
+import {TextFilter} from './text_filter';
 import {UiDataHierarchy} from './ui_data_hierarchy';
+import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {flattenNodesToRows} from './ui_tree_node_helpers';
-import {ViewerEvents} from './viewer_events';
+import {UserOption, UserOptions} from './user_options';
 
 export type NotifyHierarchyViewCallbackType<UiData> = (uiData: UiData) => void;
 
@@ -76,7 +75,7 @@ export abstract class AbstractHierarchyViewerPresenter<
   ) {
     this.logger = getLogger('AbstractHierarchyViewerPresenter');
     uiData.isDarkMode = storage.get('dark-mode') === 'true';
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   onDestroy() {
@@ -87,85 +86,24 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.emitWinscopeEvent = callback;
   }
 
-  addEventListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(ViewerEvents.HierarchyPinnedChange, (event) =>
-      this.onPinnedItemChange((event as CustomEvent).detail.pinnedItem),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.HighlightedIdChange,
-      async (event) =>
-        await this.onHighlightedIdChange((event as CustomEvent).detail.id),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.HighlightedPropertyChange,
-      (event) =>
-        this.onHighlightedPropertyChange((event as CustomEvent).detail.id),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.HierarchyUserOptionsChange,
-      async (event) =>
-        await this.onHierarchyUserOptionsChange(
-          (event as CustomEvent).detail.userOptions,
-        ),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.HierarchyFilterChange,
-      async (event) => {
-        const detail: TextFilter = (event as CustomEvent).detail;
-        await this.onHierarchyFilterChange(detail);
-      },
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.PropertiesUserOptionsChange,
-      async (event) =>
-        await this.onPropertiesUserOptionsChange(
-          (event as CustomEvent).detail.userOptions,
-        ),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.PropertiesFilterChange,
-      async (event) => {
-        const detail: TextFilter = (event as CustomEvent).detail;
-        await this.onPropertiesFilterChange(detail);
-      },
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.HighlightedNodeChange,
-      async (event) =>
-        await this.onHighlightedNodeChange((event as CustomEvent).detail.node),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.RectShowStateChange,
-      async (event) => {
-        await this.onRectShowStateChange(
-          (event as CustomEvent).detail.rectId,
-          (event as CustomEvent).detail.state,
-        );
-      },
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.RectsUserOptionsChange,
-      (event) => {
-        this.onRectsUserOptionsChange(
-          (event as CustomEvent).detail.userOptions,
-        );
-      },
-    );
-    this.addViewerSpecificListeners(htmlElement);
-    this.copyUiDataAndNotifyView();
+  notifyViewChanged() {
+    // Create a shallow copy of the data, otherwise the Angular OnPush change detection strategy
+    // won't detect the new input
+    const copy = Object.assign({}, this.uiData);
+    this.notifyViewCallback(copy);
   }
 
   onPinnedItemChange(pinnedItem: UiHierarchyTreeNode) {
     this.hierarchyPresenter.applyPinnedItemChange(pinnedItem);
     this.uiData.pinnedItems = this.hierarchyPresenter.getPinnedItems();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   onHighlightedPropertyChange(id: string) {
     this.propertiesPresenter.applyHighlightedPropertyChange(id);
     this.uiData.highlightedProperty =
       this.propertiesPresenter.getHighlightedProperty();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   onRectsUserOptionsChange(userOptions: UserOptions) {
@@ -178,7 +116,7 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.uiData.rectsToDraw = this.rectsPresenter.getRectsToDraw();
     this.uiData.rectIdToShowState = this.rectsPresenter.getRectIdToShowState();
 
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   async onHierarchyUserOptionsChange(userOptions: UserOptions) {
@@ -186,14 +124,14 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.uiData.hierarchyUserOptions = this.hierarchyPresenter.getUserOptions();
     this.uiData.hierarchyNodes = this.flattenHierarchies();
     this.uiData.pinnedItems = this.hierarchyPresenter.getPinnedItems();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   async onHierarchyFilterChange(textFilter: TextFilter) {
     await this.hierarchyPresenter.applyHierarchyFilterChange(textFilter);
     this.uiData.hierarchyNodes = this.flattenHierarchies();
     this.uiData.pinnedItems = this.hierarchyPresenter.getPinnedItems();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   async onPropertiesUserOptionsChange(userOptions: UserOptions) {
@@ -202,14 +140,14 @@ export abstract class AbstractHierarchyViewerPresenter<
     this.uiData.propertiesUserOptions =
       this.propertiesPresenter.getUserOptions();
     this.uiData.propertyNodes = this.flattenProperties();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   async onPropertiesFilterChange(textFilter: TextFilter) {
     this.propertiesPresenter.applyPropertiesFilterChange(textFilter);
     await this.updatePropertiesTree();
     this.uiData.propertyNodes = this.flattenProperties();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   async onRectShowStateChange(id: string, newShowState: RectShowState) {
@@ -220,7 +158,7 @@ export abstract class AbstractHierarchyViewerPresenter<
 
     this.uiData.rectsToDraw = this.rectsPresenter.getRectsToDraw();
     this.uiData.rectIdToShowState = this.rectsPresenter.getRectIdToShowState();
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   private async onTracePositionUpdate(event: TracePositionUpdate) {
@@ -238,7 +176,7 @@ export abstract class AbstractHierarchyViewerPresenter<
 
   private async onDarkModeToggled(event: DarkModeToggled) {
     this.uiData.isDarkMode = event.isDarkMode;
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   private async onFilterPresetApplyRequest(event: FilterPresetApplyRequest) {
@@ -355,10 +293,6 @@ export abstract class AbstractHierarchyViewerPresenter<
 
   protected async onViewerSpecificWinscopeEvent(_: WinscopeEvent) {
     // do nothing
-  }
-
-  protected addViewerSpecificListeners(_: HTMLElement) {
-    // do nothing;
   }
 
   protected saveConfigAsPreset(storeKey: string) {
@@ -559,7 +493,7 @@ export abstract class AbstractHierarchyViewerPresenter<
       this.uiData.rectsUserOptions = this.rectsPresenter.getUserOptions();
     }
 
-    this.copyUiDataAndNotifyView();
+    this.notifyViewChanged();
   }
 
   protected getHighlightedItem(): string | undefined {
@@ -571,13 +505,6 @@ export abstract class AbstractHierarchyViewerPresenter<
       return 'Dump';
     }
     return entry.getTimestamp().format();
-  }
-
-  private copyUiDataAndNotifyView() {
-    // Create a shallow copy of the data, otherwise the Angular OnPush change detection strategy
-    // won't detect the new input
-    const copy = Object.assign({}, this.uiData);
-    this.notifyViewCallback(copy);
   }
 
   private logFetchComponentData(

@@ -35,21 +35,20 @@ import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helper
 import {Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ColumnSpec, LogEntry, LogField, LogHeader,} from '@viewers/common/ui_data_log';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
-import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
-import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {PropertiesComponent} from '@viewers/components/properties_component';
-import {SearchBoxComponent} from '@viewers/components/search_box_component';
-import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
 
+import {CollapsedSectionsComponent} from './collapsed_sections_component';
+import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {LogComponent} from './log_component';
+import {PropertiesComponent} from './properties_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
+import {SearchBoxComponent} from './search_box_component';
+import {SelectWithFilterComponent} from './select_with_filter_component';
 
 describe('LogComponent', () => {
   const testColumn1: ColumnSpec = {name: 'test1', cssClass: 'test-1'};
@@ -118,13 +117,12 @@ describe('LogComponent', () => {
 
   it('emits event and scrolls to first entry on button click', () => {
     const spy = spyOn(component.virtualScrollViewport(), 'scrollToIndex');
-    let clicked: TraceEntry<unknown> | undefined;
-    dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
-      clicked = (event as CustomEvent).detail.entry;
-    });
+    const timestampSpy = spyOn(component.timestampClick, 'emit');
     dom.findAndClick('.go-to-first-entry');
     expect(spy).toHaveBeenCalledWith(0);
-    expect(clicked?.getIndex()).toBe(0);
+    expect(timestampSpy).toHaveBeenCalledOnceWith(
+      new TimestampClickDetail(component.entries()[0].traceEntry),
+    );
   });
 
   it('scrolls to current entry on button click', () => {
@@ -137,13 +135,12 @@ describe('LogComponent', () => {
 
   it('emits event and scrolls to last entry on button click', () => {
     const spy = spyOn(component.virtualScrollViewport(), 'scrollToIndex');
-    let clicked: TraceEntry<unknown> | undefined;
-    dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
-      clicked = (event as CustomEvent).detail.entry;
-    });
+    const timestampSpy = spyOn(component.timestampClick, 'emit');
     dom.findAndClick('.go-to-last-entry');
     expect(spy).toHaveBeenCalledWith(1);
-    expect(clicked?.getIndex()).toBe(1);
+    expect(timestampSpy).toHaveBeenCalledOnceWith(
+      new TimestampClickDetail(component.entries()[1].traceEntry),
+    );
   });
 
   it('does not show time controls if flag not set', () => {
@@ -181,25 +178,26 @@ describe('LogComponent', () => {
 
   it('applies select filter correctly', async () => {
     const allEntries = component.entries().slice();
-    dom.addEventListener(ViewerEvents.LogFilterChange, (event) => {
-      const detail: LogFilterChangeDetail = (event as CustomEvent).detail;
-      if (detail.value.length === 0) {
-        dom.setComponentInput('entries', allEntries);
-        return;
-      }
-      dom.setComponentInput(
-        'entries',
-        allEntries.filter((entry) => {
-          const entryValue = assertDefined(
-            entry.fields.find((f) => f.spec === detail.header.spec),
-          ).value.toString();
-          if (Array.isArray(detail.value)) {
-            return detail.value.includes(entryValue);
-          }
-          return entryValue.includes(detail.value);
-        }),
-      );
-    });
+    spyOn(component.logFilterChange, 'emit').and.callFake(
+      (detail: LogFilterChangeDetail) => {
+        if (detail.value.length === 0) {
+          dom.setComponentInput('entries', allEntries);
+          return;
+        }
+        dom.setComponentInput(
+          'entries',
+          allEntries.filter((entry) => {
+            const entryValue = assertDefined(
+              entry.fields.find((f) => f.spec === detail.header.spec),
+            ).value.toString();
+            if (Array.isArray(detail.value)) {
+              return detail.value.includes(entryValue);
+            }
+            return entryValue.includes(detail.value);
+          }),
+        );
+      },
+    );
     expect(dom.findAll('.entry').length).toBe(2);
     await dom.openMatSelect();
 
@@ -213,22 +211,23 @@ describe('LogComponent', () => {
 
   it('applies text filter correctly', async () => {
     const allEntries = component.entries().slice();
-    dom.addEventListener(ViewerEvents.LogTextFilterChange, (event) => {
-      const detail: LogTextFilterChangeDetail = (event as CustomEvent).detail;
-      if (detail.filter.filterString.length === 0) {
-        dom.setComponentInput('entries', allEntries);
-        return;
-      }
-      dom.setComponentInput(
-        'entries',
-        allEntries.filter((entry) => {
-          const entryValue = assertDefined(
-            entry.fields.find((f) => f.spec === detail.header.spec),
-          ).value.toString();
-          return entryValue.includes(detail.filter.filterString);
-        }),
-      );
-    });
+    spyOn(component.logTextFilterChange, 'emit').and.callFake(
+      (detail: LogTextFilterChangeDetail) => {
+        if (detail.filter.filterString.length === 0) {
+          dom.setComponentInput('entries', allEntries);
+          return;
+        }
+        dom.setComponentInput(
+          'entries',
+          allEntries.filter((entry) => {
+            const entryValue = assertDefined(
+              entry.fields.find((f) => f.spec === detail.header.spec),
+            ).value.toString();
+            return entryValue.includes(detail.filter.filterString);
+          }),
+        );
+      },
+    );
     expect(dom.findAll('.entry').length).toBe(2);
 
     const inputEl = dom.get('.headers input');
@@ -247,26 +246,20 @@ describe('LogComponent', () => {
   });
 
   it('emits event on arrow key press', () => {
-    let downArrowPressedTimes = 0;
-    dom.addEventListener(ViewerEvents.ArrowDownPress, (_) => {
-      downArrowPressedTimes++;
-    });
-    let upArrowPressedTimes = 0;
-    dom.addEventListener(ViewerEvents.ArrowUpPress, (_) => {
-      upArrowPressedTimes++;
-    });
+    const arrowDownSpy = spyOn(component.arrowDownPress, 'emit');
+    const arrowUpSpy = spyOn(component.arrowUpPress, 'emit');
 
     dom.keydownArrowUp(true);
-    expect(upArrowPressedTimes).toBe(1);
+    expect(arrowUpSpy).toHaveBeenCalledOnceWith();
 
     dom.keydownArrowDown(true);
-    expect(downArrowPressedTimes).toBe(1);
+    expect(arrowDownSpy).toHaveBeenCalledOnceWith();
 
     dom.keydownArrowUp(true);
-    expect(upArrowPressedTimes).toBe(2);
+    expect(arrowUpSpy).toHaveBeenCalledTimes(2);
 
     dom.keydownArrowDown(true);
-    expect(downArrowPressedTimes).toBe(2);
+    expect(arrowDownSpy).toHaveBeenCalledTimes(2);
   });
 
   it('propagates entry on trace entry timestamp click', () => {
@@ -289,13 +282,11 @@ describe('LogComponent', () => {
     dom.detectChanges();
     await dom.whenRenderingDone();
 
-    let timestamp: Timestamp | undefined;
-    dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
-      const detail: TimestampClickDetail = (event as CustomEvent).detail;
-      timestamp = detail.timestamp;
-    });
+    const spy = spyOn(component.timestampClick, 'emit');
     dom.findAndClick(`.${testColumn3.cssClass} button`);
-    expect(timestamp).toBeDefined();
+    expect(spy).toHaveBeenCalledOnceWith(
+      new TimestampClickDetail(undefined, makeElapsedTimestamp(2n)),
+    );
   });
 
   it('does not show button for propagateEntryTimestamp field if entry timestamp invalid', () => {
@@ -313,8 +304,7 @@ describe('LogComponent', () => {
   });
 
   it('changes css class on entry click and does not scroll', async () => {
-    dom.addEventListener(ViewerEvents.LogEntryClick, (event) => {
-      const index = (event as CustomEvent).detail;
+    spyOn(component.logEntryClick, 'emit').and.callFake((index: number) => {
       dom.setComponentInput('selectedIndex', index);
       dom.detectChanges();
     });
@@ -376,11 +366,7 @@ describe('LogComponent', () => {
   });
 
   it('propagates selected entry on keydown enter event', () => {
-    let entry: TraceEntry<unknown> | undefined;
-    dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
-      const detail: TimestampClickDetail = (event as CustomEvent).detail;
-      entry = detail.entry;
-    });
+    const spy = spyOn(component.timestampClick, 'emit');
     const keydownEnter = new KeyboardEvent('keydown', {
       key: KeyboardEventKey.ENTER,
     });
@@ -388,12 +374,14 @@ describe('LogComponent', () => {
     dom.setComponentInput('selectedIndex', undefined);
     dom.detectChanges();
     dom.dispatchEventInDocument(keydownEnter);
-    expect(entry).toBeUndefined();
+    expect(spy).not.toHaveBeenCalled();
 
     dom.setComponentInput('selectedIndex', 1);
     dom.detectChanges();
     dom.dispatchEventInDocument(keydownEnter);
-    expect(entry).toEqual(component.entries()[1].traceEntry);
+    expect(spy).toHaveBeenCalledOnceWith(
+      new TimestampClickDetail(component.entries()[1].traceEntry),
+    );
   });
 
   it('checks scroll viewport size if flag set', () => {
@@ -555,12 +543,8 @@ describe('LogComponent', () => {
   function checkEntryPropagatedOnTimestampClick(
     button: DOMTestHelper<LogComponent>,
   ) {
-    let entry: TraceEntry<unknown> | undefined;
-    dom.addEventListener(ViewerEvents.TimestampClick, (event) => {
-      const detail: TimestampClickDetail = (event as CustomEvent).detail;
-      entry = detail.entry;
-    });
+    const spy = spyOn(component.timestampClick, 'emit');
     button.click();
-    expect(entry).toBeDefined();
+    expect(spy).toHaveBeenCalledTimes(1);
   }
 });

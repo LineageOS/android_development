@@ -42,6 +42,10 @@ limitations under the License.
         "
         [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY)"
         placeholderText="No IME entry found."
+        (filterChange)="onHierarchyFilterChange.emit($event)"
+        (highlightedNodeChange)="onHighlightedNodeChange.emit($event)"
+        (pinnedItemChange)="onHierarchyPinnedChange.emit($event)"
+        (optionsChange)="onHierarchyUserOptionsChange.emit($event)"
       ></hierarchy-view>
       <ime-additional-properties
         class="ime-additional-properties"
@@ -54,6 +58,8 @@ limitations under the License.
         [class.collapsed]="
           sections.isSectionCollapsed(CollapsibleSectionType.IME_ADDITIONAL_PROPERTIES)
         "
+        (highlightedIdChange)="onHighlightedIdChange.emit($event)"
+        (additionalPropertySelected)="onAdditionalPropertySelected.emit($event)"
       ></ime-additional-properties>
     </div>
   }
@@ -70,5 +76,9 @@ limitations under the License.
     "
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
     placeholderText="No selected item."
+    (filterChange)="onPropertiesFilterChange.emit($event)"
+    (optionsChange)="onPropertiesUserOptionsChange.emit($event)"
+    (highlightedPropertyChange)="onHighlightedPropertyChange.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
   ></properties-view>
 </div>

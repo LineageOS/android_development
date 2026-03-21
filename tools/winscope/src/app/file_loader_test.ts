@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {BugreportFileSelected} from '@app/misc_events';
 import {createZipArchive} from '@common/io';
 import {ASIA_TIMEZONE_INFO, makeConverterNoRteOffsets, timestampEqualityTester,} from '@common/time/test_helpers';
 import {TimezoneInfo} from '@common/time/time';
@@ -30,6 +29,7 @@ import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 
 import {FileLoader, FileLoaderResult} from './file_loader';
 import {FilesSource} from './files_source';
+import {BugreportFileSelected} from './misc_events';
 import {ParsingErrorType} from './parsing_error_type';
 import {TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningCorruptedArchive, makeWarningNoValidFiles, makeWarningTraceProcessorError, makeWarningUnsupportedFileFormat,} from './warnings';

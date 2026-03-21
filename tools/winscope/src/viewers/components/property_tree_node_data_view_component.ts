@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, computed, ElementRef, Inject, input} from '@angular/core';
+import {Component, computed, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
 import {DiffType} from '@viewers/common/diff_type';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
-import {TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
+import {TimestampClickDetail} from '@viewers/common/viewer_event_details';
 
 @Component({
   selector: 'property-tree-node-data-view',
@@ -32,7 +32,8 @@ import {TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events
 export class PropertyTreeNodeDataViewComponent {
   node = input.required<UiPropertyTreeNode>();
 
-  constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
+  readonly timestampClick = output<TimestampClickDetail>();
+  readonly propagatePropertyClick = output<UiPropertyTreeNode>();
 
   readonly isTimestamp = computed<boolean>(() => {
     return this.node().getValue() instanceof Timestamp;
@@ -78,18 +79,10 @@ export class PropertyTreeNodeDataViewComponent {
     const timestamp: Timestamp = assertDefined(
       timestampNode.getValue<Timestamp>(),
     );
-    const customEvent = new CustomEvent(ViewerEvents.TimestampClick, {
-      bubbles: true,
-      detail: new TimestampClickDetail(undefined, timestamp),
-    });
-    this.elementRef.nativeElement.dispatchEvent(customEvent);
+    this.timestampClick.emit(new TimestampClickDetail(undefined, timestamp));
   }
 
   onPropagateButtonClicked(node: UiPropertyTreeNode) {
-    const event = new CustomEvent(ViewerEvents.PropagatePropertyClick, {
-      bubbles: true,
-      detail: node,
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.propagatePropertyClick.emit(node);
   }
 }

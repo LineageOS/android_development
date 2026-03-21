@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {BugreportFileSelected, BugreportFileSelectionRequest,} from '@app/misc_events';
 import {ASIA_TIMEZONE_INFO} from '@common/time/test_helpers';
 import {TimezoneInfo} from '@common/time/time';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
-import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {TestFileReaderBuilder} from '@test/unit/legacy_file_readers/test_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/legacy_file_readers/test_legacy_file_reader_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 
+import {BugreportFileSelected, BugreportFileSelectionRequest,} from './misc_events';
 import {BuildType, TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningMissingPersistentTrace, makeWarningNoValidFiles, makeWarningTraceOverridden,} from './warnings';
 

@@ -51,6 +51,7 @@ import {HandlerMapping as ShellHandlerMappingUdc, Transition as ShellTransitionP
 import {ExportedData as ExportedDataUdc, WindowData as WindowDataUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {FrameData as FrameDataUdc, ViewNode as ViewNodeUdc,} from '@protos/protos/viewcapture/udc/view_capture_pb';
 import {WindowManagerTraceFileProto as WindowManagerTraceFileProtoUdc, WindowManagerTraceProto as WindowManagerTraceProtoUdc,} from '@protos/protos/windowmanager/udc/windowmanagertrace_pb';
+import {BinaryReader} from 'google-protobuf';
 import {DescriptorProto, EnumDescriptorProto, FieldDescriptorProto, FileDescriptorSet,} from 'google-protobuf/google/protobuf/descriptor_pb';
 
 export async function getPerfettoTraceDescriptors(): Promise<FileDescriptorSet> {
@@ -124,4 +125,5 @@ export {
   FieldDescriptorProto,
   DescriptorProto,
   EnumDescriptorProto,
+  BinaryReader,
 };

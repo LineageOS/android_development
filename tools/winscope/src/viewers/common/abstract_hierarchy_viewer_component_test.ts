@@ -30,13 +30,27 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {makeUiHierarchyNode, makeUiPropertyNode,} from '@test/unit/ui_tree_node_utils';
+import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {HierarchyViewerComponent} from '@viewers/components/hierarchy_viewer_component';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {RectsComponent} from '@viewers/components/rects/rects_component';
 
-export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
+import {RectShowState} from './rect_show_state';
+import {TextFilter} from './text_filter';
+import {UiDataHierarchy} from './ui_data_hierarchy';
+import {RectShowStateChangeDetail, TimestampClickDetail,} from './viewer_event_details';
+
+export abstract class AbstractHierarchyViewerComponentTest<
+  U extends UiDataHierarchy,
+  T extends HierarchyViewerComponent<U>,
+> {
   execute() {
     describe('Hierarchy viewer component', () => {
       let dom: DOMTestHelper<T>;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       let component: T;
 
       beforeEach(async () => {
@@ -47,8 +61,101 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
         expect(dom.find('.hierarchy-view')).toBeDefined();
       });
 
+      it('binds hierarchy view events to output signals', () => {
+        const hierarchy = assertDefined(
+          dom.findByDirective(HierarchyComponent),
+        );
+
+        const filterChangeSpy = spyOn(
+          component.onHierarchyFilterChange,
+          'emit',
+        );
+        const filter = new TextFilter();
+        hierarchy.filterChange.emit(filter);
+        expect(filterChangeSpy).toHaveBeenCalledOnceWith(filter);
+
+        const nodeChangeSpy = spyOn(component.onHighlightedNodeChange, 'emit');
+        const node = makeUiHierarchyNode({name: 'test'});
+        hierarchy.highlightedNodeChange.emit(node);
+        expect(nodeChangeSpy).toHaveBeenCalledOnceWith(node);
+
+        const pinnedChangeSpy = spyOn(
+          component.onHierarchyPinnedChange,
+          'emit',
+        );
+        hierarchy.pinnedItemChange.emit(node);
+        expect(pinnedChangeSpy).toHaveBeenCalledOnceWith(node);
+
+        const optionsChangeSpy = spyOn(
+          component.onHierarchyUserOptionsChange,
+          'emit',
+        );
+        const options = {opt: {name: 'opt', enabled: true}};
+        hierarchy.optionsChange.emit(options);
+        expect(optionsChangeSpy).toHaveBeenCalledOnceWith(options);
+
+        const rectChangeSpy = spyOn(component.onRectShowStateChange, 'emit');
+        const detail = new RectShowStateChangeDetail('', RectShowState.HIDE);
+        hierarchy.rectShowStateChange.emit(detail);
+        if (this.testRects) {
+          expect(rectChangeSpy).toHaveBeenCalledOnceWith(detail);
+        } else {
+          expect(rectChangeSpy).not.toHaveBeenCalled();
+        }
+      });
+
       it('creates properties view', () => {
         expect(dom.find('.properties-view')).toBeDefined();
+      });
+
+      it('binds properties view events to output signals', () => {
+        const properties = assertDefined(
+          dom.findByDirective(PropertiesComponent),
+        );
+
+        const filterChangeSpy = spyOn(
+          component.onPropertiesFilterChange,
+          'emit',
+        );
+        const filter = new TextFilter();
+        properties.filterChange.emit(filter);
+        expect(filterChangeSpy).toHaveBeenCalledOnceWith(filter);
+
+        const optionsChangeSpy = spyOn(
+          component.onPropertiesUserOptionsChange,
+          'emit',
+        );
+        const options = {opt: {name: 'opt', enabled: true}};
+        properties.optionsChange.emit(options);
+        expect(optionsChangeSpy).toHaveBeenCalledOnceWith(options);
+
+        const highlightedPropertyChangeSpy = spyOn(
+          component.onHighlightedPropertyChange,
+          'emit',
+        );
+        properties.highlightedPropertyChange.emit('test');
+        expect(highlightedPropertyChangeSpy).toHaveBeenCalledOnceWith('test');
+
+        const timestampClickSpy = spyOn(component.onTimestampClick, 'emit');
+        const detail = new TimestampClickDetail(
+          undefined,
+          makeElapsedTimestamp(2n),
+        );
+        properties.timestampClick.emit(detail);
+        expect(timestampClickSpy).toHaveBeenCalledOnceWith(detail);
+
+        const propagatePropertyClickSpy = spyOn(
+          component.onPropagatePropertyClick,
+          'emit',
+        );
+        const node = makeUiPropertyNode('id', 'name', false);
+        properties.propagatePropertyClick.emit(node);
+
+        if (this.canPropagateProperties) {
+          expect(propagatePropertyClickSpy).toHaveBeenCalledOnceWith(node);
+        } else {
+          expect(propagatePropertyClickSpy).not.toHaveBeenCalled();
+        }
       });
 
       it('creates collapsed sections with no buttons', () => {
@@ -79,6 +186,72 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
             '.rects-view',
             assertDefined(this.rectsTitle),
           );
+        });
+
+        it('binds rects view events to output signals', () => {
+          const rects = assertDefined(dom.findByDirective(RectsComponent));
+
+          const highlightedIdChangeSpy = spyOn(
+            component.onHighlightedIdChange,
+            'emit',
+          );
+          const id = 'test';
+          rects.highlightedIdChange.emit(id);
+          expect(highlightedIdChangeSpy).toHaveBeenCalledOnceWith(id);
+
+          const optionsChangeSpy = spyOn(
+            component.onRectsUserOptionsChange,
+            'emit',
+          );
+          const options = {opt: {name: 'opt', enabled: true}};
+          rects.optionsChange.emit(options);
+          expect(optionsChangeSpy).toHaveBeenCalledOnceWith(options);
+        });
+      }
+
+      if (this.supportsPlayback) {
+        it('disables properties while playback is playing', async () => {
+          let inputData = assertDefined(this.getUiDataForPlaybackTests?.());
+          inputData.isPlaybackPlaying = true;
+          dom.setComponentInput('inputData', inputData);
+          dom.detectChanges();
+          const properties = dom.find('.properties');
+          expect(properties).toBeDefined();
+          assertDefined(properties).checkClassName('disabled-component');
+
+          inputData = assertDefined(this.getUiDataForPlaybackTests?.());
+          inputData.isPlaybackPlaying = false;
+          dom.setComponentInput('inputData', inputData);
+          dom.detectChanges();
+          expect(properties).toBeDefined();
+          assertDefined(properties).checkClassName('disabled-component', false);
+        });
+
+        it('disables UI while playback is initializing', async () => {
+          let uiData = assertDefined(this.getUiDataForPlaybackTests?.());
+          uiData.isPlaybackPlaying = false;
+          uiData.isPlaybackInitializing = true;
+          dom.setComponentInput('inputData', uiData);
+          dom.detectChanges();
+
+          const properties = dom.get('.properties');
+          properties.checkClassName('disabled-component');
+
+          const hierarchy = dom.get('.hierarchy-view');
+          hierarchy.checkClassName('disabled-component');
+
+          const rects = dom.get('.rects-view');
+          rects.checkClassName('disabled-component');
+
+          uiData = assertDefined(this.getUiDataForPlaybackTests?.());
+          uiData.isPlaybackPlaying = true;
+          uiData.isPlaybackInitializing = false;
+          dom.setComponentInput('inputData', uiData);
+          dom.detectChanges();
+
+          properties.checkClassName('disabled-component', true);
+          hierarchy.checkClassName('disabled-component', false);
+          rects.checkClassName('disabled-component', false);
         });
       }
     });
@@ -121,6 +294,8 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
   }
 
   protected abstract readonly testRects: boolean;
+  protected abstract readonly canPropagateProperties: boolean;
+  protected abstract readonly supportsPlayback: boolean;
   protected abstract readonly hierarchyTitle: string;
   protected abstract readonly propertiesTitle: string;
   protected readonly rectsTitle?: string;
@@ -128,4 +303,5 @@ export abstract class AbstractHierarchyViewerComponentTest<T extends object> {
 
   protected abstract setUpTestEnvironment(): Promise<[DOMTestHelper<T>, T]>;
   protected executeSpecializedTests?(): void;
+  protected getUiDataForPlaybackTests?(): U;
 }

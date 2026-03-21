@@ -23,6 +23,6 @@ export class SimplifyNamesVc implements Operation<UiHierarchyTreeNode> {
   }
 
   private shortenName(node: UiHierarchyTreeNode) {
-    node.setDisplayName(node.name.split('.').slice(-1)[0]);
+    node.setDisplayName(node.name.split('.').at(-1) ?? '');
   }
 }

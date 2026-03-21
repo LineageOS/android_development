@@ -29,9 +29,9 @@ import {LogPresenter} from '@viewers/common/log_presenter';
 import {PropertiesPresenter} from '@viewers/common/properties_presenter';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ColumnSpec, LogField, LogHeader} from '@viewers/common/ui_data_log';
+import {UpdateTransitionChanges} from '@viewers/viewer_transitions/operations/update_transition_changes';
+import {UpdateTransitionParticipants} from '@viewers/viewer_transitions/operations/update_transition_participants';
 
-import {UpdateTransitionChanges} from './operations/update_transition_changes';
-import {UpdateTransitionParticipants} from './operations/update_transition_participants';
 import {TransitionsEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<

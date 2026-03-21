@@ -36,15 +36,14 @@ import {TraceType} from '@trace_api/trace_type';
 import {DisplayIdentifier} from '@viewers/common/display_identifier';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UserOptions} from '@viewers/common/user_options';
-import {RectDblClickDetail, ViewerEvents} from '@viewers/common/viewer_events';
 import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
-import {RectSpec, TraceRectType} from '@viewers/components/rects/rect_spec';
-import {UiRect} from '@viewers/components/rects/ui_rect';
 import {UserOptionsComponent} from '@viewers/components/user_options_component';
 
 import {Canvas} from './canvas';
 import {Mapper3D} from './mapper3d';
+import {RectSpec, TraceRectType} from './rect_spec';
 import {ShadingMode} from './shading_mode';
+import {UiRect} from './ui_rect';
 
 @Component({
   selector: 'rects-view',
@@ -68,7 +67,6 @@ import {ShadingMode} from './shading_mode';
 })
 export class RectsComponent implements OnInit, OnDestroy {
   Analytics = Analytics;
-  ViewerEvents = ViewerEvents;
 
   title = input.required<string>();
   rects = input.required<UiRect[]>();
@@ -89,6 +87,11 @@ export class RectsComponent implements OnInit, OnDestroy {
   isDarkMode = input(false);
 
   collapseButtonClicked = output();
+  readonly rectsDblClick = output<string>();
+  readonly miniRectsDblClick = output<void>();
+  readonly rectTypeButtonClick = output<TraceRectType>();
+  readonly highlightedIdChange = output<string>();
+  readonly optionsChange = output<UserOptions>();
 
   legendExpanded = false;
   private internalRects: UiRect[] = [];
@@ -241,6 +244,7 @@ export class RectsComponent implements OnInit, OnDestroy {
       this.largeRectsCanvasElement,
       this.largeRectsLabelsElement,
       () => this.isDarkMode(),
+      (id) => this.highlightedIdChange.emit(id),
     );
     this.largeRectsCanvasElement.addEventListener('mousedown', () =>
       this.onCanvasMouseDown(),
@@ -449,20 +453,13 @@ export class RectsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.elementRef.nativeElement.dispatchEvent(
-      new CustomEvent(ViewerEvents.RectsDblClick, {
-        bubbles: true,
-        detail: new RectDblClickDetail(clickedRectId),
-      }),
-    );
+    this.rectsDblClick.emit(clickedRectId);
   }
 
   onMiniRectDblClick(event: MouseEvent) {
     event.preventDefault();
 
-    this.elementRef.nativeElement.dispatchEvent(
-      new CustomEvent(ViewerEvents.MiniRectsDblClick, {bubbles: true}),
-    );
+    this.miniRectsDblClick.emit();
   }
 
   getZSpacingFactor(): number {
@@ -495,12 +492,7 @@ export class RectsComponent implements OnInit, OnDestroy {
 
   onRectTypeButtonClicked(event: MatButtonToggleChange) {
     const spec: RectSpec = event.value;
-    this.elementRef.nativeElement.dispatchEvent(
-      new CustomEvent(ViewerEvents.RectTypeButtonClick, {
-        bubbles: true,
-        detail: {type: spec.type},
-      }),
-    );
+    this.rectTypeButtonClick.emit(spec.type);
   }
 
   showExpandButton(options: HTMLElement): boolean {
@@ -634,13 +626,6 @@ export class RectsComponent implements OnInit, OnDestroy {
   }
 
   private notifyHighlightedItem(id: string) {
-    const event: CustomEvent = new CustomEvent(
-      ViewerEvents.HighlightedIdChange,
-      {
-        bubbles: true,
-        detail: {id},
-      },
-    );
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.highlightedIdChange.emit(id);
   }
 }

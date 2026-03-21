@@ -17,12 +17,12 @@
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {PerfettoClockSnapshot, PerfettoTrace, PerfettoTracePacket,} from '@compat/protobuf';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/legacy_file_readers/test_legacy_file_reader_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 
+import {LegacyFileReader} from './legacy_file_reader';
 import {ClockSnapshot, LegacyToPerfettoConverter,} from './legacy_to_perfetto_converter';
 import {makeWarningFailedToConvertLegacyTraces} from './warnings';
 

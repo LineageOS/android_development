@@ -15,15 +15,15 @@
  */
 
 import {ImeTraceType} from '@trace_api/trace_type';
-import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
-import {TableProperties} from '@viewers/common/table_properties';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UserOptions} from '@viewers/common/user_options';
 
 import {FlattenedTreeRow} from './flattened_tree_row';
+import {ImeAdditionalProperties} from './ime_additional_properties';
+import {TableProperties} from './table_properties';
+import {TextFilter} from './text_filter';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
+import {UserOptions} from './user_options';
 
 export class ImeUiData implements UiDataHierarchy {
   highlightedItem = '';

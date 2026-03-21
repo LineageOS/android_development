@@ -24,7 +24,6 @@ import {TraceType} from '@trace_api/trace_type';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
 import {TransactionType} from '@trace/transactions/transaction_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {PropertyValue} from '@tree_node/property_tree_node';
 
 describe('PerfettoParserTransactions', () => {
   let parser: Parser<HierarchyTreeNode>;
@@ -127,10 +126,10 @@ describe('PerfettoParserTransactions', () => {
     it('fetches and translates flags', async () => {
       const entry0 = await parser.getEntry(0);
       const n0 = assertDefined(entry0.getChildByName('LayerState'));
-      checkEagerProperty(n0, 'flagsId', 0n, 'eLayerChanged');
+      checkEagerProperty<bigint>(n0, 'flagsId', 0n, 'eLayerChanged');
 
       const n1 = entry0.getAllChildren()[1];
-      checkEagerProperty(
+      checkEagerProperty<bigint>(
         n1,
         'flagsId',
         1n,
@@ -141,7 +140,7 @@ describe('PerfettoParserTransactions', () => {
       const n2 = assertDefined(entry222.getChildByName('DisplayState'));
       const expectedFlags =
         'eLayerStackChanged | eDisplayProjectionChanged | eFlagsChanged';
-      checkEagerProperty(n2, 'flagsId', 9n, expectedFlags);
+      checkEagerProperty<bigint>(n2, 'flagsId', 9n, expectedFlags);
     });
 
     it('fetches process properties', async () => {
@@ -185,10 +184,14 @@ describe('PerfettoParserTransactions', () => {
       displayId: bigint | undefined,
       transactionType: TransactionType,
     ) {
-      checkEagerProperty(t, 'transactionId', txid);
-      checkEagerProperty(t, 'layerId', layerId);
-      checkEagerProperty(t, 'displayId', displayId);
-      checkEagerProperty(t, 'transactionType', transactionType);
+      checkEagerProperty<bigint>(t, 'transactionId', txid);
+      checkEagerProperty<bigint>(t, 'layerId', layerId);
+      checkEagerProperty<bigint>(t, 'displayId', displayId);
+      checkEagerProperty<TransactionType>(
+        t,
+        'transactionType',
+        transactionType,
+      );
     }
 
     function checkProcessProperties(
@@ -197,19 +200,19 @@ describe('PerfettoParserTransactions', () => {
       uid: bigint | undefined,
       name: string | undefined,
     ) {
-      checkEagerProperty(t, 'pid', pid);
-      checkEagerProperty(t, 'uid', uid);
-      checkEagerProperty(t, 'processName', name);
+      checkEagerProperty<bigint>(t, 'pid', pid);
+      checkEagerProperty<bigint>(t, 'uid', uid);
+      checkEagerProperty<string>(t, 'processName', name);
     }
 
-    function checkEagerProperty(
+    function checkEagerProperty<T>(
       t: HierarchyTreeNode,
       name: string,
-      val: PropertyValue | undefined,
+      val: T | undefined,
       formattedValue?: string,
     ) {
       const node = t.getEagerPropertyByName(name);
-      expect(node?.getValue()).toEqual(val);
+      expect(node?.getValue<T>()).toEqual(val);
       if (formattedValue) {
         expect(node?.formattedValue()).toEqual(formattedValue);
       }
@@ -225,10 +228,12 @@ describe('PerfettoParserTransactions', () => {
       const layerChange1 = await entry0.getAllChildren()[1].getAllProperties();
 
       // Add default values
-      expect(layerChange1?.getChildByName('alpha')?.getValue()).toBe(0);
+      expect(layerChange1?.getChildByName('alpha')?.getValue<number>()).toBe(0);
 
       // Convert value types (bigint -> number)
-      expect(layerChange1?.getChildByName('flags')?.getValue()).toBe(256);
+      expect(layerChange1?.getChildByName('flags')?.getValue<number>()).toBe(
+        256,
+      );
 
       // Decode enum IDs
       expect(

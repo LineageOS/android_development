@@ -27,7 +27,6 @@ import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 
@@ -167,10 +166,7 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('emits event on overlay trace change', () => {
-    let index: number | undefined;
-    dom.addEventListener(ViewerEvents.OverlayMediaBasedTraceChange, (event) => {
-      index = (event as CustomEvent).detail;
-    });
+    const emitSpy = spyOn(component.onOverlayMediaBasedTraceChange, 'emit');
     const entry0 = new CanvasEntry(makeSpyImage());
     const spy0 = spyOn(entry0.frame, 'tryDrawOnCanvas');
     const entry1 = new CanvasEntry(makeSpyImage());
@@ -183,7 +179,7 @@ describe('ViewerMediaBasedComponent', () => {
 
     dom.openMatSelect();
     dom.getMatSelectPanel().findAndClickByIndex('mat-option', 1);
-    expect(index).toEqual(1);
+    expect(emitSpy).toHaveBeenCalledOnceWith(1);
     expect(spy0).toHaveBeenCalledTimes(1);
     expect(spy1).toHaveBeenCalledTimes(1);
   });
@@ -249,33 +245,27 @@ describe('ViewerMediaBasedComponent', () => {
   });
 
   it('emits event on double click', () => {
-    let index: number | undefined;
-    dom.addEventListener(ViewerEvents.OverlayDblClick, (event) => {
-      index = (event as CustomEvent).detail;
-    });
+    const emitSpy = spyOn(component.onOverlayDblClick, 'emit');
     expect(dom.find('.info-icon')).toBeUndefined();
     const container = dom.get('.container');
     container.doubleClick();
-    expect(index).toBeUndefined();
+    expect(emitSpy).not.toHaveBeenCalled();
 
     dom.setComponentInput('enableDoubleClick', true);
     dom.detectChanges();
     expect(dom.find('.info-icon')).toBeDefined();
     container.doubleClick();
-    expect(index).toBe(0);
+    expect(emitSpy).toHaveBeenCalledOnceWith(0);
   });
 
   it('does not emit event on double click if in playback mode', () => {
-    let index: number | undefined;
-    dom.addEventListener(ViewerEvents.OverlayDblClick, (event) => {
-      index = (event as CustomEvent).detail;
-    });
+    const emitSpy = spyOn(component.onOverlayDblClick, 'emit');
     dom.setComponentInput('enableDoubleClick', true);
     dom.setComponentInput('isInPlaybackMode', true);
     dom.detectChanges();
     const container = dom.get('.container');
     container.doubleClick();
-    expect(index).toBeUndefined();
+    expect(emitSpy).not.toHaveBeenCalled();
   });
 
   it('shows loading message', async () => {

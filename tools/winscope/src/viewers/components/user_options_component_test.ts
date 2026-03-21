@@ -17,18 +17,15 @@
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {VISIBLE_CHIP} from '@viewers/common/chip';
-import {UserOptions} from '@viewers/common/user_options';
 
 import {UserOptionsComponent} from './user_options_component';
 
 describe('UserOptionsComponent', () => {
   let component: UserOptionsComponent;
   let dom: DOMTestHelper<UserOptionsComponent>;
-  const testEventType = 'TestEventType';
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -57,7 +54,6 @@ describe('UserOptionsComponent', () => {
       },
     };
     dom.setComponentInput('userOptions', userOptions);
-    dom.setComponentInput('eventType', testEventType);
     dom.setComponentInput('traceType', TraceType.SURFACE_FLINGER);
     dom.detectChanges();
   });
@@ -94,14 +90,12 @@ describe('UserOptionsComponent', () => {
   });
 
   it('emits event on user option change', () => {
-    let options: UserOptions | undefined;
-    dom.addEventListener(testEventType, (event) => {
-      options = (event as CustomEvent).detail.userOptions;
-    });
+    const emitSpy = spyOn(component.optionsChange, 'emit');
     const logSpy = jasmine.createSpy();
     dom.setComponentInput('logCallback', logSpy);
     dom.findAndClick('.user-option');
-    expect(assertDefined(options)['option1'].enabled).toBeTrue();
-    expect(logSpy).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalledTimes(1);
+    expect(emitSpy.calls.mostRecent().args[0]['option1'].enabled).toBeTrue();
+    expect(logSpy).toHaveBeenCalledTimes(1);
   });
 });

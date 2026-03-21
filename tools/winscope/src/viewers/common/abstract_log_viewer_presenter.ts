@@ -16,7 +16,7 @@
 
 import {DarkModeToggled} from '@app/misc_events';
 import {assertDefined} from '@common/assert';
-import {isElementVisible, isInputTextField, KeyboardEventKey,} from '@common/dom';
+import {KeyboardEventKey} from '@common/dom';
 import {Timestamp} from '@common/time/time';
 import {getLogger, Logger} from '@compat/logging';
 import {Analytics} from '@logging/analytics';
@@ -29,24 +29,24 @@ import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {PropertiesPresenter} from '@viewers/common/properties_presenter';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UserOptions} from '@viewers/common/user_options';
 
 import {FlattenedTreeRow} from './flattened_tree_row';
 import {LogSelectFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';
+import {PropertiesPresenter} from './properties_presenter';
+import {TextFilter} from './text_filter';
 import {LogEntry, LogHeader, UiDataLog} from './ui_data_log';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 import {flattenNodesToRows} from './ui_tree_node_helpers';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from './viewer_events';
+import {UserOptions} from './user_options';
+import {TimestampClickDetail} from './viewer_event_details';
 
 export type NotifyLogViewCallbackType<UiData> = (uiData: UiData) => void;
 export type FilterOptionSorter = (a: string, b: string) => number;
 
 export abstract class AbstractLogViewerPresenter<
   UiData extends UiDataLog,
-  TraceEntryType extends object,
+  TraceEntryType,
 > {
   protected static readonly VALUE_NA = 'N/A';
   protected emitAppEvent: EmitEvent = () => Promise.resolve();
@@ -77,105 +77,8 @@ export abstract class AbstractLogViewerPresenter<
     this.emitAppEvent = callback;
   }
 
-  addEventListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(
-      ViewerEvents.LogFilterChange,
-      async (event) => {
-        const detail: LogFilterChangeDetail = (event as CustomEvent).detail;
-        await this.onSelectFilterChange(detail.header, detail.value);
-      },
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.LogTextFilterChange,
-      async (event) => {
-        const detail: LogTextFilterChangeDetail = (event as CustomEvent).detail;
-        await this.onTextFilterChange(detail.header, detail.filter);
-      },
-    );
-    htmlElement.addEventListener(ViewerEvents.LogEntryClick, async (event) => {
-      await this.onLogEntryClick((event as CustomEvent).detail);
-    });
-    htmlElement.addEventListener(
-      ViewerEvents.ArrowDownPress,
-      async (_) => await this.onArrowDownPress(),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.ArrowUpPress,
-      async (_) => await this.onArrowUpPress(),
-    );
-    htmlElement.addEventListener(ViewerEvents.TimestampClick, async (event) => {
-      const detail: TimestampClickDetail = (event as CustomEvent).detail;
-      if (detail.entry !== undefined) {
-        await this.onLogTimestampClick(detail.entry);
-      } else if (detail.timestamp !== undefined) {
-        await this.onRawTimestampClick(detail.timestamp);
-      }
-    });
-    htmlElement.addEventListener(
-      ViewerEvents.PropertiesUserOptionsChange,
-      (event) =>
-        this.onPropertiesUserOptionsChange(
-          (event as CustomEvent).detail.userOptions,
-        ),
-    );
-    htmlElement.addEventListener(
-      ViewerEvents.PropertiesFilterChange,
-      async (event) => {
-        const detail: TextFilter = (event as CustomEvent).detail;
-        await this.onPropertiesFilterChange(detail);
-      },
-    );
-
-    document.addEventListener('keydown', async (event: KeyboardEvent) => {
-      const isViewerVisible = isElementVisible(htmlElement);
-      const keydownOnInputField =
-        event.target instanceof HTMLElement && isInputTextField(event.target);
-      const isPositionChange =
-        event.key === KeyboardEventKey.ARROW_RIGHT ||
-        event.key === KeyboardEventKey.ARROW_LEFT;
-      if (!isViewerVisible || keydownOnInputField || !isPositionChange) {
-        return;
-      }
-      event.preventDefault();
-      await this.onPositionChangeByKeyPress(event);
-    });
-
-    this.addViewerSpecificListeners(htmlElement);
-    this.notifyViewChanged();
-  }
-
-  private async onTracePositionUpdate(event: TracePositionUpdate) {
-    if (this.uiData.isFetchingData) {
-      return;
-    }
-    if (!this.isInitialized) {
-      this.uiData.isFetchingData = true;
-      this.notifyViewChanged();
-      if (this.initializeTraceSpecificData) {
-        await this.initializeTraceSpecificData();
-      }
-      this.makeUiData().then(async () => {
-        await this.applyTracePositionUpdate(event);
-        this.uiData.isFetchingData = false;
-        this.notifyViewChanged();
-        this.isInitialized = true;
-      });
-    } else {
-      await this.applyTracePositionUpdate(event);
-    }
-  }
-
-  private async onDarkModeToggled(event: DarkModeToggled) {
-    this.uiData.isDarkMode = event.isDarkMode;
-    this.notifyViewChanged();
-  }
-
-  private async onActiveTraceChanged(event: ActiveTraceChanged) {
-    this.activeTrace = event.trace;
-    if (this.activeTrace === this.trace) {
-      this.uiData.checkScrollViewportCount++;
-      this.notifyViewChanged();
-    }
+  notifyViewChanged() {
+    this.notifyViewCallback(this.uiData);
   }
 
   async onAppEvent(event: WinscopeEvent) {
@@ -232,13 +135,21 @@ export abstract class AbstractLogViewerPresenter<
     this.notifyViewChanged();
   }
 
-  async onLogTimestampClick(traceEntry: TraceEntry<unknown>) {
+  async onTimestampClick(detail: TimestampClickDetail) {
+    if (detail.entry) {
+      await this.onLogTimestampClick(detail.entry);
+    } else if (detail.timestamp) {
+      await this.onRawTimestampClick(detail.timestamp);
+    }
+  }
+
+  private async onLogTimestampClick(traceEntry: TraceEntry<unknown>) {
     await this.emitAppEvent(
       TracePositionUpdate.fromTraceEntry(traceEntry, true),
     );
   }
 
-  async onRawTimestampClick(timestamp: Timestamp) {
+  private async onRawTimestampClick(timestamp: Timestamp) {
     await this.emitAppEvent(TracePositionUpdate.fromTimestamp(timestamp, true));
   }
 
@@ -307,10 +218,6 @@ export abstract class AbstractLogViewerPresenter<
     }
   }
 
-  protected addViewerSpecificListeners(_: HTMLElement) {
-    // do nothing
-  }
-
   protected refreshUiData() {
     this.uiData.headers = this.logPresenter.getHeaders();
     this.uiData.entries = this.logPresenter.getFilteredEntries();
@@ -324,6 +231,40 @@ export abstract class AbstractLogViewerPresenter<
       this.uiData.propertiesUserOptions =
         this.propertiesPresenter.getUserOptions();
       this.uiData.propertiesFilter = this.propertiesPresenter.getTextFilter();
+    }
+  }
+
+  private async onTracePositionUpdate(event: TracePositionUpdate) {
+    if (this.uiData.isFetchingData) {
+      return;
+    }
+    if (!this.isInitialized) {
+      this.uiData.isFetchingData = true;
+      this.notifyViewChanged();
+      if (this.initializeTraceSpecificData) {
+        await this.initializeTraceSpecificData();
+      }
+      this.makeUiData().then(async () => {
+        await this.applyTracePositionUpdate(event);
+        this.uiData.isFetchingData = false;
+        this.notifyViewChanged();
+        this.isInitialized = true;
+      });
+    } else {
+      await this.applyTracePositionUpdate(event);
+    }
+  }
+
+  private async onDarkModeToggled(event: DarkModeToggled) {
+    this.uiData.isDarkMode = event.isDarkMode;
+    this.notifyViewChanged();
+  }
+
+  private async onActiveTraceChanged(event: ActiveTraceChanged) {
+    this.activeTrace = event.trace;
+    if (this.activeTrace === this.trace) {
+      this.uiData.checkScrollViewportCount++;
+      this.notifyViewChanged();
     }
   }
 
@@ -440,10 +381,6 @@ export abstract class AbstractLogViewerPresenter<
     }
     (header.filter as LogSelectFilter).options = filterValues;
     return;
-  }
-
-  protected notifyViewChanged() {
-    this.notifyViewCallback(this.uiData);
   }
 
   protected abstract makeHeaders(): LogHeader[];

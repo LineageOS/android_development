@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, ElementRef, Inject, input} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {TRACE_INFO} from '@trace_api/trace_info';
@@ -35,11 +35,10 @@ export class UserOptionsComponent {
   objectKeys = Object.keys;
 
   userOptions = input.required<UserOptions>();
-  eventType = input('');
   traceType = input<TraceType>();
   logCallback = input<LogCallback>(() => {});
 
-  constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
+  readonly optionsChange = output<UserOptions>();
 
   getUserOptionButtonColor(option: UserOption) {
     return option.enabled ? 'primary' : undefined;
@@ -54,10 +53,6 @@ export class UserOptionsComponent {
       option.enabled,
       traceType ? TRACE_INFO[traceType].name : 'unknown',
     );
-    const event = new CustomEvent(this.eventType(), {
-      bubbles: true,
-      detail: {userOptions: this.userOptions()},
-    });
-    this.elementRef.nativeElement.dispatchEvent(event);
+    this.optionsChange.emit(this.userOptions());
   }
 }

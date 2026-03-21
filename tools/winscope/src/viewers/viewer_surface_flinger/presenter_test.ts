@@ -42,7 +42,6 @@ import {VISIBLE_CHIP} from '@viewers/common/chip';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiDataHierarchy} from '@viewers/common/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 
 import {Presenter} from './presenter';
@@ -367,28 +366,6 @@ the default for its data type.`,
       afterEach(() => {
         userNotifierChecker.expectNone();
         userNotifierChecker.reset();
-      });
-
-      it('adds event listeners', async () => {
-        const el = document.createElement('div');
-        presenter.addEventListeners(el);
-
-        let spy: jasmine.Spy = spyOn(presenter, 'onRectDoubleClick');
-        const testId = 'test';
-        el.dispatchEvent(
-          new CustomEvent(ViewerEvents.RectsDblClick, {
-            detail: {clickedRectId: testId},
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(testId);
-
-        spy = spyOn(presenter, 'onRectTypeButtonClicked');
-        el.dispatchEvent(
-          new CustomEvent(ViewerEvents.RectTypeButtonClick, {
-            detail: {type: TraceRectType.LAYERS},
-          }),
-        );
-        expect(spy).toHaveBeenCalledOnceWith(TraceRectType.LAYERS);
       });
 
       it('handles displays with no visible layers', async () => {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {NonPerfettoParserFactory} from '@app/non_perfetto_parser_factory';
 import {assertDefined} from '@common/assert';
 import {decompressGZipFile, isGZipFile, isZipFile, unzipFile} from '@common/io';
 import {TimezoneInfo} from '@common/time/time';
@@ -62,6 +61,7 @@ import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FilesSource} from './files_source';
+import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
 import {ParsingErrorType} from './parsing_error_type';
 import {IdentifiedFiles, TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningCorruptedArchive, makeWarningNoValidFiles, makeWarningTraceProcessorError, makeWarningUnsupportedFileFormat,} from './warnings';

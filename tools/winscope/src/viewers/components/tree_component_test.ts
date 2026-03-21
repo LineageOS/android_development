@@ -26,7 +26,6 @@ import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
@@ -244,8 +243,7 @@ describe('TreeComponent', () => {
     button.checkTextExact('visibility_off');
 
     let id = '';
-    dom.addEventListener(ViewerEvents.RectShowStateChange, (event) => {
-      const detail = (event as CustomEvent).detail;
+    spyOn(component.rectShowStateChange, 'emit').and.callFake((detail) => {
       id = detail.rectId;
       component.rectIdToShowState()?.set(detail.rectId, detail.state);
     });

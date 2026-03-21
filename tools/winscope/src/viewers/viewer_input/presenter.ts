@@ -38,11 +38,10 @@ import {TextFilter} from '@viewers/common/text_filter';
 import {ClickableProperty, ColumnSpec, LogEntry, LogHeader,} from '@viewers/common/ui_data_log';
 import {makeInputRects} from '@viewers/common/ui_rect_factory';
 import {UserOptions} from '@viewers/common/user_options';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import {RectLegendFactory, TraceRectType,} from '@viewers/components/rects/rect_spec';
+import {FormatDispatchEntry} from '@viewers/viewer_input/operations/format_dispatch_entry';
 import {convertRectIdToLayerorDisplayName, makeDisplayIdentifiers,} from '@viewers/viewer_surface_flinger/presenter';
 
-import {FormatDispatchEntry} from './operations/format_dispatch_entry';
 import {InputEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<
@@ -181,7 +180,12 @@ export class Presenter extends AbstractLogViewerPresenter<
     this.notifyViewChanged();
   }
 
-  onHighlightedPropertyChange(id: string) {
+  onHighlightedPropertyChange(
+    id: string,
+    shouldHandleWindowPropertyHighlight: boolean,
+  ) {
+    this.shouldHandleWindowPropertyHighlight =
+      shouldHandleWindowPropertyHighlight;
     if (
       this.uiData.highlightedProperty === id &&
       this.shouldHandleWindowPropertyHighlight
@@ -324,41 +328,6 @@ export class Presenter extends AbstractLogViewerPresenter<
     await this.updateRects();
   }
 
-  protected override addViewerSpecificListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(
-      ViewerEvents.HighlightedPropertyChange,
-      (event) => {
-        this.shouldHandleWindowPropertyHighlight = false;
-        this.onHighlightedPropertyChange((event as CustomEvent).detail.id);
-      },
-    );
-
-    htmlElement.addEventListener(ViewerEvents.HighlightedIdChange, (event) =>
-      this.onHighlightedIdChange((event as CustomEvent).detail.id),
-    );
-
-    htmlElement.addEventListener(
-      ViewerEvents.RectsUserOptionsChange,
-      async (event) => {
-        await this.onRectsUserOptionsChange(
-          (event as CustomEvent).detail.userOptions,
-        );
-      },
-    );
-
-    htmlElement.addEventListener(ViewerEvents.RectsDblClick, async (_) => {
-      await this.onRectDoubleClick();
-    });
-
-    htmlElement.addEventListener(
-      ViewerEvents.DispatchPropertiesFilterChange,
-      async (event) => {
-        const detail: TextFilter = (event as CustomEvent).detail;
-        await this.onDispatchPropertiesFilterChange(detail);
-      },
-    );
-  }
-
   private async updateDispatchPropertiesTree() {
     const inputEntry = this.getCurrentEntry();
     const tree = inputEntry?.getDispatchPropertiesTree
@@ -388,12 +357,18 @@ export class Presenter extends AbstractLogViewerPresenter<
           winId.getValue<number>() === Number(this.lastClickedId)
         ) {
           foundMatch = true;
-          this.onHighlightedPropertyChange(winId.id);
+          this.onHighlightedPropertyChange(
+            winId.id,
+            this.shouldHandleWindowPropertyHighlight,
+          );
           break;
         }
       }
       if (!foundMatch) {
-        this.onHighlightedPropertyChange('');
+        this.onHighlightedPropertyChange(
+          '',
+          this.shouldHandleWindowPropertyHighlight,
+        );
       }
     }
   }

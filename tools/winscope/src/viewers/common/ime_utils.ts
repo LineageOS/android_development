@@ -21,10 +21,10 @@ import {makeNodeFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Item} from '@tree_node/item';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {TextFilter} from '@viewers/common/text_filter';
-import {getFocusedActivity, getFocusedWindow,} from '@viewers/common/wm_ime_utils';
 
+import {TextFilter} from './text_filter';
 import {TreeNodeFilter} from './ui_tree_node_helpers';
+import {getFocusedActivity, getFocusedWindow} from './wm_ime_utils';
 
 interface WmStateProperties {
   timestamp: string | undefined;

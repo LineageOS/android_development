@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UiTraceTarget} from './ui/ui_trace_target';
+import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 
 export interface UserRequest {
   target: UiTraceTarget;

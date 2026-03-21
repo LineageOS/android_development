@@ -29,6 +29,10 @@ limitations under the License.
     [showTimeControls]="false"
     [isFetchingData]="data?.isFetchingData ?? false"
     [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
+    (logEntryClick)="onLogEntryClick.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
+    (arrowDownPress)="onArrowDownPress.emit()"
+    (arrowUpPress)="onArrowUpPress.emit()"
   >
   </log-view>
 </div>

@@ -34,13 +34,13 @@ import {TraceType} from '@trace_api/trace_type';
 import {LogFilter, LogSelectFilter, LogTextFilter,} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ClickableProperty, LogEntry, LogField, LogFieldValue, LogHeader,} from '@viewers/common/ui_data_log';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail, ViewerEvents,} from '@viewers/common/viewer_events';
-import {CollapsibleSectionTitleComponent} from '@viewers/components/collapsible_section_title_component';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
 import {ItemHeightPredictor} from '@viewers/components/scroll/item_height_predictor';
-import {SearchBoxComponent} from '@viewers/components/search_box_component';
-import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 
+import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
+import {SearchBoxComponent} from './search_box_component';
+import {SelectWithFilterComponent} from './select_with_filter_component';
 
 @Component({
   selector: 'log-view',
@@ -101,7 +101,13 @@ export class LogComponent {
     return this.virtualScrollViewport()?.isIndexVisible(index) ?? false;
   };
 
-  collapseButtonClicked = output();
+  readonly collapseButtonClicked = output();
+  readonly logFilterChange = output<LogFilterChangeDetail>();
+  readonly logTextFilterChange = output<LogTextFilterChangeDetail>();
+  readonly logEntryClick = output<number>();
+  readonly timestampClick = output<TimestampClickDetail>();
+  readonly arrowDownPress = output();
+  readonly arrowUpPress = output();
 
   readonly virtualScrollViewport =
     viewChild.required<VirtualScrollViewportComponent>('logContainer');
@@ -201,15 +207,11 @@ export class LogComponent {
   }
 
   onFilterChange(event: MatSelectChange, header: LogHeader) {
-    this.emitEvent(
-      ViewerEvents.LogFilterChange,
-      new LogFilterChangeDetail(header, event.value),
-    );
+    this.logFilterChange.emit(new LogFilterChangeDetail(header, event.value));
   }
 
   onSearchBoxChange(detail: TextFilter, header: LogHeader) {
-    this.emitEvent(
-      ViewerEvents.LogTextFilterChange,
+    this.logTextFilterChange.emit(
       new LogTextFilterChangeDetail(header, detail),
     );
   }
@@ -218,17 +220,14 @@ export class LogComponent {
     const clickedEntry = assertDefined(this.entries()[index]);
     this.textSelection.clear();
     this.textSelection.toggle(clickedEntry);
-    this.emitEvent(ViewerEvents.LogEntryClick, index);
+    this.logEntryClick.emit(index);
   }
 
   onGoToFirstEntryClick() {
     const firstEntry = this.entries().at(0);
     if (firstEntry) {
       this.virtualScrollViewport().scrollToIndex(0);
-      this.emitEvent(
-        ViewerEvents.TimestampClick,
-        new TimestampClickDetail(firstEntry.traceEntry),
-      );
+      this.timestampClick.emit(new TimestampClickDetail(firstEntry.traceEntry));
       this.textSelection.clear();
       this.textSelection.toggle(firstEntry);
     }
@@ -249,10 +248,7 @@ export class LogComponent {
     const lastEntry = entries.at(lastIndex);
     if (lastEntry) {
       this.virtualScrollViewport().scrollToIndex(lastIndex);
-      this.emitEvent(
-        ViewerEvents.TimestampClick,
-        new TimestampClickDetail(lastEntry.traceEntry),
-      );
+      this.timestampClick.emit(new TimestampClickDetail(lastEntry.traceEntry));
       this.textSelection.clear();
       this.textSelection.toggle(lastEntry);
     }
@@ -261,10 +257,7 @@ export class LogComponent {
   onTraceEntryTimestampClick(event: MouseEvent, entry: LogEntry) {
     event.stopPropagation();
     this.lastClickedTimestamp = entry.traceEntry.getTimestamp();
-    this.emitEvent(
-      ViewerEvents.TimestampClick,
-      new TimestampClickDetail(entry.traceEntry),
-    );
+    this.timestampClick.emit(new TimestampClickDetail(entry.traceEntry));
   }
 
   onFieldButtonClick(event: MouseEvent, entry: LogEntry, field: LogField) {
@@ -282,12 +275,12 @@ export class LogComponent {
     if (event.key === KeyboardEventKey.ARROW_DOWN && logComponentVisible) {
       event.stopPropagation();
       event.preventDefault();
-      this.emitEvent(ViewerEvents.ArrowDownPress);
+      this.arrowDownPress.emit();
     }
     if (event.key === KeyboardEventKey.ARROW_UP && logComponentVisible) {
       event.stopPropagation();
       event.preventDefault();
-      this.emitEvent(ViewerEvents.ArrowUpPress);
+      this.arrowUpPress.emit();
     }
     const selectedIndex = this.selectedIndex();
     if (
@@ -297,8 +290,7 @@ export class LogComponent {
     ) {
       event.stopPropagation();
       event.preventDefault();
-      this.emitEvent(
-        ViewerEvents.TimestampClick,
+      this.timestampClick.emit(
         new TimestampClickDetail(this.entries()[selectedIndex].traceEntry),
       );
     }
@@ -390,18 +382,7 @@ export class LogComponent {
   }
 
   private onRawTimestampClick(value: Timestamp) {
-    this.emitEvent(
-      ViewerEvents.TimestampClick,
-      new TimestampClickDetail(undefined, value),
-    );
-  }
-
-  private emitEvent(event: ViewerEvents, data?: object | number) {
-    const customEvent = new CustomEvent(event, {
-      bubbles: true,
-      detail: data,
-    });
-    this.elementRef.nativeElement.dispatchEvent(customEvent);
+    this.timestampClick.emit(new TimestampClickDetail(undefined, value));
   }
 
   private getEntriesFromBrowserSelection(range: Range): LogEntry[] {

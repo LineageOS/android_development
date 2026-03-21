@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {CommonModule} from '@angular/common';
-import {Component, computed} from '@angular/core';
+import {Component, computed, output} from '@angular/core';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {ImeUiData} from '@viewers/common/ime_ui_data';
+import {AdditionalPropertySelectedDetail} from '@viewers/common/viewer_event_details';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {HierarchyComponent} from '@viewers/components/hierarchy_component';
 import {ImeAdditionalPropertiesComponent} from '@viewers/components/ime_additional_properties_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
-import {ViewerComponent} from '@viewers/components/viewer_component';
+
+import {HierarchyViewerComponent} from './hierarchy_viewer_component';
 
 @Component({
   selector: 'viewer-input-method',
@@ -38,8 +41,7 @@ import {ViewerComponent} from '@viewers/components/viewer_component';
   templateUrl: './viewer_input_method_component.ng.html',
   styleUrls: ['./viewer_input_method_component.css'],
 })
-export class ViewerInputMethodComponent extends ViewerComponent<ImeUiData> {
-  CollapsibleSectionType = CollapsibleSectionType;
+export class ViewerInputMethodComponent extends HierarchyViewerComponent<ImeUiData> {
   sections = new CollapsibleSections([
     {
       type: CollapsibleSectionType.HIERARCHY,
@@ -58,13 +60,16 @@ export class ViewerInputMethodComponent extends ViewerComponent<ImeUiData> {
     },
   ]);
 
+  readonly onAdditionalPropertySelected =
+    output<AdditionalPropertySelectedDetail>();
+
   readonly isImeManagerService = computed(() => {
     return (
       this.inputData()?.traceType === TraceType.INPUT_METHOD_MANAGER_SERVICE
     );
   });
 
-  areLeftViewsCollapsed() {
+  areLeftViewsCollapsed(): boolean {
     return (
       this.sections.isSectionCollapsed(CollapsibleSectionType.HIERARCHY) &&
       this.sections.isSectionCollapsed(

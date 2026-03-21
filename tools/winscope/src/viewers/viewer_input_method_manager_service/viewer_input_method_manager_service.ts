@@ -19,20 +19,23 @@ import {Trace} from '@trace_api/trace';
 import {ImeTraceType, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {AbstractViewer} from '@viewers/abstract_viewer';
+import {AbstractHierarchyViewer} from '@viewers/abstract_hierarchy_viewer';
 import {NotifyHierarchyViewCallbackType} from '@viewers/common/abstract_hierarchy_viewer_presenter';
 import {ImeUiData} from '@viewers/common/ime_ui_data';
 import {ViewerInputMethodComponent} from '@viewers/components/viewer_input_method_component';
 
 import {PresenterInputMethodManagerService} from './presenter_input_method_manager_service';
 
-export class ViewerInputMethodManagerService extends AbstractViewer<
+export class ViewerInputMethodManagerService extends AbstractHierarchyViewer<
   HierarchyTreeNode,
-  ImeUiData
+  ImeUiData,
+  PresenterInputMethodManagerService
 > {
   static readonly DEPENDENCIES: ImeTraceType[] = [
     TraceType.INPUT_METHOD_MANAGER_SERVICE,
   ];
+
+  protected override readonly hasRects = false;
 
   constructor(trace: Trace<HierarchyTreeNode>, traces: Traces, store: Store) {
     super(trace, traces, ViewerInputMethodComponent, store);
@@ -50,5 +53,13 @@ export class ViewerInputMethodManagerService extends AbstractViewer<
       store,
       imeUiCallback,
     );
+  }
+
+  protected override addViewerSpecificListeners(
+    component: ViewerInputMethodComponent,
+  ) {
+    component.onAdditionalPropertySelected.subscribe(async (detail) => {
+      await this.presenter.onAdditionalPropertySelected(detail);
+    });
   }
 }

@@ -18,9 +18,9 @@ import {analyticsLogEvent} from '@common/analytics';
 import {NOT_IMPLEMENTED_ERROR} from '@common/errors';
 import {TraceProcessorConfig} from '@trace_processor/perfetto/engine';
 import {WasmEngineProxy} from '@trace_processor/perfetto/wasm_engine_proxy';
-import {RawDataQueryResult} from '@trace_processor/raw_data_query_result';
 
 import {QueryResult} from './query_result';
+import {RawDataQueryResult} from './raw_data_query_result';
 
 /**
  * Interface for a trace processor, defining methods to query, reset, parse,

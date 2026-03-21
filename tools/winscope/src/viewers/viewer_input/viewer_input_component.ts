@@ -15,17 +15,16 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, viewChild} from '@angular/core';
-import {TraceType} from '@trace_api/trace_type';
+import {Component, output} from '@angular/core';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
-import {ViewerEvents} from '@viewers/common/viewer_events';
+import {TextFilter} from '@viewers/common/text_filter';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {LogComponent} from '@viewers/components/log_component';
+import {LogViewerComponent} from '@viewers/components/log_viewer_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
-import {ViewerComponent} from '@viewers/components/viewer_component';
 
 import {InputHeightPredictor} from './input_height_predictor';
 import {UiData} from './ui_data';
@@ -43,13 +42,7 @@ import {UiData} from './ui_data';
   templateUrl: './viewer_input_component.ng.html',
   styleUrls: ['./viewer_input_component.css'],
 })
-export class ViewerInputComponent extends ViewerComponent<UiData> {
-  logComponent = viewChild(LogComponent);
-
-  TraceType = TraceType;
-  CollapsibleSectionType = CollapsibleSectionType;
-  ViewerEvents = ViewerEvents;
-
+export class ViewerInputComponent extends LogViewerComponent<UiData> {
   rectsTitle = 'INPUT WINDOWS';
   eventLogTitle = 'EVENT LOG';
   eventPropertiesTitle = 'EVENT DETAILS';
@@ -79,6 +72,9 @@ export class ViewerInputComponent extends ViewerComponent<UiData> {
       isCollapsed: false,
     },
   ]);
+
+  readonly onDispatchPropertiesFilterChange = output<TextFilter>();
+  readonly onRectsDblClick = output<void>();
 
   heightPredictor = new InputHeightPredictor(
     this.elementRef,

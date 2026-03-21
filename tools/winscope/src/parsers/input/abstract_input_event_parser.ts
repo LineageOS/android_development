@@ -21,6 +21,7 @@ import {PropertyTreeBuilderFromArgs} from '@parsers/helpers/property_tree_builde
 import {PropertyTreeBuilderFromProto} from '@parsers/helpers/property_tree_builder_from_proto';
 import {PropertyTreeBuilderFromQueryRow} from '@parsers/helpers/property_tree_builder_from_query_row';
 import {InputCoordinatePropagator} from '@parsers/input/operations/input_coordinate_propagator';
+import {RenameProperty} from '@parsers/input/operations/rename_property';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TransformToTimestamp} from '@parsers/operations/transform_to_timestamp';
 import {TranslateIntDef} from '@parsers/operations/translate_intdef';
@@ -38,8 +39,6 @@ import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
-
-import {RenameProperty} from './operations/rename_property';
 
 export abstract class AbstractInputEventParser extends AbstractParser<HierarchyTreeNode> {
   protected readonly wrapperProto = assertDefined(

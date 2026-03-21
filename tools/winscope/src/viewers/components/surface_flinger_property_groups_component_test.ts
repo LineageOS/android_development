@@ -21,7 +21,6 @@ import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
 import {SfCuratedProperties} from '@viewers/common/curated_properties';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';
@@ -223,12 +222,9 @@ describe('SurfaceFlingerPropertyGroupsComponent', () => {
     selector: string,
     expectedId: string,
   ) {
-    let id = '';
-    dom.addEventListener(ViewerEvents.HighlightedIdChange, (event) => {
-      id = (event as CustomEvent).detail.id;
-    });
+    const emitSpy = spyOn(component.highlightedIdChange, 'emit');
     dom.findAndClick(selector);
-    expect(id).toEqual(expectedId);
+    expect(emitSpy).toHaveBeenCalledOnceWith(expectedId);
   }
 
   function makeProperties(): SfCuratedProperties {

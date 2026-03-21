@@ -41,7 +41,6 @@ import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {makeInputRects, makeUiRects} from '@viewers/common/ui_rect_factory';
 import {UserOptions} from '@viewers/common/user_options';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import {RectLegendFactory, RectSpec, TraceRectType,} from '@viewers/components/rects/rect_spec';
 import {UiRect} from '@viewers/components/rects/ui_rect';
 
@@ -266,17 +265,6 @@ the default for its data type.`,
     this.uiData.curatedProperties = this.curatedProperties;
     this.uiData.rectSpec = this.rectSpecs[this.rectSpecIndex];
     this.refreshHierarchyViewerUiData();
-  }
-
-  protected override addViewerSpecificListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(ViewerEvents.RectsDblClick, async (event) => {
-      const rectId = (event as CustomEvent).detail.clickedRectId;
-      await this.onRectDoubleClick(rectId);
-    });
-    htmlElement.addEventListener(ViewerEvents.RectTypeButtonClick, (event) => {
-      const type = (event as CustomEvent).detail.type;
-      this.onRectTypeButtonClicked(type);
-    });
   }
 
   private updateCuratedProperties() {

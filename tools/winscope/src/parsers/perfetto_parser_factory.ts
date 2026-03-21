@@ -18,7 +18,6 @@ import {ParserTimestampConverter} from '@common/time/timestamp_converter';
 import {getLogger, Logger} from '@compat/logging';
 import {Analytics} from '@logging/analytics';
 import {ProgressListener} from '@messaging/progress_listener';
-import {FileReaderAndParser} from '@parsers/file_reader_and_parser';
 import {buildTraceGeometryData, TraceGeometryData,} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {ParserConstructor} from '@parsers/perfetto/parser_constructor';
@@ -27,6 +26,8 @@ import {TraceFile} from '@trace_api/trace_file';
 import {TraceProcessor} from '@trace_processor/trace_processor';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+
+import {FileReaderAndParser} from './file_reader_and_parser';
 
 export interface ProcessedFile {
   parsers: Array<FileReaderAndParser<HierarchyTreeNode>>;

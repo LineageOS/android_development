@@ -30,7 +30,6 @@ import {TranslateIntDef} from '@parsers/operations/translate_intdef';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {queryArgs} from '@parsers/perfetto/query_helpers';
 import {TransformDuration} from '@parsers/transitions/operations/transform_duration';
-import {TransitionType} from '@parsers/transitions/transition_type';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 import {ColumnType, RowIterator} from '@trace_processor/query_result';
@@ -42,6 +41,8 @@ import {Operation} from '@tree_node/operation';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertiesProviderBuilder} from '@tree_node/properties_provider_builder';
 import {PropertyFormatter, PropertyTreeNode,} from '@tree_node/property_tree_node';
+
+import {TransitionType} from './transition_type';
 
 /**
  * Parser for Transitions Perfetto traces.

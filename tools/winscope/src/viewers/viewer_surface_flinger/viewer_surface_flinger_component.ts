@@ -15,19 +15,19 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, effect, ElementRef, Inject} from '@angular/core';
+import {Component, effect, ElementRef, Inject, output} from '@angular/core';
 import {assertDefined} from '@common/assert';
-import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@viewers/common/collapsible_section_type';
 import {CollapsibleSections} from '@viewers/common/collapsible_sections';
 import {CollapsedSectionsComponent} from '@viewers/components/collapsed_sections_component';
 import {HierarchyComponent} from '@viewers/components/hierarchy_component';
+import {HierarchyViewerComponent} from '@viewers/components/hierarchy_viewer_component';
 import {PropertiesComponent} from '@viewers/components/properties_component';
+import {TraceRectType} from '@viewers/components/rects/rect_spec';
 import {RectsComponent} from '@viewers/components/rects/rects_component';
 import {ShadingMode} from '@viewers/components/rects/shading_mode';
 import {ResizerComponent} from '@viewers/components/resizer_component';
 import {SurfaceFlingerPropertyGroupsComponent} from '@viewers/components/surface_flinger_property_groups_component';
-import {ViewerComponent} from '@viewers/components/viewer_component';
 
 import {UiData} from './ui_data';
 
@@ -46,10 +46,7 @@ import {UiData} from './ui_data';
   templateUrl: './viewer_surface_flinger_component.ng.html',
   styleUrls: ['./viewer_surface_flinger_component.css'],
 })
-export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
-  TraceType = TraceType;
-  CollapsibleSectionType = CollapsibleSectionType;
-
+export class ViewerSurfaceFlingerComponent extends HierarchyViewerComponent<UiData> {
   propertiesTitle = 'PROTO DUMP';
   sections = new CollapsibleSections([
     {
@@ -78,6 +75,9 @@ export class ViewerSurfaceFlingerComponent extends ViewerComponent<UiData> {
     ShadingMode.OPACITY,
     ShadingMode.WIRE_FRAME,
   ];
+
+  readonly onRectsDblClick = output<string>();
+  readonly onRectTypeButtonClick = output<TraceRectType>();
 
   constructor(@Inject(ElementRef) elementRef: ElementRef) {
     super(elementRef);

@@ -26,7 +26,7 @@ limitations under the License.
       } @else if (!isTimestamp() && !n.hasDiffValueParts()) {
         @if (n.canPropagate()) {
           <div class="inline">
-            <button mat-button color="primary" (click)="onPropagateButtonClicked(n)">
+            <button mat-button color="primary" (click)="propagatePropertyClick.emit(n)">
               {{ n.formattedValue() }}
             </button>
           </div>

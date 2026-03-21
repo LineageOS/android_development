@@ -23,21 +23,21 @@ import {ImeTraceType, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {ImeAdditionalProperties} from '@viewers/common/ime_additional_properties';
-import {ImeUiData} from '@viewers/common/ime_ui_data';
-import {getImeLayers, ImeLayers, ProcessedWindowManagerState, processWindowManagerTraceEntry,} from '@viewers/common/ime_utils';
-import {TableProperties} from '@viewers/common/table_properties';
-import {TextFilter} from '@viewers/common/text_filter';
-import {UserOptions} from '@viewers/common/user_options';
+import {UpdateSfSubtreeDisplayNames} from '@viewers/common/operations/update_sf_subtree_display_names';
 
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from './abstract_hierarchy_viewer_presenter';
 import {VISIBLE_CHIP} from './chip';
 import {HierarchyPresenter, HierarchyTraceEntry} from './hierarchy_presenter';
-import {UpdateSfSubtreeDisplayNames} from './operations/update_sf_subtree_display_names';
+import {ImeAdditionalProperties} from './ime_additional_properties';
+import {ImeUiData} from './ime_ui_data';
+import {getImeLayers, ImeLayers, ProcessedWindowManagerState, processWindowManagerTraceEntry,} from './ime_utils';
 import {PropertiesPresenter} from './properties_presenter';
+import {TableProperties} from './table_properties';
+import {TextFilter} from './text_filter';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {isHighlighted} from './ui_tree_node_helpers';
-import {AdditionalPropertySelectedDetail, ViewerEvents} from './viewer_events';
+import {UserOptions} from './user_options';
+import {AdditionalPropertySelectedDetail} from './viewer_event_details';
 
 export abstract class AbstractPresenterInputMethod extends AbstractHierarchyViewerPresenter<ImeUiData> {
   protected getHierarchyTreeNameStrategy = (
@@ -241,14 +241,6 @@ the default for its data type.`,
         }
       }
     }
-  }
-
-  protected override addViewerSpecificListeners(htmlElement: HTMLElement) {
-    htmlElement.addEventListener(
-      ViewerEvents.AdditionalPropertySelected,
-      async (event) =>
-        await this.onAdditionalPropertySelected((event as CustomEvent).detail),
-    );
   }
 
   private async makeSfSubtrees(

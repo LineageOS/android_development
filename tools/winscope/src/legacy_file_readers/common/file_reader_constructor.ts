@@ -15,8 +15,9 @@
  */
 
 import {ParserTimestampConverter} from '@common/time/timestamp_converter';
-import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {TraceFile} from '@trace_api/trace_file';
+
+import {LegacyFileReader} from './legacy_file_reader';
 
 /**
  * Function type for creating legacy file readers.

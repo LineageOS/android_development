@@ -19,14 +19,20 @@ import {Trace} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {AbstractViewer} from '@viewers/abstract_viewer';
+import {AbstractLogViewer} from '@viewers/abstract_log_viewer';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
 import {ViewerJankCujsComponent} from './viewer_jank_cujs_component';
 
-export class ViewerJankCujs extends AbstractViewer<HierarchyTreeNode, UiData> {
+export class ViewerJankCujs extends AbstractLogViewer<
+  HierarchyTreeNode,
+  UiData,
+  Presenter
+> {
   static readonly DEPENDENCIES: TraceType[] = [TraceType.CUJS];
+
+  protected override readonly hasProperties = false;
 
   constructor(trace: Trace<HierarchyTreeNode>, traces: Traces, store: Store) {
     super(trace, traces, ViewerJankCujsComponent, store);

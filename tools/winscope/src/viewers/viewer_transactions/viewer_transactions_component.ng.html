@@ -35,6 +35,11 @@ limitations under the License.
     [isFetchingData]="data?.isFetchingData ?? false"
     [checkScrollViewportCount]="data?.checkScrollViewportCount ?? 0"
     [heightPredictor]="heightPredictor"
+    (logFilterChange)="onLogFilterChange.emit($event)"
+    (logEntryClick)="onLogEntryClick.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
+    (arrowDownPress)="onArrowDownPress.emit()"
+    (arrowUpPress)="onArrowUpPress.emit()"
   >
   </log-view>
 
@@ -50,5 +55,7 @@ limitations under the License.
       sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
     "
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
+    (filterChange)="onPropertiesFilterChange.emit($event)"
+    (optionsChange)="onPropertiesUserOptionsChange.emit($event)"
   ></properties-view>
 </div>

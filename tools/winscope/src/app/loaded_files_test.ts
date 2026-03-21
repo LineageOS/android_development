@@ -20,8 +20,8 @@ import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helper
 import {TimeRange} from '@common/time/time';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {UserWarning} from '@messaging/user_warning';
-import {TestFileReaderBuilder} from '@test/unit/test_file_reader_builder';
-import {TestLegacyFileReaderBuilder} from '@test/unit/test_legacy_file_reader_builder';
+import {TestFileReaderBuilder} from '@test/unit/legacy_file_readers/test_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@test/unit/legacy_file_readers/test_legacy_file_reader_builder';
 import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';

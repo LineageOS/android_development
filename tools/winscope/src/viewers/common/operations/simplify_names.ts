@@ -28,7 +28,7 @@ export class SimplifyNames implements Operation<UiHierarchyTreeNode> {
       return;
     }
 
-    const className = classParts.slice(-1)[0]; // last element
+    const className = classParts.at(-1); // last element
     node.setDisplayName(`${classParts[0]}.${classParts[1]}.(...).${className}`);
   }
 }

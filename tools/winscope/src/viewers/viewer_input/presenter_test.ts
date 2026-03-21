@@ -43,7 +43,6 @@ import {LogSelectFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {UserOptions} from '@viewers/common/user_options';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 import {TraceRectType} from '@viewers/components/rects/rect_spec';
 
 import {Presenter} from './presenter';
@@ -390,55 +389,6 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         await this.setUpTestEnvironment();
       });
 
-      it('adds event listeners', async () => {
-        const element = document.createElement('div');
-        const presenter = await this.createPresenter(
-          (uiDataLog) => (uiData = uiDataLog as UiData),
-          false,
-        );
-        presenter.addEventListeners(element);
-
-        const testId = 'testId';
-
-        let spy: jasmine.Spy = spyOn(presenter, 'onHighlightedPropertyChange');
-        element.dispatchEvent(
-          new CustomEvent(ViewerEvents.HighlightedPropertyChange, {
-            detail: {id: testId},
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(testId);
-
-        spy = spyOn(presenter, 'onHighlightedIdChange');
-        element.dispatchEvent(
-          new CustomEvent(ViewerEvents.HighlightedIdChange, {
-            detail: {id: testId},
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(testId);
-
-        spy = spyOn(presenter, 'onRectsUserOptionsChange');
-        const userOptions = {};
-        element.dispatchEvent(
-          new CustomEvent(ViewerEvents.RectsUserOptionsChange, {
-            detail: {userOptions},
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(userOptions);
-
-        spy = spyOn(presenter, 'onRectDoubleClick');
-        element.dispatchEvent(new CustomEvent(ViewerEvents.RectsDblClick));
-        expect(spy).toHaveBeenCalled();
-
-        spy = spyOn(presenter, 'onDispatchPropertiesFilterChange');
-        const filter = new TextFilter();
-        element.dispatchEvent(
-          new CustomEvent(ViewerEvents.DispatchPropertiesFilterChange, {
-            detail: filter,
-          }),
-        );
-        expect(spy).toHaveBeenCalledWith(filter);
-      });
-
       it('updates selected entry', async () => {
         const presenter = await this.createPresenter(
           (uiDataLog) => (uiData = uiDataLog as UiData),
@@ -668,9 +618,9 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
         );
         expect(uiData.highlightedProperty).toBe('');
         const id = '4';
-        presenter.onHighlightedPropertyChange(id);
+        presenter.onHighlightedPropertyChange(id, false);
         expect(uiData.highlightedProperty).toBe(id);
-        presenter.onHighlightedPropertyChange(id);
+        presenter.onHighlightedPropertyChange(id, false);
         expect(uiData.highlightedProperty).toBe('');
       });
 
@@ -680,14 +630,7 @@ class PresenterInputTest extends AbstractLogViewerPresenterTest<UiData> {
           parser,
           this.layerIdToName,
         );
-
-        const element = document.createElement('div');
-        presenter.addEventListeners(element);
-        element.dispatchEvent(
-          new CustomEvent(ViewerEvents.HighlightedPropertyChange, {
-            detail: {id: '2'},
-          }),
-        );
+        presenter.onHighlightedPropertyChange('2', false);
         await presenter.onLogEntryClick(testLogId);
         expect(uiData.highlightedProperty).toBe('2');
       });

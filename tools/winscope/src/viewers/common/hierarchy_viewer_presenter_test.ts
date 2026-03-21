@@ -20,7 +20,6 @@ import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {MockPresenter} from '@test/unit/mock_hierarchy_viewer_presenter';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
 import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
@@ -30,15 +29,15 @@ import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {TextFilter} from '@viewers/common/text_filter';
+import {MockPresenter} from '@viewers/common/mock_hierarchy_viewer_presenter';
 import {UiRectBuilder} from '@viewers/components/rects/ui_rect_builder';
 
 import {DiffType} from './diff_type';
 import {RectShowState} from './rect_show_state';
+import {TextFilter} from './text_filter';
 import {UiDataHierarchy} from './ui_data_hierarchy';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 import {UserOptions} from './user_options';
-import {ViewerEvents} from './viewer_events';
 
 describe('AbstractHierarchyViewerPresenter', () => {
   const timestamp2 = makeElapsedTimestamp(2n);
@@ -193,89 +192,6 @@ describe('AbstractHierarchyViewerPresenter', () => {
     expect(uiData.rectsToDraw).toEqual([]);
     expect(uiData.displays).toEqual([]);
     expect(uiData.propertyNodes).toBeUndefined();
-  });
-
-  it('adds event listeners', () => {
-    const element = document.createElement('div');
-    presenter.addEventListeners(element);
-
-    let spy: jasmine.Spy = spyOn(presenter, 'onPinnedItemChange');
-    const node = makeUiHierarchyNode({name: 'test'});
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.HierarchyPinnedChange, {
-        detail: {pinnedItem: node},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(node);
-
-    spy = spyOn(presenter, 'onHighlightedIdChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.HighlightedIdChange, {
-        detail: {id: 'test'},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith('test');
-
-    spy = spyOn(presenter, 'onHighlightedPropertyChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.HighlightedPropertyChange, {
-        detail: {id: 'test'},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith('test');
-
-    spy = spyOn(presenter, 'onHierarchyUserOptionsChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.HierarchyUserOptionsChange, {
-        detail: {userOptions: {}},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith({});
-
-    spy = spyOn(presenter, 'onHierarchyFilterChange');
-    const filter = new TextFilter();
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.HierarchyFilterChange, {detail: filter}),
-    );
-    expect(spy).toHaveBeenCalledWith(filter);
-
-    spy = spyOn(presenter, 'onPropertiesUserOptionsChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.PropertiesUserOptionsChange, {
-        detail: {userOptions: {}},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith({});
-
-    spy = spyOn(presenter, 'onPropertiesFilterChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.PropertiesFilterChange, {
-        detail: filter,
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(filter);
-
-    spy = spyOn(presenter, 'onHighlightedNodeChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.HighlightedNodeChange, {detail: {node}}),
-    );
-    expect(spy).toHaveBeenCalledWith(node);
-
-    spy = spyOn(presenter, 'onRectShowStateChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.RectShowStateChange, {
-        detail: {rectId: 'test', state: RectShowState.HIDE},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith('test', RectShowState.HIDE);
-
-    spy = spyOn(presenter, 'onRectsUserOptionsChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.RectsUserOptionsChange, {
-        detail: {userOptions: {}},
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith({});
   });
 
   it('is robust to empty trace', async () => {

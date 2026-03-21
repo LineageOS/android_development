@@ -15,7 +15,8 @@
  */
 
 import {StringFilterPredicate} from '@common/string_filter_predicate';
-import {TextFilter} from '@viewers/common/text_filter';
+
+import {TextFilter} from './text_filter';
 
 export abstract class LogFilter {
   constructor(

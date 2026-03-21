@@ -17,19 +17,29 @@
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {AbstractHierarchyViewerComponentTest} from '@viewers/common/abstract_hierarchy_viewer_component_test';
 
+import {UiData} from './ui_data';
 import {ViewerWindowManagerComponent} from './viewer_window_manager_component';
 
-class ViewerWindowManagerComponentTest extends AbstractHierarchyViewerComponentTest<ViewerWindowManagerComponent> {
+class ViewerWindowManagerComponentTest extends AbstractHierarchyViewerComponentTest<
+  UiData,
+  ViewerWindowManagerComponent
+> {
   protected override readonly testRects = true;
+  protected override readonly canPropagateProperties = true;
+  protected override readonly supportsPlayback = true;
   protected override readonly hierarchyTitle = 'HIERARCHY';
   protected override readonly propertiesTitle = 'PROPERTIES';
   protected override readonly rectsTitle = 'WINDOWS';
   protected override readonly propertiesSelector = '.properties';
 
-  protected async setUpTestEnvironment(): Promise<
+  protected override async setUpTestEnvironment(): Promise<
     [DOMTestHelper<ViewerWindowManagerComponent>, ViewerWindowManagerComponent]
   > {
     return this.initializeTestEnvironment(ViewerWindowManagerComponent);
+  }
+
+  protected override getUiDataForPlaybackTests(): UiData {
+    return new UiData();
   }
 }
 

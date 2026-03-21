@@ -119,8 +119,11 @@ describe('PerfettoParserSurfaceFlinger', () => {
       expect(relZParent.getRelativeChildren()).toEqual([relZChild]);
       expect(relZChild.getZParent()).toEqual(relZParent);
       expect(
-        relZChild.getEagerPropertyByName('zOrderRelativeOf')?.getValue(),
-      ).toBe(11n);
+        relZChild
+          .getEagerPropertyByName('zOrderRelativeOf')
+          ?.getValue()
+          ?.toString(),
+      ).toBe('11');
     });
 
     it('provides rects', async () => {

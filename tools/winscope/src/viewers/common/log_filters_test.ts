@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {TextFilter} from '@viewers/common/text_filter';
-
 import {LogSelectFilter, LogTextFilter} from './log_filters';
+import {TextFilter} from './text_filter';
 
 describe('LogFilters', () => {
   it('text filter filters by substring', () => {

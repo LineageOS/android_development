@@ -23,7 +23,6 @@ import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
 import {PlaybackState} from '@viewers/common/playback/playback_state';
-import {ViewerEvents} from '@viewers/common/viewer_events';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
@@ -74,39 +73,6 @@ describe('PresenterMediaBased', () => {
 
   it('initializes titles from trace descriptors', () => {
     expect(uiData.titles).toEqual(['recording 1', 'recording 2']);
-  });
-
-  it('adds event listeners', () => {
-    const element = document.createElement('div');
-    presenter.addEventListeners(element);
-
-    let spy = spyOn(presenter, 'onOverlayDblClick');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.OverlayDblClick, {
-        detail: 0,
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(0);
-
-    spy = spyOn(presenter, 'onOverlayScreenRecordingChange');
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.OverlayMediaBasedTraceChange, {
-        detail: 0,
-      }),
-    );
-    expect(spy).toHaveBeenCalledWith(0);
-
-    const screenshotPresenter = new Presenter([], (newData) => {
-      uiData = newData;
-    });
-    spy = spyOn(screenshotPresenter, 'onOverlayScreenRecordingChange');
-    screenshotPresenter.addEventListeners(element);
-    element.dispatchEvent(
-      new CustomEvent(ViewerEvents.OverlayMediaBasedTraceChange, {
-        detail: 0,
-      }),
-    );
-    expect(spy).not.toHaveBeenCalled();
   });
 
   it('processes trace position updates without prefetched entry', async () => {
