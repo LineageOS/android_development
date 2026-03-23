@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
+import {Component, computed, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
@@ -48,8 +48,6 @@ export class ImeAdditionalPropertiesComponent {
   readonly highlightedIdChange = output<string>();
   readonly additionalPropertySelected =
     output<AdditionalPropertySelectedDetail>();
-
-  constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
 
   readonly formattedWindowColor = computed<string>(() => {
     const color =

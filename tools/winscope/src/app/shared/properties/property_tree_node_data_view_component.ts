@@ -21,6 +21,7 @@ import {Timestamp} from '@common/time/time';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {DiffType} from '@ui/shared/tree/diff_type';
 import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {FLAG_SEPARATOR} from '@trace/formatters';
 
 @Component({
   selector: 'property-tree-node-data-view',
@@ -30,6 +31,8 @@ import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
   styleUrls: ['property_tree_node_data_view_component.scss'],
 })
 export class PropertyTreeNodeDataViewComponent {
+  FLAG_SEPARATOR = FLAG_SEPARATOR;
+
   readonly node = input.required<UiPropertyTreeNode>();
 
   readonly timestampClick = output<TimestampClickDetail>();

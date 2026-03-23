@@ -156,12 +156,13 @@ export class PropertiesPresenter {
     const formatter = new UiTreeFormatter<UiPropertyTreeNode>().setUiTree(
       uiTree,
     );
+
+    this.customOperations?.forEach((op) => formatter.addOperation(op));
+
     if (predicatesDiscardingChildren.length > 0) {
       formatter.addOperation(new Filter(predicatesDiscardingChildren, false));
     }
     formatter.addOperation(new Filter(predicatesKeepingChildren, true));
-
-    this.customOperations?.forEach((op) => formatter.addOperation(op));
 
     this.formattedTree = formatter.format();
   }
