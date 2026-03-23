@@ -15,19 +15,18 @@
  */
 import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, input, output, TemplateRef, viewChild,} from '@angular/core';
-import {ItemHeightPredictor} from '@app/shared/scroll/item_height_predictor';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 import {isHighlighted} from '@ui/shared/tree/ui_tree_node_helpers';
-import {RectShowStateChangeDetail,} from '@ui/shared/viewer_event_details';
+import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
 
 import {TreeNodeComponent} from './tree_node_component';
+import {TreeNodeHeightPredictor} from './tree_node_height_predictor';
 
 @Component({
   selector: 'tree-view',
@@ -49,10 +48,10 @@ export class TreeComponent<T extends UiTreeNode> {
   };
   filteredRows: Array<FlattenedTreeRow<T>> = [];
   handlingArrowPress = false;
-
-  private viewInitialized = false;
+  viewInitialized = false;
 
   nodeRows = input.required<Array<FlattenedTreeRow<T>>>();
+  heightPredictor = input.required<TreeNodeHeightPredictor<T>>();
   store = input<InMemoryStorage>(new InMemoryStorage());
   isFlattened = input<boolean>(false);
   highlightedItem = input<string>('');
@@ -74,18 +73,6 @@ export class TreeComponent<T extends UiTreeNode> {
     viewChild.required<VirtualScrollViewportComponent>('treeContainer');
 
   readonly levelOffset = 24;
-  readonly heightPredictor = new NodeHeightPredictor(
-    this.elementRef,
-    (index: number) => {
-      return this.filteredRows.at(index);
-    },
-    () => {
-      if (!this.viewInitialized) {
-        return undefined;
-      }
-      return this.virtualScrollViewport().elementRef.nativeElement.clientWidth;
-    },
-  );
 
   ngAfterViewInit() {
     this.viewInitialized = true;
@@ -95,6 +82,16 @@ export class TreeComponent<T extends UiTreeNode> {
     @Inject(ElementRef) public elementRef: ElementRef<HTMLElement>,
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
   ) {
+    effect(() => {
+      this.heightPredictor().setViewportWidthCallback(() => {
+        if (!this.viewInitialized) {
+          return undefined;
+        }
+        return this.virtualScrollViewport().elementRef.nativeElement
+          .clientWidth;
+      });
+    });
+
     effect(() => {
       const rows = this.nodeRows();
       let i = 0;
@@ -374,57 +371,5 @@ export class TreeComponent<T extends UiTreeNode> {
 
   private isCollapsedInStore(storeKey: string): boolean {
     return this.store().get(storeKey) !== undefined;
-  }
-}
-
-class NodeHeightPredictor extends ItemHeightPredictor<
-  FlattenedTreeRow<UiTreeNode>
-> {
-  protected override readonly defaultRowHeight = 24;
-  protected override readonly charWidth = 9;
-  protected override readonly additionalRowHeight = 16;
-  private readonly nodeIconWidth = 24;
-  private readonly chipPaddingWidth = 30;
-  private readonly defaultRowWidth = 480;
-  private readonly rowPaddingWidth = 12;
-
-  constructor(
-    elementRef: ElementRef<HTMLElement>,
-    getRow: (index: number) => FlattenedTreeRow<UiTreeNode> | undefined,
-    private readonly getViewportWidth: () => number | undefined,
-  ) {
-    super(elementRef, getRow);
-  }
-
-  protected override predictHeight(row: FlattenedTreeRow<UiTreeNode>): number {
-    const displayName = row.node.getDisplayName();
-    let textWidth = displayName.length * this.charWidth;
-
-    const fullWidth = this.getRowWidth() - this.rowPaddingWidth;
-    // leaf/chevron icon and depth indicators
-    let rowLength =
-      fullWidth - this.nodeIconWidth - row.depth * this.nodeIconWidth;
-
-    if (row.node instanceof UiHierarchyTreeNode) {
-      if (!row.node.isRoot()) {
-        rowLength -= this.nodeIconWidth; // pin icon
-      }
-
-      const heading = row.node.heading();
-
-      // "<heading> - " precedes display name
-      textWidth += heading !== undefined ? heading.length + 3 : 0;
-      row.node.getChips().forEach((chip) => {
-        textWidth += chip.short.length * this.charWidth + this.chipPaddingWidth;
-      });
-    }
-
-    const rows = Math.ceil(textWidth / rowLength);
-    return this.defaultRowHeight + (rows - 1) * this.additionalRowHeight;
-  }
-
-  private getRowWidth(): number {
-    const viewportWidth = this.getViewportWidth();
-    return viewportWidth ?? this.defaultRowWidth;
   }
 }

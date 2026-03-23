@@ -15,6 +15,7 @@
  */
 
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
+import {Component, TemplateRef, viewChild} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -22,13 +23,14 @@ import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/vi
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {ChildTreeNode, MockUiTreeBuilder,} from '@ui/shared/tree/testing/mock_ui_tree_builder';
 import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
 
 import {TreeComponent} from './tree_component';
 import {TreeNodeComponent} from './tree_node_component';
-import {Component, TemplateRef, viewChild} from '@angular/core';
+import {TreeNodeHeightPredictor} from './tree_node_height_predictor';
 
 describe('TreeComponent', () => {
   let component: TreeComponent<UiTreeNode>;
@@ -54,6 +56,12 @@ describe('TreeComponent', () => {
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     dom.setComponentInput('nodeRows', makeNodeRows(makeTree()));
+    dom.setComponentInput(
+      'heightPredictor',
+      new MockHeightPredictor(component.elementRef, (index: number) => {
+        return component.filteredRows.at(index);
+      }),
+    );
     spyOn(component.highlightedChange, 'emit').and.callFake(
       (node: UiTreeNode) => {
         dom.setComponentInput('highlightedItem', node.id);
@@ -374,9 +382,9 @@ describe('TreeComponent', () => {
 
     const nodes = dom.findAllByDirective(TreeNodeComponent);
     expect(nodes.length).toBeGreaterThan(0);
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       expect(node.dataView()).toEqual(testTemplate);
-    })
+    });
   });
 
   function makeNodeRows(tree: UiTreeNode) {
@@ -464,4 +472,17 @@ describe('TreeComponent', () => {
 })
 class TestTemplateComponent {
   template = viewChild.required<TemplateRef<unknown>>('testTemplate');
+}
+
+class MockHeightPredictor extends TreeNodeHeightPredictor<UiTreeNode> {
+  protected override getRowWidth(
+    _: FlattenedTreeRow<UiTreeNode>,
+    fullWidth: number,
+  ): number {
+    return fullWidth;
+  }
+
+  protected override getTextWidths(node: UiTreeNode): number[] {
+    return [node.getDisplayName().length * this.charWidth];
+  }
 }
