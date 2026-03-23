@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {StringFilterPredicate} from '@common/string_filter_predicate';
-import {binarySearchFirstGreaterOrEqual} from '@common/typed_array';
+import {binarySearch, binarySearchFirstGreaterOrEqual,} from '@common/typed_array';
 import {TraceEntry} from '@trace_api/trace';
 
 import {TextFilter} from './text_filter';
@@ -28,6 +28,8 @@ export class LogPresenter<Entry extends LogEntry> {
   private headers: LogHeader[] = [];
   private filterPredicates = new Map<ColumnSpec, StringFilterPredicate>();
   private currentEntry: TraceEntry<unknown> | undefined;
+
+  // these index values are based on current filtered entries
   private selectedIndex: number | undefined;
   private scrollToIndex: number | undefined;
   private currentIndex: number | undefined;
@@ -138,14 +140,16 @@ export class LogPresenter<Entry extends LogEntry> {
   }
 
   private updateEntriesAfterFilterChange() {
+    const selectedOriginalIndex =
+      this.selectedIndex !== undefined
+        ? this.filteredEntries.at(this.selectedIndex)?.traceEntry.getIndex()
+        : undefined;
     this.updateFilteredEntries();
     this.currentIndex = this.getCurrentTracePositionIndex();
-    if (
-      this.selectedIndex !== undefined &&
-      this.selectedIndex > this.filteredEntries.length - 1
-    ) {
-      this.selectedIndex = this.currentIndex;
-    }
+    this.selectedIndex = this.getFilteredIndexFromOriginaIndex(
+      selectedOriginalIndex,
+      true,
+    );
     this.scrollToIndex = this.selectedIndex ?? this.currentIndex;
   }
 
@@ -189,30 +193,37 @@ export class LogPresenter<Entry extends LogEntry> {
   }
 
   private getCurrentTracePositionIndex(): number | undefined {
-    if (!this.currentEntry) {
-      this.currentIndex = undefined;
-      return;
+    const target = this.currentEntry?.getIndex();
+    return this.getFilteredIndexFromOriginaIndex(target, false);
+  }
+
+  private getFilteredIndexFromOriginaIndex(
+    originalIndex: number | undefined,
+    exactMatch: boolean,
+  ): number | undefined {
+    if (originalIndex === undefined) {
+      return undefined;
     }
     if (this.originalIndicesOfAllEntries.length === 0) {
-      this.currentIndex = undefined;
-      return;
+      return undefined;
     }
-    const target = this.currentEntry.getIndex();
+    const fallback = exactMatch
+      ? undefined
+      : this.originalIndicesOfAllEntries.length - 1;
 
     if (this.timeOrderedEntries) {
+      const searchStrategy = exactMatch
+        ? binarySearch
+        : binarySearchFirstGreaterOrEqual;
       return (
-        binarySearchFirstGreaterOrEqual(
-          this.originalIndicesOfAllEntries,
-          this.currentEntry.getIndex(),
-        ) ?? this.originalIndicesOfAllEntries.length - 1
+        searchStrategy(this.originalIndicesOfAllEntries, originalIndex) ??
+        fallback
       );
     }
 
-    const currentIndex = this.originalIndicesOfAllEntries.findIndex(
-      (i) => i === target,
+    const filteredIndex = this.originalIndicesOfAllEntries.findIndex(
+      (i) => i === originalIndex,
     );
-    return currentIndex !== -1
-      ? currentIndex
-      : this.originalIndicesOfAllEntries.length - 1;
+    return filteredIndex !== -1 ? filteredIndex : fallback;
   }
 }
