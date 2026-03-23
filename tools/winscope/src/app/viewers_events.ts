@@ -16,7 +16,7 @@
 
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {TraceType} from '@trace_api/trace_type';
-import {Viewer} from '@viewers/viewer';
+import {Viewer} from '@ui/shared/viewer';
 
 export class ViewersLoaded implements WinscopeEvent {
   constructor(

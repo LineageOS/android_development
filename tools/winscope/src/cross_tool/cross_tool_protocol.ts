@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {AppResetRequest} from '@app/app_events';
 import {assertDefined, assertUnreachable} from '@common/assert';
 import {Timestamp} from '@common/time/time';
 import {RemoteToolTimestampConverter} from '@common/time/timestamp_converter';
@@ -23,6 +22,7 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {TracePositionUpdate} from '@trace_api/trace_events';
+import {AppResetRequest} from '@ui/shared/events/app_events';
 
 import {Message, MessageBugReport, MessageFiles, MessagePong, MessageTestFailureInfo, MessageTimestamp, MessageType, TimestampType,} from './messages';
 import {isAllowed, isOriginAllowedTimestampSync, isUnauthorizedOriginExpected,} from './origin_allow_list';
