@@ -73,7 +73,7 @@ import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
     LoadProgressComponent,
   ],
   templateUrl: './collect_traces_component.ng.html',
-  styleUrls: ['collect_traces_component.css'],
+  styleUrls: ['collect_traces_component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class CollectTracesComponent

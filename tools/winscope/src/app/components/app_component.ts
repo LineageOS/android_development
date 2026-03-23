@@ -107,7 +107,7 @@ import {TraceViewComponent} from './trace_view_component';
   ],
   providers: [Title, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
   templateUrl: './app_component.ng.html',
-  styleUrls: ['app_component.css'],
+  styleUrls: ['app_component.scss'],
 })
 export class AppComponent implements WinscopeEventListener {
   title = 'winscope';

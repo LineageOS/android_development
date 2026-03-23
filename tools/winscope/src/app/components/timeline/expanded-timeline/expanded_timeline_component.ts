@@ -41,7 +41,7 @@ import {TransitionTimelineComponent} from './transition_timeline_component';
     DefaultTimelineRowComponent,
   ],
   templateUrl: './expanded_timeline_component.ng.html',
-  styleUrls: ['expanded_timeline_component.css'],
+  styleUrls: ['expanded_timeline_component.scss'],
 })
 export class ExpandedTimelineComponent {
   timelineData = input.required<TimelineData>();

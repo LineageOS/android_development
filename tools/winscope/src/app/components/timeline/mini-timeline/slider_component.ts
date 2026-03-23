@@ -32,7 +32,7 @@ import {Transformer} from './transformer';
   standalone: true,
   imports: [DragDropModule],
   templateUrl: './slider_component.ng.html',
-  styleUrls: ['slider_component.css'],
+  styleUrls: ['slider_component.scss'],
 })
 export class SliderComponent {
   fullRange = input.required<TimeRange>();

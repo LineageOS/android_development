@@ -36,7 +36,7 @@ import {PlaybackState} from '@viewers/common/playback/playback_state';
     MatTooltipModule,
   ],
   templateUrl: './playback_component.ng.html',
-  styleUrls: ['playback_component.css'],
+  styleUrls: ['playback_component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlaybackControlsComponent {

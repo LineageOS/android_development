@@ -64,7 +64,7 @@ const transformDrawer: AnimationTriggerMetadata =
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bottom_drawer_component.ng.html',
-  styleUrls: ['bottom_drawer_component.css'],
+  styleUrls: ['bottom_drawer_component.scss'],
   animations: [transformDrawer],
   host: {
     'class': 'mat-drawer mat-drawer-bottom',
@@ -87,7 +87,7 @@ export class MatDrawer {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bottom_drawer_component_mat_drawer_content.ng.html',
-  styleUrls: ['bottom_drawer_component_mat_drawer_content.css'],
+  styleUrls: ['bottom_drawer_component_mat_drawer_content.scss'],
   host: {
     'class': 'mat-drawer-content',
     '[style.margin-top.px]': 'contentMargins.top',
@@ -129,7 +129,7 @@ export class MatDrawerContent /*extends MatDrawerContentBase*/ {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bottom_drawer_component_mat_drawer_container.ng.html',
-  styleUrls: ['bottom_drawer_component_mat_drawer_container.css'],
+  styleUrls: ['bottom_drawer_component_mat_drawer_container.scss'],
   host: {
     class: 'mat-drawer-container',
   },

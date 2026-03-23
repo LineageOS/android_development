@@ -29,7 +29,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
   selector: 'single-timeline',
   standalone: true,
   templateUrl: './default_timeline_row_component.ng.html',
-  styleUrls: ['default_timeline_row_component.css'],
+  styleUrls: ['default_timeline_row_component.scss'],
 })
 export class DefaultTimelineRowComponent extends AbstractTimelineRowComponent<unknown> {
   hoveringEntry?: Timestamp;

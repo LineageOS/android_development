@@ -27,7 +27,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
   standalone: true,
   imports: [CommonModule, MatIconModule, MatProgressBarModule],
   templateUrl: './load_progress_component.ng.html',
-  styleUrls: ['load_progress_component.css'],
+  styleUrls: ['load_progress_component.scss'],
 })
 export class LoadProgressComponent {
   progressPercentage = input<number>();

@@ -29,7 +29,7 @@ import {getRootUrl} from '@common/window';
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatIconModule, MatButtonModule],
   templateUrl: './shortcuts_component.ng.html',
-  styleUrls: ['shortcuts_component.css'],
+  styleUrls: ['shortcuts_component.scss'],
 })
 export class ShortcutsComponent {
   constructor(

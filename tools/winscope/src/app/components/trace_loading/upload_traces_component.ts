@@ -52,7 +52,7 @@ import {LoadProgressComponent} from './load_progress_component';
     MatListModule,
   ],
   templateUrl: './upload_traces_component.ng.html',
-  styleUrls: ['upload_traces_component.css'],
+  styleUrls: ['upload_traces_component.scss'],
 })
 export class UploadTracesComponent
   implements WinscopeEventListener, ProgressListener

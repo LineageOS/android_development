@@ -51,7 +51,7 @@ import {AbstractSelectComponent} from '@viewers/components/abstract_select_compo
     MatTooltipModule,
   ],
   templateUrl: './trace_config_component.ng.html',
-  styleUrls: ['trace_config_component.css'],
+  styleUrls: ['trace_config_component.scss'],
 })
 export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfiguration> {
   advancedSettingsTrigger: CdkOverlayOrigin | undefined;

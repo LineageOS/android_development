@@ -38,7 +38,7 @@ import {AbstractTimelineRowComponent} from './abstract_timeline_row_component';
   standalone: true,
   imports: [MatTooltipModule],
   templateUrl: './transition_timeline_component.ng.html',
-  styleUrls: ['transition_timeline_component.css'],
+  styleUrls: ['transition_timeline_component.scss'],
 })
 export class TransitionTimelineComponent extends AbstractTimelineRowComponent<HierarchyTreeNode> {
   transitionEntries = input.required<Array<HierarchyTreeNode | undefined>>();

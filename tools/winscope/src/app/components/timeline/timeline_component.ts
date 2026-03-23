@@ -84,7 +84,7 @@ import {ExpandedTimelineToggled} from './timeline_events';
     PlaybackControlsComponent,
   ],
   templateUrl: './timeline_component.ng.html',
-  styleUrls: ['timeline_component.css'],
+  styleUrls: ['timeline_component.scss'],
 })
 export class TimelineComponent
   implements WinscopeEventEmitter, WinscopeEventListener

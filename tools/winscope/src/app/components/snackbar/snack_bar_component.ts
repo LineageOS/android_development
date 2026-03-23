@@ -28,7 +28,7 @@ import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
   standalone: true,
   imports: [CommonModule, MatButtonModule, ClipboardModule],
   templateUrl: './snack_bar_component.ng.html',
-  styleUrls: ['snack_bar_component.css'],
+  styleUrls: ['snack_bar_component.scss'],
 })
 export class SnackBarComponent {
   constructor(

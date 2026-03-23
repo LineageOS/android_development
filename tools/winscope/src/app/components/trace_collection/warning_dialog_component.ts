@@ -27,7 +27,7 @@ import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatCheckboxModule, MatButtonModule],
   templateUrl: './warning_dialog_component.ng.html',
-  styleUrls: ['warning_dialog_component.css'],
+  styleUrls: ['warning_dialog_component.scss'],
 })
 export class WarningDialogComponent {
   selectedOptions: string[] = [];

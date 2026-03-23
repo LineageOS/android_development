@@ -49,7 +49,7 @@ import {Transformer} from './transformer';
     SliderComponent,
   ],
   templateUrl: './mini_timeline_component.ng.html',
-  styleUrls: ['mini_timeline_component.css'],
+  styleUrls: ['mini_timeline_component.scss'],
 })
 export class MiniTimelineComponent {
   private static readonly SLIDER_HORIZONTAL_STEP = 30;

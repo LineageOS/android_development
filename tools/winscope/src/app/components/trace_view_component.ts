@@ -64,7 +64,7 @@ interface Tab {
     MatDividerModule,
   ],
   templateUrl: './trace_view_component.ng.html',
-  styleUrls: ['trace_view_component.css'],
+  styleUrls: ['trace_view_component.scss'],
 })
 export class TraceViewComponent
   implements WinscopeEventEmitter, WinscopeEventListener

@@ -44,7 +44,7 @@ import {VERSION} from '@trace_collection/winscope_proxy/utils';
     FormsModule,
   ],
   templateUrl: './winscope_proxy_setup_component.ng.html',
-  styleUrls: ['winscope_proxy_setup_component.css'],
+  styleUrls: ['winscope_proxy_setup_component.scss'],
 })
 export class WinscopeProxySetupComponent {
   ConnectionState = ConnectionState;
