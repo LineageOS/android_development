@@ -70,11 +70,11 @@ import {Traces} from '@trace_api/traces';
 import {Viewer, ViewType} from '@viewers/viewer';
 
 import {AppComponent} from './app_component';
-import {CollectTracesComponent} from './collect_traces_component';
+import {CollectTracesComponent} from './trace_collection/collect_traces_component';
+import {WdpSetupComponent} from './trace_collection/wdp_setup_component';
+import {WinscopeProxySetupComponent} from './trace_collection/winscope_proxy_setup_component';
+import {UploadTracesComponent} from './trace_loading/upload_traces_component';
 import {TraceViewComponent} from './trace_view_component';
-import {UploadTracesComponent} from './upload_traces_component';
-import {WdpSetupComponent} from './wdp_setup_component';
-import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';
 
 @Component({
   selector: 'trace-view',

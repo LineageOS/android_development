@@ -33,6 +33,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {Title} from '@angular/platform-browser';
 import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest,} from '@app/app_events';
 import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from '@app/components/bottomnav/bottom_drawer_component';
+import {SnackBarOpener} from '@app/components/snackbar/snack_bar_opener';
 import {TimelineComponent} from '@app/components/timeline/timeline_component';
 import {GlobalErrorHandler} from '@app/global_error_handler';
 import {LoadedFileData} from '@app/loaded_file_data';
@@ -67,12 +68,11 @@ import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {Viewer} from '@viewers/viewer';
 import {ViewerSearch} from '@viewers/viewer_search/viewer_search';
 
-import {CollectTracesComponent} from './collect_traces_component';
-import {ShortcutsComponent} from './shortcuts_component';
-import {SnackBarOpener} from './snack_bar_opener';
+import {ShortcutsComponent} from './shortcuts_panel/shortcuts_component';
+import {CollectTracesComponent} from './trace_collection/collect_traces_component';
+import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './trace_collection/warning_dialog_component';
+import {UploadTracesComponent} from './trace_loading/upload_traces_component';
 import {TraceViewComponent} from './trace_view_component';
-import {UploadTracesComponent} from './upload_traces_component';
-import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './warning_dialog_component';
 
 /**
  * The root component of the Winscope app.

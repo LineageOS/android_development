@@ -15,7 +15,7 @@
  */
 
 @import url("../styles/overlay_panel.css");
-@import url("../../styles/user_option.css");
+@import url("../../../styles/user_option.css");
 
 .checkboxes {
   display: flex;

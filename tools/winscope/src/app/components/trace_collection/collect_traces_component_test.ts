@@ -32,9 +32,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTabGroup, MatTabsModule} from '@angular/material/tabs';
 import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
-import {AppRefreshDumpsRequest} from '@app/app_events';
-import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
-import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {LoadProgressComponent} from '@app/components/trace_loading/load_progress_component';
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {WinscopeEvent} from '@messaging/winscope_event';
@@ -54,7 +52,6 @@ import {WinscopeProxyDeviceConnection} from '@trace_collection/winscope_proxy/wi
 import {WinscopeProxyHostConnection} from '@trace_collection/winscope_proxy/winscope_proxy_host_connection';
 
 import {CollectTracesComponent} from './collect_traces_component';
-import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
 import {WarningDialogComponent} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';

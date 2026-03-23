@@ -25,9 +25,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {AppRefreshDumpsRequest} from '@app/app_events';
-import {NoTraceTargetsSelectedEvent} from '@app/misc_events';
-import {makeWarningProxyTraceTimeout} from '@app/warnings';
+import {LoadProgressComponent} from '@app/components/trace_loading/load_progress_component';
 import {assertDefined, assertTrue, assertUnreachable} from '@common/assert';
 import {Store} from '@common/store/store';
 import {equal} from '@common/typed_array';
@@ -48,7 +46,6 @@ import {CheckboxConfiguration, makeDefaultDumpConfigMap, makeDefaultTraceConfigM
 import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {UserRequest, UserRequestConfig} from '@trace_collection/user_request';
 
-import {LoadProgressComponent} from './load_progress_component';
 import {TraceConfigComponent} from './trace_config_component';
 import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './warning_dialog_component';
 import {WdpSetupComponent} from './wdp_setup_component';

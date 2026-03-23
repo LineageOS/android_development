@@ -28,7 +28,7 @@ import {ConnectionState} from '@trace_collection/connection_state';
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './wdp_setup_component.ng.html',
-  styleUrls: ['../styles/proxy_setup.css'],
+  styleUrls: ['./proxy_setup.css'],
 })
 export class WdpSetupComponent {
   state = input.required<ConnectionState>();
