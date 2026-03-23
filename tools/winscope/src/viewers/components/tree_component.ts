@@ -66,10 +66,9 @@ export class TreeComponent<T extends UiTreeNode> {
   // items with the "stable id" field needed to search values in the storage.
   useStoredExpandedState = input<boolean>(false);
 
-  highlightedChange = output<UiTreeNode>();
-  pinnedItemChange = output<UiTreeNode>();
+  readonly highlightedChange = output<UiTreeNode>();
+  readonly pinnedItemChange = output<UiTreeNode>();
   readonly rectShowStateChange = output<RectShowStateChangeDetail>();
-
   readonly timestampClick = output<TimestampClickDetail>();
   readonly propagatePropertyClick = output<UiPropertyTreeNode>();
 
@@ -161,18 +160,6 @@ export class TreeComponent<T extends UiTreeNode> {
       return pinnedItems.map((item) => item.id).includes(node.id);
     }
     return false;
-  }
-
-  propagateNewPinnedItem(newPinnedItem: T) {
-    this.pinnedItemChange.emit(newPinnedItem);
-  }
-
-  propagateTimestampClick(event: TimestampClickDetail) {
-    this.timestampClick.emit(event);
-  }
-
-  propagatePropertyClicked(node: UiPropertyTreeNode) {
-    this.propagatePropertyClick.emit(node);
   }
 
   isClickable(node: T): boolean {

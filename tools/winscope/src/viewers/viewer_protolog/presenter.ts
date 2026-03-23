@@ -108,36 +108,34 @@ export class Presenter extends AbstractLogViewerPresenter<
     ) {
       const entry = this.trace.getEntry(traceIndex);
       const messageNode = assertDefined(messageNodes[traceIndex]);
+
+      const level =
+        messageNode.getEagerPropertyByName('level')?.formattedValue() ??
+        Presenter.VALUE_NA;
+      const tag =
+        messageNode.getEagerPropertyByName('tag')?.formattedValue() ??
+        Presenter.VALUE_NA;
+      const location =
+        messageNode.getEagerPropertyByName('location')?.formattedValue() ??
+        Presenter.NO_LOCATION;
+      const message =
+        messageNode.getEagerPropertyByName('message')?.formattedValue() ??
+        Presenter.VALUE_NA;
+
       const fields: LogField[] = [
-        {
-          spec: Presenter.COLUMNS.logLevel,
-          value:
-            messageNode.getEagerPropertyByName('level')?.formattedValue() ??
-            Presenter.VALUE_NA,
-        },
-        {
-          spec: Presenter.COLUMNS.tag,
-          value:
-            messageNode.getEagerPropertyByName('tag')?.formattedValue() ??
-            Presenter.VALUE_NA,
-        },
-        {
-          spec: Presenter.COLUMNS.sourceFile,
-          value:
-            messageNode.getEagerPropertyByName('location')?.formattedValue() ??
-            Presenter.NO_LOCATION,
-          tooltip:
-            messageNode.getEagerPropertyByName('location')?.formattedValue() ==
-            null
-              ? Presenter.NO_LOCATION_TOOLTIP_MESSAGE
-              : undefined,
-        },
-        {
-          spec: Presenter.COLUMNS.text,
-          value:
-            messageNode.getEagerPropertyByName('message')?.formattedValue() ??
-            Presenter.VALUE_NA,
-        },
+        new LogField(Presenter.COLUMNS.logLevel, level),
+        new LogField(Presenter.COLUMNS.tag, tag),
+        new LogField(
+          Presenter.COLUMNS.sourceFile,
+          location,
+          undefined,
+          undefined,
+          undefined,
+          location === Presenter.NO_LOCATION
+            ? Presenter.NO_LOCATION_TOOLTIP_MESSAGE
+            : undefined,
+        ),
+        new LogField(Presenter.COLUMNS.text, message),
       ];
       messages.push(new ProtologEntry(entry, fields));
     }

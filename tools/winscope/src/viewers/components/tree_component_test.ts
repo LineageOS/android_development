@@ -19,6 +19,7 @@ import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {ChildHierarchy, HierarchyTreeBuilder,} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
@@ -26,6 +27,7 @@ import {RectShowState} from '@viewers/common/rect_show_state';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
+import {TimestampClickDetail} from '@viewers/common/viewer_event_details';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
@@ -366,6 +368,27 @@ describe('TreeComponent', () => {
     expect(component.highlightedItem()).toBe('2 Child2');
     dom.keydownArrowUp(true);
     expect(component.highlightedItem()).toBe('0 Child0');
+  });
+
+  it('propagates timestamp click', () => {
+    dom.detectChanges();
+    const treeNode = assertDefined(dom.findByDirective(TreeNodeComponent));
+    const tsSpy = spyOn(component.timestampClick, 'emit');
+    const tsDetail = new TimestampClickDetail(
+      undefined,
+      makeElapsedTimestamp(2n),
+    );
+    treeNode.timestampClick.emit(tsDetail);
+    expect(tsSpy).toHaveBeenCalledOnceWith(tsDetail);
+  });
+
+  it('propagates property', () => {
+    dom.detectChanges();
+    const treeNode = assertDefined(dom.findByDirective(TreeNodeComponent));
+    const propSpy = spyOn(component.propagatePropertyClick, 'emit');
+    const propDetail = makeUiPropertyNode('id', 'name', false);
+    treeNode.propagatePropertyNodeClick.emit(propDetail);
+    expect(propSpy).toHaveBeenCalledOnceWith(propDetail);
   });
 
   function makeNodeRows(tree: UiTreeNode) {

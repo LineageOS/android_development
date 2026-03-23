@@ -793,11 +793,9 @@ export class TimelineComponent
     const converter = timelineData.getTimestampConverter();
 
     const timestamp = converter.makeTimestampFromNs(currentTimestampNs);
-    let formattedCurrentTimestamp = timestamp.format();
-    const parser = new UserTimestamp(formattedCurrentTimestamp);
-    if (converter.canMakeRealTimestamps()) {
-      formattedCurrentTimestamp = assertDefined(parser.extractTime());
-    }
+    const formattedCurrentTimestamp = timestamp.format(
+      converter.canMakeRealTimestamps(),
+    );
 
     this.selectedTimeFormControl.setValue(formattedCurrentTimestamp);
     this.selectedNsFormControl.setValue(`${currentTimestampNs} ns`);

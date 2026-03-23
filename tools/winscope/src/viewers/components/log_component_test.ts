@@ -35,20 +35,19 @@ import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helper
 import {Timestamp} from '@common/time/time';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from '@viewers/common/log_filters';
 import {TextFilter} from '@viewers/common/text_filter';
 import {ColumnSpec, LogEntry, LogField, LogHeader,} from '@viewers/common/ui_data_log';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@viewers/common/viewer_event_details';
+import {PropertiesComponent} from '@viewers/components/properties_component';
+import {SearchBoxComponent} from '@viewers/components/search_box_component';
+import {SelectWithFilterComponent} from '@viewers/components/select_with_filter_component';
 
 import {CollapsedSectionsComponent} from './collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {LogComponent} from './log_component';
-import {PropertiesComponent} from './properties_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from './scroll/virtual_scroll_viewport_component';
-import {SearchBoxComponent} from './search_box_component';
-import {SelectWithFilterComponent} from './select_with_filter_component';
 
 describe('LogComponent', () => {
   const testColumn1: ColumnSpec = {name: 'test1', cssClass: 'test-1'};
@@ -355,11 +354,13 @@ describe('LogComponent', () => {
   it('shows copy button for spec that can be copied', () => {
     const entry = dom.get('.scroll .entry .test-2');
     expect(entry.find('.copy-button')).toBeUndefined();
-    component.entries()[0].fields[1].spec = {
-      name: 'test2',
-      cssClass: 'test-2',
-      canCopy: true,
-    };
+    Object.assign(component.entries()[0].fields[1], {
+      spec: {
+        name: 'test2',
+        cssClass: 'test-2',
+        canCopy: true,
+      },
+    });
     dom.detectChanges();
     entry.findAndClick('.copy-button');
     expect(mockCopyText).toHaveBeenCalledOnceWith('123');
@@ -416,7 +417,16 @@ describe('LogComponent', () => {
       'onDocumentCopy',
     ).and.callThrough();
 
-    dom.setComponentInput('traceType', TraceType.PROTO_LOG);
+    const entry1 = component.entries()[0];
+
+    dom.setComponentInput('entries', [
+      {
+        traceEntry: entry1.traceEntry,
+        fields: entry1.fields,
+        getPropertiesTree: entry1.getPropertiesTree,
+        formatForClipboard: (_: boolean) => 'formatted log',
+      },
+    ]);
     dom.detectChanges();
 
     const copyEvent = new ClipboardEvent('copy', {
@@ -460,7 +470,14 @@ describe('LogComponent', () => {
     const entryTime = makeElapsedTimestamp(1n);
 
     const fields: LogField[] = [
-      {spec: testColumn1, value: 'Test tag 1', tooltip: message},
+      new LogField(
+        testColumn1,
+        'Test tag 1',
+        undefined,
+        undefined,
+        undefined,
+        message,
+      ),
     ];
 
     const trace = new TraceBuilder<PropertyTreeNode>()
@@ -483,7 +500,6 @@ describe('LogComponent', () => {
     dom.setComponentInput('entries', [entry]);
     dom.setComponentInput('headers', headers);
     dom.setComponentInput('selectedIndex', 0);
-    dom.setComponentInput('traceType', TraceType.CUJS);
   }
 
   async function setComponentInputData(elapsed = true) {
@@ -498,14 +514,14 @@ describe('LogComponent', () => {
     }
 
     const fields1: LogField[] = [
-      {spec: testColumn1, value: 'Test tag 1'},
-      {spec: testColumn2, value: 123},
-      {spec: testColumn3, value: fieldTime},
+      new LogField(testColumn1, 'Test tag 1'),
+      new LogField(testColumn2, 123),
+      new LogField(testColumn3, fieldTime),
     ];
     const fields2 = [
-      {spec: testColumn1, value: 'Test tag 2'},
-      {spec: testColumn2, value: 1234},
-      {spec: testColumn3, value: 'N/A', propagateEntryTimestamp: true},
+      new LogField(testColumn1, 'Test tag 2'),
+      new LogField(testColumn2, 1234),
+      new LogField(testColumn3, 'N/A', undefined, undefined, true),
     ];
 
     const trace = new TraceBuilder<PropertyTreeNode>()
@@ -536,7 +552,6 @@ describe('LogComponent', () => {
     dom.setComponentInput('entries', entries);
     dom.setComponentInput('headers', headers);
     dom.setComponentInput('selectedIndex', 0);
-    dom.setComponentInput('traceType', TraceType.CUJS);
     await dom.detectChangesAndWaitStable();
   }
 

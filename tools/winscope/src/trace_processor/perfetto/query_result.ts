@@ -995,6 +995,7 @@ class WaitableQueryResultImpl
   // PromiseLike<QueryResult> implementation.
 
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   then(onfulfilled: any, onrejected: any): any {
     assertFalse(this.thenCalled);
     this.thenCalled = true;
@@ -1002,11 +1003,13 @@ class WaitableQueryResultImpl
   }
 
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   catch(error: any): any {
     return this.impl.ensureAllRowsPromise().catch(error);
   }
 
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   finally(callback: () => void): any {
     return this.impl.ensureAllRowsPromise().finally(callback);
   }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {UserTimestamp} from './user_timestamp';
+
 /**
  * A type for a function that creates a timestamp.
  */
@@ -188,11 +190,15 @@ export class Timestamp {
   /**
    * Formats the timestamp.
    *
-   * @param type The format type.
+   * @param timeOnly Whether to only format the time part of the timestamp.
    * @return The formatted timestamp.
    */
-  format(): string {
-    return this.formatter.format(this.getValueNs());
+  format(timeOnly = false): string {
+    const value = this.formatter.format(this.getValueNs());
+    if (timeOnly) {
+      return new UserTimestamp(value).extractTime() ?? value;
+    }
+    return value;
   }
 
   /**

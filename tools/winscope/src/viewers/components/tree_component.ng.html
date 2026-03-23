@@ -49,9 +49,9 @@ limitations under the License.
         (toggleTreeChange)="toggleTree(row)"
         (rectShowStateChange)="toggleRectShowState(row.node)"
         (expandTreeChange)="expandTree(row)"
-        (pinNodeChange)="propagateNewPinnedItem($event)"
-        (timestampClick)="propagateTimestampClick($event)"
-        (propagatePropertyNodeClick)="propagatePropertyClicked($event)"
+        (pinNodeChange)="pinnedItemChange.emit($event)"
+        (timestampClick)="timestampClick.emit($event)"
+        (propagatePropertyNodeClick)="propagatePropertyClick.emit($event)"
       ></tree-node>
     }
   }

@@ -79,7 +79,7 @@ limitations under the License.
     @let propertyNode = toPropertyTreeNode(currNode);
     <property-tree-node-data-view
       [node]="propertyNode"
-      (timestampClick)="onTimestampClicked($event)"
+      (timestampClick)="timestampClick.emit($event)"
       (propagatePropertyClick)="propagatePropertyNodeClick.emit(propertyNode)"
     ></property-tree-node-data-view>
   }

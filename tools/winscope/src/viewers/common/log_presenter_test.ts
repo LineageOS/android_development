@@ -23,7 +23,7 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';
 import {TextFilter} from './text_filter';
-import {LogEntry, LogHeader} from './ui_data_log';
+import {LogEntry, LogField, LogHeader} from './ui_data_log';
 
 describe('LogPresenter', () => {
   let presenter: LogPresenter<LogEntry>;
@@ -273,72 +273,36 @@ describe('LogPresenter', () => {
       {
         traceEntry: trace.getEntry(0),
         fields: [
-          {
-            spec: STRING_COLUMN,
-            value: 'stringValue',
-          },
-          {
-            spec: NUMBER_COLUMN,
-            value: 0,
-          },
-          {
-            spec: TIMESTAMP_COLUMN,
-            value: timestamp1,
-          },
+          new LogField(STRING_COLUMN, 'stringValue'),
+          new LogField(NUMBER_COLUMN, 0),
+          new LogField(TIMESTAMP_COLUMN, timestamp1),
         ],
         getPropertiesTree: async () => await trace.getEntry(0).getValue(),
       },
       {
         traceEntry: trace.getEntry(1),
         fields: [
-          {
-            spec: STRING_COLUMN,
-            value: 'differentValue',
-          },
-          {
-            spec: NUMBER_COLUMN,
-            value: 1,
-          },
-          {
-            spec: TIMESTAMP_COLUMN,
-            value: timestamp2,
-          },
+          new LogField(STRING_COLUMN, 'differentValue'),
+          new LogField(NUMBER_COLUMN, 1),
+          new LogField(TIMESTAMP_COLUMN, timestamp2),
         ],
         getPropertiesTree: async () => await trace.getEntry(1).getValue(),
       },
       {
         traceEntry: trace.getEntry(2),
         fields: [
-          {
-            spec: STRING_COLUMN,
-            value: 'stringValue',
-          },
-          {
-            spec: NUMBER_COLUMN,
-            value: 2,
-          },
-          {
-            spec: TIMESTAMP_COLUMN,
-            value: timestamp3,
-          },
+          new LogField(STRING_COLUMN, 'stringValue'),
+          new LogField(NUMBER_COLUMN, 2),
+          new LogField(TIMESTAMP_COLUMN, timestamp3),
         ],
         getPropertiesTree: async () => await trace.getEntry(2).getValue(),
       },
       {
         traceEntry: trace.getEntry(3),
         fields: [
-          {
-            spec: STRING_COLUMN,
-            value: 'differentValue',
-          },
-          {
-            spec: NUMBER_COLUMN,
-            value: 3,
-          },
-          {
-            spec: TIMESTAMP_COLUMN,
-            value: timestamp4,
-          },
+          new LogField(STRING_COLUMN, 'differentValue'),
+          new LogField(NUMBER_COLUMN, 3),
+          new LogField(TIMESTAMP_COLUMN, timestamp4),
         ],
         getPropertiesTree: async () => await trace.getEntry(3).getValue(),
       },

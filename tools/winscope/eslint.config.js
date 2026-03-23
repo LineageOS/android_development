@@ -117,7 +117,6 @@ module.exports = defineConfig([
     rules: {
       'no-case-declarations': 'off',
       'no-restricted-imports': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   globalIgnores(['**/webpack.config.js', '**/zone*.ts']),
