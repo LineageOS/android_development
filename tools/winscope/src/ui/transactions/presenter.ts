@@ -43,36 +43,43 @@ export class Presenter extends AbstractLogViewerPresenter<
       name: 'TX ID',
       cssClass: 'transaction-id right-align',
       columnType: TransactionColumnType.TRANSACTION_ID,
+      canFilterBySingleOption: true,
     },
     vsyncId: {
       name: 'VSYNC ID',
       cssClass: 'vsyncid right-align',
       columnType: TransactionColumnType.VSYNC_ID,
+      canFilterBySingleOption: true,
     },
     pid: {
       name: 'PID',
       cssClass: 'pid right-align',
       columnType: TransactionColumnType.PID,
+      canFilterBySingleOption: true,
     },
     uid: {
       name: 'UID',
       cssClass: 'uid right-align',
       columnType: TransactionColumnType.UID,
+      canFilterBySingleOption: true,
     },
     process: {
       name: 'PROCESS',
       cssClass: 'process',
       columnType: TransactionColumnType.PROCESS,
+      canFilterBySingleOption: true,
     },
     type: {
       name: 'TYPE',
       cssClass: 'transaction-type',
       columnType: TransactionColumnType.TRANSACTION_TYPE,
+      canFilterBySingleOption: true,
     },
     layerOrDisplayId: {
       name: 'LAYER/DISP ID',
       cssClass: 'layer-or-display-id right-align',
       columnType: TransactionColumnType.LAYER_OR_DISPLAY_ID,
+      canFilterBySingleOption: true,
     },
     flags: {
       name: 'Flags',

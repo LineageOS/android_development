@@ -53,26 +53,31 @@ export class Presenter extends AbstractLogViewerPresenter<
       name: 'Type',
       cssClass: 'input-type inline',
       columnType: InputColumnType.EVENT_TYPE,
+      canFilterBySingleOption: true,
     },
     source: {
       name: 'Source',
       cssClass: 'input-source',
       columnType: InputColumnType.SOURCE,
+      canFilterBySingleOption: true,
     },
     action: {
       name: 'Action',
       cssClass: 'input-action',
       columnType: InputColumnType.ACTION,
+      canFilterBySingleOption: true,
     },
     deviceId: {
       name: 'Device',
       cssClass: 'input-device-id right-align',
       columnType: InputColumnType.DEVICE_ID,
+      canFilterBySingleOption: true,
     },
     displayId: {
       name: 'Display',
       cssClass: 'input-display-id right-align',
       columnType: InputColumnType.DISPLAY_ID,
+      canFilterBySingleOption: true,
     },
     details: {
       name: 'Details',

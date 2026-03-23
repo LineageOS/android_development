@@ -270,15 +270,15 @@ describe('AbstractLogViewerPresenter', () => {
     const header = uiData.headers[1];
     await presenter.onSelectFilterChange(header, ['0']);
     expect(uiData.currentIndex).toBe(0);
-    expect(uiData.selectedIndex).toBe(0);
+    expect(uiData.selectedIndex).toBeUndefined();
 
     await presenter.onSelectFilterChange(header, ['0', '2']);
     expect(uiData.currentIndex).toBe(1);
-    expect(uiData.selectedIndex).toBe(0);
+    expect(uiData.selectedIndex).toBeUndefined();
 
     await presenter.onSelectFilterChange(header, []);
     expect(uiData.currentIndex).toBe(3);
-    expect(uiData.selectedIndex).toBe(0);
+    expect(uiData.selectedIndex).toBeUndefined();
   });
 
   it('updates properties tree when entry clicked', async () => {

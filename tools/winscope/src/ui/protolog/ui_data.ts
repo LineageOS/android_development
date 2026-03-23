@@ -17,7 +17,7 @@
 import {Timestamp} from '@common/time/time';
 import {TraceEntry} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {LogEntry, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
+import {ColumnSpec, LogEntry, LogField, LogFieldValue, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
 
 export class UiData implements UiDataLog {
   constructor(
@@ -74,5 +74,17 @@ export class ProtologEntry implements LogEntry {
     const allColumns = [timestamp, ...fieldValues];
 
     return allColumns.join('\t');
+  }
+}
+
+export class LocationField extends LogField {
+  constructor(spec: ColumnSpec, value: LogFieldValue, tooltip?: string) {
+    super(spec, value, undefined, undefined, undefined, tooltip);
+  }
+
+  override getFilterValueMatch(): string {
+    const value = this.format();
+    const end = value.indexOf(':');
+    return value.substring(0, end === -1 ? undefined : end);
   }
 }
