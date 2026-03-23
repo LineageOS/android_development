@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Timestamp} from '@common/time/time';
 import {TraceEntry} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LogEntry, LogField, LogHeader, UiDataLog,} from '@viewers/common/ui_data_log';
@@ -37,8 +38,41 @@ export class UiData implements UiDataLog {
 
 export class ProtologEntry implements LogEntry {
   readonly getPropertiesTree = undefined;
+
   constructor(
     public traceEntry: TraceEntry<HierarchyTreeNode>,
     public fields: LogField[],
   ) {}
+
+  formatForClipboard(timeOnly: boolean): string {
+    const timestamp = this.traceEntry.getTimestamp();
+
+    const fieldValues = this.fields.map((field) => {
+      const value = field.value;
+      let stringValue: string;
+
+      if (value === null || value === undefined) {
+        stringValue = ' ';
+      } else if (Array.isArray(value)) {
+        stringValue = value
+          .map((item) => {
+            if (typeof item === 'string') {
+              return item;
+            }
+            return item.propertyValue;
+          })
+          .join(', ');
+      } else if (value instanceof Timestamp) {
+        stringValue = value.format(timeOnly);
+      } else {
+        stringValue = value.toString();
+      }
+
+      return stringValue.replace(/\n/g, '\t');
+    });
+
+    const allColumns = [timestamp, ...fieldValues];
+
+    return allColumns.join('\t');
+  }
 }

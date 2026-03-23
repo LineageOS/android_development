@@ -24,7 +24,7 @@ import {TransactionColumnType} from '@trace/transactions/transaction_column_type
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractLogViewerComponentTest} from '@viewers/common/abstract_log_viewer_component_test';
 import {LogSelectFilter} from '@viewers/common/log_filters';
-import {LogHeader} from '@viewers/common/ui_data_log';
+import {LogField, LogHeader} from '@viewers/common/ui_data_log';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
 import {VirtualScrollViewportComponent} from '@viewers/components/scroll/virtual_scroll_viewport_component';
@@ -77,14 +77,14 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
     const entry1 = new TransactionsEntry(
       trace.getEntry(0),
       Array.from({length: 7}, () => this.testField).concat([
-        {
-          spec: {
+        new LogField(
+          {
             name: 'Test Column',
             cssClass: 'test-class-flags',
             columnType: TransactionColumnType.FLAGS,
           },
-          value: 'VALUE',
-        },
+          'VALUE',
+        ),
       ]),
       async () => propertiesTree,
     );
@@ -155,14 +155,14 @@ class ViewerTransactionsComponentTest extends AbstractLogViewerComponentTest<Vie
       const entry = new TransactionsEntry(
         traceEntry,
         Array.from({length: 8}, () => this.testField).concat([
-          {
-            spec: {
+          new LogField(
+            {
               name: 'Test Column Flags',
               cssClass: 'test-class-flags',
               columnType: TransactionColumnType.FLAGS,
             },
-            value: i % 2 === 0 ? shortMessage : longMessage,
-          },
+            i % 2 === 0 ? shortMessage : longMessage,
+          ),
         ]),
         async () => propertiesTree,
       );
