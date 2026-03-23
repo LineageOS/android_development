@@ -93,9 +93,24 @@ video {
   overflow: hidden;
 }
 
+.video-container {
+  display: grid;
+}
+
+.video-container video,
+.video-container canvas {
+  grid-area: 1 / 1;
+  position: relative;
+}
+
+.video-container canvas {
+  z-index: 1;
+}
+
 .no-video {
-  padding: 1rem;
   text-align: center;
+  margin: 24px;
+  padding: 14px 16px;
 }
 
 .fetching-entries-message {

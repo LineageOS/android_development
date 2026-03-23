@@ -25,6 +25,7 @@ import {Timer} from '@common/time/timer';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
+import {waitToBeCalled} from '@test/unit/spy_utils';
 import {Parser} from '@trace_api/parser';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
 
@@ -35,6 +36,7 @@ describe('ViewerMediaBasedComponent', () => {
   let dom: DOMTestHelper<ViewerMediaBasedComponent>;
   let screenshotImage: ImageBitmap;
   let screenRecordingParser: Parser<MediaBasedTraceEntry>;
+  let srFrame: MediaBasedTraceEntry;
 
   beforeAll(async () => {
     screenRecordingParser = (await new NonPerfettoParserProvider()
@@ -46,6 +48,7 @@ describe('ViewerMediaBasedComponent', () => {
       'traces/screenshot/screenshot_2.png',
     );
     screenshotImage = await createImageBitmap(screenshotFile);
+    srFrame = await screenRecordingParser.getEntry(1);
   });
 
   beforeEach(async () => {
@@ -121,8 +124,7 @@ describe('ViewerMediaBasedComponent', () => {
 
   it('shows video', async () => {
     const initialMaxWidth = getContainerMaxWidth();
-    const firstFrame = await screenRecordingParser.getEntry(0);
-    dom.setComponentInput('currentTraceEntries', [firstFrame]);
+    dom.setComponentInput('currentTraceEntries', [srFrame]);
     await dom.detectChangesAndWaitStable();
 
     const videoContainer = dom.get('.video-container');
@@ -314,6 +316,37 @@ describe('ViewerMediaBasedComponent', () => {
     dom.detectChanges();
     dom.openMatSelect();
     expect(dom.isMatSelectOpen()).toBeFalse();
+  });
+
+  it('keeps canvas alive when switching to video until video seek time reached', async () => {
+    dom.setComponentInput('currentTraceEntries', [
+      new CanvasEntry(screenshotImage),
+    ]);
+    dom.detectChanges();
+    expect(dom.find('canvas')).toBeDefined();
+
+    const seekSpy = spyOn(component, 'onVideoSeeked');
+    dom.setComponentInput('currentTraceEntries', [srFrame]);
+    dom.detectChanges();
+    expect(dom.find('canvas')).toBeDefined();
+    expect(dom.find('video')).toBeDefined();
+
+    await waitToBeCalled(seekSpy, 1);
+    seekSpy.and.callThrough();
+    component.onVideoSeeked();
+    expect(dom.find('canvas')).toBeUndefined();
+  });
+
+  it('does not keep canvas alive if no entries with frames alive', () => {
+    dom.setComponentInput('currentTraceEntries', [
+      new CanvasEntry(screenshotImage),
+    ]);
+    dom.detectChanges();
+    expect(dom.find('canvas')).toBeDefined();
+
+    dom.setComponentInput('currentTraceEntries', []);
+    dom.detectChanges();
+    expect(dom.find('canvas')).toBeUndefined();
   });
 
   function getContainerMaxWidth(): number {

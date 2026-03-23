@@ -47,6 +47,7 @@ export class ViewerMediaBasedComponent {
   showFetchingEntriesMessage = false;
   shouldMinimize = false;
   index = 0;
+  keepCanvasAlive = false;
 
   readonly onOverlayMediaBasedTraceChange = output<number>();
   readonly onOverlayDblClick = output<number>();
@@ -84,6 +85,7 @@ export class ViewerMediaBasedComponent {
     effect(() => {
       const currentTraceEntries = this.currentTraceEntries();
       if (currentTraceEntries.length === 0) {
+        this.keepCanvasAlive = false;
         return;
       }
       if (this.safeUrl === undefined) {
@@ -132,8 +134,20 @@ export class ViewerMediaBasedComponent {
   }
 
   hasImageToShow(): boolean {
+    if (this.keepCanvasAlive) {
+      return true;
+    }
     const curr = this.currentTraceEntries().at(this.index);
     return curr !== undefined && curr.frame !== undefined;
+  }
+
+  hasVideoToShow(): boolean {
+    const curr = this.currentTraceEntries().at(this.index);
+    return (
+      this.safeUrl !== undefined &&
+      curr !== undefined &&
+      curr.frameData !== undefined
+    );
   }
 
   getCurrentTime(): number | undefined {
@@ -142,6 +156,7 @@ export class ViewerMediaBasedComponent {
 
   onSelectChange(event: MatSelectChange) {
     this.index = event.value;
+    this.keepCanvasAlive = false;
     this.tryUpdateSafeUrl();
     this.tryUpdateRenderedFrame();
     this.updateFrameSize();
@@ -155,6 +170,11 @@ export class ViewerMediaBasedComponent {
     }
   }
 
+  onVideoSeeked() {
+    this.keepCanvasAlive = false;
+    this.changeDetectorRef.detectChanges();
+  }
+
   private tryUpdateRenderedFrame() {
     const canvasElement = this.canvasElement();
     if (!canvasElement) {
@@ -166,6 +186,7 @@ export class ViewerMediaBasedComponent {
     }
     const canvas = canvasElement.nativeElement;
     entry.frame.tryDrawOnCanvas(canvas);
+    this.keepCanvasAlive = true;
   }
 
   private resetFrameSizeWorker() {

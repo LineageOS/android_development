@@ -80,19 +80,27 @@ limitations under the License.
           Loading queued frame...
         </div>
       }
-      @let currentTime = getCurrentTime();
-      @if (hasImageToShow()) {
-        <canvas
-          id="frameCanvasElementOverlay"
-          [class.reduce-opacity]="showFetchingEntriesMessage"
-          #frameCanvasElementOverlay
-        ></canvas>
-      } @else if (safeUrl !== undefined && currentTime !== undefined) {
-        <video [currentTime]="currentTime" [src]="safeUrl" preload="auto" #videoElement></video>
+      @let hasVideo = hasVideoToShow();
+      @let hasImage = hasImageToShow();
+      @if (hasImage || hasVideo) {
+        @if (hasImage) {
+          <canvas
+            id="frameCanvasElementOverlay"
+            [class.reduce-opacity]="showFetchingEntriesMessage"
+            #frameCanvasElementOverlay
+          ></canvas>
+        }
+        @if (hasVideo) {
+          <video
+            [src]="safeUrl"
+            [currentTime]="getCurrentTime()"
+            preload="auto"
+            (seeked)="onVideoSeeked()"
+            #videoElement
+          ></video>
+        }
       } @else {
-        <div class="no-video">
-          <p class="mat-body-2">No frame to show.</p>
-        </div>
+        <div class="mat-body-2 no-video"> No frame to show. </div>
       }
     </div>
   </mat-card>
