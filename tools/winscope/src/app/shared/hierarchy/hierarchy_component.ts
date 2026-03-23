@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output, viewChild,} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -41,6 +41,7 @@ import {UserOptions} from '@ui/shared/user_options';
 import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
+import {HierarchyNodeHeightPredictor} from './hierarchy_tree_node_height_predictor';
 import {PropertiesTableComponent} from './properties_table_component';
 
 @Component({
@@ -107,11 +108,20 @@ export class HierarchyComponent {
     });
   });
 
+  readonly heightPredictor = new HierarchyNodeHeightPredictor(
+    this.elementRef,
+    (index: number) => {
+      return this.tree()?.filteredRows.at(index);
+    },
+  );
+
+  private readonly tree = viewChild(TreeComponent<UiHierarchyTreeNode>);
+
   constructor(
-    @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
+    @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
   ) {}
 
-  trackById(index: number, child: UiHierarchyTreeNode): string {
+  trackById(_: number, child: UiHierarchyTreeNode): string {
     return child.id;
   }
 

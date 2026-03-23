@@ -18,10 +18,10 @@ import {Component, computed, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
+import {FLAG_SEPARATOR} from '@trace/formatters';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {DiffType} from '@ui/shared/tree/diff_type';
 import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
-import {FLAG_SEPARATOR} from '@trace/formatters';
 
 @Component({
   selector: 'property-tree-node-data-view',

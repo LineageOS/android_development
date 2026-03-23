@@ -17,7 +17,7 @@ limitations under the License.
 <virtual-scroll-viewport
   #treeContainer
   [itemCount]="filteredRows.length"
-  [heightPredictor]="heightPredictor"
+  [heightPredictor]="heightPredictor()"
   (visibleRangeChanged)="onVisibleRangeChanged()"
   class="tree-scroll"
 >
