@@ -255,7 +255,7 @@ export class VideoFrameCache {
         this.videoCacheStall = true;
       }
       this.reset();
-      this.get(target, this.currPlaybackState);
+      await this.get(target, this.currPlaybackState);
       return this.waitForTargetInCache(target, range, true);
     }
   }

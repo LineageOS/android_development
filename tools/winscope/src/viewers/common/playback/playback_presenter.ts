@@ -253,7 +253,7 @@ export class PlaybackPresenter {
     );
 
     this.tryStartPendingBufferFetch();
-    this.startPlay(bufferIndex);
+    void this.startPlay(bufferIndex);
     return true;
   }
 
