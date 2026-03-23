@@ -24,6 +24,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {assertDefined} from '@common/assert';
 import {FilterFlag} from '@common/filter_flag';
 import {PersistentStore} from '@common/store/persistent_store';
 import {makeWarningDuplicateLayerIds, makeWarningMissingLayerIds,} from '@parsers/helpers/warnings';
@@ -31,9 +32,11 @@ import {checkTooltips, DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
+import {RectShowState} from '@viewers/common/rect_show_state';
 import {TextFilter} from '@viewers/common/text_filter';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {flattenNodesToRows} from '@viewers/common/ui_tree_node_helpers';
+import {RectShowStateChangeDetail} from '@viewers/common/viewer_event_details';
 
 import {CollapsibleSectionTitleComponent} from './collapsible_section_title_component';
 import {HierarchyComponent} from './hierarchy_component';
@@ -179,6 +182,14 @@ describe('HierarchyComponent', () => {
     expect(spy).toHaveBeenCalledOnceWith(child);
   });
 
+  it('handles rect show state change from tree', () => {
+    const tree = assertDefined(dom.findByDirective(TreeComponent));
+    const spy = spyOn(component.rectShowStateChange, 'emit');
+    const rectShowState = new RectShowStateChangeDetail('', RectShowState.HIDE);
+    tree.rectShowStateChange.emit(rectShowState);
+    expect(spy).toHaveBeenCalledOnceWith(rectShowState);
+  });
+
   it('handles change in filter', () => {
     const spy = spyOn(component.filterChange, 'emit');
     dom.findAndClick('.search-box button');
@@ -186,6 +197,16 @@ describe('HierarchyComponent', () => {
     expect(spy).toHaveBeenCalledWith(
       new TextFilter('Root', [FilterFlag.MATCH_CASE]),
     );
+  });
+
+  it('handles change in user options', () => {
+    const userOptions = assertDefined(
+      dom.findByDirective(UserOptionsComponent),
+    );
+    const spy = spyOn(component.optionsChange, 'emit');
+    const options = {opt: {name: 'opt', enabled: true}};
+    userOptions.optionsChange.emit(options);
+    expect(spy).toHaveBeenCalledOnceWith(options);
   });
 
   it('handles collapse button click', () => {

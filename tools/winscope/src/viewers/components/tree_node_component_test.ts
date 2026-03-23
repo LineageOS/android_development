@@ -19,6 +19,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {assertDefined} from '@common/assert';
+import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
@@ -27,6 +28,7 @@ import {DiffType} from '@viewers/common/diff_type';
 import {UiHierarchyTreeNode} from '@viewers/common/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@viewers/common/ui_property_tree_node';
 import {UiTreeNode} from '@viewers/common/ui_tree_node';
+import {TimestampClickDetail} from '@viewers/common/viewer_event_details';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
@@ -231,5 +233,28 @@ describe('TreeNodeComponent', () => {
     fixture.detectChanges();
     dom.findAndClick('.icon-wrapper-copy button');
     expect(mockCopyText).toHaveBeenCalledWith('key1: value1');
+  });
+
+  it('binds property tree node data view outputs to tree node outputs', () => {
+    dom.setComponentInput('node', propertiesTree);
+    fixture.detectChanges();
+    const dataView = assertDefined(
+      dom.findByDirective(PropertyTreeNodeDataViewComponent),
+    );
+
+    const timestampSpy = spyOn(component.timestampClick, 'emit');
+    const detail = new TimestampClickDetail(
+      undefined,
+      makeElapsedTimestamp(2n),
+    );
+    dataView.timestampClick.emit(detail);
+    expect(timestampSpy).toHaveBeenCalledOnceWith(detail);
+
+    const propagatePropertySpy = spyOn(
+      component.propagatePropertyNodeClick,
+      'emit',
+    );
+    dataView.propagatePropertyClick.emit(propertiesTree);
+    expect(propagatePropertySpy).toHaveBeenCalledOnceWith(propertiesTree);
   });
 });

@@ -15,7 +15,7 @@
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {Component, computed, effect, ElementRef, Inject, input, output,} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {assertDefined} from '@common/assert';
@@ -61,7 +61,6 @@ export class TreeNodeComponent<T extends UiTreeNode> {
   readonly rectShowStateChange = output<void>();
   readonly expandTreeChange = output<void>();
   readonly pinNodeChange = output<T>();
-  readonly scrollChange = output<void>();
   readonly timestampClick = output<TimestampClickDetail>();
   readonly propagatePropertyNodeClick = output<UiPropertyTreeNode>();
 
@@ -118,12 +117,6 @@ export class TreeNodeComponent<T extends UiTreeNode> {
   constructor(@Inject(ElementRef) elementRef: ElementRef<HTMLElement>) {
     this.el = elementRef.nativeElement;
     this.el?.addEventListener('mousedown', this.nodeMouseDownEventListener);
-
-    effect(() => {
-      if (!this.isInPinnedSection() && this.isSelected()) {
-        this.scrollChange.emit();
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -177,8 +170,4 @@ export class TreeNodeComponent<T extends UiTreeNode> {
     }
     return true;
   };
-
-  onTimestampClicked(event: TimestampClickDetail) {
-    this.timestampClick.emit(event);
-  }
 }
