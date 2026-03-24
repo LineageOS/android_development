@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {AbstractPresenterInputMethodTest} from '@ui/input_method/abstract_presenter_input_method_test';
 

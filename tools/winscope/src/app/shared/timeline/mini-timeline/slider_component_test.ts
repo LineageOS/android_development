@@ -26,9 +26,9 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {TracePosition} from '@trace_api/trace_position';
 
 import {MIN_SLIDER_WIDTH, SliderComponent} from './slider_component';

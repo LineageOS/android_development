@@ -15,10 +15,10 @@
  */
 
 import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {getPerfettoParser} from '@parsers/fixture_utils';
 import {makeWarningTraceSearchQueryFailed} from '@parsers/helpers/warnings';
 import {ParserSurfaceFlinger} from '@parsers/surface_flinger/parser_surface_flinger';
-import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {TraceType} from '@trace_api/trace_type';
 

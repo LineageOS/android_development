@@ -15,7 +15,7 @@
  */
 
 import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {UiData} from '@ui/window_manager/ui_data';
 
 import {ViewerWindowManagerComponent} from './viewer_window_manager_component';

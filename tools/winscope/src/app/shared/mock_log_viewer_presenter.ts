@@ -25,9 +25,8 @@ import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {LogEntry, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-
-import {TextFilter} from './text_filter';
-import {UserOptions} from './user_options';
+import {TextFilter} from '@ui/shared/text_filter';
+import {UserOptions} from '@ui/shared/user_options';
 
 export class MockPresenter extends AbstractLogViewerPresenter<
   UiDataLog,

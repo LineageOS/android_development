@@ -20,23 +20,24 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp,} from '@common/time/test_helpers';
 import {Timer} from '@common/time/timer';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {Trace} from '@trace_api/trace';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {ActiveTraceChanged, TracePositionUpdate} from '@trace_api/trace_events';
 import {TracePosition} from '@trace_api/trace_position';
+import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {DarkModeToggled} from '@ui/shared/events/misc_events';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {UiDataLog} from '@ui/shared/log/ui_data_log';
-import {MockPresenter} from '@ui/shared/mock_log_viewer_presenter';
 import {TextFilter} from '@ui/shared/text_filter';
 import {UserOptions} from '@ui/shared/user_options';
 import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+
+import {MockPresenter} from './mock_log_viewer_presenter';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;

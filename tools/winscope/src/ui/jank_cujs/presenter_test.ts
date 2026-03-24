@@ -16,12 +16,12 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
+import {NonPerfettoParserProvider} from '@parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {TracePositionUpdate} from '@trace_api/trace_events';
+import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';

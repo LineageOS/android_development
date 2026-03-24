@@ -16,7 +16,7 @@
 import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
 import {RectsComponent} from '@app/shared/rects/rects_component';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {TraceRectType} from '@ui/shared/rects/rect_spec';
 import {UiData} from '@ui/surface_flinger/ui_data';
 

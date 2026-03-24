@@ -21,7 +21,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {ListedSearch} from '@ui/search/ui_data';
 
 import {SearchListComponent} from './search_list_component';

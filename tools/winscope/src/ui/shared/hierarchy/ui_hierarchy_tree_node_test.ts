@@ -15,9 +15,9 @@
  */
 
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {makeHierarchyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
+import {makeHierarchyNode} from '@tree_node/tree_node_test_helpers';
 
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 

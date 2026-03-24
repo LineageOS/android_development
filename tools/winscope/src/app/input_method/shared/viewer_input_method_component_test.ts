@@ -16,8 +16,8 @@
 
 import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
+import {makePropertyNode} from '@tree_node/tree_node_test_helpers';
 import {ImeUiData} from '@ui/input_method/ime_ui_data';
 import {AdditionalPropertySelectedDetail} from '@ui/shared/viewer_event_details';
 

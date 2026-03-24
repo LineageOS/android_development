@@ -16,11 +16,11 @@
 
 import {AbstractLogViewerComponentTest} from '@app/shared/abstract_log_viewer_component_test';
 import {VirtualScrollViewportComponent} from '@app/shared/scroll/virtual_scroll_viewport_component';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {DOMTestHelper} from '@common/dom_test_helpers';
+import {NonPerfettoParserProvider} from '@parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {TraceEntry} from '@trace_api/trace';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {CujEntry, UiData} from '@ui/jank_cujs/ui_data';

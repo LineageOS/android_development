@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 
 import {SimplifyNamesVc} from './simplify_names';

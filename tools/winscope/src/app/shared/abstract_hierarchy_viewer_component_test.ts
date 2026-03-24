@@ -34,10 +34,10 @@ import {HierarchyViewerComponent} from '@app/shared/hierarchy/hierarchy_viewer_c
 import {PropertiesComponent} from '@app/shared/properties/properties_component';
 import {RectsComponent} from '@app/shared/rects/rects_component';
 import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeUiHierarchyNode, makeUiPropertyNode,} from '@test/unit/ui_tree_node_utils';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
+import {makeUiHierarchyNode, makeUiPropertyNode,} from '@ui/shared/hierarchy/ui_tree_node_utils';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {TextFilter} from '@ui/shared/text_filter';
 import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';

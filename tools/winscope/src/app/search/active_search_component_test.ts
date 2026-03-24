@@ -25,7 +25,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 
 import {ActiveSearchComponent} from './active_search_component';
 

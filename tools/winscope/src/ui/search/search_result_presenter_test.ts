@@ -17,10 +17,10 @@
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp, makeZeroTimestamp} from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
 import {Trace} from '@trace_api/trace';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {TracePositionUpdate} from '@trace_api/trace_events';
+import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {QueryResult, RowIterator} from '@trace_processor/query_result';
 import {makeSearchTraceSpies} from '@trace_processor/test_utils';

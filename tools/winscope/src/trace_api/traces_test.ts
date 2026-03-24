@@ -16,10 +16,10 @@
 
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {extractEntries as extractTraceEntries, makeEmptyTrace,} from '@test/unit/trace_api/trace_test_helpers';
-import {TracesBuilder} from '@test/unit/trace_api/traces_builder';
-import {extractEntries, extractFrames, extractTraces,} from '@test/unit/trace_api/traces_test_helpers';
+import {TraceBuilder} from '@trace_api/trace_builder';
+import {extractEntries as extractTraceEntries, makeEmptyTrace,} from '@trace_api/trace_test_helpers';
+import {TracesBuilder} from '@trace_api/traces_builder';
+import {extractEntries, extractFrames, extractTraces,} from '@trace_api/traces_test_helpers';
 
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';

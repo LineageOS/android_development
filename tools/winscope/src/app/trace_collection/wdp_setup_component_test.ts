@@ -18,7 +18,7 @@ import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {ConnectionState} from '@trace_collection/connection_state';
 
 import {WdpSetupComponent} from './wdp_setup_component';

@@ -15,7 +15,7 @@
  */
 
 import {Timer} from '@common/time/timer';
-import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@test/unit/web_socket_utils';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/web_socket_utils';
 
 import {DevicesStream} from './devices_stream';
 

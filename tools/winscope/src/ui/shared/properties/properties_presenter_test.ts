@@ -16,12 +16,12 @@
 
 import {assertDefined} from '@common/assert';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
-import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {DiffType} from '@ui/shared/diff_type';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/ui_tree_node_utils';
 import {TextFilter} from '@ui/shared/text_filter';
 
 import {PropertiesPresenter} from './properties_presenter';

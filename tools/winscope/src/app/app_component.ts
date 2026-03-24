@@ -31,6 +31,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Title} from '@angular/platform-browser';
+import {GlobalErrorHandler} from '@app/global_error_handler';
 import {Mediator} from '@app/mediator';
 import {ViewerSearch} from '@app/search/viewer_search';
 import {MatDrawer, MatDrawerContainer, MatDrawerContent,} from '@app/shared/bottomnav/bottom_drawer_component';
@@ -65,12 +66,11 @@ import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest,} from '@ui/shared/events/app_events';
 import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled,} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
-import {GlobalErrorHandler} from '@ui/shared/global_error_handler';
+import {Viewer} from '@ui/shared/viewer';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {ParsingErrorType} from '@ui/trace_loading/parsing_error_type';
 
-import {AngularViewer} from './shared/angular_viewer';
 import {TraceViewComponent} from './trace_view_component';
 import {ViewersLoaded, ViewersUnloaded} from './viewers_events';
 
@@ -121,7 +121,7 @@ export class AppComponent implements WinscopeEventListener {
   collapsedTimelineHeight = 0;
   isEditingFilename = false;
   persistentStore = new PersistentStore();
-  viewers: AngularViewer[] = [];
+  viewers: Viewer[] = [];
   showShareOptionsContainer = false;
   canShareLocation = false;
   canShareBookmarks = false;
@@ -647,7 +647,7 @@ export class AppComponent implements WinscopeEventListener {
   }
 
   private async onViewersLoaded(event: ViewersLoaded) {
-    this.viewers = event.viewers as AngularViewer[];
+    this.viewers = event.viewers;
     this.initialTimelineTabTraceType = event.initialTimelineTabTraceType;
     this.filenameFormControl.setValue(
       this.loadedFileData.getDownloadArchiveFilename(),

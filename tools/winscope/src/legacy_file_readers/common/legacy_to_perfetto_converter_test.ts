@@ -17,8 +17,8 @@
 import {assertDefined} from '@common/assert';
 import {makeRealTimestamp} from '@common/time/test_helpers';
 import {PerfettoClockSnapshot, PerfettoTrace, PerfettoTracePacket,} from '@compat/protobuf';
-import {TestLegacyFileReaderBuilder} from '@test/unit/legacy_file_readers/test_legacy_file_reader_builder';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {TestLegacyFileReaderBuilder} from '@legacy_file_readers/test_legacy_file_reader_builder';
+import {UserNotifierChecker} from '@services/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 

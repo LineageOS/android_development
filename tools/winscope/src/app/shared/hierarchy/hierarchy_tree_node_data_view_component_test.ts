@@ -15,10 +15,10 @@
  */
 import {TestBed} from '@angular/core/testing';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {makeUiHierarchyNode} from '@test/unit/ui_tree_node_utils';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {VISIBLE_CHIP} from '@ui/shared/chip';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
+import {makeUiHierarchyNode} from '@ui/shared/hierarchy/ui_tree_node_utils';
 
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 

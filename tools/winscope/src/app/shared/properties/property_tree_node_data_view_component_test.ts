@@ -16,10 +16,10 @@
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {makeRealTimestamp} from '@common/time/test_helpers';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {DEFAULT_PROPERTY_FORMATTER, FixedStringFormatter, HEX_FORMATTER, TIMESTAMP_NODE_FORMATTER,} from '@trace/formatters';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {DiffType} from '@ui/shared/diff_type';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {TimestampClickDetail} from '@ui/shared/viewer_event_details';

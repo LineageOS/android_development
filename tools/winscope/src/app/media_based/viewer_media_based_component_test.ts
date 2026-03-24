@@ -21,11 +21,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {DOMTestHelper} from '@common/dom_test_helpers';
+import {getFixtureFile} from '@common/io_helpers';
+import {waitToBeCalled} from '@common/spy_utils';
 import {Timer} from '@common/time/timer';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {NonPerfettoParserProvider} from '@test/unit/parsers/fixture_utils';
-import {waitToBeCalled} from '@test/unit/spy_utils';
+import {NonPerfettoParserProvider} from '@parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
 

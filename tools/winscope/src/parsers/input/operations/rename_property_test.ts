@@ -15,7 +15,7 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {RenameProperty} from './rename_property';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {getFixtureFile} from '@common/io_helpers';
 
 import {PlaybackState} from './playback_state';
 import {VideoFrameCache} from './video_frame_cache';

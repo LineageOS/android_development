@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getPerfettoParser, getPerfettoParsers,} from '@test/unit/parsers/fixture_utils';
+import {getPerfettoParser, getPerfettoParsers} from '@parsers/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 
 describe('PerfettoAbstractParser', () => {

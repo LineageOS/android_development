@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {getImeTraceEntries} from '@test/unit/fixture_utils';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {getImeTraceEntries} from '@ui/input_method/fixture_utils';
 
 import {getImeLayers, processWindowManagerTraceEntry} from './ime_utils';
 

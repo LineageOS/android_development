@@ -15,7 +15,7 @@
  */
 
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
+import {TraceBuilder} from '@trace_api/trace_builder';
 
 describe('TraceEntry', () => {
   beforeAll(() => {

@@ -16,6 +16,7 @@
 
 import {assertDefined, assertTrue} from '@common/assert';
 import {isZipFile, unzipFile} from '@common/io';
+import {getFixtureFile} from '@common/io_helpers';
 import {makeConverterNoRteOffsets, makeConverterWithUtcOffset,} from '@common/time/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {ParserCujs as NonPerfettoParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
@@ -36,7 +37,6 @@ import {ParserTransactions} from '@parsers/transactions/parser_transactions';
 import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {FileReader} from '@trace_api/file_reader';
 import {Parser} from '@trace_api/parser';
 import {TraceFile} from '@trace_api/trace_file';

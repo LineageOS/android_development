@@ -21,8 +21,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {DownloadRequest} from '@common/download';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
 import {ConnectionState} from '@trace_collection/connection_state';
 
 import {WinscopeProxySetupComponent} from './winscope_proxy_setup_component';

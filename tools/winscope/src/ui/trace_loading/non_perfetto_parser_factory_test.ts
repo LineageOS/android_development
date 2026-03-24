@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import {getFixtureFile} from '@common/io_helpers';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 import {ParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {makeWarningInvalidNonPerfettoTrace} from '@parsers/helpers/warnings';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';

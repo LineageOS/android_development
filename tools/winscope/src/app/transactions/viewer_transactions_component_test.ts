@@ -16,14 +16,14 @@
 
 import {AbstractLogViewerComponentTest} from '@app/shared/abstract_log_viewer_component_test';
 import {VirtualScrollViewportComponent} from '@app/shared/scroll/virtual_scroll_viewport_component';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {TransactionColumnType} from '@trace/transactions/transaction_column_type';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';

@@ -20,7 +20,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef,} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
 import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 
 import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from './warning_dialog_component';
 

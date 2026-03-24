@@ -19,7 +19,7 @@ import {Overlay} from '@angular/cdk/overlay';
 import {TestBed} from '@angular/core/testing';
 import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {waitToBeCalled} from '@test/unit/spy_utils';
+import {waitToBeCalled} from '@common/spy_utils';
 import {makeWarningFailedToInitializeTimelineData, makeWarningNoValidFiles,} from '@ui/trace_loading/warnings';
 
 import {SnackBarComponent} from './snack_bar_component';

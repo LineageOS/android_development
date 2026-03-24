@@ -21,13 +21,13 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {PropertyTreeNodeDataViewComponent} from '@app/shared/properties/property_tree_node_data_view_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {ChildHierarchy, HierarchyTreeBuilder,} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {makeUiPropertyNode} from '@test/unit/ui_tree_node_utils';
+import {ChildHierarchy, HierarchyTreeBuilder,} from '@tree_node/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
 import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
+import {makeUiPropertyNode} from '@ui/shared/hierarchy/ui_tree_node_utils';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
 

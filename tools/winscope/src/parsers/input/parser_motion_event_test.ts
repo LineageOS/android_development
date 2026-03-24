@@ -17,7 +17,7 @@ import {assertDefined} from '@common/assert';
 import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {setupJspbTesting} from '@compat/test/protobuf';
-import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
+import {getPerfettoParser} from '@parsers/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';

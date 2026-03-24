@@ -18,8 +18,8 @@ import {assertDefined} from '@common/assert';
 import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
 import {TimeRange} from '@common/time/time';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
 import {TransitionStatus} from '@trace/transitions/status';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {TimelineSegment} from './segment';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 
 import {UpdateTransitionChanges} from './update_transition_changes';

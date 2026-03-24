@@ -17,13 +17,13 @@
 import {assertDefined} from '@common/assert';
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {HierarchyTreeBuilder} from '@test/unit/tree_node/hierarchy_tree_builder';
-import {treeNodeEqualityTester} from '@test/unit/ui_tree_node_utils';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {DiffType} from '@ui/shared/diff_type';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/ui_tree_node_utils';
 import {TextFilter} from '@ui/shared/text_filter';
 import {UserOptions} from '@ui/shared/user_options';
 

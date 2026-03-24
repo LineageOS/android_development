@@ -15,9 +15,9 @@
  */
 
 import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TextFilter} from '@ui/shared/text_filter';
 

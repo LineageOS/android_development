@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import {TestBed} from '@angular/core/testing';
-import {DOMTestHelper} from '@test/unit/common/dom_test_helpers';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {DOMTestHelper} from '@common/dom_test_helpers';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
+import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 
 import {TransformMatrixComponent} from './transform_matrix_component';
 

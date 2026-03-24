@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {getFixtureFile} from '@common/io_helpers';
 import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
 import {LegacyFileReaderFactory} from '@legacy_file_readers/common/legacy_file_reader_factory';
 import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
@@ -26,7 +27,6 @@ import {FileReaderTransitionsWm} from '@legacy_file_readers/transitions/file_rea
 import {FileReaderViewCapture} from '@legacy_file_readers/view_capture/file_reader_view_capture';
 import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
 import {FileReaderWindowManagerDump} from '@legacy_file_readers/window_manager/file_reader_window_manager_dump';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 
