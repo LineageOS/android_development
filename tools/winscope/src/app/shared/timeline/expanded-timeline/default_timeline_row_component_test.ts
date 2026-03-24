@@ -25,12 +25,12 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
 import {Rect} from '@common/geometry/rect';
 import {waitToBeCalled} from '@common/spy_utils';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/testing/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 
 import {DefaultTimelineRowComponent} from './default_timeline_row_component';

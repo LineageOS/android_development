@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
+import {MockPresenter} from '@app/shared/testing/mock_hierarchy_viewer_presenter';
 import {assertDefined} from '@common/assert';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {SetFormatters} from '@parsers/operations/set_formatters';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TracePositionUpdate} from '@trace_api/trace_events';
-import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {DiffType} from '@ui/shared/diff_type';
 import {DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';
+import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/ui_tree_node_utils';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {UiRectBuilder} from '@ui/shared/rects/ui_rect_builder';
 import {TextFilter} from '@ui/shared/text_filter';
 import {UserOptions} from '@ui/shared/user_options';
-
-import {MockPresenter} from './mock_hierarchy_viewer_presenter';
 
 describe('AbstractHierarchyViewerPresenter', () => {
   const timestamp2 = makeElapsedTimestamp(2n);

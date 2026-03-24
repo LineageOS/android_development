@@ -15,7 +15,7 @@
  */
 
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 
 import {UpdateTransitionParticipants} from './update_transition_participants';
 

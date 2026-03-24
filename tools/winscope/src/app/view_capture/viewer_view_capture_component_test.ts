@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
 import {RectsComponent} from '@app/shared/rects/rects_component';
+import {AbstractHierarchyViewerComponentTest} from '@app/shared/testing/abstract_hierarchy_viewer_component_test';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {UiData} from '@ui/view_capture/ui_data';
 
 import {ViewerViewCaptureComponent} from './viewer_view_capture_component';

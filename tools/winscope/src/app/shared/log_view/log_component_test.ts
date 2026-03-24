@@ -36,10 +36,10 @@ import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/vi
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
-import {DOMTestHelper} from '@common/dom_test_helpers';
-import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {Timestamp} from '@common/time/time';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {ColumnSpec, LogEntry, LogField, LogHeader,} from '@ui/shared/log/ui_data_log';

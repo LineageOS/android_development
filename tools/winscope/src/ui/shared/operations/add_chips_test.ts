@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {DUPLICATE_CHIP, GPU_CHIP, HIDDEN_BY_POLICY_CHIP, HWC_CHIP, MISSING_Z_PARENT_CHIP, RELATIVE_Z_CHIP, RELATIVE_Z_PARENT_CHIP, VISIBLE_CHIP,} from '@ui/shared/chip';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 

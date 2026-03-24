@@ -15,8 +15,8 @@
  */
 
 import {RECT_FORMATTER} from '@trace/formatters';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
-import {makeRectNode} from '@tree_node/tree_node_test_helpers';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
+import {makeRectNode} from '@tree_node/testing/tree_node_test_helpers';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';

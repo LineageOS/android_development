@@ -15,12 +15,12 @@
  */
 
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/test_helpers';
-import {UserNotifierChecker} from '@services/user_notifier_checker';
+import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/testing/test_helpers';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {InitializeTraceSearchRequest, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
-import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';

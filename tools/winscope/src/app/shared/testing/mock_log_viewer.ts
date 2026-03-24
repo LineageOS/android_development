@@ -14,46 +14,39 @@
  * limitations under the License.
  */
 
-import {AbstractHierarchyViewer} from '@app/shared/abstract_hierarchy_viewer';
-import {HierarchyViewerComponentStub} from '@app/shared/hierarchy/hierarchy_viewer_component_stub';
+import {AbstractLogViewer} from '@app/shared/abstract_log_viewer';
+import {LogViewerComponentStub} from '@app/shared/log_view/testing/log_viewer_component_stub';
+import {MockPresenter} from '@app/shared/testing/mock_log_viewer_presenter';
 import {Store} from '@common/store/store';
 import {Trace} from '@trace_api/trace';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {NotifyLogViewCallbackType} from '@ui/shared/log/abstract_log_viewer_presenter';
+import {UiDataLog} from '@ui/shared/log/ui_data_log';
 
-import {MockPresenter} from './mock_hierarchy_viewer_presenter';
-
-export class MockViewer extends AbstractHierarchyViewer<
+export class MockViewer extends AbstractLogViewer<
   HierarchyTreeNode,
-  UiDataHierarchy,
+  UiDataLog,
   MockPresenter
 > {
   constructor(trace: Trace<HierarchyTreeNode>, traces: Traces, storage: Store) {
-    super(trace, traces, HierarchyViewerComponentStub, storage);
+    super(trace, traces, LogViewerComponentStub, storage);
   }
 
   protected override createPresenter(
     trace: Trace<HierarchyTreeNode>,
     traces: Traces,
     storage: Store,
-    notifyViewCallback: NotifyLogViewCallbackType<UiDataHierarchy>,
+    notifyViewCallback: NotifyLogViewCallbackType<UiDataLog>,
   ): MockPresenter {
-    return new MockPresenter(
-      trace,
-      traces,
-      storage,
-      notifyViewCallback,
-      undefined,
-    );
+    return new MockPresenter(trace, storage, notifyViewCallback);
   }
 
   getPresenter(): MockPresenter {
     return this.presenter;
   }
 
-  override addViewerSpecificListeners(_: HierarchyViewerComponentStub): void {
+  override addViewerSpecificListeners(_: LogViewerComponentStub): void {
     // do nothing
   }
 }

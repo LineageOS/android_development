@@ -16,17 +16,17 @@
 
 import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {Timer} from '@common/time/timer';
 import {CustomQueryType} from '@trace_api/custom_query';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TracePositionUpdate} from '@trace_api/trace_events';
-import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {NotifyLogViewCallbackType} from '@ui/shared/log/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@ui/shared/log/abstract_log_viewer_presenter_test';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';

@@ -17,7 +17,7 @@ import {TestBed} from '@angular/core/testing';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TransformMatrixComponent} from '@app/surface_flinger/transform_matrix_component';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {VcCuratedProperties} from '@ui/shared/properties/curated_properties';
 
 import {ViewCapturePropertyGroupsComponent} from './view_capture_property_groups_component';

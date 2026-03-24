@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets} from '@common/time/testing/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {FileReaderConstructor} from '@legacy_file_readers/common/file_reader_constructor';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';

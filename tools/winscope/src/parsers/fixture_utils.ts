@@ -16,8 +16,8 @@
 
 import {assertDefined, assertTrue} from '@common/assert';
 import {isZipFile, unzipFile} from '@common/io';
-import {getFixtureFile} from '@common/io_helpers';
-import {makeConverterNoRteOffsets, makeConverterWithUtcOffset,} from '@common/time/test_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset,} from '@common/time/testing/test_helpers';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {ParserCujs as NonPerfettoParserCujs} from '@parsers/cujs/non_perfetto/parser_cujs';
 import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';

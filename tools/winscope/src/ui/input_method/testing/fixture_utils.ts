@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
-import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@legacy_file_readers/fixture_utils';
+import {makeConverterNoRteOffsets} from '@common/time/testing/test_helpers';
 import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
 import {FileReaderInputMethodManagerService} from '@legacy_file_readers/input_method/file_reader_input_method_manager_service';
 import {FileReaderInputMethodService} from '@legacy_file_readers/input_method/file_reader_input_method_service';
 import {FileReaderSurfaceFlinger} from '@legacy_file_readers/surface_flinger/file_reader_surface_flinger';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@legacy_file_readers/testing/fixture_utils';
 import {FileReaderWindowManager} from '@legacy_file_readers/window_manager/file_reader_window_manager';
 import {getPerfettoParsers, NonPerfettoParserProvider,} from '@parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 

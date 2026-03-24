@@ -15,7 +15,7 @@
  */
 
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 
 import {UpdateDisplayNames} from './update_display_names';

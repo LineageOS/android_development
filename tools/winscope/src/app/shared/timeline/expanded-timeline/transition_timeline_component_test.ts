@@ -26,17 +26,17 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
 import {PENDING_TO_PLAY_COLOR} from '@app/shared/timeline/common/transition_timeline_helpers';
-import {DOMTestHelper} from '@common/dom_test_helpers';
 import {Rect} from '@common/geometry/rect';
 import {waitToBeCalled} from '@common/spy_utils';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/testing/test_helpers';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {TransitionStatus} from '@trace/transitions/status';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 
 import {TransitionTimelineComponent} from './transition_timeline_component';
 

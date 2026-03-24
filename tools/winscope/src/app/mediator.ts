@@ -51,6 +51,7 @@ import {FileLoader} from '@ui/trace_loading/file_loader';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {makeWarningCannotVisualizeTraceEntry, makeWarningFailedToInitializeTimelineData, makeWarningNoTraceTargetsSelected, makeWarningNoValidFiles,} from '@ui/trace_loading/warnings';
 
+import {AngularViewer} from './shared/angular_viewer';
 import {ViewersLoaded, ViewersUnloaded} from './viewers_events';
 
 /**
@@ -71,7 +72,7 @@ export class Mediator {
   private loadedFileData: LoadedFileData;
   private activeFileLoader: FileLoader | undefined;
   private timelineData: TimelineData;
-  private viewers: Viewer[] = [];
+  private viewers: AngularViewer[] = [];
   private focusedTabView: undefined | Viewer;
   private areViewersLoaded = false;
   private lastRemoteToolDeferredTimestampReceived?: () => Timestamp | undefined;

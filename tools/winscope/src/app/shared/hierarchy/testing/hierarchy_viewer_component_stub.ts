@@ -15,9 +15,8 @@
  */
 
 import {Component} from '@angular/core';
+import {HierarchyViewerComponent} from '@app/shared/hierarchy/hierarchy_viewer_component';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
-
-import {HierarchyViewerComponent} from './hierarchy_viewer_component';
 
 @Component({
   selector: 'hierarchy-viewer-stub',

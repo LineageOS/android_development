@@ -18,7 +18,7 @@ import {TreeNode} from '@tree_node/tree_node';
 import {AbstractAddDiffsTest} from '@ui/shared/abstract_add_diffs_test';
 import {AddDiffs} from '@ui/shared/add_diffs';
 import {DiffType} from '@ui/shared/diff_type';
-import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/ui_tree_node_utils';
+import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';

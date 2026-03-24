@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
-import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 import {TextFilter} from '@ui/shared/text_filter';
 
 import {LogSelectFilter, LogTextFilter} from './log_filters';

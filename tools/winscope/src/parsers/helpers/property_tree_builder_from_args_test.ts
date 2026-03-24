@@ -21,8 +21,8 @@ import {ColumnType, RowIterator} from '@trace_processor/query_result';
 import {makeSpyRowIterator} from '@trace_processor/test_utils';
 import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {TamperedMessageType} from '@trace/proto_utils/tampered_message_type';
-import {ChildProperty, PropertyTreeBuilder,} from '@tree_node/property_tree_builder';
 import {PropertySource, PropertyValue} from '@tree_node/property_tree_node';
+import {ChildProperty, PropertyTreeBuilder,} from '@tree_node/testing/property_tree_builder';
 
 import {PropertyTreeBuilderFromArgs} from './property_tree_builder_from_args';
 

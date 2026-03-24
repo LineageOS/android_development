@@ -16,13 +16,13 @@
 
 import {assertDefined} from '@common/assert';
 import {unzipFile} from '@common/io';
-import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {TimeRange} from '@common/time/time';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {TestFileReaderBuilder} from '@legacy_file_readers/test_file_reader_builder';
-import {TestLegacyFileReaderBuilder} from '@legacy_file_readers/test_legacy_file_reader_builder';
+import {TestFileReaderBuilder} from '@legacy_file_readers/testing/test_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@legacy_file_readers/testing/test_legacy_file_reader_builder';
 import {UserWarning} from '@messaging/user_warning';
-import {UserNotifierChecker} from '@services/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';

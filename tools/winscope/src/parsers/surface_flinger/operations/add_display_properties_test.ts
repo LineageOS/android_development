@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {makePropertyNode} from '@tree_node/tree_node_test_helpers';
+import {makePropertyNode} from '@tree_node/testing/tree_node_test_helpers';
 
 import {AddDisplayProperties} from './add_display_properties';
 

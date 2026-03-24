@@ -15,8 +15,8 @@
  */
 
 import {PropertyValue} from '@tree_node/property_tree_node';
+import {testTreeNodes as baseTestTreeNodes, makeHierarchyNode, makePropertyNode,} from '@tree_node/testing/tree_node_test_helpers';
 import {TreeNode} from '@tree_node/tree_node';
-import {testTreeNodes as baseTestTreeNodes, makeHierarchyNode, makePropertyNode,} from '@tree_node/tree_node_test_helpers';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';

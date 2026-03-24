@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {AbstractLogViewerComponentTest} from '@app/shared/abstract_log_viewer_component_test';
 import {VirtualScrollViewportComponent} from '@app/shared/scroll/virtual_scroll_viewport_component';
+import {AbstractLogViewerComponentTest} from '@app/shared/testing/abstract_log_viewer_component_test';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
-import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {ProtologColumnType} from '@trace/protolog/protolog_column_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {ProtologEntry, UiData} from '@ui/protolog/ui_data';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';

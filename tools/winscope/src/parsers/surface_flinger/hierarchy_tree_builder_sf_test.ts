@@ -18,9 +18,9 @@ import {assertDefined} from '@common/assert';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {OperationChain} from '@tree_node/operation_chain';
 import {PropertiesProvider} from '@tree_node/properties_provider';
-import {ChildProperty, PropertyTreeBuilder,} from '@tree_node/property_tree_builder';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
-import {treeNodeEqualityTester} from '@tree_node/tree_node_test_helpers';
+import {ChildProperty, PropertyTreeBuilder,} from '@tree_node/testing/property_tree_builder';
+import {treeNodeEqualityTester} from '@tree_node/testing/tree_node_test_helpers';
 
 import {HierarchyTreeBuilderSf} from './hierarchy_tree_builder_sf';
 

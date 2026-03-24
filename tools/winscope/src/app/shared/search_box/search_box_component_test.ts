@@ -22,8 +22,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {DOMTestHelper} from '@common/dom_test_helpers';
 import {FilterFlag} from '@common/filter_flag';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {TextFilter} from '@ui/shared/text_filter';
 
 import {SearchBoxComponent} from './search_box_component';

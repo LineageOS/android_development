@@ -69,6 +69,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "declaration": false,

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getFixtureFile} from '@common/io_helpers';
-import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
+import {makeConverterNoRteOffsets} from '@common/time/testing/test_helpers';
 import {LegacyFileReaderFactory} from '@legacy_file_readers/common/legacy_file_reader_factory';
 import {FileReaderInputMethodClients} from '@legacy_file_readers/input_method/file_reader_input_method_clients';
 import {FileReaderInputMethodManagerService} from '@legacy_file_readers/input_method/file_reader_input_method_manager_service';

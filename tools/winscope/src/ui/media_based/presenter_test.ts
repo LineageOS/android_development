@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {makeRealTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {makeRealTimestamp} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
