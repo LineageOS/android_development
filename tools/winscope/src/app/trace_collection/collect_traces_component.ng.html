@@ -145,7 +145,7 @@ limitations under the License.
                 </div>
               </div>
 
-              @let currStorage = storage();
+              @let currStore = store();
 
               <mat-tab-group
                 [mat-stretch-tabs]="false"
@@ -158,10 +158,9 @@ limitations under the License.
                       <div class="trace-section">
                         <trace-config
                           title="Trace targets"
-                          [traceConfig]="traceConfig"
-                          [storage]="currStorage"
+                          [(traceConfig)]="traceConfig"
+                          [store]="currStore"
                           [traceConfigStoreKey]="storeKeyPrefixTraceConfig"
-                          (traceConfigChange)="onTraceConfigChange($event)"
                         ></trace-config>
                         <div class="start-btn">
                           <button
@@ -207,10 +206,9 @@ limitations under the License.
                       <div class="dump-section">
                         <trace-config
                           title="Dump targets"
-                          [traceConfig]="dumpConfig"
-                          [storage]="currStorage"
+                          [(traceConfig)]="dumpConfig"
+                          [store]="currStore"
                           [traceConfigStoreKey]="storeKeyPrefixDumpConfig"
-                          (traceConfigChange)="onDumpConfigChange($event)"
                         ></trace-config>
                         @if (!refresh) {
                           <div class="dump-btn">

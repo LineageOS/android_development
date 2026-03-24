@@ -461,14 +461,14 @@ export function makeDefaultDumpConfigMap(): TraceConfigurationMap {
  */
 export function updateConfigsFromStore(
   configMap: TraceConfigurationMap,
-  storage: Store,
+  store: Store,
   storeKeyPrefix: string,
 ) {
   for (const [key, target] of Object.entries(configMap)) {
     const stored = createPersistentStoreProxy(
       storeKeyPrefix + key,
       target.config,
-      storage,
+      store,
     );
     stored.checkboxConfigs = mergeConfigs(
       target.config.checkboxConfigs,

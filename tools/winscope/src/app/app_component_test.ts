@@ -118,7 +118,7 @@ class MockTimelineComponent {
   ],
 })
 class MockCollectTracesComponent {
-  storage = input.required<Store>();
+  store = input.required<Store>();
   setEmitEvent(_: EmitEvent) {}
   async onWinscopeEvent(_: WinscopeEvent) {}
 }
