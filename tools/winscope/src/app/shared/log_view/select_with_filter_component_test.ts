@@ -265,6 +265,43 @@ describe('SelectWithFilterComponent', () => {
     expect(selectChangeSpy).toHaveBeenCalledTimes(2);
   });
 
+  it('updates select value based on component input "value"', async () => {
+    dom.setComponentInput('value', ['0', '1']);
+    dom.detectChanges();
+    await checkSelectValue(['0', '1']);
+    expect(selectChangeSpy).toHaveBeenCalledTimes(1);
+
+    dom.setComponentInput('value', ['0']);
+    dom.detectChanges();
+    await checkSelectValue(['0']);
+    expect(selectChangeSpy).toHaveBeenCalledTimes(2);
+
+    getOptions()[2].click();
+    await checkSelectValue(['0', '2']);
+    expect(selectChangeSpy).toHaveBeenCalledTimes(3);
+
+    dom.setComponentInput('value', ['1']);
+    dom.detectChanges();
+    await checkSelectValue(['1']);
+    expect(selectChangeSpy).toHaveBeenCalledTimes(4);
+  });
+
+  it('disables select if multiple options not present', () => {
+    checkSelectDisabled(false);
+
+    dom.setComponentInput('options', ['0']);
+    dom.detectChanges();
+    checkSelectDisabled(true);
+
+    dom.setComponentInput('options', []);
+    dom.detectChanges();
+    checkSelectDisabled(true);
+
+    dom.setComponentInput('options', ['0', '1']);
+    dom.detectChanges();
+    checkSelectDisabled(false);
+  });
+
   function getOptions(): Array<DOMTestHelper<SelectWithFilterComponent>> {
     return Array.from(dom.getMatSelectPanel().findAll('.option'));
   }
@@ -334,5 +371,10 @@ describe('SelectWithFilterComponent', () => {
 
     toggle();
     await checkSelectValue(['0', '1', '2']);
+  }
+
+  function checkSelectDisabled(isDisabled: boolean) {
+    expect(component.select().disabled).toBe(isDisabled);
+    expect(component.disabled()).toBe(isDisabled);
   }
 });

@@ -44,6 +44,7 @@ export interface ColumnSpec {
   cssClass: string;
   columnType?: number;
   canCopy?: boolean;
+  canFilterBySingleOption?: boolean;
 }
 
 export class LogHeader {
@@ -75,6 +76,10 @@ export class LogField {
       return this.value.format(timeOnly);
     }
     return this.value.toString();
+  }
+
+  getFilterValueMatch(): string {
+    return this.format();
   }
 }
 

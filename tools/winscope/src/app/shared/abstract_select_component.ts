@@ -90,12 +90,12 @@ export abstract class AbstractSelectComponent<
     return true;
   }
 
-  protected addValuesToSelect(select: MatSelect, opts: string[]) {
+  private addValuesToSelect(select: MatSelect, opts: string[]) {
     const newValues = new Set((select.value ?? []).concat(opts));
     select.value = Array.from(newValues);
   }
 
-  protected removeValuesFromSelect(select: MatSelect, opts: string[]) {
+  private removeValuesFromSelect(select: MatSelect, opts: string[]) {
     select.value = select.value.filter((o: string) => !opts.includes(o));
   }
 
