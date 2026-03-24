@@ -184,7 +184,7 @@ limitations under the License.
           disableOptionCentering
           (selectionChange)="onDisplaySelectChange($event)"
           [value]="currentDisplays"
-          [disabled]="allDisplays.length === 1"
+          [disabled]="allDisplays.length <= 1"
           panelWidth="340px"
           multiple
         >

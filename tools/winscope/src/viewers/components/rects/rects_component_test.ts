@@ -56,6 +56,24 @@ describe('RectsComponent', () => {
   const rectGroup0 = makeRectWithGroupId(0);
   const rectGroup1 = makeRectWithGroupId(1);
   const rectGroup2 = makeRectWithGroupId(2);
+  const displayGroup0 = {
+    displayId: 0,
+    groupId: 0,
+    name: 'Display 0',
+    isActive: false,
+  };
+  const displayGroup1 = {
+    displayId: 1,
+    groupId: 1,
+    name: 'Display 1',
+    isActive: false,
+  };
+  const displayGroup2 = {
+    displayId: 2,
+    groupId: 2,
+    name: 'Display 2',
+    isActive: false,
+  };
   const zoomInSelector = '.zoom-in-button';
   const largeRectsCanvasSelector = '.large-rects-canvas';
   const testTitle = 'TestRectsView';
@@ -149,15 +167,14 @@ describe('RectsComponent', () => {
     resetSpies();
 
     checkAllSpiesCalled(0);
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
-    checkAllSpiesCalled(1);
+    setRectAndDisplayGroup0();
+    checkAllSpiesCalled(2); // once for rect/display update, once for store update
     const newBoundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     expect(newBoundingBox).not.toEqual(boundingBox);
 
     dom.setComponentInput('rects', [rectGroup0]);
     dom.detectChanges();
-    checkAllSpiesCalled(2);
+    checkAllSpiesCalled(3);
     expect(updateViewPositionSpy.calls.mostRecent().args[1]).toEqual(
       newBoundingBox,
     );
@@ -203,19 +220,25 @@ describe('RectsComponent', () => {
   it('renders display selector', async () => {
     dom.setComponentInput('rects', [rectGroup0]);
     dom.setComponentInput('displays', [
-      {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
-      {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
-      {displayId: 2, groupId: 2, name: 'Display 2', isActive: false},
+      displayGroup0,
+      displayGroup1,
+      displayGroup2,
     ]);
     await checkSelectedDisplay([0], [0]);
+  });
+
+  it('disables display selector if multiple options not present', async () => {
+    setRectAndDisplayGroup0();
+    await dom.openMatSelect();
+    expect(dom.isMatSelectOpen()).toBeFalse();
   });
 
   it('handles display change by checkbox', async () => {
     dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
     dom.setComponentInput('displays', [
-      {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
-      {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
-      {displayId: 2, groupId: 2, name: 'Display 2', isActive: false},
+      displayGroup0,
+      displayGroup1,
+      displayGroup2,
     ]);
     await checkSelectedDisplay([0], [0]);
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
@@ -240,9 +263,9 @@ describe('RectsComponent', () => {
   it('handles display change by "only" button', async () => {
     dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
     dom.setComponentInput('displays', [
-      {displayId: 0, groupId: 0, name: 'Display 0', isActive: false},
-      {displayId: 1, groupId: 1, name: 'Display 1', isActive: false},
-      {displayId: 2, groupId: 2, name: 'Display 2', isActive: false},
+      displayGroup0,
+      displayGroup1,
+      displayGroup2,
     ]);
     await checkSelectedDisplay([0], [0]);
 
@@ -281,6 +304,7 @@ describe('RectsComponent', () => {
 
   it('updates scene on separation slider change', () => {
     dom.setComponentInput('rects', [rectGroup0, rectGroup0]);
+    dom.setComponentInput('displays', [displayGroup0]);
     dom.detectChanges();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     const rectsBefore = assertDefined(updateRectsSpy.calls.first().args[0]);
@@ -298,8 +322,7 @@ describe('RectsComponent', () => {
   });
 
   it('updates scene on rotation slider change', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     const cameraBefore = assertDefined(
       updateViewPositionSpy.calls.first().args[0],
@@ -327,8 +350,7 @@ describe('RectsComponent', () => {
   });
 
   it('updates scene on shading mode change', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
 
     const rectsGradient = updateRectsSpy.calls.argsFor(0)[0];
     expect(rectsGradient[0].colorType).toEqual(ColorType.VISIBLE);
@@ -370,26 +392,43 @@ describe('RectsComponent', () => {
   });
 
   it('uses stored selected displays if present in new trace', async () => {
+    const displayId10 = {
+      displayId: 10,
+      groupId: 0,
+      name: 'Display 0',
+      isActive: true,
+    };
+    const displayId20 = {
+      displayId: 20,
+      groupId: 1,
+      name: 'Display 1',
+      isActive: true,
+    };
+
     dom.setComponentInput('rects', [rectGroup0, rectGroup1]);
-    dom.setComponentInput('displays', [
-      {displayId: 10, groupId: 0, name: 'Display 0', isActive: true},
-      {displayId: 20, groupId: 1, name: 'Display 1', isActive: true},
-    ]);
+    dom.setComponentInput('displays', [displayId10, displayId20]);
     await checkSelectedDisplay([0], [0]);
 
-    dom.openMatSelect();
+    await dom.openMatSelect();
     const options = getDisplayOptions();
     options[1].click();
     await checkSelectedDisplay([0, 1], [0, 1]);
 
+    // selects both display 0 and display 1 from store
     resetDom(component.rects(), component.displays());
     await checkSelectedDisplay([0, 1], [0, 1], false);
 
-    resetDom(
-      [rectGroup1],
-      [{displayId: 20, groupId: 1, name: 'Display 1', isActive: true}],
-    );
+    // only display 1 was received so only display 1 is selected from store
+    resetDom([rectGroup1], [displayId20]);
     await checkSelectedDisplay([1], [1], false);
+
+    // store ignored as no displays received
+    resetDom([rectGroup0, rectGroup1], []);
+    await checkSelectedDisplay([], []);
+
+    // selects both display 0 and display 1 from store
+    dom.setComponentInput('displays', [displayId10, displayId20]);
+    await checkSelectedDisplay([0], [0], false);
   });
 
   it('defaults initial selection to first active display with rects', async () => {
@@ -420,8 +459,6 @@ describe('RectsComponent', () => {
   });
 
   it('handles change from zero to one display and back to zero', async () => {
-    dom.setComponentInput('displays', []);
-    dom.setComponentInput('rects', []);
     await checkSelectedDisplay([], []);
     const placeholder = dom.get('.placeholder-text');
     placeholder.checkTextExact('No rects found.');
@@ -430,7 +467,7 @@ describe('RectsComponent', () => {
     dom.setComponentInput('displays', [
       {displayId: 10, groupId: 0, name: 'Display 0', isActive: false},
     ]);
-    await checkSelectedDisplay([0], [0], true);
+    await checkSelectedDisplay([0], [0]);
 
     dom.setComponentInput('displays', []);
     dom.setComponentInput('rects', []);
@@ -525,8 +562,7 @@ describe('RectsComponent', () => {
   });
 
   it('updates scene on pinned items change', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     resetSpies();
 
     dom.setComponentInput('pinnedItems', [
@@ -543,8 +579,7 @@ describe('RectsComponent', () => {
   });
 
   it('emits rect id on rect click', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
 
     const testString = 'test_id';
     const highlightedIdSpy = spyOn(component.highlightedIdChange, 'emit');
@@ -560,8 +595,7 @@ describe('RectsComponent', () => {
   });
 
   it('pans view without emitting rect id', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     const cameraBefore = updateViewPositionSpy.calls.mostRecent().args[0];
     expect(cameraBefore.panScreenDistance.dx).toBe(0);
     expect(cameraBefore.panScreenDistance.dy).toBe(0);
@@ -592,8 +626,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles window resize', async () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     resetSpies();
 
@@ -610,9 +643,8 @@ describe('RectsComponent', () => {
   });
 
   it('handles change in dark mode', async () => {
-    dom.setComponentInput('rects', [rectGroup0]);
     dom.setComponentInput('miniRects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     resetSpies();
 
     dom.setComponentInput('isDarkMode', true);
@@ -624,8 +656,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles zoom button clicks', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     const boundingBox = updateViewPositionSpy.calls.mostRecent().args[1];
     const zoomFactor =
       updateViewPositionSpy.calls.mostRecent().args[0].zoomFactor;
@@ -648,8 +679,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles zoom change via scroll event', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     const zoomFactor =
       updateViewPositionSpy.calls.mostRecent().args[0].zoomFactor;
     resetSpies();
@@ -680,8 +710,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles reset button click', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     const [camera, boundingBox] = updateViewPositionSpy.calls.mostRecent().args;
 
     updateRotationSlider();
@@ -699,8 +728,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles change in highlighted item', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     expect(updateRectsSpy.calls.mostRecent().args[0][0].colorType).toEqual(
       ColorType.VISIBLE,
     );
@@ -719,8 +747,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles rect double click', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     resetSpies();
 
     const testString = 'test_id';
@@ -739,8 +766,7 @@ describe('RectsComponent', () => {
   });
 
   it('handles mini rect double click', () => {
-    dom.setComponentInput('rects', [rectGroup0]);
-    dom.detectChanges();
+    setRectAndDisplayGroup0();
     resetSpies();
 
     const miniRectsDblClickSpy = spyOn(component.miniRectsDblClick, 'emit');
@@ -754,6 +780,7 @@ describe('RectsComponent', () => {
       'rects',
       Array.from({length: 30}, () => rectGroup0),
     );
+    dom.setComponentInput('displays', [displayGroup0]);
     dom.detectChanges();
     expect(updateLabelsSpy.calls.mostRecent().args[0].length).toBe(30);
 
@@ -931,6 +958,12 @@ describe('RectsComponent', () => {
       updateLabelsSpy,
       renderViewSpy,
     ].forEach((spy) => spy.calls.reset());
+  }
+
+  function setRectAndDisplayGroup0() {
+    dom.setComponentInput('rects', [rectGroup0]);
+    dom.setComponentInput('displays', [displayGroup0]);
+    dom.detectChanges();
   }
 
   async function checkSelectedDisplay(

@@ -147,6 +147,14 @@ export class RectsComponent implements OnInit, OnDestroy {
       ),
     );
 
+    const initialStoreKeysEffect = effect(() => {
+      const title = this.title();
+      this.storeKeySelectedDisplays = `rectsView.${title}.selectedDisplayId`;
+      this.storeKeyZSpacingFactor = `rectsView.${title}.zSpacingFactor`;
+      this.storeKeyShadingMode = `rectsView.${title}.shadingMode`;
+      initialStoreKeysEffect.destroy();
+    });
+
     effect(() => {
       const rects = this.rects();
       const rectsChanged = this.internalRects !== rects;
@@ -159,7 +167,8 @@ export class RectsComponent implements OnInit, OnDestroy {
 
       const displays = this.displays();
       const displaysChanged =
-        (this.internalDisplays?.length ?? 0) !== displays.length ||
+        !this.internalDisplays ||
+        this.internalDisplays.length !== displays.length ||
         (displays.length > 0 &&
           !displays.every(
             (d, index) =>
@@ -214,15 +223,29 @@ export class RectsComponent implements OnInit, OnDestroy {
       allowedShadingModesEffect.destroy();
     });
 
-    const initialStoreUpdateEffect = effect(() => {
+    const initialDrawingParamsFromStoreEffect = effect(() => {
       const store = this.store();
       if (store) {
-        const redraw = this.updateControlsFromStore(store);
+        const redraw = this.updateDrawingParamsFromStore(store);
         if (redraw) {
           this.redrawLargeRectsAndLabels(true);
         }
       }
-      initialStoreUpdateEffect.destroy();
+      initialDrawingParamsFromStoreEffect.destroy();
+    });
+
+    const initialDisplaysFromStoreEffect = effect(() => {
+      if (this.displays().length === 0) {
+        return;
+      }
+      const store = this.store();
+      if (store) {
+        const redraw = this.updateDisplaysFromStore(store);
+        if (redraw) {
+          this.redrawLargeRectsAndLabels(true);
+        }
+      }
+      initialDisplaysFromStoreEffect.destroy();
     });
   }
 
@@ -309,11 +332,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     return;
   }
 
-  private updateControlsFromStore(store: Store): boolean {
-    this.storeKeyZSpacingFactor = `rectsView.${this.title()}.zSpacingFactor`;
-    this.storeKeyShadingMode = `rectsView.${this.title()}.shadingMode`;
-    this.storeKeySelectedDisplays = `rectsView.${this.title()}.selectedDisplayId`;
-
+  private updateDrawingParamsFromStore(store: Store): boolean {
     let redraw = false;
 
     const storedZSpacingFactor = store.get(this.storeKeyZSpacingFactor);
@@ -331,6 +350,10 @@ export class RectsComponent implements OnInit, OnDestroy {
       redraw = true;
     }
 
+    return redraw;
+  }
+
+  private updateDisplaysFromStore(store: Store): boolean {
     const storedSelectedDisplays = store.get(this.storeKeySelectedDisplays);
     if (storedSelectedDisplays !== undefined) {
       const storedIds: Array<number | string> = JSON.parse(
@@ -342,14 +365,11 @@ export class RectsComponent implements OnInit, OnDestroy {
         },
       );
       if (displays.length > 0) {
-        this.currentDisplays = displays;
-        this.largeRectsMapper3d.setCurrentGroupIds(
-          displays.map((d) => d.groupId),
-        );
-        redraw = true;
+        this.updateCurrentDisplays(displays, false);
+        return true;
       }
     }
-    return redraw;
+    return false;
   }
 
   onSeparationSliderChange(factor: number) {
@@ -526,7 +546,8 @@ export class RectsComponent implements OnInit, OnDestroy {
       );
     }
     this.currentDisplays = displays;
-    this.largeRectsMapper3d.setCurrentGroupIds(displays.map((d) => d.groupId));
+    const groupIds = displays.map((d) => d.groupId);
+    this.largeRectsMapper3d.setCurrentGroupIds(groupIds);
   }
 
   private findClickedRectId(event: MouseEvent): string | undefined {
