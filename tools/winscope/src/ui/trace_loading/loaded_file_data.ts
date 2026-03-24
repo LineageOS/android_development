@@ -34,6 +34,7 @@ import {ParserInput} from '@parsers/input/parser_input';
 import {ParserSearch} from '@parsers/search/parser_search';
 import {UserNotifier} from '@services/user_notifier';
 import {FileReader} from '@trace_api/file_reader';
+import {FilesSource} from '@trace_api/files_source';
 import {FrameMapper} from '@trace_api/frame_mapper';
 import {Parser} from '@trace_api/parser';
 import {Trace} from '@trace_api/trace';
@@ -45,7 +46,6 @@ import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
 import {FileLoader, FileLoaderResult} from './file_loader';
-import {FilesSource} from './files_source';
 import {LoadedFiles} from './loaded_files';
 import {ParsingErrorType} from './parsing_error_type';
 import {makeWarningIncompleteFrameMapping} from './warnings';

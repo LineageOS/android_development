@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {globalConfig} from '@common/global_config';
 import {getRootUrl} from '@common/window';
+import {globalConfig} from '@compat/global_config';
 import {initWasm} from '@trace_processor/perfetto/wasm_engine_proxy';
 
 import {TraceProcessor, TraceProcessorProxy} from './trace_processor';

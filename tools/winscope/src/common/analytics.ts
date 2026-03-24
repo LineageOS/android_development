@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {globalConfig} from './global_config';
+import {globalConfig} from '@compat/global_config';
 
 /**
  * Logs an analytics event.

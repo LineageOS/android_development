@@ -16,9 +16,9 @@
 
 import {analyticsLogEvent} from '@common/analytics';
 import {CoarseVersion} from '@trace_api/coarse_version';
+import {FilesSource} from '@trace_api/files_source';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
-import {FilesSource} from '@ui/trace_loading/files_source';
 
 const BUGANIZER_OPENED = 'buganizer_opened';
 const CROSS_TOOL_SYNC = 'cross_tool_sync';

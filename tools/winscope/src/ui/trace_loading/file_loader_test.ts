@@ -23,13 +23,13 @@ import {UserWarning} from '@messaging/user_warning';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {UserNotifierChecker} from '@services/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
+import {FilesSource} from '@trace_api/files_source';
 import {TraceType} from '@trace_api/trace_type';
 import {makeSpyQueryResult, makeSpyRowIterator,} from '@trace_processor/test_utils';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 import {BugreportFileSelected} from '@ui/shared/events/misc_events';
 
 import {FileLoader, FileLoaderResult} from './file_loader';
-import {FilesSource} from './files_source';
 import {ParsingErrorType} from './parsing_error_type';
 import {TraceFileIdentifier} from './trace_file_identifier';
 import {makeWarningCorruptedArchive, makeWarningNoValidFiles, makeWarningTraceProcessorError, makeWarningUnsupportedFileFormat,} from './warnings';

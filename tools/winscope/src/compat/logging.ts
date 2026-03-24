@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {globalConfig} from '@common/global_config';
+import {globalConfig} from '@compat/global_config';
 import {LogLevel} from 'typescript-logging';
 import {Logger as Log, Log4TSProvider} from 'typescript-logging-log4ts-style';
 

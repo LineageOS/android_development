@@ -59,6 +59,7 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {UserNotifier} from '@services/user_notifier';
+import {FilesSource} from '@trace_api/files_source';
 import {TracePositionUpdate, TraceSearchRequest} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
@@ -68,7 +69,6 @@ import {BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest,}
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
 import {Viewer, ViewType} from '@ui/shared/viewer';
 import {TimelineData} from '@ui/timeline/timeline_data';
-import {FilesSource} from '@ui/trace_loading/files_source';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {ParsingErrorType} from '@ui/trace_loading/parsing_error_type';
 import {makeWarningFailedToInitializeTimelineData, makeWarningNoValidFiles,} from '@ui/trace_loading/warnings';
