@@ -1,0 +1,30 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "AppJankTest",
+    srcs: [
+        "app/src/main/java/**/*.kt",
+    ],
+    resource_dirs: [
+        "app/src/main/res",
+    ],
+    manifest: "app/src/main/AndroidManifest.xml",
+    static_libs: [
+        "androidx.core_core-ktx",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.activity_activity-compose",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.foundation_foundation-layout",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.compose.ui_ui-graphics",
+        "androidx.compose.ui_ui-tooling-preview",
+        "androidx.compose.material3_material3",
+        "androidx.appcompat_appcompat",
+        "com.google.android.material_material",
+        "androidx.recyclerview_recyclerview",
+    ],
+    sdk_version: "current",
+}
