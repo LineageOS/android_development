@@ -40,8 +40,8 @@ import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_hierarchy_tre
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {makeUiPropertyNode} from '@ui/shared/properties/testing/ui_property_tree_node_test_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TextFilter} from '@ui/shared/text_filter';
-import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 export abstract class AbstractHierarchyViewerComponentTest<
   U extends UiDataHierarchy,

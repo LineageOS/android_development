@@ -40,9 +40,9 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TextFilter} from '@ui/shared/text_filter';
 import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
-import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {RectShowStateChangeDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {HierarchyComponent} from './hierarchy_component';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';

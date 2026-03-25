@@ -24,7 +24,7 @@ import {Trace} from '@trace_api/trace';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 
 import {AngularViewer, ViewerComponent} from './angular_viewer';
 

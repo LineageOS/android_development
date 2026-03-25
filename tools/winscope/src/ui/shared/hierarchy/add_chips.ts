@@ -17,8 +17,8 @@
 import {assertNumberOrUndefined} from '@common/assert';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
 import {Operation} from '@tree_node/operation';
-import {DUPLICATE_CHIP, GPU_CHIP, HIDDEN_BY_POLICY_CHIP, HWC_CHIP, MISSING_Z_PARENT_CHIP, RELATIVE_Z_CHIP, RELATIVE_Z_PARENT_CHIP, VISIBLE_CHIP,} from '@ui/shared/chip';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
+import {DUPLICATE_CHIP, GPU_CHIP, HIDDEN_BY_POLICY_CHIP, HWC_CHIP, MISSING_Z_PARENT_CHIP, RELATIVE_Z_CHIP, RELATIVE_Z_PARENT_CHIP, VISIBLE_CHIP,} from '@ui/shared/user_input/chip';
 
 import {isVisible} from './ui_hierarchy_tree_node_helpers';
 

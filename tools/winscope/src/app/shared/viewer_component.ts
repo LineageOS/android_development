@@ -19,9 +19,9 @@ import {PersistentStore} from '@common/store/persistent_store';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
-import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
+import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 @Directive()
 export class ViewerComponent<T> {

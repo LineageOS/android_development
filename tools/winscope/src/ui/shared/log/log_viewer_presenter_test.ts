@@ -34,9 +34,9 @@ import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {DarkModeToggled} from '@ui/shared/events/misc_events';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {UiDataLog} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 describe('AbstractLogViewerPresenter', () => {
   let uiData: UiDataLog;

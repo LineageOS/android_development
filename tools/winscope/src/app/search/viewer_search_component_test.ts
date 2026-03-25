@@ -42,7 +42,7 @@ import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {CurrentSearch, ListedSearch, SearchResult, UiData,} from '@ui/search/ui_data';
 import {LogEntry, LogField, LogHeader} from '@ui/shared/log/ui_data_log';
-import {SaveQueryClickDetail, SearchQueryClickDetail,} from '@ui/shared/viewer_event_details';
+import {SaveQueryClickDetail, SearchQueryClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 import {makeWarningExportTooLarge, makeWarningFailedToExportToCsv, makeWarningNoResultsToExport,} from '@ui/trace_loading/warnings';
 
 import {ActiveSearchComponent} from './active_search_component';

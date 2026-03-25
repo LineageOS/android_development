@@ -35,14 +35,14 @@ import {getRootUrl} from '@common/window';
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {Canvas} from '@ui/shared/rects/canvas';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {Mapper3D} from '@ui/shared/rects/mapper3d';
 import {RectSpec, TraceRectType} from '@ui/shared/rects/rect_spec';
 import {ShadingMode} from '@ui/shared/rects/shading_mode';
 import {UiRect} from '@ui/shared/rects/ui_rect';
-import {UserOptions} from '@ui/shared/user_options';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 @Component({
   selector: 'rects-view',

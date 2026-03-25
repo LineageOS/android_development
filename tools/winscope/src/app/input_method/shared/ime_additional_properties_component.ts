@@ -23,7 +23,7 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
 import {ImeAdditionalProperties} from '@ui/input_method/ime_additional_properties';
 import {ImeContainerProperties, InputMethodSurfaceProperties,} from '@ui/input_method/ime_utils';
-import {AdditionalPropertySelectedDetail} from '@ui/shared/viewer_event_details';
+import {AdditionalPropertySelectedDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {CoordinatesTableComponent} from './coordinates_table_component';
 

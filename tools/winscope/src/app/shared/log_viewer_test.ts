@@ -30,8 +30,8 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogHeader} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 describe('AbstractLogViewer', () => {
   const testHeader = new LogHeader(

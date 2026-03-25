@@ -36,7 +36,7 @@ import {Trace} from '@trace_api/trace';
 import {compareByDisplayOrder, TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 
 export class ViewerFactory {
   static readonly SINGLE_TRACE_VIEWERS = [

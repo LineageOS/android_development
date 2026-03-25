@@ -23,9 +23,9 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
-import {TextFilter} from '@ui/shared/text_filter';
 import {DiffType} from '@ui/shared/tree/diff_type';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {HierarchyPresenter} from './hierarchy_presenter';
 import {SimplifyNames} from './simplify_names';

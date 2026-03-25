@@ -17,7 +17,7 @@
 import {assertTrue} from '@common/assert';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {Trace} from '@trace_api/trace';
-import {Viewer, ViewType} from '@ui/shared/viewer';
+import {Viewer, ViewType} from '@ui/shared/viewers/viewer';
 
 export class TabbedViewSwitched implements WinscopeEvent {
   constructor(

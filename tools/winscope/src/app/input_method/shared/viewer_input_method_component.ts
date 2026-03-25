@@ -24,7 +24,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {ImeUiData} from '@ui/input_method/ime_ui_data';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {CollapsibleSections} from '@ui/shared/collapsible_sections/collapsible_sections';
-import {AdditionalPropertySelectedDetail} from '@ui/shared/viewer_event_details';
+import {AdditionalPropertySelectedDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {ImeAdditionalPropertiesComponent} from './ime_additional_properties_component';
 

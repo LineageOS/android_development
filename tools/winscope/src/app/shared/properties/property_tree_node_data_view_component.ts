@@ -21,7 +21,7 @@ import {Timestamp} from '@common/time/time';
 import {FLAG_SEPARATOR} from '@trace/formatters';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {DiffType} from '@ui/shared/tree/diff_type';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 @Component({
   selector: 'property-tree-node-data-view',

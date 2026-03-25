@@ -15,7 +15,7 @@
  */
 
 import {ComponentRef, ElementRef, Type} from '@angular/core';
-import {Viewer} from '@ui/shared/viewer';
+import {Viewer} from '@ui/shared/viewers/viewer';
 
 export interface ViewerComponent {
   elementRef: ElementRef<HTMLElement>;

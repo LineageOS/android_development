@@ -19,8 +19,7 @@ import {TraceEntry} from '@trace_api/trace';
 import {TreeNode} from '@tree_node/tree_node';
 import {LogHeader} from '@ui/shared/log/ui_data_log';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-
-import {TextFilter} from './text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 export class TimestampClickDetail {
   constructor(

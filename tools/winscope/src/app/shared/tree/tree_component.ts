@@ -23,7 +23,7 @@ import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 import {isHighlighted} from '@ui/shared/tree/ui_tree_node_helpers';
-import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
+import {RectShowStateChangeDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {TreeNodeComponent} from './tree_node_component';
 import {TreeNodeHeightPredictor} from './tree_node_height_predictor';

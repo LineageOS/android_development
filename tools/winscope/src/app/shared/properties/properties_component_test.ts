@@ -40,9 +40,9 @@ import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 import {makeUiPropertyNode} from '@ui/shared/properties/testing/ui_property_tree_node_test_helpers';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
 import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {PropertiesComponent} from './properties_component';
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';

@@ -18,9 +18,9 @@ import {Timestamp} from '@common/time/time';
 import {TraceEntry} from '@trace_api/trace';
 import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
 import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {LogFilter} from './log_filters';
 

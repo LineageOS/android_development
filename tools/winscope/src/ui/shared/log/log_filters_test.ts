@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 

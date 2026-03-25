@@ -22,7 +22,7 @@ import {DEFAULT_PROPERTY_FORMATTER, FixedStringFormatter, HEX_FORMATTER, TIMESTA
 import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {DiffType} from '@ui/shared/tree/diff_type';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 

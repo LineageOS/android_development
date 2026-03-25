@@ -50,8 +50,8 @@ import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
 import {ColumnSpec, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
-import {LogFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {LogFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 type LogViewerComponent =
   | ViewerProtologComponent

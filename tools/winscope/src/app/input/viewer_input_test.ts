@@ -24,7 +24,7 @@ import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {Presenter} from '@ui/input/presenter';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {ViewerInput} from './viewer_input';
 import {ViewerInputComponent} from './viewer_input_component';

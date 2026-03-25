@@ -28,7 +28,7 @@ import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {ColumnSpec, LogField, LogHeader} from '@ui/shared/log/ui_data_log';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 import {UpdateTransitionChanges} from '@ui/transitions/operations/update_transition_changes';
 import {UpdateTransitionParticipants} from '@ui/transitions/operations/update_transition_participants';
 

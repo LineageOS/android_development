@@ -20,7 +20,7 @@ import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
 import {LogEntry, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
-import {UserOptions} from '@ui/shared/user_options';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 export class UiData implements UiDataLog {
   constructor(

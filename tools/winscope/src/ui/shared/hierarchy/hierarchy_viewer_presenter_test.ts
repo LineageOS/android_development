@@ -34,9 +34,9 @@ import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {UiRectBuilder} from '@ui/shared/rects/ui_rect_builder';
-import {TextFilter} from '@ui/shared/text_filter';
 import {DiffType} from '@ui/shared/tree/diff_type';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 describe('AbstractHierarchyViewerPresenter', () => {
   const timestamp2 = makeElapsedTimestamp(2n);

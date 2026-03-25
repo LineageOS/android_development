@@ -22,12 +22,12 @@ import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
 import {IsModifiedCallbackType} from '@ui/shared/tree/add_diffs';
 import {Filter} from '@ui/shared/tree/filter';
 import {UiTreeFormatter} from '@ui/shared/tree/ui_tree_formatter';
 import {TreeNodeFilter} from '@ui/shared/tree/ui_tree_node_helpers';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';
 import {UiPropertyTreeNode} from './ui_property_tree_node';

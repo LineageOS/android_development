@@ -35,8 +35,8 @@ import {Timestamp} from '@common/time/time';
 import {Timer} from '@common/time/timer';
 import {LogFilter, LogSelectFilter, LogTextFilter,} from '@ui/shared/log/log_filters';
 import {ClickableProperty, LogEntry, LogField, LogFieldValue, LogHeader,} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 import {SelectWithFilterComponent} from './select_with_filter_component';
 

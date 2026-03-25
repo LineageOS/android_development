@@ -27,10 +27,10 @@ import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {CuratedProperties} from '@ui/shared/properties/curated_properties';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
 import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
-import {UserOptions} from '@ui/shared/user_options';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 import {PropertyNodeHeightPredictor} from './property_tree_node_height_predictor';

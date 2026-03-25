@@ -25,11 +25,11 @@ import {Operation} from '@tree_node/operation';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
 import {IsModifiedCallbackType} from '@ui/shared/tree/add_diffs';
 import {Filter} from '@ui/shared/tree/filter';
 import {UiTreeFormatter} from '@ui/shared/tree/ui_tree_formatter';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 import {SimplifyNamesVc} from '@ui/view_capture/operations/simplify_names';
 
 import {AddChips} from './add_chips';

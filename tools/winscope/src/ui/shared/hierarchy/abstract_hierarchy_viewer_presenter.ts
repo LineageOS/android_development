@@ -38,10 +38,10 @@ import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {RectsPresenter} from '@ui/shared/rects/rects_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
 import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
-import {UserOption, UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOption, UserOptions} from '@ui/shared/user_input/user_options';
 import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
 
 import {HierarchyPresenter, HierarchyTraceEntry, SelectedTree,} from './hierarchy_presenter';
