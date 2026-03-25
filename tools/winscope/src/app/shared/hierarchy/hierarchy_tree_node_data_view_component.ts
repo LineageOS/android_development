@@ -27,7 +27,7 @@ import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
   styleUrls: ['hierarchy_tree_node_data_view_component.scss'],
 })
 export class HierarchyTreeNodeDataViewComponent {
-  node = input.required<UiHierarchyTreeNode>();
+  readonly node = input.required<UiHierarchyTreeNode>();
 
   readonly nameTooltip = computed<string | undefined>(() => {
     const n = this.node();

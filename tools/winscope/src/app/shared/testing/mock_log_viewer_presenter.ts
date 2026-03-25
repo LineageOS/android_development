@@ -18,7 +18,6 @@ import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
 import {Trace} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@ui/shared/log/abstract_log_viewer_presenter';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
@@ -26,6 +25,7 @@ import {LogEntry, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {TextFilter} from '@ui/shared/text_filter';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UserOptions} from '@ui/shared/user_options';
 
 export class MockPresenter extends AbstractLogViewerPresenter<

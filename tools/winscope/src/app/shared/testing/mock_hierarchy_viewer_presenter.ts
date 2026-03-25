@@ -21,7 +21,6 @@ import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {DisplayIdentifier} from '@ui/shared/display_identifier';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {HierarchyPresenter} from '@ui/shared/hierarchy/hierarchy_presenter';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
@@ -31,6 +30,7 @@ import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {RectsPresenter} from '@ui/shared/rects/rects_presenter';
 import {UiRect} from '@ui/shared/rects/ui_rect';
 import {TextFilter} from '@ui/shared/text_filter';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UserOptions} from '@ui/shared/user_options';
 
 /**

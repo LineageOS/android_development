@@ -20,8 +20,9 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
-import {PropertiesTableComponent} from '@app/shared/properties/properties_table_component';
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
+import {TreeComponent} from '@app/shared/tree/tree_component';
+import {TreeNodeComponent} from '@app/shared/tree/tree_node_component';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
 import {isElementOverflowing} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
@@ -29,18 +30,18 @@ import {PersistentStore} from '@common/store/persistent_store';
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
+import {TableProperties} from '@ui/shared/hierarchy/table_properties';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {isHighlighted} from '@ui/shared/hierarchy/ui_tree_node_helpers';
-import {TableProperties} from '@ui/shared/properties/table_properties';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {TextFilter} from '@ui/shared/text_filter';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
+import {isHighlighted} from '@ui/shared/tree/ui_tree_node_helpers';
 import {UserOptions} from '@ui/shared/user_options';
 import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
 
-import {TreeComponent} from './tree_component';
-import {TreeNodeComponent} from './tree_node_component';
+import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
+import {PropertiesTableComponent} from './properties_table_component';
 
 @Component({
   selector: 'hierarchy-view',
@@ -56,7 +57,7 @@ import {TreeNodeComponent} from './tree_node_component';
     PropertiesTableComponent,
     TreeComponent,
     TreeNodeComponent,
-    TreeComponent,
+    HierarchyTreeNodeDataViewComponent,
   ],
   templateUrl: './hierarchy_component.ng.html',
   styleUrls: ['hierarchy_component.scss'],

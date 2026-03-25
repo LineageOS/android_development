@@ -44,4 +44,12 @@ export class ViewerWindowManager extends AbstractHierarchyViewer<
   ): Presenter {
     return new Presenter(trace, traces, store, notifyViewCallback);
   }
+
+  protected override addViewerSpecificListeners(
+    component: ViewerWindowManagerComponent,
+  ) {
+    component.onPropagatePropertyClick.subscribe((node) => {
+      this.presenter.onPropagatePropertyClick(node);
+    });
+  }
 }

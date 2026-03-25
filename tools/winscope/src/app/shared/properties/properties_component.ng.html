@@ -57,15 +57,22 @@ limitations under the License.
   </ng-container>
 }
 @if (showPropertiesTree()) {
+  <ng-template #dataView let-node="node">
+    <property-tree-node-data-view
+      [node]="node"
+      (timestampClick)="onTimestampClick($event)"
+      (propagatePropertyClick)="onPropagatePropertyClick($event)"
+    ></property-tree-node-data-view>
+  </ng-template>
+
   <tree-view
     class="tree"
     [nodeRows]="nodeRows()"
     [useStoredExpandedState]="!!store()"
     [itemsClickable]="true"
     [highlightedItem]="highlightedProperty()"
+    [dataView]="dataView"
     (highlightedChange)="onHighlightedPropertyChange($any($event))"
-    (timestampClick)="onTimestampClick($event)"
-    (propagatePropertyClick)="onPropagatePropertyClick($event)"
   ></tree-view>
 }
 @if (showPlaceholderText()) {

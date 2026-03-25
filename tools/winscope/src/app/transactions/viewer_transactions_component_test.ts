@@ -24,10 +24,10 @@ import {TransactionColumnType} from '@trace/transactions/transaction_column_type
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
-import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
 import {TransactionsEntry, UiData} from '@ui/transactions/ui_data';
 
 import {ViewerTransactionsComponent} from './viewer_transactions_component';

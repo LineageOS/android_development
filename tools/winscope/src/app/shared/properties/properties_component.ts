@@ -17,20 +17,22 @@ import {CommonModule} from '@angular/common';
 import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
-import {TreeComponent} from '@app/shared/hierarchy/tree_component';
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
+import {TreeComponent} from '@app/shared/tree/tree_component';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
 import {ViewCapturePropertyGroupsComponent} from '@app/view_capture/view_capture_property_groups_component';
 import {PersistentStore} from '@common/store/persistent_store';
 import {Analytics} from '@logging/analytics';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {CuratedProperties} from '@ui/shared/properties/curated_properties';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {TextFilter} from '@ui/shared/text_filter';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UserOptions} from '@ui/shared/user_options';
 import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+
+import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 
 @Component({
   selector: 'properties-view',
@@ -43,6 +45,7 @@ import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
     UserOptionsComponent,
     ViewCapturePropertyGroupsComponent,
     TreeComponent,
+    PropertyTreeNodeDataViewComponent,
   ],
   templateUrl: './properties_component.ng.html',
   styleUrls: ['properties_component.scss'],
