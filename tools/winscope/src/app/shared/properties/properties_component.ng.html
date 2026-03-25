@@ -47,17 +47,12 @@ limitations under the License.
 @if (showPlaceholderText()) {
   <span class="mat-body-1 placeholder-text"> {{ placeholderText() }} </span>
 }
-@if (showViewCaptureFormat()) {
-  <ng-container>
-    <view-capture-property-groups
-      class="property-groups"
-      [properties]="$any(curatedProperties())"
-    ></view-capture-property-groups>
-
-    @if (showPropertiesTree()) {
-      <mat-divider></mat-divider>
-    }
-  </ng-container>
+@let curatedView = curatedPropertiesView();
+@if (showCuratedView() && curatedView !== undefined) {
+  <ng-container
+    [ngTemplateOutlet]="curatedView"
+    [ngTemplateOutletContext]="{properties: curatedProperties()}"
+  ></ng-container>
 }
 @if (showPropertiesTree()) {
   <ng-template #dataView let-node="node">
@@ -76,6 +71,6 @@ limitations under the License.
     [itemsClickable]="true"
     [highlightedItem]="highlightedProperty()"
     [dataView]="dataView"
-    (highlightedChange)="onHighlightedPropertyChange($any($event))"
+    (highlightedChange)="onHighlightedPropertyChange($event)"
   ></tree-view>
 }

@@ -65,8 +65,8 @@ export class TreeComponent<T extends UiTreeNode> {
   // items with the "stable id" field needed to search values in the storage.
   useStoredExpandedState = input<boolean>(false);
 
-  readonly highlightedChange = output<UiTreeNode>();
-  readonly pinnedItemChange = output<UiTreeNode>();
+  readonly highlightedChange = output<T>();
+  readonly pinnedItemChange = output<T>();
   readonly rectShowStateChange = output<RectShowStateChangeDetail>();
 
   readonly virtualScrollViewport =
