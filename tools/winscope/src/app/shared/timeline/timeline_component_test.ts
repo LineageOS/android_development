@@ -58,8 +58,8 @@ import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based
 import {Thumbnail} from '@trace/media_based/thumbnail';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {BookmarksChanged} from '@ui/shared/events/misc_events';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/shared/playback/events';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
-import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
 

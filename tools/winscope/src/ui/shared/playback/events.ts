@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,30 @@
  */
 
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
+import {TraceType} from '@trace_api/trace_type';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
 
-export class PlaybackStateChangePropagate implements WinscopeEvent {
+export class PlaybackStateChangeRequest implements WinscopeEvent {
   constructor(
+    readonly traceType: TraceType,
     readonly state: PlaybackState,
-    readonly currentTraceIndex: number,
-    readonly traceGeometryData: TraceGeometryData,
+    readonly currentTraceIndex?: number,
+  ) {}
+}
+
+export class PlaybackStateChangeHandled implements WinscopeEvent {
+  constructor(
+    readonly stateToReflect: PlaybackState,
+    readonly traceType?: TraceType,
+  ) {
+    this.stateToReflect = stateToReflect;
+    this.traceType = traceType;
+  }
+}
+
+export class PlaybackSpeedChange implements WinscopeEvent {
+  constructor(
+    readonly traceType: TraceType,
+    readonly speedValue: number,
   ) {}
 }

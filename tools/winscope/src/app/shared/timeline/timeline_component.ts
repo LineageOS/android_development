@@ -53,8 +53,8 @@ import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {Thumbnail} from '@trace/media_based/thumbnail';
 import {BookmarksChanged, DarkModeToggled} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitched} from '@ui/shared/events/tabbed_view_events';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/shared/playback/events';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
-import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
 
