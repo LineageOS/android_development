@@ -22,7 +22,7 @@ import {TimeRange, Timestamp} from '@common/time/time';
 import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
 import {TracePosition} from '@trace_api/trace_position';
 
-import {Transformer} from './transformer';
+import {Transformer} from './drawer/transformer';
 
 /**
  * A component for displaying a slider to control the zoom level of the timeline.

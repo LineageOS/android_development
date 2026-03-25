@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {RenderedRange} from '@app/shared/timeline/mini-timeline/drawer/rendered_range';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {ComponentTimestampConverter} from '@common/time/timestamp_converter';
+
+import {RenderedRange} from './rendered_range';
 
 /**
  * A class for transforming timestamps to canvas coordinates and vice versa.

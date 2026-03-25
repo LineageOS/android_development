@@ -32,8 +32,8 @@ import {TracePosition} from '@trace_api/trace_position';
 import {compareByDisplayOrder} from '@trace_api/trace_type';
 import {TimelineData} from '@ui/timeline/timeline_data';
 
+import {Transformer} from './drawer/transformer';
 import {SliderComponent} from './slider_component';
-import {Transformer} from './transformer';
 
 /**
  * A component for displaying the mini timeline view.
