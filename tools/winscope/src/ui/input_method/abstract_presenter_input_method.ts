@@ -26,12 +26,12 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {VISIBLE_CHIP} from '@ui/shared/chip';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter';
 import {HierarchyPresenter, HierarchyTraceEntry,} from '@ui/shared/hierarchy/hierarchy_presenter';
+import {TableProperties} from '@ui/shared/hierarchy/table_properties';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {isHighlighted} from '@ui/shared/hierarchy/ui_tree_node_helpers';
-import {UpdateSfSubtreeDisplayNames} from '@ui/shared/operations/update_sf_subtree_display_names';
+import {UpdateSfSubtreeDisplayNames} from '@ui/shared/hierarchy/update_sf_subtree_display_names';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TableProperties} from '@ui/shared/properties/table_properties';
 import {TextFilter} from '@ui/shared/text_filter';
+import {isHighlighted} from '@ui/shared/tree/ui_tree_node_helpers';
 import {UserOptions} from '@ui/shared/user_options';
 import {AdditionalPropertySelectedDetail} from '@ui/shared/viewer_event_details';
 

@@ -19,9 +19,8 @@ import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TraceRect} from '@tree_node/trace_rect';
 import {Chip} from '@ui/shared/chip';
-import {DiffType} from '@ui/shared/diff_type';
-
-import {UiTreeNode} from './ui_tree_node';
+import {DiffType} from '@ui/shared/tree/diff_type';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 
 export class UiHierarchyTreeNode
   extends DataHierarchyTreeNode

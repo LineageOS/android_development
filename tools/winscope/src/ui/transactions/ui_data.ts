@@ -17,9 +17,9 @@
 import {TraceEntry} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {LogEntry, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UserOptions} from '@ui/shared/user_options';
 
 export class UiData implements UiDataLog {

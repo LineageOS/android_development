@@ -26,7 +26,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {makeNodeFilter} from '@tree_node/helpers';
 import {PropertySource} from '@tree_node/property_tree_node';
 import {Chip} from '@ui/shared/chip';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
 import {PlaybackPresenter} from '@ui/shared/playback/playback_presenter';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
 import {RectSpec} from '@ui/shared/rects/rect_spec';

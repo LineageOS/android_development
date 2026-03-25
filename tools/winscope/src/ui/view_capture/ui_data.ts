@@ -16,7 +16,6 @@
 
 import {TraceType} from '@trace_api/trace_type';
 import {DisplayIdentifier} from '@ui/shared/display_identifier';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {VcCuratedProperties} from '@ui/shared/properties/curated_properties';
@@ -25,6 +24,7 @@ import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {RectSpec} from '@ui/shared/rects/rect_spec';
 import {UiRect} from '@ui/shared/rects/ui_rect';
 import {TextFilter} from '@ui/shared/text_filter';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {UserOptions} from '@ui/shared/user_options';
 
 export class UiData implements UiDataHierarchy {
