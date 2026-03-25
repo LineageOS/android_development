@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {AbstractHierarchyViewerComponentTest} from '@app/shared/testing/abstract_hierarchy_viewer_component_test';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {UiData} from '@ui/window_manager/ui_data';
 
 import {ViewerWindowManagerComponent} from './viewer_window_manager_component';

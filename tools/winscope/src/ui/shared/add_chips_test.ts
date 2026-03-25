@@ -16,7 +16,7 @@
 
 import {assertDefined} from '@common/assert';
 import {LayerCompositionType} from '@trace/surface_flinger/layer_composition_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 
 import {AddChips} from './add_chips';

@@ -66,11 +66,11 @@ import {Registry} from '@trace/proto_utils/tampered_message_type';
 import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest,} from '@ui/shared/events/app_events';
 import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled,} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
-import {Viewer} from '@ui/shared/viewer';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {ParsingErrorType} from '@ui/trace_loading/parsing_error_type';
 
+import {AngularViewer} from './shared/angular_viewer';
 import {TraceViewComponent} from './trace_view_component';
 import {ViewersLoaded, ViewersUnloaded} from './viewers_events';
 
@@ -121,7 +121,7 @@ export class AppComponent implements WinscopeEventListener {
   collapsedTimelineHeight = 0;
   isEditingFilename = false;
   persistentStore = new PersistentStore();
-  viewers: Viewer[] = [];
+  viewers: AngularViewer[] = [];
   showShareOptionsContainer = false;
   canShareLocation = false;
   canShareBookmarks = false;

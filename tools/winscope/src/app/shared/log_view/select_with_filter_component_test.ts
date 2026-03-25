@@ -26,7 +26,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 
 import {SelectWithFilterComponent} from './select_with_filter_component';
 

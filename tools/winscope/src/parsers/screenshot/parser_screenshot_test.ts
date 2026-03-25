@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {getFixtureFile} from '@common/io_helpers';
-import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';

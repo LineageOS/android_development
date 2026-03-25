@@ -29,13 +29,13 @@ import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/vi
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
 import {assertDefined} from '@common/assert';
-import {checkTooltips, DOMTestHelper} from '@common/dom_test_helpers';
 import {FilterFlag} from '@common/filter_flag';
 import {PersistentStore} from '@common/store/persistent_store';
+import {checkTooltips, DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makeWarningDuplicateLayerIds, makeWarningMissingLayerIds,} from '@parsers/helpers/warnings';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';

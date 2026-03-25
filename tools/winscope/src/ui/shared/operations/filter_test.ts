@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {TreeNode} from '@tree_node/tree_node';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/ui_tree_node_utils';
 
 import {Filter} from './filter';
 

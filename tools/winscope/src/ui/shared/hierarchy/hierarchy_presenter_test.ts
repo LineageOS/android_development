@@ -15,15 +15,15 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeElapsedTimestamp} from '@common/time/test_helpers';
+import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
 import {SetFormatters} from '@parsers/operations/set_formatters';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertySource} from '@tree_node/property_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {DiffType} from '@ui/shared/diff_type';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/ui_tree_node_utils';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {TextFilter} from '@ui/shared/text_filter';
 import {UserOptions} from '@ui/shared/user_options';
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
 import {NonPerfettoParserProvider} from '@parsers/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';

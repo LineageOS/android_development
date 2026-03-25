@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
 import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@legacy_file_readers/fixture_utils';
+import {convertToPerfettoTrace, LegacyFileReaderProvider, parseAndConvertToPerfettoTrace,} from '@legacy_file_readers/testing/fixture_utils';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {UserNotifierChecker} from '@services/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';

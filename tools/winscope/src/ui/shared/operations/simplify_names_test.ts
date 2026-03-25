@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {makeUiHierarchyNode} from '@ui/shared/hierarchy/ui_tree_node_utils';
 
 import {SimplifyNames} from './simplify_names';
 

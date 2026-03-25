@@ -47,27 +47,27 @@ import {WdpSetupComponent} from '@app/trace_collection/wdp_setup_component';
 import {WinscopeProxySetupComponent} from '@app/trace_collection/winscope_proxy_setup_component';
 import {UploadTracesComponent} from '@app/trace_loading/upload_traces_component';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
 import {waitToBeCalled} from '@common/spy_utils';
 import {Store} from '@common/store/store';
-import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeConverterZeroRteOffsets, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {RequestData} from '@cross_tool/g3_proxy';
-import {TestFileReaderAndParserBuilder} from '@legacy_file_readers/test_file_reader_and_parser_builder';
-import {TestFileReaderBuilder} from '@legacy_file_readers/test_file_reader_builder';
+import {TestFileReaderAndParserBuilder} from '@legacy_file_readers/testing/test_file_reader_and_parser_builder';
+import {TestFileReaderBuilder} from '@legacy_file_readers/testing/test_file_reader_builder';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {UserNotifier} from '@services/user_notifier';
 import {FilesSource} from '@trace_api/files_source';
+import {TracesBuilder} from '@trace_api/testing/traces_builder';
 import {TracePositionUpdate, TraceSearchRequest} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracesBuilder} from '@trace_api/traces_builder';
 import {AppRefreshDumpsRequest, AppResetRequest,} from '@ui/shared/events/app_events';
 import {BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest,} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
-import {Viewer, ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewer';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {ParsingErrorType} from '@ui/trace_loading/parsing_error_type';
@@ -1140,7 +1140,7 @@ describe('AppComponent', () => {
     dom.detectChanges();
   }
 
-  async function sendOnViewersLoadedEvent(viewers: Viewer[] = []) {
+  async function sendOnViewersLoadedEvent(viewers: AngularViewer[] = []) {
     await buildTraces();
     await component.onWinscopeEvent(new ViewersLoaded(viewers));
   }

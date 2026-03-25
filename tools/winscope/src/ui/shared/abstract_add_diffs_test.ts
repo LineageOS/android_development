@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/ui_tree_node_utils';
 
 import {AddDiffs} from './add_diffs';
 import {DiffType} from './diff_type';

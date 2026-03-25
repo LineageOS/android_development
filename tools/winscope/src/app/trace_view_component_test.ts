@@ -30,11 +30,11 @@ import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-
 import {AngularViewer} from '@app/shared/angular_viewer';
 import {ViewerStub} from '@app/shared/viewer_stub';
 import {assertDefined} from '@common/assert';
-import {checkTooltips, DOMTestHelper} from '@common/dom_test_helpers';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeZeroTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@trace_api/trace_builder';
-import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
+import {checkTooltips, DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeZeroTimestamp} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';

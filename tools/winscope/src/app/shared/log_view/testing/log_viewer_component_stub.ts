@@ -15,9 +15,8 @@
  */
 
 import {Component} from '@angular/core';
+import {LogViewerComponent} from '@app/shared/log_view/log_viewer_component';
 import {UiDataLog} from '@ui/shared/log/ui_data_log';
-
-import {LogViewerComponent} from './log_viewer_component';
 
 @Component({
   selector: 'log-viewer-stub',

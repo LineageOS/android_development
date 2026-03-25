@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
+import {AbstractHierarchyViewerComponentTest} from '@app/shared/testing/abstract_hierarchy_viewer_component_test';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
-import {makePropertyNode} from '@tree_node/tree_node_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makePropertyNode} from '@tree_node/testing/tree_node_test_helpers';
 import {ImeUiData} from '@ui/input_method/ime_ui_data';
 import {AdditionalPropertySelectedDetail} from '@ui/shared/viewer_event_details';
 

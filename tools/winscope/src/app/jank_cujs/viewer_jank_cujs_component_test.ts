@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {AbstractLogViewerComponentTest} from '@app/shared/abstract_log_viewer_component_test';
 import {VirtualScrollViewportComponent} from '@app/shared/scroll/virtual_scroll_viewport_component';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {AbstractLogViewerComponentTest} from '@app/shared/testing/abstract_log_viewer_component_test';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {NonPerfettoParserProvider} from '@parsers/fixture_utils';
 import {Parser} from '@trace_api/parser';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceEntry} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {CujEntry, UiData} from '@ui/jank_cujs/ui_data';

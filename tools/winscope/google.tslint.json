@@ -70,7 +70,6 @@
     "no-string-throw": true,
     "no-unsafe-finally": true,
     "no-unused-expression": [true, "allow-fast-null-checks"],
-    "no-unused-variable": true,
     "no-var-keyword": true,
     "object-literal-shorthand": true,
     "one-variable-per-declaration": [true, "ignore-for-loop"],

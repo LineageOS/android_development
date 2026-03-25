@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {getFixtureFile} from '@common/io_helpers';
-import {ASIA_TIMEZONE_INFO} from '@common/time/test_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
+import {ASIA_TIMEZONE_INFO} from '@common/time/testing/test_helpers';
 import {TimezoneInfo} from '@common/time/time';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
 import {ProcessedFiles} from '@legacy_file_readers/common/processed_files';
-import {TestFileReaderBuilder} from '@legacy_file_readers/test_file_reader_builder';
-import {TestLegacyFileReaderBuilder} from '@legacy_file_readers/test_legacy_file_reader_builder';
+import {TestFileReaderBuilder} from '@legacy_file_readers/testing/test_file_reader_builder';
+import {TestLegacyFileReaderBuilder} from '@legacy_file_readers/testing/test_legacy_file_reader_builder';
 import {WinscopeEvent} from '@messaging/winscope_event';
-import {UserNotifierChecker} from '@services/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';

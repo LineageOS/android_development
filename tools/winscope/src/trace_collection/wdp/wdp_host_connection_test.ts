@@ -16,7 +16,7 @@
 
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
-import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/web_socket_utils';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/testing/web_socket_test_helpers';
 
 import {DevicesStream} from './devices_stream';
 import {StreamProvider} from './stream_provider';

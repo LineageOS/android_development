@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {AbstractHierarchyViewerComponentTest} from '@app/shared/abstract_hierarchy_viewer_component_test';
 import {RectsComponent} from '@app/shared/rects/rects_component';
+import {AbstractHierarchyViewerComponentTest} from '@app/shared/testing/abstract_hierarchy_viewer_component_test';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {TraceRectType} from '@ui/shared/rects/rect_spec';
 import {UiData} from '@ui/surface_flinger/ui_data';
 

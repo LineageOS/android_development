@@ -16,21 +16,20 @@
 
 import {ComponentRef} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {HierarchyViewerComponentStub} from '@app/shared/hierarchy/hierarchy_viewer_component_stub';
+import {HierarchyViewerComponentStub} from '@app/shared/hierarchy/testing/hierarchy_viewer_component_stub';
+import {MockViewer} from '@app/shared/testing/mock_hierarchy_viewer';
+import {MockPresenter} from '@app/shared/testing/mock_hierarchy_viewer_presenter';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {makeUiHierarchyNode} from '@ui/shared/hierarchy/ui_tree_node_utils';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
+import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {TextFilter} from '@ui/shared/text_filter';
 import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
-
-import {MockViewer} from './mock_hierarchy_viewer';
-import {MockPresenter} from './mock_hierarchy_viewer_presenter';
 
 describe('AbstractHierarchyViewer', () => {
   let viewer: MockViewer;

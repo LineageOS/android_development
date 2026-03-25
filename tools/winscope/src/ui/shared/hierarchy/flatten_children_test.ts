@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {makeUiHierarchyNode} from '@ui/shared/hierarchy/ui_tree_node_utils';
+import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 
 import {FlattenChildren} from './flatten_children';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';

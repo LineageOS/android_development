@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {AbstractLogViewerComponentTest} from '@app/shared/abstract_log_viewer_component_test';
 import {PropertiesComponent} from '@app/shared/properties/properties_component';
 import {RectsComponent} from '@app/shared/rects/rects_component';
 import {VirtualScrollViewportComponent} from '@app/shared/scroll/virtual_scroll_viewport_component';
+import {AbstractLogViewerComponentTest} from '@app/shared/testing/abstract_log_viewer_component_test';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
-import {makeElapsedTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {InputColumnType} from '@trace/input/input_column_type';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {PropertyTreeBuilder} from '@tree_node/property_tree_builder';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 import {InputEntry, UiData} from '@ui/input/ui_data';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';

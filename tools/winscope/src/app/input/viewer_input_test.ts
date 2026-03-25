@@ -17,12 +17,12 @@
 import {ComponentRef} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {Presenter} from '@ui/input/presenter';
 import {TextFilter} from '@ui/shared/text_filter';
 

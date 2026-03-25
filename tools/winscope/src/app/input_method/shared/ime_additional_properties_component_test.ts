@@ -19,8 +19,8 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
-import {DOMTestHelper} from '@common/dom_test_helpers';
-import {makeHierarchyNode, makePropertyNode,} from '@tree_node/tree_node_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeHierarchyNode, makePropertyNode,} from '@tree_node/testing/tree_node_test_helpers';
 import {ImeAdditionalProperties} from '@ui/input_method/ime_additional_properties';
 
 import {CoordinatesTableComponent} from './coordinates_table_component';

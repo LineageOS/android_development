@@ -16,23 +16,22 @@
 
 import {ComponentRef} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {LogViewerComponentStub} from '@app/shared/log_view/log_viewer_component_stub';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {LogViewerComponentStub} from '@app/shared/log_view/testing/log_viewer_component_stub';
+import {MockViewer} from '@app/shared/testing/mock_log_viewer';
+import {MockPresenter} from '@app/shared/testing/mock_log_viewer_presenter';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeZeroTimestamp} from '@common/time/test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeZeroTimestamp} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {Trace} from '@trace_api/trace';
-import {TraceBuilder} from '@trace_api/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogHeader} from '@ui/shared/log/ui_data_log';
 import {TextFilter} from '@ui/shared/text_filter';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
-
-import {MockViewer} from './mock_log_viewer';
-import {MockPresenter} from './mock_log_viewer_presenter';
 
 describe('AbstractLogViewer', () => {
   const testHeader = new LogHeader(

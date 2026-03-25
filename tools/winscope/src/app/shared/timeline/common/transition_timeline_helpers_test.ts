@@ -15,12 +15,12 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/testing/test_helpers';
 import {TimeRange} from '@common/time/time';
 import {SetFormatters} from '@parsers/operations/set_formatters';
 import {TransitionStatus} from '@trace/transitions/status';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 
 import {TimelineSegment} from './segment';
 import {convertLifecycle, getLifecycleForTransition, PENDING_TO_PLAY_ACTIVE_COLOR, PENDING_TO_PLAY_COLOR,} from './transition_timeline_helpers';

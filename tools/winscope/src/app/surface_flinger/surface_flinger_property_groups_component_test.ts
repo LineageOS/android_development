@@ -18,9 +18,9 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
-import {makeUiPropertyNode} from '@ui/shared/hierarchy/ui_tree_node_utils';
+import {makeUiPropertyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {SfCuratedProperties} from '@ui/shared/properties/curated_properties';
 
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';

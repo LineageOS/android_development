@@ -34,11 +34,11 @@ import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections
 import {LogComponent} from '@app/shared/log_view/log_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {assertDefined} from '@common/assert';
-import {DOMTestHelper} from '@common/dom_test_helpers';
-import {makeRealTimestamp} from '@common/time/test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeRealTimestamp} from '@common/time/testing/test_helpers';
 import {Analytics} from '@logging/analytics';
-import {UserNotifierChecker} from '@services/user_notifier_checker';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {CurrentSearch, ListedSearch, SearchResult, UiData,} from '@ui/search/ui_data';
 import {LogEntry, LogField, LogHeader} from '@ui/shared/log/ui_data_log';

@@ -23,8 +23,8 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertyTreeNodeFactory} from '@tree_node/property_tree_node_factory';
 import {TraceRect} from '@tree_node/trace_rect';
 
+import {TreeBuilder} from './mock_tree_builder';
 import {ChildProperty, PropertyTreeBuilder} from './property_tree_builder';
-import {TreeBuilder} from './tree_builder';
 
 /**
  * Builder for a hierarchy tree.

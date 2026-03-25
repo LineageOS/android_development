@@ -15,19 +15,19 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/testing/test_helpers';
 import {TimeRange} from '@common/time/time';
-import {UserNotifierChecker} from '@services/user_notifier_checker';
-import {ParserBuilder} from '@trace_api/parser_builder';
-import {TraceBuilder} from '@trace_api/trace_builder';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
+import {ParserBuilder} from '@trace_api/testing/parser_builder';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
+import {TracesBuilder} from '@trace_api/testing/traces_builder';
 import {TracePosition} from '@trace_api/trace_position';
-import {makeEmptyTrace} from '@trace_api/trace_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
-import {TracesBuilder} from '@trace_api/traces_builder';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {HierarchyTreeBuilder} from '@tree_node/hierarchy_tree_builder';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {makeWarningCannotParseAllTransitions} from '@ui/trace_loading/warnings';
 
 import {TimelineData} from './timeline_data';

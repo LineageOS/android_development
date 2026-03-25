@@ -17,7 +17,7 @@
 import {TestBed} from '@angular/core/testing';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {DOMTestHelper} from '@common/dom_test_helpers';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {CollapsibleSections} from '@ui/shared/collapsible_sections/collapsible_sections';
 

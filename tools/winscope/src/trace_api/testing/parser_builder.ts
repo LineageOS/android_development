@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {makeRealTimestamp} from '@common/time/test_helpers';
+import {makeRealTimestamp} from '@common/time/testing/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {CustomQueryParamTypeMap, CustomQueryParserResultTypeMap, CustomQueryType,} from '@trace_api/custom_query';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 
-import {ParserMock} from './parser_mock';
+import {ParserMock} from './parser';
 
 /**
  * Helper class to build `ParserMock` instances for testing.
