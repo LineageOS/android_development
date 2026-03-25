@@ -30,6 +30,7 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {WinscopeEventEmitter} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
+import {FilesSource} from '@trace_api/files_source';
 import {PlaybackPrefetchedEntries} from '@trace_api/playback_prefetched_entries';
 import {Trace} from '@trace_api/trace';
 import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, ShowTraceUploadWarning, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
@@ -47,7 +48,6 @@ import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeProp
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
 import {FileLoader} from '@ui/trace_loading/file_loader';
-import {FilesSource} from '@ui/trace_loading/files_source';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {makeWarningCannotVisualizeTraceEntry, makeWarningFailedToInitializeTimelineData, makeWarningNoTraceTargetsSelected, makeWarningNoValidFiles,} from '@ui/trace_loading/warnings';
 

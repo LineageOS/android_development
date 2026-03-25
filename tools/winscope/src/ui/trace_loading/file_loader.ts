@@ -54,13 +54,13 @@ import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
 import {UserNotifier} from '@services/user_notifier';
+import {FilesSource} from '@trace_api/files_source';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceMetadata} from '@trace_api/trace_metadata';
 import {TraceType} from '@trace_api/trace_type';
 import {TraceProcessorFactory} from '@trace_processor/trace_processor_factory';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 
-import {FilesSource} from './files_source';
 import {NonPerfettoParserFactory} from './non_perfetto_parser_factory';
 import {ParsingErrorType} from './parsing_error_type';
 import {IdentifiedFiles, TraceFileIdentifier} from './trace_file_identifier';

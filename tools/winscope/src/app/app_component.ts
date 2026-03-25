@@ -42,13 +42,13 @@ import {CollectTracesComponent} from '@app/trace_collection/collect_traces_compo
 import {WarningDialogComponent, WarningDialogData, WarningDialogResult,} from '@app/trace_collection/warning_dialog_component';
 import {UploadTracesComponent} from '@app/trace_loading/upload_traces_component';
 import {downloadFromUrl, DownloadRequest} from '@common/download';
-import {globalConfig} from '@common/global_config';
 import {DOWNLOAD_FILENAME_REGEX} from '@common/io';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {PersistentStore} from '@common/store/persistent_store';
 import {Store} from '@common/store/store';
 import {Timestamp} from '@common/time/time';
 import {getRootUrl} from '@common/window';
+import {globalConfig} from '@compat/global_config';
 import {getLogger} from '@compat/logging';
 import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
 import {RequestData} from '@cross_tool/g3_proxy';

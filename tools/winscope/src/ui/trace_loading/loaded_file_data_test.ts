@@ -31,6 +31,7 @@ import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
 import {AbstractParser} from '@parsers/perfetto/abstract_parser';
 import {UserNotifierChecker} from '@services/user_notifier_checker';
 import {FileReader} from '@trace_api/file_reader';
+import {FilesSource} from '@trace_api/files_source';
 import {FrameMapper} from '@trace_api/frame_mapper';
 import {Parser} from '@trace_api/parser';
 import {TraceFile} from '@trace_api/trace_file';
@@ -39,7 +40,6 @@ import {makeSpyQueryResult} from '@trace_processor/test_utils';
 import {TraceProcessorProxy} from '@trace_processor/trace_processor';
 
 import {FileLoader, FileLoaderResult} from './file_loader';
-import {FilesSource} from './files_source';
 import {LoadedFileData} from './loaded_file_data';
 import {ParsingErrorType} from './parsing_error_type';
 import {makeWarningIncompleteFrameMapping} from './warnings';
