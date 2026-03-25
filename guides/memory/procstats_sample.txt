@@ -1,0 +1,159 @@
+AGGREGATED OVER LAST 3 HOURS:
+  * com.android.systemui / u0a91 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/341MB-338MB-345MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/341MB-338MB-345MB over 5)
+  * com.android.networkstack.process / 1073 / v373399999:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/132MB-132MB-132MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/132MB-132MB-132MB over 5)
+  * com.android.crossdevicesync / u0a27 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/121MB-121MB-121MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/121MB-121MB-121MB over 5)
+  * com.android.se / 1068 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/112MB-112MB-112MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/112MB-112MB-112MB over 5)
+  * com.android.phone / 1001 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/167MB-167MB-168MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/167MB-167MB-168MB over 5)
+  * com.android.nfc / 1027 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/127MB-128MB-128MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/127MB-128MB-128MB over 5)
+  * com.android.bluetooth / 1002 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/155MB-155MB-155MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/155MB-155MB-155MB over 5)
+  * com.android.launcher3 / u0a87 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/225MB-226MB-228MB over 5)
+           Top: 2.3%
+       Bnd Fgs: 97% (0.00-0.00-0.00/0.00-0.00-0.00/225MB-226MB-228MB over 5)
+  * android.ext.services / u0a123 / v309999900:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/120MB-122MB-124MB over 5)
+       Bnd Fgs: 99% (0.00-0.00-0.00/0.00-0.00-0.00/120MB-122MB-124MB over 5)
+    Service Rs: 0.02%
+  * com.android.appsearch.apk / u0a117 / v37:
+         TOTAL: 100% (0.00-0.00-0.00/0.00-0.00-0.00/126MB-126MB-126MB over 5)
+    Persistent: 100% (0.00-0.00-0.00/0.00-0.00-0.00/126MB-126MB-126MB over 5)
+  * com.google.android.telephony.satellite / u0a83 / v37:
+         TOTAL: 99% (0.00-0.00-0.00/0.00-0.00-0.00/110MB-110MB-111MB over 5)
+        Imp Fg: 99% (0.00-0.00-0.00/0.00-0.00-0.00/110MB-110MB-111MB over 5)
+  * com.android.providers.media.module / u0a118 / v37:
+         TOTAL: 99% (0.00-0.00-0.00/0.00-0.00-0.00/156MB-156MB-156MB over 5)
+    Persistent: 99% (0.00-0.00-0.00/0.00-0.00-0.00/156MB-156MB-156MB over 5)
+  * com.android.google.gce.gceservice / u0a63 / v37:
+         TOTAL: 99% (0.00-0.00-0.00/0.00-0.00-0.00/115MB-115MB-115MB over 8)
+           Fgs: 99% (0.00-0.00-0.00/0.00-0.00-0.00/115MB-115MB-115MB over 8)
+  * com.android.memorylab / u0a125 / v37:
+         TOTAL: 37% (0.00-35MB-45MB/0.00-24MB-36MB/180MB-186MB-195MB over 8)
+           Top: 37% (0.00-35MB-45MB/0.00-24MB-36MB/180MB-186MB-195MB over 8)
+  * com.android.inputmethod.latin / u0a75 / v30:
+         TOTAL: 11% (0.00-0.00-0.00/0.00-0.00-0.00/144MB-144MB-144MB over 1)
+        Imp Bg: 11% (0.00-0.00-0.00/0.00-0.00-0.00/144MB-144MB-144MB over 1)
+  * com.android.permissioncontroller / u0a104 / v330000000:
+         TOTAL: 2.7%
+        Imp Fg: 2.7%
+  * android.process.acore / u0a21 / v37:
+         TOTAL: 0.37%
+       Bnd Fgs: 0.36%
+      Receiver: 0.01%
+    (Last Act): 0.99%
+  * android.process.media / u0a30 / v37:
+         TOTAL: 0.25%
+       Bnd Fgs: 0.24%
+      Receiver: 0.01%
+    (Last Act): 0.52%
+  * com.android.settings / 1000 / v37:
+         TOTAL: 0.12%
+           Top: 0.09%
+      Receiver: 0.02%
+  * com.android.keychain / 1000 / v37:
+         TOTAL: 0.12%
+        Imp Fg: 0.11%
+  * com.android.contacts / u0a64 / v10734:
+         TOTAL: 0.11%
+       Bnd Fgs: 0.11%
+    (Last Act): 0.38%
+  * com.android.printspooler / u0a58 / v37:
+         TOTAL: 0.06%
+        Imp Fg: 0.06%
+  * com.android.messaging / u0a80 / v10001040:
+         TOTAL: 0.02%
+        Imp Bg: 0.02%
+  * com.android.provision / u0a88 / v37:
+         TOTAL: 0.02%
+           Top: 0.02%
+  * com.android.carrierconfig / u0a84 / v1:
+         TOTAL: 0.02%
+        Imp Fg: 0.02%
+  * com.android.cellbroadcastreceiver.module / u0a114 / v300000000:
+         TOTAL: 0.02%
+       Service: 0.01%
+      Receiver: 0.01%
+  * com.android.statementservice / u0a69 / v1:
+         TOTAL: 0.02%
+        Imp Bg: 0.01%
+  * com.android.devicelockcontroller / u0a98 / v37:
+         TOTAL: 0.02%
+        Imp Bg: 0.01%
+      Receiver: 0.01%
+  * com.android.personalcontext / u0a67 / v37:
+         TOTAL: 0.01%
+        Imp Bg: 0.01%
+  * com.android.rkpdapp / u0a102 / v37:
+         TOTAL: 0.01%
+        Imp Bg: 0.01%
+  * com.android.imsserviceentitlement / u0a66 / v37:
+         TOTAL: 0.01%
+        Imp Bg: 0.01%
+  * com.android.cellbroadcastreceiver / u0a24 / v300000000:
+         TOTAL: 0.01%
+       Service: 0.01%
+  * com.android.dialer / u0a65 / v2900000:
+         TOTAL: 0.01%
+        Imp Fg: 0.01%
+  * WebViewLoader-x86_64 / 1037 / v0:
+         TOTAL: 0.01%
+    Persistent: 0.01%
+  * com.android.managedprovisioning / u0a35 / v37:
+         TOTAL: 0.01%
+      Receiver: 0.01%
+  * WebViewLoader-x86 / 1037 / v0:
+         TOTAL: 0.01%
+    Persistent: 0.01%
+  * com.android.dynsystem:dynsystem / 1000 / v37:
+  * com.android.providers.calendar / u0a23 / v37:
+  * com.android.carrierdefaultapp / u0a49 / v37:
+  * .adservices / u0a123 / v309999900:
+  * com.android.ondevicepersonalization.services / u0a106 / v373399999:
+  * com.android.traceur / u0a60 / v2:
+  * com.android.packageinstaller / u0a37 / v37:
+  * com.android.externalstorage / u0a31 / v37:
+  * com.android.calendar / u0a71 / v37:
+  * com.android.dynsystem / 1000 / v37:
+  * com.android.localtransport / 1000 / v37:
+  * com.android.camera2 / u0a72 / v20002000:
+  * com.android.photopicker / u0a119 / v37:
+  * com.android.documentsui / u0a29 / v37:
+  * com.android.federatedcompute.services / u0a107 / v373399999:
+  * com.android.shell / 2000 / v37:
+  * com.android.healthconnect.controller / u0a112 / v37:
+  * com.android.devicediagnostics / u0a28 / v37:
+
+Run time Stats:
+  SOff/Norm: +1h19m3s838ms
+   SOn/Norm: +10m19s480ms
+      TOTAL: +1h29m23s318ms
+
+Memory usage:
+  Kernel : 595MB (8 samples)
+  Native : 1.4GB (8 samples)
+  Top: 13MB (18 samples)
+  Frozen: 664KB (87 samples)
+  Cached : 1.2GB (8 samples)
+  Free   : 619MB (8 samples)
+  Z-Ram  : 52MB (8 samples)
+  TOTAL  : 3.9GB
+
+PSS collection stats:
+  Internal Single: 102x over +9ms
+  Internal All Procs (Memory Change): 0x over 0
+  Internal All Procs (Polling): 49x over +1ms
+  External: 0x over 0
+  External Slow: 7x over +181ms

@@ -1,0 +1,22 @@
+android_app {
+    name: "MemoryLab",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
+    resource_dirs: ["res"],
+    platform_apis: true,
+    certificate: "platform",
+    static_libs: ["androidx.appcompat_appcompat"],
+    jni_libs: ["libmemorylab_jni"],
+    compile_multilib: "both",
+    use_embedded_native_libs: true,
+}
+
+cc_library_shared {
+    name: "libmemorylab_jni",
+    srcs: ["jni/memorylab_jni.cpp"],
+    header_libs: ["jni_headers"],
+    sdk_version: "current",
+    stl: "c++_static",
+}

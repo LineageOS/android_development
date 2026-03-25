@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PID: "
+            android:textSize="18sp"
+            android:paddingBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_alloc_java"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allocate Java Memory (10MB)" />
+
+        <Button
+            android:id="@+id/btn_churn_java"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Generate Java Allocation Churn" />
+
+        <Button
+            android:id="@+id/btn_alloc_native"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allocate Native Memory (500MB)" />
+
+        <Button
+            android:id="@+id/btn_alloc_dmabuf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allocate DMA-BUF (HardwareBuffer)" />
+
+        <Button
+            android:id="@+id/btn_leak_activity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leak an Activity" />
+
+        <Button
+            android:id="@+id/btn_leak_binder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leak Binder Callback" />
+
+        <Button
+            android:id="@+id/btn_leak_bitmap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leak Bitmaps" />
+
+        <Button
+            android:id="@+id/btn_mmap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mmap Clean Memory (10MB)" />
+
+        <Button
+            android:id="@+id/btn_create_threads"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create 100 Threads" />
+
+        <Button
+            android:id="@+id/btn_destroy_threads"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Destroy All Threads" />
+
+        <Button
+            android:id="@+id/btn_gc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trigger GC" />
+
+        <Button
+            android:id="@+id/btn_free_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Free All Allocations" />
+
+    </LinearLayout>
+</ScrollView>

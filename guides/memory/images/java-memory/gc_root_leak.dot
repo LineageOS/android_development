@@ -1,0 +1,35 @@
+// Copyright (C) 2026 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+digraph G {
+    fontname="Helvetica,Arial,sans-serif";
+    node [fontname="Helvetica,Arial,sans-serif", shape=box, style="rounded,filled"];
+    edge [fontname="Helvetica,Arial,sans-serif"];
+
+    // Overall layout
+    rankdir=LR;
+
+    GCRoot [label="GC Root\n(e.g., Static Variable)", fillcolor="#fbb4ae"];
+    List [label="java.util.ArrayList\n(sLeakedActivities)", fillcolor="#ccebc5"];
+    Array [label="Object[]\n(elementData)", fillcolor="#ccebc5"];
+    Activity [label="com.android.memorylab\n.LeakedActivity\n(The Leak)", fillcolor="#decbe4", shape=hexagon];
+    Context [label="android.content.Context\n(Entire View Hierarchy)", fillcolor="#fddaec"];
+
+    GCRoot -> List [label=" holds reference"];
+    List -> Array [label=" holds reference"];
+    Array -> Activity [label=" index 0"];
+    Activity -> Context [label=" holds reference"];
+
+    {rank=same; List; Array;}
+}
