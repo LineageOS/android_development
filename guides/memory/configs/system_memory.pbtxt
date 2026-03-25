@@ -1,0 +1,53 @@
+buffers: {
+    size_kb: 63488
+    fill_policy: RING_BUFFER
+}
+data_sources: {
+    config {
+        name: "linux.process_stats"
+        target_buffer: 0
+        process_stats_config {
+            scan_all_processes_on_start: true
+            proc_stats_poll_ms: 500
+            record_thread_names: true
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "android.dma_buffer"
+    }
+}
+data_sources: {
+    config {
+        name: "linux.sys_stats"
+        target_buffer: 0
+        sys_stats_config {
+            meminfo_period_ms: 1000
+            vmstat_period_ms: 1000
+            stat_period_ms: 1000
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "linux.ftrace"
+        target_buffer: 0
+        ftrace_config {
+            ftrace_events: "sched/sched_switch"
+            ftrace_events: "task/task_newtask"
+            ftrace_events: "task/task_rename"
+            ftrace_events: "lowmemorykiller/lowmemory_kill"
+            ftrace_events: "oom/oom_score_adj_update"
+            ftrace_events: "oom/mark_victim"
+            ftrace_events: "oom/oom_kill_process"
+            ftrace_events: "kmem/rss_stat"
+            ftrace_events: "dmabuf_heap/dma_heap_stat"
+            ftrace_events: "dma_fence/dma_fence_emit"
+            ftrace_events: "ftrace/print"
+            atrace_categories: "am"
+            atrace_apps: "com.android.memorylab"
+        }
+    }
+}
+duration_ms: 30000

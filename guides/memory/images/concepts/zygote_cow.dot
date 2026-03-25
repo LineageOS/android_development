@@ -1,0 +1,55 @@
+// Copyright (C) 2026 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+digraph G {
+    fontname="Helvetica,Arial,sans-serif";
+    node [fontname="Helvetica,Arial,sans-serif", shape=box, style="rounded,filled"];
+    edge [fontname="Helvetica", fontsize=10];
+    rankdir=TB;
+
+    subgraph cluster_physical {
+        label = "Physical RAM (Pages)";
+        style = "dashed";
+        pA [label="Page A\n(Preloaded Framework)", fillcolor="#ccebc5"];
+        pB [label="Page B\n(Preloaded Framework)", fillcolor="#ccebc5"];
+        pC [label="Page C\n(Original Zygote State)", fillcolor="#ccebc5"];
+        pC_prime [label="Page C'\n(Modified App State)", fillcolor="#fbb4ae"];
+        {rank=same; pA; pB; pC; pC_prime;}
+    }
+
+    subgraph cluster_zygote {
+        label = "Zygote Process";
+        style = "rounded,filled";
+        fillcolor = "#E0F2F1";
+        z_map [label="Zygote Address Space", shape=record, label="<f1> Page A Mapping|<f2> Page B Mapping|<f3> Page C Mapping"];
+    }
+
+    subgraph cluster_app {
+        label = "App Process (Forked)";
+        style = "rounded,filled";
+        fillcolor = "#E8EAF6";
+        a_map [label="App Address Space", shape=record, label="<f1> Page A Mapping|<f2> Page B Mapping|<f3> Page C' Mapping"];
+    }
+
+    // Mappings
+    z_map:f1 -> pA;
+    z_map:f2 -> pB;
+    z_map:f3 -> pC;
+
+    a_map:f1 -> pA [label=" shared"];
+    a_map:f2 -> pB [label=" shared"];
+    a_map:f3 -> pC_prime [label=" private dirty", color="#e41a1c", penwidth=2];
+
+    pC -> pC_prime [label=" copy-on-write triggered\nby app modification", style=dotted, color="#e41a1c"];
+}

@@ -1,0 +1,40 @@
+digraph G {
+    fontname="Helvetica,Arial,sans-serif";
+    node [fontname="Helvetica,Arial,sans-serif", shape=box, style="rounded,filled"];
+    edge [fontname="Helvetica,Arial,sans-serif"];
+
+    rankdir=TB;
+
+    subgraph cluster_storage {
+        label = "Disk Storage";
+        style=dashed;
+        color=gray;
+        bgcolor="#f9f9f9";
+
+        APK [label="App.apk\n(classes.dex, libs.so)", shape=cylinder, fillcolor="#ccebc5"];
+    }
+
+    subgraph cluster_cpu {
+        label = "CPU Execution";
+        style=dashed;
+        color=gray;
+        bgcolor="#f9f9f9";
+
+        Thread [label="App Thread\nExecutes methodX()", fillcolor="#fed9a6"];
+        PageFault [label="Page Fault\n(Code not in RAM)", fillcolor="#fbb4ae", shape=octagon];
+    }
+
+    subgraph cluster_ram {
+        label = "Physical RAM (mem.rss.file)";
+        style=dashed;
+        color=gray;
+        bgcolor="#f9f9f9";
+
+        Page [label="4KB Page\n(Contains methodX)", fillcolor="#decbe4"];
+    }
+
+    Thread -> PageFault [label=" Jumps to address"];
+    PageFault -> APK [label=" Kernel reads from disk"];
+    APK -> Page [label=" Loads into memory"];
+    Page -> Thread [label=" Execution resumes"];
+}
