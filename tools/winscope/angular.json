@@ -30,15 +30,27 @@
               { "glob": "logo_page_tab.svg", "input": "src/", "output": "/" },
               { "glob": "logo_light_mode.svg", "input": "src/", "output": "/" },
               { "glob": "logo_dark_mode.svg", "input": "src/", "output": "/" },
-              { "glob": "cube_partial_shade.svg", "input": "src/viewers/components/rects/", "output": "/" },
-              { "glob": "cube_full_shade.svg", "input": "src/viewers/components/rects/", "output": "/" },
-              { "glob": "trackpad_right_click.svg", "input": "src/app/components/", "output": "/" },
-              { "glob": "trackpad_vertical_scroll.svg", "input": "src/app/components/", "output": "/" },
-              { "glob": "trackpad_horizontal_scroll.svg", "input": "src/app/components/", "output": "/" }
+              { "glob": "cube_partial_shade.svg", "input": "src/app/shared/rects/", "output": "/" },
+              { "glob": "cube_full_shade.svg", "input": "src/app/shared/rects/", "output": "/" },
+              {
+                "glob": "trackpad_right_click.svg",
+                "input": "src/app/shared/shortcuts_panel/",
+                "output": "/"
+              },
+              {
+                "glob": "trackpad_vertical_scroll.svg",
+                "input": "src/app/shared/shortcuts_panel/",
+                "output": "/"
+              },
+              {
+                "glob": "trackpad_horizontal_scroll.svg",
+                "input": "src/app/shared/shortcuts_panel/",
+                "output": "/"
+              }
             ],
             "styles": [
               "src/styles/material-theme.scss",
-              "src/styles/styles.css"
+              "src/styles/styles.scss"
             ],
             "scripts": [],
             "sourceMap": true,
@@ -140,7 +152,7 @@
             "karmaConfig": "karma.config.dev.js",
             "styles": [
               "src/styles/material-theme.scss",
-              "src/styles/styles.css"
+              "src/styles/styles.scss"
             ],
             "scripts": [],
             "assets": [
@@ -152,11 +164,31 @@
               { "glob": "logo_page_tab.svg", "input": "src/", "output": "/" },
               { "glob": "logo_light_mode.svg", "input": "src/", "output": "/" },
               { "glob": "logo_dark_mode.svg", "input": "src/", "output": "/" },
-              { "glob": "cube_partial_shade.svg", "input": "src/viewers/components/rects/", "output": "/" },
-              { "glob": "cube_full_shade.svg", "input": "src/viewers/components/rects/", "output": "/" },
-              { "glob": "trackpad_right_click.svg", "input": "src/app/components/", "output": "/" },
-              { "glob": "trackpad_vertical_scroll.svg", "input": "src/app/components/", "output": "/" },
-              { "glob": "trackpad_horizontal_scroll.svg", "input": "src/app/components/", "output": "/" }
+              {
+                "glob": "cube_partial_shade.svg",
+                "input": "src/app/shared/rects/",
+                "output": "/"
+              },
+              {
+                "glob": "cube_full_shade.svg",
+                "input": "src/app/shared/rects/",
+                "output": "/"
+              },
+              {
+                "glob": "trackpad_right_click.svg",
+                "input": "src/app/shared/shortcuts_panel/",
+                "output": "/"
+              },
+              {
+                "glob": "trackpad_vertical_scroll.svg",
+                "input": "src/app/shared/shortcuts_panel/",
+                "output": "/"
+              },
+              {
+                "glob": "trackpad_horizontal_scroll.svg",
+                "input": "src/app/shared/shortcuts_panel/",
+                "output": "/"
+              }
             ],
             "webWorkerTsConfig": "tsconfig.worker.json"
           },

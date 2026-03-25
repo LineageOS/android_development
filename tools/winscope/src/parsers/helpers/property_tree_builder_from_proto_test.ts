@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 
 import {PropertyTreeBuilderFromProto} from './property_tree_builder_from_proto';
 

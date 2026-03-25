@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 
 import {InputCoordinatePropagator} from './input_coordinate_propagator';
 

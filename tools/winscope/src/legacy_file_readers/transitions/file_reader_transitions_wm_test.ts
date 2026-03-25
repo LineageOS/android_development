@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
 import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {LegacyFileReaderProvider} from '@test/unit/legacy_file_readers/fixture_utils';
+import {LegacyFileReaderProvider} from '@legacy_file_readers/testing/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 
 import {FileReaderTransitionsWm} from './file_reader_transitions_wm';

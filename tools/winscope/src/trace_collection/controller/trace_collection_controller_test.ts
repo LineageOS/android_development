@@ -15,7 +15,7 @@
  */
 
 import {ProgressListener} from '@messaging/progress_listener';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
 import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';

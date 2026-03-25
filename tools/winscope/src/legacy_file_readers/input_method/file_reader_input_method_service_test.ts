@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets, makeElapsedTimestamp, makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
 import {WinscopeExtensionsImpl} from '@compat/protobuf';
 import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@legacy_file_readers/testing/fixture_utils';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 

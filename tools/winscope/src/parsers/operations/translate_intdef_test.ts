@@ -15,9 +15,9 @@
  */
 import {assertDefined} from '@common/assert';
 import {getIntdefDescriptors} from '@compat/test/protobuf';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {Registry, TamperedMessageType,} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 
 import {TranslateIntDef} from './translate_intdef';
 

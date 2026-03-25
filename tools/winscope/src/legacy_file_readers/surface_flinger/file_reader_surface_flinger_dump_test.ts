@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {makeConverterNoRteOffsets, makeConverterWithUtcOffset, makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
 import {PerfettoClockSnapshot} from '@compat/protobuf';
 import {setupJspbTesting} from '@compat/test/protobuf';
 import {LegacyFileReader} from '@legacy_file_readers/common/legacy_file_reader';
-import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@test/unit/legacy_file_readers/fixture_utils';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {convertToPerfettoTrace, LegacyFileReaderProvider,} from '@legacy_file_readers/testing/fixture_utils';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
 
 import {FileReaderSurfaceFlinger} from './file_reader_surface_flinger';

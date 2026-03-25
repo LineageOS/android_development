@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {makeConverterNoRteOffsets} from '@common/time/test_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
+import {makeConverterNoRteOffsets} from '@common/time/testing/test_helpers';
 import {ParserCujs} from '@parsers/cujs/perfetto/parser_cujs';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidPerfettoTrace} from '@parsers/helpers/warnings';
@@ -29,8 +30,7 @@ import {ParserTransactions} from '@parsers/transactions/parser_transactions';
 import {ParserTransitions} from '@parsers/transitions/parser_transitions';
 import {ParserViewCapture} from '@parsers/view_capture/parser_view_capture';
 import {ParserWindowManager} from '@parsers/window_manager/parser_window_manager';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {TraceFile} from '@trace_api/trace_file';
 import {TraceType} from '@trace_api/trace_type';
 

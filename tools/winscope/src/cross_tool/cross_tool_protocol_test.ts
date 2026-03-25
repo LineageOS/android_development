@@ -15,11 +15,11 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeConverterZeroRteOffsets} from '@common/time/test_helpers';
+import {waitToBeCalled} from '@common/spy_utils';
+import {makeConverterZeroRteOffsets} from '@common/time/testing/test_helpers';
 import {Timestamp} from '@common/time/time';
 import {TimestampConverter} from '@common/time/timestamp_converter';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
-import {waitToBeCalled} from '@test/unit/spy_utils';
 
 import {CrossToolProtocol} from './cross_tool_protocol';
 import {MessageTestFailureInfo, MessageType} from './messages';

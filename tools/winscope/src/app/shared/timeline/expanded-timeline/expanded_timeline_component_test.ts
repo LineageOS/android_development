@@ -1,0 +1,202 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {ChangeDetectionStrategy} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {BrowserAnimationsModule, NoopAnimationsModule,} from '@angular/platform-browser/animations';
+import {assertDefined} from '@common/assert';
+import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {makeConverterZeroRteOffsets} from '@common/time/testing/test_helpers';
+import {TracesBuilder} from '@trace_api/testing/traces_builder';
+import {TracePosition} from '@trace_api/trace_position';
+import {TraceType} from '@trace_api/trace_type';
+import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
+import {TimelineData} from '@ui/timeline/timeline_data';
+
+import {DefaultTimelineRowComponent} from './default_timeline_row_component';
+import {ExpandedTimelineComponent} from './expanded_timeline_component';
+import {TransitionTimelineComponent} from './transition_timeline_component';
+
+describe('ExpandedTimelineComponent', () => {
+  const converter = makeConverterZeroRteOffsets();
+  const time10 = converter.makeTimestampFromRealNs(10n);
+  const time11 = converter.makeTimestampFromRealNs(11n);
+  const time12 = converter.makeTimestampFromRealNs(12n);
+  const time30 = converter.makeTimestampFromRealNs(30n);
+  const time60 = converter.makeTimestampFromRealNs(60n);
+  const time110 = converter.makeTimestampFromRealNs(110n);
+
+  let component: ExpandedTimelineComponent;
+  let dom: DOMTestHelper<ExpandedTimelineComponent>;
+  let timelineData: TimelineData;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        NoopAnimationsModule,
+        FormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatSelectModule,
+        MatTooltipModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        DragDropModule,
+        ExpandedTimelineComponent,
+        TransitionTimelineComponent,
+        DefaultTimelineRowComponent,
+      ],
+    })
+      .overrideComponent(ExpandedTimelineComponent, {
+        set: {changeDetection: ChangeDetectionStrategy.Default},
+      })
+      .compileComponents();
+    const fixture = TestBed.createComponent(ExpandedTimelineComponent);
+    component = fixture.componentInstance;
+    dom = new DOMTestHelper(fixture, fixture.nativeElement);
+    timelineData = new TimelineData();
+    const traces = new TracesBuilder()
+      .setEntries(TraceType.SURFACE_FLINGER, [{}, {}])
+      .setTimestamps(TraceType.SURFACE_FLINGER, [time10, time10])
+      .setEntries(TraceType.WINDOW_MANAGER, [{}, {}])
+      .setTimestamps(TraceType.WINDOW_MANAGER, [time11, time11])
+      .setEntries(TraceType.TRANSACTIONS, [{}, {}])
+      .setTimestamps(TraceType.TRANSACTIONS, [time12, time12])
+      .setEntries(TraceType.TRANSITION, [
+        new HierarchyTreeBuilder()
+          .setId('TransitionsTraceEntry')
+          .setName('transition')
+          .setProperties({
+            finishTimeNs: time30,
+            dispatchTimeNs: time10,
+          })
+          .build(),
+        new HierarchyTreeBuilder()
+          .setId('TransitionsTraceEntry')
+          .setName('transition')
+          .setProperties({
+            finishTimeNs: time110,
+            dispatchTimeNs: time60,
+          })
+          .build(),
+      ])
+      .setTimestamps(TraceType.TRANSITION, [time10, time60])
+      .setTimestamps(TraceType.PROTO_LOG, [time12, time12])
+      .build();
+    await timelineData.initialize(traces, undefined, converter);
+    dom.setComponentInput('timelineData', timelineData);
+  });
+
+  it('can be created', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('renders all timelines', () => {
+    dom.detectChanges();
+
+    const timelineElements = dom.findAll('.timeline.row single-timeline');
+    expect(timelineElements.length).toBe(4);
+
+    const transitionElement = dom.findAll('.timeline.row transition-timeline');
+    expect(transitionElement.length).toBe(1);
+  });
+
+  it('passes initial selectedEntry of correct type into each timeline', () => {
+    dom.detectChanges();
+
+    const singleTimelines = component.singleTimelines();
+    expect(singleTimelines.length).toBe(4);
+
+    // initially only first entry of SF is set
+    singleTimelines.forEach((timeline) => {
+      if (timeline.trace().type === TraceType.SURFACE_FLINGER) {
+        const entry = assertDefined(timeline.selectedEntry());
+        expect(entry.getFullTrace().type).toEqual(TraceType.SURFACE_FLINGER);
+      } else {
+        expect(timeline.selectedEntry()).toBeUndefined();
+      }
+    });
+
+    const transitionTimeline = component.transitionTimelines()[0];
+    assertDefined(transitionTimeline.selectedEntry());
+  });
+
+  it('passes selectedEntry of correct type into each timeline on position change', () => {
+    // 3 out of the 5 traces have timestamps before or at 11n
+    component.timelineData().setPosition(TracePosition.fromTimestamp(time11));
+    dom.detectChanges();
+
+    const singleTimelines = component.singleTimelines();
+    expect(singleTimelines.length).toBe(4);
+
+    singleTimelines.forEach((timeline) => {
+      // protolog and transactions traces have no timestamps before current position
+      const trace = timeline.trace();
+      if (
+        trace.type === TraceType.PROTO_LOG ||
+        trace.type === TraceType.TRANSACTIONS
+      ) {
+        expect(timeline.selectedEntry()).toBeUndefined();
+      } else {
+        const selectedEntry = assertDefined(timeline.selectedEntry());
+        expect(selectedEntry.getFullTrace().type).toEqual(trace.type);
+      }
+    });
+
+    const transitionTimeline = component.transitionTimelines()[0];
+    const selectedEntry = assertDefined(transitionTimeline.selectedEntry());
+    expect(selectedEntry.getFullTrace().type).toEqual(
+      transitionTimeline.trace().type,
+    );
+  });
+
+  it('getAllLoadedTraces causes timelines to render in correct order', () => {
+    // traces in timelineData are in order of being set in Traces API
+    expect(
+      component
+        .timelineData()
+        .getTraces()
+        .mapTrace((trace) => trace.type),
+    ).toEqual([
+      TraceType.SURFACE_FLINGER,
+      TraceType.WINDOW_MANAGER,
+      TraceType.TRANSACTIONS,
+      TraceType.TRANSITION,
+      TraceType.PROTO_LOG,
+    ]);
+
+    // getAllLoadedTraces returns traces in enum order
+    expect(
+      component.getTracesSortedByDisplayOrder().map((trace) => trace.type),
+    ).toEqual([
+      TraceType.SURFACE_FLINGER,
+      TraceType.WINDOW_MANAGER,
+      TraceType.TRANSACTIONS,
+      TraceType.PROTO_LOG,
+      TraceType.TRANSITION,
+    ]);
+  });
+});

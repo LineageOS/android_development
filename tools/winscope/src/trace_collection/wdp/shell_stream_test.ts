@@ -16,7 +16,7 @@
 
 import {base64Encode} from '@common/string_helpers';
 import {Timer} from '@common/time/timer';
-import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@test/unit/web_socket_utils';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/testing/web_socket_test_helpers';
 
 import {ShellStream} from './shell_stream';
 

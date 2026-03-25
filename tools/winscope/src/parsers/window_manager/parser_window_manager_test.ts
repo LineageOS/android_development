@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {assertDefined} from '@common/assert';
-import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
-import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
+import {getPerfettoParser} from '@parsers/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {getFixtureFile} from '@test/unit/common/io_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
 import {initWasm} from '@trace_processor/perfetto/wasm_engine_proxy';
 
 import {TraceProcessorProxy} from './trace_processor';

@@ -15,13 +15,13 @@
  */
 import {assertDefined} from '@common/assert';
 import {TransformTypeFlags} from '@common/geometry/transform';
-import {makeElapsedTimestamp} from '@common/time/test_helpers';
+import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
 import {getFakeProtoDescriptors} from '@compat/test/protobuf';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
-import {makeBufferNode, makeColorNode, makePositionNode, makeRectNode, makeSizeNode, makeTransformNode,} from '@test/unit/tree_node/tree_node_test_helpers';
 import {EMPTY_OBJ_STRING, LAYER_ID_FORMATTER} from '@trace/formatters';
 import {Registry, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
+import {makeBufferNode, makeColorNode, makePositionNode, makeRectNode, makeSizeNode, makeTransformNode,} from '@tree_node/testing/tree_node_test_helpers';
 
 import {SetFormatters} from './set_formatters';
 

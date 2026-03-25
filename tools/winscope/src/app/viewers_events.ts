@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+import {AngularViewer} from '@app/shared/angular_viewer';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {TraceType} from '@trace_api/trace_type';
-import {Viewer} from '@viewers/viewer';
 
 export class ViewersLoaded implements WinscopeEvent {
   constructor(
-    readonly viewers: Viewer[],
+    readonly viewers: AngularViewer[],
     readonly initialTimelineTabTraceType?: TraceType,
   ) {}
 }

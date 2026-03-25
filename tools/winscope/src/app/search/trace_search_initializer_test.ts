@@ -1,0 +1,176 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {assertDefined} from '@common/assert';
+import {getPerfettoParser} from '@parsers/fixture_utils';
+import {Parser} from '@trace_api/parser';
+import {Trace} from '@trace_api/trace';
+import {TraceType} from '@trace_api/trace_type';
+import {Traces} from '@trace_api/traces';
+import {runQueryAndGetResult} from '@trace_processor/test_utils';
+
+import {SEARCH_VIEWS, TraceSearchInitializer} from './trace_search_initializer';
+
+describe('TraceSearchInitializer', () => {
+  it('robust to no searchable traces', async () => {
+    const views = await TraceSearchInitializer.createSearchViews(new Traces());
+    expect(views).toEqual([]);
+  });
+
+  it('initializes surface flinger', async () => {
+    const {parser} = await getPerfettoParser(
+      TraceType.SURFACE_FLINGER,
+      'traces/perfetto/layers_trace.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, [
+      'sf_layer_search',
+      'sf_hierarchy_root_search',
+    ]);
+    const queryResult = await runQueryAndGetResult(`
+      SELECT * FROM sf_layer_search
+        WHERE layer_name LIKE 'Task%'
+        AND property='flags'
+        AND value!=previous_value
+    `);
+    expect(queryResult.numRows()).toBe(2);
+
+    const queryResultEntry = await runQueryAndGetResult(`
+      SELECT * FROM sf_hierarchy_root_search
+        WHERE property LIKE 'displays[1]%'
+        AND (
+          flat_property='displays.layer_stack'
+          OR flat_property='displays.is_virtual'
+        )
+    `);
+    expect(queryResultEntry.numRows()).toBe(40);
+
+    const queryResultVisibility = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM sf_layer_search
+        WHERE is_visible = 1
+    `);
+    expect(queryResultVisibility.numRows()).toBe(20);
+
+    const queryResultPrevious = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM sf_layer_search
+        WHERE previous_is_visible = 1
+    `);
+    expect(queryResultPrevious.numRows()).toBe(20);
+  });
+
+  it('initializes transactions', async () => {
+    const {parser} = await getPerfettoParser(
+      TraceType.TRANSACTIONS,
+      'traces/perfetto/transactions_trace.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, ['transactions_search']);
+    const queryResultTransaction = await runQueryAndGetResult(`
+      SELECT * FROM transactions_search
+        WHERE flat_property='transactions.layer_changes.x'
+        AND value!='0.0'
+    `);
+    expect(queryResultTransaction.numRows()).toBe(3);
+
+    const queryResultAddedLayer = await runQueryAndGetResult(`
+      SELECT * FROM transactions_search
+        WHERE flat_property='added_layers.name'
+        AND value='ImeContainer'
+    `);
+    expect(queryResultAddedLayer.numRows()).toBe(1);
+  });
+
+  it('initializes protolog', async () => {
+    const {parser} = await getPerfettoParser(
+      TraceType.PROTO_LOG,
+      'traces/perfetto/protolog.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, ['protolog']);
+    const queryResult = await runQueryAndGetResult(`
+      SELECT * FROM protolog WHERE message LIKE '%string%'
+    `);
+    expect(queryResult.numRows()).toBe(2);
+  });
+
+  it('initializes transitions', async () => {
+    const {parser} = await getPerfettoParser(
+      TraceType.TRANSITION,
+      'traces/perfetto/shell_transitions_trace.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, ['transitions_search']);
+    const queryResult = await runQueryAndGetResult(`
+      SELECT * FROM transitions_search
+        WHERE flat_property='handler'
+        AND value LIKE '%DefaultMixedHandler'
+    `);
+    expect(queryResult.numRows()).toBe(2);
+  });
+
+  it('initializes view capture', async () => {
+    const {parser} = await getPerfettoParser(
+      TraceType.VIEW_CAPTURE,
+      'traces/perfetto/viewcapture.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, ['viewcapture_search']);
+    const queryResult = await runQueryAndGetResult(`
+      SELECT * FROM viewcapture_search
+        WHERE class_name LIKE '%SearchContainerView'
+        AND flat_property='translation_y'
+        AND value!=previous_value
+    `);
+    expect(queryResult.numRows()).toBe(28);
+  });
+
+  it('initializes window manager', async () => {
+    const {parser} = await getPerfettoParser(
+      TraceType.WINDOW_MANAGER,
+      'traces/perfetto/windowmanager.perfetto-trace',
+    );
+    await createViewsAndTestExamples(parser, ['wm_search']);
+    const queryResult = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM wm_search
+        WHERE title LIKE '%LauncherActivity'
+        AND is_visible = 1
+    `);
+    expect(queryResult.numRows()).toBe(17);
+
+    const queryResultPrevious = await runQueryAndGetResult(`
+      SELECT DISTINCT ts FROM wm_search
+        WHERE title LIKE '%LauncherActivity'
+        AND previous_is_visible = 1
+    `);
+    expect(queryResultPrevious.numRows()).toBe(17);
+  });
+
+  async function createViewsAndTestExamples(
+    parser: Parser<unknown>,
+    expectedViews: string[],
+  ) {
+    const trace = Trace.fromParser(parser);
+    const traces = new Traces();
+    traces.addTrace(trace);
+    const views = await TraceSearchInitializer.createSearchViews(traces);
+    expect(views).toEqual(expectedViews);
+    for (const viewName of views) {
+      const view = assertDefined(
+        SEARCH_VIEWS.find((view) => view.name === viewName),
+      );
+      for (const example of view.examples) {
+        await expectAsync(
+          runQueryAndGetResult(example.query),
+        ).not.toBeRejected();
+      }
+    }
+  }
+});

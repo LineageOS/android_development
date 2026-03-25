@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {FixedStringFormatter} from '@trace/formatters';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
+import {makePropertyNode} from '@tree_node/testing/tree_node_test_helpers';
 
 import {TranslateFlags} from './translate_flags';
 

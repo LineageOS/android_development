@@ -15,11 +15,11 @@
  */
 
 import {assertDefined} from '@common/assert';
-import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {Timestamp} from '@common/time/time';
-import {MockLong} from '@test/unit/mock_long';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
+import {MockLong} from '@parsers/mock_long';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 
 import {TransformToTimestamp} from './transform_to_timestamp';
 

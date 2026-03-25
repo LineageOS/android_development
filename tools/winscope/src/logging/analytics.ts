@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {FilesSource} from '@app/files_source';
 import {analyticsLogEvent} from '@common/analytics';
 import {CoarseVersion} from '@trace_api/coarse_version';
+import {FilesSource} from '@trace_api/files_source';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';
 

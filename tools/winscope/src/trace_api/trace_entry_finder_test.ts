@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {makeRealTimestamp, makeZeroTimestamp} from '@common/time/test_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {makeEmptyTrace} from '@test/unit/trace_api/trace_test_helpers';
+import {makeRealTimestamp, makeZeroTimestamp,} from '@common/time/testing/test_helpers';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
 
 import {findCorrespondingEntry} from './trace_entry_finder';
 import {TracePosition} from './trace_position';

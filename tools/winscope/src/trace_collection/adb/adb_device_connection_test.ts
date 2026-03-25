@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
 import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 

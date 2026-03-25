@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
-import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
+import {getPerfettoParser} from '@parsers/fixture_utils';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {Parser} from '@trace_api/parser';
 import {TraceType} from '@trace_api/trace_type';

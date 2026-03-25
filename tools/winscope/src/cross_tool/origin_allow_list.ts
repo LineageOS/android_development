@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {globalConfig, GlobalConfig} from '@common/global_config';
+import {globalConfig, GlobalConfig} from '@compat/global_config';
 
 const ALLOW_LIST_PROD = [
   new RegExp('^https://([^\\/]*\\.)*googleplex\\.com$'),

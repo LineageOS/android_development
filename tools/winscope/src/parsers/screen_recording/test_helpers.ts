@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {waitToBeCalled} from '@test/unit/spy_utils';
+import {waitToBeCalled} from '@common/spy_utils';
 
 import {ThumbnailGenerator} from './thumbnail_generator';
 

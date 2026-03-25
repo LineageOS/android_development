@@ -1,0 +1,180 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@use '../shared/styles/viewer_card_style';
+@use '../shared/styles/viewer_card_inner';
+
+.result-tabs {
+  height: 100%;
+}
+
+.message-with-spinner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0px 8px 8px;
+}
+
+.global-search .body {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-divider {
+  margin-top: 18px;
+}
+
+active-search {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0;
+}
+
+.result,
+.results-table {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
+.results-log-view {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  border-radius: 4px;
+  background-color: var(--background-color);
+  flex: 1;
+}
+
+.how-to-search .body {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.how-to-search .how-to-accordion {
+  display: flex;
+  flex-direction: column;
+  min-width: fit-content;
+}
+
+.how-to-search .accordion-item {
+  border: 1px solid var(--border-color);
+}
+
+.how-to-search .accordion-item + .accordion-item {
+  border-top: none;
+}
+
+.how-to-search .accordion-item:first-child {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.how-to-search .accordion-item:last-child {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.how-to-search .accordion-item-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: space-between;
+  word-break: break-all;
+}
+
+.how-to-search .view-title {
+  display: flex;
+  align-items: center;
+}
+
+.how-to-search a {
+  height: 24px;
+}
+
+.how-to-search .open-docs-icon {
+  transform: scale(0.8);
+  color: var(--default-text-color);
+}
+
+.how-to-search .accordion-item-body {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
+.how-to-search table {
+  border-spacing: 0;
+}
+
+.how-to-search table td {
+  border-left: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.how-to-search table tr:first-child td:first-child {
+  border-top-left-radius: 4px;
+}
+
+.how-to-search table tr:first-child td:last-child {
+  border-top-right-radius: 4px;
+}
+
+.how-to-search table tr:last-child td:first-child {
+  border-bottom-left-radius: 4px;
+}
+
+.how-to-search table tr:last-child td:last-child {
+  border-bottom-right-radius: 4px;
+}
+
+.how-to-search table tr:last-child td {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.how-to-search table tr td:last-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.how-to-search .body .indented {
+  margin-inline-start: 5px;
+}
+
+.how-to-search code {
+  font-size: 12px;
+}
+
+.how-to-search pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 4px;
+  padding: 0px 4px;
+  margin: 0;
+  margin-block: 5px;
+  background: var(--drawer-block-primary);
+}

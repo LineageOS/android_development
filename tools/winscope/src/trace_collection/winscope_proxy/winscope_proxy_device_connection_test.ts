@@ -15,7 +15,7 @@
  */
 
 import {HttpRequest, HttpRequestHeaderType, HttpRequestStatus, HttpResponse,} from '@common/http_request';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {TraceTarget} from '@trace_collection/trace_target';

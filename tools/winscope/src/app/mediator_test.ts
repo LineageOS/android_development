@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@app/components/timeline/playback_events';
-import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
-import {TraceSearchInitializer} from '@app/trace_search/trace_search_initializer';
+import {Mediator} from '@app/mediator';
+import {TraceSearchInitializer} from '@app/search/trace_search_initializer';
+import {ViewerStub} from '@app/shared/viewer_stub';
+import {ViewerFactory} from '@app/viewer_factory';
+import {ViewersLoaded, ViewersUnloaded} from '@app/viewers_events';
 import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
+import {mixin} from '@common/mixin_helpers';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {makeRealTimestamp, makeZeroTimestamp} from '@common/time/test_helpers';
+import {getFixtureFile} from '@common/testing/io_helpers';
+import {makeRealTimestamp, makeZeroTimestamp,} from '@common/time/testing/test_helpers';
 import {CrossToolProtocol} from '@cross_tool/cross_tool_protocol';
 import {RemoteToolDownloadStart, RemoteToolFilesReceived, RemoteToolInitialized, RemoteToolTimestampReceived, RemoteToolWaitingForFiles,} from '@cross_tool/remote_tool_events';
 import {LegacyToPerfettoConverter} from '@legacy_file_readers/common/legacy_to_perfetto_converter';
@@ -34,30 +38,25 @@ import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {WinscopeEventListenerStub} from '@messaging/winscope_event_listener_stub';
 import {TraceGeometryData} from '@parsers/helpers/trace_geometry_data';
 import {makeWarningInvalidLegacyTrace, makeWarningInvalidPerfettoTrace,} from '@parsers/helpers/warnings';
-import {getFixtureFile} from '@test/unit/common/io_helpers';
-import {mixin} from '@test/unit/common/mixin_helpers';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceEntry} from '@trace_api/trace';
 import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {PlaybackState} from '@viewers/common/playback/playback_state';
-import {ViewType} from '@viewers/viewer';
-import {ViewerFactory} from '@viewers/viewer_factory';
-import {ViewerStub} from '@viewers/viewer_stub';
-
-import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest, AppTraceViewRequestHandled,} from './app_events';
-import {FileLoader} from './file_loader';
-import {LoadedFileData} from './loaded_file_data';
-import {Mediator} from './mediator';
-import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest, NoTraceTargetsSelectedEvent,} from './misc_events';
-import {TabbedViewSwitched, TabbedViewSwitchRequest,} from './tabbed_view_events';
-import {TimelineData} from './timeline_data';
-import {ViewersLoaded, ViewersUnloaded} from './viewers_events';
-import {makeWarningNoTraceTargetsSelected, makeWarningNoValidFiles,} from './warnings';
+import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest, AppTraceViewRequestHandled,} from '@ui/shared/events/app_events';
+import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest, NoTraceTargetsSelectedEvent,} from '@ui/shared/events/misc_events';
+import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@ui/shared/events/tabbed_view_events';
+import {PlaybackState} from '@ui/shared/playback/playback_state';
+import {ViewType} from '@ui/shared/viewer';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
+import {TimelineData} from '@ui/timeline/timeline_data';
+import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
+import {FileLoader} from '@ui/trace_loading/file_loader';
+import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
+import {makeWarningNoTraceTargetsSelected, makeWarningNoValidFiles,} from '@ui/trace_loading/warnings';
 
 describe('Mediator', () => {
   const TIMESTAMP_INVALID = makeRealTimestamp(-1n);

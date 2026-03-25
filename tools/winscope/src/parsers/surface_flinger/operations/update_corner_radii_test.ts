@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
-import {makePropertyNode} from '@test/unit/tree_node/tree_node_test_helpers';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DEFAULT_PROPERTY_TREE_NODE_FACTORY} from '@tree_node/property_tree_node_factory';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
+import {makePropertyNode} from '@tree_node/testing/tree_node_test_helpers';
 
 import {UpdateCornerRadii} from './update_corner_radii';
 

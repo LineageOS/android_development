@@ -16,11 +16,11 @@
 
 import {ArrayBufferBuilder} from '@common/buffer';
 import {binaryEncode} from '@common/string_helpers';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
-import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@test/unit/web_socket_utils';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {TraceTarget} from '@trace_collection/trace_target';
 import {makeWarningProxyTracingErrors, makeWarningProxyTracingWarnings,} from '@trace_collection/warnings';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/testing/web_socket_test_helpers';
 
 import {AdbWebSocketStream} from './adb_websocket_stream';
 import {ShellStream} from './shell_stream';

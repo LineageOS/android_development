@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {GlobalConfig} from '@common/global_config';
+import {GlobalConfig} from '@compat/global_config';
 
 import {isAllowed, isAllowedIframeParentOrigin} from './origin_allow_list';
 

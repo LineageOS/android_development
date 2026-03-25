@@ -15,10 +15,10 @@
  */
 import {assertDefined} from '@common/assert';
 import {getFakeProtoDescriptors} from '@compat/test/protobuf';
-import {PropertyTreeBuilder} from '@test/unit/tree_node/property_tree_builder';
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {Registry, TamperedMessageType, TamperedProtoField,} from '@trace/proto_utils/tampered_message_type';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
+import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 
 import {AddDefaults} from './add_defaults';
 

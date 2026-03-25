@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@app/components/timeline/playback_events';
-import {ExpandedTimelineToggled} from '@app/components/timeline/timeline_events';
-import {TraceSearchInitializer} from '@app/trace_search/trace_search_initializer';
+import {TraceSearchInitializer} from '@app/search/trace_search_initializer';
+import {ViewerFactory} from '@app/viewer_factory';
 import {assertDefined} from '@common/assert';
 import {Store} from '@common/store/store';
 import {Timestamp} from '@common/time/time';
@@ -31,6 +30,7 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {WinscopeEventEmitter} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
+import {FilesSource} from '@trace_api/files_source';
 import {PlaybackPrefetchedEntries} from '@trace_api/playback_prefetched_entries';
 import {Trace} from '@trace_api/trace';
 import {ActiveTraceChanged, InitializeTraceSearchRequest, ScreenRecordingChange, ShowTraceUploadWarning, TraceAddRequest, TracePositionUpdate, TraceRemoveRequest, TraceSearchCompleted, TraceSearchFailed, TraceSearchInitialized, TraceSearchRequest,} from '@trace_api/trace_events';
@@ -39,19 +39,20 @@ import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {RequestedTraceTypes} from '@trace_collection/adb_files';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
-import {PlaybackState} from '@viewers/common/playback/playback_state';
-import {Viewer, ViewType} from '@viewers/viewer';
-import {ViewerFactory} from '@viewers/viewer_factory';
+import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest, AppTraceViewRequestHandled,} from '@ui/shared/events/app_events';
+import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest, NoTraceTargetsSelectedEvent,} from '@ui/shared/events/misc_events';
+import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@ui/shared/events/tabbed_view_events';
+import {PlaybackState} from '@ui/shared/playback/playback_state';
+import {Viewer, ViewType} from '@ui/shared/viewer';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
+import {TimelineData} from '@ui/timeline/timeline_data';
+import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
+import {FileLoader} from '@ui/trace_loading/file_loader';
+import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
+import {makeWarningCannotVisualizeTraceEntry, makeWarningFailedToInitializeTimelineData, makeWarningNoTraceTargetsSelected, makeWarningNoValidFiles,} from '@ui/trace_loading/warnings';
 
-import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequest, AppResetRequest, AppTraceViewRequest, AppTraceViewRequestHandled,} from './app_events';
-import {FileLoader} from './file_loader';
-import {FilesSource} from './files_source';
-import {LoadedFileData} from './loaded_file_data';
-import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest, NoTraceTargetsSelectedEvent,} from './misc_events';
-import {TabbedViewSwitched, TabbedViewSwitchRequest,} from './tabbed_view_events';
-import {TimelineData} from './timeline_data';
+import {AngularViewer} from './shared/angular_viewer';
 import {ViewersLoaded, ViewersUnloaded} from './viewers_events';
-import {makeWarningCannotVisualizeTraceEntry, makeWarningFailedToInitializeTimelineData, makeWarningNoTraceTargetsSelected, makeWarningNoValidFiles,} from './warnings';
 
 /**
  * Mediator class for communication between components
@@ -71,7 +72,7 @@ export class Mediator {
   private loadedFileData: LoadedFileData;
   private activeFileLoader: FileLoader | undefined;
   private timelineData: TimelineData;
-  private viewers: Viewer[] = [];
+  private viewers: AngularViewer[] = [];
   private focusedTabView: undefined | Viewer;
   private areViewersLoaded = false;
   private lastRemoteToolDeferredTimestampReceived?: () => Timestamp | undefined;

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp,} from '@common/time/test_helpers';
+import {makeElapsedTimestamp, makeRealTimestamp, makeZeroTimestamp,} from '@common/time/testing/test_helpers';
 import {TIME_UNIT_TO_NANO} from '@common/time/time_units';
-import {ParserBuilder} from '@test/unit/trace_api/parser_builder';
-import {TraceBuilder} from '@test/unit/trace_api/trace_builder';
-import {extractEntries, extractFrames, extractTimestamps, makeEmptyTrace,} from '@test/unit/trace_api/trace_test_helpers';
+import {ParserBuilder} from '@trace_api/testing/parser_builder';
+import {TraceBuilder} from '@trace_api/testing/trace_builder';
+import {extractEntries, extractFrames, extractTimestamps, makeEmptyTrace,} from '@trace_api/testing/trace_test_helpers';
 
 import {FrameMapBuilder} from './frame_map_builder';
 import {AbsoluteFrameIndex} from './index_types';

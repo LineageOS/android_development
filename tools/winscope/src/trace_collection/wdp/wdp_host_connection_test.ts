@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@test/unit/web_socket_utils';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
+import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/testing/web_socket_test_helpers';
 
 import {DevicesStream} from './devices_stream';
 import {StreamProvider} from './stream_provider';

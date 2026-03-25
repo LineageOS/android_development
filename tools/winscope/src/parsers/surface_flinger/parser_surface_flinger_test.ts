@@ -16,10 +16,10 @@
 import {assertDefined} from '@common/assert';
 import {Rect} from '@common/geometry/rect';
 import {Region} from '@common/geometry/region';
-import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/test_helpers';
+import {makeRealTimestamp, timestampEqualityTester,} from '@common/time/testing/test_helpers';
+import {getPerfettoParser} from '@parsers/fixture_utils';
 import {makeWarningDuplicateLayerIds} from '@parsers/helpers/warnings';
-import {getPerfettoParser} from '@test/unit/parsers/fixture_utils';
-import {UserNotifierChecker} from '@test/unit/user_notifier_checker';
+import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {CoarseVersion} from '@trace_api/coarse_version';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {EntriesRange} from '@trace_api/index_types';
