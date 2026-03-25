@@ -25,7 +25,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelect, MatSelectChange, MatSelectModule,} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {AbstractSelectComponent} from '@app/shared/abstract_select_component';
+import {AbstractSelectComponent} from '@app/shared/user_input/abstract_select_component';
 
 @Component({
   selector: 'select-with-filter',

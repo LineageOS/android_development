@@ -23,7 +23,7 @@ import {AbstractFormFieldComponent} from './abstract_form_field_component';
 
 @Directive()
 export abstract class AbstractSelectComponent<
-  T = undefined,
+  T = unknown,
 > extends AbstractFormFieldComponent {
   readonly allButtonTooltip = 'You can also use CTRL+A to toggle all options';
 

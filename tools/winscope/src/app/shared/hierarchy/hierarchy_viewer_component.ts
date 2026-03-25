@@ -15,7 +15,7 @@
  */
 
 import {Directive, output} from '@angular/core';
-import {ViewerComponent} from '@app/shared/viewer_component';
+import {ViewerComponent} from '@app/shared/viewers/viewer_component';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {TextFilter} from '@ui/shared/user_input/text_filter';

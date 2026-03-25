@@ -22,7 +22,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {AbstractFormFieldComponent} from '@app/shared/abstract_form_field_component';
+import {AbstractFormFieldComponent} from '@app/shared/user_input/abstract_form_field_component';
 import {FilterFlag} from '@common/filter_flag';
 import {TextFilter} from '@ui/shared/user_input/text_filter';
 

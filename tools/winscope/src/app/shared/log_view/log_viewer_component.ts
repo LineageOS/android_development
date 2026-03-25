@@ -15,7 +15,7 @@
  */
 
 import {Directive, output, viewChild} from '@angular/core';
-import {ViewerComponent} from '@app/shared/viewer_component';
+import {ViewerComponent} from '@app/shared/viewers/viewer_component';
 import {UiDataLog} from '@ui/shared/log/ui_data_log';
 import {LogFilterChangeDetail, LogTextFilterChangeDetail,} from '@ui/shared/viewers/viewer_event_details';
 

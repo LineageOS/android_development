@@ -30,7 +30,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {CollapsedSectionsComponent} from '@app/shared/collapsible_sections/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
 import {LogComponent} from '@app/shared/log_view/log_component';
-import {ViewerComponent} from '@app/shared/viewer_component';
+import {ViewerComponent} from '@app/shared/viewers/viewer_component';
 import {assertDefined} from '@common/assert';
 import {downloadFromUrl} from '@common/download';
 import {Timestamp} from '@common/time/time';
