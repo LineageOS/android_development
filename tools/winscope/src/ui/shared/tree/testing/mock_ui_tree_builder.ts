@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,17 @@
  */
 
 import {assertDefined} from '@common/assert';
+import {AbstractTreeBuilder} from '@tree_node/testing/abstract_tree_builder';
 
-import {AbstractTreeBuilder} from './abstract_tree_builder';
-import {MockTreeNode} from './mock_tree_node';
+import {MockUiTreeNode} from './mock_ui_tree_node';
 
 /**
  * Builder for a mock tree.
  *
  * The builder is not reusable, it should only be used to build one tree.
  */
-export class MockTreeBuilder extends AbstractTreeBuilder<
-  MockTreeNode,
+export class MockUiTreeBuilder extends AbstractTreeBuilder<
+  MockUiTreeNode,
   ChildTreeNode
 > {
   setId(value: string): this {
@@ -33,20 +33,23 @@ export class MockTreeBuilder extends AbstractTreeBuilder<
     return this;
   }
 
-  protected override makeRootNode(): MockTreeNode {
+  protected override makeRootNode(): MockUiTreeNode {
     const rootId = this.makeNodeId();
-    return new MockTreeNode(rootId, assertDefined(this.name));
+    const root = new MockUiTreeNode(rootId, assertDefined(this.name));
+    root.setIsRoot(true);
+    return root;
   }
 
   protected override addOrReplaceChildNode(
-    rootNode: MockTreeNode,
+    rootNode: MockUiTreeNode,
     child: ChildTreeNode,
   ): void {
-    const childNode = new MockTreeBuilder()
+    const childNode = new MockUiTreeBuilder()
       .setId(child.id)
       .setName(child.name)
       .setChildren(child.children ?? [])
       .build();
+    childNode.setIsRoot(false);
     rootNode.addOrReplaceChild(childNode);
   }
 
@@ -56,7 +59,7 @@ export class MockTreeBuilder extends AbstractTreeBuilder<
 }
 
 /**
- * A child in a hierarchy tree.
+ * A child in a mock tree.
  */
 export declare interface ChildTreeNode {
   id: string;
