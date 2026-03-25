@@ -30,7 +30,6 @@ import {Filter} from '@ui/shared/tree/filter';
 import {UiTreeFormatter} from '@ui/shared/tree/ui_tree_formatter';
 import {TextFilter} from '@ui/shared/user_input/text_filter';
 import {UserOptions} from '@ui/shared/user_input/user_options';
-import {SimplifyNamesVc} from '@ui/view_capture/operations/simplify_names';
 
 import {AddChips} from './add_chips';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
@@ -84,6 +83,7 @@ export class HierarchyPresenter {
     private customOperations?: Array<
       [TraceType, Array<Operation<UiHierarchyTreeNode>>]
     >,
+    private readonly simplifyNamesOperation: Operation<UiHierarchyTreeNode> = new SimplifyNames(),
   ) {
     this.hierarchyFilter = makeNodeFilter(textFilter.getFilterPredicate());
   }
@@ -423,11 +423,7 @@ export class HierarchyPresenter {
     formatter.addOperation(new AddChips());
 
     if (this.userOptions['simplifyNames']?.enabled) {
-      formatter.addOperation(
-        trace.type === TraceType.VIEW_CAPTURE
-          ? new SimplifyNamesVc()
-          : new SimplifyNames(),
-      );
+      formatter.addOperation(this.simplifyNamesOperation);
     }
     this.customOperations?.forEach((traceAndOperations) => {
       const [traceType, operations] = traceAndOperations;

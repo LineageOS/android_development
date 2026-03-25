@@ -42,6 +42,7 @@ import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
 import {TextFilter} from '@ui/shared/user_input/text_filter';
 import {UserOptions} from '@ui/shared/user_input/user_options';
 
+import {SimplifyNamesVc} from './operations/simplify_names';
 import {UiData} from './ui_data';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
@@ -73,6 +74,9 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     Presenter.DENYLIST_PROPERTY_NAMES,
     false,
     true,
+    undefined,
+    undefined,
+    new SimplifyNamesVc(),
   );
   protected override rectsPresenter = new RectsPresenter(
     createPersistentStoreProxy<UserOptions>(
