@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import {PropertyValue} from '@tree_node/property_tree_node';
-import {testTreeNodes as baseTestTreeNodes, makeHierarchyNode, makePropertyNode,} from '@tree_node/testing/tree_node_test_helpers';
+import {makeHierarchyNode} from '@tree_node/testing/tree_node_test_helpers';
 import {TreeNode} from '@tree_node/tree_node';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {testTreeNodes as baseTestTreeNodes} from '@ui/shared/tree/testing/ui_tree_node_test_helpers';
 
 /**
  * Creates a UI hierarchy tree node for tests.
@@ -29,22 +27,6 @@ import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
  */
 export function makeUiHierarchyNode(proto: object): UiHierarchyTreeNode {
   return UiHierarchyTreeNode.from(makeHierarchyNode(proto));
-}
-
-/**
- * Creates a UI property tree node for tests.
- *
- * @param rootId The node's identifier.
- * @param name The node's name.
- * @param value The node's value.
- * @return The constructed UI property tree node.
- */
-export function makeUiPropertyNode(
-  rootId: string,
-  name: string,
-  value: PropertyValue | undefined,
-): UiPropertyTreeNode {
-  return UiPropertyTreeNode.from(makePropertyNode(rootId, name, value));
 }
 
 /**
@@ -65,14 +47,6 @@ export function treeNodeEqualityTester(
 }
 
 function testTreeNodes(node: TreeNode, expectedNode: TreeNode): boolean {
-  if ((node as UiTreeNode).getDiff && (expectedNode as UiTreeNode).getDiff) {
-    if (
-      (node as UiTreeNode).getDiff() !== (expectedNode as UiTreeNode).getDiff()
-    ) {
-      return false;
-    }
-  }
-
   if (
     node instanceof UiHierarchyTreeNode &&
     expectedNode instanceof UiHierarchyTreeNode
@@ -93,5 +67,5 @@ function testTreeNodes(node: TreeNode, expectedNode: TreeNode): boolean {
     }
   }
 
-  return baseTestTreeNodes(node, expectedNode) ?? false;
+  return baseTestTreeNodes(node, expectedNode);
 }

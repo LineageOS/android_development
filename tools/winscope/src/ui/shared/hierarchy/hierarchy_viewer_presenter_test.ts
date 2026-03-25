@@ -28,14 +28,14 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
-import {DiffType} from '@ui/shared/diff_type';
 import {DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';
-import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {UiRectBuilder} from '@ui/shared/rects/ui_rect_builder';
 import {TextFilter} from '@ui/shared/text_filter';
+import {DiffType} from '@ui/shared/tree/diff_type';
 import {UserOptions} from '@ui/shared/user_options';
 
 describe('AbstractHierarchyViewerPresenter', () => {

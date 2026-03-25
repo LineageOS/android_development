@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-import {RECT_FORMATTER} from '@trace/formatters';
-import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
-import {makeRectNode} from '@tree_node/testing/tree_node_test_helpers';
-import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {assertDefined} from '@common/assert';
 
-import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
+import {MockUiTreeBuilder} from './testing/mock_ui_tree_builder';
+import {MockUiTreeNode} from './testing/mock_ui_tree_node';
 import {UiTreeNode} from './ui_tree_node';
 import {flattenNodesToRows} from './ui_tree_node_helpers';
 
 describe('ui_tree_node_helpers', () => {
   describe('flattenNodesToRow', () => {
     it('flattens single tree in DFS order', () => {
-      const tree = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('Root')
-          .setName('Node')
-          .setChildren([
-            {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
-            {id: '3', name: 'c3'},
-          ])
-          .build(),
-      );
+      const tree = new MockUiTreeBuilder()
+        .setId('Root')
+        .setName('Node')
+        .setChildren([
+          {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
+          {id: '3', name: 'c3'},
+        ])
+        .build();
       const rows = flattenNodesToRows([tree], false, false, '');
 
-      const dfsNodes: UiHierarchyTreeNode[] = [];
+      const dfsNodes: MockUiTreeNode[] = [];
       tree.forEachNodeDfs((node) => dfsNodes.push(node));
       expect(rows).toEqual(
         dfsNodes.map((node, index) => {
@@ -48,21 +44,18 @@ describe('ui_tree_node_helpers', () => {
     });
 
     it('flattens multiple trees sequentially', () => {
-      const tree1 = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('Root')
-          .setName('Node')
-          .setChildren([
-            {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
-          ])
-          .build(),
-      );
-      const tree2 = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder().setId('Root2').setName('Node2').build(),
-      );
+      const tree1 = new MockUiTreeBuilder()
+        .setId('Root')
+        .setName('Node')
+        .setChildren([{id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]}])
+        .build();
+      const tree2 = new MockUiTreeBuilder()
+        .setId('Root2')
+        .setName('Node2')
+        .build();
       const rows = flattenNodesToRows([tree1, tree2], false, false, '');
 
-      const dfsNodes: UiHierarchyTreeNode[] = [];
+      const dfsNodes: MockUiTreeNode[] = [];
       tree1.forEachNodeDfs((node) => dfsNodes.push(node));
       dfsNodes.push(tree2);
       expect(rows).toEqual(
@@ -73,25 +66,19 @@ describe('ui_tree_node_helpers', () => {
     });
 
     it('flattens trees processing depth', () => {
-      const tree1 = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('Root')
-          .setName('Node')
-          .setChildren([
-            {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
-          ])
-          .build(),
-      );
-      const tree2 = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('Root2')
-          .setName('Node2')
-          .setChildren([{id: '3', name: 'c3'}])
-          .build(),
-      );
+      const tree1 = new MockUiTreeBuilder()
+        .setId('Root')
+        .setName('Node')
+        .setChildren([{id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]}])
+        .build();
+      const tree2 = new MockUiTreeBuilder()
+        .setId('Root2')
+        .setName('Node2')
+        .setChildren([{id: '3', name: 'c3'}])
+        .build();
       const rows = flattenNodesToRows([tree1, tree2], true, false, '');
 
-      const dfsNodes: UiHierarchyTreeNode[] = [];
+      const dfsNodes: MockUiTreeNode[] = [];
       tree1.forEachNodeDfs((node) => dfsNodes.push(node));
       tree2.forEachNodeDfs((node) => dfsNodes.push(node));
       const expectedDepths = [0, 1, 2, 0, 1];
@@ -102,26 +89,27 @@ describe('ui_tree_node_helpers', () => {
       );
     });
 
-    it('skips children of leaf UiPropertyTreeNodes', () => {
-      const tree = UiPropertyTreeNode.from(makeRectNode(0, 0, 1, 1));
-      tree.setFormatter(RECT_FORMATTER);
+    it('skips children of leaf nodes', () => {
+      const tree = new MockUiTreeBuilder()
+        .setId('Root')
+        .setName('Node')
+        .setChildren([{id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]}])
+        .build();
+      const c1 = assertDefined(tree.getChildByName('c1'));
+      spyOn(c1, 'isLeaf').and.returnValue(true);
       const rows = flattenNodesToRows([tree], false, false, '');
-      expect(rows).toEqual([makeExpectedRow(tree, 0)]);
+      expect(rows).toEqual([makeExpectedRow(tree, 0), makeExpectedRow(c1, 1)]);
     });
 
     it('flattens tree and adds gutter', () => {
-      const tree = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('Root')
-          .setName('Node')
-          .setChildren([
-            {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
-          ])
-          .build(),
-      );
+      const tree = new MockUiTreeBuilder()
+        .setId('Root')
+        .setName('Node')
+        .setChildren([{id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]}])
+        .build();
       const rows = flattenNodesToRows([tree], false, true, '');
 
-      const dfsNodes: UiHierarchyTreeNode[] = [];
+      const dfsNodes: MockUiTreeNode[] = [];
       tree.forEachNodeDfs((node) => dfsNodes.push(node));
       const offsetStyle = {
         paddingLeft: '12px',
@@ -135,19 +123,17 @@ describe('ui_tree_node_helpers', () => {
     });
 
     it('flattens tree with highlighted depths', () => {
-      const tree = UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('Root')
-          .setName('Node')
-          .setChildren([
-            {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
-            {id: '3', name: 'c3'},
-          ])
-          .build(),
-      );
+      const tree = new MockUiTreeBuilder()
+        .setId('Root')
+        .setName('Node')
+        .setChildren([
+          {id: '1', name: 'c1', children: [{id: '2', name: 'c2'}]},
+          {id: '3', name: 'c3'},
+        ])
+        .build();
       const rows = flattenNodesToRows([tree], true, false, '1 c1');
 
-      const dfsNodes: UiHierarchyTreeNode[] = [];
+      const dfsNodes: MockUiTreeNode[] = [];
       tree.forEachNodeDfs((node) => dfsNodes.push(node));
       const depths = [0, 1, 2, 1];
       const parentDepths = [undefined, undefined, 0, 0];

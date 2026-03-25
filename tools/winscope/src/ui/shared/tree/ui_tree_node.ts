@@ -15,7 +15,8 @@
  */
 
 import {TreeNode} from '@tree_node/tree_node';
-import {DiffType} from '@ui/shared/diff_type';
+
+import {DiffType} from './diff_type';
 
 /** Shared interface for any tree node used for UI rendering. */
 
