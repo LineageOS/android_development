@@ -17,7 +17,7 @@
 import {showPopupWindow} from '@common/window';
 import {getLogger, Logger} from '@compat/logging';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
-import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
+import {AdbHostConnection} from '@trace_collection/adb_host_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 

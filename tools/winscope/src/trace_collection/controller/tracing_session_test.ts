@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb_device_connection';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
 import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
 
