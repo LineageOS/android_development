@@ -17,7 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {getLogger, Logger} from '@compat/logging';
 import {TreeNode} from '@tree_node/tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 
 import {DiffType} from './diff_type';
 

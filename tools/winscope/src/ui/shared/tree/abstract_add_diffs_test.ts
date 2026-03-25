@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
+import {treeNodeEqualityTester} from '@ui/shared/tree/testing/ui_tree_node_test_helpers';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 
 import {AddDiffs} from './add_diffs';
 import {DiffType} from './diff_type';
 
 export abstract class AbstractAddDiffsTest<T extends UiTreeNode> {
+  protected readonly treeEqualityTester = treeNodeEqualityTester;
+
   execute() {
     describe('AddDiffs', () => {
       let newRoot: T;
@@ -33,7 +35,7 @@ export abstract class AbstractAddDiffsTest<T extends UiTreeNode> {
       });
 
       beforeEach(() => {
-        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(this.treeEqualityTester);
         newRoot = this.makeRoot();
         oldRoot = this.makeRoot();
         expectedRoot = this.makeRoot();

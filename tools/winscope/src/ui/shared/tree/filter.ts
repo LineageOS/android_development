@@ -16,7 +16,7 @@
 
 import {Operation} from '@tree_node/operation';
 import {TreeNode} from '@tree_node/tree_node';
-import {TreeNodeFilter} from '@ui/shared/hierarchy/ui_tree_node_helpers';
+import {TreeNodeFilter} from '@ui/shared/tree/ui_tree_node_helpers';
 
 export class Filter<T extends TreeNode> implements Operation<T> {
   constructor(
