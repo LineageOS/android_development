@@ -35,7 +35,6 @@ import {getRootUrl} from '@common/window';
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {Canvas} from '@ui/shared/rects/canvas';
 import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {Mapper3D} from '@ui/shared/rects/mapper3d';
@@ -82,7 +81,7 @@ export class RectsComponent implements OnInit, OnDestroy {
   isStackBased = input(false);
   rectSpec = input<RectSpec>();
   allRectSpecs = input<RectSpec[]>();
-  pinnedItems = input<UiHierarchyTreeNode[]>([]);
+  pinnedIds = input<string[]>([]);
   isDarkMode = input(false);
 
   collapseButtonClicked = output();
@@ -198,8 +197,8 @@ export class RectsComponent implements OnInit, OnDestroy {
     });
 
     effect(() => {
-      const pinnedItems = this.pinnedItems();
-      this.largeRectsMapper3d.setPinnedItems(pinnedItems);
+      const pinnedIds = this.pinnedIds();
+      this.largeRectsMapper3d.setPinnedIds(pinnedIds);
       this.updateLargeRectsColors();
     });
 

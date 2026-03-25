@@ -36,8 +36,6 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
-import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {Camera} from '@ui/shared/rects/camera';
 import {Canvas} from '@ui/shared/rects/canvas';
 import {ColorType} from '@ui/shared/rects/color_type';
@@ -563,11 +561,7 @@ describe('RectsComponent', () => {
     setRectAndDisplayGroup0();
     resetSpies();
 
-    dom.setComponentInput('pinnedItems', [
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder().setId('test-id').setName('0').build(),
-      ),
-    ]);
+    dom.setComponentInput('pinnedIds', ['test-id']);
     dom.detectChanges();
     expect(updateViewPositionSpy).toHaveBeenCalledTimes(0);
     expect(updateRectsSpy).toHaveBeenCalledTimes(1);

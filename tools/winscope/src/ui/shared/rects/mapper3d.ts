@@ -21,7 +21,6 @@ import {Point3D} from '@common/geometry/point3d';
 import {Rect3D} from '@common/geometry/rect3d';
 import {Size} from '@common/geometry/size';
 import {TransformMatrix} from '@common/geometry/transform_matrix';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 
 import {ColorType} from './color_type';
 import {RectLabel} from './rect_label';
@@ -56,15 +55,15 @@ class Mapper3D {
   private currentGroupIds = [0]; // default stack id is usually 0
   private shadingModeIndex = 0;
   private allowedShadingModes: ShadingMode[] = [ShadingMode.GRADIENT];
-  private pinnedItems: UiHierarchyTreeNode[] = [];
+  private pinnedIds: string[] = [];
   private previousBoundingBox: Box3D | undefined;
 
   setRects(rects: UiRect[]) {
     this.rects = rects;
   }
 
-  setPinnedItems(value: UiHierarchyTreeNode[]) {
-    this.pinnedItems = value;
+  setPinnedIds(value: string[]) {
+    this.pinnedIds = value;
   }
 
   setHighlightedRectId(id: string) {
@@ -299,7 +298,7 @@ class Mapper3D {
         isClickable: rect2d.isClickable,
         transform: clusterYOffset ? transform.addTy(clusterYOffset) : transform,
         fillRegion,
-        isPinned: this.pinnedItems.some((node) => node.id === rect2d.id),
+        isPinned: this.pinnedIds.some((id) => id === rect2d.id),
         pointerLocationsInRect: rect2d.pointerLocationsInRect.map((p) => {
           return new Point3D(p.x, p.y, z);
         }),

@@ -29,4 +29,8 @@ export class HierarchyViewerComponent<
   readonly onHighlightedNodeChange = output<UiHierarchyTreeNode>();
   readonly onHierarchyPinnedChange = output<UiHierarchyTreeNode>();
   readonly onHierarchyUserOptionsChange = output<UserOptions>();
+
+  getPinnedIds(): string[] {
+    return this.inputData()?.pinnedItems.map((node) => node.id) ?? [];
+  }
 }
