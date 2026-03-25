@@ -266,6 +266,20 @@ describe('LogPresenter', () => {
       );
       updateNumberFilterAndCheckEntries([], testEntries);
     });
+
+    it('retains selected index on select filter only if entry still available', () => {
+      checkFilterIndexRetention(
+        () => updateNumberFilter(['0', '2']),
+        () => updateNumberFilter([]),
+      );
+    });
+
+    it('retains selected index on text filter only if entry still available', () => {
+      checkFilterIndexRetention(
+        () => updateStringFilter('stringValue'),
+        () => updateStringFilter(''),
+      );
+    });
   });
 
   async function buildTestEntries(): Promise<LogEntry[]> {
@@ -309,6 +323,27 @@ describe('LogPresenter', () => {
     ];
   }
 
+  function checkFilterIndexRetention(
+    updateFilter: () => void,
+    clearFilter: () => void,
+  ) {
+    // selected index retained after filter as entry still present
+    presenter.applyLogEntryClick(2);
+    expect(presenter.getSelectedIndex()).toBe(2);
+    updateFilter();
+    expect(presenter.getSelectedIndex()).toBe(1);
+    clearFilter();
+    expect(presenter.getSelectedIndex()).toBe(2);
+
+    // selected index discarded after filter as entry filtered out
+    presenter.applyLogEntryClick(1);
+    expect(presenter.getSelectedIndex()).toBe(1);
+    updateFilter();
+    expect(presenter.getSelectedIndex()).toBeUndefined();
+    clearFilter();
+    expect(presenter.getSelectedIndex()).toBeUndefined();
+  }
+
   function expectAllIndicesUndefined() {
     expect(presenter.getCurrentIndex()).toBeUndefined();
     expect(presenter.getSelectedIndex()).toBeUndefined();
@@ -319,16 +354,24 @@ describe('LogPresenter', () => {
     value: string,
     expectedEntries: LogEntry[],
   ) {
+    updateStringFilter(value);
+    expect(presenter.getFilteredEntries()).toEqual(expectedEntries);
+  }
+
+  function updateStringFilter(value: string) {
     stringFilter.updateFilterValue([value]);
     presenter.applyTextFilterChange(headers[0], stringFilter.textFilter);
-    expect(presenter.getFilteredEntries()).toEqual(expectedEntries);
   }
 
   function updateNumberFilterAndCheckEntries(
     value: string[],
     expectedEntries: LogEntry[],
   ) {
-    presenter.applySelectFilterChange(headers[1], value);
+    updateNumberFilter(value);
     expect(presenter.getFilteredEntries()).toEqual(expectedEntries);
+  }
+
+  function updateNumberFilter(value: string[]) {
+    presenter.applySelectFilterChange(headers[1], value);
   }
 });

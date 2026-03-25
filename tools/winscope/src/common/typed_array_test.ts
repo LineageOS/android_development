@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {binarySearchFirstGreater, binarySearchFirstGreaterOrEqual, equal, searchSubarray,} from './typed_array';
+import {binarySearch, binarySearchFirstGreater, binarySearchFirstGreaterOrEqual, equal, searchSubarray,} from './typed_array';
 
 describe('typed_array_test', () => {
   it('equal', () => {
@@ -90,6 +90,18 @@ describe('typed_array_test', () => {
     expect(searchSubarray([0, 1, 2], [1, 2])).toBe(1);
     expect(searchSubarray([0, 1, 2], [2])).toBe(2);
     expect(searchSubarray([0, 1, 2], [2, 3])).toBeUndefined();
+  });
+
+  it('binarySearch', () => {
+    // no match
+    expect(binarySearch([], 9)).toBeUndefined();
+    expect(binarySearch([8], 9)).toBeUndefined();
+    expect(binarySearch([8], 7)).toBeUndefined();
+
+    // match
+    expect(binarySearch([6], 6)).toBe(0);
+    expect(binarySearch([6, 7], 6)).toBe(0);
+    expect(binarySearch([4, 6], 6)).toBe(1);
   });
 
   it('binarySearchFirstGreaterOrEqual', () => {

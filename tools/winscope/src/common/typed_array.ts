@@ -88,6 +88,41 @@ export function searchSubarray<T>(
 }
 
 /**
+ * Performs a binary search to find an element in the array that is
+ * equal to the target value.
+ *
+ * @param values The array to search in.
+ * @param target The value to search for.
+ * @return The index of the element that is equal to the target value, or
+ *   undefined if no such element exists.
+ */
+export function binarySearch<T>(
+  values: T[] | TypedArray,
+  target: T,
+): number | undefined {
+  if (values.length === 0) {
+    return undefined;
+  }
+
+  let low = 0;
+  let high = values.length - 1;
+
+  while (low <= high) {
+    const mid = (low + high) >> 1;
+
+    if (values[mid] < target) {
+      low = mid + 1;
+    } else if (values[mid] > target) {
+      high = mid - 1;
+    } else {
+      return mid;
+    }
+  }
+
+  return undefined;
+}
+
+/**
  * Performs a binary search to find the first element in the array that is
  * greater than or equal to the target value.
  *
