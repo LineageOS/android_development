@@ -15,31 +15,17 @@
  */
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
-import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output, TemplateRef,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {PropertyTreeNodeDataViewComponent} from '@app/shared/properties/property_tree_node_data_view_component';
 import {assertDefined} from '@common/assert';
-import {TreeNode} from '@tree_node/tree_node';
-import {DiffType} from '@ui/shared/diff_type';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
-
-import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
+import {DiffType} from '@ui/shared/tree/diff_type';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 
 @Component({
   selector: 'tree-node',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    ClipboardModule,
-    HierarchyTreeNodeDataViewComponent,
-    PropertyTreeNodeDataViewComponent,
-  ],
+  imports: [CommonModule, MatButtonModule, MatIconModule, ClipboardModule],
   templateUrl: './tree_node_component.ng.html',
   styleUrls: ['tree_node_component.scss'],
 })
@@ -56,13 +42,12 @@ export class TreeNodeComponent<T extends UiTreeNode> {
   showStateIcon = input<string>();
   childHighlightDepth = input<number>();
   parentHighlightDepth = input<number>();
+  dataView = input<TemplateRef<unknown>>();
 
   readonly toggleTreeChange = output<void>();
   readonly rectShowStateChange = output<void>();
   readonly expandTreeChange = output<void>();
   readonly pinNodeChange = output<T>();
-  readonly timestampClick = output<TimestampClickDetail>();
-  readonly propagatePropertyNodeClick = output<UiPropertyTreeNode>();
 
   readonly collapseDiffClass = computed(() => {
     const node = this.node();
@@ -89,14 +74,6 @@ export class TreeNodeComponent<T extends UiTreeNode> {
     return node !== undefined && node.canBePinned() && !node.isRoot();
   });
 
-  readonly isHierarchyTreeNode = computed<boolean>(() => {
-    return this.node() instanceof UiHierarchyTreeNode;
-  });
-
-  readonly isPropertyTreeNode = computed<boolean>(() => {
-    return this.node() instanceof UiPropertyTreeNode;
-  });
-
   readonly showChevron = computed<boolean>(() => {
     return !this.isLeaf() && !this.flattened() && !this.isInPinnedSection();
   });
@@ -121,14 +98,6 @@ export class TreeNodeComponent<T extends UiTreeNode> {
 
   ngOnDestroy() {
     this.el?.removeEventListener('mousedown', this.nodeMouseDownEventListener);
-  }
-
-  toPropertyTreeNode(input: TreeNode): UiPropertyTreeNode {
-    return input as UiPropertyTreeNode;
-  }
-
-  toHierarchyTreeNode(input: TreeNode): UiHierarchyTreeNode {
-    return input as UiHierarchyTreeNode;
   }
 
   toggleTree(event: MouseEvent) {

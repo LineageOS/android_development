@@ -18,22 +18,17 @@ import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
 import {TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {PropertyTreeNodeDataViewComponent} from '@app/shared/properties/property_tree_node_data_view_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
-import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
-import {ChildHierarchy, HierarchyTreeBuilder,} from '@tree_node/testing/hierarchy_tree_builder';
-import {makeUiPropertyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {ChildTreeNode, MockUiTreeBuilder,} from '@ui/shared/tree/testing/mock_ui_tree_builder';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
+import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
 
-import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {TreeComponent} from './tree_component';
 import {TreeNodeComponent} from './tree_node_component';
+import {Component, TemplateRef, viewChild} from '@angular/core';
 
 describe('TreeComponent', () => {
   let component: TreeComponent<UiTreeNode>;
@@ -53,8 +48,6 @@ describe('TreeComponent', () => {
         VirtualScrollViewportComponent,
         TreeComponent,
         TreeNodeComponent,
-        HierarchyTreeNodeDataViewComponent,
-        PropertyTreeNodeDataViewComponent,
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(TreeComponent);
@@ -259,20 +252,20 @@ describe('TreeComponent', () => {
     await waitForNodeStability();
     expect(dom.find('.node.full-opacity')).toBeDefined();
 
-    const hierarchyNode = component.nodeRows()[0].node;
+    const node = component.nodeRows()[0].node;
     dom.setComponentInput(
       'rectIdToShowState',
-      new Map([[hierarchyNode.id, RectShowState.SHOW]]),
+      new Map([[node.id, RectShowState.SHOW]]),
     );
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeDefined();
 
-    const propertiesTree = makeUiPropertyNode(
-      hierarchyNode.id,
-      hierarchyNode.name,
-      0,
-    );
-    dom.setComponentInput('nodeRows', makeNodeRows(propertiesTree));
+    const tree = new MockUiTreeBuilder()
+      .setId(node.id)
+      .setName(node.name)
+      .build();
+    tree.setHasShowState(false);
+    dom.setComponentInput('nodeRows', makeNodeRows(tree));
     dom.detectChanges();
     expect(dom.find('.node.full-opacity')).toBeDefined();
   });
@@ -291,18 +284,18 @@ describe('TreeComponent', () => {
   });
 
   it('copies text via copy button without selecting node', async () => {
-    const hierarchyNode = component.nodeRows()[0].node;
-    const propertiesTree = makeUiPropertyNode(
-      hierarchyNode.id,
-      hierarchyNode.name,
-      0,
-    );
-    dom.setComponentInput('nodeRows', makeNodeRows(propertiesTree));
+    const node = component.nodeRows()[0].node;
+    const tree = new MockUiTreeBuilder()
+      .setId(node.id)
+      .setName(node.name)
+      .build();
+    tree.setCopyText('copy text');
+    dom.setComponentInput('nodeRows', makeNodeRows(tree));
     await waitForNodeStability();
 
     const spy = spyOn(component, 'onNodeClick');
     dom.findAndClick('.icon-wrapper-copy button');
-    expect(mockCopyText).toHaveBeenCalled();
+    expect(mockCopyText).toHaveBeenCalledWith('copy text');
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -370,25 +363,20 @@ describe('TreeComponent', () => {
     expect(component.highlightedItem()).toBe('0 Child0');
   });
 
-  it('propagates timestamp click', () => {
-    dom.detectChanges();
-    const treeNode = assertDefined(dom.findByDirective(TreeNodeComponent));
-    const tsSpy = spyOn(component.timestampClick, 'emit');
-    const tsDetail = new TimestampClickDetail(
-      undefined,
-      makeElapsedTimestamp(2n),
-    );
-    treeNode.timestampClick.emit(tsDetail);
-    expect(tsSpy).toHaveBeenCalledOnceWith(tsDetail);
-  });
+  it('passes input template for data view to tree node', () => {
+    const templateFixture = TestBed.createComponent(TestTemplateComponent);
+    const templateComponent = templateFixture.componentInstance;
+    templateFixture.detectChanges();
+    const testTemplate = templateComponent.template();
 
-  it('propagates property', () => {
+    dom.setComponentInput('dataView', testTemplate);
     dom.detectChanges();
-    const treeNode = assertDefined(dom.findByDirective(TreeNodeComponent));
-    const propSpy = spyOn(component.propagatePropertyClick, 'emit');
-    const propDetail = makeUiPropertyNode('id', 'name', false);
-    treeNode.propagatePropertyNodeClick.emit(propDetail);
-    expect(propSpy).toHaveBeenCalledOnceWith(propDetail);
+
+    const nodes = dom.findAllByDirective(TreeNodeComponent);
+    expect(nodes.length).toBeGreaterThan(0);
+    nodes.forEach(node => {
+      expect(node.dataView()).toEqual(testTemplate);
+    })
   });
 
   function makeNodeRows(tree: UiTreeNode) {
@@ -396,23 +384,21 @@ describe('TreeComponent', () => {
   }
 
   function makeTree() {
-    const children: ChildHierarchy[] = [];
+    const children: ChildTreeNode[] = [];
     for (let i = 0; i < 40; i++) {
       const parentId = i * 2;
       const childId = parentId + 1;
       children.push({
-        id: parentId,
+        id: parentId.toString(),
         name: `Child${parentId}`,
-        children: [{id: childId, name: `Child${childId}`}],
+        children: [{id: childId.toString(), name: `Child${childId}`}],
       });
     }
-    return UiHierarchyTreeNode.from(
-      new HierarchyTreeBuilder()
-        .setId('RootNode')
-        .setName('Root node')
-        .setChildren(children)
-        .build(),
-    );
+    return new MockUiTreeBuilder()
+      .setId('RootNode')
+      .setName('Root node')
+      .setChildren(children)
+      .build();
   }
 
   function doubleClickFirstNode() {
@@ -466,3 +452,16 @@ describe('TreeComponent', () => {
     dom.detectChanges();
   }
 });
+
+@Component({
+  selector: 'test-component',
+  template: `
+    <ng-template #testTemplate let-node="node">
+      <span class="test-node-name"> {{node.name}} </span>
+      <span class="test-node-id"> {{node.id}} </span>
+    </ng-template>
+  `,
+})
+class TestTemplateComponent {
+  template = viewChild.required<TemplateRef<unknown>>('testTemplate');
+}

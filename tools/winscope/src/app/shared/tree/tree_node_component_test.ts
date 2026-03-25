@@ -15,23 +15,16 @@
  */
 
 import {Clipboard, ClipboardModule} from '@angular/cdk/clipboard';
+import {Component, TemplateRef, viewChild} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {PropertyTreeNodeDataViewComponent} from '@app/shared/properties/property_tree_node_data_view_component';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
-import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
-import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
-import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
-import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
-import {DiffType} from '@ui/shared/diff_type';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {DiffType} from '@ui/shared/tree/diff_type';
+import {MockUiTreeBuilder} from '@ui/shared/tree/testing/mock_ui_tree_builder';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 
-import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
 import {TreeNodeComponent} from './tree_node_component';
 
 describe('TreeNodeComponent', () => {
@@ -40,17 +33,16 @@ describe('TreeNodeComponent', () => {
   let dom: DOMTestHelper<TreeNodeComponent<UiTreeNode>>;
   let mockCopyText: jasmine.Spy;
 
-  const propertiesTree = UiPropertyTreeNode.from(
-    new PropertyTreeBuilder()
-      .setRootId('test')
-      .setName('property tree')
-      .setChildren([
-        {name: 'key1', value: 'value1', formatter: DEFAULT_PROPERTY_FORMATTER},
-        {name: 'key2', children: [{name: 'key3'}]},
-      ])
-      .build(),
-  );
-  propertiesTree.setIsRoot(true);
+  const tree = new MockUiTreeBuilder()
+    .setId('test')
+    .setName('tree')
+    .setChildren([
+      {id: 'key1', name: 'value1'},
+      {id: 'key2', name: 'value2', children: [{id: 'key3', name: 'value3'}]},
+    ])
+    .build();
+  tree.setHasShowState(false);
+  tree.setCanBePinned(false);
 
   beforeEach(async () => {
     mockCopyText = jasmine.createSpy();
@@ -61,8 +53,7 @@ describe('TreeNodeComponent', () => {
         MatTooltipModule,
         ClipboardModule,
         TreeNodeComponent,
-        HierarchyTreeNodeDataViewComponent,
-        PropertyTreeNodeDataViewComponent,
+        TestTemplateComponent,
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(TreeNodeComponent);
@@ -71,35 +62,13 @@ describe('TreeNodeComponent', () => {
   });
 
   it('can be created', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
-  it('can generate hierarchy data view component', () => {
-    dom.setComponentInput(
-      'node',
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('LayerTraceEntry')
-          .setName('Root')
-          .build(),
-      ),
-    );
-    fixture.detectChanges();
-    expect(dom.find('hierarchy-tree-node-data-view')).toBeDefined();
-    expect(dom.find('property-tree-node-data-view')).toBeUndefined();
-  });
-
-  it('can generate property data view component', () => {
-    dom.setComponentInput('node', propertiesTree);
-    fixture.detectChanges();
-    expect(dom.find('property-tree-node-data-view')).toBeDefined();
-    expect(dom.find('hierarchy-tree-node-data-view')).toBeUndefined();
-  });
-
   it('can trigger tree toggle on click of chevron', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     spyOn(component, 'showChevron').and.returnValue(true);
     fixture.detectChanges();
 
@@ -109,7 +78,7 @@ describe('TreeNodeComponent', () => {
   });
 
   it('can trigger tree expansion on click of expand tree button', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     fixture.detectChanges();
     const spy = spyOn(component.expandTreeChange, 'emit');
     dom.findAndClick('.expand-tree-btn');
@@ -117,7 +86,7 @@ describe('TreeNodeComponent', () => {
   });
 
   it('can collapse a tree if node is selected', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     spyOn(component, 'showChevron').and.returnValue(true);
     fixture.detectChanges();
     dom.setComponentInput('isSelected', false);
@@ -130,7 +99,7 @@ describe('TreeNodeComponent', () => {
   });
 
   it('assigns diff css classes to expand tree button', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     fixture.detectChanges();
     const expandButton = dom.get('.expand-tree-btn');
     expandButton.checkClassName('icon-button expand-tree-btn');
@@ -139,15 +108,13 @@ describe('TreeNodeComponent', () => {
 
     dom.setComponentInput(
       'node',
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('LayerTraceEntry')
-          .setName('Added Diff')
-          .setChildren([
-            {id: 1, name: 'Child 1', children: [{id: 2, name: 'Child 2'}]},
-          ])
-          .build(),
-      ),
+      new MockUiTreeBuilder()
+        .setId('LayerTraceEntry')
+        .setName('Added Diff')
+        .setChildren([
+          {id: '1', name: 'Child 1', children: [{id: '2', name: 'Child 2'}]},
+        ])
+        .build(),
     );
     assertDefined(component.node().getChildByName('Child 1')).setDiff(
       DiffType.ADDED,
@@ -156,15 +123,13 @@ describe('TreeNodeComponent', () => {
     expandButton.checkClassName('added');
     expandButton.checkClassName('modified', false);
 
-    const modifiedNode = UiHierarchyTreeNode.from(
-      new HierarchyTreeBuilder()
-        .setId('LayerTraceEntry')
-        .setName('Added Diff')
-        .setChildren([
-          {id: 1, name: 'Child 1', children: [{id: 2, name: 'Child 2'}]},
-        ])
-        .build(),
-    );
+    const modifiedNode = new MockUiTreeBuilder()
+      .setId('LayerTraceEntry')
+      .setName('Added Diff')
+      .setChildren([
+        {id: '1', name: 'Child 1', children: [{id: '2', name: 'Child 2'}]},
+      ])
+      .build();
     dom.setComponentInput('node', modifiedNode);
     const child1 = assertDefined(component.node().getChildByName('Child 1'));
     child1.setDiff(DiffType.ADDED);
@@ -175,17 +140,17 @@ describe('TreeNodeComponent', () => {
   });
 
   it('pins node on click', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     spyOn(component, 'showPinNodeIcon').and.returnValue(true);
     fixture.detectChanges();
 
     const spy = spyOn(component.pinNodeChange, 'emit');
     dom.findAndClick('.pin-node-btn');
-    expect(spy).toHaveBeenCalledWith(component.node() as UiHierarchyTreeNode);
+    expect(spy).toHaveBeenCalledWith(component.node());
   });
 
   it('can trigger rect show state toggle on click of icon', () => {
-    dom.setComponentInput('node', propertiesTree);
+    dom.setComponentInput('node', tree);
     dom.setComponentInput('showStateIcon', 'visibility');
     fixture.detectChanges();
 
@@ -194,67 +159,83 @@ describe('TreeNodeComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('does not show copy button for hierarchy tree', () => {
+  it('does not show copy button for tree', () => {
     dom.setComponentInput(
       'node',
-      UiHierarchyTreeNode.from(
-        new HierarchyTreeBuilder()
-          .setId('LayerTraceEntry')
-          .setName('Root')
-          .build(),
-      ),
+      new MockUiTreeBuilder().setId('LayerTraceEntry').setName('Root').build(),
     );
     fixture.detectChanges();
     expect(dom.find('.icon-wrapper-copy')).toBeUndefined();
   });
 
-  it('does not show copy button for property tree node that is not leaf or root', () => {
-    dom.setComponentInput(
-      'node',
-      assertDefined(propertiesTree.getChildByName('key2')),
-    );
+  it('does not show copy button for tree node that is not leaf or root', () => {
+    const root = new MockUiTreeBuilder()
+      .setId('test')
+      .setName('tree')
+      .setChildren([
+        {id: '1', name: 'child1', children: [{id: '2', name: 'child2'}]},
+      ])
+      .build();
+    const node1 = assertDefined(root.getChildByName('child1'));
+    assertDefined(node1).setCopyText('copiable');
+    dom.setComponentInput('node', node1);
     fixture.detectChanges();
     expect(dom.find('.icon-wrapper-copy')).toBeUndefined();
   });
 
-  it('copies node name for root of property tree node', () => {
-    dom.setComponentInput('node', propertiesTree);
+  it('copies root node', () => {
+    const root = new MockUiTreeBuilder()
+      .setId('test')
+      .setName('tree')
+      .setChildren([])
+      .build();
+    root.setCopyText('copiable');
+    dom.setComponentInput('node', root);
     fixture.detectChanges();
     dom.findAndClick('.icon-wrapper-copy button');
-    expect(mockCopyText).toHaveBeenCalledWith(propertiesTree.name);
+    expect(mockCopyText).toHaveBeenCalledWith('copiable');
   });
 
-  it('copies property name and value for leaf node', () => {
-    dom.setComponentInput(
-      'node',
-      assertDefined(propertiesTree.getChildByName('key1')),
-    );
+  it('copies leaf node', () => {
+    const root = new MockUiTreeBuilder()
+      .setId('test')
+      .setName('tree')
+      .setChildren([{id: '1', name: 'child1'}])
+      .build();
+    const child1 = assertDefined(root.getChildByName('child1'));
+    child1.setCopyText('copiable');
+    dom.setComponentInput('node', child1);
     dom.setComponentInput('isLeaf', true);
     fixture.detectChanges();
     dom.findAndClick('.icon-wrapper-copy button');
-    expect(mockCopyText).toHaveBeenCalledWith('key1: value1');
+    expect(mockCopyText).toHaveBeenCalledWith('copiable');
   });
 
-  it('binds property tree node data view outputs to tree node outputs', () => {
-    dom.setComponentInput('node', propertiesTree);
-    fixture.detectChanges();
-    const dataView = assertDefined(
-      dom.findByDirective(PropertyTreeNodeDataViewComponent),
-    );
+  it('shows input template for node', () => {
+    const templateFixture = TestBed.createComponent(TestTemplateComponent);
+    const templateComponent = templateFixture.componentInstance;
+    templateFixture.detectChanges();
+    const testTemplate = templateComponent.template();
 
-    const timestampSpy = spyOn(component.timestampClick, 'emit');
-    const detail = new TimestampClickDetail(
-      undefined,
-      makeElapsedTimestamp(2n),
-    );
-    dataView.timestampClick.emit(detail);
-    expect(timestampSpy).toHaveBeenCalledOnceWith(detail);
+    dom.setComponentInput('node', tree);
+    dom.setComponentInput('dataView', testTemplate);
+    dom.detectChanges();
 
-    const propagatePropertySpy = spyOn(
-      component.propagatePropertyNodeClick,
-      'emit',
-    );
-    dataView.propagatePropertyClick.emit(propertiesTree);
-    expect(propagatePropertySpy).toHaveBeenCalledOnceWith(propertiesTree);
+    const description = dom.get('.description');
+    expect(description.get('.test-node-name').getText()).toEqual(tree.name);
+    expect(description.get('.test-node-id').getText()).toEqual(tree.id);
   });
 });
+
+@Component({
+  selector: 'test-component',
+  template: `
+    <ng-template #testTemplate let-node="node">
+      <span class="test-node-id"> {{node.id}} </span>
+      <span class="test-node-name"> {{node.name}} </span>
+    </ng-template>
+  `,
+})
+class TestTemplateComponent {
+  template = viewChild.required<TemplateRef<unknown>>('testTemplate');
+}

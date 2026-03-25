@@ -46,12 +46,11 @@ limitations under the License.
         [isPinned]="isPinned(row.node)"
         [isSelected]="isHighlighted(row.node, highlighted)"
         [showStateIcon]="getShowStateIcon(row.node)"
+        [dataView]="dataView()"
         (toggleTreeChange)="toggleTree(row)"
         (rectShowStateChange)="toggleRectShowState(row.node)"
         (expandTreeChange)="expandTree(row)"
         (pinNodeChange)="pinnedItemChange.emit($event)"
-        (timestampClick)="timestampClick.emit($event)"
-        (propagatePropertyNodeClick)="propagatePropertyClick.emit($event)"
       ></tree-node>
     }
   }

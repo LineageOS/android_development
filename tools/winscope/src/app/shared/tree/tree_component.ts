@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, Inject, input, output, TemplateRef, viewChild,} from '@angular/core';
 import {ItemHeightPredictor} from '@app/shared/scroll/item_height_predictor';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {assertDefined} from '@common/assert';
 import {KeyboardEventKey} from '@common/dom';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
-import {isHighlighted} from '@ui/shared/hierarchy/ui_tree_node_helpers';
-import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
+import {isHighlighted} from '@ui/shared/tree/ui_tree_node_helpers';
+import {RectShowStateChangeDetail,} from '@ui/shared/viewer_event_details';
 
 import {TreeNodeComponent} from './tree_node_component';
 
@@ -61,6 +60,7 @@ export class TreeComponent<T extends UiTreeNode> {
   itemsClickable = input<boolean>(false);
   rectIdToShowState = input<Map<string, RectShowState>>();
   handleArrowPress = input<boolean>(false);
+  dataView = input<TemplateRef<unknown>>();
 
   // Conditionally use stored states. Some traces (e.g. transactions) do not provide
   // items with the "stable id" field needed to search values in the storage.
@@ -69,8 +69,6 @@ export class TreeComponent<T extends UiTreeNode> {
   readonly highlightedChange = output<UiTreeNode>();
   readonly pinnedItemChange = output<UiTreeNode>();
   readonly rectShowStateChange = output<RectShowStateChangeDetail>();
-  readonly timestampClick = output<TimestampClickDetail>();
-  readonly propagatePropertyClick = output<UiPropertyTreeNode>();
 
   readonly virtualScrollViewport =
     viewChild.required<VirtualScrollViewportComponent>('treeContainer');
