@@ -17,7 +17,7 @@
 import {ArrayBufferBuilder} from '@common/buffer';
 import {binaryEncode} from '@common/string_helpers';
 import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
-import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb_device_connection';
 import {TraceTarget} from '@trace_collection/trace_target';
 import {makeWarningProxyTracingErrors, makeWarningProxyTracingWarnings,} from '@trace_collection/warnings';
 import {makeFakeWebSocket, makeFakeWebSocketMessage,} from '@trace_collection/wdp/testing/web_socket_test_helpers';

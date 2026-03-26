@@ -37,13 +37,13 @@ import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitte
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb_device_connection';
 import {AdbFiles, RequestedTraceTypes} from '@trace_collection/adb_files';
-import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {TraceCollectionController} from '@trace_collection/controller/trace_collection_controller';
+import {UiTraceTarget} from '@trace_collection/ui_trace_target';
 import {CheckboxConfiguration, makeDefaultDumpConfigMap, makeDefaultTraceConfigMap, makeProtologGroupOptions, makeScreenRecordingSelectionConfigs, SelectionConfiguration, TraceConfigurationMap, updateConfigsFromStore,} from '@trace_collection/ui/ui_trace_configuration';
-import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {UserRequest, UserRequestConfig} from '@trace_collection/user_request';
 import {AppRefreshDumpsRequest} from '@ui/shared/events/app_events';
 import {NoTraceTargetsSelectedEvent} from '@ui/shared/events/misc_events';

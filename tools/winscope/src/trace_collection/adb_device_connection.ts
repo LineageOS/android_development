@@ -17,7 +17,7 @@
 import {Logger} from '@compat/logging';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {TraceTarget} from '@trace_collection/trace_target';
-import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
+import {UiTraceTarget} from '@trace_collection/ui_trace_target';
 
 export interface AdbDeviceConnectionListener {
   onError(errorText: string): Promise<void>;
