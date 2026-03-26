@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component, Directive, effect, ElementRef, Inject, InjectionToken, input, NgZone, output, ViewChild,} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Directive, effect, ElementRef, HostListener, Inject, InjectionToken, input, NgZone, output, ViewChild,} from '@angular/core';
 import {assertDefined} from '@common/assert';
 import {fromEvent, Observable, ReplaySubject, Subject} from 'rxjs';
 import {debounceTime, map, takeUntil} from 'rxjs/operators';
@@ -115,12 +115,7 @@ export class VirtualScrollViewportComponent {
     this.resizeObserver = new ResizeObserver(() => resized.next());
     resized.pipe(takeUntil(this.destroyed), debounceTime(1)).subscribe(() => {
       this.ngZone.run(() => {
-        const heightPredictor = this.heightPredictor();
-        for (let i = 0; i < this.itemCount(); i++) {
-          this.heights[i] = heightPredictor.predict(i);
-        }
-        this.updateSpacer();
-        this.handleChanges();
+        this.onResize();
       });
     });
     this.scrolled = this.ngZone.runOutsideAngular(() =>
@@ -196,6 +191,11 @@ export class VirtualScrollViewportComponent {
     this.updateSpacer();
   }
 
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.onResize();
+  }
+
   private handleChanges() {
     if (this.isScrolling) {
       return;
@@ -266,5 +266,16 @@ export class VirtualScrollViewportComponent {
       this.visibleRange = newValue;
       this.visibleRangeChanged.emit(this.visibleRange);
     }
+  }
+
+  private onResize() {
+    const heightPredictor = this.heightPredictor();
+    for (let i = 0; i < this.itemCount(); i++) {
+      if (!this.isIndexVisible(i)) {
+        this.heights[i] = heightPredictor.predict(i);
+      }
+    }
+    this.updateSpacer();
+    this.handleChanges();
   }
 }
