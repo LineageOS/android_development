@@ -32,6 +32,7 @@ import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/shared/playback/events';
 import {PlaybackPresenter} from '@ui/shared/playback/playback_presenter';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
@@ -42,7 +43,7 @@ import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
 import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
 import {TextFilter} from '@ui/shared/user_input/text_filter';
 import {UserOption, UserOptions} from '@ui/shared/user_input/user_options';
-import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
+import {PlaybackStateChangePropagate} from '@ui/timeline/playback_events';
 
 import {HierarchyPresenter, HierarchyTraceEntry, SelectedTree,} from './hierarchy_presenter';
 import {PresetHierarchy, TextFilterValues} from './preset_hierarchy';

@@ -32,8 +32,8 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertiesProvider} from '@tree_node/properties_provider';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TraceRect} from '@tree_node/trace_rect';
-import {PlaybackStateChangeHandled} from '@ui/timeline/playback_events';
 
+import {PlaybackStateChangeHandled} from './events';
 import {PlaybackState} from './playback_state';
 import {VideoFrameCache} from './video_frame_cache';
 import {createVideoFrameCache} from './video_frame_cache_factory';

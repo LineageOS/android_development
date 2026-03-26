@@ -25,14 +25,15 @@ import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {makeNodeFilter} from '@tree_node/helpers';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/shared/playback/events';
 import {PlaybackPresenter} from '@ui/shared/playback/playback_presenter';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
 import {RectSpec} from '@ui/shared/rects/rect_spec';
 import {Chip} from '@ui/shared/user_input/chip';
 import {TextFilter} from '@ui/shared/user_input/text_filter';
 import {UserOptions} from '@ui/shared/user_input/user_options';
-import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
+import {PlaybackStateChangePropagate} from '@ui/timeline/playback_events';
 
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from './abstract_hierarchy_viewer_presenter';
 import {UiDataHierarchy} from './ui_data_hierarchy';

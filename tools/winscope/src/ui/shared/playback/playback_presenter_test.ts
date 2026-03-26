@@ -32,8 +32,8 @@ import {TraceType} from '@trace_api/trace_type';
 import {MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {TraceRect} from '@tree_node/trace_rect';
-import {PlaybackStateChangeHandled} from '@ui/timeline/playback_events';
 
+import {PlaybackStateChangeHandled} from './events';
 import {PlaybackPresenter} from './playback_presenter';
 import {PlaybackState} from './playback_state';
 import {VideoFrameCache} from './video_frame_cache';

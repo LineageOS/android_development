@@ -21,8 +21,8 @@ import {Trace, TraceEntry} from '@trace_api/trace';
 import {findCorrespondingEntry} from '@trace_api/trace_entry_finder';
 import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@trace_api/trace_events';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
+import {PlaybackStateChangeHandled} from '@ui/shared/playback/events';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
-import {PlaybackStateChangeHandled} from '@ui/timeline/playback_events';
 import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
 
 import {UiData} from './ui_data';
