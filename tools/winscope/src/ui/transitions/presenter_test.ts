@@ -45,7 +45,11 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
     },
     {
       header: new LogHeader(
-        {name: 'Type', cssClass: 'transition-type'},
+        {
+          name: 'Type',
+          cssClass: 'transition-type',
+          canFilterBySingleOption: true,
+        },
         new LogSelectFilter(Array.from({length: 3}, () => '')),
       ),
       options: ['NONE', 'OPEN', 'TO_FRONT'],
@@ -65,7 +69,7 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
     },
     {
       header: new LogHeader(
-        {name: 'Handler', cssClass: 'handler'},
+        {name: 'Handler', cssClass: 'handler', canFilterBySingleOption: true},
         new LogSelectFilter(Array.from({length: 3}, () => '')),
       ),
       options: [
@@ -113,7 +117,11 @@ class PresenterTransitionsTest extends AbstractLogViewerPresenterTest<UiData> {
     },
     {
       header: new LogHeader(
-        {name: 'Status', cssClass: 'status right-align'},
+        {
+          name: 'Status',
+          cssClass: 'status right-align',
+          canFilterBySingleOption: true,
+        },
         new LogSelectFilter(Array.from({length: 4}, () => '')),
       ),
       options: ['ABORTED', 'MERGED', 'N/A', 'PLAYED'],

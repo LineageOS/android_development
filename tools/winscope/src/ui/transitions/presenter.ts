@@ -40,14 +40,29 @@ export class Presenter extends AbstractLogViewerPresenter<
 > {
   private static readonly COLUMNS = {
     id: {name: 'Id', cssClass: 'transition-id right-align'},
-    type: {name: 'Type', cssClass: 'transition-type'},
+    type: {
+      name: 'Type',
+      cssClass: 'transition-type',
+      canFilterBySingleOption: true,
+    },
     sendTime: {name: 'Send Time', cssClass: 'send-time time'},
     dispatchTime: {name: 'Dispatch Time', cssClass: 'dispatch-time time'},
     duration: {name: 'Play Duration', cssClass: 'duration right-align'},
-    handler: {name: 'Handler', cssClass: 'handler'},
-    participants: {name: 'Participants', cssClass: 'participants'},
+    handler: {
+      name: 'Handler',
+      cssClass: 'handler',
+      canFilterBySingleOption: true,
+    },
+    participants: {
+      name: 'Participants',
+      cssClass: 'participants',
+    },
     flags: {name: 'Flags', cssClass: 'flags'},
-    status: {name: 'Status', cssClass: 'status right-align'},
+    status: {
+      name: 'Status',
+      cssClass: 'status right-align',
+      canFilterBySingleOption: true,
+    },
   };
   private surfaceFlingerTrace: Trace<HierarchyTreeNode> | undefined;
   private windowManagerTrace: Trace<HierarchyTreeNode> | undefined;

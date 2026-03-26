@@ -24,20 +24,22 @@ limitations under the License.
   matTooltipPosition="above"
   [matTooltipDisabled]="disableFormFieldTooltip(formField)"
   subscriptSizing="dynamic"
-  [class.mat-body-2]="!select.value || select.value.length === 0"
+  [class.mat-body-2]="!selectWithFilter.value || selectWithFilter.value.length === 0"
   #formField
 >
   <mat-label>{{ textLabel }}</mat-label>
   <mat-select
-    (opened)="onSelectOpened(select, filter)"
+    (opened)="onSelectOpened(filter)"
     (closed)="onSelectClosed()"
-    (selectionChange)="onSelectChange($event)"
     [multiple]="true"
+    [disabled]="disabled()"
+    [value]="value()"
+    (selectionChange)="onSelectChange($event)"
     panelWidth="''"
-    #select
+    #selectWithFilter
   >
     @let nonHidden = nonHiddenOptions();
-    @let totalSelected = select.value?.length ?? 0;
+    @let totalSelected = selectWithFilter.value?.length ?? 0;
     @let allSelected = totalSelected === nonHidden.length;
     <div class="select-filter-header">
       <mat-form-field
@@ -59,7 +61,7 @@ limitations under the License.
         class="user-option"
         [color]="allSelected ? 'primary' : undefined"
         [class.not-enabled]="!allSelected"
-        (click)="onAllButtonClick(select)"
+        (click)="onAllButtonClick()"
         [matTooltip]="allButtonTooltip"
         [matTooltipShowDelay]="500"
         matTooltipPosition="right"
@@ -71,10 +73,10 @@ limitations under the License.
         <span class="mat-mdc-option mat-mdc-option-active mdc-list-item mdc-list-item--selected"
           >Selected:</span
         >
-        @for (option of selectedOptions(select); track option) {
+        @for (option of selectedOptions(); track option) {
           <div
             class="mat-mdc-option mat-mdc-option-active mat-mdc-option-multiple mdc-list-item mdc-list-item--selected selected-option"
-            (click)="onSelectedOptionClick(option, select)"
+            (click)="onSelectedOptionClick(option)"
           >
             <mat-pseudo-checkbox
               color="primary"
@@ -101,7 +103,7 @@ limitations under the License.
         *cdkVirtualFor="let option of nonHidden; index as i"
         [value]="option"
         class="option no-focus"
-        (click)="onOptClick($event, nonHiddenOptionToIndex[i], select, matOption)"
+        (click)="onOptClick($event, nonHiddenOptionToIndex[i], matOption)"
         #matOption
         >{{ option }}</mat-option
       >

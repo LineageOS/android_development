@@ -19,7 +19,7 @@ import {SelectionModel} from '@angular/cdk/collections';
 import {CdkMenuModule} from '@angular/cdk/menu';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, output, viewChild,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, output, viewChild, viewChildren,} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -104,6 +104,7 @@ export class LogComponent {
 
   readonly virtualScrollViewport =
     viewChild.required<VirtualScrollViewportComponent>('logContainer');
+  readonly selectFilters = viewChildren(SelectWithFilterComponent);
 
   readonly textSelection = new SelectionModel<LogEntry>(false, []);
 
@@ -352,6 +353,26 @@ export class LogComponent {
       this.performCustomCopy(event, this.textSelection.selected);
       return;
     }
+  }
+
+  findSelectFilterComponent(
+    field: LogField,
+  ): SelectWithFilterComponent | undefined {
+    const filter = this.selectFilters().find(
+      (f) => f.label() === field.spec.name,
+    );
+    if (!filter || filter.disabled()) {
+      return undefined;
+    }
+    return filter;
+  }
+
+  setFilterSingleValue(filter: SelectWithFilterComponent, value: string) {
+    filter.value.set([value]);
+  }
+
+  excludeFromFilter(filter: SelectWithFilterComponent, value: string) {
+    filter.value.set(filter.options().filter((o) => o !== value));
   }
 
   private onRawTimestampClick(value: Timestamp) {
