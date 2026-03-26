@@ -561,7 +561,7 @@ describe('RectsComponent', () => {
     setRectAndDisplayGroup0();
     resetSpies();
 
-    dom.setComponentInput('pinnedIds', ['test-id']);
+    dom.setComponentInput('pinnedIds', [rectGroup0.id]);
     dom.detectChanges();
     expect(updateViewPositionSpy).toHaveBeenCalledTimes(0);
     expect(updateRectsSpy).toHaveBeenCalledTimes(1);

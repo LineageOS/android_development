@@ -25,7 +25,7 @@ import {TracePositionUpdate} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {makeNodeFilter} from '@tree_node/helpers';
 import {PropertySource} from '@tree_node/property_tree_node';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
 import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangeRequest,} from '@ui/shared/playback/events';
 import {PlaybackPresenter} from '@ui/shared/playback/playback_presenter';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
