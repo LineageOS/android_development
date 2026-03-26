@@ -12,19 +12,22 @@ ensure consistency and high quality.
     `adb root`, `lunch`, or installing a sample app), briefly mention or link to
     those setup instructions rather than assuming the user just read the
     previous page.
-2.  **Linear Flow**: The `README.md` acts as the Table of Contents. Each page
-    should end with a distinct `**Next: [Page Name](link.md)**` footer, guiding
-    the reader through the preferred linear learning path.
+2.  **Linear Flow**: The `README.md` acts as the Table of Contents. Every page
+    must be directly reachable from `README.md`. Each page should end with a
+    distinct `**Next: [Page Name](link.md)**` footer, guiding the reader through
+    the preferred linear learning path, except for the last page in the linear
+    flow which should link back to `README.md`. You may also include links
+    between chapters when it may be helpful for the reader.
 3.  **Show, Don't Just Tell**: Every technical concept (e.g., LMKs, GC churn,
     DMA-BUFs) must be paired with a reproducible command-line snippet or a
-    reference to one of the provided sample applications (`MemoryLab`,
-    `CodeBloat`, `ThreadLeak`).
+    reference to an exercise that may be completed using a sample applications.
 4.  **Omit Android Studio**: This guide is explicitly for *platform developers*
     and *OEMs*. Focus exclusively on command-line tools available in the AOSP
     tree (`adb`, `dumpsys meminfo`, `showmap`, `perfetto`, `heapprofd`, `ahat`,
     `trace_processor`). Do not mention Android Studio's memory profiler.
 5.  **Formatting**: All markdown files must be formatted using `mdformat` to
-    ensure consistent wrapping and list numbering.
+    ensure consistent wrapping and list numbering. All Java or Kotlin code must
+    be formatted accordingly, and must pass `alint` checks.
 
 ## Visuals and Diagrams
 
@@ -49,6 +52,35 @@ ensure consistency and high quality.
 *   Samples should be built using the standard AOSP `Android.bp` build system.
 
 ## Verification
+
+### Verify exercise instructions
+
+All exercises included in the guide must have clear instructions that are easy
+to follow. You must repeat the same instructions yourself and verify that you
+are able to complete the exercises. You should be able to complete most
+exercises on a virtual device, such as a local "acloud" instance.
+
+### Verify artifacts produced
+
+All artifacts produced during exercises or from sample apps must be verified for
+correctness and completeness.
+
+*   Perfetto traces: you can check the contents of a trace using
+    `trace_processor` and PerfettoSQL queries. For instance, if a trace should
+    include a certain slice, write a PerfettoSQL query to find it.
+*   Heap dumps: you can load an hprof file using AHAT, navigate AHAT as a web
+    client, and verify that the expected hprof contents are included. For
+    instance, if a heap dump should include some object with a certain size,
+    look for it using AHAT.
+
+The user will help you generate screenshots from tools such as Perfetto and
+AHAT. You should include placeholders in markdown to reference the screenshots
+that the user should generate, along with descriptive alt text. When adding an
+image placeholder, also include a markdown comment with a TODO to generate the
+screenshot, clarifying what the screenshot from the tool is expected to show,
+and how to find the content to show using said tool.
+
+### Verify measurements and other claims
 
 Before committing changes, you must verify that the outputs you claim a tool
 produces actually match reality. If you claim an unoptimized app uses 30MB of
