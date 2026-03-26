@@ -57,6 +57,11 @@ limitations under the License.
   @if (tableProps !== undefined) {
     <properties-table class="properties-table" [properties]="tableProps"></properties-table>
   }
+
+  <ng-template #dataView let-node="node">
+    <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
+  </ng-template>
+
   @if (pinned.length > 0) {
     <div class="pinned-items">
       @for (pinnedItem of pinned; track pinnedItem.id) {
@@ -70,6 +75,7 @@ limitations under the License.
           [isPinned]="true"
           [isInPinnedSection]="true"
           [isSelected]="isItemHighlighted"
+          [dataView]="dataView"
           (pinNodeChange)="onPinnedItemChange($event)"
           (click)="onPinnedNodeClick($event, pinnedItem)"
         ></tree-node>
@@ -83,10 +89,6 @@ limitations under the License.
 }
 @let rows = nodeRows();
 @if (rows.length > 0) {
-  <ng-template #dataView let-node="node">
-    <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
-  </ng-template>
-
   <tree-view
     class="tree"
     [nodeRows]="rows"

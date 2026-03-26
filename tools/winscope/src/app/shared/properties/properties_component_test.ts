@@ -110,7 +110,8 @@ describe('PropertiesComponent', () => {
 
   it('renders tree in proto dump upon selected item', () => {
     makeAndSetTreeInput();
-    expect(dom.find('tree-view')).toBeDefined();
+    const treeView = dom.get('tree-view');
+    treeView.checkText('property');
   });
 
   it('renders placeholder text', () => {

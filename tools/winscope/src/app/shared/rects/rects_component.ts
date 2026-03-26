@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, computed, effect, ElementRef, HostListener, Inject, input, OnDestroy, OnInit, output, signal,} from '@angular/core';
+import {ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, OnDestroy, OnInit, output, signal,} from '@angular/core';
 import {MatButtonModule, MatIconButton} from '@angular/material/button';
 import {MatButtonToggleChange, MatButtonToggleModule,} from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
@@ -131,6 +131,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
     @Inject(MatIconRegistry) private matIconRegistry: MatIconRegistry,
     @Inject(DomSanitizer) private domSanitizer: DomSanitizer,
+    @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
   ) {
     this.matIconRegistry.addSvgIcon(
       'cube_full_shade',
@@ -498,6 +499,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     );
     this.store()?.add(this.storeKeyShadingMode, newMode);
     this.updateLargeRectsColors();
+    this.changeDetectorRef.detectChanges();
   }
 
   onInteractionStart(components: Array<MatIconButton | MatSlider | MatIcon>) {

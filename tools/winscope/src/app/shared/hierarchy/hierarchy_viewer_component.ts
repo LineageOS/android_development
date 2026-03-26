@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Directive, output} from '@angular/core';
+import {computed, Directive, output} from '@angular/core';
 import {ViewerComponent} from '@app/shared/viewers/viewer_component';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
@@ -30,7 +30,7 @@ export class HierarchyViewerComponent<
   readonly onHierarchyPinnedChange = output<UiHierarchyTreeNode>();
   readonly onHierarchyUserOptionsChange = output<UserOptions>();
 
-  getPinnedIds(): string[] {
+  readonly pinnedIds = computed(() => {
     return this.inputData()?.pinnedItems.map((node) => node.id) ?? [];
-  }
+  });
 }
