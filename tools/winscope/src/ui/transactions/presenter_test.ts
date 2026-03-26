@@ -47,6 +47,8 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         },
         new LogSelectFilter(Array.from({length: 1295}, () => '')),
       ),
+      options: ['N/A', '2211908157441', '2211908157443', '2211908157445'],
+      totalOptions: 1295,
     },
     {
       header: new LogHeader(
@@ -58,6 +60,8 @@ class PresenterTransactionsTest extends AbstractLogViewerPresenterTest<UiData> {
         },
         new LogSelectFilter(Array.from({length: 712}, () => '')),
       ),
+      options: ['1', '2', '3', '4'],
+      totalOptions: 712,
     },
     {
       header: new LogHeader(

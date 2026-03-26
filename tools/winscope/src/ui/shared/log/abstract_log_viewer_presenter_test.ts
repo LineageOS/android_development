@@ -78,8 +78,13 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
           const header = uiData.headers[index];
           expect(header).toEqual(expectedHeader.header);
           if (expectedHeader.options) {
-            expect((header.filter as LogSelectFilter).options).toEqual(
-              expectedHeader.options,
+            const options = (header.filter as LogSelectFilter).options;
+            const expectedOptions = expectedHeader.options;
+            expect(options.length).toEqual(
+              expectedHeader.totalOptions ?? expectedOptions.length,
+            );
+            expect(options.slice(0, expectedOptions.length)).toEqual(
+              expectedOptions,
             );
           }
         }
@@ -140,6 +145,7 @@ export abstract class AbstractLogViewerPresenterTest<UiData extends UiDataLog> {
   abstract readonly expectedHeaders: Array<{
     header: LogHeader;
     options?: string[];
+    totalOptions?: number;
   }>;
 
   abstract setUpTestEnvironment(): Promise<void>;

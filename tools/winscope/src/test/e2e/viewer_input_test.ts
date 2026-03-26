@@ -155,6 +155,7 @@ describe('Viewer Input', () => {
       options,
       expected,
       totalEntries,
+      false,
     );
   }
 

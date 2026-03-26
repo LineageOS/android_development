@@ -62,7 +62,7 @@ limitations under the License.
               >
 
               <ng-template let-trigger="trigger" #timeControlsMenu>
-                <div class="context-menu" (mouseleave)="trigger.close()" cdkMenu>
+                <div class="context-menu time-controls-menu" (mouseleave)="trigger.close()" cdkMenu>
                   <div class="context-menu-item-container">
                     <span class="menu-item time-controls" [cdkMenuItemDisabled]="true" cdkMenuItem>
                       <ng-container [ngTemplateOutlet]="timeControls"></ng-container>

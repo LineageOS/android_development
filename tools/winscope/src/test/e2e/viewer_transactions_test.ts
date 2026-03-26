@@ -34,7 +34,7 @@ describe('Viewer Transactions', () => {
       viewerSelector,
     );
     await checkScrollPresent(viewerSelector);
-    await checkTotalScrollEntries(viewerSelector, totalEntries);
+    await checkTotalScrollEntries(viewerSelector, totalEntries, true);
     await checkTimelineTraceSelector({
       icon: 'show_chart',
       color: 'rgba(13, 101, 45, 1)',
@@ -45,13 +45,21 @@ describe('Viewer Transactions', () => {
     await changeRealTimestampInWinscope('2022-11-21, 18:05:17.505');
     await checkWinscopeRealTimestamp('18:05:17.505');
     await checkCurrentEntry();
-    await checkSelectFilter(viewerSelector, '.pid', ['6914'], 2, totalEntries);
+    await checkSelectFilter(
+      viewerSelector,
+      '.pid',
+      ['6914'],
+      2,
+      totalEntries,
+      true,
+    );
     await checkSelectFilter(
       viewerSelector,
       '.uid',
       ['10161'],
       16,
       totalEntries,
+      true,
     );
     await checkSelectFilter(
       viewerSelector,
@@ -59,6 +67,7 @@ describe('Viewer Transactions', () => {
       ['eBackgroundBlurRadiusChanged'],
       10,
       totalEntries,
+      true,
     );
   });
 
