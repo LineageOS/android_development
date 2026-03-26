@@ -16,7 +16,6 @@
 
 import {TimelineSegment} from '@app/shared/timeline/common/segment';
 import {convertLifecycle, getLifecycleForTransition,} from '@app/shared/timeline/common/transition_timeline_helpers';
-import {Transformer} from '@app/shared/timeline/mini-timeline/transformer';
 import {TimeRange, Timestamp} from '@common/time/time';
 import {Trace, TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
@@ -25,6 +24,7 @@ import {TimelineData} from '@ui/timeline/timeline_data';
 
 import {MiniCanvasDrawerData, TimelineTrace, TimelineTraces,} from './mini_canvas_drawer_data';
 import {RenderedRange} from './rendered_range';
+import {Transformer} from './transformer';
 
 /**
  * Input data for the mini timeline drawer.

@@ -16,8 +16,8 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, input} from '@angular/core';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {Chip} from '@ui/shared/chip';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
+import {Chip} from '@ui/shared/user_input/chip';
 
 @Component({
   selector: 'hierarchy-tree-node-data-view',
@@ -27,7 +27,7 @@ import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
   styleUrls: ['hierarchy_tree_node_data_view_component.scss'],
 })
 export class HierarchyTreeNodeDataViewComponent {
-  node = input.required<UiHierarchyTreeNode>();
+  readonly node = input.required<UiHierarchyTreeNode>();
 
   readonly nameTooltip = computed<string | undefined>(() => {
     const n = this.node();

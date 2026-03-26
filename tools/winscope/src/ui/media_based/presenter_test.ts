@@ -20,8 +20,8 @@ import {ActiveTraceChanged, ScreenRecordingChange, TracePositionUpdate,} from '@
 import {TracePosition} from '@trace_api/trace_position';
 import {TraceType} from '@trace_api/trace_type';
 import {CanvasEntry, MediaBasedTraceEntry, VideoEntry,} from '@trace/media_based/media_based_trace_entry';
+import {PlaybackStateChangeHandled} from '@ui/shared/playback/events';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
-import {PlaybackStateChangeHandled} from '@ui/timeline/playback_events';
 import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';
 
 import {Presenter} from './presenter';

@@ -15,7 +15,7 @@
  */
 
 import {CommonModule} from '@angular/common';
-import {Component, computed, effect, ElementRef, HostListener, Inject, input, OnDestroy, OnInit, output, signal,} from '@angular/core';
+import {ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, Inject, input, OnDestroy, OnInit, output, signal,} from '@angular/core';
 import {MatButtonModule, MatIconButton} from '@angular/material/button';
 import {MatButtonToggleChange, MatButtonToggleModule,} from '@angular/material/button-toggle';
 import {MatDividerModule} from '@angular/material/divider';
@@ -35,14 +35,13 @@ import {getRootUrl} from '@common/window';
 import {Analytics} from '@logging/analytics';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
-import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {Canvas} from '@ui/shared/rects/canvas';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {Mapper3D} from '@ui/shared/rects/mapper3d';
 import {RectSpec, TraceRectType} from '@ui/shared/rects/rect_spec';
 import {ShadingMode} from '@ui/shared/rects/shading_mode';
 import {UiRect} from '@ui/shared/rects/ui_rect';
-import {UserOptions} from '@ui/shared/user_options';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 @Component({
   selector: 'rects-view',
@@ -82,7 +81,7 @@ export class RectsComponent implements OnInit, OnDestroy {
   isStackBased = input(false);
   rectSpec = input<RectSpec>();
   allRectSpecs = input<RectSpec[]>();
-  pinnedItems = input<UiHierarchyTreeNode[]>([]);
+  pinnedIds = input<string[]>([]);
   isDarkMode = input(false);
 
   collapseButtonClicked = output();
@@ -132,6 +131,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     @Inject(ElementRef) private elementRef: ElementRef<HTMLElement>,
     @Inject(MatIconRegistry) private matIconRegistry: MatIconRegistry,
     @Inject(DomSanitizer) private domSanitizer: DomSanitizer,
+    @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
   ) {
     this.matIconRegistry.addSvgIcon(
       'cube_full_shade',
@@ -198,8 +198,8 @@ export class RectsComponent implements OnInit, OnDestroy {
     });
 
     effect(() => {
-      const pinnedItems = this.pinnedItems();
-      this.largeRectsMapper3d.setPinnedItems(pinnedItems);
+      const pinnedIds = this.pinnedIds();
+      this.largeRectsMapper3d.setPinnedIds(pinnedIds);
       this.updateLargeRectsColors();
     });
 
@@ -499,6 +499,7 @@ export class RectsComponent implements OnInit, OnDestroy {
     );
     this.store()?.add(this.storeKeyShadingMode, newMode);
     this.updateLargeRectsColors();
+    this.changeDetectorRef.detectChanges();
   }
 
   onInteractionStart(components: Array<MatIconButton | MatSlider | MatIcon>) {

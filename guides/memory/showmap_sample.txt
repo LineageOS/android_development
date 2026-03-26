@@ -1,0 +1,20 @@
+5540 16147864   171940    15448   120464    45936     1708     3832    17760    17728         0         0     16384        0        0        0 3208 TOTAL
+2776    18176     5784     2823        0     3008      308     2468     4700     4700         0         0         0        0        0        0   47 [anon:scudo:primary]
+560      952      876      657      316        0      560        0       12       12         0         0         0        0        0        0    8 /data/app/~~EW40bqCr-DWLd64AlNZxyA==/com.android.memorylab-JwBM4TBMpskNeOFVEhOa4w==/base.apk
+448   393216      448      448        0        0        0      448        0        0         0         0         0        0        0        0    2 [anon:dalvik-main space]
+264     1792     1260      281        0      996      180       84      140      140         0         0         0        0        0        0   12 [anon:dalvik-Pre-zygote-LinearAlloc]
+264    14560    14552      539        0    14288      132      132        0        0         0         0         0        0        0        0    1 [anon:dalvik-/system/framework/boot-framework.art]
+200     6760     6760      326        0     6560      132       68        0        0         0         0         0        0        0        0    1 [anon:dalvik-zygote space]
+148     4704     1112      156        0      964       28      120      476      476         0         0         0        0        0        0  173 [anon:.bss]
+132  2097536      132      132        0        0        0      132        8        8         0         0         0        0        0        0    5 [anon:dalvik-LinearAlloc]
+72    27956    21024     4217    20952        0       72        0     1264     1264         0         0         0        0        0        0    5 /apex/com.google.cf.vulkan/lib64/hw/vulkan.pastel.so
+64     3088     3080      123        0     3016       36       28        0        0         0         0         0        0        0        0    1 [anon:dalvik-/system/framework/boot.art]
+56     8188       64       56        0        8        8       48        8        8         0         0         0        0        0        0    1 [stack]
+48     2224     2208       89        0     2160       40        8        4        4         0         0         0        0        0        0    1 [anon:dalvik-/system/framework/boot-framework-adservices.art]
+36     1920      392       44        0      356        0       36      116      116         0         0         0        0        0        0    4 [anon:linker_alloc]
+28     4100       28       28        0        0        0       28        0        0         0         0         0        0        0        0    1 [anon:dalvik-card table]
+24      320      308       29        0      284        8       16        0        0         0         0         0        0        0        0    1 [anon:dalvik-/system/framework/boot-core-libart.art]
+20    58776       20       20        0        0       12        8        8        8         0         0         0        0        0        0    4 [anon:dalvik-non moving space]
+20   196608     1648       51        0     1628       12        8        0        0         0         0         0        0        0        0    1 [anon:dalvik-free list large object space]
+16      264      192       17        0      176        0       16       72       72         0         0         0        0        0        0   39 [anon:bionic_alloc_small_objects]
+16       16       16       16        0        0       16        0        0        0         0         0         0        0        0        0    1 /data/app/~~EW40bqCr-DWLd64AlNZxyA==/com.android.memorylab-JwBM4TBMpskNeOFVEhOa4w==/oat/x86_64/base.vdex

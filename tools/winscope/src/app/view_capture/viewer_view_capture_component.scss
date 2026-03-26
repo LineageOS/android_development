@@ -15,3 +15,7 @@
  */
 
 @use '../shared/styles/viewer_card_style';
+
+.vc-property-groups {
+  overflow-y: auto;
+}

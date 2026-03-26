@@ -15,12 +15,12 @@
  */
 
 import {TimelineSegment} from '@app/shared/timeline/common/segment';
-import {Transformer} from '@app/shared/timeline/mini-timeline/transformer';
 import {TimeRange} from '@common/time/time';
 import {Trace} from '@trace_api/trace';
 
 import {MiniTimelineDrawerOutput} from './mini_timeline_drawer_output';
 import {RenderedRange} from './rendered_range';
+import {Transformer} from './transformer';
 
 /**
  * A map of traces to their timeline data.

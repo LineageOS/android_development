@@ -29,13 +29,13 @@ import {TRACE_INFO} from '@trace_api/trace_info';
 import {TracePosition} from '@trace_api/trace_position';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {DarkModeToggled} from '@ui/shared/events/misc_events';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
-import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {LogSelectFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';

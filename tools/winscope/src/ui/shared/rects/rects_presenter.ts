@@ -16,13 +16,17 @@
 
 import {Trace} from '@trace_api/trace';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
-import {TraceAndTrees} from '@ui/shared/hierarchy/hierarchy_presenter';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {UiRect} from '@ui/shared/rects/ui_rect';
-import {UserOptions} from '@ui/shared/user_options';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {RectFilter} from './rect_filter';
 import {RectShowState} from './rect_show_state';
+
+interface TraceAndTrees {
+  trace: Trace<HierarchyTreeNode>;
+  trees: HierarchyTreeNode[];
+}
 
 export class RectsPresenter {
   private rectFilter: RectFilter;

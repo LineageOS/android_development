@@ -18,6 +18,7 @@ import {assertDefined} from '@common/assert';
 import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {makeElapsedTimestamp, makeRealTimestamp,} from '@common/time/testing/test_helpers';
 import {Timer} from '@common/time/timer';
+import {SetFormatters} from '@parsers/operations/set_formatters';
 import {CustomQueryType} from '@trace_api/custom_query';
 import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
@@ -31,7 +32,7 @@ import {NotifyLogViewCallbackType} from '@ui/shared/log/abstract_log_viewer_pres
 import {AbstractLogViewerPresenterTest} from '@ui/shared/log/abstract_log_viewer_presenter_test';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {LogHeader} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';
@@ -41,20 +42,33 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
     describe('Specialized tests', () => {
       let uiData: UiData;
 
-      it('tooltip message correctly set', async () => {
+      beforeEach(async () => {
         await this.setUpTestEnvironment();
         await this.createPresenter((newData) => {
           uiData = newData;
         });
-
         await new Timer().wait(() => !uiData.isFetchingData);
+      });
 
-        expect(uiData.entries[0].fields[2].tooltip).toBeUndefined();
-        expect(uiData.entries[1].fields[2].tooltip).toBe(
-          'Location information (file and line) is unavailable. This is because ProtoLog entries are only preprocessed to include source locations when logged from Java files with a configured protologtool genrule. Kotlin files are not currently supported for this preprocessing.',
-        );
-        expect(uiData.entries[2].fields[2].tooltip).toBeUndefined();
-        expect(uiData.entries[3].fields[2].tooltip).toBeUndefined();
+      it('tooltip message correctly set', async () => {
+        for (let i = 0; i < 4; i++) {
+          const field = uiData.entries[i].fields[2];
+          if (i === 1) {
+            expect(field.tooltip).toBe(
+              'Location information (file and line) is unavailable. This is because ProtoLog entries are only preprocessed to include source locations when logged from Java files with a configured protologtool genrule. Kotlin files are not currently supported for this preprocessing.',
+            );
+          } else {
+            expect(field.tooltip).toBeUndefined();
+          }
+        }
+      });
+
+      it('LocationField used for source file log field', async () => {
+        const filterValueMatches = uiData.entries.map((entry) => {
+          return entry.fields[2].getFilterValueMatch();
+        });
+        const exp = ['sourcefile0', '<NO_LOC>', 'sourcefile2', 'sourcefile2'];
+        expect(filterValueMatches).toEqual(exp);
       });
     });
   }
@@ -66,6 +80,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           name: 'Log Level',
           cssClass: 'log-level',
           columnType: ProtologColumnType.LEVEL,
+          canFilterBySingleOption: true,
         },
         new LogSelectFilter(Array.from({length: 3}, () => '')),
       ),
@@ -73,7 +88,12 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
     },
     {
       header: new LogHeader(
-        {name: 'Tag', cssClass: 'tag', columnType: ProtologColumnType.TAG},
+        {
+          name: 'Tag',
+          cssClass: 'tag',
+          columnType: ProtologColumnType.TAG,
+          canFilterBySingleOption: true,
+        },
         new LogSelectFilter(Array.from({length: 3}, () => '')),
       ),
       options: ['tag0', 'tag1', 'tag2'],
@@ -85,6 +105,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           cssClass: 'source-file',
           canCopy: true,
           columnType: ProtologColumnType.LOCATION,
+          canFilterBySingleOption: true,
         },
         new LogSelectFilter(
           Array.from({length: 3}, () => ''),
@@ -126,6 +147,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           level: 'INFO',
           location: 'sourcefile0',
         })
+        .setRootNodeFormatter(new SetFormatters())
         .build(),
 
       new HierarchyTreeBuilder()
@@ -137,6 +159,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           tag: 'tag1',
           level: 'DEBUG',
         })
+        .setRootNodeFormatter(new SetFormatters())
         .build(),
 
       new HierarchyTreeBuilder()
@@ -149,6 +172,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           level: 'VERBOSE',
           location: 'sourcefile2:321',
         })
+        .setRootNodeFormatter(new SetFormatters())
         .build(),
 
       new HierarchyTreeBuilder()
@@ -161,6 +185,7 @@ class PresenterProtologTest extends AbstractLogViewerPresenterTest<UiData> {
           level: 'VERBOSE',
           location: 'sourcefile2:123',
         })
+        .setRootNodeFormatter(new SetFormatters())
         .build(),
     ];
 

@@ -22,13 +22,13 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {AbstractPresenterInputMethod} from '@ui/input_method/abstract_presenter_input_method';
 import {UpdateDisplayNames} from '@ui/input_method/clients/operations/update_display_names';
 import {ImeUiData} from '@ui/input_method/ime_ui_data';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
 import {NotifyHierarchyViewCallbackType} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter';
 import {HierarchyPresenter} from '@ui/shared/hierarchy/hierarchy_presenter';
-import {UpdateSfSubtreeDisplayNames} from '@ui/shared/operations/update_sf_subtree_display_names';
-import {TableProperties} from '@ui/shared/properties/table_properties';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {TableProperties} from '@ui/shared/hierarchy/table_properties';
+import {UpdateSfSubtreeDisplayNames} from '@ui/shared/hierarchy/update_sf_subtree_display_names';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 export class PresenterInputMethodClients extends AbstractPresenterInputMethod {
   protected override hierarchyPresenter = new HierarchyPresenter(

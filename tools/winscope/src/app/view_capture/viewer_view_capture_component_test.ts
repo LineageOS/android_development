@@ -18,6 +18,7 @@ import {RectsComponent} from '@app/shared/rects/rects_component';
 import {AbstractHierarchyViewerComponentTest} from '@app/shared/testing/abstract_hierarchy_viewer_component_test';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
+import {VcCuratedProperties} from '@ui/shared/properties/curated_properties';
 import {UiData} from '@ui/view_capture/ui_data';
 
 import {ViewerViewCaptureComponent} from './viewer_view_capture_component';
@@ -47,6 +48,20 @@ class ViewerViewCaptureComponentTest extends AbstractHierarchyViewerComponentTes
         const miniRectSpy = spyOn(component.onMiniRectsDblClick, 'emit');
         rects.miniRectsDblClick.emit();
         expect(miniRectSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('injects curated view into properties component', async () => {
+        const curatedProperties = jasmine.createSpyObj<VcCuratedProperties>(
+          'curatedProperties',
+          [],
+          {className: 'test class'},
+        );
+        const uiData = new UiData(undefined, curatedProperties);
+        dom.setComponentInput('inputData', uiData);
+        dom.detectChanges();
+        expect(
+          dom.find('.properties-view view-capture-property-groups'),
+        ).toBeDefined();
       });
     });
   }

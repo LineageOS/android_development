@@ -27,6 +27,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
+import {TreeComponent} from '@app/shared/tree/tree_component';
+import {TreeNodeComponent} from '@app/shared/tree/tree_node_component';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
 import {assertDefined} from '@common/assert';
 import {FilterFlag} from '@common/filter_flag';
@@ -37,15 +39,13 @@ import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {flattenNodesToRows} from '@ui/shared/hierarchy/ui_tree_node_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TextFilter} from '@ui/shared/text_filter';
-import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
+import {flattenNodesToRows} from '@ui/shared/tree/ui_tree_node_helpers';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {RectShowStateChangeDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {HierarchyComponent} from './hierarchy_component';
 import {HierarchyTreeNodeDataViewComponent} from './hierarchy_tree_node_data_view_component';
-import {TreeComponent} from './tree_component';
-import {TreeNodeComponent} from './tree_node_component';
 
 describe('HierarchyComponent', () => {
   let component: HierarchyComponent;
@@ -136,7 +136,8 @@ describe('HierarchyComponent', () => {
     expect(dom.find('.pinned-items')).toBeUndefined();
     dom.setComponentInput('pinnedItems', [component.nodeRows()[0].node]);
     dom.detectChanges();
-    expect(dom.find('.pinned-items tree-node')).toBeDefined();
+    const treeNode = dom.get('.pinned-items tree-node');
+    treeNode.checkTextExact('RootNode1 - Root node');
   });
 
   it('renders placeholder text', () => {

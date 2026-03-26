@@ -19,7 +19,7 @@ import {binaryEncode, utf8Decode} from '@common/string_helpers';
 import {showPopupWindow} from '@common/window';
 import {getLogger, Logger} from '@compat/logging';
 import {UserNotifier} from '@services/user_notifier';
-import {AdbDeviceConnection, AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnection, AdbDeviceConnectionListener, AdbDeviceState,} from '@trace_collection/adb_device_connection';
 import {TraceTarget} from '@trace_collection/trace_target';
 import {makeWarningProxyTracingErrors, makeWarningProxyTracingWarnings,} from '@trace_collection/warnings';
 

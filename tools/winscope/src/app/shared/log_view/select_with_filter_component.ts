@@ -15,7 +15,7 @@
  */
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, Inject, input, model, output,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, Inject, input, model, output, signal, viewChild,} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -25,7 +25,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelect, MatSelectChange, MatSelectModule,} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {AbstractSelectComponent} from '@app/shared/abstract_select_component';
+import {AbstractSelectComponent} from '@app/shared/user_input/abstract_select_component';
 
 @Component({
   selector: 'select-with-filter',
@@ -54,10 +54,17 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
   outerFilterWidth = input<string>('100px');
   innerFilterWidth = input<string>('100');
   flex = input<string>('none');
+  value = model<string[]>();
 
   readonly selectChange = output<MatSelectChange>();
 
-  filterString = model<string>('');
+  filterString = signal<string>('');
+
+  readonly disabled = computed(() => {
+    return this.options().length <= 1;
+  });
+
+  readonly select = viewChild.required(MatSelect);
 
   nonHiddenOptions = computed<string[]>(() => {
     return this.options().filter((value: string) => {
@@ -125,14 +132,21 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
     effect(() => {
       this.updateNonHiddenOptionToIndex(this.options());
     });
+
+    effect(() => {
+      const newValue = this.value();
+      if (newValue !== undefined) {
+        this.onSelectChange(new MatSelectChange(this.select(), newValue));
+      }
+    });
   }
 
   onSelectChange(event: MatSelectChange) {
     this.selectChange.emit(event);
   }
 
-  onSelectOpened(select: MatSelect, filter: HTMLInputElement) {
-    this.handleSelectOpened(select);
+  onSelectOpened(filter: HTMLInputElement) {
+    this.handleSelectOpened(this.select());
     this.onFilterStringChange();
     filter.focus();
   }
@@ -142,7 +156,8 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
     this.changeDetectorRef.detectChanges();
   }
 
-  onOptClick(e: MouseEvent, i: number, select: MatSelect, option: MatOption) {
+  onOptClick(e: MouseEvent, i: number, option: MatOption) {
+    const select = this.select();
     const selectValueChanged = this.handleOptionClick({
       event: e,
       i,
@@ -153,26 +168,28 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
       filterString: this.filterString(),
     });
     if (selectValueChanged) {
-      this.selectChange.emit(new MatSelectChange(select, select.value));
+      this.onSelectChange(new MatSelectChange(select, select.value));
     }
     this.lastClickedIndex = i;
   }
 
-  selectedOptions(select: MatSelect): string[] {
+  selectedOptions(): string[] {
+    const select = this.select();
     return this.options().filter((o) => select.value.includes(o));
   }
 
-  onSelectedOptionClick(option: string, select: MatSelect) {
+  onSelectedOptionClick(option: string) {
+    const select = this.select();
     select.value = select.value.filter((val: string) => val !== option);
-    this.selectChange.emit(new MatSelectChange(select, select.value));
+    this.onSelectChange(new MatSelectChange(select, select.value));
   }
 
   onFilterStringChange() {
     this.updateNonHiddenOptionToIndex(this.options());
   }
 
-  onAllButtonClick(select: MatSelect) {
-    this.onToggleAll(select);
+  onAllButtonClick() {
+    this.onToggleAll();
   }
 
   private updateNonHiddenOptionToIndex(options: string[]) {
@@ -186,8 +203,9 @@ export class SelectWithFilterComponent extends AbstractSelectComponent {
     this.nonHiddenOptionToIndex = nonHiddenOptionToIndex;
   }
 
-  protected override onToggleAll(select: MatSelect) {
+  protected override onToggleAll() {
+    const select = this.select();
     this.handleToggleAll(select, this.options(), this.filterString());
-    this.selectChange.emit(new MatSelectChange(select, select.value));
+    this.onSelectChange(new MatSelectChange(select, select.value));
   }
 }

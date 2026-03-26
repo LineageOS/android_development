@@ -30,7 +30,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {CollapsedSectionsComponent} from '@app/shared/collapsible_sections/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
 import {LogComponent} from '@app/shared/log_view/log_component';
-import {ViewerComponent} from '@app/shared/viewer_component';
+import {ViewerComponent} from '@app/shared/viewers/viewer_component';
 import {assertDefined} from '@common/assert';
 import {downloadFromUrl} from '@common/download';
 import {Timestamp} from '@common/time/time';
@@ -42,7 +42,7 @@ import {CurrentSearch, ListedSearch, UiData} from '@ui/search/ui_data';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {CollapsibleSections} from '@ui/shared/collapsible_sections/collapsible_sections';
 import {ClickableProperty} from '@ui/shared/log/ui_data_log';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 import {makeWarningExportTooLarge, makeWarningFailedToExportToCsv, makeWarningNoResultsToExport,} from '@ui/trace_loading/warnings';
 
 import {ActiveSearchComponent} from './active_search_component';

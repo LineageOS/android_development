@@ -44,30 +44,33 @@ limitations under the License.
 @if (hasOptions) {
   <mat-divider></mat-divider>
 }
-@if (showViewCaptureFormat()) {
-  <ng-container>
-    <view-capture-property-groups
-      class="property-groups"
-      [properties]="$any(curatedProperties())"
-    ></view-capture-property-groups>
-
-    @if (showPropertiesTree()) {
-      <mat-divider></mat-divider>
-    }
-  </ng-container>
+@if (showPlaceholderText()) {
+  <span class="mat-body-1 placeholder-text"> {{ placeholderText() }} </span>
+}
+@let curatedView = curatedPropertiesView();
+@if (showCuratedView() && curatedView !== undefined) {
+  <ng-container
+    [ngTemplateOutlet]="curatedView"
+    [ngTemplateOutletContext]="{properties: curatedProperties()}"
+  ></ng-container>
 }
 @if (showPropertiesTree()) {
+  <ng-template #dataView let-node="node">
+    <property-tree-node-data-view
+      [node]="node"
+      (timestampClick)="onTimestampClick($event)"
+      (propagatePropertyClick)="onPropagatePropertyClick($event)"
+    ></property-tree-node-data-view>
+  </ng-template>
+
   <tree-view
     class="tree"
     [nodeRows]="nodeRows()"
+    [heightPredictor]="heightPredictor"
     [useStoredExpandedState]="!!store()"
     [itemsClickable]="true"
     [highlightedItem]="highlightedProperty()"
-    (highlightedChange)="onHighlightedPropertyChange($any($event))"
-    (timestampClick)="onTimestampClick($event)"
-    (propagatePropertyClick)="onPropagatePropertyClick($event)"
+    [dataView]="dataView"
+    (highlightedChange)="onHighlightedPropertyChange($event)"
   ></tree-view>
-}
-@if (showPlaceholderText()) {
-  <span class="mat-body-1 placeholder-text"> {{ placeholderText() }} </span>
 }

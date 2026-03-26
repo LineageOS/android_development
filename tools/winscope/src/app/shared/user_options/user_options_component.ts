@@ -20,7 +20,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
-import {UserOption, UserOptions} from '@ui/shared/user_options';
+import {UserOption, UserOptions} from '@ui/shared/user_input/user_options';
 
 type LogCallback = (key: string, state: boolean, name: string) => void;
 

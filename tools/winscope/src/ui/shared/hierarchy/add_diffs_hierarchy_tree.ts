@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AddDiffs} from '@ui/shared/add_diffs';
-import {DiffType} from '@ui/shared/diff_type';
+import {AddDiffs} from '@ui/shared/tree/add_diffs';
+import {DiffType} from '@ui/shared/tree/diff_type';
 
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 

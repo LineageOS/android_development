@@ -37,13 +37,13 @@ import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitte
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
 import {UserNotifier} from '@services/user_notifier';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
+import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb_device_connection';
 import {AdbFiles, RequestedTraceTypes} from '@trace_collection/adb_files';
-import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {TraceCollectionController} from '@trace_collection/controller/trace_collection_controller';
+import {UiTraceTarget} from '@trace_collection/ui_trace_target';
 import {CheckboxConfiguration, makeDefaultDumpConfigMap, makeDefaultTraceConfigMap, makeProtologGroupOptions, makeScreenRecordingSelectionConfigs, SelectionConfiguration, TraceConfigurationMap, updateConfigsFromStore,} from '@trace_collection/ui/ui_trace_configuration';
-import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {UserRequest, UserRequestConfig} from '@trace_collection/user_request';
 import {AppRefreshDumpsRequest} from '@ui/shared/events/app_events';
 import {NoTraceTargetsSelectedEvent} from '@ui/shared/events/misc_events';
@@ -96,8 +96,8 @@ export class CollectTracesComponent
   lastUiProgressUpdateTimeMs?: number;
   targetTabIndex = 0;
   connectionTabIndex = 0;
-  traceConfig: TraceConfigurationMap;
-  dumpConfig: TraceConfigurationMap;
+  traceConfig = signal<TraceConfigurationMap>(makeDefaultTraceConfigMap());
+  dumpConfig = signal<TraceConfigurationMap>(makeDefaultDumpConfigMap());
   requestedTraceTypes: RequestedTraceTypes[] = [];
   controller: TraceCollectionController | undefined;
   errorText = '';
@@ -129,7 +129,7 @@ export class CollectTracesComponent
     ConnectionState.DUMPING_STATE,
   ];
 
-  storage = input.required<Store>();
+  store = input.required<Store>();
   readonly filesCollected = output<AdbFiles>();
 
   readonly isLoadOperationInProgress = computed<boolean>(() => {
@@ -169,15 +169,10 @@ export class CollectTracesComponent
     @Inject(ChangeDetectorRef) private changeDetectorRef: ChangeDetectorRef,
     @Inject(MatDialog) private dialog: MatDialog,
     @Inject(NgZone) private ngZone: NgZone,
-  ) {
-    this.traceConfig = makeDefaultTraceConfigMap();
-    this.dumpConfig = makeDefaultDumpConfigMap();
-  }
+  ) {}
 
   async ngOnInit() {
-    const adbConnectionType = this.storage().get(
-      this.storeKeyAdbConnectionType,
-    );
+    const adbConnectionType = this.store().get(this.storeKeyAdbConnectionType);
     if (adbConnectionType !== undefined) {
       await this.changeHostConnection(adbConnectionType);
     } else {
@@ -233,7 +228,7 @@ export class CollectTracesComponent
     }
     this.selectedDevice = device;
     this.onDevicesChange(assertDefined(this.controller).getDevices());
-    this.storage().add(this.storeKeyLastDevice, device.id);
+    this.store().add(this.storeKeyLastDevice, device.id);
     this.changeDetectorRef.detectChanges();
   }
 
@@ -290,7 +285,7 @@ export class CollectTracesComponent
     }
 
     const devices = controller.getDevices();
-    const lastId = this.storage().get(this.storeKeyLastDevice) ?? undefined;
+    const lastId = this.store().get(this.storeKeyLastDevice) ?? undefined;
 
     const selectedDevice = this.selectedDevice;
     if (selectedDevice) {
@@ -307,7 +302,7 @@ export class CollectTracesComponent
       if (device && device.getState() === AdbDeviceState.AVAILABLE) {
         this.selectedDevice = device;
         this.onDevicesChange(devices);
-        this.storage().add(this.storeKeyLastDevice, device.id);
+        this.store().add(this.storeKeyLastDevice, device.id);
         return false;
       }
     }
@@ -315,16 +310,8 @@ export class CollectTracesComponent
     return this.selectedDevice === undefined;
   }
 
-  onTraceConfigChange(newConfig: TraceConfigurationMap) {
-    this.traceConfig = newConfig;
-  }
-
-  onDumpConfigChange(newConfig: TraceConfigurationMap) {
-    this.dumpConfig = newConfig;
-  }
-
   async onChangeDeviceButton() {
-    this.storage().add(this.storeKeyLastDevice, '');
+    this.store().add(this.storeKeyLastDevice, '');
     this.selectedDevice = undefined;
     await this.controller?.restartConnection();
   }
@@ -334,9 +321,9 @@ export class CollectTracesComponent
   }
 
   async startTracing() {
-    const requestedTraces = this.getRequests(assertDefined(this.traceConfig));
+    const requestedTraces = this.getRequests(this.traceConfig());
     const imeReq = requestedTraces.includes(UiTraceTarget.IME);
-    const doNotShowDialog = !!this.storage().get(this.storeKeyImeWarning);
+    const doNotShowDialog = !!this.store().get(this.storeKeyImeWarning);
 
     if (!imeReq || doNotShowDialog) {
       await this.requestTraces(requestedTraces);
@@ -376,7 +363,7 @@ export class CollectTracesComponent
         .beforeClosed()
         .subscribe((result: WarningDialogResult | undefined) => {
           if (result?.selectedOptions.includes(optionText)) {
-            this.storage().add(this.storeKeyImeWarning, 'true');
+            this.store().add(this.storeKeyImeWarning, 'true');
           }
           if (result?.closeActionText === closeText) {
             this.requestTraces(requestedTraces);
@@ -386,7 +373,8 @@ export class CollectTracesComponent
   }
 
   async dumpState() {
-    const requestedDumps = this.getRequests(assertDefined(this.dumpConfig));
+    const dumpConfig = this.dumpConfig();
+    const requestedDumps = this.getRequests(dumpConfig);
     if (requestedDumps.length === 0) {
       this.emitEvent(new NoTraceTargetsSelectedEvent());
       return;
@@ -394,8 +382,8 @@ export class CollectTracesComponent
 
     const requestedTraceTypes = requestedDumps.map((req) => {
       return {
-        name: this.dumpConfig[req].name,
-        types: this.dumpConfig[req].types,
+        name: dumpConfig[req].name,
+        types: dumpConfig[req].types,
       };
     });
     Analytics.Tracing.logCollectDumps(
@@ -405,14 +393,8 @@ export class CollectTracesComponent
 
     const requestedDumpsWithConfig: UserRequest[] = requestedDumps.map(
       (target) => {
-        const enabledConfig = this.requestedEnabledConfig(
-          target,
-          this.dumpConfig,
-        );
-        const selectedConfig = this.requestedSelectedConfig(
-          target,
-          this.dumpConfig,
-        );
+        const enabledConfig = this.requestedEnabledConfig(target, dumpConfig);
+        const selectedConfig = this.requestedSelectedConfig(target, dumpConfig);
         return {
           target,
           config: enabledConfig.concat(selectedConfig),
@@ -490,12 +472,13 @@ export class CollectTracesComponent
     newTraces: UiTraceTarget[],
     removedTraces: UiTraceTarget[],
   ) {
+    const traceConfig = this.traceConfig();
     newTraces.forEach((trace) => {
-      const config = assertDefined(this.traceConfig)[trace];
+      const config = traceConfig[trace];
       config.available = true;
     });
     removedTraces.forEach((trace) => {
-      const config = assertDefined(this.traceConfig)[trace];
+      const config = traceConfig[trace];
       config.available = false;
     });
   }
@@ -537,10 +520,12 @@ export class CollectTracesComponent
 
   private async onAppRefreshDumpsRequest() {
     this.targetTabIndex = 1;
-    this.dumpConfig = updateConfigsFromStore(
-      JSON.parse(JSON.stringify(assertDefined(this.dumpConfig))),
-      this.storage(),
-      this.storeKeyPrefixDumpConfig,
+    this.dumpConfig.set(
+      updateConfigsFromStore(
+        JSON.parse(JSON.stringify(this.dumpConfig())),
+        this.store(),
+        this.storeKeyPrefixDumpConfig,
+      ),
     );
     this.refreshDumps.set(true);
     this.changeDetectorRef.detectChanges();
@@ -555,15 +540,16 @@ export class CollectTracesComponent
     this.connectionTabIndex =
       adbConnectionType === AdbConnectionType.WINSCOPE_PROXY ? 1 : 0;
     this.changeDetectorRef.detectChanges();
-    this.storage().add(this.storeKeyAdbConnectionType, adbConnectionType);
+    this.store().add(this.storeKeyAdbConnectionType, adbConnectionType);
     await this.controller.restartConnection();
   }
 
   private async requestTraces(requestedTraces: UiTraceTarget[]) {
+    const traceConfig = this.traceConfig();
     this.requestedTraceTypes = requestedTraces.map((req) => {
       return {
-        name: this.traceConfig[req].name,
-        types: this.traceConfig[req].types,
+        name: traceConfig[req].name,
+        types: traceConfig[req].types,
       };
     });
     Analytics.Tracing.logCollectTraces(
@@ -578,13 +564,10 @@ export class CollectTracesComponent
 
     const requestedTracesWithConfig: UserRequest[] = requestedTraces.map(
       (target) => {
-        const enabledConfig = this.requestedEnabledConfig(
-          target,
-          this.traceConfig,
-        );
+        const enabledConfig = this.requestedEnabledConfig(target, traceConfig);
         const selectedConfig = this.requestedSelectedConfig(
           target,
-          this.traceConfig,
+          traceConfig,
         );
         return {
           target,
@@ -679,9 +662,9 @@ export class CollectTracesComponent
   }
 
   private updateMediaBasedConfig(device: AdbDeviceConnection) {
-    const screenRecordingConfig = assertDefined(this.traceConfig)[
-      UiTraceTarget.SCREEN_RECORDING
-    ].config;
+    const traceConfig = this.traceConfig();
+    const screenRecordingConfig =
+      traceConfig[UiTraceTarget.SCREEN_RECORDING].config;
     const displaysConfig = assertDefined(
       screenRecordingConfig.selectionConfigs.find((c) => c.key === 'displays'),
     );
@@ -700,17 +683,16 @@ export class CollectTracesComponent
       screenRecordingConfig.selectionConfigs[0].options = displayOptions;
     }
 
-    const screenshotConfig = assertDefined(this.dumpConfig)[
-      UiTraceTarget.SCREENSHOT
-    ].config;
+    const dumpConfig = this.dumpConfig();
+    const screenshotConfig = dumpConfig[UiTraceTarget.SCREENSHOT].config;
     assertDefined(
       screenshotConfig.selectionConfigs.find((c) => c.key === 'displays'),
     ).options = displayOptions;
   }
 
   private updateProtologConfig(device: AdbDeviceConnection) {
-    const config = assertDefined(this.traceConfig)[UiTraceTarget.PROTO_LOG]
-      .config.selectionConfigs;
+    const traceConfig = this.traceConfig();
+    const config = traceConfig[UiTraceTarget.PROTO_LOG].config.selectionConfigs;
     const groupsConfig = assertDefined(config?.find((c) => c.key === 'groups'));
     const groups = device.getProtologGroups();
     const currentOptions = groupsConfig.options.map((opt) => opt.value);

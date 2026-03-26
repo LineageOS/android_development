@@ -15,7 +15,7 @@
  */
 import {CdkOverlayOrigin, OverlayModule} from '@angular/cdk/overlay';
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, Inject, input, model, NgZone, output,} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, Inject, input, model, NgZone,} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -25,7 +25,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelect, MatSelectChange, MatSelectModule,} from '@angular/material/select';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {AbstractSelectComponent} from '@app/shared/abstract_select_component';
+import {AbstractSelectComponent} from '@app/shared/user_input/abstract_select_component';
 import {assertDefined} from '@common/assert';
 import {isElementOverflowing} from '@common/dom';
 import {Store} from '@common/store/store';
@@ -59,9 +59,8 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
 
   title = input.required<string>();
   traceConfigStoreKey = input.required<string>();
-  storage = input.required<Store>();
+  store = input.required<Store>();
   traceConfig = model.required<TraceConfigurationMap>();
-  readonly traceConfigChange = output<TraceConfigurationMap>();
 
   readonly getSortedTraceKeys = computed<string[]>(() => {
     const config = this.traceConfig();
@@ -86,7 +85,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   ngOnInit() {
     const config = updateConfigsFromStore(
       JSON.parse(JSON.stringify(this.traceConfig())),
-      this.storage(),
+      this.store(),
       this.traceConfigStoreKey(),
     );
     this.traceConfig.set(config);
@@ -214,8 +213,7 @@ export class TraceConfigComponent extends AbstractSelectComponent<SelectionConfi
   }
 
   onTraceConfigChange() {
-    this.changeDetectorRef.markForCheck();
-    this.traceConfigChange.emit(this.traceConfig());
+    this.changeDetectorRef.detectChanges();
   }
 
   isMultipleSelect(config: SelectionConfiguration): boolean {

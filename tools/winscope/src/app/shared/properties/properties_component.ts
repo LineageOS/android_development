@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, computed, ElementRef, Inject, input, output,} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output, TemplateRef, viewChild,} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
-import {TreeComponent} from '@app/shared/hierarchy/tree_component';
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
+import {TreeComponent} from '@app/shared/tree/tree_component';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
-import {ViewCapturePropertyGroupsComponent} from '@app/view_capture/view_capture_property_groups_component';
 import {PersistentStore} from '@common/store/persistent_store';
 import {Analytics} from '@logging/analytics';
 import {TraceType} from '@trace_api/trace_type';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {CuratedProperties} from '@ui/shared/properties/curated_properties';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
+
+import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
+import {PropertyNodeHeightPredictor} from './property_tree_node_height_predictor';
 
 @Component({
   selector: 'properties-view',
@@ -41,8 +43,8 @@ import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
     CollapsibleSectionTitleComponent,
     SearchBoxComponent,
     UserOptionsComponent,
-    ViewCapturePropertyGroupsComponent,
     TreeComponent,
+    PropertyTreeNodeDataViewComponent,
   ],
   templateUrl: './properties_component.ng.html',
   styleUrls: ['properties_component.scss'],
@@ -61,6 +63,7 @@ export class PropertiesComponent {
   traceType = input<TraceType>();
   store = input<PersistentStore>();
   textFilter = input<TextFilter>();
+  curatedPropertiesView = input<TemplateRef<unknown>>();
 
   collapseButtonClicked = output();
   readonly filterChange = output<TextFilter>();
@@ -81,7 +84,18 @@ export class PropertiesComponent {
     );
   });
 
-  constructor(@Inject(ElementRef) private elementRef: ElementRef) {}
+  readonly heightPredictor = new PropertyNodeHeightPredictor(
+    this.elementRef,
+    (index: number) => {
+      return this.tree()?.filteredRows.at(index);
+    },
+  );
+
+  private readonly tree = viewChild(TreeComponent<UiPropertyTreeNode>);
+
+  constructor(
+    @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+  ) {}
 
   onFilterChange(detail: TextFilter) {
     this.filterChange.emit(detail);
@@ -99,17 +113,16 @@ export class PropertiesComponent {
     this.propagatePropertyClick.emit(node);
   }
 
-  showViewCaptureFormat(): boolean {
+  showCuratedView(): boolean {
     return (
-      this.traceType() === TraceType.VIEW_CAPTURE &&
+      this.curatedPropertiesView() !== undefined &&
+      this.curatedProperties() !== undefined &&
       this.textFilter()?.filterString === '' &&
-      // Todo: Highlight Inline in formatted ViewCapture Properties Component.
-      !this.userOptions()['showDiff']?.enabled &&
-      this.curatedProperties() !== undefined
+      !this.userOptions()['showDiff']?.enabled
     );
   }
 
   showPropertiesTree(): boolean {
-    return this.nodeRows().length > 0 && !this.showViewCaptureFormat();
+    return this.nodeRows().length > 0 && !this.showCuratedView();
   }
 }

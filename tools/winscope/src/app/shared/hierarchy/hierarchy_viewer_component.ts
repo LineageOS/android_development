@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {Directive, output} from '@angular/core';
-import {ViewerComponent} from '@app/shared/viewer_component';
+import {computed, Directive, output} from '@angular/core';
+import {ViewerComponent} from '@app/shared/viewers/viewer_component';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 @Directive()
 export class HierarchyViewerComponent<
@@ -29,4 +29,8 @@ export class HierarchyViewerComponent<
   readonly onHighlightedNodeChange = output<UiHierarchyTreeNode>();
   readonly onHierarchyPinnedChange = output<UiHierarchyTreeNode>();
   readonly onHierarchyUserOptionsChange = output<UserOptions>();
+
+  readonly pinnedIds = computed(() => {
+    return this.inputData()?.pinnedItems.map((node) => node.id) ?? [];
+  });
 }

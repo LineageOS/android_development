@@ -28,7 +28,6 @@ import {InputEventType} from '@trace/input/input_event_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {FormatDispatchEntry} from '@ui/input/operations/format_dispatch_entry';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
 import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@ui/shared/log/abstract_log_viewer_presenter';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
@@ -38,8 +37,9 @@ import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
 import {RectLegendFactory, TraceRectType} from '@ui/shared/rects/rect_spec';
 import {RectsPresenter} from '@ui/shared/rects/rects_presenter';
 import {makeInputRects} from '@ui/shared/rects/ui_rect_factory';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 import {convertRectIdToLayerorDisplayName, makeDisplayIdentifiers,} from '@ui/surface_flinger/presenter';
 
 import {InputEntry, UiData} from './ui_data';
@@ -53,26 +53,31 @@ export class Presenter extends AbstractLogViewerPresenter<
       name: 'Type',
       cssClass: 'input-type inline',
       columnType: InputColumnType.EVENT_TYPE,
+      canFilterBySingleOption: true,
     },
     source: {
       name: 'Source',
       cssClass: 'input-source',
       columnType: InputColumnType.SOURCE,
+      canFilterBySingleOption: true,
     },
     action: {
       name: 'Action',
       cssClass: 'input-action',
       columnType: InputColumnType.ACTION,
+      canFilterBySingleOption: true,
     },
     deviceId: {
       name: 'Device',
       cssClass: 'input-device-id right-align',
       columnType: InputColumnType.DEVICE_ID,
+      canFilterBySingleOption: true,
     },
     displayId: {
       name: 'Display',
       cssClass: 'input-display-id right-align',
       columnType: InputColumnType.DISPLAY_ID,
+      canFilterBySingleOption: true,
     },
     details: {
       name: 'Details',

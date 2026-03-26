@@ -41,11 +41,11 @@ import {WinscopeEvent} from '@messaging/winscope_event';
 import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {TraceType} from '@trace_api/trace_type';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
-import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnection, AdbDeviceState,} from '@trace_collection/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
+import {UiTraceTarget} from '@trace_collection/ui_trace_target';
 import {makeProtologGroupOptions} from '@trace_collection/ui/ui_trace_configuration';
-import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
 import {WdpDeviceConnection} from '@trace_collection/wdp/wdp_device_connection';
 import {WdpHostConnection} from '@trace_collection/wdp/wdp_host_connection';
 import {WinscopeProxyDeviceConnection} from '@trace_collection/winscope_proxy/winscope_proxy_device_connection';
@@ -110,7 +110,7 @@ describe('CollectTracesComponent', () => {
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
     storage = new InMemoryStorage();
     storage.add('adbConnectionType', AdbConnectionType.MOCK);
-    dom.setComponentInput('storage', storage);
+    dom.setComponentInput('store', storage);
     await dom.detectChangesAndWaitStable();
     mockDevice = new MockAdbDeviceConnection(
       '35562',
@@ -254,7 +254,7 @@ describe('CollectTracesComponent', () => {
       lastEvent = event;
     });
 
-    Object.values(component.traceConfig).forEach(
+    Object.values(component.traceConfig()).forEach(
       (c) => (c.config.enabled = false),
     );
     const controller = assertDefined(component.controller);
@@ -293,7 +293,7 @@ describe('CollectTracesComponent', () => {
       lastEvent = event;
     });
 
-    Object.values(component.dumpConfig).forEach(
+    Object.values(component.dumpConfig()).forEach(
       (c) => (c.config.enabled = false),
     );
     const filesSpy = spyOn(component.filesCollected, 'emit');
@@ -516,7 +516,7 @@ describe('CollectTracesComponent', () => {
     const newFixture = TestBed.createComponent(CollectTracesComponent);
     const newComponent = newFixture.componentInstance;
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    newDom.setComponentInput('storage', storage);
+    newDom.setComponentInput('store', storage);
     await newDom.detectChangesAndWaitStable();
     const controller = assertDefined(newComponent.controller);
     const spy = spyOn(controller, 'dumpState');
@@ -541,7 +541,7 @@ describe('CollectTracesComponent', () => {
   });
 
   it('update available traces from host', () => {
-    const config = component.traceConfig;
+    const config = component.traceConfig();
     expect(config[UiTraceTarget.WAYLAND]?.available).toBeFalse();
     component.onAvailableTracesChange([UiTraceTarget.WAYLAND], []);
     dom.detectChanges();
@@ -648,7 +648,7 @@ describe('CollectTracesComponent', () => {
     await changeConnection(1);
     const newFixture = TestBed.createComponent(CollectTracesComponent);
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    newDom.setComponentInput('storage', storage);
+    newDom.setComponentInput('store', storage);
     await newDom.detectChangesAndWaitStable();
     const newComponent = newFixture.componentInstance;
     expect(newComponent.controller?.getConnectionType()).toEqual(
@@ -686,7 +686,7 @@ describe('CollectTracesComponent', () => {
       const fixture = TestBed.createComponent(CollectTracesComponent);
       component = fixture.componentInstance;
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
-      dom.setComponentInput('storage', storage);
+      dom.setComponentInput('store', storage);
       await dom.detectChangesAndWaitStable();
       await dom.whenRenderingDone();
       component.state.set(ConnectionState.UNAUTH);
@@ -732,7 +732,7 @@ describe('CollectTracesComponent', () => {
       const fixture = TestBed.createComponent(CollectTracesComponent);
       component = fixture.componentInstance;
       dom = new DOMTestHelper(fixture, fixture.nativeElement);
-      dom.setComponentInput('storage', storage);
+      dom.setComponentInput('store', storage);
       await dom.detectChangesAndWaitStable();
       component.state.set(ConnectionState.UNAUTH);
       dom.detectChanges();
@@ -827,8 +827,8 @@ describe('CollectTracesComponent', () => {
   ) {
     expect(
       isDump
-        ? component.dumpConfig[key].config.enabled
-        : component.traceConfig[key].config.enabled,
+        ? component.dumpConfig()[key].config.enabled
+        : component.traceConfig()[key].config.enabled,
     ).toBeTrue();
 
     const checkboxSection = dom.get(
@@ -837,21 +837,21 @@ describe('CollectTracesComponent', () => {
     const boxes = Array.from(checkboxSection.findAll('.trace-checkbox'));
 
     const expectedName = isDump
-      ? component.dumpConfig[key].name
-      : component.traceConfig[key].name;
+      ? component.dumpConfig()[key].name
+      : component.traceConfig()[key].name;
     const traceBox = assertDefined(
       boxes.find((box) => box.getText()?.includes(expectedName)),
     );
     traceBox.findAndClick('input');
     expect(
       isDump
-        ? component.dumpConfig[key].config.enabled
-        : component.traceConfig[key].config.enabled,
+        ? component.dumpConfig()[key].config.enabled
+        : component.traceConfig()[key].config.enabled,
     ).toBeFalse();
   }
 
   function updateTraceConfigToInvalidIMEFrameMapping() {
-    const config = assertDefined(component.traceConfig);
+    const config = component.traceConfig();
     config[UiTraceTarget.IME].config.enabled = true;
     config[UiTraceTarget.SURFACE_FLINGER_TRACE].config.enabled = false;
   }
@@ -945,10 +945,10 @@ describe('CollectTracesComponent', () => {
     multiDisplayScreenRecording: boolean,
   ) {
     const screenRecordingConfig = assertDefined(
-      component.traceConfig[UiTraceTarget.SCREEN_RECORDING].config,
+      component.traceConfig()[UiTraceTarget.SCREEN_RECORDING].config,
     ).selectionConfigs[0];
     const screenshotConfig = assertDefined(
-      component.dumpConfig[UiTraceTarget.SCREENSHOT].config,
+      component.dumpConfig()[UiTraceTarget.SCREENSHOT].config,
     ).selectionConfigs[0];
     const displayOptions = displays.map((d) => {
       return {value: d};
@@ -962,7 +962,7 @@ describe('CollectTracesComponent', () => {
 
   function checkProtologConfig(groups: string[]) {
     const config = assertDefined(
-      component.traceConfig[UiTraceTarget.PROTO_LOG].config,
+      component.traceConfig()[UiTraceTarget.PROTO_LOG].config,
     ).selectionConfigs[0];
     expect(config.options).toEqual(makeProtologGroupOptions(groups));
     expect(config.value).toEqual([]);

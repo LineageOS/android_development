@@ -57,6 +57,11 @@ limitations under the License.
   @if (tableProps !== undefined) {
     <properties-table class="properties-table" [properties]="tableProps"></properties-table>
   }
+
+  <ng-template #dataView let-node="node">
+    <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
+  </ng-template>
+
   @if (pinned.length > 0) {
     <div class="pinned-items">
       @for (pinnedItem of pinned; track pinnedItem.id) {
@@ -70,7 +75,8 @@ limitations under the License.
           [isPinned]="true"
           [isInPinnedSection]="true"
           [isSelected]="isItemHighlighted"
-          (pinNodeChange)="onPinnedItemChange($any($event))"
+          [dataView]="dataView"
+          (pinNodeChange)="onPinnedItemChange($event)"
           (click)="onPinnedNodeClick($event, pinnedItem)"
         ></tree-node>
       }
@@ -86,6 +92,7 @@ limitations under the License.
   <tree-view
     class="tree"
     [nodeRows]="rows"
+    [heightPredictor]="heightPredictor"
     [isFlattened]="isFlattened()"
     [useStoredExpandedState]="true"
     [highlightedItem]="highlighted"
@@ -94,8 +101,9 @@ limitations under the License.
     [rectIdToShowState]="rectIdToShowState()"
     [store]="treeStorage"
     [handleArrowPress]="true"
+    [dataView]="dataView"
     (highlightedChange)="onHighlightedItemChange($event)"
-    (pinnedItemChange)="onPinnedItemChange($any($event))"
+    (pinnedItemChange)="onPinnedItemChange($event)"
     (rectShowStateChange)="onRectShowStateChange($event)"
   ></tree-view>
 }

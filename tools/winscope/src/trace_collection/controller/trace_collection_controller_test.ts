@@ -17,13 +17,13 @@
 import {ProgressListener} from '@messaging/progress_listener';
 import {UserNotifierChecker} from '@services/testing/user_notifier_checker';
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
-import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceState} from '@trace_collection/adb_device_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 import {ConnectionStateListener} from '@trace_collection/connection_state_listener';
 import {MockAdbDeviceConnection} from '@trace_collection/mock/mock_adb_device_connection';
 import {MockAdbHostConnection} from '@trace_collection/mock/mock_adb_host_connection';
 import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
-import {UiTraceTarget} from '@trace_collection/ui/ui_trace_target';
+import {UiTraceTarget} from '@trace_collection/ui_trace_target';
 import {UserRequest} from '@trace_collection/user_request';
 import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
 

@@ -19,7 +19,7 @@ import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makePropertyNode} from '@tree_node/testing/tree_node_test_helpers';
 import {ImeUiData} from '@ui/input_method/ime_ui_data';
-import {AdditionalPropertySelectedDetail} from '@ui/shared/viewer_event_details';
+import {AdditionalPropertySelectedDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {ImeAdditionalPropertiesComponent} from './ime_additional_properties_component';
 import {ViewerInputMethodComponent} from './viewer_input_method_component';

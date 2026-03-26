@@ -29,8 +29,8 @@ import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {TransactionsEntry, UiData} from './ui_data';
 
@@ -43,36 +43,43 @@ export class Presenter extends AbstractLogViewerPresenter<
       name: 'TX ID',
       cssClass: 'transaction-id right-align',
       columnType: TransactionColumnType.TRANSACTION_ID,
+      canFilterBySingleOption: true,
     },
     vsyncId: {
       name: 'VSYNC ID',
       cssClass: 'vsyncid right-align',
       columnType: TransactionColumnType.VSYNC_ID,
+      canFilterBySingleOption: true,
     },
     pid: {
       name: 'PID',
       cssClass: 'pid right-align',
       columnType: TransactionColumnType.PID,
+      canFilterBySingleOption: true,
     },
     uid: {
       name: 'UID',
       cssClass: 'uid right-align',
       columnType: TransactionColumnType.UID,
+      canFilterBySingleOption: true,
     },
     process: {
       name: 'PROCESS',
       cssClass: 'process',
       columnType: TransactionColumnType.PROCESS,
+      canFilterBySingleOption: true,
     },
     type: {
       name: 'TYPE',
       cssClass: 'transaction-type',
       columnType: TransactionColumnType.TRANSACTION_TYPE,
+      canFilterBySingleOption: true,
     },
     layerOrDisplayId: {
       name: 'LAYER/DISP ID',
       cssClass: 'layer-or-display-id right-align',
       columnType: TransactionColumnType.LAYER_OR_DISPLAY_ID,
+      canFilterBySingleOption: true,
     },
     flags: {
       name: 'Flags',
@@ -177,7 +184,7 @@ export class Presenter extends AbstractLogViewerPresenter<
       const entry = this.trace.getEntry(traceIndex);
       const entryNode = assertDefined(entryNodes.at(traceIndex));
       const vsyncId = assertDefined(
-        entryNode.getEagerPropertyByName('vsyncId')?.formattedValue(),
+        entryNode.getEagerPropertyByName('vsyncId')?.getValue<number>(),
       );
 
       for (const transactionNode of entryNode.getAllChildren()) {

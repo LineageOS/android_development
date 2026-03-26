@@ -43,16 +43,29 @@ import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {ColumnSpec, LogEntry, LogField, LogHeader,} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 import {LogComponent} from './log_component';
 import {SelectWithFilterComponent} from './select_with_filter_component';
 
 describe('LogComponent', () => {
-  const testColumn1: ColumnSpec = {name: 'test1', cssClass: 'test-1'};
-  const testColumn2: ColumnSpec = {name: 'test2', cssClass: 'test-2'};
+  const testColumn1: ColumnSpec = {
+    name: 'test1',
+    cssClass: 'test-1',
+    canFilterBySingleOption: true,
+  };
+  const testColumn2: ColumnSpec = {
+    name: 'test2',
+    cssClass: 'test-2',
+    canFilterBySingleOption: true,
+  };
   const testColumn3: ColumnSpec = {name: 'test3', cssClass: 'test-3'};
+  const testColumn4: ColumnSpec = {
+    name: 'test4',
+    cssClass: 'test-4',
+    canFilterBySingleOption: true,
+  };
 
   const tooltipMessage = 'Test tooltip message';
 
@@ -103,7 +116,7 @@ describe('LogComponent', () => {
   });
 
   it('renders filters', () => {
-    expect(dom.findAll('.entries .filter').length).toBe(2);
+    expect(dom.findAll('.entries .filter').length).toBe(3);
   });
 
   it('renders entries', () => {
@@ -339,16 +352,17 @@ describe('LogComponent', () => {
     );
     dom.detectChanges();
     const entry = dom.get('.scroll .entry');
-    entry.checkTextExact('1ns Test tag 1123 2ns');
+    entry.get('.time').checkTextExact('1ns');
+    entry.get('.test-3').checkTextExact('2ns');
 
     await setComponentInputData(false);
-    entry.checkTextExact(
-      '1970-01-01, 00:00:00.000 Test tag 1123 1970-01-01, 00:00:00.000',
-    );
+    entry.get('.time').checkTextExact('1970-01-01, 00:00:00.000');
+    entry.get('.test-3').checkTextExact('1970-01-01, 00:00:00.000');
 
     spy.and.returnValue(false);
     await setComponentInputData(false);
-    entry.checkTextExact('00:00:00.000 Test tag 1123 00:00:00.000');
+    entry.get('.time').checkTextExact('00:00:00.000');
+    entry.get('.test-3').checkTextExact('00:00:00.000');
   });
 
   it('shows copy button for spec that can be copied', () => {
@@ -466,6 +480,69 @@ describe('LogComponent', () => {
     await entry.checkTooltip(undefined);
   });
 
+  it('only shows context menu for field in column that can be filtered by single option', () => {
+    const contextMenuTrigger = dom.get('.entry .test-3');
+    contextMenuTrigger.openContextMenu();
+    expect(dom.findInDocument('.context-menu')).toBeUndefined();
+  });
+
+  it('shows disabled message in context menu if filter not found', () => {
+    const options = openContextMenuAndGetOptions('.entry .test-2');
+    expect(options.length).toBe(1);
+    expect(options[0].getText()).toBe('Filter disabled for this column.');
+  });
+
+  it('shows disabled message in context menu if filter disabled', () => {
+    const filter = assertDefined(
+      dom.findByDirective(SelectWithFilterComponent),
+    );
+    spyOn(filter, 'disabled').and.returnValue(true);
+    const options = openContextMenuAndGetOptions('.entry .test-1');
+    expect(options.length).toBe(1);
+    expect(options[0].getText()).toBe('Filter disabled for this column.');
+  });
+
+  it('shows correct options for setting filter values', () => {
+    const options = openContextMenuAndGetOptions('.entry[item-id="1"] .test-1');
+    expect(options.length).toBe(2);
+    expect(options[0].getText()).toBe('Exclude all "filterMatch" entries');
+    expect(options[1].getText()).toBe('Show only "filterMatch" entries');
+  });
+
+  it('excludes filter match value from context menu', () => {
+    const filter = dom.findByDirective(SelectWithFilterComponent);
+    const option = openContextMenuAndGetOptions('.entry .test-1')[0];
+    expect(option.getText()).toBe('Exclude all "Test tag 1" entries');
+    option.click();
+    expect(filter?.value()).toEqual(['Test tag 2']);
+  });
+
+  it('sets filter match value from context menu', () => {
+    const filter = dom.findByDirective(SelectWithFilterComponent);
+    const option = openContextMenuAndGetOptions(
+      '.entry[item-id="1"] .test-1',
+    )[1];
+    expect(option.getText()).toBe('Show only "filterMatch" entries');
+    option.click();
+    expect(filter?.value()).toEqual(['filterMatch']);
+  });
+
+  it('sets filter match value for correct filter', () => {
+    const filters = dom.findAllByDirective(SelectWithFilterComponent);
+    expect(filters.length).toBe(2);
+    const [filterCol1, filterCol4] = filters;
+    expect(filterCol1.label()).toBe('test1');
+    expect(filterCol4.label()).toBe('test4');
+    expect(filterCol1.value()).toBeUndefined();
+    expect(filterCol4.value()).toBeUndefined();
+
+    const option = openContextMenuAndGetOptions('.entry .test-4')[0];
+    expect(option.getText()).toBe('Exclude all "Test prop 1" entries');
+    option.click();
+    expect(filterCol1.value()).toBeUndefined();
+    expect(filterCol4.value()).toEqual(['Test prop 2']);
+  });
+
   function setTooltipInputData(message: string | undefined) {
     const entryTime = makeElapsedTimestamp(1n);
 
@@ -517,11 +594,13 @@ describe('LogComponent', () => {
       new LogField(testColumn1, 'Test tag 1'),
       new LogField(testColumn2, 123),
       new LogField(testColumn3, fieldTime),
+      new LogField(testColumn4, 'Test prop 1'),
     ];
     const fields2 = [
-      new LogField(testColumn1, 'Test tag 2'),
+      new MockLogField(testColumn1, 'Test tag 2'),
       new LogField(testColumn2, 1234),
       new LogField(testColumn3, 'N/A', undefined, undefined, true),
+      new LogField(testColumn4, 'Test prop 2'),
     ];
 
     const trace = new TraceBuilder<PropertyTreeNode>()
@@ -547,6 +626,11 @@ describe('LogComponent', () => {
         new LogSelectFilter(['Test tag 1', 'Test tag 2']),
       ),
       new LogHeader(testColumn2, new LogTextFilter(new TextFilter())),
+      new LogHeader(testColumn3),
+      new LogHeader(
+        testColumn4,
+        new LogSelectFilter(['Test prop 1', 'Test prop 2']),
+      ),
     ];
 
     dom.setComponentInput('entries', entries);
@@ -562,4 +646,16 @@ describe('LogComponent', () => {
     button.click();
     expect(spy).toHaveBeenCalledTimes(1);
   }
+
+  function openContextMenuAndGetOptions(trigger: string) {
+    const contextMenuTrigger = dom.get(trigger);
+    contextMenuTrigger.openContextMenu();
+    return dom.getInDocument('.context-menu').findAll('.context-menu-item');
+  }
 });
+
+class MockLogField extends LogField {
+  override getFilterValueMatch(): string {
+    return 'filterMatch';
+  }
+}

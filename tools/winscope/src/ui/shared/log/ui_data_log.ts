@@ -17,10 +17,10 @@
 import {Timestamp} from '@common/time/time';
 import {TraceEntry} from '@trace_api/trace';
 import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {LogFilter} from './log_filters';
 
@@ -44,6 +44,7 @@ export interface ColumnSpec {
   cssClass: string;
   columnType?: number;
   canCopy?: boolean;
+  canFilterBySingleOption?: boolean;
 }
 
 export class LogHeader {
@@ -75,6 +76,10 @@ export class LogField {
       return this.value.format(timeOnly);
     }
     return this.value.toString();
+  }
+
+  getFilterValueMatch(): string {
+    return this.format();
   }
 }
 

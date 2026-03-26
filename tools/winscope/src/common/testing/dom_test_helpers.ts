@@ -46,7 +46,7 @@ export class DOMTestHelper<T> {
 
   async detectChangesAndRenderingDone() {
     this.detectChanges();
-    await this.fixture.whenRenderingDone();
+    await this.whenRenderingDone();
   }
 
   find(selector: string): DOMTestHelper<T> | undefined {
@@ -92,7 +92,12 @@ export class DOMTestHelper<T> {
 
   click() {
     this.root.click();
-    this.fixture.detectChanges();
+    this.detectChanges();
+  }
+
+  openContextMenu() {
+    this.root.dispatchEvent(new MouseEvent('contextmenu'));
+    this.detectChanges();
   }
 
   shiftAndClick() {
@@ -102,7 +107,7 @@ export class DOMTestHelper<T> {
 
   doubleClick() {
     this.root.dispatchEvent(new MouseEvent('dblclick'));
-    this.fixture.detectChanges();
+    this.detectChanges();
   }
 
   findAndClick(selector: string): DOMTestHelper<T> {
@@ -163,7 +168,7 @@ export class DOMTestHelper<T> {
     }
     this.root.value = value;
     this.root.dispatchEvent(new Event('input'));
-    this.fixture.detectChanges();
+    this.detectChanges();
   }
 
   isMatSelectOpen(): boolean {

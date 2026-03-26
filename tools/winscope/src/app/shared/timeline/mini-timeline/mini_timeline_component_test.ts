@@ -38,9 +38,9 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {TimelineData} from '@ui/timeline/timeline_data';
 
+import {Transformer} from './drawer/transformer';
 import {MiniTimelineComponent} from './mini_timeline_component';
 import {SliderComponent} from './slider_component';
-import {Transformer} from './transformer';
 
 describe('MiniTimelineComponent', () => {
   let component: MiniTimelineComponent;

@@ -31,7 +31,7 @@ import {InMemoryStorage} from '@common/store/in_memory_storage';
 import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
-import {ConfigurationOptions} from '@trace_collection/ui/ui_trace_configuration';
+import {ConfigurationOptions, TraceConfigurationMap,} from '@trace_collection/ui/ui_trace_configuration';
 
 import {TraceConfigComponent} from './trace_config_component';
 
@@ -46,7 +46,6 @@ describe('TraceConfigComponent', () => {
   const filterInputField = '.select-config-filter';
   let component: TraceConfigComponent;
   let dom: DOMTestHelper<TraceConfigComponent>;
-  let configChangeSpy: jasmine.Spy;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -71,7 +70,6 @@ describe('TraceConfigComponent', () => {
     const fixture = TestBed.createComponent(TraceConfigComponent);
     component = fixture.componentInstance;
     dom = new DOMTestHelper(fixture, fixture.nativeElement);
-    configChangeSpy = spyOn(component.traceConfigChange, 'emit');
     await setComponentInputs(component);
   });
 
@@ -117,32 +115,32 @@ describe('TraceConfigComponent', () => {
       {name: 'extra', key: 'extra', enabled: true},
     ]);
 
-    // remove layers_trace checkbox configs from storage
-    const commonStorage = new InMemoryStorage();
-    const componentStorage = component.storage();
-    commonStorage.add(
+    // remove layers_trace checkbox configs from store
+    const commonStore = new InMemoryStorage();
+    const componentStore = component.store();
+    commonStore.add(
       storeKey + windowTraceKey,
-      assertDefined(componentStorage.get(storeKey + windowTraceKey)),
+      assertDefined(componentStore.get(storeKey + windowTraceKey)),
     );
     const layersConfig: ConfigurationOptions = JSON.parse(
-      assertDefined(componentStorage.get(storeKey + layersTraceKey)),
+      assertDefined(componentStore.get(storeKey + layersTraceKey)),
     );
     layersConfig.checkboxConfigs = [];
-    commonStorage.add(storeKey + layersTraceKey, JSON.stringify(layersConfig));
+    commonStore.add(storeKey + layersTraceKey, JSON.stringify(layersConfig));
 
     const newFixture = TestBed.createComponent(TraceConfigComponent);
     const newComponent = newFixture.componentInstance;
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    const spy = spyOn(newComponent.traceConfigChange, 'emit');
-    await setComponentInputs(newComponent, newDom, commonStorage);
+    const spy = spyOn(newComponent.traceConfig, 'set').and.callThrough();
+    await setComponentInputs(newComponent, newDom, commonStore);
     expect(spy).toHaveBeenCalledTimes(1);
 
     const newConfig = newComponent.traceConfig();
-    // window_trace extra set to true from storage
+    // window_trace extra set to true from store
     expect(newConfig[windowTraceKey].config.checkboxConfigs).toEqual([
       {name: 'extra', key: 'extra', enabled: true},
     ]);
-    // layers_trace checkbox configs retained during merge even though they are no longer in storage
+    // layers_trace checkbox configs retained during merge even though they are no longer in store
     expect(newConfig[layersTraceKey].config.checkboxConfigs).toEqual([
       {name: 'trace buffers', key: 'tracebuffers', enabled: true},
     ]);
@@ -152,12 +150,12 @@ describe('TraceConfigComponent', () => {
     const newFixture = TestBed.createComponent(TraceConfigComponent);
     const newComponent = newFixture.componentInstance;
     const newDom = new DOMTestHelper(newFixture, newFixture.nativeElement);
-    const spy = spyOn(newComponent.traceConfigChange, 'emit');
+    const spy = spyOn(newComponent.traceConfig, 'set').and.callThrough();
 
     newDom.setComponentInput('title', 'Targets');
     newDom.setComponentInput('traceConfig', component.traceConfig());
     newDom.setComponentInput('traceConfigStoreKey', 'TestConfigSettings');
-    newDom.setComponentInput('storage', component.storage());
+    newDom.setComponentInput('store', component.store());
     await detectNgModelChanges(newDom, newComponent);
     newDom.detectChanges();
     expect(spy).toHaveBeenCalledTimes(1);
@@ -165,7 +163,6 @@ describe('TraceConfigComponent', () => {
 
   it('trace checkbox enabled by default', () => {
     const traceKey = layersTraceKey;
-    configChangeSpy.calls.reset();
     const config = component.traceConfig();
 
     const box = getTraceBoxForKey(layersTraceKey);
@@ -178,12 +175,10 @@ describe('TraceConfigComponent', () => {
     input.click();
     input.checkInputChecked(false);
     expect(config[traceKey].config.enabled).toBeFalse();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
 
   it('trace checkbox not enabled by default', () => {
     const traceKey = windowTraceKey;
-    configChangeSpy.calls.reset();
     const config = component.traceConfig();
 
     const box = getTraceBoxForKey(traceKey);
@@ -196,7 +191,6 @@ describe('TraceConfigComponent', () => {
     input.click();
     input.checkInputChecked(true);
     expect(config[traceKey].config.enabled).toBeTrue();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
 
   it('disables checkbox for unavailable trace', () => {
@@ -237,34 +231,23 @@ describe('TraceConfigComponent', () => {
     input.checkInputChecked(true);
   });
 
-  it('changing checkbox config by DOM interaction emits event', async () => {
-    configChangeSpy.calls.reset();
-    getTraceBoxForKey(layersTraceKey).findAndClick('input');
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
-  });
-
   it('changing selected config causes select to change', async () => {
-    configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(layersTraceKey);
     await settingsPanel.openMatSelect();
     const panel = dom.getMatSelectPanel();
     dom.clickMatOption();
     expect(panel.find('.user-option')).toBeUndefined();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
 
   it('clicking None button clears optional single selection config value', async () => {
-    configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(optSelectKey);
     await settingsPanel.openMatSelect();
 
     dom.clickMatOption();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
     checkSelectionConfigValue(optSelectKey, '12345');
 
     const panel = dom.getMatSelectPanel();
     panel.findAndClick('.user-option');
-    expect(configChangeSpy).toHaveBeenCalledTimes(2);
     checkSelectionConfigValue(optSelectKey, '');
   });
 
@@ -374,64 +357,51 @@ describe('TraceConfigComponent', () => {
   });
 
   it('handles shift+click', async () => {
-    configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(optMultSelectKey);
     await settingsPanel.openMatSelect();
     const allOptions = dom.getMatSelectPanel().findAll('.option');
 
     allOptions[0].shiftAndClick();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
     allOptions[1].shiftAndClick();
-    expect(configChangeSpy).toHaveBeenCalledTimes(2);
 
     allOptions[1].click();
     allOptions[0].click();
     allOptions[0].click();
-    configChangeSpy.calls.reset();
 
     allOptions[2].shiftAndClick();
-    expect(configChangeSpy).toHaveBeenCalledTimes(2);
     checkSelectionConfigValue(optMultSelectKey, ['12345', '67890', '45678']);
   });
 
   it('calls default select keydown handler for non CTRL+A events', async () => {
-    configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(optMultSelectKey);
     await settingsPanel.openMatSelect();
     await dom.whenRenderingDone();
     dom.getMatSelectPanel().keydownSpace();
     checkSelectionConfigValue(optMultSelectKey, ['12345']);
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
   });
 
   async function checkToggleAllNoFilter(toggle: () => void) {
-    configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(multSelectKey);
     await settingsPanel.openMatSelect();
     await dom.whenRenderingDone();
 
     toggle();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
     checkSelectionConfigValue(multSelectKey, ['12345', '67890']);
 
     toggle();
-    expect(configChangeSpy).toHaveBeenCalledTimes(2);
     checkSelectionConfigValue(multSelectKey, []);
   }
 
   async function checkToggleAllWithFilter(toggle: () => void) {
-    configChangeSpy.calls.reset();
     const settingsPanel = getAdvancedSettingsPanelForKey(optMultSelectKey);
     await settingsPanel.openMatSelect();
     await dom.whenRenderingDone();
 
     toggle();
-    expect(configChangeSpy).toHaveBeenCalledTimes(1);
     checkSelectionConfigValue(optMultSelectKey, ['12345', '45678', '67890']);
 
     dom.getMatSelectPanel().findAndDispatchInput(filterInputField, '45');
     toggle();
-    expect(configChangeSpy).toHaveBeenCalledTimes(2);
     checkSelectionConfigValue(optMultSelectKey, ['67890']);
   }
 
@@ -442,10 +412,10 @@ describe('TraceConfigComponent', () => {
   async function setComponentInputs(
     c: TraceConfigComponent,
     d: DOMTestHelper<TraceConfigComponent> = dom,
-    storage: Store = new InMemoryStorage(),
+    store: Store = new InMemoryStorage(),
   ) {
     d.setComponentInput('title', 'Targets');
-    const config = {
+    const config: TraceConfigurationMap = {
       layers_trace: {
         name: layersTraceKey,
         available: true,
@@ -574,7 +544,7 @@ describe('TraceConfigComponent', () => {
     };
     d.setComponentInput('traceConfig', config);
     d.setComponentInput('traceConfigStoreKey', storeKey);
-    d.setComponentInput('storage', storage);
+    d.setComponentInput('store', store);
     await detectNgModelChanges(d, c);
     d.detectChanges();
   }
@@ -620,8 +590,7 @@ describe('TraceConfigComponent', () => {
     expected: string | string[],
   ) {
     expect(
-      configChangeSpy.calls.mostRecent().args[0][traceKey].config
-        .selectionConfigs[0].value,
+      component.traceConfig()[traceKey].config.selectionConfigs[0].value,
     ).toEqual(expected);
   }
 });

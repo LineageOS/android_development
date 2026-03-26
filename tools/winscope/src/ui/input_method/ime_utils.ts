@@ -21,8 +21,8 @@ import {makeNodeFilter} from '@tree_node/helpers';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Item} from '@tree_node/item';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {TreeNodeFilter} from '@ui/shared/hierarchy/ui_tree_node_helpers';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TreeNodeFilter} from '@ui/shared/tree/ui_tree_node_helpers';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {getFocusedActivity, getFocusedWindow} from './wm_ime_utils';
 

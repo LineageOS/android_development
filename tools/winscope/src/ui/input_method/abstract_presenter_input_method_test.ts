@@ -29,13 +29,13 @@ import {PresenterInputMethodClients} from '@ui/input_method/clients/presenter_in
 import {PresenterInputMethodManagerService} from '@ui/input_method/imms/presenter_input_method_manager_service';
 import {PresenterInputMethodService} from '@ui/input_method/ims/presenter_input_method_service';
 import {getImeTraceEntries} from '@ui/input_method/testing/fixture_utils';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
 import {NotifyHierarchyViewCallbackType} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter';
 import {AbstractHierarchyViewerPresenterTest} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter_test';
-import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {treeNodeEqualityTester} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
 
 import {AbstractPresenterInputMethod} from './abstract_presenter_input_method';
 import {ImeUiData} from './ime_ui_data';

@@ -23,9 +23,9 @@ import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@ui/shared
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {LogEntry, LogField, LogHeader} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
-import {ProtologEntry, UiData} from './ui_data';
+import {LocationField, ProtologEntry, UiData} from './ui_data';
 
 export class Presenter extends AbstractLogViewerPresenter<
   UiData,
@@ -35,17 +35,20 @@ export class Presenter extends AbstractLogViewerPresenter<
     logLevel: {
       name: 'Log Level',
       cssClass: 'log-level',
+      canFilterBySingleOption: true,
       columnType: ProtologColumnType.LEVEL,
     },
     tag: {
       name: 'Tag',
       cssClass: 'tag',
+      canFilterBySingleOption: true,
       columnType: ProtologColumnType.TAG,
     },
     sourceFile: {
       name: 'Source files',
       cssClass: 'source-file',
       canCopy: true,
+      canFilterBySingleOption: true,
       columnType: ProtologColumnType.LOCATION,
     },
     text: {
@@ -125,12 +128,9 @@ export class Presenter extends AbstractLogViewerPresenter<
       const fields: LogField[] = [
         new LogField(Presenter.COLUMNS.logLevel, level),
         new LogField(Presenter.COLUMNS.tag, tag),
-        new LogField(
+        new LocationField(
           Presenter.COLUMNS.sourceFile,
           location,
-          undefined,
-          undefined,
-          undefined,
           location === Presenter.NO_LOCATION
             ? Presenter.NO_LOCATION_TOOLTIP_MESSAGE
             : undefined,

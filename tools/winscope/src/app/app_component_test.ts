@@ -67,7 +67,7 @@ import {Traces} from '@trace_api/traces';
 import {AppRefreshDumpsRequest, AppResetRequest,} from '@ui/shared/events/app_events';
 import {BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest,} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {LoadedFileData} from '@ui/trace_loading/loaded_file_data';
 import {ParsingErrorType} from '@ui/trace_loading/parsing_error_type';
@@ -118,7 +118,7 @@ class MockTimelineComponent {
   ],
 })
 class MockCollectTracesComponent {
-  storage = input.required<Store>();
+  store = input.required<Store>();
   setEmitEvent(_: EmitEvent) {}
   async onWinscopeEvent(_: WinscopeEvent) {}
 }

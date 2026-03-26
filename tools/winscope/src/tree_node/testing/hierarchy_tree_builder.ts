@@ -23,7 +23,7 @@ import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertyTreeNodeFactory} from '@tree_node/property_tree_node_factory';
 import {TraceRect} from '@tree_node/trace_rect';
 
-import {TreeBuilder} from './mock_tree_builder';
+import {AbstractTreeBuilder} from './abstract_tree_builder';
 import {ChildProperty, PropertyTreeBuilder} from './property_tree_builder';
 
 /**
@@ -31,7 +31,7 @@ import {ChildProperty, PropertyTreeBuilder} from './property_tree_builder';
  *
  * The builder is not reusable, it should only be used to build one tree.
  */
-export class HierarchyTreeBuilder extends TreeBuilder<
+export class HierarchyTreeBuilder extends AbstractTreeBuilder<
   HierarchyTreeNode,
   ChildHierarchy
 > {

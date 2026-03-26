@@ -15,8 +15,8 @@
  */
 
 import {FLAG_SEPARATOR} from '@trace/formatters';
-import {AddDiffs} from '@ui/shared/add_diffs';
-import {DiffType} from '@ui/shared/diff_type';
+import {AddDiffs} from '@ui/shared/tree/add_diffs';
+import {DiffType} from '@ui/shared/tree/diff_type';
 
 import {DiffValuePart, UiPropertyTreeNode} from './ui_property_tree_node';
 

@@ -1,0 +1,97 @@
+// Copyright (C) 2026 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+digraph G {
+    fontname="Helvetica,Arial,sans-serif";
+    node [fontname="Helvetica,Arial,sans-serif", shape=box, style="rounded,filled", margin=0.3, color="#555555", penwidth=1.5];
+    edge [fontname="Helvetica,Arial,sans-serif", color="#555555", penwidth=1.5, fontsize=11];
+
+    rankdir=TB;
+    splines=spline;
+    nodesep=0.8;
+    ranksep=0.8;
+
+    subgraph cluster_app {
+        label = "Application Layer";
+        fontsize = 16;
+        fontcolor = "#1A237E";
+        style = "rounded,filled";
+        color = "#C5CAE9";
+        fillcolor = "#E8EAF6";
+        penwidth = 2;
+
+        AppCode [label="App Code\n(Java / Kotlin)", fillcolor="#9FA8DA"];
+    }
+
+    subgraph cluster_art {
+        label = "Android Runtime (ART)";
+        fontsize = 16;
+        fontcolor = "#004D40";
+        style = "rounded,filled";
+        color = "#B2DFDB";
+        fillcolor = "#E0F2F1";
+        penwidth = 2;
+
+        DalvikHeap [label="Dalvik Heap\n(Java Objects)", fillcolor="#80CBC4"];
+        GC [label="Garbage Collector", fillcolor="#80CBC4"];
+        JNI [label="JNI Bridge", fillcolor="#80CBC4"];
+
+        {rank=same; GC; JNI; DalvikHeap;}
+    }
+
+    subgraph cluster_native {
+        label = "Native Memory Layer";
+        fontsize = 16;
+        fontcolor = "#E64A19";
+        style = "rounded,filled";
+        color = "#FFCCBC";
+        fillcolor = "#FBE9E7";
+        penwidth = 2;
+
+        NativeHeap [label="Native Heap\n(C/C++ malloc)", fillcolor="#FFAB91"];
+    }
+
+    subgraph cluster_kernel {
+        label = "Linux Kernel";
+        fontsize = 16;
+        fontcolor = "#3E2723";
+        style = "rounded,filled";
+        color = "#D7CCC8";
+        fillcolor = "#EFEBE9";
+        penwidth = 2;
+
+        VirtualMemory [label="Virtual Memory System\n(mmap, page faults)", fillcolor="#BCAAA4", width=4.5];
+
+        subgraph cluster_physical {
+            label = "Physical RAM";
+            color = "#A1887F";
+            style = "dashed";
+            PhysicalPages [label="Standard Pages\n(4KB/16KB)", fillcolor="#BCAAA4"];
+            ZRAM [label="ZRAM\n(Compressed Pages)", fillcolor="#BCAAA4"];
+        }
+    }
+
+    // Logical Relationships
+    AppCode -> DalvikHeap [label=" allocations"];
+    AppCode -> JNI [label=" JNI calls"];
+    JNI -> NativeHeap [label=" malloc()"];
+
+    GC -> DalvikHeap [label=" reclaims", style=bold];
+
+    DalvikHeap -> VirtualMemory [style=dashed, label=" virtual memory"];
+    NativeHeap -> VirtualMemory [style=dashed];
+
+    VirtualMemory -> PhysicalPages [label=" maps to"];
+    PhysicalPages -> ZRAM [label=" compressed by\nkswapd"];
+}

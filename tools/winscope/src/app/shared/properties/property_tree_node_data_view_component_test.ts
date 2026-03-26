@@ -20,9 +20,9 @@ import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makeRealTimestamp} from '@common/time/testing/test_helpers';
 import {DEFAULT_PROPERTY_FORMATTER, FixedStringFormatter, HEX_FORMATTER, TIMESTAMP_NODE_FORMATTER,} from '@trace/formatters';
 import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
-import {DiffType} from '@ui/shared/diff_type';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {DiffType} from '@ui/shared/tree/diff_type';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 import {PropertyTreeNodeDataViewComponent} from './property_tree_node_data_view_component';
 

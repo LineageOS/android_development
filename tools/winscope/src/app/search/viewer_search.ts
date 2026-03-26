@@ -24,7 +24,7 @@ import {Traces} from '@trace_api/traces';
 import {QueryResult} from '@trace_processor/query_result';
 import {Presenter} from '@ui/search/presenter';
 import {UiData} from '@ui/search/ui_data';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 
 import {ViewerSearchComponent} from './viewer_search_component';
 

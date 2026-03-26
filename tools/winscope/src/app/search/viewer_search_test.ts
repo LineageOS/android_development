@@ -21,7 +21,7 @@ import {makeConverterNoRteOffsets} from '@common/time/testing/test_helpers';
 import {Traces} from '@trace_api/traces';
 import {Presenter} from '@ui/search/presenter';
 import {ListedSearch} from '@ui/search/ui_data';
-import {SaveQueryClickDetail, SearchQueryClickDetail,} from '@ui/shared/viewer_event_details';
+import {SaveQueryClickDetail, SearchQueryClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 import {ViewerSearch} from './viewer_search';
 import {ViewerSearchComponent} from './viewer_search_component';

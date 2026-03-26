@@ -26,7 +26,7 @@ import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {PresenterInputMethodService} from '@ui/input_method/ims/presenter_input_method_service';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {AdditionalPropertySelectedDetail, RectShowStateChangeDetail,} from '@ui/shared/viewer_event_details';
+import {AdditionalPropertySelectedDetail, RectShowStateChangeDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 import {ViewerInputMethodService} from './viewer_input_method_service';
 

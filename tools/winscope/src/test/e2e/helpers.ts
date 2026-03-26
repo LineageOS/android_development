@@ -512,11 +512,15 @@ export async function checkScrollPresent(viewerSelector: string) {
 export async function checkTotalScrollEntries(
   viewerSelector: string,
   numberOfEntries: number,
+  hasLastEntryButton = false,
 ) {
   const viewportSelector = `${viewerSelector} .scroll`;
   const viewport = element(by.css(viewportSelector));
   if (await isScrollable(viewport)) {
     await scrollUp(viewportSelector);
+    if (hasLastEntryButton) {
+      await tryGoToLastEntryByButton(viewerSelector);
+    }
     let lastId: string | undefined;
     let lastScrollEntryItemId = await getLastScrollEntryItemId(viewerSelector);
     while (lastId !== lastScrollEntryItemId) {
@@ -528,6 +532,22 @@ export async function checkTotalScrollEntries(
   }
   const lastId = await getLastScrollEntryItemId(viewerSelector);
   expect(lastId).toEqual(`${numberOfEntries - 1}`);
+}
+
+async function tryGoToLastEntryByButton(viewerSelector: string) {
+  let parent = viewerSelector;
+  const menuTrigger = element(
+    by.css(`${viewerSelector} .time-controls-trigger`),
+  );
+  if (await menuTrigger.isPresent()) {
+    await browser.actions().mouseMove(menuTrigger).perform();
+    parent = '.time-controls-menu';
+  }
+
+  const lastEntryButton = element(by.css(`${parent} .go-to-last-entry`));
+  if (await lastEntryButton.isPresent()) {
+    await lastEntryButton.click();
+  }
 }
 
 /**
@@ -558,13 +578,22 @@ export async function checkSelectFilter(
   options: string[],
   expectedFilteredEntries: number,
   totalEntries: number,
+  hasLastEntryButton: boolean,
 ) {
   await toggleSelectFilterOptions(viewerSelector, filterSelector, options);
   await new Promise((resolve) => setTimeout(resolve, 500));
-  await checkTotalScrollEntries(viewerSelector, expectedFilteredEntries);
+  await checkTotalScrollEntries(
+    viewerSelector,
+    expectedFilteredEntries,
+    hasLastEntryButton,
+  );
 
   await toggleSelectFilterOptions(viewerSelector, filterSelector, options);
-  await checkTotalScrollEntries(viewerSelector, totalEntries);
+  await checkTotalScrollEntries(
+    viewerSelector,
+    totalEntries,
+    hasLastEntryButton,
+  );
 }
 
 /**
@@ -573,7 +602,7 @@ export async function checkSelectFilter(
  * @param viewportEl Viewport selector to apply scroll.
  * @param hiddenEl Element selector for element that should be shown after scroll.
  */
-export async function scrollUp(viewportEl: string, hiddenEl?: string) {
+async function scrollUp(viewportEl: string, hiddenEl?: string) {
   const viewport = element(by.css(viewportEl));
   if (await isScrollable(viewport)) {
     await viewport.sendKeys(protractor.Key.PAGE_UP);

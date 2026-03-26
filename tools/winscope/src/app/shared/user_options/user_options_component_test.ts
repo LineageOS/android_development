@@ -19,7 +19,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
 
 import {UserOptionsComponent} from './user_options_component';
 

@@ -57,5 +57,7 @@ limitations under the License.
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
     (filterChange)="onPropertiesFilterChange.emit($event)"
     (optionsChange)="onPropertiesUserOptionsChange.emit($event)"
+    (timestampClick)="onTimestampClick.emit($event)"
+    (propagatePropertyClick)="onPropagatePropertyClick.emit($event)"
   ></properties-view>
 </div>

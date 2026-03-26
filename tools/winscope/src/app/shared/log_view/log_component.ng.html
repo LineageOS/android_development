@@ -62,7 +62,7 @@ limitations under the License.
               >
 
               <ng-template let-trigger="trigger" #timeControlsMenu>
-                <div class="context-menu" (mouseleave)="trigger.close()" cdkMenu>
+                <div class="context-menu time-controls-menu" (mouseleave)="trigger.close()" cdkMenu>
                   <div class="context-menu-item-container">
                     <span class="menu-item time-controls" [cdkMenuItemDisabled]="true" cdkMenuItem>
                       <ng-container [ngTemplateOutlet]="timeControls"></ng-container>
@@ -187,7 +187,12 @@ limitations under the License.
           }
           @for (field of entry.fields; track $index) {
             @let fieldClass = getFieldClass(field, $index);
-            <div [class]="fieldClass">
+            <div
+              [class]="fieldClass"
+              [cdkContextMenuDisabled]="!field.spec.canFilterBySingleOption"
+              [cdkContextMenuTriggerFor]="filterContextMenu"
+              [cdkContextMenuTriggerData]="{field}"
+            >
               @if (!showFieldButton(entry, field) && !Array.isArray(field.value)) {
                 <span
                   class="mat-body-1 field-value"
@@ -245,4 +250,33 @@ limitations under the License.
       }
     }
   </virtual-scroll-viewport>
+
+  <ng-template #filterContextMenu let-field="field">
+    @let filter = findSelectFilterComponent(field);
+    @let filterMatchValue = field.getFilterValueMatch();
+    <div class="context-menu" cdkMenu #filterMenu="cdkMenu">
+      <div class="context-menu-item-container">
+        @if (filter === undefined) {
+          <span class="context-menu-item" [cdkMenuItemDisabled]="true" cdkMenuItem>
+            Filter disabled for this column.
+          </span>
+        } @else {
+          <span
+            class="context-menu-item"
+            (click)="excludeFromFilter(filter, filterMatchValue)"
+            cdkMenuItem
+          >
+            Exclude all "{{ filterMatchValue }}" entries
+          </span>
+          <span
+            class="context-menu-item"
+            (click)="setFilterSingleValue(filter, filterMatchValue)"
+            cdkMenuItem
+          >
+            Show only "{{ filterMatchValue }}" entries
+          </span>
+        }
+      </div>
+    </div>
+  </ng-template>
 </div>

@@ -17,7 +17,7 @@
 import {assertDefined} from '@common/assert';
 import {PropertyFormatter, PropertySource, PropertyTreeNode, PropertyValue,} from '@tree_node/property_tree_node';
 
-import {TreeBuilder} from './mock_tree_builder';
+import {AbstractTreeBuilder} from './abstract_tree_builder';
 
 /**
  * A test utility class for building `PropertyTreeNode` instances and their
@@ -25,7 +25,7 @@ import {TreeBuilder} from './mock_tree_builder';
  * It extends `TreeBuilder` to provide specific methods for configuring
  * `PropertyTreeNode` properties like source, value, and formatter.
  */
-export class PropertyTreeBuilder extends TreeBuilder<
+export class PropertyTreeBuilder extends AbstractTreeBuilder<
   PropertyTreeNode,
   ChildProperty
 > {

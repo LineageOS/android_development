@@ -16,7 +16,7 @@
 
 import {getLogger, Logger} from '@compat/logging';
 import {UserNotifier} from '@services/user_notifier';
-import {AdbDeviceConnection} from '@trace_collection/adb/adb_device_connection';
+import {AdbDeviceConnection} from '@trace_collection/adb_device_connection';
 import {AdbFileIdentifier, TraceTarget} from '@trace_collection/trace_target';
 import {makeWarningProxyTracingWarnings} from '@trace_collection/warnings';
 

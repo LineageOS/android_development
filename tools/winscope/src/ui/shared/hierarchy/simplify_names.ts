@@ -15,8 +15,7 @@
  */
 
 import {Operation} from '@tree_node/operation';
-
-import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
+import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 
 export class SimplifyNames implements Operation<UiHierarchyTreeNode> {
   apply(node: UiHierarchyTreeNode): void {

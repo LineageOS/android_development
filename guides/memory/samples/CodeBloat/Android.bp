@@ -1,0 +1,37 @@
+genrule {
+    name: "CodeBloat_gen_sources",
+    out: ["CodeBloat_gen.srcjar"],
+    cmd: "mkdir -p $(genDir)/src && " +
+        "$(location generate_code.sh) $(genDir)/src && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/src -D $(genDir)/src",
+    tool_files: ["generate_code.sh"],
+    tools: ["soong_zip"],
+}
+
+android_app {
+    name: "CodeBloat",
+    srcs: [
+        "src/**/*.java",
+        ":CodeBloat_gen_sources",
+    ],
+    sdk_version: "35",
+    optimize: {
+        enabled: false,
+    },
+}
+
+android_app {
+    name: "CodeBloatOptimized",
+    srcs: [
+        "src/**/*.java",
+        ":CodeBloat_gen_sources",
+    ],
+    sdk_version: "35",
+    aaptflags: ["--rename-manifest-package com.android.codebloat.optimized"],
+    optimize: {
+        enabled: true,
+        shrink: true,
+        optimize: true,
+        obfuscate: true,
+    },
+}

@@ -27,21 +27,22 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter';
 import {HierarchyPresenter} from '@ui/shared/hierarchy/hierarchy_presenter';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {VcCuratedProperties} from '@ui/shared/properties/curated_properties';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {RectLegendFactory, TraceRectType} from '@ui/shared/rects/rect_spec';
 import {RectsPresenter} from '@ui/shared/rects/rects_presenter';
 import {UiRect} from '@ui/shared/rects/ui_rect';
 import {makeUiRects, makeVcUiRects} from '@ui/shared/rects/ui_rect_factory';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
+import {SimplifyNamesVc} from './operations/simplify_names';
 import {UiData} from './ui_data';
 
 export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
@@ -73,6 +74,9 @@ export class Presenter extends AbstractHierarchyViewerPresenter<UiData> {
     Presenter.DENYLIST_PROPERTY_NAMES,
     false,
     true,
+    undefined,
+    undefined,
+    new SimplifyNamesVc(),
   );
   protected override rectsPresenter = new RectsPresenter(
     createPersistentStoreProxy<UserOptions>(

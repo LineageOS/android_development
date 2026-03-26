@@ -39,7 +39,7 @@ limitations under the License.
     [shadingModes]="shadingModes"
     [dependencies]="data?.dependencies ?? []"
     [userOptions]="data?.rectsUserOptions ?? {}"
-    [pinnedItems]="data?.pinnedItems ?? []"
+    [pinnedIds]="pinnedIds()"
     [isDarkMode]="data?.isDarkMode ?? false"
     [rectSpec]="data?.rectSpec"
     (collapseButtonClicked)="sections.onCollapseStateChange(CollapsibleSectionType.RECTS, true)"
@@ -65,6 +65,14 @@ limitations under the License.
     (optionsChange)="onHierarchyUserOptionsChange.emit($event)"
     (rectShowStateChange)="onRectShowStateChange.emit($event)"
   ></hierarchy-view>
+
+  <ng-template #vcPropertyGroups let-properties="properties">
+    <view-capture-property-groups
+      class="vc-property-groups"
+      [properties]="properties"
+    ></view-capture-property-groups>
+  </ng-template>
+
   <properties-view
     class="properties-view"
     [class.collapsed]="sections.isSectionCollapsed(CollapsibleSectionType.PROPERTIES)"
@@ -76,6 +84,7 @@ limitations under the License.
     [isProtoDump]="false"
     placeholderText="No selected item."
     [textFilter]="data?.propertiesFilter"
+    [curatedPropertiesView]="vcPropertyGroups"
     (collapseButtonClicked)="
       sections.onCollapseStateChange(CollapsibleSectionType.PROPERTIES, true)
     "

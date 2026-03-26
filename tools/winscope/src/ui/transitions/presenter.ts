@@ -28,7 +28,7 @@ import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {ColumnSpec, LogField, LogHeader} from '@ui/shared/log/ui_data_log';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 import {UpdateTransitionChanges} from '@ui/transitions/operations/update_transition_changes';
 import {UpdateTransitionParticipants} from '@ui/transitions/operations/update_transition_participants';
 
@@ -40,14 +40,29 @@ export class Presenter extends AbstractLogViewerPresenter<
 > {
   private static readonly COLUMNS = {
     id: {name: 'Id', cssClass: 'transition-id right-align'},
-    type: {name: 'Type', cssClass: 'transition-type'},
+    type: {
+      name: 'Type',
+      cssClass: 'transition-type',
+      canFilterBySingleOption: true,
+    },
     sendTime: {name: 'Send Time', cssClass: 'send-time time'},
     dispatchTime: {name: 'Dispatch Time', cssClass: 'dispatch-time time'},
     duration: {name: 'Play Duration', cssClass: 'duration right-align'},
-    handler: {name: 'Handler', cssClass: 'handler'},
-    participants: {name: 'Participants', cssClass: 'participants'},
+    handler: {
+      name: 'Handler',
+      cssClass: 'handler',
+      canFilterBySingleOption: true,
+    },
+    participants: {
+      name: 'Participants',
+      cssClass: 'participants',
+    },
     flags: {name: 'Flags', cssClass: 'flags'},
-    status: {name: 'Status', cssClass: 'status right-align'},
+    status: {
+      name: 'Status',
+      cssClass: 'status right-align',
+      canFilterBySingleOption: true,
+    },
   };
   private surfaceFlingerTrace: Trace<HierarchyTreeNode> | undefined;
   private windowManagerTrace: Trace<HierarchyTreeNode> | undefined;

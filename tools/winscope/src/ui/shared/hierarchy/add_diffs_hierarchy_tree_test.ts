@@ -15,15 +15,17 @@
  */
 
 import {TreeNode} from '@tree_node/tree_node';
-import {AbstractAddDiffsTest} from '@ui/shared/abstract_add_diffs_test';
-import {AddDiffs} from '@ui/shared/add_diffs';
-import {DiffType} from '@ui/shared/diff_type';
-import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {makeUiHierarchyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
+import {AbstractAddDiffsTest} from '@ui/shared/tree/abstract_add_diffs_test';
+import {AddDiffs} from '@ui/shared/tree/add_diffs';
+import {DiffType} from '@ui/shared/tree/diff_type';
 
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode> {
+  protected override readonly treeEqualityTester = treeNodeEqualityTester;
+
   override makeAddDiffsOperation(): AddDiffs<UiHierarchyTreeNode> {
     const isModified = async (
       newTree: TreeNode | undefined,
@@ -76,7 +78,7 @@ class AddDiffsHierarchyTreeTest extends AbstractAddDiffsTest<UiHierarchyTreeNode
       });
 
       beforeEach(() => {
-        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(this.treeEqualityTester);
         newRoot = this.makeRoot();
         oldRoot = this.makeRoot();
         expectedRoot = this.makeRoot();

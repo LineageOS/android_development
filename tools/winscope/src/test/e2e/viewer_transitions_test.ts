@@ -158,6 +158,7 @@ describe('Viewer Transitions', () => {
       options,
       expected,
       totalEntries,
+      true,
     );
   }
 });

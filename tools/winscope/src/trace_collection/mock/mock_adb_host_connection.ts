@@ -15,8 +15,8 @@
  */
 
 import {AdbConnectionType} from '@trace_collection/adb_connection_type';
-import {AdbDeviceState} from '@trace_collection/adb/adb_device_connection';
-import {AdbHostConnection} from '@trace_collection/adb/adb_host_connection';
+import {AdbDeviceState} from '@trace_collection/adb_device_connection';
+import {AdbHostConnection} from '@trace_collection/adb_host_connection';
 import {ConnectionState} from '@trace_collection/connection_state';
 
 import {MockAdbDeviceConnection} from './mock_adb_device_connection';
