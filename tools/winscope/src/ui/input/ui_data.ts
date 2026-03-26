@@ -18,15 +18,15 @@ import {TraceEntry} from '@trace_api/trace';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {LazyPropertiesStrategyType} from '@tree_node/properties_provider';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
 import {LogEntry, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {RectSpec} from '@ui/shared/rects/rect_spec';
 import {UiRect} from '@ui/shared/rects/ui_rect';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 export class UiData implements UiDataLog {
   constructor(

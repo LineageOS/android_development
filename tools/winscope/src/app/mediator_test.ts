@@ -50,7 +50,7 @@ import {AppFilesCollected, AppFilesUploaded, AppInitialized, AppRefreshDumpsRequ
 import {ActiveSearchQueriesUpdate, BookmarksChanged, BugreportFileSelected, BugreportFileSelectionRequest, DarkModeToggled, FilterPresetApplyRequest, FilterPresetSaveRequest, NoTraceTargetsSelectedEvent,} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@ui/shared/events/tabbed_view_events';
 import {PlaybackState} from '@ui/shared/playback/playback_state';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 import {PlaybackSpeedChange, PlaybackStateChangeHandled, PlaybackStateChangePropagate, PlaybackStateChangeRequest,} from '@ui/timeline/playback_events';
 import {TimelineData} from '@ui/timeline/timeline_data';
 import {ExpandedTimelineToggled} from '@ui/timeline/timeline_events';

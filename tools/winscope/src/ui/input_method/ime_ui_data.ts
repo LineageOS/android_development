@@ -15,13 +15,13 @@
  */
 
 import {ImeTraceType} from '@trace_api/trace_type';
-import {FlattenedTreeRow} from '@ui/shared/hierarchy/flattened_tree_row';
+import {TableProperties} from '@ui/shared/hierarchy/table_properties';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
-import {TableProperties} from '@ui/shared/properties/table_properties';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {ImeAdditionalProperties} from './ime_additional_properties';
 

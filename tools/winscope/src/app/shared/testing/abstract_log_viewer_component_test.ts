@@ -36,22 +36,22 @@ import {ViewerJankCujsComponent} from '@app/jank_cujs/viewer_jank_cujs_component
 import {ViewerProtologComponent} from '@app/protolog/viewer_protolog_component';
 import {CollapsedSectionsComponent} from '@app/shared/collapsible_sections/collapsed_sections_component';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
-import {TreeComponent} from '@app/shared/hierarchy/tree_component';
-import {TreeNodeComponent} from '@app/shared/hierarchy/tree_node_component';
 import {LogComponent} from '@app/shared/log_view/log_component';
 import {SelectWithFilterComponent} from '@app/shared/log_view/select_with_filter_component';
 import {PropertiesComponent} from '@app/shared/properties/properties_component';
 import {PropertyTreeNodeDataViewComponent} from '@app/shared/properties/property_tree_node_data_view_component';
 import {VirtualRow, VirtualScrollViewportComponent,} from '@app/shared/scroll/virtual_scroll_viewport_component';
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
+import {TreeComponent} from '@app/shared/tree/tree_component';
+import {TreeNodeComponent} from '@app/shared/tree/tree_node_component';
 import {ViewerTransactionsComponent} from '@app/transactions/viewer_transactions_component';
 import {ViewerTransitionsComponent} from '@app/transitions/viewer_transitions_component';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
 import {ColumnSpec, LogField, LogHeader, UiDataLog,} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
-import {LogFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {LogFilterChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 type LogViewerComponent =
   | ViewerProtologComponent

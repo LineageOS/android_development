@@ -42,7 +42,7 @@ import {CurrentSearch, ListedSearch, UiData} from '@ui/search/ui_data';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {CollapsibleSections} from '@ui/shared/collapsible_sections/collapsible_sections';
 import {ClickableProperty} from '@ui/shared/log/ui_data_log';
-import {LogFilterChangeDetail, LogTextFilterChangeDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {LogFilterChangeDetail, LogTextFilterChangeDetail, SaveQueryClickDetail, SearchQueryClickDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 import {makeWarningExportTooLarge, makeWarningFailedToExportToCsv, makeWarningNoResultsToExport,} from '@ui/trace_loading/warnings';
 
 import {ActiveSearchComponent} from './active_search_component';

@@ -37,12 +37,11 @@ import {Store} from '@common/store/store';
 import {checkTooltips, DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
 import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {Camera} from '@ui/shared/rects/camera';
 import {Canvas} from '@ui/shared/rects/canvas';
 import {ColorType} from '@ui/shared/rects/color_type';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {RectLabel} from '@ui/shared/rects/rect_label';
 import {RectLegendOption, TraceRectType} from '@ui/shared/rects/rect_spec';
 import {ShadingMode} from '@ui/shared/rects/shading_mode';
@@ -132,7 +131,6 @@ describe('RectsComponent', () => {
     dom.setComponentInput('userOptions', {
       showOnlyVisible: {
         name: 'Show only',
-        chip: VISIBLE_CHIP,
         enabled: false,
       },
     });

@@ -23,7 +23,7 @@ import {AbstractLogViewerPresenter, NotifyLogViewCallbackType,} from '@ui/shared
 import {LogSelectFilter, LogTextFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {LogEntry, LogField, LogHeader} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {ProtologEntry, UiData} from './ui_data';
 

@@ -25,7 +25,7 @@ import {UiData} from '@ui/input/ui_data';
 import {CollapsibleSectionType} from '@ui/shared/collapsible_sections/collapsible_section_type';
 import {CollapsibleSections} from '@ui/shared/collapsible_sections/collapsible_sections';
 import {ShadingMode} from '@ui/shared/rects/shading_mode';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {InputHeightPredictor} from './input_height_predictor';
 

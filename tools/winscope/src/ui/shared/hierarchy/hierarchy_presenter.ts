@@ -24,20 +24,20 @@ import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tr
 import {Operation} from '@tree_node/operation';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
-import {AddChips} from '@ui/shared/add_chips';
-import {IsModifiedCallbackType} from '@ui/shared/add_diffs';
-import {Filter} from '@ui/shared/filter';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {IsModifiedCallbackType} from '@ui/shared/tree/add_diffs';
+import {Filter} from '@ui/shared/tree/filter';
+import {UiTreeFormatter} from '@ui/shared/tree/ui_tree_formatter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 import {SimplifyNamesVc} from '@ui/view_capture/operations/simplify_names';
 
+import {AddChips} from './add_chips';
 import {AddDiffsHierarchyTree} from './add_diffs_hierarchy_tree';
 import {FlattenChildren} from './flatten_children';
 import {SimplifyNames} from './simplify_names';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
-import {UiTreeFormatter} from './ui_tree_formatter';
-import {isVisible, shouldGetProperties, TreeNodeFilter,} from './ui_tree_node_helpers';
+import {isVisible, shouldGetProperties, TreeNodeFilter,} from './ui_hierarchy_tree_node_helpers';
 
 export type HierarchyTraceEntry = TraceEntry<
   HierarchyTreeNode,

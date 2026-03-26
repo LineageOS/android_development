@@ -15,7 +15,7 @@
  */
 
 import {StringFilterPredicate} from '@common/string_filter_predicate';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 export abstract class LogFilter {
   constructor(

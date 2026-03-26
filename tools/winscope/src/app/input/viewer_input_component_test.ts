@@ -31,7 +31,7 @@ import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
 import {InputEntry, UiData} from '@ui/input/ui_data';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {ViewerInputComponent} from './viewer_input_component';
 

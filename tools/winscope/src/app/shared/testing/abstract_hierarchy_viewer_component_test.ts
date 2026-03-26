@@ -36,11 +36,12 @@ import {RectsComponent} from '@app/shared/rects/rects_component';
 import {assertDefined} from '@common/assert';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makeElapsedTimestamp} from '@common/time/testing/test_helpers';
-import {makeUiHierarchyNode, makeUiPropertyNode,} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
 import {UiDataHierarchy} from '@ui/shared/hierarchy/ui_data_hierarchy';
+import {makeUiPropertyNode} from '@ui/shared/properties/testing/ui_property_tree_node_test_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TextFilter} from '@ui/shared/text_filter';
-import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {RectShowStateChangeDetail, TimestampClickDetail,} from '@ui/shared/viewers/viewer_event_details';
 
 export abstract class AbstractHierarchyViewerComponentTest<
   U extends UiDataHierarchy,

@@ -18,7 +18,7 @@ import {assertDefined} from '@common/assert';
 import {StringFilterPredicate} from '@common/string_filter_predicate';
 import {binarySearch, binarySearchFirstGreaterOrEqual,} from '@common/typed_array';
 import {TraceEntry} from '@trace_api/trace';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {ColumnSpec, LogEntry, LogHeader} from './ui_data_log';
 

@@ -29,8 +29,8 @@ import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogPresenter} from '@ui/shared/log/log_presenter';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {TransactionsEntry, UiData} from './ui_data';
 

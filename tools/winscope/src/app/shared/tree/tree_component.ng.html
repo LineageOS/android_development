@@ -1,0 +1,57 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<virtual-scroll-viewport
+  #treeContainer
+  [itemCount]="filteredRows.length"
+  [heightPredictor]="heightPredictor()"
+  (visibleRangeChanged)="onVisibleRangeChanged()"
+  class="tree-scroll"
+>
+  @let highlighted = highlightedItem();
+  @for (row of filteredRows; track row.node.id) {
+    @if (isRowVisible($index)) {
+      <tree-node
+        virtualRow
+        [rowIndex]="$index"
+        (click)="onNodeClick($event, row)"
+        [id]="'node' + row.node.name"
+        [attr.item-id]="$index"
+        [class]="'node ' + row.node.getDiff()"
+        [class.selected]="isHighlighted(row.node, highlighted)"
+        [class.child-selected]="hasSelectedChild(row.node)"
+        [class.full-opacity]="showFullOpacity(row.node)"
+        [class.clickable]="isClickable(row.node)"
+        [style]="row.offsetStyle"
+        [node]="row.node"
+        [depth]="row.depth"
+        [childHighlightDepth]="row.childHighlightDepth"
+        [parentHighlightDepth]="row.parentHighlightDepth"
+        [flattened]="isFlattened()"
+        [isLeaf]="row.node.isLeaf()"
+        [isExpanded]="isExpanded(row)"
+        [isPinned]="isPinned(row.node)"
+        [isSelected]="isHighlighted(row.node, highlighted)"
+        [showStateIcon]="getShowStateIcon(row.node)"
+        [dataView]="dataView()"
+        (toggleTreeChange)="toggleTree(row)"
+        (rectShowStateChange)="toggleRectShowState(row.node)"
+        (expandTreeChange)="expandTree(row)"
+        (pinNodeChange)="pinnedItemChange.emit($event)"
+      ></tree-node>
+    }
+  }
+</virtual-scroll-viewport>

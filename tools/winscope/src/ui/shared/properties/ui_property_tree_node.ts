@@ -16,8 +16,8 @@
 
 import {assertDefined} from '@common/assert';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
-import {DiffType} from '@ui/shared/diff_type';
-import {UiTreeNode} from '@ui/shared/hierarchy/ui_tree_node';
+import {DiffType} from '@ui/shared/tree/diff_type';
+import {UiTreeNode} from '@ui/shared/tree/ui_tree_node';
 
 export interface DiffValuePart {
   isOld: boolean;

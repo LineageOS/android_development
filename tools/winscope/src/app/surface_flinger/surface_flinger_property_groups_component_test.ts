@@ -20,8 +20,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {EMPTY_OBJ_STRING} from '@trace/formatters';
-import {makeUiPropertyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
 import {SfCuratedProperties} from '@ui/shared/properties/curated_properties';
+import {makeUiPropertyNode} from '@ui/shared/properties/testing/ui_property_tree_node_test_helpers';
 
 import {SurfaceFlingerPropertyGroupsComponent} from './surface_flinger_property_groups_component';
 import {TransformMatrixComponent} from './transform_matrix_component';

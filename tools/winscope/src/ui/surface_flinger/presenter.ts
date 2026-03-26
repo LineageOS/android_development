@@ -28,8 +28,6 @@ import {EMPTY_OBJ_STRING, FixedStringFormatter} from '@trace/formatters';
 import {LayerFlag} from '@trace/surface_flinger/layer_flag';
 import {DataHierarchyTreeNode, HierarchyTreeNode,} from '@tree_node/hierarchy_tree_node';
 import {PropertySource, PropertyTreeNode} from '@tree_node/property_tree_node';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
 import {AbstractHierarchyViewerPresenter, NotifyHierarchyViewCallbackType,} from '@ui/shared/hierarchy/abstract_hierarchy_viewer_presenter';
 import {HierarchyPresenter, SelectedTree,} from '@ui/shared/hierarchy/hierarchy_presenter';
@@ -37,12 +35,14 @@ import {UiHierarchyTreeNode} from '@ui/shared/hierarchy/ui_hierarchy_tree_node';
 import {PlaybackPresenter} from '@ui/shared/playback/playback_presenter';
 import {SfCuratedProperties, SfLayerSummary, SfSummaryProperty,} from '@ui/shared/properties/curated_properties';
 import {PropertiesPresenter} from '@ui/shared/properties/properties_presenter';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {RectLegendFactory, RectSpec, TraceRectType,} from '@ui/shared/rects/rect_spec';
 import {RectsPresenter} from '@ui/shared/rects/rects_presenter';
 import {UiRect} from '@ui/shared/rects/ui_rect';
 import {makeInputRects, makeUiRects} from '@ui/shared/rects/ui_rect_factory';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {UiData} from './ui_data';
 

@@ -18,7 +18,7 @@ import {Component, ComponentRef, ElementRef, Inject, Type} from '@angular/core';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent} from '@messaging/winscope_event_emitter';
 import {Trace} from '@trace_api/trace';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 
 import {AngularViewer, ViewerComponent} from './angular_viewer';
 

@@ -42,7 +42,7 @@ limitations under the License.
         <span class="value diff-value-parts">
           @for (part of n.getDiffValueParts(); track $index; let i = $index) {
             @if (i > 0) {
-              <span>&ngsp; | &ngsp;</span>
+              <span>{{ FLAG_SEPARATOR }}</span>
             }
             @if (part.isNew) {
               <span class="mat-body-2 new-value">{{ part.value }}</span>

@@ -1,0 +1,106 @@
+<!--
+Copyright (C) 2025 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ou may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+@let currShowStateIcon = showStateIcon();
+@if (currShowStateIcon) {
+  <div class="icon-wrapper-show-state">
+    <button
+      mat-icon-button
+      class="icon-button toggle-rect-show-state-btn .no-touch-target-button"
+      (click)="toggleRectShowState($event)"
+    >
+      <mat-icon class="material-symbols-outlined"> {{ currShowStateIcon }} </mat-icon>
+    </button>
+  </div>
+}
+
+<div class="tree-indentation-container">
+  @for (marker of indentMarkers(); track $index) {
+    <div
+      class="indent-spacer"
+      [class.parent-highlight]="parentHighlightDepth() === $index"
+      [class.child-highlight]="childHighlightDepth() === $index"
+    ></div>
+  }
+</div>
+
+@let shouldShowChevron = showChevron();
+@let expanded = isExpanded();
+@let pinned = isPinned();
+
+@if (shouldShowChevron) {
+  <div class="icon-wrapper">
+    <button
+      mat-icon-button
+      class="icon-button toggle-tree-btn no-touch-target-button"
+      (click)="toggleTree($event)"
+    >
+      <mat-icon> {{ expanded ? 'arrow_drop_down' : 'chevron_right' }} </mat-icon>
+    </button>
+  </div>
+}
+@if (!shouldShowChevron && !isInPinnedSection()) {
+  <div class="icon-wrapper leaf-node-icon-wrapper">
+    <mat-icon class="leaf-node-icon"></mat-icon>
+  </div>
+}
+@if (showPinNodeIcon()) {
+  <div class="icon-wrapper">
+    <button
+      mat-icon-button
+      class="icon-button pin-node-btn no-touch-target-button"
+      (click)="pinNode($event)"
+    >
+      <mat-icon [class.material-symbols-outlined]="!pinned">push_pin</mat-icon>
+    </button>
+  </div>
+}
+
+@let currNode = node();
+
+<div class="description">
+  @let treeNodeDataView = dataView();
+  @if (treeNodeDataView) {
+    <ng-container
+      [ngTemplateOutlet]="treeNodeDataView"
+      [ngTemplateOutletContext]="{node: currNode}"
+    ></ng-container>
+  }
+</div>
+
+@if (!isLeaf() && !expanded && !pinned) {
+  <div class="icon-wrapper">
+    <button
+      mat-icon-button
+      class="icon-button expand-tree-btn no-touch-target-button"
+      [class]="collapseDiffClass()"
+      (click)="expandTree($event)"
+    >
+      <mat-icon aria-hidden="true"> more_horiz </mat-icon>
+    </button>
+  </div>
+}
+@if (showCopyButton()) {
+  <div class="icon-wrapper-copy">
+    <button
+      mat-icon-button
+      class="icon-button copy-btn no-touch-target-button"
+      [cdkCopyToClipboard]="currNode.getCopyText() ?? ''"
+      (click)="$event.stopPropagation()"
+    >
+      <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
+    </button>
+  </div>
+}

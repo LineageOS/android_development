@@ -16,8 +16,8 @@
 
 import {FilterFlag} from '@common/filter_flag';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 export class TextFilterValues {
   private constructor(

@@ -83,9 +83,14 @@ limitations under the License.
 }
 @let rows = nodeRows();
 @if (rows.length > 0) {
+  <ng-template #dataView let-node="node">
+    <hierarchy-tree-node-data-view [node]="node"></hierarchy-tree-node-data-view>
+  </ng-template>
+
   <tree-view
     class="tree"
     [nodeRows]="rows"
+    [heightPredictor]="heightPredictor"
     [isFlattened]="isFlattened()"
     [useStoredExpandedState]="true"
     [highlightedItem]="highlighted"
@@ -94,6 +99,7 @@ limitations under the License.
     [rectIdToShowState]="rectIdToShowState()"
     [store]="treeStorage"
     [handleArrowPress]="true"
+    [dataView]="dataView"
     (highlightedChange)="onHighlightedItemChange($event)"
     (pinnedItemChange)="onPinnedItemChange($any($event))"
     (rectShowStateChange)="onRectShowStateChange($event)"

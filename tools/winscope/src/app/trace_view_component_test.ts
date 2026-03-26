@@ -39,7 +39,7 @@ import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';
 import {TabbedViewSwitched, TabbedViewSwitchRequest,} from '@ui/shared/events/tabbed_view_events';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 import {ParsingErrorType} from '@ui/trace_loading/parsing_error_type';
 
 import {TraceViewComponent} from './trace_view_component';

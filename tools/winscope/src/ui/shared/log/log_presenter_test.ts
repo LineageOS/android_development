@@ -19,7 +19,7 @@ import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {TraceType} from '@trace_api/trace_type';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {PropertyTreeBuilder} from '@tree_node/testing/property_tree_builder';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {LogSelectFilter, LogTextFilter} from './log_filters';
 import {LogPresenter} from './log_presenter';

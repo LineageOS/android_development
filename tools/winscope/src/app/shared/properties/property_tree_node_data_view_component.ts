@@ -18,9 +18,10 @@ import {Component, computed, input, output} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {assertDefined} from '@common/assert';
 import {Timestamp} from '@common/time/time';
-import {DiffType} from '@ui/shared/diff_type';
+import {FLAG_SEPARATOR} from '@trace/formatters';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
-import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
+import {DiffType} from '@ui/shared/tree/diff_type';
+import {TimestampClickDetail} from '@ui/shared/viewers/viewer_event_details';
 
 @Component({
   selector: 'property-tree-node-data-view',
@@ -30,7 +31,9 @@ import {TimestampClickDetail} from '@ui/shared/viewer_event_details';
   styleUrls: ['property_tree_node_data_view_component.scss'],
 })
 export class PropertyTreeNodeDataViewComponent {
-  node = input.required<UiPropertyTreeNode>();
+  FLAG_SEPARATOR = FLAG_SEPARATOR;
+
+  readonly node = input.required<UiPropertyTreeNode>();
 
   readonly timestampClick = output<TimestampClickDetail>();
   readonly propagatePropertyClick = output<UiPropertyTreeNode>();

@@ -14,53 +14,52 @@
  * limitations under the License.
  */
 
+import {assertDefined} from '@common/assert';
+
+import {AbstractTreeBuilder} from './abstract_tree_builder';
+import {MockTreeNode} from './mock_tree_node';
+
 /**
- * Abstract base class for building tree structures.
+ * Builder for a mock tree.
  *
- * This class provides a common structure for test builders that construct
- * tree-like data models. It handles the setting of a name and children,
- * and ensures that essential properties like id and name are set before
- * the build process.
- *
- * Subclasses must implement `makeRootNode` to create the specific root node type
- * and `addOrReplaceChildNode` to define how child elements (`U`) are integrated
- * into the tree structure (`T`).
- *
- * @template T The type of the root node being built.
- * @template U The type of the children used to build the tree.
+ * The builder is not reusable, it should only be used to build one tree.
  */
-export abstract class TreeBuilder<T, U> {
-  protected id: string | number | undefined;
-  protected name: string | undefined;
-  protected children: U[] = [];
-
-  setName(value: string): this {
-    this.name = value;
+export class MockTreeBuilder extends AbstractTreeBuilder<
+  MockTreeNode,
+  ChildTreeNode
+> {
+  setId(value: string): this {
+    this.id = value;
     return this;
   }
 
-  setChildren(value: U[]): this {
-    this.children = value;
-    return this;
+  protected override makeRootNode(): MockTreeNode {
+    const rootId = this.makeNodeId();
+    return new MockTreeNode(rootId, assertDefined(this.name));
   }
 
-  build(): T {
-    if (this.id === undefined) {
-      throw new Error('id not set');
-    }
-    if (this.name === undefined) {
-      throw new Error('name not set');
-    }
-
-    const rootNode = this.makeRootNode();
-
-    this.children.forEach((child) => {
-      this.addOrReplaceChildNode(rootNode, child);
-    });
-
-    return rootNode;
+  protected override addOrReplaceChildNode(
+    rootNode: MockTreeNode,
+    child: ChildTreeNode,
+  ): void {
+    const childNode = new MockTreeBuilder()
+      .setId(child.id)
+      .setName(child.name)
+      .setChildren(child.children ?? [])
+      .build();
+    rootNode.addOrReplaceChild(childNode);
   }
 
-  protected abstract makeRootNode(): T;
-  protected abstract addOrReplaceChildNode(rootNode: T, child: U): void;
+  private makeNodeId() {
+    return `${this.id} ${this.name}`;
+  }
+}
+
+/**
+ * A child in a hierarchy tree.
+ */
+export declare interface ChildTreeNode {
+  id: string;
+  name: string;
+  children?: ChildTreeNode[];
 }

@@ -35,15 +35,15 @@ import {InputEventType} from '@trace/input/input_event_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
 import {TraceRectBuilder} from '@tree_node/trace_rect_builder';
-import {VISIBLE_CHIP} from '@ui/shared/chip';
 import {TabbedViewSwitchRequest} from '@ui/shared/events/tabbed_view_events';
 import {NotifyLogViewCallbackType} from '@ui/shared/log/abstract_log_viewer_presenter';
 import {AbstractLogViewerPresenterTest} from '@ui/shared/log/abstract_log_viewer_presenter_test';
 import {LogSelectFilter} from '@ui/shared/log/log_filters';
 import {LogField, LogHeader} from '@ui/shared/log/ui_data_log';
 import {TraceRectType} from '@ui/shared/rects/rect_spec';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {VISIBLE_CHIP} from '@ui/shared/user_input/chip';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {Presenter} from './presenter';
 import {UiData} from './ui_data';

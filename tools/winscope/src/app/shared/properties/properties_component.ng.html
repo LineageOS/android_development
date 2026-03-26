@@ -44,6 +44,9 @@ limitations under the License.
 @if (hasOptions) {
   <mat-divider></mat-divider>
 }
+@if (showPlaceholderText()) {
+  <span class="mat-body-1 placeholder-text"> {{ placeholderText() }} </span>
+}
 @if (showViewCaptureFormat()) {
   <ng-container>
     <view-capture-property-groups
@@ -57,17 +60,22 @@ limitations under the License.
   </ng-container>
 }
 @if (showPropertiesTree()) {
+  <ng-template #dataView let-node="node">
+    <property-tree-node-data-view
+      [node]="node"
+      (timestampClick)="onTimestampClick($event)"
+      (propagatePropertyClick)="onPropagatePropertyClick($event)"
+    ></property-tree-node-data-view>
+  </ng-template>
+
   <tree-view
     class="tree"
     [nodeRows]="nodeRows()"
+    [heightPredictor]="heightPredictor"
     [useStoredExpandedState]="!!store()"
     [itemsClickable]="true"
     [highlightedItem]="highlightedProperty()"
+    [dataView]="dataView"
     (highlightedChange)="onHighlightedPropertyChange($any($event))"
-    (timestampClick)="onTimestampClick($event)"
-    (propagatePropertyClick)="onPropagatePropertyClick($event)"
   ></tree-view>
-}
-@if (showPlaceholderText()) {
-  <span class="mat-body-1 placeholder-text"> {{ placeholderText() }} </span>
 }

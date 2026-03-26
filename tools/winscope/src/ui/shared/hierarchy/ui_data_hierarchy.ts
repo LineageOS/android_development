@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {DisplayIdentifier} from '@ui/shared/display_identifier';
 import {UiPropertyTreeNode} from '@ui/shared/properties/ui_property_tree_node';
+import {DisplayIdentifier} from '@ui/shared/rects/display_identifier';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
 import {RectSpec} from '@ui/shared/rects/rect_spec';
 import {UiRect} from '@ui/shared/rects/ui_rect';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {FlattenedTreeRow} from '@ui/shared/tree/flattened_tree_row';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
-import {FlattenedTreeRow} from './flattened_tree_row';
 import {UiHierarchyTreeNode} from './ui_hierarchy_tree_node';
 
 export interface UiDataHierarchy {

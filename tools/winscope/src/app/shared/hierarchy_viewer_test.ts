@@ -26,10 +26,10 @@ import {TraceType} from '@trace_api/trace_type';
 import {Traces} from '@trace_api/traces';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {HierarchyTreeBuilder} from '@tree_node/testing/hierarchy_tree_builder';
-import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {makeUiHierarchyNode} from '@ui/shared/hierarchy/testing/ui_hierarchy_tree_node_test_helpers';
 import {RectShowState} from '@ui/shared/rects/rect_show_state';
-import {TextFilter} from '@ui/shared/text_filter';
-import {RectShowStateChangeDetail} from '@ui/shared/viewer_event_details';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {RectShowStateChangeDetail} from '@ui/shared/viewers/viewer_event_details';
 
 describe('AbstractHierarchyViewer', () => {
   let viewer: MockViewer;

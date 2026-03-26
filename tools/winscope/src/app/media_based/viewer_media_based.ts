@@ -23,7 +23,7 @@ import {Traces} from '@trace_api/traces';
 import {MediaBasedTraceEntry} from '@trace/media_based/media_based_trace_entry';
 import {Presenter} from '@ui/media_based/presenter';
 import {UiData} from '@ui/media_based/ui_data';
-import {ViewType} from '@ui/shared/viewer';
+import {ViewType} from '@ui/shared/viewers/viewer';
 
 import {ViewerMediaBasedComponent} from './viewer_media_based_component';
 

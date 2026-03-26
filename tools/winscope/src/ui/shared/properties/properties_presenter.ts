@@ -22,15 +22,16 @@ import {DataHierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {Operation} from '@tree_node/operation';
 import {PropertyTreeNode} from '@tree_node/property_tree_node';
 import {TreeNode} from '@tree_node/tree_node';
-import {IsModifiedCallbackType} from '@ui/shared/add_diffs';
-import {Filter} from '@ui/shared/filter';
-import {UiTreeFormatter} from '@ui/shared/hierarchy/ui_tree_formatter';
-import {isNotCalculated, isNotFromTP, makeIsNotDefaultFilter, TreeNodeFilter,} from '@ui/shared/hierarchy/ui_tree_node_helpers';
-import {TextFilter} from '@ui/shared/text_filter';
-import {UserOptions} from '@ui/shared/user_options';
+import {IsModifiedCallbackType} from '@ui/shared/tree/add_diffs';
+import {Filter} from '@ui/shared/tree/filter';
+import {UiTreeFormatter} from '@ui/shared/tree/ui_tree_formatter';
+import {TreeNodeFilter} from '@ui/shared/tree/ui_tree_node_helpers';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
+import {UserOptions} from '@ui/shared/user_input/user_options';
 
 import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
+import {isNotCalculated, isNotFromTP, makeIsNotDefaultFilter,} from './ui_property_tree_node_helpers';
 
 export class PropertiesPresenter {
   private propertiesFilter: TreeNodeFilter;
@@ -155,12 +156,13 @@ export class PropertiesPresenter {
     const formatter = new UiTreeFormatter<UiPropertyTreeNode>().setUiTree(
       uiTree,
     );
+
+    this.customOperations?.forEach((op) => formatter.addOperation(op));
+
     if (predicatesDiscardingChildren.length > 0) {
       formatter.addOperation(new Filter(predicatesDiscardingChildren, false));
     }
     formatter.addOperation(new Filter(predicatesKeepingChildren, true));
-
-    this.customOperations?.forEach((op) => formatter.addOperation(op));
 
     this.formattedTree = formatter.format();
   }

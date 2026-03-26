@@ -24,7 +24,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FilterFlag} from '@common/filter_flag';
 import {DOMTestHelper} from '@common/testing/dom_test_helpers';
-import {TextFilter} from '@ui/shared/text_filter';
+import {TextFilter} from '@ui/shared/user_input/text_filter';
 
 import {SearchBoxComponent} from './search_box_component';
 

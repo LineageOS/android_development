@@ -16,12 +16,12 @@
 
 import {DEFAULT_PROPERTY_FORMATTER} from '@trace/formatters';
 import {TreeNode} from '@tree_node/tree_node';
-import {AbstractAddDiffsTest} from '@ui/shared/abstract_add_diffs_test';
-import {AddDiffs} from '@ui/shared/add_diffs';
-import {DiffType} from '@ui/shared/diff_type';
-import {makeUiPropertyNode, treeNodeEqualityTester,} from '@ui/shared/hierarchy/testing/ui_tree_node_test_helpers';
+import {AbstractAddDiffsTest} from '@ui/shared/tree/abstract_add_diffs_test';
+import {AddDiffs} from '@ui/shared/tree/add_diffs';
+import {DiffType} from '@ui/shared/tree/diff_type';
 
 import {AddDiffsPropertiesTree} from './add_diffs_properties_tree';
+import {makeUiPropertyNode} from './testing/ui_property_tree_node_test_helpers';
 import {UiPropertyTreeNode} from './ui_property_tree_node';
 
 class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode> {
@@ -66,7 +66,7 @@ class AddDiffsPropertiesTreeTest extends AbstractAddDiffsTest<UiPropertyTreeNode
       });
 
       beforeEach(() => {
-        jasmine.addCustomEqualityTester(treeNodeEqualityTester);
+        jasmine.addCustomEqualityTester(this.treeEqualityTester);
         newRoot = this.makeRoot();
         oldRoot = this.makeRoot();
         expectedRoot = this.makeRoot();
