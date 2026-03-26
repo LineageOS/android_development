@@ -35,6 +35,7 @@ import {checkTooltips, DOMTestHelper} from '@common/testing/dom_test_helpers';
 import {makeZeroTimestamp} from '@common/time/testing/test_helpers';
 import {TraceBuilder} from '@trace_api/testing/trace_builder';
 import {makeEmptyTrace} from '@trace_api/testing/trace_test_helpers';
+import {ActiveTraceChanged} from '@trace_api/trace_events';
 import {TraceType} from '@trace_api/trace_type';
 import {HierarchyTreeNode} from '@tree_node/hierarchy_tree_node';
 import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';
@@ -367,13 +368,16 @@ describe('TraceViewComponent', () => {
     showTab1.calls.reset();
     hideTab0.calls.reset();
 
-    // Stay on tab 1
+    // Stay on tab 1, change active trace
+    const emitSpy = jasmine.createSpy();
+    component.setEmitEvent(emitSpy);
     await switchTab1();
     expect(getVisibleTabContents()).toEqual(['Content0', 'Content1']);
     expect(showTab0).not.toHaveBeenCalled();
     expect(showTab1).not.toHaveBeenCalled();
     expect(hideTab0).not.toHaveBeenCalled();
     expect(hideTab1).not.toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalledOnceWith(new ActiveTraceChanged(traceWm));
 
     // Switch to tab 0
     await switchTab0();

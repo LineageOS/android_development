@@ -33,6 +33,7 @@ import {Analytics} from '@logging/analytics';
 import {WinscopeEvent} from '@messaging/winscope_event';
 import {EmitEvent, WinscopeEventEmitter,} from '@messaging/winscope_event_emitter';
 import {WinscopeEventListener} from '@messaging/winscope_event_listener';
+import {ActiveTraceChanged} from '@trace_api/trace_events';
 import {TRACE_INFO} from '@trace_api/trace_info';
 import {TraceType} from '@trace_api/trace_type';
 import {FilterPresetApplyRequest, FilterPresetSaveRequest,} from '@ui/shared/events/misc_events';
@@ -365,6 +366,10 @@ export class TraceViewComponent
     const startTimeMs = Date.now();
     const currentActiveTab = this.currentActiveTab();
     if (tab === currentActiveTab) {
+      const trace = tab.viewer.getTraces().at(0);
+      if (trace) {
+        await this.emitAppEvent(new ActiveTraceChanged(trace));
+      }
       return;
     }
     if (currentActiveTab) {
