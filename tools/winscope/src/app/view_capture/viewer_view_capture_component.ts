@@ -26,6 +26,8 @@ import {CollapsibleSections} from '@ui/shared/collapsible_sections/collapsible_s
 import {ShadingMode} from '@ui/shared/rects/shading_mode';
 import {UiData} from '@ui/view_capture/ui_data';
 
+import {ViewCapturePropertyGroupsComponent} from './view_capture_property_groups_component';
+
 /**
  * TODO: Upgrade the View Capture's Properties View after getting UX's opinion.
  */
@@ -38,6 +40,7 @@ import {UiData} from '@ui/view_capture/ui_data';
     RectsComponent,
     HierarchyComponent,
     PropertiesComponent,
+    ViewCapturePropertyGroupsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './viewer_view_capture_component.ng.html',

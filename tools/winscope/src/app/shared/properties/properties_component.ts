@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 import {CommonModule} from '@angular/common';
-import {Component, computed, ElementRef, Inject, input, output, viewChild,} from '@angular/core';
+import {Component, computed, ElementRef, Inject, input, output, TemplateRef, viewChild,} from '@angular/core';
 import {MatDividerModule} from '@angular/material/divider';
 import {CollapsibleSectionTitleComponent} from '@app/shared/collapsible_sections/collapsible_section_title_component';
 import {SearchBoxComponent} from '@app/shared/search_box/search_box_component';
 import {TreeComponent} from '@app/shared/tree/tree_component';
 import {UserOptionsComponent} from '@app/shared/user_options/user_options_component';
-import {ViewCapturePropertyGroupsComponent} from '@app/view_capture/view_capture_property_groups_component';
 import {PersistentStore} from '@common/store/persistent_store';
 import {Analytics} from '@logging/analytics';
 import {TraceType} from '@trace_api/trace_type';
@@ -44,7 +43,6 @@ import {PropertyNodeHeightPredictor} from './property_tree_node_height_predictor
     CollapsibleSectionTitleComponent,
     SearchBoxComponent,
     UserOptionsComponent,
-    ViewCapturePropertyGroupsComponent,
     TreeComponent,
     PropertyTreeNodeDataViewComponent,
   ],
@@ -65,6 +63,7 @@ export class PropertiesComponent {
   traceType = input<TraceType>();
   store = input<PersistentStore>();
   textFilter = input<TextFilter>();
+  curatedPropertiesView = input<TemplateRef<unknown>>();
 
   collapseButtonClicked = output();
   readonly filterChange = output<TextFilter>();
@@ -114,17 +113,16 @@ export class PropertiesComponent {
     this.propagatePropertyClick.emit(node);
   }
 
-  showViewCaptureFormat(): boolean {
+  showCuratedView(): boolean {
     return (
-      this.traceType() === TraceType.VIEW_CAPTURE &&
+      this.curatedPropertiesView() !== undefined &&
+      this.curatedProperties() !== undefined &&
       this.textFilter()?.filterString === '' &&
-      // Todo: Highlight Inline in formatted ViewCapture Properties Component.
-      !this.userOptions()['showDiff']?.enabled &&
-      this.curatedProperties() !== undefined
+      !this.userOptions()['showDiff']?.enabled
     );
   }
 
   showPropertiesTree(): boolean {
-    return this.nodeRows().length > 0 && !this.showViewCaptureFormat();
+    return this.nodeRows().length > 0 && !this.showCuratedView();
   }
 }
