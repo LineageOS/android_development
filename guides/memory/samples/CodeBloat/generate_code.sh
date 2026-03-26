@@ -13,5 +13,15 @@ for i in {0..300}; do
     echo "    public static void doSomething() {" >> ${file}
     echo "        method0();" >> ${file}
     echo "    }" >> ${file}
+    echo "    public static int sumArray(int[] arr) {" >> ${file}
+    echo "        int sum = 0;" >> ${file}
+    echo "        for (int i = 0; i < arr.length; i++) { sum += arr[i]; }" >> ${file}
+    echo "        return sum;" >> ${file}
+    echo "    }" >> ${file}
+    echo "    public static int sumList(java.util.List<Integer> list) {" >> ${file}
+    echo "        int sum = 0;" >> ${file}
+    echo "        for (Integer i : list) { sum += i; }" >> ${file}
+    echo "        return sum;" >> ${file}
+    echo "    }" >> ${file}
     echo "}" >> ${file}
 done

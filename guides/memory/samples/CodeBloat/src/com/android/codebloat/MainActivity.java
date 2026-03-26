@@ -18,12 +18,27 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends Activity {
+    private int sumArrayList(ArrayList<Integer> list) {
+        int sum = 0;
+        for (Integer i : list) {
+            sum += i;
+        }
+        return sum;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TextView tv = new TextView(this);
         tv.setText("CodeBloat App running!");
+
+        // Use sumArrayList to demonstrate R8 optimization (List -> Array loop)
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(1);
+        sumArrayList(list);
 
         // Touch ALL generated classes so they are loaded into memory
         new Thread(() -> {
