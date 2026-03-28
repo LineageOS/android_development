@@ -15,7 +15,7 @@
  */
 
 @use './shared/styles/overlay_panel';
-@use '../styles/inline_button';
+@use './shared/styles/inline_button';
 
 .tab.active {
   opacity: 100%;
