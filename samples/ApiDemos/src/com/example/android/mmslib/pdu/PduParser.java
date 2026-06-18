@@ -1681,8 +1681,11 @@ public class PduParser {
                             } else {
                                 pduDataStream.reset();
                                 /* Token-text */
-                                part.setContentDisposition(parseWapString(pduDataStream
-                                        , TYPE_TEXT_STRING));
+                                byte[] contentDisposition = parseWapString(pduDataStream
+                                        , TYPE_TEXT_STRING);
+                                if (null != contentDisposition) {
+                                    part.setContentDisposition(contentDisposition);
+                                }
                             }
 
                             /* get filename parameter and skip other parameters */
@@ -1690,8 +1693,11 @@ public class PduParser {
                             if (thisStartPos - thisEndPos < len) {
                                 value = pduDataStream.read();
                                 if (value == PduPart.P_FILENAME) { //filename is text-string
-                                    part.setFilename(parseWapString(pduDataStream
-                                            , TYPE_TEXT_STRING));
+                                    byte[] filename = parseWapString(pduDataStream
+                                            , TYPE_TEXT_STRING);
+                                    if (null != filename) {
+                                        part.setFilename(filename);
+                                    }
                                 }
 
                                 /* skip other parameters */
@@ -1724,7 +1730,7 @@ public class PduParser {
                 byte[] tempValue = parseWapString(pduDataStream, TYPE_TEXT_STRING);
 
                 // Check the header whether it is "Content-Transfer-Encoding".
-                if (true ==
+                if (null != tempHeader && null != tempValue &&
                     PduPart.CONTENT_TRANSFER_ENCODING.equalsIgnoreCase(new String(tempHeader))) {
                     part.setContentTransferEncoding(tempValue);
                 }
