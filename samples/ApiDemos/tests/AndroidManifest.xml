@@ -28,9 +28,9 @@
     <!--
     This declares that this app uses the instrumentation test runner targeting
     the package of com.example.android.apis.  To run the tests use the command:
-    "adb shell am instrument -w com.example.android.apis.tests/android.test.InstrumentationTestRunner"
+    "adb shell am instrument -w com.example.android.apis.tests/androidx.test.runner.AndroidJUnitRunner"
     -->
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
                      android:targetPackage="com.example.android.apis"
                      android:label="Tests for Api Demos."/>
 
